@@ -4,79 +4,48 @@
 
 # Dependency setup
 
-## Current graph — released 0.22.13
+## Current graph — released 0.22.14, pending 0.22.15
 
-All twelve package versions and the finalized receipt remain 0.22.13, release
-`2657177a6e089d66aa7371c5f212e9849a15a8a2`, validated parent
-`df97ca3af3b3dbd7595defeef1e8f089c3025d00`. Its lock selects Memory 0.35.17,
-private Metrics 0.7.3, Testkit 0.34.5 and all four Host crates 0.14.9.
+Released Blob 0.22.14 is `54d8186d8db47fbb00ec7531163f34f45ad2f2f9`, validated
+parent `5dc6fa2d2d666482bc9b5f81d980630c0d158958`. All twelve package versions
+and the finalized receipt remain 0.22.14. Its graph uses Memory 0.35.18,
+private Metrics 0.8.0, Testkit 0.34.7, direct Host 0.15.0 and Testkit's Host
+0.14.10. [Its Metrics/Host evidence](evidence/metrics080-host01502214.md) retains
+its own source/graph; its Candid read observations and decimal-string instruction
+reports now carry explicit actual-overflow quality. Rebuild probe and harness
+together; old reports are historical inputs, not inferred tracked state.
 
-The released snapshot selects Shared 0.9.0
-`aec7a149f581a42b9531fc747b46024fc0314fcf`, with 108 files. The existing roots
-are preserved; the new Cargo-tool freshness task, checker and substitute fixture
-are included. Companion discovery and verified automatic retirement remain
-canonical. The current refresh removes no files. Root formatting still covers
-all twelve members; product gates and ordered Testkit extensions stay local.
-Workspace LOC now also supports `bash scripts/dev/cloc.sh --json`; numeric rows
-and totals are emitted only after all counts succeed. `make cloc` keeps its human
-report. Refresh and verification share one manifest reader; the new
-`--read-manifest` operation validates syntax only, not payload integrity or
-ownership. Existing v1 snapshots need no conversion. See
-[the latest adoption](evidence/shared09002212.md),
-[the LOC adoption](evidence/shared08402212.md) and
-[the preceding adoption/Canic review](evidence/shared083-canic02212.md).
+Pending compatible 0.22.15 preserves incoming Testkit 0.35.0, Memory 0.35.19,
+Metrics 0.8.0 and unified Host 0.15.1. Testkit removed generic build APIs and its
+Host tools re-export. Blob has no callers of those removed APIs; its private
+interface checker already depends directly on Host tools with defaults disabled
+and only ic-interface. No IC Build dependency is added to Blob.
 
-Released 0.22.13 adds Host artifact inspection only to the private native harness
-to compare standalone Wasm methods/modes with canonical Candid. The lock adds
-only that direct test edge; production library dependencies are unchanged.
-Its matching Linux native/archive/optimizer and Rust 1.88 CI lanes pass; both
-macOS lanes remain incomplete at inspection. The full supported host matrix is
-not yet qualified. Shared 0.9.3 is reviewed but not adopted; current selection
-remains the recorded 0.9.0 snapshot.
-Incoming selections now choose direct Host artifacts/fs 0.15.0, private Metrics
-0.8.0, Memory 0.35.18 and Testkit 0.34.7, whose own Host graph remains 0.14.10.
-Pending 0.22.14 replaces the removed Metrics record_sample call with tracked
-MeasurementAggregate state in the private storage probe. Candid and both JSON
-report paths expose actual overflow quality for calls, bytes and instructions;
-exactly reached caps keep false flags. Each host-owned measurement window starts
-empty. Rebuild the private probe and harness together; old heap counters/reports
-are not reinterpreted and production schemas remain unchanged.
-The private endpoint check now selects Host tools 0.15.0 with defaults disabled
-and only its ic-interface profile. Host owns Candid method and Wasm export mode
-projection; native type equality and local internal-export exclusion remain.
-Focused native/report, Rust 1.88, Wasm and actual PocketIC restoration/credit-window
-checks pass; original/O3/Os/Oz static endpoint checks pass. The missing-export
-substitute is refused. Full CI and native macOS remain unrun for these inputs.
-[The adoption evidence](evidence/metrics080-host01502214.md) retains identities,
-initial failures and limitations; [#62](https://github.com/dragginzgame/ic-blob-storage/issues/62)
-remains open pending delivery. No existing incoming lock selection was changed;
-the only addition is private Host tools 0.15.0 and its test edge.
-See [the endpoint surface qualification](evidence/endpoint-surface02213.md).
-PocketIC stays 16.1.0. Rust development is 1.99.0; the advertised library floor
-remains 1.88.0. [The earlier Metrics repair](evidence/metrics07102211.md) retains
-its original qualification graph.
+The reviewed snapshot now adopts committed Shared 0.9.10
+`7e55adecf6f0b196c050f104b37f8c69b6bf434e`, matching remote main at selection.
+Its 112 files retain all previous payloads, including bounded exact CI artifact
+discovery and the local-transport retry fixture. The new cache-key fixture companion
+and change-reporting rule are selected together. Product gates, twelve-member
+layout, compiler/tool pins and release ownership remain local. The producer's
+own workflow-discovery fixture is qualified at its frozen source, not vendored as
+Blob's workflow policy. Blob retains its pinned download, exact repository/run/ID
+selection and independent checksum checks.
 
-Metrics totals in the private storage probe and Candid observations are `u128`;
-retained `reads[].instructions` JSON fields are decimal strings. Individual
-measurements, calls and bytes retain `u64`. Rebuild the private probe and harness
-together. Historical artifacts keep their original source/format identity;
-public service schemas are unchanged. [#60](https://github.com/dragginzgame/ic-blob-storage/issues/60)
-is closed against delivered 0.22.11; the recorded old raw target paths are no
-longer present in this checkout. Tracked historical records remain.
+Shared's changed Cargo-tool build policy requires explicit
+`make install-rust-tools`; changing Testkit requires `make install-testkit`.
+Both complete, followed by offline `make tools-check`, with older generations
+and initial refusal logs retained. PocketIC stays 16.1.0, Rust development 1.99.0
+and library MSRV 1.88.0. After dependency edits, run explicit `make deps` before
+locked/offline development checks; source fetching does not install executables.
 
-After changing dependencies, prepare the settled lock with explicit `make deps`.
-Shared 0.8.0 retains cargo-sort-derives 0.14.1; explicitly run
-`make install-rust-tools`, then `make tools-check` for its admitted tool selection.
-When its selected Testkit CLI changes, use explicit `make install-testkit`, then
-offline `make testkit-check`; source fetching alone does not install executables.
-Complete setup/admission remains `make install-tools` followed by `make tools-check`.
-Preserve old installations and failed evidence. Ordinary builds/tests stay
-offline and locked; a dependency edit during validation requires restarting
-against the settled inputs rather than reusing earlier results.
-
-The [current handoff](status/current.md) identifies release and validation
-evidence. [Canic adoption](#canic-integration) separately qualifies its root and
-independent managed consumer graphs; a newer Blob release does not update them.
+The canonical Cargo-tool fixture now runs directly from Blob's root with its own
+prepared compiler context and commit-free hook history. The temporary invocation
+adapter is removed after qualification on modern Bash and genuine Bash 3.2.
+[The latest adoption evidence](evidence/shared091002215.md) records these checks.
+Shared's own CI cache workflow is not automatically adopted by this snapshot.
+[The current cleanup evidence](evidence/cleanup02215.md) distinguishes native,
+local PocketIC, portable-shell substitutes and static workflow checks from full
+CI/native macOS and downstream/provider acceptance.
 
 ## Earlier graph — released 0.22.8, pending 0.22.9
 

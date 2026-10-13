@@ -25,10 +25,12 @@ pub(in crate::native) struct FailureRecord<S> {
 }
 pub(in crate::native) struct Run {
     path: PathBuf,
+    directory: File,
 }
 impl Run {
     /// Allocate private unverified output without replacing any existing file.
     pub fn open_body(&self) -> Result<File, Failure> {
+        self.admit_directory()?;
         let mut options = OpenOptions::new();
         options.create_new(true).write(true);
         #[cfg(unix)]
@@ -39,23 +41,18 @@ impl Run {
         let file = options
             .open(self.path.join("body.part"))
             .map_err(|_| Failure::File)?;
-        File::open(&self.path)
-            .and_then(|f| f.sync_all())
-            .map_err(|_| Failure::File)?;
+        self.directory.sync_all().map_err(|_| Failure::File)?;
         Ok(file)
     }
     /// Publish only after EOF/root verification and file sync, without replacement.
     pub fn publish_body(&self) -> Result<PathBuf, Failure> {
+        self.admit_directory()?;
         let partial = self.path.join("body.part");
         let complete = self.path.join("body.bin");
         std::fs::hard_link(&partial, &complete).map_err(|_| Failure::File)?;
-        File::open(&self.path)
-            .and_then(|f| f.sync_all())
-            .map_err(|_| Failure::File)?;
+        self.directory.sync_all().map_err(|_| Failure::File)?;
         std::fs::remove_file(partial).map_err(|_| Failure::File)?;
-        File::open(&self.path)
-            .and_then(|f| f.sync_all())
-            .map_err(|_| Failure::File)?;
+        self.directory.sync_all().map_err(|_| Failure::File)?;
         Ok(complete)
     }
     pub fn create(path: &Path) -> Result<Self, Failure> {
@@ -79,40 +76,67 @@ impl Run {
         File::open(parent)
             .and_then(|f| f.sync_all())
             .map_err(|_| Failure::File)?;
+        let directory = File::open(path).map_err(|_| Failure::File)?;
         Ok(Self {
             path: path.to_owned(),
+            directory,
         })
     }
     pub fn bytes(&self, name: &str, bytes: &[u8]) -> Result<(), Failure> {
-        let path = self.record_path(name)?;
-        // Trusted ancestors and exclusion of concurrent directory writers remain
-        // caller-owned, as for body.part. Complete records publish without replacement.
-        ic_host_fs::durable::create_private_bytes_with_parents(&path, bytes)
-            .map_err(|_| Failure::File)
+        use std::io::Write as _;
+        self.write_record(name, |file| file.write_all(bytes))
     }
-    fn record_path(&self, name: &str) -> Result<PathBuf, Failure> {
-        // The shared writer can create parents. A run must already be claimed;
-        // never recreate a removed run or follow a substituted directory link.
-        if !std::fs::symlink_metadata(&self.path)
-            .map_err(|_| Failure::File)?
-            .is_dir()
-        {
+
+    fn admit_directory(&self) -> Result<(), Failure> {
+        // Preserve the claimed pathname contract before any new output. The
+        // held descriptor then owns publication, without parent recreation.
+        // Trusted ancestors and exclusion of concurrent writers stay caller-owned.
+        let current = std::fs::symlink_metadata(&self.path).map_err(|_| Failure::File)?;
+        if !current.is_dir() {
             return Err(Failure::File);
         }
-        Ok(self.path.join(name))
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::MetadataExt as _;
+            let held = self.directory.metadata().map_err(|_| Failure::File)?;
+            if (current.dev(), current.ino()) != (held.dev(), held.ino()) {
+                return Err(Failure::File);
+            }
+        }
+        Ok(())
     }
-    pub fn json(&self, name: &str, value: &impl Serialize) -> Result<(), Failure> {
-        use ic_host_fs::durable::{PublicationMode, WriteOptions, write_with};
 
-        write_with(
-            &self.record_path(name)?,
-            WriteOptions {
-                mode: PublicationMode::CreateNew,
-                permissions: 0o600,
-            },
-            |file| serde_json::to_writer_pretty(file, value),
-        )
-        .map_err(|_| Failure::File)
+    fn write_record<T, E>(
+        &self,
+        name: &str,
+        produce: impl FnOnce(&mut File) -> Result<T, E>,
+    ) -> Result<T, Failure> {
+        self.admit_directory()?;
+        #[cfg(unix)]
+        {
+            use ic_host_fs::durable::{PublicationMode, WriteOptions, write_at_with};
+            use std::{ffi::OsStr, os::fd::AsFd as _};
+            write_at_with(
+                self.directory.as_fd(),
+                OsStr::new(name),
+                WriteOptions {
+                    mode: PublicationMode::CreateNew,
+                    permissions: 0o600,
+                },
+                produce,
+            )
+            .map_err(|_| Failure::File)
+        }
+        #[cfg(not(unix))]
+        {
+            // Host's durable engine does not support this platform.
+            let _ = (name, produce);
+            Err(Failure::File)
+        }
+    }
+
+    pub fn json(&self, name: &str, value: &impl Serialize) -> Result<(), Failure> {
+        self.write_record(name, |file| serde_json::to_writer_pretty(file, value))
     }
 }
 

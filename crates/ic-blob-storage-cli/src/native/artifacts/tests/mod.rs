@@ -108,3 +108,46 @@ fn failed_json_producer_keeps_existing_evidence_without_publishing_a_prefix() {
     );
     assert_eq!(std::fs::read_dir(&path).unwrap().count(), 1);
 }
+
+#[test]
+fn a_replacement_directory_cannot_inherit_the_claimed_run() {
+    let parent = tempfile::tempdir().unwrap();
+    let path = parent.path().join("run");
+    let original = parent.path().join("original");
+    let run = Run::create(&path).unwrap();
+    run.bytes("request.candid", b"original request").unwrap();
+    std::fs::rename(&path, &original).unwrap();
+    std::fs::create_dir(&path).unwrap();
+    assert!(matches!(
+        run.bytes("response.candid", b"wrong owner"),
+        Err(Failure::File)
+    ));
+    assert!(matches!(
+        run.json("summary.json", &serde_json::json!({"complete": true})),
+        Err(Failure::File)
+    ));
+    assert!(matches!(run.open_body(), Err(Failure::File)));
+    assert!(matches!(run.publish_body(), Err(Failure::File)));
+    assert!(std::fs::read_dir(&path).unwrap().next().is_none());
+    assert_eq!(std::fs::read_dir(&original).unwrap().count(), 1);
+    assert_eq!(
+        std::fs::read(original.join("request.candid")).unwrap(),
+        b"original request"
+    );
+}
+
+#[test]
+fn record_names_cannot_escape_the_claimed_directory() {
+    let parent = tempfile::tempdir().unwrap();
+    let path = parent.path().join("run");
+    let run = Run::create(&path).unwrap();
+    for name in ["", ".", "..", "../outside", "nested/record"] {
+        assert!(matches!(run.bytes(name, b"wrong name"), Err(Failure::File)));
+        assert!(matches!(
+            run.json(name, &serde_json::json!({"complete": true})),
+            Err(Failure::File)
+        ));
+    }
+    assert!(std::fs::read_dir(path).unwrap().next().is_none());
+    assert!(!parent.path().join("outside").exists());
+}

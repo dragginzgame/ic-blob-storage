@@ -11,7 +11,14 @@ maintainer action; a library release does not qualify the storage service.
 
 ## Setup and preview
 
-Released 0.22.13 retains the common Make entrypoint from Shared Tooling 0.9.0.
+Pending compatible 0.22.15 adopts Shared Tooling 0.9.10 and private Testkit 0.35.
+Prepare its changed Cargo-tool policy with `make install-rust-tools`, then
+`make install-testkit` and `make tools-check`. Existing generations remain retained.
+The common runner still owns release effects; this adoption does not execute a
+release or change package versions. See [the cleanup evidence](evidence/cleanup02215.md)
+and [the subsequent Shared adoption](evidence/shared091002215.md).
+
+Released 0.22.14 retains the common Make entrypoint from Shared Tooling 0.9.0.
 Existing setup, offline checks, formatting, hook and release commands keep their
 names. Product gates, Testkit extensions and direct-delivery admission remain
 local. Parsing Make never installs tools or hooks or runs a release. The common

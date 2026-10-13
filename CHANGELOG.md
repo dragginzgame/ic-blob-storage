@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.22.15]
+
+### Changed
+
+- Adopt reviewed Shared Tooling 0.9.10: bounded transient asset-download retries,
+  shared installer cleanup, strict evidence/Git identities and typed Cargo offline
+  policy. Explicit setup prepares the new Cargo-tool policy; previous tools remain.
+  [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59).
+- Wait for the exact uploaded CI tooling artifact before its existing pinned
+  download and independent checksum verification. Discovery is bounded and never
+  repeats the upload or substitutes another artifact.
+- Adopt private Testkit 0.35.0 and one Host 0.15.1 graph, removing duplicate Host
+  selections. Preserve the incoming Memory 0.35.19 and Metrics 0.8.0 selections;
+  public Blob APIs and persisted schemas remain unchanged.
+
+### Fixed
+
+- Publish CLI byte/JSON records through Host beneath the held run-directory
+  descriptor. Reject a removed or replaced run and names escaping that directory;
+  preserve create-new publication, private permissions and failed body evidence.
+- Run the corrected canonical Cargo-tool fixture directly from this Rust consumer,
+  with isolated compiler context and commit-free hook qualification. Remove the
+  temporary invocation wrapper without weakening receipt or staging checks.
+  [Shared #143](https://github.com/dragginzgame/shared-tooling/issues/143),
+  [#144](https://github.com/dragginzgame/shared-tooling/issues/144).
+
 ## [0.22.14] - 2026-10-12
 
 ### Changed

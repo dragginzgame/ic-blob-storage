@@ -112,6 +112,7 @@ shared-tooling-tests:
 	+bash scripts/ci/check-validation-logging.sh
 	+bash scripts/ci/test-file-digests.sh
 	+bash scripts/ci/test-evidence-archive.sh
+	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
 	+bash scripts/ci/test-ic-tools.sh
 	+perl scripts/ci/test-local-lock-versions.pl

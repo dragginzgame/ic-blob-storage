@@ -79,6 +79,14 @@ jobs:
           BLOB_TOOLING_ARCHIVE_ID: ${{ steps.tooling-archive-proof.outputs.artifact-id }}
         run: |
           [[ "$BLOB_TOOLING_ARCHIVE_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'Missing or invalid archive identity' >&2; exit 1; }
+      - name: Wait for the exact uploaded tooling archive
+        timeout-minutes: 2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BLOB_TOOLING_REPOSITORY: ${{ github.repository }}
+          BLOB_TOOLING_RUN_ID: ${{ github.run_id }}
+          BLOB_TOOLING_ARCHIVE_ID: ${{ steps.tooling-archive-proof.outputs.artifact-id }}
+        run: bash scripts/ci/wait-for-artifact.sh "$BLOB_TOOLING_REPOSITORY" "$BLOB_TOOLING_RUN_ID" "$BLOB_TOOLING_ARCHIVE_ID"
       - name: Download that exact tooling archive
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
