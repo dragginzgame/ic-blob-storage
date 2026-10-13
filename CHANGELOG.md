@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.23.1]
+## [0.23.1] - 2026-10-13
 
 - Share bounded small-reply decoding across account, funding assessment and
   gateway commands, preserving command-specific errors and binding validation.
