@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.23.0]
+
+- **Breaking:** adopt public IC Memory 0.36: request factories return
+  `MemoryDeclarationError`, and hosts transfer complete owned request lists to
+  the sealed declaration snapshot. Preserve allocation keys, store schemas and
+  same-release recovery; cross-release retirement/reinstall policy still applies.
+  ([#64](https://github.com/dragginzgame/ic-blob-storage/issues/64))
+- Adopt direct Host artifacts/fs/tools 0.16 with explicit minimal features;
+  Testkit 0.35 retains its private Host 0.15.2 dependencies.
+- Adopt Shared Tooling 0.9.13: preserve installer lock/source errors, permit
+  separate locked source preparation and refuse ambiguous CI branch selection.
+
 ## [0.22.16] - 2026-10-13
 
 ### Changed

@@ -65,7 +65,7 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
         vec![],
     )
     .expect("host allocation pool");
-    let declarations = SealedDeclarationSnapshot::new(&[request]).unwrap();
+    let declarations = SealedDeclarationSnapshot::new(vec![request]).unwrap();
     let mut runtime = MemoryRuntime::new_with_config(
         DefaultMemoryImpl::default(),
         MemoryManagerConfig::new(16).unwrap(),

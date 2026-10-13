@@ -672,15 +672,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ctor"
-version = "1.0.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "914a755b7c2d4af2bdcff7ce1739e2db9a1b81a9b07123d8015786ae03c0980d"
-dependencies = [
- "linktime-proc-macro",
-]
-
-[[package]]
 name = "curve25519-dalek"
 version = "4.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1552,8 +1543,8 @@ dependencies = [
  "candid",
  "ic-agent",
  "ic-blob-storage-contracts",
- "ic-host-artifacts",
- "ic-host-fs",
+ "ic-host-artifacts 0.16.0",
+ "ic-host-fs 0.16.0",
  "libc",
  "reqwest",
  "serde",
@@ -1568,7 +1559,7 @@ name = "ic-blob-storage-contracts"
 version = "0.22.16"
 dependencies = [
  "candid",
- "ic-host-artifacts",
+ "ic-host-artifacts 0.16.0",
  "serde",
  "serde_json",
  "sha2 0.11.1",
@@ -1587,7 +1578,7 @@ dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-canister",
  "ic-blob-storage-contracts",
- "ic-host-artifacts",
+ "ic-host-artifacts 0.16.0",
  "ic-host-tools",
  "ic-testkit",
  "reqwest",
@@ -1692,12 +1683,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-host-artifacts"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d63b33ca7b0b24c916e8b2958d34273e7398c91519722c497b85a5878aa1b97"
+dependencies = [
+ "sha2 0.10.9",
+ "wasmparser",
+]
+
+[[package]]
 name = "ic-host-fs"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14037f412d18ccdb5f20196062e2394a6679cd29c9dfeafb39edb767501460d0"
 dependencies = [
- "ic-host-artifacts",
+ "ic-host-artifacts 0.15.2",
+ "rustix",
+]
+
+[[package]]
+name = "ic-host-fs"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04fe4cbd191bc10a03a1741f0bd8848f4caccbd8293860086038ab65a7d0f0d0"
+dependencies = [
+ "ic-host-artifacts 0.16.0",
  "rustix",
 ]
 
@@ -1707,20 +1718,20 @@ version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2a45d376cb5b20f0dc67d40217a2d55e1bcde078f5be9612daff9bc53c4526a"
 dependencies = [
- "ic-host-artifacts",
- "ic-host-fs",
+ "ic-host-artifacts 0.15.2",
+ "ic-host-fs 0.15.2",
  "libc",
  "rustix",
 ]
 
 [[package]]
 name = "ic-host-tools"
-version = "0.15.2"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af7d0545060264babb403df35d4d896b6184f2678a137d4dd53b2625a79cf288"
+checksum = "9c6f65dcfb55c5f4cb9b7e2a4f2191986b761cca9a00176aceb7e286d88a3fb8"
 dependencies = [
  "candid_parser",
- "ic-host-artifacts",
+ "ic-host-artifacts 0.16.0",
  "serde",
  "serde_json",
 ]
@@ -1749,12 +1760,11 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.35.19"
+version = "0.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "605b41d358d6baacdd398f7bdc2cfe12ac770710f261b4276a437234f19c2c1b"
+checksum = "cbaf6e99f3a3c58e2fc489f9e877d81dc04a3e9e601c2ef4555399fffa963985"
 dependencies = [
  "ciborium",
- "ctor",
  "ic-stable-structures",
  "serde",
  "thiserror 2.0.18",
@@ -1762,9 +1772,9 @@ dependencies = [
 
 [[package]]
 name = "ic-metrics"
-version = "0.8.1"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b2d23a378f6dd80661e0a93313ad31170842fe2558e4d8df017061877986d86"
+checksum = "a6ab2db543f542c99570b403667828957fea1e75c2df1a7fe2e660cea95931fd"
 
 [[package]]
 name = "ic-stable-structures"
@@ -1783,8 +1793,8 @@ checksum = "beaa65a95ba89f8e1fe19e985c501c43a5de7a98120cc03204fbcc7629cc9586"
 dependencies = [
  "candid",
  "ic-cdk",
- "ic-host-artifacts",
- "ic-host-fs",
+ "ic-host-artifacts 0.15.2",
+ "ic-host-fs 0.15.2",
  "ic-host-process",
  "libc",
  "pocket-ic",
@@ -2150,12 +2160,6 @@ checksum = "61ff90caf6077a803a240f62fdbe88645a890bbca49ef8174c3cb0404362171d"
 dependencies = [
  "libc",
 ]
-
-[[package]]
-name = "linktime-proc-macro"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e57c38c1e860fd37c604281cdfb1dd2216977fd76a50f85ba2f388ef3219616"
 
 [[package]]
 name = "linux-raw-sys"

@@ -27,7 +27,7 @@ pub(super) fn open(fresh: bool) -> Grants {
         vec![],
     )
     .expect("host allocation pool");
-    let declarations = SealedDeclarationSnapshot::new(&requests).expect("host declarations");
+    let declarations = SealedDeclarationSnapshot::new(requests).expect("host declarations");
     let mut runtime = MemoryRuntime::new_with_config(
         backing,
         MemoryManagerConfig::new(16).expect("host bucket policy"),

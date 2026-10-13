@@ -999,7 +999,7 @@ integrating host owns bootstrap, policy, grants and bucket profile. Cross-releas
 schema transitions are reinstall-only, subject to retirement of existing obligations;
 the dependency choice does not close provider and recovery qualification gates.
 
-The current library publicly re-exports Memory 0.35. Hosts must align their
+The current library publicly re-exports Memory 0.36. Hosts must align their
 composed graph to one package identity and include all permanent Blob requests
 in one host-wide allocation pool. Key-only committed opens preserve host-owned
 placement and authority; linking the library registers nothing. See

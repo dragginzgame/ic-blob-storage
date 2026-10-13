@@ -75,7 +75,7 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
         vec![],
     )
     .expect("host allocation pool");
-    let declarations = SealedDeclarationSnapshot::new(&[request]).unwrap();
+    let declarations = SealedDeclarationSnapshot::new(vec![request]).unwrap();
     let raw = VectorMemory::default();
     let mut runtime =
         MemoryRuntime::new_with_config(raw.clone(), MemoryManagerConfig::new(16).unwrap()).unwrap();

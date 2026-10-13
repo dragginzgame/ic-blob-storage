@@ -205,7 +205,7 @@ fn granted_memories() -> (
         vec![],
     )
     .unwrap();
-    let declarations = SealedDeclarationSnapshot::new(&requests).unwrap();
+    let declarations = SealedDeclarationSnapshot::new(requests).unwrap();
     let mut runtime = MemoryRuntime::new_with_config(
         ProbeBackingMemory::default(),
         MemoryManagerConfig::new(16).unwrap(),

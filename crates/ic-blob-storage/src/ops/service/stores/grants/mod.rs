@@ -8,7 +8,7 @@ use crate::ops::service::{
     funding::FundingMemories, reads::ReadSessionMemories, uploads::UploadMemories,
 };
 use ic_memory::{
-    MemoryRequest, RuntimeMemory, RuntimeOpenError, SchemaMetadata, StaticMemoryDeclarationError,
+    MemoryDeclarationError, MemoryRequest, RuntimeMemory, RuntimeOpenError, SchemaMetadata,
     ic_stable_structures::{DefaultMemoryImpl, Memory},
 };
 
@@ -39,7 +39,7 @@ const KEYS: [&str; 16] = [
 /// before sealing; the host's policy owns placement and authority validation.
 /// # Errors
 /// Rejects an authority unsupported by `ic-memory`.
-pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, StaticMemoryDeclarationError> {
+pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclarationError> {
     KEYS.into_iter()
         .map(|key| MemoryRequest::new(authority, key, SchemaMetadata::default()))
         .collect()

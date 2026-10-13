@@ -39,7 +39,7 @@ fn snapshot(missing: Option<usize>) -> SealedDeclarationSnapshot {
         )
         .unwrap(),
     );
-    SealedDeclarationSnapshot::new(&service).unwrap()
+    SealedDeclarationSnapshot::new(service).unwrap()
 }
 fn runtime(backing: VectorMemory) -> MemoryRuntime<VectorMemory> {
     MemoryRuntime::new_with_config(backing, MemoryManagerConfig::new(1).unwrap()).unwrap()

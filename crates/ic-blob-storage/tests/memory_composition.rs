@@ -24,20 +24,12 @@ fn library_linking_and_content_work_do_not_claim_or_bootstrap_memory() {
         blob_memory::committed_allocations(),
         Err(RuntimeOpenError::NotBootstrapped)
     );
-    let before = blob_memory::sealed_declaration_snapshot().expect("linked declarations");
-    assert_eq!(before.requests(), []);
     let digest = ContentDigest::compute(b"no stable memory required");
     assert_eq!(digest.to_string().parse::<ContentDigest>(), Ok(digest));
     assert!(!blob_memory::is_default_memory_manager_bootstrapped().expect("observe again"));
     assert_eq!(
         blob_memory::committed_allocations(),
         Err(RuntimeOpenError::NotBootstrapped)
-    );
-    assert_eq!(
-        blob_memory::sealed_declaration_snapshot()
-            .expect("same snapshot")
-            .requests(),
-        []
     );
 }
 
@@ -51,7 +43,7 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
         vec![],
     )
     .expect("host allocation pool");
-    let declarations = SealedDeclarationSnapshot::new(&requests).expect("snapshot");
+    let declarations = SealedDeclarationSnapshot::new(requests.into()).expect("snapshot");
     let mut host = MemoryRuntime::new_with_config(
         VectorMemory::default(),
         MemoryManagerConfig::new(16).expect("host profile"),

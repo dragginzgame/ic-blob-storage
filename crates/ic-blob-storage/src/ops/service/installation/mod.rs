@@ -14,7 +14,7 @@ use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_blob_storage_contracts::upload::completion::InvalidCompletionAuthority;
 use ic_memory::ic_stable_structures::{BTreeMap, Memory, Storable};
-use ic_memory::{MemoryRequest, SchemaMetadata, StaticMemoryDeclarationError};
+use ic_memory::{MemoryDeclarationError, MemoryRequest, SchemaMetadata};
 use thiserror::Error;
 
 mod configuration;
@@ -29,7 +29,7 @@ pub const INSTALLATION_MEMORY_KEY: &str = "blob.configuration.v1";
 /// ID selection, bootstrap, allocation, lifecycle hook or stable write occurs.
 /// # Errors
 /// Rejects an invalid authority using the memory runtime's declaration error.
-pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, StaticMemoryDeclarationError> {
+pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclarationError> {
     let mut requests = vec![MemoryRequest::new(
         authority,
         INSTALLATION_MEMORY_KEY,

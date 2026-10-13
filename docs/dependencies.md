@@ -14,22 +14,29 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.35.19 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.8.0 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.35.0 | Native PocketIC client, server setup and managed lifetime |
-| IC Host artifacts/fs/process/tools | 0.15.1 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.36.0 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.8.2 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.35.1 | Native PocketIC client, server setup and managed lifetime |
+| IC Host artifacts/fs/tools (direct) | 0.16.0 | Native artifacts, filesystem and test/tool boundaries |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
-The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.9.10 at
-`7e55adecf6f0b196c050f104b37f8c69b6bf434e`, with 112 payloads. Common installation,
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.9.13 at
+`35cad65677ff989b5fb24a88d947fda37d2366e8`, with 112 payloads. Common installation,
 checks, hooks and formatting use `make/consumer.mk`; product targets and Testkit
 extensions stay local. The canonical Rust-tool fixture runs directly from this
 consumer. Snapshot adoption does not automatically adopt Shared's CI cache policy.
 See [current status](status/current.md) for released versus prepared identities and
-[the adoption evidence](evidence/shared091002215.md) for source-bound results.
+[the adoption evidence](evidence/memory036-host016-shared0913.md) for source-bound results.
 Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
+
+Testkit 0.35 keeps its internal Host artifacts/fs/process 0.15.2 graph.
+Direct Host tools already disables default features; no Candid extraction
+feature is needed by Blob. Memory request factories return
+`MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
+to `SealedDeclarationSnapshot::new` before the single runtime bootstrap.
+No global registry or constructor is involved.
 
 ## Quick setup
 
@@ -251,7 +258,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.35 host-wide allocation pool and open
+compose all namespaces in one Memory 0.36 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -278,7 +285,7 @@ links source-bound composition results and remaining owner work.
 For consumer adoption:
 
 1. Select one coherent published Canic family, matching Blob runtime/contracts and
-   one Memory 0.35 identity. Freeze the application's actual lock and all independent
+   one Memory 0.36 identity. Freeze the application's actual lock and all independent
    fixture locks; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot
    and grant the `blob.` namespace in its allocation pool before bootstrap.
