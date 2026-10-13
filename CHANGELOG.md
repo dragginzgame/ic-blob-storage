@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.23.2]
+## [0.23.2] - 2026-10-13
 
 - Correct Canic adoption guidance: released 0.111 uses Blob 0.22/Memory 0.35;
   current Blob 0.23 requires the newer coherent host family and its own delivery
