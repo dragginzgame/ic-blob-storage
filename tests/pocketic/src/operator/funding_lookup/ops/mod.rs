@@ -1,12 +1,11 @@
 use super::model::Selection;
 use crate::operator::{
     Failure,
-    ops::{Report, query_method},
+    ops::{Report, decode_small, query_method},
 };
 use blob_test_protocol::funding::lookup::{
     FundingLookupFailure, FundingLookupState, FundingLookupView,
 };
-use candid::{de::DecoderConfig, decode_one_with_config};
 use serde_json::json;
 
 pub(super) fn query(selection: &Selection) -> Result<Report, Failure> {
@@ -19,17 +18,7 @@ pub(super) fn query(selection: &Selection) -> Result<Report, Failure> {
 }
 
 fn report(selection: &Selection, bytes: &[u8]) -> Result<Report, Failure> {
-    if bytes.len() > 4096 {
-        return Err(Failure::ReplyTooLarge);
-    }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(1000)
-        .set_max_type_len(32)
-        .set_full_error_message(false);
-    let result: Result<FundingLookupView, FundingLookupFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)?;
+    let result: Result<FundingLookupView, FundingLookupFailure> = decode_small(bytes)?;
     let view = result.map_err(|failure| match failure {
         FundingLookupFailure::Denied => Failure::Denied,
         FundingLookupFailure::Binding => Failure::Binding,

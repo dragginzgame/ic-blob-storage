@@ -56,6 +56,34 @@ pub(super) enum Command {
     },
 }
 
+impl Command {
+    fn identity_flag(&self) -> &'static str {
+        match self {
+            Self::GatewayControl(_)
+            | Self::FundingAssessment(_)
+            | Self::InspectAccount(_)
+            | Self::FundingOutcome(_)
+            | Self::UploadHistory(_)
+            | Self::Status { .. }
+            | Self::FundingHistory { .. } => "--operator",
+            Self::PublishSession(_)
+            | Self::PublishMap(_)
+            | Self::PublishPrepareBatch(_)
+            | Self::PublishPrepare(_)
+            | Self::PublishCheck(_)
+            | Self::UploadSetup(_)
+            | Self::Download(_)
+            | Self::Reference(_)
+            | Self::CertificateAssessment(_)
+            | Self::SubmitAttestation(_)
+            | Self::SubmitReference(_)
+            | Self::ObserveUpload(_)
+            | Self::VerifyUpload { .. }
+            | Self::UploadAttestation { .. } => "--actor",
+        }
+    }
+}
+
 fn principal(value: &str) -> Result<Principal, Failure> {
     let principal = super::parsing::principal(value)?;
     if principal == Principal::anonymous() || principal == Principal::management_canister() {
@@ -67,41 +95,6 @@ fn principal(value: &str) -> Result<Principal, Failure> {
 impl Options {
     pub fn parse(args: &[String]) -> Result<Self, Failure> {
         let command = args.first().map(String::as_str).ok_or(Failure::Arguments)?;
-        if !matches!(
-            command,
-            "status"
-                | "publish-check"
-                | "publish-map"
-                | "publish-file-status"
-                | "publish-session"
-                | "publish-prepare"
-                | "publish-prepare-resume"
-                | "publish-prepare-batch"
-                | "admit-upload"
-                | "prepare-upload"
-                | "revoke-upload"
-                | "upload-permission"
-                | "upload-manifest"
-                | "inspect-account"
-                | "sync-gateways"
-                | "cancel-gateway-sync"
-                | "revoke-gateway"
-                | "upload-history"
-                | "certificate-assessment"
-                | "funding-history"
-                | "funding-outcome"
-                | "funding-assessment"
-                | "reference-receipt"
-                | "reference-status"
-                | "verify-upload"
-                | "upload-attestation"
-                | "observe-upload"
-                | "download"
-                | "submit-attestation"
-                | "submit-reference"
-        ) {
-            return Err(Failure::Arguments);
-        }
         let mut flags = super::parsing::flags(&args[1..])?;
         let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
         let network = match take("--network")? {
@@ -111,39 +104,14 @@ impl Options {
         };
         let url = Url::parse(take("--url")?).map_err(|_| Failure::Arguments)?;
         let identity = PathBuf::from(take("--identity")?);
-        let actor = principal(take(
-            if matches!(
-                command,
-                "verify-upload"
-                    | "publish-check"
-                    | "publish-map"
-                    | "publish-file-status"
-                    | "publish-session"
-                    | "publish-prepare"
-                    | "publish-prepare-resume"
-                    | "publish-prepare-batch"
-                    | "admit-upload"
-                    | "prepare-upload"
-                    | "revoke-upload"
-                    | "upload-permission"
-                    | "upload-manifest"
-                    | "upload-attestation"
-                    | "observe-upload"
-                    | "download"
-                    | "submit-attestation"
-                    | "submit-reference"
-                    | "certificate-assessment"
-                    | "reference-receipt"
-                    | "reference-status"
-            ) {
-                "--actor"
-            } else {
-                "--operator"
-            },
-        )?)?;
         let service = principal(take("--service")?)?;
         let namespace = positive::<u128>(take("--namespace")?)?;
         let command = parse_command(command, service, namespace, network, &mut flags)?;
+        let actor = principal(
+            flags
+                .remove(command.identity_flag())
+                .ok_or(Failure::Arguments)?,
+        )?;
         let root_key = flags.remove("--root-key").map(PathBuf::from);
         if !flags.is_empty() {
             return Err(Failure::Arguments);
@@ -544,8 +512,10 @@ fn parse_operator_command(
                 scope,
                 cursor: flags.remove("--cursor").map(PathBuf::from),
             }
-        } else {
+        } else if command == "status" {
             Command::Status { scope }
+        } else {
+            return Err(Failure::Arguments);
         }
     })
 }

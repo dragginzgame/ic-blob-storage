@@ -1,12 +1,8 @@
 import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration } from './validation.js';
 
-/** Local journal refusal. Never authorizes repeating a certificate or provider request. */
-export class IntentRefusal extends Error {
-  constructor(code) { super(code); this.name = 'IntentRefusal'; this.code = code; }
-}
-const require = (condition, code) => { if (!condition) throw new IntentRefusal(code); };
-const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const integer = (value, min, max) => Number.isSafeInteger(value) && value >= min && value <= max;
+import { IntentRefusal, require, equal, integer, bound, claimGateway, observeGateway } from './intent-state.js';
+export { IntentRefusal } from './intent-state.js';
+
 const hex = value => typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
 const bytes = (value, max) => Array.isArray(value) && value.length > 0 &&
   value.length <= max && value.every(byte => integer(byte, 0, 255));
@@ -88,7 +84,6 @@ function row(value) {
     return value;
   } catch { throw new IntentRefusal('intent-corrupt'); }
 }
-const bound = (value, saved) => require(value && equal(value.binding, saved), 'intent-binding');
 
 /**
  * Create a fresh v1 journal or reopen an explicitly named existing journal.
@@ -225,34 +220,13 @@ export async function createIndexedDBIntentStore({ database, maxSlots, mode,
     claimGateway(input, bounds, token, index, opaque) {
       const saved = snapshot(input), limits = scope(structuredClone(bounds)); owner(token);
       const exact = request(structuredClone(opaque), limits); require(integer(index, 0, 255), 'index');
-      return change(saved, existing => {
-        bound(existing, saved);
-        require(!existing.cancelled && existing.phase === 'observed', 'gateway-blocked');
-        const gateway = existing.gateway ?? { scope: limits, owner: token, requests: [] };
-        require(gateway.owner === token && equal(gateway.scope, limits), 'gateway-session');
-        require(index === gateway.requests.length && index < limits.maxRequests, 'gateway-capacity');
-        const used = gateway.requests.reduce((n, entry) => n + entry.request.bodyBytes, 0);
-        require(exact.bodyBytes <= limits.maxTotalRequestBytes - used, 'gateway-budget');
-        const previous = gateway.requests.at(-1);
-        require(!previous || (previous.phase === 'responded' && previous.status < 300), 'gateway-uncertain');
-        require(!gateway.requests.some(entry => entry.request.url === exact.url), 'gateway-repeat');
-        gateway.requests.push({ request: exact, phase: 'uncertain' });
-        return { ...existing, gateway };
-      });
+      return change(saved, existing => claimGateway(existing, saved, limits, token, index, exact));
     },
     observeGateway(input, bounds, token, index, opaque, status) {
       const saved = snapshot(input), limits = scope(structuredClone(bounds)); owner(token);
       const exact = request(structuredClone(opaque), limits);
       require(integer(index, 0, 255) && integer(status, 200, 599), 'observation');
-      return change(saved, existing => {
-        bound(existing, saved);
-        const gateway = existing.gateway, entry = gateway?.requests[index];
-        require(gateway?.owner === token && equal(gateway.scope, limits) &&
-          gateway.requests.length === index + 1 && entry?.phase === 'uncertain' &&
-          equal(entry.request, exact), 'gateway-observation');
-        gateway.requests[index] = { request: exact, phase: 'responded', status };
-        return { ...existing, gateway };
-      });
+      return change(saved, existing => observeGateway(existing, saved, limits, token, index, exact, status));
     },
   });
 }

@@ -79,9 +79,20 @@ pub(super) struct Input {
     pub directory: Option<PathBuf>,
 }
 pub(super) struct Request {
-    permission: UploadAdmissionRequest,
-    manifest: Option<UploadManifestRequest>,
+    payload: Payload,
     argument: Vec<u8>,
+}
+enum Payload {
+    Permission(UploadAdmissionRequest),
+    Manifest(UploadManifestRequest),
+}
+impl Payload {
+    fn permission(&self) -> UploadAdmissionRequest {
+        match self {
+            Payload::Permission(permission) => *permission,
+            Payload::Manifest(manifest) => manifest.permission,
+        }
+    }
 }
 pub(super) fn permission_json(p: UploadAdmissionRequest) -> Value {
     json!({"upload":references::upload_json(p.upload),"uploader":p.uploader.to_text(),"expires_at_ns":p.expires_at_ns.to_string()})
@@ -140,40 +151,48 @@ fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<SetupObse
     let max = 4096.try_into().unwrap();
     Ok(match input.kind {
         Kind::Admit => {
-            let r =
-                admission_reply::mutation(saved.permission, bytes, max).map_err(admission_error)?;
+            let r = admission_reply::mutation(saved.payload.permission(), bytes, max)
+                .map_err(admission_error)?;
             SetupObservation::Admission(r)
         }
         Kind::Revoke => {
-            let r = admission_reply::revocation(saved.permission, bytes, max)
+            let r = admission_reply::revocation(saved.payload.permission(), bytes, max)
                 .map_err(admission_error)?;
             SetupObservation::Revocation(r)
         }
         Kind::Permission => SetupObservation::Permission(
-            admission_reply::inspection(saved.permission, bytes, max).map_err(admission_error)?,
+            admission_reply::inspection(saved.payload.permission(), bytes, max)
+                .map_err(admission_error)?,
         ),
-        Kind::Prepare | Kind::Manifest => {
+        Kind::Prepare => {
             let limits = manifest_reply_limits(
                 (1024 * 1024 * 1024)
                     .try_into()
                     .expect("positive content bound"),
             );
-            let (r, changed) = if let Some(manifest) = &saved.manifest {
-                let r =
-                    manifest_reply::mutation(manifest, bytes, limits).map_err(manifest_error)?;
-                (r.observation, Some(r.changed))
-            } else {
-                (
-                    manifest_reply::inspection(saved.permission, bytes, limits)
-                        .map_err(manifest_error)?,
-                    None,
-                )
+            let Payload::Manifest(manifest) = &saved.payload else {
+                return Err(Failure::Arguments);
             };
+            let response =
+                manifest_reply::mutation(manifest, bytes, limits).map_err(manifest_error)?;
             SetupObservation::Manifest {
-                response: r,
-                changed,
+                response: response.observation,
+                changed: Some(response.changed),
             }
         }
+        Kind::Manifest => SetupObservation::Manifest {
+            response: manifest_reply::inspection(
+                saved.payload.permission(),
+                bytes,
+                manifest_reply_limits(
+                    (1024 * 1024 * 1024)
+                        .try_into()
+                        .expect("positive content bound"),
+                ),
+            )
+            .map_err(manifest_error)?,
+            changed: None,
+        },
     })
 }
 pub(super) async fn run(options: &Options, input: &Input) -> Result<SetupOutcome, Failure> {

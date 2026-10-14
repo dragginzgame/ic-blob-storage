@@ -4,17 +4,11 @@ import { createServer } from 'node:http';
 import { readFile, mkdtemp } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
+import { serveAssets } from './assets.mjs';
 
 const profile = await mkdtemp(fileURLToPath(new URL('../../.tmp/browser-store-profile-', import.meta.url)));
 const bundle = await readFile(new URL('../../.tmp/browser/store.js', import.meta.url));
-const server = createServer((req, res) => {
-  if (req.url === '/store.js') {
-    res.writeHead(200, { 'content-type': 'text/javascript' }); res.end(bundle);
-  } else {
-    res.writeHead(200, { 'content-type': 'text/html' });
-    res.end('<!doctype html><script type="module" src="/store.js"></script>');
-  }
-});
+const server = createServer(serveAssets({ '/store.js': bundle }, '/store.js'));
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;
 let context;

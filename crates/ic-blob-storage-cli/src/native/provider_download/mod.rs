@@ -58,19 +58,11 @@ async fn body(
         expected.headers,
         expected.maximum,
     )?;
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .retry(reqwest::retry::never())
-        .timeout(Duration::from_secs(30))
+    let client = super::http::client_builder(network)
         .no_gzip()
         .no_brotli()
         .no_deflate()
         .no_zstd();
-    let client = if network == "local" {
-        client.no_proxy()
-    } else {
-        client
-    };
     let mut response = client
         .build()
         .map_err(|_| Failure::Transport)?

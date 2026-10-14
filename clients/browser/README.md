@@ -708,6 +708,11 @@ is `createIndexedDBIntentStore` in `intents.js` (package subpath `./intents`). T
 Chromium fixture uses this implementation with two slots and test-only platform
 fault injection; it no longer duplicates journal transitions.
 
+Gateway state transitions are shared with the SDK probe's memory adapter through
+the internal `intent-state.js` owner. IndexedDB still validates input snapshots
+and retained rows and applies transitions inside its strict transaction. The
+memory adapter supplies local fault-test state; it does not qualify persistence.
+
 Create a journal exactly once with `mode: 'create'`. On subsequent loads, use
 `mode: 'open'` with the same database name and capacity. Creation refuses an existing
 database; opening refuses a missing one without leaving a new empty database.

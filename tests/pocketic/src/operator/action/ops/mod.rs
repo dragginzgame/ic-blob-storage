@@ -1,7 +1,9 @@
 use super::model::{Request, Selection};
-use crate::operator::{Failure, ops::query_method};
+use crate::operator::{
+    Failure,
+    ops::{decode_small, query_method},
+};
 use blob_test_protocol::balance::BalanceFailure;
-use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_testkit::pocket_ic::PocketIc;
 use serde_json::{Value, json};
 use std::panic::{AssertUnwindSafe, catch_unwind};
@@ -48,24 +50,11 @@ pub(super) fn execute(selection: &Selection) -> Result<Result<(), Value>, Failur
         }
     }))
     .map_err(|_| Failure::Transport)??;
-    if bytes.len() > 4096 {
-        return Err(Failure::ReplyTooLarge);
-    }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(1000)
-        .set_max_type_len(32)
-        .set_full_error_message(false);
     match selection.request {
         Request::Balance(_) => {
-            decode_one_with_config::<Result<(), BalanceFailure>>(&bytes, &config)
-                .map(|r| r.map_err(|e| json!(e)))
+            decode_small::<Result<(), BalanceFailure>>(&bytes).map(|r| r.map_err(|e| json!(e)))
         }
-        Request::Gateway(_) => {
-            decode_one_with_config::<Result<(), blob_test_protocol::SyncFailure>>(&bytes, &config)
-                .map(|r| r.map_err(|e| json!(e)))
-        }
+        Request::Gateway(_) => decode_small::<Result<(), blob_test_protocol::SyncFailure>>(&bytes)
+            .map(|r| r.map_err(|e| json!(e))),
     }
-    .map_err(|_| Failure::InvalidReply)
 }

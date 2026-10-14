@@ -1,7 +1,6 @@
 //! Local HTTP fault transport around real `PocketIC`; no provider protocol substitute here.
 use candid::Principal;
 use ic_blob_storage_contracts::identity::ContentDigest;
-use std::io::Read;
 use std::io::Write;
 use std::net::TcpListener;
 use std::sync::{
@@ -160,14 +159,14 @@ impl Drop for Proxy {
     }
 }
 fn request(stream: &mut std::net::TcpStream) -> (String, Vec<u8>) {
-    let mut header = Vec::new();
-    while !header.ends_with(b"\r\n\r\n") {
-        assert!(header.len() < 8192);
-        let mut byte = [0];
-        stream.read_exact(&mut byte).unwrap();
-        header.push(byte[0]);
-    }
-    let header = String::from_utf8(header).unwrap();
+    let request =
+        ic_testkit::testing::read_http_request(stream, Duration::from_secs(5), 8192, 256 * 1024)
+            .expect("bounded complete signed request");
+    let end = request
+        .windows(4)
+        .position(|part| part == b"\r\n\r\n")
+        .unwrap();
+    let header = std::str::from_utf8(&request[..end]).unwrap();
     let path = header
         .lines()
         .next()
@@ -176,13 +175,5 @@ fn request(stream: &mut std::net::TcpStream) -> (String, Vec<u8>) {
         .nth(1)
         .unwrap()
         .to_owned();
-    let length: usize = header
-        .lines()
-        .filter_map(|line| line.split_once(':'))
-        .find(|(key, _)| key.eq_ignore_ascii_case("content-length"))
-        .map_or(0, |(_, size)| size.trim().parse().unwrap());
-    assert!(length <= 256 * 1024);
-    let mut body = vec![0; length];
-    stream.read_exact(&mut body).unwrap();
-    (path, body)
+    (path, request[end + 4..].to_vec())
 }

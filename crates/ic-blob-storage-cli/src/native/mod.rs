@@ -10,10 +10,12 @@ mod funding_assessment;
 mod funding_outcome;
 mod gateway_controls;
 mod history;
+mod http;
 mod installation_check;
 mod local_body;
 mod observe_upload;
 mod parsing;
+mod provenance;
 mod provider_download;
 mod publish_check;
 mod publish_inputs;
@@ -436,16 +438,7 @@ fn agent_for(
         .as_ref()
         .map(|path| read(path, 1024))
         .transpose()?;
-    let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .retry(reqwest::retry::never())
-        .timeout(Duration::from_secs(30));
-    // A local replica request must not leave loopback through an environment proxy.
-    let client = if options.network == "local" {
-        client.no_proxy()
-    } else {
-        client
-    };
+    let client = http::client_builder(options.network);
     let agent = Agent::builder()
         .with_url(options.url.as_str())
         .with_boxed_identity(identity)

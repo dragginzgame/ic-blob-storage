@@ -79,6 +79,65 @@ fn arguments_require_complete_identity_scope_and_explicit_trust() {
     ));
 }
 
+#[test]
+fn unknown_commands_never_fall_through_to_operator_status() {
+    for command in ["stats", "status-extra", "revoke-gateways", "unknown"] {
+        let mut args = options();
+        args[0] = command.into();
+        assert!(matches!(
+            arguments::Options::parse(&args),
+            Err(Failure::Arguments)
+        ));
+    }
+}
+
+#[test]
+fn parsed_command_requires_its_identity_role_and_refuses_the_other_flag() {
+    let mut operator = options();
+    let identity = operator
+        .iter()
+        .position(|value| value == "--operator")
+        .unwrap();
+    operator[identity] = "--actor".into();
+    assert!(matches!(
+        arguments::Options::parse(&operator),
+        Err(Failure::Arguments)
+    ));
+
+    let mut actor_args = options();
+    actor_args[0] = "reference-status".into();
+    actor_args.truncate(
+        actor_args
+            .iter()
+            .position(|value| value == "--cashier")
+            .unwrap(),
+    );
+    actor_args.extend([
+        "--request".into(),
+        "request.candid".into(),
+        "--root-key".into(),
+        "root.der".into(),
+    ]);
+    assert!(matches!(
+        arguments::Options::parse(&actor_args),
+        Err(Failure::Arguments)
+    ));
+    let identity = actor_args
+        .iter()
+        .position(|value| value == "--operator")
+        .unwrap();
+    actor_args[identity] = "--actor".into();
+    assert!(matches!(
+        arguments::Options::parse(&actor_args).unwrap().command,
+        arguments::Command::Reference(_)
+    ));
+    actor_args.extend(["--operator".into(), actor().to_text()]);
+    assert!(matches!(
+        arguments::Options::parse(&actor_args),
+        Err(Failure::Arguments)
+    ));
+}
+
 fn status() -> LocalServiceStatus {
     LocalServiceStatus {
         scope: OperatorScope {

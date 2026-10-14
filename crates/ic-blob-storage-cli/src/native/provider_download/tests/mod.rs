@@ -7,11 +7,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
-use std::{
-    io::{Read, Write},
-    net::TcpListener,
-    time::Instant,
-};
+use std::{io::Write, net::TcpListener, time::Instant};
 
 fn plan(bytes: &[u8]) -> UploadVerificationPlan {
     let length = bytes.len().to_string();
@@ -89,22 +85,12 @@ fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) -> std::io::Result
             other => panic!("expected local HTTP request: {other:?}"),
         }
     };
-    // Darwin accepts inherit the listener's nonblocking mode. The fixture uses
-    // blocking reads/writes with timeouts so a full response cannot stop at WouldBlock.
-    stream.set_nonblocking(false).unwrap();
-    stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
-        .unwrap();
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .unwrap();
-    let mut request = Vec::new();
-    while !request.ends_with(b"\r\n\r\n") {
-        assert!(request.len() < 8192);
-        let mut byte = [0];
-        stream.read_exact(&mut byte).unwrap();
-        request.push(byte[0]);
-    }
+    let request =
+        ic_testkit::testing::read_http_request(&mut stream, Duration::from_secs(5), 8192, 0)
+            .expect("bounded GET request");
     let request = String::from_utf8(request).unwrap().to_ascii_lowercase();
     assert!(request.contains("accept-encoding: identity"));
     assert!(!request.contains("authorization:"));

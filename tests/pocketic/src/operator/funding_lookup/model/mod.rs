@@ -1,9 +1,8 @@
 use crate::operator::{
     Failure,
-    model::{Binding, Command, Target, decimal},
+    model::{Binding, Target, decimal, flags},
 };
 use blob_test_protocol::funding::{FundingRequest, lookup::FundingLookupRequest};
-use std::collections::BTreeMap;
 
 pub(super) struct Selection {
     pub target: Target,
@@ -15,28 +14,12 @@ impl Selection {
         if args.first().map(String::as_str) != Some("lookup") {
             return Err(Failure::Arguments);
         }
-        let mut target = vec!["status".to_owned()];
-        let mut extra = BTreeMap::new();
-        for pair in args[1..].chunks(2) {
-            if pair.len() != 2 {
-                return Err(Failure::Arguments);
-            }
-            if matches!(
-                pair[0].as_str(),
-                "--id" | "--amount" | "--accept" | "--reply" | "--trap-callback"
-            ) {
-                if extra.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-                    return Err(Failure::Arguments);
-                }
-            } else {
-                target.extend_from_slice(pair);
-            }
-        }
-        let target = Command::parse(&target)?.target;
+        let mut flags = flags(&args[1..])?;
+        let target = Target::parse(&mut flags)?;
         let Binding::Funding(peer) = target.binding else {
             return Err(Failure::Arguments);
         };
-        let mut take = |key| extra.remove(key).ok_or(Failure::Arguments);
+        let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
         let attempt = FundingRequest {
             id: decimal(take("--id")?)?,
             offered: decimal(take("--amount")?)?,
@@ -47,7 +30,11 @@ impl Selection {
                 .parse()
                 .map_err(|_| Failure::Arguments)?,
         };
-        if peer == target.canister || attempt.offered == 0 || attempt.accept > attempt.offered {
+        if !flags.is_empty()
+            || peer == target.canister
+            || attempt.offered == 0
+            || attempt.accept > attempt.offered
+        {
             return Err(Failure::Arguments);
         }
         Ok(Self {

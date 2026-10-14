@@ -101,6 +101,13 @@ and its original packets, inspect the retained evidence through the operation's
 existing recovery command, and never delete the claim to start again. Record
 publication errors stop the command before further dispatch.
 
+Intent and observation records use `runner_source_sha256` for descriptive
+provenance of selected compiled sources. Common inputs include native HTTP,
+artifact and signed-update handling, with each command's explicit sources and
+the root Cargo catalog/lock. This is partial source coverage. Retained packets
+keep their original fingerprints; exact requests, signatures and scope bindings
+remain the recovery checks. A changed fingerprint grants no retry permission.
+
 The standalone host exposes the maintained blob method types; consumer frameworks
 own their wrappers elsewhere. See [current status](status/current.md) before
 selecting a target. Signed local standalone/browser journeys cover setup,

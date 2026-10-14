@@ -4,21 +4,17 @@ import { createServer } from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
+import { serveAssets } from './assets.mjs';
 const report = resolve(process.argv[2]);
 await mkdir(report, { mode: 0o700 });
 const bundle = await readFile(new URL('../../.tmp/browser/bootstrap.js', import.meta.url));
 const worker = await readFile(new URL('../../.tmp/browser/publication-worker.js', import.meta.url));
 const requests = [], unexpected = [], cases = [];
+const assets = serveAssets({ '/bootstrap.js': bundle, '/worker-entry.js': worker },
+  '/bootstrap.js', { 'cache-control': 'no-store' });
 const server = createServer((req, res) => {
   requests.push({ method: req.method, path: req.url });
-  res.setHeader('cache-control', 'no-store');
-  if (req.url === '/bootstrap.js' || req.url === '/worker-entry.js') {
-    res.writeHead(200, { 'content-type': 'text/javascript' });
-    res.end(req.url === '/bootstrap.js' ? bundle : worker);
-  } else {
-    res.writeHead(200, { 'content-type': 'text/html' });
-    res.end('<!doctype html><script type="module" src="/bootstrap.js"></script>');
-  }
+  assets(req, res);
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;

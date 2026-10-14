@@ -24,6 +24,23 @@ pub(super) use render::budget as budget_json;
 pub(super) use render::reconciliation as reconciliation_json;
 pub(super) use render::target as target_json;
 
+/// Small fixture replies share decoding limits; callers own binding and errors.
+pub(super) fn decode_small<T>(bytes: &[u8]) -> Result<T, Failure>
+where
+    T: candid::CandidType + for<'de> serde::Deserialize<'de>,
+{
+    if bytes.len() > 4096 {
+        return Err(Failure::ReplyTooLarge);
+    }
+    let mut config = DecoderConfig::new();
+    config
+        .set_decoding_quota(100_000)
+        .set_skipping_quota(1000)
+        .set_max_type_len(32)
+        .set_full_error_message(false);
+    decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
+}
+
 pub(super) fn query(target: &Target) -> Result<Vec<u8>, Failure> {
     query_method(
         target,

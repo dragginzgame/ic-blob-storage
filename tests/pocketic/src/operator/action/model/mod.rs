@@ -1,10 +1,9 @@
 use crate::operator::{
     Failure,
-    model::{Binding, Command, Target, canister, decimal},
+    model::{Binding, Target, canister, decimal, flags},
 };
 use blob_test_protocol::GatewaySyncRequest;
 use blob_test_protocol::balance::{BalanceRefreshRequest, BalanceScope};
-use std::collections::BTreeMap;
 
 pub(super) struct Selection {
     pub target: Target,
@@ -31,31 +30,15 @@ impl Selection {
             Some("sync") if matches!(action, Action::Gateway) => false,
             _ => return Err(Failure::Arguments),
         };
-        let mut target = vec!["status".to_owned()];
-        let mut extra = BTreeMap::new();
-        for pair in args[1..].chunks(2) {
-            if pair.len() != 2 {
-                return Err(Failure::Arguments);
-            }
-            if matches!(
-                pair[0].as_str(),
-                "--source" | "--account" | "--revision" | "--sequence"
-            ) {
-                if extra.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-                    return Err(Failure::Arguments);
-                }
-            } else {
-                target.extend_from_slice(pair);
-            }
-        }
-        let target = Command::parse(&target)?.target;
+        let mut flags = flags(&args[1..])?;
+        let target = Target::parse(&mut flags)?;
         let Binding::Authority(namespace) = target.binding else {
             return Err(Failure::Arguments);
         };
-        let get = |key| extra.get(key).copied().ok_or(Failure::Arguments);
-        let source = canister(get("--source")?)?;
-        let revision = decimal(get("--revision")?)?;
-        let sequence = decimal(get("--sequence")?)?;
+        let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
+        let source = canister(take("--source")?)?;
+        let revision = decimal(take("--revision")?)?;
+        let sequence = decimal(take("--sequence")?)?;
         if namespace == 0 || source == target.canister || sequence == 0 {
             return Err(Failure::Arguments);
         }
@@ -69,25 +52,23 @@ impl Selection {
                         service: target.canister,
                         namespace,
                         source,
-                        account: canister(get("--account")?)?,
+                        account: canister(take("--account")?)?,
                     },
                     revision,
                     sequence,
                 })
             }
-            Action::Gateway => {
-                if extra.contains_key("--account") {
-                    return Err(Failure::Arguments);
-                }
-                Request::Gateway(GatewaySyncRequest {
-                    service: target.canister,
-                    namespace,
-                    source,
-                    revision,
-                    sequence,
-                })
-            }
+            Action::Gateway => Request::Gateway(GatewaySyncRequest {
+                service: target.canister,
+                namespace,
+                source,
+                revision,
+                sequence,
+            }),
         };
+        if !flags.is_empty() {
+            return Err(Failure::Arguments);
+        }
         Ok(Self {
             target,
             request,

@@ -1,6 +1,7 @@
 // Browser test driver only. Rust owns the PocketIC instance and installation.
 import { chromium } from 'playwright';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
+import { serveAssets } from './assets.mjs';
 import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { createInterface } from 'node:readline';
@@ -12,6 +13,7 @@ assert(major > 20 || (major === 20 && minor >= 19), 'Browser evidence requires N
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 const deadline = setTimeout(() => { console.error('Browser fixture exceeded 60 seconds'); process.exit(1); }, 60_000);
 const bundle = await readFile(new URL('../../.tmp/browser/client.js', import.meta.url));
+const assets = serveAssets({ '/client.js': bundle }, '/client.js');
 const gateway = [];
 const tls = await loopbackTLS();
 const server = await loopbackH2(tls, (req, res) => {
@@ -25,12 +27,7 @@ const server = await loopbackH2(tls, (req, res) => {
     });
     return;
   }
-  if (req.url === '/client.js') {
-    res.writeHead(200, { 'content-type': 'text/javascript' }); res.end(bundle);
-  } else {
-    res.writeHead(200, { 'content-type': 'text/html' });
-    res.end('<!doctype html><script type="module" src="/client.js"></script>');
-  }
+  assets(req, res);
 });
 const origin = server.origin;
 const browser = await chromium.launch(tls.launch);

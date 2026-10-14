@@ -1,10 +1,8 @@
 //! Shared pure validators own permission/metadata/tree invariants before dispatch.
 use super::{
-    Failure, Input, Kind, Request, admission_error, manifest_error, manifest_reply_limits,
+    Failure, Input, Kind, Payload, Request, admission_error, manifest_error, manifest_reply_limits,
 };
 use candid::Principal;
-use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
-use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 use ic_blob_storage_contracts::upload::admission::reply as admission;
 use ic_blob_storage_contracts::upload::manifests::reply as manifest;
 
@@ -17,17 +15,16 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
             4096
         },
     )?;
-    let manifest: Option<UploadManifestRequest> = if input.kind == Kind::Prepare {
-        Some(crate::native::exact_candid::decode(
+    let payload = if input.kind == Kind::Prepare {
+        Payload::Manifest(crate::native::exact_candid::decode(
             &bytes, 65536, 64, 2_000_000,
         )?)
     } else {
-        None
+        Payload::Permission(crate::native::exact_candid::decode(
+            &bytes, 65536, 64, 2_000_000,
+        )?)
     };
-    let permission: UploadAdmissionRequest = match &manifest {
-        Some(r) => r.permission,
-        None => crate::native::exact_candid::decode(&bytes, 65536, 64, 2_000_000)?,
-    };
+    let permission = payload.permission();
     admission::validate_request(permission).map_err(admission_error)?;
     if permission.upload.service != input.service || permission.upload.namespace != input.namespace
     {
@@ -41,7 +38,7 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
     if !allowed {
         return Err(Failure::Binding);
     }
-    if let Some(r) = &manifest {
+    if let Payload::Manifest(r) = &payload {
         let limits = manifest_reply_limits(
             (1024 * 1024 * 1024)
                 .try_into()
@@ -50,15 +47,10 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
         manifest::validate_declaration(permission, &r.declaration, limits.declaration)
             .map_err(manifest_error)?;
     }
-    let argument = if let Some(r) = &manifest {
-        candid::encode_one(r)
-    } else {
-        candid::encode_one(permission)
+    let argument = match &payload {
+        Payload::Manifest(manifest) => candid::encode_one(manifest),
+        Payload::Permission(permission) => candid::encode_one(permission),
     }
     .map_err(|_| Failure::Arguments)?;
-    Ok(Request {
-        permission,
-        manifest,
-        argument,
-    })
+    Ok(Request { payload, argument })
 }

@@ -86,20 +86,14 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         &record::ObservationPlanRecord {
             schema: 1,
             runner_version: env!("CARGO_PKG_VERSION"),
-            runner_source_sha256: ContentDigest::compute(
-                concat!(
-                    include_str!("mod.rs"),
-                    include_str!("record/mod.rs"),
-                    include_str!("../provider_download/mod.rs"),
-                    include_str!("../upload_setup/mod.rs"),
-                    include_str!("../artifacts/mod.rs"),
-                    include_str!("../mod.rs"),
-                    include_str!("../arguments/mod.rs"),
-                    include_str!("../../../../../Cargo.lock")
-                )
-                .as_bytes(),
-            )
-            .to_string(),
+            runner_source_sha256: crate::native::provenance::runner_source(concat!(
+                include_str!("mod.rs"),
+                include_str!("record/mod.rs"),
+                include_str!("../provider_download/mod.rs"),
+                include_str!("../provider_download/headers/mod.rs"),
+                include_str!("../local_body/mod.rs"),
+                include_str!("../upload_setup/mod.rs"),
+            )),
             network: options.network,
             service_url: options.url.as_str(),
             service: input.service.to_text(),

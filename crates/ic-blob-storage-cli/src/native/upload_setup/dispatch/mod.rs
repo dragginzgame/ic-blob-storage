@@ -29,19 +29,19 @@ pub(super) async fn run(
             json!({"schema":1,"runner_version":env!("CARGO_PKG_VERSION"),
         "network":options.network,"service_url":options.url.as_str(),"actor":options.actor.to_text(),
         "service":input.service.to_text(),"namespace":input.namespace.to_string(),
-        "permission":permission_json(saved.permission),"method":input.kind.method(),
+        "permission":permission_json(saved.payload.permission()),"method":input.kind.method(),
         "request_sha256":ContentDigest::compute(&saved.argument).to_string(),
-            "runner_source_sha256":ContentDigest::compute(concat!(include_str!("mod.rs"),
-                include_str!("../mod.rs"),include_str!("../request/mod.rs"),
-                include_str!("../../mod.rs"),include_str!("../../arguments/mod.rs"),
-                include_str!("../../parsing/mod.rs"),include_str!("../../signed_update/mod.rs"),
-                include_str!("../../artifacts/mod.rs"),include_str!("../../../../../../Cargo.lock")).as_bytes()).to_string(),
+            "runner_source_sha256":crate::native::provenance::runner_source(concat!(
+include_str!("mod.rs"),
+include_str!("../mod.rs"),
+include_str!("../request/mod.rs"),
+)),
         "provider_requests":0})
         },
     )?;
     prepared.run().bytes(
         "permission.candid",
-        &candid::encode_one(saved.permission).map_err(|_| Failure::Arguments)?,
+        &candid::encode_one(saved.payload.permission()).map_err(|_| Failure::Arguments)?,
     )?;
     let dispatched = prepared.dispatch(&agent).await;
     let result = dispatched.response.and_then(|bytes| {

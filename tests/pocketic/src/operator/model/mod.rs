@@ -29,12 +29,33 @@ impl Command {
             Some("check") => true,
             _ => return Err(Failure::Arguments),
         };
-        let mut flags = BTreeMap::new();
-        for pair in args[1..].chunks(2) {
-            if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-                return Err(Failure::Arguments);
-            }
+        let mut flags = flags(&args[1..])?;
+        let target = Target::parse(&mut flags)?;
+        if !flags.is_empty() {
+            return Err(Failure::Arguments);
         }
+        Ok(Self { check, target })
+    }
+}
+
+/// Parse each argument pair once; command owners consume their own fields.
+pub(super) fn flags(args: &[String]) -> Result<BTreeMap<&str, &str>, Failure> {
+    let (pairs, remainder) = args.as_chunks::<2>();
+    if !remainder.is_empty() {
+        return Err(Failure::Arguments);
+    }
+    let mut flags = BTreeMap::new();
+    for [name, value] in pairs {
+        if flags.insert(name.as_str(), value.as_str()).is_some() {
+            return Err(Failure::Arguments);
+        }
+    }
+    Ok(flags)
+}
+
+impl Target {
+    /// Consume explicit transport and binding fields, preserving command arguments.
+    pub fn parse(flags: &mut BTreeMap<&str, &str>) -> Result<Self, Failure> {
         let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
         let server: SocketAddr = take("--server")?.parse().map_err(|_| Failure::Arguments)?;
         if !server.ip().is_loopback() || server.port() == 0 {
@@ -49,18 +70,12 @@ impl Command {
             "funding" => Binding::Funding(self::canister(take("--peer")?)?),
             _ => return Err(Failure::Arguments),
         };
-        if !flags.is_empty() {
-            return Err(Failure::Arguments);
-        }
         Ok(Self {
-            check,
-            target: Target {
-                server,
-                instance,
-                canister,
-                caller,
-                binding,
-            },
+            server,
+            instance,
+            canister,
+            caller,
+            binding,
         })
     }
 }

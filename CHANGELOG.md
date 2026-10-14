@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.24.0]
+
+- **Breaking, pending qualification:** incoming Cargo selections move public
+  IC Memory to 0.37. Earlier cleanup evidence retains its original
+  Memory 0.36/Testkit 0.39 graph; it does not qualify this public dependency cut.
+
+- Derive native identity flags from parsed commands and reject unknown operator
+  commands explicitly, preserving existing actor/operator requirements.
+- Share browser fixture asset serving and project SDK preparation into the exact
+  Rust control message while keeping opaque upload handles internal.
+- Adopt Testkit 0.41's bounded provider and signed-update HTTP fixture capture;
+  native backpressure framing retirement awaits its published phased reader.
+  ([#70](https://github.com/dragginzgame/ic-blob-storage/issues/70))
+
+- Record qualified Host directory/output and IC Build archive replacements;
+  activation and local-flow retirement await published producer APIs.
+  ([#69](https://github.com/dragginzgame/ic-blob-storage/issues/69))
+
+- Share native HTTP policy and consolidate fixture argument/reply parsing;
+  preserve proxy isolation, exact bindings and separate response limits.
+- Give native source fingerprints and browser gateway journal transitions one
+  owner; keep upload setup's permission or manifest in one selected payload.
+  Preserve historical evidence, transaction boundaries and command authority.
+
 ## [0.23.4] - 2026-10-14
 
 - Keep verified native body handles through Host-owned no-replace publication;

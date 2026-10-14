@@ -14,14 +14,24 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.36.4 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.9.3 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.39.0 | Native PocketIC client, server setup and managed lifetime |
-| IC Host artifacts/fs/tools (direct) | 0.17.9 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.37.0 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.9.5 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.41.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Host artifacts/fs/tools (direct) | 0.18.0 | Native artifacts, filesystem and test/tool boundaries |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
 the retained creation/publication used by verified body staging.
+
+Published Testkit owns whole-request capture for native provider and signed-update
+fixtures. Its phased request-line/completion extension is prepared upstream;
+[Blob #70](https://github.com/dragginzgame/ic-blob-storage/issues/70) retains the
+remaining native backpressure retirement. The CLI uses Testkit only as a native
+development dependency; public libraries/contracts gain no testing dependency.
+After changing the selected Testkit CLI, explicitly run `make install-testkit`
+before ordinary offline tool gates. Scoped installed evidence may use an explicit
+server binary with caller-owned byte admission; that does not qualify the missing
+lock-selected CLI installation.
 
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.11.0 at
 `a15ff323449f4b6190f647aec0de43cbcfb314ba`, with 116 payloads. Common installation,
@@ -44,13 +54,14 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Testkit 0.39 and direct Blob callers resolve Host 0.17.9 in the application lock.
+Testkit 0.39 and direct Blob callers resolve Host 0.17.12 in the application lock.
 The separately installed Testkit CLI uses its published packaged lock's Host
 0.17.8, which includes the macOS permissions repair. Run `make install-testkit`
 explicitly after this selection change, then `make testkit-check`; changing the
-application lock alone cannot repair an older tool build. The current
+application lock alone cannot repair an older tool build. The
 [issue-repair qualification](evidence/integration0234.md#published-opener-and-native-ci-setup-repair)
-keeps these graphs separate. Interface tests explicitly enable `candid-service`.
+retains its original graph; [current status](status/current.md) records the pending
+selection and checks. Interface tests explicitly enable `candid-service`.
 Direct Host tools already disables default features; no Candid extraction
 feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`

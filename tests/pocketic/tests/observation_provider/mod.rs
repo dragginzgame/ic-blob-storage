@@ -1,6 +1,6 @@
 //! Owned local byte source shared by signed verifier journeys; never deployed Caffeine.
 use std::{
-    io::{Read, Write},
+    io::Write,
     net::{TcpListener, TcpStream},
     path::Path,
     time::{Duration, Instant},
@@ -19,18 +19,11 @@ pub(crate) fn incoming(listener: &TcpListener) -> (TcpStream, String) {
         }
     };
     stream
-        .set_read_timeout(Some(Duration::from_secs(5)))
-        .unwrap();
-    stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .unwrap();
-    let mut request = Vec::new();
-    while !request.ends_with(b"\r\n\r\n") {
-        assert!(request.len() < 8192);
-        let mut byte = [0];
-        stream.read_exact(&mut byte).unwrap();
-        request.push(byte[0]);
-    }
+    let request =
+        ic_testkit::testing::read_http_request(&mut stream, Duration::from_secs(5), 8192, 0)
+            .expect("bounded GET request");
     (stream, String::from_utf8(request).unwrap())
 }
 

@@ -88,7 +88,8 @@ async function remember(result) {
 window.fixture = { setup, initializeStore: intents.initialize, admitAndPrepare, finishConsumer, plan: async cfg => {
     config = cfg;
     prepared = await prepare();
-    return prepared;
+    const { hash, byteLength, manifestJSON } = prepared;
+    return { hash, byteLength, manifestJSON };
   }, issue: async () => {
     // Each explicit test invocation obtains a preparation. The durable claim, not
     // this ephemeral handle, prevents a new upload after uncertainty/cancellation.
