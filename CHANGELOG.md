@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.23.4]
+## [0.23.4] - 2026-10-14
 
 - Keep verified native body handles through Host-owned no-replace publication;
   retain partial evidence and refuse substituted staging files during recovery.
