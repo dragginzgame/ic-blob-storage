@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.25.1]
+## [0.25.1] - 2026-10-14
 
 - Share checked probe upload-identity construction while preserving each probe's
   invalid-input category and authority checks.
