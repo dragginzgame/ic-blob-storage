@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.24.0]
+## [0.24.0] - 2026-10-14
 
 - **Breaking, pending qualification:** incoming Cargo selections move public
   IC Memory to 0.37. Earlier cleanup evidence retains its original
