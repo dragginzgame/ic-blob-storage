@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.23.3]
+## [0.23.3] - 2026-10-14
 
 - Reuse validated permission views during synchronous inspection and replay;
   give signed intent facts and lifecycle byte accounting one owner while preserving
