@@ -5,6 +5,8 @@
 - **Breaking, pending qualification:** incoming Cargo selections move public
   IC Memory to 0.37. Earlier cleanup evidence retains its original
   Memory 0.36/Testkit 0.39 graph; it does not qualify this public dependency cut.
+- Update host-memory composition coverage for Memory 0.37's allocation summary;
+  retain the assertion that Blob collections preserve the host's bucket profile.
 
 - Derive native identity flags from parsed commands and reject unknown operator
   commands explicitly, preserving existing actor/operator requirements.

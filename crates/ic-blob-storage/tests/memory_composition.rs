@@ -80,6 +80,7 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
     assert_eq!(
         host.memory_allocations()
             .expect("host profile preserved")
+            .summary
             .bucket_size_pages,
         16
     );

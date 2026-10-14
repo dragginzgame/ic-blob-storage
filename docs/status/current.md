@@ -2,6 +2,18 @@
 
 Date: 2026-10-14
 
+## Memory 0.37 composition repair
+
+The reported workspace check failed because the composition test read the
+bucket size directly from `MemoryAllocations`. Memory 0.37 keeps that persisted
+measurement under `summary`; the assertion now follows that API and still checks
+the host-selected 16-page bucket profile. Both composition tests and the complete
+offline, locked workspace all-target/all-feature check pass on the current graph.
+Root manifest/lock hashes remain unchanged. Logs are retained under
+`.tmp/review-validation/memory037/`; the original failed validation logs remain.
+This repair changes only test coverage and notes. Full CI, native macOS and
+service/provider qualification were not run; pending release notes stay 0.24.0.
+
 ## Command, browser and HTTP fixture cleanup
 
 Native commands now derive actor/operator flags from their parsed variant and
