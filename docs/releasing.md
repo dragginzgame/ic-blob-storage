@@ -28,7 +28,9 @@ vendored bytes or use mutable sibling tools. See
 [the latest qualified adoption](evidence/shared091002215.md).
 
 Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
-binary. `make release-tools-check` verifies it and the reviewed Cargo sort/rustfmt
+binary. `make install-release-tools` prepares the pinned Cargo-edit executable
+through the shared installer. Release preflight performs that explicit setup;
+`make release-tools-check` verifies it, ShellCheck and the reviewed Cargo sort/rustfmt
 without compilation. Both `fmt` and `fmt-check` use that same offline owner.
 `make install-hooks` activates the reviewed hook; hook and formatting qualification
 remain independent checks. Commands and package/version effects follow
@@ -74,10 +76,12 @@ fetches the selected lock with `make deps`, then
 runs shell/helper checks, hook regressions, manifest/Rust formatting, compilation,
 Clippy, retained-probe checks, docs, native/PocketIC tests, Wasm and packaging.
 Prerequisite or fetch failure stops before compilation or version mutation. Offline
-checks never select newer dependencies. The metadata transaction updates only
-the inherited workspace version, version-qualified local catalog requirements
-and local version-qualified references in Cargo.lock, then
-checks Cargo metadata with `--offline --locked`; external selections stay fixed.
+checks never select newer dependencies. The reviewed `scripts/ci/cargo-release-metadata.sh` owns coordinated Cargo
+version/lock/changelog preparation, using admitted Cargo-edit and Cargo-sort.
+Blob keeps source admission, its four-file rollback and receipt generation.
+The helper checks the complete inherited member/lock roster with locked offline
+Cargo metadata; external lock selections stay fixed. A later formatter or receipt
+failure still restores the original manifest, lock, changelog and prior receipt.
 Prepared metadata must pass formatting before its receipt is written or staged.
 
 The release gate uses the reviewed validation logger around the same `ci` target.

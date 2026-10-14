@@ -11,7 +11,6 @@ use crate::funding::transfer::FundingTransfer;
 use candid::CandidType;
 use candid::Deserialize;
 use candid::Principal;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;
@@ -89,13 +88,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > max.get() {
         return Err(FundingReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(500_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(128)
-        .set_max_header_len(max.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(500_000, 1024, 128, max.get());
     decode_one_with_config(bytes, &config).map_err(|_| FundingReplyError::Invalid)
 }
 fn transfer(offered: u128, phase: FundingPhase) -> Result<FundingTransfer, FundingReplyError> {

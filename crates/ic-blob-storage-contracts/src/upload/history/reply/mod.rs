@@ -9,7 +9,6 @@ use crate::dto::upload::history::UploadHistoryScope;
 use crate::upload::history::LifecyclePhase;
 use crate::upload::history::UploadRootState;
 use candid::Principal;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::collections::BTreeSet;
 use std::num::NonZeroU64;
@@ -125,13 +124,7 @@ pub fn page(
     if bytes.len() > limits.bytes.get() {
         return Err(UploadHistoryReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(1_000_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(64)
-        .set_max_header_len(limits.bytes.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(1_000_000, 1024, 64, limits.bytes.get());
     let page: Result<UploadHistoryPage, UploadHistoryFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadHistoryReplyError::Invalid)?;
     let page = page.map_err(UploadHistoryReplyError::Remote)?;

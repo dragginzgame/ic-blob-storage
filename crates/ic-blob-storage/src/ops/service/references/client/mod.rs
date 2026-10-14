@@ -1,4 +1,5 @@
 //! Explicit single-call mutation and receipt inspection; no automatic retry.
+use crate::ops::service::client;
 use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
@@ -10,7 +11,7 @@ use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
 use ic_blob_storage_contracts::reference::reply;
 use ic_blob_storage_contracts::reference::reply::ReferenceReplyError;
-use ic_cdk::call::{Call, CallFailed, Response};
+use ic_cdk::call::Response;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit tenant/service configuration. Construction installs and sends nothing.
@@ -51,11 +52,7 @@ impl ReplicatedReferenceClient {
         service: Principal,
         timeout: NonZeroU32,
     ) -> Result<Self, ReferenceClientError> {
-        if timeout.get() > 300
-            || [tenant, service]
-                .into_iter()
-                .any(|p| p == Principal::anonymous() || p == Principal::management_canister())
-        {
+        if !client::configured(&[tenant, service], timeout) {
             return Err(ReferenceClientError::Configuration);
         }
         Ok(Self {
@@ -156,16 +153,14 @@ impl ReplicatedReferenceClient {
         if !ic_cdk::api::in_replicated_execution() {
             return Err(ReferenceClientError::Execution);
         }
-        Call::bounded_wait(self.service, method)
-            .change_timeout(self.timeout.get())
-            .with_arg(request)
+        client::call(self.service, method, self.timeout, request)
             .await
-            .map_err(|error| match error {
-                CallFailed::CallRejected(error) => {
-                    ReferenceClientError::Rejected(error.raw_reject_code())
-                }
-                CallFailed::InsufficientLiquidCycleBalance(_)
-                | CallFailed::CallPerformFailed(_) => ReferenceClientError::NotEnqueued,
+            .map_err(|e| {
+                client::failure(
+                    e,
+                    ReferenceClientError::NotEnqueued,
+                    ReferenceClientError::Rejected,
+                )
             })
     }
 }

@@ -80,23 +80,24 @@ jobs:
           BLOB_TOOLING_ARCHIVE_ID: ${{ steps.tooling-archive-proof.outputs.artifact-id }}
         run: |
           [[ "$BLOB_TOOLING_ARCHIVE_ID" =~ ^[1-9][0-9]*$ ]] || { echo 'Missing or invalid archive identity' >&2; exit 1; }
-      - name: Wait for the exact uploaded tooling archive
-        timeout-minutes: 2
+      - name: Download the exact uploaded tooling archive
+        timeout-minutes: 3
         env:
           GH_TOKEN: ${{ github.token }}
           BLOB_TOOLING_REPOSITORY: ${{ github.repository }}
           BLOB_TOOLING_RUN_ID: ${{ github.run_id }}
           BLOB_TOOLING_ARCHIVE_ID: ${{ steps.tooling-archive-proof.outputs.artifact-id }}
-        run: bash scripts/ci/wait-for-artifact.sh "$BLOB_TOOLING_REPOSITORY" "$BLOB_TOOLING_RUN_ID" "$BLOB_TOOLING_ARCHIVE_ID"
-      - name: Download that exact tooling archive
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+          BLOB_TOOLING_ARCHIVE_DIGEST: ${{ steps.tooling-archive-proof.outputs.artifact-digest }}
+          BLOB_TOOLING_ARCHIVE_DOWNLOAD: ${{ runner.temp }}/blob-tooling-evidence-downloaded.current
+        run: bash scripts/ci/download-evidence.sh "$BLOB_TOOLING_REPOSITORY" "$BLOB_TOOLING_RUN_ID" "$BLOB_TOOLING_ARCHIVE_ID" "$BLOB_TOOLING_ARCHIVE_DIGEST" "$BLOB_TOOLING_ARCHIVE_DOWNLOAD"
+      - name: Retain failed evidence download attempts
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          artifact-ids: ${{ steps.tooling-archive-proof.outputs.artifact-id }}
-          github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          run-id: ${{ github.run_id }}
+          name: tooling-evidence-download-${{ matrix.os }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/blob-tooling-evidence-downloaded.current
-          digest-mismatch: error
+          if-no-files-found: ignore
+          retention-days: 30
       - name: Verify downloaded tooling archive bytes
         env:
           BLOB_TOOLING_ARCHIVE_PROOF: ${{ runner.temp }}/blob-tooling-evidence-proof.current

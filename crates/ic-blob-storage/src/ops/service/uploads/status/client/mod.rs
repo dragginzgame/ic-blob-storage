@@ -1,11 +1,11 @@
 //! Single replicated authenticated upload observation, with no automatic retry.
+use crate::ops::service::client;
 use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;
 use ic_blob_storage_contracts::upload::status::reply;
 use ic_blob_storage_contracts::upload::status::reply::UploadStatusReplyError;
-use ic_cdk::call::{Call, CallFailed};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit actual tenant/service selection; construction sends nothing.
@@ -46,11 +46,7 @@ impl ReplicatedUploadStatusClient {
         service: Principal,
         timeout: NonZeroU32,
     ) -> Result<Self, UploadStatusClientError> {
-        if timeout.get() > 300
-            || [tenant, service]
-                .into_iter()
-                .any(|p| p == Principal::anonymous() || p == Principal::management_canister())
-        {
+        if !client::configured(&[tenant, service], timeout) {
             return Err(UploadStatusClientError::Configuration);
         }
         Ok(Self {
@@ -81,16 +77,14 @@ impl ReplicatedUploadStatusClient {
         if !ic_cdk::api::in_replicated_execution() {
             return Err(UploadStatusClientError::Execution);
         }
-        let response = Call::bounded_wait(self.service, UPLOAD_STATUS_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(upload)
+        let response = client::call(self.service, UPLOAD_STATUS_METHOD, self.timeout, upload)
             .await
-            .map_err(|e| match e {
-                CallFailed::CallRejected(e) => {
-                    UploadStatusClientError::Rejected(e.raw_reject_code())
-                }
-                CallFailed::InsufficientLiquidCycleBalance(_)
-                | CallFailed::CallPerformFailed(_) => UploadStatusClientError::NotEnqueued,
+            .map_err(|e| {
+                client::failure(
+                    e,
+                    UploadStatusClientError::NotEnqueued,
+                    UploadStatusClientError::Rejected,
+                )
             })?;
         Ok(reply::decode(upload, response.as_ref(), max)?)
     }

@@ -1,4 +1,5 @@
 //! One explicit replicated admission or inspection; no retry or provider effects.
+use crate::ops::service::client;
 use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
@@ -9,7 +10,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_STATUS_METHOD;
 use ic_blob_storage_contracts::protocol::UPLOAD_REVOCATION_METHOD;
 use ic_blob_storage_contracts::upload::admission::reply;
 use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
-use ic_cdk::call::{Call, CallFailed, Response};
+use ic_cdk::call::Response;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit tenant/service selection. Persist full permission intent before polling.
@@ -64,11 +65,7 @@ impl ReplicatedUploadAdmissionClient {
         service: Principal,
         timeout: NonZeroU32,
     ) -> Result<Self, UploadAdmissionClientError> {
-        if timeout.get() > 300
-            || [tenant, service]
-                .into_iter()
-                .any(|p| p == Principal::anonymous() || p == Principal::management_canister())
-        {
+        if !client::configured(&[tenant, service], timeout) {
             return Err(UploadAdmissionClientError::Configuration);
         }
         Ok(Self {
@@ -92,16 +89,14 @@ impl ReplicatedUploadAdmissionClient {
         if !ic_cdk::api::in_replicated_execution() {
             return Err(UploadAdmissionClientError::Execution);
         }
-        Call::bounded_wait(self.service, method)
-            .change_timeout(self.timeout.get())
-            .with_arg(input)
+        client::call(self.service, method, self.timeout, input)
             .await
-            .map_err(|e| match e {
-                CallFailed::CallRejected(e) => {
-                    UploadAdmissionClientError::Rejected(e.raw_reject_code())
-                }
-                CallFailed::InsufficientLiquidCycleBalance(_)
-                | CallFailed::CallPerformFailed(_) => UploadAdmissionClientError::NotEnqueued,
+            .map_err(|e| {
+                client::failure(
+                    e,
+                    UploadAdmissionClientError::NotEnqueued,
+                    UploadAdmissionClientError::Rejected,
+                )
             })
     }
     /// Send one admission update with no attached cycles. Ordinary IC fees apply.

@@ -271,10 +271,12 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
         .unwrap();
         let transfer = input
             .transfer_input(
-                output["content_digest"]
+                &output["content_digest"]
                     .as_str()
                     .unwrap()
-                    .trim_start_matches("sha256:"),
+                    .trim_start_matches("sha256:")
+                    .parse()
+                    .unwrap(),
             )
             .unwrap();
         assert_eq!(transfer["preparation"], preparation);

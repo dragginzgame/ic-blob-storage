@@ -1,4 +1,5 @@
 //! Explicit replicated funding inspection; no attached cycles or mutation methods.
+use crate::ops::service::client;
 use candid::Principal;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
@@ -10,7 +11,6 @@ use ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits;
 use ic_blob_storage_contracts::funding::reply::FundingReplyError;
 use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
 use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
-use ic_cdk::call::{Call, CallFailed};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 
@@ -53,10 +53,7 @@ impl ReplicatedFundingClient {
         scope: OperatorScope,
         timeout: NonZeroU32,
     ) -> Result<Self, FundingClientError> {
-        if [Principal::anonymous(), Principal::management_canister()].contains(&actor)
-            || timeout.get() > 300
-            || reply::check_scope(scope).is_err()
-        {
+        if !client::configured(&[actor], timeout) || reply::check_scope(scope).is_err() {
             return Err(FundingClientError::Configuration);
         }
         Ok(Self {
@@ -90,11 +87,20 @@ impl ReplicatedFundingClient {
     ) -> Result<FundingHistoryPage, FundingClientError> {
         self.check(input.scope)?;
         reply::check_history(input)?;
-        let response = Call::bounded_wait(self.scope.service, FUNDING_HISTORY_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(input)
-            .await
-            .map_err(failure)?;
+        let response = client::call(
+            self.scope.service,
+            FUNDING_HISTORY_METHOD,
+            self.timeout,
+            input,
+        )
+        .await
+        .map_err(|e| {
+            client::failure(
+                e,
+                FundingClientError::NotEnqueued,
+                FundingClientError::Rejected,
+            )
+        })?;
         Ok(reply::history(input, response.as_ref(), limits)?)
     }
     /// Inspect one original intent once, preserving absence and restore fencing.
@@ -109,20 +115,21 @@ impl ReplicatedFundingClient {
     ) -> Result<Option<FundingOutcomeResponse>, FundingClientError> {
         self.check(input.scope)?;
         reply::check_outcome(input)?;
-        let response = Call::bounded_wait(self.scope.service, FUNDING_OUTCOME_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(input)
-            .await
-            .map_err(failure)?;
+        let response = client::call(
+            self.scope.service,
+            FUNDING_OUTCOME_METHOD,
+            self.timeout,
+            input,
+        )
+        .await
+        .map_err(|e| {
+            client::failure(
+                e,
+                FundingClientError::NotEnqueued,
+                FundingClientError::Rejected,
+            )
+        })?;
         Ok(reply::outcome::inspect(input, response.as_ref(), max)?)
-    }
-}
-fn failure(error: CallFailed) -> FundingClientError {
-    match error {
-        CallFailed::CallRejected(e) => FundingClientError::Rejected(e.raw_reject_code()),
-        CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_) => {
-            FundingClientError::NotEnqueued
-        }
     }
 }
 #[cfg(test)]

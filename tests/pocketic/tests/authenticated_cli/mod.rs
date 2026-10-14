@@ -48,6 +48,21 @@ pub(super) fn run(args: &[String], code: i32) -> Value {
 
 /// Override only the child process's TLS trust for an owned HTTPS fixture.
 pub(super) fn run_with_tls_roots(args: &[String], code: i32, roots: Option<&Path>) -> Value {
+    let mut command = command(args, roots);
+    let result = command_output(&mut command);
+    assert_eq!(
+        result.status.code(),
+        Some(code),
+        "command {} stdout: {} stderr: {}",
+        args[0],
+        String::from_utf8_lossy(&result.stdout),
+        String::from_utf8_lossy(&result.stderr)
+    );
+    serde_json::from_slice(&result.stdout).unwrap()
+}
+
+/// One explicit artifact, proxy refusal environment and optional local TLS root.
+pub(super) fn command(args: &[String], roots: Option<&Path>) -> Command {
     let executable = std::env::var_os("BLOB_CLI_BIN").expect("explicit signed CLI artifact");
     assert!(
         Path::new(&executable).is_file(),
@@ -71,14 +86,17 @@ pub(super) fn run_with_tls_roots(args: &[String], code: i32, roots: Option<&Path
             .env("SSL_CERT_FILE", roots)
             .env_remove("SSL_CERT_DIR");
     }
-    let result = command.output().unwrap();
-    assert_eq!(
-        result.status.code(),
-        Some(code),
-        "command {} stdout: {} stderr: {}",
-        args[0],
-        String::from_utf8_lossy(&result.stdout),
-        String::from_utf8_lossy(&result.stderr)
-    );
-    serde_json::from_slice(&result.stdout).unwrap()
+    command
+}
+
+/// Capture both pipes while Host owns child-group cleanup, including unwinding.
+pub(super) fn command_output(command: &mut std::process::Command) -> std::process::Output {
+    command
+        .stdin(std::process::Stdio::null())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
+    let mut child = ic_testkit::ic_host_process::child::OwnedChild::spawn(command)
+        .expect("spawn owned command");
+    let stdout = child.take_stdout().expect("configured stdout pipe");
+    super::support::wait_with_output(&mut child, stdout)
 }

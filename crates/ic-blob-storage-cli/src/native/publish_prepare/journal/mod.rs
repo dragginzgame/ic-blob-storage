@@ -1,7 +1,7 @@
 //! Bind recovery to the original private claim, request bytes and signed envelope.
 use super::{Failure, Input, Options, Value, json, publish_inputs, upload_setup};
 use crate::native::{
-    read,
+    read_no_follow,
     upload_inputs::{PreparedInput, digest},
 };
 use ic_blob_storage_contracts::identity::ContentDigest;
@@ -31,7 +31,7 @@ pub(super) fn read_at(origin: &Path, name: &str, maximum: u64) -> Result<Vec<u8>
             return Err(Failure::Binding);
         }
     }
-    read(&path, maximum)
+    read_no_follow(&path, maximum)
 }
 pub(super) fn validate(
     origin: &Path,

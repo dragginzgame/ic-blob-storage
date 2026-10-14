@@ -17,13 +17,7 @@ where
     if bytes.len() > max_bytes {
         return Err(Failure::Arguments);
     }
-    let mut limits = DecoderConfig::new();
-    limits
-        .set_decoding_quota(work)
-        .set_skipping_quota(0)
-        .set_max_type_len(max_types)
-        .set_max_header_len(max_bytes)
-        .set_full_error_message(false);
+    let limits = limits(work, 0, max_types, Some(max_bytes));
     let mut decoder =
         IDLDeserialize::new_with_config(bytes, &limits).map_err(|_| Failure::Arguments)?;
     let input = decoder.get_value().map_err(|_| Failure::Arguments)?;
@@ -32,4 +26,23 @@ where
     }
     decoder.done().map_err(|_| Failure::Arguments)?;
     Ok(input)
+}
+
+/// Preserve each boundary's work, skipping, type and header budgets.
+pub(super) fn limits(
+    work: usize,
+    skipping: usize,
+    types: usize,
+    header: Option<usize>,
+) -> DecoderConfig {
+    let mut config = DecoderConfig::new();
+    config
+        .set_decoding_quota(work)
+        .set_skipping_quota(skipping)
+        .set_max_type_len(types)
+        .set_full_error_message(false);
+    if let Some(header) = header {
+        config.set_max_header_len(header);
+    }
+    config
 }

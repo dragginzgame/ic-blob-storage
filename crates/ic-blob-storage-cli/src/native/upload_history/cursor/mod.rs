@@ -1,4 +1,5 @@
 //! Bounded saved continuation bound to the complete original operator scan.
+use super::super::parsing::positive;
 use super::{Failure, filter, filter_text};
 use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
@@ -17,13 +18,6 @@ struct CursorInput {
     after_tenant: String,
     after_request: String,
 }
-fn decimal(value: &str) -> Result<u128, Failure> {
-    let number: u128 = value.parse().map_err(|_| Failure::Arguments)?;
-    if number == 0 || number.to_string() != value {
-        return Err(Failure::Arguments);
-    }
-    Ok(number)
-}
 pub(super) fn read(
     path: &Path,
     request: UploadHistoryRequest,
@@ -31,7 +25,7 @@ pub(super) fn read(
     let input: CursorInput =
         serde_json::from_slice(&super::super::read(path, 2048)?).map_err(|_| Failure::Arguments)?;
     if input.service != request.service.to_text()
-        || decimal(&input.namespace)? != request.namespace
+        || positive::<u128>(&input.namespace)? != request.namespace
         || input.scope != "service"
         || filter(&input.filter)? != request.filter
     {
@@ -49,7 +43,7 @@ pub(super) fn read(
         scope: request.scope,
         filter: request.filter,
         after_tenant: tenant,
-        after_request: decimal(&input.after_request)?,
+        after_request: positive(&input.after_request)?,
     })
 }
 pub(super) fn output(c: UploadHistoryCursor) -> Value {

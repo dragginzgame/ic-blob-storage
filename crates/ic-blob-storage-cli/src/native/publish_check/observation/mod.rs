@@ -1,7 +1,8 @@
 //! Strict reply correlation and conservative planning over sequential observations.
 use super::{Failure, Run};
+use crate::native::exact_candid;
 use crate::native::publish_inputs::FrozenFile;
-use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use candid::{CandidType, Deserialize, Principal, decode_one_with_config};
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
@@ -52,13 +53,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, 
     if bytes.len() > 4096 {
         return Err(Failure::ReplyTooLarge);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(1000)
-        .set_max_type_len(64)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
+    let config = exact_candid::limits(100_000, 1000, 64, Some(4096));
     decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
 }
 pub(in crate::native) fn capacity(

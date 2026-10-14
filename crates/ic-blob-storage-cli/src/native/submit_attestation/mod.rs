@@ -4,7 +4,7 @@ use super::{
     Failure, agent,
     arguments::Options,
     attestation,
-    signed_update::{DEADLINE_SECONDS, PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
+    signed_update::{PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
 use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
@@ -36,15 +36,8 @@ struct DispatchIntentRecord<'a> {
     namespace: String,
     verifier: String,
     method: &'a str,
-    request_id: String,
-    ingress_expiry_ns: String,
-    signed_request_sha256: String,
     statement_sha256: String,
     observation_sha256: BTreeMap<&'static str, String>,
-    root_key_sha256: String,
-    max_update_requests: u8,
-    request_deadline_seconds: u8,
-    retry_authorized: bool,
 }
 
 #[derive(Serialize)]
@@ -179,7 +172,7 @@ async fn dispatch(
             directory: &input.directory.join("attestation"),
             reply_limit: SMALL_REPLY_BYTES,
         },
-        |signed| DispatchIntentRecord {
+        || DispatchIntentRecord {
             schema: 1,
             runner_version: env!("CARGO_PKG_VERSION"),
             runner_source_sha256: ContentDigest::compute(
@@ -205,15 +198,8 @@ async fn dispatch(
             namespace: input.namespace.to_string(),
             verifier: options.actor.to_text(),
             method: UPLOAD_ATTEST_METHOD,
-            request_id: signed.request_id.to_string(),
-            ingress_expiry_ns: signed.ingress_expiry.to_string(),
-            signed_request_sha256: ContentDigest::compute(&signed.signed_update).to_string(),
             statement_sha256: ContentDigest::compute(&observed.statement).to_string(),
             observation_sha256: observed.hashes,
-            root_key_sha256: ContentDigest::compute(&agent.read_root_key()).to_string(),
-            max_update_requests: 1,
-            request_deadline_seconds: DEADLINE_SECONDS,
-            retry_authorized: false,
         },
     )?;
     let dispatched = prepared.dispatch(&agent).await;

@@ -215,6 +215,14 @@ fn bounded_reader_preserves_native_link_following_without_following_special_file
     std::fs::write(&target, b"ok").unwrap();
     std::os::unix::fs::symlink(&target, &link).unwrap();
     assert_eq!(read(&link, 2), Ok(b"ok".to_vec()));
+    assert_eq!(read_no_follow(&link, 2), Err(Failure::Binding));
+    assert_eq!(read_no_follow(&target, 2), Ok(b"ok".to_vec()));
+    assert_eq!(read_no_follow(&target, 1), Err(Failure::File));
+    std::fs::write(&target, b"").unwrap();
+    assert_eq!(read_no_follow(&target, 2), Err(Failure::File));
+    std::fs::remove_file(&target).unwrap();
+    assert_eq!(read_no_follow(&link, 2), Err(Failure::Binding));
+    assert_eq!(read_no_follow(&target, 2), Err(Failure::File));
     let fifo = directory.path().join("fifo");
     assert!(
         std::process::Command::new("mkfifo")
@@ -224,6 +232,8 @@ fn bounded_reader_preserves_native_link_following_without_following_special_file
             .success()
     );
     assert_eq!(read(&fifo, 2), Err(Failure::File));
+    assert_eq!(read_no_follow(&fifo, 2), Err(Failure::File));
+    assert_eq!(read_no_follow(directory.path(), 2), Err(Failure::File));
 }
 
 #[test]

@@ -1,6 +1,7 @@
 //! Exact uploader exposure context and historical tenant/uploader inspection.
 use super::{StableUploads, UploadStoreError, admission};
 use crate::model::service::upload::UploadAdmissionError;
+use crate::model::service::upload::UploadPermissionView;
 use crate::policy::upload::exposure::UploadExposureHostEvidence;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
@@ -35,7 +36,7 @@ fn permission<M: Memory>(
     context: UploadContext,
     input: UploadAdmissionRequest,
     exposing: bool,
-) -> Result<UploadPermission, UploadExposureFailure> {
+) -> Result<UploadPermissionView, UploadExposureFailure> {
     let uploader = context.actor == input.uploader;
     let tenant_observer = !exposing && context.actor == input.upload.tenant;
     if !uploader && !tenant_observer {
@@ -52,7 +53,7 @@ fn permission<M: Memory>(
             UploadAdmissionFailure::Conflict,
         ));
     }
-    Ok(permission)
+    Ok(retained)
 }
 pub(crate) fn check<M: Memory>(
     store: &StableUploads<M>,
@@ -61,7 +62,7 @@ pub(crate) fn check<M: Memory>(
     evidence: UploadExposureHostEvidence,
     now: u64,
 ) -> Result<UploadPermission, UploadExposureFailure> {
-    let permission = permission(store, context, input, true)?;
+    let permission = permission(store, context, input, true)?.permission;
     if evidence.permission != permission {
         return Err(UploadExposureFailure::EvidenceBinding);
     }
@@ -85,8 +86,7 @@ pub(crate) fn inspect<M: Memory>(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionResponse, UploadExposureFailure> {
-    let permission = permission(store, context, input, false)?;
-    let view = store.lookup(context, permission.request).map_err(failure)?;
+    let view = permission(store, context, input, false)?;
     admission::present(input, &view).map_err(UploadExposureFailure::Permission)
 }
 pub(super) fn failure(error: UploadStoreError) -> UploadExposureFailure {

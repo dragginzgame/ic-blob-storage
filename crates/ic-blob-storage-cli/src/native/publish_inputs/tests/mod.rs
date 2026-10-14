@@ -282,7 +282,7 @@ fn bounded_inventory_and_regular_body_requirements_refuse_before_claiming_output
         assert!(!trial.output().exists());
     }
     let mut trial = Trial::new();
-    trial.inventory["files"][0]["body_sha256"] = json!("ABCDEF".repeat(11));
+    trial.inventory["files"][0]["body_sha256"] = json!("AB".repeat(32));
     assert_eq!(execute(&trial.args()), Err(Failure::Arguments));
     assert!(!trial.output().exists());
     let trial = Trial::new();

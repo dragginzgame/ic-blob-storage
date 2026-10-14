@@ -73,6 +73,29 @@ fn receipt(
         accepted_at_ns: record.accepted_at_ns,
     }
 }
+// Project only the exact view checked in this synchronous operation. The durable
+// confirmed-record reader still checks phase, schema and retained record validity.
+fn lookup<M: Memory>(
+    store: &StableUploads<M>,
+    input: UploadAdmissionRequest,
+    view: &UploadPermissionView,
+) -> Result<UploadAttestationLookup, UploadAttestationFailure> {
+    if view.phase != UploadPhase::Confirmed {
+        return Ok(UploadAttestationLookup::Absent);
+    }
+    Ok(
+        match store
+            .confirmed_record(view.permission.request)
+            .map_err(failure)?
+            .completion()
+        {
+            CompletionRecord::HostFact => UploadAttestationLookup::Absent,
+            CompletionRecord::Attested(record) => {
+                UploadAttestationLookup::Found(receipt(input, record))
+            }
+        },
+    )
+}
 pub(crate) fn inspect<M: Memory>(
     store: &StableUploads<M>,
     authority: CompletionAuthority,
@@ -86,23 +109,9 @@ pub(crate) fn inspect<M: Memory>(
         return Err(UploadAttestationFailure::Denied);
     }
     let view = exact(store, authority, context, input)?;
-    let attestation = if view.phase == UploadPhase::Confirmed {
-        match store
-            .confirmed_record(view.permission.request)
-            .map_err(failure)?
-            .completion()
-        {
-            CompletionRecord::HostFact => UploadAttestationLookup::Absent,
-            CompletionRecord::Attested(record) => {
-                UploadAttestationLookup::Found(receipt(input, record))
-            }
-        }
-    } else {
-        UploadAttestationLookup::Absent
-    };
     Ok(UploadAttestationResponse {
         permission: input,
-        attestation,
+        attestation: lookup(store, input, &view)?,
         fenced: store.is_fenced(),
     })
 }
@@ -119,8 +128,7 @@ pub(crate) fn attest<M: Memory>(
     let view = exact(store, authority, context, input.permission)?;
     store.mutable().map_err(failure)?;
     if view.phase == UploadPhase::Confirmed {
-        let UploadAttestationLookup::Found(original) =
-            inspect(store, authority, context, input.permission)?.attestation
+        let UploadAttestationLookup::Found(original) = lookup(store, input.permission, &view)?
         else {
             return Err(UploadAttestationFailure::Phase);
         };

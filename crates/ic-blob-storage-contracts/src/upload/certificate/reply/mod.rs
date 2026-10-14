@@ -3,7 +3,6 @@ use crate::dto::upload::admission::UploadAdmissionRequest;
 use crate::dto::upload::certificate::UploadCertificateAssessmentResponse;
 use crate::dto::upload::exposure::UploadExposureFailure;
 use crate::identity::ProviderRootHash;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
@@ -53,13 +52,7 @@ pub fn assessment(
     if bytes.len() > maximum.get() {
         return Err(UploadCertificateAssessmentReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(64)
-        .set_max_header_len(maximum.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(100_000, 0, 64, maximum.get());
     let response: Result<UploadCertificateAssessmentResponse, UploadExposureFailure> =
         decode_one_with_config(bytes, &config)
             .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;

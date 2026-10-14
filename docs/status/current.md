@@ -4,49 +4,48 @@ Date: 2026-10-13
 
 ## Released source and pending batch
 
-Blob **0.23.1** is released at `dc169f9bfe6c1e736c189e1ce5ee478cfe81b745`,
-validated parent `12b13f868d2483d5ce1035c26d5197299f0f8052`. Remote main and
-peeled tag match; the finalized receipt records `release-verify`. The Candid
-export split, Testkit-owned startup and small-reply decoder cleanup are delivered.
-[Original size evidence](../evidence/candid-export0231.md) and
-[harness evidence](../evidence/harness0231.md) retain their own graphs.
-The released lock selects Testkit 0.37.0, Host 0.17.0, Memory 0.36.1 and
-private Metrics 0.8.4. Hosted [38381638982](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38381638982)
-has passed Linux and MSRV. Intel macOS exhausted the 60-minute job limit during
-`test-release.sh`, before package/native qualification; Apple Silicon subsequently passed.
-The overall run is cancelled because Intel did not complete. Failure-only tooling retention skipped the cancelled lane.
-Pending 0.23.2 gives the native job 120 minutes, bounds its tooling fixture step
-at 45 minutes to leave collection time, and retains evidence on failure or
-cancellation. Release-adapter cases now announce their names before execution.
-The hosted outcome remains unqualified until the corrected workflow runs.
-Local release-adapter fixtures, tooling-evidence tests, ShellCheck, YAML selection
-checks and documentation links pass; logs and the original Intel job log remain
-in `.tmp/review-validation/continue0232/`. No hosted rerun or full CI was executed.
-#63 and #56–#59 still require their native acceptance;
-release delivery alone does not qualify those checks.
+Blob **0.23.2** is released at `7ad76317fb1ed2695c16ede4aabee655ded84187`,
+validated source `5b0c76258313b5581603e52fd033821ffcf590e5`. The finalized
+receipt records `release-verify`. Shared 0.10.2, Metrics 0.9, the Canic graph
+clarification and native CI timeout/evidence changes are delivered. Historical
+[Shared](../evidence/shared0100232.md), [Metrics](../evidence/metrics0900232.md)
+and [Host refresh](../evidence/upstream0232.md) results retain their original inputs.
+The prior 0.23.1 hosted run passed Linux, MSRV and Apple Silicon but timed out on
+Intel; no current-release native acceptance is inferred from the release receipt.
 
-Pending compatible **0.23.2** adopts Shared Tooling **0.10.2** at
-`626fc2bd3125195520fb870b92abfec11b01454d`, retaining 112 snapshot files.
-Both catalogs were already vendored, and every existing tool version/digest
-matches. No exception file is needed. Redundant local Make defaults are removed;
-all common selectors now inherit from the reviewed snapshot. Compiler, Testkit and
-release metadata remain unchanged by the Shared adoption. Explicit setup and
-focused tooling qualification are recorded in the [adoption evidence](../evidence/shared0100232.md).
-[#66](https://github.com/dragginzgame/ic-blob-storage/issues/66) retains delivery
-and native qualification. The [subsequent refresh](../evidence/upstream0232.md)
-qualifies Shared 0.10.2 and the incoming Host 0.17.2 graph separately from the
-original 0.10.0 and Metrics/Host 0.17.1 evidence.
+Pending compatible **0.23.3** shares Candid limit construction, carries typed
+publication digests and gives local/provider body verification one limits owner.
+Native CLI fixtures share command setup and Host-owned process cleanup.
+Shared Tooling **0.11.0** at `a15ff323449f4b6190f647aec0de43cbcfb314ba`
+is adopted through 116 verified payloads, including the Node/npm checker from
+the prior cleanup. CI evidence download now binds the upload ID and digest with
+bounded retry and retained failure attempts. Incoming registry Host 0.17.7,
+Testkit 0.38.0, Metrics 0.9.1 and Memory 0.36.3 selections are preserved;
+no path dependency is used.
 
-The same pending batch selects published Metrics 0.9.0 privately in the storage
-probe, plus incoming Memory 0.36.2 and Host 0.17.2, retaining Testkit 0.37.0.
-Metrics overflow getter calls are updated; public Blob types and probe wire names
-stay unchanged. [Focused qualification](../evidence/metrics0900232.md) addresses
-[#65](https://github.com/dragginzgame/ic-blob-storage/issues/65); release delivery
-remains pending. The operator guide now includes the
-[prior-admitted canister-tenant recipe](../operator-guide.md#continue-an-upload-already-admitted-by-a-canister-tenant)
-requested by [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4), including
-explicit original MIME hints. The consumer still owns real application transaction,
-provider/verifier and lost-success acceptance; that issue is not complete.
+The next cleanup delegates Cargo preparation to Shared's metadata helper using
+admitted Cargo-edit 0.13.13; Blob retains all-four-file receipt rollback. Query
+routing has one publication owner, and recovery packet reads use Host no-follow
+opening while retaining caller-specific ancestor and evidence checks.
+[Qualification](../evidence/third-cleanup0233.md) records the focused results.
+
+The following cleanup reuses canonical cursor number parsing, shares decoder
+construction across eleven contract reply boundaries and consolidates single-call
+mechanics across seven replicated clients. Public types, role checks, validation
+order, reply budgets and recovery contracts remain unchanged.
+[Focused qualification](../evidence/fourth-cleanup0233.md) records the checks and limits.
+
+Synchronous exposure inspection and completion replay now carry validated
+permission views. Signed-update dispatch derives common intent facts, and heap
+and stable accounting share the lifecycle byte classifier. Public getters, flat
+intent JSON, independent obligations and mutation/corruption checks are retained.
+[Qualification](../evidence/fifth-cleanup0233.md) includes source-bound read measurements.
+
+[The current cleanup/adoption evidence](../evidence/next-three0233.md) records
+focused checks and retained failures. No full Blob CI/release gate ran.
+The previous [owner extraction evidence](../evidence/cleanup0233.md) remains
+historical. Its Node adapter portion is now delivered here; the retained-staging
+Blob filesystem replacement remains pending adoption; Host 0.17.7 is now selected. Do not apply the whole old consumer patch over this batch.
 
 ## Canic boundary
 

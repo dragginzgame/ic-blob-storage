@@ -51,6 +51,29 @@ impl Selection {
     }
 }
 
+/// Publication reads authenticate configuration as operator and other reads as tenant.
+/// Each call has its own deadline; the caller retains the overall query budget.
+pub(super) async fn query(
+    tenant: &ic_agent::Agent,
+    operator: &ic_agent::Agent,
+    service: Principal,
+    method: &'static str,
+    args: Vec<u8>,
+) -> Result<Vec<u8>, Failure> {
+    let agent = if method == "blob_configuration" {
+        operator
+    } else {
+        tenant
+    };
+    tokio::time::timeout(
+        Duration::from_secs(30),
+        agent.query(&service, method).with_arg(args).call(),
+    )
+    .await
+    .map_err(|_| Failure::Timeout)?
+    .map_err(|_| Failure::Transport)
+}
+
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let limits = &input.checks;
     let batch = publish_inputs::PreparedBatch::open_frozen(
@@ -101,22 +124,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             &input.gateway,
             input.selection,
             &run,
-            |method, args| {
-                let agent = if method == "blob_configuration" {
-                    &operator
-                } else {
-                    &agent
-                };
-                async move {
-                    tokio::time::timeout(
-                        Duration::from_secs(30),
-                        agent.query(&scope.service, method).with_arg(args).call(),
-                    )
-                    .await
-                    .map_err(|_| Failure::Timeout)?
-                    .map_err(|_| Failure::Transport)
-                }
-            },
+            |method, args| query(&agent, &operator, scope.service, method, args),
         ),
     )
     .await
@@ -271,7 +279,7 @@ async fn completion<Q, F>(
     file: &super::upload_inputs::PreparedInput,
     index: usize,
     authority: CompletionAuthority,
-    digest: &str,
+    digest: &ic_host_artifacts::artifact::Sha256Digest,
     run: &Run,
     query: &mut Q,
 ) -> Result<Option<&'static str>, Failure>
@@ -306,9 +314,6 @@ where
     if confirmation.fenced {
         return Ok(Some("fenced"));
     }
-    let digest: ic_blob_storage_contracts::identity::ContentDigest = format!("sha256:{digest}")
-        .parse()
-        .map_err(|_| Failure::Binding)?;
     match confirmation.attestation {
         UploadAttestationLookup::Found(receipt)
             if receipt.request.content_digest == *digest.as_bytes() =>
@@ -360,7 +365,7 @@ where
 fn mapping(
     file: &super::upload_inputs::PreparedInput,
     index: usize,
-    digest: &str,
+    digest: &ic_host_artifacts::artifact::Sha256Digest,
     gateway: &Url,
 ) -> Result<Value, Failure> {
     let u = file.permission.upload;
@@ -377,7 +382,7 @@ fn mapping(
     Ok(
         json!({"index":index,"upload":super::references::upload_json(u),
         "reference":u.first_reference.to_string(),"project":file.project(),"url":url.as_str(),
-        "body_sha256":digest,"headers":file.declaration().headers.iter()
+        "body_sha256":digest.to_string(),"headers":file.declaration().headers.iter()
             .map(|h|json!({"name":h.name,"value":h.value})).collect::<Vec<_>>()}),
     )
 }

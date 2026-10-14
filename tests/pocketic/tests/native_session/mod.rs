@@ -3,7 +3,7 @@ use ic_testkit::ic_host_process::child::OwnedChild;
 use serde_json::Value;
 use std::{
     io::{BufRead, BufReader, Read, Write},
-    process::{ChildStdin, ChildStdout, Command, Stdio},
+    process::{ChildStdin, ChildStdout, Stdio},
     time::{Duration, Instant},
 };
 
@@ -17,23 +17,11 @@ impl NativeSession {
         Self::start_with_roots(args, None)
     }
     pub(crate) fn start_with_roots(args: &[String], roots: Option<&std::path::Path>) -> Self {
-        let mut command =
-            Command::new(std::env::var_os("BLOB_CLI_BIN").expect("explicit native artifact"));
-        if let Some(roots) = roots {
-            assert!(roots.is_file());
-            command
-                .env("SSL_CERT_FILE", roots)
-                .env_remove("SSL_CERT_DIR");
-        }
+        let mut command = super::authenticated_cli::command(args, roots);
         command
-            .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .env("HTTP_PROXY", "http://127.0.0.1:9")
-            .env("HTTPS_PROXY", "http://127.0.0.1:9")
-            .env("ALL_PROXY", "http://127.0.0.1:9")
-            .env("NO_PROXY", "");
+            .stderr(Stdio::piped());
         let mut child = OwnedChild::spawn(&mut command).unwrap();
         let reader = BufReader::new(child.take_stdout().unwrap());
         let stdin = child.take_stdin();

@@ -64,12 +64,11 @@ fn interrupted(args: &[String], directory: &Path) {
         &format!("http://{}", listener.local_addr().unwrap()),
     );
     change(&mut args, "--run-dir", path.to_str().unwrap());
-    let mut child = std::process::Command::new(fixture_path("BLOB_CLI_BIN"))
-        .args(&args)
+    let mut command = crate::authenticated_cli::command(&args, None);
+    command
         .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::piped())
-        .spawn()
-        .unwrap();
+        .stderr(std::process::Stdio::piped());
+    let mut child = ic_testkit::ic_host_process::child::OwnedChild::spawn(&mut command).unwrap();
     let (mut stream, _) = incoming(&listener);
     let intent = std::fs::read(path.join("download-request.json")).unwrap();
     stream
@@ -81,8 +80,13 @@ fn interrupted(args: &[String], directory: &Path) {
         assert!(Instant::now() < deadline);
         std::thread::sleep(Duration::from_millis(5));
     }
-    child.kill().unwrap();
-    assert!(!child.wait_with_output().unwrap().status.success());
+    assert!(!child.terminate().unwrap().success());
+    let stdout = child.take_stdout().unwrap();
+    assert!(
+        !crate::support::wait_with_output(&mut child, stdout)
+            .status
+            .success()
+    );
     drop(stream);
     drop(listener);
     assert!(!path.join("statement.candid").exists());
@@ -188,10 +192,8 @@ fn concurrent_submission(args: &[String]) {
     let barrier = std::sync::Barrier::new(2);
     let invoke = || {
         barrier.wait();
-        let output = std::process::Command::new(fixture_path("BLOB_CLI_BIN"))
-            .args(args)
-            .output()
-            .unwrap();
+        let mut command = crate::authenticated_cli::command(args, None);
+        let output = crate::authenticated_cli::command_output(&mut command);
         let value: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
         (output.status.code(), value)
     };

@@ -77,47 +77,8 @@ if ($command eq 'version') {
     my $value = version();
     parts($value);
     print "$value\n";
-} elsif ($command eq 'changelog-check' || $command eq 'finalize') {
-    my $text = changelog(@args);
-    write_file('CHANGELOG.md', $text) if $command eq 'finalize';
-} elsif ($command eq 'set-version') {
-    my ($target, $metadata_path) = @args;
-    parts($target);
-    my $old = version();
-    my $metadata = decode_json(read_file($metadata_path));
-    my %ids = map { $_ => 1 } @{$metadata->{workspace_members}};
-    my %names;
-    for my $package (@{$metadata->{packages}}) {
-        next unless $ids{$package->{id}};
-        die "workspace member has independent version or source\n"
-            unless $package->{version} eq $old && !defined($package->{source});
-        die "duplicate workspace package name\n" if $names{$package->{name}}++;
-    }
-    die "incomplete workspace metadata\n"
-        unless keys(%names) && keys(%names) == keys(%ids);
-    open my $rewriter, '-|', $^X, 'scripts/ci/rewrite-local-lock-versions.pl',
-        'Cargo.lock', $old, $target, sort keys %names
-        or die "cannot start lockfile transformer: $!\n";
-    my $lock = do { local $/; <$rewriter> };
-    close $rewriter or die "lockfile transformation failed\n";
-    defined($lock) && length($lock) or die "empty transformed lockfile\n";
-    my $text = read_file('Cargo.toml');
-    # Bounded root catalog entries only; reject unsupported or stale local requirements.
-    # Cargo owns dependency ordering and packaging, not another release state machine.
-    $text =~ s!^([A-Za-z0-9_-]+ = \{[^\n]*\bpath = "[^"\n]+"[^\n]*\})$!
-        my ($entry, $name) = ($1, $1);
-        $name =~ s/ = .*//;
-        die "local catalog entry is not a workspace member: $name\n" unless $names{$name};
-        if ($entry =~ /\bversion = "([^"\n]+)"/) {
-            die "local catalog version mismatch: $name\n" unless $1 eq $old;
-            $entry =~ s/(\bversion = ")[^"\n]+("[ ,}])/$1$target$2/;
-        }
-        $entry;
-    !gme;
-    $text =~ s/(^\[workspace\.package\]\n(?:(?!^\[).)*?^version = ")[^"]+(")$/$1$target$2/ms
-        or die "cannot update workspace version\n";
-    write_file('Cargo.toml', $text);
-    write_file('Cargo.lock', $lock);
+} elsif ($command eq 'changelog-check') {
+    changelog(@args);
 } elsif ($command eq 'package-graph-check') {
     die "expected metadata, extracted root and version\n" unless @args == 3;
     my ($metadata_path, $root, $expected_version) = @args;

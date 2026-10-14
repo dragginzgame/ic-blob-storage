@@ -1,4 +1,5 @@
 //! Authenticated replicated descriptor call; no automatic retries or body transport.
+use crate::ops::service::client;
 use candid::Principal;
 use ic_blob_storage_contracts::download::reply;
 use ic_blob_storage_contracts::download::reply::DownloadReplyError;
@@ -7,7 +8,6 @@ use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_blob_storage_contracts::dto::download::DownloadResponse;
 use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
-use ic_cdk::call::{Call, CallFailed};
 use std::num::NonZeroU32;
 use thiserror::Error;
 /// Explicit tenant/service selection. Construction installs nothing and sends nothing.
@@ -48,11 +48,7 @@ impl ReplicatedDownloadClient {
         service: Principal,
         timeout: NonZeroU32,
     ) -> Result<Self, DownloadClientError> {
-        if timeout.get() > 300
-            || [tenant, service]
-                .into_iter()
-                .any(|p| p == Principal::anonymous() || p == Principal::management_canister())
-        {
+        if !client::configured(&[tenant, service], timeout) {
             return Err(DownloadClientError::Configuration);
         }
         Ok(Self {
@@ -85,16 +81,14 @@ impl ReplicatedDownloadClient {
         if !ic_cdk::api::in_replicated_execution() {
             return Err(DownloadClientError::Execution);
         }
-        let response = Call::bounded_wait(self.service, DOWNLOAD_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(request)
+        let response = client::call(self.service, DOWNLOAD_METHOD, self.timeout, request)
             .await
-            .map_err(|error| match error {
-                CallFailed::CallRejected(error) => {
-                    DownloadClientError::Rejected(error.raw_reject_code())
-                }
-                CallFailed::InsufficientLiquidCycleBalance(_)
-                | CallFailed::CallPerformFailed(_) => DownloadClientError::NotEnqueued,
+            .map_err(|e| {
+                client::failure(
+                    e,
+                    DownloadClientError::NotEnqueued,
+                    DownloadClientError::Rejected,
+                )
             })?;
         Ok(reply::decode(request, scope, response.as_ref(), limits)?)
     }

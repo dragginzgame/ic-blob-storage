@@ -10,7 +10,6 @@ use crate::upload::admission;
 use crate::upload::completion::CompletionAuthority;
 use candid::CandidType;
 use candid::Deserialize;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 
@@ -64,13 +63,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > maximum.get() {
         return Err(UploadAttestationReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(0)
-        .set_max_type_len(64)
-        .set_max_header_len(maximum.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(100_000, 0, 64, maximum.get());
     let result: Result<T, UploadAttestationFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadAttestationReplyError::Invalid)?;
     result.map_err(UploadAttestationReplyError::Remote)

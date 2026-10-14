@@ -251,7 +251,8 @@ adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`
 and `hooks-check` run independently in the complete gate.
 After clean source/candidate admission, release preflight runs locked `make deps`,
-the consumer's existing `make install-tools` and offline `make tools-check`,
+the consumer's existing `make install-tools`, explicit `make install-release-tools`
+for pinned Cargo-edit, and offline `make tools-check`,
 then rechecks source identity/cleanliness and runs `make release-tools-check`
 for the selected ShellCheck
 executable, reviewed cargo-sort version and rustfmt availability before entering

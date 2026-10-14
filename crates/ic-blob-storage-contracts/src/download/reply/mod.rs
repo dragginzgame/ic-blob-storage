@@ -6,7 +6,6 @@ use crate::dto::download::DownloadResponse;
 use crate::identity::caffeine::CaffeineHeader;
 use crate::upload::binding::UploadContext;
 use crate::upload::metadata::validate_upload_metadata;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroU64;
 use std::num::NonZeroUsize;
@@ -77,13 +76,7 @@ pub fn decode(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(DownloadReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(1_000_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(64)
-        .set_max_header_len(limits.max_reply_bytes.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(1_000_000, 1024, 64, limits.max_reply_bytes.get());
     let response: Result<DownloadResponse, DownloadFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| DownloadReplyError::Invalid)?;
     let response = response.map_err(DownloadReplyError::Remote)?;

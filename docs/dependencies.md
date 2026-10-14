@@ -14,17 +14,22 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.36.2 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.9.0 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.37.0 | Native PocketIC client, server setup and managed lifetime |
-| IC Host artifacts/fs/tools (direct) | 0.17.2 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.36.3 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.9.1 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.38.0 | Native PocketIC client, server setup and managed lifetime |
+| IC Host artifacts/fs/tools (direct) | 0.17.7 | Native artifacts, filesystem and test/tool boundaries |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
-The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.10.2 at
-`626fc2bd3125195520fb870b92abfec11b01454d`, with 112 payloads. Common installation,
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.11.0 at
+`a15ff323449f4b6190f647aec0de43cbcfb314ba`, with 116 payloads. Common installation,
 checks, hooks and formatting use `make/consumer.mk`; product targets and Testkit
 extensions stay local. The canonical Rust-tool fixture runs directly from this
 consumer. Snapshot adoption does not automatically adopt Shared's CI cache policy.
+The [0.23.3 cleanup/adoption evidence](evidence/next-three0233.md) records its original
+graph; [client/reply cleanup qualification](evidence/fourth-cleanup0233.md) records
+focused checks of its original selection. The following
+[view/intent/accounting cleanup](evidence/fifth-cleanup0233.md) records the incoming
+Testkit 0.38/Host 0.17.7 graph and explicit server-tool preparation.
 See [current status](status/current.md) for released versus prepared identities and
 [the adoption evidence](evidence/memory036-host016-shared0913.md) for source-bound results.
 The private Metrics 0.9 overflow getter adoption and current graph checks are
@@ -36,7 +41,7 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Testkit 0.37 and direct Blob callers select one Host 0.17.2 graph. Interface tests explicitly enable `candid-service`.
+Testkit 0.38 and direct Blob callers select one Host 0.17.7 graph. Interface tests explicitly enable `candid-service`.
 Direct Host tools already disables default features; no Candid extraction
 feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
@@ -83,7 +88,10 @@ Make prepends `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin` to
 fail validation; provisioning is explicit and separate from locked Cargo fetching.
 This consumer uses the shared host-tool bundle for jq/yq; the optional upstream
 standalone yq installer is not included in its snapshot.
-`make release-tools-check` verifies ShellCheck availability and the reviewed
+`make install-release-tools` explicitly prepares Cargo-edit 0.13.13 through the
+shared Cargo installer, selected in `ci/release-tools.env`. Release preflight runs
+that setup after common tools; ordinary checks do not install it.
+`make release-tools-check` verifies that selection, ShellCheck availability and the reviewed
 cargo-sort version plus working rustfmt without compiling. The shared
 `check-format-tools.sh` performs both formatter probes offline, using the same
 consumer pin as setup and CI. Both `fmt` and `fmt-check` depend on this check.

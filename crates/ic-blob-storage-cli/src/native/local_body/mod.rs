@@ -13,7 +13,7 @@ use std::{
     path::Path,
 };
 
-const FRAME: usize = 64 * 1024;
+pub(super) const FRAME: usize = 64 * 1024;
 
 pub(super) struct LocalBody {
     file: File,
@@ -45,18 +45,7 @@ impl LocalBody {
                 value: &h.value,
             })
             .collect();
-        let mut verifier = CaffeineRootVerifier::new(
-            root,
-            self.bytes,
-            &headers,
-            CaffeineHashLimits {
-                max_content_bytes: maximum,
-                max_append_bytes: FRAME.try_into().expect("positive frame bound"),
-                max_headers: 16.try_into().expect("positive header bound"),
-                max_header_bytes: 4096.try_into().expect("positive metadata bound"),
-            },
-        )
-        .map_err(|_| Failure::InvalidReply)?;
+        let mut verifier = verifier(root, self.bytes, &headers, maximum)?;
         let mut frame = vec![0; FRAME];
         loop {
             let count = match self.file.read(&mut frame) {
@@ -72,6 +61,27 @@ impl LocalBody {
         }
         verifier.finish().map_err(|_| Failure::Content)
     }
+}
+
+/// The CLI's bounded verifier is shared by local snapshots and provider reads.
+pub(super) fn verifier(
+    root: ProviderRootHash,
+    bytes: u64,
+    headers: &[CaffeineHeader<'_>],
+    maximum: NonZeroU64,
+) -> Result<CaffeineRootVerifier, Failure> {
+    CaffeineRootVerifier::new(
+        root,
+        bytes,
+        headers,
+        CaffeineHashLimits {
+            max_content_bytes: maximum,
+            max_append_bytes: FRAME.try_into().expect("positive frame bound"),
+            max_headers: 16.try_into().expect("positive header bound"),
+            max_header_bytes: 4096.try_into().expect("positive metadata bound"),
+        },
+    )
+    .map_err(|_| Failure::InvalidReply)
 }
 
 #[cfg(test)]

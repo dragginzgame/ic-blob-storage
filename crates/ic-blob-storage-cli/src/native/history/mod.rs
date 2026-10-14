@@ -1,4 +1,4 @@
-use super::{Failure, read};
+use super::{Failure, parsing::positive, read};
 use candid::Principal;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
@@ -26,14 +26,6 @@ struct ScopeInput {
     cashier: String,
     payment_account: String,
 }
-fn decimal(text: &str) -> Result<u128, Failure> {
-    let n: u128 = text.parse().map_err(|_| Failure::Arguments)?;
-    if n == 0 || n.to_string() != text {
-        return Err(Failure::Arguments);
-    }
-    Ok(n)
-}
-
 pub(super) fn request(
     scope: OperatorScope,
     cursor: Option<&Path>,
@@ -43,7 +35,7 @@ pub(super) fn request(
             let input: CursorInput =
                 serde_json::from_slice(&read(path, 2048)?).map_err(|_| Failure::Arguments)?;
             let matches = input.scope.service == scope.service.to_text()
-                && decimal(&input.scope.namespace)? == scope.namespace
+                && positive::<u128>(&input.scope.namespace)? == scope.namespace
                 && input.scope.cashier == scope.cashier.to_text()
                 && input.scope.payment_account == scope.payment_account.to_text();
             if !matches {
@@ -51,7 +43,7 @@ pub(super) fn request(
             }
             Ok(FundingHistoryCursor {
                 scope,
-                before_operation: decimal(&input.before_operation)?,
+                before_operation: positive(&input.before_operation)?,
             })
         })
         .transpose()?;

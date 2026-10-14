@@ -61,27 +61,6 @@ struct Actors {
     operator: Agent,
     verifier: Option<Options>,
 }
-impl Actors {
-    async fn query(
-        &self,
-        service: candid::Principal,
-        method: &'static str,
-        args: Vec<u8>,
-    ) -> Result<Vec<u8>, Failure> {
-        let agent = if method == "blob_configuration" {
-            &self.operator
-        } else {
-            &self.tenant
-        };
-        tokio::time::timeout(
-            Duration::from_secs(30),
-            agent.query(&service, method).with_arg(args).call(),
-        )
-        .await
-        .map_err(|_| Failure::Timeout)?
-        .map_err(|_| Failure::Transport)
-    }
-}
 
 #[expect(
     clippy::too_many_lines,
@@ -168,7 +147,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     }
     let result = tokio::time::timeout(Duration::from_secs(input.prepare.timeout_seconds), async {
         let preflight = Run::create(&input.prepare.directory.join("configuration"))?;
-        let host = publish_map::configuration(&batch, &preflight, &mut |method,args| actors.query(scope.service,method,args)).await?;
+        let host = publish_map::configuration(&batch, &preflight, &mut |method,args| publish_map::query(&actors.tenant,&actors.operator,scope.service,method,args)).await?;
         if host.fenced { return Err(Failure::Denied); }
         let ready = json!({"schema":1,"operation":"publish_session","event":"ready",
             "files":batch.files.len(),"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation),

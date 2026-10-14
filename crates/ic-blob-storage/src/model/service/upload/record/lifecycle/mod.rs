@@ -157,15 +157,6 @@ impl ConfirmedLifecycleRecord {
         Ok(change)
     }
 }
-pub(crate) fn contribution(bytes: u64, phase: LifecyclePhase) -> (u128, u128, u128) {
-    let b = u128::from(bytes);
-    match phase {
-        LifecyclePhase::Live => (b, b, b),
-        LifecyclePhase::DeletionPending => (0, b, b),
-        LifecyclePhase::ProviderDeleted => (0, 0, b),
-        LifecyclePhase::Settled => (0, 0, 0),
-    }
-}
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub(crate) struct ReferenceRecord {
     version: u8,

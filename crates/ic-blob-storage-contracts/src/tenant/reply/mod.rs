@@ -6,7 +6,6 @@ use crate::dto::tenant::TenantScope;
 use crate::dto::tenant::TenantUpdateRequest;
 use crate::tenant::next_enrollment;
 use candid::Principal;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
@@ -74,13 +73,7 @@ pub fn inspection(
     if bytes.len() > max.get() {
         return Err(TenantReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(64)
-        .set_max_header_len(max.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(100_000, 1024, 64, max.get());
     let result: Result<TenantEnrollmentResponse, TenantFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| TenantReplyError::Invalid)?;
     let observed = result.map_err(TenantReplyError::Remote)?;

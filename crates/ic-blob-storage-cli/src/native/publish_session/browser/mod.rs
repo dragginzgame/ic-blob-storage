@@ -56,17 +56,20 @@ pub(super) fn selection(
     }
     let record: BrowserSelectionRecord =
         serde_json::from_slice(&read(path, 16384)?).map_err(|_| Failure::Binding)?;
-    let hash = |value: &str| {
-        value.len() == 64
-            && value
-                .bytes()
-                .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-    };
     if record.format != "ic-blob-storage/browser-selection"
         || record.asset_port == 0
-        || !hash(&record.signer_sha256)
-        || !hash(&record.host_sha256)
-        || !hash(&record.worker_sha256)
+        || record
+            .signer_sha256
+            .parse::<ic_host_artifacts::artifact::Sha256Digest>()
+            .is_err()
+        || record
+            .host_sha256
+            .parse::<ic_host_artifacts::artifact::Sha256Digest>()
+            .is_err()
+        || record
+            .worker_sha256
+            .parse::<ic_host_artifacts::artifact::Sha256Digest>()
+            .is_err()
         || record.database.is_empty()
         || record.database.encode_utf16().count() > 128
         || batch.files.iter().any(|file| {

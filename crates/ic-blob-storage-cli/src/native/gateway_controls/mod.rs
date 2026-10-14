@@ -2,7 +2,7 @@
 use super::{
     Failure, agent,
     arguments::Options,
-    signed_update::{DEADLINE_SECONDS, PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
+    signed_update::{PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
 use candid::Principal;
 use ic_agent::Agent;
@@ -74,14 +74,7 @@ struct DispatchIntentRecord<'a> {
     operator: String,
     decision: Value,
     method: &'a str,
-    request_id: String,
-    ingress_expiry_ns: String,
-    signed_request_sha256: String,
     request_sha256: String,
-    root_key_sha256: String,
-    max_update_requests: u8,
-    request_deadline_seconds: u8,
-    retry_authorized: bool,
 }
 fn scope(scope: OperatorScope) -> Value {
     json!({"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),
@@ -99,7 +92,7 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
             directory: &input.directory,
             reply_limit: SMALL_REPLY_BYTES,
         },
-        |signed| DispatchIntentRecord {
+        || DispatchIntentRecord {
             schema: 1,
             runner_version: env!("CARGO_PKG_VERSION"),
             runner_source_sha256: ContentDigest::compute(
@@ -121,14 +114,7 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
             operator: options.actor.to_text(),
             decision: input.decision(),
             method: input.method(),
-            request_id: signed.request_id.to_string(),
-            ingress_expiry_ns: signed.ingress_expiry.to_string(),
-            signed_request_sha256: ContentDigest::compute(&signed.signed_update).to_string(),
             request_sha256: ContentDigest::compute(&argument).to_string(),
-            root_key_sha256: ContentDigest::compute(&agent.read_root_key()).to_string(),
-            max_update_requests: 1,
-            request_deadline_seconds: DEADLINE_SECONDS,
-            retry_authorized: false,
         },
     )
 }

@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.23.3]
+
+- Reuse validated permission views during synchronous inspection and replay;
+  give signed intent facts and lifecycle byte accounting one owner while preserving
+  flat evidence JSON, stable schemas and independent billing obligations.
+
+- Reuse canonical cursor parsing, share bounded reply decoder construction and
+  consolidate replicated client call mechanics while retaining role-specific
+  authority, exact budgets and uncertain-outcome recovery behavior.
+
+- Delegate coordinated Cargo version/lock/changelog preparation to Shared Tooling;
+  retain Blob receipt rollback and admit pinned Cargo-edit during release preflight.
+- Share operator/tenant publication query routing and use Host no-follow reads for
+  recovery packets without removing ancestor, content or original-intent checks.
+
+- Carry parsed native publication digests through body, attestation and map checks;
+  preserve lowercase JSON hashes and share local/provider verification limits.
+- Consolidate native CLI fixture setup and use Host-owned child cleanup for
+  ordinary commands, interrupted observations and concurrent submissions.
+- Adopt Shared Tooling 0.11.0, delegate browser prerequisite checks to its Node/npm
+  owner and download CI evidence by exact upload identity with bounded retries.
+
+- Share native Candid limit construction while preserving each command’s byte,
+  work, skipping, type and header budgets and exact-input rejection.
+
 ## [0.23.2] - 2026-10-13
 
 - Correct Canic adoption guidance: released 0.111 uses Blob 0.22/Memory 0.35;

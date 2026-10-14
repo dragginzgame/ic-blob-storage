@@ -1,4 +1,5 @@
 //! Explicit single-call tenant management from a canister operator or observer.
+use crate::ops::service::client;
 use candid::Principal;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
@@ -7,7 +8,6 @@ use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
 use ic_blob_storage_contracts::tenant::reply;
 use ic_blob_storage_contracts::tenant::reply::TenantReplyError;
-use ic_cdk::call::{Call, CallFailed};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 
@@ -50,11 +50,7 @@ impl ReplicatedTenantClient {
         scope: TenantScope,
         timeout: NonZeroU32,
     ) -> Result<Self, TenantClientError> {
-        if actor == Principal::anonymous()
-            || actor == Principal::management_canister()
-            || timeout.get() > 300
-            || reply::check_scope(scope).is_err()
-        {
+        if !client::configured(&[actor], timeout) || reply::check_scope(scope).is_err() {
             return Err(TenantClientError::Configuration);
         }
         Ok(Self {
@@ -86,11 +82,20 @@ impl ReplicatedTenantClient {
         max: NonZeroUsize,
     ) -> Result<TenantEnrollmentResponse, TenantClientError> {
         self.check(self.scope)?;
-        let response = Call::bounded_wait(self.scope.service, TENANT_INSPECTION_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(self.scope)
-            .await
-            .map_err(failure)?;
+        let response = client::call(
+            self.scope.service,
+            TENANT_INSPECTION_METHOD,
+            self.timeout,
+            self.scope,
+        )
+        .await
+        .map_err(|e| {
+            client::failure(
+                e,
+                TenantClientError::NotEnqueued,
+                TenantClientError::Rejected,
+            )
+        })?;
         Ok(reply::inspection(self.scope, response.as_ref(), max)?)
     }
     /// Apply one exact compare-and-set with no attached cycles or automatic retries.
@@ -107,20 +112,21 @@ impl ReplicatedTenantClient {
     ) -> Result<TenantEnrollmentResponse, TenantClientError> {
         self.check(input.scope)?;
         reply::validate_update(input)?;
-        let response = Call::bounded_wait(self.scope.service, TENANT_UPDATE_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(input)
-            .await
-            .map_err(failure)?;
+        let response = client::call(
+            self.scope.service,
+            TENANT_UPDATE_METHOD,
+            self.timeout,
+            input,
+        )
+        .await
+        .map_err(|e| {
+            client::failure(
+                e,
+                TenantClientError::NotEnqueued,
+                TenantClientError::Rejected,
+            )
+        })?;
         Ok(reply::mutation(input, response.as_ref(), max)?)
-    }
-}
-fn failure(error: CallFailed) -> TenantClientError {
-    match error {
-        CallFailed::CallRejected(e) => TenantClientError::Rejected(e.raw_reject_code()),
-        CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_) => {
-            TenantClientError::NotEnqueued
-        }
     }
 }
 

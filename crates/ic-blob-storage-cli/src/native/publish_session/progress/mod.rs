@@ -65,7 +65,15 @@ impl<'a> Session<'a> {
             &self.input.gateway,
             selection,
             run,
-            |method, args| self.actors.query(self.input.prepare.service, method, args),
+            |method, args| {
+                crate::native::publish_map::query(
+                    &self.actors.tenant,
+                    &self.actors.operator,
+                    self.input.prepare.service,
+                    method,
+                    args,
+                )
+            },
         )
         .await
     }

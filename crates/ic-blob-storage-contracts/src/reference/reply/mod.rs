@@ -8,7 +8,6 @@ use crate::dto::reference::status::ReferenceStatusResponse;
 use crate::upload::binding::UploadContext;
 use candid::CandidType;
 use candid::Deserialize;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
@@ -133,13 +132,7 @@ fn bounded<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > max_reply_bytes.get() {
         return Err(ReferenceReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(1_000_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(64)
-        .set_max_header_len(max_reply_bytes.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(1_000_000, 1024, 64, max_reply_bytes.get());
     let response: Result<T, ReferenceFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| ReferenceReplyError::Invalid)?;
     response.map_err(ReferenceReplyError::Remote)

@@ -48,18 +48,27 @@ run_case() {
     ) > "$CASE_LOG" 2>&1
 }
 create_fixture() {
-    mkdir -p "$FIXTURE/scripts/release" "$FIXTURE/scripts/ci" "$FIXTURE/ci" "$FIXTURE/docs" "$FIXTURE/make" "$FIXTURE/target/debug"
+    mkdir -p "$FIXTURE/scripts/release" "$FIXTURE/scripts/ci" "$FIXTURE/scripts/dev" "$FIXTURE/ci" "$FIXTURE/docs" "$FIXTURE/make" "$FIXTURE/target/debug"
     cp "$ROOT/scripts/release/release.sh" "$ROOT/scripts/release/release-data.pl" "$FIXTURE/scripts/release/"
     cp "$ROOT/scripts/ci/run-release.sh" "$ROOT/scripts/ci/next-release-version.sh" \
         "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
         "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
+        "$ROOT/scripts/ci/cargo-release-metadata.sh" "$ROOT/scripts/ci/read-cargo-workspace-version.sh" \
         "$ROOT/scripts/ci/check-make-execution.sh" \
         "$ROOT/scripts/ci/verify-file-checksum.sh" \
         "$ROOT/scripts/ci/check-release-source.sh" \
         "$ROOT/scripts/ci/check-crates-io-version.sh" \
         "$ROOT/scripts/ci/finalize-release-changelog.awk" \
         "$ROOT/scripts/ci/check-format-tools.sh" "$ROOT/scripts/ci/run-formatting.sh" "$FIXTURE/scripts/ci/"
-    cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
+    cp "$ROOT/ci/tool-versions.env" "$ROOT/ci/release-tools.env" "$FIXTURE/ci/"
+    cp "$ROOT/scripts/dev/release-tools.sh" "$FIXTURE/scripts/dev/"
+    cat > "$FIXTURE/scripts/dev/install-rust-tools.sh" <<'INSTALL'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$*" == *'--package cargo-edit --version 0.13.13 --bin cargo-set-version --profile release --check' ]] || exit 97
+[[ "${TEST_CARGO_EDIT_FAIL:-0}" != 1 ]] || exit 1
+command -v cargo
+INSTALL
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
     cp "$ROOT/make/consumer.mk" "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$ROOT/make/execution.mk" "$FIXTURE/make/"
     cd "$FIXTURE"
@@ -88,6 +97,10 @@ publish = ["crates-io"]
 [workspace.dependencies]
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.1.0" }
 TOML
+    for package in ic-blob-storage ic-blob-storage-contracts; do
+        mkdir -p "crates/$package"
+        printf '[package]\nname = "%s"\nversion.workspace = true\n' "$package" > "crates/$package/Cargo.toml"
+    done
     cat > Cargo.lock <<'LOCK'
 version = 4
 
@@ -117,7 +130,7 @@ LOCK
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
     unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
     unset TEST_FINALIZER_FAIL
-    unset TEST_FMT_FAIL
+    unset TEST_FMT_FAIL TEST_CARGO_EDIT_FAIL
     unset TEST_RELEASE_SETUP_FAIL TEST_RELEASE_SETUP_CHANGE
 }
 expect_failure() {
@@ -138,7 +151,7 @@ cat > "$TEMPORARY/bin/make" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
 case "$*" in
-    '--no-print-directory deps'|'--no-print-directory install-tools'|'--no-print-directory tools-check')
+    '--no-print-directory deps'|'--no-print-directory install-tools'|'--no-print-directory install-release-tools'|'--no-print-directory tools-check')
         selection="${*: -1}"
         echo "$selection" >> target/preparation.log
         [[ "${TEST_RELEASE_SETUP_FAIL:-}" != "$selection" ]] || exit 1
@@ -279,10 +292,17 @@ cat > "$TEMPORARY/bin/cargo" <<'MOCK'
 set -euo pipefail
 echo "cargo $*" >> "$TEST_LOG"
 case "$*" in
-    'metadata --offline --locked --no-deps --format-version 1')
+    'metadata --offline --locked --no-deps --format-version 1'|'metadata --locked --offline --format-version 1')
         [[ "${TEST_METADATA_FAIL:-0}" != 1 ]] || exit 1
         current="$(perl scripts/release/release-data.pl version)"
-        printf '{"workspace_members":["local","contracts"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null},{"id":"contracts","name":"ic-blob-storage-contracts","version":"%s","source":null}]}\n' "$current" "$current" ;;
+        [[ "$(yq -p toml '.workspace.dependencies.ic-blob-storage-contracts.version' Cargo.toml)" == "$current" ]] || exit 1
+        ! rg -q '^foreign-package' Cargo.toml || exit 1
+        printf '{"workspace_members":["local","contracts"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage/Cargo.toml"},{"id":"contracts","name":"ic-blob-storage-contracts","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage-contracts/Cargo.toml"}]}\n' "$current" "$PWD" "$current" "$PWD" ;;
+    locate-project*) printf '%s/Cargo.toml\n' "$PWD" ;;
+    set-version*)
+        [[ "$2 $3" == '--workspace --offline' ]] || exit 97
+        FIXTURE_VERSION="$4" perl -pi -e 's/version = "[^"\n]+"/version = "$ENV{FIXTURE_VERSION}"/g' Cargo.toml ;;
+    sort) ;;
     'sort --version') [[ "${TEST_SORT_FAIL:-0}" != 1 ]] || exit 1; echo "cargo-sort ${TEST_SORT_VERSION:-2.1.4}" ;;
     'fmt --version') echo rustfmt; [[ "${TEST_FMT_FAIL:-0}" != 1 ]] ;;
     'sort --workspace --check') [[ "${TEST_PREPARE_FAIL:-0}" != 1 ]] ;;
@@ -384,8 +404,8 @@ cat > "$TEMPORARY/bin/awk" <<'MOCK'
 set -euo pipefail
 if [[ "$*" == *scripts/ci/finalize-release-changelog.awk* ]]; then
     if [[ "${TEST_FINALIZER_FAIL:-}" == preflight ]] ||
-       { [[ "${TEST_FINALIZER_FAIL:-}" == after-bump ]] &&
-         [[ "$("$TEST_REAL_PERL" scripts/release/release-data.pl version)" == 0.1.1 ]]; }; then
+       { [[ "${TEST_FINALIZER_FAIL:-}" == during-prepare ]] &&
+         [[ -n "$(find target -maxdepth 1 -type d -name 'release-backup.*')" ]]; }; then
         "$TEST_REAL_AWK" "$@" | tee target/failed-finalizer-candidate
         echo 'Controlled finalizer failure after complete candidate output' >&2
         exit 1
@@ -462,6 +482,7 @@ test_preflight_tools() {
         sort-missing) export TEST_SORT_FAIL=1 ;;
         sort-wrong) export TEST_SORT_VERSION=0.0.0 ;;
         rustfmt-broken) export TEST_FMT_FAIL=1 ;;
+        cargo-edit-missing) export TEST_CARGO_EDIT_FAIL=1 ;;
     esac
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
     assert_unchanged; assert_cache_retained
@@ -469,7 +490,7 @@ test_preflight_tools() {
     case "$1" in
         shellcheck-*) rg -F 'SHELLCHECK=/absolute/path/to/shellcheck' target/rejection.log >/dev/null ;;
     esac
-    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION TEST_FMT_FAIL
+    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION TEST_FMT_FAIL TEST_CARGO_EDIT_FAIL
     # A selected executable with spaces in its path must survive Make dispatch.
     cp "$TEMPORARY/bin/shellcheck" 'target/selected shellcheck'
     export SHELLCHECK="$PWD/target/selected shellcheck"
@@ -486,7 +507,8 @@ test_selected_tool_preparation() {
     case "$1" in
         deps) expected=deps ;;
         install-tools) expected=$'deps\ninstall-tools' ;;
-        tools-check) expected=$'deps\ninstall-tools\ntools-check' ;;
+        install-release-tools) expected=$'deps\ninstall-tools\ninstall-release-tools' ;;
+        tools-check) expected=$'deps\ninstall-tools\ninstall-release-tools\ntools-check' ;;
     esac
     [[ "$(cat target/preparation.log)" == "$expected" ]] || exit 1
     unset TEST_RELEASE_SETUP_FAIL
@@ -499,7 +521,7 @@ test_tool_preparation_source_change() {
     cp Cargo.lock target/before-lock
     cp CHANGELOG.md target/before-notes
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
-    [[ "$(cat target/preparation.log)" == $'deps\ninstall-tools\ntools-check' ]] || exit 1
+    [[ "$(cat target/preparation.log)" == $'deps\ninstall-tools\ninstall-release-tools\ntools-check' ]] || exit 1
     [[ ! -s "$TEST_EFFECTS" && ! -e target/gate-ran && ! -e docs/release.json ]] || exit 1
     if [[ "$shape" == selection ]]; then
         [[ "$(perl scripts/release/release-data.pl version)" == 0.1.9 ]] || exit 1
@@ -577,21 +599,20 @@ test_changelog_intent() {
     before="$(fingerprint)"
     perl scripts/release/release-data.pl changelog-check 0.1.1 0.1.0 2040-01-02
     assert_unchanged
-    perl scripts/release/release-data.pl finalize 0.1.1 0.1.0 2040-01-02
     printf '# Changelog\n\n## [0.1.1] - 2040-01-02\n\n- Test notes.\n\n## [0.1.0]\n\n- Imported undated history.\n' > target/expected-changelog
-    cmp CHANGELOG.md target/expected-changelog
+    cp target/expected-changelog CHANGELOG.md
     before="$(fingerprint)"
     # Prepared-state recovery verifies its frozen receipt; it does not call this
     # finalizer again, even for the same date.
-    expect_failure perl scripts/release/release-data.pl finalize 0.1.1 0.1.0 2040-01-02
+    expect_failure perl scripts/release/release-data.pl changelog-check 0.1.1 0.1.0 2040-01-02
     assert_unchanged
-    expect_failure perl scripts/release/release-data.pl finalize 0.1.1 0.1.0 2040-01-03
+    expect_failure perl scripts/release/release-data.pl changelog-check 0.1.1 0.1.0 2040-01-03
     assert_unchanged
     printf '# Changelog\n\n## [0.2.0]\n- Target.\n\n## [0.1.1]\n- Competing.\n\n## [0.1.0]\n- Historical.\n' > CHANGELOG.md
     sed 's/version = "0.1.1"/version = "0.2.0"/' Cargo.toml > target/manifest
     cp target/manifest Cargo.toml
     before="$(fingerprint)"
-    expect_failure perl scripts/release/release-data.pl finalize 0.2.0 0.1.0 2040-01-02
+    expect_failure perl scripts/release/release-data.pl changelog-check 0.2.0 0.1.0 2040-01-02
     assert_unchanged
 }
 test_finalizer_failure() {
@@ -600,11 +621,11 @@ test_finalizer_failure() {
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
     assert_unchanged; assert_cache_retained
     [[ -s target/failed-finalizer-candidate ]] || exit 1
-    if [[ "$1" == after-bump ]]; then
+    if [[ "$1" == during-prepare ]]; then
         [[ "$(tail -n 1 target/release-state/0.1.1.plan)" == prepare ]] || exit 1
         local backup
         backup="$(find target -maxdepth 1 -type d -name 'release-backup.*')"
-        [[ -n "$backup" && -f "$backup/metadata.json" ]] || exit 1
+        [[ -n "$backup" && -f "$backup/Cargo.toml" ]] || exit 1
         cmp "$backup/CHANGELOG.md" CHANGELOG.md
     else
         [[ ! -s "$TEST_EFFECTS" && ! -e target/release-state/0.1.1.plan ]] || exit 1
@@ -682,6 +703,29 @@ test_rejected_preparation() {
     perl scripts/release/release-data.pl verify
     [[ "$(awk '$0 == "commit" { n++ } END { print n }' "$TEST_EFFECTS")" == 1 ]] || exit 1
 }
+test_receipt_rollback() {
+    local prior="$1"
+    if [[ "$prior" == existing ]]; then
+        printf 'original retained receipt\n' > docs/release.json
+        cp docs/release.json target/original-receipt
+    fi
+    before="$(fingerprint)"
+    export RELEASE_SOURCE="$TEST_SOURCE" RELEASE_PREVIOUS=0.1.0
+    export RELEASE_VERSION=0.1.1 RELEASE_DATE=2040-01-02 TEST_DATA_FAIL_COMMAND=receipt
+    expect_failure bash scripts/release/release.sh prepare
+    [[ "$(fingerprint)" == "$before" && ! -s "$TEST_EFFECTS" ]] || exit 1
+    if [[ "$prior" == existing ]]; then cmp target/original-receipt docs/release.json
+    else [[ ! -e docs/release.json ]] || exit 1; fi
+    local backup
+    backup="$(find target -maxdepth 1 -type d -name 'release-backup.*')"
+    [[ -n "$backup" ]] || exit 1
+    cmp "$backup/Cargo.toml" Cargo.toml
+    cmp "$backup/Cargo.lock" Cargo.lock
+    cmp "$backup/CHANGELOG.md" CHANGELOG.md
+    # The shared preparer completed; refusal came after writing the candidate receipt.
+    rg -F 'cargo set-version --workspace --offline 0.1.1' "$TEST_LOG" >/dev/null
+}
+
 test_preparation() {
     export TEST_INDEX_EXTRA=1
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
@@ -939,7 +983,8 @@ test_local_catalog_refusal() {
     fi
     cp Cargo.toml target/catalog-before.toml
     cp Cargo.lock target/catalog-before.lock
-    expect_failure perl scripts/release/release-data.pl set-version 0.1.1 target/catalog-metadata.json
+    export RELEASE_PREVIOUS=0.1.0 RELEASE_VERSION=0.1.1 RELEASE_DATE=2040-01-02
+    expect_failure bash scripts/ci/cargo-release-metadata.sh prepare ic-blob-storage
     cmp target/catalog-before.toml Cargo.toml
     cmp target/catalog-before.lock Cargo.lock
     [[ ! -s "$TEST_EFFECTS" ]] || exit 1
@@ -1016,10 +1061,10 @@ run_case bootstrap-tools test_dependency_bootstrap tools
 run_case bootstrap-pins test_dependency_bootstrap pins
 run_case bootstrap-fetch test_dependency_bootstrap fetch
 run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
-for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken; do
+for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken cargo-edit-missing; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
 done
-for phase in deps install-tools tools-check; do
+for phase in deps install-tools install-release-tools tools-check; do
     run_case "selected-tools-$phase" test_selected_tool_preparation "$phase"
 done
 for shape in selection head; do
@@ -1032,13 +1077,14 @@ run_case source-diagnostics test_source_diagnostics
 for shape in duplicate historical-duplicate competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
 for shape in empty missing; do run_case "notes-$shape" test_changelog_content "$shape"; done
 run_case notes-saved-intent test_changelog_intent
-for phase in preflight after-bump; do run_case "finalizer-$phase" test_finalizer_failure "$phase"; done
+for phase in preflight during-prepare; do run_case "finalizer-$phase" test_finalizer_failure "$phase"; done
 for shape in valid checksum version source; do run_case "package-lock-$shape" test_package_lock_selection "$shape"; done
 run_case adapter-release test_release
 for shape in stale foreign; do run_case "catalog-$shape" test_local_catalog_refusal "$shape"; done
 for failure in TEST_GATE_FAIL TEST_METADATA_FAIL TEST_PREPARE_FAIL; do run_case "$failure" test_rejected_preparation "$failure"; done
 run_case exact-index test_preparation
 run_case receipt-identity test_receipt_identity
+for prior in absent existing; do run_case "receipt-rollback-$prior" test_receipt_rollback "$prior"; done
 run_case publish test_publish normal
 run_case publish-dry-run test_publish dry-run
 run_case publish-contracts test_publish normal ic-blob-storage-contracts

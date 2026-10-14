@@ -310,11 +310,11 @@ impl UploadUsageRecord {
         before: ic_blob_storage_contracts::upload::history::LifecyclePhase,
         after: ic_blob_storage_contracts::upload::history::LifecyclePhase,
     ) {
-        let old = lifecycle::contribution(bytes, before);
-        let new = lifecycle::contribution(bytes, after);
-        self.logical = self.logical - old.0 + new.0;
-        self.physical = self.physical - old.1 + new.1;
-        self.liability = self.liability - old.2 + new.2;
+        let old = crate::model::lifecycle::contribution(bytes, before);
+        let new = crate::model::lifecycle::contribution(bytes, after);
+        self.logical = self.logical - u128::from(old.0) + u128::from(new.0);
+        self.physical = self.physical - u128::from(old.1) + u128::from(new.1);
+        self.liability = self.liability - u128::from(old.2) + u128::from(new.2);
     }
 }
 pub(crate) fn chunks(bytes: u64) -> u64 {

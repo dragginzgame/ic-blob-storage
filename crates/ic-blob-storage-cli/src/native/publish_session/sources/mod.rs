@@ -5,7 +5,7 @@ use super::{
     Failure, PreparedBatch, SessionIntentRecord,
     control::{Frame, UnattemptedPhaseRecord},
 };
-use crate::native::{artifacts::Run, exact_candid, publish_map, read};
+use crate::native::{artifacts::Run, exact_candid, publish_map};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -44,14 +44,9 @@ pub(super) fn directory(path: &Path) -> Result<PathBuf, Failure> {
 }
 
 pub(super) fn packet(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
-    if std::fs::symlink_metadata(path)
-        .map_err(|_| Failure::Binding)?
-        .file_type()
-        .is_symlink()
-    {
-        return Err(Failure::Binding);
-    }
-    read(path, maximum)
+    // Preserve missing/inaccessible original-evidence classification.
+    std::fs::symlink_metadata(path).map_err(|_| Failure::Binding)?;
+    crate::native::read_no_follow(path, maximum)
 }
 
 fn pin(slot: &mut Option<PathBuf>, path: &Path) -> Result<(), Failure> {

@@ -46,6 +46,7 @@ preflight() {
     # Keep this out of Make entrypoint prerequisites and saved-release recovery.
     make --no-print-directory deps
     make --no-print-directory install-tools
+    make --no-print-directory install-release-tools
     make --no-print-directory tools-check
     # Setup may take time; never validate a source or selection changed meanwhile.
     head="$(git rev-parse HEAD)" || fail 'cannot resolve release source after tool preparation'
@@ -82,10 +83,9 @@ prepare() {
               rm -f docs/release.json
           fi
           echo "Failed preparation restored; inputs retained: $RELEASE_BACKUP_DIR" >&2' EXIT
-    cargo metadata --offline --locked --no-deps --format-version 1 > "$RELEASE_BACKUP_DIR/metadata.json"
-    perl "$DATA" set-version "$RELEASE_VERSION" "$RELEASE_BACKUP_DIR/metadata.json"
-    cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
-    perl "$DATA" finalize "$RELEASE_VERSION" "$RELEASE_PREVIOUS" "$RELEASE_DATE"
+    local cargo_edit
+    cargo_edit="$(bash scripts/dev/release-tools.sh check)"
+    PATH="${cargo_edit%/*}:$PATH" bash scripts/ci/cargo-release-metadata.sh prepare ic-blob-storage
     make --no-print-directory fmt-check
     perl "$DATA" receipt "$RELEASE_SOURCE" "$RELEASE_DATE"
     perl "$DATA" verify

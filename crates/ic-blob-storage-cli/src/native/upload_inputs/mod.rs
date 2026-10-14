@@ -238,11 +238,11 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
 impl PreparedInput {
     /// Cached original inputs for the maintained browser; it must snapshot and
     /// reverify the selected body's digest/SDK root before certificate intent.
-    pub fn transfer_input(&self, body_sha256: &str) -> Result<Value, Failure> {
+    pub fn transfer_input(&self, body_sha256: &Sha256Digest) -> Result<Value, Failure> {
         Ok(
             json!({"binding":serde_json::from_slice::<Value>(&self.browser)
             .map_err(|_| Failure::Binding)?,
-            "body":self.files.body,"body_sha256":body_sha256,
+            "body":self.files.body,"body_sha256":body_sha256.to_string(),
             "manifest_json":std::str::from_utf8(&self.files.manifest).map_err(|_| Failure::Binding)?,
             "preparation":self.binding.preparation,
             "bytes":self.permission.upload.bytes.to_string()}),
@@ -286,14 +286,14 @@ impl PreparedInput {
         )
     }
 
-    pub fn verify_body(&self, expected: &str) -> Result<(), Failure> {
+    pub fn verify_body(&self, expected: &Sha256Digest) -> Result<(), Failure> {
         let hashes = LocalBody::open(&self.files.body, self.permission.upload.bytes)?.verify(
             ProviderRootHash::try_from(self.permission.upload.root.as_slice()).expect("fixed root"),
             &self.request.declaration,
             self.maximum,
             &mut std::io::sink(),
         )?;
-        if hashes.content_digest.to_string() != format!("sha256:{expected}") {
+        if hashes.content_digest.as_bytes() != expected.as_bytes() {
             return Err(Failure::Content);
         }
         Ok(())
@@ -372,7 +372,7 @@ impl PreparedInput {
     pub fn publish(
         self,
         directory: &Path,
-        expected_digest: Option<&str>,
+        expected_digest: Option<&Sha256Digest>,
     ) -> Result<Value, Failure> {
         let Self {
             files,
@@ -392,9 +392,9 @@ impl PreparedInput {
         run.bytes("manifest.json", &files.manifest)?;
         run.bytes("installation.candid", &files.installation)?;
         let hashes = snapshot(source, &request, maximum, &run)?;
-        if expected_digest.is_some_and(|expected| {
-            hashes.content_digest.to_string() != format!("sha256:{expected}")
-        }) {
+        if expected_digest
+            .is_some_and(|expected| hashes.content_digest.as_bytes() != expected.as_bytes())
+        {
             run.json(
                 "failure.json",
                 &FailureRecord {

@@ -3,7 +3,6 @@ use crate::dto::reference::ReferenceUpload;
 use crate::dto::upload::UploadStatusFailure;
 use crate::dto::upload::UploadStatusResponse;
 use crate::upload::binding::UploadContext;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
@@ -50,13 +49,7 @@ pub fn decode(
     if bytes.len() > max.get() {
         return Err(UploadStatusReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(1_000_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(64)
-        .set_max_header_len(max.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(1_000_000, 1024, 64, max.get());
     let response: Result<UploadStatusResponse, UploadStatusFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadStatusReplyError::Invalid)?;
     let response = response.map_err(UploadStatusReplyError::Remote)?;

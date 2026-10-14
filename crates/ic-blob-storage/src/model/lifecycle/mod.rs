@@ -18,6 +18,16 @@ pub mod requests;
 pub mod roots;
 pub(crate) mod transition;
 
+/// Logical, physical and liable bytes for one phase; zero bytes do not prove settlement.
+pub(crate) const fn contribution(bytes: u64, phase: LifecyclePhase) -> (u64, u64, u64) {
+    match phase {
+        LifecyclePhase::Live => (bytes, bytes, bytes),
+        LifecyclePhase::DeletionPending => (0, bytes, bytes),
+        LifecyclePhase::ProviderDeleted => (0, 0, bytes),
+        LifecyclePhase::Settled => (0, 0, 0),
+    }
+}
+
 /// Whether an idempotent operation changed the local value.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LifecycleChange {
@@ -212,20 +222,13 @@ impl BlobLifecycle {
     /// Logical tenant bytes: counted once for this object while references remain.
     #[must_use]
     pub const fn logical_bytes(&self) -> u64 {
-        if matches!(self.phase, LifecyclePhase::Live) {
-            self.bytes
-        } else {
-            0
-        }
+        contribution(self.bytes, self.phase).0
     }
 
     /// Physical bytes still charged to global capacity until confirmed deletion.
     #[must_use]
     pub const fn physical_bytes(&self) -> u64 {
-        match self.phase {
-            LifecyclePhase::Live | LifecyclePhase::DeletionPending => self.bytes,
-            LifecyclePhase::ProviderDeleted | LifecyclePhase::Settled => 0,
-        }
+        contribution(self.bytes, self.phase).1
     }
 
     /// Whether any physical or financial obligation remains unresolved.
@@ -242,11 +245,7 @@ impl BlobLifecycle {
     /// Also account for object/liability counts: zero bytes do not prove settlement.
     #[must_use]
     pub const fn liability_bytes(&self) -> u64 {
-        if matches!(self.phase, LifecyclePhase::Settled) {
-            0
-        } else {
-            self.bytes
-        }
+        contribution(self.bytes, self.phase).2
     }
 }
 

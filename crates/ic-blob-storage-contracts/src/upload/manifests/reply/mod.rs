@@ -13,7 +13,6 @@ use crate::identity::caffeine::manifest::CaffeineManifestLimits;
 use crate::upload::admission;
 use candid::CandidType;
 use candid::Deserialize;
-use candid::de::DecoderConfig;
 use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
@@ -51,13 +50,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(UploadManifestReplyError::Limit);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(2_000_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(64)
-        .set_max_header_len(limits.max_reply_bytes.get())
-        .set_full_error_message(false);
+    let config = crate::decoding::limits(2_000_000, 1024, 64, limits.max_reply_bytes.get());
     let result: Result<T, UploadManifestFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadManifestReplyError::Invalid)?;
     result.map_err(UploadManifestReplyError::Remote)

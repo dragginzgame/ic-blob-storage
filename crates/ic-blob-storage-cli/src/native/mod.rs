@@ -232,6 +232,32 @@ fn read(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
     Ok(bytes)
 }
 
+/// Read recovery evidence through a no-follow descriptor; ancestors stay caller-owned.
+fn read_no_follow(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
+    #[cfg(unix)]
+    {
+        let maximum = usize::try_from(maximum).map_err(|_| Failure::File)?;
+        let bytes =
+            ic_host_fs::read::read_file_no_follow(path, maximum).map_err(|error| match error {
+                ic_host_artifacts::artifact::ArtifactError::Io(error)
+                    if error.raw_os_error() == Some(libc::ELOOP) =>
+                {
+                    Failure::Binding
+                }
+                _ => Failure::File,
+            })?;
+        if bytes.is_empty() {
+            return Err(Failure::File);
+        }
+        Ok(bytes)
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = (path, maximum);
+        Err(Failure::File)
+    }
+}
+
 fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failure> {
     let bytes = read(path, 16 * 1024)?;
     let identity: Box<dyn Identity> = if let Ok(identity) = Secp256k1Identity::from_pem(&bytes) {

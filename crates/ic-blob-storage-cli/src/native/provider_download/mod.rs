@@ -6,9 +6,7 @@ use super::{
 };
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
-use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
 use std::{io::Write, num::NonZeroU64, time::Duration};
 use url::Url;
 #[cfg(test)]
@@ -54,18 +52,12 @@ async fn body(
     sink: &mut impl Write,
     received: &mut u64,
 ) -> Result<ContentDigest, Failure> {
-    let mut verifier = CaffeineRootVerifier::new(
+    let mut verifier = super::local_body::verifier(
         expected.root,
         expected.bytes,
         expected.headers,
-        CaffeineHashLimits {
-            max_content_bytes: expected.maximum,
-            max_append_bytes: (64 * 1024).try_into().unwrap(),
-            max_headers: 16.try_into().unwrap(),
-            max_header_bytes: 4096.try_into().unwrap(),
-        },
-    )
-    .map_err(|_| Failure::InvalidReply)?;
+        expected.maximum,
+    )?;
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .retry(reqwest::retry::never())
@@ -124,7 +116,7 @@ async fn body(
         if *received > expected.bytes {
             return Err(Failure::Content);
         }
-        for frame in chunk.chunks(64 * 1024) {
+        for frame in chunk.chunks(super::local_body::FRAME) {
             verifier
                 .append(verifier.received_bytes(), frame)
                 .map_err(|_| Failure::Content)?;

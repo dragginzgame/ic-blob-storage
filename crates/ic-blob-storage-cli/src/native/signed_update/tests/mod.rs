@@ -32,8 +32,7 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
         directory: &directory,
         reply_limit: SMALL_REPLY_BYTES,
     };
-    let prepared = PreparedUpdate::claim(&agent, input(), |signed|
-        json!({"request_id":signed.request_id.to_string(),"expiry":signed.ingress_expiry.to_string()})).unwrap();
+    let prepared = PreparedUpdate::claim(&agent, input(), || json!({"operation":"test"})).unwrap();
     let packet = std::fs::read(directory.join("signed-request.cbor")).unwrap();
     assert_eq!(
         std::fs::read(directory.join("request.candid")).unwrap(),
@@ -48,8 +47,23 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
         packet.clone(),
     )
     .unwrap();
+    let intent: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(directory.join("intent.json")).unwrap()).unwrap();
+    assert_eq!(
+        intent,
+        json!({
+            "operation":"test",
+            "request_id":prepared.signed.request_id.to_string(),
+            "ingress_expiry_ns":prepared.signed.ingress_expiry.to_string(),
+            "signed_request_sha256":ContentDigest::compute(&packet).to_string(),
+            "root_key_sha256":ContentDigest::compute(&agent.read_root_key()).to_string(),
+            "max_update_requests":1,
+            "request_deadline_seconds":30,
+            "retry_authorized":false,
+        })
+    );
     assert!(matches!(
-        PreparedUpdate::claim(&agent, input(), |_| json!({})),
+        PreparedUpdate::claim(&agent, input(), || json!({})),
         Err(Failure::SubmissionClaimed)
     ));
     assert_eq!(
@@ -65,7 +79,7 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
                 directory: &partial,
                 ..input()
             },
-            |_| json!({})
+            || json!({})
         ),
         Err(Failure::SubmissionClaimed)
     ));
@@ -93,7 +107,7 @@ fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
         reply_limit: SMALL_REPLY_BYTES,
     };
     assert!(matches!(
-        PreparedUpdate::claim(&agent, input(), |_| FailedIntent),
+        PreparedUpdate::claim(&agent, input(), || FailedIntent),
         Err(Failure::File)
     ));
     assert_eq!(
@@ -103,7 +117,7 @@ fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
     assert!(directory.join("signed-request.cbor").is_file());
     assert!(!directory.join("intent.json").exists());
     assert!(matches!(
-        PreparedUpdate::claim(&agent, input(), |_| json!({})),
+        PreparedUpdate::claim(&agent, input(), || json!({})),
         Err(Failure::SubmissionClaimed)
     ));
 }

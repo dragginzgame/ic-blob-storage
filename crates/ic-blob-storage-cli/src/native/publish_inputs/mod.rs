@@ -9,6 +9,7 @@ use super::{
     upload_inputs::{BINDING_BYTES, InputFiles, MANIFEST_BYTES, PreparedInput, digest},
 };
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_host_artifacts::artifact::Sha256Digest;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path};
@@ -32,7 +33,7 @@ pub(super) struct PreparedBatch {
 /// Keep the verified input and its original expected raw digest inseparable.
 pub(super) struct FrozenFile {
     pub input: PreparedInput,
-    pub body_sha256: String,
+    pub body_sha256: Sha256Digest,
 }
 impl PreparedBatch {
     /// Decode the exact retained installation packet with the preparation envelope.
@@ -127,27 +128,29 @@ struct Inventory {
 #[serde(deny_unknown_fields)]
 struct Entry {
     binding: String,
-    binding_sha256: String,
+    #[serde(deserialize_with = "raw_digest")]
+    binding_sha256: Sha256Digest,
     manifest: String,
-    manifest_sha256: String,
+    #[serde(deserialize_with = "raw_digest")]
+    manifest_sha256: Sha256Digest,
     body: String,
-    body_sha256: String,
+    #[serde(deserialize_with = "raw_digest")]
+    body_sha256: Sha256Digest,
 }
 
-fn checked_hash(value: &str) -> Result<(), Failure> {
-    if value.len() != 64
-        || !value
-            .bytes()
-            .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
-    {
-        return Err(Failure::Arguments);
-    }
-    Ok(())
+fn raw_digest<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Sha256Digest, D::Error> {
+    String::deserialize(decoder)?
+        .parse()
+        .map_err(serde::de::Error::custom)
 }
-fn metadata(root: &Path, name: &str, hash: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
-    checked_hash(hash)?;
+fn metadata(
+    root: &Path,
+    name: &str,
+    hash: &Sha256Digest,
+    maximum: u64,
+) -> Result<Vec<u8>, Failure> {
     let bytes = read(&paths::resolve(root, name)?, maximum)?;
-    if digest(&bytes) != hash {
+    if Sha256Digest::compute(&bytes) != *hash {
         return Err(Failure::Binding);
     }
     Ok(bytes)
@@ -217,7 +220,6 @@ fn preflight(
     let mut prepared = Vec::with_capacity(inventory.files.len());
     let mut metadata_bytes = 0_usize;
     for entry in &inventory.files {
-        checked_hash(&entry.body_sha256)?;
         let binding = metadata(root, &entry.binding, &entry.binding_sha256, BINDING_BYTES)?;
         let manifest = metadata(
             root,

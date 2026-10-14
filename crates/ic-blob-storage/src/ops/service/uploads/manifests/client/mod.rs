@@ -1,4 +1,5 @@
 //! Explicit canister uploader/observer transport; never an automatic retry or provider upload.
+use crate::ops::service::client;
 use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
@@ -9,7 +10,6 @@ use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
-use ic_cdk::call::{Call, CallFailed};
 use std::num::NonZeroU32;
 use thiserror::Error;
 #[cfg(test)]
@@ -56,11 +56,7 @@ impl ReplicatedUploadManifestClient {
         service: Principal,
         timeout: NonZeroU32,
     ) -> Result<Self, UploadManifestClientError> {
-        if timeout.get() > 300
-            || [actor, tenant, service]
-                .into_iter()
-                .any(|p| [Principal::anonymous(), Principal::management_canister()].contains(&p))
-        {
+        if !client::configured(&[actor, tenant, service], timeout) {
             return Err(UploadManifestClientError::Configuration);
         }
         Ok(Self {
@@ -117,11 +113,20 @@ impl ReplicatedUploadManifestClient {
     ) -> Result<UploadManifestMutation, UploadManifestClientError> {
         self.check(input.permission, true)?;
         reply::validate_declaration(input.permission, &input.declaration, limits.declaration)?;
-        let response = Call::bounded_wait(self.service, UPLOAD_MANIFEST_PREPARE_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(input)
-            .await
-            .map_err(failure)?;
+        let response = client::call(
+            self.service,
+            UPLOAD_MANIFEST_PREPARE_METHOD,
+            self.timeout,
+            input,
+        )
+        .await
+        .map_err(|e| {
+            client::failure(
+                e,
+                UploadManifestClientError::NotEnqueued,
+                UploadManifestClientError::Rejected,
+            )
+        })?;
         Ok(reply::mutation(input, response.as_ref(), limits)?)
     }
     /// Inspect once through replicated execution, with no attached cycles or mutation
@@ -134,19 +139,20 @@ impl ReplicatedUploadManifestClient {
         limits: UploadManifestReplyLimits,
     ) -> Result<UploadManifestResponse, UploadManifestClientError> {
         self.check(input, false)?;
-        let response = Call::bounded_wait(self.service, UPLOAD_MANIFEST_INSPECT_METHOD)
-            .change_timeout(self.timeout.get())
-            .with_arg(input)
-            .await
-            .map_err(failure)?;
+        let response = client::call(
+            self.service,
+            UPLOAD_MANIFEST_INSPECT_METHOD,
+            self.timeout,
+            input,
+        )
+        .await
+        .map_err(|e| {
+            client::failure(
+                e,
+                UploadManifestClientError::NotEnqueued,
+                UploadManifestClientError::Rejected,
+            )
+        })?;
         Ok(reply::inspection(input, response.as_ref(), limits)?)
-    }
-}
-fn failure(error: CallFailed) -> UploadManifestClientError {
-    match error {
-        CallFailed::CallRejected(e) => UploadManifestClientError::Rejected(e.raw_reject_code()),
-        CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_) => {
-            UploadManifestClientError::NotEnqueued
-        }
     }
 }

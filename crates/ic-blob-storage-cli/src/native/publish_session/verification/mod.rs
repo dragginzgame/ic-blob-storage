@@ -42,14 +42,13 @@ pub(super) async fn run(
 ) -> Result<(Value, Value), Failure> {
     let claim = Run::create(&directory)?;
     let permission = selected.input.permission;
-    let digest: ContentDigest = format!("sha256:{}", selected.body_sha256)
-        .parse()
+    let digest: ContentDigest = ContentDigest::try_from(selected.body_sha256.as_bytes().as_slice())
         .map_err(|_| Failure::Binding)?;
     claim.json(
         "intent.json",
         &json!({"schema":1,"operation":"publish_session_verification",
         "upload":upload_json(permission.upload),"uploader":permission.uploader.to_text(),
-        "verifier":verifier.actor.to_text(),"body_sha256":selected.body_sha256,
+        "verifier":verifier.actor.to_text(),"body_sha256":selected.body_sha256.to_string(),
         "gateway":input.gateway.as_str(),"max_provider_requests":1,
         "max_attestation_updates":1,"retry_authorized":false}),
     )?;
