@@ -1,5 +1,5 @@
 //! Inspect retained exact funding intent without dispatch, retry or credit authority.
-use super::{Failure, arguments::Options, history, query};
+use super::{Failure, arguments::Options, history, query, reply::scope_json};
 use ic_blob_storage_contracts::dto::funding::outcome::FundingBalanceField;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
@@ -93,7 +93,7 @@ fn output(input: FundingOutcomeRequest, bytes: &[u8], options: &Options) -> Resu
     Ok(
         json!({"schema":1,"observation":"funding_outcome","operator":options.actor.to_text(),
         "network":options.network,"url":options.url.as_str(),"verification":"query_signatures",
-        "scope":history::scope_json(input.scope),"operation":input.operation.to_string(),
+        "scope":scope_json(input.scope),"operation":input.operation.to_string(),
         "offered":input.offered.to_string(),"target_balance":input.target_balance.map(|n|n.to_string()),
         "outcome":if record.is_some() {"found"} else {"absent"},"record":record,
         "retry_authorized":false,"provider_credit":if credit_confirmed { "host_confirmed" } else { "not_established" }}),

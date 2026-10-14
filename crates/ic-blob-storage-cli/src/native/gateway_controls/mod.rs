@@ -2,6 +2,7 @@
 use super::{
     Failure, agent,
     arguments::Options,
+    reply::scope_json,
     signed_update::{PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
 use candid::Principal;
@@ -76,10 +77,6 @@ struct DispatchIntentRecord<'a> {
     method: &'a str,
     request_sha256: String,
 }
-fn scope(scope: OperatorScope) -> Value {
-    json!({"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),
-        "cashier":scope.cashier.to_text(),"payment_account":scope.payment_account.to_text()})
-}
 fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUpdate, Failure> {
     let argument = input.argument()?;
     PreparedUpdate::claim(
@@ -101,6 +98,7 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
                     include_str!("../mod.rs"),
                     include_str!("../arguments/mod.rs"),
                     include_str!("../parsing/mod.rs"),
+                    include_str!("../reply/mod.rs"),
                     include_str!("../signed_update/mod.rs"),
                     include_str!("../observe_upload/record/mod.rs"),
                     include_str!("../../../../../Cargo.lock")
@@ -110,7 +108,7 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
             .to_string(),
             network: options.network,
             service_url: options.url.as_str(),
-            scope: scope(input.scope),
+            scope: scope_json(input.scope),
             operator: options.actor.to_text(),
             decision: input.decision(),
             method: input.method(),
@@ -156,7 +154,7 @@ fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
 }
 fn outcome(input: &Input, id: &str, result: &Result<Option<Value>, Failure>) -> Value {
     let mut report = json!({"schema":1,"request_id":id,"outcome":"pending",
-        "scope":scope(input.scope),"decision":input.decision(),"acknowledgment":null,
+        "scope":scope_json(input.scope),"decision":input.decision(),"acknowledgment":null,
         "retry_authorized":false,"provider_deletion":"not_established",
         "billing_cessation":"not_established","membership":"not_observed",
         "historical_receipt":"not_available"});

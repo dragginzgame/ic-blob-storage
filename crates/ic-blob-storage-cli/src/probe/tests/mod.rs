@@ -36,6 +36,11 @@ fn probe_records_reject_links_and_special_files_with_existing_codes() {
         record::read(directory.path(), "link", 2),
         Err("record_not_file".into())
     );
+    assert_eq!(
+        record::save(directory.path(), "link", b"replacement"),
+        Err("create_record".into())
+    );
+    assert_eq!(std::fs::read(&target).unwrap(), b"ok");
     let fifo = directory.path().join("fifo");
     assert!(
         std::process::Command::new("mkfifo")
@@ -95,7 +100,14 @@ fn immutable_records_detect_tampering_and_incomplete_runs() {
     )
     .unwrap();
     assert_eq!(record::verify(p).unwrap()["outcome"], "failed");
-    assert!(record::save(p, "response-0.body", b"replacement").is_err());
+    assert_eq!(
+        record::save(p, "response-0.body", b"replacement"),
+        Err("create_record".into())
+    );
+    assert_eq!(
+        std::fs::read(p.join("response-0.body")).unwrap(),
+        b"failure"
+    );
     // Retained-body verification admits empty/exact-limit bodies and preserves
     // the existing typed size refusal independently of recorded length/digest.
     for bytes in [Vec::new(), vec![b'x'; MAX_BODY], vec![b'x'; MAX_BODY + 1]] {

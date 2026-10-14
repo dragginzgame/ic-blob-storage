@@ -33,7 +33,7 @@ use ic_agent::{
 };
 use ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD;
 use serde_json::json;
-use std::{fs::File, path::Path, process::ExitCode, time::Duration};
+use std::{path::Path, process::ExitCode, time::Duration};
 
 #[cfg(test)]
 mod tests;
@@ -205,25 +205,8 @@ pub(super) fn run() -> ExitCode {
     }
 }
 
-fn open_regular(path: &Path) -> Result<File, Failure> {
-    let mut options = std::fs::OpenOptions::new();
-    options.read(true);
-    // A FIFO open can block before metadata or any transport deadline. Validate
-    // the descriptor actually opened, avoiding a pathname precheck/replacement race.
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::OpenOptionsExt as _;
-        options.custom_flags(libc::O_NONBLOCK);
-    }
-    let file = options.open(path).map_err(|_| Failure::File)?;
-    if !file.metadata().map_err(|_| Failure::File)?.is_file() {
-        return Err(Failure::File);
-    }
-    Ok(file)
-}
-
 fn read(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
-    let file = open_regular(path)?;
+    let file = ic_host_fs::read::open_regular_file(path).map_err(|_| Failure::File)?;
     let maximum = usize::try_from(maximum).map_err(|_| Failure::File)?;
     let bytes = ic_host_fs::read::read_opened_file(file, maximum).map_err(|_| Failure::File)?;
     if bytes.is_empty() {
@@ -349,100 +332,92 @@ async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Fail
 }
 
 async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
-    let recovery = match &options.command {
+    match &options.command {
         arguments::Command::UploadAttestation {
             service,
             namespace,
             verifier,
             statement,
-        } => Some(attestation::Recovery::open(
-            *service,
-            *namespace,
-            *verifier,
-            options.actor,
-            statement,
-        )?),
-        _ => None,
-    };
-    let history = match &options.command {
-        arguments::Command::FundingHistory { scope, cursor } => {
-            Some(history::request(*scope, cursor.as_deref())?)
+        } => {
+            let recovery = attestation::Recovery::open(
+                *service,
+                *namespace,
+                *verifier,
+                options.actor,
+                statement,
+            )?;
+            let (service, method, argument) = recovery.query();
+            let response = query(options, service, method, argument).await?;
+            recovery.output(
+                &response,
+                options.actor,
+                options.network,
+                options.url.as_str(),
+            )
         }
-        _ => None,
-    };
-    let verification = match &options.command {
+        arguments::Command::FundingHistory { scope, cursor } => {
+            let request = history::request(*scope, cursor.as_deref())?;
+            let response = query(
+                options,
+                request.scope.service,
+                ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD,
+                candid::encode_one(request).map_err(|_| Failure::Arguments)?,
+            )
+            .await?;
+            history::output(
+                request,
+                &response,
+                options.actor,
+                options.network,
+                options.url.as_str(),
+            )
+        }
         arguments::Command::VerifyUpload {
             service,
             namespace,
             permission,
             body,
             max_bytes,
-        } => Some(verify_upload::Verification::open(
-            *service,
-            *namespace,
-            options.actor,
-            permission,
-            body,
-            *max_bytes,
-        )?),
-        _ => None,
-    };
-    let (service, method, argument) = if let Some(recovery) = &recovery {
-        recovery.query()
-    } else if let Some(verification) = &verification {
-        (
-            verification.permission.upload.service,
-            ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
-            candid::encode_one(verification.permission).map_err(|_| Failure::Arguments)?,
-        )
-    } else if let Some(request) = history {
-        (
-            request.scope.service,
-            ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD,
-            candid::encode_one(request).map_err(|_| Failure::Arguments)?,
-        )
-    } else if let arguments::Command::Status { scope } = options.command {
-        (
-            scope.service,
-            LOCAL_STATUS_METHOD,
-            candid::encode_one(scope).map_err(|_| Failure::Arguments)?,
-        )
-    } else {
-        return Err(Failure::Arguments);
-    };
-    let response = query(options, service, method, argument).await?;
-    if let Some(recovery) = recovery {
-        recovery.output(
-            &response,
-            options.actor,
-            options.network,
-            options.url.as_str(),
-        )
-    } else if let Some(verification) = verification {
-        verification.finish(
-            &response,
-            options.actor,
-            options.network,
-            options.url.as_str(),
-        )
-    } else if let Some(request) = history {
-        history::output(
-            request,
-            &response,
-            options.actor,
-            options.network,
-            options.url.as_str(),
-        )
-    } else if let arguments::Command::Status { scope } = options.command {
-        let status = reply::decode(&response, scope)?;
-        Ok(reply::output(
-            &status,
-            options.actor,
-            options.network,
-            options.url.as_str(),
-        ))
-    } else {
-        Err(Failure::Arguments)
+        } => {
+            let verification = verify_upload::Verification::open(
+                *service,
+                *namespace,
+                options.actor,
+                permission,
+                body,
+                *max_bytes,
+            )?;
+            let response = query(
+                options,
+                verification.permission.upload.service,
+                ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
+                candid::encode_one(verification.permission).map_err(|_| Failure::Arguments)?,
+            )
+            .await?;
+            verification.finish(
+                &response,
+                options.actor,
+                options.network,
+                options.url.as_str(),
+            )
+        }
+        arguments::Command::Status { scope } => {
+            let response = query(
+                options,
+                scope.service,
+                LOCAL_STATUS_METHOD,
+                candid::encode_one(scope).map_err(|_| Failure::Arguments)?,
+            )
+            .await?;
+            let status = reply::decode(&response, *scope)?;
+            Ok(reply::output(
+                &status,
+                options.actor,
+                options.network,
+                options.url.as_str(),
+            ))
+        }
+        _ => Err(Failure::Arguments),
     }
 }
 

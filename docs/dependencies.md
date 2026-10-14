@@ -14,11 +14,14 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.36.3 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.9.1 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.38.0 | Native PocketIC client, server setup and managed lifetime |
-| IC Host artifacts/fs/tools (direct) | 0.17.7 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.36.4 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.9.3 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.39.0 | Native PocketIC client, server setup and managed lifetime |
+| IC Host artifacts/fs/tools (direct) | 0.17.9 | Native artifacts, filesystem and test/tool boundaries |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
+
+Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
+the retained creation/publication used by verified body staging.
 
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.11.0 at
 `a15ff323449f4b6190f647aec0de43cbcfb314ba`, with 116 payloads. Common installation,
@@ -41,7 +44,13 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Testkit 0.38 and direct Blob callers select one Host 0.17.7 graph. Interface tests explicitly enable `candid-service`.
+Testkit 0.39 and direct Blob callers resolve Host 0.17.9 in the application lock.
+The separately installed Testkit CLI uses its published packaged lock's Host
+0.17.8, which includes the macOS permissions repair. Run `make install-testkit`
+explicitly after this selection change, then `make testkit-check`; changing the
+application lock alone cannot repair an older tool build. The current
+[issue-repair qualification](evidence/integration0234.md#published-opener-and-native-ci-setup-repair)
+keeps these graphs separate. Interface tests explicitly enable `candid-service`.
 Direct Host tools already disables default features; no Candid extraction
 feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
@@ -302,21 +311,23 @@ Do not add Canic dependencies, wrappers or fixtures here. The
 owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
 links source-bound composition results and remaining owner work.
 
-At the 2026-10-13 review, Canic's released `v0.111.0` points to
+At the 2026-10-14 review, Canic's released `v0.111.0` points to
 `25b73cd403b20b4e148c6e340f8c760a26d97f6e`. Its catalog requires Blob/contracts
 `0.22.2` and Memory `0.35`; Cargo cannot resolve those requirements to this
 Blob 0.23 / Memory 0.36 family. Adding this Blob version directly to an application
 does not upgrade the adapter's types or its memory runtime. Do not combine the
 two graphs or substitute a path override as published integration evidence.
 
-The inspected Canic source at `23d27f96f4e518f0313b6d730f53724ba836ffbe`, plus
+The inspected Canic source at `644d4b13012b395d6211a6907e2e6aafdf391db9`, plus
 incoming Cargo edits, selects Blob/contracts `0.23` and Memory `0.36`. Its pending
 family is 0.112; package metadata still says 0.111.0 and no remote `v0.112.0` tag
 was observed. Commit subjects and local successful proofs do not establish family
 publication. The Canic composition guide still contains older 0.22/0.35 prose;
 use the selected release's actual manifests and source-bound evidence to resolve
 version requirements. Follow [Canic #527](https://github.com/dragginzgame/canic/issues/527)
-for the explicit memory composition and family qualification.
+for the explicit memory composition and family qualification. Its dedicated and
+embedded fixture locks retain Blob 0.23.0 / Memory 0.36.1; their source-bound
+results are not fresh execution of released Blob 0.23.3.
 
 For consumer adoption of the current Blob line:
 

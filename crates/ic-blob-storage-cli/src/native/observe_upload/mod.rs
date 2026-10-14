@@ -215,17 +215,7 @@ async fn download_plan(
     maximum: NonZeroU64,
     run: &Run,
 ) -> Result<ContentDigest, Failure> {
-    let headers: Vec<_> = plan
-        .declaration
-        .headers
-        .iter()
-        .map(
-            |h| ic_blob_storage_contracts::identity::caffeine::CaffeineHeader {
-                name: &h.name,
-                value: &h.value,
-            },
-        )
-        .collect();
+    let headers = ic_blob_storage_contracts::upload::manifests::headers(&plan.declaration);
     let expected = ExpectedBody {
         root: ProviderRootHash::try_from(plan.permission.upload.root.as_slice())
             .expect("fixed root"),

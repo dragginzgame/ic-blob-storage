@@ -1,4 +1,4 @@
-use super::{Failure, parsing::positive, read};
+use super::{Failure, parsing::positive, read, reply::scope_json};
 use candid::Principal;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
@@ -48,9 +48,6 @@ pub(super) fn request(
         })
         .transpose()?;
     Ok(FundingHistoryRequest { scope, cursor })
-}
-pub(super) fn scope_json(scope: OperatorScope) -> Value {
-    json!({"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"cashier":scope.cashier.to_text(),"payment_account":scope.payment_account.to_text()})
 }
 pub(super) fn phase_json(phase: FundingPhase) -> Value {
     match phase {

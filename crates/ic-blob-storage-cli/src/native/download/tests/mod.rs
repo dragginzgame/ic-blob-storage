@@ -94,12 +94,11 @@ fn output_stays_partial_until_verified_and_existing_verified_output_is_never_rep
     let mut file = run.open_body().unwrap();
     file.write_all(b"abc").unwrap();
     file.sync_all().unwrap();
-    drop(file);
     assert!(input.directory.join("body.part").is_file());
     assert!(!input.directory.join("body.bin").exists());
     // Simulate a conflicting output in the caller-controlled directory.
     run.bytes("body.bin", b"original").unwrap();
-    assert_eq!(run.publish_body(), Err(Failure::File));
+    assert_eq!(run.publish_body(file), Err(Failure::File));
     assert_eq!(
         std::fs::read(input.directory.join("body.bin")).unwrap(),
         b"original"

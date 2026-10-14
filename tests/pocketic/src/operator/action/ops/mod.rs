@@ -1,5 +1,5 @@
 use super::model::{Request, Selection};
-use crate::operator::Failure;
+use crate::operator::{Failure, ops::query_method};
 use blob_test_protocol::balance::BalanceFailure;
 use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_testkit::pocket_ic::PocketIc;
@@ -28,20 +28,19 @@ pub(super) fn request_json(selection: &Selection) -> Value {
 
 pub(super) fn execute(selection: &Selection) -> Result<Result<(), Value>, Failure> {
     let bytes = catch_unwind(AssertUnwindSafe(|| {
-        let target = &selection.target;
-        let url = format!("http://{}/", target.server)
-            .parse()
-            .expect("validated socket URL");
-        let pic = PocketIc::new_from_existing_instance(url, target.instance, Some(10_000));
         let args = match &selection.request {
             Request::Balance(r) => candid::encode_one(r),
             Request::Gateway(r) => candid::encode_one(r),
         }
         .expect("bounded action request");
         if selection.dry_run {
-            pic.query_call(target.canister, target.caller, method(selection), args)
-                .map_err(|_| Failure::QueryRejected)
+            query_method(&selection.target, method(selection), args)
         } else {
+            let target = &selection.target;
+            let url = format!("http://{}/", target.server)
+                .parse()
+                .expect("validated socket URL");
+            let pic = PocketIc::new_from_existing_instance(url, target.instance, Some(10_000));
             // Submit exactly this identity once at the application layer. SDK
             // polling/busy handling does not authorize a new sequence or request.
             pic.update_call(target.canister, target.caller, method(selection), args)

@@ -8,7 +8,7 @@ use crate::native::{
     observe_upload::record::{
         DownloadRequestRecord, ObservationPlanRecord, ObservationSummaryRecord,
     },
-    read,
+    read_no_follow,
     upload_setup::manifest_reply_limits,
 };
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
@@ -40,15 +40,10 @@ struct Records {
 impl Artifacts<'_> {
     fn bytes(&mut self, name: &'static str, maximum: u64) -> Result<Vec<u8>, Failure> {
         let path = self.path.join(name);
-        // Refuse aliases and partial/non-regular files. The directory must remain
-        // controlled by the verifier; this is not a hostile-filesystem sandbox.
-        if !std::fs::symlink_metadata(&path)
-            .map_err(|_| Failure::Observation)?
-            .is_file()
-        {
-            return Err(Failure::Observation);
-        }
-        let bytes = read(&path, maximum).map_err(|_| Failure::Observation)?;
+        // Refuse aliases and empty/non-regular files through the opened descriptor.
+        // The directory must remain controlled by the verifier; this is not a
+        // hostile-filesystem sandbox.
+        let bytes = read_no_follow(&path, maximum).map_err(|_| Failure::Observation)?;
         self.hashes
             .insert(name, ContentDigest::compute(&bytes).to_string());
         Ok(bytes)
@@ -57,6 +52,7 @@ impl Artifacts<'_> {
         serde_json::from_slice(&self.bytes(name, 16 * 1024)?).map_err(|_| Failure::Observation)
     }
 }
+
 fn require(value: bool) -> Result<(), Failure> {
     if value {
         Ok(())
@@ -231,3 +227,6 @@ impl Records {
         Ok(gateway)
     }
 }
+
+#[cfg(all(test, unix))]
+mod tests;

@@ -162,9 +162,7 @@ async fn capture(
     };
     let mut body = run.open_body()?;
     let digest = provider_download::fetch(&url, options.network, &expected, run, &mut body).await?;
-    body.sync_all().map_err(|_| Failure::File)?;
-    drop(body);
-    let output = run.publish_body()?;
+    let output = run.publish_body(body)?;
     let summary = json!({"schema":1,"observation":"verified_tenant_download",
         "descriptor_authentication":"ic_update_certificate","actor":options.actor.to_text(),
         "request":{"service":request.service.to_text(),"tenant":request.tenant.to_text(),

@@ -1,5 +1,5 @@
 //! Bounded saved continuation bound to the complete original operator scan.
-use super::super::parsing::positive;
+use super::super::parsing::{positive, principal};
 use super::{Failure, filter, filter_text};
 use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
@@ -31,10 +31,8 @@ pub(super) fn read(
     {
         return Err(Failure::CursorScope);
     }
-    let tenant = Principal::from_text(&input.after_tenant).map_err(|_| Failure::Arguments)?;
-    if tenant.to_text() != input.after_tenant
-        || [Principal::anonymous(), Principal::management_canister()].contains(&tenant)
-    {
+    let tenant = principal(&input.after_tenant)?;
+    if [Principal::anonymous(), Principal::management_canister()].contains(&tenant) {
         return Err(Failure::Arguments);
     }
     Ok(UploadHistoryCursor {

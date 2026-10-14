@@ -116,6 +116,7 @@ fn a_replacement_directory_cannot_inherit_the_claimed_run() {
     let original = parent.path().join("original");
     let run = Run::create(&path).unwrap();
     run.bytes("request.candid", b"original request").unwrap();
+    let body = run.open_body().unwrap();
     std::fs::rename(&path, &original).unwrap();
     std::fs::create_dir(&path).unwrap();
     assert!(matches!(
@@ -127,9 +128,9 @@ fn a_replacement_directory_cannot_inherit_the_claimed_run() {
         Err(Failure::File)
     ));
     assert!(matches!(run.open_body(), Err(Failure::File)));
-    assert!(matches!(run.publish_body(), Err(Failure::File)));
+    assert!(matches!(run.publish_body(body), Err(Failure::File)));
     assert!(std::fs::read_dir(&path).unwrap().next().is_none());
-    assert_eq!(std::fs::read_dir(&original).unwrap().count(), 1);
+    assert_eq!(std::fs::read_dir(&original).unwrap().count(), 2);
     assert_eq!(
         std::fs::read(original.join("request.candid")).unwrap(),
         b"original request"
@@ -150,4 +151,31 @@ fn record_names_cannot_escape_the_claimed_directory() {
     }
     assert!(std::fs::read_dir(path).unwrap().next().is_none());
     assert!(!parent.path().join("outside").exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn replaced_partial_body_cannot_publish_under_the_verified_handle() {
+    use std::io::Write as _;
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let parent = tempfile::tempdir().unwrap();
+    let path = parent.path().join("run");
+    let run = Run::create(&path).unwrap();
+    let mut body = run.open_body().unwrap();
+    body.write_all(b"verified original").unwrap();
+    assert_eq!(body.metadata().unwrap().permissions().mode() & 0o777, 0o600);
+    std::fs::rename(path.join("body.part"), path.join("original.part")).unwrap();
+    std::fs::write(path.join("body.part"), b"substitute").unwrap();
+
+    assert_eq!(run.publish_body(body), Err(Failure::File));
+    assert!(!path.join("body.bin").exists());
+    assert_eq!(
+        std::fs::read(path.join("original.part")).unwrap(),
+        b"verified original"
+    );
+    assert_eq!(
+        std::fs::read(path.join("body.part")).unwrap(),
+        b"substitute"
+    );
 }

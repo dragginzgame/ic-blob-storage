@@ -21,7 +21,7 @@ pub(super) struct LocalBody {
 }
 impl LocalBody {
     pub fn open(path: &Path, bytes: u64) -> Result<Self, Failure> {
-        let file = super::open_regular(path)?;
+        let file = ic_host_fs::read::open_regular_file(path).map_err(|_| Failure::File)?;
         let metadata = file.metadata().map_err(|_| Failure::File)?;
         if metadata.len() != bytes {
             return Err(Failure::Content);
@@ -37,14 +37,7 @@ impl LocalBody {
         maximum: NonZeroU64,
         sink: &mut impl Write,
     ) -> Result<CaffeineContentHashes, Failure> {
-        let headers: Vec<_> = declaration
-            .headers
-            .iter()
-            .map(|h| CaffeineHeader {
-                name: &h.name,
-                value: &h.value,
-            })
-            .collect();
+        let headers = ic_blob_storage_contracts::upload::manifests::headers(declaration);
         let mut verifier = verifier(root, self.bytes, &headers, maximum)?;
         let mut frame = vec![0; FRAME];
         loop {

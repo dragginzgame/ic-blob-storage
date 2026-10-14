@@ -42,6 +42,10 @@ pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceS
     Ok(status)
 }
 
+pub(super) fn scope_json(scope: OperatorScope) -> Value {
+    json!({"service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"cashier":scope.cashier.to_text(),"payment_account":scope.payment_account.to_text()})
+}
+
 pub(super) fn output(
     s: &LocalServiceStatus,
     operator: Principal,
@@ -51,8 +55,7 @@ pub(super) fn output(
     json!({
         "schema":1,"observation":"local_status","network":network,"url":url,
         "operator":operator.to_text(),"verification":"query_signatures",
-        "scope":{"service":s.scope.service.to_text(),"namespace":s.scope.namespace.to_string(),
-            "cashier":s.scope.cashier.to_text(),"payment_account":s.scope.payment_account.to_text()},
+        "scope":scope_json(s.scope),
         "uploads":{
             "operations":s.uploads.operations.to_string(),"active_reservations":s.uploads.active_reservations.to_string(),
             "reserved_bytes":s.uploads.reserved_bytes.to_string(),"logical_bytes":s.uploads.logical_bytes.to_string(),

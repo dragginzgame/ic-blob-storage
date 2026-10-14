@@ -167,8 +167,9 @@ when available, then report incomplete collection. Preserve the original failure
 an available partial archive does not establish complete collection.
 `make hooks-check` supplies the consumer's real formatter inputs to the shared
 adoption checker using Cargo's complete member roster and each member's Rust
-sources, including packages not yet present in HEAD. It retains the additional
-mutating-formatter rollback and Make-mode refusal cases.
+sources, including packages not yet present in HEAD. It retains one actual-consumer
+mutating-formatter rollback and lock-preservation check. Shared Tooling owns the
+generic Make-mode and failed-tree-observation matrices for the identical hook.
 `make release-commands-check` copies the
 reviewed Makefile, explicit parse-time inputs and the direct-delivery admission
 adapter into a private fixture,

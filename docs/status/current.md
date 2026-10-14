@@ -1,102 +1,120 @@
 # Current status
 
-Date: 2026-10-13
+Date: 2026-10-14
 
 ## Released source and pending batch
 
-Blob **0.23.2** is released at `7ad76317fb1ed2695c16ede4aabee655ded84187`,
-validated source `5b0c76258313b5581603e52fd033821ffcf590e5`. The finalized
-receipt records `release-verify`. Shared 0.10.2, Metrics 0.9, the Canic graph
-clarification and native CI timeout/evidence changes are delivered. Historical
-[Shared](../evidence/shared0100232.md), [Metrics](../evidence/metrics0900232.md)
-and [Host refresh](../evidence/upstream0232.md) results retain their original inputs.
-The prior 0.23.1 hosted run passed Linux, MSRV and Apple Silicon but timed out on
-Intel; no current-release native acceptance is inferred from the release receipt.
+Blob **0.23.3** is released at `cedea53e13f04b1a271a5fb9d3220e0d3b062fb1`.
+Its release-verify source is `6cf57f657da4f52803f55959061dceb848a20ba0`.
+The released graph selects Host 0.17.7, Testkit 0.38.0, Memory 0.36.3 and
+Metrics 0.9.1. Shared 0.11.0 remains at
+`a15ff323449f4b6190f647aec0de43cbcfb314ba`, with 116 reviewed payloads.
 
-Pending compatible **0.23.3** shares Candid limit construction, carries typed
-publication digests and gives local/provider body verification one limits owner.
-Native CLI fixtures share command setup and Host-owned process cleanup.
-Shared Tooling **0.11.0** at `a15ff323449f4b6190f647aec0de43cbcfb314ba`
-is adopted through 116 verified payloads, including the Node/npm checker from
-the prior cleanup. CI evidence download now binds the upload ID and digest with
-bounded retry and retained failure attempts. Incoming registry Host 0.17.7,
-Testkit 0.38.0, Metrics 0.9.1 and Memory 0.36.3 selections are preserved;
-no path dependency is used.
+The compatible pending **0.23.4** adopts published Host retained staging for
+verified native body files. The verified file handle stays owned through
+no-replace publication; failed or interrupted bodies remain named evidence.
+[Qualification](../evidence/integration0234.md) records this batch.
+Incoming Testkit 0.39.0 / Host 0.17.9 / Memory 0.36.4 / Metrics 0.9.3 lock changes
+are preserved and identified separately from the released graph. The earlier
+integration record retains its original Metrics 0.9.2 selection.
 
-The next cleanup delegates Cargo preparation to Shared's metadata helper using
-admitted Cargo-edit 0.13.13; Blob retains all-four-file receipt rollback. Query
-routing has one publication owner, and recovery packet reads use Host no-follow
-opening while retaining caller-specific ancestor and evidence checks.
-[Qualification](../evidence/third-cleanup0233.md) records the focused results.
+The next cleanup delegates Unix probe record creation to Host retained files,
+reads attestation artifacts through the existing no-follow owner and shares one
+operator-scope JSON projection across status, account, gateway and funding output.
+Named partial evidence, create-new refusal, observation hashes and decimal-string
+fields remain. Gateway intent fingerprints include the shared projection owner.
+Host 0.17.8 and other incoming lock changes arrived before these focused checks
+and are preserved. Its retained-file source uses the corrected native permission
+conversion; Testkit 0.38.0's independent packaged lock remains a separate owner.
+Linux CLI checks pass: 115 native and five probe tests. The initial native attempt
+had three sandbox loopback refusals; the complete socket-enabled retry passed.
+Logs and input hashes remain in `.tmp/review-validation/three0234/`. These tests
+use local files and loopback substitutes; no public-source capture, deployed
+provider request, paid effect or Canic execution was run. Native macOS and the
+complete gate remain separate qualification.
 
-The following cleanup reuses canonical cursor number parsing, shares decoder
-construction across eleven contract reply boundaries and consolidates single-call
-mechanics across seven replicated clients. Public types, role checks, validation
-order, reply budgets and recovery contracts remain unchanged.
-[Focused qualification](../evidence/fourth-cleanup0233.md) records the checks and limits.
+Original manifest headers now reuse the Contracts projection in local and
+provider byte verification, preserving their order, duplicates and separate
+validation. The hook checker drops Shared-owned Make/tree-observation matrices
+but retains all Cargo-member inputs and one actual-consumer failed-formatter
+rollback/lock check. All 115 CLI tests, strict CLI lint, hook admission, fixture
+completion, ShellCheck, formatting and links pass for this local cleanup.
+Evidence and before-images are in `.tmp/review-validation/sixth0234/`.
 
-Synchronous exposure inspection and completion replay now carry validated
-permission views. Signed-update dispatch derives common intent facts, and heap
-and stable accounting share the lifecycle byte classifier. Public getters, flat
-intent JSON, independent obligations and mutation/corruption checks are retained.
-[Qualification](../evidence/fifth-cleanup0233.md) includes source-bound read measurements.
+CLI inspection now keeps preparation, one authenticated query and decoding in
+the same command branch. Upload verification keeps its original body descriptor
+across the query. Fixture dry runs reuse the existing query transport; update
+dispatch remains separate. Upload cursors reuse canonical principal syntax and
+retain concrete-tenant and complete original-scan binding checks.
+All 115 CLI cases and 15 installed PocketIC cases pass, including passive balance/
+gateway previews, signed status/history/byte checks and retained attestation
+recovery. Strict CLI/PocketIC lint, formatting and documentation checks pass.
+Inputs, fresh artifact hashes, logs and before-images remain in
+`.tmp/review-validation/seventh0234/`; the incoming Metrics 0.9.3 graph was already
+selected at this task's baseline and stayed unchanged. Full CI, native macOS,
+Canic execution and deployed provider qualification remain outside these checks.
 
-[The current cleanup/adoption evidence](../evidence/next-three0233.md) records
-focused checks and retained failures. No full Blob CI/release gate ran.
-The previous [owner extraction evidence](../evidence/cleanup0233.md) remains
-historical. Its Node adapter portion is now delivered here; the retained-staging
-Blob filesystem replacement remains pending adoption; Host 0.17.7 is now selected. Do not apply the whole old consumer patch over this batch.
+Published Host fs 0.17.9 now owns native input opening under
+[#67](https://github.com/dragginzgame/ic-blob-storage/issues/67). Blob calls that
+owner directly with the new minimum requirement; regular-file, symlink, bounded
+read and held-body behavior are preserved. Host
+[#88](https://github.com/dragginzgame/ic-host-tooling/issues/88) retains its separate
+producer macOS test-fixture repair. Earlier frozen qualification and failed
+attempts remain in `/tmp/blob-host-opener-_1fkrkee/`; concurrent real Host
+validation remains excluded. Current registry qualification passes all 115 CLI
+cases, strict CLI/PocketIC lint and 15 selected installed PocketIC cases with
+fresh artifacts. Exact Testkit 0.39 setup/admission passes; its independent
+packaged tool lock selects repaired Host 0.17.8. Logs, initial/final inputs and
+artifact hashes remain in `.tmp/review-validation/issues0234/`.
+
+The [released-source CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38525659636)
+is complete: Rust 1.88 passed, all three native lanes failed. Both macOS lanes
+failed during Testkit 0.38 setup with its independently packaged Host fs 0.17.4
+permissions defect, now repaired in the selected published tool under
+[Testkit #77](https://github.com/dragginzgame/ic-testkit/issues/77). Linux passed
+the formatter/release/hook fixtures but failed offline release-tool admission:
+the workflow omitted Cargo-edit setup. It now explicitly runs the existing
+`make install-release-tools` before checks on every native host under
+[#56](https://github.com/dragginzgame/ic-blob-storage/issues/56). Direct original
+job logs are retained; the aggregate failed-log response was empty. Full Blob
+CI, current native macOS and hosted coordinated archive acceptance remain open.
+Metrics API adoption [#65](https://github.com/dragginzgame/ic-blob-storage/issues/65)
+is closed against delivered source and its owning qualification. Archive, hook,
+tool-storage, common-catalog and Candid-export issues retain their required
+native acceptance. Do not infer completion from the release receipt alone.
+
+The delivered cleanup evidence retains its original inputs:
+[owners](../evidence/cleanup0233.md),
+[typed inputs and Shared adoption](../evidence/next-three0233.md),
+[release metadata and recovery](../evidence/third-cleanup0233.md),
+[client/reply construction](../evidence/fourth-cleanup0233.md), and
+[permission views, intents and accounting](../evidence/fifth-cleanup0233.md).
+The Node checker and Host staging consumer adoptions are now applied; do not
+reapply the old combined patch.
 
 ## Canic boundary
 
-The 2026-10-13 read-only refresh identifies Canic HEAD
-`23d27f96f4e518f0313b6d730f53724ba836ffbe` with incoming Cargo/status edits.
-The remote 0.111.0 tag still selects Blob/contracts 0.22.2 and Memory 0.35;
-no remote 0.112.0 tag was observed. Current source selects Blob 0.23/Memory 0.36,
-while package metadata remains 0.111.0. README and dependency instructions now
-separate those families explicitly. The sibling composition guide's older version
-prose remains with Canic; this review changes no sibling and runs no consumer build.
-Issues #31/#33/#4 still need actual application/provider acceptance. No new Blob
-runtime gap was found in the reviewed upload preparation and recovery owners.
+The read-only 2026-10-14 review identifies Canic HEAD
+`644d4b13012b395d6211a6907e2e6aafdf391db9` plus active 0.112 integration edits.
+Released Canic 0.111.0 still selects Blob/contracts 0.22.2 and Memory 0.35;
+no remote 0.112 tag was observed. Working source selects the Blob 0.23 /
+Memory 0.36 family. Dedicated and embedded fixture locks still select
+Blob 0.23.0 / Memory 0.36.1; their existing managed results qualify those
+original artifacts, not a fresh application or current released-Blob run.
 
+Source review confirms exact installation decoding remains in place, including
+zero skipping quota. Parent-driven dynamic initialization is still controller-only
+under [Canic #493](https://github.com/dragginzgame/canic/issues/493).
+Guarded funding composition [Canic #494](https://github.com/dragginzgame/canic/issues/494)
+still requires authenticated provider credit/payer evidence under
+[Blob #34](https://github.com/dragginzgame/ic-blob-storage/issues/34).
 
-Read-only review confirms fresh Canic-owned dedicated and embedded managed
-Blob tests pass with Blob/contracts 0.23.0 and Memory 0.36.1. The recorded root
-manifest and three lock hashes still match. The tests cover permissions, exact
-installation decoding, endpoint parity and restoration fences; the embedded
-case also retains application state. Dedicated build:
-`39021f01483ac31d8be5ca364ca32605ce38d382c13ad0ee0ae7315d6a5069e8`;
-embedded: `b6bbcd1b93783b92f3f4325e00f416976495ce228c29f4e783e4551ea52bf6d0`.
-Original evidence remains in Canic `.tmp/memory-036/blob023-{dedicated,embedded}.log`.
-This clears the local composition blocker. Family delivery and actual application/
-provider acceptance remain under [#527](https://github.com/dragginzgame/canic/issues/527)
-and [#444](https://github.com/dragginzgame/canic/issues/444). No sibling edit or
-new Canic execution occurred here; older proof below retains its original graph.
+Family delivery remains [Canic #527](https://github.com/dragginzgame/canic/issues/527);
+application/provider acceptance remains [Canic #444](https://github.com/dragginzgame/canic/issues/444).
+Actual two-user/verifier acceptance is Blob #31/#33; media-map transaction #4;
+serving #5; provider GC/deletion/billing #32/#6. No downstream wrapper,
+fabricated provider receipt or funding bypass belongs here.
 
-Canic's wider Auth/Backup/Blob batch remains with its own owner under
-[#517](https://github.com/dragginzgame/canic/issues/517) and
-[#444](https://github.com/dragginzgame/canic/issues/444). The prior scoped #524
-quota-zero fix remains. Its two native regressions now pass; prepared managed
-cases test installed unknown-field/extra-argument rejection and rollback in both
-compositions, using exact retained protected envelopes. Old locks/attempts remain.
-
-Both installed cases now pass against frozen Canic/Testkit working-source inputs
-in `/tmp/canic-524-isolated.v5md68w9/`, with their own target and explicit published
-Testkit 0.35 CLI server owner. They retain the required fence after rejected
-reinstall, preserve stable bytes/configuration/app state, and use actual operator
-same-instance recovery. Scoped Canic/testing Clippy and final native cases pass.
-Corrected source/required fixture locks are applied back only to unchanged, idle
-original files. #524 remains open for family delivery. The standard source-path
-runner refusal, interrupted check, first unfenced-view assertion and earlier
-Timers 0.21 caller failure remain with their distinct recorded inputs. This is
-local frozen composition proof, not the entire evolving Canic graph or provider.
-
-Application-parent initialization remains Canic #493; guarded funding composition
-remains #494, dependent on authenticated provider credit/payer facts in Blob #34.
-Actual application two-user/verifier acceptance remains Blob #31/#33; media-map
-transaction #4; serving #5; provider deletion/GC/billing #32/#6. No downstream
-wrapper/fixture, fake provider evidence or funding bypass belongs in Blob.
-
-[Prior handoff](review-before-02215.md) retains earlier Canic composition hashes,
-probe evidence, Shared history and exact release identities. Historical guarantees
-stay bound to their original sources and independent locks.
+[The preceding source-bound handoff](https://github.com/dragginzgame/ic-blob-storage/blob/cedea53e13f04b1a271a5fb9d3220e0d3b062fb1/docs/status/current.md)
+retains original Canic decoder-repair, dedicated/embedded composition and
+incident evidence. This batch changes no Canic source or lock and runs no Canic build.

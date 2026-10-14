@@ -2,7 +2,7 @@
 use super::Failure;
 use serde::{Deserialize, Serialize};
 use std::{
-    fs::{File, OpenOptions},
+    fs::File,
     path::{Path, PathBuf},
 };
 
@@ -31,29 +31,41 @@ impl Run {
     /// Allocate private unverified output without replacing any existing file.
     pub fn open_body(&self) -> Result<File, Failure> {
         self.admit_directory()?;
-        let mut options = OpenOptions::new();
-        options.create_new(true).write(true);
         #[cfg(unix)]
         {
-            use std::os::unix::fs::OpenOptionsExt;
-            options.mode(0o600);
+            use std::{ffi::OsStr, os::fd::AsFd as _};
+            ic_host_fs::durable::create_retained_at(
+                self.directory.as_fd(),
+                OsStr::new("body.part"),
+                0o600,
+            )
+            .map_err(|_| Failure::File)
         }
-        let file = options
-            .open(self.path.join("body.part"))
-            .map_err(|_| Failure::File)?;
-        self.directory.sync_all().map_err(|_| Failure::File)?;
-        Ok(file)
+        #[cfg(not(unix))]
+        {
+            Err(Failure::File)
+        }
     }
-    /// Publish only after EOF/root verification and file sync, without replacement.
-    pub fn publish_body(&self) -> Result<PathBuf, Failure> {
+    /// Publish the verified held body without replacing any existing output.
+    pub fn publish_body(&self, body: File) -> Result<PathBuf, Failure> {
         self.admit_directory()?;
-        let partial = self.path.join("body.part");
-        let complete = self.path.join("body.bin");
-        std::fs::hard_link(&partial, &complete).map_err(|_| Failure::File)?;
-        self.directory.sync_all().map_err(|_| Failure::File)?;
-        std::fs::remove_file(partial).map_err(|_| Failure::File)?;
-        self.directory.sync_all().map_err(|_| Failure::File)?;
-        Ok(complete)
+        #[cfg(unix)]
+        {
+            use std::{ffi::OsStr, os::fd::AsFd as _};
+            ic_host_fs::durable::publish_retained_at(
+                self.directory.as_fd(),
+                OsStr::new("body.part"),
+                OsStr::new("body.bin"),
+                body,
+            )
+            .map_err(|_| Failure::File)?;
+            Ok(self.path.join("body.bin"))
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = body;
+            Err(Failure::File)
+        }
     }
     pub fn create(path: &Path) -> Result<Self, Failure> {
         let mut builder = std::fs::DirBuilder::new();

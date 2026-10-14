@@ -1,7 +1,7 @@
 use ic_host_artifacts::artifact::{ArtifactError, Sha256Digest};
 use serde::{Deserialize, Serialize};
 use std::{
-    fs::{File, OpenOptions},
+    fs::File,
     io::Write,
     path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
@@ -63,7 +63,17 @@ pub(super) fn hash(bytes: &[u8]) -> String {
     Sha256Digest::compute(bytes).to_string()
 }
 pub(super) fn save(directory: &Path, name: &str, bytes: &[u8]) -> Result<(), String> {
-    let mut file = OpenOptions::new()
+    let parent = File::open(directory).map_err(|_| "create_record")?;
+    #[cfg(unix)]
+    let mut file = {
+        use std::{ffi::OsStr, os::fd::AsFd as _};
+        // Retain the named record on interruption or write failure; never publish
+        // through an atomic writer that would discard incomplete evidence.
+        ic_host_fs::durable::create_retained_at(parent.as_fd(), OsStr::new(name), 0o666)
+            .map_err(|_| "create_record")?
+    };
+    #[cfg(not(unix))]
+    let mut file = std::fs::OpenOptions::new()
         .write(true)
         .create_new(true)
         .open(directory.join(name))
@@ -72,9 +82,7 @@ pub(super) fn save(directory: &Path, name: &str, bytes: &[u8]) -> Result<(), Str
         .and_then(|()| file.sync_all())
         .map_err(|_| "persist_record")?;
     // Sync the directory before any following request. Never overwrite a previous run.
-    File::open(directory)
-        .and_then(|file| file.sync_all())
-        .map_err(|_| "persist_directory".into())
+    parent.sync_all().map_err(|_| "persist_directory".into())
 }
 pub(super) fn json<T: Serialize>(directory: &Path, name: &str, record: &T) -> Result<(), String> {
     save(

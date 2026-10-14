@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.23.4]
+
+- Keep verified native body handles through Host-owned no-replace publication;
+  retain partial evidence and refuse substituted staging files during recovery.
+- Delegate probe record creation to Host retained files, reuse no-follow reads
+  for attestation evidence and share operator-scope JSON across native commands.
+- Reuse the original manifest-header projection during byte verification and
+  remove shared hook regression matrices while retaining Blob adoption checks.
+- Select CLI inspection preparation and decoding in one command branch; share
+  fixture dry-run query transport and canonical upload-cursor principal parsing.
+- Use published Host regular-file opening for native inputs while preserving
+  symlink following, bounded reads and verified body custody.
+  ([#67](https://github.com/dragginzgame/ic-blob-storage/issues/67))
+- Prepare pinned Cargo-edit before native CI's offline release-tool checks;
+  adopt Testkit 0.39 with its repaired packaged Host dependency for macOS setup.
+  ([#56](https://github.com/dragginzgame/ic-blob-storage/issues/56),
+  [Testkit #77](https://github.com/dragginzgame/ic-testkit/issues/77))
+
 ## [0.23.3] - 2026-10-14
 
 - Reuse validated permission views during synchronous inspection and replay;

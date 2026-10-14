@@ -453,9 +453,7 @@ fn snapshot(
             return Err(error);
         }
     };
-    body.sync_all().map_err(|_| Failure::File)?;
-    drop(body);
-    run.publish_body()?;
+    run.publish_body(body)?;
     Ok(hashes)
 }
 pub(super) fn digest(bytes: &[u8]) -> String {
