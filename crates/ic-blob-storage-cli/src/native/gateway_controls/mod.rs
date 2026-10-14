@@ -144,27 +144,23 @@ fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
     }
 }
 fn outcome(input: &Input, id: &str, result: &Result<Option<Value>, Failure>) -> Value {
-    let mut report = json!({"schema":1,"request_id":id,"outcome":"pending",
+    let state = super::signed_update::outcome(result, "acknowledged", |e| {
+        matches!(
+            e,
+            Failure::GatewaySyncRefused(_) | Failure::GatewayRevocationRefused(_)
+        )
+    });
+    let mut report = json!({"schema":1,"request_id":id,"outcome":state,
         "scope":scope_json(input.scope),"decision":input.decision(),"acknowledgment":null,
         "retry_authorized":false,"provider_deletion":"not_established",
         "billing_cessation":"not_established","membership":"not_observed",
         "historical_receipt":"not_available"});
     match result {
         Ok(Some(ack)) => {
-            report["outcome"] = "acknowledged".into();
             report["acknowledgment"] = ack.clone();
         }
         Ok(None) => {}
         Err(error) => {
-            report["outcome"] = if matches!(
-                error,
-                Failure::GatewaySyncRefused(_) | Failure::GatewayRevocationRefused(_)
-            ) {
-                "refused"
-            } else {
-                "uncertain"
-            }
-            .into();
             report["error"] = error.code().into();
         }
     }

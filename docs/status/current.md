@@ -2,6 +2,31 @@
 
 Date: 2026-10-14
 
+## Provider decoding, fixture control and update outcome consolidation
+
+Six provider decoders share private Candid configuration without changing their
+byte checks, work/skipping/type budgets, binding order or typed reply failures.
+Four native update reports share pure outcome classification with their original
+success labels and operation-owned authenticated refusal predicates. Record
+fields, intent ordering and retry restrictions remain with each operation.
+Three browser fixture drivers share JSON control transport, including queued
+messages, explicit EOF rejection and channel shutdown; scenario deadlines and
+browser ownership remain local. The channel regressions run in the existing
+standalone browser target.
+
+Focused Linux qualification passes 47 provider cases, 117 CLI cases, three
+channel cases, strict library/CLI lint, Rust 1.88 and four installed Chromium
+journeys covering upload/release, lost reply, serial verification and corruption.
+Fresh standalone Wasm/CLI and the explicit existing PocketIC 16.1 bytes own these
+local/substitute results. Incoming Host 0.18.1, Memory 0.38.0 and Metrics 0.9.6
+selections are preserved; manifest/lock/artifact hashes remain unchanged through
+qualification. Logs and input hashes remain under
+`.tmp/review-validation/consolidation0250/`, including the incorrect CLI library
+selector and sandbox loopback refusals before the successful focused reruns.
+Full CI, native macOS, Canic and deployed provider checks were not run. No sibling,
+own-version or Git effects ran. The public Memory cut selects pending notes
+0.25.0; this focused cleanup does not qualify that complete release batch.
+
 ## Memory 0.37 composition repair
 
 The reported workspace check failed because the composition test read the

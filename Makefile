@@ -287,6 +287,7 @@ test-browser-native:
 	$(BLOB_BROWSER_NODE) tests/browser/native.mjs "$(BLOB_NATIVE_REPORT)"
 
 test-browser-standalone:
+	$(BLOB_BROWSER_NODE) --test tests/browser/control.test.mjs
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
 	+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage

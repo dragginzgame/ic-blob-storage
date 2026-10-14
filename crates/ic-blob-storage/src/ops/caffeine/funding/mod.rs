@@ -9,7 +9,7 @@ use std::num::NonZeroUsize;
 pub mod request;
 pub mod transport;
 
-use candid::{CandidType, Principal, de::DecoderConfig, decode_one_with_config};
+use candid::{CandidType, Principal, decode_one_with_config};
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -76,12 +76,11 @@ pub fn decode_top_up_reply(
     if bytes.len() > limits.max_bytes.get() {
         return Err(TopUpReplyError::ReplyTooLarge);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(limits.decoding_quota.get())
-        .set_skipping_quota(limits.skipping_quota.get())
-        .set_max_type_len(limits.max_type_entries.get())
-        .set_full_error_message(false);
+    let config = super::decoding::limits(
+        limits.decoding_quota,
+        limits.skipping_quota,
+        limits.max_type_entries,
+    );
     let reply: wire::AccountTopUpResult =
         decode_one_with_config(bytes, &config).map_err(|_| TopUpReplyError::InvalidReply)?;
     match reply {

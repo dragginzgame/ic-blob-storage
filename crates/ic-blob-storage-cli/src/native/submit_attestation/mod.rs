@@ -64,7 +64,9 @@ impl DispatchOutcomeRecord {
         let mut record = Self {
             schema: 1,
             request_id,
-            outcome: "pending",
+            outcome: super::signed_update::outcome(result, "accepted", |e| {
+                *e == Failure::AttestationRefused
+            }),
             changed: None,
             accepted_at_ns: None,
             error: None,
@@ -74,17 +76,11 @@ impl DispatchOutcomeRecord {
         };
         match result {
             Ok(Some(ack)) => {
-                record.outcome = "accepted";
                 record.changed = Some(ack.changed);
                 record.accepted_at_ns = Some(ack.receipt.accepted_at_ns.to_string());
             }
             Ok(None) => {}
             Err(failure) => {
-                record.outcome = if *failure == Failure::AttestationRefused {
-                    "refused"
-                } else {
-                    "uncertain"
-                };
                 record.error = Some(failure.code());
             }
         }

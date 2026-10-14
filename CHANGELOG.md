@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.25.0]
+
+- **Breaking, pending qualification:** incoming Cargo selections move public
+  IC Memory from 0.37 to 0.38; consumers must select the matching memory family.
+- Share provider decoder configuration, browser fixture control channels and
+  signed-update outcome classification. Preserve each boundary's limits,
+  authenticated refusal rules, record fields and retry restrictions.
+
 ## [0.24.0] - 2026-10-14
 
 - **Breaking, pending qualification:** incoming Cargo selections move public

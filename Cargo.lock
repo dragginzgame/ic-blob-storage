@@ -1543,8 +1543,8 @@ dependencies = [
  "candid",
  "ic-agent",
  "ic-blob-storage-contracts",
- "ic-host-artifacts 0.18.0",
- "ic-host-fs 0.18.0",
+ "ic-host-artifacts 0.18.1",
+ "ic-host-fs 0.18.1",
  "ic-testkit",
  "libc",
  "reqwest",
@@ -1560,7 +1560,7 @@ name = "ic-blob-storage-contracts"
 version = "0.24.0"
 dependencies = [
  "candid",
- "ic-host-artifacts 0.18.0",
+ "ic-host-artifacts 0.18.1",
  "serde",
  "serde_json",
  "sha2 0.11.1",
@@ -1579,7 +1579,7 @@ dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-canister",
  "ic-blob-storage-contracts",
- "ic-host-artifacts 0.18.0",
+ "ic-host-artifacts 0.18.1",
  "ic-host-tools",
  "ic-testkit",
  "reqwest",
@@ -1685,9 +1685,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-artifacts"
-version = "0.18.0"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "90c1815ca40faa66841324f62c0546d003f95891bc7ad343ecc509690556d38b"
+checksum = "729c311bdd8cfafda7388aab5760f34d96ba34967a62f57bd08efa5dbd57c1d5"
 dependencies = [
  "leb128",
  "sha2 0.10.9",
@@ -1706,11 +1706,11 @@ dependencies = [
 
 [[package]]
 name = "ic-host-fs"
-version = "0.18.0"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e9e4ef75da8b005f678bb9033153aa19d62efcb2bde1d59c65a5f56f9470150"
+checksum = "1a6b7a144a74269b883b235c2b5f7578883a09c79a710922230b34507a683f13"
 dependencies = [
- "ic-host-artifacts 0.18.0",
+ "ic-host-artifacts 0.18.1",
  "rustix",
 ]
 
@@ -1728,12 +1728,12 @@ dependencies = [
 
 [[package]]
 name = "ic-host-tools"
-version = "0.18.0"
+version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01ad6a8cf82dae63d2fbfbd6fa02fc272b66248d0ca9e188975b094f49b68c52"
+checksum = "e8e74470e48f2a8303467590f2969d5a31e1719d81c287e52ca6fa0a96f94891"
 dependencies = [
  "candid_parser",
- "ic-host-artifacts 0.18.0",
+ "ic-host-artifacts 0.18.1",
  "serde",
  "serde_json",
 ]
@@ -1762,9 +1762,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.37.0"
+version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15bba259d2e86a8003d3a586d7b7ebeaa480c7d5a2ebe938c960b31be6f59017"
+checksum = "2059da9b208a5339a08215fddf1112aeca7af9ddce2954f8cb0353aada7ee3e4"
 dependencies = [
  "ciborium",
  "ic-stable-structures",
@@ -1774,9 +1774,9 @@ dependencies = [
 
 [[package]]
 name = "ic-metrics"
-version = "0.9.5"
+version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1896a504cca86d0aeffdb080c0c0735899b576658bc9e2d19216a32804373f9e"
+checksum = "b2e743e0e40b8bb69b6807b18c767e51625ce711bc7f672fb30c0460c9b07f76"
 
 [[package]]
 name = "ic-stable-structures"

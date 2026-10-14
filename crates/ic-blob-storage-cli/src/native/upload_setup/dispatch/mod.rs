@@ -49,31 +49,24 @@ include_str!("../request/mod.rs"),
             .map(|bytes| observation(input, saved, &bytes))
             .transpose()
     });
+    let state = crate::native::signed_update::outcome(&result, "acknowledged", |e| {
+        matches!(
+            e,
+            Failure::UploadAdmissionRefused(_) | Failure::UploadManifestRefused(_)
+        )
+    });
     let mut report = json!({"schema":1,"operation":input.kind.method(),"request_id":dispatched.request_id,
-        "outcome":"pending","observation":null,"authentication":null,
+        "outcome":state,"observation":null,"authentication":null,
         "retry_authorized":false,"certificate_issued":false,"provider_requests":0,"publication_authorized":false});
     match &result {
         Ok(Some(observed)) => {
             report["authentication"] = "ic_update_certificate".into();
-            report["outcome"] = "acknowledged".into();
             report["observation"] = observed.json();
         }
         Ok(None) => {}
         Err(e) => {
-            report["outcome"] = if matches!(
-                e,
-                Failure::UploadAdmissionRefused(_) | Failure::UploadManifestRefused(_)
-            ) {
-                "refused"
-            } else {
-                "uncertain"
-            }
-            .into();
             report["error"] = e.code().into();
-            if matches!(
-                e,
-                Failure::UploadAdmissionRefused(_) | Failure::UploadManifestRefused(_)
-            ) {
+            if state == "refused" {
                 report["authentication"] = "ic_update_certificate".into();
             }
         }

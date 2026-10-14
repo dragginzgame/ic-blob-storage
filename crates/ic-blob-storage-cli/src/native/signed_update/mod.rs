@@ -17,6 +17,25 @@ pub(super) const DEADLINE_SECONDS: u8 = 30;
 pub(super) const SMALL_REPLY_BYTES: usize = 4096;
 pub(super) const MANIFEST_REPLY_BYTES: usize = 65536;
 
+/// Classify an observation only; the operation owns its authenticated refusal predicate.
+pub(super) fn outcome<T>(
+    result: &Result<Option<T>, Failure>,
+    acknowledged: &'static str,
+    refused: impl FnOnce(&Failure) -> bool,
+) -> &'static str {
+    match result {
+        Ok(Some(_)) => acknowledged,
+        Ok(None) => "pending",
+        Err(error) => {
+            if refused(error) {
+                "refused"
+            } else {
+                "uncertain"
+            }
+        }
+    }
+}
+
 /// Facts derived by the owner that signs and dispatches the retained packet.
 #[derive(Serialize)]
 struct SignedDispatchRecord {

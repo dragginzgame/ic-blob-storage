@@ -6,7 +6,7 @@
 
 use std::num::NonZeroUsize;
 
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::{Principal, decode_one_with_config};
 use thiserror::Error;
 
 use crate::{
@@ -72,12 +72,11 @@ pub fn decode_balance_reply(
     if bytes.len() > limits.max_bytes.get() {
         return Err(BalanceReplyError::ReplyTooLarge);
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(limits.decoding_quota.get())
-        .set_skipping_quota(limits.skipping_quota.get())
-        .set_max_type_len(limits.max_type_entries.get())
-        .set_full_error_message(false);
+    let config = super::decoding::limits(
+        limits.decoding_quota,
+        limits.skipping_quota,
+        limits.max_type_entries,
+    );
     let reply: wire::AccountBalanceGetResult =
         decode_one_with_config(bytes, &config).map_err(|_| BalanceReplyError::InvalidReply)?;
     match reply {

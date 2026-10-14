@@ -41,24 +41,20 @@ struct DispatchIntentRecord<'a> {
 }
 
 fn outcome(request_id: &str, result: &Result<Option<ReferenceMutationResponse>, Failure>) -> Value {
-    let mut value = json!({"schema":1,"request_id":request_id,"outcome":"pending",
+    let state = super::signed_update::outcome(result, "recorded", |e| {
+        matches!(e, Failure::ReferenceRefused(_))
+    });
+    let mut value = json!({"schema":1,"request_id":request_id,"outcome":state,
         "result":null,"replayed":null,"retry_authorized":false,
         "reference_liveness":"not_observed","provider_deletion":"not_established",
         "billing_cessation":"not_established","publication_authorized":false});
     match result {
         Ok(Some(response)) => {
-            value["outcome"] = "recorded".into();
             value["result"] = references::result_json(response.receipt.result);
             value["replayed"] = response.replayed.into();
         }
         Ok(None) => {}
         Err(failure) => {
-            value["outcome"] = if matches!(failure, Failure::ReferenceRefused(_)) {
-                "refused"
-            } else {
-                "uncertain"
-            }
-            .into();
             value["error"] = failure.code().into();
         }
     }

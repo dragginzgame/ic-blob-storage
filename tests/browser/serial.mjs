@@ -1,8 +1,7 @@
 // Rust coordinates authenticated native phases; this driver owns only the browser.
 import { chromium } from 'playwright';
 import { readFile, writeFile } from 'node:fs/promises';
-import { createInterface } from 'node:readline';
-import { once } from 'node:events';
+import { controlChannel } from './control.mjs';
 import assert from 'node:assert/strict';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { standaloneGateway } from './standalone-gateway.mjs';
@@ -10,9 +9,7 @@ const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 const bundle = await readFile(new URL('../../.tmp/browser/standalone.js', import.meta.url));
 const workerBundle = await readFile(new URL('../../.tmp/browser/publication-worker.js', import.meta.url));
 const sizes = [1024, 2048];
-const control = createInterface({ input: process.stdin, crlfDelay: Infinity });
-const next = async () => JSON.parse((await once(control, 'line'))[0]);
-const send = value => process.stdout.write(`${JSON.stringify(value)}\n`);
+const { next, send, close } = controlChannel();
 const { handle, state } = standaloneGateway(config, bundle, sizes, workerBundle);
 const tls = await loopbackTLS(), gateway = await loopbackH2(tls, handle);
 await writeFile(config.providerRootCertificate, tls.root, { flag: 'wx' });
@@ -91,6 +88,6 @@ try {
     workerReports,
     uploadRetries: 0, liveProviderRequests: 0, paidEffects: 0 });
 } finally {
-  clearTimeout(deadline); control.close(); process.stdin.pause();
+  clearTimeout(deadline); close();
   await context?.close(); await gateway.close(); await tls.close();
 }

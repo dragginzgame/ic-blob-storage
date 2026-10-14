@@ -6,8 +6,7 @@ import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
 import { readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { resolve, join } from 'node:path';
-import { createInterface } from 'node:readline';
-import { once } from 'node:events';
+import { controlChannel } from './control.mjs';
 import assert from 'node:assert/strict';
 import { launchPublicationBrowser } from '../../clients/browser/launcher.mjs';
 import { startPublicationSession } from '../../clients/browser/native.mjs';
@@ -31,9 +30,7 @@ const maxRequestBytes = Math.max(65536, Math.min(1024 * 1024, maxBodyBytes));
 const { handle, state } = standaloneGateway(config, Buffer.alloc(0), bodies.map(body => body.length), undefined, bodies);
 const tls = await loopbackTLS(), gateway = await loopbackH2(tls, handle);
 await writeFile(config.providerRootCertificate, tls.root, { flag: 'wx' });
-const input = createInterface({ input: process.stdin, crlfDelay: Infinity });
-const next = async () => JSON.parse((await once(input, 'line'))[0]);
-const send = value => process.stdout.write(`${JSON.stringify(value)}\n`);
+const { next, send, close } = controlChannel();
 const signer = Ed25519KeyIdentity.generate(new Uint8Array(32).fill(42));
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 await writeFile(config.browserSelection, JSON.stringify({
@@ -211,7 +208,7 @@ try {
     browserRestarted: true, sessionTimeoutSeconds: config.timeoutSeconds,
     uploadRetries: 0, liveProviderRequests: 0, paidEffects: 0 });
 } finally {
-  clearTimeout(deadline); input.close(); process.stdin.pause();
+  clearTimeout(deadline); close();
   try {
     // Retain bounded request fingerprints even when a delivery assertion fails.
     await writeFile(join(config.report, 'browser-delivery-trace.json'), JSON.stringify({

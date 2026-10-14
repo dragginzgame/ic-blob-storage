@@ -1,17 +1,14 @@
 // Loopback-only rehearsal; Rust owns the real standalone installation and native clients.
 import { chromium } from 'playwright';
 import { readFile, writeFile } from 'node:fs/promises';
-import { createInterface } from 'node:readline';
-import { once } from 'node:events';
+import { controlChannel } from './control.mjs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { standaloneGateway } from './standalone-gateway.mjs';
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 const bundle = await readFile(new URL('../../.tmp/browser/standalone.js', import.meta.url));
-const control = createInterface({ input: process.stdin, crlfDelay: Infinity });
-const next = async () => JSON.parse((await once(control, 'line'))[0]);
-const send = value => process.stdout.write(`${JSON.stringify(value)}\n`);
+const { next, send, close } = controlChannel();
 const { handle, state } = standaloneGateway(config, bundle, [1024], undefined,
   [Buffer.alloc(1024, config.bodyByte ?? 42)]);
 const { puts, gets, arrivals } = state;
@@ -103,6 +100,6 @@ try {
     uploadOutcome: outcome, journal: await page.evaluate(() => trial.inspect()),
     contentSha256: createHash('sha256').update(state.body).digest('hex'), provider: 'local substitute' });
 } finally {
-  clearTimeout(deadline); control.close(); process.stdin.pause();
+  clearTimeout(deadline); close();
   await browser.close(); await uploads.close(); await tls.close();
 }
