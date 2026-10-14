@@ -400,7 +400,9 @@ fn parse_publish_session(
         .map_err(|_| Failure::Arguments)?;
     validate_url(&gateway, network, network == "local")?;
     let max_steps = positive::<u64>(flags.remove("--max-steps").ok_or(Failure::Arguments)?)?;
-    if max_steps > 8 * super::publish_inputs::MAX_FILES as u64 + 1 {
+    if super::publish_session::budget::step_limit(super::publish_inputs::MAX_FILES)
+        .is_none_or(|limit| max_steps > limit)
+    {
         return Err(Failure::Arguments);
     }
     Ok(Command::PublishSession(super::publish_session::Input {

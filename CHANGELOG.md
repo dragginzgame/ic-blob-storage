@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.25.1]
+
+- Share checked probe upload-identity construction while preserving each probe's
+  invalid-input category and authority checks.
+- Use Metrics for restoration byte accumulation, preserving narrow report caps,
+  overflow flags and measurement-window resets.
+- Share checked publication-session budget formulas across startup and recovery;
+  retained history still validates its original controls before restart changes.
+- Share inventory decoding and validation across initial preparation and frozen
+  batch loading, retaining independent hash, body and request checks.
+- Prepare qualified Memory fixture-cell and Host root-relative read replacements;
+  draft [Memory #105](https://github.com/dragginzgame/ic-memory/pull/105) and
+  [Host #114](https://github.com/dragginzgame/ic-host-tooling/pull/114) own the APIs.
+  Activation awaits upstream integration and releases containing those APIs.
+
 ## [0.25.0] - 2026-10-14
 
 - **Breaking, pending qualification:** incoming Cargo selections move public

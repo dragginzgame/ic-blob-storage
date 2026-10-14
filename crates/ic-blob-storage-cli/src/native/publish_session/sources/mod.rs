@@ -87,8 +87,10 @@ fn history_binding(
         serde_json::from_slice(&packet(&source.join("intent.json"), 16384)?)
             .map_err(|_| Failure::Binding)?;
     if original.max_steps == 0
-        || original.max_steps > 8 * batch.files.len() as u64 + 1
-        || original.max_service_queries != 5 * original.max_steps + 2 * batch.files.len() as u64 + 3
+        || super::budget::step_limit(batch.files.len())
+            .is_none_or(|limit| original.max_steps > limit)
+        || super::budget::query_limit(original.max_steps, batch.files.len())
+            != Some(original.max_service_queries)
         || !(1..=3600).contains(&original.timeout_seconds)
     {
         return Err(Failure::Binding);

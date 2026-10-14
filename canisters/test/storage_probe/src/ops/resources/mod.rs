@@ -24,25 +24,18 @@ use std::num::NonZeroU128;
 #[derive(Clone, Copy)]
 struct ReadCounter {
     instructions: ic_metrics::MeasurementAggregate,
-    bytes: u64,
-    bytes_saturated: bool,
+    bytes: ic_metrics::MeasurementCounter,
 }
 impl ReadCounter {
     const EMPTY: Self = Self {
         instructions: ic_metrics::MeasurementAggregate::EMPTY,
-        bytes: 0,
-        bytes_saturated: false,
+        bytes: ic_metrics::MeasurementCounter::ZERO,
     };
 
     fn record(&mut self, instructions: u64, bytes: u64) {
         // One completed wrapped read, including a measured zero.
         self.instructions.record(instructions);
-        if let Some(total) = self.bytes.checked_add(bytes) {
-            self.bytes = total;
-        } else {
-            self.bytes = u64::MAX;
-            self.bytes_saturated = true;
-        }
+        self.bytes.add(u128::from(bytes));
     }
 }
 thread_local! {
@@ -79,14 +72,18 @@ pub(crate) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
         reads
             .iter()
             .zip(super::MEMORY_KEYS)
-            .map(|(r, memory)| RestorationMemoryReads {
-                memory: memory.to_owned(),
-                calls: r.instructions.samples(),
-                calls_saturated: r.instructions.samples_overflowed(),
-                bytes: r.bytes,
-                bytes_saturated: r.bytes_saturated,
-                instructions: r.instructions.total(),
-                instructions_saturated: r.instructions.total_overflowed(),
+            .map(|(r, memory)| {
+                // Narrow only the report: reaching the cap is exact, exceeding it is not.
+                let bytes = u64::try_from(r.bytes.total());
+                RestorationMemoryReads {
+                    memory: memory.to_owned(),
+                    calls: r.instructions.samples(),
+                    calls_saturated: r.instructions.samples_overflowed(),
+                    bytes: bytes.unwrap_or(u64::MAX),
+                    bytes_saturated: r.bytes.total_overflowed() || bytes.is_err(),
+                    instructions: r.instructions.total(),
+                    instructions_saturated: r.instructions.total_overflowed(),
+                }
             })
             .collect()
     })

@@ -139,6 +139,41 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
 }
 
 #[test]
+fn retained_history_admits_its_own_budget_before_replacing_restart_controls() {
+    let directory = fixture::frozen();
+    let batch = fixture::batch(&directory);
+    let expected = intent(&batch);
+    let source = directory.path().join("original");
+    history(&source, &batch, &expected);
+    for (steps, queries, timeout, accepted) in [
+        (9, 50, 30, true),
+        (1, 10, 3600, true),
+        (0, 5, 30, false),
+        (10, 55, 30, false),
+        (u64::MAX, u64::MAX, 30, false),
+        (9, 49, 30, false),
+        (1, 10, 0, false),
+        (1, 10, 3601, false),
+    ] {
+        let mut original = intent(&batch);
+        original.max_steps = steps;
+        original.max_service_queries = queries;
+        original.timeout_seconds = timeout;
+        std::fs::write(
+            source.join("intent.json"),
+            serde_json::to_vec(&original).unwrap(),
+        )
+        .unwrap();
+        let loaded = Sources::load(Some(&source), &expected, &batch);
+        if accepted {
+            assert!(loaded.is_ok());
+        } else {
+            assert!(matches!(loaded, Err(Failure::Binding)));
+        }
+    }
+}
+
+#[test]
 fn source_history_refuses_changed_scope_content_roles_gateway_root_and_release() {
     let directory = fixture::frozen();
     let batch = fixture::batch(&directory);

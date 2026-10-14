@@ -3,6 +3,7 @@
 use crate::journey::{JourneyManifest, JourneyUsage};
 use candid::{CandidType, Principal};
 use serde::Deserialize;
+pub mod conversion;
 pub mod input;
 pub mod release;
 

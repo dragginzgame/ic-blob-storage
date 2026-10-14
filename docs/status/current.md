@@ -2,6 +2,74 @@
 
 Date: 2026-10-14
 
+## Probe conversion, byte accumulation and session budgets
+
+Admission and storage probes share checked upload-request projection in the
+private test protocol. Operation/object identity, incarnation/reference one and
+the fixed root remain unchanged; each probe owns its failure mapping and actual
+service/tenant authority checks. The protocol gains no service-core dependency.
+Restoration byte totals use published Metrics' scalar counter, with checked
+report narrowing that preserves exact caps, sticky overflow and window resets.
+Publication-session startup, argument admission and retained-history validation
+share checked step/query formulas. Original history budgets are admitted before
+permitted restart controls replace them; these checks grant no retry authority.
+
+Focused Linux qualification passes 118 CLI cases, four resource-counter cases,
+strict affected-package lint, actual Rust 1.88 and three installed PocketIC
+journeys covering admission identity/authority, read-window restoration and
+write-fault rollback. Fresh admission/storage Wasm and the explicitly verified
+existing PocketIC 16.1 bytes own these local/substitute results. Host 0.18.2,
+Memory 0.38.0, Metrics 0.9.6 and Testkit 0.42.0 selections remain unchanged.
+Before-images, graph/source/artifact hashes and raw logs, including initial
+sandbox socket refusals and corrected public-helper lint, remain under
+`.tmp/review-validation/fixture0251/`, with originals at
+`/tmp/blob-fixture3.4jA0oC/`. Full CI, native macOS, Canic and deployed-provider
+qualification were not run. Incoming Cargo edits and the prior cleanup remain
+preserved. No dependency, own-version, sibling or Git effects ran for this slice;
+compatible pending notes remain 0.25.1.
+
+## Inventory and root/cell extraction preparation
+
+Initial preparation and frozen-batch loading now share inventory decoding and
+schema/file-count admission. Their independent hashes, body verification and
+retained request checks remain intact. Eight focused inventory cases, strict CLI
+lint, formatting and actual Rust 1.88 pass on the incoming Testkit 0.42 graph.
+
+The authorized producer work is prepared in isolated topic branches, leaving
+normal sibling checkouts untouched: Memory's opt-in `testing::FixtureCell` retains
+one explicit runtime/cell; Host admits directory capabilities and opens regular
+files through retained no-follow parents. The normal Blob checkout still uses
+the published APIs until these contributions are integrated and published.
+Following explicit publication approval, the Memory tracking issue is
+[#104](https://github.com/dragginzgame/ic-memory/issues/104). The isolated branches
+are published as draft [Memory #105](https://github.com/dragginzgame/ic-memory/pull/105)
+at `d8ffd8f55151ef4c746ee6c8bb5d8ddb5286dac2` and draft
+[Host #114](https://github.com/dragginzgame/ic-host-tooling/pull/114) at
+`31d9a251feb0025d600118a93b0d089752dcef05`, both targeting main. Readback confirms
+both are open drafts with those exact heads. Prepared external descriptions
+and the source-bound consumer replacement remain under
+`.tmp/review-validation/extract0251/`. Host's read subset relates to
+[Host #80](https://github.com/dragginzgame/ic-host-tooling/issues/80); its broader
+Query extraction and native acceptance are not resolved by this work.
+
+The isolated replacement passes 118 CLI cases, strict affected-package lint,
+Rust 1.88 and six installed callback/restoration journeys plus the retained-output
+regression. Probe keys, byte/work limits, codecs and lifecycle calls are unchanged.
+One input-root descriptor serves each batch; each body opens through it at the
+actual read, avoiding per-file descriptor retention. The refreshed candidate uses
+Memory 0.38.0 and Host 0.18.2 plus the unpublished extensions, and registry Testkit
+0.42.0. It retains separate earlier graph receipts. Fresh Wasm, root/lock hashes,
+verified existing PocketIC 16.1 bytes and raw logs remain at
+`/tmp/blob-rootcell.stAtRo/`, with copies beneath the consumer evidence directory.
+Memory's two fixture cases and Host's 21 read cases, strict lint/docs and Rust
+1.88 pass. These are Linux/local-substitute results; full delivery, native macOS,
+Canic and deployed provider qualification were not run. Select actual published
+versions containing both APIs before applying the patch and reconciling the
+registry lock; prospective floors must move if unrelated releases occupy them.
+Incoming Testkit/Host lock updates are preserved. Scoped commits, topic pushes
+and GitHub publication were approved; no own-version, merge, release, registry
+publication or paid effects ran. The compatible numbered draft is 0.25.1.
+
 ## Provider decoding, fixture control and update outcome consolidation
 
 Six provider decoders share private Candid configuration without changing their

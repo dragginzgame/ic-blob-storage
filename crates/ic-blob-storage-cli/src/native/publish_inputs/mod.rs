@@ -71,12 +71,7 @@ impl PreparedBatch {
         {
             return Err(Failure::Binding);
         }
-        let mut inventory: Inventory =
-            serde_json::from_slice(&inventory_bytes).map_err(|_| Failure::Arguments)?;
-        if inventory.schema != 1 || inventory.files.is_empty() || inventory.files.len() > MAX_FILES
-        {
-            return Err(Failure::Arguments);
-        }
+        let mut inventory = Inventory::decode(&inventory_bytes)?;
         for (index, entry) in inventory.files.iter_mut().enumerate() {
             let prefix = format!("file-{index:04}");
             entry.binding = format!("{prefix}/binding.json");
@@ -123,6 +118,16 @@ impl PreparedBatch {
 struct Inventory {
     schema: u8,
     files: Vec<Entry>,
+}
+impl Inventory {
+    fn decode(bytes: &[u8]) -> Result<Self, Failure> {
+        let inventory: Self = serde_json::from_slice(bytes).map_err(|_| Failure::Arguments)?;
+        if inventory.schema != 1 || inventory.files.is_empty() || inventory.files.len() > MAX_FILES
+        {
+            return Err(Failure::Arguments);
+        }
+        Ok(inventory)
+    }
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -172,11 +177,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         return Err(Failure::Arguments);
     }
     let inventory_bytes = read(inventory_path, INVENTORY_BYTES)?;
-    let inventory: Inventory =
-        serde_json::from_slice(&inventory_bytes).map_err(|_| Failure::Arguments)?;
-    if inventory.schema != 1 || inventory.files.is_empty() || inventory.files.len() > MAX_FILES {
-        return Err(Failure::Arguments);
-    }
+    let inventory = Inventory::decode(&inventory_bytes)?;
     let installation = read(installation_path, exact_candid::INSTALLATION_BYTES as u64)?;
     let (prepared, capacity) = preflight(&inventory, &root, &installation, maximum, total_maximum)?;
     let run = Run::create(directory)?;

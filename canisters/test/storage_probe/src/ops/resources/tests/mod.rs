@@ -2,6 +2,12 @@
 use super::*;
 use ic_metrics::MeasurementAggregate;
 
+fn report(row: ReadCounter) -> RestorationMemoryReads {
+    begin_read_profile(true);
+    READS.with_borrow_mut(|rows| rows[0] = row);
+    finish_read_profile().remove(0)
+}
+
 #[test]
 fn zero_read_and_exact_caps_remain_exact_until_overflow() {
     let mut row = ReadCounter::EMPTY;
@@ -21,15 +27,15 @@ fn zero_read_and_exact_caps_remain_exact_until_overflow() {
     row.record(1, u64::MAX);
     assert_eq!(row.instructions.samples(), u64::MAX);
     assert!(!row.instructions.samples_overflowed());
-    assert_eq!(row.bytes, u64::MAX);
-    assert!(!row.bytes_saturated);
+    assert_eq!(report(row).bytes, u64::MAX);
+    assert!(!report(row).bytes_saturated);
     row.record(0, 0);
     assert!(row.instructions.samples_overflowed());
-    assert!(!row.bytes_saturated);
+    assert!(!report(row).bytes_saturated);
     row.record(1, 1);
-    assert!(row.bytes_saturated);
+    assert!(report(row).bytes_saturated);
     row.record(0, 0);
-    assert!(row.bytes_saturated);
+    assert!(report(row).bytes_saturated);
 }
 
 #[test]
@@ -71,8 +77,8 @@ fn completed_and_disabled_windows_cannot_leak_into_the_next_profile() {
                 true,
             )
             .unwrap(),
-            bytes: u64::MAX,
-            bytes_saturated: true,
+            bytes: ic_metrics::MeasurementCounter::from_parts(u128::from(u64::MAX) + 1, false)
+                .unwrap(),
         };
     });
     let first = finish_read_profile();
@@ -99,4 +105,16 @@ fn completed_and_disabled_windows_cannot_leak_into_the_next_profile() {
         && !r.calls_saturated
         && !r.bytes_saturated
         && !r.instructions_saturated));
+}
+
+#[test]
+fn wide_byte_overflow_stays_clipped_and_flagged_in_the_narrow_report() {
+    let mut row = ReadCounter {
+        bytes: ic_metrics::MeasurementCounter::from_parts(u128::MAX, true).unwrap(),
+        ..ReadCounter::EMPTY
+    };
+    row.record(0, 0);
+    let observed = report(row);
+    assert_eq!(observed.bytes, u64::MAX);
+    assert!(observed.bytes_saturated);
 }

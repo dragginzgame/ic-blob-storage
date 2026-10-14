@@ -1,5 +1,6 @@
 //! One verified batch and existing phase owners; no certificate/provider dispatcher.
 mod browser;
+pub(super) mod budget;
 mod control;
 mod progress;
 mod sources;
@@ -78,7 +79,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         input.prepare.namespace,
         options.actor,
     )?;
-    if input.max_steps > 8 * batch.files.len() as u64 + 1 {
+    if budget::step_limit(batch.files.len()).is_none_or(|limit| input.max_steps > limit) {
         return Err(Failure::Arguments);
     }
     let installation = batch.installation()?;
@@ -123,7 +124,8 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         files: batch.files.len(),
         max_steps: input.max_steps,
         max_service_updates: (2 + usize::from(actors.verifier.is_some())) * batch.files.len(),
-        max_service_queries: 5 * input.max_steps + 2 * batch.files.len() as u64 + 3,
+        max_service_queries: budget::query_limit(input.max_steps, batch.files.len())
+            .ok_or(Failure::Arguments)?,
         timeout_seconds: input.prepare.timeout_seconds,
         max_provider_requests: if actors.verifier.is_some() {
             batch.files.len()

@@ -4,38 +4,11 @@ use blob_test_protocol::admission::{Failure, Phase, Request};
 use ic_blob_storage::model::catalog::admission::UploadPhase;
 use ic_blob_storage::model::service::upload::UploadAdmissionError;
 use ic_blob_storage::model::service::upload::UploadManifestLimit;
-use ic_blob_storage_contracts::binding::ObjectBinding;
-use ic_blob_storage_contracts::binding::ObjectIdentity;
-use ic_blob_storage_contracts::binding::ReferenceId;
-use ic_blob_storage_contracts::binding::ReferenceKey;
-use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::tenant::TenantError;
-use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
-use ic_blob_storage_contracts::upload::binding::UploadRequestId;
-use std::num::NonZeroU128;
 
 pub(super) fn request(input: Request) -> Result<UploadRequest, Failure> {
-    let id = NonZeroU128::new(input.id).ok_or(Failure::InvalidInput)?;
-    let namespace = NonZeroU128::new(input.namespace).ok_or(Failure::InvalidInput)?;
-    let binding = ObjectBinding::new(
-        input.service,
-        input.tenant,
-        ObjectIdentity {
-            namespace,
-            object: id,
-            incarnation: NonZeroU128::MIN,
-        },
-    )
-    .map_err(|_| Failure::InvalidInput)?;
-    Ok(UploadRequest {
-        id: UploadRequestId::new(id),
-        object: UploadObject {
-            root: ProviderRootHash::try_from(input.root.as_slice()).expect("fixed hash width"),
-            bytes: input.bytes,
-            first: ReferenceKey::new(binding, ReferenceId::new(NonZeroU128::MIN)),
-        },
-    })
+    blob_test_protocol::admission::conversion::upload_request(input).ok_or(Failure::InvalidInput)
 }
 
 pub(super) const fn phase(phase: UploadPhase) -> Phase {
