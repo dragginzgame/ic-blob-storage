@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.27.0]
+## [0.27.0] - 2026-10-15
 
 - **Breaking:** require Rust 1.91.0 across the workspace, including library
   consumers, for the selected public IC Memory 0.40 family. Consumers must use
