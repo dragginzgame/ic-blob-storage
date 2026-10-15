@@ -101,8 +101,8 @@ it does not override shared rules or depend on a mutable sibling checkout.
 - Document public types and meaningful invariants. Prefer expect over allow
   for lint suppressions. Keep authority predicates readable and independently
   testable rather than long mixed boolean expressions.
-- Run targeted checks during development. Do not infer full CI/release
-  validation authority from generic continuation or readiness wording.
+- Follow [shared validation policy](DRAGGINZGAME.md#validation-and-evidence);
+  [development governance](docs/governance/development.md) names local checks.
 - Keep unit tests next to code and integration tests in tests/. Canister
   creation/install/lifecycle/inter-canister tests use PocketIC.
 - Use Rust for substantial durable tooling. The release helper uses Perl for

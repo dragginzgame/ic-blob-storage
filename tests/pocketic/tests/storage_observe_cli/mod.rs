@@ -81,9 +81,8 @@ fn interrupted(args: &[String], directory: &Path) {
         std::thread::sleep(Duration::from_millis(5));
     }
     assert!(!child.terminate().unwrap().success());
-    let stdout = child.take_stdout().unwrap();
     assert!(
-        !crate::support::wait_with_output(&mut child, stdout)
+        !crate::support::wait_with_output(&mut child, None)
             .status
             .success()
     );

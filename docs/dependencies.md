@@ -14,10 +14,10 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.37.0 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.9.5 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.41.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
-| IC Host artifacts/fs/tools (direct) | 0.18.0 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.40.0 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.10.1 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.44.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Host artifacts/fs/tools (direct) | 0.18.6 | Native artifacts, filesystem and test/tool boundaries |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -33,11 +33,13 @@ before ordinary offline tool gates. Scoped installed evidence may use an explici
 server binary with caller-owned byte admission; that does not qualify the missing
 lock-selected CLI installation.
 
-The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.11.0 at
-`a15ff323449f4b6190f647aec0de43cbcfb314ba`, with 116 payloads. Common installation,
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.15.0 at
+`3bef3f2daec7f64f875397ed4d53d5b9e2e68a08`, with 128 payloads. Common installation,
 checks, hooks and formatting use `make/consumer.mk`; product targets and Testkit
 extensions stay local. The canonical Rust-tool fixture runs directly from this
 consumer. Snapshot adoption does not automatically adopt Shared's CI cache policy.
+The [current adoption receipt](evidence/shared01500270.md) records the selected
+source, required local adapters and published Host qualification.
 The [0.23.3 cleanup/adoption evidence](evidence/next-three0233.md) records its original
 graph; [client/reply cleanup qualification](evidence/fourth-cleanup0233.md) records
 focused checks of its original selection. The following
@@ -45,7 +47,7 @@ focused checks of its original selection. The following
 Testkit 0.38/Host 0.17.7 graph and explicit server-tool preparation.
 See [current status](status/current.md) for released versus prepared identities and
 [the adoption evidence](evidence/memory036-host016-shared0913.md) for source-bound results.
-The private Metrics 0.9 overflow getter adoption and current graph checks are
+The earlier private Metrics 0.9 overflow getter adoption is
 recorded in [the probe qualification](evidence/metrics0900232.md). Metrics types
 do not cross the public Blob package boundary; probe wire fields are retained.
 The [Shared 0.10.2 / Host 0.17.2 refresh](evidence/upstream0232.md) records
@@ -155,22 +157,20 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.88.0 | Inherited from `workspace.package.rust-version` |
-| Unpublished PocketIC harness | 1.88.0 | Workspace MSRV; fixture-only file locking removed |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.40 requires 1.91 |
+| Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The locked dependencies require at most Rust 1.88.0, including `ic-cdk`,
-`ic-memory`, `ic-agent` and `ic-testkit`. The maintained content codecs also use
-`slice::as_chunks`, stabilized in 1.88. The fixture-only file-lock journal is
-retired, so the harness inherits the workspace floor. Earlier release checks
-used the actual older compilers; repeat them for changed source or dependency
-resolutions rather than treating dependency metadata as execution evidence.
+The selected `ic-memory` 0.40 dependency requires Rust 1.91.0, which is now
+the workspace's consumer floor. The harness inherits that same minimum.
+Earlier Rust 1.88 checks remain evidence for their original source and graphs;
+repeat checks with the declared minimum after source or dependency changes
+rather than treating dependency metadata as execution evidence.
 
 To repeat the locked native and Wasm compatibility checks after explicitly
-provisioning Rust 1.88.0 and its `wasm32-unknown-unknown` target:
+provisioning Rust 1.91.0 and its `wasm32-unknown-unknown` target:
 
 ```sh
-cargo +1.88.0 check --offline --locked --workspace --all-targets --all-features
-cargo +1.88.0 check --offline --locked --workspace --all-features --target wasm32-unknown-unknown
+make msrv-check
 ```
 
 Keep supported source and dependencies within their declared floor when updating
@@ -397,7 +397,7 @@ pinned separately by [ci/ic-tools.tsv](../ci/ic-tools.tsv).
 The [tooling workflow](../.github/workflows/tooling.yml) qualifies setup/admission,
 formatting/hooks, exact-ID tooling archive upload/readback, coordinated package
 archives, native CLI/PocketIC and original/optimized Wasms on Linux, Apple Silicon
-and Intel macOS. Rust 1.88 has its separate minimum-version lane. Declaring those
+and Intel macOS. Rust 1.91 has its separate minimum-version lane. Declaring those
 jobs is not a passing result; require matching native execution on the actual source.
 Cancelled or earlier-source results do not qualify new inputs.
 

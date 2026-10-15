@@ -5,7 +5,6 @@ export class IntentRefusal extends Error {
 }
 export const require = (condition, code) => { if (!condition) throw new IntentRefusal(code); };
 export const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-export const integer = (value, min, max) => Number.isSafeInteger(value) && value >= min && value <= max;
 export const bound = (value, saved) => require(value && equal(value.binding, saved), 'intent-binding');
 
 // Arguments have been validated/snapshotted by the adapter before storage awaits.

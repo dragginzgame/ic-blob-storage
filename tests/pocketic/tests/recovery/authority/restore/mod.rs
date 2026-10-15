@@ -162,9 +162,7 @@ fn partial_verifier_and_all_catalogs_survive_repeated_and_skipped_hook_upgrades(
         f.assert_authority_fenced(v.upload);
     }
     f.restart(f.service);
-    f.harness
-        .pic
-        .advance_time(Duration::from_secs(24 * 60 * 60));
+    f.harness.pic.advance_time(Duration::from_hours(24));
     f.assert_authority_fenced(v.upload);
 }
 

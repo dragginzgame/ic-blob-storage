@@ -37,6 +37,9 @@ await build({ absWorkingDir: repo, entryPoints: ['tests/browser/client.js'], bun
 await build({ absWorkingDir: repo, entryPoints: ['tests/browser/store.js'], bundle: true,
   format: 'esm', outfile: '.tmp/browser/store.js',
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
+await build({ absWorkingDir: repo, entryPoints: ['clients/browser/gateway.js'], bundle: true,
+  format: 'esm', outfile: '.tmp/browser/gateway.js',
+  nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 await build({ absWorkingDir: repo, entryPoints: ['tests/browser/standalone.js'], bundle: true,
   format: 'esm', outfile: '.tmp/browser/standalone.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },

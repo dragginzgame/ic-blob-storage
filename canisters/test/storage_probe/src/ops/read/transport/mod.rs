@@ -1,6 +1,6 @@
 //! Actual local IC chunk call; this wire is a labelled provider substitute.
+use blob_test_protocol::chunk::{ChunkReplyError, decode_reply};
 use blob_test_protocol::storage::Failure;
-use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_blob_storage::ops::service::reads::transport::{
     ReadChunkRequest, ReadChunkResponse, ReadChunkTransport,
 };
@@ -19,18 +19,12 @@ impl ReadChunkTransport for LocalChunk {
             .map_err(|_| Failure::Transport)?;
         // Bounds application decoding, not the platform/CDK's initial buffer.
         let encoded = response.as_ref();
-        if encoded.len() > request.max_reply_bytes.get() as usize {
-            return Err(Failure::Capacity);
-        }
-        let mut config = DecoderConfig::new();
-        config
-            .set_decoding_quota(32_768)
-            .set_skipping_quota(64)
-            .set_max_type_len(8)
-            .set_full_error_message(false);
-        let bytes = decode_one_with_config::<serde_bytes::ByteBuf>(encoded, &config)
-            .map_err(|_| Failure::Invalid)?
-            .into_vec();
+        let bytes = decode_reply(encoded, request.max_reply_bytes.get() as usize, 32_768).map_err(
+            |error| match error {
+                ChunkReplyError::TooLarge => Failure::Capacity,
+                ChunkReplyError::Invalid => Failure::Invalid,
+            },
+        )?;
         // The actual call target authenticates the peer; correlation comes from
         // this captured call, never from a peer's untrusted payload claims.
         Ok(ReadChunkResponse {

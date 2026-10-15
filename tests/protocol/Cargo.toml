@@ -9,6 +9,7 @@ publish = false
 candid.workspace = true
 ic-blob-storage-contracts.workspace = true
 serde.workspace = true
+serde_bytes.workspace = true
 
 [lints]
 workspace = true

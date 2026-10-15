@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.27.0]
+
+- **Breaking:** require Rust 1.91.0 across the workspace, including library
+  consumers, for the selected public IC Memory 0.40 family. Consumers must use
+  the matching Memory family and Rust 1.91 or newer.
+
+- Adopt reviewed Shared Tooling 0.15.0 with current-source formatting discovery
+  and release-fixture updates; qualify published Host 0.18.6 without changing
+  common tool pins.
+- Share configuration decoder construction and browser hexadecimal encoding;
+  prepare retained probe-write delegation to Host, pending publication
+  ([#76](https://github.com/dragginzgame/ic-blob-storage/issues/76)).
+- Reuse bounded Host subprocess output capture and share browser response reading
+  and object validation, preserving buffered control bytes, transport limits,
+  caller-specific refusals and durable observation ordering.
+- Share the private fixture chunk decoder, preserving each probe's byte/work
+  limits, error categories, measurement boundaries and manifest/authority checks.
+- Prepare qualified Host process framing and IC Build source-fingerprint
+  replacements; activation awaits published APIs and an admitted compiler graph
+  ([#74](https://github.com/dragginzgame/ic-blob-storage/issues/74),
+  [#75](https://github.com/dragginzgame/ic-blob-storage/issues/75)).
+
 ## [0.26.0] - 2026-10-15
 
 - **Breaking, pending complete qualification:** incoming selections move public

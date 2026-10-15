@@ -66,7 +66,7 @@ impl NativeSession {
     pub(crate) fn finish(mut self, expected: i32) -> Value {
         self.stdin.take();
         let result = self.read();
-        let output = super::support::wait_with_output(&mut self.child, std::io::empty());
+        let output = super::support::wait_with_output(&mut self.child, Some(self.reader));
         assert_eq!(
             output.status.code(),
             Some(expected),

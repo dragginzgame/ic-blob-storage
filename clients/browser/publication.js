@@ -2,13 +2,13 @@ import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from './certificate.js';
 import { createUploadTransfer } from './transfer.js';
 import { validUtf8Text, validGatewayLimits } from './validation.js';
+import { hex } from './bytes.js';
 
 /** Frozen-input refusal, never evidence of service or provider completion. */
 export class PublicationRefusal extends Error {
   constructor(code) { super(code); this.name = 'PublicationRefusal'; this.code = code; }
 }
 const require = (condition, code) => { if (!condition) throw new PublicationRefusal(code); };
-const hex = bytes => Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 /**

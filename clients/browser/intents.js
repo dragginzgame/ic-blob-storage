@@ -1,15 +1,14 @@
-import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration } from './validation.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration,
+  integer, validFields } from './validation.js';
 
-import { IntentRefusal, require, equal, integer, bound, claimGateway, observeGateway } from './intent-state.js';
+import { IntentRefusal, require, equal, bound, claimGateway, observeGateway } from './intent-state.js';
 export { IntentRefusal } from './intent-state.js';
 
 const hex = value => typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
 const bytes = (value, max) => Array.isArray(value) && value.length > 0 &&
   value.length <= max && value.every(byte => integer(byte, 0, 255));
 function fields(value, required, optional = []) {
-  require(value && Object.getPrototypeOf(value) === Object.prototype &&
-    required.every(key => Object.hasOwn(value, key)) &&
-    Object.keys(value).every(key => [...required, ...optional].includes(key)), 'record');
+  require(validFields(value, required, optional), 'record');
 }
 function origin(value) {
   require(typeof value === 'string' && value.length <= 4096, 'origin');

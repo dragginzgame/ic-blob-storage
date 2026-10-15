@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared companions: scripts/ci/read-cargo-workspace-version.sh scripts/ci/rewrite-local-lock-versions.pl scripts/ci/finalize-release-changelog.awk
+# Shared companions: scripts/ci/read-cargo-workspace-version.sh scripts/ci/rewrite-local-lock-versions.pl scripts/ci/finalize-release-changelog.awk scripts/ci/cargo-workspace-members.jq scripts/ci/compare-stable-versions.pl
 set -euo pipefail
 
 # Coordinated workspace versions only. Consumer adapters retain source admission,
@@ -8,14 +8,15 @@ ROOT="${BASH_SOURCE[0]}"
 [[ "$ROOT" == /* ]] || ROOT="$PWD/$ROOT"
 ROOT="$(cd -P "${ROOT%/*}/../.." && printf '%s/.' "$PWD")"
 ROOT="${ROOT%/.}"
-[[ $# == 2 ]] || { echo 'usage: cargo-release-metadata.sh prepare|check PRIMARY_PACKAGE' >&2; exit 2; }
+[[ $# == 2 ]] || { echo 'usage: cargo-release-metadata.sh prepare|check|check-graph PRIMARY_PACKAGE' >&2; exit 2; }
 operation="$1" primary="$2"
 [[ "$primary" =~ ^[A-Za-z0-9][A-Za-z0-9_-]*$ ]] || { echo 'invalid primary package identity' >&2; exit 2; }
 reader="$ROOT/scripts/ci/read-cargo-workspace-version.sh"
 
 regular_metadata() {
     local directory="$1" path
-    for path in Cargo.toml Cargo.lock CHANGELOG.md; do
+    shift
+    for path in "$@"; do
         [[ -f "$directory/$path" && ! -L "$directory/$path" ]] || {
             echo "release metadata must be regular files: $directory/$path" >&2; return 1;
         }
@@ -35,12 +36,10 @@ lock_packages() {
 
 workspace_packages() {
     local metadata="$1" version="$2" names="$3"
-    jq -er --arg primary "$primary" --arg version "$version" --rawfile names "$names" '
-        . as $m |
-        [.packages[] | select(.id as $id | $m.workspace_members | index($id))] as $owned |
-        if any($owned[]; .name == $primary) and
-           all($owned[]; .source == null and .version == $version) and
-           (($owned | map(.name) | sort) == ($names | split("\n") | map(select(length > 0)) | sort))
+    jq -L "$ROOT/scripts/ci" -er --arg primary "$primary" --arg version "$version" --rawfile names "$names" '
+        include "cargo-workspace-members";
+        coordinated_members($primary; $version) as $owned |
+        if (($owned | map(.name) | sort) == ($names | split("\n") | map(select(length > 0)) | sort))
         then true else error("workspace members and admitted lock identities must agree") end' "$metadata" > /dev/null
 }
 
@@ -57,8 +56,11 @@ inherited_members() {
 
 case "$operation" in
     prepare)
-        regular_metadata .
-        [[ "$(bash "$reader" Cargo.toml)" == "${RELEASE_PREVIOUS:?}" ]] || exit 1
+        regular_metadata . Cargo.toml Cargo.lock CHANGELOG.md
+        observed_version="$(bash "$reader" Cargo.toml)"
+        [[ "$observed_version" == "${RELEASE_PREVIOUS:?}" ]] || exit 1
+        order="$(perl "$ROOT/scripts/ci/compare-stable-versions.pl" "${RELEASE_VERSION:?}" "$observed_version")"
+        [[ "$order" == 1 ]] || { echo 'release target must follow the previous version' >&2; exit 1; }
         backup="$(mktemp -d "${TMPDIR:-/tmp}/cargo-release-backup.XXXXXX")"
         files=(Cargo.toml Cargo.lock CHANGELOG.md)
         for path in "${files[@]}"; do cp -p "$path" "$backup/$path"; done
@@ -104,13 +106,19 @@ case "$operation" in
         cp "$backup/candidate.lock" Cargo.lock
         cp "$backup/candidate.notes" CHANGELOG.md
         cargo metadata --locked --offline --format-version 1 > "$backup/prepared.json"
-        [[ "$(bash "$reader" Cargo.toml)" == "$RELEASE_VERSION" ]] || exit 1
+        observed_version="$(bash "$reader" Cargo.toml)"
+        [[ "$observed_version" == "$RELEASE_VERSION" ]] || exit 1
         lock_packages . "$RELEASE_VERSION" > "$backup/prepared-packages"
         workspace_packages "$backup/prepared.json" "$RELEASE_VERSION" "$backup/prepared-packages"
         complete=true
         ;;
-    check)
+    check|check-graph)
         selected_root="$(pwd -P)"
+        if [[ -n "${RELEASE_COMMIT:-}" ]]; then
+            [[ "$RELEASE_COMMIT" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]] || exit 1
+            object_type="$(git cat-file -t "$RELEASE_COMMIT")"
+            [[ "$object_type" == commit ]] || exit 1
+        fi
         temporary="$(mktemp -d "${TMPDIR:-/tmp}/cargo-release-check.XXXXXX")"
         complete=false
         finish_check() {
@@ -122,19 +130,23 @@ case "$operation" in
         }
         trap finish_check EXIT
         if [[ -n "${RELEASE_COMMIT:-}" ]]; then
-            [[ "$RELEASE_COMMIT" =~ ^([0-9a-f]{40}|[0-9a-f]{64})$ ]] || exit 1
-            [[ "$(git cat-file -t "$RELEASE_COMMIT")" == commit ]] || exit 1
             selected_root="$temporary/source"
             mkdir "$selected_root"
             git archive --format=tar "$RELEASE_COMMIT" | tar -xf - -C "$selected_root"
         fi
-        regular_metadata "$selected_root"
-        [[ "$(bash "$reader" "$selected_root/Cargo.toml")" == "${RELEASE_VERSION:?}" ]] || exit 1
-        awk -v heading="## [$RELEASE_VERSION] - ${RELEASE_DATE:?}" \
-            '$0 == heading { count++ } END { if (count != 1) exit 1 }' "$selected_root/CHANGELOG.md"
-        lock_packages "$selected_root" "$RELEASE_VERSION" > "$temporary/local-packages"
+        regular_metadata "$selected_root" Cargo.toml Cargo.lock
+        if [[ "$operation" == check ]]; then
+            regular_metadata "$selected_root" CHANGELOG.md
+        fi
+        observed_version="$(bash "$reader" "$selected_root/Cargo.toml")"
+        if [[ "$operation" == check ]]; then
+            [[ "$observed_version" == "${RELEASE_VERSION:?}" ]] || exit 1
+            awk -v heading="## [$RELEASE_VERSION] - ${RELEASE_DATE:?}" \
+                '$0 == heading { count++ } END { if (count != 1) exit 1 }' "$selected_root/CHANGELOG.md"
+        fi
+        lock_packages "$selected_root" "$observed_version" > "$temporary/local-packages"
         (cd "$selected_root" && cargo metadata --locked --offline --format-version 1) > "$temporary/metadata.json"
-        workspace_packages "$temporary/metadata.json" "$RELEASE_VERSION" "$temporary/local-packages"
+        workspace_packages "$temporary/metadata.json" "$observed_version" "$temporary/local-packages"
         complete=true
         ;;
     *) echo 'unknown Cargo metadata operation' >&2; exit 2 ;;

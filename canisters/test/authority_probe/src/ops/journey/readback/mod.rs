@@ -2,8 +2,9 @@
 pub(crate) mod resources;
 
 use crate::model::content::ContentRequest;
+use blob_test_protocol::chunk::{ChunkReplyError, decode_reply};
 use blob_test_protocol::journey::{JourneyFailure, readback::JourneyReadChunk};
-use candid::{Principal, de::DecoderConfig, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use ic_cdk::call::Call;
 
@@ -100,17 +101,13 @@ pub(crate) fn verify(
         return Err(JourneyFailure::ReplyTooLarge);
     }
     measurement.decoding();
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(10_000_000)
-        .set_skipping_quota(64)
-        .set_max_type_len(8)
-        .set_full_error_message(false);
-    // Candid's blob path validates vec nat8 and charges the same bounded decoder
-    // before one bulk copy, avoiding a Serde visitor call for every byte.
-    let bytes = decode_one_with_config::<serde_bytes::ByteBuf>(encoded, &config)
-        .map_err(|_| JourneyFailure::InvalidReply)?
-        .into_vec();
+    let bytes =
+        decode_reply(encoded, CAFFEINE_CHUNK_BYTES + 64, 10_000_000).map_err(
+            |error| match error {
+                ChunkReplyError::TooLarge => JourneyFailure::ReplyTooLarge,
+                ChunkReplyError::Invalid => JourneyFailure::InvalidReply,
+            },
+        )?;
     measurement.decoded();
     let result = crate::ops::read(|state| {
         let entry = state

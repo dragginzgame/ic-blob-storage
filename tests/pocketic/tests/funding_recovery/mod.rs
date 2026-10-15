@@ -103,7 +103,7 @@ fn old_empty_sender_journal_cannot_reuse_a_paid_identity_or_admit_new_work() {
     f.restart(f.sender);
     f.harness
         .pic
-        .advance_time(std::time::Duration::from_secs(24 * 60 * 60));
+        .advance_time(std::time::Duration::from_hours(24));
     f.harness.pic.tick();
     f.assert_sender_fenced(paid);
 }

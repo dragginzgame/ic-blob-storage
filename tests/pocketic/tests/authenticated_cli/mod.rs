@@ -97,6 +97,5 @@ pub(super) fn command_output(command: &mut std::process::Command) -> std::proces
         .stderr(std::process::Stdio::piped());
     let mut child = ic_testkit::ic_host_process::child::OwnedChild::spawn(command)
         .expect("spawn owned command");
-    let stdout = child.take_stdout().expect("configured stdout pipe");
-    super::support::wait_with_output(&mut child, stdout)
+    super::support::wait_with_output(&mut child, None)
 }

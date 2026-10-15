@@ -1,6 +1,7 @@
 import { Principal } from '@icp-sdk/core/principal';
 import { validNamespace } from './namespace.js';
-import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validUtf8Text } from './validation.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validUtf8Text,
+  integer, validFields } from './validation.js';
 export const actions = Object.freeze(['upload', 'inspect', 'recover-certificate', 'cancel']);
 
 /** Local worker refusal; it never establishes completion or retry authority. */
@@ -8,11 +9,8 @@ export class WorkerRefusal extends Error {
   constructor(code) { super(code); this.name = 'WorkerRefusal'; this.code = code; }
 }
 const require = (condition, code) => { if (!condition) throw new WorkerRefusal(code); };
-export const integer = (value, min, max) => Number.isSafeInteger(value) && value >= min && value <= max;
 export function fields(value, required, optional = []) {
-  require(value && Object.getPrototypeOf(value) === Object.prototype &&
-    required.every(key => Object.hasOwn(value, key)) &&
-    Object.keys(value).every(key => [...required, ...optional].includes(key)), 'message');
+  require(validFields(value, required, optional), 'message');
 }
 function endpoint(value, gateway) {
   require(typeof value === 'string' && value.length <= 4096, 'origin');

@@ -20,23 +20,12 @@ finish() {
 }
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
-overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh scripts/ci/run-formatting.sh make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
-# Copy formatter inputs from every actual member, including working-tree packages
-# absent from HEAD. Cargo owns the roster across standard and approved layouts.
-cargo metadata --offline --locked --no-deps --format-version 1 \
-    --manifest-path "$ROOT/Cargo.toml" > "$TEMPORARY/metadata.json"
-jq -r --arg root "$ROOT/" '. as $m | .packages[] | select(.id as $id | $m.workspace_members | index($id)) | .manifest_path | if startswith($root) then ltrimstr($root) else error("workspace manifest outside checkout") end' \
-    "$TEMPORARY/metadata.json" > "$TEMPORARY/manifests"
-while IFS= read -r manifest; do
-    overlays+=("$manifest")
-    (cd "$ROOT" && rg --files "${manifest%/*}" -g '*.rs') > "$TEMPORARY/member-rust"
-    while IFS= read -r path; do overlays+=("$path"); done < "$TEMPORARY/member-rust"
-done < "$TEMPORARY/manifests"
+overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh scripts/ci/run-formatting.sh scripts/ci/select-rust-formatting-sources.sh scripts/ci/fixture-lifecycle.sh make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
 # Swap two adjacent dependency declarations without changing their values.
 perl -0777 -pe 's/^(ic-cdk = [^\n]*\n)(ic-host-artifacts = [^\n]*\n)/$2$1/m or die "cannot prepare ordering-only manifest\n"' \
     "$ROOT/Cargo.toml" > "$TEMPORARY/unsorted-Cargo.toml"
 bash "$ROOT/scripts/ci/check-formatting-hooks.sh" "$ROOT" "$selected" Cargo.toml \
-    "$TEMPORARY/unsorted-Cargo.toml" "${overlays[@]}"
+    "$TEMPORARY/unsorted-Cargo.toml" --rust-sources "${overlays[@]}"
 
 # Keep the additional consumer regression: a formatter changes selected bytes
 # before failing. The hook must restore those bytes and leave the index intact.

@@ -1,6 +1,7 @@
 import { validGatewayLimits } from './validation.js';
+import { readResponseBody } from './response.js';
+import { hex } from './bytes.js';
 
-const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
 const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 /** Local coordination refusal, not a provider response or reconciliation result. */
@@ -91,21 +92,8 @@ export async function createGatewayTransport({ certificate, intents, origin,
       duplex: 'half', signal,
       redirect: 'error', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' });
     require(!response.redirected && response.status >= 200 && response.status <= 599, 'response');
-    const chunks = [];
-    let length = 0;
-    if (response.body) {
-      const reader = response.body.getReader();
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        length += value.length;
-        if (length > 64 * 1024) { await reader.cancel(); throw new GatewayRefusal('response-size'); }
-        chunks.push(value);
-      }
-    }
-    const bytes = new Uint8Array(length);
-    let offset = 0;
-    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+    const bytes = response.body === null ? null : await readResponseBody(response.body,
+      64 * 1024, new GatewayRefusal('response-size'));
     const observed = await intents.observeGateway(copy(binding), copy(scope), owner, index,
       copy(request), response.status);
     const last = retained(observed, request, 'responded');
@@ -114,7 +102,7 @@ export async function createGatewayTransport({ certificate, intents, origin,
     signal.throwIfAborted();
     index += 1;
     // HTTP observation is not provider completion or permission to replay.
-    return new Response(response.body === null ? null : bytes, {
+    return new Response(bytes, {
       status: response.status, statusText: response.statusText, headers: response.headers });
   };
 }

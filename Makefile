@@ -44,7 +44,7 @@ CI_INPUTS := ci/release-tools.env scripts/dev/release-tools.sh Cargo.toml Cargo.
 help:
 	@echo "release-tools-check          Check ShellCheck, pinned Cargo-edit/cargo-sort and rustfmt without building"
 	@echo "test-native-host             CLI/examples and local installation/restoration probe checks"
-	@echo "msrv-check                   Check public native/Wasm consumers on Rust 1.88 offline"
+	@echo "msrv-check                   Check public native/Wasm consumers on Rust 1.91 offline"
 	@echo "tasks                        Show the shared maintenance task catalog"
 	@echo "browser-tools-check          Offline exact browser Node/npm and manifest/lock checks"
 	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
@@ -183,13 +183,13 @@ test-native:
 	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
 msrv-check:
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 --version
-	RUSTUP_AUTO_INSTALL=0 rustc +1.88.0 --version
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked -p ic-blob-storage-contracts --lib
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked -p ic-blob-storage --lib
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --workspace --all-targets --all-features
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --target wasm32-unknown-unknown -p ic-blob-storage-contracts --lib
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.88.0 check --offline --locked --target wasm32-unknown-unknown --workspace --exclude ic-blob-storage-cli --exclude ic-blob-storage-pocketic-tests --exclude blob-test-protocol --lib --all-features
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 --version
+	RUSTUP_AUTO_INSTALL=0 rustc +1.91.0 --version
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage-contracts --lib
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage --lib
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --workspace --all-targets --all-features
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --target wasm32-unknown-unknown -p ic-blob-storage-contracts --lib
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --target wasm32-unknown-unknown --workspace --exclude ic-blob-storage-cli --exclude ic-blob-storage-pocketic-tests --exclude blob-test-protocol --lib --all-features
 
 tasks:
 	@cat tasks/README.md
@@ -294,6 +294,7 @@ test-browser-standalone:
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone chromium_standalone_trial -- --ignored --test-threads=1
 
 test-browser:
+	$(BLOB_BROWSER_NODE) --test tests/browser/response.test.mjs
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	$(BLOB_BROWSER_NODE) tests/browser/store.mjs
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe --lib

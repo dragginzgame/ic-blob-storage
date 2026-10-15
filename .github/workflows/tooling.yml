@@ -25,10 +25,10 @@ jobs:
         with:
           persist-credentials: false
       - name: Prepare the advertised minimum compiler
-        run: rustup toolchain install 1.88.0 --profile minimal --target wasm32-unknown-unknown
+        run: rustup toolchain install 1.91.0 --profile minimal --target wasm32-unknown-unknown
       - name: Prepare the locked dependency cache
         env:
-          RUSTUP_TOOLCHAIN: '1.88.0'
+          RUSTUP_TOOLCHAIN: '1.91.0'
         run: make deps
       - name: Check public consumers and workspace paths at the minimum
         env:

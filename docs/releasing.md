@@ -25,7 +25,7 @@ admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canoni
 committed source; include every directly used helper as an entrypoint. Never patch
 vendored bytes or use mutable sibling tools. See
 [Shared snapshot adoption](consuming-snapshots.md) and
-[the latest qualified adoption](evidence/shared091002215.md).
+[the latest qualified adoption](evidence/shared01500270.md).
 
 Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
 binary. `make install-release-tools` prepares the pinned Cargo-edit executable
@@ -195,7 +195,7 @@ and the local override never enters publication. The final root lock is unchange
 [local-registry checksum failure](https://github.com/rust-lang/cargo/issues/14396)
 without dropping package-content verification. Package assembly needs Cargo 1.90
 or newer ([stabilization record](https://blog.rust-lang.org/inside-rust/2025/10/01/this-development-cycle-in-cargo-1.90/));
-the supported library/compiler floor remains Rust 1.88.
+the supported library/compiler floor is Rust 1.91.
 
 Validation builds use the source version before release preparation. Preserved
 binaries may report that earlier version after a successful release. Before

@@ -24,7 +24,7 @@ fn final_output_retains_buffered_response_and_stderr_after_control_frame() {
     let mut frame = String::new();
     reader.read_line(&mut frame).unwrap();
     assert_eq!(frame, "control\n");
-    let output = wait_with_output(&mut child, reader);
+    let output = wait_with_output(&mut child, Some(reader));
     assert_eq!(output.status.code(), Some(7));
     assert_eq!(output.stdout, b"final\n");
     assert_eq!(output.stderr, b"diagnostic");

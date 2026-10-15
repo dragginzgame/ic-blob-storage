@@ -3,7 +3,8 @@ import { createPublicationUpload, PublicationRefusal } from './publication.js';
 import { GatewayRefusal } from './gateway.js';
 import { TransferRefusal } from './transfer.js';
 import { IntentRefusal } from './intents.js';
-import { WorkerRefusal, fields, integer, publicationConfiguration, snapshotPublicationJob, actions } from './worker-configuration.js';
+import { WorkerRefusal, fields, publicationConfiguration, snapshotPublicationJob, actions } from './worker-configuration.js';
+import { integer } from './validation.js';
 export { WorkerRefusal } from './worker-configuration.js';
 const require = (condition, code) => { if (!condition) throw new WorkerRefusal(code); };
 // Only this finite public vocabulary may cross the private worker boundary.

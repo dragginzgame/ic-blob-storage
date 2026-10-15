@@ -54,6 +54,8 @@ create_fixture() {
         "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
         "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
         "$ROOT/scripts/ci/cargo-release-metadata.sh" "$ROOT/scripts/ci/read-cargo-workspace-version.sh" \
+        "$ROOT/scripts/ci/cargo-workspace-members.jq" "$ROOT/scripts/ci/compare-stable-versions.pl" \
+        "$ROOT/scripts/ci/StableVersion.pm" "$ROOT/scripts/ci/validate-release-inputs.pl" \
         "$ROOT/scripts/ci/check-make-execution.sh" \
         "$ROOT/scripts/ci/verify-file-checksum.sh" \
         "$ROOT/scripts/ci/check-release-source.sh" \
@@ -883,7 +885,8 @@ test_selected_commit() {
     prepare_tagged_release
     commit_fixture_fix
     # HEAD now has new draft notes; recovery must check the older frozen bytes.
-    printf '\n## [0.1.2]\n\n- New fix.\n' >> CHANGELOG.md
+    "$TEST_REAL_PERL" -0pe 's/\A# Changelog\n/# Changelog\n\n## [0.1.2]\n\n- New fix.\n/' CHANGELOG.md > target/notes
+    cp target/notes CHANGELOG.md
     local commit=3333333333333333333333333333333333333333
     local target=release-push-check selected="$commit" source="$TEST_SOURCE"
     case "$1" in
@@ -950,7 +953,8 @@ test_recovery_integration() {
     cp target/history/3333333333333333333333333333333333333333.files/docs/release.json target/older-receipt
     cp target/tags/v0.2.0.sha target/older-tag
     commit_fixture_fix
-    printf '\n## [0.2.1]\n\n- Committed fix.\n' >> CHANGELOG.md
+    "$TEST_REAL_PERL" -0pe 's/\A# Changelog\n/# Changelog\n\n## [0.2.1]\n\n- Committed fix.\n/' CHANGELOG.md > target/notes
+    cp target/notes CHANGELOG.md
     export TEST_GATE_FAIL=1
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
     [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == complete && "$(perl scripts/release/release-data.pl version)" == 0.2.0 ]] || exit 1

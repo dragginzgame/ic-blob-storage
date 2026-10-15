@@ -23,7 +23,7 @@ await record('plan.json', { schema: 1, kind: 'owned_loopback_transport', started
   journal: 'maintained IndexedDB; certificate observation is a local substitute',
   controls: 'buffered/XHR explicitly consume and replace the maintained outgoing stream; never production alternatives',
   cleanup: 'Close owned browser/sockets; remove temporary TLS keys; retain captures' });
-const gateway = await readFile(new URL('../../clients/browser/gateway.js', import.meta.url));
+const gateway = await readFile(new URL('../../.tmp/browser/gateway.js', import.meta.url));
 const store = await readFile(new URL('../../.tmp/browser/store.js', import.meta.url));
 const tls = await loopbackTLS();
 let browser;

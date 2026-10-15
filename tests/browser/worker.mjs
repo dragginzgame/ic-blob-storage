@@ -61,6 +61,13 @@ for (const [field, value, error] of [
   assert.equal(reads, 0);
 }
 await fails('unknown_fields', { ...request, retry: true }, 'message'); assert.equal(reads, 0);
+await fails('inherited_fields', Object.assign(Object.create({ retry: true }), request), 'message');
+assert.equal(reads, 0);
+const missing = structuredClone(request); delete missing.snapshot.body;
+await fails('missing_required_field', missing, 'message'); assert.equal(reads, 0);
+for (const id of [0, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+  await fails('invalid_correlation_integer', { ...request, id }, 'message'); assert.equal(reads, 0);
+}
 await fails('unknown_action', { ...request, action: 'resume-upload' }, 'message'); assert.equal(reads, 0);
 for (const [name, changes, error] of [
   ['empty_manifest', { manifestJSON: '' }, 'manifest-size'],

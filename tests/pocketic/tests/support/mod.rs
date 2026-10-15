@@ -1,35 +1,43 @@
 //! Explicit local server ownership shared by integration cases.
 
-use std::{io::Read, path::PathBuf, process::Output, time::Duration};
+use std::{
+    io::BufReader,
+    path::PathBuf,
+    process::{ChildStdout, Output},
+    time::Duration,
+};
 
 use ic_testkit::{
-    ic_host_process::child::OwnedChild,
+    ic_host_process::{
+        child::OwnedChild,
+        tool::{OutputLimit, OutputLimits, drain_child_output},
+    },
     pic::{PocketIcInstance, PocketIcManagedServer, PocketIcStartupConfig},
     pocket_ic::{PocketIc, PocketIcBuilder},
 };
 
 /// Drain caller-owned pipes while Host waits and cleans the child group.
 /// Keep buffered protocol bytes: converting a reader back to its pipe loses them.
-pub(super) fn wait_with_output(child: &mut OwnedChild, mut stdout: impl Read + Send) -> Output {
-    child.take_stdin();
-    let mut stderr = child.take_stderr().expect("configured stderr pipe");
-    let mut out = Vec::new();
-    let mut err = Vec::new();
-    let status = std::thread::scope(|scope| {
-        scope.spawn(|| stdout.read_to_end(&mut out).expect("read child stdout"));
-        scope.spawn(|| stderr.read_to_end(&mut err).expect("read child stderr"));
-        child.wait().unwrap_or_else(|error| {
-            // Scoped readers must be released before unwinding joins them.
-            if let Err(cleanup) = child.terminate() {
-                eprintln!("child cleanup after wait failure: {cleanup}");
-            }
-            panic!("wait and clean child group: {error}");
-        })
-    });
+pub(super) fn wait_with_output(
+    child: &mut OwnedChild,
+    stdout: Option<BufReader<ChildStdout>>,
+) -> Output {
+    let output = drain_child_output(
+        child,
+        stdout,
+        OutputLimits {
+            stdout: OutputLimit::Terminate(16 * 1024 * 1024),
+            stderr: OutputLimit::Terminate(4 * 1024 * 1024),
+            // Session/scenario owners retain their original deadlines.
+            timeout: None,
+        },
+        || false,
+    )
+    .expect("drain bounded child output and clean child group");
     Output {
-        status,
-        stdout: out,
-        stderr: err,
+        status: output.status,
+        stdout: output.stdout,
+        stderr: output.stderr,
     }
 }
 

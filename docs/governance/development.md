@@ -30,17 +30,11 @@ its local target directory; do not redirect builds into Canic.
 Agent requests such as `check CI`, `check issues` and `check for work` follow the
 [user-triggered maintenance rules](../../rules/agent-maintenance.md). Inspect this
 repository's `Release and formatting tooling` workflow at the selected source; dirty changes have no
-remote result. Session instructions can enable inspections after each completed
-batch. Explicit repair requests authorize scoped fixes and focused checks;
-full CI/release validation requires its own instruction under the maintainer's
-local command boundary; release effects retain their separate authority. Relevant issue
-work follows the shared maintenance rules.
-
-Use targeted checks while implementing. Do not infer full CI/release validation
-authority from generic continuation or readiness wording, as instructed in
-[AGENTS.md](../../AGENTS.md#style-and-checks). Documentation-only
-work needs links, consistency and diff checks; release commands retain separate
-explicit authority.
+remote result. Relevant issue work follows the shared maintenance rules.
+Check selection and execution authority follow
+[shared validation policy](../../DRAGGINZGAME.md#validation-and-evidence).
+The local [release boundary](../../AGENTS.md#delivery-and-release) remains
+maintainer-operated; this guide names the local commands.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
@@ -127,7 +121,7 @@ Make `POCKET_IC_BIN` overrides remain caller-owned byte admission; the harness
 receives them unchanged, including empty values that it refuses. Tests never
 silently replace a caller selection or download a missing server.
 The test harness retains its separate owned server per instance and drop order.
-`make msrv-check` explicitly selects Rust 1.88, checks the public libraries
+`make msrv-check` explicitly selects Rust 1.91, checks the public libraries
 separately, all native workspace targets/features and the supported Wasm libraries.
 CI prepares that compiler and locked cache in its own minimum-version lane;
 the development compiler still owns formatting and Clippy.
@@ -165,9 +159,9 @@ unrelated entries in the per-user store are excluded. If store admission fails,
 archive safe local selections and the collection diagnostics, upload that archive
 when available, then report incomplete collection. Preserve the original failure;
 an available partial archive does not establish complete collection.
-`make hooks-check` supplies the consumer's real formatter inputs to the shared
-adoption checker using Cargo's complete member roster and each member's Rust
-sources, including packages not yet present in HEAD. It retains one actual-consumer
+`make hooks-check` delegates current Rust/Cargo input discovery to the shared
+adoption checker, including untracked additions and tracked deletions across
+the approved layout. It retains one actual-consumer
 mutating-formatter rollback and lock-preservation check. Shared Tooling owns the
 generic Make-mode and failed-tree-observation matrices for the identical hook.
 `make release-commands-check` copies the
@@ -190,7 +184,7 @@ the release-command checker binds its tooling root to the disposable checkout.
 The common entrypoint's routing fixture runs in `make shared-tooling-tests`.
 Actual hook, release and parallel Testkit fixtures export `make/consumer.mk`
 with all parsed companions; none may fall back to the real checkout's adapters.
-The [snapshot adoption record](../evidence/shared-tooling-0181.md) qualifies the
+The [snapshot adoption record](../evidence/shared01500270.md) qualifies the
 current direct-delivery adapter and changed shared helpers. The
 [fixture ownership map](../evidence/release-fixture-ownership.md) records
 the shared runner matrix and the retained Blob adapter obligations.

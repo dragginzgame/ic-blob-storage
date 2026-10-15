@@ -15,7 +15,6 @@ ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-cdk.workspace = true
 ic-metrics.workspace = true
-serde_bytes.workspace = true
 
 [lints]
 workspace = true

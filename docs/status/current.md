@@ -2,6 +2,129 @@
 
 Date: 2026-10-15
 
+## Shared 0.15 and retained-write ownership — pending 0.27.0
+
+The [adoption receipt](../evidence/shared01500270.md) binds reviewed Shared main
+`3bef3f2daec7f64f875397ed4d53d5b9e2e68a08` to 128 payloads and the unchanged
+common tool pins. Local release fixtures carry the new companions and valid
+next-release note placement; formatting input discovery delegates to Shared.
+Configuration decoding and browser hex encoding reuse their canonical local
+owners without changing budgets, cryptography or authority checks. Cargo-edit
+remains required by the selected committed metadata helper; Shared PR #205's
+pending implementation is outside this adoption.
+
+Host 0.18.6 was already selected; its published registry graph is qualified with
+Memory 0.40.0, Metrics 0.10.1 and Testkit 0.44.0. Focused configuration/CLI/probe,
+buffered output, strict lint and actual Rust 1.91 checks pass. Fresh CLI/Wasm
+passes seven installed session cases, three observation/recovery cases and the
+ten-scenario Chromium certificate journey. Snapshot, tool/pin admission,
+release adapters, formatting preservation and installer/evidence substitutes
+pass. Full CI, native macOS, Canic and live provider qualification remain separate.
+
+The isolated retained-write producer is [Host PR #132](https://github.com/dragginzgame/ic-host-tooling/pull/132)
+at `549670adfd2110a2b93063b9351f795496053d71`. Its five retained-file cases,
+strict filesystem lint/Rustdoc and Rust 1.88 checks pass. The isolated consumer
+passes five probe cases, strict CLI lint and Rust 1.91; its replacement applies
+cleanly but awaits publication under [#76](https://github.com/dragginzgame/ic-blob-storage/issues/76).
+Normal Blob has no source override. Earlier dirty work, own versions, index and
+HEAD are preserved. The Host topic commit/PR leaves sibling working checkouts
+untouched. Before-images, failed/final logs, graph/artifact receipts and the
+consumer patch remain under `.tmp/review-validation/adoption0270/`.
+The final graph checkpoint detected six Windows-only edges returning to their
+starting selection. The starting lock is preserved and focused compilation,
+fresh builds and all installed journeys pass again on that final graph; earlier
+and isolated candidate receipts retain their separate inputs.
+
+## Rust 1.91 minimum — pending 0.27.0
+
+The maintainer selects Rust 1.91.0 as the workspace MSRV, matching the incoming
+public Memory 0.40 dependency's declared minimum. All twelve members inherit
+that floor. CI explicitly prepares/selects 1.91; Make's existing minimum check
+covers separate public library paths, all native targets/features and supported
+Wasm libraries. Development, formatting and lint stay on Rust 1.99.0.
+
+The complete focused `make msrv-check` passes with actual Cargo/rustc 1.91.0 on
+the selected Memory 0.40.0, Metrics 0.10.1, Host 0.18.5 and Testkit 0.44.0 graph.
+Five fixture day-long advances use the newly available standard hours constructor
+with the same elapsed time; strict workspace Clippy passes at the raised floor.
+Root lockfile and development-toolchain pin remain byte-identical. This compiler
+qualification does not replace runtime, retained-installation or Canic evidence.
+Earlier 1.88 results and 0.26.1 draft references below retain their original
+source/graph scope; the combined pending batch is now classified as 0.27.0 for
+its raised consumer minimum and exposed Memory family. Own package versions,
+Git refs/index and sibling files are unchanged. Full CI/release effects did not
+run. Before-images, compiler logs, initial lint/format refusals and input receipts remain under
+`.tmp/review-validation/msrv191/`.
+
+## Process output and browser boundary cleanup — pending 0.26.1
+
+The integration harness delegates final pipe draining to published Host through
+Testkit's existing re-export. Blob selects terminating ceilings of 16 MiB stdout
+and 4 MiB stderr; scenario/session owners retain deadlines. Buffered control
+readers, nonzero/cached child status, closed stdin and process-group cleanup
+remain intact. Native sessions now hand over their actual remaining stdout.
+
+Browser transports share bounded response collection and cancellation, retaining
+the certificate's required body/256 KiB ceiling and the gateway's optional body/
+64 KiB ceiling. Fetch policy, refusal classes and gateway claim/observation order
+remain local. Worker and durable-journal boundaries share passive strict-field
+and safe-integer predicates while retaining independent validation and refusals.
+The TLS transport fixture now serves the bundled gateway with its shared imports.
+
+Focused Linux checks pass buffered-output retention, three response-stream cases,
+worker authority/refusals, actual Chromium store/reopening and 17 bootstrap cases,
+eight TLS transport cases, strict PocketIC-package lint and actual Rust 1.88.
+Fresh CLI/Wasm selections pass seven installed publication-session cases, three
+installed observation/recovery cases and the ten-scenario Chromium certificate
+journey. These are local/substitute results; full CI, native macOS, Canic and
+deployed-provider qualification remain separate. No paid effects ran.
+
+The starting lock already selects Host 0.18.5, Memory 0.39.0, Metrics 0.10.0 and
+Testkit 0.44.0; root manifest/lock and tested artifact hashes remain unchanged.
+Earlier pending work is preserved. Before-images, failed sandbox socket attempt,
+raw logs and input receipts remain under `.tmp/review-validation/drain0261/`.
+No dependency, own-version, sibling-file, index or Git-ref changes ran.
+
+## Fixture decoding and native simplification — pending 0.26.1
+
+Released base is 0.26.0 `c7fbef66188398c84cdc0a8eccdaae9220604bd0`.
+Authority and storage probes now share the private `fixture_chunk` blob decoder.
+Their byte/work limits, refusal categories, measurement boundaries, authenticated
+call bindings and manifest verification remain local. Direct Serde-bytes edges
+move from those two probes to their existing private protocol owner; registry
+versions and own package metadata are unchanged. Two decoder cases, strict
+affected-package lint, actual Rust 1.88 Wasm compilation, six installed readback
+cases and the installed tenant-download case pass on the normal registry graph.
+
+[Host #128](https://github.com/dragginzgame/ic-host-tooling/pull/128) at
+`2bfe6e67dd045a99b11f3386e93b2703d30284ea` owns bounded newline framing.
+[Build #41](https://github.com/dragginzgame/ic-build/pull/41) at
+`1fd96686437d91a43881a169ee0e69eae3991d20` owns relocatable captured-input
+fingerprints. Scoped topic commits/PRs leave normal sibling checkouts untouched.
+Producer checks pass three framing and eighteen input-evidence cases, strict
+lint/Rustdoc and actual Rust 1.88 against their separate committed graphs.
+
+The isolated combined candidate passes 118 native CLI and five probe cases,
+strict CLI lint, actual Rust 1.88, seven installed publication-session cases and
+the ten-scenario Chromium journey. Final binaries, Wasm and graph hashes are
+unchanged through installed qualification. Real Cargo rebuilds detect added or
+renamed source files and recover the original digest after their removal. The
+fingerprint covers CLI sources, its build script/package manifest and root
+manifest/lock; it remains descriptive provenance and preserves historical
+records. No provider observation, paid effect or release ran.
+
+[#74](https://github.com/dragginzgame/ic-blob-storage/issues/74) and
+[#75](https://github.com/dragginzgame/ic-blob-storage/issues/75) own activation.
+Independent `adopt-host.patch` and `adopt-build.patch` apply separately and together
+and pass manifest/Rust formatting. They remain inactive until actual published
+API versions and the compiler graph are admitted; normal Blob has no source
+override or new CLI build dependency. The candidate uses published-main Build
+0.3.3 with cargo-platform 0.3.2; the producer's separate pending 0.4/Rust 1.91 work
+was not copied or used to raise Blob's floor. Full release/native macOS and future
+registry-graph checks remain separate. Source archives, final/failed logs and
+input receipts remain under `.tmp/review-validation/three0261/`, with originals
+in `/tmp/blob-three-consumer-20261015/` and its two isolated producer checkouts.
+
 ## Browser consolidation and bounded consumer cell
 
 The certificate browser driver now uses the existing queued JSON channel;

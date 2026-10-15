@@ -2,10 +2,11 @@ import { HttpAgent, Certificate, Cbor, requestIdOf, lookupResultToBuffer } from 
 import { Principal } from '@icp-sdk/core/principal';
 import { IDL } from '@icp-sdk/core/candid';
 import { certificateBindingFailure } from './validation.js';
+import { readResponseBody } from './response.js';
+import { hex } from './bytes.js';
 
 const METHOD = '_immutableObjectStorageCreateCertificate';
 const encoder = new TextEncoder();
-const hex = bytes => Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
 const unhex = value => Uint8Array.from(value.match(/../g), b => parseInt(b, 16));
 const same = (a, b) => a.length === b.length && a.every((byte, i) => byte === b[i]);
 
@@ -75,19 +76,8 @@ export async function createCertificateClient({ host, identity, rootKey, binding
   async function boundedFetch(url, init) {
     const response = await transport(url, { ...init, redirect: 'error', signal: AbortSignal.timeout(20_000) });
     require(response.body, 'response-body');
-    const reader = response.body.getReader();
-    const chunks = [];
-    let length = 0;
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      length += value.length;
-      if (length > 256 * 1024) { await reader.cancel(); throw new CertificateRefusal('response-size'); }
-      chunks.push(value);
-    }
-    const body = new Uint8Array(length);
-    let offset = 0;
-    for (const chunk of chunks) { body.set(chunk, offset); offset += chunk.length; }
+    const body = await readResponseBody(response.body, 256 * 1024,
+      new CertificateRefusal('response-size'));
     return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
   }
   async function guardedFetch(url, init) {

@@ -487,7 +487,7 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
     fixture
         .harness
         .pic
-        .advance_time(std::time::Duration::from_secs(24 * 60 * 60));
+        .advance_time(std::time::Duration::from_hours(24));
     fixture.harness.pic.tick();
     assert_eq!(fixture.status_unchanged(), status);
     assert_eq!(
