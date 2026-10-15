@@ -8,8 +8,10 @@ use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
 use ic_blob_storage_contracts::identity::verification::ContentVerifier;
+use ic_blob_storage_contracts::upload::inventory::{
+    InventoryReport, InventoryTotals, PreparedUpload,
+};
 use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
-use serde::Deserialize;
 use std::{
     collections::{BTreeMap, BTreeSet},
     num::{NonZeroU64, NonZeroUsize},
@@ -18,56 +20,6 @@ use std::{
 
 const MAX_BYTES: u64 = 8 * 1024 * 1024;
 const MAX_LEAVES: usize = 8192;
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct EncodedInventory {
-    totals: Totals,
-    assets: Vec<AssetEntry>,
-    blobs: Vec<Blob>,
-}
-
-#[derive(Deserialize, Debug, PartialEq)]
-#[serde(deny_unknown_fields)]
-struct Totals {
-    assets: usize,
-    source_bytes: u64,
-    source_chunks: u64,
-    distinct_blobs: usize,
-    distinct_bytes: u64,
-    distinct_chunks: u64,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct AssetEntry {
-    asset: String,
-    source: String,
-    root: String,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Blob {
-    claim: Claim,
-    chunk_hashes: Vec<String>,
-    computed_content_digest: String,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Claim {
-    root: String,
-    bytes: u64,
-    headers: Vec<Header>,
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Header {
-    name: String,
-    value: String,
-}
 
 pub(super) struct PreparedBlob {
     pub root: ProviderRootHash,
@@ -95,7 +47,7 @@ fn parse(encoded: &[u8]) -> Result<Inventory, Failure> {
     if encoded.len() as u64 > MAX_BYTES {
         return Err(Failure::InvalidRequest);
     }
-    let input: EncodedInventory =
+    let input: InventoryReport =
         serde_json::from_slice(encoded).map_err(|_| Failure::InvalidRequest)?;
     if input.blobs.is_empty()
         || input.blobs.len() > 2048
@@ -104,7 +56,7 @@ fn parse(encoded: &[u8]) -> Result<Inventory, Failure> {
     {
         return Err(Failure::InvalidRequest);
     }
-    let mut totals = Totals {
+    let mut totals = InventoryTotals {
         assets: input.assets.len(),
         source_bytes: 0,
         source_chunks: 0,
@@ -130,7 +82,7 @@ fn parse(encoded: &[u8]) -> Result<Inventory, Failure> {
             || asset.asset.len() > 256
             || asset.asset.chars().any(char::is_control)
             || !names.insert(asset.asset.clone())
-            || asset.source.is_empty()
+            || asset.source.as_os_str().is_empty()
         {
             return Err(Failure::InvalidRequest);
         }
@@ -152,7 +104,7 @@ fn add(a: u64, b: u64) -> Result<u64, Failure> {
     a.checked_add(b).ok_or(Failure::InvalidRequest)
 }
 
-fn validate(blob: &Blob) -> Result<PreparedBlob, Failure> {
+fn validate(blob: &PreparedUpload) -> Result<PreparedBlob, Failure> {
     let invalid = |_| Failure::InvalidRequest;
     let root: ProviderRootHash = blob.claim.root.parse().map_err(invalid)?;
     // Canonical keys prevent case aliases from bypassing duplicate detection.

@@ -22,6 +22,7 @@ mod publish_inputs;
 mod publish_map;
 mod publish_prepare;
 mod publish_session;
+mod query;
 mod reference_inputs;
 mod references;
 mod reply;
@@ -467,9 +468,23 @@ async fn query(
     argument: Vec<u8>,
 ) -> Result<Vec<u8>, Failure> {
     let agent = agent(options)?;
+    query::with_agent(&agent, service, method, argument).await
+}
+
+/// Submit one inspection update and let the SDK poll only that request identity.
+/// Callers retain agent configuration, request validation and artifact ordering.
+async fn inspection_update(
+    agent: &Agent,
+    service: Principal,
+    method: &str,
+    argument: Vec<u8>,
+) -> Result<Vec<u8>, Failure> {
     tokio::time::timeout(
         Duration::from_secs(30),
-        agent.query(&service, method).with_arg(argument).call(),
+        agent
+            .update(&service, method)
+            .with_arg(argument)
+            .call_and_wait(),
     )
     .await
     .map_err(|_| Failure::Timeout)?

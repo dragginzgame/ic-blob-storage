@@ -12,7 +12,7 @@ use super::UploadRequest;
 use super::UploadRequestId;
 use super::manifest;
 use crate::model::catalog::admission::UploadUsage;
-use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
+use candid::{CandidType, Deserialize};
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
@@ -20,11 +20,12 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
-use ic_memory::ic_stable_structures::{Storable, storable::Bound};
-use std::{
-    borrow::Cow,
-    num::{NonZeroU64, NonZeroU128},
-};
+#[cfg(test)]
+use ic_memory::ic_stable_structures::Storable;
+use ic_memory::ic_stable_structures::storable::Bound;
+#[cfg(test)]
+use std::borrow::Cow;
+use std::num::{NonZeroU64, NonZeroU128};
 
 use ic_blob_storage_contracts::configuration::envelope::MAX_MANIFEST_RECORD_BYTES as MANIFEST_BYTES;
 
@@ -440,29 +441,11 @@ impl UploadManifestRecord {
 }
 
 macro_rules! codec {
-    ($record:ty,$bound:expr,$layout:expr) => {
-        impl Storable for $record {
-            fn to_bytes(&self) -> Cow<'_, [u8]> {
-                let bytes = candid::encode_one(self).expect("upload record encoding");
-                assert!(bytes.len() <= $bound, "upload record bound");
-                Cow::Owned(bytes)
-            }
-            fn into_bytes(self) -> Vec<u8> {
-                self.to_bytes().into_owned()
-            }
-            fn from_bytes(bytes: Cow<'_, [u8]>) -> Self {
-                assert!(bytes.len() <= $bound, "upload record bound");
-                let mut limits = DecoderConfig::new();
-                limits
-                    .set_decoding_quota(2_000_000)
-                    .set_skipping_quota(1000)
-                    .set_max_type_len(64)
-                    .set_max_header_len(2048)
-                    .set_full_error_message(false);
-                decode_one_with_config(&bytes, &limits).expect("valid upload record")
-            }
-            const BOUND: Bound = $layout;
-        }
+    ($record:ty, $bound:expr, $layout:expr) => {
+        crate::model::record_codec::storable!(
+            $record, bytes: $bound, work: 2_000_000, skipping: 1000,
+            types: 64, header: 2048, layout: $layout,
+        );
     };
 }
 pub(crate) use codec;

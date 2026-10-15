@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.29.0]
+
+- Share the prepared-inventory JSON contract across local preparation, download
+  verification and fixture inspection, retaining independent input validation.
+- Consolidate stable-record codecs while preserving schemas and decoding budgets;
+  enforce the installation record's existing byte ceiling when encoding too.
+- Share native query transport across inspection, preparation and publication,
+  preserving signer selection, deadlines, query budgets and retained evidence.
+- Share account/download inspection transport, preserving the original request
+  identity, deadline, failure categories and retained response evidence.
+- Share browser value checks across worker, launcher and session boundaries;
+  authority checks and each boundary's numeric limits remain local.
+- **Breaking dependency boundary:** select public IC Memory 0.42. Hosts must
+  use the matching Memory family and qualify their composition; cross-release
+  installation retirement/reinstallation remains required.
+- Adopt direct Host 0.20 and private Metrics 0.11.1. The opt-in archive verifier
+  shares Host process 0.20 with IC Build 0.7, removing its older dependency alias.
+- Share bounded capacity/discovery reply validation in Contracts across the
+  native CLI and fixture inventory, preserving their error categories, original
+  content identities, restore fences and observation-only semantics.
+- Inspect historical signed claims through their writer-owned schema, refusing
+  corrupt dispatch metadata without granting expired claims retry authority.
+- Share existing-instance fixture attachment and panic handling for query/update
+  calls, preserving rejection categories, instance ownership and one dispatch.
+
 ## [0.28.0] - 2026-10-15
 
 - **Breaking Rust API:** construct and restore production stores only through

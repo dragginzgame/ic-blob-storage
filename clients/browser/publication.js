@@ -1,7 +1,8 @@
 import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from './certificate.js';
 import { createUploadTransfer } from './transfer.js';
-import { validUtf8Text, validGatewayLimits } from './validation.js';
+import { validGatewayLimits } from './validation.js';
+import { validUtf8Text } from './value-validation.js';
 import { hex } from './bytes.js';
 
 /** Frozen-input refusal, never evidence of service or provider completion. */

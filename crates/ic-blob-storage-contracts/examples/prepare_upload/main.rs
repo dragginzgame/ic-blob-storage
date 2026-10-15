@@ -10,12 +10,12 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilderError;
+use ic_blob_storage_contracts::upload::inventory::{DownloadClaim, Header, PreparedUpload};
 use ic_blob_storage_contracts::upload::metadata::UploadMetadataError;
 use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
 use ic_host_artifacts::artifact::ArtifactError;
 use ic_host_artifacts::artifact::read_reader;
 use serde::Deserialize;
-use serde::Serialize;
 use std::error::Error;
 use std::fs::File;
 use std::io;
@@ -49,31 +49,10 @@ fn read_declaration(reader: impl Read) -> Result<Declaration, Box<dyn Error>> {
     Ok(serde_json::from_slice(&encoded)?)
 }
 
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(deny_unknown_fields)]
-struct Header {
-    name: String,
-    value: String,
-}
-
 #[derive(Clone, Copy)]
 struct PreparationLimits {
     bytes: NonZeroU64,
     chunks: NonZeroUsize,
-}
-
-#[derive(Debug, Serialize)]
-struct PreparedUpload {
-    claim: DownloadClaim,
-    chunk_hashes: Vec<String>,
-    computed_content_digest: String,
-}
-
-#[derive(Debug, Serialize)]
-struct DownloadClaim {
-    root: String,
-    bytes: u64,
-    headers: Vec<Header>,
 }
 
 #[derive(Debug, Error)]

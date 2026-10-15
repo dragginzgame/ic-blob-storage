@@ -6,7 +6,7 @@ use crate::workflow::operator::inspect;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::VectorMemory;
+use ic_memory::ic_stable_structures::{Storable, VectorMemory};
 
 const RELEASE: &str = "test-release";
 
@@ -69,6 +69,18 @@ fn compiled_library_version_binds_installation_and_reopen() {
         crate::LIBRARY_VERSION
     );
 }
+#[test]
+fn installation_record_keeps_candid_bytes_and_rejects_oversized_encoding() {
+    let memory = memory();
+    let installed = ServiceInstallation::install(memories(&memory), validated()).unwrap();
+    let expected = candid::encode_one(&installed.configuration).unwrap();
+    assert_eq!(installed.configuration.to_bytes().as_ref(), expected);
+    assert_eq!(installed.configuration.clone().into_bytes(), expected);
+    let mut oversized = installed.configuration;
+    oversized.project = "x".repeat(16_384);
+    assert!(std::panic::catch_unwind(|| oversized.into_bytes()).is_err());
+}
+
 fn input() -> ServiceInstallationCandidate<'static> {
     ServiceInstallationCandidate {
         platform_installation_version: 0,

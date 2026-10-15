@@ -7,6 +7,7 @@ pub use funding_lookup::run as run_funding_lookup;
 mod inventory;
 mod model;
 mod ops;
+mod transport;
 pub use funding_preview::run as run_funding_preview;
 pub use inventory::run as run_inventory;
 

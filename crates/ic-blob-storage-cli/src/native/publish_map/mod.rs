@@ -65,13 +65,7 @@ pub(super) async fn query(
     } else {
         tenant
     };
-    tokio::time::timeout(
-        Duration::from_secs(30),
-        agent.query(&service, method).with_arg(args).call(),
-    )
-    .await
-    .map_err(|_| Failure::Timeout)?
-    .map_err(|_| Failure::Transport)
+    super::query::with_agent(agent, service, method, args).await
 }
 
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {

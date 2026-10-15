@@ -9,6 +9,7 @@
 
 use super::inventory;
 use super::prepare_to;
+use ic_blob_storage_contracts::upload::inventory::InventoryReport;
 use serde::Serialize;
 use std::collections::BTreeSet;
 use std::fs::File;
@@ -21,7 +22,7 @@ use tempfile::NamedTempFile;
 #[derive(Debug, Serialize)]
 pub(super) struct SavedSnapshot {
     directory: PathBuf,
-    inventory: inventory::InventoryReport,
+    inventory: InventoryReport,
 }
 
 pub(super) fn run(input: &Path, parent: &Path) -> Result<SavedSnapshot, inventory::InventoryError> {

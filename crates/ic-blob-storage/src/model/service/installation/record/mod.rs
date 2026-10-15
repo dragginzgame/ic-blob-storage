@@ -1,7 +1,5 @@
 //! Host-owned current configuration schema; boundary DTOs are not persisted.
-use candid::{CandidType, DecoderConfig, Deserialize, Principal};
-use ic_memory::ic_stable_structures::{Storable, storable::Bound};
-use std::borrow::Cow;
+use candid::{CandidType, Deserialize, Principal};
 
 /// One bounded immutable installation record, never a freshness authority.
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -68,26 +66,10 @@ impl ConfigurationRecord {
         Ok(())
     }
 }
-impl Storable for ConfigurationRecord {
-    fn to_bytes(&self) -> Cow<'_, [u8]> {
-        Cow::Owned(candid::encode_one(self).expect("configuration record encoding"))
-    }
-    fn into_bytes(self) -> Vec<u8> {
-        candid::encode_one(self).expect("configuration record encoding")
-    }
-    fn from_bytes(bytes: Cow<'_, [u8]>) -> Self {
-        assert!(bytes.len() <= 16_384, "configuration record bound");
-        let mut config = DecoderConfig::new();
-        config
-            .set_decoding_quota(100_000)
-            .set_skipping_quota(1024)
-            .set_max_type_len(64)
-            .set_max_header_len(16_384)
-            .set_full_error_message(false);
-        candid::decode_one_with_config(&bytes, &config).expect("configuration record")
-    }
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 16_384,
-        is_fixed_size: false,
-    };
-}
+crate::model::record_codec::storable!(
+    ConfigurationRecord, bytes: 16_384, work: 100_000, skipping: 1024,
+    types: 64, header: 16_384,
+    layout: ic_memory::ic_stable_structures::storable::Bound::Bounded {
+        max_size: 16_384, is_fixed_size: false,
+    },
+);

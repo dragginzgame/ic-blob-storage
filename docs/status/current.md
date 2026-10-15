@@ -3,6 +3,73 @@
 Date: 2026-10-15
 
 
+## Inventory schema, stable codecs and query transport — pending 0.29.0
+
+The three accepted local cleanups are applied. Contracts owns the passive
+prepared-inventory JSON schema; examples and fixture observers retain their
+independent trust checks. Model records share bounded Candid mechanics with
+unchanged schema fields, per-owner decode budgets and stable-tree layouts.
+Installation encoding also enforces its existing declared 16 KiB bound.
+Native query transport has one owner; operator/tenant routing, evidence order
+and overall operation budgets remain local. The
+[qualification receipt](../evidence/schema-codec0290.md) binds the starting dirty
+tree, focused checks and fresh Wasms. Cargo selections and own versions are
+unchanged. 349 library cases, 128 Contracts/example cases, 17 inventory cases,
+119 CLI/five probe/one verifier cases and 56 selected installed cases pass,
+alongside strict lint/Rustdoc and actual Rust 1.91 native/Wasm checks.
+Full CI and native macOS remain separate. The previously prepared Host
+extraction below remains inactive.
+
+## Inspection transport, browser values and prepared Host reads — pending 0.29.0
+
+Two accepted cleanups are applied: native account/download inspection updates
+share transport, and browser/launcher/session code shares SDK-independent value
+checks. Role bindings, reply evidence, numeric bounds and refusal categories stay
+with their callers. The [qualification receipt](../evidence/inspection0290.md)
+records focused Linux, installed and Chromium evidence on the incoming
+Build 0.7/Testkit 0.47 graph; own package versions remain 0.28.0.
+
+The third cleanup is prepared separately: inventory metadata/body selection and
+historical preparation-journal reads use Host's descriptor-rooted opener in an
+isolated candidate. Published Host 0.20.1 lacks those APIs; the real checkout
+retains its current readers. Reuse existing
+[Host PR #114 — Root-relative opening](https://github.com/dragginzgame/ic-host-tooling/pull/114)
+instead of opening another producer PR. Its publication and consumer activation
+remain tracked with
+[#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69).
+The receipt locates the source-only adoption patch and exact tested Host source.
+No real path/Git dependency override, sibling source edit or release ran.
+
+## Reply and recovery convergence — pending 0.29.0
+
+Released base is 0.28.0 `e65834ce6e61b38954c6a411edd7417cf0090e5a`.
+The [convergence receipt](../evidence/convergence0290.md) records all three accepted
+cleanups: Contracts owns capacity/discovery reply checks, the signed journal owner
+inspects historical claims, and fixture query/update calls share attachment.
+Consumer error mapping, exact bindings, restore fences, retained evidence and
+no-redispatch behavior remain covered. Historical sections below retain their
+original pending labels; those 0.28.0 cuts are now released.
+
+The maintainer confirmed incoming Host 0.20/public Memory 0.42 selections. The
+pending minor reflects that public dependency cut; own versions remain 0.28.0.
+The optional package verifier shares Build 0.7's Host process 0.20 boundary through
+the ordinary root dependency; its former Host 0.19 alias is removed.
+The dependency guide describes the selection. Same-release recovery and cross-release
+retirement/reinstallation remain required; Canic owns fresh Memory 0.42 adoption.
+
+The Build 0.7 verifier build and archive regressions pass, including exact failure
+status and graph/drift refusals. Only the CLI's process lock edge changes; package
+versions are preserved. Logs and before-images: `.tmp/review-validation/build07-process/`.
+
+The incoming lock later selected Host 0.20.1. Its published Rust sources match
+0.20.0; fresh native/MSRV checks, 15 selected installed cases and coordinated
+archive qualification pass on that exact graph. The earlier 67-case installed
+run retains its 0.20.0 scope in the receipt. Wasm production dependencies are
+unchanged by the Host patch. Raw logs and before-images remain under
+`.tmp/review-validation/convergence0281/`.
+Full CI, native macOS and deployed-provider/Canic delivery remain separate.
+No sibling edits, release or publication ran.
+
 ## Installation API and probe-only reference owner — pending 0.28.0
 
 The [API-cut receipt](../evidence/api0280.md) records the three accepted cuts.

@@ -1,7 +1,7 @@
 import { Principal } from '@icp-sdk/core/principal';
 import { validNamespace } from './namespace.js';
-import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validUtf8Text,
-  integer, validFields } from './validation.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits } from './validation.js';
+import { validUtf8Text, integer, validFields } from './value-validation.js';
 export const actions = Object.freeze(['upload', 'inspect', 'recover-certificate', 'cancel']);
 
 /** Local worker refusal; it never establishes completion or retry authority. */

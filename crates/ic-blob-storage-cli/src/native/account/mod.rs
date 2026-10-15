@@ -6,7 +6,6 @@ use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::account::AccountInspectionResponse;
 use ic_blob_storage_contracts::dto::account::AccountObservation as Observation;
 use serde_json::{Value, json};
-use std::time::Duration;
 
 pub(super) fn kind(value: &str) -> Result<Kind, Failure> {
     match value {
@@ -57,18 +56,13 @@ pub(super) async fn run(
 ) -> Result<Value, Failure> {
     let agent = agent(options)?;
     let argument = candid::encode_one(request).map_err(|_| Failure::Arguments)?;
-    // call_and_wait submits once, then only inspects that exact request ID.
-    // The configured agent disables TCP retries; the outer deadline bounds waiting.
-    let bytes = tokio::time::timeout(
-        Duration::from_secs(30),
-        agent
-            .update(&request.scope.service, "blob_inspect_account")
-            .with_arg(argument)
-            .call_and_wait(),
+    let bytes = super::inspection_update(
+        &agent,
+        request.scope.service,
+        "blob_inspect_account",
+        argument,
     )
-    .await
-    .map_err(|_| Failure::Timeout)?
-    .map_err(|_| Failure::Transport)?;
+    .await?;
     let response = decode(request, &bytes)?;
     Ok(output(&response, options))
 }

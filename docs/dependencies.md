@@ -14,11 +14,11 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.41.0 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.11.0 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.46.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
-| IC Host artifacts/fs/process/tools (direct) | 0.19.0 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.6.1 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
+| IC Memory | 0.42.0 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.11.1 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.47.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Host artifacts/fs/process/tools (direct) | 0.20.1 | Native artifacts, filesystem and test/tool boundaries |
+| IC Build | 0.7.0 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -59,8 +59,12 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Testkit 0.46 and direct Blob callers share Host 0.19 in the application lock.
-Its separately installed CLI uses the published packaged lock; explicitly run
+Direct Blob callers, Testkit 0.47 and IC Build 0.7 share the selected Host 0.20.1
+family. The older Host 0.19 graph is absent from this application lockfile.
+IC Build 0.7 and the opt-in archive verifier share Host process 0.20 types,
+including typed execution-status handling. The verifier uses the ordinary
+root Host process dependency; Build remains outside ordinary CLI/library graphs.
+Testkit's separately installed CLI uses the published packaged lock; explicitly run
 `make install-testkit` then `make testkit-check` after changing its selection.
 Changing the application lock alone does not update the installed tool. Earlier
 [issue-repair qualification](evidence/integration0234.md#published-opener-and-native-ci-setup-repair)
@@ -70,6 +74,13 @@ feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
 to `SealedDeclarationSnapshot::new` before the single runtime bootstrap.
 No global registry or constructor is involved.
+
+Descriptor-rooted inventory/journal reads remain a prepared consumer replacement,
+pending publication of
+[Host PR #114 — Root-relative opening](https://github.com/dragginzgame/ic-host-tooling/pull/114).
+The [inspection cleanup receipt](evidence/inspection0290.md) separates ordinary
+registry qualification from the isolated Host-source candidate. Do not copy its
+private dependency overrides or lockfile into normal application setup.
 
 Common tool versions and digests belong to the reviewed snapshot catalogs in
 `ci/tool-versions.env` and `ci/ic-tools.tsv`. Blob has no common-tool exception.
@@ -156,10 +167,10 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.41 requires 1.91 |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.42 requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The selected `ic-memory` 0.41 dependency requires Rust 1.91.0, which is now
+The selected `ic-memory` 0.42 dependency requires Rust 1.91.0, which is now
 the workspace's consumer floor. The harness inherits that same minimum.
 Earlier Rust 1.88 checks remain evidence for their original source and graphs;
 repeat checks with the declared minimum after source or dependency changes
@@ -297,7 +308,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.41 host-wide allocation pool and open
+compose all namespaces in one Memory 0.42 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -321,11 +332,12 @@ Do not add Canic dependencies, wrappers or fixtures here. The
 owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
 links source-bound composition results and remaining owner work.
 
-The current public cut requires the same Memory 0.41 identity in Blob and the
-host. [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77) tracks
-the coherent Blob/contracts publication and Canic root/private-fixture lock
-adoption; local Blob checks do not qualify that consumer. Testkit's native Host
-identity does not replace the application's public Memory identity.
+The pending 0.29.0 public cut requires the same Memory 0.42 identity in Blob
+and the host. [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
+retains the earlier 0.41 acceptance; it does not qualify 0.42. Canic owns fresh
+root/private-fixture lock and adapter qualification for this family. Local Blob
+checks do not qualify that consumer. Testkit's native Host identity does not
+replace the application's public Memory identity.
 
 **Historical 2026-10-14 review:** Canic's released `v0.111.0` points to
 `25b73cd403b20b4e148c6e340f8c760a26d97f6e`. Its catalog requires Blob/contracts
@@ -348,7 +360,7 @@ results are not fresh execution of released Blob 0.23.3.
 For consumer adoption of the current Blob line:
 
 1. Select one coherent published Canic family, matching Blob runtime/contracts and
-   one Memory 0.41 identity. Freeze the application's actual lock and all independent
+   one Memory 0.42 identity. Freeze the application's actual lock and all independent
    fixture locks; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot
    and grant the `blob.` namespace in its allocation pool before bootstrap.

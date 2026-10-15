@@ -104,12 +104,21 @@ fn bounds_input_and_rejects_unknown_or_duplicate_json_fields() {
         parse(&vec![b' '; usize::try_from(MAX_BYTES).unwrap() + 1]),
         Err(Failure::InvalidRequest)
     ));
-    let mut value = encoded();
-    value["unexpected"] = json!(true);
-    assert!(matches!(
-        parse(&serde_json::to_vec(&value).unwrap()),
-        Err(Failure::InvalidRequest)
-    ));
+    for pointer in [
+        "",
+        "/totals",
+        "/assets/0",
+        "/blobs/0",
+        "/blobs/0/claim",
+        "/blobs/0/claim/headers/0",
+    ] {
+        let mut value = encoded();
+        value.pointer_mut(pointer).unwrap()["unexpected"] = json!(true);
+        assert!(matches!(
+            parse(&serde_json::to_vec(&value).unwrap()),
+            Err(Failure::InvalidRequest)
+        ));
+    }
     let text = serde_json::to_string(&encoded()).unwrap().replacen(
         "\"assets\":1",
         "\"assets\":1,\"assets\":1",

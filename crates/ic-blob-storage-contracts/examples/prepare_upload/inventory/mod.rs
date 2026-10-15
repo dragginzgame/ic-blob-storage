@@ -16,11 +16,13 @@ use super::prepare;
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::verification::ContentVerifier;
+use ic_blob_storage_contracts::upload::inventory::{
+    InventoryReport, InventoryTotals, PreparedAsset,
+};
 use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
 use ic_host_artifacts::artifact::ArtifactError;
 use ic_host_artifacts::artifact::read_reader;
 use serde::Deserialize;
-use serde::Serialize;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::fs::File;
@@ -58,30 +60,6 @@ struct InventoryFile {
     asset: String,
     source: PathBuf,
     declaration: Declaration,
-}
-
-#[derive(Debug, Serialize)]
-pub(super) struct InventoryReport {
-    totals: InventoryTotals,
-    assets: Vec<PreparedAsset>,
-    blobs: Vec<PreparedUpload>,
-}
-
-#[derive(Debug, Serialize)]
-struct InventoryTotals {
-    assets: usize,
-    source_bytes: u64,
-    source_chunks: u64,
-    distinct_blobs: usize,
-    distinct_bytes: u64,
-    distinct_chunks: u64,
-}
-
-#[derive(Debug, Serialize)]
-struct PreparedAsset {
-    asset: String,
-    source: PathBuf,
-    root: String,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

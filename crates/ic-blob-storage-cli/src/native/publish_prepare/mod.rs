@@ -165,18 +165,7 @@ pub(in crate::native) async fn run_selected(
             scope,
             std::slice::from_ref(file),
             &run,
-            |method, args| {
-                let agent = &agent;
-                async move {
-                    tokio::time::timeout(
-                        Duration::from_secs(30),
-                        agent.query(&scope.service, method).with_arg(args).call(),
-                    )
-                    .await
-                    .map_err(|_| Failure::Timeout)?
-                    .map_err(|_| Failure::Transport)
-                }
-            },
+            |method, args| super::query::with_agent(&agent, scope.service, method, args),
         )
         .await?;
         run.json("preflight.json", &report.report)?;

@@ -1,5 +1,5 @@
-import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration,
-  integer, validFields } from './validation.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration } from './validation.js';
+import { integer, validFields } from './value-validation.js';
 
 import { IntentRefusal, require, equal, bound, claimGateway, observeGateway } from './intent-state.js';
 export { IntentRefusal } from './intent-state.js';

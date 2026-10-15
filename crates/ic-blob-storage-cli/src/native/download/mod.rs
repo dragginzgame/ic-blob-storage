@@ -22,7 +22,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
 use ic_blob_storage_contracts::provider::download::request_target;
 use serde_json::{Value, json};
-use std::{num::NonZeroU64, path::PathBuf, time::Duration};
+use std::{num::NonZeroU64, path::PathBuf};
 use url::Url;
 #[cfg(test)]
 mod tests;
@@ -123,16 +123,7 @@ async fn capture(
     run: &Run,
 ) -> Result<Value, Failure> {
     let agent = agent(options)?;
-    let bytes = tokio::time::timeout(
-        Duration::from_secs(30),
-        agent
-            .update(&input.service, DOWNLOAD_METHOD)
-            .with_arg(argument)
-            .call_and_wait(),
-    )
-    .await
-    .map_err(|_| Failure::Timeout)?
-    .map_err(|_| Failure::Transport)?;
+    let bytes = super::inspection_update(&agent, input.service, DOWNLOAD_METHOD, argument).await?;
     if bytes.len() > 4096 {
         return Err(Failure::ReplyTooLarge);
     }

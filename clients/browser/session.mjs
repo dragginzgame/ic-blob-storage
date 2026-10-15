@@ -1,19 +1,18 @@
 // Native owns phase decisions. This bounded loop owns no durable state or retries.
 import { isAbsolute } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
+import { integer, validFields } from './value-validation.js';
 
 export async function driveSession({ ready, phase, finish, execute, refuse, signal }) {
   const require = condition => { if (!condition) refuse('native-control'); };
-  const integer = (value, maximum) => Number.isSafeInteger(value) && value >= 0 && value <= maximum;
-  const exact = (value, fields) => value && Object.getPrototypeOf(value) === Object.prototype &&
-    Object.keys(value).length === fields.length && fields.every(field => Object.hasOwn(value, field));
+  const exact = (value, fields) => validFields(value, fields) && Object.keys(value).length === fields.length;
   function frame(value) {
     const shapes = { status: ['phase', 'index'], prepare: ['phase', 'index', 'source_run'],
       transfer: ['phase', 'index', 'source_transfer'], verify: ['phase', 'index', 'source_observation'], map: ['phase'] };
     require(typeof value?.phase === 'string' && Object.hasOwn(shapes, value.phase));
     const fields = shapes[value.phase];
     require(exact(value, fields));
-    if (value.phase !== 'map') require(integer(value.index, ready.files - 1));
+    if (value.phase !== 'map') require(integer(value.index, 0, ready.files - 1));
     for (const field of fields.filter(field => field.startsWith('source_'))) {
       require(value[field] === null || (typeof value[field] === 'string' && isAbsolute(value[field])));
     }
@@ -60,7 +59,7 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
     const event = await response(() => phase(structuredClone(selected), signal));
     require(exact(event, ['schema', 'event', 'step', 'next_index', 'report', 'next_frame']) &&
       event.schema === 1 && event.event === 'phase' && event.step === step &&
-      integer(event.next_index, ready.files) && event.report &&
+      integer(event.next_index, 0, ready.files) && event.report &&
       Object.getPrototypeOf(event.report) === Object.prototype);
     const next = event.next_frame === null ? null : frame(event.next_frame);
     if (selected.phase === 'transfer' && event.report.operation === 'publish_session_transfer') {

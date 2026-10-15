@@ -46,16 +46,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     )?;
     let result = tokio::time::timeout(Duration::from_secs(input.timeout_seconds), async {
         observation::inspect(scope, &batch.files, &run, |method, args| {
-            let agent = &agent;
-            async move {
-                tokio::time::timeout(
-                    Duration::from_secs(30),
-                    agent.query(&scope.service, method).with_arg(args).call(),
-                )
-                .await
-                .map_err(|_| Failure::Timeout)?
-                .map_err(|_| Failure::Transport)
-            }
+            super::query::with_agent(&agent, scope.service, method, args)
         })
         .await
     })

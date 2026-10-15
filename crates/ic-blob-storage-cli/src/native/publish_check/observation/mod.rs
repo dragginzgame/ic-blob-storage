@@ -1,8 +1,7 @@
 //! Strict reply correlation and conservative planning over sequential observations.
 use super::{Failure, Run};
-use crate::native::exact_candid;
 use crate::native::publish_inputs::FrozenFile;
-use candid::{CandidType, Deserialize, Principal, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
@@ -49,77 +48,51 @@ pub(in crate::native) fn scope(
         tenant: actor,
     })
 }
-fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: &[u8]) -> Result<T, Failure> {
-    if bytes.len() > 4096 {
-        return Err(Failure::ReplyTooLarge);
-    }
-    let config = exact_candid::limits(100_000, 1000, 64, Some(4096));
-    decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
-}
 pub(in crate::native) fn capacity(
     scope: TenantScope,
     bytes: &[u8],
 ) -> Result<UploadCapacityResponse, Failure> {
-    let r: Result<UploadCapacityResponse, UploadCapacityFailure> = decode(bytes)?;
-    let r = r.map_err(|e| match e {
-        UploadCapacityFailure::Binding => Failure::Binding,
-        UploadCapacityFailure::Denied => Failure::Denied,
-        UploadCapacityFailure::NotEnrolled => Failure::NotEnrolled,
-        UploadCapacityFailure::Invalid => Failure::ServiceInvalid,
-        UploadCapacityFailure::Internal => Failure::ServiceInternal,
-    })?;
-    if r.scope != scope {
-        return Err(Failure::Binding);
-    }
-    if r.enrollment.generation == 0
-        || r.max_object_bytes == 0
-        || r.max_headers == 0
-        || r.max_header_bytes == 0
-    {
-        return Err(Failure::InvalidReply);
-    }
-    if r.remaining_bytes
-        != r.remaining_logical_bytes
-            .min(r.remaining_physical_bytes)
-            .min(r.remaining_liability_bytes)
-    {
-        return Err(Failure::InvalidReply);
-    }
-    Ok(r)
+    use ic_blob_storage_contracts::upload::capacity::reply::{
+        UploadCapacityReplyError as E, decode,
+    };
+    decode(scope, bytes, 4096.try_into().expect("positive reply bound")).map_err(
+        |error| match error {
+            E::Limit => Failure::ReplyTooLarge,
+            E::Invalid => Failure::InvalidReply,
+            E::Binding => Failure::Binding,
+            E::Remote(error) => match error {
+                UploadCapacityFailure::Binding => Failure::Binding,
+                UploadCapacityFailure::Denied => Failure::Denied,
+                UploadCapacityFailure::NotEnrolled => Failure::NotEnrolled,
+                UploadCapacityFailure::Invalid => Failure::ServiceInvalid,
+                UploadCapacityFailure::Internal => Failure::ServiceInternal,
+            },
+        },
+    )
 }
 fn discovery(
     request: UploadDiscoveryRequest,
     bytes: &[u8],
 ) -> Result<UploadDiscoveryResponse, Failure> {
-    let r: Result<UploadDiscoveryResponse, UploadDiscoveryFailure> = decode(bytes)?;
-    let r = r.map_err(|e| match e {
-        UploadDiscoveryFailure::Binding => Failure::Binding,
-        UploadDiscoveryFailure::Denied => Failure::Denied,
-        UploadDiscoveryFailure::Invalid => Failure::ServiceInvalid,
-        UploadDiscoveryFailure::Internal => Failure::ServiceInternal,
-    })?;
-    if r.request != request {
-        return Err(Failure::Binding);
-    }
-    if let Some(c) = r.content {
-        let u = c.request;
-        if u.service != request.scope.service
-            || u.namespace != request.scope.namespace
-            || u.tenant != request.scope.tenant
-            || u.root != request.root
-        {
-            return Err(Failure::Binding);
-        }
-        if u.upload == 0
-            || u.object == 0
-            || u.incarnation == 0
-            || u.first_reference == 0
-            || u.bytes == 0
-        {
-            return Err(Failure::InvalidReply);
-        }
-    }
-    Ok(r)
+    use ic_blob_storage_contracts::upload::discovery::reply::{
+        UploadDiscoveryReplyError as E, decode,
+    };
+    decode(
+        request,
+        bytes,
+        4096.try_into().expect("positive reply bound"),
+    )
+    .map_err(|error| match error {
+        E::Limit => Failure::ReplyTooLarge,
+        E::Invalid | E::Content => Failure::InvalidReply,
+        E::Binding => Failure::Binding,
+        E::Remote(error) => match error {
+            UploadDiscoveryFailure::Binding => Failure::Binding,
+            UploadDiscoveryFailure::Denied => Failure::Denied,
+            UploadDiscoveryFailure::Invalid => Failure::ServiceInvalid,
+            UploadDiscoveryFailure::Internal => Failure::ServiceInternal,
+        },
+    })
 }
 pub(in crate::native) async fn observe<Q, F>(
     run: &Run,

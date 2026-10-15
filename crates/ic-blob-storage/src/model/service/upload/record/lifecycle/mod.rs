@@ -7,12 +7,15 @@ use crate::model::lifecycle::ReferenceState;
 use crate::model::lifecycle::requests::ReferenceRequestError;
 use crate::model::lifecycle::requests::admit_receipt;
 use crate::model::lifecycle::transition::ReferenceStateView;
-use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
-use ic_memory::ic_stable_structures::{Storable, storable::Bound};
+#[cfg(test)]
+use ic_memory::ic_stable_structures::Storable;
+use ic_memory::ic_stable_structures::storable::Bound;
+#[cfg(test)]
 use std::borrow::Cow;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]

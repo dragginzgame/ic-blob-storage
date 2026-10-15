@@ -1,10 +1,8 @@
 //! Bounded v1 registry snapshot, preserving sync identity without granting freshness.
 use super::{GatewayRegistry, GatewayScope, GatewaySyncToken};
 use crate::model::gateway::membership::GatewayMembership;
-use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
-use ic_memory::ic_stable_structures::{Storable, storable::Bound};
-use std::borrow::Cow;
 
 pub(crate) use ic_blob_storage_contracts::configuration::envelope::MAX_GATEWAY_MEMBERS as MAX_MEMBERS;
 const MAX_BYTES: u32 = 65_536;
@@ -81,34 +79,10 @@ impl GatewayRegistryRecord {
         })
     }
 }
-impl Storable for GatewayRegistryRecord {
-    fn to_bytes(&self) -> Cow<'_, [u8]> {
-        Cow::Owned(self.clone().into_bytes())
-    }
-    fn into_bytes(self) -> Vec<u8> {
-        let bytes = candid::encode_one(self).expect("bounded gateway registry encoding");
-        assert!(
-            bytes.len() <= MAX_BYTES as usize,
-            "gateway record byte bound"
-        );
-        bytes
-    }
-    fn from_bytes(bytes: Cow<'_, [u8]>) -> Self {
-        assert!(
-            bytes.len() <= MAX_BYTES as usize,
-            "gateway record byte bound"
-        );
-        let mut config = DecoderConfig::new();
-        config
-            .set_decoding_quota(500_000)
-            .set_skipping_quota(1000)
-            .set_max_type_len(32)
-            .set_max_header_len(MAX_BYTES as usize)
-            .set_full_error_message(false);
-        decode_one_with_config(&bytes, &config).expect("valid same-release gateway record")
-    }
-    const BOUND: Bound = Bound::Bounded {
-        max_size: MAX_BYTES,
-        is_fixed_size: false,
-    };
-}
+crate::model::record_codec::storable!(
+    GatewayRegistryRecord, bytes: MAX_BYTES, work: 500_000, skipping: 1000,
+    types: 32, header: MAX_BYTES,
+    layout: ic_memory::ic_stable_structures::storable::Bound::Bounded {
+        max_size: MAX_BYTES, is_fixed_size: false,
+    },
+);

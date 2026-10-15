@@ -7,6 +7,8 @@ use ic_agent::{
 };
 use ic_blob_storage_contracts::identity::ContentDigest;
 use serde::Serialize;
+pub(super) mod record;
+use record::{DispatchIntentRecord, SignedDispatchRecord};
 use std::{path::Path, time::Duration};
 
 #[cfg(test)]
@@ -34,27 +36,6 @@ pub(super) fn outcome<T>(
             }
         }
     }
-}
-
-/// Facts derived by the owner that signs and dispatches the retained packet.
-#[derive(Serialize)]
-struct SignedDispatchRecord {
-    request_id: String,
-    ingress_expiry_ns: String,
-    signed_request_sha256: String,
-    root_key_sha256: String,
-    max_update_requests: u8,
-    request_deadline_seconds: u8,
-    retry_authorized: bool,
-}
-
-/// Preserve the flat intent schema alongside operation-owned authority evidence.
-#[derive(Serialize)]
-struct DispatchIntentRecord<R> {
-    #[serde(flatten)]
-    signed: SignedDispatchRecord,
-    #[serde(flatten)]
-    operation: R,
 }
 
 /// The operation owns its authority, request name, intent fields and reply decoder.

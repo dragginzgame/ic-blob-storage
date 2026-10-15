@@ -9,9 +9,9 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHashError;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
+use ic_blob_storage_contracts::upload::inventory::DownloadClaim;
 use ic_host_artifacts::artifact::ArtifactError;
 use ic_host_artifacts::artifact::read_reader;
-use serde::Deserialize;
 use std::error::Error;
 use std::fs::File;
 use std::io;
@@ -24,14 +24,6 @@ use thiserror::Error;
 const FRAME: usize = 65_536;
 const CLAIM_BYTES: usize = 16_384;
 
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct DownloadClaim {
-    root: String,
-    bytes: u64,
-    headers: Vec<Header>,
-}
-
 fn read_claim(reader: impl Read) -> Result<DownloadClaim, Box<dyn Error>> {
     let encoded = read_reader(reader, CLAIM_BYTES).map_err(|error| -> Box<dyn Error> {
         match error {
@@ -42,13 +34,6 @@ fn read_claim(reader: impl Read) -> Result<DownloadClaim, Box<dyn Error>> {
         }
     })?;
     Ok(serde_json::from_slice(&encoded)?)
-}
-
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-struct Header {
-    name: String,
-    value: String,
 }
 
 #[derive(Debug, Error)]

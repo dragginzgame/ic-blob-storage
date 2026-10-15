@@ -1,21 +1,6 @@
 import { Principal } from '@icp-sdk/core/principal';
 import { validNamespace } from './namespace.js';
-
-const utf8 = new TextEncoder();
-
-export const integer = (value, min, max) => Number.isSafeInteger(value) && value >= min && value <= max;
-
-export function validFields(value, required, optional = []) {
-  return !!value && Object.getPrototypeOf(value) === Object.prototype &&
-    required.every(key => Object.hasOwn(value, key)) &&
-    Object.keys(value).every(key => required.includes(key) || optional.includes(key));
-}
-
-// String length bounds the encoding allocation first; UTF-8 bytes own the limit.
-export function validUtf8Text(value, maximum, minimum = 0) {
-  return typeof value === 'string' && value.length >= minimum &&
-    value.length <= maximum && utf8.encode(value).length <= maximum;
-}
+import { integer } from './value-validation.js';
 
 // Representation rules only. Callers retain their own roles, trust roots,
 // transport restrictions, snapshots and durable transaction boundaries.
@@ -42,14 +27,13 @@ export function certificateBindingFailure(value) {
 }
 
 export function validGatewayLimits({ maxRequests, maxRequestBytes, maxTotalRequestBytes }) {
-  return Number.isSafeInteger(maxRequests) && maxRequests >= 1 && maxRequests <= 256 &&
-    Number.isSafeInteger(maxRequestBytes) && maxRequestBytes >= 1 && maxRequestBytes <= 2 * 1024 * 1024 &&
-    Number.isSafeInteger(maxTotalRequestBytes) && maxTotalRequestBytes >= 1 &&
-    maxTotalRequestBytes <= maxRequests * maxRequestBytes;
+  return integer(maxRequests, 1, 256) &&
+    integer(maxRequestBytes, 1, 2 * 1024 * 1024) &&
+    integer(maxTotalRequestBytes, 1, maxRequests * maxRequestBytes);
 }
 
 export function validJournalConfiguration({ database, maxSlots, mode }) {
   return typeof database === 'string' && database.length > 0 && database.length <= 128 &&
-    Number.isSafeInteger(maxSlots) && maxSlots >= 1 && maxSlots <= 1_000_000 &&
+    integer(maxSlots, 1, 1_000_000) &&
     ['create', 'open'].includes(mode);
 }

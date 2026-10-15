@@ -1,7 +1,7 @@
 use crate::operator::{
     Failure,
     model::{canister, decimal},
-    ops::QueryTarget,
+    transport::QueryTarget,
 };
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use std::{collections::BTreeMap, net::SocketAddr, path::PathBuf};

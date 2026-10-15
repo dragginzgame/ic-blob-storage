@@ -4,10 +4,7 @@ use super::{
     input::{Inventory, PreparedBlob},
     selection::Selection,
 };
-use crate::operator::{
-    Failure,
-    ops::{Report, query_target},
-};
+use crate::operator::{Failure, ops::Report, transport::query_target};
 use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
@@ -41,36 +38,26 @@ fn decode_result<
     decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
 }
 fn decode_capacity(scope: TenantScope, bytes: &[u8]) -> Result<UploadCapacityResponse, Failure> {
-    let capacity = decode_result::<UploadCapacityResponse, UploadCapacityFailure>(bytes)?.map_err(
+    use ic_blob_storage_contracts::upload::capacity::reply::{
+        UploadCapacityReplyError as E, decode,
+    };
+    decode(scope, bytes, 4096.try_into().expect("positive reply bound")).map_err(
         |error| match error {
-            UploadCapacityFailure::Binding => Failure::Binding,
-            UploadCapacityFailure::Denied | UploadCapacityFailure::NotEnrolled => Failure::Denied,
-            UploadCapacityFailure::Invalid | UploadCapacityFailure::Internal => {
-                Failure::InvalidReply
-            }
+            E::Limit => Failure::ReplyTooLarge,
+            E::Invalid => Failure::InvalidReply,
+            E::Binding => Failure::Binding,
+            E::Remote(error) => match error {
+                UploadCapacityFailure::Binding => Failure::Binding,
+                UploadCapacityFailure::Denied | UploadCapacityFailure::NotEnrolled => {
+                    Failure::Denied
+                }
+                UploadCapacityFailure::Invalid | UploadCapacityFailure::Internal => {
+                    Failure::InvalidReply
+                }
+            },
         },
-    )?;
-    if capacity.scope != scope {
-        return Err(Failure::Binding);
-    }
-    if capacity.enrollment.generation == 0
-        || capacity.max_object_bytes == 0
-        || capacity.max_headers == 0
-        || capacity.max_header_bytes == 0
-    {
-        return Err(Failure::InvalidReply);
-    }
-    if capacity.remaining_bytes
-        != capacity
-            .remaining_logical_bytes
-            .min(capacity.remaining_physical_bytes)
-            .min(capacity.remaining_liability_bytes)
-    {
-        return Err(Failure::InvalidReply);
-    }
-    Ok(capacity)
+    )
 }
-
 pub(super) fn query(selection: &Selection, inventory: &Inventory) -> Result<Report, Failure> {
     inspect(selection, inventory, |method, args| {
         query_target(&selection.target, method, args)
@@ -189,7 +176,9 @@ fn existing(
     content: UploadHistoryEntry,
     query: &mut impl FnMut(&str, Vec<u8>) -> Result<Vec<u8>, Failure>,
 ) -> Result<(Value, Option<&'static str>), Failure> {
-    check_binding(selection, blob, content)?;
+    if content.request.bytes != blob.bytes {
+        return Err(Failure::Binding);
+    }
     let mut entry = json!({"state":format!("{:?}",content.state),
         "original_operation":content.request.upload.to_string(),
         "original_object":content.request.object.to_string(),
@@ -248,43 +237,34 @@ fn existing(
     Ok((entry, blocker))
 }
 
-fn check_binding(
-    selection: &Selection,
-    blob: &PreparedBlob,
-    content: UploadHistoryEntry,
-) -> Result<(), Failure> {
-    let request = content.request;
-    if request.service != selection.scope.service
-        || request.tenant != selection.scope.tenant
-        || request.namespace != selection.scope.namespace
-        || request.root != *blob.root.as_bytes()
-        || request.bytes != blob.bytes
-        || request.upload == 0
-        || request.object == 0
-        || request.incarnation == 0
-        || request.first_reference == 0
-    {
-        return Err(Failure::Binding);
-    }
-    Ok(())
-}
-
 fn discover(
     request: UploadDiscoveryRequest,
     query: &mut impl FnMut(&str, Vec<u8>) -> Result<Vec<u8>, Failure>,
 ) -> Result<UploadDiscoveryResponse, Failure> {
-    let response: UploadDiscoveryResponse = decode_result::<_, UploadDiscoveryFailure>(&query(
+    use ic_blob_storage_contracts::upload::discovery::reply::{
+        UploadDiscoveryReplyError as E, decode,
+    };
+    let bytes = query(
         "blob_lookup_content",
         candid::encode_one(request).expect("content scope"),
-    )?)?
+    )?;
+    let response = decode(
+        request,
+        &bytes,
+        4096.try_into().expect("positive reply bound"),
+    )
     .map_err(|error| match error {
-        UploadDiscoveryFailure::Binding => Failure::Binding,
-        UploadDiscoveryFailure::Denied => Failure::Denied,
-        UploadDiscoveryFailure::Invalid | UploadDiscoveryFailure::Internal => Failure::InvalidReply,
+        E::Limit => Failure::ReplyTooLarge,
+        E::Invalid => Failure::InvalidReply,
+        E::Binding | E::Content => Failure::Binding,
+        E::Remote(error) => match error {
+            UploadDiscoveryFailure::Binding => Failure::Binding,
+            UploadDiscoveryFailure::Denied => Failure::Denied,
+            UploadDiscoveryFailure::Invalid | UploadDiscoveryFailure::Internal => {
+                Failure::InvalidReply
+            }
+        },
     })?;
-    if response.request != request {
-        return Err(Failure::Binding);
-    }
     Ok(response)
 }
 

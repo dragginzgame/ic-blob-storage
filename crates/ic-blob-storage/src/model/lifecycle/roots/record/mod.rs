@@ -1,10 +1,11 @@
 //! Bounded stable root claims and reverse keys, independent of host memory IDs.
 use super::ObjectBinding;
-use candid::{CandidType, Deserialize, Principal, de::DecoderConfig, decode_one_with_config};
+use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
-use ic_memory::ic_stable_structures::{Storable, storable::Bound};
-use std::{borrow::Cow, num::NonZeroU128};
+#[cfg(test)]
+use ic_memory::ic_stable_structures::Storable;
+use std::num::NonZeroU128;
 
 /// All non-service object identity fields; service is fixed by store metadata.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, CandidType, Deserialize)]
@@ -74,31 +75,10 @@ pub(crate) enum RootClaimRecord {
 // Candid decoding; never store unbounded maps or serialize an entire owner.
 macro_rules! bounded_record {
     ($record:ty, $bound:expr) => {
-        impl Storable for $record {
-            fn to_bytes(&self) -> Cow<'_, [u8]> {
-                let bytes = candid::encode_one(self).expect("root record encoding");
-                assert!(bytes.len() <= $bound, "root record byte bound");
-                Cow::Owned(bytes)
-            }
-            fn into_bytes(self) -> Vec<u8> {
-                self.to_bytes().into_owned()
-            }
-            fn from_bytes(bytes: Cow<'_, [u8]>) -> Self {
-                assert!(bytes.len() <= $bound, "root record byte bound");
-                let mut config = DecoderConfig::new();
-                config
-                    .set_decoding_quota(20_000)
-                    .set_skipping_quota(1000)
-                    .set_max_type_len(32)
-                    .set_max_header_len($bound)
-                    .set_full_error_message(false);
-                decode_one_with_config(&bytes, &config).expect("same-release root record")
-            }
-            const BOUND: Bound = Bound::Bounded {
-                max_size: $bound,
-                is_fixed_size: false,
-            };
-        }
+        crate::model::record_codec::storable!(
+            $record, bytes: $bound, work: 20_000, skipping: 1000,
+            types: 32, header: $bound, layout: ic_memory::ic_stable_structures::storable::Bound::Bounded { max_size: $bound as u32, is_fixed_size: false },
+        );
     };
 }
 bounded_record!(RootObjectKeyRecord, 256);

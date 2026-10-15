@@ -5,16 +5,14 @@ import { createHash } from 'node:crypto';
 import { isAbsolute, join, dirname, basename } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { driveSession } from './session.mjs';
+import { integer, validFields } from './value-validation.js';
 
 /** Finite process-bridge refusal; never includes keys, paths or remote errors. */
 export class LauncherRefusal extends Error {
   constructor(code) { super(code); this.name = 'LauncherRefusal'; this.code = code; }
 }
 const require = (condition, code) => { if (!condition) throw new LauncherRefusal(code); };
-const exact = (value, keys, optional = []) => require(value &&
-  Object.getPrototypeOf(value) === Object.prototype && keys.every(key => Object.hasOwn(value, key)) &&
-  Object.keys(value).every(key => [...keys, ...optional].includes(key)), 'configuration');
-const integer = (value, maximum) => Number.isSafeInteger(value) && value > 0 && value <= maximum;
+const exact = (value, keys, optional = []) => require(validFields(value, keys, optional), 'configuration');
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const nativeIntentFields = ['format', 'source_session', 'browser', 'operation', 'network', 'service_url',
   'service', 'namespace', 'tenant', 'uploader', 'operator', 'verifier', 'gateway',
@@ -28,8 +26,8 @@ function nativeReady(ready, intent) {
   require(ready.schema === 1 && ready.operation === 'publish_session' && ready.event === 'ready' &&
     ready.retry_authorized === false && ready.publication_lease === false &&
     ready.provider_requests === 0 && ready.input_verification === 'session_start' &&
-    integer(ready.files, 4096) && ready.files === intent.files &&
-    integer(ready.max_steps, 8 * ready.files + 1) &&
+    integer(ready.files, 1, 4096) && ready.files === intent.files &&
+    integer(ready.max_steps, 1, 8 * ready.files + 1) &&
     ready.inventory_sha256 === intent.inventory_sha256 &&
     ready.installation_sha256 === intent.installation_sha256, 'native-session');
 }
@@ -42,7 +40,7 @@ async function boundedFile(path, maximum, expected) {
   try {
     file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
     const stat = await file.stat();
-    require(stat.isFile() && integer(stat.size, maximum) &&
+    require(stat.isFile() && integer(stat.size, 1, maximum) &&
       (expected === undefined || stat.size === expected), 'body-size');
     const bytes = Buffer.alloc(stat.size);
     let offset = 0;
@@ -62,7 +60,7 @@ async function snapshot(transfer, maximum) {
   exact(transfer, ['binding', 'body', 'body_sha256', 'manifest_json', 'bytes', 'preparation']);
   require(typeof transfer.bytes === 'string' && /^[1-9]\d{0,9}$/.test(transfer.bytes), 'body-size');
   const size = Number(transfer.bytes);
-  require(integer(size, maximum) && typeof transfer.body_sha256 === 'string' &&
+  require(integer(size, 1, maximum) && typeof transfer.body_sha256 === 'string' &&
     /^[0-9a-f]{64}$/.test(transfer.body_sha256), 'body-size');
   require(typeof transfer.manifest_json === 'string' &&
     Buffer.byteLength(transfer.manifest_json) <= 256 * 1024, 'manifest-size');
@@ -204,16 +202,16 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
   catch { throw new LauncherRefusal('configuration'); }
   require(typeof chromium?.launchPersistentContext === 'function' &&
     typeof options.profile === 'string' && isAbsolute(options.profile) &&
-    integer(options.assetPort, 65535), 'configuration');
+    integer(options.assetPort, 1, 65535), 'configuration');
   const rootKey = options.bootstrap?.configuration?.rootKey;
   require((rootKey instanceof Uint8Array || Array.isArray(rootKey)) &&
-    integer(rootKey.length, 1024) && Array.from(rootKey).every(byte =>
+    integer(rootKey.length, 1, 1024) && Array.from(rootKey).every(byte =>
       Number.isInteger(byte) && byte >= 0 && byte <= 255), 'configuration');
   const bootstrap = options.bootstrap;
   bootstrap.configuration.rootKey = Uint8Array.from(rootKey);
   const maximum = bootstrap?.configuration?.maxBodyBytes;
   const seconds = bootstrap?.configuration?.timeoutSeconds;
-  require(integer(maximum, 1024 * 1024 * 1024) && integer(seconds, 3600) &&
+  require(integer(maximum, 1, 1024 * 1024 * 1024) && integer(seconds, 1, 3600) &&
     ['create', 'open'].includes(bootstrap?.journal?.mode), 'configuration');
   // These bounds cover executable assets, not a second credential/config route.
   const hostBundle = await boundedFile(options.hostBundle, 16 * 1024 * 1024);
@@ -274,7 +272,7 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
   }
   async function execute(request) {
     request = structuredClone(request);
-    if (integer(request?.id, 1_000_000)) lastId = Math.max(lastId, request.id);
+    if (integer(request?.id, 1, 1_000_000)) lastId = Math.max(lastId, request.id);
     if (request?.action === 'transfer') request = await nativeTransfer(native, request);
     else if (native && request?.action === 'upload') throw new LauncherRefusal('native-phase');
     let job;

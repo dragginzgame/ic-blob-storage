@@ -4,15 +4,16 @@ use super::{
     ReadSessionIntent, ReadSessionLimits, ReadSessionTicket, ReadSessionUsage, ReadTarget,
     UploadContext,
 };
-use candid::{DecoderConfig, Principal, decode_one_with_config};
+use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_memory::ic_stable_structures::{Storable, storable::Bound};
-use std::{borrow::Cow, num::NonZeroU128};
+#[cfg(test)]
+use ic_memory::ic_stable_structures::Storable;
+use std::num::NonZeroU128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub(crate) struct ReadUsageRecord {
@@ -213,32 +214,11 @@ impl ReadSessionRecord {
     }
 }
 macro_rules! storable {
-    ($ty:ty, $max:expr) => {
-        impl Storable for $ty {
-            fn to_bytes(&self) -> Cow<'_, [u8]> {
-                Cow::Owned(self.clone().into_bytes())
-            }
-            fn into_bytes(self) -> Vec<u8> {
-                let bytes = candid::encode_one(self).expect("read record encoding");
-                assert!(bytes.len() <= $max, "read record bound");
-                bytes
-            }
-            fn from_bytes(bytes: Cow<'_, [u8]>) -> Self {
-                assert!(bytes.len() <= $max, "read record bound");
-                let mut config = DecoderConfig::new();
-                config
-                    .set_decoding_quota(100_000)
-                    .set_skipping_quota(1000)
-                    .set_max_type_len(32)
-                    .set_max_header_len($max)
-                    .set_full_error_message(false);
-                decode_one_with_config(&bytes, &config).expect("valid same-release read record")
-            }
-            const BOUND: Bound = Bound::Bounded {
-                max_size: $max as u32,
-                is_fixed_size: false,
-            };
-        }
+    ($record:ty, $max:expr) => {
+        crate::model::record_codec::storable!(
+            $record, bytes: $max, work: 100_000, skipping: 1000,
+            types: 32, header: $max, layout: ic_memory::ic_stable_structures::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
+        );
     };
 }
 storable!(ReadJournalRecord, 4096);

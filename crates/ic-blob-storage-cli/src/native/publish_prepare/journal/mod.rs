@@ -76,8 +76,6 @@ pub(super) fn validate_attempt(
 ) -> Result<(), Failure> {
     let prefix = name(kind);
     let packet = |name: &str, maximum| read_at(origin, &format!("{prefix}/{name}"), maximum);
-    let intent: Value =
-        serde_json::from_slice(&packet("intent.json", 16384)?).map_err(|_| Failure::Arguments)?;
     let (permission, manifest) = selected.setup_requests();
     let request = if kind == upload_setup::Kind::Admit {
         permission
@@ -90,18 +88,24 @@ pub(super) fn validate_attempt(
     } else {
         selected.permission.uploader
     };
+    let intent: Value = crate::native::signed_update::record::inspect(
+        &packet("intent.json", 16384)?,
+        signed,
+        actor,
+        selected.permission.upload.service,
+        kind.method(),
+        request,
+        &crate::native::agent(options)?.read_root_key(),
+    )?;
     let packets_match = packet("request.candid", 65536)? == request
         && packet("permission.candid", 4096)? == permission
-        && intent["request_sha256"] == ContentDigest::compute(request).to_string()
-        && intent["signed_request_sha256"] == ContentDigest::compute(&signed).to_string();
+        && intent["request_sha256"] == ContentDigest::compute(request).to_string();
     let role_and_scope_match = intent["actor"] == actor.to_text()
         && intent["service"] == selected.permission.upload.service.to_text()
         && intent["namespace"] == selected.permission.upload.namespace.to_string()
         && intent["permission"] == upload_setup::permission_json(selected.permission);
-    let transport_matches = intent["network"] == options.network
-        && intent["service_url"] == options.url.as_str()
-        && intent["root_key_sha256"]
-            == ContentDigest::compute(&crate::native::agent(options)?.read_root_key()).to_string();
+    let transport_matches =
+        intent["network"] == options.network && intent["service_url"] == options.url.as_str();
     if !packets_match
         || !role_and_scope_match
         || !transport_matches
@@ -110,20 +114,6 @@ pub(super) fn validate_attempt(
     {
         return Err(Failure::Binding);
     }
-    let expiry = intent["ingress_expiry_ns"]
-        .as_str()
-        .ok_or(Failure::Binding)?
-        .parse()
-        .map_err(|_| Failure::Binding)?;
-    ic_agent::agent::signed_update_inspect(
-        actor,
-        selected.permission.upload.service,
-        kind.method(),
-        request,
-        expiry,
-        signed,
-    )
-    .map_err(|_| Failure::Binding)?;
     // The inspected envelope remains historical. It is never sent again, even after expiry.
     Ok(())
 }

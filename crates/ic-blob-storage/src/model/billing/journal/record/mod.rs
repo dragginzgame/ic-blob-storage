@@ -10,12 +10,11 @@ use crate::model::billing::allocation::FundingAllocation;
 use crate::model::billing::allocation::FundingAllocationError;
 use crate::model::billing::allocation::FundingAllocationView;
 use crate::model::billing::allocation::record::FundingAllocationRecord;
-use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
-use ic_memory::ic_stable_structures::{Storable, storable::Bound};
 use response::FundingResponseRecord;
-use std::{borrow::Cow, num::NonZeroU128};
+use std::num::NonZeroU128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 pub(crate) enum FundingPhaseRecord {
@@ -343,31 +342,10 @@ impl FundingAccountingRecord {
 }
 macro_rules! codec {
     ($record:ty, $max:expr) => {
-        impl Storable for $record {
-            fn to_bytes(&self) -> Cow<'_, [u8]> {
-                Cow::Owned(self.into_bytes())
-            }
-            fn into_bytes(self) -> Vec<u8> {
-                let bytes = candid::encode_one(self).expect("funding record encoding");
-                assert!(bytes.len() <= $max, "funding record bound");
-                bytes
-            }
-            fn from_bytes(bytes: Cow<'_, [u8]>) -> Self {
-                assert!(bytes.len() <= $max, "funding record bound");
-                let mut config = DecoderConfig::new();
-                config
-                    .set_decoding_quota(30_000)
-                    .set_skipping_quota(1000)
-                    .set_max_type_len(64)
-                    .set_max_header_len($max)
-                    .set_full_error_message(false);
-                decode_one_with_config(&bytes, &config).expect("valid same-release funding record")
-            }
-            const BOUND: Bound = Bound::Bounded {
-                max_size: $max as u32,
-                is_fixed_size: false,
-            };
-        }
+        crate::model::record_codec::storable!(
+            $record, bytes: $max, work: 30_000, skipping: 1000,
+            types: 64, header: $max, layout: ic_memory::ic_stable_structures::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
+        );
     };
 }
 codec!(FundingIntentRecord, 1024);
