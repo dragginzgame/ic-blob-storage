@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.26.1]
+
+- Include MIT license text in published crates and align package declarations
+  with the repository license.
+
 ## [0.26.0] - 2026-10-15
 
 - **Breaking, pending complete qualification:** incoming selections move public
