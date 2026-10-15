@@ -25,12 +25,12 @@ admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canoni
 committed source; include every directly used helper as an entrypoint. Never patch
 vendored bytes or use mutable sibling tools. See
 [Shared snapshot adoption](consuming-snapshots.md) and
-[the latest qualified adoption](evidence/shared01500270.md).
+[the latest qualified adoption](evidence/shared01500271.md).
 
 Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
-binary. `make install-release-tools` prepares the pinned Cargo-edit executable
-through the shared installer. Release preflight performs that explicit setup;
-`make release-tools-check` verifies it, ShellCheck and the reviewed Cargo sort/rustfmt
+binary. Release preparation uses Shared’s literal manifest renderer; no separate
+Cargo-edit installation is required. `make release-tools-check` verifies
+ShellCheck and the reviewed Cargo sort/rustfmt
 without compilation. Both `fmt` and `fmt-check` use that same offline owner.
 `make install-hooks` activates the reviewed hook; hook and formatting qualification
 remain independent checks. Commands and package/version effects follow
@@ -77,7 +77,7 @@ runs shell/helper checks, hook regressions, manifest/Rust formatting, compilatio
 Clippy, retained-probe checks, docs, native/PocketIC tests, Wasm and packaging.
 Prerequisite or fetch failure stops before compilation or version mutation. Offline
 checks never select newer dependencies. The reviewed `scripts/ci/cargo-release-metadata.sh` owns coordinated Cargo
-version/lock/changelog preparation, using admitted Cargo-edit and Cargo-sort.
+version/lock/changelog preparation with literal manifest rendering.
 Blob keeps source admission, its four-file rollback and receipt generation.
 The helper checks the complete inherited member/lock roster with locked offline
 Cargo metadata; external lock selections stay fixed. A later formatter or receipt

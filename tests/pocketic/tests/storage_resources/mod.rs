@@ -23,8 +23,7 @@ pub(super) fn retain(directory: &Path, name: &str, value: &serde_json::Value) {
 }
 
 pub(super) fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
-    ic_testkit::ic_host_fs::durable::create_new_bytes_with_parents(&directory.join(name), bytes)
-        .unwrap();
+    ic_host_fs::durable::create_new_bytes_with_parents(&directory.join(name), bytes).unwrap();
 }
 
 #[test]

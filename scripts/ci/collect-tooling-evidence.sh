@@ -25,26 +25,16 @@ trap 'status=$?; [[ "$selection_complete" == true || "$status" != 0 ]] || status
       if [[ "$status" == 0 ]]; then rm -rf "$selection";
       else printf "Tooling evidence selection retained: %s\n" "$selection" >&2; fi;
       exit "$status"' EXIT
-# The canonical owner admits shared references and emits their physical payloads.
-# Never traverse arbitrary links or scan unrelated entries in the per-user store.
-bash "$script_dir/select-tool-evidence.sh" full "$repository" "$selection" \
-    > "$selection/inputs.nul" 2> "$selection/selection.log" || status=$?
-# Nonzero admission can still emit safe local inputs. Keep its diagnostics and
-# archive those inputs before returning the incomplete status to the caller.
-while IFS= read -r -d '' selected_root && IFS= read -r -d '' selected_path; do
-    inputs+=("$selected_root" "$selected_path")
-done < "$selection/inputs.nul"
-if [[ "$status" != 0 ]]; then
-    cat "$selection/selection.log" >&2
-    printf '%s\n' "$status" > "$selection/selection-status"
-    inputs+=("$temporary" "${selection#"$temporary/"}")
-fi
 for path in \
     "$repository/.tools/testkit-server" "$repository"/target/release-tests.*; do
     [[ -e "$path" || -L "$path" ]] || continue
     inputs+=("$repository" "${path#"$repository/"}")
 done
-for prefix in blob-format-hooks. formatting-adoption. formatting. blob-evidence-checksums. \
+# shellcheck source=scripts/ci/formatting-evidence.sh
+source "$script_dir/formatting-evidence.sh"
+select_formatting_evidence "$temporary"
+inputs+=(${formatting_evidence[@]+"${formatting_evidence[@]}"})
+for prefix in blob-format-hooks. formatting-adoption. blob-evidence-checksums. \
     nonempty-cargo-test. file-digests. ic-tools-test. pocketic-checks. \
     pocketic-alignment. release-commands. cargo-metadata-test. \
     shared-tooling-snapshot-test. local-lock-test. format-tools-test. \
@@ -58,9 +48,10 @@ for prefix in blob-format-hooks. formatting-adoption. formatting. blob-evidence-
         inputs+=("$temporary" "${path#"$temporary/"}")
     done
 done
-# Match the previous uploader's missing-input behavior without publishing an
-# empty archive or changing the status of the command that originally failed.
-if [[ ${#inputs[@]} == 0 ]]; then selection_complete=true; exit 0; fi
-bash "$script_dir/archive-evidence.sh" "$output" "${inputs[@]}"
+# Shared admits complete store selections and archives safe local references on
+# failure. Blob supplies only its product-owned roots; never admit partial paths.
+bash "$script_dir/collect-tool-evidence.sh" "$output" "$repository" "$selection" \
+    full "$repository/ci/tool-versions.env" "$repository/ci/ic-tools.tsv" \
+    ${inputs[@]+"${inputs[@]}"} || status=$?
 selection_complete=true
 exit "$status"

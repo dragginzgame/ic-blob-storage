@@ -1,5 +1,5 @@
 //! Shared bounded control channel and process ownership for opt-in Chromium cases.
-use ic_testkit::ic_host_process::child::OwnedChild;
+use ic_host_process::child::OwnedChild;
 use std::{
     io::{BufRead, BufReader, Read, Write},
     path::PathBuf,

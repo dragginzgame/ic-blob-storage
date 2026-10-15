@@ -2,8 +2,6 @@
 use super::{Failure, change, execute, options};
 use ic_agent::{Identity, identity::BasicIdentity};
 use std::io;
-use std::io::BufRead;
-use std::io::BufReader;
 use std::io::Read;
 use std::io::Write;
 use std::net::TcpListener;
@@ -11,60 +9,8 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-const MAX_HEADERS: u64 = 16 * 1024;
-const MAX_BODY: u64 = 256 * 1024;
-
-fn line(reader: &mut impl BufRead, remaining: u64) -> io::Result<String> {
-    let mut line = String::new();
-    let length = match reader.take(remaining + 1).read_line(&mut line) {
-        Ok(length) => length,
-        Err(error) if line.is_empty() => return Err(error),
-        Err(_) => return Err(io::ErrorKind::InvalidData.into()),
-    };
-    if length == 0 {
-        return Err(io::ErrorKind::UnexpectedEof.into());
-    }
-    if length as u64 > remaining || !line.ends_with("\r\n") {
-        return Err(io::ErrorKind::InvalidData.into());
-    }
-    Ok(line)
-}
-
-// This fixture accepts only the SDK's bounded, Content-Length-framed requests.
-// Drain the complete service body before responding or closing the connection.
-fn body(reader: &mut impl BufRead, request_line: &str) -> io::Result<()> {
-    let mut remaining = MAX_HEADERS - request_line.len() as u64;
-    let mut length = None;
-    loop {
-        let header = line(reader, remaining)?;
-        remaining -= header.len() as u64;
-        if header == "\r\n" {
-            break;
-        }
-        let (name, value) = header.split_once(':').ok_or(io::ErrorKind::InvalidData)?;
-        if name.eq_ignore_ascii_case("content-length") {
-            if length.is_some() {
-                return Err(io::ErrorKind::InvalidData.into());
-            }
-            length = Some(
-                value
-                    .trim()
-                    .parse::<u64>()
-                    .map_err(|_| io::ErrorKind::InvalidData)?,
-            );
-        }
-        if name.eq_ignore_ascii_case("transfer-encoding") {
-            return Err(io::ErrorKind::InvalidData.into());
-        }
-    }
-    let length = length
-        .filter(|value| *value <= MAX_BODY)
-        .ok_or(io::ErrorKind::InvalidData)?;
-    if io::copy(&mut reader.take(length), &mut io::sink())? != length {
-        return Err(io::ErrorKind::UnexpectedEof.into());
-    }
-    Ok(())
-}
+const MAX_HEADERS: usize = 16 * 1024;
+const MAX_BODY: usize = 256 * 1024;
 
 fn service_operation(line: &str) -> bool {
     line.contains("/query ") || line.contains("/call ")
@@ -85,22 +31,20 @@ fn server(status: u16) -> (String, mpsc::Sender<()>, thread::JoinHandle<Vec<Stri
                 break;
             }
             match listener.accept() {
-                Ok((stream, _)) => {
+                Ok((mut stream, _)) => {
                     connections += 1;
                     assert!(connections <= 16, "bounded fixture connection count");
-                    // Darwin inherits the listener's nonblocking state at accept.
-                    stream.set_nonblocking(false).unwrap();
-                    stream
-                        .set_read_timeout(Some(Duration::from_secs(2)))
-                        .unwrap();
+                    let deadline = std::time::Instant::now() + Duration::from_secs(2);
                     stream
                         .set_write_timeout(Some(Duration::from_secs(2)))
                         .unwrap();
-                    let mut reader = BufReader::new(stream);
-                    let request_line = match line(&mut reader, MAX_HEADERS) {
+                    let line = match ic_testkit::testing::read_http_request_line(
+                        &mut stream,
+                        deadline,
+                        MAX_HEADERS,
+                    ) {
                         Ok(line) => line,
-                        // Once the operation fails, the SDK can cancel a lookup
-                        // before sending its first byte. It is not an HTTP request.
+                        // The SDK can cancel a trust lookup without sending a request.
                         Err(error)
                             if responded
                                 && matches!(
@@ -112,15 +56,35 @@ fn server(status: u16) -> (String, mpsc::Sender<()>, thread::JoinHandle<Vec<Stri
                         }
                         Err(error) => panic!("owned transport request: {error}"),
                     };
+                    let request_line = String::from_utf8(line).unwrap();
                     assert!(request_line.starts_with("POST "));
                     let operation = service_operation(&request_line);
                     if operation {
-                        body(&mut reader, &request_line).expect("complete bounded service request");
+                        let request = ic_testkit::testing::read_http_request_with_line(
+                            &mut stream,
+                            request_line.as_bytes(),
+                            deadline,
+                            MAX_HEADERS,
+                            MAX_BODY,
+                        )
+                        .expect("complete bounded service request");
+                        // Service POSTs require explicit framing; GET-like fixture readers may omit it.
+                        let header_end = request
+                            .windows(4)
+                            .position(|part| part == b"\r\n\r\n")
+                            .unwrap();
+                        let headers = std::str::from_utf8(&request[..header_end]).unwrap();
+                        assert!(
+                            headers
+                                .lines()
+                                .skip(1)
+                                .filter_map(|line| line.split_once(':'))
+                                .any(|(name, _)| name.eq_ignore_ascii_case("content-length"))
+                        );
                         let response = format!(
                             "HTTP/1.1 {status} Backpressure\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
                         );
-                        reader
-                            .get_mut()
+                        stream
                             .write_all(response.as_bytes())
                             .expect("service backpressure response");
                         responded = true;
@@ -129,7 +93,7 @@ fn server(status: u16) -> (String, mpsc::Sender<()>, thread::JoinHandle<Vec<Stri
                         // ic-agent try_join! cancels this concurrent lookup when
                         // the query fails. Hold its socket until shutdown: only
                         // the service's HTTP backpressure may decide this test.
-                        lookups.push(reader);
+                        lookups.push(stream);
                     }
                     requests.push(request_line);
                 }
@@ -223,26 +187,5 @@ fn fixture_drains_fragmented_service_body_while_lookup_is_cancelled() {
             .filter(|line| service_operation(line))
             .count(),
         1
-    );
-}
-
-#[test]
-fn fixture_refuses_oversized_or_truncated_service_frames() {
-    for (frame, expected) in [
-        ("Content-Length: 262145\r\n\r\n", io::ErrorKind::InvalidData),
-        ("Content-Length: 3\r\n\r\nab", io::ErrorKind::UnexpectedEof),
-    ] {
-        assert_eq!(
-            body(&mut frame.as_bytes(), "POST /query HTTP/1.1\r\n")
-                .unwrap_err()
-                .kind(),
-            expected
-        );
-    }
-    assert_eq!(
-        line(&mut "POST /query HTTP/1.1\r\n".as_bytes(), 4)
-            .unwrap_err()
-            .kind(),
-        io::ErrorKind::InvalidData
     );
 }

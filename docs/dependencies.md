@@ -110,10 +110,8 @@ Make prepends `.tools/host/bin`, `.tools/ic/bin` and `.tools/rust/common/bin` to
 fail validation; provisioning is explicit and separate from locked Cargo fetching.
 This consumer uses the shared host-tool bundle for jq/yq; the optional upstream
 standalone yq installer is not included in its snapshot.
-`make install-release-tools` explicitly prepares Cargo-edit 0.13.13 through the
-shared Cargo installer, selected in `ci/release-tools.env`. Release preflight runs
-that setup after common tools; ordinary checks do not install it.
-`make release-tools-check` verifies that selection, ShellCheck availability and the reviewed
+Release preparation uses Shared’s literal manifest renderer without Cargo-edit.
+`make release-tools-check` verifies ShellCheck availability and the reviewed
 cargo-sort version plus working rustfmt without compiling. The shared
 `check-format-tools.sh` performs both formatter probes offline, using the same
 consumer pin as setup and CI. Both `fmt` and `fmt-check` depend on this check.

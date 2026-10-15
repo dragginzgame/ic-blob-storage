@@ -2,6 +2,35 @@
 
 Date: 2026-10-15
 
+## Integrated Shared release helpers and published native graph — pending 0.27.1
+
+0.27.0 is released at `cc1a720e7dbf29ccf472c507205a8bbb211eae49`.
+The [new adoption receipt](../evidence/shared01500271.md) records Shared main
+`fec7c9b97f6a35a23daf54abe9a6472a5d1829b0` (still 0.15.0), 132 payloads,
+published Host 0.19.0 and Testkit 0.45.0. Incoming dependency edits are preserved;
+Testkit's removed Host re-exports become direct native harness dependencies.
+Its internal Host 0.18.6 selection remains intact. Public Memory 0.40, Metrics
+0.10.1, Rust 1.91 and package versions remain unchanged.
+
+Release preparation delegates literal rendering to Shared and retires the
+Cargo-edit pin, setup wrapper and CI step. Exact-source/receipt, four-file
+rollback and formatting checks remain local. The evidence collector delegates
+selection/archival and formatting-log discovery to Shared, preserving incomplete
+collection status and refusing partial store-path selections. The native HTTP
+fixture uses Testkit's published phased reader while preserving concurrent
+incomplete lookups and one-dispatch backpressure behavior; delivery/native
+acceptance remains with [#70](https://github.com/dragginzgame/ic-blob-storage/issues/70).
+
+Focused strict lint, actual Rust 1.91, 117 CLI/five probe/21 example cases,
+buffered output, seven installed session cases, three recovery cases and the
+ten-scenario Chromium certificate journey pass on fresh selected artifacts.
+Release/actual twelve-member rendering, collector/failure-retention, hook,
+common dispatch, pins, snapshot and shell checks pass. Logs and before-images
+are in `.tmp/review-validation/adoption0271/`. Full CI, native macOS, Canic and
+live provider acceptance remain separate. Host PRs #128/#132 are still unmerged;
+no unpublished API or sibling dirty work is adopted. Earlier pending sections
+below retain their original evidence scope; their 0.27.0 changes are now released.
+
 ## Shared 0.15 and retained-write ownership — pending 0.27.0
 
 The [adoption receipt](../evidence/shared01500270.md) binds reviewed Shared main

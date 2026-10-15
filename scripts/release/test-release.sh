@@ -55,22 +55,14 @@ create_fixture() {
         "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
         "$ROOT/scripts/ci/cargo-release-metadata.sh" "$ROOT/scripts/ci/read-cargo-workspace-version.sh" \
         "$ROOT/scripts/ci/cargo-workspace-members.jq" "$ROOT/scripts/ci/compare-stable-versions.pl" \
-        "$ROOT/scripts/ci/StableVersion.pm" "$ROOT/scripts/ci/validate-release-inputs.pl" \
+        "$ROOT/scripts/ci/render-cargo-workspace-version.pl" "$ROOT/scripts/ci/StableVersion.pm" "$ROOT/scripts/ci/validate-release-inputs.pl" \
         "$ROOT/scripts/ci/check-make-execution.sh" \
         "$ROOT/scripts/ci/verify-file-checksum.sh" \
         "$ROOT/scripts/ci/check-release-source.sh" \
         "$ROOT/scripts/ci/check-crates-io-version.sh" \
         "$ROOT/scripts/ci/finalize-release-changelog.awk" \
         "$ROOT/scripts/ci/check-format-tools.sh" "$ROOT/scripts/ci/run-formatting.sh" "$FIXTURE/scripts/ci/"
-    cp "$ROOT/ci/tool-versions.env" "$ROOT/ci/release-tools.env" "$FIXTURE/ci/"
-    cp "$ROOT/scripts/dev/release-tools.sh" "$FIXTURE/scripts/dev/"
-    cat > "$FIXTURE/scripts/dev/install-rust-tools.sh" <<'INSTALL'
-#!/usr/bin/env bash
-set -euo pipefail
-[[ "$*" == *'--package cargo-edit --version 0.13.13 --bin cargo-set-version --profile release --check' ]] || exit 97
-[[ "${TEST_CARGO_EDIT_FAIL:-0}" != 1 ]] || exit 1
-command -v cargo
-INSTALL
+    cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
     cp "$ROOT/Makefile" "$FIXTURE/Makefile"
     cp "$ROOT/make/consumer.mk" "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$ROOT/make/execution.mk" "$FIXTURE/make/"
     cd "$FIXTURE"
@@ -132,7 +124,7 @@ LOCK
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
     unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
     unset TEST_FINALIZER_FAIL
-    unset TEST_FMT_FAIL TEST_CARGO_EDIT_FAIL
+    unset TEST_FMT_FAIL
     unset TEST_RELEASE_SETUP_FAIL TEST_RELEASE_SETUP_CHANGE
 }
 expect_failure() {
@@ -153,7 +145,7 @@ cat > "$TEMPORARY/bin/make" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
 case "$*" in
-    '--no-print-directory deps'|'--no-print-directory install-tools'|'--no-print-directory install-release-tools'|'--no-print-directory tools-check')
+    '--no-print-directory deps'|'--no-print-directory install-tools'|'--no-print-directory tools-check')
         selection="${*: -1}"
         echo "$selection" >> target/preparation.log
         [[ "${TEST_RELEASE_SETUP_FAIL:-}" != "$selection" ]] || exit 1
@@ -301,10 +293,6 @@ case "$*" in
         ! rg -q '^foreign-package' Cargo.toml || exit 1
         printf '{"workspace_members":["local","contracts"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage/Cargo.toml"},{"id":"contracts","name":"ic-blob-storage-contracts","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage-contracts/Cargo.toml"}]}\n' "$current" "$PWD" "$current" "$PWD" ;;
     locate-project*) printf '%s/Cargo.toml\n' "$PWD" ;;
-    set-version*)
-        [[ "$2 $3" == '--workspace --offline' ]] || exit 97
-        FIXTURE_VERSION="$4" perl -pi -e 's/version = "[^"\n]+"/version = "$ENV{FIXTURE_VERSION}"/g' Cargo.toml ;;
-    sort) ;;
     'sort --version') [[ "${TEST_SORT_FAIL:-0}" != 1 ]] || exit 1; echo "cargo-sort ${TEST_SORT_VERSION:-2.1.4}" ;;
     'fmt --version') echo rustfmt; [[ "${TEST_FMT_FAIL:-0}" != 1 ]] ;;
     'sort --workspace --check') [[ "${TEST_PREPARE_FAIL:-0}" != 1 ]] ;;
@@ -395,6 +383,9 @@ MOCK
 cat > "$TEMPORARY/bin/perl" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
+if [[ "${1##*/}" == render-cargo-workspace-version.pl ]]; then
+    echo "perl $*" >> "$TEST_LOG"
+fi
 if [[ $# -ge 2 && "${1##*/}" == release-data.pl && "$2" == "${TEST_DATA_FAIL_COMMAND:-}" ]]; then
     "$TEST_REAL_PERL" "$@"
     exit 1
@@ -484,7 +475,6 @@ test_preflight_tools() {
         sort-missing) export TEST_SORT_FAIL=1 ;;
         sort-wrong) export TEST_SORT_VERSION=0.0.0 ;;
         rustfmt-broken) export TEST_FMT_FAIL=1 ;;
-        cargo-edit-missing) export TEST_CARGO_EDIT_FAIL=1 ;;
     esac
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
     assert_unchanged; assert_cache_retained
@@ -492,7 +482,7 @@ test_preflight_tools() {
     case "$1" in
         shellcheck-*) rg -F 'SHELLCHECK=/absolute/path/to/shellcheck' target/rejection.log >/dev/null ;;
     esac
-    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION TEST_FMT_FAIL TEST_CARGO_EDIT_FAIL
+    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION TEST_FMT_FAIL
     # A selected executable with spaces in its path must survive Make dispatch.
     cp "$TEMPORARY/bin/shellcheck" 'target/selected shellcheck'
     export SHELLCHECK="$PWD/target/selected shellcheck"
@@ -509,8 +499,7 @@ test_selected_tool_preparation() {
     case "$1" in
         deps) expected=deps ;;
         install-tools) expected=$'deps\ninstall-tools' ;;
-        install-release-tools) expected=$'deps\ninstall-tools\ninstall-release-tools' ;;
-        tools-check) expected=$'deps\ninstall-tools\ninstall-release-tools\ntools-check' ;;
+        tools-check) expected=$'deps\ninstall-tools\ntools-check' ;;
     esac
     [[ "$(cat target/preparation.log)" == "$expected" ]] || exit 1
     unset TEST_RELEASE_SETUP_FAIL
@@ -523,7 +512,7 @@ test_tool_preparation_source_change() {
     cp Cargo.lock target/before-lock
     cp CHANGELOG.md target/before-notes
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
-    [[ "$(cat target/preparation.log)" == $'deps\ninstall-tools\ninstall-release-tools\ntools-check' ]] || exit 1
+    [[ "$(cat target/preparation.log)" == $'deps\ninstall-tools\ntools-check' ]] || exit 1
     [[ ! -s "$TEST_EFFECTS" && ! -e target/gate-ran && ! -e docs/release.json ]] || exit 1
     if [[ "$shape" == selection ]]; then
         [[ "$(perl scripts/release/release-data.pl version)" == 0.1.9 ]] || exit 1
@@ -725,7 +714,7 @@ test_receipt_rollback() {
     cmp "$backup/Cargo.lock" Cargo.lock
     cmp "$backup/CHANGELOG.md" CHANGELOG.md
     # The shared preparer completed; refusal came after writing the candidate receipt.
-    rg -F 'cargo set-version --workspace --offline 0.1.1' "$TEST_LOG" >/dev/null
+    rg -F 'render-cargo-workspace-version.pl' "$TEST_LOG" >/dev/null
 }
 
 test_preparation() {
@@ -1065,10 +1054,10 @@ run_case bootstrap-tools test_dependency_bootstrap tools
 run_case bootstrap-pins test_dependency_bootstrap pins
 run_case bootstrap-fetch test_dependency_bootstrap fetch
 run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
-for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken cargo-edit-missing; do
+for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
 done
-for phase in deps install-tools install-release-tools tools-check; do
+for phase in deps install-tools tools-check; do
     run_case "selected-tools-$phase" test_selected_tool_preparation "$phase"
 done
 for shape in selection head; do

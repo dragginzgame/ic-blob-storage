@@ -163,7 +163,7 @@ done
 # Exercise the actual hosted collection block: incomplete admission must expose
 # the archive output before upload; the later completeness step still refuses.
 mkdir -p "$repository/scripts/ci"
-for helper in collect-tooling-evidence.sh select-tool-evidence.sh archive-evidence.sh verify-file-checksum.sh; do
+for helper in collect-tooling-evidence.sh collect-tool-evidence.sh formatting-evidence.sh select-tool-evidence.sh archive-evidence.sh verify-file-checksum.sh; do
     cp "$root/scripts/ci/$helper" "$repository/scripts/ci/"
 done
 mkdir -p "$repository/scripts/dev"

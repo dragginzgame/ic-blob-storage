@@ -26,7 +26,7 @@ export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
 CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test test-wasm-opt wasm-check package
-CI_INPUTS := ci/release-tools.env scripts/dev/release-tools.sh Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv \
+CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
@@ -39,10 +39,10 @@ CI_INPUTS := ci/release-tools.env scripts/dev/release-tools.sh Cargo.toml Cargo.
 	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
 .PHONY: test-hard-cut test-native-host test-wasm-opt msrv-check tasks
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
-.PHONY: install-testkit testkit-check install-release-tools release-cargo-check
+.PHONY: install-testkit testkit-check
 
 help:
-	@echo "release-tools-check          Check ShellCheck, pinned Cargo-edit/cargo-sort and rustfmt without building"
+	@echo "release-tools-check          Check ShellCheck, pinned cargo-sort and rustfmt without building"
 	@echo "test-native-host             CLI/examples and local installation/restoration probe checks"
 	@echo "msrv-check                   Check public native/Wasm consumers on Rust 1.91 offline"
 	@echo "tasks                        Show the shared maintenance task catalog"
@@ -140,13 +140,7 @@ dependency-pins-check:
 		bash scripts/ci/check-dependency-pins.sh --cargo-inheritance \
 			--npm-root tests/browser --node-version "$$node_version" --npm-version "$$npm_version"
 
-install-release-tools:
-	+bash scripts/dev/release-tools.sh setup
-
-release-cargo-check:
-	+bash scripts/dev/release-tools.sh check
-
-release-tools-check: format-tools-check release-cargo-check
+release-tools-check: format-tools-check
 	@command -v "$(SHELLCHECK)" >/dev/null 2>&1 && "$(SHELLCHECK)" --version >/dev/null 2>&1 || { echo "Prepare ShellCheck: sudo apt-get install shellcheck (Debian/Ubuntu) or brew install shellcheck (macOS)." >&2; echo "Select an existing executable with SHELLCHECK=/absolute/path/to/shellcheck." >&2; exit 1; }
 
 hooks-check:
@@ -338,7 +332,7 @@ clean:
 
 shell-check:
 	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
-	"$(SHELLCHECK)" scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh ci/release-tools.env .githooks/pre-commit
+	"$(SHELLCHECK)" scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
 	perl -c scripts/release/release-data.pl
 	perl -c scripts/ci/check-documentation-links.pl
 

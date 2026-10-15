@@ -7,11 +7,11 @@ use std::{
     time::Duration,
 };
 
+use ic_host_process::{
+    child::OwnedChild,
+    tool::{OutputLimit, OutputLimits, drain_child_output},
+};
 use ic_testkit::{
-    ic_host_process::{
-        child::OwnedChild,
-        tool::{OutputLimit, OutputLimits, drain_child_output},
-    },
     pic::{PocketIcInstance, PocketIcManagedServer, PocketIcStartupConfig},
     pocket_ic::{PocketIc, PocketIcBuilder},
 };

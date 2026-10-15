@@ -1,5 +1,5 @@
 //! Owned native subprocess for the maintained publication session control protocol.
-use ic_testkit::ic_host_process::child::OwnedChild;
+use ic_host_process::child::OwnedChild;
 use serde_json::Value;
 use std::{
     io::{BufRead, BufReader, Read, Write},

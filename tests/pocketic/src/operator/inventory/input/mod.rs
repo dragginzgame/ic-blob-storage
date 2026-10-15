@@ -83,7 +83,7 @@ pub(super) struct Inventory {
 }
 
 pub(super) fn load(path: &Path) -> Result<Inventory, Failure> {
-    let encoded = ic_testkit::ic_host_fs::read::read_file(
+    let encoded = ic_host_fs::read::read_file(
         path,
         usize::try_from(MAX_BYTES).expect("inventory bound fits supported hosts"),
     )

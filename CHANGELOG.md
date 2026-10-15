@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.27.1]
+
+- Adopt the integrated Shared Tooling 0.15.0 release renderer and evidence
+  helpers. Release preparation no longer needs Cargo-edit; rollback, exact
+  dependency selections and manifest formatting remain enforced. Evidence
+  collection delegates to Shared and refuses partial store-path selections.
+- Adopt published Host 0.19 and Testkit 0.45 with direct Host dependencies in
+  the native harness. Library contracts and the Rust 1.91 minimum are unchanged.
+- Delegate the remaining native HTTP fixture framing to Testkit, retaining
+  bounded capture, incomplete concurrent lookups and one-dispatch backpressure
+  behavior ([#70 — Finish native HTTP fixture retirement](https://github.com/dragginzgame/ic-blob-storage/issues/70)).
+
 ## [0.27.0] - 2026-10-15
 
 - **Breaking:** require Rust 1.91.0 across the workspace, including library

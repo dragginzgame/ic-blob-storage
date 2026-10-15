@@ -152,8 +152,8 @@ exact returned ID; passing local checks do not qualify that transport. Ordinary
 failure collection preserves scoped tool candidates and fixtures in one archive
 with 30-day retention. Original inputs and failed partial archives remain if
 collection fails; collection does not clear the original job failure.
-Blob's collector delegates local Rust and full shared host/IC/Cargo selection to
-`select-tool-evidence.sh`, retaining this checkout's admitted referenced payloads,
+Blob's collector delegates selection and archival to `collect-tool-evidence.sh`,
+retaining this checkout's admitted referenced payloads,
 prior local bundles and local Testkit evidence. Unknown links remain unfollowed;
 unrelated entries in the per-user store are excluded. If store admission fails,
 archive safe local selections and the collection diagnostics, upload that archive
@@ -246,8 +246,7 @@ adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`
 and `hooks-check` run independently in the complete gate.
 After clean source/candidate admission, release preflight runs locked `make deps`,
-the consumer's existing `make install-tools`, explicit `make install-release-tools`
-for pinned Cargo-edit, and offline `make tools-check`,
+the consumer's existing `make install-tools` and offline `make tools-check`,
 then rechecks source identity/cleanliness and runs `make release-tools-check`
 for the selected ShellCheck
 executable, reviewed cargo-sort version and rustfmt availability before entering
