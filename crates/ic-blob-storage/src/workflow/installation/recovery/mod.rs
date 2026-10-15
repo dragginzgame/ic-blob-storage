@@ -1,8 +1,39 @@
 //! Current-instance recovery orchestration; arbitrary backup activation stays fenced.
+use crate::ops::service::recovery::ContinuityInstallationAccess;
 use crate::ops::service::recovery::CurrentInstanceRecoveryError;
 use crate::ops::service::recovery::RecoveryInstallationAccess;
 use crate::ops::service::recovery::prove_current_instance;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
+
+/// Check a previously active owner's continuity once before an update. The host
+/// releases its installation borrow before history acquisition. Any refusal
+/// retains the fence; the endpoint then returns its own typed fenced outcome.
+/// This never automatically resumes an already-fenced restoration or retries work.
+pub async fn before_update(host: &impl ContinuityInstallationAccess) {
+    if let Some(request) = host.prepare_active_continuity() {
+        if let Ok(proof) = prove_current_instance(request.installation_version).await {
+            let _ =
+                host.with_installation(|installation| installation.resume_current_instance(proof));
+        }
+        host.observe_version();
+    }
+}
+
+/// Explicit host recovery with checkpoint observation after either success or
+/// refusal, including a failed history await. Keeps authenticated recovery and
+/// its post-await observation together without claiming lifecycle ownership.
+/// # Errors
+/// Returns the existing passive recovery refusal; no refusal clears the fence.
+pub async fn resume_host_instance(
+    host: &impl ContinuityInstallationAccess,
+    context: UploadContext,
+) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
+    let outcome = resume_current_instance(host, context)
+        .await
+        .map_err(crate::ops::service::recovery::failure);
+    host.observe_version();
+    outcome
+}
 
 /// Authenticate the installed operator, obtain current IC history once, recheck
 /// the exact installation after the await and consume the sealed proof locally.

@@ -21,6 +21,25 @@ pub trait RecoveryInstallationAccess {
     ) -> R;
 }
 
+/// Host-owned checkpoint access for shared continuity orchestration. Lifecycle,
+/// heap custody and the actual platform observation remain with the host.
+/// Implementations delegate to the installation's continuity methods; a checkpoint
+/// is only a fence trigger and never evidence permitting activation.
+pub trait ContinuityInstallationAccess: RecoveryInstallationAccess {
+    /// Observe the current platform version without clearing any recovery fence.
+    fn observe_version(&self);
+    /// Fence a detected gap and select a proof request only for a previously
+    /// active owner. Never turn an already-fenced restoration into automatic recovery.
+    fn prepare_active_continuity(&self) -> Option<ActiveContinuityRequest>;
+}
+
+/// Immutable installed anchor for one active-owner continuity check. This is
+/// neither a platform proof nor permission to clear a fence or retry an effect.
+pub struct ActiveContinuityRequest {
+    /// Original installation version, never a counter from a restored backup.
+    pub installation_version: u64,
+}
+
 /// Convert domain/platform refusals to passive endpoint data.
 #[must_use]
 pub fn failure(

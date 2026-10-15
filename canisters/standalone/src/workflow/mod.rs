@@ -35,30 +35,16 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 pub(crate) async fn before_update() {
-    if let Some(request) = ops::begin_update() {
-        if let Ok(proof) = ic_blob_storage::ops::service::recovery::prove_current_instance(
-            request.installation_version,
-        )
-        .await
-        {
-            // Refusal retains the fence. The original endpoint workflow then
-            // reports its own typed fenced outcome without changing a journal.
-            let _ = ops::resume_continuous_active(proof);
-        }
-        ops::observe_version();
-    }
+    ic_blob_storage::workflow::installation::recovery::before_update(&ops::RecoveryHost).await;
 }
 pub(crate) async fn resume_current_instance(
     context: UploadContext,
 ) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
-    let outcome = ic_blob_storage::workflow::installation::recovery::resume_current_instance(
+    ic_blob_storage::workflow::installation::recovery::resume_host_instance(
         &ops::RecoveryHost,
         context,
     )
     .await
-    .map_err(ic_blob_storage::ops::service::recovery::failure);
-    ops::observe_version();
-    outcome
 }
 pub(crate) fn certificate_assessment(
     context: UploadContext,
@@ -69,18 +55,10 @@ pub(crate) fn certificate_assessment(
     ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure,
 > {
     ops::with_installation(|installation| {
-        let stores = installation.stores();
-        let permission = ic_blob_storage::workflow::uploads::certificate::resolve(
-            &stores.uploads,
+        ic_blob_storage::workflow::uploads::certificate::inspect_installation(
+            installation,
             context,
             root,
-            now,
-        )?;
-        ic_blob_storage::workflow::uploads::certificate::inspect(
-            &stores.uploads,
-            context,
-            root,
-            installation.certificate_evidence(permission, now, true),
             now,
         )
     })
@@ -94,18 +72,11 @@ pub(crate) fn certificate(
     ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse,
     ic_blob_storage::workflow::uploads::certificate::UploadCertificateFailure,
 > {
-    use ic_blob_storage::workflow::uploads::certificate;
-    use ic_blob_storage::workflow::uploads::certificate::UploadCertificateFailure;
     ops::with_certificate(|installation| {
-        let permission = certificate::resolve(&installation.stores().uploads, context, root, now)
-            .map_err(UploadCertificateFailure::Exposure)?;
-        // Synchronous replicated update: exposure and the plain reply commit together.
-        let evidence = installation.certificate_evidence(permission, now, true);
-        certificate::issue(
-            &mut installation.stores_mut().uploads,
+        ic_blob_storage::workflow::uploads::certificate::issue_installation(
+            installation,
             context,
             root,
-            evidence,
             now,
         )
     })

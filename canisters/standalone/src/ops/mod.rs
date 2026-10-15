@@ -95,46 +95,9 @@ pub(crate) fn observe_version() {
     let version = ic_cdk::api::canister_version();
     HOST.with_borrow_mut(|state| {
         let host = state.as_mut().expect("initialized host");
-        if version < host.last_platform_version
-            || version.saturating_sub(host.last_platform_version) > 1
-        {
-            host.installation.fence();
-        }
-        host.last_platform_version = version;
+        host.installation
+            .observe_platform_version(&mut host.last_platform_version, version);
     });
-}
-// Replicated queries discard their heap checkpoint; failed asynchronous replies
-// can also leave a gap. An active owner gets one independent continuity check
-// before a later mutation. Already-fenced restoration never activates here.
-pub(crate) struct ActiveContinuityRequest {
-    pub(crate) installation_version: u64,
-}
-pub(crate) fn begin_update() -> Option<ActiveContinuityRequest> {
-    let version = ic_cdk::api::canister_version();
-    let (needs_check, was_active, anchor) = HOST.with_borrow(|state| {
-        let host = state.as_ref().expect("initialized host");
-        (
-            version < host.last_platform_version
-                || version.saturating_sub(host.last_platform_version) > 1,
-            !host.installation.stores().uploads.is_fenced(),
-            host.installation.platform_installation_version(),
-        )
-    });
-    observe_version();
-    (needs_check && was_active).then_some(ActiveContinuityRequest {
-        installation_version: anchor,
-    })
-}
-pub(crate) fn resume_continuous_active(
-    proof: ic_blob_storage::ops::service::recovery::CurrentInstanceProof,
-) -> Result<(), ic_blob_storage::ops::service::recovery::CurrentInstanceRecoveryError> {
-    HOST.with_borrow_mut(|state| {
-        state
-            .as_mut()
-            .expect("initialized host")
-            .installation
-            .resume_current_instance(proof)
-    })
 }
 pub(crate) fn read<R>(f: impl FnOnce(&ServiceStores<Memory>) -> R) -> R {
     observe_version();
@@ -232,6 +195,21 @@ impl ic_blob_storage::ops::service::recovery::RecoveryInstallationAccess for Rec
         operation: impl FnOnce(&mut ServiceInstallation<Memory>) -> R,
     ) -> R {
         with_certificate(operation)
+    }
+}
+impl ic_blob_storage::ops::service::recovery::ContinuityInstallationAccess for RecoveryHost {
+    fn observe_version(&self) {
+        observe_version();
+    }
+    fn prepare_active_continuity(
+        &self,
+    ) -> Option<ic_blob_storage::ops::service::recovery::ActiveContinuityRequest> {
+        let version = ic_cdk::api::canister_version();
+        HOST.with_borrow_mut(|state| {
+            let host = state.as_mut().expect("initialized host");
+            host.installation
+                .prepare_active_continuity(&mut host.last_platform_version, version)
+        })
     }
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]

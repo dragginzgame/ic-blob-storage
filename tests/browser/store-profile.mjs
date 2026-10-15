@@ -5,6 +5,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
+import { serveAssets } from './assets.mjs';
 
 const directory = resolve(process.argv[2]);
 await mkdir(directory, { mode: 0o700 });
@@ -12,15 +13,13 @@ const record = (name, value) => writeFile(join(directory, name), JSON.stringify(
   { flag: 'wx', mode: 0o600 });
 const bundle = await readFile(new URL('../../.tmp/browser/store.js', import.meta.url));
 const capacities = [675, 5000, 10000], populated = [], reopened = [], requests = [], blocked = [];
+const paths = new Set(['/', '/store.js']);
+const assets = serveAssets({ '/store.js': bundle }, '/store.js');
 const server = createServer((request, response) => {
   response.setHeader('cache-control', 'no-store');
   if (request.method !== 'GET') { response.writeHead(403); response.end(); return; }
-  if (request.url === '/store.js') {
-    response.writeHead(200, { 'content-type': 'text/javascript' }); response.end(bundle);
-  } else if (request.url === '/') {
-    response.writeHead(200, { 'content-type': 'text/html' });
-    response.end('<!doctype html><script type="module" src="/store.js"></script>');
-  } else { response.writeHead(404); response.end(); }
+  if (!paths.has(request.url)) { response.writeHead(404); response.end(); return; }
+  assets(request, response);
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`, profile = join(directory, 'profile');
@@ -32,7 +31,7 @@ async function launch() {
   context.on('request', request => requests.push({ method: request.method(), url: request.url() }));
   await context.route('**/*', route => {
     const url = new URL(route.request().url());
-    if (url.origin === origin && ['/', '/store.js'].includes(url.pathname) && route.request().method() === 'GET')
+    if (url.origin === origin && paths.has(url.pathname) && route.request().method() === 'GET')
       return route.continue();
     blocked.push(route.request().url()); return route.abort();
   });

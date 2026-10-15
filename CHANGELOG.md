@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.26.0]
+
+- **Breaking, pending complete qualification:** incoming selections move public
+  IC Memory to 0.39; consumers need the matching memory family and explicit
+  disposition of retained installations before the incompatible ledger cut.
+- Reuse queued browser control transport in the certificate driver and shared
+  profile assets, retaining GET/path restrictions and no-store responses.
+- Prepare the consumer probe's bounded Memory cell replacement in
+  [Memory #105](https://github.com/dragginzgame/ic-memory/pull/105); activation
+  awaits publication and requires fresh fixture installations, with same-release
+  restoration and uncertain-operation history preserved.
+
+- Own installed-host continuity and certificate orchestration in the shared core;
+  standalone delegates while retaining lifecycle, memory and endpoint authority
+  ([#72](https://github.com/dragginzgame/ic-blob-storage/issues/72)). Canic adoption
+  awaits publication and consumer qualification.
+
 ## [0.25.1] - 2026-10-14
 
 - Share checked probe upload-identity construction while preserving each probe's

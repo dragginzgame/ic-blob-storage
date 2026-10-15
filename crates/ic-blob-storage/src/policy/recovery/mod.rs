@@ -1,6 +1,11 @@
 //! Pure current-instance continuity checks; no locally restored counter grants freshness.
 use crate::model::service::recovery::{InstanceChangeKind, InstanceHistory};
 
+/// A rollback or missed replicated version requires independently proved continuity.
+pub(crate) const fn version_gap(previous: u64, current: u64) -> bool {
+    current < previous || current.saturating_sub(previous) > 1
+}
+
 /// A current installation cannot be proved continuous from the supplied IC history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, thiserror::Error)]
 pub enum InstanceContinuityError {

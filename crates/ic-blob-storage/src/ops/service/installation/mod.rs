@@ -242,6 +242,32 @@ impl<M: Memory> ServiceInstallation<M> {
     pub fn fence(&mut self) {
         self.stores.set_recovery_fence(true);
     }
+    /// Observe the host's actual platform version against its retained heap
+    /// checkpoint. Rollback/gaps fence every owner; later observations never
+    /// clear that fence. The checkpoint alone never proves current ownership.
+    pub fn observe_platform_version(&mut self, previous: &mut u64, current: u64) {
+        if crate::policy::recovery::version_gap(*previous, current) {
+            self.fence();
+        }
+        *previous = current;
+    }
+    /// Fence a version gap before mutation and request independent IC history
+    /// only when the installation was active before this observation. Already-
+    /// fenced restorations require explicit authenticated recovery instead.
+    #[must_use]
+    pub fn prepare_active_continuity(
+        &mut self,
+        previous: &mut u64,
+        current: u64,
+    ) -> Option<super::recovery::ActiveContinuityRequest> {
+        let needs_check = crate::policy::recovery::version_gap(*previous, current);
+        let was_active = !self.stores.uploads.is_fenced();
+        let anchor = self.platform_installation_version();
+        self.observe_platform_version(previous, current);
+        (needs_check && was_active).then_some(super::recovery::ActiveContinuityRequest {
+            installation_version: anchor,
+        })
+    }
     /// Resume the exact current installation after an independently obtained IC
     /// continuity proof, in the same replicated callback and without an await.
     /// Uncertain effects and occupied sessions remain held; this authorizes no retry.
