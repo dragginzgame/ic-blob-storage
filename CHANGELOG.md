@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.27.1]
+## [0.27.1] - 2026-10-15
 
 - Adopt the integrated Shared Tooling 0.15.0 release renderer and evidence
   helpers. Release preparation no longer needs Cargo-edit; rollback, exact
