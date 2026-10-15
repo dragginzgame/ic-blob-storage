@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.28.0]
+## [0.28.0] - 2026-10-15
 
 - **Breaking Rust API:** construct and restore production stores only through
   `ServiceInstallation`; component constructors and direct exposure mutation
