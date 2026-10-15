@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.25.2]
+
+- Include MIT license text in published crates and align package declarations
+  with the repository license.
+
 ## [0.25.1] - 2026-10-14
 
 - Share checked probe upload-identity construction while preserving each probe's

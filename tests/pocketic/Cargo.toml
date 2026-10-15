@@ -1,4 +1,5 @@
 [package]
+license.workspace = true
 name = "ic-blob-storage-pocketic-tests"
 version.workspace = true
 edition.workspace = true
