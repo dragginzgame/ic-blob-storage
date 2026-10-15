@@ -136,9 +136,9 @@ pub(crate) fn initialize(
         gateways,
         reads: read_sessions,
     } = if restored {
-        ServiceStores::open(memory, config)
+        ic_blob_storage::test_support::stores::open(memory, config)
     } else {
-        ServiceStores::install(memory, config)
+        ic_blob_storage::test_support::stores::install(memory, config)
     }
     .unwrap();
     let stores_instructions = ic_cdk::api::call_context_instruction_counter() - stores_started;

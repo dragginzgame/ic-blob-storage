@@ -3,7 +3,7 @@
 pub mod installation;
 pub mod read;
 pub mod recovery;
-pub mod tenant;
+pub(crate) mod tenant;
 pub mod upload;
 
 #[cfg(test)]

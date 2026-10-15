@@ -1,6 +1,5 @@
 //! Shared admission-capacity boundary for the durable owner and heap model.
 use crate::model::service::upload::UploadAdmissionError;
-use crate::model::service::upload::UploadAdmissions;
 use crate::model::service::upload::planning::AdmissionCapacityLookup;
 use crate::model::service::upload::planning::AdmissionCapacityView;
 use crate::ops::service::uploads::StableUploads;
@@ -48,19 +47,7 @@ impl<M: Memory> UploadCapacitySource for StableUploads<M> {
         })
     }
 }
-impl UploadCapacitySource for UploadAdmissions {
-    fn capacity_view(
-        &self,
-        context: UploadContext,
-        scope: AdmissionCapacityLookup,
-    ) -> Result<UploadCapacityView, UploadStoreError> {
-        // The heap owner has no restore path. Hosts must not recreate it from an old snapshot.
-        Ok(UploadCapacityView {
-            headroom: self.admission_capacity(context, scope)?,
-            fenced: false,
-        })
-    }
-}
+
 fn failure(error: UploadStoreError) -> UploadCapacityFailure {
     use UploadAdmissionError as A;
     use UploadCapacityFailure as F;

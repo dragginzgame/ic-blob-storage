@@ -14,31 +14,34 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.40.0 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.10.1 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.44.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
-| IC Host artifacts/fs/tools (direct) | 0.18.6 | Native artifacts, filesystem and test/tool boundaries |
+| IC Memory | 0.41.0 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.11.0 | Private storage probe; tracked overflow quality |
+| IC Testkit | 0.46.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Host artifacts/fs/process/tools (direct) | 0.19.0 | Native artifacts, filesystem and test/tool boundaries |
+| IC Build | 0.6.1 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
 the retained creation/publication used by verified body staging.
 
-Published Testkit owns whole-request capture for native provider and signed-update
-fixtures. Its phased request-line/completion extension is prepared upstream;
-[Blob #70](https://github.com/dragginzgame/ic-blob-storage/issues/70) retains the
-remaining native backpressure retirement. The CLI uses Testkit only as a native
+Published Testkit owns whole-request and phased request-line/completion capture
+for native provider, signed-update and backpressure fixtures.
+[#70 — Finish native HTTP fixture retirement](https://github.com/dragginzgame/ic-blob-storage/issues/70) retains
+delivered consumer/native acceptance. The CLI uses Testkit only as a native
 development dependency; public libraries/contracts gain no testing dependency.
 After changing the selected Testkit CLI, explicitly run `make install-testkit`
 before ordinary offline tool gates. Scoped installed evidence may use an explicit
 server binary with caller-owned byte admission; that does not qualify the missing
 lock-selected CLI installation.
 
-The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.15.0 at
-`3bef3f2daec7f64f875397ed4d53d5b9e2e68a08`, with 128 payloads. Common installation,
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.15.1 at
+`4f3eec42f52d4ec308bb68ab2daa3e5266b3175a`, with 131 payloads. Common installation,
 checks, hooks and formatting use `make/consumer.mk`; product targets and Testkit
 extensions stay local. The canonical Rust-tool fixture runs directly from this
-consumer. Snapshot adoption does not automatically adopt Shared's CI cache policy.
-The [current adoption receipt](evidence/shared01500270.md) records the selected
+consumer. Generic formatter-prerequisite and digest backend matrices run at
+Shared; Blob retains real hook rollback, selected-tool admission and archive
+checks. Their unused snapshot entrypoints are retired through the exporter. Snapshot adoption does not automatically adopt Shared's CI cache policy.
+The [current adoption receipt](evidence/cleanup0280.md) records the selected
 source, required local adapters and published Host qualification.
 The [0.23.3 cleanup/adoption evidence](evidence/next-three0233.md) records its original
 graph; [client/reply cleanup qualification](evidence/fourth-cleanup0233.md) records
@@ -56,14 +59,12 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Testkit 0.39 and direct Blob callers resolve Host 0.17.12 in the application lock.
-The separately installed Testkit CLI uses its published packaged lock's Host
-0.17.8, which includes the macOS permissions repair. Run `make install-testkit`
-explicitly after this selection change, then `make testkit-check`; changing the
-application lock alone cannot repair an older tool build. The
+Testkit 0.46 and direct Blob callers share Host 0.19 in the application lock.
+Its separately installed CLI uses the published packaged lock; explicitly run
+`make install-testkit` then `make testkit-check` after changing its selection.
+Changing the application lock alone does not update the installed tool. Earlier
 [issue-repair qualification](evidence/integration0234.md#published-opener-and-native-ci-setup-repair)
-retains its original graph; [current status](status/current.md) records the pending
-selection and checks. Interface tests explicitly enable `candid-service`.
+retains its original graph. Interface tests explicitly enable `candid-service`.
 Direct Host tools already disables default features; no Candid extraction
 feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
@@ -155,10 +156,10 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.40 requires 1.91 |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.41 requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The selected `ic-memory` 0.40 dependency requires Rust 1.91.0, which is now
+The selected `ic-memory` 0.41 dependency requires Rust 1.91.0, which is now
 the workspace's consumer floor. The harness inherits that same minimum.
 Earlier Rust 1.88 checks remain evidence for their original source and graphs;
 repeat checks with the declared minimum after source or dependency changes
@@ -296,7 +297,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.36 host-wide allocation pool and open
+compose all namespaces in one Memory 0.41 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -320,7 +321,13 @@ Do not add Canic dependencies, wrappers or fixtures here. The
 owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
 links source-bound composition results and remaining owner work.
 
-At the 2026-10-14 review, Canic's released `v0.111.0` points to
+The current public cut requires the same Memory 0.41 identity in Blob and the
+host. [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77) tracks
+the coherent Blob/contracts publication and Canic root/private-fixture lock
+adoption; local Blob checks do not qualify that consumer. Testkit's native Host
+identity does not replace the application's public Memory identity.
+
+**Historical 2026-10-14 review:** Canic's released `v0.111.0` points to
 `25b73cd403b20b4e148c6e340f8c760a26d97f6e`. Its catalog requires Blob/contracts
 `0.22.2` and Memory `0.35`; Cargo cannot resolve those requirements to this
 Blob 0.23 / Memory 0.36 family. Adding this Blob version directly to an application
@@ -341,7 +348,7 @@ results are not fresh execution of released Blob 0.23.3.
 For consumer adoption of the current Blob line:
 
 1. Select one coherent published Canic family, matching Blob runtime/contracts and
-   one Memory 0.36 identity. Freeze the application's actual lock and all independent
+   one Memory 0.41 identity. Freeze the application's actual lock and all independent
    fixture locks; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot
    and grant the `blob.` namespace in its allocation pool before bootstrap.

@@ -3,9 +3,6 @@ use strict;
 use warnings;
 use JSON::PP;
 use Digest::SHA qw(sha256_hex);
-use Cwd qw(abs_path);
-use File::Find qw(find);
-use File::Spec;
 
 sub read_file {
     my ($path, $commit) = @_;
@@ -79,89 +76,6 @@ if ($command eq 'version') {
     print "$value\n";
 } elsif ($command eq 'changelog-check') {
     changelog(@args);
-} elsif ($command eq 'package-graph-check') {
-    die "expected metadata, extracted root and version\n" unless @args == 3;
-    my ($metadata_path, $root, $expected_version) = @args;
-    parts($expected_version);
-    $root = abs_path($root) // die "missing extracted root\n";
-    my $metadata = decode_json(read_file($metadata_path));
-    my %members = map { $_ => 1 } @{$metadata->{workspace_members}};
-    my %selected;
-    for my $name ('ic-blob-storage-contracts', 'ic-blob-storage') {
-        my @packages = grep { $_->{name} eq $name } @{$metadata->{packages}};
-        die "expected one extracted package: $name\n" unless @packages == 1;
-        my $package = $packages[0];
-        my $manifest = abs_path("$root/$name-$expected_version/Cargo.toml")
-            // die "missing extracted manifest: $name\n";
-        my $manifest_path = $package->{manifest_path};
-        # Cargo JSON decodes Unicode; filesystem paths use their UTF-8 bytes.
-        utf8::encode($manifest_path);
-        die "resolved package is not the exact extracted payload: $name\n"
-            unless $package->{version} eq $expected_version
-                && !defined($package->{source})
-                && $manifest_path eq $manifest
-                && $members{$package->{id}};
-        $selected{$package->{id}} = 1;
-    }
-    die "unexpected extracted workspace member\n"
-        unless @{$metadata->{workspace_members}} == 2
-            && keys(%members) == 2 && keys(%selected) == 2;
-    print "coordinated packages resolve to their exact extracted manifests\n";
-} elsif ($command eq 'package-sources') {
-    die "expected extracted root and version\n" unless @args == 2;
-    my ($root, $expected_version) = @args;
-    parts($expected_version);
-    $root = abs_path($root) // die "missing extracted root\n";
-    my %files;
-    for my $name ('ic-blob-storage-contracts', 'ic-blob-storage') {
-        my $directory = "$root/$name-$expected_version";
-        die "missing extracted package: $name\n" unless -d $directory;
-        find({ no_chdir => 1, wanted => sub {
-            my $path = $File::Find::name;
-            die "unsupported extracted source entry: $path\n" if -l $path;
-            return if -d $path;
-            die "non-file extracted source entry: $path\n" unless -f $path;
-            my @state = stat($path);
-            @state or die "cannot stat extracted source: $path\n";
-            $files{File::Spec->abs2rel($path, $root)} = {
-                sha256 => sha256_hex(read_file($path)), mode => $state[2] & 0777,
-            };
-        } }, $directory);
-    }
-    print JSON::PP->new->canonical->encode(\%files), "\n";
-} elsif ($command eq 'package-lock-check') {
-    # Cargo resolves the extracted standalone payload; every external selection must
-    # already be in the frozen workspace lock, with exactly its original checksum.
-    my ($entry_path, $payload_path) = @args;
-    sub registry_rows {
-        my ($path) = @_;
-        my %rows;
-        for my $section (split /(?=^\[\[package\]\]$)/m, read_file($path)) {
-            next unless $section =~ /^source = "([^"\n]+)"$/m;
-            my $source = $1;
-            $section =~ /^name = "([^"\n]+)"$/m or die "missing package name\n";
-            my $name = $1;
-            $section =~ /^version = "([^"\n]+)"$/m or die "missing package version\n";
-            my $version = $1;
-            my $checksum = '';
-            if ($source =~ /^registry\+/) {
-                $section =~ /^checksum = "([0-9a-f]{64})"$/m or die "missing package checksum\n";
-                $checksum = $1;
-            }
-            my $key = join(' ', $name, $version, $source);
-            die "duplicate package selection\n" if exists $rows{$key};
-            $rows{$key} = $checksum;
-        }
-        return \%rows;
-    }
-    my $entry = registry_rows($entry_path);
-    my $payload = registry_rows($payload_path);
-    die "empty package external graph\n" unless keys %$payload;
-    for my $key (sort keys %$payload) {
-        die "packaging changed external selection: $key\n"
-            unless exists $entry->{$key} && $entry->{$key} eq $payload->{$key};
-    }
-    print "packaged external selections match frozen workspace lock\n";
 } elsif ($command eq 'publication-archive') {
     die "expected archive, checksum, VCS record, source and package\n" unless @args == 5;
     my ($archive, $checksum, $vcs_path, $head, $package) = @args;

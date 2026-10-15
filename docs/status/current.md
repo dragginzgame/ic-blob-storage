@@ -2,6 +2,103 @@
 
 Date: 2026-10-15
 
+
+## Installation API and probe-only reference owner — pending 0.28.0
+
+The [API-cut receipt](../evidence/api0280.md) records the three accepted cuts.
+Production stores are constructed/restored through `ServiceInstallation`;
+component constructors, direct exposure and evidence-taking certificate paths
+are internal. Certificate assessment/issue derive facts from the installed owner.
+The transient reference aggregate, heap enrollment and comparison adapters live
+in explicit `test-support`, compiled only for the unpublished admission/storage
+probes or unit tests. Production builds must exclude that feature, including
+feature unification from probe selections. Historical exposure inspection remains.
+
+157 focused service/38 reference tests and four API rejection examples pass,
+as do strict default/support lint and Rustdoc and actual Rust 1.91 native/Wasm.
+Fresh artifacts pass 29 admission harness cases, seven exposure cases, four
+standalone lifecycle cases, three certificate/signed-uploader cases and the
+restoration-read attribution case. The initial sandbox loopback refusal and successful rerun are both retained.
+Actual paired archives pass graph, all-target/Rustdoc and final integrity checks
+in `target/package/blob-verification.X5DMuo`. Raw logs and the incoming before-image
+remain under `.tmp/review-validation/api0280/`.
+
+Wire contracts, frozen records, memory keys and dependency selections are unchanged.
+Cross-release retirement/reinstallation and same-release recovery still apply.
+Read-only Canic working-source review finds the installed entrypoints already
+in use; it includes dirty edits and supplies no Canic build/delivery acceptance.
+[#72](https://github.com/dragginzgame/ic-blob-storage/issues/72) retains that acceptance.
+Own package versions remain 0.27.1. Full CI, native macOS and deployed-provider
+qualification remain separate; no release/Git effects or sibling edits ran.
+
+## Host directory custody and archive simplification — pending 0.28.0
+
+The three accepted cleanups are implemented; the [qualification receipt](../evidence/cleanup0280.md)
+binds the incoming dirty before-image and current published graph. Host FS 0.19
+owns private run creation and directory identity checks. New CLI run paths and
+physical parents reject CR/LF before creation, so the combined draft is 0.28.0.
+Occupied valid runs and partial evidence retain their original refusal/retention
+semantics. Public library types and stored formats are unchanged by this cleanup.
+
+Optional native IC Build 0.6.1 owns coordinated archive qualification through
+`make package-verifier`/`make package`; normal CLI and public library/Wasm graphs
+exclude it. Generic shell/Perl packaging logic is removed, while real same-version,
+graph and final-drift regressions remain. Failure 23 and signal 143 propagate.
+Two pure Shared matrices are retired from consumer dispatch through the canonical
+exporter; the same reviewed 0.15.1 source now owns 131 selected payloads. Actual
+hook/tool/archive/Make/release recovery checks remain.
+
+118 CLI/five probe cases, strict lint and actual Rust 1.91 native/Wasm pass.
+Real paired archive tests, `make -j2 package` with 57 authenticated Cargo jobserver
+calls, release adapters, tool/formatter admission, hook and evidence checks pass.
+Fresh artifacts pass seven installed session cases, three recovery cases and the
+ten-scenario Chromium journey. Before-images and raw logs remain under
+`.tmp/review-validation/cleanup0272/`. Earlier 0.27.2 qualification below retains
+its source scope and is included in this pending minor batch. Own package
+versions remain 0.27.1; no actual release/Git publication or sibling edit ran.
+
+[#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69)
+retains delivered-source/native acceptance. Full CI, native macOS, Canic and
+live provider acceptance remain separate. The earlier published Memory 0.41
+alignment and its Canic handoff remain under
+[#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77),
+with no new Memory cut here.
+
+## Published Memory 0.41 boundary and native graph — pending 0.27.2
+
+Released source is 0.27.1 `c9aea8b52d471a1b17b158e21a2e71addafdec25`.
+The [new qualification receipt](../evidence/upstream0272.md) verifies that the
+published Blob 0.27.1 archive already requires Memory 0.41 and identifies that
+source. Matching contracts 0.27.1 is present. A future 0.28 release is therefore
+not needed for Canic's Memory identity alignment; this compatible batch targets
+0.27.2. Earlier 0.27.1 claims of unchanged public contracts and Memory 0.40
+checks retain their original scope and do not qualify the later selected graph.
+
+Incoming Metrics 0.11.0/Testkit 0.46.0 edits and the complete lock are preserved.
+Testkit and direct callers now share Host 0.19.0; Memory remains 0.41.0 and Rust
+1.91 is unchanged. Shared committed 0.15.1 at
+`4f3eec42f52d4ec308bb68ab2daa3e5266b3175a` supplies 133 payloads and the
+canonical formatting-fixture helper. Tool pins and existing gate rosters stay
+unchanged. Public request-factory composition now checks the direct host type
+identity, namespace grants and actual installation memory key.
+
+Focused native/Wasm compilation, strict lint and actual Rust 1.91 pass. Two
+composition/five grants, 117 CLI/five probe cases, two installed interface/carrier
+cases, four lifecycle/recovery cases, Metrics restoration reads, seven installed
+sessions, three observation/recovery cases and the ten-scenario Chromium journey
+pass on fresh selected artifacts. Hook/formatter, shell, pins and snapshot checks
+pass. Isolated twelve-member 0.27.2 rendering preserves external lock rows
+and manifest mode/order. Logs and before-images remain in
+`.tmp/review-validation/adoption0280/`.
+
+[#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
+retains Canic lock/adapter qualification and documentation delivery. Hosts moving
+from Memory 0.40 must match the 0.41 types and explicitly retire/reinstall older
+ledgers under the runbook; no old-ledger deployment/reset is authorized. Full CI,
+native macOS, Canic and deployed-provider acceptance are separate. Pending Host
+and bounded Memory fixture-cell APIs remain unmerged and inactive. Own versions,
+Blob Git refs/index and sibling checkouts are unchanged by this task.
+
 ## Integrated Shared release helpers and published native graph — pending 0.27.1
 
 0.27.0 is released at `cc1a720e7dbf29ccf472c507205a8bbb211eae49`.

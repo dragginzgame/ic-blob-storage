@@ -86,7 +86,7 @@ echo 'Same-version archive regression passed (warm shared target; current contra
 real_cargo="$(command -v cargo)"
 # Alter actual Cargo observations or post-build bytes in independent consumers.
 # Admission must stop before tests; final drift must retain a failed attempt.
-for failure in path source version member metadata-exit archive unpacked manifest lock; do
+for failure in path source version member metadata-exit metadata-signal archive unpacked manifest lock; do
     case_root="$fixture/refusal-$failure with spaces π"
     mkdir -p "$case_root/bin"
     cp Cargo.toml Cargo.lock "$case_root/"
@@ -111,6 +111,7 @@ if [[ "$1" == metadata && " $* " != *' --no-deps '* ]]; then
         print encode_json($metadata);
     ' "$PACKAGE_CASE_ROOT/observed.json"
     [[ "$PACKAGE_FAILURE" != metadata-exit ]] || exit 23
+    [[ "$PACKAGE_FAILURE" != metadata-signal ]] || kill -TERM "$$"
     exit 0
 fi
 if [[ "$1" == test ]]; then printf 'test\n' >> "$PACKAGE_CASE_ROOT/effects"; fi
@@ -135,6 +136,7 @@ CARGO
         bash "$verifier") > "$case_root/result.log" 2>&1 || status=$?
     [[ "$status" != 0 ]] || exit 1
     [[ "$failure" != metadata-exit || "$status" == 23 ]] || exit 1
+    [[ "$failure" != metadata-signal || "$status" == 143 ]] || exit 1
     retained="$(sed -n 's/^Package verification failed; evidence retained: //p' "$case_root/result.log")"
     [[ -f "$retained/metadata.json" && -f "$retained/entry-Cargo.lock" ]] || exit 1
     if grep -F 'Coordinated archive graph, tests and final integrity checks passed.' "$case_root/result.log" >/dev/null; then exit 1; fi
@@ -142,7 +144,7 @@ CARGO
         path|source|version)
             [[ ! -e "$case_root/effects" ]] || exit 1
             grep -F 'resolved package is not the exact extracted payload: ic-blob-storage-contracts' "$case_root/result.log" >/dev/null ;;
-        metadata-exit) [[ ! -e "$case_root/effects" ]] || exit 1 ;;
+        metadata-exit|metadata-signal) [[ ! -e "$case_root/effects" ]] || exit 1 ;;
         member)
             [[ ! -e "$case_root/effects" ]] || exit 1
             grep -F 'unexpected extracted workspace member' "$case_root/result.log" >/dev/null ;;

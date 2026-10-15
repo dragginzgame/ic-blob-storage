@@ -18,18 +18,15 @@ trap finish EXIT
 
 # Inject disposable copies of actual entrypoints before their first assertion.
 # No production test hook, Git mutation, build or publication is involved.
-for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/verify-library-packages.sh scripts/ci/collect-tooling-evidence.sh; do
+# The archive wrapper delegates directly; its real failure/status/evidence
+# checks remain in test-library-packages.sh beside the same-version regression.
+for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/collect-tooling-evidence.sh; do
     owner=fixture
     boundary='trap finish_fixture EXIT'
     failures=(nounset zero nonzero command comparison)
     if [[ "$script" == scripts/ci/collect-tooling-evidence.sh ]]; then
         owner=selection
         boundary="      exit \"\$status\"' EXIT"
-        failures=(nounset zero nonzero command)
-    fi
-    if [[ "$script" == scripts/ci/verify-library-packages.sh ]]; then
-        owner=package_verification
-        boundary='trap finish_verification EXIT'
         failures=(nounset zero nonzero command)
     fi
     if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/check-validation-logging.sh || "$script" == scripts/ci/check-format-hooks.sh ]]; then
@@ -64,10 +61,6 @@ for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.s
         case_args=()
         if [[ "$script" == scripts/ci/collect-tooling-evidence.sh ]]; then
             case_args=("$case_root" "$case_root/tmp" "$case_root/evidence.tar.gz")
-        fi
-        if [[ "$script" == scripts/ci/verify-library-packages.sh ]]; then
-            mkdir -p "$case_root/scripts/release"
-            cp "$root/scripts/release/release-data.pl" "$case_root/scripts/release/"
         fi
         FIXTURE_BOUNDARY="$boundary" FIXTURE_OWNER="$owner" FIXTURE_INJECTION="$injection" awk '
             { print }

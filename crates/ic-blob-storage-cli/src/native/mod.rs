@@ -47,6 +47,7 @@ mod verify_upload;
 const USAGE: &str = concat!(
     "blob-storage --version\n",
     "Offline JSON tool/version identity; not installed-service or provider qualification.\n",
+    "New run directories use owner-only creation and reject CR/LF in their path or physical parent. Existing and partial runs refuse.\n",
     "blob-storage account-link-inputs --cashier PRINCIPAL --caller PRINCIPAL --owner PRINCIPAL --payer PRINCIPAL --daily-limit DECIMAL --expiry DECIMAL --run-dir NEW_DIRECTORY\n",
     "account-link-inputs is offline. It encodes explicit positive raw provider terms with an explicit payer/expiry, never selects units, signs, links or funds an account. Existing/partial output refuses; generated input is not an effect journal, financial cap proof or retry permit.\n",
     "blob-storage installation-check --configuration CONFIGURATION_CANDID --service PRINCIPAL --project PROJECT --verifier PRINCIPAL --release HOST_RELEASE --run-dir NEW_DIRECTORY\n",

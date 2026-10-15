@@ -36,14 +36,23 @@ fn library_linking_and_content_work_do_not_claim_or_bootstrap_memory() {
 #[test]
 fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() {
     // These keys and IDs are fixture choices, not proposed product allocations.
-    let requests = ["fixture.blob.data.v1", "fixture.database.data.v1"]
-        .map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).expect("request"));
+    // The public factory must return the host's exact Memory dependency types.
+    let mut requests: Vec<MemoryRequest> =
+        ic_blob_storage::ops::service::installation::requests("blob").expect("Blob requests");
+    requests.extend(
+        ["fixture.blob.data.v1", "fixture.database.data.v1"].map(|key| {
+            MemoryRequest::new("fixture", key, SchemaMetadata::default()).expect("request")
+        }),
+    );
     let pool = MemoryAllocationPool::new(
-        vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
+        vec![
+            MemoryAuthority::new("blob", "blob.").expect("Blob namespace grant"),
+            MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant"),
+        ],
         vec![],
     )
     .expect("host allocation pool");
-    let declarations = SealedDeclarationSnapshot::new(requests.into()).expect("snapshot");
+    let declarations = SealedDeclarationSnapshot::new(requests).expect("snapshot");
     let mut host = MemoryRuntime::new_with_config(
         VectorMemory::default(),
         MemoryManagerConfig::new(16).expect("host profile"),
@@ -55,6 +64,8 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
     ));
     host.bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .expect("host bootstrap");
+    host.open_memory(ic_blob_storage::ops::service::installation::INSTALLATION_MEMORY_KEY)
+        .expect("public installation request grants host memory");
     let committed = host.committed_allocations().expect("host capability");
     let mut database: Cell<u64, RuntimeMemory<VectorMemory>> = Cell::init(
         host.open_memory("fixture.database.data.v1")

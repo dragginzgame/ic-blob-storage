@@ -1,4 +1,6 @@
 use super::*;
+use crate::model::service::upload::UploadManifestLimit;
+use ic_blob_storage_contracts::tenant::TenantError;
 mod capacity;
 mod content;
 mod download;
@@ -146,7 +148,7 @@ fn hashes_with_headers(
 }
 
 fn prepare(owner: &mut UploadAdmissions, input: &UploadPermission) {
-    use super::manifest::UploadManifest;
+    use crate::model::service::upload::manifest::UploadManifest;
     use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
     let now = owner
         .lookup(context(5), input.request)

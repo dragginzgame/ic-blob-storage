@@ -9,6 +9,10 @@ publish.workspace = true
 description = "Independent blob-storage service library for Internet Computer canisters"
 readme = "../../README.md"
 
+[features]
+# Non-default access for this workspace's unpublished probe canisters only.
+test-support = []
+
 [dependencies]
 candid.workspace = true
 ic-blob-storage-contracts.workspace = true

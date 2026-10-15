@@ -990,24 +990,6 @@ test_invalid_publish_selection() {
     [[ ! -s "$TEST_EFFECTS" ]] || exit 1
 }
 
-test_package_lock_selection() {
-    local shape="$1"
-    perl -pi -e 's/unchanged-external-checksum/"a" x 64/e' Cargo.lock
-    cp Cargo.lock target/package-candidate.lock
-    case "$shape" in
-        valid) ;;
-        checksum) perl -pi -e 's/a{64}/"b" x 64/e' target/package-candidate.lock ;;
-        version) perl -0777 -pi -e 's/(name = "external"\nversion = ")0\.1\.0/${1}0.1.1/' target/package-candidate.lock ;;
-        source) perl -pi -e 's!registry\+https://github.com/rust-lang/crates.io-index!git+https://example.invalid/source#abc!' target/package-candidate.lock ;;
-    esac
-    if [[ "$shape" == valid ]]; then
-        perl scripts/release/release-data.pl package-lock-check Cargo.lock target/package-candidate.lock
-    else
-        expect_failure perl scripts/release/release-data.pl package-lock-check Cargo.lock target/package-candidate.lock
-    fi
-    [[ ! -s "$TEST_EFFECTS" ]] || exit 1
-}
-
 test_make_execution_refusal() {
     before="$(fingerprint)"
     for target in release-patch release-minor release-major release-resume fmt fmt-check; do
@@ -1071,7 +1053,6 @@ for shape in duplicate historical-duplicate competing; do run_case "notes-$shape
 for shape in empty missing; do run_case "notes-$shape" test_changelog_content "$shape"; done
 run_case notes-saved-intent test_changelog_intent
 for phase in preflight during-prepare; do run_case "finalizer-$phase" test_finalizer_failure "$phase"; done
-for shape in valid checksum version source; do run_case "package-lock-$shape" test_package_lock_selection "$shape"; done
 run_case adapter-release test_release
 for shape in stale foreign; do run_case "catalog-$shape" test_local_catalog_refusal "$shape"; done
 for failure in TEST_GATE_FAIL TEST_METADATA_FAIL TEST_PREPARE_FAIL; do run_case "$failure" test_rejected_preparation "$failure"; done

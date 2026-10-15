@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.28.0]
+
+- **Breaking Rust API:** construct and restore production stores only through
+  `ServiceInstallation`; component constructors and direct exposure mutation
+  are internal. Certificate issuance/assessment use `issue_installation` and
+  `inspect_installation`, deriving evidence from that owner. Move the transient
+  `UploadAdmissions` reference owner and its read adapters out of the production
+  model into explicitly selected `test-support`; production hosts must leave
+  that feature disabled. Probe fault injection and independent accounting
+  comparisons remain covered. Wire DTOs and durable layouts are unchanged
+  ([#72](https://github.com/dragginzgame/ic-blob-storage/issues/72)).
+
+- **Breaking CLI admission:** new artifact run directories reject CR/LF in
+  their path or physical parent. Use a path without control characters; existing
+  and partial runs still refuse. Host owns private creation and path/descriptor
+  custody while Blob retains artifact names and failure categories.
+- Delegate coordinated archive qualification to IC Build through an opt-in
+  contributor helper, retaining fresh compilation, frozen dependency selections,
+  integrity checks and failed evidence
+  ([#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69)).
+- Keep generic formatter-prerequisite and digest regression matrices at Shared;
+  retain Blob's actual hook, tool-admission, archive and release/recovery checks.
+
+- Qualify the public Memory 0.41 family already selected by published 0.27.1.
+  Upgrading from 0.27.0 requires matching host Memory types and explicit
+  retirement/reinstallation of older ledgers; no fallback reader or automatic
+  reset is provided
+  ([#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)).
+- Adopt private Metrics 0.11 and Testkit 0.46. The native harness now shares one
+  Host 0.19 dependency identity with Testkit; the Rust 1.91 minimum is unchanged.
+- Adopt committed Shared Tooling 0.15.1 guidance and shared Cargo formatting
+  fixture preparation, retaining actual consumer hook and recovery checks.
+
 ## [0.27.1] - 2026-10-15
 
 - Adopt the integrated Shared Tooling 0.15.0 release renderer and evidence

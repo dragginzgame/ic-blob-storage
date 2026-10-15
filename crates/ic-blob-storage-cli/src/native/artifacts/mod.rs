@@ -68,27 +68,15 @@ impl Run {
         }
     }
     pub fn create(path: &Path) -> Result<Self, Failure> {
-        let mut builder = std::fs::DirBuilder::new();
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::DirBuilderExt;
-            builder.mode(0o700);
-        }
-        builder.create(path).map_err(|e| {
-            if e.kind() == std::io::ErrorKind::AlreadyExists {
+        use ic_host_fs::durable::{DirectoryCreationError, create_private_directory};
+        let directory = create_private_directory(path).map_err(|error| match error {
+            DirectoryCreationError::BeforeCreation(source)
+                if source.kind() == std::io::ErrorKind::AlreadyExists =>
+            {
                 Failure::ExistingRun
-            } else {
-                Failure::File
             }
+            _ => Failure::File,
         })?;
-        let parent = path
-            .parent()
-            .filter(|p| !p.as_os_str().is_empty())
-            .unwrap_or(Path::new("."));
-        File::open(parent)
-            .and_then(|f| f.sync_all())
-            .map_err(|_| Failure::File)?;
-        let directory = File::open(path).map_err(|_| Failure::File)?;
         Ok(Self {
             path: path.to_owned(),
             directory,
@@ -100,22 +88,7 @@ impl Run {
     }
 
     fn admit_directory(&self) -> Result<(), Failure> {
-        // Preserve the claimed pathname contract before any new output. The
-        // held descriptor then owns publication, without parent recreation.
-        // Trusted ancestors and exclusion of concurrent writers stay caller-owned.
-        let current = std::fs::symlink_metadata(&self.path).map_err(|_| Failure::File)?;
-        if !current.is_dir() {
-            return Err(Failure::File);
-        }
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::MetadataExt as _;
-            let held = self.directory.metadata().map_err(|_| Failure::File)?;
-            if (current.dev(), current.ino()) != (held.dev(), held.ino()) {
-                return Err(Failure::File);
-            }
-        }
-        Ok(())
+        ic_host_fs::durable::admit_directory(&self.path, &self.directory).map_err(|_| Failure::File)
     }
 
     fn write_record<T, E>(

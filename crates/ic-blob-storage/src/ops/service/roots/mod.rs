@@ -33,6 +33,10 @@ pub struct StableRootClaims<M: Memory> {
     fenced: bool,
 }
 
+#[expect(
+    clippy::large_types_passed_by_value,
+    reason = "construction retains its own Copy profile under the same validated owner contract"
+)]
 impl<M: Memory> StableRootClaims<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.fenced = fenced;
@@ -43,7 +47,7 @@ impl<M: Memory> StableRootClaims<M> {
     /// # Panics
     /// Traps on aliased memories, allocation or encoding failures. The host must
     /// propagate the trap to roll back all writes in the IC message.
-    pub fn install(
+    pub(crate) fn install(
         roots: M,
         objects: M,
         config: ServiceConfiguration,
@@ -80,7 +84,7 @@ impl<M: Memory> StableRootClaims<M> {
     /// lifetime history and missing/conflicting/orphaned reverse-index entries.
     /// # Panics
     /// Corrupt stable collection/record encodings trap; no replacement is seeded.
-    pub fn open(
+    pub(crate) fn open(
         roots: M,
         objects: M,
         config: ServiceConfiguration,

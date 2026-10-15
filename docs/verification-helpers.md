@@ -6,6 +6,20 @@ policy. They require Perl core modules or Bash 3.2+, as noted below, and run on
 Linux and macOS. The portable regression suite includes offline fixtures;
 native CI qualifies each supported host separately.
 
+## Cargo dependency-order fixtures
+
+```bash
+perl scripts/ci/prepare-cargo-formatting-fixture.pl Cargo.toml workspace.dependencies candid ic-build > unsorted.toml
+```
+
+The helper accepts a caller-owned valid Cargo manifest and swaps exactly two
+adjacent, single-line declarations selected by table and bare dependency keys.
+Only strings and inline-table values are supported; unsupported selections refuse
+before any output. Other bytes, comments and newline positions remain unchanged,
+and the source is never edited. This is fixture preparation, not TOML validation,
+release metadata rendering or a production dependency reorder. Consumers retain
+their selected pair and the formatting/hook assertions. Requires Perl core only.
+
 ## Complete release-change paths
 
 ```bash

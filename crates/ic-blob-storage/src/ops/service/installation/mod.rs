@@ -198,11 +198,10 @@ impl<M: Memory> ServiceInstallation<M> {
     /// Derive current restricted-contract facts from the installed owner and limits.
     /// No facts are supplied by ingress; local bindings do not prove provisioning.
     #[must_use]
-    pub fn certificate_evidence(
+    pub(crate) fn certificate_evidence(
         &self,
         permission: ic_blob_storage_contracts::upload::binding::UploadPermission,
         now: u64,
-        durable_commit: bool,
     ) -> crate::policy::upload::exposure::UploadExposureHostEvidence {
         use crate::policy::upload::exposure::UploadExposureHostEvidence;
         // Admission and manifest preparation already enforce this installation's
@@ -214,7 +213,7 @@ impl<M: Memory> ServiceInstallation<M> {
             namespace_binding: object.service() == self.download_scope.owner()
                 && object.identity().namespace == self.download_scope.namespace(),
             current_owner: !self.stores.uploads.is_fenced(),
-            durable_commit,
+            durable_commit: true,
         }
     }
     /// Frozen installed package release; not an artifact hash or freshness authority.

@@ -5,8 +5,8 @@ use blob_test_protocol::storage::{
     exposure::{ExposureInput, ExposureOutcome, ExposureScenario},
 };
 use ic_blob_storage::policy::upload::exposure::UploadExposureHostEvidence;
-use ic_blob_storage::workflow::uploads::exposure;
-use ic_blob_storage::workflow::uploads::exposure::UploadExposureResult;
+use ic_blob_storage::test_support::exposure;
+use ic_blob_storage::test_support::exposure::UploadExposureResult;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
@@ -47,7 +47,7 @@ pub(crate) fn certificate(
         substitute(input, now).unwrap_or_else(|_| ic_cdk::trap("fixture invalid evidence"));
     TRAP_WRITE.set(input.trap_write.then_some(WriteFault::Permissions));
     let result = STATE.with_borrow_mut(|s| {
-        ic_blob_storage::workflow::uploads::certificate::issue(
+        ic_blob_storage::test_support::certificate::issue(
             &mut s.as_mut().unwrap().uploads,
             context,
             root,

@@ -212,7 +212,13 @@ fn populate_upload(
             now,
         )
         .unwrap();
-    state.uploads.expose(tenant_context, request, now).unwrap();
+    ic_blob_storage::test_support::exposure::record(
+        &mut state.uploads,
+        tenant_context,
+        request,
+        now,
+    )
+    .unwrap();
     if index.is_multiple_of(4) {
         return;
     }

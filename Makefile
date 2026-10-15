@@ -15,6 +15,7 @@ export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/re
 export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_funding_probe.wasm
 export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm
 export BLOB_CLI_BIN := $(CARGO_TARGET_DIR)/debug/blob-storage
+export BLOB_PACKAGE_VERIFIER := $(CARGO_TARGET_DIR)/debug/blob-package-verify
 export BLOB_EXPECTED_HOST_RELEASE := $(shell perl scripts/release/release-data.pl version)
 export BLOB_BROWSER_NODE ?= node
 export BLOB_BROWSER_NPM ?= npm
@@ -32,7 +33,7 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
-	build package clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
+	build package package-verifier clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
 	release-plan ensure-clean release-delivery-check \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
@@ -103,12 +104,12 @@ install-testkit:
 testkit-check:
 	+bash scripts/dev/testkit-server.sh check
 
+# Shared owns generic formatter-prerequisite and digest backend matrices.
+# Blob retains actual Make/hook/tool admission and archive/retention callers below.
 shared-tooling-tests:
 	+bash scripts/ci/test-make-consumer.sh
 	+bash scripts/ci/test-consumer-fixture-completion.sh
-	+bash scripts/ci/test-format-tools.sh
 	+bash scripts/ci/check-validation-logging.sh
-	+bash scripts/ci/test-file-digests.sh
 	+bash scripts/ci/test-evidence-archive.sh
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
@@ -323,7 +324,10 @@ wasm-check:
 build:
 	+cargo build --offline --locked -p ic-blob-storage --all-features
 
-package:
+package-verifier:
+	+cargo build --offline --locked -p ic-blob-storage-cli --features package-verification --bin blob-package-verify
+
+package: package-verifier
 	+bash scripts/ci/test-library-packages.sh
 	+bash scripts/ci/verify-library-packages.sh
 

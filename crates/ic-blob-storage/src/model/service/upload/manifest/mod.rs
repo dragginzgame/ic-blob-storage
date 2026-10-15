@@ -1,21 +1,10 @@
 //! Bounded declarations for direct uploads; no file bytes or streaming hash state.
 
-use super::LifecycleChange;
 use super::UploadAdmissionError;
-use super::UploadAdmissions;
 use super::UploadRequest;
-use super::key;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
-use ic_blob_storage_contracts::upload::binding::UploadContext;
-
-/// One retained declaration per lifetime permission, never a byte buffer.
-#[derive(Debug)]
-pub(super) struct PreparedManifest {
-    pub(super) identity: CaffeineChunkManifest,
-    pub(super) headers: Vec<super::download::ContentHeader>,
-}
 
 /// Local declaration state. Neither variant establishes stored or verified content.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -42,51 +31,6 @@ pub struct UploadManifest<'a> {
 pub(crate) struct UploadManifestView {
     pub(crate) chunks: Vec<[u8; 32]>,
     pub(crate) headers: Vec<super::download::ContentHeader>,
-}
-
-impl UploadAdmissions {
-    /// Bind a manifest for a direct browser-to-provider upload without file bytes.
-    /// Exact retries preserve the original declaration and reservation. No provider
-    /// completion, verified length or raw-digest claim follows from this operation.
-    /// # Errors
-    /// Rejects invalid uploader/activation/time/phase, invalid manifest or a changed
-    /// declaration. All rejection paths preserve existing state and accounting.
-    pub fn prepare_manifest(
-        &mut self,
-        context: UploadContext,
-        request: UploadRequest,
-        input: UploadManifest<'_>,
-        now_ns: u64,
-    ) -> Result<LifecycleChange, UploadAdmissionError> {
-        self.check_uploader(context, request, now_ns)?;
-        let manifest = validate(&self.config, request, input)?;
-        let permission = self
-            .permissions
-            .get_mut(&key(request))
-            .ok_or(UploadAdmissionError::UnknownPermission)?;
-        if let Some(existing) = &permission.manifest {
-            if existing.identity != manifest {
-                return Err(UploadAdmissionError::PermissionConflict);
-            }
-            return Ok(LifecycleChange::Unchanged);
-        }
-        // Copy only on the first successful binding. Limits and the root were
-        // checked above; reordered retries preserve the first accepted spelling
-        // and order without another retained allocation.
-        let headers = input
-            .headers
-            .iter()
-            .map(|header| super::download::ContentHeader {
-                name: header.name.to_owned(),
-                value: header.value.to_owned(),
-            })
-            .collect();
-        permission.manifest = Some(PreparedManifest {
-            identity: manifest,
-            headers,
-        });
-        Ok(LifecycleChange::Changed)
-    }
 }
 
 pub(crate) fn validate(

@@ -29,6 +29,10 @@ pub struct StableTenantEnrollments<M: Memory> {
     fenced: bool,
 }
 
+#[expect(
+    clippy::large_types_passed_by_value,
+    reason = "construction retains its own Copy profile under the same validated owner contract"
+)]
 impl<M: Memory> StableTenantEnrollments<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.fenced = fenced;
@@ -39,7 +43,10 @@ impl<M: Memory> StableTenantEnrollments<M> {
     /// # Panics
     /// Traps on stable-memory allocation or encoding failure; the IC rolls back
     /// the message. Native callers do not receive that platform guarantee.
-    pub fn install(memory: M, config: ServiceConfiguration) -> Result<Self, TenantStoreError> {
+    pub(crate) fn install(
+        memory: M,
+        config: ServiceConfiguration,
+    ) -> Result<Self, TenantStoreError> {
         if memory.size() != 0 {
             return Err(TenantStoreError::AlreadyAllocated);
         }
@@ -67,7 +74,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
     /// # Panics
     /// Corrupt stable collection headers or encoded records trap without seeding
     /// replacement data. The host must propagate restoration failure.
-    pub fn open(memory: M, config: ServiceConfiguration) -> Result<Self, TenantStoreError> {
+    pub(crate) fn open(memory: M, config: ServiceConfiguration) -> Result<Self, TenantStoreError> {
         if memory.size() == 0 {
             return Err(TenantStoreError::Missing);
         }

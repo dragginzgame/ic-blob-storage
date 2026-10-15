@@ -179,3 +179,42 @@ fn replaced_partial_body_cannot_publish_under_the_verified_handle() {
         b"substitute"
     );
 }
+
+#[test]
+fn private_run_creation_preserves_occupied_claims_and_refuses_control_paths() {
+    let parent = tempfile::tempdir().unwrap();
+    let path = parent.path().join("run");
+    let run = Run::create(&path).unwrap();
+    run.bytes("request.candid", b"original").unwrap();
+    assert!(matches!(Run::create(&path), Err(Failure::ExistingRun)));
+    assert_eq!(
+        std::fs::read(path.join("request.candid")).unwrap(),
+        b"original"
+    );
+    let occupied = parent.path().join("occupied");
+    std::fs::write(&occupied, b"outside").unwrap();
+    assert!(matches!(Run::create(&occupied), Err(Failure::ExistingRun)));
+    assert_eq!(std::fs::read(&occupied).unwrap(), b"outside");
+    for name in ["run\nname", "run\rname"] {
+        let refused = parent.path().join(name);
+        assert!(matches!(Run::create(&refused), Err(Failure::File)));
+        assert!(!refused.exists());
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::{fs::PermissionsExt as _, fs::symlink};
+        assert_eq!(
+            std::fs::metadata(&path).unwrap().permissions().mode() & 0o777,
+            0o700
+        );
+        let physical = parent.path().join("physical\nparent");
+        std::fs::create_dir(&physical).unwrap();
+        let alias = parent.path().join("alias");
+        symlink(&physical, &alias).unwrap();
+        assert!(matches!(
+            Run::create(&alias.join("run")),
+            Err(Failure::File)
+        ));
+        assert!(!physical.join("run").exists());
+    }
+}

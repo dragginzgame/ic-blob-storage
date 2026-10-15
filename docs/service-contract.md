@@ -290,6 +290,21 @@ It supplies actual service identity, project, verifier and compiled release.
 Publishing a partially constructed owner or initializing through deferred work
 is unsupported. Stable-memory failures must propagate for IC transaction rollback.
 
+The production Rust API has one construction boundary: `ServiceInstallation`.
+`ServiceStores` and individual stable-owner `install`/`open` methods are internal,
+as is direct exposure mutation. Hosts must not assemble component stores around
+an installation record. All current grants, validation and restore fences remain
+required. This API cut changes no wire DTO, record layout or memory key; the
+cross-release retirement/reinstallation disposition below still applies.
+
+The non-default core `test-support` feature exposes isolated component factories,
+certificate/exposure evidence substitution and `test_support::admission::UploadAdmissions`.
+Only the unpublished admission/storage probes enable it. Production hosts leave
+it disabled; Cargo feature unification means their build selection must exclude
+probe packages. Unit tests retain the reference owner and comparison adapters
+under `cfg(test)` without enabling the feature for production. The old public
+`model::service::upload::UploadAdmissions` path is removed, with no alias.
+
 Restoration calls `ServiceInstallation::open` synchronously before deferred work.
 All four owners remain inspection-only and fenced. Missing or corrupt grants,
 configuration or history cannot be repaired or reset away. A framework's active
@@ -666,41 +681,32 @@ budgets precede decoding but follow the separately platform-bounded CDK buffer.
 The host must retain intent before polling; this transport owns no journal or
 identity allocation and implements no provider upload or browser delivery policy.
 
-`workflow::uploads::exposure` supplies read-only preparation inspection, guarded
-synchronous commit and exact tenant/uploader history. Its host evidence binds the
-full original permission and separately reports
-explicit local namespace mapping, the retained project-approved uploader permission, current-owner eligibility
-and atomic durable commit. These facts must be established from the installed owner in the
-current execution, never accepted from production ingress. Timestamp mismatch blocks
-exposure; equal time is not proof of freshness or provenance. All missing host
-prerequisites remain visible. Commit rechecks current uploader, bound manifest,
-activation, expiry, phase and current restore fence, then writes possible exposure
-before any later effect can escape. A preview is not an authorization token.
+`workflow::uploads::exposure::inspect` retains exact tenant/uploader history.
 Historical inspection survives revocation and restore but cannot authorize issuance
-or an uncertain retry. A committed exposure rejects repetition even after a lost
-reply. The lower-level owner operation remains bookkeeping only. The shared gate
-issues no certificates, authenticates no provider evidence itself and adds no state
-schema or memory grant. Its IC evidence uses labelled host-fact substitutes.
+or an uncertain retry. Preparation inspection and exposure commit are internal
+steps of the installed-owner certificate workflow. Its evidence binds the full
+original permission, installed namespace, current-owner eligibility and synchronous
+atomic commit; production callers cannot submit these facts. Commit rechecks the
+uploader, bound manifest, activation, expiry, phase and restore fence, then writes
+possible exposure before constructing a reply. A committed exposure rejects
+repetition even after a lost reply. No state schema or memory grant is added.
 
-`workflow::uploads::certificate` connects that gate to the reviewed Caffeine
-root-only update reply. `resolve` authenticates the actual uploader and recovers
-the complete original permission through bounded index reads. `issue` re-resolves
-and rechecks current facts, then commits exposure before constructing the plain
-`{ method = "upload"; blob_hash }` response. The adapter must return that record
-from a synchronous ingress update, reject/trap failures and propagate write traps;
-it must never wrap the provider wire reply in Result, await or issue through a query.
-The IC supplies the ingress response certificate. Linking the library exports no
-endpoint and neither handler sends a provider request. The local storage fixture
-defaults to refusal and requires operator-configured, explicitly simulated facts.
-Its response/rollback tests do not prove gateway acceptance, production evidence
-acquisition, certificate replay/lifetime, namespace or pre-charge enforcement.
+`workflow::uploads::certificate::issue_installation` resolves the actual uploader
+and complete original permission through bounded index reads, derives evidence
+from the installation, rechecks current facts and commits exposure before constructing
+the plain `{ method = "upload"; blob_hash }` response. The adapter returns that
+record from a synchronous ingress update, rejects/traps failures and propagates
+write traps. It must never wrap the provider reply in Result, await after exposure
+or issue through a query. The IC supplies the ingress response certificate.
+Linking exports no endpoint and sends no provider request. The old public
+`resolve`, evidence-taking `inspect` and `issue` paths are removed.
 
-Shared certificate `inspect` returns the original permission, host assessment time
-and every missing prerequisite as passive DTOs. It applies the same local authority,
-phase and evidence-binding checks without writing exposure. Even an empty blocker
-list is only a snapshot; issuance must recheck current facts and permissions.
-The shared exposure-blocker conversion also serves the local fixture, replacing its
-private duplicate representation.
+`inspect_installation` returns the original permission, assessment time and missing
+prerequisites as passive DTOs, applying the same local authority and phase checks
+without exposure writes. An empty blocker list is a snapshot, not issuance authority.
+The explicitly selected test-support boundary retains simulated evidence and
+component-only response/rollback checks. Those local substitutes do not prove
+gateway acceptance, certificate replay/lifetime, namespace or pre-charge enforcement.
 
 Native `blob-storage certificate-assessment` uses the uploader's signing identity
 and explicit replica trust to query this boundary once. Its saved binary permission
@@ -1057,10 +1063,10 @@ bijection without rebuilding missing entries, then fences all mutations. Tenant
 lookup hides foreign roots. Enrollment and byte-quota admission belong to the
 enclosing workflow, not this index component.
 
-The transient upload model supplies independent accounting comparisons for the
-durable owner. It has no persistence or restore contract; production service
-handlers use the durable owner. Keeping this reference model does not introduce
-an alternate stable schema or a cross-release reader.
+The transient upload model lives in explicitly selected test support and supplies
+independent accounting comparisons for the durable owner. It is absent from normal
+production builds and has no persistence or restore contract. Keeping this reference
+model does not introduce an alternate stable schema or a cross-release reader.
 
 `StableUploads` exclusively owns these components plus permission, manifest,
 charged-total, confirmed-lifecycle, reference, receipt and root/request index maps in ten distinct

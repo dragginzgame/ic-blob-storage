@@ -1,6 +1,6 @@
 use super::*;
-use crate::workflow::uploads::certificate;
 use crate::workflow::uploads::certificate::UploadCertificateFailure as F;
+use crate::workflow::uploads::certificate::boundary as certificate;
 use crate::workflow::uploads::exposure;
 use exposure_boundary::{evidence, prepared};
 use ic_blob_storage_contracts::dto::upload::UploadState;

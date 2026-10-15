@@ -109,6 +109,10 @@ pub struct StableUploads<M: Memory> {
     root_requests: BTreeMap<[u8; 32], u128, M>,
     fenced: bool,
 }
+#[expect(
+    clippy::large_types_passed_by_value,
+    reason = "construction retains its own Copy profile under the same validated owner contract"
+)]
 impl<M: Memory> StableUploads<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.fenced = fenced;
@@ -120,7 +124,7 @@ impl<M: Memory> StableUploads<M> {
     /// Rejects allocated memory or an envelope exceeding the bounded manifest codec.
     /// # Panics
     /// Aliased memories or stable writes trap. Hosts must propagate this for IC rollback.
-    pub fn install(
+    pub(crate) fn install(
         memory: UploadMemories<M>,
         config: ServiceConfiguration,
     ) -> Result<Self, UploadStoreError> {
@@ -192,7 +196,7 @@ impl<M: Memory> StableUploads<M> {
     /// Rejects missing memories, changed configuration or inconsistent retained state.
     /// # Panics
     /// Corrupt binary memory/records trap without seeding a new owner.
-    pub fn open(
+    pub(crate) fn open(
         memory: UploadMemories<M>,
         config: ServiceConfiguration,
     ) -> Result<Self, UploadStoreError> {
@@ -345,13 +349,13 @@ impl<M: Memory> StableUploads<M> {
 
     /// Persist possible exposure before any future certificate could escape.
     /// This returns no certificate and does not qualify provider enforcement.
-    /// Hosts use `workflow::uploads::exposure` for the additional provider/recovery
+    /// Installed certificate workflows enforce the additional provider/recovery
     /// gates; this primitive alone checks only local bookkeeping prerequisites.
     /// # Errors
     /// Rejects wrong uploader/activation/time, missing manifest, repeated exposure or fence.
     /// # Panics
     /// Stable write failures must roll back the containing IC update.
-    pub fn expose(
+    pub(crate) fn expose(
         &mut self,
         context: UploadContext,
         request: UploadRequest,

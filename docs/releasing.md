@@ -25,7 +25,7 @@ admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canoni
 committed source; include every directly used helper as an entrypoint. Never patch
 vendored bytes or use mutable sibling tools. See
 [Shared snapshot adoption](consuming-snapshots.md) and
-[the latest qualified adoption](evidence/shared01500271.md).
+[the latest qualified adoption](evidence/cleanup0280.md).
 
 Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
 binary. Release preparation uses Shared’s literal manifest renderer; no separate
@@ -179,23 +179,30 @@ Use `make package` for paired local payload verification, or select contracts fo
 its individual dry-run. Publishing neither deploys nor qualifies the service.
 Older completed releases need no runner plan for this separate publication check.
 
-`make package` assembles both `.crate` archives with Cargo, then runs the full
-library tests/examples against their exact extracted, normalized payloads in a
-fresh retained workspace with its own Cargo target directory. A real Cargo fixture
-checks that a second archive with the same package version executes the updated
-contract, rather than reusing stale artifacts with fixed archive timestamps. Its
-local contracts patch points only at that extracted payload. Before compilation,
-the bounded metadata adapter requires both expected names/versions to resolve to
-those exact extracted manifests as the only verification-workspace members, and
-rejects any external version/source/checksum absent from the frozen root lock.
-After tests, require identical archive hashes, unpacked source hashes/modes,
-original manifests/lock and the admitted fixture manifests/lock. Premature exits
-cannot report success; keep all failed evidence. No packaged manifest is rewritten,
-and the local override never enters publication. The final root lock is unchanged. This avoids Cargo’s
-[local-registry checksum failure](https://github.com/rust-lang/cargo/issues/14396)
-without dropping package-content verification. Package assembly needs Cargo 1.90
-or newer ([stabilization record](https://blog.rust-lang.org/inside-rust/2025/10/01/this-development-cycle-in-cargo-1.90/));
-the supported library/compiler floor is Rust 1.91.
+`make package` builds the opt-in native `blob-package-verify` contributor helper,
+then qualifies both exact `.crate` payloads through IC Build. The helper's
+`package-verification` feature is disabled for ordinary CLI builds; public
+libraries/contracts and production Wasm have no IC Build dependency. Run
+`make package-verifier` to prepare only that executable. An explicit
+`BLOB_PACKAGE_VERIFIER` must name an existing absolute executable.
+
+Blob selects the two package identities, contracts-only temporary registry patch,
+archive location and fresh retained evidence directory. IC Build owns packaging,
+exact extracted graph admission, frozen external selections, isolated compilation,
+all-target/Rustdoc tests and final integrity checks. Each source/metadata/archive
+file and each command's stdout/stderr has a 64 MiB ceiling, with at most 100,000
+source entries and depth 64. Build duration has no implicit deadline.
+
+The real same-version regression and graph/byte/source/manifest/lock refusal
+cases remain consumer checks. Ordinary nonzero and signal termination statuses
+propagate through the thin wrapper; original command diagnostics and partial
+attempts remain under the printed `target/package/blob-verification.*` root.
+No package manifest is rewritten and no override enters publication. IC Build's
+fresh target prevents fixed archive timestamps from admitting stale same-version
+builds, while avoiding Cargo's
+[local-registry checksum failure](https://github.com/rust-lang/cargo/issues/14396).
+Package assembly needs Cargo 1.90 or newer; Blob's supported compiler floor is
+Rust 1.91. Package qualification never publishes or qualifies a deployed service.
 
 Validation builds use the source version before release preparation. Preserved
 binaries may report that earlier version after a successful release. Before

@@ -7,6 +7,22 @@ The [service contract](service-contract.md#current-persisted-boundaries) owns th
 requirements; the [operator guide](operator-guide.md) owns command syntax.
 Library publication is separate from permission to retire or deploy a service.
 
+## Memory 0.41 disposition
+
+The current Blob family exposes Memory 0.41. Its checked numeric allocation
+slots use the `ICMN` version-1 logical ledger discriminator; earlier `ICMS`
+ledger bytes are incompatible even though application collection layouts are
+unchanged. Inspect an older installation with its frozen binary and tools.
+A decode refusal must preserve its bytes and cannot authorize clearing the
+allocation ledger while leaving collection data behind.
+
+Cross-release Blob transitions remain reinstall-only under this runbook. Retain
+all provider identities, uncertain effects, balances and continuing billing
+obligations before reset. Fresh-install and same-release restore evidence on the
+new graph does not qualify an old ledger or authorize deployment/reset. Follow
+[#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
+and the integrating host's own retained-installation review.
+
 ## Freeze the owner and preserve access
 
 Assign an operator, reconciliation owner and budget. Stop application publication
@@ -19,8 +35,9 @@ Freeze the old module, source/dependency lock, compiled release, installation in
 matching CLI/browser tools and their hashes. Record the actual service principal,
 namespace, provider owner/project, tenant bindings, operator, uploader, verifier,
 payer and cashier. Keep secrets under their existing access controls, separate
-from public evidence. New ic-memory 0.27 tools cannot read an earlier ledger; use
-the frozen old contract for inspection. A failed upgrade is not a migration.
+from public evidence. Current Memory tools refuse incompatible earlier ledger
+formats; use the frozen old contract for inspection. A failed upgrade is not a
+migration.
 
 Preserve backups and raw journals under an operator-controlled location that will
 survive destruction of the installation. Hash an immutable manifest of these

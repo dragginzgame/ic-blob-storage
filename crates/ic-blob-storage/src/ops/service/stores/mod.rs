@@ -110,6 +110,10 @@ pub struct ServiceStores<M: Memory> {
     /// Concurrent read intents and reserved buffers.
     pub reads: StableReadSessions<M>,
 }
+#[expect(
+    clippy::large_types_passed_by_value,
+    reason = "construction retains its own Copy profile under the same validated owner contract"
+)]
 impl<M: Memory> ServiceStores<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.uploads.set_recovery_fence(fenced);
@@ -124,7 +128,7 @@ impl<M: Memory> ServiceStores<M> {
     /// Rejects any allocated memory before writing to any store.
     /// # Panics
     /// Aliased grants or allocation/write failures trap; never catch and continue.
-    pub fn install(
+    pub(crate) fn install(
         memory: ServiceMemories<M>,
         config: ServiceStoreConfiguration,
     ) -> Result<Self, ServiceStoreError> {
@@ -155,7 +159,7 @@ impl<M: Memory> ServiceStores<M> {
     /// Rejects missing memories, changed configuration or inconsistent retained state.
     /// # Panics
     /// Corrupt binary records or collection headers trap.
-    pub fn open(
+    pub(crate) fn open(
         memory: ServiceMemories<M>,
         config: ServiceStoreConfiguration,
     ) -> Result<Self, ServiceStoreError> {

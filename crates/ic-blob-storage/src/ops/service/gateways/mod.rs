@@ -44,6 +44,10 @@ pub struct StableGatewayRegistry<M: Memory> {
     config: ServiceConfiguration,
     fenced: bool,
 }
+#[expect(
+    clippy::large_types_passed_by_value,
+    reason = "construction retains its own Copy profile under the same validated owner contract"
+)]
 impl<M: Memory> StableGatewayRegistry<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.fenced = fenced;
@@ -56,7 +60,10 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// Rejects allocated memory or an unsupported member envelope before writing.
     /// # Panics
     /// Stable allocation/encoding failures trap; hosts must propagate IC rollback.
-    pub fn install(memory: M, config: ServiceConfiguration) -> Result<Self, GatewayStoreError> {
+    pub(crate) fn install(
+        memory: M,
+        config: ServiceConfiguration,
+    ) -> Result<Self, GatewayStoreError> {
         validate_envelope(&config)?;
         if memory.size() != 0 {
             return Err(GatewayStoreError::AlreadyAllocated);
@@ -81,7 +88,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// Rejects missing/mismatched/corrupt records or unsupported bounds.
     /// # Panics
     /// Invalid collection/record bytes trap without initializing replacement state.
-    pub fn open(memory: M, config: ServiceConfiguration) -> Result<Self, GatewayStoreError> {
+    pub(crate) fn open(memory: M, config: ServiceConfiguration) -> Result<Self, GatewayStoreError> {
         validate_envelope(&config)?;
         if memory.size() == 0 {
             return Err(GatewayStoreError::Missing);

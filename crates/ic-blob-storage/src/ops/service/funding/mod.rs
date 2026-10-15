@@ -51,6 +51,10 @@ pub struct StableFundingJournal<M: Memory> {
     config: ServiceConfiguration,
     fenced: bool,
 }
+#[expect(
+    clippy::large_types_passed_by_value,
+    reason = "construction retains its own Copy profile under the same validated owner contract"
+)]
 impl<M: Memory> StableFundingJournal<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.fenced = fenced;
@@ -63,7 +67,7 @@ impl<M: Memory> StableFundingJournal<M> {
     /// Rejects allocated memory and history limits that cannot fit 32-bit Wasm.
     /// # Panics
     /// Aliased memories and stable writes trap; the host must propagate IC rollback.
-    pub fn install(
+    pub(crate) fn install(
         memory: FundingMemories<M>,
         config: ServiceConfiguration,
         allocation: FundingAllocation,
@@ -91,7 +95,7 @@ impl<M: Memory> StableFundingJournal<M> {
     /// Rejects missing stores, changed bindings, invalid history or accounting.
     /// # Panics
     /// Corrupt binary records/collection headers trap; hosts must reject restoration.
-    pub fn open(
+    pub(crate) fn open(
         memory: FundingMemories<M>,
         config: ServiceConfiguration,
         allocation: FundingAllocation,

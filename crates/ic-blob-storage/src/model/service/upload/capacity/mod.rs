@@ -1,23 +1,7 @@
 //! Reserve future leaf-array capacity from the exact admitted content length.
 
-use super::{UploadAdmissionError, UploadAdmissions};
-use candid::Principal;
+use super::UploadAdmissionError;
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
-use std::collections::BTreeMap;
-
-#[derive(Debug, Default)]
-pub(super) struct ManifestAccounting {
-    global: u64,
-    tenants: BTreeMap<Principal, u64>,
-}
-
-impl ManifestAccounting {
-    pub(super) fn admit(&mut self, tenant: Principal, bytes: u64) {
-        let retained = chunks(bytes);
-        self.global += retained;
-        *self.tenants.entry(tenant).or_default() += retained;
-    }
-}
 
 /// Which retained manifest budget rejected fresh admission.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -26,36 +10,6 @@ pub enum UploadManifestLimit {
     Global,
     /// One tenant's lifetime admitted chunk slots.
     Tenant,
-}
-
-impl UploadAdmissions {
-    pub(super) fn remaining_manifest_chunks(&self, tenant: Principal) -> u64 {
-        let limits = self.config.limits().manifests;
-        let own = self
-            .manifest_accounting
-            .tenants
-            .get(&tenant)
-            .copied()
-            .unwrap_or(0);
-        remaining(limits, self.manifest_accounting.global, own)
-    }
-
-    pub(super) fn check_manifest_capacity(
-        &self,
-        tenant: Principal,
-        bytes: u64,
-    ) -> Result<(), UploadAdmissionError> {
-        check(
-            self.config.limits().manifests,
-            self.manifest_accounting.global,
-            self.manifest_accounting
-                .tenants
-                .get(&tenant)
-                .copied()
-                .unwrap_or(0),
-            bytes,
-        )
-    }
 }
 
 fn chunks(bytes: u64) -> u64 {

@@ -207,6 +207,11 @@ canisters in `canisters/`, and packaged test support in `tests/pocketic/` and
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
 | [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |
 
+Production hosts construct and restore `ServiceInstallation` and use its installed
+certificate workflows. Component factories, evidence substitution and the transient
+reference owner are available only through the non-default core `test-support`
+feature for isolated probes; production builds must leave it disabled.
+
 The host owns one `ic-memory` runtime and its allocation policy. Linking a library registers no endpoints or lifecycle hooks.
 See [memory composition](docs/dependencies.md#memory-composition)
 for the integration details.

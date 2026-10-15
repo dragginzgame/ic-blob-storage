@@ -21,9 +21,9 @@ finish() {
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
 overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh scripts/ci/run-formatting.sh scripts/ci/select-rust-formatting-sources.sh scripts/ci/fixture-lifecycle.sh make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
-# Swap two adjacent dependency declarations without changing their values.
-perl -0777 -pe 's/^(ic-cdk = [^\n]*\n)(ic-host-artifacts = [^\n]*\n)/$2$1/m or die "cannot prepare ordering-only manifest\n"' \
-    "$ROOT/Cargo.toml" > "$TEMPORARY/unsorted-Cargo.toml"
+# Shared prepares the deliberate ordering defect; Blob selects its real inputs.
+perl "$ROOT/scripts/ci/prepare-cargo-formatting-fixture.pl" "$ROOT/Cargo.toml" \
+    workspace.dependencies ic-cdk ic-host-artifacts > "$TEMPORARY/unsorted-Cargo.toml"
 bash "$ROOT/scripts/ci/check-formatting-hooks.sh" "$ROOT" "$selected" Cargo.toml \
     "$TEMPORARY/unsorted-Cargo.toml" --rust-sources "${overlays[@]}"
 

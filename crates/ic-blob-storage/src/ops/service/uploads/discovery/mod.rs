@@ -1,6 +1,5 @@
 //! Tenant-bound indexed discovery over the maintained upload owner.
 use crate::model::service::upload::UploadAdmissionError;
-use crate::model::service::upload::UploadAdmissions;
 use crate::model::service::upload::content::ContentLookup;
 use crate::model::service::upload::content::TenantContentView;
 use crate::ops::service::uploads::StableUploads;
@@ -45,19 +44,7 @@ impl<M: Memory> UploadDiscoverySource for StableUploads<M> {
         })
     }
 }
-impl UploadDiscoverySource for UploadAdmissions {
-    fn discovery_view(
-        &self,
-        context: UploadContext,
-        input: ContentLookup,
-    ) -> Result<UploadDiscoveryObservation, UploadStoreError> {
-        // The heap owner has no restore path; recreation is not operational recovery.
-        Ok(UploadDiscoveryObservation {
-            content: self.lookup_content(context, input)?,
-            fenced: false,
-        })
-    }
-}
+
 fn failure(error: UploadStoreError) -> F {
     match error {
         UploadStoreError::Binding

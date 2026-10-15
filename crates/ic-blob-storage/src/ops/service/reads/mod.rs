@@ -58,6 +58,10 @@ pub struct StableReadSessions<M: Memory> {
     limits: ReadSessionLimits,
     fenced: bool,
 }
+#[expect(
+    clippy::large_types_passed_by_value,
+    reason = "construction retains its own Copy profile under the same validated owner contract"
+)]
 impl<M: Memory> StableReadSessions<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.fenced = fenced;
@@ -70,7 +74,7 @@ impl<M: Memory> StableReadSessions<M> {
     /// Rejects invalid limits or any already allocated memory.
     /// # Panics
     /// Aliased grants and stable failures trap; the host must propagate rollback.
-    pub fn install(
+    pub(crate) fn install(
         memory: ReadSessionMemories<M>,
         config: ServiceConfiguration,
         limits: ReadSessionLimits,
@@ -100,7 +104,7 @@ impl<M: Memory> StableReadSessions<M> {
     /// Rejects missing stores, changed bindings/limits, orphaned rows or bad totals.
     /// # Panics
     /// Invalid binary records or collection headers trap.
-    pub fn open(
+    pub(crate) fn open(
         memory: ReadSessionMemories<M>,
         config: ServiceConfiguration,
         limits: ReadSessionLimits,

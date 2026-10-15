@@ -1,5 +1,5 @@
 use super::*;
-use crate::model::service::upload::UploadAdmissions;
+use crate::test_support::admission::UploadAdmissions;
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
