@@ -1,6 +1,110 @@
 # Current status
 
-Date: 2026-10-14
+Date: 2026-10-15
+
+## Browser consolidation and bounded consumer cell
+
+The certificate browser driver now uses the existing queued JSON channel;
+shutdown runs on success or failure. The journal profile delegates payloads to
+the existing asset server while retaining exact GET/path refusal, no-store
+headers and its browser route allowlist. Three direct Node channel cases and
+the ten-scenario installed Chromium certificate journey pass. The actual
+675/5,000/10,000-row profile passes population and process reopening, retaining
+uncertain gateway history, cancellation and capacity refusals. These are local
+substitute results, with no live IC/provider requests or paid cycles.
+
+The consumer's custom envelope retirement is prepared in an isolated candidate,
+with the bounded extension to [Memory #105](https://github.com/dragginzgame/ic-memory/pull/105).
+The normal checkout keeps its published dependency and existing journal until
+that API is published. Blob retains Candid decoding/work limits, identity and
+model validation, fencing and persistence before heap replacement. The candidate
+uses Memory's Cell envelope and is fresh-fixture-only across the format cut;
+no retained image is reset and no compatibility reader is added.
+
+The bounded producer extension is published on the existing draft PR at
+`67bffaf488cd39f5c961570051b8e494877f8831`. Focused producer checks pass 224
+library cases (five unrelated cases ignored), strict feature lint/Rustdoc and
+actual Rust 1.88 Wasm compilation on its committed Host 0.18.2 graph. The
+candidate separately passes strict probe lint, actual Rust 1.88 and 18 installed
+consumer cases plus the combined ten-scenario Chromium journey on final Wasm.
+It uses a local Memory source override only in isolation; the remaining incoming
+graph is unchanged. `adopt-bounded-memory.patch` applies cleanly but is inactive
+until publication. Full producer delivery/native acceptance remains outstanding.
+
+Incoming Memory 0.39.0, Metrics 0.10.0 and Testkit 0.44.0 selections are preserved.
+The public Memory change classifies the complete pending batch as 0.26.0;
+package versions are unchanged. Earlier 0.25.2 evidence below still belongs to
+its original graph. Focused logs and the pending consumer replacement are under
+`.tmp/review-validation/cleanup0260/`. Full CI, native macOS, Canic and deployed
+provider acceptance remain separate.
+
+## Released-issue acceptance reconciliation
+
+Closed seven completed producer/consumer issues: coordinated archives
+[#56](https://github.com/dragginzgame/ic-blob-storage/issues/56), hook temporary
+parents [#58](https://github.com/dragginzgame/ic-blob-storage/issues/58), shared
+storage/evidence [#59](https://github.com/dragginzgame/ic-blob-storage/issues/59),
+Candid export separation [#63](https://github.com/dragginzgame/ic-blob-storage/issues/63),
+snapshot catalogs [#66](https://github.com/dragginzgame/ic-blob-storage/issues/66),
+Memory 0.37 [#68](https://github.com/dragginzgame/ic-blob-storage/issues/68) and
+Memory 0.38 [#71](https://github.com/dragginzgame/ic-blob-storage/issues/71).
+The queue now has eleven open issues.
+
+Exact released 0.25.1 source `438d17698575c3c3a67fb423d9bf2a1b79eeaaab`
+passes [Linux, Apple Silicon, Intel and Rust 1.88 CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38613096924).
+Native raw logs confirm archive integrity, actual tooling/retention fixtures,
+exact-ID evidence transport and original/O3/Os/Oz installation/restoration.
+Intel package, optimizer and tooling ZIPs were independently downloaded by ID,
+matched to GitHub's digests and inspected. Reviewed Shared remains 0.11.0
+`a15ff323449f4b6190f647aec0de43cbcfb314ba` with 116 payloads; linked Shared
+owners received consumer completion receipts. Memory 0.37 closes against its own
+published 0.24.0 source and scoped composition/compile evidence. Memory 0.38 has
+published producer/native acceptance and Canic #559's separately frozen caller
+and installed evidence; Canic's broader uncommitted delivery stays with its owner.
+
+Keep #57 open: exact 0.22.6 Intel acceptance was cancelled; no historical rerun
+or waiver occurred. #69/#70 still need Blob adoption, #72 needs publication and
+Canic qualification, and #4/#5/#6/#31/#32/#33/#34 retain application/provider
+acceptance. Raw issue/job/artifact readback remains under
+`.tmp/review-validation/issues0251-close/`, with originals at
+`/tmp/blob-issue-close-20261015/`. Incoming Memory 0.39, Metrics 0.10 and Testkit
+0.43 edits are untouched and unqualified by this audit; the preceding local
+0.25.2 qualification remains bound to its original graph. No code, dependency,
+package metadata, Git, CI-dispatch or provider effects ran in this reconciliation.
+
+## Shared installed-host continuity and certificate owner
+
+Released 0.25.1 at `438d17698575c3c3a67fb423d9bf2a1b79eeaaab` has a
+successful [complete hosted run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38613096924).
+Pending compatible 0.25.2 implements the producer/standalone part of
+[#72](https://github.com/dragginzgame/ic-blob-storage/issues/72).
+Installation owns version-gap fencing and previously-active proof selection;
+shared recovery workflows own pre-update and explicit recovery completion.
+The host keeps its heap checkpoint, actual platform observations, synchronous
+memory/lifecycle custody and endpoint authentication. The new continuity access
+trait composes with the existing recovery installation access; no global holder
+or implicit lifecycle is installed. Certificate composition resolves permission
+before evidence through an immutable assessment or synchronous issuance borrow.
+Existing lower-level primitives remain available to independently composed hosts.
+
+Focused Linux qualification passes 15 installation/recovery cases, nine installed
+standalone cases, strict library/standalone lint and Rustdoc, and actual Rust 1.88.
+Fresh standalone and gateway-source Wasm plus the explicit existing PocketIC 16.1
+bytes own signed-uploader, assessment/issuance, snapshot-refusal, replicated account
+and same-release recovery results. The first account selector included a nested
+CLI case without its required artifact; its failure is retained and the full four-
+case selector passes with a freshly built, explicit CLI. Manifest/lock, source
+and artifact checks retain the unchanged graph and tested bytes. Raw logs and
+before-images remain under `.tmp/review-validation/host0252/`, with originals at
+`/tmp/blob-host72.uxO97y/`.
+
+Canic remains read-only at `644d4b13012b395d6211a6907e2e6aafdf391db9` plus its
+incoming integration edits. Its host still needs to adopt the published APIs and
+qualify dedicated/embedded consumers; #72 remains open for that acceptance.
+Its active handoff now records Blob 0.25/Memory 0.38 integration evidence, while
+later incoming Testkit/Timers edits retain separate qualification obligations.
+No Canic build, full local CI, native macOS, deployed-provider or paid effects ran.
+No dependency selection, own package version, sibling file or Git effects changed.
 
 ## Probe conversion, byte accumulation and session budgets
 

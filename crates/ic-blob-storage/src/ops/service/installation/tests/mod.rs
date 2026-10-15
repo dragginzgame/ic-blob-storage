@@ -103,6 +103,64 @@ fn bytes(memory: &[VectorMemory; 17]) -> [Vec<u8>; 17] {
 }
 
 #[test]
+fn observed_version_gaps_fence_without_changing_journals_or_the_installation_anchor() {
+    for (previous, current, gap) in [
+        (7, 7, false),
+        (7, 8, false),
+        (7, 9, true),
+        (9, 7, true),
+        (u64::MAX, u64::MAX, false),
+        (u64::MAX, 0, true),
+        (0, u64::MAX, true),
+    ] {
+        let memory = memory();
+        let validated = ValidatedServiceInstallation::new(
+            candidate().service,
+            ServiceInstallationCandidate {
+                platform_installation_version: 7,
+                ..input()
+            },
+        )
+        .unwrap();
+        let mut installation = ServiceInstallation::install(memories(&memory), validated).unwrap();
+        let before = bytes(&memory);
+        let mut checkpoint = previous;
+        let request = installation.prepare_active_continuity(&mut checkpoint, current);
+        assert_eq!(request.map(|r| r.installation_version), gap.then_some(7));
+        assert_eq!(checkpoint, current);
+        assert_eq!(installation.stores().uploads.is_fenced(), gap);
+        assert_eq!(installation.stores().funding.is_fenced(), gap);
+        assert_eq!(installation.platform_installation_version(), 7);
+        assert_eq!(bytes(&memory), before);
+        installation.observe_platform_version(&mut checkpoint, current);
+        assert_eq!(installation.stores().uploads.is_fenced(), gap);
+        assert_eq!(bytes(&memory), before);
+    }
+}
+
+#[test]
+fn already_fenced_restoration_never_requests_automatic_continuity_recovery() {
+    let memory = memory();
+    let installed = ServiceInstallation::install(memories(&memory), validated()).unwrap();
+    drop(installed);
+    let mut restored =
+        ServiceInstallation::open(memories(&memory), candidate().service, RELEASE).unwrap();
+    let before = bytes(&memory);
+    let mut checkpoint = 7;
+    for current in [9, 10, 0, u64::MAX] {
+        assert!(
+            restored
+                .prepare_active_continuity(&mut checkpoint, current)
+                .is_none()
+        );
+        assert_eq!(checkpoint, current);
+        assert!(restored.stores().uploads.is_fenced());
+        assert!(restored.stores().funding.is_fenced());
+        assert_eq!(bytes(&memory), before);
+    }
+}
+
+#[test]
 fn configuration_inspection_binds_operator_service_and_preserves_restore_fences() {
     use crate::workflow::installation::inspect;
     use ic_blob_storage_contracts::dto::configuration::HostFailure;

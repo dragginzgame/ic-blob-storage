@@ -4,8 +4,7 @@ import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { serveAssets } from './assets.mjs';
 import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
-import { createInterface } from 'node:readline';
-import { once } from 'node:events';
+import { controlChannel } from './control.mjs';
 import { createHash } from 'node:crypto';
 
 const [major, minor] = process.versions.node.split('.').map(Number);
@@ -31,6 +30,7 @@ const server = await loopbackH2(tls, (req, res) => {
 });
 const origin = server.origin;
 const browser = await chromium.launch(tls.launch);
+const control = controlChannel();
 async function exercise() {
   const context = await browser.newContext();
   // Observe without routing, which can rewrite a stream into a buffered request.
@@ -50,18 +50,14 @@ async function exercise() {
   assert.deepEqual(gateway, []);
   // Rust converts the actual declaration into opaque Candid. The browser signs
   // consumer admission and uploader preparation; Rust checks replies before grant.
-  const control = createInterface({ input: process.stdin, crlfDelay: Infinity });
-  const commandsReady = once(control, 'line');
-  process.stdout.write(`${JSON.stringify(upstreamPlan)}\n`);
-  const [commandsLine] = await commandsReady;
-  const grant = once(control, 'line');
+  control.send(upstreamPlan);
+  const commands = await control.next();
   const replies = await a.evaluate(({ config, commands }) => fixture.admitAndPrepare(config, commands),
-    { config, commands: JSON.parse(commandsLine) });
+    { config, commands });
   assert.deepEqual(gateway, []);
-  process.stdout.write(`${JSON.stringify(replies)}\n`);
-  const [line] = await grant;
-  control.close(); process.stdin.pause();
-  const admitted = JSON.parse(line);
+  control.send(replies);
+  const admitted = await control.next();
+  control.close();
   assert.ok(Array.isArray(admitted.permission));
   Object.assign(config, admitted);
   await a.evaluate(c => fixture.setup(c), { ...config, gateway: origin });
@@ -257,6 +253,7 @@ async function exercise() {
   console.log(JSON.stringify({ browser: browser.version(), outcome: 'passed', cancelled: recovered.cancelled, consumer }));
 }
 try { await exercise(); } finally {
+  control.close();
   clearTimeout(deadline);
   await browser.close();
   await server.close(); await tls.close();

@@ -401,7 +401,20 @@ the actual canister and retained anchor. Operator and installation are rechecked
 after the await. Activation changes only owner fences; it never modifies IDs,
 reservations, journals, receipts, balances or liabilities, and dispatches no
 provider effect. An expired history window is not rotated or replaced by a
-local counter. Hosts own their explicit lifecycle/endpoint and heap-version guard.
+local counter. Hosts own their explicit lifecycle/endpoint and heap checkpoint.
+
+Library hosts compose `ContinuityInstallationAccess` with their existing
+`RecoveryInstallationAccess` adapter. Delegate version observation and active
+preflight to `ServiceInstallation::observe_platform_version` and
+`prepare_active_continuity`, supplying the host's retained heap checkpoint and
+actual platform version. Shared installation recovery workflows own `before_update`
+and `resume_host_instance`, including post-await observation on refusal. The
+host still owns synchronous memory restoration, borrowing and authenticated
+endpoint context; linking the library installs no endpoints or lifecycle hooks.
+Use certificate workflow `inspect_installation` through an immutable borrow and
+`issue_installation` through the synchronous replicated update boundary. These
+flows resolve uploader permission before deriving installed-owner evidence;
+assessment grants no mutation authority and issuance never awaits after exposure.
 
 This path qualifies the maintained host's ordinary same-release reopening of its
 existing journals. It cannot attest to arbitrary host-code stable-memory writes
