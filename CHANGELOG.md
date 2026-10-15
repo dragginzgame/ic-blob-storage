@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.26.0]
+## [0.26.0] - 2026-10-15
 
 - **Breaking, pending complete qualification:** incoming selections move public
   IC Memory to 0.39; consumers need the matching memory family and explicit
