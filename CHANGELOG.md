@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.30.0]
+## [0.30.0] - 2026-10-16
 
 - **Breaking Memory API and storage:** adopt public IC Memory 0.44 and remove
   `grants::open_default`. Hosts must retain their own bootstrapped runtime and
