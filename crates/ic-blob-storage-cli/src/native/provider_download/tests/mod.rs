@@ -88,9 +88,15 @@ fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) -> std::io::Result
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .unwrap();
-    let request =
-        ic_testkit::testing::read_http_request(&mut stream, Duration::from_secs(5), 8192, 0)
-            .expect("bounded GET request");
+    let request = ic_host_process::testing::http::capture_http_request(
+        &mut stream,
+        Duration::from_secs(5),
+        8192,
+        0,
+        ic_host_process::testing::http::HttpContentLength::Optional,
+    )
+    .into_result()
+    .expect("bounded GET request");
     let request = String::from_utf8(request).unwrap().to_ascii_lowercase();
     assert!(request.contains("accept-encoding: identity"));
     assert!(!request.contains("authorization:"));
