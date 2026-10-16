@@ -29,7 +29,8 @@ TCP acceptance without workers, HTTP policy or new dependencies. Seven socket/HT
 cases, strict lint, Rustdoc and Rust 1.91 pass. `adopt-accept.patch` removes both
 Blob accept loops; its isolated consumer passes the provider response/refusal
 matrix, strict CLI lint, Rust 1.91 and three installed lost/pending-reply observer
-cases against fresh storage Wasm. Producer delivery and consumer
+cases against fresh storage Wasm. [Testkit PR #108](https://github.com/dragginzgame/ic-testkit/pull/108)
+delivers the exact producer source above. Merge/registry publication and consumer
 activation remain tracked by [#70](https://github.com/dragginzgame/ic-blob-storage/issues/70).
 No unpublished dependency override enters the real checkout.
 

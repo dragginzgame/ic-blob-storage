@@ -12,8 +12,10 @@ publication/setup/recovery cases, including changed credential files after start
 The earlier optional verifier type mismatch is resolved on this graph; actual
 archive qualification and full CI remain separate. Own versions remain 0.28.0.
 
-The deadline-based Testkit accept helper and tested source-only consumer patch
-are prepared in isolation. Producer publication and Blob activation remain with
+The deadline-based Testkit accept helper is delivered in
+[Testkit PR #108](https://github.com/dragginzgame/ic-testkit/pull/108); its tested
+source-only consumer patch remains prepared in isolation. Producer merge/registry
+publication and Blob activation remain with
 [#70](https://github.com/dragginzgame/ic-blob-storage/issues/70); the real checkout
 retains published Testkit 0.47 and its current test loops. Earlier evidence below
 retains its original dependency/source scope.
