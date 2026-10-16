@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.30.1]
+
+- Use Host's bounded HTTP request readers directly in native test fixtures,
+  retaining deadlines, body limits and caller-owned response behavior. This
+  prepares the fixtures for Testkit's removal of its duplicate HTTP helpers.
+
 ## [0.30.0] - 2026-10-16
 
 - **Breaking Memory API and storage:** adopt public IC Memory 0.44 and remove

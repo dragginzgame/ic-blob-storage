@@ -21,9 +21,15 @@ pub(crate) fn incoming(listener: &TcpListener) -> (TcpStream, String) {
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .unwrap();
-    let request =
-        ic_testkit::testing::read_http_request(&mut stream, Duration::from_secs(5), 8192, 0)
-            .expect("bounded GET request");
+    let request = ic_host_process::testing::http::capture_http_request(
+        &mut stream,
+        Duration::from_secs(5),
+        8192,
+        0,
+        ic_host_process::testing::http::HttpContentLength::Optional,
+    )
+    .into_result()
+    .expect("bounded GET request");
     (stream, String::from_utf8(request).unwrap())
 }
 
