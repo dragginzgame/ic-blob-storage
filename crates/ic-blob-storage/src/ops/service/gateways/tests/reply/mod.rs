@@ -1,8 +1,9 @@
 use super::*;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::{
     ops::{
         caffeine::{
-            gateway::{GatewayReplyError, GatewayReplyLimits},
+            gateway::GatewayReplyError,
             query::reply::{BoundGatewayReplyError, QueryReplyBindingError},
         },
         service::gateways::reply::GatewaySyncReplyError,
@@ -10,8 +11,8 @@ use crate::{
     workflow::gateways::{begin_sync, cancel_sync, complete_sync},
 };
 use std::num::NonZeroUsize;
-pub(super) fn limits() -> GatewayReplyLimits {
-    GatewayReplyLimits {
+pub(super) fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: NonZeroUsize::new(4096).unwrap(),
         decoding_quota: NonZeroUsize::new(100_000).unwrap(),
         skipping_quota: NonZeroUsize::new(1000).unwrap(),
@@ -37,7 +38,7 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
         (vec![], limits(), GatewayReplyError::InvalidReply),
         (
             good.clone(),
-            GatewayReplyLimits {
+            CaffeineReplyLimits {
                 max_bytes: NonZeroUsize::MIN,
                 ..limits()
             },
@@ -45,7 +46,7 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
         ),
         (
             good.clone(),
-            GatewayReplyLimits {
+            CaffeineReplyLimits {
                 decoding_quota: NonZeroUsize::MIN,
                 ..limits()
             },
@@ -79,7 +80,7 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
         &attempt,
         scope(),
         &good,
-        GatewayReplyLimits {
+        CaffeineReplyLimits {
             max_bytes: NonZeroUsize::new(good.len()).unwrap(),
             ..limits()
         },

@@ -1,11 +1,12 @@
 //! Pure host composition: an independently restored owner cannot publish a late report.
 use super::*;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::ops::caffeine::query::CashierQueryRequest;
 use crate::ops::caffeine::query::transport::CashierQueryResponse;
 use crate::ops::caffeine::query::transport::CashierQueryTransport;
 use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
 use crate::ops::service::account::AccountInspectionAccess;
-use crate::ops::service::account::AccountInspectionLimits;
+
 use crate::ops::service::operator::OperatorStores;
 use ic_blob_storage_contracts::dto::account::*;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
@@ -89,7 +90,7 @@ fn account_inspection_checks_authority_before_dispatch_and_restore_before_decodi
         },
         kind: AccountInspectionKind::Balance,
     };
-    let limits = AccountInspectionLimits {
+    let limits = CaffeineReplyLimits {
         max_bytes: 4096.try_into().unwrap(),
         decoding_quota: 500_000.try_into().unwrap(),
         skipping_quota: 1000.try_into().unwrap(),

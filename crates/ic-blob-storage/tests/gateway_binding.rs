@@ -1,5 +1,6 @@
 //! Native composition over trusted values, not endpoint/IC authentication proof.
 
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 use candid::Principal;
@@ -8,7 +9,7 @@ use ic_blob_storage::model::gateway::registry::GatewayRegistry;
 use ic_blob_storage::model::gateway::registry::GatewayScope;
 use ic_blob_storage::model::gateway::registry::GatewaySyncError;
 use ic_blob_storage::ops::caffeine::gateway::GatewayReplyError;
-use ic_blob_storage::ops::caffeine::gateway::GatewayReplyLimits;
+
 use ic_blob_storage::ops::caffeine::gateway::apply_gateway_sync_reply;
 use ic_blob_storage::policy::gateway::GatewayAccessError;
 use ic_blob_storage::policy::gateway::GatewayCallbackContext;
@@ -60,7 +61,7 @@ fn revoked_gateway_stays_denied_after_a_stale_sync_reply() {
     );
     let old = registry.begin_sync().expect("read-only sync begun");
     let scope = registry.scope();
-    let limits = GatewayReplyLimits {
+    let limits = CaffeineReplyLimits {
         max_bytes: NonZeroUsize::new(4096).expect("byte bound"),
         decoding_quota: NonZeroUsize::new(100_000).expect("work bound"),
         skipping_quota: NonZeroUsize::new(1000).expect("skip bound"),

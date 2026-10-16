@@ -48,17 +48,14 @@ impl PreparedBatch {
         maximum: NonZeroU64,
         total: NonZeroU64,
     ) -> Result<Self, Failure> {
-        let root = directory.canonicalize().map_err(|_| Failure::File)?;
-        let inventory_bytes = read(&paths::resolve(&root, "inventory.json")?, INVENTORY_BYTES)?;
-        let installation = read(
-            &paths::resolve(&root, "installation.candid")?,
+        let root = paths::Root::new(directory)?;
+        let inventory_bytes = root.read("inventory.json", INVENTORY_BYTES)?;
+        let installation = root.read(
+            "installation.candid",
             exact_candid::INSTALLATION_BYTES as u64,
         )?;
-        let summary: Value = serde_json::from_slice(&read(
-            &paths::resolve(&root, "summary.json")?,
-            8 * 1024 * 1024,
-        )?)
-        .map_err(|_| Failure::Arguments)?;
+        let summary: Value = serde_json::from_slice(&root.read("summary.json", 8 * 1024 * 1024)?)
+            .map_err(|_| Failure::Arguments)?;
         if summary["schema"] != 1
             || summary["observation"] != "local_publish_inputs"
             || summary["all_bodies_verified"] != true
@@ -78,12 +75,7 @@ impl PreparedBatch {
         let (inputs, _) = preflight(&inventory, &root, &installation, total)?;
         for (index, (input, entry)) in inputs.iter().zip(&inventory.files).enumerate() {
             input.verify_body(&entry.body_sha256)?;
-            let load = |name: &str, maximum| {
-                read(
-                    &paths::resolve(&root, &format!("file-{index:04}/{name}"))?,
-                    maximum,
-                )
-            };
+            let load = |name: &str, maximum| root.read(&format!("file-{index:04}/{name}"), maximum);
             input.check_requests(
                 &load("permission.candid", 4096)?,
                 &load("manifest.candid", 65536)?,
@@ -146,12 +138,12 @@ fn raw_digest<'de, D: serde::Deserializer<'de>>(decoder: D) -> Result<Sha256Dige
         .map_err(serde::de::Error::custom)
 }
 fn metadata(
-    root: &Path,
+    root: &paths::Root,
     name: &str,
     hash: &Sha256Digest,
     maximum: u64,
 ) -> Result<Vec<u8>, Failure> {
-    let bytes = read(&paths::resolve(root, name)?, maximum)?;
+    let bytes = root.read(name, maximum)?;
     if Sha256Digest::compute(&bytes) != *hash {
         return Err(Failure::Binding);
     }
@@ -162,9 +154,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let mut flags = super::parsing::flags(&args[1..])?;
     let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
     let inventory_path = Path::new(take("--inventory")?);
-    let root = Path::new(take("--root")?)
-        .canonicalize()
-        .map_err(|_| Failure::File)?;
+    let root = paths::Root::new(Path::new(take("--root")?))?;
     let installation_path = Path::new(take("--installation")?);
     let maximum: NonZeroU64 = positive(take("--max-bytes")?)?;
     let total_maximum: NonZeroU64 = positive(take("--max-total-bytes")?)?;
@@ -212,7 +202,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
 
 fn preflight(
     inventory: &Inventory,
-    root: &Path,
+    root: &paths::Root,
     installation: &Rc<Installation>,
     total_maximum: NonZeroU64,
 ) -> Result<(Vec<PreparedInput>, capacity::Capacity), Failure> {
@@ -237,7 +227,7 @@ fn preflight(
             binding,
             manifest,
             installation: Rc::clone(installation),
-            body: paths::resolve(root, &entry.body)?,
+            body: root.source(&entry.body)?,
         })?;
         input.check_body()?;
         capacity.add(&input)?;

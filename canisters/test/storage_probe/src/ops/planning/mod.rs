@@ -1,5 +1,5 @@
 //! Passive capacity and operator reconciliation conversion under one owner borrow.
-use super::{STATE, conversion::failure, read};
+use super::{STATE, conversion::failure};
 use blob_test_protocol::storage::{
     Failure,
     read::{RootBatchInput, RootObservation},
@@ -40,9 +40,9 @@ pub(crate) fn roots(
             entries
                 .into_iter()
                 .map(|entry| match entry {
-                    UploadRootObservation::Known(view) => {
-                        RootObservation::Known(read::observation(view))
-                    }
+                    UploadRootObservation::Known(view) => RootObservation::Known(
+                        blob_test_protocol::admission::conversion::observation(view),
+                    ),
                     UploadRootObservation::Unknown => RootObservation::Unknown,
                     UploadRootObservation::Malformed(HashParseError::InvalidByteLength {
                         actual,

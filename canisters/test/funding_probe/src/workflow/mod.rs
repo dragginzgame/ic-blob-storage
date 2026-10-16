@@ -75,23 +75,10 @@ pub(crate) fn operator_status(
     service: Principal,
     caller: Principal,
 ) -> Option<FundingOperatorStatusView> {
-    let snapshot = ops::status::snapshot(caller)?;
-    let transfers = ops::status::transfers(&snapshot);
-    let reconciliations: Vec<_> = transfers
-        .iter()
-        .copied()
-        .map(assess_funding_reconciliation)
-        .collect();
-    let activity = assess_uncredited_activity(reconciliations.iter().copied());
+    let snapshot = ops::status::snapshot(caller, assess_funding_reconciliation)?;
+    let activity = assess_uncredited_activity(ops::status::reconciliations(&snapshot));
     let diagnosis = assess_operator(ops::status::observation(&snapshot, activity));
-    Some(ops::status::view(
-        service,
-        snapshot,
-        &transfers,
-        &reconciliations,
-        activity,
-        &diagnosis,
-    ))
+    Some(ops::status::view(service, snapshot, activity, &diagnosis))
 }
 
 pub(crate) fn restore() {

@@ -7,27 +7,14 @@
 //! Schema: `docs/evidence/caffeine-cashier.did`, SHA-256
 //! `232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
 
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::{
     model::billing::balance::BalanceAmounts,
     ops::billing::balance::{BalanceAmountsInput, BalanceInputError, balance_amounts_from_candid},
 };
 use candid::{CandidType, Nat, decode_one_with_config};
 use serde::Deserialize;
-use std::num::NonZeroUsize;
 use thiserror::Error;
-
-/// Explicit per-reply resource limits; transport buffering needs its own bound.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct LedgerDepositReplyLimits {
-    /// Maximum supplied bytes, checked before decoding.
-    pub max_bytes: NonZeroUsize,
-    /// Maximum Candid decoding work.
-    pub decoding_quota: NonZeroUsize,
-    /// Maximum work skipping additional fields or arguments.
-    pub skipping_quota: NonZeroUsize,
-    /// Maximum entries in the Candid type table.
-    pub max_type_entries: NonZeroUsize,
-}
 
 /// Provider-reported figures, not an authenticated or operation-bound receipt.
 /// Transport must be bound to the persisted service/Cashier/account request.
@@ -124,16 +111,12 @@ pub enum LedgerDepositReplyError {
 /// Rejects oversized, malformed, incompatible, over-budget or invalid-amount replies.
 pub fn decode_ledger_deposit_reply(
     bytes: &[u8],
-    limits: LedgerDepositReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<LedgerDepositReply, LedgerDepositReplyError> {
     if bytes.len() > limits.max_bytes.get() {
         return Err(LedgerDepositReplyError::ReplyTooLarge);
     }
-    let config = super::decoding::limits(
-        limits.decoding_quota,
-        limits.skipping_quota,
-        limits.max_type_entries,
-    );
+    let config = limits.config();
     let reply: wire::NotifyResult = decode_one_with_config(bytes, &config)
         .map_err(|_| LedgerDepositReplyError::InvalidReply)?;
     match reply {

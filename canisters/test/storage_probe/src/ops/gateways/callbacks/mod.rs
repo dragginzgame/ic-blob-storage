@@ -1,6 +1,6 @@
 //! Bounded fixture conversions and synchronous access, not callback orchestration.
 use super::{failure, scope};
-use crate::ops::{ProbeMemory, STATE, conversion, read};
+use crate::ops::{ProbeMemory, STATE, conversion};
 use blob_test_protocol::storage::{
     Failure,
     gateways::{RootView, RootsInput},
@@ -45,7 +45,9 @@ pub(crate) fn present(entries: Vec<UploadRootStatus>) -> Result<Vec<RootView>, F
         .into_iter()
         .map(|entry| {
             Ok(match entry {
-                UploadRootStatus::Known(state) => RootView::Known(read::content_state(state)),
+                UploadRootStatus::Known(state) => RootView::Known(
+                    blob_test_protocol::admission::conversion::content_state(state),
+                ),
                 UploadRootStatus::Unknown => RootView::Unknown,
                 UploadRootStatus::Malformed(HashParseError::InvalidByteLength { actual }) => {
                     RootView::Malformed {

@@ -6,25 +6,19 @@ fn positive(value: usize) -> NonZeroUsize {
 
 fn limits() -> AuditLogReplyLimits {
     AuditLogReplyLimits {
-        max_bytes: positive(4096),
+        decoding: crate::ops::caffeine::decoding::CaffeineReplyLimits {
+            max_bytes: positive(4096),
+            decoding_quota: positive(100_000),
+            skipping_quota: positive(1000),
+            max_type_entries: positive(32),
+        },
         max_csv_bytes: positive(1024),
         max_reported_entries: NonZeroU64::new(10).expect("positive entry bound"),
-        decoding_quota: positive(100_000),
-        skipping_quota: positive(1000),
-        max_type_entries: positive(32),
     }
 }
 
 fn fixture(hex: &str) -> Vec<u8> {
-    let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
-    assert!(remainder.is_empty(), "complete fixture hex bytes");
-    pairs
-        .iter()
-        .map(|pair| {
-            u8::from_str_radix(std::str::from_utf8(pair).expect("ASCII hex"), 16)
-                .expect("fixture hex byte")
-        })
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 
 const PAGE: &str = include_str!(concat!(
@@ -115,12 +109,12 @@ fn advertised_errors_remain_distinct_from_empty_history() {
 fn page_bounds_and_missing_continuation_fail_without_partial_output() {
     let bytes = fixture(PAGE);
     let mut bounded = limits();
-    bounded.max_bytes = positive(bytes.len());
+    bounded.decoding.max_bytes = positive(bytes.len());
     bounded.max_csv_bytes = positive(page(&bytes).csv_content().len());
     bounded.max_reported_entries = NonZeroU64::new(2).expect("positive limit");
     assert!(decode_audit_log_reply(&bytes, bounded).is_ok());
     let exact = bounded;
-    bounded.max_bytes = positive(bytes.len() - 1);
+    bounded.decoding.max_bytes = positive(bytes.len() - 1);
     assert_eq!(
         decode_audit_log_reply(&bytes, bounded),
         Err(AuditLogReplyError::ReplyTooLarge)
@@ -200,13 +194,13 @@ fn malformed_unknown_and_over_budget_candid_never_become_an_empty_page() {
         );
     }
     let mut bounded = limits();
-    bounded.decoding_quota = positive(1);
+    bounded.decoding.decoding_quota = positive(1);
     assert_eq!(
         decode_audit_log_reply(&valid, bounded),
         Err(AuditLogReplyError::InvalidReply)
     );
     bounded = limits();
-    bounded.max_type_entries = positive(1);
+    bounded.decoding.max_type_entries = positive(1);
     assert_eq!(
         decode_audit_log_reply(&valid, bounded),
         Err(AuditLogReplyError::InvalidReply)
@@ -223,7 +217,7 @@ fn malformed_unknown_and_over_budget_candid_never_become_an_empty_page() {
         ))
     );
     bounded = limits();
-    bounded.skipping_quota = positive(1);
+    bounded.decoding.skipping_quota = positive(1);
     assert_eq!(
         decode_audit_log_reply(&extended, bounded),
         Err(AuditLogReplyError::InvalidReply)

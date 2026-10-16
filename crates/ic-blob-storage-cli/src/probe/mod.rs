@@ -38,7 +38,7 @@ pub(super) fn run() -> ExitCode {
 
 fn plan() -> Result<PlanRecord, String> {
     Ok(PlanRecord {schema:1,started_unix_seconds:record::now()?,runner_version:env!("CARGO_PKG_VERSION").into(),
-        runner_source_sha256:record::hash(concat!(include_str!("mod.rs"),include_str!("record/mod.rs"),include_str!("../probe_main.rs"),include_str!("../../Cargo.toml"),include_str!("../../../../Cargo.lock")).as_bytes()),
+        runner_source_sha256:env!("BLOB_CLI_SOURCE_SHA256").into(),
         kind:"public_source".into(),identity:"anonymous".into(),max_requests:MAX_REQUESTS,max_response_bytes:MAX_BODY,request_deadline_seconds:30,
         attached_cycles:"0".into(),provider_account:None,
         targets:vec![COMMIT_URL.into(),"https://raw.githubusercontent.com/caffeinelabs/skills/{observed_commit}/packages/object-storage/backend/src/Mixin.mo".into(),"https://raw.githubusercontent.com/caffeinelabs/skills/{observed_commit}/packages/object-storage/backend/src/Storage.mo".into(),PACKAGE_URL.into()]})

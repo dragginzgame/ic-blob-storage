@@ -92,11 +92,7 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
         || DispatchIntentRecord {
             schema: 1,
             runner_version: env!("CARGO_PKG_VERSION"),
-            runner_source_sha256: crate::native::provenance::runner_source(concat!(
-                include_str!("mod.rs"),
-                include_str!("../reply/mod.rs"),
-                include_str!("../observe_upload/record/mod.rs"),
-            )),
+            runner_source_sha256: crate::native::provenance::runner_source(),
             network: options.network,
             service_url: options.url.as_str(),
             scope: scope_json(input.scope),

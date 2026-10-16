@@ -155,6 +155,23 @@ fn confirmed_acceptance_clears_only_local_credit_blocker_and_invalid_totals_refu
     }
     view.journal.uncredited_accepted = 0;
     assert_eq!(decode(request(), &bytes(&view)), Ok(view.clone()));
+    for journal in [
+        LocalFundingStatus {
+            intent_capacity: 0,
+            ..view.journal
+        },
+        LocalFundingStatus {
+            retained_intents: 1,
+            ..view.journal
+        },
+    ] {
+        let mut changed = view.clone();
+        changed.journal = journal;
+        assert_eq!(
+            decode(request(), &bytes(&changed)),
+            Err(FundingAssessmentReplyError::Invalid)
+        );
+    }
     view.journal.uncredited_accepted = 101;
     assert_eq!(
         decode(request(), &bytes(&view)),

@@ -89,12 +89,12 @@ impl<'a> Session<'a> {
         }
     }
     fn incomplete_file(&self, index: usize) -> Frame {
-        if self.sources.has_observation(index) {
+        if self.sources.files[index].observation.is_some() {
             Frame::Verify {
                 index,
                 source_observation: None,
             }
-        } else if self.sources.transfers[index].is_some() {
+        } else if self.sources.files[index].transfer.is_some() {
             Frame::Transfer {
                 index,
                 source_transfer: None,
@@ -114,7 +114,7 @@ impl<'a> Session<'a> {
         let setup = publish_prepare::Input {
             index,
             directory: directory.join("setup"),
-            source: self.sources.setup[index].clone(),
+            source: self.sources.files[index].setup.clone(),
             ..self.input.prepare.clone()
         };
         let mut outcome = publish_prepare::run_selected(
@@ -125,8 +125,8 @@ impl<'a> Session<'a> {
             &self.actors.uploader,
         )
         .await?;
-        if self.sources.setup[index].is_none() {
-            self.sources.setup[index] =
+        if self.sources.files[index].setup.is_none() {
+            self.sources.files[index].setup =
                 Some(setup.directory.canonicalize().map_err(|_| Failure::File)?);
         }
         if outcome.prepared() && self.input.browser_selection.is_none() {
@@ -161,11 +161,11 @@ impl<'a> Session<'a> {
             index,
             action,
             directory,
-            self.sources.setup[index].as_deref(),
+            self.sources.files[index].setup.as_deref(),
             source,
         )?;
-        if self.sources.transfers[index].is_none() {
-            self.sources.transfers[index] = Some(super::sources::directory(directory)?);
+        if self.sources.files[index].transfer.is_none() {
+            self.sources.files[index].transfer = Some(super::sources::directory(directory)?);
         }
         Ok(PhaseOutcome {
             report,

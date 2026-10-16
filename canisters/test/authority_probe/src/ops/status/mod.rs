@@ -5,15 +5,13 @@ use crate::model::archive::AuthorityArchiveRecord;
 use blob_test_protocol::{
     authority::{ArchiveCatalog, ArchivePhase, ArchivedReadView},
     status::{
-        BillingBlockerView, BillingWarningView, CatalogStatusView, OperatorBlockerView,
-        OperatorStatusView, OperatorWarningView, PhaseCountView,
+        CatalogStatusView, OperatorStatusView, PhaseCountView,
+        conversion::{blocker, warning},
     },
 };
 use ic_blob_storage::policy::{
-    billing::{BillingBlocker, BillingWarning, RecoveryState},
-    diagnostics::{
-        BillingAssessment, OperatorBlocker, OperatorDiagnosis, OperatorObservation, OperatorWarning,
-    },
+    billing::RecoveryState,
+    diagnostics::{BillingAssessment, OperatorDiagnosis, OperatorObservation},
 };
 
 pub(crate) fn observation<'a>(
@@ -120,48 +118,5 @@ fn catalog_view(record: &AuthorityArchiveRecord, catalog: ArchiveCatalog) -> Cat
         logical: entries.iter().map(|o| u128::from(o.logical)).sum(),
         physical: entries.iter().map(|o| u128::from(o.physical)).sum(),
         liability: entries.iter().map(|o| u128::from(o.liability)).sum(),
-    }
-}
-
-fn blocker(value: OperatorBlocker) -> OperatorBlockerView {
-    match value {
-        OperatorBlocker::RecoveryUnknown => OperatorBlockerView::RecoveryUnknown,
-        OperatorBlocker::RecoveryFenced => OperatorBlockerView::RecoveryFenced,
-        OperatorBlocker::ProviderUnqualified => OperatorBlockerView::ProviderUnqualified,
-        OperatorBlocker::GatewaysMissing => OperatorBlockerView::GatewaysMissing,
-        OperatorBlocker::BillingNotConfigured => OperatorBlockerView::BillingNotConfigured,
-        OperatorBlocker::BillingUnavailable => OperatorBlockerView::BillingUnavailable,
-        OperatorBlocker::SpendabilityUnknown => OperatorBlockerView::SpendabilityUnknown,
-        OperatorBlocker::FundingUnknown => OperatorBlockerView::FundingUnknown,
-        OperatorBlocker::FundingInProgress => OperatorBlockerView::FundingInProgress,
-        OperatorBlocker::FundingUncertain => OperatorBlockerView::FundingUncertain,
-        OperatorBlocker::Billing(value) => OperatorBlockerView::Billing(match value {
-            BillingBlocker::RecoveryFenced => BillingBlockerView::RecoveryFenced,
-            BillingBlocker::NotConfigured => BillingBlockerView::NotConfigured,
-            BillingBlocker::GatewayPrincipalsMissing => {
-                BillingBlockerView::GatewayPrincipalsMissing
-            }
-            BillingBlocker::BalanceUnavailable => BillingBlockerView::BalanceUnavailable,
-            BillingBlocker::BalanceMalformed => BillingBlockerView::BalanceMalformed,
-            BillingBlocker::InsufficientBalance => BillingBlockerView::InsufficientBalance,
-            BillingBlocker::ReserveWouldBeViolated => BillingBlockerView::ReserveWouldBeViolated,
-        }),
-    }
-}
-
-fn warning(value: OperatorWarning) -> OperatorWarningView {
-    match value {
-        OperatorWarning::SyncPending => OperatorWarningView::SyncPending,
-        OperatorWarning::ReadPending => OperatorWarningView::ReadPending,
-        OperatorWarning::UploadCompletionUnknown => OperatorWarningView::UploadCompletionUnknown,
-        OperatorWarning::DeletionPending => OperatorWarningView::DeletionPending,
-        OperatorWarning::BillingCessationPending => OperatorWarningView::BillingCessationPending,
-        OperatorWarning::Billing(value) => OperatorWarningView::Billing(match value {
-            BillingWarning::GatewayPrincipalSetEmpty => {
-                BillingWarningView::GatewayPrincipalSetEmpty
-            }
-            BillingWarning::BalanceUnavailable => BillingWarningView::BalanceUnavailable,
-            BillingWarning::BalanceMalformed => BillingWarningView::BalanceMalformed,
-        }),
     }
 }

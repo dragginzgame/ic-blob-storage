@@ -4,6 +4,7 @@
 //! assertions. Matching it does not authenticate transport or prove freshness.
 //! Workflows still check service, namespace, revision and exact pending attempt.
 
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use candid::Principal;
 use thiserror::Error;
 
@@ -11,11 +12,10 @@ use super::{CashierQuery, CashierQueryRequest};
 use crate::model::gateway::registry::{GatewayRegistry, GatewayScope, GatewaySyncToken};
 use crate::ops::caffeine::{
     audit::{AuditLogReply, AuditLogReplyError, AuditLogReplyLimits, decode_audit_log_reply},
-    balance::{BalanceReply, BalanceReplyError, BalanceReplyLimits, decode_balance_reply},
-    gateway::{GatewayReplyError, GatewayReplyLimits, apply_gateway_sync_reply},
+    balance::{BalanceReply, BalanceReplyError, decode_balance_reply},
+    gateway::{GatewayReplyError, apply_gateway_sync_reply},
     relationship::{
-        PaymentRelationshipReply, PaymentRelationshipReplyError, PaymentRelationshipReplyLimits,
-        decode_payment_relationship_reply,
+        PaymentRelationshipReply, PaymentRelationshipReplyError, decode_payment_relationship_reply,
     },
 };
 
@@ -114,7 +114,7 @@ impl CashierQueryRequest {
         token: GatewaySyncToken,
         response_scope: GatewayScope,
         bytes: &[u8],
-        limits: GatewayReplyLimits,
+        limits: CaffeineReplyLimits,
     ) -> Result<(), BoundGatewayReplyError> {
         if self.query() != CashierQuery::StorageGateways {
             return Err(QueryReplyBindingError::MethodMismatch.into());
@@ -139,7 +139,7 @@ impl CashierQueryRequest {
         &self,
         response_cashier: Principal,
         bytes: &[u8],
-        limits: BalanceReplyLimits,
+        limits: CaffeineReplyLimits,
     ) -> Result<BalanceReply, BoundBalanceReplyError> {
         let CashierQuery::Balance { account } = self.query() else {
             return Err(QueryReplyBindingError::MethodMismatch.into());
@@ -158,7 +158,7 @@ impl CashierQueryRequest {
         &self,
         response_cashier: Principal,
         bytes: &[u8],
-        limits: PaymentRelationshipReplyLimits,
+        limits: CaffeineReplyLimits,
     ) -> Result<PaymentRelationshipReply, BoundRelationshipReplyError> {
         let CashierQuery::PaymentRelationship(binding) = self.query() else {
             return Err(QueryReplyBindingError::MethodMismatch.into());

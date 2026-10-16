@@ -1,5 +1,47 @@
 # Changelog
 
+## [0.31.0]
+
+- Keep inventory metadata and upload bodies beneath one held input-directory
+  descriptor through published Host readers, including when its pathname is
+  replaced. Use the same owner for recovery-journal reads; preserve byte limits,
+  symlink/traversal refusals and original no-redispatch decisions
+  ([#69](https://github.com/dragginzgame/ic-blob-storage/issues/69)).
+- Include the MIT license text in both published crates and inherit the workspace
+  license in private members, incorporating
+  [PR #73](https://github.com/dragginzgame/ic-blob-storage/pull/73) into this batch.
+
+- Capture complete CLI source fingerprints through published IC Build, replacing
+  manual command/source lists while preserving retained record representations
+  ([#75](https://github.com/dragginzgame/ic-blob-storage/issues/75)).
+- Own operational run-path admission locally before Host directory creation;
+  retain control-character refusal, spaces, occupied evidence and directory custody
+  ([#69](https://github.com/dragginzgame/ic-blob-storage/issues/69)).
+- Correct Canic adoption guidance for mismatched private fixture locks and the
+  pending decoder-limit caller cut; retain separate framework/provider acceptance.
+
+- **Breaking decoder API:** use `ops::caffeine::decoding::CaffeineReplyLimits`
+  for provider replies and account inspection; audit limits now contain this
+  value under `decoding`. Replace the former per-method limit types and rebuild
+  callers. Explicit budgets, binding order and reply errors are preserved;
+  see [the host upgrade guidance](docs/service-contract.md#explicit-provider-decoder-budgets).
+- Share probe diagnostic conversion and keep each funding attempt with its
+  assessed transport/reconciliation facts, preserving status output and uncertainty.
+- Select the former immediate kill-and-wait behavior explicitly for native
+  fixture children under the incoming Host 0.23 API.
+- Share probe content identity/lifecycle projections while retaining each owner's
+  authority checks and cleanup observations.
+- Replace handwritten fixture hex parsers with a development-only decoder,
+  preserving the frozen Candid inputs and their provenance.
+- Share browser service-endpoint validation while retaining caller-specific input
+  bounds, refusal codes and HTTPS-only gateway restrictions.
+- Share upload identity conversion for certificate and history/discovery replies,
+  preserving exact bindings and each caller's authority checks.
+- Keep publication-session recovery paths together per file while preserving
+  saved journal formats, source pinning and no-redispatch behavior.
+- Apply one funding-journal consistency check to assessment and native status
+  replies; reject contradictory intent counts, identities and attachment totals.
+
 ## [0.30.0] - 2026-10-16
 
 - **Breaking Memory API and storage:** adopt public IC Memory 0.44 and remove

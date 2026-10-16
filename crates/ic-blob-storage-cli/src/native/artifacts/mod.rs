@@ -69,6 +69,24 @@ impl Run {
     }
     pub fn create(path: &Path) -> Result<Self, Failure> {
         use ic_host_fs::durable::{DirectoryCreationError, create_private_directory};
+        // Run paths appear in operational output. This is Blob's admission
+        // policy, independent of Host's filesystem creation and custody rules.
+        let parent = path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .unwrap_or_else(|| Path::new("."))
+            .canonicalize()
+            .map_err(|_| Failure::File)?;
+        for directory in [path, parent.as_path()] {
+            if directory
+                .as_os_str()
+                .as_encoded_bytes()
+                .iter()
+                .any(|byte| matches!(byte, b'\r' | b'\n'))
+            {
+                return Err(Failure::File);
+            }
+        }
         let directory = create_private_directory(path).map_err(|error| match error {
             DirectoryCreationError::BeforeCreation(source)
                 if source.kind() == std::io::ErrorKind::AlreadyExists =>

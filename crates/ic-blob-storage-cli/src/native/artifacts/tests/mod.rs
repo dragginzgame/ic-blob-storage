@@ -183,7 +183,7 @@ fn replaced_partial_body_cannot_publish_under_the_verified_handle() {
 #[test]
 fn private_run_creation_preserves_occupied_claims_and_refuses_control_paths() {
     let parent = tempfile::tempdir().unwrap();
-    let path = parent.path().join("run");
+    let path = parent.path().join("run with spaces");
     let run = Run::create(&path).unwrap();
     run.bytes("request.candid", b"original").unwrap();
     assert!(matches!(Run::create(&path), Err(Failure::ExistingRun)));

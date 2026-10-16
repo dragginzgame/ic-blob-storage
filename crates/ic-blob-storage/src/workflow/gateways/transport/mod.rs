@@ -1,6 +1,7 @@
 //! One host query for an existing durable attempt, with callback revalidation.
 use super::complete_sync;
-use crate::ops::caffeine::gateway::GatewayReplyLimits;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+
 use crate::ops::caffeine::query::reply::BoundGatewayReplyError;
 use crate::ops::caffeine::query::reply::QueryReplyBindingError;
 use crate::ops::caffeine::query::transport::CashierQueryTransport;
@@ -42,7 +43,7 @@ pub async fn query_sync<H: GatewayRegistryAccess, T: CashierQueryTransport>(
     execution: UploadContext,
     attempt: &GatewaySyncRequest,
     transport: &T,
-    limits: GatewayReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<(), GatewayQueryError<T::Error>> {
     host.with_gateway_registry(|store| store.check_request(execution, attempt))
         .map_err(GatewaySyncReplyError::from)?;

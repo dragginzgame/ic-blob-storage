@@ -22,7 +22,11 @@ impl NativeSession {
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
-        let mut child = OwnedChild::spawn(&mut command).unwrap();
+        let mut child = OwnedChild::spawn(
+            &mut command,
+            ic_host_process::child::CleanupPolicy::KillAndWait,
+        )
+        .unwrap();
         let reader = BufReader::new(child.take_stdout().unwrap());
         let stdin = child.take_stdin();
         Self {

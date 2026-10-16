@@ -105,9 +105,29 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
     sources.record(&resumed, &source).unwrap();
     request(&status_only, 0, &Frame::Status { index: 0 });
     let carried = Sources::load(Some(&status_only), &expected, &batch).unwrap();
-    assert_eq!(carried.setup, sources.setup);
-    assert_eq!(carried.observations, sources.observations);
+    assert_eq!(carried.files, sources.files);
     let provenance = std::fs::read(status_only.join("source-session.json")).unwrap();
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&provenance).unwrap(),
+        json!({"format":"ic-blob-storage/publication-session-sources:retained-browser-handoffs",
+            "source_session":source,"setup":[setup.canonicalize().unwrap()],
+            "transfers":[null],"observations":[observation.canonicalize().unwrap()]}),
+    );
+    for field in ["setup", "transfers", "observations"] {
+        for invalid in [json!([]), json!([null, null])] {
+            let mut changed: serde_json::Value = serde_json::from_slice(&provenance).unwrap();
+            changed[field] = invalid;
+            std::fs::write(
+                status_only.join("source-session.json"),
+                serde_json::to_vec(&changed).unwrap(),
+            )
+            .unwrap();
+            assert!(matches!(
+                Sources::load(Some(&status_only), &expected, &batch),
+                Err(Failure::Binding)
+            ));
+        }
+    }
     std::fs::remove_file(status_only.join("source-session.json")).unwrap();
     assert!(matches!(
         Sources::load(Some(&status_only), &expected, &batch),
@@ -310,9 +330,7 @@ fn partial_or_discontinuous_control_history_never_selects_fresh_phase_sources() 
         ));
     }
     let mut partial = Sources {
-        setup: vec![None],
-        transfers: vec![None],
-        observations: vec![None],
+        files: vec![FileSources::default()],
     };
     assert!(matches!(
         partial.resolve(Frame::Prepare {
@@ -356,8 +374,8 @@ fn only_exact_unattempted_facts_distinguish_ordering_refusals_from_missing_claim
         .unwrap();
     }
     let sources = Sources::load(Some(&source), &expected, &batch).unwrap();
-    assert!(sources.setup[0].is_none());
-    assert!(sources.observations[0].is_none());
+    assert!(sources.files[0].setup.is_none());
+    assert!(sources.files[0].observation.is_none());
     for invalid in [
         json!({"format":UnattemptedPhaseRecord::FORMAT,"index":0,"next_index":0}),
         json!({"format":UnattemptedPhaseRecord::FORMAT,"index":1,"next_index":0}),

@@ -16,7 +16,11 @@ fn final_output_retains_buffered_response_and_stderr_after_control_frame() {
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
-    let mut child = OwnedChild::spawn(&mut command).unwrap();
+    let mut child = OwnedChild::spawn(
+        &mut command,
+        ic_host_process::child::CleanupPolicy::KillAndWait,
+    )
+    .unwrap();
     let mut reader = std::io::BufReader::new(child.take_stdout().unwrap());
     // All output is available before the control reader prefetches the final frame.
     child.wait().unwrap();

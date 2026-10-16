@@ -56,13 +56,7 @@ fn validate(response: &Response) -> Result<(), FundingAssessmentReplyError> {
             .iter()
             .enumerate()
             .any(|(i, b)| blockers[..i].contains(b))
-        || journal.intent_capacity == 0
-        || journal.retained_intents > journal.intent_capacity
-        || (journal.retained_intents == 0) != journal.last_operation.is_none()
-        || journal.last_operation == Some(0)
-        || journal.attachment_allowance > journal.available_allocation
-        || !super::valid_budget(&journal)
-        || journal.uncredited_accepted > journal.transport_accepted
+        || !super::valid_journal(&journal)
     {
         return Err(FundingAssessmentReplyError::Invalid);
     }

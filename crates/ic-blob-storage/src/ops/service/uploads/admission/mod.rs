@@ -7,11 +7,13 @@ use crate::model::lifecycle::roots::RootClaimError;
 use crate::model::service::upload::UploadAdmissionError;
 use crate::model::service::upload::UploadPermissionView;
 use crate::ops::service::uploads::UploadStoreError;
+use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::tenant::TenantError;
+use ic_blob_storage_contracts::upload::binding::UploadRequest;
 
 pub(crate) fn revocation(
     admission: UploadAdmissionResponse,
@@ -24,6 +26,22 @@ pub(crate) fn revocation(
 }
 
 // Conversion without actor substitution; the calling boundary owns role checks.
+
+pub(crate) fn upload(request: UploadRequest) -> ReferenceUpload {
+    let first = request.object.first;
+    let object = first.object();
+    ReferenceUpload {
+        service: object.service(),
+        tenant: object.tenant(),
+        namespace: object.identity().namespace.get(),
+        upload: request.id.get().get(),
+        object: object.identity().object.get(),
+        incarnation: object.identity().incarnation.get(),
+        first_reference: first.reference().get().get(),
+        root: *request.object.root.as_bytes(),
+        bytes: request.object.bytes,
+    }
+}
 
 pub(crate) fn present(
     input: UploadAdmissionRequest,

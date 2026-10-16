@@ -27,14 +27,7 @@ pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInp
         env!("CARGO_MANIFEST_DIR"),
         "/tests/fixtures/installation/configuration.hex"
     ));
-    let bytes = fixture
-        .trim()
-        .as_bytes()
-        .as_chunks::<2>()
-        .0
-        .iter()
-        .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
-        .collect::<Vec<_>>();
+    let bytes = hex::decode(fixture.trim()).expect("fixture hex");
     let mut configuration: ServiceConfigurationInput = candid::decode_one(&bytes).unwrap();
     configuration.service = principal(binding["service"].as_str().unwrap()).unwrap();
     configuration.namespace = u128::MAX;
@@ -266,7 +259,7 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
                 NonZeroU64::new(10).unwrap(),
             )
             .unwrap(),
-            body: base.path().join("output/body.bin"),
+            body: base.path().join("output/body.bin").into(),
         })
         .unwrap();
         let transfer = input

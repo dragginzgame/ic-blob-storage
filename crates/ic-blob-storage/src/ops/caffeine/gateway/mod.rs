@@ -5,7 +5,7 @@
 //! `232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
 //! No transport, caller authentication, persistence or automatic sync occurs here.
 
-use std::num::NonZeroUsize;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
 use candid::{Principal, decode_one_with_config};
 use thiserror::Error;
@@ -13,19 +13,6 @@ use thiserror::Error;
 use crate::model::gateway::registry::{
     GatewayRegistry, GatewayScope, GatewaySyncError, GatewaySyncToken,
 };
-
-/// Explicit Candid resource bounds, separate from registry membership limits.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct GatewayReplyLimits {
-    /// Bound supplied bytes before decoding; transport buffering needs its own bound.
-    pub max_bytes: NonZeroUsize,
-    /// Maximum Candid decoding work under the decoder's cost model.
-    pub decoding_quota: NonZeroUsize,
-    /// Maximum work spent skipping additional fields or arguments.
-    pub skipping_quota: NonZeroUsize,
-    /// Maximum entries in the Candid type table.
-    pub max_type_entries: NonZeroUsize,
-}
 
 /// Decode and apply a reply to the exact pending sync, without partial mutation.
 ///
@@ -45,17 +32,13 @@ pub fn apply_gateway_sync_reply(
     token: GatewaySyncToken,
     response_scope: GatewayScope,
     bytes: &[u8],
-    limits: GatewayReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<(), GatewayReplyError> {
     registry.check_sync(token, response_scope)?;
     if bytes.len() > limits.max_bytes.get() {
         return Err(GatewayReplyError::ReplyTooLarge);
     }
-    let config = super::decoding::limits(
-        limits.decoding_quota,
-        limits.skipping_quota,
-        limits.max_type_entries,
-    );
+    let config = limits.config();
     let principals: Vec<Principal> =
         decode_one_with_config(bytes, &config).map_err(|_| GatewayReplyError::InvalidReply)?;
     registry.apply_sync(token, response_scope, &principals)?;
@@ -79,6 +62,7 @@ pub enum GatewayReplyError {
 #[cfg(test)]
 mod tests {
     use std::num::NonZeroU128;
+    use std::num::NonZeroUsize;
 
     use super::*;
     use crate::model::gateway::GatewayListError;
@@ -104,8 +88,8 @@ mod tests {
         GatewayRegistry::new(scope, membership)
     }
 
-    fn limits() -> GatewayReplyLimits {
-        GatewayReplyLimits {
+    fn limits() -> CaffeineReplyLimits {
+        CaffeineReplyLimits {
             max_bytes: n(4096),
             decoding_quota: n(100_000),
             skipping_quota: n(1000),
@@ -121,15 +105,7 @@ mod tests {
             env!("CARGO_MANIFEST_DIR"),
             "/tests/fixtures/caffeine-gateway/observed.hex"
         ));
-        let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
-        assert!(remainder.is_empty(), "complete fixture hex bytes");
-        let bytes: Vec<u8> = pairs
-            .iter()
-            .map(|pair| {
-                u8::from_str_radix(std::str::from_utf8(pair).expect("ASCII hex"), 16)
-                    .expect("fixture hex byte")
-            })
-            .collect();
+        let bytes = hex::decode(hex.trim()).expect("fixture hex");
         let mut registry = registry();
         let scope = registry.scope();
         let token = registry.begin_sync().expect("sync");
@@ -171,7 +147,7 @@ mod tests {
         for (bytes, bounded, error) in [
             (
                 &good,
-                GatewayReplyLimits {
+                CaffeineReplyLimits {
                     max_bytes: n(good.len() - 1),
                     ..limits()
                 },
@@ -179,7 +155,7 @@ mod tests {
             ),
             (
                 &good,
-                GatewayReplyLimits {
+                CaffeineReplyLimits {
                     decoding_quota: n(1),
                     ..limits()
                 },
@@ -187,7 +163,7 @@ mod tests {
             ),
             (
                 &extra,
-                GatewayReplyLimits {
+                CaffeineReplyLimits {
                     skipping_quota: n(1),
                     ..limits()
                 },
@@ -195,7 +171,7 @@ mod tests {
             ),
             (
                 &extra,
-                GatewayReplyLimits {
+                CaffeineReplyLimits {
                     max_type_entries: n(1),
                     ..limits()
                 },
@@ -213,7 +189,7 @@ mod tests {
             token,
             scope,
             &good,
-            GatewayReplyLimits {
+            CaffeineReplyLimits {
                 max_bytes: n(good.len()),
                 ..limits()
             },

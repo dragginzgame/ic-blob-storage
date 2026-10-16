@@ -1,11 +1,12 @@
 //! Query-only relationship inspection over a controlled local source, not Cashier.
 use super::*;
 use blob_test_protocol::balance::BalanceSourceConfig;
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::{
     query::{CashierQuery, CashierQueryRequest, reply::BoundRelationshipReplyError},
     relationship::{
         PaymentRelationshipBinding, PaymentRelationshipProviderError, PaymentRelationshipReply,
-        PaymentRelationshipReplyError, PaymentRelationshipReplyLimits,
+        PaymentRelationshipReplyError,
     },
 };
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
@@ -17,8 +18,8 @@ fn owner() -> Principal {
 fn payer() -> Principal {
     Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap()
 }
-fn limits() -> PaymentRelationshipReplyLimits {
-    PaymentRelationshipReplyLimits {
+fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: NonZeroUsize::new(4096).unwrap(),
         decoding_quota: NonZeroUsize::new(100_000).unwrap(),
         skipping_quota: NonZeroUsize::new(1000).unwrap(),
@@ -30,13 +31,7 @@ fn bytes(name: &str) -> Vec<u8> {
         .join("../../crates/ic-blob-storage/tests/fixtures/caffeine-relationship")
         .join(format!("{name}.hex"));
     let hex = std::fs::read_to_string(path).unwrap();
-    hex.trim()
-        .as_bytes()
-        .as_chunks::<2>()
-        .0
-        .iter()
-        .map(|p| u8::from_str_radix(std::str::from_utf8(p).unwrap(), 16).unwrap())
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 
 impl Fixture {

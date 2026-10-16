@@ -1,6 +1,8 @@
 //! Checked fixture projection; it neither allocates identities nor grants authority.
 
-use super::Request;
+use super::{ContentObservation, ContentState, Request};
+use ic_blob_storage::model::service::upload::content::TenantContentView;
+use ic_blob_storage_contracts::upload::history::{LifecyclePhase, UploadRootState};
 use ic_blob_storage_contracts::{
     binding::{ObjectBinding, ObjectIdentity, ReferenceId, ReferenceKey},
     identity::ProviderRootHash,
@@ -34,4 +36,36 @@ pub fn upload_request(input: Request) -> Option<UploadRequest> {
             first: ReferenceKey::new(binding, ReferenceId::new(NonZeroU128::MIN)),
         },
     })
+}
+
+/// Project the original identity and observed lifecycle without granting authority.
+#[must_use]
+pub fn observation(view: TenantContentView) -> ContentObservation {
+    let request = view.request;
+    ContentObservation {
+        request: Request {
+            service: request.object.first.object().service(),
+            tenant: request.object.first.object().tenant(),
+            namespace: request.object.first.object().identity().namespace.get(),
+            id: request.id.get().get(),
+            root: *request.object.root.as_bytes(),
+            bytes: request.object.bytes,
+        },
+        state: content_state(view.state),
+    }
+}
+/// Preserve every retained state, including deletion and continuing billing work.
+#[must_use]
+pub fn content_state(state: UploadRootState) -> ContentState {
+    match state {
+        UploadRootState::Reserved => ContentState::Reserved,
+        UploadRootState::ExposurePossible => ContentState::ExposurePossible,
+        UploadRootState::Cancelled => ContentState::Cancelled,
+        UploadRootState::Confirmed(phase) => match phase {
+            LifecyclePhase::Live => ContentState::Live,
+            LifecyclePhase::DeletionPending => ContentState::DeletionPending,
+            LifecyclePhase::ProviderDeleted => ContentState::ProviderDeleted,
+            LifecyclePhase::Settled => ContentState::Settled,
+        },
+    }
 }

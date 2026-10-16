@@ -15,15 +15,25 @@ lockfiles; this repository's qualification does not cover every future resolutio
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
 | IC Memory | 0.44.0 | Public memory types and explicit host runtime; new ledger format requires retirement/reinstallation |
-| IC Metrics | 0.11.5 | Private storage probe and Testkit measurements; tracked overflow quality |
-| IC Testkit | 0.48.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
-| IC Testkit Candid | 0.48.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
-| IC Host artifacts/fs/process/tools (direct) | 0.22.1 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.10.0 selected | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
+| IC Metrics | 0.11.7 | Private storage probe and Testkit measurements; tracked overflow quality |
+| IC Testkit | 0.49.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Testkit Candid | 0.49.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
+| IC Host artifacts/fs/process/tools (direct) | 0.23.1 | Native artifacts, filesystem and test/tool boundaries |
+| IC Build | 0.11.0 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
 the retained creation/publication used by verified body staging.
+
+Published Host 0.23 supplies descriptor-rooted descendant opening. Inventory
+metadata and body selection retain one admitted input root instead of returning
+canonical paths to reopen later. Historical preparation-journal reads use the
+same Host owner with their existing bounds and binding failures. Explicit
+single-file input paths retain their original following policy. Held descriptors
+do not freeze file contents or prove current pathname containment: callers must
+exclude concurrent source writers, and complete digest verification still owns
+content admission. [The reader qualification](evidence/host-readers0310.md) records
+the selected registry graph, source-replacement refusals and installed recovery.
 
 Published Testkit owns whole-request and phased request-line/completion capture
 for native provider, signed-update and backpressure fixtures.
@@ -63,24 +73,40 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Direct Blob callers and incoming IC Build 0.10 select Host 0.22.1; Testkit 0.48
-retains its separate Host 0.21.0 graph. The
-[probe/signer cleanup receipt](evidence/fixture-cells0291.md) records the former
-Build 0.9 process-type mismatch. The selected Build 0.10 verifier passes focused
-compilation, strict lint and the real Cargo same-version/refusal fixture, including
-exact exit/signal statuses; [current status](status/current.md) locates its evidence.
+Direct Host 0.23.1 and incoming IC Build 0.11 share Host 0.23 process types;
+Testkit 0.49 retains its separate Host 0.22 family. The optional package verifier
+now passes strict all-feature compilation and Rust 1.91 on the selected graph.
+Actual archive qualification remains separate. The
+[current cleanup receipt](evidence/content-hex-origins0310.md) records the graph
+and passing scope. The [previous receipt](evidence/probe-decoding0310.md) retains
+the Build 0.10/Host 0.23 compilation failure unchanged. Earlier Build 0.10 archive
+passes retain their direct Host 0.22 scope in [current status](status/current.md).
+Native fixture children retain explicit immediate kill-and-wait cleanup.
+
+Fixture hex decoding uses the already locked `hex` crate as a direct development
+dependency of the library, Contracts, CLI and PocketIC test package. It adds no
+normal dependency to those packages. Frozen `.hex`/JSON inputs retain their
+original owners and byte content; provider hash parsing remains a separate contract.
 The [boundary cleanup receipt](evidence/boundaries0291.md) retains the initial
 Memory 0.44 compilation failures and isolated Memory 0.43 results. The
 [Memory 0.44 qualification](evidence/memory044.md) records their repair: remove
 the default-runtime adapter and use the existing explicit committed lookup.
-The public dependency and allocation-ledger format cut targets pending 0.30.0;
+The public dependency and allocation-ledger format cut shipped in 0.30.0;
 hosts must retire earlier installations before reinstalling with the new format.
 Actual archive/release qualification remains separate; see
 [#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69#issuecomment-6210216854).
 The [earlier cleanup receipt](evidence/assessment-finalize0290.md) retains the
 Build 0.7 mismatch; [current qualification](evidence/publication-planning0290.md)
 records the confirmed Build 0.8/Memory 0.43 graph without relabelling old evidence.
-Build remains outside ordinary CLI/library graphs.
+IC Build captures the complete CLI source inventory at build time. Native records
+retain `sha256:` digests and public-source probe records retain raw hexadecimal.
+The inventory includes source-directory membership, the build script, package/root
+manifests and root lock, using workspace-relative evidence. It is descriptive
+provenance, not executable attestation or retry authority. The default CLI runtime
+graph excludes Build; the optional archive verifier uses it at runtime. Public
+libraries/contracts and production Wasm have no Build dependency.
+[Current qualification](evidence/canic-issues0310.md) records the source-change
+invalidation check and the published graph.
 Memory's `test-support` feature is selected directly only by the authority,
 funding and gateway-source probes. Production standalone compilation excludes
 those probe selections; its Memory graph does not enable fixture support.
@@ -353,7 +379,7 @@ Do not add Canic dependencies, wrappers or fixtures here. The
 owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
 links source-bound composition results and remaining owner work.
 
-The pending 0.30.0 public cut requires the same Memory 0.44 identity in Blob
+The released 0.30.0 public cut requires the same Memory 0.44 identity in Blob
 and the host. [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
 retains the earlier 0.41 acceptance; it does not qualify 0.44. Canic owns fresh
 root/private-fixture lock and adapter qualification for this family. Local Blob
@@ -367,16 +393,30 @@ Blob 0.23 / Memory 0.36 family. Adding this Blob version directly to an applicat
 does not upgrade the adapter's types or its memory runtime. Do not combine the
 two graphs or substitute a path override as published integration evidence.
 
-The inspected Canic source at `644d4b13012b395d6211a6907e2e6aafdf391db9`, plus
-incoming Cargo edits, selects Blob/contracts `0.23` and Memory `0.36`. Its pending
-family is 0.112; package metadata still says 0.111.0 and no remote `v0.112.0` tag
-was observed. Commit subjects and local successful proofs do not establish family
-publication. The Canic composition guide still contains older 0.22/0.35 prose;
-use the selected release's actual manifests and source-bound evidence to resolve
-version requirements. Follow [Canic #527](https://github.com/dragginzgame/canic/issues/527)
-for the explicit memory composition and family qualification. Its dedicated and
-embedded fixture locks retain Blob 0.23.0 / Memory 0.36.1; their source-bound
-results are not fresh execution of released Blob 0.23.3.
+**Current read-only review, 2026-10-16:** Canic HEAD
+`600a831e0d8241796b70773ea8c4d8fbd63e422c` was clean at initial inspection;
+concurrent owner edits later changed its root lock/Host callers. Its Blob/Memory
+selections and both private locks remain as reviewed. The root
+lock selects Blob/contracts 0.30.0 and Memory 0.44.0. Both independent Blob
+fixture locks still select Blob/contracts 0.27.1 and Memory 0.41.0; the embedded
+fixture also declares Memory 0.41 directly. Both fixture workspaces refuse
+`cargo metadata --offline --locked` because their locks need updating. This is
+an observed preparation failure, not an installed test failure. Canic must align
+all three graphs and repeat its dedicated/embedded composition cases; earlier
+0.27.1 installed successes do not qualify the current root. See
+[Canic #517](https://github.com/dragginzgame/canic/issues/517) and
+[Blob #77](https://github.com/dragginzgame/ic-blob-storage/issues/77).
+
+Pending Blob 0.31.0 additionally replaces the two limit types used in Canic's
+`integrations/blob-service/src/ops/account/mod.rs` and `ops/gateways/mod.rs` with
+`ops::caffeine::decoding::CaffeineReplyLimits`. Preserve the existing numeric
+budgets; there is no wire or persisted-format change from this consolidation.
+Apply that caller change only with the selected 0.31 family, following
+[the public upgrade guidance](service-contract.md#explicit-provider-decoder-budgets).
+The [current review receipt](evidence/canic-issues0310.md) records the exact
+source, locked metadata refusals and a checked, unapplied caller patch. Canic's
+configuration decoder already uses zero skipping quota; parent authority,
+guarded funding and actual application/provider acceptance retain their owners.
 
 For consumer adoption of the current Blob line:
 

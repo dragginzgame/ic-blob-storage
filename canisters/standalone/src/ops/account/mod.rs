@@ -1,8 +1,6 @@
 //! Read-only owner access and fixed account observation resources.
-use ic_blob_storage::ops::service::{
-    account::{AccountInspectionAccess, AccountInspectionLimits},
-    operator::OperatorStores,
-};
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
+use ic_blob_storage::ops::service::{account::AccountInspectionAccess, operator::OperatorStores};
 pub(crate) struct AccountHost;
 impl AccountInspectionAccess for AccountHost {
     type Memory = super::memory::Memory;
@@ -10,8 +8,8 @@ impl AccountInspectionAccess for AccountHost {
         super::read(|stores| f(OperatorStores::from(stores)))
     }
 }
-pub(crate) fn limits() -> AccountInspectionLimits {
-    AccountInspectionLimits {
+pub(crate) fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: 4096.try_into().unwrap(),
         decoding_quota: 500_000.try_into().unwrap(),
         skipping_quota: 1000.try_into().unwrap(),

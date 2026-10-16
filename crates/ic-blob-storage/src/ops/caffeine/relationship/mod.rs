@@ -5,7 +5,7 @@
 //! retry, migration or retirement authority. Transport/source/freshness binding
 //! remains the caller's responsibility. Schema: `docs/evidence/caffeine-cashier.did`.
 
-use std::num::NonZeroUsize;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
 use candid::{Int, Nat, Principal, decode_one_with_config};
 use thiserror::Error;
@@ -17,19 +17,6 @@ pub struct PaymentRelationshipBinding {
     pub paid_canister: Principal,
     /// Independently selected payer; may equal the paid canister.
     pub payment_account: Principal,
-}
-
-/// Explicit decoder bounds; transport buffering needs a separate bound.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct PaymentRelationshipReplyLimits {
-    /// Maximum supplied bytes, checked before decoding.
-    pub max_bytes: NonZeroUsize,
-    /// Maximum Candid decoding work.
-    pub decoding_quota: NonZeroUsize,
-    /// Maximum work skipping additional fields or arguments.
-    pub skipping_quota: NonZeroUsize,
-    /// Maximum Candid type-table entries.
-    pub max_type_entries: NonZeroUsize,
 }
 
 /// Uninterpreted provider figures, bounded by reply size and decoder work.
@@ -162,7 +149,7 @@ pub enum PaymentRelationshipReplyError {
 pub fn decode_payment_relationship_reply(
     bytes: &[u8],
     expected: PaymentRelationshipBinding,
-    limits: PaymentRelationshipReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<PaymentRelationshipReply, PaymentRelationshipReplyError> {
     if !valid_principal(expected.paid_canister) || !valid_principal(expected.payment_account) {
         return Err(PaymentRelationshipReplyError::InvalidBinding);
@@ -170,11 +157,7 @@ pub fn decode_payment_relationship_reply(
     if bytes.len() > limits.max_bytes.get() {
         return Err(PaymentRelationshipReplyError::ReplyTooLarge);
     }
-    let config = super::decoding::limits(
-        limits.decoding_quota,
-        limits.skipping_quota,
-        limits.max_type_entries,
-    );
+    let config = limits.config();
     let reply: wire::GetResult = decode_one_with_config(bytes, &config)
         .map_err(|_| PaymentRelationshipReplyError::InvalidReply)?;
     match reply {

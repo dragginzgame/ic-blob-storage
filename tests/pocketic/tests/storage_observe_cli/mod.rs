@@ -68,7 +68,11 @@ fn interrupted(args: &[String], directory: &Path) {
     command
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped());
-    let mut child = ic_host_process::child::OwnedChild::spawn(&mut command).unwrap();
+    let mut child = ic_host_process::child::OwnedChild::spawn(
+        &mut command,
+        ic_host_process::child::CleanupPolicy::KillAndWait,
+    )
+    .unwrap();
     let (mut stream, _) = incoming(&listener);
     let intent = std::fs::read(path.join("download-request.json")).unwrap();
     stream

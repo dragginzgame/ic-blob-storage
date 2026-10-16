@@ -1,6 +1,6 @@
 import { Principal } from '@icp-sdk/core/principal';
 import { validNamespace } from './namespace.js';
-import { certificateBindingFailure, certificateBindingFields, validGatewayLimits } from './validation.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validServiceEndpoint } from './validation.js';
 import { validUtf8Text, integer, validFields } from './value-validation.js';
 export const actions = Object.freeze(['upload', 'inspect', 'recover-certificate', 'cancel']);
 
@@ -16,9 +16,7 @@ function endpoint(value, gateway) {
   require(typeof value === 'string' && value.length <= 4096, 'origin');
   let url;
   try { url = new URL(value); } catch { throw new WorkerRefusal('origin'); }
-  require(!url.username && !url.password && url.pathname === '/' && !url.search &&
-    !url.hash && (url.protocol === 'https:' || (!gateway && url.protocol === 'http:' &&
-      ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname))), 'origin');
+  require(validServiceEndpoint(url) && (!gateway || url.protocol === 'https:'), 'origin');
   return url.origin;
 }
 

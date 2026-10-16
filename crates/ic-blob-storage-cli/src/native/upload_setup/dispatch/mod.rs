@@ -31,11 +31,7 @@ pub(super) async fn run(
         "service":input.service.to_text(),"namespace":input.namespace.to_string(),
         "permission":permission_json(saved.payload.permission()),"method":input.kind.method(),
         "request_sha256":ContentDigest::compute(&saved.argument).to_string(),
-            "runner_source_sha256":crate::native::provenance::runner_source(concat!(
-include_str!("mod.rs"),
-include_str!("../mod.rs"),
-include_str!("../request/mod.rs"),
-)),
+            "runner_source_sha256":crate::native::provenance::runner_source(),
         "provider_requests":0})
         },
     )?;

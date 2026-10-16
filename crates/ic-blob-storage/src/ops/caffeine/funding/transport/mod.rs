@@ -5,12 +5,10 @@
 //! Unbounded wait preserves exact attachment refund accounting but a stalled peer
 //! can obstruct upgrades. This primitive does not qualify a deployment choice.
 //! See <https://docs.internetcomputer.org/references/message-execution-properties/>.
-use super::{
-    TopUpReply, TopUpReplyError, TopUpReplyLimits, decode_top_up_reply,
-    request::CashierTopUpRequest,
-};
+use super::{TopUpReply, TopUpReplyError, decode_top_up_reply, request::CashierTopUpRequest};
 use crate::model::billing::journal::FundingTransportContext;
 use crate::model::billing::journal::FundingTransportOutcome;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::policy::billing::liquidity::FundingLiquidity;
 use candid::Principal;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
@@ -93,7 +91,7 @@ impl PreparedCashierTopUp {
     /// Reply limits bound decoding, not the CDK's transport response buffer.
     /// # Panics
     /// An impossible platform refund traps; the durable attempt must remain uncertain.
-    pub async fn execute(self, limits: TopUpReplyLimits) -> CashierTopUpObservation {
+    pub async fn execute(self, limits: CaffeineReplyLimits) -> CashierTopUpObservation {
         let result = self.call.await;
         let transfer = match &result {
             Ok(_) | Err(CallFailed::CallRejected(_)) => {

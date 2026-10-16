@@ -1,4 +1,5 @@
 use super::*;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 mod revocation;
 mod sync;
 use crate::ops::service::tenant::tests::config;
@@ -109,7 +110,7 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
         &attempt,
         scope(),
         &bytes,
-        crate::ops::caffeine::gateway::GatewayReplyLimits {
+        CaffeineReplyLimits {
             max_bytes: 65_536.try_into().unwrap(),
             decoding_quota: 500_000.try_into().unwrap(),
             skipping_quota: 1000.try_into().unwrap(),

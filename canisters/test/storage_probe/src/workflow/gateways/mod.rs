@@ -1,4 +1,5 @@
 //! Labelled local observations exercise the shared durable decoder workflow.
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 pub(crate) mod callbacks;
 pub(crate) mod replicated;
 pub(crate) mod transport;
@@ -8,7 +9,7 @@ use blob_test_protocol::storage::{
     gateways::{Action, Command, Outcome},
 };
 use ic_blob_storage::model::gateway::membership::GatewayAddOutcome;
-use ic_blob_storage::ops::caffeine::gateway::GatewayReplyLimits;
+
 use ic_blob_storage::workflow::gateways::begin_sync;
 use ic_blob_storage::workflow::gateways::complete_sync;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
@@ -63,8 +64,8 @@ pub(crate) fn revoke(
     })
 }
 
-pub(super) fn limits() -> GatewayReplyLimits {
-    GatewayReplyLimits {
+pub(super) fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         // Leave room for the command inside the 4 KiB ingress bound.
         max_bytes: 2048.try_into().unwrap(),
         decoding_quota: 100_000.try_into().unwrap(),

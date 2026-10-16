@@ -7,7 +7,8 @@ import { StorageClient } from '@caffeineai/object-storage';
 import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
 import { createPublicationWorker } from '../../clients/browser/worker.js';
 import { IntentRefusal } from '../../clients/browser/intents.js';
-import { snapshotPublicationJob } from '../../clients/browser/worker-configuration.js';
+import { createCertificateClient } from '../../clients/browser/certificate.js';
+import { snapshotPublicationJob, publicationConfiguration } from '../../clients/browser/worker-configuration.js';
 const directory = process.argv[2]; assert(directory);
 await mkdir(directory, { mode: 0o700 });
 const record = (name, value) => writeFile(join(directory, name), JSON.stringify(value, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
@@ -163,6 +164,42 @@ for (const changed of [{ ...privateRow, phase: secret }, { ...privateRow, cancel
     intents: { ...intents, inspect: async () => changed },
   });
 }
+// Exercise both public boundaries independently, before any journal or transport effect.
+let endpointWrites = 0;
+const endpointStore = { ...intents, save: async binding => {
+  endpointWrites++;
+  return { key: binding.key, binding, phase: 'saved', cancelled: false };
+} };
+const certificateAt = host => createCertificateClient({ host, identity,
+  rootKey: options.rootKey, binding, intents: endpointStore,
+  fetch: () => { transportCalls++; unexpected(); } });
+for (const host of ['https://service.invalid', 'http://localhost:1',
+  'http://127.0.0.1:1', 'http://[::1]:1']) {
+  assert.equal(publicationConfiguration({ ...options, host }).host, new URL(host).origin);
+  const before = endpointWrites;
+  await certificateAt(host);
+  assert.equal(endpointWrites, before + 1);
+  cases.push({ name: 'admitted_service_endpoint', host, transport_requests: 0 });
+}
+for (const host of ['http://service.invalid', 'https://user:secret@service.invalid',
+  'https://service.invalid/path', 'https://service.invalid/?key=secret',
+  'https://service.invalid/#secret', 'ftp://localhost/']) {
+  const before = endpointWrites;
+  assert.throws(() => createPublicationWorker({ ...options, host }), error => error.code === 'origin');
+  await assert.rejects(certificateAt(host), error => error.code === 'host');
+  assert.equal(endpointWrites, before);
+  cases.push({ name: 'refused_service_endpoint', host, claims: 0, transport_requests: 0 });
+}
+// Caller-specific input shape and gateway restrictions are deliberately separate.
+await certificateAt(new URL(options.host));
+assert.throws(() => createPublicationWorker({ ...options, host: new URL(options.host) }),
+  error => error.code === 'origin');
+assert.throws(() => createPublicationWorker({ ...options, host: 'https://' + 'x'.repeat(4096) }),
+  error => error.code === 'origin');
+assert.throws(() => createPublicationWorker({ ...options, origin: 'http://localhost:1' }),
+  error => error.code === 'origin');
+assert.equal(transportCalls, 0);
+cases.push({ name: 'caller_endpoint_shape_limits_and_gateway_https', claims: 0, transport_requests: 0 });
 await record('summary.json', { schema: 1, complete: true, cases, certificate_requests: 0,
   provider_requests: 0, claims: 0, caveat: 'Substituted store for boundary checks; actual Worker/IC/IndexedDB is qualified separately.' });
 console.log('PASS worker authority, snapshots, serialization, bounds and redaction');

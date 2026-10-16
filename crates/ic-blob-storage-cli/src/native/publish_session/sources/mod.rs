@@ -13,9 +13,15 @@ use std::{
 };
 
 pub(super) struct Sources {
-    pub setup: Vec<Option<PathBuf>>,
-    pub transfers: Vec<Option<PathBuf>>,
-    observations: Vec<Option<PathBuf>>,
+    pub files: Vec<FileSources>,
+}
+
+// One file owns its three optional original paths; it grants no replay authority.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub(super) struct FileSources {
+    pub setup: Option<PathBuf>,
+    pub transfer: Option<PathBuf>,
+    pub observation: Option<PathBuf>,
 }
 
 /// Passive original-path provenance. Dispatch claims stay with phase owners;
@@ -149,17 +155,21 @@ fn steps(source: &Path, max_steps: u64, files: usize) -> Result<BTreeMap<u64, Pa
 }
 
 impl Sources {
-    pub fn has_observation(&self, index: usize) -> bool {
-        self.observations[index].is_some()
-    }
-
     pub fn record(&self, run: &Run, source: &Path) -> Result<(), Failure> {
         let record = SessionSourcesRecord {
             format: SessionSourcesRecord::FORMAT.into(),
             source_session: directory(source)?,
-            setup: self.setup.clone(),
-            transfers: self.transfers.clone(),
-            observations: self.observations.clone(),
+            setup: self.files.iter().map(|file| file.setup.clone()).collect(),
+            transfers: self
+                .files
+                .iter()
+                .map(|file| file.transfer.clone())
+                .collect(),
+            observations: self
+                .files
+                .iter()
+                .map(|file| file.observation.clone())
+                .collect(),
         };
         let bytes = serde_json::to_vec_pretty(&record).map_err(|_| Failure::File)?;
         if bytes.len() as u64 > SessionSourcesRecord::MAX_BYTES {
@@ -168,11 +178,13 @@ impl Sources {
         run.bytes("source-session.json", &bytes)
     }
 
-    fn seed(&mut self, source: &Path, parent: Option<&Path>) -> Result<(), Failure> {
+    fn seed(source: &Path, parent: Option<&Path>, files: usize) -> Result<Self, Failure> {
         let path = source.join("source-session.json");
         match std::fs::symlink_metadata(&path) {
             Err(error) if error.kind() == std::io::ErrorKind::NotFound && parent.is_none() => {
-                return Ok(());
+                return Ok(Self {
+                    files: vec![FileSources::default(); files],
+                });
             }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 return Err(Failure::Binding);
@@ -180,52 +192,59 @@ impl Sources {
             Err(_) => return Err(Failure::File),
             Ok(_) => {}
         }
-        let record: SessionSourcesRecord =
+        let mut record: SessionSourcesRecord =
             serde_json::from_slice(&packet(&path, SessionSourcesRecord::MAX_BYTES)?)
                 .map_err(|_| Failure::Binding)?;
         if record.format != SessionSourcesRecord::FORMAT
             || Some(record.source_session.as_path()) != parent
             || !record.source_session.is_absolute()
-            || record.setup.len() != self.setup.len()
-            || record.transfers.len() != self.transfers.len()
-            || record.observations.len() != self.observations.len()
+            || record.setup.len() != files
+            || record.transfers.len() != files
+            || record.observations.len() != files
         {
             return Err(Failure::Binding);
         }
         // Do not follow the source-session pointer: each surviving path is direct.
         // Phase owners still validate exact original contents before executing.
-        for (slots, paths) in [
-            (&mut self.setup, record.setup),
-            (&mut self.transfers, record.transfers),
-            (&mut self.observations, record.observations),
-        ] {
-            for (slot, path) in slots.iter_mut().zip(paths) {
-                if let Some(path) = path {
-                    if !path.is_absolute() {
-                        return Err(Failure::Binding);
-                    }
-                    pin(slot, &path)?;
-                }
+        for path in record
+            .setup
+            .iter_mut()
+            .chain(&mut record.transfers)
+            .chain(&mut record.observations)
+            .flatten()
+        {
+            if !path.is_absolute() {
+                return Err(Failure::Binding);
             }
+            *path = directory(path)?;
         }
-        Ok(())
+        Ok(Self {
+            files: record
+                .setup
+                .into_iter()
+                .zip(record.transfers)
+                .zip(record.observations)
+                .map(|((setup, transfer), observation)| FileSources {
+                    setup,
+                    transfer,
+                    observation,
+                })
+                .collect(),
+        })
     }
     pub fn load(
         source: Option<&Path>,
         expected: &SessionIntentRecord,
         batch: &PreparedBatch,
     ) -> Result<Self, Failure> {
-        let mut sources = Self {
-            setup: vec![None; batch.files.len()],
-            transfers: vec![None; batch.files.len()],
-            observations: vec![None; batch.files.len()],
-        };
         let Some(source) = source else {
-            return Ok(sources);
+            return Ok(Self {
+                files: vec![FileSources::default(); batch.files.len()],
+            });
         };
         let source = directory(source)?;
         let (max_steps, parent) = history_binding(&source, expected, batch)?;
-        sources.seed(&source, parent.as_deref())?;
+        let mut sources = Self::seed(&source, parent.as_deref(), batch.files.len())?;
         for (expected_step, (step, action)) in steps(&source, max_steps, batch.files.len())?
             .into_iter()
             .enumerate()
@@ -237,7 +256,7 @@ impl Sources {
                 .map_err(|_| Failure::Binding)?;
             match frame {
                 Frame::Prepare { index, source_run } => {
-                    let slot = sources.setup.get_mut(index).ok_or(Failure::Binding)?;
+                    let slot = &mut sources.files.get_mut(index).ok_or(Failure::Binding)?.setup;
                     if source_run.is_none()
                         && slot.is_none()
                         && unattempted(&action, &action.join("setup"), index, batch.files.len())?
@@ -253,7 +272,11 @@ impl Sources {
                     index,
                     source_transfer,
                 } => {
-                    let slot = sources.transfers.get_mut(index).ok_or(Failure::Binding)?;
+                    let slot = &mut sources
+                        .files
+                        .get_mut(index)
+                        .ok_or(Failure::Binding)?
+                        .transfer;
                     if source_transfer.is_none()
                         && slot.is_none()
                         && unattempted(
@@ -273,10 +296,11 @@ impl Sources {
                     index,
                     source_observation,
                 } => {
-                    let slot = sources
-                        .observations
+                    let slot = &mut sources
+                        .files
                         .get_mut(index)
-                        .ok_or(Failure::Binding)?;
+                        .ok_or(Failure::Binding)?
+                        .observation;
                     let original = source.join(format!("verification-{index:04}/observation"));
                     if source_observation.is_none()
                         && slot.is_none()
@@ -301,19 +325,35 @@ impl Sources {
     /// Resolve omitted recovery paths to surviving originals, and refuse attempts
     /// to substitute another path once this session has selected its source.
     pub fn resolve(&mut self, mut frame: Frame) -> Result<Frame, Failure> {
-        let (index, supplied, pins) = match &mut frame {
-            Frame::Prepare { index, source_run } => (*index, source_run, &mut self.setup),
+        let (supplied, slot) = match &mut frame {
+            Frame::Prepare { index, source_run } => (
+                source_run,
+                &mut self.files.get_mut(*index).ok_or(Failure::Arguments)?.setup,
+            ),
             Frame::Transfer {
                 index,
                 source_transfer,
-            } => (*index, source_transfer, &mut self.transfers),
+            } => (
+                source_transfer,
+                &mut self
+                    .files
+                    .get_mut(*index)
+                    .ok_or(Failure::Arguments)?
+                    .transfer,
+            ),
             Frame::Verify {
                 index,
                 source_observation,
-            } => (*index, source_observation, &mut self.observations),
+            } => (
+                source_observation,
+                &mut self
+                    .files
+                    .get_mut(*index)
+                    .ok_or(Failure::Arguments)?
+                    .observation,
+            ),
             Frame::Status { .. } | Frame::Map {} => return Ok(frame),
         };
-        let slot = pins.get_mut(index).ok_or(Failure::Arguments)?;
         if let Some(supplied) = supplied.as_ref() {
             pin(slot, supplied)?;
         }

@@ -1,7 +1,6 @@
 //! Bounded root resolution with actual uploader authority and retained index checks.
 use super::{StableUploads, admission, exposure};
 use crate::policy::upload::exposure::UploadExposureAssessment;
-use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
@@ -41,20 +40,8 @@ pub(crate) fn resolve<M: Memory>(
 }
 
 pub(crate) fn input(permission: UploadPermission) -> UploadAdmissionRequest {
-    let r = permission.request;
-    let object = r.object.first.object();
     UploadAdmissionRequest {
-        upload: ReferenceUpload {
-            service: object.service(),
-            tenant: object.tenant(),
-            namespace: object.identity().namespace.get(),
-            upload: r.id.get().get(),
-            object: object.identity().object.get(),
-            incarnation: object.identity().incarnation.get(),
-            first_reference: r.object.first.reference().get().get(),
-            root: *r.object.root.as_bytes(),
-            bytes: r.object.bytes,
-        },
+        upload: admission::upload(permission.request),
         uploader: permission.uploader,
         expires_at_ns: permission.expires_at_ns,
     }

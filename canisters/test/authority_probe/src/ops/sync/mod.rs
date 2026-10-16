@@ -2,10 +2,11 @@
 
 use blob_test_protocol::{GatewaySyncRequest, SyncFailure};
 use candid::Principal;
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::{
     model::gateway::registry::{GatewayScope, GatewaySyncError, GatewaySyncToken},
     ops::caffeine::{
-        gateway::{GatewayReplyError, GatewayReplyLimits},
+        gateway::GatewayReplyError,
         query::{
             CashierQuery, CashierQueryError, CashierQueryRequest, reply::BoundGatewayReplyError,
         },
@@ -120,7 +121,7 @@ pub(crate) fn apply(
                 token,
                 scope,
                 &response.bytes,
-                GatewayReplyLimits {
+                CaffeineReplyLimits {
                     max_bytes: bound(4096),
                     decoding_quota: bound(100_000),
                     skipping_quota: bound(1000),

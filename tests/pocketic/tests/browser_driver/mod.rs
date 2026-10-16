@@ -35,7 +35,11 @@ impl BrowserDriver {
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
-        let mut child = OwnedChild::spawn(&mut command).expect("run configured browser driver");
+        let mut child = OwnedChild::spawn(
+            &mut command,
+            ic_host_process::child::CleanupPolicy::KillAndWait,
+        )
+        .expect("run configured browser driver");
         let reader = BufReader::new(child.take_stdout().unwrap());
         let stdin = child.take_stdin();
         Self {

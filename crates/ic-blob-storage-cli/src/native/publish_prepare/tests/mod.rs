@@ -82,7 +82,7 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
                 10.try_into().unwrap(),
             )
             .unwrap(),
-            body: directory.path().join("body.bin"),
+            body: directory.path().join("body.bin").into(),
         },
     )
     .unwrap();

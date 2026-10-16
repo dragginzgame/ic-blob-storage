@@ -1,7 +1,8 @@
 use super::*;
 use crate::model::gateway::registry::GatewayScope;
 use crate::model::service::read::ReadTarget;
-use crate::ops::caffeine::gateway::GatewayReplyLimits;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+
 use crate::ops::service::gateways::GatewayStoreError;
 use crate::ops::service::gateways::StableGatewayRegistry;
 use crate::workflow::gateways;
@@ -57,7 +58,7 @@ fn read_authority_rejects_remove_readd_and_successful_same_member_sync() {
     );
     let stamp = capture(&registry, &uploads, context(4), scope(), target(input)).unwrap();
     let attempt = gateways::begin_sync(&mut registry, context(2), scope()).unwrap();
-    let limits = GatewayReplyLimits {
+    let limits = CaffeineReplyLimits {
         max_bytes: 2048.try_into().unwrap(),
         decoding_quota: 100_000.try_into().unwrap(),
         skipping_quota: 1000.try_into().unwrap(),

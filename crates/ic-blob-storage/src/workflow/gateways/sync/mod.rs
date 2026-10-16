@@ -1,5 +1,6 @@
 //! Explicit bounded refresh with durable pending identity and exact cancellation.
-use crate::ops::caffeine::gateway::GatewayReplyLimits;
+
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::ops::caffeine::query::transport::replicated::ReplicatedGatewayQuery;
 use crate::ops::service::gateways::StableGatewayRegistry;
 use crate::ops::service::gateways::access::GatewayRegistryAccess;
@@ -32,7 +33,7 @@ pub async fn refresh<H: GatewayRegistryAccess>(
     context: UploadContext,
     input: OperatorScope,
     timeout: NonZeroU32,
-    limits: GatewayReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<GatewaySyncResponse, GatewaySyncFailure> {
     let transport = ReplicatedGatewayQuery::new(context.service, input.cashier, timeout)
         .map_err(sync::transport_failure)?;

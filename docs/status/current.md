@@ -2,6 +2,119 @@
 
 Date: 2026-10-16
 
+## Published Host readers and PR licenses — pending 0.31.0
+
+The remaining [#69](https://github.com/dragginzgame/ic-blob-storage/issues/69)
+reader adoption is applied against published Host 0.23.1: inventory metadata and
+body reads retain one root descriptor, and historical journal reads delegate to
+the same no-follow owner. Exact bindings, byte/digest checks, original output
+claims and no-redispatch decisions remain local. Single-file following behavior
+is separate; descriptors do not freeze content or exclude concurrent writers.
+[PR #73](https://github.com/dragginzgame/ic-blob-storage/pull/73)'s license payload
+is incorporated in this working batch with its note under 0.31; public archives
+contain the exact root MIT text and all members inherit its license declaration.
+The public Memory Rustdoc now names the actual 0.44 host identity.
+
+[The current receipt](../evidence/host-readers0310.md) records 127 CLI/probe/
+subprocess cases, seven installed session cases, strict CLI lint and actual Rust
+1.91. Artifact admission, actual license-payload archives and focused formatting/
+declaration/documentation checks pass. Archive creation excludes compilation
+verification; selected-graph archive qualification remains separate. CLI is fresh;
+standalone Wasm is reused with its earlier hash. Cargo.lock and versions are
+unchanged. The prior decoder API still sets the 0.31 hard-cut boundary.
+
+No PR branch, merge, Git/release effect or sibling edit ran. #69 remains open for
+delivery/required-host and current archive acceptance; PR #78 owns its existing
+HTTP fixture work and still has Intel CI running at this checkpoint. #74/#76's
+unpublished APIs remain outstanding. Older receipts retain their original scope.
+
+## Canic review and native evidence owners — pending 0.31.0
+
+The [current review receipt](../evidence/canic-issues0310.md) records two local
+repairs over the existing dirty batch: complete CLI source fingerprints through
+published Build 0.11, and Blob-owned operational path admission before Host
+creation. Cargo.lock and package versions are unchanged. 125 package cases,
+seven installed session cases, strict CLI lint and actual Rust 1.91 pass. Real
+Cargo builds detect source additions/renames and restore the initial fingerprint
+after removal. Reused standalone Wasm is hash-matched; no fresh Wasm/full gate or
+native macOS qualification is claimed for these local changes.
+
+Read-only Canic `600a831e0d8241796b70773ea8c4d8fbd63e422c` was initially clean;
+concurrent owner edits later touched its root lock and Host callers. The reviewed
+Blob/Memory selections and private locks are unchanged.
+Root selects Blob/contracts 0.30 / Memory 0.44; both private fixtures still lock
+0.27.1 / 0.41 and refuse locked metadata resolution. Canic owns alignment,
+including the embedded direct Memory requirement, and fresh installed proofs.
+A checked, unapplied two-file decoder-limit patch is retained for eventual 0.31
+adoption. [Canic #517](https://github.com/dragginzgame/canic/issues/517) owns the
+consumer action; the [dependency guide](../dependencies.md#canic-integration)
+now reflects those actual graphs. No Canic source or build was changed.
+
+Delivered 0.30.0 has all required native/MSRV lanes green. #57's cancelled old
+graph tracker and #70's delivered phased-HTTP retirement meet closure criteria;
+#69/#75 remain open for their outstanding delivery/qualification. PR #73 has
+passing checks but conflicts; PR #78 has only Intel macOS still running at the
+checkpoint. No PR merge, branch push, commit, release or paid effect ran. Older
+handoff/receipt graphs below retain their original source scope.
+
+## Probe content, fixture hex and browser endpoints — pending 0.31.0
+
+The next three accepted cleanups are applied over released 0.30.0
+`e9f71822ae361377686846fe7a4bf7c0e9a6822f` and the dirty preparation below.
+Content identity/lifecycle projections have one fixture owner; tests use the
+existing locked hex decoder; browser service endpoint checks share a parsed-URL
+predicate. Each caller keeps its authority, limits, error mapping and recovery
+contract. Frozen fixture bytes, Candid/status outputs and durable formats remain.
+The [qualification receipt](../evidence/content-hex-origins0310.md) records 68 unit/
+boundary cases, 20 installed PocketIC cases, 58 worker/35 publication checks and
+17 actual Chromium bootstrap cases, strict lint, Rustdoc and Rust 1.91 checks.
+Incoming Build 0.11/Metrics 0.11.7 selections predate this batch and are preserved;
+Host 0.23.1, Memory 0.44 and Testkit/Candid 0.49 remain. The package-verifier type
+mismatch below is resolved by Build 0.11 on this graph; actual archive/release
+qualification was not run. Own package versions stay 0.30.0; notes remain 0.31.0
+for the prior public decoder API cut. Full CI, native macOS and Canic/deployed
+provider acceptance were not run. Earlier receipts retain their original scope.
+
+## Probe diagnostics, funding inspection and decoder limits — pending 0.31.0
+
+The three accepted cleanups are applied over released 0.30.0
+`e9f71822ae361377686846fe7a4bf7c0e9a6822f` and the prior dirty preparation below.
+Probe diagnostics have one fixture conversion owner; funding inspection keeps
+original attempts with assessed facts. Provider/account decoders share explicit
+resource limits, with audit-specific bounds composed around them. The public
+Rust API change requires 0.31.0, superseding the compatible 0.30.1 draft; hosts
+must follow [the upgrade guidance](../service-contract.md#explicit-provider-decoder-budgets).
+Candid/status outputs and durable formats are unchanged by these cleanups.
+The [qualification receipt](../evidence/probe-decoding0310.md) records 80 unit/
+boundary cases, 27 installed PocketIC journeys and one native subprocess case,
+strict lint, Rustdoc and Rust 1.91 native/Wasm checks. Fresh CLI and Wasms passed.
+Incoming direct Host 0.23.1/Testkit 0.49 edits are preserved; the starting graph
+already contained them. Five fixture child spawns retain explicit kill-and-wait.
+IC Build 0.10 still exposes Host 0.22 process types: the optional package verifier
+fails compilation on this mixed graph. Its failure is separate from the accepted
+cleanups and remains tracked by [#69 — Adopt Host custody and archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69).
+Own package versions remain 0.30.0. Full CI, native macOS, actual archives and
+Canic/deployed-provider qualification were not run. Earlier sections and receipts
+retain their original source/graph scope; historical blocker text is not current.
+
+## Upload identities, session sources and funding consistency — pending 0.30.1
+
+Released base is 0.30.0 `e9f71822ae361377686846fe7a4bf7c0e9a6822f`.
+The three accepted cleanups are applied: upload identity conversion has one
+boundary owner, recovery paths are grouped per file in memory, and Contracts
+owns journal consistency for assessment/native status. Saved source arrays,
+path pinning, authentication and phase-owned dispatch claims are unchanged.
+Native status now refuses contradictory intent counts/identities and allowances.
+The [qualification receipt](../evidence/convergence0301.md) records 36 focused
+unit cases and 11 installed cases, strict lint/Rustdoc and actual Rust 1.91 checks.
+Incoming Testkit/Candid 0.49 Cargo edits are preserved and excluded from this
+task's source delta; the other Memory 0.44/Host 0.22/Build 0.10 selections remain.
+The explicit PocketIC 16.1 binary matches Testkit 0.49's reviewed archive and
+payload. Lock-selected CLI installation and complete tool gates were not checked.
+Own versions stay 0.30.0; compatible notes target 0.30.1. Full CI, native macOS,
+actual package archives and Canic/deployed-provider acceptance were not run.
+Earlier handoff sections and receipts retain their original source/graph scope.
+
 ## Explicit Memory 0.44 runtime — pending 0.30.0
 
 The reported missing-global errors are fixed over clean source

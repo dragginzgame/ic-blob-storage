@@ -4,10 +4,11 @@ use blob_test_protocol::{
     funding::{FundingOutcome, FundingProviderErrorView},
     storage::funding::transport::{CallbackIdentityFault, Input, Observation},
 };
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::{
     model::billing::journal::FundingIntent,
     ops::caffeine::funding::{
-        TopUpProviderError, TopUpReply, TopUpReplyLimits,
+        TopUpProviderError, TopUpReply,
         transport::{CashierTopUpObservation, CashierTopUpStatus, PreparedCashierTopUp},
     },
 };
@@ -30,9 +31,9 @@ pub(crate) fn begin(
     // No stable writes after this observation until dispatch or a proven unsent result.
     Ok((original, PreparedCashierTopUp::new(&request)))
 }
-pub(crate) fn limits() -> TopUpReplyLimits {
+pub(crate) fn limits() -> CaffeineReplyLimits {
     let n = |v| NonZeroUsize::new(v).unwrap();
-    TopUpReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: n(4096),
         decoding_quota: n(100_000),
         skipping_quota: n(1000),

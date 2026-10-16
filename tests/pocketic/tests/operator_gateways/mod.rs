@@ -6,8 +6,9 @@ use ic_blob_storage::model::gateway::membership::GatewayMembership;
 use ic_blob_storage::model::gateway::registry::GatewayRegistry;
 use ic_blob_storage::model::gateway::registry::GatewayScope;
 use ic_blob_storage::model::gateway::registry::GatewaySyncError;
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::gateway::GatewayReplyError;
-use ic_blob_storage::ops::caffeine::gateway::GatewayReplyLimits;
+
 use ic_blob_storage::ops::caffeine::query::CashierQuery;
 use ic_blob_storage::ops::caffeine::query::CashierQueryRequest;
 use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
@@ -17,8 +18,8 @@ fn n(value: usize) -> NonZeroUsize {
     NonZeroUsize::new(value).unwrap()
 }
 
-fn limits() -> GatewayReplyLimits {
-    GatewayReplyLimits {
+fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: n(4096),
         decoding_quota: n(100_000),
         skipping_quota: n(1000),

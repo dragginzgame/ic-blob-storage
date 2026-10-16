@@ -20,13 +20,7 @@ fn bytes(name: &str) -> Vec<u8> {
         .join("../../crates/ic-blob-storage/tests/fixtures/caffeine-balance")
         .join(format!("{name}.hex"));
     let hex = std::fs::read_to_string(path).unwrap();
-    hex.trim()
-        .as_bytes()
-        .as_chunks::<2>()
-        .0
-        .iter()
-        .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 
 impl Fixture {

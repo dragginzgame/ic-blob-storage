@@ -1,10 +1,11 @@
 //! Native reply/policy composition; no live account query or payment is performed.
 
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use std::num::NonZeroUsize;
 
 use candid::Principal;
 use ic_blob_storage::ops::caffeine::balance::BalanceReply;
-use ic_blob_storage::ops::caffeine::balance::BalanceReplyLimits;
+
 use ic_blob_storage::ops::caffeine::balance::decode_balance_reply;
 use ic_blob_storage::policy::billing::BalanceObservation;
 use ic_blob_storage::policy::billing::BillingBlocker;
@@ -16,19 +17,11 @@ use ic_blob_storage::policy::billing::assess_readiness;
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 
 fn fixture(hex: &str) -> Vec<u8> {
-    let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
-    assert!(remainder.is_empty(), "complete fixture hex bytes");
-    pairs
-        .iter()
-        .map(|pair| {
-            u8::from_str_radix(std::str::from_utf8(pair).expect("ASCII hex"), 16)
-                .expect("fixture hex byte")
-        })
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 
-fn reply_limits() -> BalanceReplyLimits {
-    BalanceReplyLimits {
+fn reply_limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: NonZeroUsize::new(4096).expect("byte bound"),
         decoding_quota: NonZeroUsize::new(100_000).expect("work bound"),
         skipping_quota: NonZeroUsize::new(1000).expect("skip bound"),

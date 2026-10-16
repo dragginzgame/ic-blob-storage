@@ -5,7 +5,7 @@ use super::parsing::principal;
 use super::{
     Failure,
     artifacts::{FailureRecord, Run},
-    local_body::LocalBody,
+    local_body::{BodySource, LocalBody},
     read,
     reference_inputs::ReferenceFiles,
 };
@@ -23,11 +23,7 @@ use ic_blob_storage_contracts::upload::admission::reply::validate_request;
 use ic_host_artifacts::artifact::Sha256Digest;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
-use std::{
-    num::NonZeroU64,
-    path::{Path, PathBuf},
-    rc::Rc,
-};
+use std::{num::NonZeroU64, path::Path, rc::Rc};
 
 pub(super) const MANIFEST_BYTES: u64 = 256 * 1024;
 pub(super) const BINDING_BYTES: u64 = 12 * 1024;
@@ -37,7 +33,7 @@ pub(super) struct InputFiles {
     pub binding: Vec<u8>,
     pub manifest: Vec<u8>,
     pub installation: Rc<installation::Installation>,
-    pub body: PathBuf,
+    pub body: BodySource,
 }
 
 /// Shared one-file validation and streaming snapshot for single and batch input tools.
@@ -229,7 +225,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
             )?,
             maximum,
         )?,
-        body: body_path.to_owned(),
+        body: body_path.to_owned().into(),
     })?
     .publish(directory, None)
 }
@@ -241,7 +237,7 @@ impl PreparedInput {
         Ok(
             json!({"binding":serde_json::from_slice::<Value>(&self.browser)
             .map_err(|_| Failure::Binding)?,
-            "body":self.files.body,"body_sha256":body_sha256.to_string(),
+            "body":self.files.body.path(),"body_sha256":body_sha256.to_string(),
             "manifest_json":std::str::from_utf8(&self.files.manifest).map_err(|_| Failure::Binding)?,
             "preparation":self.binding.preparation,
             "bytes":self.permission.upload.bytes.to_string()}),
@@ -286,7 +282,7 @@ impl PreparedInput {
     }
 
     pub fn verify_body(&self, expected: &Sha256Digest) -> Result<(), Failure> {
-        let hashes = LocalBody::open(&self.files.body, self.permission.upload.bytes)?.verify(
+        let hashes = self.files.body.open(self.permission.upload.bytes)?.verify(
             ProviderRootHash::try_from(self.permission.upload.root.as_slice()).expect("fixed root"),
             &self.request.declaration,
             self.files.installation.limits.max_content_bytes,
@@ -362,7 +358,7 @@ impl PreparedInput {
     }
 
     pub fn check_body(&self) -> Result<(), Failure> {
-        LocalBody::open(&self.files.body, self.permission.upload.bytes).map(drop)
+        self.files.body.open(self.permission.upload.bytes).map(drop)
     }
 
     pub fn publish(
@@ -380,7 +376,7 @@ impl PreparedInput {
             browser,
             ..
         } = self;
-        let source = LocalBody::open(&files.body, request.permission.upload.bytes)?;
+        let source = files.body.open(request.permission.upload.bytes)?;
         // All bounded decoding and canonical conversion precedes claiming the output.
         let run = Run::create(directory)?;
         run.bytes("binding.json", &files.binding)?;

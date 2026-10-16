@@ -1,4 +1,6 @@
 //! Read-only diagnostics for the local fixture, not a production service API.
+pub mod conversion;
+
 use crate::authority::{ArchiveCatalog, ArchivePhase, ArchivedReadView};
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};

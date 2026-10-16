@@ -1,9 +1,10 @@
 //! One explicit passive provider observation, without local account state mutation.
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::ops::caffeine::query::transport::CashierQueryTransport;
 use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
 use crate::ops::service::account;
 use crate::ops::service::account::AccountInspectionAccess;
-use crate::ops::service::account::AccountInspectionLimits;
+
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::account::AccountInspectionResponse;
@@ -23,7 +24,7 @@ pub async fn inspect<
     transport: &T,
     context: UploadContext,
     input: AccountInspectionRequest,
-    limits: AccountInspectionLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<AccountInspectionResponse, AccountInspectionFailure> {
     host.with_account_stores(|stores| account::check(stores, context, input))?;
     let request = account::request(input)?;

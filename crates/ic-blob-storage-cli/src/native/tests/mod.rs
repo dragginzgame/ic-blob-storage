@@ -165,7 +165,7 @@ fn status() -> LocalServiceStatus {
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
-            retained_intents: 0,
+            retained_intents: 1,
             intent_capacity: 1,
             last_operation: Some(u128::MAX),
             fenced: true,
@@ -320,6 +320,34 @@ fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
         LocalFundingStatus {
             transport_accepted: u128::MAX,
             reserved_or_uncertain: 1,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            intent_capacity: 0,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            retained_intents: 2,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            retained_intents: 0,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            last_operation: None,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            last_operation: Some(0),
+            ..value.funding
+        },
+        LocalFundingStatus {
+            attachment_allowance: 701,
+            ..value.funding
+        },
+        LocalFundingStatus {
+            uncredited_accepted: 301,
             ..value.funding
         },
     ] {

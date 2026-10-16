@@ -4,17 +4,14 @@ use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 
 fn fixture() -> Vec<u8> {
     // Independent didc encoding against the maintained standalone declaration.
-    include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/installation/configuration.hex"
-    ))
-    .trim()
-    .as_bytes()
-    .as_chunks::<2>()
-    .0
-    .iter()
-    .map(|pair| u8::from_str_radix(std::str::from_utf8(pair).unwrap(), 16).unwrap())
-    .collect()
+    hex::decode(
+        include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/installation/configuration.hex"
+        ))
+        .trim(),
+    )
+    .expect("fixture hex")
 }
 fn args(base: &Path, bytes: &[u8]) -> Vec<String> {
     std::fs::write(base.join("input.candid"), bytes).unwrap();

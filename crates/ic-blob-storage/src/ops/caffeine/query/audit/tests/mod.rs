@@ -31,21 +31,18 @@ fn fixture(directory: &str, name: &str) -> Vec<u8> {
         .join(directory)
         .join(format!("{name}.hex"));
     let hex = std::fs::read_to_string(path).unwrap();
-    let (pairs, rest) = hex.trim().as_bytes().as_chunks::<2>();
-    assert_eq!(rest, b"");
-    pairs
-        .iter()
-        .map(|p| u8::from_str_radix(std::str::from_utf8(p).unwrap(), 16).unwrap())
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 fn limits(entries: u64) -> AuditLogReplyLimits {
     AuditLogReplyLimits {
-        max_bytes: NonZeroUsize::new(4096).unwrap(),
+        decoding: crate::ops::caffeine::decoding::CaffeineReplyLimits {
+            max_bytes: NonZeroUsize::new(4096).unwrap(),
+            decoding_quota: NonZeroUsize::new(100_000).unwrap(),
+            skipping_quota: NonZeroUsize::new(1000).unwrap(),
+            max_type_entries: NonZeroUsize::new(32).unwrap(),
+        },
         max_csv_bytes: NonZeroUsize::new(1024).unwrap(),
         max_reported_entries: NonZeroU64::new(entries).unwrap(),
-        decoding_quota: NonZeroUsize::new(100_000).unwrap(),
-        skipping_quota: NonZeroUsize::new(1000).unwrap(),
-        max_type_entries: NonZeroUsize::new(32).unwrap(),
     }
 }
 

@@ -1,4 +1,6 @@
 use super::*;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+use std::num::NonZeroUsize;
 
 fn binding() -> PaymentRelationshipBinding {
     PaymentRelationshipBinding {
@@ -7,8 +9,8 @@ fn binding() -> PaymentRelationshipBinding {
     }
 }
 
-fn limits() -> PaymentRelationshipReplyLimits {
-    PaymentRelationshipReplyLimits {
+fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: NonZeroUsize::new(4096).expect("positive"),
         decoding_quota: NonZeroUsize::new(100_000).expect("positive"),
         skipping_quota: NonZeroUsize::new(1000).expect("positive"),
@@ -17,15 +19,7 @@ fn limits() -> PaymentRelationshipReplyLimits {
 }
 
 fn fixture(hex: &str) -> Vec<u8> {
-    hex.trim()
-        .as_bytes()
-        .as_chunks::<2>()
-        .0
-        .iter()
-        .map(|pair| {
-            u8::from_str_radix(std::str::from_utf8(pair).expect("ASCII hex"), 16).expect("byte")
-        })
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 
 const LINKED: &str = include_str!(concat!(
@@ -227,21 +221,21 @@ fn malformed_unknown_and_resource_exhaustion_never_report_a_relationship() {
     let bytes = fixture(LINKED);
     for (bounded, error) in [
         (
-            PaymentRelationshipReplyLimits {
+            CaffeineReplyLimits {
                 max_bytes: NonZeroUsize::new(bytes.len() - 1).expect("positive"),
                 ..limits()
             },
             PaymentRelationshipReplyError::ReplyTooLarge,
         ),
         (
-            PaymentRelationshipReplyLimits {
+            CaffeineReplyLimits {
                 decoding_quota: NonZeroUsize::MIN,
                 ..limits()
             },
             PaymentRelationshipReplyError::InvalidReply,
         ),
         (
-            PaymentRelationshipReplyLimits {
+            CaffeineReplyLimits {
                 max_type_entries: NonZeroUsize::MIN,
                 ..limits()
             },
@@ -257,7 +251,7 @@ fn malformed_unknown_and_resource_exhaustion_never_report_a_relationship() {
         decode_payment_relationship_reply(
             &bytes,
             binding(),
-            PaymentRelationshipReplyLimits {
+            CaffeineReplyLimits {
                 max_bytes: NonZeroUsize::new(bytes.len()).expect("positive"),
                 ..limits()
             }
@@ -290,7 +284,7 @@ fn optional_subtyping_is_not_evidence_of_self_payment_and_skipping_is_bounded() 
         decode_payment_relationship_reply(
             &bytes,
             binding(),
-            PaymentRelationshipReplyLimits {
+            CaffeineReplyLimits {
                 skipping_quota: NonZeroUsize::MIN,
                 ..limits()
             }

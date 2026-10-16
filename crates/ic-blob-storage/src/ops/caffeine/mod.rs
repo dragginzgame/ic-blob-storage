@@ -13,5 +13,5 @@ pub mod query;
 pub mod relationship;
 pub mod upload;
 
-mod decoding;
+pub mod decoding;
 mod wire;

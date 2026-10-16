@@ -9,8 +9,9 @@ use blob_test_protocol::balance::{
 };
 use candid::Principal;
 use ic_blob_storage::ops::caffeine::balance::{
-    BalanceProviderError, BalanceReply, BalanceReplyError, BalanceReplyLimits,
+    BalanceProviderError, BalanceReply, BalanceReplyError,
 };
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::query::reply::BoundBalanceReplyError;
 use ic_blob_storage::ops::caffeine::query::{CashierQuery, CashierQueryError, CashierQueryRequest};
 
@@ -113,7 +114,7 @@ pub(crate) fn complete(
 }
 
 fn decode(response: &BalanceResponse, source: Principal) -> Result<[u128; 4], Failure> {
-    let limits = BalanceReplyLimits {
+    let limits = CaffeineReplyLimits {
         max_bytes: super::bound(4096),
         decoding_quota: super::bound(100_000),
         skipping_quota: super::bound(1000),

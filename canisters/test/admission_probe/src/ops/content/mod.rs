@@ -2,11 +2,11 @@
 
 use super::{STATE, conversion::failure};
 use blob_test_protocol::admission::{
-    ContentDescriptor, ContentLookup, ContentObservation, ContentState, Failure, Request,
+    ContentDescriptor, ContentLookup, Failure,
+    conversion::observation,
     input::{RetainedDescriptor, RetainedDescriptorInput},
 };
 use ic_blob_storage::model::service::upload::content::ContentLookup as ModelLookup;
-use ic_blob_storage::model::service::upload::content::TenantContentView;
 use ic_blob_storage::model::service::upload::download::ContentDescriptorView;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
@@ -14,8 +14,6 @@ use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_blob_storage_contracts::upload::history::LifecyclePhase;
-use ic_blob_storage_contracts::upload::history::UploadRootState;
 use std::num::NonZeroU128;
 
 pub(crate) fn discover(
@@ -97,29 +95,4 @@ fn model_lookup(context: UploadContext, input: ContentLookup) -> Result<ModelLoo
         namespace: NonZeroU128::new(input.namespace).ok_or(Failure::InvalidInput)?,
         root: ProviderRootHash::try_from(input.root.as_slice()).expect("fixed hash width"),
     })
-}
-
-fn observation(view: TenantContentView) -> ContentObservation {
-    let object = view.request.object.first.object();
-    ContentObservation {
-        request: Request {
-            service: object.service(),
-            tenant: object.tenant(),
-            namespace: object.identity().namespace.get(),
-            id: view.request.id.get().get(),
-            root: *view.request.object.root.as_bytes(),
-            bytes: view.request.object.bytes,
-        },
-        state: match view.state {
-            UploadRootState::Reserved => ContentState::Reserved,
-            UploadRootState::ExposurePossible => ContentState::ExposurePossible,
-            UploadRootState::Cancelled => ContentState::Cancelled,
-            UploadRootState::Confirmed(phase) => match phase {
-                LifecyclePhase::Live => ContentState::Live,
-                LifecyclePhase::DeletionPending => ContentState::DeletionPending,
-                LifecyclePhase::ProviderDeleted => ContentState::ProviderDeleted,
-                LifecyclePhase::Settled => ContentState::Settled,
-            },
-        },
-    }
 }

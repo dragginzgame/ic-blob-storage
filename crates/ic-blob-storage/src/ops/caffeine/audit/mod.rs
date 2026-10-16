@@ -14,18 +14,12 @@ use thiserror::Error;
 /// Explicit limits for one supplied audit response, never a production default.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct AuditLogReplyLimits {
-    /// Maximum supplied bytes, checked before decoding; transport has its own bound.
-    pub max_bytes: NonZeroUsize,
+    /// Explicit byte/work/skipping/type limits; no default budget is inferred.
+    pub decoding: super::decoding::CaffeineReplyLimits,
     /// Maximum UTF-8 bytes retained as opaque CSV after decoding.
     pub max_csv_bytes: NonZeroUsize,
     /// Maximum provider-reported count, not a verified CSV row count.
     pub max_reported_entries: NonZeroU64,
-    /// Maximum Candid decoding work.
-    pub decoding_quota: NonZeroUsize,
-    /// Maximum work skipping additional fields or arguments.
-    pub skipping_quota: NonZeroUsize,
-    /// Maximum Candid type table entries.
-    pub max_type_entries: NonZeroUsize,
 }
 
 /// An opaque continuation report, not account authority or a verified checkpoint.
@@ -122,14 +116,10 @@ pub fn decode_audit_log_reply(
     bytes: &[u8],
     limits: AuditLogReplyLimits,
 ) -> Result<AuditLogReply, AuditLogReplyError> {
-    if bytes.len() > limits.max_bytes.get() {
+    if bytes.len() > limits.decoding.max_bytes.get() {
         return Err(AuditLogReplyError::ReplyTooLarge);
     }
-    let config = super::decoding::limits(
-        limits.decoding_quota,
-        limits.skipping_quota,
-        limits.max_type_entries,
-    );
+    let config = limits.decoding.config();
     let reply: wire::AuditLogDownloadResult =
         decode_one_with_config(bytes, &config).map_err(|_| AuditLogReplyError::InvalidReply)?;
     match reply {

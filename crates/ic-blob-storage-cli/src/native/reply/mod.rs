@@ -34,8 +34,7 @@ pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceS
         return Err(Failure::Binding);
     }
     if status.gateways.members.len() > 1024
-        || !ic_blob_storage_contracts::funding::reply::valid_budget(&status.funding)
-        || status.funding.uncredited_accepted > status.funding.transport_accepted
+        || !ic_blob_storage_contracts::funding::reply::valid_journal(&status.funding)
     {
         return Err(Failure::InvalidReply);
     }

@@ -1,4 +1,5 @@
 //! Verify the same open file buffers that a snapshot saves; no source reopen.
+mod source;
 use super::Failure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
@@ -6,6 +7,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
+pub(super) use source::BodySource;
 use std::{
     fs::File,
     io::{Read, Write},
@@ -22,6 +24,10 @@ pub(super) struct LocalBody {
 impl LocalBody {
     pub fn open(path: &Path, bytes: u64) -> Result<Self, Failure> {
         let file = ic_host_fs::read::open_regular_file(path).map_err(|_| Failure::File)?;
+        Self::from_file(file, bytes)
+    }
+
+    pub(super) fn from_file(file: File, bytes: u64) -> Result<Self, Failure> {
         let metadata = file.metadata().map_err(|_| Failure::File)?;
         if metadata.len() != bytes {
             return Err(Failure::Content);

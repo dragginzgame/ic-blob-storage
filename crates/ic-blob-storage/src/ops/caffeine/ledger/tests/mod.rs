@@ -1,11 +1,13 @@
 use super::*;
 use crate::ops::billing::balance::BalanceField;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+use std::num::NonZeroUsize;
 
 fn number(value: usize) -> NonZeroUsize {
     NonZeroUsize::new(value).unwrap()
 }
-fn limits() -> LedgerDepositReplyLimits {
-    LedgerDepositReplyLimits {
+fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: number(4096),
         decoding_quota: number(100_000),
         skipping_quota: number(1000),
@@ -13,12 +15,7 @@ fn limits() -> LedgerDepositReplyLimits {
     }
 }
 fn fixture(hex: &str) -> Vec<u8> {
-    let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
-    assert_eq!(remainder, b"");
-    pairs
-        .iter()
-        .map(|p| u8::from_str_radix(std::str::from_utf8(p).unwrap(), 16).unwrap())
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 macro_rules! bytes {
     ($name:literal) => {
@@ -120,7 +117,7 @@ fn malformed_oversized_and_over_budget_replies_are_not_results() {
     assert_eq!(
         decode_ledger_deposit_reply(
             &encoded,
-            LedgerDepositReplyLimits {
+            CaffeineReplyLimits {
                 max_bytes: number(encoded.len() - 1),
                 ..limits()
             }
@@ -130,7 +127,7 @@ fn malformed_oversized_and_over_budget_replies_are_not_results() {
     assert!(matches!(
         decode_ledger_deposit_reply(
             &encoded,
-            LedgerDepositReplyLimits {
+            CaffeineReplyLimits {
                 max_bytes: number(encoded.len()),
                 ..limits()
             }
@@ -144,11 +141,11 @@ fn malformed_oversized_and_over_budget_replies_are_not_results() {
         );
     }
     for constrained in [
-        LedgerDepositReplyLimits {
+        CaffeineReplyLimits {
             decoding_quota: number(1),
             ..limits()
         },
-        LedgerDepositReplyLimits {
+        CaffeineReplyLimits {
             max_type_entries: number(1),
             ..limits()
         },
@@ -175,7 +172,7 @@ fn extensions_are_bounded_and_unknown_failures_remain_unusable() {
     assert_eq!(
         decode_ledger_deposit_reply(
             &extended,
-            LedgerDepositReplyLimits {
+            CaffeineReplyLimits {
                 skipping_quota: number(100_000),
                 ..limits()
             }
@@ -185,7 +182,7 @@ fn extensions_are_bounded_and_unknown_failures_remain_unusable() {
     assert_eq!(
         decode_ledger_deposit_reply(
             &extended,
-            LedgerDepositReplyLimits {
+            CaffeineReplyLimits {
                 skipping_quota: number(1),
                 ..limits()
             }

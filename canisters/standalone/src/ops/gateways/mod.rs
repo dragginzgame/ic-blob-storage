@@ -1,7 +1,7 @@
 //! Explicit host borrowing and bounded provider-query resources.
-use ic_blob_storage::ops::{
-    caffeine::gateway::GatewayReplyLimits,
-    service::gateways::{StableGatewayRegistry, access::GatewayRegistryAccess},
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
+use ic_blob_storage::ops::service::gateways::{
+    StableGatewayRegistry, access::GatewayRegistryAccess,
 };
 pub(crate) struct GatewayHost;
 impl GatewayRegistryAccess for GatewayHost {
@@ -13,8 +13,8 @@ impl GatewayRegistryAccess for GatewayHost {
         super::mutate(|stores| operation(&mut stores.gateways))
     }
 }
-pub(crate) fn limits() -> GatewayReplyLimits {
-    GatewayReplyLimits {
+pub(crate) fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: 65_536.try_into().unwrap(),
         decoding_quota: 500_000.try_into().unwrap(),
         skipping_quota: 1000.try_into().unwrap(),

@@ -1,5 +1,6 @@
 //! Bounded fixture journals and single platform effects for a local-only experiment.
 
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 pub(crate) mod cashier;
 pub(crate) mod liquidity;
 pub(crate) mod lookup;
@@ -17,7 +18,7 @@ use blob_test_protocol::funding::{
 };
 use candid::Principal;
 use ic_blob_storage::ops::caffeine::funding::{
-    TopUpProviderError, TopUpReply, TopUpReplyLimits, decode_top_up_reply,
+    TopUpProviderError, TopUpReply, decode_top_up_reply,
 };
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_cdk::call::{Call, CallFailed};
@@ -151,7 +152,7 @@ pub(crate) async fn transfer(prepared: liquidity::PreparedFundingCall) -> Observ
 
 fn classify(bytes: &[u8]) -> FundingOutcome {
     let positive = |value| NonZeroUsize::new(value).expect("positive fixture budget");
-    let limits = TopUpReplyLimits {
+    let limits = CaffeineReplyLimits {
         max_bytes: positive(4096),
         decoding_quota: positive(100_000),
         skipping_quota: positive(1000),

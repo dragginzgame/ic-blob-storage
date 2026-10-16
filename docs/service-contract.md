@@ -45,6 +45,27 @@ separate.
 | Fence | A state that permits inspection but blocks mutation until recovery is proven safe |
 | Obligation | Provider bytes, uncertain effects, balances or billing that must remain accounted for |
 
+## Explicit provider decoder budgets
+
+The pending 0.31.0 Rust API uses
+`ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits` for balance,
+gateway, top-up, ledger-deposit, payment-relationship and account inspection.
+It carries the same explicit `max_bytes`, `decoding_quota`, `skipping_quota`
+and `max_type_entries` fields, with no inferred production defaults.
+
+Hosts must replace `BalanceReplyLimits`, `GatewayReplyLimits`, `TopUpReplyLimits`,
+`LedgerDepositReplyLimits`, `PaymentRelationshipReplyLimits` and
+`AccountInspectionLimits` imports and constructor names with the shared type.
+`AuditLogReplyLimits` retains its CSV/reported-entry bounds and nests those four
+resource fields under `decoding`. Keep the exact existing values at each caller;
+sharing a Rust representation does not authorize sharing authority or budgets.
+
+Method/source/account checks, transport buffering limits, stale-token rejection
+and typed reply failures remain independent. This API consolidation changes no
+Candid payload or durable record layout and grants no retry, provider-credit or
+restoration authority. Existing cross-release installations still follow
+[retirement and reinstall](retiring-installations.md).
+
 ## Configured certificate issuance — accepted 2026-10-02
 
 The maintainer accepted the [first standalone contract](standalone-trial.md), then

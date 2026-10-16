@@ -167,3 +167,16 @@ pub fn valid_budget(status: &LocalFundingStatus) -> bool {
                 .cumulative_allocation
                 .checked_sub(status.available_allocation)
 }
+
+/// Check a local journal report's accounting and retained-identity consistency.
+/// This establishes no provider credit, liquidity, readiness or dispatch authority.
+#[must_use]
+pub fn valid_journal(status: &LocalFundingStatus) -> bool {
+    valid_budget(status)
+        && status.intent_capacity > 0
+        && status.retained_intents <= status.intent_capacity
+        && (status.retained_intents == 0) == status.last_operation.is_none()
+        && status.last_operation != Some(0)
+        && status.attachment_allowance <= status.available_allocation
+        && status.uncredited_accepted <= status.transport_accepted
+}

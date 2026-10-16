@@ -4,7 +4,7 @@
 //! SHA-256 `232b08e4514048d4de48d6d1bf4387f577bfb64c7e2e2ded699a5e52d475d76f`.
 //! Reports do not prove freshness, spendability or the outcome of a payment.
 
-use std::num::NonZeroUsize;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
 use candid::{Principal, decode_one_with_config};
 use thiserror::Error;
@@ -13,19 +13,6 @@ use crate::{
     model::billing::balance::BalanceAmounts,
     ops::billing::balance::{BalanceAmountsInput, BalanceInputError, balance_amounts_from_candid},
 };
-
-/// Explicit resource bounds for a balance reply; no production budget is inferred.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct BalanceReplyLimits {
-    /// Bound supplied bytes before decoding; transport buffering needs its own bound.
-    pub max_bytes: NonZeroUsize,
-    /// Maximum Candid decoding work under the decoder's cost model.
-    pub decoding_quota: NonZeroUsize,
-    /// Maximum work spent skipping additional fields or arguments.
-    pub skipping_quota: NonZeroUsize,
-    /// Maximum entries in the Candid type table.
-    pub max_type_entries: NonZeroUsize,
-}
 
 /// A decoded account balance report, never evidence for repeating a payment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -62,7 +49,7 @@ pub enum BalanceProviderError {
 pub fn decode_balance_reply(
     bytes: &[u8],
     expected_account: Principal,
-    limits: BalanceReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<BalanceReply, BalanceReplyError> {
     if expected_account == Principal::anonymous()
         || expected_account == Principal::management_canister()
@@ -72,11 +59,7 @@ pub fn decode_balance_reply(
     if bytes.len() > limits.max_bytes.get() {
         return Err(BalanceReplyError::ReplyTooLarge);
     }
-    let config = super::decoding::limits(
-        limits.decoding_quota,
-        limits.skipping_quota,
-        limits.max_type_entries,
-    );
+    let config = limits.config();
     let reply: wire::AccountBalanceGetResult =
         decode_one_with_config(bytes, &config).map_err(|_| BalanceReplyError::InvalidReply)?;
     match reply {
@@ -149,6 +132,7 @@ mod wire {
 #[cfg(test)]
 mod tests {
     use candid::Int;
+    use std::num::NonZeroUsize;
 
     use super::*;
     use crate::ops::billing::balance::BalanceField;
@@ -159,8 +143,8 @@ mod tests {
         NonZeroUsize::new(value).expect("positive bound")
     }
 
-    fn limits() -> BalanceReplyLimits {
-        BalanceReplyLimits {
+    fn limits() -> CaffeineReplyLimits {
+        CaffeineReplyLimits {
             max_bytes: n(4096),
             decoding_quota: n(100_000),
             skipping_quota: n(1000),
@@ -173,15 +157,7 @@ mod tests {
     }
 
     fn fixture(hex: &str) -> Vec<u8> {
-        let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
-        assert!(remainder.is_empty(), "complete fixture hex bytes");
-        pairs
-            .iter()
-            .map(|pair| {
-                u8::from_str_radix(std::str::from_utf8(pair).expect("ASCII hex"), 16)
-                    .expect("fixture hex byte")
-            })
-            .collect()
+        hex::decode(hex.trim()).expect("fixture hex")
     }
 
     const SUCCESS: &str = include_str!(concat!(
@@ -317,21 +293,21 @@ mod tests {
         }
         for (bounded, error) in [
             (
-                BalanceReplyLimits {
+                CaffeineReplyLimits {
                     max_bytes: n(good.len() - 1),
                     ..limits()
                 },
                 BalanceReplyError::ReplyTooLarge,
             ),
             (
-                BalanceReplyLimits {
+                CaffeineReplyLimits {
                     decoding_quota: n(1),
                     ..limits()
                 },
                 BalanceReplyError::InvalidReply,
             ),
             (
-                BalanceReplyLimits {
+                CaffeineReplyLimits {
                     max_type_entries: n(1),
                     ..limits()
                 },
@@ -344,7 +320,7 @@ mod tests {
             decode_balance_reply(
                 &good,
                 account(),
-                BalanceReplyLimits {
+                CaffeineReplyLimits {
                     max_bytes: n(good.len()),
                     ..limits()
                 }
@@ -367,7 +343,7 @@ mod tests {
             decode_balance_reply(
                 &extra,
                 account(),
-                BalanceReplyLimits {
+                CaffeineReplyLimits {
                     skipping_quota: n(1),
                     ..limits()
                 }

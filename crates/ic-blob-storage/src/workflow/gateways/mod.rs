@@ -3,12 +3,13 @@
 //! Transport remains host-owned: authenticate the source, bound buffering and
 //! preserve original scope/operator context across the query. No automatic
 //! transport, retries, update fallback or provider qualification occurs here.
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 pub mod callbacks;
 pub mod revocation;
 pub mod sync;
 pub mod transport;
 use crate::model::gateway::registry::GatewayScope;
-use crate::ops::caffeine::gateway::GatewayReplyLimits;
+
 use crate::ops::caffeine::query::CashierQuery;
 use crate::ops::caffeine::query::CashierQueryRequest;
 use crate::ops::service::gateways::StableGatewayRegistry;
@@ -52,7 +53,7 @@ pub fn complete_sync<M: Memory>(
     attempt: &GatewaySyncRequest,
     response_scope: GatewayScope,
     bytes: &[u8],
-    limits: GatewayReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<(), GatewaySyncReplyError> {
     store.apply_reply(context, attempt, response_scope, bytes, limits)
 }

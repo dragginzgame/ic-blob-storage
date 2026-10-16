@@ -1,4 +1,5 @@
 [package]
+license.workspace = true
 name = "ic-blob-storage-pocketic-tests"
 version.workspace = true
 edition.workspace = true
@@ -21,6 +22,7 @@ tempfile.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 candid_parser.workspace = true
+hex.workspace = true
 # Headless certificate evidence only; never part of the published library/Wasm graph.
 ic-agent.workspace = true
 ic-blob-storage-canister.workspace = true

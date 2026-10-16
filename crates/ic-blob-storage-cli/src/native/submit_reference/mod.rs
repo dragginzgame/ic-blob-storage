@@ -82,11 +82,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         || DispatchIntentRecord {
             schema: 1,
             runner_version: env!("CARGO_PKG_VERSION"),
-            runner_source_sha256: crate::native::provenance::runner_source(concat!(
-                include_str!("mod.rs"),
-                include_str!("../references/mod.rs"),
-                include_str!("../observe_upload/record/mod.rs"),
-            )),
+            runner_source_sha256: crate::native::provenance::runner_source(),
             network: options.network,
             service_url: options.url.as_str(),
             service: input.service.to_text(),

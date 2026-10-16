@@ -2,6 +2,7 @@ use super::*;
 use crate::model::gateway::GatewayListError;
 use crate::model::gateway::membership::GatewayMembership;
 use crate::model::gateway::registry::GatewaySyncError;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::ops::caffeine::relationship::PaymentRelationshipBinding;
 use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 use std::num::{NonZeroU128, NonZeroUsize};
@@ -18,16 +19,16 @@ fn payer() -> Principal {
 fn n(value: usize) -> NonZeroUsize {
     NonZeroUsize::new(value).expect("positive")
 }
-fn balance_limits() -> BalanceReplyLimits {
-    BalanceReplyLimits {
+fn balance_limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: n(4096),
         decoding_quota: n(100_000),
         skipping_quota: n(1000),
         max_type_entries: n(32),
     }
 }
-fn relationship_limits() -> PaymentRelationshipReplyLimits {
-    PaymentRelationshipReplyLimits {
+fn relationship_limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: n(4096),
         decoding_quota: n(100_000),
         skipping_quota: n(1000),
@@ -48,16 +49,11 @@ fn relationship(paid_canister: Principal, payment_account: Principal) -> Cashier
     .expect("request")
 }
 fn fixture(hex: &str) -> Vec<u8> {
-    let (pairs, rest) = hex.trim().as_bytes().as_chunks::<2>();
-    assert_eq!(rest, b"");
-    pairs
-        .iter()
-        .map(|b| u8::from_str_radix(std::str::from_utf8(b).expect("hex"), 16).expect("byte"))
-        .collect()
+    hex::decode(hex.trim()).expect("fixture hex")
 }
 
-fn gateway_limits() -> GatewayReplyLimits {
-    GatewayReplyLimits {
+fn gateway_limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
         max_bytes: n(4096),
         decoding_quota: n(100_000),
         skipping_quota: n(1000),
@@ -263,11 +259,11 @@ fn method_and_source_mismatches_precede_byte_processing() {
     let relationship = relationship(owner(), payer());
     let gateways = CashierQueryRequest::new(p(1), CashierQuery::StorageGateways).expect("gateways");
     let bytes = [0; 2];
-    let balance_limits = BalanceReplyLimits {
+    let balance_limits = CaffeineReplyLimits {
         max_bytes: n(1),
         ..balance_limits()
     };
-    let relationship_limits = PaymentRelationshipReplyLimits {
+    let relationship_limits = CaffeineReplyLimits {
         max_bytes: n(1),
         ..relationship_limits()
     };

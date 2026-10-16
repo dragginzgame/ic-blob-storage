@@ -2,7 +2,8 @@
 use crate::ops::caffeine::balance::BalanceProviderError;
 use crate::ops::caffeine::balance::BalanceReply;
 use crate::ops::caffeine::balance::BalanceReplyError;
-use crate::ops::caffeine::balance::BalanceReplyLimits;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+
 use crate::ops::caffeine::query::CashierQuery;
 use crate::ops::caffeine::query::CashierQueryRequest;
 use crate::ops::caffeine::query::reply::BoundBalanceReplyError;
@@ -13,7 +14,7 @@ use crate::ops::caffeine::relationship::PaymentRelationshipBinding;
 use crate::ops::caffeine::relationship::PaymentRelationshipProviderError;
 use crate::ops::caffeine::relationship::PaymentRelationshipReply;
 use crate::ops::caffeine::relationship::PaymentRelationshipReplyError;
-use crate::ops::caffeine::relationship::PaymentRelationshipReplyLimits;
+
 use crate::ops::service::operator;
 use crate::ops::service::operator::OperatorStores;
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
@@ -24,7 +25,6 @@ use ic_blob_storage_contracts::dto::account::AccountRelationshipView;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
-use std::num::NonZeroUsize;
 
 /// Synchronous host borrowing across independent stages; never retain borrows over await.
 /// Host configuration must remain immutable during the invocation. No cached reports
@@ -34,18 +34,6 @@ pub trait AccountInspectionAccess {
     type Memory: Memory;
     /// Borrow the same installed owners on every call, without performing transport.
     fn with_account_stores<R>(&self, f: impl FnOnce(OperatorStores<'_, Self::Memory>) -> R) -> R;
-}
-/// Explicit byte/work/type limits for both canonical account reply decoders.
-#[derive(Clone, Copy, Debug)]
-pub struct AccountInspectionLimits {
-    /// Bytes checked at transport and decoder boundaries.
-    pub max_bytes: NonZeroUsize,
-    /// Candid decoding work.
-    pub decoding_quota: NonZeroUsize,
-    /// Candid skipped-value work.
-    pub skipping_quota: NonZeroUsize,
-    /// Type-table entries.
-    pub max_type_entries: NonZeroUsize,
 }
 pub(crate) fn check<M: Memory>(
     stores: OperatorStores<'_, M>,
@@ -100,23 +88,14 @@ pub(crate) fn transport_error(error: ReplicatedQueryError) -> AccountInspectionF
 pub(crate) fn decode(
     request: &CashierQueryRequest,
     response: &CashierQueryResponse,
-    limits: AccountInspectionLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<AccountObservation, AccountInspectionFailure> {
     use AccountInspectionFailure as F;
     use AccountObservation as O;
     match request.query() {
         CashierQuery::Balance { .. } => {
             let reply = request
-                .decode_balance_reply(
-                    response.cashier,
-                    &response.bytes,
-                    BalanceReplyLimits {
-                        max_bytes: limits.max_bytes,
-                        decoding_quota: limits.decoding_quota,
-                        skipping_quota: limits.skipping_quota,
-                        max_type_entries: limits.max_type_entries,
-                    },
-                )
+                .decode_balance_reply(response.cashier, &response.bytes, limits)
                 .map_err(|e| match e {
                     BoundBalanceReplyError::Binding(_)
                     | BoundBalanceReplyError::Reply(BalanceReplyError::AccountMismatch) => {
@@ -146,16 +125,7 @@ pub(crate) fn decode(
         }
         CashierQuery::PaymentRelationship(_) => {
             let reply = request
-                .decode_relationship_reply(
-                    response.cashier,
-                    &response.bytes,
-                    PaymentRelationshipReplyLimits {
-                        max_bytes: limits.max_bytes,
-                        decoding_quota: limits.decoding_quota,
-                        skipping_quota: limits.skipping_quota,
-                        max_type_entries: limits.max_type_entries,
-                    },
-                )
+                .decode_relationship_reply(response.cashier, &response.bytes, limits)
                 .map_err(|e| match e {
                     BoundRelationshipReplyError::Binding(_)
                     | BoundRelationshipReplyError::Reply(

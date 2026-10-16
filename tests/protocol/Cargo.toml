@@ -1,4 +1,5 @@
 [package]
+license.workspace = true
 name = "blob-test-protocol"
 version.workspace = true
 edition.workspace = true
@@ -7,6 +8,7 @@ publish = false
 
 [dependencies]
 candid.workspace = true
+ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
 serde.workspace = true
 serde_bytes.workspace = true

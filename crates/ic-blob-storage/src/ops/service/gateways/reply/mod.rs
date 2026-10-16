@@ -2,9 +2,9 @@
 use super::{
     GatewayScope, GatewayStoreError, GatewaySyncToken, StableGatewayRegistry, UploadContext,
 };
-use crate::ops::caffeine::{
-    gateway::GatewayReplyLimits,
-    query::{CashierQueryError, CashierQueryRequest, reply::BoundGatewayReplyError},
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+use crate::ops::caffeine::query::{
+    CashierQueryError, CashierQueryRequest, reply::BoundGatewayReplyError,
 };
 use ic_memory::ic_stable_structures::Memory;
 use thiserror::Error;
@@ -82,7 +82,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
         attempt: &GatewaySyncRequest,
         response_scope: GatewayScope,
         bytes: &[u8],
-        limits: GatewayReplyLimits,
+        limits: CaffeineReplyLimits,
     ) -> Result<(), GatewaySyncReplyError> {
         self.mutate(context, attempt.scope, |registry| {
             Ok(attempt.request.apply_gateway_sync_reply(

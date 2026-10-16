@@ -1,7 +1,7 @@
 import { HttpAgent, Certificate, Cbor, requestIdOf, lookupResultToBuffer } from '@icp-sdk/core/agent';
 import { Principal } from '@icp-sdk/core/principal';
 import { IDL } from '@icp-sdk/core/candid';
-import { certificateBindingFailure } from './validation.js';
+import { certificateBindingFailure, validServiceEndpoint } from './validation.js';
 import { readResponseBody } from './response.js';
 import { hex } from './bytes.js';
 
@@ -24,10 +24,7 @@ const require = (condition, code) => { if (!condition) throw new CertificateRefu
 export async function createCertificateClient({ host, identity, rootKey, binding, intents,
   fetch: transport = globalThis.fetch.bind(globalThis) }) {
   const endpoint = new URL(host);
-  require(endpoint.protocol === 'https:' || (endpoint.protocol === 'http:' &&
-    ['localhost', '127.0.0.1', '[::1]'].includes(endpoint.hostname)), 'host');
-  require(!endpoint.username && !endpoint.password && endpoint.pathname === '/' &&
-    !endpoint.search && !endpoint.hash, 'host');
+  require(validServiceEndpoint(endpoint), 'host');
   require(rootKey instanceof Uint8Array && rootKey.length > 0 && rootKey.length <= 1024, 'trust-root');
   const trustRoot = rootKey.slice();
   // Snapshot inputs so caller mutation cannot change an in-flight operation.

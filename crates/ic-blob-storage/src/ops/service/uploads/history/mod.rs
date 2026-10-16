@@ -7,7 +7,6 @@ use crate::ops::service::uploads::StableUploads;
 use crate::ops::service::uploads::UploadStoreError;
 use crate::ops::service::uploads::read::UploadScanCursor;
 use crate::ops::service::uploads::read::UploadScanScope;
-use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
@@ -47,21 +46,8 @@ fn cursor(input: UploadHistoryCursor) -> Result<UploadScanCursor, UploadHistoryF
     })
 }
 pub(super) fn present(view: TenantContentView) -> UploadHistoryEntry {
-    let request = view.request;
-    let first = request.object.first;
-    let object = first.object();
     UploadHistoryEntry {
-        request: ReferenceUpload {
-            service: object.service(),
-            tenant: object.tenant(),
-            namespace: object.identity().namespace.get(),
-            upload: request.id.get().get(),
-            object: object.identity().object.get(),
-            incarnation: object.identity().incarnation.get(),
-            first_reference: first.reference().get().get(),
-            root: *request.object.root.as_bytes(),
-            bytes: request.object.bytes,
-        },
+        request: super::admission::upload(view.request),
         state: match view.state {
             UploadRootState::Reserved => UploadContentState::Reserved,
             UploadRootState::ExposurePossible => UploadContentState::ExposurePossible,

@@ -8,45 +8,66 @@ use blob_test_protocol::{
         FundingReceiptRecord, FundingReconciliationView,
     },
     status::{
-        BillingBlockerView, BillingWarningView, FundingActivityView, OperatorBlockerView,
-        OperatorWarningView,
+        FundingActivityView,
+        conversion::{blocker, warning},
     },
 };
 use candid::Principal;
-use ic_blob_storage::policy::billing::BillingBlocker;
-use ic_blob_storage::policy::billing::BillingWarning;
 use ic_blob_storage::policy::billing::RecoveryState;
 use ic_blob_storage::policy::billing::admission::FundingActivity;
 use ic_blob_storage::policy::billing::reconciliation::FundingReconciliation;
 use ic_blob_storage::policy::diagnostics::BillingAssessment;
-use ic_blob_storage::policy::diagnostics::OperatorBlocker;
 use ic_blob_storage::policy::diagnostics::OperatorDiagnosis;
 use ic_blob_storage::policy::diagnostics::OperatorObservation;
-use ic_blob_storage::policy::diagnostics::OperatorWarning;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 
 pub(crate) struct FundingSnapshot {
     budget: crate::model::budget::FundingBudgetSnapshot,
     peer: Principal,
     fenced: bool,
-    attempts: Vec<FundingAttemptRecord>,
+    attempts: Vec<AssessedAttempt>,
     receipts: Vec<FundingReceiptRecord>,
 }
 
-pub(crate) fn snapshot(caller: Principal) -> Option<FundingSnapshot> {
+struct AssessedAttempt {
+    entry: FundingAttemptRecord,
+    transfer: FundingTransfer,
+    reconciliation: FundingReconciliation,
+}
+
+pub(crate) fn snapshot(
+    caller: Principal,
+    assess: fn(FundingTransfer) -> FundingReconciliation,
+) -> Option<FundingSnapshot> {
     super::read(|state| {
         Some(FundingSnapshot {
             budget: state.budget(),
             peer: state.peer(),
             fenced: state.fenced(),
-            attempts: state.attempts(caller)?,
+            attempts: state
+                .attempts(caller)?
+                .into_iter()
+                .map(|entry| {
+                    let transfer = transfer(&entry);
+                    AssessedAttempt {
+                        entry,
+                        transfer,
+                        reconciliation: assess(transfer),
+                    }
+                })
+                .collect(),
             receipts: state.receipts(caller)?,
         })
     })
 }
 
-pub(crate) fn transfers(snapshot: &FundingSnapshot) -> Vec<FundingTransfer> {
-    snapshot.attempts.iter().map(transfer).collect()
+pub(crate) fn reconciliations(
+    snapshot: &FundingSnapshot,
+) -> impl Iterator<Item = FundingReconciliation> + '_ {
+    snapshot
+        .attempts
+        .iter()
+        .map(|attempt| attempt.reconciliation)
 }
 
 pub(super) fn transfer(entry: &FundingAttemptRecord) -> FundingTransfer {
@@ -78,8 +99,6 @@ pub(crate) fn observation(
 pub(crate) fn view(
     service: Principal,
     snapshot: FundingSnapshot,
-    transfers: &[FundingTransfer],
-    reconciliations: &[FundingReconciliation],
     activity: FundingActivity,
     diagnosis: &OperatorDiagnosis,
 ) -> FundingOperatorStatusView {
@@ -99,18 +118,22 @@ pub(crate) fn view(
         },
         attempts: snapshot
             .attempts
-            .iter()
-            .zip(transfers)
-            .zip(reconciliations)
-            .map(|((entry, transfer), result)| FundingAttemptStatusView {
-                id: entry.request.id,
-                offered: entry.request.offered,
-                refunded: transfer.refunded(),
-                transport_accepted: transfer.accepted(),
-                outcome: entry.observation.map(|o| o.outcome),
-                provider_credit: None,
-                reconciliation: reconciliation(*result),
-            })
+            .into_iter()
+            .map(
+                |AssessedAttempt {
+                     entry,
+                     transfer,
+                     reconciliation: result,
+                 }| FundingAttemptStatusView {
+                    id: entry.request.id,
+                    offered: entry.request.offered,
+                    refunded: transfer.refunded(),
+                    transport_accepted: transfer.accepted(),
+                    outcome: entry.observation.map(|o| o.outcome),
+                    provider_credit: None,
+                    reconciliation: reconciliation(result),
+                },
+            )
             .collect(),
         receipts: snapshot.receipts,
         blockers: diagnosis.blockers().iter().copied().map(blocker).collect(),
@@ -134,49 +157,6 @@ pub(crate) const fn reconciliation(value: FundingReconciliation) -> FundingRecon
         FundingReconciliation::TransferUnknown { offered_cycles } => {
             FundingReconciliationView::TransferUnknown(offered_cycles.get())
         }
-    }
-}
-
-fn blocker(value: OperatorBlocker) -> OperatorBlockerView {
-    match value {
-        OperatorBlocker::RecoveryUnknown => OperatorBlockerView::RecoveryUnknown,
-        OperatorBlocker::RecoveryFenced => OperatorBlockerView::RecoveryFenced,
-        OperatorBlocker::ProviderUnqualified => OperatorBlockerView::ProviderUnqualified,
-        OperatorBlocker::GatewaysMissing => OperatorBlockerView::GatewaysMissing,
-        OperatorBlocker::BillingNotConfigured => OperatorBlockerView::BillingNotConfigured,
-        OperatorBlocker::BillingUnavailable => OperatorBlockerView::BillingUnavailable,
-        OperatorBlocker::SpendabilityUnknown => OperatorBlockerView::SpendabilityUnknown,
-        OperatorBlocker::FundingUnknown => OperatorBlockerView::FundingUnknown,
-        OperatorBlocker::FundingInProgress => OperatorBlockerView::FundingInProgress,
-        OperatorBlocker::FundingUncertain => OperatorBlockerView::FundingUncertain,
-        OperatorBlocker::Billing(value) => OperatorBlockerView::Billing(match value {
-            BillingBlocker::RecoveryFenced => BillingBlockerView::RecoveryFenced,
-            BillingBlocker::NotConfigured => BillingBlockerView::NotConfigured,
-            BillingBlocker::GatewayPrincipalsMissing => {
-                BillingBlockerView::GatewayPrincipalsMissing
-            }
-            BillingBlocker::BalanceUnavailable => BillingBlockerView::BalanceUnavailable,
-            BillingBlocker::BalanceMalformed => BillingBlockerView::BalanceMalformed,
-            BillingBlocker::InsufficientBalance => BillingBlockerView::InsufficientBalance,
-            BillingBlocker::ReserveWouldBeViolated => BillingBlockerView::ReserveWouldBeViolated,
-        }),
-    }
-}
-
-fn warning(value: OperatorWarning) -> OperatorWarningView {
-    match value {
-        OperatorWarning::SyncPending => OperatorWarningView::SyncPending,
-        OperatorWarning::ReadPending => OperatorWarningView::ReadPending,
-        OperatorWarning::UploadCompletionUnknown => OperatorWarningView::UploadCompletionUnknown,
-        OperatorWarning::DeletionPending => OperatorWarningView::DeletionPending,
-        OperatorWarning::BillingCessationPending => OperatorWarningView::BillingCessationPending,
-        OperatorWarning::Billing(value) => OperatorWarningView::Billing(match value {
-            BillingWarning::GatewayPrincipalSetEmpty => {
-                BillingWarningView::GatewayPrincipalSetEmpty
-            }
-            BillingWarning::BalanceUnavailable => BillingWarningView::BalanceUnavailable,
-            BillingWarning::BalanceMalformed => BillingWarningView::BalanceMalformed,
-        }),
     }
 }
 

@@ -1,7 +1,8 @@
 //! One guarded IC dispatch and durable settlement, with no exposed pending permit.
 use super::attempt::{FundingAttemptResult, inspect_attempt, mark_first_attempt};
 use crate::model::billing::journal::FundingIntent;
-use crate::ops::caffeine::funding::TopUpReplyLimits;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+
 use crate::ops::caffeine::funding::transport::CashierTopUpObservation;
 use crate::ops::caffeine::funding::transport::PreparedCashierTopUp;
 use crate::ops::caffeine::funding::transport::running_service;
@@ -74,7 +75,7 @@ pub async fn dispatch<H: FundingJournalAccess>(
     execution: UploadContext,
     input: FundingIntent,
     observe: impl FnOnce() -> FundingDispatchEvidence,
-    limits: TopUpReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<FundingDispatchResult, FundingJournalError> {
     // Authenticate before invoking trusted host acquisition, including on failures.
     host.with_funding_journal(|journal| journal.request(execution, input))?;

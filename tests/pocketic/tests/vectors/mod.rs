@@ -12,7 +12,7 @@ fn hash(value: &serde_json::Value) -> [u8; 32] {
         .expect("hash")
         .strip_prefix("sha256:")
         .expect("prefix");
-    std::array::from_fn(|i| u8::from_str_radix(&text[2 * i..2 * i + 2], 16).expect("hex"))
+    <[u8; 32] as hex::FromHex>::from_hex(text).expect("fixed fixture hash")
 }
 
 pub(crate) fn source(name: &str) -> serde_json::Value {

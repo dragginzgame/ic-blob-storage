@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
 </p>
 
-# Service qualification gaps — 2026-10-12
+# Service qualification gaps — 2026-10-16
 
 This review stays within this repository. The core and standalone host have no
 Canic dependency, endpoint registration or lifecycle ownership on linkage.
@@ -20,7 +20,7 @@ active release and implementation handoff.
 
 | Gap | Repository result | Remaining acceptance and owner |
 | --- | --- | --- |
-| Framework adapter and composition | Framework-free core and explicit host grants. [Published Canic/adapter 0.111.0](evidence/canic0229.md) remains delivered. Its normal uncommitted 0.112.0 adapter consumes published Blob 0.22.11 and shares endpoint declarations; dedicated, embedded and actual Root binding/recovery proofs pass on their independently locked artifacts. Both 32-method Candid projections and callable-export inventories pass. [The current review](evidence/shared083-canic02212.md) preserves those graphs and distinguishes newer root patches. No downstream fixture or dependency is added here. | Canic/application owners: qualify later root changes, deliver the pending family and qualify the actual application. Local framework completion does not establish live production deployment, dynamic per-project parent authorization, provider/browser completion, GC or funding acceptance. |
+| Framework adapter and composition | Framework-free core and explicit host grants. [Earlier published/composition evidence](evidence/canic0229.md) retains its original graph. [Current Canic source review](evidence/canic-issues0310.md) finds root Blob/contracts 0.30.0 / Memory 0.44, but both private fixture locks remain on 0.27.1 / 0.41 and refuse locked metadata resolution. No downstream fixture or dependency is added here. | Canic: align root and private graphs, including the embedded Memory declaration, then repeat dedicated/embedded installed cases. Adopt the decoder-limit caller cut when selecting pending Blob 0.31. Application owners retain two-user/verifier, serving, provider GC and funding qualification; root compilation or older fixture success does not establish these. |
 | Complete live upload/download | The [fresh frozen 0.7.0 record](evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json) completes 1 KiB and 10 MiB uploads, independent verification, accepted attestations and matching tenant downloads. | Consumer owner: qualify distinct real media, complete publication batches, interruption, serving and CSP. These samples do not prove retention or itemized billing. |
 | Current-instance restoration | Released 0.8.0 adds operator-only recovery from an independent replicated IC `canister_info` call, checked against the immutable platform installation version. PocketIC qualifies activation with retained obligations and rejection of stale/incomplete history. | Consumer owner: qualify the released contract in its composition and operating policy. Frozen live 0.7.0 does not acquire this endpoint. |
 | Older snapshot/backup restoration | Snapshot loads and history that cannot reach installation refuse active recovery. The standalone guard fences management-version gaps, including old heap restoration. | Operator: retain the surviving complete inventory of provider objects, uncertain effects, balances and billing outside any rolled-back installation. Active older-backup recovery remains unsupported. |

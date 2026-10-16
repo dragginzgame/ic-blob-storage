@@ -5,7 +5,7 @@
 //! Decoding alone performs no effect or settlement. The explicit [`transport`]
 //! primitive captures exact IC attachment refunds; it never retries automatically.
 
-use std::num::NonZeroUsize;
+use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 pub mod request;
 pub mod transport;
 
@@ -17,19 +17,6 @@ use crate::{
     model::billing::balance::BalanceAmounts,
     ops::billing::balance::{BalanceAmountsInput, BalanceInputError, balance_amounts_from_candid},
 };
-
-/// Explicit Candid resource bounds; no production budget is inferred.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct TopUpReplyLimits {
-    /// Bound the supplied reply before decoding; transport buffering needs its own bound.
-    pub max_bytes: NonZeroUsize,
-    /// Maximum Candid decoding work under the decoder's cost model.
-    pub decoding_quota: NonZeroUsize,
-    /// Maximum work spent skipping fields or arguments not consumed by this schema.
-    pub skipping_quota: NonZeroUsize,
-    /// Maximum entries in the Candid type table.
-    pub max_type_entries: NonZeroUsize,
-}
 
 /// A decoded provider report; neither variant authorizes another payment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -71,16 +58,12 @@ pub enum TopUpProviderError {
 /// replies, or a reported success containing an invalid balance amount.
 pub fn decode_top_up_reply(
     bytes: &[u8],
-    limits: TopUpReplyLimits,
+    limits: CaffeineReplyLimits,
 ) -> Result<TopUpReply, TopUpReplyError> {
     if bytes.len() > limits.max_bytes.get() {
         return Err(TopUpReplyError::ReplyTooLarge);
     }
-    let config = super::decoding::limits(
-        limits.decoding_quota,
-        limits.skipping_quota,
-        limits.max_type_entries,
-    );
+    let config = limits.config();
     let reply: wire::AccountTopUpResult =
         decode_one_with_config(bytes, &config).map_err(|_| TopUpReplyError::InvalidReply)?;
     match reply {
@@ -149,13 +132,14 @@ mod wire {
 mod tests {
     use super::*;
     use crate::ops::billing::balance::BalanceField;
+    use std::num::NonZeroUsize;
 
     fn number(value: usize) -> NonZeroUsize {
         NonZeroUsize::new(value).expect("positive decoding budget")
     }
 
-    fn limits() -> TopUpReplyLimits {
-        TopUpReplyLimits {
+    fn limits() -> CaffeineReplyLimits {
+        CaffeineReplyLimits {
             max_bytes: number(4096),
             decoding_quota: number(100_000),
             skipping_quota: number(1000),
@@ -164,15 +148,7 @@ mod tests {
     }
 
     fn fixture(hex: &str) -> Vec<u8> {
-        let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
-        assert!(remainder.is_empty(), "complete fixture hex bytes");
-        pairs
-            .iter()
-            .map(|pair| {
-                u8::from_str_radix(std::str::from_utf8(pair).expect("ASCII hex"), 16)
-                    .expect("fixture hex byte")
-            })
-            .collect()
+        hex::decode(hex.trim()).expect("fixture hex")
     }
 
     const WITHOUT_CYCLES: &str = include_str!(concat!(

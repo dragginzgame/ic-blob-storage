@@ -37,3 +37,11 @@ export function validJournalConfiguration({ database, maxSlots, mode }) {
     integer(maxSlots, 1, 1_000_000) &&
     ['create', 'open'].includes(mode);
 }
+
+// Service origins permit HTTPS or loopback HTTP, without URL-carried credentials
+// or routing suffixes. Callers parse/bound inputs and may require HTTPS separately.
+export function validServiceEndpoint(url) {
+  return !url.username && !url.password && url.pathname === '/' && !url.search &&
+    !url.hash && (url.protocol === 'https:' || (url.protocol === 'http:' &&
+      ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)));
+}
