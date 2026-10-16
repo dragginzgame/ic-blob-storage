@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.29.0]
+## [0.29.0] - 2026-10-16
 
 - Retain authenticated tenant/uploader agents throughout indexed, batch and session
   preparation; keep original root bindings and journal checks without reopening credentials.
