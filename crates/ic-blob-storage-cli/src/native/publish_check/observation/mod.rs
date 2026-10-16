@@ -94,23 +94,6 @@ fn discovery(
         },
     })
 }
-pub(in crate::native) async fn observe<Q, F>(
-    run: &Run,
-    index: usize,
-    method: &'static str,
-    args: Vec<u8>,
-    query: &mut Q,
-) -> Result<Vec<u8>, Failure>
-where
-    Q: FnMut(&'static str, Vec<u8>) -> F,
-    F: Future<Output = Result<Vec<u8>, Failure>>,
-{
-    run.bytes(&format!("query-{index:04}-args.candid"), &args)?;
-    run.json(&format!("query-{index:04}-intent.json"),&json!({"method":method,"argument_sha256":crate::native::upload_inputs::digest(&args),"updates":0,"automatic_retries":0}))?;
-    let bytes = query(method, args).await?;
-    run.bytes(&format!("query-{index:04}-reply.candid"), &bytes)?;
-    Ok(bytes)
-}
 pub(in crate::native) async fn inspect<Q, F>(
     scope: TenantScope,
     inputs: &[FrozenFile],
@@ -123,7 +106,7 @@ where
 {
     let c = capacity(
         scope,
-        &observe(
+        &crate::native::query::observe(
             run,
             0,
             UPLOAD_CAPACITY_METHOD,
@@ -154,7 +137,7 @@ where
         };
         let r = discovery(
             request,
-            &observe(
+            &crate::native::query::observe(
                 run,
                 index + 1,
                 UPLOAD_DISCOVERY_METHOD,

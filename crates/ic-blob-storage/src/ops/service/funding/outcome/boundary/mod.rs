@@ -1,7 +1,5 @@
 //! Passive exact lookup and DTO projection. Reconciliation policy lives in workflow.
-use crate::model::billing::journal::FundingIntent;
 use crate::model::billing::journal::FundingIntentError;
-use crate::model::billing::journal::FundingIntentState;
 use crate::ops::billing::balance::BalanceField;
 use crate::ops::caffeine::funding::TopUpProviderError;
 use crate::ops::caffeine::funding::TopUpReply;
@@ -11,7 +9,6 @@ use crate::ops::service::funding::FundingJournalError;
 use crate::ops::service::funding::StableFundingJournal;
 use crate::ops::service::funding::outcome::FundingOutcomeView;
 use crate::policy::billing::reconciliation::FundingReconciliation;
-use ic_blob_storage_contracts::dto::funding::FundingPhase;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingBalanceField;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
@@ -23,23 +20,18 @@ use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
 use std::num::NonZeroU128;
 
-fn number(value: u128) -> Result<NonZeroU128, FundingOutcomeFailure> {
-    NonZeroU128::new(value).ok_or(FundingOutcomeFailure::Invalid)
-}
 pub(crate) fn read<M: Memory>(
     journal: &StableFundingJournal<M>,
     context: UploadContext,
     input: FundingOutcomeRequest,
 ) -> Result<Option<FundingOutcomeView>, FundingOutcomeFailure> {
-    let intent = FundingIntent {
-        service: input.scope.service,
-        cashier: input.scope.cashier,
-        account: input.scope.payment_account,
-        namespace: number(input.scope.namespace)?,
-        operation: number(input.operation)?,
-        offered: number(input.offered)?,
-        target_balance: input.target_balance.map(number).transpose()?,
-    };
+    let intent = super::super::boundary::intent(
+        input.scope,
+        input.operation,
+        input.offered,
+        input.target_balance,
+    )
+    .ok_or(FundingOutcomeFailure::Invalid)?;
     journal
         .outcome(context, intent)
         .map_err(|error| match error {
@@ -59,12 +51,7 @@ pub(crate) fn present(
 ) -> FundingOutcomeResponse {
     FundingOutcomeResponse {
         request: input,
-        phase: match view.state {
-            FundingIntentState::Prepared => FundingPhase::Prepared,
-            FundingIntentState::Uncertain => FundingPhase::Uncertain,
-            FundingIntentState::NotEnqueued => FundingPhase::NotEnqueued,
-            FundingIntentState::Callback { refunded } => FundingPhase::Callback { refunded },
-        },
+        phase: super::super::boundary::phase(view.state),
         response: view.response.map(response),
         reconciliation: match reconciliation {
             FundingReconciliation::CreditConfirmed {

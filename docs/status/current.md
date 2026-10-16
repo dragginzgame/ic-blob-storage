@@ -2,6 +2,55 @@
 
 Date: 2026-10-16
 
+## Archive verifier type mismatch — resolved on selected Build 0.10
+
+The reported `20261016T105840Z-898283-11-check.log` used Build 0.9's Host process
+0.21 types against direct Host 0.22. The current staged graph already selects
+Build 0.10/Host 0.22.1: verifier check, strict lint and native build pass without a
+source shim or dependency alias. The real Cargo archive fixture passes warm
+same-version replacement and all ten graph/drift/failure cases, including exit
+23 and signal 143. Logs and incoming before-images are retained under
+`.tmp/review-validation/verifier010/`; the fixture is
+`target/package-fixture.DzYTWk`. Manifest, lock, verifier source and index hashes
+are preserved. Actual Blob archives, native macOS and full CI were not qualified.
+The separate live Memory 0.44 blocker below remains.
+
+## Funding boundaries, query evidence and browser values — pending cleanup
+
+The next three cleanups are applied over the dirty preparation below. Funding
+adapters share passive intent/phase conversions; query recording lives with native
+query transport; browser representation checks have one owner. Exact refusals,
+evidence formats, recording order and journal authority remain with their callers.
+The [qualification receipt](../evidence/boundaries0291.md) separates passing CLI/
+browser checks from isolated Memory 0.43 funding and installed evidence.
+
+Incoming manifests and lock now select public Memory 0.44 and Build 0.10. They
+are preserved. Live library compilation fails because Memory removed the global
+runtime APIs used by `stores::grants::open_default` and the composition tests.
+The current patch heading does not authorize this public dependency hard cut:
+retaining Memory 0.44 requires the next minor release and host API adoption.
+Own versions and the pending heading are unchanged; this batch is not release-ready.
+Build 0.10 selects the same Host 0.22 family as direct callers; its actual archive
+qualification remains separate. Earlier evidence retains its original graph.
+
+## Probe cells, retained signers and offline dispatch — pending 0.29.1
+
+The three cleanups are applied over clean HEAD `f0555981ed6dda5d19f4fbf2b679964276f2f9a6`.
+Memory 0.43 owns the three probes' byte-cell setup; their journal keys, layouts,
+budgets and recovery checks remain local. Download/observer commands retain the
+checked signer while preserving plan-before-transport ordering. Offline commands
+share one dispatch match. The [qualification receipt](../evidence/fixture-cells0291.md)
+records 119 CLI/five probe-tool cases, 11 selected installed cases, strict lint,
+Rustdoc and actual Rust 1.91 native/Wasm checks. Own versions remain 0.29.0.
+
+This committed baseline already selects direct Host 0.22.1; earlier receipts
+retain their Host 0.21 scope. The resource fixture now uses explicit create-only
+publication under Host 0.22. Its byte/occupied-path regression passes. The optional
+archive verifier still fails all-feature compilation against IC Build 0.9's Host
+process 0.21 types; [#69 — Adopt Host custody and archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69)
+owns that separate alignment. The complete release gate is not qualified.
+Full CI, native macOS and deployed-provider/Canic acceptance were not run.
+
 ## Fixture decoding, target selection and session resolution — pending 0.29.1
 
 The next three cleanups are applied over the prior dirty preparation below.

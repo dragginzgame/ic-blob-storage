@@ -14,12 +14,12 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.43.0 | Public memory types, host allocation pool and committed grants |
+| IC Memory | 0.44.0 selected | Incoming public hard cut; global-runtime adapter adoption is blocked, with prior Memory 0.43 evidence kept separate |
 | IC Metrics | 0.11.5 | Private storage probe and Testkit measurements; tracked overflow quality |
 | IC Testkit | 0.48.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
 | IC Testkit Candid | 0.48.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
-| IC Host artifacts/fs/process/tools (direct) | 0.21.0 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.9.0 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
+| IC Host artifacts/fs/process/tools (direct) | 0.22.1 | Native artifacts, filesystem and test/tool boundaries |
+| IC Build | 0.10.0 selected | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -63,15 +63,26 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Direct Blob callers, IC Build 0.9 and Testkit 0.48 share Host 0.21.0.
-Earlier optional archive-verifier compilation, lint and Rust 1.91 checks retain
-their recorded source/dependency scope.
+Direct Blob callers and incoming IC Build 0.10 select Host 0.22.1; Testkit 0.48
+retains its separate Host 0.21.0 graph. The
+[probe/signer cleanup receipt](evidence/fixture-cells0291.md) records the former
+Build 0.9 process-type mismatch. The selected Build 0.10 verifier passes focused
+compilation, strict lint and the real Cargo same-version/refusal fixture, including
+exact exit/signal statuses; [current status](status/current.md) locates its evidence.
+The [boundary cleanup receipt](evidence/boundaries0291.md) records live Memory
+0.44 compilation failures and distinguishes isolated Memory 0.43 results.
+Memory 0.44 removes the global-runtime entrypoints still used by Blob's public
+default-grant adapter and composition tests. Retaining that public dependency
+requires host API adoption and a minor release rather than the pending patch.
 Actual archive/release qualification remains separate; see
 [#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69#issuecomment-6210216854).
 The [earlier cleanup receipt](evidence/assessment-finalize0290.md) retains the
 Build 0.7 mismatch; [current qualification](evidence/publication-planning0290.md)
 records the confirmed Build 0.8/Memory 0.43 graph without relabelling old evidence.
 Build remains outside ordinary CLI/library graphs.
+Memory's `test-support` feature is selected directly only by the authority,
+funding and gateway-source probes. Production standalone compilation excludes
+those probe selections; its Memory graph does not enable fixture support.
 Testkit's separately installed CLI uses the published packaged lock; explicitly run
 `make install-testkit` then `make testkit-check` after changing its selection.
 Changing the application lock alone does not update the installed tool. Earlier

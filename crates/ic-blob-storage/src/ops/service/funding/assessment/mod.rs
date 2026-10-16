@@ -13,21 +13,17 @@ use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationBlock
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure as E;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse;
-use std::num::NonZeroU128;
 
 pub(crate) fn input(
     request: FundingPreparationRequest,
 ) -> Result<(FundingIntent, FundingHostEvidence), E> {
-    let positive = |v| NonZeroU128::new(v).ok_or(E::Invalid);
-    let intent = FundingIntent {
-        service: request.scope.service,
-        cashier: request.scope.cashier,
-        account: request.scope.payment_account,
-        namespace: positive(request.scope.namespace)?,
-        operation: positive(request.operation)?,
-        offered: positive(request.offered)?,
-        target_balance: request.target_balance.map(positive).transpose()?,
-    };
+    let intent = super::boundary::intent(
+        request.scope,
+        request.operation,
+        request.offered,
+        request.target_balance,
+    )
+    .ok_or(E::Invalid)?;
     // These hosts have no authoritative production acquisition path. Observed
     // provider balances or zero local obligations cannot establish these facts.
     let host = FundingHostEvidence {

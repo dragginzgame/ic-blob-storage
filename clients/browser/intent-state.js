@@ -1,10 +1,10 @@
 // Internal journal state rules. Persistence and caller snapshots stay with adapters.
+import { equal } from './value-validation.js';
 /** Local journal refusal. Never authorizes repeating a certificate or provider request. */
 export class IntentRefusal extends Error {
   constructor(code) { super(code); this.name = 'IntentRefusal'; this.code = code; }
 }
 export const require = (condition, code) => { if (!condition) throw new IntentRefusal(code); };
-export const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 export const bound = (value, saved) => require(value && equal(value.binding, saved), 'intent-binding');
 
 // Arguments have been validated/snapshotted by the adapter before storage awaits.

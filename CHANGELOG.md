@@ -2,6 +2,23 @@
 
 ## [0.29.1]
 
+- Align the archive verifier with IC Build 0.10 and Host process 0.22, retaining
+  bounded output, failure evidence and exact exit/signal status propagation
+  ([#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69)).
+- Share funding intent validation and phase projection across assessment, outcome
+  and history adapters, retaining their authorization and refusal categories.
+- Give native query evidence one recording owner, preserving existing filenames,
+  intent fields, partial failures and intent-before-transport ordering.
+- Share browser JSON representation comparisons and remove the redundant session
+  field-count check without changing certificate byte comparisons.
+- Reuse Memory's fixture cell for authority, funding and gateway probe journals,
+  preserving their keys, byte/work budgets and same-release restoration checks.
+- Retain checked download/observer signers without reopening credentials, while
+  keeping plan persistence before transport construction and dispatch.
+- Simplify offline command routing without requiring network configuration.
+- Update resource-fixture writes to Host's explicit create-only API, preserving
+  exact bytes, permissions and occupied-path refusal
+  ([#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69)).
 - Delegate fixture reply decoding to Testkit with explicit per-call budgets and
   unchanged refusal categories.
 - Share fixture transport selection across operator and inventory commands,

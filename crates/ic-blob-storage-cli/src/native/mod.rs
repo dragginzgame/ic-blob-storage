@@ -264,35 +264,13 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
             json!({"tool":"blob-storage","version":ic_blob_storage_contracts::CONTRACT_VERSION}),
         );
     }
-    if args
-        .first()
-        .is_some_and(|command| command == "publish-inputs")
-    {
-        return publish_inputs::run(args);
-    }
-    if args
-        .first()
-        .is_some_and(|command| command == "installation-check")
-    {
-        return installation_check::run(args);
-    }
-    if args
-        .first()
-        .is_some_and(|command| command == "account-link-inputs")
-    {
-        return account_link_inputs::run(args);
-    }
-    if args
-        .first()
-        .is_some_and(|command| command == "reference-inputs")
-    {
-        return reference_inputs::run(args);
-    }
-    if args
-        .first()
-        .is_some_and(|command| command == "upload-inputs")
-    {
-        return upload_inputs::run(args);
+    match args.first().map(String::as_str) {
+        Some("publish-inputs") => return publish_inputs::run(args),
+        Some("installation-check") => return installation_check::run(args),
+        Some("account-link-inputs") => return account_link_inputs::run(args),
+        Some("reference-inputs") => return reference_inputs::run(args),
+        Some("upload-inputs") => return upload_inputs::run(args),
+        _ => {}
     }
     let options = arguments::Options::parse(args)?;
     let runtime = tokio::runtime::Builder::new_current_thread()
@@ -436,7 +414,14 @@ fn agent_for(
     identity_path: &Path,
     actor: Principal,
 ) -> Result<Agent, Failure> {
-    let identity = identity(identity_path, actor)?;
+    agent_with_identity(options, identity(identity_path, actor)?)
+}
+
+/// Configure transport from the already checked signer without reopening its file.
+fn agent_with_identity(
+    options: &arguments::Options,
+    identity: Box<dyn Identity>,
+) -> Result<Agent, Failure> {
     let root = options
         .root_key
         .as_ref()

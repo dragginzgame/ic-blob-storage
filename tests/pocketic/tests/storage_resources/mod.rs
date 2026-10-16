@@ -14,6 +14,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
+use ic_host_fs::durable::{PublicationMode, WriteOptions, write_bytes};
 use std::{path::Path, time::Instant};
 
 pub(super) fn retain(directory: &Path, name: &str, value: &serde_json::Value) {
@@ -23,7 +24,15 @@ pub(super) fn retain(directory: &Path, name: &str, value: &serde_json::Value) {
 }
 
 pub(super) fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
-    ic_host_fs::durable::create_new_bytes_with_parents(&directory.join(name), bytes).unwrap();
+    write_bytes(
+        &directory.join(name),
+        WriteOptions {
+            mode: PublicationMode::CreateNew,
+            permissions: 0o666,
+        },
+        bytes,
+    )
+    .unwrap();
 }
 
 #[test]

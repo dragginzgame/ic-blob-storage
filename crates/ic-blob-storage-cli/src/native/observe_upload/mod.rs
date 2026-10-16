@@ -1,6 +1,7 @@
 //! One bounded provider observation, retained before any future attestation dispatch.
 pub(super) mod record;
 use super::Failure;
+use super::agent_with_identity;
 use super::arguments::Options;
 use super::artifacts::FailureRecord;
 use super::artifacts::Run;
@@ -78,7 +79,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         UploadAttestationReplyError::Invalid => Failure::Arguments,
         other => error(other),
     })?;
-    identity(&options.identity, options.actor)?;
+    let identity = identity(&options.identity, options.actor)?;
     let run = Run::create(&input.directory)?;
     run.bytes("permission.candid", &argument)?;
     run.json(
@@ -108,7 +109,14 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             started_at_ns: now()?.to_string(),
         },
     )?;
-    let result = capture(options, input, authority, permission, argument, &run).await;
+    let result = async {
+        let agent = agent_with_identity(options, identity)?;
+        capture(
+            options, input, authority, permission, argument, &run, &agent,
+        )
+        .await
+    }
+    .await;
     if let Err(failure) = result {
         run.json(
             "failure.json",
@@ -127,9 +135,10 @@ async fn capture(
     permission: UploadAdmissionRequest,
     argument: Vec<u8>,
     run: &Run,
+    agent: &ic_agent::Agent,
 ) -> Result<Value, Failure> {
-    let bytes = query(
-        options,
+    let bytes = query::with_agent(
+        agent,
         input.service,
         UPLOAD_VERIFICATION_PLAN_METHOD,
         argument,

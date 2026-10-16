@@ -169,7 +169,7 @@ where
     .map_err(|_| Failure::Binding)?;
     let capacity = publish_check::observation::capacity(
         scope,
-        &publish_check::observation::observe(
+        &super::query::observe(
             run,
             1,
             UPLOAD_CAPACITY_METHOD,
@@ -235,7 +235,7 @@ where
     Q: FnMut(&'static str, Vec<u8>) -> F,
     F: Future<Output = Result<Vec<u8>, Failure>>,
 {
-    let bytes = publish_check::observation::observe(
+    let bytes = super::query::observe(
         run,
         0,
         "blob_configuration",
@@ -283,14 +283,8 @@ where
 {
     let args = completion_reply::inspection_request(authority, file.permission)
         .map_err(super::attestation::failure)?;
-    let bytes = publish_check::observation::observe(
-        run,
-        2 * index + 2,
-        UPLOAD_ATTESTATION_METHOD,
-        args,
-        query,
-    )
-    .await?;
+    let bytes =
+        super::query::observe(run, 2 * index + 2, UPLOAD_ATTESTATION_METHOD, args, query).await?;
     let confirmation = match completion_reply::inspection(
         authority,
         file.permission,
@@ -333,14 +327,8 @@ where
         reference: file.permission.upload.first_reference,
     };
     let args = reply::status_request(request).map_err(super::references::failure)?;
-    let bytes = publish_check::observation::observe(
-        run,
-        2 * index + 3,
-        REFERENCE_STATUS_METHOD,
-        args,
-        query,
-    )
-    .await?;
+    let bytes =
+        super::query::observe(run, 2 * index + 3, REFERENCE_STATUS_METHOD, args, query).await?;
     let status = reply::decode_status(
         request,
         &bytes,

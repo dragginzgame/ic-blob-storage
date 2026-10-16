@@ -2,6 +2,7 @@
 pub mod access;
 mod admission;
 pub mod assessment;
+mod boundary;
 pub mod client;
 pub mod credit;
 pub mod history;

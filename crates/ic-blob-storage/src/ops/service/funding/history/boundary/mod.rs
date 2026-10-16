@@ -1,5 +1,4 @@
 //! Conversion around the existing bounded journal traversal.
-use crate::model::billing::journal::FundingIntentState;
 use crate::model::billing::journal::FundingJournalScope;
 use crate::ops::service::funding::FundingJournalError;
 use crate::ops::service::funding::StableFundingJournal;
@@ -10,7 +9,6 @@ use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
-use ic_blob_storage_contracts::dto::funding::FundingPhase;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::ic_stable_structures::Memory;
@@ -70,14 +68,7 @@ pub(crate) fn inspect<M: Memory>(
                 operation: view.intent.operation.get(),
                 offered: view.intent.offered.get(),
                 target_balance: view.intent.target_balance.map(NonZeroU128::get),
-                phase: match view.state {
-                    FundingIntentState::Prepared => FundingPhase::Prepared,
-                    FundingIntentState::Uncertain => FundingPhase::Uncertain,
-                    FundingIntentState::NotEnqueued => FundingPhase::NotEnqueued,
-                    FundingIntentState::Callback { refunded } => {
-                        FundingPhase::Callback { refunded }
-                    }
-                },
+                phase: super::super::boundary::phase(view.state),
             })
             .collect(),
         next: page.next.map(|position| FundingHistoryCursor {

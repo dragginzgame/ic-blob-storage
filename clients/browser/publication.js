@@ -2,7 +2,7 @@ import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from './certificate.js';
 import { createUploadTransfer } from './transfer.js';
 import { validGatewayLimits } from './validation.js';
-import { validUtf8Text } from './value-validation.js';
+import { equal, validUtf8Text } from './value-validation.js';
 import { hex } from './bytes.js';
 
 /** Frozen-input refusal, never evidence of service or provider completion. */
@@ -10,7 +10,6 @@ export class PublicationRefusal extends Error {
   constructor(code) { super(code); this.name = 'PublicationRefusal'; this.code = code; }
 }
 const require = (condition, code) => { if (!condition) throw new PublicationRefusal(code); };
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 /**
  * Rebuild one frozen native body with Caffeine before any certificate intent.
@@ -53,7 +52,7 @@ export async function createPublicationUpload(options) {
   // The SDK owns provider hashing/tree construction. Compare the original exact
   // metadata/ordered leaves and root; do not implement another provider decoder.
   require(original?.tree_type === rebuilt.tree_type && original?.tree?.hash === prepared.hash &&
-    same(original.headers, rebuilt.headers) && same(original.chunk_hashes, rebuilt.chunk_hashes), 'manifest');
+    equal(original.headers, rebuilt.headers) && equal(original.chunk_hashes, rebuilt.chunk_hashes), 'manifest');
   // Reject known shortages before constructing the certificate client, which
   // saves intent. SDK chunk sizes own this lower bound; the later opaque tree
   // and certificate envelope still require the gateway's exact request checks.

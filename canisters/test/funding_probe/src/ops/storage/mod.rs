@@ -3,10 +3,8 @@
 use std::cell::RefCell;
 
 use candid::{de::DecoderConfig, decode_one_with_config};
-use ic_blob_storage::ic_memory::{
-    GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRequest, MemoryRuntime, RuntimeMemory, SchemaMetadata, SealedDeclarationSnapshot,
-    ic_stable_structures::{Cell, DefaultMemoryImpl},
+use ic_memory::{
+    MemoryManagerConfig, ic_stable_structures::DefaultMemoryImpl, testing::FixtureCell,
 };
 
 use crate::model::FundingJournalRecord;
@@ -14,53 +12,32 @@ use crate::model::FundingJournalRecord;
 const JOURNAL_KEY: &str = "fixture.funding.journal.v1";
 const MAX_JOURNAL_BYTES: usize = 65_536;
 
-struct HostStore {
-    _runtime: MemoryRuntime<DefaultMemoryImpl>,
-    journal: Cell<Vec<u8>, RuntimeMemory<DefaultMemoryImpl>>,
-}
-
 thread_local! {
-    static STORE: RefCell<Option<HostStore>> = const { RefCell::new(None) };
+    static STORE: RefCell<Option<FixtureCell<DefaultMemoryImpl>>> = const { RefCell::new(None) };
 }
 
 pub(super) fn open() {
-    let request = MemoryRequest::new("fixture", JOURNAL_KEY, SchemaMetadata::default())
-        .expect("fixture memory request");
-    let pool = MemoryAllocationPool::new(
-        vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
-        vec![],
-    )
-    .expect("host allocation pool");
-    let declarations = SealedDeclarationSnapshot::new(vec![request]).expect("fixture declarations");
-    let mut runtime = MemoryRuntime::new_with_config(
+    let journal = FixtureCell::new(
         DefaultMemoryImpl::default(),
+        "fixture",
+        "fixture.",
+        JOURNAL_KEY,
         MemoryManagerConfig::new(16).expect("host bucket profile"),
-    )
-    .expect("host runtime");
-    runtime
-        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
-        .expect("host bootstrap");
-    let memory = runtime.open_memory(JOURNAL_KEY).expect("host grant");
-    let journal = Cell::init(memory, Vec::new());
-    STORE.with_borrow_mut(|store| {
-        *store = Some(HostStore {
-            _runtime: runtime,
-            journal,
-        });
-    });
+    );
+    STORE.with_borrow_mut(|store| *store = Some(journal));
 }
 
 pub(super) fn save(state: &FundingJournalRecord) {
     let bytes = candid::encode_one(state).expect("bounded fixture journal");
     assert!(bytes.len() <= MAX_JOURNAL_BYTES, "journal byte budget");
     STORE.with_borrow_mut(|store| {
-        store.as_mut().expect("opened journal").journal.set(bytes);
+        store.as_mut().expect("opened journal").set(bytes);
     });
 }
 
 pub(super) fn load() -> FundingJournalRecord {
     STORE.with_borrow(|store| {
-        let bytes = store.as_ref().expect("opened journal").journal.get();
+        let bytes = store.as_ref().expect("opened journal").bytes();
         // An absent/invalid cell must trap the upgrade, never seed an empty journal.
         assert!(
             !bytes.is_empty() && bytes.len() <= MAX_JOURNAL_BYTES,

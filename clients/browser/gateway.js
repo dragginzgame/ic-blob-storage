@@ -1,8 +1,7 @@
 import { validGatewayLimits } from './validation.js';
 import { readResponseBody } from './response.js';
 import { hex } from './bytes.js';
-
-const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+import { equal } from './value-validation.js';
 
 /** Local coordination refusal, not a provider response or reconciliation result. */
 export class GatewayRefusal extends Error {

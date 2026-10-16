@@ -1,6 +1,9 @@
 // Passive value checks only; callers own authority, limits and refusal codes.
 const utf8 = new TextEncoder();
 
+// Ordered JSON representation equality; this is not general deep or byte equality.
+export const equal = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
 export const integer = (value, min, max) => Number.isSafeInteger(value) && value >= min && value <= max;
 
 export function validFields(value, required, optional = []) {

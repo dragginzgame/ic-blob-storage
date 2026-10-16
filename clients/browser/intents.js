@@ -1,7 +1,7 @@
 import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration } from './validation.js';
-import { integer, validFields } from './value-validation.js';
+import { equal, integer, validFields } from './value-validation.js';
 
-import { IntentRefusal, require, equal, bound, claimGateway, observeGateway } from './intent-state.js';
+import { IntentRefusal, require, bound, claimGateway, observeGateway } from './intent-state.js';
 export { IntentRefusal } from './intent-state.js';
 
 const hex = value => typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);

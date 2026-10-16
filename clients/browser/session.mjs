@@ -5,13 +5,12 @@ import { integer, validFields } from './value-validation.js';
 
 export async function driveSession({ ready, phase, finish, execute, refuse, signal }) {
   const require = condition => { if (!condition) refuse('native-control'); };
-  const exact = (value, fields) => validFields(value, fields) && Object.keys(value).length === fields.length;
   function frame(value) {
     const shapes = { status: ['phase', 'index'], prepare: ['phase', 'index', 'source_run'],
       transfer: ['phase', 'index', 'source_transfer'], verify: ['phase', 'index', 'source_observation'], map: ['phase'] };
     require(typeof value?.phase === 'string' && Object.hasOwn(shapes, value.phase));
     const fields = shapes[value.phase];
-    require(exact(value, fields));
+    require(validFields(value, fields));
     if (value.phase !== 'map') require(integer(value.index, 0, ready.files - 1));
     for (const field of fields.filter(field => field.startsWith('source_'))) {
       require(value[field] === null || (typeof value[field] === 'string' && isAbsolute(value[field])));
@@ -34,13 +33,13 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
   }
   async function conclude(report, complete, code) {
     const final = await response(() => finish(signal));
-    require(exact(final, ['report', 'exit_code']) && final.report &&
+    require(validFields(final, ['report', 'exit_code']) && final.report &&
       Object.getPrototypeOf(final.report) === Object.prototype &&
       (final.exit_code === 0 ? !Object.hasOwn(final.report, 'error') :
         [2, 3].includes(final.exit_code) && typeof final.report.error === 'string'));
     if (complete) {
       require(final.exit_code === 0 && isDeepStrictEqual(final.report, report) &&
-        exact(report, ['schema', 'operation', 'authentication', 'inventory_sha256', 'installation_sha256',
+        validFields(report, ['schema', 'operation', 'authentication', 'inventory_sha256', 'installation_sha256',
           'files', 'blockers', 'atomic_snapshot', 'publication_lease', 'provider_requests',
           'public_serving_qualified', 'retry_authorized', 'all_references_live']) &&
         report.schema === 1 && report.operation === 'publish_map' && report.authentication === 'query_signatures' &&
@@ -57,7 +56,7 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
   let selected = { phase: 'status', index: 0 }, jobs = 0;
   for (let step = 0; step < ready.max_steps; step++) {
     const event = await response(() => phase(structuredClone(selected), signal));
-    require(exact(event, ['schema', 'event', 'step', 'next_index', 'report', 'next_frame']) &&
+    require(validFields(event, ['schema', 'event', 'step', 'next_index', 'report', 'next_frame']) &&
       event.schema === 1 && event.event === 'phase' && event.step === step &&
       integer(event.next_index, 0, ready.files) && event.report &&
       Object.getPrototypeOf(event.report) === Object.prototype);

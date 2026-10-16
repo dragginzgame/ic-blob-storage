@@ -250,20 +250,12 @@ pub(super) async fn inspect_recorded(
         return Err(Failure::Arguments);
     }
     let saved = request::load(input, agent.get_principal().map_err(|_| Failure::Identity)?)?;
-    run.bytes(&format!("{label}-args.candid"), &saved.argument)?;
-    run.json(
-        &format!("{label}-intent.json"),
-        &json!({"method":input.kind.method(),
-        "argument_sha256":crate::native::upload_inputs::digest(&saved.argument),"updates":0}),
-    )?;
-    let bytes = query::with_agent(
-        agent,
-        input.service,
-        input.kind.method(),
-        saved.argument.clone(),
-    )
+    let intent = json!({"method":input.kind.method(),
+        "argument_sha256":crate::native::upload_inputs::digest(&saved.argument),"updates":0});
+    let bytes = query::recorded(run, label, saved.argument.clone(), &intent, |args| {
+        query::with_agent(agent, input.service, input.kind.method(), args)
+    })
     .await?;
-    run.bytes(&format!("{label}-reply.candid"), &bytes)?;
     observation(input, &saved, &bytes)
 }
 fn admission_error(error: admission_reply::UploadAdmissionReplyError) -> Failure {

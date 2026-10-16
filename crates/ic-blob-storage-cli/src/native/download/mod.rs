@@ -1,6 +1,6 @@
 //! Tenant-owned verified output: one replicated descriptor, then one bounded GET.
 use super::Failure;
-use super::agent;
+use super::agent_with_identity;
 use super::arguments::Options;
 use super::artifacts::FailureRecord;
 use super::artifacts::Run;
@@ -92,7 +92,7 @@ fn decode(
 }
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let (request, scope) = open(input, options.actor)?;
-    identity(&options.identity, options.actor)?;
+    let identity = identity(&options.identity, options.actor)?;
     let run = Run::create(&input.directory)?;
     let argument = candid::encode_one(request).map_err(|_| Failure::Arguments)?;
     run.bytes("request.candid", &argument)?;
@@ -103,7 +103,11 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         "max_content_bytes":input.max_bytes.to_string(),"max_provider_requests":1,
         "descriptor_method":DOWNLOAD_METHOD,"request_deadline_seconds":30,
         "provider_charges":"unknown","retry_authorized":false}))?;
-    let result = capture(options, input, request, &scope, argument, &run).await;
+    let result = async {
+        let agent = agent_with_identity(options, identity)?;
+        capture(options, input, request, &scope, argument, &run, &agent).await
+    }
+    .await;
     if let Err(error) = result {
         run.json(
             "failure.json",
@@ -121,9 +125,9 @@ async fn capture(
     scope: &CaffeineDownloadScope,
     argument: Vec<u8>,
     run: &Run,
+    agent: &ic_agent::Agent,
 ) -> Result<Value, Failure> {
-    let agent = agent(options)?;
-    let bytes = super::inspection_update(&agent, input.service, DOWNLOAD_METHOD, argument).await?;
+    let bytes = super::inspection_update(agent, input.service, DOWNLOAD_METHOD, argument).await?;
     if bytes.len() > 4096 {
         return Err(Failure::ReplyTooLarge);
     }
