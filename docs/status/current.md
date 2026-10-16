@@ -2,6 +2,39 @@
 
 Date: 2026-10-16
 
+## Fixture decoding, target selection and session resolution — pending 0.29.1
+
+The next three cleanups are applied over the prior dirty preparation below.
+Published Testkit Candid 0.48 owns fixture decoding; byte/work/skipping/type limits
+and error mapping stay explicit here. Fixture commands share one transport target
+and parser while retaining separate caller/tenant checks. Session recovery updates
+its selected path directly without rebuilding the control frame. Retained records,
+CLI/output contracts and public library dependencies are unchanged.
+The [qualification receipt](../evidence/fixture-convergence0291.md) records 23
+fixture/eight session units, 15 selected installed cases, strict lint/Rustdoc and
+actual Rust 1.91 checks. Incoming Metrics 0.11.5 is preserved; the other selections
+below remain. Own versions stay 0.29.0; pending notes remain compatible 0.29.1.
+Full CI, native macOS and deployed-provider/Canic acceptance were not run.
+
+## Shared publication inputs and recovery inspection — pending 0.29.1
+
+Released base is 0.29.0 `c348af88e7840a710629be39528e53081ea7163c`.
+Publication shares one offline-admitted installation candidate and its exact
+packet within each invocation; every file still checks service, namespace and
+project. Prepared manifests use their canonical validator once, and attestation
+recovery projects the existing typed inspection. The
+[qualification receipt](../evidence/admitted-installation0291.md) records 119 CLI,
+five probe and 20 selected installed cases, strict lint/Rustdoc and Rust 1.91.
+These are compatible internal changes; own versions remain 0.29.0.
+
+The unchanged graph selects Build 0.9.0, direct Host 0.21.0, public Memory 0.43.0,
+Metrics 0.11.4 and Testkit 0.48.0 with PocketIC 16.1.0. The prepared Testkit accept
+replacement remains inactive under
+[#70 — Finish native HTTP fixture retirement](https://github.com/dragginzgame/ic-blob-storage/issues/70);
+the selected published source still lacks that helper. Earlier handoff sections
+retain their historical source and dependency scope. Full CI, native macOS and
+deployed-provider/Canic acceptance remain separate.
+
 ## Publication agents and capacity diagnostics — pending 0.29.0
 
 Preparation retains each invocation's authenticated tenant/uploader agents and

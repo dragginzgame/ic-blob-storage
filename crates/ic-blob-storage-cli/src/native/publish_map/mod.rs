@@ -91,7 +91,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     if limits.max_queries < required_queries {
         return Err(Failure::ReplyLimit);
     }
-    let installation = batch.installation()?;
+    let installation = batch.installation();
     let agent = super::agent(options)?;
     let operator = super::agent_for(
         options,
@@ -100,14 +100,14 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     )?;
     let run = Run::create(&limits.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.candid", &batch.installation)?;
+    run.bytes("installation.candid", &batch.installation.bytes)?;
     run.json("intent.json", &json!({"schema":1,"operation":input.selection.operation(),
         "file_index":match input.selection { Selection::Batch => None, Selection::File(index) => Some(index) },
         "service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"tenant":scope.tenant.to_text(),
         "network":options.network,"url":options.url.as_str(),"gateway":input.gateway.as_str(),
         "root_key_sha256":super::upload_inputs::digest(&agent.read_root_key()),
         "inventory_sha256":super::upload_inputs::digest(&batch.inventory),
-        "installation_sha256":super::upload_inputs::digest(&batch.installation),
+        "installation_sha256":super::upload_inputs::digest(&batch.installation.bytes),
         "max_queries":limits.max_queries,"timeout_seconds":limits.timeout_seconds,
         "updates":0,"provider_requests":0,"automatic_retries":0}))?;
     let result = tokio::time::timeout(
@@ -212,7 +212,7 @@ where
     let complete = blockers.is_empty() && files.len() == expected_files;
     let mut report = json!({"schema":1,"operation":selection.operation(),"authentication":"query_signatures",
         "inventory_sha256":super::upload_inputs::digest(&batch.inventory),
-        "installation_sha256":super::upload_inputs::digest(&batch.installation),
+        "installation_sha256":super::upload_inputs::digest(&batch.installation.bytes),
         "files":files,"blockers":blockers,"atomic_snapshot":false,"publication_lease":false,
         "provider_requests":0,"public_serving_qualified":false,"retry_authorized":false});
     match selection {
@@ -251,7 +251,7 @@ pub(in crate::native) fn decode_configuration(
     batch: &publish_inputs::PreparedBatch,
     bytes: &[u8],
 ) -> Result<HostConfigurationView, Failure> {
-    let installation = batch.installation()?;
+    let installation = batch.installation();
     if bytes.len() > exact_candid::INSTALLATION_BYTES {
         return Err(Failure::ReplyLimit);
     }

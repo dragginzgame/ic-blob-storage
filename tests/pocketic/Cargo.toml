@@ -13,6 +13,7 @@ ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-host-fs.workspace = true
 ic-testkit.workspace = true
+ic-testkit-candid.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true

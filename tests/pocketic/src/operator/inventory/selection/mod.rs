@@ -1,10 +1,9 @@
 use crate::operator::{
     Failure,
-    model::{canister, decimal, flags},
-    transport::QueryTarget,
+    model::{QueryTarget, canister, decimal, flags},
 };
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
-use std::{net::SocketAddr, path::PathBuf};
+use std::path::PathBuf;
 
 pub(super) struct Selection {
     pub target: QueryTarget,
@@ -18,32 +17,25 @@ impl Selection {
             return Err(Failure::Arguments);
         }
         let mut flags = flags(&args[1..])?;
+        let target = QueryTarget::parse(&mut flags)?;
         let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
-        let server: SocketAddr = take("--server")?.parse().map_err(|_| Failure::Arguments)?;
-        if !server.ip().is_loopback() || server.port() == 0 {
-            return Err(Failure::Arguments);
-        }
-        let instance = decimal(take("--instance")?)?;
-        let service = canister(take("--canister")?)?;
-        let caller = canister(take("--caller")?)?;
         let tenant = canister(take("--tenant")?)?;
         let namespace = decimal(take("--namespace")?)?;
         let path = PathBuf::from(take("--inventory")?);
-        if caller != tenant || namespace == 0 || path.as_os_str().is_empty() || !flags.is_empty() {
+        if target.caller != tenant
+            || namespace == 0
+            || path.as_os_str().is_empty()
+            || !flags.is_empty()
+        {
             return Err(Failure::Arguments);
         }
         Ok(Self {
-            target: QueryTarget {
-                server,
-                instance,
-                canister: service,
-                caller,
-            },
             scope: TenantScope {
-                service,
+                service: target.canister,
                 tenant,
                 namespace,
             },
+            target,
             path,
         })
     }
@@ -85,6 +77,8 @@ mod tests {
             (2, "127.0.0.1:0"),
             (4, "01"),
             (8, &service),
+            (8, "2vxsx-fae"),
+            (8, "aaaaa-aa"),
             (12, "0"),
             (14, ""),
         ] {

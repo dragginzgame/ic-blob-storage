@@ -11,10 +11,12 @@ fn selection() -> Selection {
     let peer = Fake::principal(2);
     Selection {
         target: Target {
-            server: "127.0.0.1:1".parse().unwrap(),
-            instance: 0,
-            canister: service,
-            caller: Fake::principal(3),
+            transport: crate::operator::model::QueryTarget {
+                server: "127.0.0.1:1".parse().unwrap(),
+                instance: 0,
+                canister: service,
+                caller: Fake::principal(3),
+            },
             binding: Binding::Funding(peer),
         },
         request: FundingLookupRequest {

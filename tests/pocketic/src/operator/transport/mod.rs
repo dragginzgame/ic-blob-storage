@@ -1,30 +1,7 @@
 //! Attach to caller-owned local instances without taking lifecycle or retry authority.
-use super::{Failure, model::Target};
-use candid::Principal;
+use super::{Failure, model::QueryTarget};
 use ic_testkit::pocket_ic::PocketIc;
-use std::{
-    net::SocketAddr,
-    panic::{AssertUnwindSafe, catch_unwind},
-};
-
-/// Explicit transport selection, independent of each fixture's semantic binding.
-pub(super) struct QueryTarget {
-    pub server: SocketAddr,
-    pub instance: usize,
-    pub canister: Principal,
-    pub caller: Principal,
-}
-
-impl From<&Target> for QueryTarget {
-    fn from(target: &Target) -> Self {
-        Self {
-            server: target.server,
-            instance: target.instance,
-            canister: target.canister,
-            caller: target.caller,
-        }
-    }
-}
+use std::panic::{AssertUnwindSafe, catch_unwind};
 
 fn attached<T>(
     target: &QueryTarget,

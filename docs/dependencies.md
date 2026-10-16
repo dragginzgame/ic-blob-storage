@@ -15,10 +15,11 @@ lockfiles; this repository's qualification does not cover every future resolutio
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
 | IC Memory | 0.43.0 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.11.3 | Private storage probe; tracked overflow quality |
-| IC Testkit | 0.47.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Metrics | 0.11.5 | Private storage probe and Testkit measurements; tracked overflow quality |
+| IC Testkit | 0.48.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Testkit Candid | 0.48.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
 | IC Host artifacts/fs/process/tools (direct) | 0.21.0 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.8.0 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
+| IC Build | 0.9.0 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -29,6 +30,9 @@ for native provider, signed-update and backpressure fixtures.
 [#70 — Finish native HTTP fixture retirement](https://github.com/dragginzgame/ic-blob-storage/issues/70) retains
 delivered consumer/native acceptance. The CLI uses Testkit only as a native
 development dependency; public libraries/contracts gain no testing dependency.
+The separate Testkit Candid crate supplies bounded fixture reply decoding without
+transport or lifecycle ownership. Blob retains binding checks and error mapping;
+the [fixture cleanup receipt](evidence/fixture-convergence0291.md) records adoption.
 After changing the selected Testkit CLI, explicitly run `make install-testkit`
 before ordinary offline tool gates. Scoped installed evidence may use an explicit
 server binary with caller-owned byte admission; that does not qualify the missing
@@ -59,9 +63,9 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Direct Blob callers and IC Build 0.8 share Host 0.21.0; Testkit 0.47 retains
-its independent native Host 0.20.1 dependencies. The optional archive verifier
-now passes focused all-feature compilation, strict lint and Rust 1.91 checking.
+Direct Blob callers, IC Build 0.9 and Testkit 0.48 share Host 0.21.0.
+Earlier optional archive-verifier compilation, lint and Rust 1.91 checks retain
+their recorded source/dependency scope.
 Actual archive/release qualification remains separate; see
 [#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69#issuecomment-6210216854).
 The [earlier cleanup receipt](evidence/assessment-finalize0290.md) retains the

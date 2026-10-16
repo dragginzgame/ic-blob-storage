@@ -1,5 +1,5 @@
 //! Offline upstream-manifest conversion; no authority, allocation or dispatch.
-mod installation;
+pub(super) mod installation;
 use super::parsing::positive;
 use super::parsing::principal;
 use super::{
@@ -20,13 +20,13 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHashes;
 use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_contracts::upload::admission::reply::validate_request;
-use ic_blob_storage_contracts::upload::manifests::reply::validate_declaration;
 use ic_host_artifacts::artifact::Sha256Digest;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
     num::NonZeroU64,
     path::{Path, PathBuf},
+    rc::Rc,
 };
 
 pub(super) const MANIFEST_BYTES: u64 = 256 * 1024;
@@ -36,7 +36,7 @@ pub(super) const BINDING_BYTES: u64 = 12 * 1024;
 pub(super) struct InputFiles {
     pub binding: Vec<u8>,
     pub manifest: Vec<u8>,
-    pub installation: Vec<u8>,
+    pub installation: Rc<installation::Installation>,
     pub body: PathBuf,
 }
 
@@ -47,7 +47,6 @@ pub(super) struct PreparedInput {
     pub permission: UploadAdmissionRequest,
     request: UploadManifestRequest,
     pub resources: ic_blob_storage_contracts::dto::configuration::ServiceResourceInput,
-    maximum: NonZeroU64,
     admission: Vec<u8>,
     preparation: Vec<u8>,
     references: ReferenceFiles,
@@ -220,18 +219,18 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     if !flags.is_empty() || maximum.get() > 1024 * 1024 * 1024 {
         return Err(Failure::Arguments);
     }
-    PreparedInput::load(
-        InputFiles {
-            binding: read(binding_path, BINDING_BYTES)?,
-            manifest: read(manifest_path, MANIFEST_BYTES)?,
-            installation: read(
+    PreparedInput::load(InputFiles {
+        binding: read(binding_path, BINDING_BYTES)?,
+        manifest: read(manifest_path, MANIFEST_BYTES)?,
+        installation: installation::Installation::decode(
+            read(
                 installation_path,
                 super::exact_candid::INSTALLATION_BYTES as u64,
             )?,
-            body: body_path.to_owned(),
-        },
-        maximum,
-    )?
+            maximum,
+        )?,
+        body: body_path.to_owned(),
+    })?
     .publish(directory, None)
 }
 
@@ -267,7 +266,7 @@ impl PreparedInput {
         if permission != self.admission
             || manifest != self.preparation
             || browser != self.browser
-            || installation != self.files.installation
+            || installation != self.files.installation.bytes
         {
             return Err(Failure::Binding);
         }
@@ -290,7 +289,7 @@ impl PreparedInput {
         let hashes = LocalBody::open(&self.files.body, self.permission.upload.bytes)?.verify(
             ProviderRootHash::try_from(self.permission.upload.root.as_slice()).expect("fixed root"),
             &self.request.declaration,
-            self.maximum,
+            self.files.installation.limits.max_content_bytes,
             &mut std::io::sink(),
         )?;
         if hashes.content_digest.as_bytes() != expected.as_bytes() {
@@ -309,14 +308,14 @@ impl PreparedInput {
         self.request.declaration.chunks.len()
     }
 
-    pub fn load(files: InputFiles, maximum: NonZeroU64) -> Result<Self, Failure> {
+    pub fn load(files: InputFiles) -> Result<Self, Failure> {
         let binding_bytes = &files.binding;
         let binding: Binding =
             serde_json::from_slice(binding_bytes).map_err(|_| Failure::Arguments)?;
         let permission = binding.permission()?;
         validate_namespaces(&binding, permission)?;
-        let installation =
-            installation::Installation::decode(&files.installation, &binding, permission, maximum)?;
+        let installation = &files.installation;
+        installation.bind(&binding, permission)?;
         let manifest_bytes = &files.manifest;
         let limits = installation.limits;
         let declaration = decode_prepared_manifest(
@@ -332,8 +331,6 @@ impl PreparedInput {
             },
         )
         .map_err(|_| Failure::PreparedManifest)?;
-        validate_declaration(permission, &declaration, limits)
-            .map_err(|_| Failure::PreparedManifest)?;
         let request = UploadManifestRequest {
             permission,
             declaration,
@@ -352,12 +349,11 @@ impl PreparedInput {
         ))
         .map_err(|_| Failure::Arguments)?;
         Ok(Self {
-            resources: installation.resources,
+            resources: installation.input.configuration.resources,
             files,
             binding,
             permission,
             request,
-            maximum,
             admission,
             preparation,
             references,
@@ -378,7 +374,6 @@ impl PreparedInput {
             files,
             binding,
             request,
-            maximum,
             admission,
             preparation,
             references,
@@ -390,8 +385,13 @@ impl PreparedInput {
         let run = Run::create(directory)?;
         run.bytes("binding.json", &files.binding)?;
         run.bytes("manifest.json", &files.manifest)?;
-        run.bytes("installation.candid", &files.installation)?;
-        let hashes = snapshot(source, &request, maximum, &run)?;
+        run.bytes("installation.candid", &files.installation.bytes)?;
+        let hashes = snapshot(
+            source,
+            &request,
+            files.installation.limits.max_content_bytes,
+            &run,
+        )?;
         if expected_digest
             .is_some_and(|expected| hashes.content_digest.as_bytes() != expected.as_bytes())
         {
@@ -410,7 +410,7 @@ impl PreparedInput {
         let result = json!({
             "schema": 1, "observation": "local_upload_inputs",
             "installation_file": "installation.candid",
-            "installation_sha256": digest(&files.installation),
+            "installation_sha256": digest(&files.installation.bytes),
             "installation_binding_checked": true,
             "installed_state_observed": false, "namespace_provisioned": false,
             "binding_sha256": digest(&files.binding), "manifest_sha256": digest(&files.manifest),

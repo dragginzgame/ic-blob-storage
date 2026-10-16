@@ -88,16 +88,6 @@ impl Recovery {
         })
     }
 
-    pub fn output(
-        &self,
-        bytes: &[u8],
-        actor: Principal,
-        network: &str,
-        url: &str,
-    ) -> Result<Value, Failure> {
-        Ok(self.inspect(bytes, actor, network, url)?.report)
-    }
-
     pub fn inspect(
         &self,
         bytes: &[u8],

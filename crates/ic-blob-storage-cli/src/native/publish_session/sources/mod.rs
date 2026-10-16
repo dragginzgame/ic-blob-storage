@@ -106,8 +106,8 @@ fn history_binding(
         || packet(&source.join("inventory.json"), batch.inventory.len() as u64)? != batch.inventory
         || packet(
             &source.join("installation.candid"),
-            batch.installation.len() as u64,
-        )? != batch.installation
+            batch.installation.bytes.len() as u64,
+        )? != batch.installation.bytes
     {
         return Err(Failure::Binding);
     }
@@ -300,8 +300,8 @@ impl Sources {
 
     /// Resolve omitted recovery paths to surviving originals, and refuse attempts
     /// to substitute another path once this session has selected its source.
-    pub fn resolve(&mut self, frame: Frame) -> Result<Frame, Failure> {
-        let (index, supplied, pins) = match &frame {
+    pub fn resolve(&mut self, mut frame: Frame) -> Result<Frame, Failure> {
+        let (index, supplied, pins) = match &mut frame {
             Frame::Prepare { index, source_run } => (*index, source_run, &mut self.setup),
             Frame::Transfer {
                 index,
@@ -314,25 +314,11 @@ impl Sources {
             Frame::Status { .. } | Frame::Map {} => return Ok(frame),
         };
         let slot = pins.get_mut(index).ok_or(Failure::Arguments)?;
-        if let Some(supplied) = supplied {
+        if let Some(supplied) = supplied.as_ref() {
             pin(slot, supplied)?;
         }
-        let source = slot.clone();
-        Ok(match frame {
-            Frame::Prepare { index, .. } => Frame::Prepare {
-                index,
-                source_run: source,
-            },
-            Frame::Verify { index, .. } => Frame::Verify {
-                index,
-                source_observation: source,
-            },
-            Frame::Transfer { index, .. } => Frame::Transfer {
-                index,
-                source_transfer: source,
-            },
-            _ => unreachable!("only source-bearing frames reach this branch"),
-        })
+        supplied.clone_from(slot);
+        Ok(frame)
     }
 }
 

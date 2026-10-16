@@ -10,11 +10,16 @@ pub(super) struct Command {
 }
 
 pub(super) struct Target {
+    pub transport: QueryTarget,
+    pub binding: Binding,
+}
+
+/// Explicit local transport selection, independent of the command's semantic binding.
+pub(super) struct QueryTarget {
     pub server: SocketAddr,
     pub instance: usize,
     pub canister: Principal,
     pub caller: Principal,
-    pub binding: Binding,
 }
 
 pub(super) enum Binding {
@@ -56,6 +61,20 @@ pub(super) fn flags(args: &[String]) -> Result<BTreeMap<&str, &str>, Failure> {
 impl Target {
     /// Consume explicit transport and binding fields, preserving command arguments.
     pub fn parse(flags: &mut BTreeMap<&str, &str>) -> Result<Self, Failure> {
+        let transport = QueryTarget::parse(flags)?;
+        let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
+        let binding = match take("--kind")? {
+            "authority" => Binding::Authority(decimal(take("--namespace")?)?),
+            "funding" => Binding::Funding(canister(take("--peer")?)?),
+            _ => return Err(Failure::Arguments),
+        };
+        Ok(Self { transport, binding })
+    }
+}
+
+impl QueryTarget {
+    /// Consume common transport flags; callers retain their caller/tenant policy.
+    pub fn parse(flags: &mut BTreeMap<&str, &str>) -> Result<Self, Failure> {
         let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
         let server: SocketAddr = take("--server")?.parse().map_err(|_| Failure::Arguments)?;
         if !server.ip().is_loopback() || server.port() == 0 {
@@ -65,17 +84,11 @@ impl Target {
         let canister = canister(take("--canister")?)?;
         // An explicit simulated caller is not an authenticated production identity.
         let caller = Principal::from_text(take("--caller")?).map_err(|_| Failure::Arguments)?;
-        let binding = match take("--kind")? {
-            "authority" => Binding::Authority(decimal(take("--namespace")?)?),
-            "funding" => Binding::Funding(self::canister(take("--peer")?)?),
-            _ => return Err(Failure::Arguments),
-        };
         Ok(Self {
             server,
             instance,
             canister,
             caller,
-            binding,
         })
     }
 }

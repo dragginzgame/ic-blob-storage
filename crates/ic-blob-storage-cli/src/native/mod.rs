@@ -352,12 +352,14 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
             )?;
             let (service, method, argument) = recovery.query();
             let response = query(options, service, method, argument).await?;
-            recovery.output(
-                &response,
-                options.actor,
-                options.network,
-                options.url.as_str(),
-            )
+            recovery
+                .inspect(
+                    &response,
+                    options.actor,
+                    options.network,
+                    options.url.as_str(),
+                )
+                .map(|inspection| inspection.report)
         }
         arguments::Command::FundingHistory { scope, cursor } => {
             let request = history::request(*scope, cursor.as_deref())?;

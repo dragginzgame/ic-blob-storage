@@ -15,7 +15,7 @@ pub(super) fn binding(
 ) -> Value {
     json!({"schema":1,"operation":"publish_prepare","network":options.network,"url":options.url.as_str(),
         "service":input.service.to_text(),"namespace":input.namespace.to_string(),"tenant":options.actor.to_text(),
-        "file_index":input.index,"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation),
+        "file_index":input.index,"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation.bytes),
         "root_key_sha256":ContentDigest::compute(root).to_string(),"max_service_updates":2,"max_service_queries":4,
         "provider_requests":0,"automatic_retries":0,"certificate_issued":false,"publication_authorized":false})
 }

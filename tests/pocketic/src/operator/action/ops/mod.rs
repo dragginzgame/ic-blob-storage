@@ -36,7 +36,7 @@ pub(super) fn execute(selection: &Selection) -> Result<Result<(), Value>, Failur
         query_method(&selection.target, method(selection), args)
     } else {
         crate::operator::transport::update_target(
-            &(&selection.target).into(),
+            &selection.target.transport,
             method(selection),
             args,
         )

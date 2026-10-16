@@ -39,7 +39,7 @@ impl Selection {
         let source = canister(take("--source")?)?;
         let revision = decimal(take("--revision")?)?;
         let sequence = decimal(take("--sequence")?)?;
-        if namespace == 0 || source == target.canister || sequence == 0 {
+        if namespace == 0 || source == target.transport.canister || sequence == 0 {
             return Err(Failure::Arguments);
         }
         let request = match action {
@@ -49,7 +49,7 @@ impl Selection {
                 }
                 Request::Balance(BalanceRefreshRequest {
                     scope: BalanceScope {
-                        service: target.canister,
+                        service: target.transport.canister,
                         namespace,
                         source,
                         account: canister(take("--account")?)?,
@@ -59,7 +59,7 @@ impl Selection {
                 })
             }
             Action::Gateway => Request::Gateway(GatewaySyncRequest {
-                service: target.canister,
+                service: target.transport.canister,
                 namespace,
                 source,
                 revision,

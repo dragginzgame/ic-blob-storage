@@ -4,8 +4,11 @@ use super::{
     input::{Inventory, PreparedBlob},
     selection::Selection,
 };
-use crate::operator::{Failure, ops::Report, transport::query_target};
-use candid::{CandidType, DecoderConfig, Deserialize, decode_one_with_config};
+use crate::operator::{
+    Failure,
+    ops::{Report, decode},
+    transport::query_target,
+};
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
@@ -17,26 +20,9 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_testkit_candid::DecodeLimits;
 use serde_json::{Value, json};
 
-fn decode_result<
-    T: CandidType + for<'de> Deserialize<'de>,
-    E: CandidType + for<'de> Deserialize<'de>,
->(
-    bytes: &[u8],
-) -> Result<Result<T, E>, Failure> {
-    if bytes.len() > 4096 {
-        return Err(Failure::ReplyTooLarge);
-    }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(100_000)
-        .set_skipping_quota(1000)
-        .set_max_type_len(64)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
-    decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
-}
 fn decode_capacity(scope: TenantScope, bytes: &[u8]) -> Result<UploadCapacityResponse, Failure> {
     use ic_blob_storage_contracts::upload::capacity::reply::{
         UploadCapacityReplyError as E, decode,
@@ -177,10 +163,19 @@ fn existing(
                 root: content.request.root,
             };
             let response: ReferenceCapacityResponse =
-                decode_result::<_, ReferenceCapacityFailure>(&query(
-                    "blob_reference_capacity",
-                    candid::encode_one(lookup).expect("content scope"),
-                )?)?
+                decode::<Result<_, ReferenceCapacityFailure>>(
+                    &query(
+                        "blob_reference_capacity",
+                        candid::encode_one(lookup).expect("content scope"),
+                    )?,
+                    DecodeLimits {
+                        reply_bytes: 4096,
+                        decoding_quota: 100_000,
+                        skipping_quota: 1000,
+                        type_entries: 64,
+                        header_bytes: 4096,
+                    },
+                )?
                 .map_err(|error| match error {
                     ReferenceCapacityFailure::Binding => Failure::Binding,
                     ReferenceCapacityFailure::Denied => Failure::Denied,

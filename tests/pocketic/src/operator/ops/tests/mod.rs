@@ -8,10 +8,12 @@ use ic_testkit::Fake;
 
 fn target() -> Target {
     Target {
-        server: "127.0.0.1:1".parse().unwrap(),
-        instance: 0,
-        canister: Fake::principal(1),
-        caller: Principal::anonymous(),
+        transport: crate::operator::model::QueryTarget {
+            server: "127.0.0.1:1".parse().unwrap(),
+            instance: 0,
+            canister: Fake::principal(1),
+            caller: Principal::anonymous(),
+        },
         binding: Binding::Funding(Fake::principal(2)),
     }
 }
@@ -57,6 +59,16 @@ fn status() -> FundingOperatorStatusView {
 fn bounded_decode_preserves_exact_amounts_and_unknowns() {
     let bytes = candid::encode_one(Some(status())).unwrap();
     let value = report(&target(), &bytes).unwrap().value;
+    // Ordinary reply decoding retains its bounded skipping of extra values.
+    assert_eq!(
+        report(
+            &target(),
+            &candid::encode_args((Some(status()), 7_u8)).unwrap()
+        )
+        .unwrap()
+        .value,
+        value
+    );
     assert_eq!(value["provider_balance"], u128::MAX.to_string());
     assert_eq!(value["attempts"][0]["id"], u64::MAX.to_string());
     assert_eq!(

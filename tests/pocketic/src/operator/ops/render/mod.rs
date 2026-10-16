@@ -102,8 +102,8 @@ pub(in crate::operator) fn target(target: &crate::operator::model::Target) -> Va
         Binding::Funding(peer) => json!({"kind":"funding", "peer":peer.to_text()}),
     };
     json!({
-        "server":target.server.to_string(), "instance":target.instance.to_string(),
-        "canister":target.canister.to_text(), "caller":target.caller.to_text(),
+        "server":target.transport.server.to_string(), "instance":target.transport.instance.to_string(),
+        "canister":target.transport.canister.to_text(), "caller":target.transport.caller.to_text(),
         "binding":binding,
     })
 }

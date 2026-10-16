@@ -258,16 +258,16 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
         binding["preparation"] = preparation.clone();
         let args = arguments(base.path(), &binding, &manifest());
         let output = crate::native::execute(&args).unwrap();
-        let input = PreparedInput::load(
-            InputFiles {
-                binding: std::fs::read(base.path().join("output/binding.json")).unwrap(),
-                manifest: std::fs::read(base.path().join("output/manifest.json")).unwrap(),
-                installation: std::fs::read(base.path().join("output/installation.candid"))
-                    .unwrap(),
-                body: base.path().join("output/body.bin"),
-            },
-            NonZeroU64::new(10).unwrap(),
-        )
+        let input = PreparedInput::load(InputFiles {
+            binding: std::fs::read(base.path().join("output/binding.json")).unwrap(),
+            manifest: std::fs::read(base.path().join("output/manifest.json")).unwrap(),
+            installation: crate::native::upload_inputs::installation::Installation::decode(
+                std::fs::read(base.path().join("output/installation.candid")).unwrap(),
+                NonZeroU64::new(10).unwrap(),
+            )
+            .unwrap(),
+            body: base.path().join("output/body.bin"),
+        })
         .unwrap();
         let transfer = input
             .transfer_input(

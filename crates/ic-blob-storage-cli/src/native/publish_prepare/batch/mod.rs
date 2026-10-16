@@ -20,12 +20,12 @@ pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<V
     )?;
     let run = Run::create(&input.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.candid", &batch.installation)?;
+    run.bytes("installation.candid", &batch.installation.bytes)?;
     run.json("intent.json", &json!({"schema":1,"operation":"publish_prepare_batch",
         "network":options.network,"url":options.url.as_str(),"tenant":options.actor.to_text(),
         "uploader":selected.permission.uploader.to_text(),"service":input.service.to_text(),
         "namespace":input.namespace.to_string(),"inventory_sha256":digest(&batch.inventory),
-        "installation_sha256":digest(&batch.installation),"root_key_sha256":ContentDigest::compute(&tenant.read_root_key()).to_string(),
+        "installation_sha256":digest(&batch.installation.bytes),"root_key_sha256":ContentDigest::compute(&tenant.read_root_key()).to_string(),
         "files":batch.files.len(),"max_service_updates":2*batch.files.len(),
         "max_service_queries":4*batch.files.len(),"timeout_seconds":input.timeout_seconds,
         "provider_requests":0,"automatic_retries":0,"publication_authorized":false}))?;

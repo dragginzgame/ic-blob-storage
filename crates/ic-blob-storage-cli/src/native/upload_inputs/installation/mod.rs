@@ -4,24 +4,23 @@ use crate::native::exact_candid;
 use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::configuration::ValidatedInstallationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
-use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
+use std::rc::Rc;
 
-pub(super) struct Installation {
+/// One immutable offline candidate and exact packet, shared within an invocation.
+pub(in crate::native) struct Installation {
+    pub input: ServiceInstallationInput,
+    pub bytes: Vec<u8>,
     pub limits: CaffeineManifestLimits,
-    pub resources: ServiceResourceInput,
 }
 impl Installation {
-    pub fn decode(
-        bytes: &[u8],
-        binding: &Binding,
-        permission: UploadAdmissionRequest,
-        maximum: NonZeroU64,
-    ) -> Result<Self, Failure> {
+    pub fn decode(bytes: Vec<u8>, maximum: NonZeroU64) -> Result<Rc<Self>, Failure> {
         let input: ServiceInstallationInput =
-            exact_candid::decode(bytes, exact_candid::INSTALLATION_BYTES, 64, 100_000)?;
+            exact_candid::decode(&bytes, exact_candid::INSTALLATION_BYTES, 64, 100_000)?;
+        // Offline model validation only. Each file must independently bind the
+        // proposed service below; this supplies no authenticated platform identity.
         ValidatedInstallationInput::new(
-            permission.upload.service,
+            input.configuration.service,
             ServiceInstallationCandidate {
                 configuration: input.configuration,
                 project: &input.project,
@@ -33,11 +32,6 @@ impl Installation {
             },
         )
         .map_err(|_| Failure::Arguments)?;
-        if input.configuration.namespace != permission.upload.namespace
-            || input.project != binding.project
-        {
-            return Err(Failure::Arguments);
-        }
         let r = input.configuration.resources;
         // Retain the CLI's buffering/work ceilings while also enforcing the
         // validated candidate's per-manifest and lifetime leaf ceilings. This
@@ -58,9 +52,24 @@ impl Installation {
                 .try_into()
                 .expect("validated positive metadata bound"),
         };
-        Ok(Self {
+        Ok(Rc::new(Self {
+            input,
+            bytes,
             limits,
-            resources: r,
-        })
+        }))
+    }
+
+    pub(super) fn bind(
+        &self,
+        binding: &Binding,
+        permission: UploadAdmissionRequest,
+    ) -> Result<(), Failure> {
+        if self.input.configuration.service != permission.upload.service
+            || self.input.configuration.namespace != permission.upload.namespace
+            || self.input.project != binding.project
+        {
+            return Err(Failure::Arguments);
+        }
+        Ok(())
     }
 }

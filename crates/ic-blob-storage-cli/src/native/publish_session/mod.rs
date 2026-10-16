@@ -83,7 +83,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     if budget::step_limit(batch.files.len()).is_none_or(|limit| input.max_steps > limit) {
         return Err(Failure::Arguments);
     }
-    let installation = batch.installation()?;
+    let installation = batch.installation();
     let actors = Actors {
         tenant: agent(options)?,
         uploader: agent_for(
@@ -96,7 +96,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             &input.operator_identity,
             installation.configuration.operator,
         )?,
-        verifier: verification::options(options, input, &installation)?,
+        verifier: verification::options(options, input, installation)?,
     };
     let intent = SessionIntentRecord {
         format: "ic-blob-storage/publication-session:retained-browser-handoffs".into(),
@@ -120,7 +120,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             .map(|options| options.actor.to_text()),
         gateway: input.gateway.as_str().into(),
         inventory_sha256: digest(&batch.inventory),
-        installation_sha256: digest(&batch.installation),
+        installation_sha256: digest(&batch.installation.bytes),
         root_key_sha256: digest(&actors.tenant.read_root_key()),
         files: batch.files.len(),
         max_steps: input.max_steps,
@@ -143,7 +143,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     }
     let run = Run::create(&input.prepare.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.candid", &batch.installation)?;
+    run.bytes("installation.candid", &batch.installation.bytes)?;
     run.bytes("intent.json", &intent_bytes)?;
     if let Some(source) = &input.source_session {
         sources.record(&run, source)?;
@@ -153,7 +153,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         let host = publish_map::configuration(&batch, &preflight, &mut |method,args| publish_map::query(&actors.tenant,&actors.operator,scope.service,method,args)).await?;
         if host.fenced { return Err(Failure::Denied); }
         let ready = json!({"schema":1,"operation":"publish_session","event":"ready",
-            "files":batch.files.len(),"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation),
+            "files":batch.files.len(),"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation.bytes),
             "max_steps":input.max_steps,"provider_requests":0,"input_verification":"session_start",
             "retry_authorized":false,"publication_lease":false});
         run.json("ready.json",&ready)?;

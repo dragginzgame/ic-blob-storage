@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::dto::configuration::HostFailure;
 use serde_json::json;
 
 fn intent(batch: &PreparedBatch) -> SessionIntentRecord {
-    let installation = batch.installation().unwrap();
+    let installation = batch.installation();
     let upload = batch.files[0].input.permission.upload;
     serde_json::from_value(json!({"format":"ic-blob-storage/publication-session:retained-browser-handoffs",
         "source_session":null,"browser":null,"operation":"publish_session",
@@ -15,7 +15,7 @@ fn intent(batch: &PreparedBatch) -> SessionIntentRecord {
         "tenant":upload.tenant.to_text(),"uploader":batch.files[0].input.permission.uploader.to_text(),
         "operator":installation.configuration.operator.to_text(),
         "verifier":installation.completion_verifier.to_text(),"gateway":"https://gateway.example/",
-        "inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation),
+        "inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation.bytes),
         "root_key_sha256":digest(b"selected-root"),"files":1,"max_steps":9,
         "max_service_updates":3,"max_service_queries":50,"timeout_seconds":30,
         "max_provider_requests":1,"automatic_retries":0,
@@ -26,12 +26,12 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
     let run = Run::create(path).unwrap();
     run.json("intent.json", expected).unwrap();
     run.bytes("inventory.json", &batch.inventory).unwrap();
-    run.bytes("installation.candid", &batch.installation)
+    run.bytes("installation.candid", &batch.installation.bytes)
         .unwrap();
-    let installation = batch.installation().unwrap();
+    let installation = batch.installation();
     let host = HostConfigurationView {
         configuration: installation.configuration,
-        project: installation.project,
+        project: installation.project.clone(),
         completion_verifier: installation.completion_verifier,
         release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: false,

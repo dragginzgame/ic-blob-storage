@@ -179,6 +179,19 @@ fn duplicate_operation_object_reference_and_changed_scope_refuse_before_output()
         assert_eq!(execute(&trial.args()), Err(Failure::Binding));
         assert!(!trial.output().exists());
     }
+    for (field, value) in [
+        (
+            "service",
+            json!(candid::Principal::self_authenticating([9]).to_text()),
+        ),
+        ("namespace", json!("8")),
+        ("project", json!("another-project")),
+    ] {
+        let mut trial = Trial::new();
+        trial.change_binding(field, value);
+        assert_eq!(execute(&trial.args()), Err(Failure::Arguments));
+        assert!(!trial.output().exists());
+    }
 }
 
 #[test]

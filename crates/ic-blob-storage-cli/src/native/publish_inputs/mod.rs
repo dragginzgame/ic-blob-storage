@@ -2,6 +2,7 @@
 mod capacity;
 mod paths;
 use super::parsing::positive;
+use super::upload_inputs::installation::Installation;
 use super::{
     Failure,
     artifacts::{FailureRecord, Run},
@@ -12,7 +13,7 @@ use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_host_artifacts::artifact::Sha256Digest;
 use serde::Deserialize;
 use serde_json::{Value, json};
-use std::{num::NonZeroU64, path::Path};
+use std::{num::NonZeroU64, path::Path, rc::Rc};
 
 #[cfg(test)]
 mod tests;
@@ -28,7 +29,7 @@ pub(super) const MAX_TIMEOUT_SECONDS: u64 = 3600;
 pub(super) struct PreparedBatch {
     pub files: Vec<FrozenFile>,
     pub inventory: Vec<u8>,
-    pub installation: Vec<u8>,
+    pub installation: Rc<Installation>,
 }
 /// Keep the verified input and its original expected raw digest inseparable.
 pub(super) struct FrozenFile {
@@ -36,15 +37,10 @@ pub(super) struct FrozenFile {
     pub body_sha256: Sha256Digest,
 }
 impl PreparedBatch {
-    /// Decode the exact retained installation packet with the preparation envelope.
+    /// Borrow the candidate admitted from the exact retained installation packet.
     /// This passive candidate does not authenticate installed service state.
-    pub fn installation(&self) -> Result<ServiceInstallationInput, Failure> {
-        exact_candid::decode(
-            &self.installation,
-            exact_candid::INSTALLATION_BYTES,
-            64,
-            100_000,
-        )
+    pub fn installation(&self) -> &ServiceInstallationInput {
+        &self.installation.input
     }
 
     pub fn open_frozen(
@@ -71,6 +67,7 @@ impl PreparedBatch {
         {
             return Err(Failure::Binding);
         }
+        let installation = Installation::decode(installation, maximum)?;
         let mut inventory = Inventory::decode(&inventory_bytes)?;
         for (index, entry) in inventory.files.iter_mut().enumerate() {
             let prefix = format!("file-{index:04}");
@@ -78,7 +75,7 @@ impl PreparedBatch {
             entry.manifest = format!("{prefix}/manifest.json");
             entry.body = format!("{prefix}/body.bin");
         }
-        let (inputs, _) = preflight(&inventory, &root, &installation, maximum, total)?;
+        let (inputs, _) = preflight(&inventory, &root, &installation, total)?;
         for (index, (input, entry)) in inputs.iter().zip(&inventory.files).enumerate() {
             input.verify_body(&entry.body_sha256)?;
             let load = |name: &str, maximum| {
@@ -178,11 +175,14 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     }
     let inventory_bytes = read(inventory_path, INVENTORY_BYTES)?;
     let inventory = Inventory::decode(&inventory_bytes)?;
-    let installation = read(installation_path, exact_candid::INSTALLATION_BYTES as u64)?;
-    let (prepared, capacity) = preflight(&inventory, &root, &installation, maximum, total_maximum)?;
+    let installation = Installation::decode(
+        read(installation_path, exact_candid::INSTALLATION_BYTES as u64)?,
+        maximum,
+    )?;
+    let (prepared, capacity) = preflight(&inventory, &root, &installation, total_maximum)?;
     let run = Run::create(directory)?;
     run.bytes("inventory.json", &inventory_bytes)?;
-    run.bytes("installation.candid", &installation)?;
+    run.bytes("installation.candid", &installation.bytes)?;
     run.json("plan.json", &capacity.summary())?;
     let mut results = Vec::with_capacity(prepared.len());
     for (index, (input, entry)) in prepared.into_iter().zip(&inventory.files).enumerate() {
@@ -201,7 +201,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         results.push(json!({"directory":name, "inputs":result}));
     }
     let result = json!({"schema":1, "observation":"local_publish_inputs",
-        "inventory_sha256":digest(&inventory_bytes), "installation_sha256":digest(&installation),
+        "inventory_sha256":digest(&inventory_bytes), "installation_sha256":digest(&installation.bytes),
         "capacity":capacity.summary(), "files":results, "all_bodies_verified":true,
         "authenticated":false, "identities_allocated":false, "installed_state_observed":false,
         "remaining_capacity_observed":false, "namespace_provisioned":false,
@@ -213,8 +213,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
 fn preflight(
     inventory: &Inventory,
     root: &Path,
-    installation: &[u8],
-    maximum: NonZeroU64,
+    installation: &Rc<Installation>,
     total_maximum: NonZeroU64,
 ) -> Result<(Vec<PreparedInput>, capacity::Capacity), Failure> {
     let mut capacity = capacity::Capacity::new(total_maximum);
@@ -234,15 +233,12 @@ fn preflight(
         if metadata_bytes > METADATA_BYTES {
             return Err(Failure::ReplyLimit);
         }
-        let input = PreparedInput::load(
-            InputFiles {
-                binding,
-                manifest,
-                installation: installation.to_vec(),
-                body: paths::resolve(root, &entry.body)?,
-            },
-            maximum,
-        )?;
+        let input = PreparedInput::load(InputFiles {
+            binding,
+            manifest,
+            installation: Rc::clone(installation),
+            body: paths::resolve(root, &entry.body)?,
+        })?;
         input.check_body()?;
         capacity.add(&input)?;
         prepared.push(input);

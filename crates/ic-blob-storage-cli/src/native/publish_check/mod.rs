@@ -33,7 +33,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     let agent = super::agent(options)?;
     let run = Run::create(&input.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.candid", &batch.installation)?;
+    run.bytes("installation.candid", &batch.installation.bytes)?;
     run.json(
         "intent.json",
         &json!({"schema":1,"operation":"publish_check",
@@ -65,7 +65,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         }
     };
     report["inventory_sha256"] = json!(super::upload_inputs::digest(&batch.inventory));
-    report["installation_sha256"] = json!(super::upload_inputs::digest(&batch.installation));
+    report["installation_sha256"] = json!(super::upload_inputs::digest(&batch.installation.bytes));
     report["network"] = json!(options.network);
     report["url"] = json!(options.url.as_str());
     run.json("summary.json", &report)?;

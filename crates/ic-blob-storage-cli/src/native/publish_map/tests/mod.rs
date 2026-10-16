@@ -29,10 +29,10 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
         permission.upload.tenant,
     )
     .unwrap();
-    let input = batch.installation().unwrap();
+    let input = batch.installation();
     let mut host = HostConfigurationView {
         configuration: input.configuration,
-        project: input.project,
+        project: input.project.clone(),
         completion_verifier: input.completion_verifier,
         release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: matches!(replies, Replies::Fenced),

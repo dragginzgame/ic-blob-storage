@@ -31,7 +31,7 @@ impl Selection {
                 .map_err(|_| Failure::Arguments)?,
         };
         if !flags.is_empty()
-            || peer == target.canister
+            || peer == target.transport.canister
             || attempt.offered == 0
             || attempt.accept > attempt.offered
         {
@@ -39,7 +39,7 @@ impl Selection {
         }
         Ok(Self {
             request: FundingLookupRequest {
-                service: target.canister,
+                service: target.transport.canister,
                 peer,
                 attempt,
             },

@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.29.1]
+
+- Delegate fixture reply decoding to Testkit with explicit per-call budgets and
+  unchanged refusal categories.
+- Share fixture transport selection across operator and inventory commands,
+  preserving loopback restrictions and each command's caller policy.
+- Simplify publication-session recovery path resolution while retaining original
+  path pinning, refusal behavior and journal formats.
+- Share the admitted installation candidate and original packet across publication
+  files and phases, preserving each file's bindings and avoiding repeated decoding.
+- Remove duplicate prepared-manifest validation and reuse attestation inspection
+  for recovery reports, preserving corruption checks and no-redispatch behavior.
+
 ## [0.29.0] - 2026-10-16
 
 - Retain authenticated tenant/uploader agents throughout indexed, batch and session

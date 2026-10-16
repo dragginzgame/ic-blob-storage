@@ -22,12 +22,12 @@ impl Selection {
         let id = decimal(take("--id")?)?;
         let requested_cycles = decimal(take("--amount")?)?;
         let revision = decimal(take("--revision")?)?;
-        if !flags.is_empty() || requested_cycles == 0 || peer == target.canister {
+        if !flags.is_empty() || requested_cycles == 0 || peer == target.transport.canister {
             return Err(Failure::Arguments);
         }
         Ok(Self {
             request: FundingPreviewRequest {
-                service: target.canister,
+                service: target.transport.canister,
                 peer,
                 id,
                 requested_cycles,

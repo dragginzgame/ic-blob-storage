@@ -77,10 +77,13 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
         crate::native::upload_inputs::InputFiles {
             binding: serde_json::to_vec(&fixture::binding()).unwrap(),
             manifest: serde_json::to_vec(&fixture::manifest()).unwrap(),
-            installation: candid::encode_one(fixture::installation(&fixture::binding())).unwrap(),
+            installation: crate::native::upload_inputs::installation::Installation::decode(
+                candid::encode_one(fixture::installation(&fixture::binding())).unwrap(),
+                10.try_into().unwrap(),
+            )
+            .unwrap(),
             body: directory.path().join("body.bin"),
         },
-        10.try_into().unwrap(),
     )
     .unwrap();
     let expected = json!({"operation":"publish_prepare","file_index":0});
