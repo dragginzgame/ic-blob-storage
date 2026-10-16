@@ -18,19 +18,32 @@ fn open_blob_cell(
 }
 
 #[test]
-fn library_linking_and_content_work_do_not_claim_or_bootstrap_memory() {
-    assert!(!blob_memory::is_default_memory_manager_bootstrapped().expect("observe"));
+fn content_work_does_not_bootstrap_or_change_the_host_runtime() {
+    let backing = VectorMemory::default();
+    let host = blob_memory::MemoryRuntime::new_with_config(
+        backing.clone(),
+        blob_memory::MemoryManagerConfig::new(16).expect("host profile"),
+    )
+    .expect("explicit host runtime");
+    let before = backing.borrow().clone();
+    let allocations = host.memory_allocations().expect("observe host allocations");
+    assert!(!host.is_bootstrapped());
     assert_eq!(
-        blob_memory::committed_allocations(),
+        host.committed_allocations(),
         Err(RuntimeOpenError::NotBootstrapped)
     );
     let digest = ContentDigest::compute(b"no stable memory required");
     assert_eq!(digest.to_string().parse::<ContentDigest>(), Ok(digest));
-    assert!(!blob_memory::is_default_memory_manager_bootstrapped().expect("observe again"));
+    assert!(!host.is_bootstrapped());
     assert_eq!(
-        blob_memory::committed_allocations(),
+        host.committed_allocations(),
         Err(RuntimeOpenError::NotBootstrapped)
     );
+    assert_eq!(
+        host.memory_allocations().expect("observe again"),
+        allocations
+    );
+    assert_eq!(*backing.borrow(), before);
 }
 
 #[test]

@@ -184,12 +184,17 @@ compose this passive inventory with their other application declarations before
 their own bootstrap. Store-only compositions can use the sixteen requests from
 `ops::service::stores::grants::requests`. `grants::open` assembles the current store mapping using that host's
 committed-memory lookup; missing grants refuse without creating or repairing a
-store. `open_default` checks an existing committed capability before using a
-framework-owned default runtime, so absence cannot silently select a bucket policy
-or create a second manager. These helpers do not grant exclusive access themselves:
+store. Hosts supply `grants::open(|key| runtime.open_memory(key))` from their own
+retained, bootstrapped Memory 0.44 runtime; the default-runtime adapter is removed.
+Opening cannot silently choose a bucket policy or create a second manager.
+These helpers do not grant exclusive access themselves:
 the host must assign the handles to one storage owner. Standalone uses the shared
 mapping with its unchanged configuration grant, range and bucket policy.
 Framework consumers own their generic lifecycle wrapper and endpoint adapter.
+Memory 0.44 also changes the allocation ledger format. Earlier images require
+[installation retirement](retiring-installations.md) and fresh reinstall, preserving
+all objects, uncertain effects, balances and continuing billing obligations;
+neither failed restoration nor missing grants authorize clearing or migration.
 The [published Canic adapter review](evidence/canic0229.md) authenticates 0.111.0
 and records consumer-owned disposable acceptance separately; it does not qualify
 another release graph, deployed application or provider. Canic owns ongoing

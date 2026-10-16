@@ -7,21 +7,23 @@ The [service contract](service-contract.md#current-persisted-boundaries) owns th
 requirements; the [operator guide](operator-guide.md) owns command syntax.
 Library publication is separate from permission to retire or deploy a service.
 
-## Memory 0.41 disposition
+## Memory 0.44 disposition
 
-The current Blob family exposes Memory 0.41. Its checked numeric allocation
-slots use the `ICMN` version-1 logical ledger discriminator; earlier `ICMS`
-ledger bytes are incompatible even though application collection layouts are
-unchanged. Inspect an older installation with its frozen binary and tools.
+The pending Blob 0.30 family exposes Memory 0.44. Its `ICMDIRCT` checksummed allocation
+snapshot contains direct ledger CBOR; the previous nested envelope is incompatible.
+Hosts retain an explicit runtime; there is no default singleton facade.
+Inspect an older installation with its frozen binary and tools.
 A decode refusal must preserve its bytes and cannot authorize clearing the
 allocation ledger while leaving collection data behind.
 
 Cross-release Blob transitions remain reinstall-only under this runbook. Retain
 all provider identities, uncertain effects, balances and continuing billing
 obligations before reset. Fresh-install and same-release restore evidence on the
-new graph does not qualify an old ledger or authorize deployment/reset. Follow
+new graph does not qualify an old ledger or authorize deployment/reset. The
+[Memory 0.44 evidence](evidence/memory044.md) records the current qualification;
+the integrating host owns its retained-installation review. Earlier
 [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
-and the integrating host's own retained-installation review.
+acceptance does not qualify this new format.
 
 ## Freeze the owner and preserve access
 

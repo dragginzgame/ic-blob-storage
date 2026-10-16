@@ -8,8 +8,7 @@ use crate::ops::service::{
     funding::FundingMemories, reads::ReadSessionMemories, uploads::UploadMemories,
 };
 use ic_memory::{
-    MemoryDeclarationError, MemoryRequest, RuntimeMemory, RuntimeOpenError, SchemaMetadata,
-    ic_stable_structures::{DefaultMemoryImpl, Memory},
+    MemoryDeclarationError, MemoryRequest, SchemaMetadata, ic_stable_structures::Memory,
 };
 
 // Logical identities are independent of host-selected physical IDs. Keep this
@@ -46,8 +45,7 @@ pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclaration
 }
 
 /// Open all service grants using the host's committed-memory lookup by durable key.
-/// Supply an existing runtime's `open_memory` or `ic-memory`'s default
-/// committed lookup after checking bootstrap when a framework owns that runtime.
+/// Supply the host-owned runtime's `open_memory` after its bootstrap.
 /// No second runtime, ID selection, initialization, repair or store write occurs.
 /// A missing member returns no assembled set. Hosts must retain the runtime and
 /// exclusively give these memories to one service owner; handles do not provide
@@ -106,19 +104,6 @@ pub fn open<M: Memory, E>(
             tenants: read_tenants,
         },
     })
-}
-
-/// Open service grants from the already bootstrapped default runtime, for a host
-/// that owns it. Checks the existing committed capability first;
-/// absence cannot construct a manager or silently choose its bucket policy.
-/// No declarations, lifecycle hooks, store initialization or recovery activation
-/// are implied. The host must grant exclusive service ownership as for [`open`].
-/// # Errors
-/// Rejects an absent/unbootstrapped runtime, missing grant or runtime access failure.
-pub fn open_default() -> Result<ServiceMemories<RuntimeMemory<DefaultMemoryImpl>>, RuntimeOpenError>
-{
-    ic_memory::committed_allocations()?;
-    open(ic_memory::open_default_memory_manager_memory)
 }
 
 #[cfg(test)]

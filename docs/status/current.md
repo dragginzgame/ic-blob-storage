@@ -2,6 +2,24 @@
 
 Date: 2026-10-16
 
+## Explicit Memory 0.44 runtime — pending 0.30.0
+
+The reported missing-global errors are fixed over clean source
+`ffe2b9a7f112de6ffb5313b7cb7a66d0f0dff060`. The unsupported default-grant
+adapter is removed; hosts use the existing committed lookup on their own retained
+runtime. Tests check explicit runtime bootstrap/capability state and unchanged
+backing bytes. Standalone already uses that path; no host lifecycle is added.
+The [Memory 0.44 receipt](../evidence/memory044.md) records live-graph compilation,
+grant/composition/funding tests, Rust 1.91, fresh Wasms and installed restoration.
+The older failures and isolated Memory 0.43 results below retain their source scope.
+
+Public Memory 0.44 and its direct-ledger snapshot format require pending 0.30.0,
+replacing the unsuitable patch heading. Own package versions remain 0.29.0;
+manifests, lock and Git index are unchanged. Retire earlier installations with
+complete object/effect/balance/billing disposition before fresh reinstall. No
+reset, migration or old-image activation is authorized by this qualification.
+Full CI, native macOS and Canic/deployed-provider acceptance remain separate.
+
 ## Archive verifier type mismatch — resolved on selected Build 0.10
 
 The reported `20261016T105840Z-898283-11-check.log` used Build 0.9's Host process

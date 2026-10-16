@@ -9,7 +9,7 @@ use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryManagerIdRange, MemoryRuntime, SealedDeclarationSnapshot,
+    MemoryManagerIdRange, MemoryRuntime, RuntimeOpenError, SealedDeclarationSnapshot,
     ic_stable_structures::VectorMemory,
 };
 
@@ -54,6 +54,11 @@ fn opening_without_committed_grants_preserves_backing_memory() {
         open(|key| runtime.open_memory(key)),
         Err(RuntimeOpenError::NotBootstrapped)
     ));
+    assert!(!runtime.is_bootstrapped());
+    assert_eq!(
+        runtime.committed_allocations(),
+        Err(RuntimeOpenError::NotBootstrapped)
+    );
     assert_eq!(*backing.borrow(), before);
 }
 
@@ -102,24 +107,6 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
         .unwrap()
         .read(0, &mut retained);
     assert_eq!(&retained, b"retained neighbor");
-}
-
-#[test]
-fn default_lookup_requires_existing_host_bootstrap() {
-    // A fresh thread has no default runtime; do not initialize one for inspection.
-    std::thread::spawn(|| {
-        assert!(matches!(
-            open_default(),
-            Err(RuntimeOpenError::NotBootstrapped)
-        ));
-        assert!(!ic_memory::is_default_memory_manager_bootstrapped().unwrap());
-        assert!(matches!(
-            ic_memory::default_memory_manager_memory_allocations(),
-            Err(ic_memory::RuntimeDiagnosticError::NotBootstrapped)
-        ));
-    })
-    .join()
-    .unwrap();
 }
 
 #[test]

@@ -14,7 +14,7 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.44.0 selected | Incoming public hard cut; global-runtime adapter adoption is blocked, with prior Memory 0.43 evidence kept separate |
+| IC Memory | 0.44.0 | Public memory types and explicit host runtime; new ledger format requires retirement/reinstallation |
 | IC Metrics | 0.11.5 | Private storage probe and Testkit measurements; tracked overflow quality |
 | IC Testkit | 0.48.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
 | IC Testkit Candid | 0.48.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
@@ -69,11 +69,12 @@ retains its separate Host 0.21.0 graph. The
 Build 0.9 process-type mismatch. The selected Build 0.10 verifier passes focused
 compilation, strict lint and the real Cargo same-version/refusal fixture, including
 exact exit/signal statuses; [current status](status/current.md) locates its evidence.
-The [boundary cleanup receipt](evidence/boundaries0291.md) records live Memory
-0.44 compilation failures and distinguishes isolated Memory 0.43 results.
-Memory 0.44 removes the global-runtime entrypoints still used by Blob's public
-default-grant adapter and composition tests. Retaining that public dependency
-requires host API adoption and a minor release rather than the pending patch.
+The [boundary cleanup receipt](evidence/boundaries0291.md) retains the initial
+Memory 0.44 compilation failures and isolated Memory 0.43 results. The
+[Memory 0.44 qualification](evidence/memory044.md) records their repair: remove
+the default-runtime adapter and use the existing explicit committed lookup.
+The public dependency and allocation-ledger format cut targets pending 0.30.0;
+hosts must retire earlier installations before reinstalling with the new format.
 Actual archive/release qualification remains separate; see
 [#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69#issuecomment-6210216854).
 The [earlier cleanup receipt](evidence/assessment-finalize0290.md) retains the
@@ -186,10 +187,10 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.43 requires 1.91 |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.44 requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The selected `ic-memory` 0.43 dependency requires Rust 1.91.0, which is now
+The selected `ic-memory` 0.44 dependency requires Rust 1.91.0, which is now
 the workspace's consumer floor. The harness inherits that same minimum.
 Earlier Rust 1.88 checks remain evidence for their original source and graphs;
 repeat checks with the declared minimum after source or dependency changes
@@ -327,7 +328,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.43 host-wide allocation pool and open
+compose all namespaces in one Memory 0.44 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -336,8 +337,9 @@ The host owns the runtime, allocation policy and explicit grants. Include
 `ops::service::installation::requests(authority)` before bootstrap: one
 configuration key and sixteen service keys. Neither this helper nor linking the
 library registers declarations, chooses physical IDs, initializes stores or
-exports endpoints. `grants::open` uses the committed lookup; `open_default`
-requires an already bootstrapped default runtime. Standalone owns its bootstrap.
+exports endpoints. Supply `grants::open(|key| runtime.open_memory(key))` from the
+host's retained, already bootstrapped runtime. No default singleton adapter remains.
+Standalone owns its bootstrap.
 Lifecycle restoration is synchronous and leaves the service fenced until the
 maintained recovery workflow proves safe activation. Use `LIBRARY_VERSION` for
 installation and exact same-release reopening.
@@ -351,9 +353,9 @@ Do not add Canic dependencies, wrappers or fixtures here. The
 owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
 links source-bound composition results and remaining owner work.
 
-The pending 0.29.0 public cut requires the same Memory 0.43 identity in Blob
+The pending 0.30.0 public cut requires the same Memory 0.44 identity in Blob
 and the host. [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
-retains the earlier 0.41 acceptance; it does not qualify 0.43. Canic owns fresh
+retains the earlier 0.41 acceptance; it does not qualify 0.44. Canic owns fresh
 root/private-fixture lock and adapter qualification for this family. Local Blob
 checks do not qualify that consumer. Testkit's native Host identity does not
 replace the application's public Memory identity.
@@ -379,7 +381,7 @@ results are not fresh execution of released Blob 0.23.3.
 For consumer adoption of the current Blob line:
 
 1. Select one coherent published Canic family, matching Blob runtime/contracts and
-   one Memory 0.43 identity. Freeze the application's actual lock and all independent
+   one Memory 0.44 identity. Freeze the application's actual lock and all independent
    fixture locks; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot
    and grant the `blob.` namespace in its allocation pool before bootstrap.

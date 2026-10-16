@@ -1,7 +1,13 @@
 # Changelog
 
-## [0.29.1]
+## [0.30.0]
 
+- **Breaking Memory API and storage:** adopt public IC Memory 0.44 and remove
+  `grants::open_default`. Hosts must retain their own bootstrapped runtime and
+  use `grants::open(|key| runtime.open_memory(key))`. The allocation ledger format
+  is incompatible with earlier images: preserve all obligations and complete
+  [installation retirement](docs/retiring-installations.md) before a fresh reinstall;
+  no automatic clearing or migration is provided.
 - Align the archive verifier with IC Build 0.10 and Host process 0.22, retaining
   bounded output, failure evidence and exact exit/signal status propagation
   ([#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69)).
