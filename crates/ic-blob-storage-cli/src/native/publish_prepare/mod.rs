@@ -3,12 +3,10 @@ pub(super) mod batch;
 mod journal;
 mod progress;
 use super::{
-    Failure,
-    arguments::{Command, Options},
-    artifacts::Run,
-    publish_check, publish_inputs, upload_setup,
+    Failure, arguments::Options, artifacts::Run, publish_check, publish_inputs, upload_setup,
 };
 use candid::Principal;
+use ic_agent::Agent;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
 
@@ -40,6 +38,7 @@ pub(in crate::native) fn transfer_source(
     options: &Options,
     input: &Input,
     batch: &publish_inputs::PreparedBatch,
+    root: &[u8],
 ) -> Result<(), Failure> {
     let origin = input.source.as_ref().ok_or(Failure::Unprepared)?;
     let selected = &batch
@@ -47,14 +46,13 @@ pub(in crate::native) fn transfer_source(
         .get(input.index)
         .ok_or(Failure::Arguments)?
         .input;
-    let root = super::agent(options)?.read_root_key();
     journal::validate(
         origin,
-        &journal::binding(options, input, batch, &root),
+        &journal::binding(options, input, batch, root),
         selected,
     )?;
     for kind in [upload_setup::Kind::Admit, upload_setup::Kind::Prepare] {
-        journal::validate_attempt(origin, kind, options, selected)?;
+        journal::validate_attempt(origin, kind, options, selected, root)?;
     }
     let report: Value =
         serde_json::from_slice(&journal::read_at(origin, "summary.json", 1024 * 1024)?)
@@ -79,36 +77,31 @@ pub(super) struct Input {
     pub timeout_seconds: u64,
 }
 
-/// Each role authenticates independently, even when the principals happen to coincide.
-fn setup_options(
-    options: &Options,
-    setup: upload_setup::Input,
-    identity: PathBuf,
-    actor: Principal,
-) -> Options {
-    Options {
-        command: Command::UploadSetup(setup),
-        network: options.network,
-        url: options.url.clone(),
-        identity,
-        actor,
-        root_key: options.root_key.clone(),
-    }
-}
-
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let batch = publish_inputs::PreparedBatch::open_frozen(
         &input.inputs,
         input.max_bytes,
         input.max_total_bytes,
     )?;
-    Ok(run_selected(options, input, &batch).await?.report)
+    let file = batch.files.get(input.index).ok_or(Failure::Arguments)?;
+    publish_check::observation::scope(&batch.files, input.service, input.namespace, options.actor)?;
+    let tenant = super::agent(options)?;
+    let uploader = super::agent_for(
+        options,
+        &input.uploader_identity,
+        file.input.permission.uploader,
+    )?;
+    Ok(run_selected(options, input, &batch, &tenant, &uploader)
+        .await?
+        .report)
 }
 
 pub(in crate::native) async fn run_selected(
     options: &Options,
     input: &Input,
     batch: &publish_inputs::PreparedBatch,
+    tenant: &Agent,
+    uploader: &Agent,
 ) -> Result<PreparationOutcome, Failure> {
     let file = batch.files.get(input.index).ok_or(Failure::Arguments)?;
     let selected = &file.input;
@@ -119,25 +112,16 @@ pub(in crate::native) async fn run_selected(
         options.actor,
     )?;
     let origin = input.source.as_ref().unwrap_or(&input.directory);
-    let packet = |kind, name: &str| upload_setup::Input {
-        kind,
-        service: input.service,
-        namespace: input.namespace,
-        request: origin.join(name),
-        directory: None,
-    };
-    let uploader = setup_options(
-        options,
-        packet(upload_setup::Kind::Prepare, "manifest.candid"),
-        input.uploader_identity.clone(),
-        selected.permission.uploader,
-    );
-    let agent = super::agent(options)?;
-    super::agent(&uploader)?;
-    let binding = journal::binding(options, input, batch, &agent.read_root_key());
+    let binding = journal::binding(options, input, batch, &tenant.read_root_key());
     if input.source.is_some() {
         journal::validate(origin, &binding, selected)?;
-        journal::validate_attempt(origin, upload_setup::Kind::Admit, options, selected)?;
+        journal::validate_attempt(
+            origin,
+            upload_setup::Kind::Admit,
+            options,
+            selected,
+            &tenant.read_root_key(),
+        )?;
     }
     let run = Run::create(&input.directory)?;
     run.json("intent.json", &binding)?;
@@ -154,7 +138,8 @@ pub(in crate::native) async fn run_selected(
     run.bytes("manifest.candid", manifest)?;
     let context = progress::Context {
         options,
-        uploader: &uploader,
+        tenant,
+        uploader,
         input,
         selected,
         origin,
@@ -165,7 +150,7 @@ pub(in crate::native) async fn run_selected(
             scope,
             std::slice::from_ref(file),
             &run,
-            |method, args| super::query::with_agent(&agent, scope.service, method, args),
+            |method, args| super::query::with_agent(tenant, scope.service, method, args),
         )
         .await?;
         run.json("preflight.json", &report.report)?;

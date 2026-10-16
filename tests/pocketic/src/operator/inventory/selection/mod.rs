@@ -1,10 +1,10 @@
 use crate::operator::{
     Failure,
-    model::{canister, decimal},
+    model::{canister, decimal, flags},
     transport::QueryTarget,
 };
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
-use std::{collections::BTreeMap, net::SocketAddr, path::PathBuf};
+use std::{net::SocketAddr, path::PathBuf};
 
 pub(super) struct Selection {
     pub target: QueryTarget,
@@ -17,12 +17,7 @@ impl Selection {
         if args.first().map(String::as_str) != Some("inspect") {
             return Err(Failure::Arguments);
         }
-        let mut flags = BTreeMap::new();
-        for pair in args[1..].chunks(2) {
-            if pair.len() != 2 || flags.insert(pair[0].as_str(), pair[1].as_str()).is_some() {
-                return Err(Failure::Arguments);
-            }
-        }
+        let mut flags = flags(&args[1..])?;
         let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
         let server: SocketAddr = take("--server")?.parse().map_err(|_| Failure::Arguments)?;
         if !server.ip().is_loopback() || server.port() == 0 {

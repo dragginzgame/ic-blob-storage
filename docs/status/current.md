@@ -1,7 +1,43 @@
 # Current status
 
-Date: 2026-10-15
+Date: 2026-10-16
 
+## Publication agents and capacity diagnostics — pending 0.29.0
+
+Preparation retains each invocation's authenticated tenant/uploader agents and
+root through its phases; Contracts owns aggregate capacity comparisons for both
+CLI and fixture observers. The [qualification receipt](../evidence/publication-planning0290.md)
+records the confirmed incoming Build 0.8/Memory 0.43 graph and 17 installed
+publication/setup/recovery cases, including changed credential files after startup.
+The earlier optional verifier type mismatch is resolved on this graph; actual
+archive qualification and full CI remain separate. Own versions remain 0.28.0.
+
+The deadline-based Testkit accept helper and tested source-only consumer patch
+are prepared in isolation. Producer publication and Blob activation remain with
+[#70](https://github.com/dragginzgame/ic-blob-storage/issues/70); the real checkout
+retains published Testkit 0.47 and its current test loops. Earlier evidence below
+retains its original dependency/source scope.
+
+
+## Funding assessment, signed completion and fixture parsing — pending 0.29.0
+
+The three accepted cleanups are applied. Contracts owns bounded passive funding
+reply consistency; the CLI retains transport, presentation and refusal mapping.
+Signed-update completion persists each operation's outcome before returning its
+result; dispatch claims, authentication, report fields and retry restrictions are
+unchanged. Inventory selection uses the existing fixture argument parser.
+The [qualification receipt](../evidence/assessment-finalize0290.md) records focused
+Linux/native and installed evidence against source base `7366c79` and its incoming
+Host 0.21/Metrics 0.11.3 graph. Cargo selections and own versions are unchanged.
+110 Contracts, 119 CLI/five probe, 23 fixture-operator and 14 selected installed
+cases pass, alongside default-feature lint/Rustdoc and Rust 1.91 native/Contracts-Wasm.
+
+The initial all-feature check reproduces a pre-existing optional archive-verifier
+failure: direct Host process 0.21 types differ from IC Build 0.7's Host 0.20 types.
+[#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69#issuecomment-6210216854)
+records that separate repair. Passing default-feature product checks do not
+qualify the broken verifier or the complete release gate. Earlier receipts below
+retain their original dependency/source scope.
 
 ## Inventory schema, stable codecs and query transport — pending 0.29.0
 

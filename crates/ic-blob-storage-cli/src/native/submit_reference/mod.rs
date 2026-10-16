@@ -103,22 +103,17 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             request_sha256: ContentDigest::compute(&argument).to_string(),
         },
     )?;
-    let dispatched = prepared.dispatch(&agent).await;
-    let result = dispatched.response.and_then(|bytes| {
-        bytes
-            .map(|bytes| {
-                reply::decode_mutation(
-                    request,
-                    &bytes,
-                    SMALL_REPLY_BYTES.try_into().expect("fixed reply bound"),
-                )
-                .map_err(references::failure)
-            })
-            .transpose()
-    });
-    let report = outcome(&dispatched.request_id, &result);
-    dispatched.run.json("outcome.json", &report)?;
-    result?;
+    let (_, report) = prepared.dispatch(&agent).await.finish(
+        |bytes| {
+            reply::decode_mutation(
+                request,
+                bytes,
+                SMALL_REPLY_BYTES.try_into().expect("fixed reply bound"),
+            )
+            .map_err(references::failure)
+        },
+        |id, result| outcome(&id, result),
+    )?;
     Ok(report)
 }
 

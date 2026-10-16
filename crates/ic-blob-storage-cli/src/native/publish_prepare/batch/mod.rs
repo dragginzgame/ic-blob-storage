@@ -13,19 +13,11 @@ pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<V
     publish_check::observation::scope(&batch.files, input.service, input.namespace, options.actor)?;
     let tenant = agent(options)?;
     let selected = &batch.files.first().ok_or(Failure::Arguments)?.input;
-    let uploader = super::setup_options(
+    let uploader = crate::native::agent_for(
         options,
-        super::upload_setup::Input {
-            kind: super::upload_setup::Kind::Prepare,
-            service: input.service,
-            namespace: input.namespace,
-            request: input.inputs.clone(),
-            directory: None,
-        },
-        input.uploader_identity.clone(),
+        &input.uploader_identity,
         selected.permission.uploader,
-    );
-    agent(&uploader)?;
+    )?;
     let run = Run::create(&input.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
     run.bytes("installation.candid", &batch.installation)?;
@@ -45,7 +37,7 @@ pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<V
                 index, directory: input.directory.join(format!("file-{index:04}")),
                 ..input.clone()
             };
-            let outcome = run_selected(options, &file, &batch).await?;
+            let outcome = run_selected(options, &file, &batch, &tenant, &uploader).await?;
             let prepared = outcome.prepared();
             all_prepared &= prepared;
             results.push(outcome.report);

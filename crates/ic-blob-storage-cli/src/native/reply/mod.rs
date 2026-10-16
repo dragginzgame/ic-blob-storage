@@ -34,7 +34,7 @@ pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceS
         return Err(Failure::Binding);
     }
     if status.gateways.members.len() > 1024
-        || !valid_funding_budget(&status.funding)
+        || !ic_blob_storage_contracts::funding::reply::valid_budget(&status.funding)
         || status.funding.uncredited_accepted > status.funding.transport_accepted
     {
         return Err(Failure::InvalidReply);
@@ -74,15 +74,4 @@ pub(super) fn funding(s: &LocalFundingStatus) -> Value {
         "not_enqueued":s.not_enqueued.to_string(),"reserved_or_uncertain":s.reserved_or_uncertain.to_string(),
         "retained_intents":s.retained_intents.to_string(),"intent_capacity":s.intent_capacity.to_string(),
         "last_operation":s.last_operation.map(|n|n.to_string()),"fenced":s.fenced})
-}
-
-pub(super) fn valid_funding_budget(status: &LocalFundingStatus) -> bool {
-    status.available_allocation <= status.cumulative_allocation
-        && status.cumulative_allocation <= status.renewal_ceiling
-        && status
-            .transport_accepted
-            .checked_add(status.reserved_or_uncertain)
-            == status
-                .cumulative_allocation
-                .checked_sub(status.available_allocation)
 }

@@ -14,11 +14,11 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.42.0 | Public memory types, host allocation pool and committed grants |
-| IC Metrics | 0.11.1 | Private storage probe; tracked overflow quality |
+| IC Memory | 0.43.0 | Public memory types, host allocation pool and committed grants |
+| IC Metrics | 0.11.3 | Private storage probe; tracked overflow quality |
 | IC Testkit | 0.47.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
-| IC Host artifacts/fs/process/tools (direct) | 0.20.1 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.7.0 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
+| IC Host artifacts/fs/process/tools (direct) | 0.21.0 | Native artifacts, filesystem and test/tool boundaries |
+| IC Build | 0.8.0 | Opt-in native contributor archive qualification; absent from public library and ordinary CLI graphs |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -59,11 +59,15 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Direct Blob callers, Testkit 0.47 and IC Build 0.7 share the selected Host 0.20.1
-family. The older Host 0.19 graph is absent from this application lockfile.
-IC Build 0.7 and the opt-in archive verifier share Host process 0.20 types,
-including typed execution-status handling. The verifier uses the ordinary
-root Host process dependency; Build remains outside ordinary CLI/library graphs.
+Direct Blob callers and IC Build 0.8 share Host 0.21.0; Testkit 0.47 retains
+its independent native Host 0.20.1 dependencies. The optional archive verifier
+now passes focused all-feature compilation, strict lint and Rust 1.91 checking.
+Actual archive/release qualification remains separate; see
+[#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69#issuecomment-6210216854).
+The [earlier cleanup receipt](evidence/assessment-finalize0290.md) retains the
+Build 0.7 mismatch; [current qualification](evidence/publication-planning0290.md)
+records the confirmed Build 0.8/Memory 0.43 graph without relabelling old evidence.
+Build remains outside ordinary CLI/library graphs.
 Testkit's separately installed CLI uses the published packaged lock; explicitly run
 `make install-testkit` then `make testkit-check` after changing its selection.
 Changing the application lock alone does not update the installed tool. Earlier
@@ -167,10 +171,10 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.42 requires 1.91 |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.43 requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The selected `ic-memory` 0.42 dependency requires Rust 1.91.0, which is now
+The selected `ic-memory` 0.43 dependency requires Rust 1.91.0, which is now
 the workspace's consumer floor. The harness inherits that same minimum.
 Earlier Rust 1.88 checks remain evidence for their original source and graphs;
 repeat checks with the declared minimum after source or dependency changes
@@ -308,7 +312,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.42 host-wide allocation pool and open
+compose all namespaces in one Memory 0.43 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -332,9 +336,9 @@ Do not add Canic dependencies, wrappers or fixtures here. The
 owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
 links source-bound composition results and remaining owner work.
 
-The pending 0.29.0 public cut requires the same Memory 0.42 identity in Blob
+The pending 0.29.0 public cut requires the same Memory 0.43 identity in Blob
 and the host. [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
-retains the earlier 0.41 acceptance; it does not qualify 0.42. Canic owns fresh
+retains the earlier 0.41 acceptance; it does not qualify 0.43. Canic owns fresh
 root/private-fixture lock and adapter qualification for this family. Local Blob
 checks do not qualify that consumer. Testkit's native Host identity does not
 replace the application's public Memory identity.
@@ -360,7 +364,7 @@ results are not fresh execution of released Blob 0.23.3.
 For consumer adoption of the current Blob line:
 
 1. Select one coherent published Canic family, matching Blob runtime/contracts and
-   one Memory 0.42 identity. Freeze the application's actual lock and all independent
+   one Memory 0.43 identity. Freeze the application's actual lock and all independent
    fixture locks; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot
    and grant the `blob.` namespace in its allocation pool before bootstrap.

@@ -14,7 +14,8 @@ use upload_setup::SetupObservation;
 
 pub(super) struct Context<'a> {
     pub options: &'a Options,
-    pub uploader: &'a Options,
+    pub tenant: &'a ic_agent::Agent,
+    pub uploader: &'a ic_agent::Agent,
     pub input: &'a Input,
     pub selected: &'a PreparedInput,
     pub origin: &'a Path,
@@ -75,7 +76,7 @@ impl Context<'_> {
         let mut updates = 0;
         let permission = if recovery {
             let SetupObservation::Permission(permission) = upload_setup::inspect_recorded(
-                self.options,
+                self.tenant,
                 &self.setup(upload_setup::Kind::Permission),
                 self.run,
                 "permission",
@@ -86,8 +87,12 @@ impl Context<'_> {
             };
             permission
         } else {
-            let result =
-                upload_setup::run(self.options, &self.setup(upload_setup::Kind::Admit)).await?;
+            let result = upload_setup::with_agent(
+                self.options,
+                &self.setup(upload_setup::Kind::Admit),
+                self.tenant,
+            )
+            .await?;
             updates += 1;
             match result.observation {
                 Some(SetupObservation::Admission(admission)) => admission.admission,
@@ -111,7 +116,7 @@ impl Context<'_> {
         let SetupObservation::Manifest {
             response: manifest, ..
         } = upload_setup::inspect_recorded(
-            self.options,
+            self.tenant,
             &self.setup(upload_setup::Kind::Manifest),
             self.run,
             "manifest",
@@ -130,6 +135,7 @@ impl Context<'_> {
                     upload_setup::Kind::Prepare,
                     self.options,
                     self.selected,
+                    &self.tenant.read_root_key(),
                 )?;
             }
             return Ok(self.report(PreparationState::Prepared, updates, &preflight.report));
@@ -141,6 +147,7 @@ impl Context<'_> {
                 upload_setup::Kind::Prepare,
                 self.options,
                 self.selected,
+                &self.tenant.read_root_key(),
             )?;
             return Ok(self.report(
                 PreparationState::PreparationUnobserved,
@@ -148,8 +155,12 @@ impl Context<'_> {
                 &preflight.report,
             ));
         }
-        let result =
-            upload_setup::run(self.uploader, &self.setup(upload_setup::Kind::Prepare)).await?;
+        let result = upload_setup::with_agent(
+            self.options,
+            &self.setup(upload_setup::Kind::Prepare),
+            self.uploader,
+        )
+        .await?;
         updates += 1;
         let state = match result.observation {
             Some(SetupObservation::Manifest { .. }) => PreparationState::Prepared,

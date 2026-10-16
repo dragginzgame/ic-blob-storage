@@ -128,28 +128,14 @@ fn inspect(
             "fresh_reference_demand":blob.assets.len(),"observation":entry}),
         );
     }
-    if unseen_objects > capacity.remaining_objects {
-        blockers.push("object_history_capacity");
-    }
-    for (reason, available) in [
-        ("logical_byte_capacity", capacity.remaining_logical_bytes),
-        ("physical_byte_capacity", capacity.remaining_physical_bytes),
-        (
-            "liability_byte_capacity",
-            capacity.remaining_liability_bytes,
+    blockers.extend(
+        ic_blob_storage_contracts::upload::capacity::demand_blockers(
+            &capacity,
+            unseen_objects,
+            unseen_bytes,
+            unseen_chunks,
         ),
-    ] {
-        if unseen_bytes > available {
-            blockers.push(reason);
-        }
-    }
-    if unseen_chunks > capacity.remaining_manifest_chunks {
-        blockers.push("manifest_capacity");
-    }
-    // Capacity is a concurrency ceiling, not a limit on a sequential release's size.
-    if unseen_objects != 0 && capacity.remaining_active_uploads == 0 {
-        blockers.push("no_active_upload_slot");
-    }
+    );
     blockers.sort_unstable();
     blockers.dedup();
     Ok(Report {

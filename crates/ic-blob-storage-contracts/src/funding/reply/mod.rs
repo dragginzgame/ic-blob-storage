@@ -1,4 +1,5 @@
 //! Bounded authenticated funding observations; no retry, credit or restore authority.
+pub mod assessment;
 pub mod outcome;
 use crate::dto::funding::FundingHistoryFailure;
 use crate::dto::funding::FundingHistoryPage;
@@ -6,7 +7,7 @@ use crate::dto::funding::FundingHistoryRequest;
 use crate::dto::funding::FundingPhase;
 use crate::dto::funding::outcome::FundingOutcomeFailure;
 use crate::dto::funding::outcome::FundingOutcomeRequest;
-use crate::dto::operator::OperatorScope;
+use crate::dto::operator::{LocalFundingStatus, OperatorScope};
 use crate::funding::transfer::FundingTransfer;
 use candid::CandidType;
 use candid::Deserialize;
@@ -153,3 +154,16 @@ pub fn history(
 }
 #[cfg(test)]
 mod tests;
+
+/// Check local allocation arithmetic only; this establishes no liquidity or credit.
+#[must_use]
+pub fn valid_budget(status: &LocalFundingStatus) -> bool {
+    status.available_allocation <= status.cumulative_allocation
+        && status.cumulative_allocation <= status.renewal_ceiling
+        && status
+            .transport_accepted
+            .checked_add(status.reserved_or_uncertain)
+            == status
+                .cumulative_allocation
+                .checked_sub(status.available_allocation)
+}

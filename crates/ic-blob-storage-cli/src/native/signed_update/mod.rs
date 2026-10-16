@@ -59,9 +59,27 @@ pub(super) struct PreparedUpdate {
 
 /// A response is saved before operation-specific decoding; absence remains pending.
 pub(super) struct DispatchedUpdate {
-    pub run: Run,
-    pub request_id: String,
-    pub response: Result<Option<Vec<u8>>, Failure>,
+    run: Run,
+    request_id: String,
+    response: Result<Option<Vec<u8>>, Failure>,
+}
+
+impl DispatchedUpdate {
+    /// Decode only a present reply, then retain the operation's report before
+    /// returning its result. A failed report write takes precedence; no dispatch,
+    /// polling or retry occurs here. Report fields and refusal policy stay local.
+    pub fn finish<T, R: Serialize>(
+        self,
+        decode: impl FnOnce(&[u8]) -> Result<T, Failure>,
+        report: impl FnOnce(String, &Result<Option<T>, Failure>) -> R,
+    ) -> Result<(Option<T>, R), Failure> {
+        let result = self
+            .response
+            .and_then(|bytes| bytes.map(|bytes| decode(&bytes)).transpose());
+        let report = report(self.request_id, &result);
+        self.run.json("outcome.json", &report)?;
+        Ok((result?, report))
+    }
 }
 
 impl PreparedUpdate {

@@ -111,107 +111,22 @@ fn proposed_intent_retains_exact_width_and_absent_target_without_authority_claim
     assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
 }
 #[test]
-fn decoder_refuses_changed_request_and_inconsistent_or_missing_blockers() {
-    let original = response();
-    let mut changed = original.clone();
+fn decoder_preserves_contract_refusal_codes() {
+    let mut changed = response();
     changed.request.target_balance = None;
     assert_eq!(decode(request(), &bytes(&changed)), Err(Failure::Binding));
-    for i in 0..original.blockers.len() {
-        changed = original.clone();
-        changed.blockers.remove(i);
-        assert_eq!(
-            decode(request(), &bytes(&changed)),
-            Err(Failure::InvalidReply)
-        );
-    }
-    for b in [
-        B::ProviderUnqualified,
-        B::JournalFenced,
-        B::IdentityRetained,
-        B::IdentityStale,
-        B::JournalFull,
-        B::JournalUncredited,
-        B::AllocationReserve {
-            transferable_cycles: 1,
-        },
-    ] {
-        changed = original.clone();
-        changed.blockers.push(b);
-        assert_eq!(
-            decode(request(), &bytes(&changed)),
-            Err(Failure::InvalidReply)
-        );
-    }
-    changed = original.clone();
-    changed.journal.attachment_allowance = 0;
-    assert_eq!(
-        decode(request(), &bytes(&changed)),
-        Err(Failure::InvalidReply)
-    );
     assert_eq!(decode(request(), &[0]), Err(Failure::InvalidReply));
     assert_eq!(
         decode(request(), &vec![0; 4097]),
         Err(Failure::ReplyTooLarge)
     );
-    assert_eq!(
-        decode(
-            request(),
-            &candid::encode_one(Err::<Response, _>(E::Conflict)).unwrap()
-        ),
-        Err(Failure::FundingAssessmentRefused(E::Conflict))
-    );
-}
-#[test]
-fn occupied_fenced_journal_keeps_uncredited_capacity_and_retained_identity_visible() {
-    let mut reply = response();
-    reply.journal.fenced = true;
-    reply.journal.retained_intents = u64::MAX;
-    reply.journal.last_operation = Some(u128::MAX);
-    reply.journal.reserved_or_uncertain = 1;
-    reply.journal.available_allocation -= 1;
-    reply.journal.attachment_allowance -= 1;
-    for blocker in &mut reply.blockers {
-        if let B::AllocationReserve {
-            transferable_cycles,
-        } = blocker
-        {
-            *transferable_cycles = reply.journal.attachment_allowance;
-        }
+    for error in [E::Invalid, E::Denied, E::Binding, E::Conflict, E::Internal] {
+        assert_eq!(
+            decode(
+                request(),
+                &candid::encode_one(Err::<Response, _>(error)).unwrap()
+            ),
+            Err(Failure::FundingAssessmentRefused(error)),
+        );
     }
-    reply.blockers.extend([
-        B::JournalFenced,
-        B::JournalFull,
-        B::JournalUncredited,
-        B::IdentityRetained,
-    ]);
-    assert_eq!(decode(request(), &bytes(&reply)), Ok(reply.clone()));
-    reply.blockers.push(B::IdentityStale);
-    assert_eq!(
-        decode(request(), &bytes(&reply)),
-        Err(Failure::InvalidReply)
-    );
-}
-
-#[test]
-fn confirmed_acceptance_clears_only_local_credit_blocker_and_invalid_totals_refuse() {
-    let mut view = response();
-    view.journal.transport_accepted = 100;
-    view.journal.available_allocation -= 100;
-    view.journal.attachment_allowance -= 100;
-    for blocker in &mut view.blockers {
-        if let B::AllocationReserve {
-            transferable_cycles,
-        } = blocker
-        {
-            *transferable_cycles = view.journal.attachment_allowance;
-        }
-    }
-    view.journal.uncredited_accepted = 0;
-    assert_eq!(decode(request(), &bytes(&view)), Ok(view.clone()));
-    let options = Options::parse(&arguments()).unwrap();
-    let value = output(&options, &view);
-    assert_eq!(value["journal"]["uncredited_accepted"], "0");
-    assert_eq!(value["preparation_authorized"], false);
-    view.journal.uncredited_accepted = 101;
-    assert_eq!(decode(request(), &bytes(&view)), Err(Failure::InvalidReply));
 }

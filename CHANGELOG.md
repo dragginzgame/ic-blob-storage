@@ -2,6 +2,16 @@
 
 ## [0.29.0]
 
+- Retain authenticated tenant/uploader agents throughout indexed, batch and session
+  preparation; keep original root bindings and journal checks without reopening credentials.
+- Share aggregate capacity diagnostics between native and fixture planning,
+  preserving independent byte dimensions and the sequential-upload slot rule.
+- Share bounded funding-assessment reply checks through Contracts, retaining
+  exact request binding, diagnostic blockers and CLI refusal categories.
+- Finalize signed updates through one outcome-writing owner, preserving pending
+  observations, operation-specific reports and failures after evidence retention.
+- Reuse the fixture argument parser for inventory inspection, keeping explicit
+  tenant binding and local server restrictions.
 - Share the prepared-inventory JSON contract across local preparation, download
   verification and fixture inspection, retaining independent input validation.
 - Consolidate stable-record codecs while preserving schemas and decoding budgets;
@@ -12,11 +22,11 @@
   identity, deadline, failure categories and retained response evidence.
 - Share browser value checks across worker, launcher and session boundaries;
   authority checks and each boundary's numeric limits remain local.
-- **Breaking dependency boundary:** select public IC Memory 0.42. Hosts must
+- **Breaking dependency boundary:** select public IC Memory 0.43. Hosts must
   use the matching Memory family and qualify their composition; cross-release
   installation retirement/reinstallation remains required.
-- Adopt direct Host 0.20 and private Metrics 0.11.1. The opt-in archive verifier
-  shares Host process 0.20 with IC Build 0.7, removing its older dependency alias.
+- Adopt direct Host 0.21 and private Metrics 0.11.3. The opt-in archive verifier
+  shares Host process 0.21 with IC Build 0.8, removing its older dependency alias.
 - Share bounded capacity/discovery reply validation in Contracts across the
   native CLI and fixture inventory, preserving their error categories, original
   content identities, restore fences and observation-only semantics.

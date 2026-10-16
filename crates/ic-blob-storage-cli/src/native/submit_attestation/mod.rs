@@ -189,22 +189,17 @@ async fn dispatch(
             observation_sha256: observed.hashes,
         },
     )?;
-    let dispatched = prepared.dispatch(&agent).await;
-    let result = dispatched.response.and_then(|bytes| {
-        bytes
-            .map(|bytes| {
-                reply::mutation(
-                    observed.recovery.authority,
-                    &observed.recovery.statement,
-                    &bytes,
-                    SMALL_REPLY_BYTES.try_into().expect("fixed reply bound"),
-                )
-                .map_err(attestation::failure)
-            })
-            .transpose()
-    });
-    let report = DispatchOutcomeRecord::new(dispatched.request_id, &result);
-    dispatched.run.json("outcome.json", &report)?;
-    result?;
+    let (_, report) = prepared.dispatch(&agent).await.finish(
+        |bytes| {
+            reply::mutation(
+                observed.recovery.authority,
+                &observed.recovery.statement,
+                bytes,
+                SMALL_REPLY_BYTES.try_into().expect("fixed reply bound"),
+            )
+            .map_err(attestation::failure)
+        },
+        DispatchOutcomeRecord::new,
+    )?;
     serde_json::to_value(report).map_err(|_| Failure::File)
 }

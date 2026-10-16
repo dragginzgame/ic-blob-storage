@@ -1,7 +1,6 @@
 //! Persist the exact signed local update before dispatch; never resubmit or poll it.
 use super::{Failure, Input, Request, SetupOutcome, observation, permission_json};
 use crate::native::{
-    agent,
     arguments::Options,
     signed_update::{MANIFEST_REPLY_BYTES, PreparedUpdate, UpdateInput},
 };
@@ -12,11 +11,12 @@ pub(super) async fn run(
     options: &Options,
     input: &Input,
     saved: &Request,
+    agent: &ic_agent::Agent,
 ) -> Result<SetupOutcome, Failure> {
-    let agent = agent(options)?;
+    let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
     let directory = input.directory.as_ref().ok_or(Failure::Arguments)?;
     let prepared = PreparedUpdate::claim(
-        &agent,
+        agent,
         UpdateInput {
             service: input.service,
             method: input.kind.method(),
@@ -27,7 +27,7 @@ pub(super) async fn run(
         },
         || {
             json!({"schema":1,"runner_version":env!("CARGO_PKG_VERSION"),
-        "network":options.network,"service_url":options.url.as_str(),"actor":options.actor.to_text(),
+        "network":options.network,"service_url":options.url.as_str(),"actor":actor.to_text(),
         "service":input.service.to_text(),"namespace":input.namespace.to_string(),
         "permission":permission_json(saved.payload.permission()),"method":input.kind.method(),
         "request_sha256":ContentDigest::compute(&saved.argument).to_string(),
@@ -43,37 +43,36 @@ include_str!("../request/mod.rs"),
         "permission.candid",
         &candid::encode_one(saved.payload.permission()).map_err(|_| Failure::Arguments)?,
     )?;
-    let dispatched = prepared.dispatch(&agent).await;
-    let result = dispatched.response.and_then(|bytes| {
-        bytes
-            .map(|bytes| observation(input, saved, &bytes))
-            .transpose()
-    });
-    let state = crate::native::signed_update::outcome(&result, "acknowledged", |e| {
-        matches!(
-            e,
-            Failure::UploadAdmissionRefused(_) | Failure::UploadManifestRefused(_)
-        )
-    });
-    let mut report = json!({"schema":1,"operation":input.kind.method(),"request_id":dispatched.request_id,
-        "outcome":state,"observation":null,"authentication":null,
-        "retry_authorized":false,"certificate_issued":false,"provider_requests":0,"publication_authorized":false});
-    match &result {
-        Ok(Some(observed)) => {
-            report["authentication"] = "ic_update_certificate".into();
-            report["observation"] = observed.json();
-        }
-        Ok(None) => {}
-        Err(e) => {
-            report["error"] = e.code().into();
-            if state == "refused" {
-                report["authentication"] = "ic_update_certificate".into();
+    let (observation, report) = prepared.dispatch(agent).await.finish(
+        |bytes| observation(input, saved, bytes),
+        |request_id, result| {
+            let state = crate::native::signed_update::outcome(result, "acknowledged", |e| {
+                matches!(
+                    e,
+                    Failure::UploadAdmissionRefused(_) | Failure::UploadManifestRefused(_)
+                )
+            });
+            let mut report = json!({"schema":1,"operation":input.kind.method(),"request_id":request_id,
+                "outcome":state,"observation":null,"authentication":null,
+                "retry_authorized":false,"certificate_issued":false,"provider_requests":0,"publication_authorized":false});
+            match result {
+                Ok(Some(observed)) => {
+                    report["authentication"] = "ic_update_certificate".into();
+                    report["observation"] = observed.json();
+                }
+                Ok(None) => {}
+                Err(e) => {
+                    report["error"] = e.code().into();
+                    if state == "refused" {
+                        report["authentication"] = "ic_update_certificate".into();
+                    }
+                }
             }
-        }
-    }
-    dispatched.run.json("outcome.json", &report)?;
+            report
+        },
+    )?;
     Ok(SetupOutcome {
-        observation: result?,
+        observation,
         report,
     })
 }

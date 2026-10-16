@@ -73,6 +73,7 @@ pub(super) fn validate_attempt(
     kind: upload_setup::Kind,
     options: &Options,
     selected: &PreparedInput,
+    root: &[u8],
 ) -> Result<(), Failure> {
     let prefix = name(kind);
     let packet = |name: &str, maximum| read_at(origin, &format!("{prefix}/{name}"), maximum);
@@ -95,7 +96,7 @@ pub(super) fn validate_attempt(
         selected.permission.upload.service,
         kind.method(),
         request,
-        &crate::native::agent(options)?.read_root_key(),
+        root,
     )?;
     let packets_match = packet("request.candid", 65536)? == request
         && packet("permission.candid", 4096)? == permission

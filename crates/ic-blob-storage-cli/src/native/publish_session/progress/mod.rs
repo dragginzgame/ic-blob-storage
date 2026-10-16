@@ -117,7 +117,14 @@ impl<'a> Session<'a> {
             source: self.sources.setup[index].clone(),
             ..self.input.prepare.clone()
         };
-        let mut outcome = publish_prepare::run_selected(self.options, &setup, self.batch).await?;
+        let mut outcome = publish_prepare::run_selected(
+            self.options,
+            &setup,
+            self.batch,
+            &self.actors.tenant,
+            &self.actors.uploader,
+        )
+        .await?;
         if self.sources.setup[index].is_none() {
             self.sources.setup[index] =
                 Some(setup.directory.canonicalize().map_err(|_| Failure::File)?);
@@ -148,6 +155,7 @@ impl<'a> Session<'a> {
             input: self.input,
             batch: self.batch,
             browser: self.browser.ok_or(Failure::Denied)?,
+            root: &self.actors.tenant.read_root_key(),
         }
         .run(
             index,

@@ -1,5 +1,5 @@
 use super::*;
-use crate::native::{execute, upload_inputs::tests as fixture};
+use crate::native::{arguments::Command, execute, upload_inputs::tests as fixture};
 use std::fs;
 
 fn arguments(directory: &std::path::Path) -> Vec<String> {

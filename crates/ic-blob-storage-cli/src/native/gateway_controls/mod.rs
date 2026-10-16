@@ -168,13 +168,13 @@ fn outcome(input: &Input, id: &str, result: &Result<Option<Value>, Failure>) -> 
 }
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let agent = agent(options)?;
-    let dispatched = prepare(options, input, &agent)?.dispatch(&agent).await;
-    let result = dispatched
-        .response
-        .and_then(|bytes| bytes.map(|bytes| acknowledgment(input, &bytes)).transpose());
-    let report = outcome(input, &dispatched.request_id, &result);
-    dispatched.run.json("outcome.json", &report)?;
-    result?;
+    let (_, report) = prepare(options, input, &agent)?
+        .dispatch(&agent)
+        .await
+        .finish(
+            |bytes| acknowledgment(input, bytes),
+            |id, result| outcome(input, &id, result),
+        )?;
     Ok(report)
 }
 pub(super) const fn sync_code(error: SyncError) -> &'static str {

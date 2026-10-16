@@ -33,6 +33,7 @@ pub(super) struct Context<'a> {
     pub input: &'a Input,
     pub batch: &'a PreparedBatch,
     pub browser: &'a super::browser::BrowserSelectionRecord,
+    pub root: &'a [u8],
 }
 impl Context<'_> {
     pub fn run(
@@ -48,6 +49,7 @@ impl Context<'_> {
             input,
             batch,
             browser,
+            root,
         } = self;
         let setup = sources::directory(setup.ok_or(Failure::Unprepared)?)?;
         let preparation = publish_prepare::Input {
@@ -55,7 +57,7 @@ impl Context<'_> {
             source: Some(setup.clone()),
             ..input.prepare.clone()
         };
-        publish_prepare::transfer_source(options, &preparation, batch)?;
+        publish_prepare::transfer_source(options, &preparation, batch, root)?;
         let file = batch.files.get(index).ok_or(Failure::Arguments)?;
         let mut record = BrowserHandoffRecord {
             format: FORMAT.into(),

@@ -111,10 +111,6 @@ where
     run.bytes(&format!("query-{index:04}-reply.candid"), &bytes)?;
     Ok(bytes)
 }
-#[expect(
-    clippy::too_many_lines,
-    reason = "One bounded sequential observation retains original replies before projecting preflight diagnostics"
-)]
 pub(in crate::native) async fn inspect<Q, F>(
     scope: TenantScope,
     inputs: &[FrozenFile],
@@ -192,24 +188,14 @@ where
         original_upload = existing;
         entries.push(json!({"directory":format!("file-{index:04}"),"proposed_permission":crate::native::upload_setup::permission_json(p),"status":status,"original_upload":existing.map(crate::native::references::upload_json),"discovery_fenced":r.fenced}));
     }
-    if demand_objects > c.remaining_objects {
-        blockers.insert("object_history_capacity");
-    }
-    if demand_chunks > c.remaining_manifest_chunks {
-        blockers.insert("manifest_capacity");
-    }
-    for (reason, available) in [
-        ("logical_byte_capacity", c.remaining_logical_bytes),
-        ("physical_byte_capacity", c.remaining_physical_bytes),
-        ("liability_byte_capacity", c.remaining_liability_bytes),
-    ] {
-        if demand_bytes > available {
-            blockers.insert(reason);
-        }
-    }
-    if demand_objects > 0 && c.remaining_active_uploads == 0 {
-        blockers.insert("no_active_upload_slot");
-    }
+    blockers.extend(
+        ic_blob_storage_contracts::upload::capacity::demand_blockers(
+            &c,
+            demand_objects,
+            demand_bytes,
+            demand_chunks,
+        ),
+    );
     let recoverable_upload = original_upload
         .filter(|_| inputs.len() == 1 && blockers.contains("recover_existing_operation"));
     let setup_allowed = inputs.len() == 1

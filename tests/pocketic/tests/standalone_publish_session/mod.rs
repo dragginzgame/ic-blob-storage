@@ -268,6 +268,11 @@ fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_
     );
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
+    // This invocation has authenticated both preparation roles and pinned its
+    // replica root. Later phases must use those agents, not mutable input files.
+    for name in ["tenant.pem", "uploader.pem", "root.der"] {
+        std::fs::write(directory.path().join(name), b"changed after startup").unwrap();
+    }
     assert_eq!(
         phase(&mut session, &json!({"phase":"prepare","index":1}))["state"],
         "blocked"

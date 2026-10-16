@@ -3,6 +3,7 @@ mod dispatch;
 mod request;
 use super::{Failure, arguments::Options, query, references};
 use candid::Principal;
+use ic_agent::Agent;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
@@ -197,17 +198,38 @@ fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<SetupObse
 }
 pub(super) async fn run(options: &Options, input: &Input) -> Result<SetupOutcome, Failure> {
     let saved = request::load(input, options.actor)?;
+    let agent = super::agent(options)?;
+    execute(options, input, &saved, &agent).await
+}
+
+/// Reuse the invocation's authenticated role; request binding is still checked.
+pub(super) async fn with_agent(
+    options: &Options,
+    input: &Input,
+    agent: &Agent,
+) -> Result<SetupOutcome, Failure> {
+    let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
+    let saved = request::load(input, actor)?;
+    execute(options, input, &saved, agent).await
+}
+
+async fn execute(
+    options: &Options,
+    input: &Input,
+    saved: &Request,
+    agent: &Agent,
+) -> Result<SetupOutcome, Failure> {
     if input.kind.mutation() {
-        return dispatch::run(options, input, &saved).await;
+        return dispatch::run(options, input, saved, agent).await;
     }
-    let bytes = query(
-        options,
+    let bytes = query::with_agent(
+        agent,
         input.service,
         input.kind.method(),
         saved.argument.clone(),
     )
     .await?;
-    let observed = observation(input, &saved, &bytes)?;
+    let observed = observation(input, saved, &bytes)?;
     let report = json!({"schema":1,"operation":input.kind.method(),"authentication":"query_signatures",
         "observation":observed.json(),"retry_authorized":false,
         "certificate_issued":false,"provider_requests":0,"publication_authorized":false});
@@ -219,7 +241,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<SetupOutcome
 
 /// Retain exact query arguments and raw replies through the same setup decoder.
 pub(super) async fn inspect_recorded(
-    options: &Options,
+    agent: &Agent,
     input: &Input,
     run: &crate::native::artifacts::Run,
     label: &str,
@@ -227,15 +249,15 @@ pub(super) async fn inspect_recorded(
     if input.kind.mutation() {
         return Err(Failure::Arguments);
     }
-    let saved = request::load(input, options.actor)?;
+    let saved = request::load(input, agent.get_principal().map_err(|_| Failure::Identity)?)?;
     run.bytes(&format!("{label}-args.candid"), &saved.argument)?;
     run.json(
         &format!("{label}-intent.json"),
         &json!({"method":input.kind.method(),
         "argument_sha256":crate::native::upload_inputs::digest(&saved.argument),"updates":0}),
     )?;
-    let bytes = query(
-        options,
+    let bytes = query::with_agent(
+        agent,
         input.service,
         input.kind.method(),
         saved.argument.clone(),

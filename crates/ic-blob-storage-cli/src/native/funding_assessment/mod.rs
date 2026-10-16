@@ -4,88 +4,22 @@ use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationBlock
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailure as E;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest as Request;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse as Response;
+use ic_blob_storage_contracts::funding::reply::assessment::{self, FundingAssessmentReplyError};
 use ic_blob_storage_contracts::protocol::FUNDING_PREPARATION_METHOD;
 use serde_json::{Value, json};
 
 fn decode(request: Request, bytes: &[u8]) -> Result<Response, Failure> {
-    let response: Result<Response, E> = super::reply::decode_small(bytes, Failure::ReplyTooLarge)?;
-    let response = response.map_err(Failure::FundingAssessmentRefused)?;
-    if response.request != request {
-        return Err(Failure::Binding);
-    }
-    validate(&response)?;
-    Ok(response)
-}
-fn validate(response: &Response) -> Result<(), Failure> {
-    let journal = response.journal;
-    let blockers = &response.blockers;
-    if blockers.len() > 10
-        || blockers
-            .iter()
-            .enumerate()
-            .any(|(i, b)| blockers[..i].contains(b))
-        || journal.intent_capacity == 0
-        || journal.retained_intents > journal.intent_capacity
-        || (journal.retained_intents == 0) != journal.last_operation.is_none()
-        || journal.last_operation == Some(0)
-        || journal.attachment_allowance > journal.available_allocation
-        || !super::reply::valid_funding_budget(&journal)
-        || journal.uncredited_accepted > journal.transport_accepted
-    {
-        return Err(Failure::InvalidReply);
-    }
-    for b in [
-        B::ProviderUnqualified,
-        B::RecoveryUnknown,
-        B::FundingUnknown,
-        B::SpendabilityUnknown,
-    ] {
-        if !blockers.contains(&b) {
-            return Err(Failure::InvalidReply);
-        }
-    }
-    for (b, needed) in [
-        (B::JournalFenced, journal.fenced),
-        (
-            B::JournalUncredited,
-            journal.uncredited_accepted > 0 || journal.reserved_or_uncertain > 0,
-        ),
-        (
-            B::JournalFull,
-            journal.retained_intents == journal.intent_capacity,
-        ),
-    ] {
-        if blockers.contains(&b) != needed {
-            return Err(Failure::InvalidReply);
-        }
-    }
-    let retained = blockers.contains(&B::IdentityRetained);
-    let stale = blockers.contains(&B::IdentityStale);
-    if retained && stale
-        || (retained || stale)
-            != journal
-                .last_operation
-                .is_some_and(|last| response.request.operation <= last)
-        || journal.last_operation == Some(response.request.operation) && !retained
-    {
-        return Err(Failure::InvalidReply);
-    }
-    let mut reserve = None;
-    for b in blockers {
-        if let B::AllocationReserve {
-            transferable_cycles,
-        } = b
-            && reserve.replace(*transferable_cycles).is_some()
-        {
-            return Err(Failure::InvalidReply);
-        }
-    }
-    if (response.request.offered > journal.attachment_allowance) != reserve.is_some()
-        || reserve.is_some_and(|n| n != journal.attachment_allowance)
-    {
-        return Err(Failure::InvalidReply);
-    }
-    Ok(())
+    assessment::inspect(
+        request,
+        bytes,
+        4096.try_into().expect("positive reply bound"),
+    )
+    .map_err(|error| match error {
+        FundingAssessmentReplyError::Limit => Failure::ReplyTooLarge,
+        FundingAssessmentReplyError::Invalid => Failure::InvalidReply,
+        FundingAssessmentReplyError::Binding => Failure::Binding,
+        FundingAssessmentReplyError::Remote(error) => Failure::FundingAssessmentRefused(error),
+    })
 }
 fn blocker(b: B) -> Value {
     match b {

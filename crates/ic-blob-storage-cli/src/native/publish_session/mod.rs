@@ -59,6 +59,7 @@ struct SessionIntentRecord {
 
 struct Actors {
     tenant: Agent,
+    uploader: Agent,
     operator: Agent,
     verifier: Option<Options>,
 }
@@ -85,6 +86,11 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     let installation = batch.installation()?;
     let actors = Actors {
         tenant: agent(options)?,
+        uploader: agent_for(
+            options,
+            &input.prepare.uploader_identity,
+            batch.files[0].input.permission.uploader,
+        )?,
         operator: agent_for(
             options,
             &input.operator_identity,
@@ -92,11 +98,6 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         )?,
         verifier: verification::options(options, input, &installation)?,
     };
-    agent_for(
-        options,
-        &input.prepare.uploader_identity,
-        batch.files[0].input.permission.uploader,
-    )?;
     let intent = SessionIntentRecord {
         format: "ic-blob-storage/publication-session:retained-browser-handoffs".into(),
         browser: browser::selection(input, &batch)?,

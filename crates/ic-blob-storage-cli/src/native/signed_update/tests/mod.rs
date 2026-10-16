@@ -201,3 +201,79 @@ fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
         Err(Failure::SubmissionClaimed)
     ));
 }
+
+#[test]
+fn completion_retains_present_pending_and_failed_observations_before_returning() {
+    let base = tempfile::tempdir().unwrap();
+    for (name, response, expected, failure) in [
+        ("present", Ok(Some(vec![7])), Some(7), None),
+        ("pending", Ok(None), None, None),
+        (
+            "transport",
+            Err(Failure::Transport),
+            None,
+            Some(Failure::Transport),
+        ),
+        (
+            "decode",
+            Ok(Some(Vec::new())),
+            None,
+            Some(Failure::InvalidReply),
+        ),
+    ] {
+        let path = base.path().join(name);
+        let present = response.as_ref().is_ok_and(Option::is_some);
+        let decoded = std::cell::Cell::new(false);
+        let result = DispatchedUpdate {
+            run: Run::create(&path).unwrap(),
+            request_id: name.into(),
+            response,
+        }
+        .finish(
+            |bytes| {
+                decoded.set(true);
+                bytes.first().copied().ok_or(Failure::InvalidReply)
+            },
+            |id, result| {
+                json!({"request_id": id,
+                "outcome": outcome(result, "accepted", |_| false),
+                "error": result.as_ref().err().map(|error| error.code()), "retry_authorized": false})
+            },
+        );
+        assert_eq!(decoded.get(), present);
+        let saved: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(path.join("outcome.json")).unwrap()).unwrap();
+        assert_eq!(saved["request_id"], name);
+        assert_eq!(saved["retry_authorized"], false);
+        if let Some(error) = failure {
+            assert_eq!(saved["error"], error.code());
+            assert_eq!(result, Err(error));
+        } else {
+            let (observed, report) = result.unwrap();
+            assert_eq!(observed, expected);
+            assert_eq!(saved, report);
+        }
+    }
+}
+
+#[test]
+fn completion_write_failure_preserves_existing_evidence_and_precedes_remote_failure() {
+    let base = tempfile::tempdir().unwrap();
+    let path = base.path().join("occupied-outcome");
+    let run = Run::create(&path).unwrap();
+    run.bytes("outcome.json", b"original evidence").unwrap();
+    let completed = DispatchedUpdate {
+        run,
+        request_id: "original".into(),
+        response: Err(Failure::Transport),
+    }
+    .finish(
+        |_| -> Result<(), Failure> { panic!("absent response must not decode") },
+        |_, _| json!({"replacement":true}),
+    );
+    assert_eq!(completed, Err(Failure::File));
+    assert_eq!(
+        std::fs::read(path.join("outcome.json")).unwrap(),
+        b"original evidence"
+    );
+}
