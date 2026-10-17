@@ -15,11 +15,11 @@ lockfiles; this repository's qualification does not cover every future resolutio
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
 | IC Memory | 0.45.0 | Public memory types and explicit host runtime; new ledger format requires retirement/reinstallation |
-| IC Metrics | 0.11.7 | Private storage probe and Testkit measurements; tracked overflow quality |
+| IC Metrics (direct) | 0.12.0 | Private storage probe measurements; Testkit retains its own transitive selection |
 | IC Testkit | 0.50.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
 | IC Testkit Candid | 0.50.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
 | IC Host artifacts/fs/process/tools (direct) | 0.24.0 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.11.1 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
+| IC Build | 0.12.0 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -78,14 +78,15 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Direct Host remains 0.24.0; Build 0.11.1 exposes Host process 0.23.1. The
-optional verifier imports that existing selected family through the explicit
-`ic-build-host-process` dependency name. It is confined to `package-verification`;
-ordinary native HTTP tests select Host 0.24 with test-support. The two Host type
-identities are never mixed, and no external version/source/checksum selection
-changes. Review this private dependency with future Build API changes.
-[The caller repair receipt](evidence/ci-api0310.md) records all-feature
-compilation, installed recovery and real archive replacement/refusal tests.
+IC Build 0.12.0 and direct Host now share process 0.24.0. The optional archive
+verifier and native HTTP tests use the single `ic-host-process` dependency name;
+`package-verification` activates its normal dependency, while HTTP test-support
+remains development-only. The former separate Build-family alias is removed:
+using two names for this now-identical crate makes Cargo reject all-feature
+checks. No dependency selection or lockfile change is required for this repair.
+[The caller repair receipt](evidence/ci-api0310.md#build-012-dependency-name-repair)
+records current CLI compilation, lint, MSRV and archive replacement/refusal tests.
+Earlier installed recovery results in that receipt retain their original graph.
 Actual Blob archives and required native-host acceptance remain under
 [#69](https://github.com/dragginzgame/ic-blob-storage/issues/69). The
 [earlier receipt](evidence/decoder-commands0310.md) retains the original failures

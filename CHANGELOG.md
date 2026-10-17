@@ -16,9 +16,9 @@
   its duplicate helpers, incorporating
   [PR #78](https://github.com/dragginzgame/ic-blob-storage/pull/78). Pass explicit,
   finite reply-decoding budgets at all installed fixture query/update calls.
-- Bind the optional archive verifier to IC Build 0.11's exposed Host process
-  family while ordinary native fixtures use Host 0.24; preserve bounded output,
-  retained failure evidence and original exit/signal statuses.
+- Use one Host process dependency name for IC Build 0.12 archive verification
+  and native fixtures on Host 0.24; preserve bounded output, retained failure
+  evidence and original exit/signal statuses.
 
 - Keep inventory metadata and upload bodies beneath one held input-directory
   descriptor through published Host readers, including when its pathname is

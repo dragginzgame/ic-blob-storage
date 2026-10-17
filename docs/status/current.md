@@ -1,6 +1,17 @@
 # Current status
 
-Date: 2026-10-16
+Date: 2026-10-17
+
+## Build 0.12 duplicate dependency name repaired — pending 0.31.0
+
+Build 0.12 and direct Host both select process 0.24.0. Remove the obsolete
+Build-family dependency alias and use `ic-host-process` for the optional archive
+verifier and native test-support. CLI all-target/all-feature compilation, strict
+lint, actual Rust 1.91, verifier build and real archive replacement/refusal tests
+pass. Cargo.lock is byte-identical; no versions or Git/release effects changed.
+[The receipt](../evidence/ci-api0310.md#build-012-dependency-name-repair) retains
+this graph's focused results. Full CI and native macOS remain unrun. Historical
+sections below describe their own earlier dependency selections.
 
 ## Dependency caller compilation repaired — pending 0.31.0
 

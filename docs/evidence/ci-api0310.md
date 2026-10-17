@@ -72,3 +72,27 @@ Full CI, the complete installed suite, actual Blob archives, native macOS,
 optimized Wasms, Canic and deployed-provider acceptance were not run. The prior
 public Memory/storage and decoder cuts still require pending 0.31.0; no package
 version, Git index/ref, release, sibling or paid-provider effects ran.
+
+## Build 0.12 dependency name repair
+
+On 2026-10-17, clean base `0b79b11b5d57113ab66e054f3a5037e8cce2eb1c`
+already selects Build 0.12.0, direct Host 0.24.0 and private Metrics 0.12.0.
+The reported `20261017T061429Z-2957393-11-check.log` shows Cargo refusing Host
+process 0.24.0 under both `ic-build-host-process` and `ic-host-process` names.
+The earlier two-family alias is obsolete because Build now exposes Host 0.24.
+
+Remove that alias from both manifests, import the verifier's types from
+`ic_host_process`, and activate the same optional normal dependency through
+`package-verification`. Native development tests retain that dependency's
+`test-support` feature. Output budgets and original status mapping are unchanged.
+Cargo.lock is byte-identical; external selections and own versions are untouched.
+
+CLI `--all-targets --all-features` check, strict Clippy and actual Rust 1.91.0
+check pass, followed by a fresh verifier build. The real Cargo archive fixture
+passes warm same-version replacement and all ten graph/drift/command refusal
+cases, including original exit 23 and signal 143. Its retained root is
+`target/package-fixture.7dk3Or`; logs, commands and before-images are under
+`.tmp/review-validation/host-name0310/`. Formatting, dependency declarations,
+documentation links and diff checks pass. No new PocketIC, full CI, actual Blob
+archives, native macOS, version, Git/release or sibling effects ran. Earlier
+qualification above remains bound to its original Build 0.11 graph.
