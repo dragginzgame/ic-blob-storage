@@ -413,7 +413,7 @@ fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_p
     fixture
         .harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             fixture.service,
             fixture.tenant,
             "blob_revoke_upload",

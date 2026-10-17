@@ -49,7 +49,7 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     let permission = manifest.permission;
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

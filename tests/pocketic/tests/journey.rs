@@ -88,13 +88,13 @@ impl Fixture {
     ) -> Result<(), JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(self.service, caller, method, (input,), REPLY_LIMITS)
+            .update_candid(self.service, caller, method, (input,), REPLY_LIMITS)
             .expect("local control reply")
     }
     fn usage(&self, caller: Principal) -> Result<JourneyUsage, JourneyFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, caller, "journey_usage", (), REPLY_LIMITS)
+            .query_candid(self.service, caller, "journey_usage", (), REPLY_LIMITS)
             .expect("usage reply")
     }
     fn reserve(&self, caller: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
@@ -115,7 +115,7 @@ impl Fixture {
     ) -> Result<(), JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 caller,
                 "journey_reserve",
@@ -134,7 +134,7 @@ impl Fixture {
     ) -> Result<JourneyProgress, JourneyFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 caller,
                 "journey_progress",
@@ -152,7 +152,7 @@ impl Fixture {
     ) -> Result<(), JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 caller,
                 "journey_append",
@@ -180,7 +180,7 @@ impl Fixture {
     fn complete(&self, owner: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.gateway,
                 "journey_complete",
@@ -197,13 +197,13 @@ impl Fixture {
     ) -> Result<(), JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(self.service, caller, method, (root(seed),), REPLY_LIMITS)
+            .update_candid(self.service, caller, method, (root(seed),), REPLY_LIMITS)
             .expect("root control")
     }
     fn pending(&self) -> Vec<Vec<u8>> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 self.gateway,
                 "_immutableObjectStorageBlobsToDelete",
@@ -216,7 +216,7 @@ impl Fixture {
         let roots: Vec<_> = seeds.iter().map(|seed| root(*seed)).collect();
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 self.gateway,
                 "_immutableObjectStorageBlobsAreLive",
@@ -228,7 +228,7 @@ impl Fixture {
     fn delete(&self, roots: Vec<Vec<u8>>) -> Result<(), u32> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.operator,
                 "run_deletion",
@@ -386,7 +386,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     let revoked: bool = f
         .harness
         .pic
-        .update_candid_as(f.service, f.operator, "revoke_gateway", (), REPLY_LIMITS)
+        .update_candid(f.service, f.operator, "revoke_gateway", (), REPLY_LIMITS)
         .expect("revoke");
     assert!(revoked);
     assert_eq!(f.delete(delayed), Err(RejectCode::CanisterError as u32));

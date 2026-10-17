@@ -29,7 +29,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         Some(operator),
     );
     let denied: Result<ContentProbeReport, ContentProbeFailure> = pic
-        .update_candid_as(
+        .update_candid(
             canister,
             tenant,
             "probe_content",
@@ -55,7 +55,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             .find(|vector| vector["name"] == name)
             .expect("selected vector");
         let result: Result<ContentProbeReport, ContentProbeFailure> = pic
-            .update_candid_as(canister, operator, "probe_content", (case,), REPLY_LIMITS)
+            .update_candid(canister, operator, "probe_content", (case,), REPLY_LIMITS)
             .expect("Wasm execution");
         let report = result.expect("verified identities");
         assert_eq!(
@@ -89,7 +89,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         (ContentProbeCase::Truncated, ContentProbeFailure::Incomplete),
     ] {
         let result: Result<ContentProbeReport, ContentProbeFailure> = pic
-            .update_candid_as(canister, operator, "probe_content", (case,), REPLY_LIMITS)
+            .update_candid(canister, operator, "probe_content", (case,), REPLY_LIMITS)
             .expect("expected rejection");
         assert_eq!(result, Err(error));
     }

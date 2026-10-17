@@ -34,7 +34,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
     let removed: Result<GatewayRevocationResponse, GatewayRevocationFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             GATEWAY_REVOCATION_METHOD,
@@ -49,7 +49,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
     let account: Result<AccountInspectionResponse, AccountInspectionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_inspect_account",
@@ -70,7 +70,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
     let manifest = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -138,7 +138,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
         let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 f.uploader,
                 "blob_upload_manifest",
@@ -235,7 +235,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
     let manifest = f.small_manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -248,7 +248,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
     let _: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
@@ -259,7 +259,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
     // This statement is a local verifier substitute, not a deployed byte observation.
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+        .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
             f.service,
             Fake::principal(90),
             "blob_attest_upload",
@@ -274,7 +274,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
         .unwrap();
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_candid::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",

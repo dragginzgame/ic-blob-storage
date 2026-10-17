@@ -107,7 +107,7 @@ impl Fixture {
         let result: Result<(), FundingFailure> = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.operator,
                 self.controller,
                 "configure_cashier",
@@ -129,7 +129,7 @@ impl Fixture {
     fn transport(&self, actor: Principal, input: Input) -> Result<Observation, Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "fixture_funding_transport",
@@ -141,7 +141,7 @@ impl Fixture {
     fn incoming(&self) -> Vec<FundingReceiptRecord> {
         self.harness
             .pic
-            .query_candid_as::<Option<Vec<FundingReceiptRecord>>, _>(
+            .query_candid::<Option<Vec<FundingReceiptRecord>>, _>(
                 self.operator,
                 self.controller,
                 "receipts",
@@ -158,7 +158,7 @@ impl Fixture {
     ) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "blob_funding_outcome",

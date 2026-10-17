@@ -108,7 +108,7 @@ fn interrupted(args: &[String], directory: &Path) {
 fn receipt(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestationResponse {
     f.harness
         .pic
-        .query_candid_as::<Result<_, UploadAttestationFailure>, _>(
+        .query_candid::<Result<_, UploadAttestationFailure>, _>(
             f.service,
             f.operator,
             "blob_upload_attestation",

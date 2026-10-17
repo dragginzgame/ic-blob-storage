@@ -183,7 +183,7 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
         .f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             trial.f.service,
             trial.f.tenant,
             "blob_revoke_upload",

@@ -26,7 +26,7 @@ impl Fixture {
     ) -> Result<(), GatewaySyncFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "blob_cancel_gateway_sync",
@@ -70,7 +70,7 @@ impl Fixture {
     ) -> Result<GatewayRevocationResponse, GatewayRevocationFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 GATEWAY_REVOCATION_METHOD,
@@ -106,7 +106,7 @@ impl Fixture {
     fn gateways(&self, actor: Principal, action: Action) -> Result<Outcome, Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "fixture_gateways",
@@ -122,7 +122,7 @@ impl Fixture {
     fn gateway_view(&self) -> View {
         self.harness
             .pic
-            .query_candid_as::<Result<View, Failure>, _>(
+            .query_candid::<Result<View, Failure>, _>(
                 self.service,
                 self.operator,
                 "gateway_registry",
@@ -308,7 +308,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
         let view: Result<View, Failure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 actor,
                 "gateway_registry",
@@ -335,7 +335,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
         let view: Result<View, Failure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 f.operator,
                 "gateway_registry",

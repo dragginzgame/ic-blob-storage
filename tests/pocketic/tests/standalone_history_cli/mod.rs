@@ -75,7 +75,7 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
         permission.upload.root = [id; 32];
         f.harness
             .pic
-            .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+            .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
                 f.service,
                 f.tenant,
                 "blob_admit_upload",
@@ -87,7 +87,7 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
         if id != 65 {
             f.harness
                 .pic
-                .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+                .update_candid::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
                     f.service,
                     f.tenant,
                     "blob_revoke_upload",

@@ -18,7 +18,7 @@ fn standalone_signed_gateway_decisions_preserve_uncertainty_and_occupied_restore
     let request = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

@@ -78,7 +78,7 @@ impl Fixture {
     ) -> Result<FundingObservation, FundingFailure> {
         self.harness
             .pic
-            .update_candid_as(self.sender, caller, "fund", (request,), REPLY_LIMITS)
+            .update_candid(self.sender, caller, "fund", (request,), REPLY_LIMITS)
             .expect("funding call completed")
     }
 
@@ -86,7 +86,7 @@ impl Fixture {
         let result: Option<Vec<FundingAttemptRecord>> = self
             .harness
             .pic
-            .query_candid_as(self.sender, self.driver, "attempts", (), REPLY_LIMITS)
+            .query_candid(self.sender, self.driver, "attempts", (), REPLY_LIMITS)
             .expect("sender journal");
         result.expect("driver allowed")
     }
@@ -95,7 +95,7 @@ impl Fixture {
         let result: Option<Vec<FundingReceiptRecord>> = self
             .harness
             .pic
-            .query_candid_as(self.receiver, self.driver, "receipts", (), REPLY_LIMITS)
+            .query_candid(self.receiver, self.driver, "receipts", (), REPLY_LIMITS)
             .expect("receiver journal");
         result.expect("driver allowed")
     }
@@ -107,7 +107,7 @@ impl Fixture {
     ) -> Option<FundingOperatorStatusView> {
         self.harness
             .pic
-            .query_candid_as(canister, caller, "operator_status", (), REPLY_LIMITS)
+            .query_candid(canister, caller, "operator_status", (), REPLY_LIMITS)
             .expect("read-only funding diagnosis")
     }
 
@@ -719,7 +719,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
     let hidden: Option<Vec<FundingAttemptRecord>> = fixture
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             fixture.sender,
             Principal::anonymous(),
             "attempts",

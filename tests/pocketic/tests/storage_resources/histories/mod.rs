@@ -121,7 +121,7 @@ fn read_page(
 ) -> Result<Vec<RestorationRead>, Failure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             "restoration_read_page",
@@ -157,7 +157,7 @@ fn selected_funding(
             let phase: Result<Option<FundingPhase>, Failure> = f
                 .harness
                 .pic
-                .query_candid_as(
+                .query_candid(
                     f.service,
                     f.operator,
                     "funding_lookup",
@@ -169,7 +169,7 @@ fn selected_funding(
             let request: Result<FundingRequest, Failure> = f
                 .harness
                 .pic
-                .query_candid_as(
+                .query_candid(
                     f.service,
                     f.operator,
                     "funding_request",

@@ -12,7 +12,7 @@ impl Fixture {
     fn download(&self, actor: Principal, request: DownloadRequest) -> Result<DownloadResponse, F> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 DOWNLOAD_METHOD,
@@ -107,7 +107,7 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -124,7 +124,7 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_update_tenant",
@@ -227,7 +227,7 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
     let fetch = || -> Result<DownloadResponse, DownloadProbeFailure> {
         f.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 client,
                 f.operator,
                 "fixture_fetch_descriptor",

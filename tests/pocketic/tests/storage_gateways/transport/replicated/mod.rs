@@ -14,7 +14,7 @@ impl Fixture {
     fn replicated_gateways(&self, actor: Principal, input: ReplicatedInput) -> Result<(), Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "fixture_replicated_gateway_transport",
@@ -35,7 +35,7 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
     > = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_sync_gateways",
@@ -90,7 +90,7 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
     let rejected: Result<(), Failure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.operator,
             "fixture_nonreplicated_gateway_transport",

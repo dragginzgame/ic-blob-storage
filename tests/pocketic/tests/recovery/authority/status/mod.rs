@@ -10,7 +10,7 @@ impl Fixture {
     fn status(&self, actor: Principal) -> Option<OperatorStatusView> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "operator_status", (), REPLY_LIMITS)
+            .query_candid(self.service, actor, "operator_status", (), REPLY_LIMITS)
             .expect("read-only operator query")
     }
 
@@ -236,7 +236,7 @@ fn pending_sync_and_invalidated_reads_remain_visible_without_diagnostic_retry() 
     let revoked: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.authority_operator,
             "revoke_gateway",

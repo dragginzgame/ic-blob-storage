@@ -9,7 +9,7 @@ fn args(f: &Fixture, id: u64, amount: u128) -> Vec<String> {
     let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> = f
         .harness
         .pic
-        .query_candid_as(f.sender, f.driver, "operator_status", (), REPLY_LIMITS)
+        .query_candid(f.sender, f.driver, "operator_status", (), REPLY_LIMITS)
         .unwrap();
     let mut args = f.args(
         f.sender,
@@ -241,7 +241,7 @@ fn wrong_binding_denied_callers_and_invalid_amounts_never_change_journals() {
         let result: Result<FundingPreviewView, FundingPreviewFailure> = f
             .harness
             .pic
-            .query_candid_as(f.sender, caller, "preview_funding", (input,), REPLY_LIMITS)
+            .query_candid(f.sender, caller, "preview_funding", (input,), REPLY_LIMITS)
             .unwrap();
         assert_eq!(result, Err(expected));
     }
@@ -325,7 +325,7 @@ fn preview_reports_the_same_amount_bound_enforced_before_update_admission() {
     let result: Result<FundingObservation, FundingFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.sender,
             f.driver,
             "fund",

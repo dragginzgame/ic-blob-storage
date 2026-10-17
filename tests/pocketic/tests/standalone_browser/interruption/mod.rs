@@ -105,7 +105,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         .f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             trial.f.service,
             trial.f.tenant,
             "blob_revoke_upload",
@@ -139,7 +139,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         .f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             trial.f.service,
             trial.f.tenant,
             "blob_upload_attestation",
@@ -159,7 +159,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         .f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             trial.f.service,
             receipt.verifier,
             "blob_attest_upload",

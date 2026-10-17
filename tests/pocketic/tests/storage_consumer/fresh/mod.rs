@@ -43,7 +43,7 @@ fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let view: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "prepare",
@@ -67,7 +67,7 @@ fn inspect(
 ) -> Result<UploadStatusResponse, UploadStatusFailure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             "blob_upload_status",
@@ -262,6 +262,6 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
 fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "admit", (input,), REPLY_LIMITS)
+        .update_candid(f.tenant, f.operator, "admit", (input,), REPLY_LIMITS)
         .unwrap()
 }

@@ -68,7 +68,7 @@ impl Fixture {
     fn local_status(&self) -> ic_blob_storage_contracts::dto::operator::LocalServiceStatus {
         self.harness
             .pic
-            .query_candid_as::<Result<_, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>, _>(
+            .query_candid::<Result<_, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>, _>(
                 self.service,
                 self.operator,
                 ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD,
@@ -176,7 +176,7 @@ impl Fixture {
         > = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "blob_admit_upload",
@@ -194,7 +194,7 @@ impl Fixture {
         > = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.uploader,
                 "blob_prepare_upload",
@@ -245,7 +245,7 @@ impl Fixture {
         let result: Result<ExposureOutcome, E> = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.uploader,
                 "expose",
@@ -281,7 +281,7 @@ impl Fixture {
         > = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.tenant,
                 "blob_revoke_upload",
@@ -294,14 +294,14 @@ impl Fixture {
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "lookup", (input,), REPLY_LIMITS)
+            .query_candid(self.service, actor, "lookup", (input,), REPLY_LIMITS)
             .unwrap()
     }
     fn status(&self) -> Status {
         let result: Result<Status, Failure> = self
             .harness
             .pic
-            .query_candid_as(self.service, self.operator, "status", (), REPLY_LIMITS)
+            .query_candid(self.service, self.operator, "status", (), REPLY_LIMITS)
             .unwrap();
         result.unwrap()
     }
@@ -320,7 +320,7 @@ impl Fixture {
         let response: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.operator,
                 TENANT_UPDATE_METHOD,
@@ -342,7 +342,7 @@ impl Fixture {
         let result: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 self.tenant,
                 TENANT_INSPECTION_METHOD,

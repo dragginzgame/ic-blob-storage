@@ -93,7 +93,7 @@ fn rejects_conflicts(
 fn release(f: &Fixture, upload: ic_blob_storage_contracts::dto::reference::ReferenceUpload) {
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_candid::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",
@@ -148,7 +148,7 @@ fn signed_attestation_recovery_preserves_lost_reply_conflicts_and_settled_restor
     // Deliberately discard the mutation acknowledgment, as a worker with a lost reply must.
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+        .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
             f.service,
             f.operator,
             "blob_attest_upload",

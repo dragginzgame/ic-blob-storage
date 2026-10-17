@@ -21,7 +21,7 @@ impl Fixture {
     ) -> Result<LocalServiceStatus, LocalStatusFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 LOCAL_STATUS_METHOD,
@@ -87,7 +87,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     let replicated: Result<LocalServiceStatus, LocalStatusFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             LOCAL_STATUS_METHOD,
@@ -102,7 +102,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -133,7 +133,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_revoke_upload",

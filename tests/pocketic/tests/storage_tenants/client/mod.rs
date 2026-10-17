@@ -39,7 +39,7 @@ fn fixture(operator_client: bool) -> (Fixture, Principal) {
 fn saved(f: &Fixture, client: Principal) -> Option<TenantUpdateRequest> {
     f.harness
         .pic
-        .query_candid_as::<Result<Option<TenantUpdateRequest>, ConsumerFailure>, _>(
+        .query_candid::<Result<Option<TenantUpdateRequest>, ConsumerFailure>, _>(
             client,
             f.controller,
             "fixture_tenant_command",
@@ -52,7 +52,7 @@ fn saved(f: &Fixture, client: Principal) -> Option<TenantUpdateRequest> {
 fn inspect(f: &Fixture, client: Principal) -> TenantEnrollmentResponse {
     f.harness
         .pic
-        .update_candid_as::<Result<TenantEnrollmentResponse, ConsumerFailure>, _>(
+        .update_candid::<Result<TenantEnrollmentResponse, ConsumerFailure>, _>(
             client,
             f.controller,
             "fixture_inspect_tenant",
@@ -69,7 +69,7 @@ fn dispatch(
 ) -> Result<TenantEnrollmentResponse, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             client,
             f.controller,
             "fixture_update_tenant",
@@ -101,7 +101,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
         let denied: Result<TenantEnrollmentResponse, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 client,
                 f.other,
                 "fixture_update_tenant",
@@ -205,7 +205,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
     let query: Result<TenantEnrollmentResponse, ConsumerFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             client,
             f.controller,
             "fixture_query_tenant",
@@ -237,7 +237,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
     let foreign: Result<TenantEnrollmentResponse, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             client,
             f.controller,
             "fixture_inspect_tenant",

@@ -15,7 +15,7 @@ use ic_testkit::{
 };
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    pic.query_candid_as(canister, caller, "usage", (), REPLY_LIMITS)
+    pic.query_candid(canister, caller, "usage", (), REPLY_LIMITS)
         .expect("usage query")
 }
 
@@ -27,7 +27,7 @@ fn live(
     service: Principal,
     tenant: Principal,
 ) -> Option<bool> {
-    pic.query_candid_as(
+    pic.query_candid(
         canister,
         caller,
         "reference_live",
@@ -38,12 +38,12 @@ fn live(
 }
 
 fn release(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    pic.update_candid_as(canister, caller, "release", (root,), REPLY_LIMITS)
+    pic.update_candid(canister, caller, "release", (root,), REPLY_LIMITS)
         .expect("release update")
 }
 
 fn pending(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    pic.query_candid_as(canister, caller, "pending", (), REPLY_LIMITS)
+    pic.query_candid(canister, caller, "pending", (), REPLY_LIMITS)
         .expect("pending query")
 }
 
@@ -95,12 +95,12 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
         assert_eq!(pending(pic, canister, caller), None);
     }
     let denied: bool = pic
-        .update_candid_as(canister, first, "revoke_gateway", (), REPLY_LIMITS)
+        .update_candid(canister, first, "revoke_gateway", (), REPLY_LIMITS)
         .expect("operator denial");
     assert!(!denied);
     assert_eq!(pending(pic, canister, gateway), Some(vec![1]));
     let revoked: bool = pic
-        .update_candid_as(canister, controller, "revoke_gateway", (), REPLY_LIMITS)
+        .update_candid(canister, controller, "revoke_gateway", (), REPLY_LIMITS)
         .expect("operator revocation");
     assert!(revoked);
     assert_eq!(pending(pic, canister, gateway), None);

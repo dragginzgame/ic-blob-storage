@@ -83,7 +83,7 @@ impl Fixture {
     fn resources(&self, caller: Principal, limit: usize) -> Result<Vec<ExecutionProfile>, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 caller,
                 "resources",

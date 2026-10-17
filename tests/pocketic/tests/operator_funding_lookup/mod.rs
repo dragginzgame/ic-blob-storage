@@ -159,7 +159,7 @@ fn old_backup_absence_cannot_erase_a_receipt_or_authorize_another_transfer() {
     let result: Result<FundingObservation, FundingFailure> = f
         .harness
         .pic
-        .update_candid_as(f.sender, f.driver, "fund", (original,), REPLY_LIMITS)
+        .update_candid(f.sender, f.driver, "fund", (original,), REPLY_LIMITS)
         .unwrap();
     assert_eq!(result, Err(FundingFailure::Fenced));
     assert!(
@@ -229,7 +229,7 @@ fn live_lookup_observes_pending_then_original_completion_without_repeating_it() 
         let result: Result<FundingLookupView, FundingLookupFailure> = f
             .harness
             .pic
-            .query_candid_as(f.sender, f.driver, "lookup_funding", (query,), REPLY_LIMITS)
+            .query_candid(f.sender, f.driver, "lookup_funding", (query,), REPLY_LIMITS)
             .unwrap();
         if result.unwrap().state == FundingLookupState::Pending {
             pending = true;

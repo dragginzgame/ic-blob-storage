@@ -198,7 +198,7 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -245,7 +245,7 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
     p.upload.object = 99;
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -256,7 +256,7 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
         .unwrap();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",

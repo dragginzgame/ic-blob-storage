@@ -38,7 +38,7 @@ pub(crate) fn cancelled_totals(
     use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
     use ic_testkit::pic::CandidCallExt;
     let status = pic
-        .query_candid_as::<Result<LocalServiceStatus, LocalStatusFailure>, _>(
+        .query_candid::<Result<LocalServiceStatus, LocalStatusFailure>, _>(
             scope.service,
             operator,
             "blob_local_status",

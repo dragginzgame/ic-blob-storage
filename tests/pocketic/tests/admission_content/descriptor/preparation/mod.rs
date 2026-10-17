@@ -69,7 +69,7 @@ fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
     let inspect = || -> Result<Option<RetainedDescriptor>, Failure> {
         f.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 f.project,
                 "retained_content_descriptor",

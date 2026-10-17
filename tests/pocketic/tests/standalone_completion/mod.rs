@@ -6,7 +6,7 @@ fn verification_manifest(f: &Fixture, manifest: &UploadManifestRequest) {
         let response: Result<UploadManifestResponse, UploadManifestFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 actor,
                 "blob_verification_manifest",
@@ -36,7 +36,7 @@ fn plan_refuses(f: &Fixture, permission: UploadAdmissionRequest, fenced: bool) {
         let result: Result<UploadVerificationPlan, UploadAttestationFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 actor,
                 "blob_verification_plan",
@@ -70,7 +70,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     let manifest = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -92,7 +92,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
         let result: Result<UploadAttestationMutation, UploadAttestationFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 actor,
                 "blob_attest_upload",
@@ -105,7 +105,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     let result: Result<UploadAttestationMutation, UploadAttestationFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             verifier,
             "blob_attest_upload",
@@ -136,7 +136,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     let result: Result<UploadAttestationMutation, UploadAttestationFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             verifier,
             "blob_attest_upload",
@@ -154,7 +154,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
         let result: Result<UploadAttestationResponse, UploadAttestationFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 actor,
                 "blob_upload_attestation",

@@ -20,7 +20,7 @@ fn fetch(
 ) -> Result<ReferenceReceiptLookup, ReferenceProbeFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "fixture_fetch_reference_receipt",
@@ -146,7 +146,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
     let denied: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.other,
             "fixture_fetch_reference_receipt",
@@ -158,7 +158,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
     let query: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.tenant,
             f.operator,
             "fixture_nonreplicated_reference_receipt",

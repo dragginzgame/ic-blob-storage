@@ -5,7 +5,7 @@ use crate::support::REPLY_LIMITS;
 fn observe(f: &Fixture, actor: Principal) -> Result<RestorationResources, Failure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "restoration_resources", (), REPLY_LIMITS)
+        .query_candid(f.service, actor, "restoration_resources", (), REPLY_LIMITS)
         .unwrap()
 }
 

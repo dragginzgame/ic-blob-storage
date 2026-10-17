@@ -70,25 +70,25 @@ fn input(f: &Fixture, id: u8) -> Run {
 fn register(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "register", (input,), REPLY_LIMITS)
+        .update_candid(f.tenant, f.operator, "register", (input,), REPLY_LIMITS)
         .unwrap()
 }
 fn asset(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .query_candid_as(f.tenant, f.operator, "asset", (id,), REPLY_LIMITS)
+        .query_candid(f.tenant, f.operator, "asset", (id,), REPLY_LIMITS)
         .unwrap()
 }
 fn cancel(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "cancel", (id,), REPLY_LIMITS)
+        .update_candid(f.tenant, f.operator, "cancel", (id,), REPLY_LIMITS)
         .unwrap()
 }
 fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "release",
@@ -103,7 +103,7 @@ fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
 fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "recover",
@@ -115,7 +115,7 @@ fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFa
 fn use_asset(f: &Fixture, attach: bool) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "use_asset",
@@ -128,7 +128,7 @@ fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
     let value: Result<ReferenceReceiptLookup, ReferenceFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.tenant,
             "blob_reference_receipt",
@@ -159,7 +159,7 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
         let waiting: Result<bool, ConsumerFailure> = f
             .harness
             .pic
-            .query_candid_as(f.tenant, f.operator, "waiting", (), REPLY_LIMITS)
+            .query_candid(f.tenant, f.operator, "waiting", (), REPLY_LIMITS)
             .unwrap();
         if waiting.unwrap() {
             held = true;
@@ -180,7 +180,7 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
     let resumed: Result<(), ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "resume", (), REPLY_LIMITS)
+        .update_candid(f.tenant, f.operator, "resume", (), REPLY_LIMITS)
         .unwrap();
     resumed.unwrap();
     let result: Result<AssetView, ConsumerFailure> =
@@ -323,7 +323,7 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
     let denied: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(f.tenant, f.other, "register", (&first,), REPLY_LIMITS)
+        .update_candid(f.tenant, f.other, "register", (&first,), REPLY_LIMITS)
         .unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);

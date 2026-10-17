@@ -82,7 +82,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
     let permission = manifest.permission;
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -114,7 +114,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
     f.harness.pic.stop_live();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",

@@ -11,7 +11,7 @@ use ic_blob_storage_contracts::dto::upload::completion::*;
 fn inspect(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestationResponse {
     f.harness
         .pic
-        .query_candid_as::<Result<_, UploadAttestationFailure>, _>(
+        .query_candid::<Result<_, UploadAttestationFailure>, _>(
             f.service,
             f.tenant,
             "blob_upload_attestation",
@@ -28,7 +28,7 @@ fn attest(
 ) -> Result<UploadAttestationMutation, UploadAttestationFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             caller,
             "blob_attest_upload",
@@ -48,7 +48,7 @@ fn check_write_rollback(f: &Fixture, statement: &UploadAttestationRequest) {
         let result = f
             .harness
             .pic
-            .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+            .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
                 f.service,
                 f.operator,
                 "attest_with_write_trap",
@@ -105,7 +105,7 @@ fn verifier_attestation_rolls_back_replays_without_resurrection_and_survives_res
     let released: Result<ReferenceMutationResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_apply_reference",

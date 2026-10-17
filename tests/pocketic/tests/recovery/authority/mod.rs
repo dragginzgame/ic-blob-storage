@@ -18,7 +18,7 @@ impl Fixture {
         let result: Option<AuthorityArchiveView> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 self.authority_operator,
                 "authority_archive",
@@ -32,7 +32,7 @@ impl Fixture {
         let accepted: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.authority_operator,
                 "confirm_obligation",
@@ -56,7 +56,7 @@ impl Fixture {
         > = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.authority_operator,
                 "probe_content",
@@ -105,14 +105,14 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
     let released: bool = f
         .harness
         .pic
-        .update_candid_as(f.service, f.first, "release", (1_u8,), REPLY_LIMITS)
+        .update_candid(f.service, f.first, "release", (1_u8,), REPLY_LIMITS)
         .unwrap();
     assert!(released);
     f.sample_fact(ObligationProbeFact::Deleted);
     let sample_cancel: bool = f
         .harness
         .pic
-        .update_candid_as(f.service, f.first, "cancel_upload", (11_u8,), REPLY_LIMITS)
+        .update_candid(f.service, f.first, "cancel_upload", (11_u8,), REPLY_LIMITS)
         .unwrap();
     assert!(sample_cancel);
     let archive = f.archive();
@@ -211,7 +211,7 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     let armed: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "journey_arm_read_callback_trap",
@@ -235,7 +235,7 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.operator, "resume_read", (), REPLY_LIMITS)
+        .update_candid(f.gateway, f.operator, "resume_read", (), REPLY_LIMITS)
         .unwrap();
     assert!(resumed);
     let error = f
@@ -248,7 +248,7 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     let revoked: bool = f
         .harness
         .pic
-        .update_candid_as(f.service, f.operator, "revoke_gateway", (), REPLY_LIMITS)
+        .update_candid(f.service, f.operator, "revoke_gateway", (), REPLY_LIMITS)
         .unwrap();
     assert!(revoked);
     let after = f.archive();
@@ -275,14 +275,14 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
         let denied: Option<AuthorityArchiveView> = f
             .harness
             .pic
-            .query_candid_as(f.service, caller, "authority_archive", (), REPLY_LIMITS)
+            .query_candid(f.service, caller, "authority_archive", (), REPLY_LIMITS)
             .unwrap();
         assert!(denied.is_none());
     }
     let initial: Option<AuthorityArchiveView> = f
         .harness
         .pic
-        .query_candid_as(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
+        .query_candid(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
         .unwrap();
     assert!(initial.is_some());
     let f = Fixture::new();
@@ -384,7 +384,7 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
         let value: Option<AuthorityArchiveView> = f
             .harness
             .pic
-            .query_candid_as(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
+            .query_candid(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
             .unwrap();
         value.unwrap()
     };
@@ -398,13 +398,13 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
         let configured: bool = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.operator, "configure", (mode,), REPLY_LIMITS)
+            .update_candid(f.gateway, f.operator, "configure", (mode,), REPLY_LIMITS)
             .unwrap();
         assert!(configured);
         let result: Result<(), SyncFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.gateway,
                 f.operator,
                 "run_sync",

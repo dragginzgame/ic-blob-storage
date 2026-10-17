@@ -27,7 +27,7 @@ fn live(f: &mut Fixture, receipt: &mut [String], status: &mut [String]) {
 fn apply(f: &Fixture, command: ReferenceCommand) {
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_candid::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",

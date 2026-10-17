@@ -37,7 +37,7 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
     let result: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "admit_with_growth",

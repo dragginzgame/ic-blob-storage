@@ -11,7 +11,7 @@ pub(super) fn withdraw(
 ) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "revoke",
@@ -27,7 +27,7 @@ pub(super) fn withdraw(
 fn recover_withdrawal(f: &Fixture) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "recover_revocation",
@@ -154,7 +154,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         let result: Result<UploadRevocationResponse, A> = f
             .harness
             .pic
-            .update_candid_as(f.service, actor, "blob_revoke_upload", (p,), REPLY_LIMITS)
+            .update_candid(f.service, actor, "blob_revoke_upload", (p,), REPLY_LIMITS)
             .unwrap();
         assert_eq!(result, Err(A::Denied));
     }
@@ -171,7 +171,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         let result: Result<UploadRevocationResponse, A> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 f.tenant,
                 "blob_revoke_upload",

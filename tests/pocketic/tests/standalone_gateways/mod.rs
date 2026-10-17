@@ -19,7 +19,7 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     let call = |actor, input| -> Result<GatewayRevocationResponse, Error> {
         f.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 actor,
                 GATEWAY_REVOCATION_METHOD,

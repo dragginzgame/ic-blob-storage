@@ -112,7 +112,7 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         let configured: bool = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
+            .update_candid(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
             .unwrap();
         assert!(configured);
         let before = f.journals();
@@ -125,7 +125,7 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
     let configured: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.driver,
             "configure",
@@ -166,7 +166,7 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
         let configured: bool = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
+            .update_candid(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
             .unwrap();
         assert!(configured);
         let before = f.journals();

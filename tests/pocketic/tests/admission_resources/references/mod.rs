@@ -31,7 +31,7 @@ fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
     let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.project,
             "blob_reference_capacity",

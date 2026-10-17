@@ -33,7 +33,7 @@ fn refresh(
 ) -> Result<GatewaySyncResponse, SyncError> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             actor,
             "blob_sync_gateways",
@@ -45,7 +45,7 @@ fn refresh(
 fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             actor,
             "blob_cancel_gateway_sync",
@@ -61,7 +61,7 @@ pub(super) fn mode(f: &Fixture, selected: SourceMode) {
     assert!(
         f.harness
             .pic
-            .update_candid_as::<bool, _>(
+            .update_candid::<bool, _>(
                 f.config.billing.cashier,
                 f.controller,
                 "configure",

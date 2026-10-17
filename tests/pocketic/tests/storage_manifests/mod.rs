@@ -21,7 +21,7 @@ fn inspect(
 ) -> Result<UploadManifestResponse, F> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             UPLOAD_MANIFEST_INSPECT_METHOD,
@@ -37,7 +37,7 @@ fn prepare(
 ) -> Result<UploadManifestMutation, F> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             actor,
             UPLOAD_MANIFEST_PREPARE_METHOD,

@@ -18,7 +18,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let saved: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.uploader,
                 f.operator,
                 "save_manifest",
@@ -49,7 +49,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             let waiting: Result<bool, ConsumerFailure> = f
                 .harness
                 .pic
-                .query_candid_as(f.uploader, f.operator, "waiting", (), REPLY_LIMITS)
+                .query_candid(f.uploader, f.operator, "waiting", (), REPLY_LIMITS)
                 .unwrap();
             if waiting.unwrap() {
                 held = true;
@@ -65,7 +65,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let withdrawn: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.uploader,
                 f.operator,
                 "cancel_manifest",
@@ -84,7 +84,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let resumed: Result<(), ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(f.uploader, f.operator, "resume", (), REPLY_LIMITS)
+            .update_candid(f.uploader, f.operator, "resume", (), REPLY_LIMITS)
             .unwrap();
         resumed.unwrap();
         let late: Result<ManifestIntentView, ConsumerFailure> =
@@ -95,7 +95,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let retry: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.uploader,
                 f.operator,
                 "dispatch_manifest",
@@ -110,7 +110,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let saved: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.uploader,
                 f.operator,
                 "save_manifest",

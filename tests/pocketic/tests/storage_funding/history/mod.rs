@@ -13,7 +13,7 @@ impl Fixture {
     fn funding_history(&self, actor: Principal, input: Input) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "blob_funding_history",
@@ -150,7 +150,7 @@ fn check_recovered_request(f: &Fixture, recovered: Intent) {
     let wire: Result<blob_test_protocol::storage::funding::Request, Failure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.operator,
             "funding_request",

@@ -45,7 +45,7 @@ impl Fixture {
         let response: Result<UploadDiscoveryResponse, DiscoveryFailure> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "blob_lookup_content",
@@ -66,7 +66,7 @@ impl Fixture {
     ) -> Result<Option<ContentDescriptor>, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "content_descriptor",
@@ -82,7 +82,7 @@ impl Fixture {
     ) -> Result<Option<RetainedDescriptor>, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "retained_content_descriptor",
@@ -94,7 +94,7 @@ impl Fixture {
     fn scan(&self, actor: Principal, input: ScanInput) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "blob_upload_history",
