@@ -2,6 +2,9 @@
 
 ## [0.32.0]
 
+- Encode manifest and verification-plan reply fixtures with the current CBOR
+  codec, restoring success, binding, budget and remote-error assertions. Keep
+  malformed-payload coverage on valid CBOR with an incompatible field shape.
 - Update PocketIC typed Candid calls for Testkit 0.51, preserving explicit
   callers, reply-decoding budgets and application errors. Qualify the affected
   test package and seven installed cases on the current published graph;

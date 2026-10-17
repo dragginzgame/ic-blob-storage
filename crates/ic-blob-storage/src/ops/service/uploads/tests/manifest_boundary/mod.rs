@@ -9,6 +9,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::*;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError as E;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
+use ic_blob_storage_contracts::wire;
 use std::num::NonZeroUsize;
 
 pub(super) fn input() -> UploadManifestRequest {
@@ -59,7 +60,7 @@ fn observation(input: &UploadManifestRequest) -> UploadManifestResponse {
     }
 }
 fn encoded(response: UploadManifestResponse) -> Vec<u8> {
-    candid::encode_one(Ok::<_, UploadManifestFailure>(response)).unwrap()
+    wire::encode(Ok::<_, UploadManifestFailure>(response)).unwrap()
 }
 #[test]
 fn manifest_boundary_preserves_original_declaration_and_exact_permission_through_retirement_and_restore()
@@ -238,7 +239,7 @@ fn manifest_reply_bounds_identity_consistency_and_explicit_preparation() {
         observation: response,
         changed: true,
     };
-    let bytes = candid::encode_one(Ok::<_, UploadManifestFailure>(mutation.clone())).unwrap();
+    let bytes = wire::encode(Ok::<_, UploadManifestFailure>(mutation.clone())).unwrap();
     let mut equivalent = input.clone();
     equivalent.declaration.headers.reverse();
     assert_eq!(reply::mutation(&equivalent, &bytes, limits()), Ok(mutation));
@@ -250,13 +251,13 @@ fn manifest_reply_bounds_identity_consistency_and_explicit_preparation() {
         reply::inspection(input.permission, &encoded(absent.clone()), limits()),
         Ok(absent.clone())
     );
-    let bytes = candid::encode_one(Ok::<_, UploadManifestFailure>(UploadManifestMutation {
+    let bytes = wire::encode(Ok::<_, UploadManifestFailure>(UploadManifestMutation {
         observation: absent,
         changed: false,
     }))
     .unwrap();
     assert_eq!(reply::mutation(&input, &bytes, limits()), Err(E::Invalid));
-    let bytes = candid::encode_one(Err::<UploadManifestResponse, _>(
+    let bytes = wire::encode(Err::<UploadManifestResponse, _>(
         UploadManifestFailure::Revoked,
     ))
     .unwrap();
@@ -268,17 +269,17 @@ fn manifest_reply_bounds_identity_consistency_and_explicit_preparation() {
 
 #[test]
 fn manifest_reply_rejects_incompatible_prepared_payload_instead_of_reporting_absence() {
-    #[derive(candid::CandidType)]
+    #[derive(serde::Serialize)]
     enum MalformedInspection {
         Prepared(u64),
     }
-    #[derive(candid::CandidType)]
+    #[derive(serde::Serialize)]
     struct MalformedResponse {
         permission: UploadAdmissionRequest,
         manifest: MalformedInspection,
     }
     let input = input();
-    let bytes = candid::encode_one(Ok::<_, UploadManifestFailure>(MalformedResponse {
+    let bytes = wire::encode(Ok::<_, UploadManifestFailure>(MalformedResponse {
         permission: input.permission,
         manifest: MalformedInspection::Prepared(1),
     }))

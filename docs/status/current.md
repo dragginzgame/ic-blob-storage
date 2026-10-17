@@ -2,6 +2,16 @@
 
 Date: 2026-10-17
 
+## Manifest and verification reply fixtures repaired — pending 0.32.0
+
+The two reported native failures used stale Candid success packets against CBOR
+decoders. Their fixtures now use the canonical current encoder; the adjacent
+malformed-payload test also uses CBOR so it exercises the incompatible field
+shape. All six cases in the affected modules and strict core Clippy pass.
+Production codecs, authority checks, manifests and lock are unchanged. Raw logs
+and the incoming source snapshot remain at
+`.tmp/review-validation/reply-fixtures0320/`. No full CI or release ran.
+
 ## Testkit 0.51 caller repair — pending 0.32.0
 
 All 250 affected typed Candid test calls use Testkit's renamed methods with the

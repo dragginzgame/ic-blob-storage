@@ -3,6 +3,7 @@ use crate::workflow::uploads::completion::verification_plan;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::upload::completion::verification::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
+use ic_blob_storage_contracts::wire;
 #[test]
 fn verification_plan_binds_installed_provider_and_only_exposed_unfenced_work() {
     let m = memory();
@@ -87,9 +88,8 @@ fn verification_plan_decoder_checks_scope_declaration_and_budgets() {
                 max_header_bytes: 1024.try_into().unwrap(),
             },
     };
-    let encoded = |p: &UploadVerificationPlan| {
-        candid::encode_one(Ok::<_, UploadAttestationFailure>(p)).unwrap()
-    };
+    let encoded =
+        |p: &UploadVerificationPlan| wire::encode(Ok::<_, UploadAttestationFailure>(p)).unwrap();
     assert_eq!(
         reply::decode(authority(), plan.permission, &encoded(&plan), limits),
         Ok(plan.clone())
@@ -122,7 +122,7 @@ fn verification_plan_decoder_checks_scope_declaration_and_budgets() {
         reply::decode(authority(), plan.permission, b"DIDL", limits),
         Err(E::Invalid)
     );
-    let denied = candid::encode_one(Err::<UploadVerificationPlan, _>(
+    let denied = wire::encode(Err::<UploadVerificationPlan, _>(
         UploadAttestationFailure::Denied,
     ))
     .unwrap();
