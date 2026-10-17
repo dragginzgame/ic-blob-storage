@@ -79,10 +79,15 @@ impl Harness {
     }
 
     pub fn with_builder(builder: PocketIcBuilder) -> Self {
-        let PocketIcInstance { instance, server } =
-            PocketIcStartupConfig::spawn(fixture_path("POCKET_IC_BIN"), Duration::from_secs(30))
-                .build_instance(builder)
-                .expect("start explicitly selected local server and instance");
+        let PocketIcInstance { instance, server } = PocketIcStartupConfig::Spawn {
+            server_binary: fixture_path("POCKET_IC_BIN"),
+            timeout: Duration::from_secs(30),
+            server_hard_ttl: None,
+            server_idle_ttl: None,
+            server_output_files: None,
+        }
+        .build_instance(builder)
+        .expect("start explicitly selected local server and instance");
         Self {
             pic: instance,
             _server: server,

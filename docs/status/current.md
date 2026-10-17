@@ -2,6 +2,21 @@
 
 Date: 2026-10-17
 
+## Testkit 0.52 startup repaired — pending 0.32.0
+
+The shared PocketIC harness constructs the explicit owned Spawn variant with the
+same selected binary, 30-second deadline, absent TTL/output settings and instance-
+before-server drop order. This repairs the single shared call behind eleven
+reported integration-target failures. No manifests, lock or endpoints changed.
+
+Focused Linux evidence passes: PocketIC package all-target/all-feature compilation,
+strict Clippy, actual Rust 1.91, fresh authority/funding Wasm, installed content
+verification and invalid-journal/failed-restore rollback. Both installed cases use
+the hash-admitted local 16.1.0 server selected by Testkit 0.52. Raw commands, logs,
+source before-image, inputs and artifact hashes remain under
+`.tmp/review-validation/testkit052-startup0320/`. Inputs remain unchanged; full CI
+and deployed provider/Canic behavior are not qualified. No release ran.
+
 ## Memory 0.48 probe journals repaired — pending 0.32.0
 
 All three private journal owners use explicit bounded creation, retained reopening

@@ -2,6 +2,8 @@
 
 ## [0.32.0]
 
+- Update the shared PocketIC harness for Testkit 0.52 startup configuration,
+  preserving explicit server selection, startup deadline and owned teardown.
 - Repair private probe journals for Memory 0.48: create only on installation,
   reopen retained cells with byte admission before loading, and bound writes.
   Preserve same-release history, corruption refusal and restore fences.
