@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.32.0]
+## [0.32.0] - 2026-10-17
 
 - Exercise refused backing growth through an independently leased probe allocation,
   preserving application rollback, neighbor bytes and exact retry coverage.
