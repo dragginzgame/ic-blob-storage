@@ -329,7 +329,7 @@ dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
  "ic-cdk",
- "ic-metrics",
+ "ic-metrics 0.12.0",
 ]
 
 [[package]]
@@ -1584,7 +1584,6 @@ dependencies = [
  "ic-build",
  "ic-host-artifacts 0.24.0",
  "ic-host-fs 0.24.0",
- "ic-host-process 0.23.1",
  "ic-host-process 0.24.0",
  "ic-testkit",
  "libc",
@@ -1640,14 +1639,14 @@ dependencies = [
 
 [[package]]
 name = "ic-build"
-version = "0.11.1"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cf635215df5f8c6aea4b6c04c8bf4db24c5278a11ce6c7e475e9d901937460ac"
+checksum = "37ce052cd95c403415a36fafbe33c3ea872fcef02a29a65b871bfd2effcde425"
 dependencies = [
  "cargo_metadata",
- "ic-host-artifacts 0.23.1",
- "ic-host-fs 0.23.1",
- "ic-host-process 0.23.1",
+ "ic-host-artifacts 0.24.0",
+ "ic-host-fs 0.24.0",
+ "ic-host-process 0.24.0",
  "libc",
  "rustix",
  "serde",
@@ -1858,6 +1857,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be80caab63d3384a0b46e58d92720095b49099cd9a0026514da0860eb5b0626b"
 
 [[package]]
+name = "ic-metrics"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c30a384477a9783da95cd991e576f6f6a76c5d3691299fffe294f95affae3fd7"
+
+[[package]]
 name = "ic-stable-structures"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1877,7 +1882,7 @@ dependencies = [
  "ic-host-artifacts 0.23.1",
  "ic-host-fs 0.23.1",
  "ic-host-process 0.23.1",
- "ic-metrics",
+ "ic-metrics 0.11.8",
  "ic-testkit-candid",
  "libc",
  "pocket-ic",
@@ -2243,9 +2248,9 @@ checksum = "c83bff1d572d6b9aeef67ddfc8448e4a3737909cb28e81f97c791b9018703e52"
 
 [[package]]
 name = "libc"
-version = "0.2.190"
+version = "0.2.191"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78"
+checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
 
 [[package]]
 name = "libredox"
