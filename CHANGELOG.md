@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.32.1]
+## [0.32.1] - 2026-10-17
 
 - Adopt Shared Tooling 0.23.0 and native Host 0.27.1 with matching IC Build 0.16.
   Keep IC tool setup/checks explicit after the common host/Rust tools, and select
