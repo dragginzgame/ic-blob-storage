@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.31.1]
+
+- Own the frozen published `ic-blob-storage 0.15.1` example-installation assessment
+  through the reviewed Shared Tooling installer, with Linux and both native macOS
+  lanes. This contributor qualification does not change current library or CLI
+  behavior; see [the assessment scope](docs/evidence/published-example-install.md).
+
 ## [0.31.0] - 2026-10-17
 
 - Share passive fixture query-command handling while retaining command-specific
