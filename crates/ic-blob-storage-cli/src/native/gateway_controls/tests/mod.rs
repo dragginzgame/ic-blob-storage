@@ -96,7 +96,7 @@ fn acknowledgments_validate_scope_principal_sequence_and_decoding_bounds() {
         scope: sync.scope,
         sequence: u64::MAX,
     };
-    let bytes = candid::encode_one(Ok::<_, SyncError>(reply)).unwrap();
+    let bytes = ic_blob_storage_contracts::wire::encode(Ok::<_, SyncError>(reply)).unwrap();
     assert_eq!(
         acknowledgment(&sync, &bytes).unwrap()["sequence"],
         u64::MAX.to_string()
@@ -105,7 +105,7 @@ fn acknowledgments_validate_scope_principal_sequence_and_decoding_bounds() {
     assert_eq!(
         acknowledgment(
             &sync,
-            &candid::encode_one(Ok::<_, SyncError>(reply)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, SyncError>(reply)).unwrap()
         ),
         Err(Failure::Binding)
     );
@@ -114,7 +114,7 @@ fn acknowledgments_validate_scope_principal_sequence_and_decoding_bounds() {
     assert_eq!(
         acknowledgment(
             &sync,
-            &candid::encode_one(Ok::<_, SyncError>(reply)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, SyncError>(reply)).unwrap()
         ),
         Err(Failure::InvalidReply)
     );
@@ -122,7 +122,7 @@ fn acknowledgments_validate_scope_principal_sequence_and_decoding_bounds() {
     assert_eq!(
         acknowledgment(
             &cancel,
-            &candid::encode_one(Ok::<_, SyncError>(())).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, SyncError>(())).unwrap()
         )
         .unwrap()["sequence"],
         u64::MAX.to_string()
@@ -139,7 +139,7 @@ fn acknowledgments_validate_scope_principal_sequence_and_decoding_bounds() {
     assert_eq!(
         acknowledgment(
             &revoke,
-            &candid::encode_one(Ok::<_, RevokeError>(reply)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, RevokeError>(reply)).unwrap()
         )
         .unwrap()["removed"],
         false
@@ -148,7 +148,7 @@ fn acknowledgments_validate_scope_principal_sequence_and_decoding_bounds() {
     assert_eq!(
         acknowledgment(
             &revoke,
-            &candid::encode_one(Ok::<_, RevokeError>(reply)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, RevokeError>(reply)).unwrap()
         ),
         Err(Failure::Binding)
     );
@@ -167,18 +167,30 @@ fn exact_wire_arguments_and_typed_refusals_preserve_current_contract() {
         let i = input(action);
         match action {
             Action::Sync => assert_eq!(
-                candid::decode_one::<OperatorScope>(&i.argument().unwrap()).unwrap(),
+                ic_blob_storage_contracts::wire::decode::<OperatorScope>(
+                    &i.argument().unwrap(),
+                    ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES
+                )
+                .unwrap(),
                 i.scope
             ),
             Action::Cancel(sequence) => assert_eq!(
-                candid::decode_one::<GatewaySyncCancellation>(&i.argument().unwrap()).unwrap(),
+                ic_blob_storage_contracts::wire::decode::<GatewaySyncCancellation>(
+                    &i.argument().unwrap(),
+                    ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES
+                )
+                .unwrap(),
                 GatewaySyncCancellation {
                     scope: i.scope,
                     sequence
                 }
             ),
             Action::Revoke(gateway) => assert_eq!(
-                candid::decode_one::<GatewayRevocationRequest>(&i.argument().unwrap()).unwrap(),
+                ic_blob_storage_contracts::wire::decode::<GatewayRevocationRequest>(
+                    &i.argument().unwrap(),
+                    ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES
+                )
+                .unwrap(),
                 GatewayRevocationRequest {
                     scope: i.scope,
                     gateway
@@ -190,7 +202,10 @@ fn exact_wire_arguments_and_typed_refusals_preserve_current_contract() {
     assert_eq!(
         acknowledgment(
             &sync,
-            &candid::encode_one(Err::<GatewaySyncResponse, _>(SyncError::Busy)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Err::<GatewaySyncResponse, _>(
+                SyncError::Busy
+            ))
+            .unwrap()
         ),
         Err(Failure::GatewaySyncRefused(SyncError::Busy))
     );
@@ -198,7 +213,10 @@ fn exact_wire_arguments_and_typed_refusals_preserve_current_contract() {
     assert_eq!(
         acknowledgment(
             &revoke,
-            &candid::encode_one(Err::<GatewayRevocationResponse, _>(RevokeError::Fenced)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Err::<GatewayRevocationResponse, _>(
+                RevokeError::Fenced
+            ))
+            .unwrap()
         ),
         Err(Failure::GatewayRevocationRefused(RevokeError::Fenced))
     );

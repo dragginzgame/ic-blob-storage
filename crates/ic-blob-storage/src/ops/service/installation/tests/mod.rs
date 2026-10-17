@@ -6,7 +6,7 @@ use crate::workflow::operator::inspect;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::{Storable, VectorMemory};
+use ic_stable_structures::{Storable, VectorMemory};
 
 const RELEASE: &str = "test-release";
 

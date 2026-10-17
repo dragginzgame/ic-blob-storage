@@ -14,12 +14,12 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.45.0 | Public memory types and explicit host runtime; new ledger format requires retirement/reinstallation |
+| IC Memory | 0.46.0 | Public host runtime and exclusive allocation leases; backing custody stays with the host |
 | IC Metrics (direct) | 0.12.0 | Private storage probe measurements; Testkit retains its own transitive selection |
 | IC Testkit | 0.50.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
 | IC Testkit Candid | 0.50.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
 | IC Host artifacts/fs/process/tools (direct) | 0.24.0 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.12.0 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
+| IC Build | 0.12.1 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -39,8 +39,8 @@ Published Host now owns whole-request and phased request-line/completion capture
 for native provider, signed-update and backpressure fixtures. This applies
 [PR #78](https://github.com/dragginzgame/ic-blob-storage/pull/78)'s payload locally
 with explicit native test-support features. Testkit 0.50 removes its old testing
-module and requires explicit reply limits on installed Candid calls. All 393
-fixture calls now supply the test-owned `support::REPLY_LIMITS`: 4 MiB wire,
+module and requires explicit reply limits on installed Candid calls. Retained Candid
+fixture calls supply the test-owned `support::REPLY_LIMITS`: 4 MiB wire,
 20 million decoding work, 1 million skipping work, 512 type entries and 64 KiB
 header. These finite local-fixture bounds cover status/history and byte-bearing
 probe replies; production clients retain their own narrower policies. No
@@ -94,10 +94,29 @@ before these repairs. Earlier
 [0.11/0.23 compilation success](evidence/content-hex-origins0310.md) retains its
 own graph and does not qualify this newer selection.
 
-Contracts owns explicit Candid configuration construction for itself, the core
-and native CLI. Each boundary retains byte/work/skipping/type/header choices,
-source authentication and error mapping; exact input decoding still checks
-argument exhaustion locally. Provider URL components use the already locked
+The initial [IC Wire adoption](evidence/icwire0320.md) declares the 0.3 registry
+line in Contracts for tenant inspection/update. Publication and the root lockfile
+entry are pending. A captured prepublication source snapshot (still identifying
+itself as 0.2.2) is used only in an ignored private consumer fixture; no tracked
+sibling/path override or provisional registry checksum is added. Candidate-source
+checks do not qualify the future published 0.3 package. Remaining CBOR methods
+still need conversion before freezing the service contract.
+
+The [0.32 incoming protocol](service-wire.md) still uses the already locked Ciborium
+0.2.2 through Contracts for unconverted CBOR methods and replies. Serde is explicit in
+the standalone and storage probe manifests. This codec adds no external selection. Incoming maintainer edits separately select
+Memory 0.46 and Build 0.12.1. Collection code names the already locked
+`ic-stable-structures` 0.7.2 directly after Memory removed its blanket substrate
+re-export; host backing types use Memory's supported root exports. Runtime leases
+remain host-owned, and this does not adopt a new collection engine or format. Core replicated clients, native packets and owned probe methods
+use that codec; Candid remains at provider, management and persisted-record owners.
+Canic must coordinate its endpoint emitters, raw callers and interface checks before
+adopting this hard cut. Its own integration results remain consumer-owned.
+
+Contracts retains explicit Candid decoder configuration for external provider
+contracts; owned service boundaries use the separate CBOR codec. Each provider
+boundary retains its byte/work/skipping/type/header choices, authentication and
+error mapping; exact CBOR inputs check byte/depth limits and exhaustion locally. Provider URL components use the already locked
 percent-encoding crate directly, with the original RFC 3986 unreserved set.
 
 Fixture hex decoding uses the already locked `hex` crate as a direct development
@@ -131,9 +150,10 @@ Testkit's separately installed CLI uses the published packaged lock; explicitly 
 `make install-testkit` then `make testkit-check` after changing its selection.
 Changing the application lock alone does not update the installed tool. Earlier
 [issue-repair qualification](evidence/integration0234.md#published-opener-and-native-ci-setup-repair)
-retains its original graph. Interface tests explicitly enable `candid-service`.
-Direct Host tools already disables default features; no Candid extraction
-feature is needed by Blob. Memory request factories return
+retains its original graph. Host 0.25 includes Candid service inspection without
+a feature; interface tests enable only `ic-interface` for Wasm export projection.
+Host Tools defaults are empty; disabling them no longer excludes Candid parsing.
+No Candid extraction feature is needed by Blob. Memory request factories return
 `MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
 to `SealedDeclarationSnapshot::new` before the single runtime bootstrap.
 No global registry or constructor is involved.
@@ -230,10 +250,10 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.45 requires 1.91 |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.46 requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The selected `ic-memory` 0.45 dependency requires Rust 1.91.0, which is now
+The selected `ic-memory` 0.46 dependency requires Rust 1.91.0, which is now
 the workspace's consumer floor. The harness inherits that same minimum.
 Earlier Rust 1.88 checks remain evidence for their original source and graphs;
 repeat checks with the declared minimum after source or dependency changes
@@ -371,7 +391,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.45 host-wide allocation pool and open
+compose all namespaces in one Memory 0.46 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -410,7 +430,7 @@ Blob 0.23 / Memory 0.36 family. Adding this Blob version directly to an applicat
 does not upgrade the adapter's types or its memory runtime. Do not combine the
 two graphs or substitute a path override as published integration evidence.
 
-**Current read-only review, 2026-10-16:** Canic HEAD
+**Read-only review, 2026-10-16:** Canic HEAD
 `600a831e0d8241796b70773ea8c4d8fbd63e422c` was clean at initial inspection;
 concurrent owner edits later changed its root lock/Host callers. Its Blob/Memory
 selections and both private locks remain as reviewed. The root

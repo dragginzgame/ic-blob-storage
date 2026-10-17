@@ -4,7 +4,8 @@ use crate::dto::upload::admission::UploadAdmissionRequest;
 use candid::CandidType;
 use candid::Deserialize;
 /// Original metadata spelling and value; the boundary does not rewrite either.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadManifestHeader {
     /// ASCII HTTP token, unique ignoring ASCII case.
     pub name: String,
@@ -12,7 +13,8 @@ pub struct UploadManifestHeader {
     pub value: String,
 }
 /// Ordered leaf hashes and metadata, never complete content or raw-digest evidence.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadManifestDeclaration {
     /// Ordered domain-separated chunk identities.
     pub chunks: Vec<[u8; 32]>,
@@ -20,7 +22,8 @@ pub struct UploadManifestDeclaration {
     pub headers: Vec<UploadManifestHeader>,
 }
 /// Save this complete intent before preparation dispatch; adapters bound ingress decoding.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadManifestRequest {
     /// Full original permission, including uploader and exclusive expiry.
     pub permission: UploadAdmissionRequest,
@@ -28,7 +31,8 @@ pub struct UploadManifestRequest {
     pub declaration: UploadManifestDeclaration,
 }
 /// Explicit absence prevents incompatible Candid optional data becoming unprepared.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadManifestInspection {
     /// No declaration is retained; this does not authorize repeating uncertain effects.
     Unprepared,
@@ -36,7 +40,8 @@ pub enum UploadManifestInspection {
     Prepared(UploadManifestDeclaration),
 }
 /// Authenticated historical observation, not issuance or publication authority.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadManifestResponse {
     /// Exact original permission.
     pub permission: UploadAdmissionRequest,
@@ -44,7 +49,8 @@ pub struct UploadManifestResponse {
     pub manifest: UploadManifestInspection,
 }
 /// Successful local preparation, with no provider call or file transfer.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadManifestMutation {
     /// Original accepted declaration, always Prepared.
     pub observation: UploadManifestResponse,
@@ -52,7 +58,8 @@ pub struct UploadManifestMutation {
     pub changed: bool,
 }
 /// Failed preparation/inspection; uncertainty must preserve the original intent.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadManifestFailure {
     /// Permission identity, authority, expiry, activation or restoration failure.
     Permission(UploadAdmissionFailure),

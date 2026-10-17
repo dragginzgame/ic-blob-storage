@@ -135,12 +135,12 @@ pub(super) async fn recover_for_upload(
 ) -> Result<Value, Failure> {
     let observed = bound_observation(options, input, permission, digest, gateway)?;
     let (service, method, argument) = observed.recovery.query();
-    run.bytes("attestation-query.candid", &argument)?;
+    run.bytes("attestation-query.cbor", &argument)?;
     let bytes = crate::native::query(options, service, method, argument).await?;
     if bytes.len() > 4096 {
         return Err(Failure::ReplyLimit);
     }
-    run.bytes("attestation-reply.candid", &bytes)?;
+    run.bytes("attestation-reply.cbor", &bytes)?;
     let inspection =
         observed
             .recovery
@@ -164,7 +164,7 @@ async fn dispatch(
             service: input.service,
             method: UPLOAD_ATTEST_METHOD,
             argument: &observed.statement,
-            argument_file: "statement.candid",
+            argument_file: "statement.cbor",
             directory: &input.directory.join("attestation"),
             reply_limit: SMALL_REPLY_BYTES,
         },

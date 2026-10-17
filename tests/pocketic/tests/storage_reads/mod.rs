@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod download;
 use blob_test_protocol::{
     admission::{
@@ -45,12 +46,12 @@ impl Fixture {
         let response: Result<UploadDiscoveryResponse, DiscoveryFailure> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 "blob_lookup_content",
-                (request,),
-                REPLY_LIMITS,
+                request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         response.map(|response| {
@@ -94,12 +95,12 @@ impl Fixture {
     fn scan(&self, actor: Principal, input: ScanInput) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 "blob_upload_history",
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }

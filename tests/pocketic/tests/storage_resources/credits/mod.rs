@@ -42,7 +42,7 @@ fn measured(
         &serde_json::json!({"result":format!("{reply:?}")}),
     );
     let reply = reply.unwrap();
-    retain_bytes(directory, &format!("{name}-reply.candid"), &reply);
+    retain_bytes(directory, &format!("{name}-reply.cbor"), &reply);
     let observation: FundingCreditResources = candid::decode_one(&reply).unwrap();
     retain(
         directory,
@@ -156,7 +156,7 @@ fn profile(directory: &Path, count: u32) {
         max_tenant_read_sessions: 1,
     })
     .unwrap();
-    retain_bytes(directory, "installation.candid", &installation);
+    retain_bytes(directory, "installation.cbor", &installation);
     harness.pic.install_canister(
         service,
         Fixture::wasm(),
@@ -208,11 +208,7 @@ fn profile(directory: &Path, count: u32) {
             }),
         );
         let reply = reply.unwrap();
-        retain_bytes(
-            directory,
-            &format!("population-{start}-reply.candid"),
-            &reply,
-        );
+        retain_bytes(directory, &format!("population-{start}-reply.cbor"), &reply);
         assert_eq!(
             candid::decode_one::<Result<(), Failure>>(&reply).unwrap(),
             Ok(())

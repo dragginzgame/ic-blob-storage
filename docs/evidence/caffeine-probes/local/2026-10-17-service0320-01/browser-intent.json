@@ -1,0 +1,23 @@
+{
+  "evidence_class": "local Chromium/PocketIC with substitute gateway only",
+  "purpose": "Qualify final saved-packet audit fixes and browser CBOR preparation/admission, preserving Candid consumer/provider fixture boundaries",
+  "source_files": {
+    "tests/pocketic/tests/storage_manifests/mod.rs": "ca490b4587250bbe007a4733a9abc198bac7f5e622492304295c36d2df961ed1",
+    "tests/pocketic/tests/storage_observe_cli/mod.rs": "0a9763248d67b11661588d632d9d4cee0a030f7e600cec29d3aea9e8b93c9a58",
+    "tests/pocketic/tests/storage_exposure/certificate/ingress/browser/mod.rs": "a85be20d9433c6c68e3f552684577bcc88e4e76f45a17f403447cab6673796cb",
+    "tests/pocketic/tests/storage_exposure/certificate/ingress/browser/admission/mod.rs": "b4299e0a312d69db5af98ed71c86a610d56344acf5b597b3c7c1d5bbce35d761",
+    "tests/browser/admission.js": "85d5308c3211135d820a36352cf9cf1867cb73c56f42e758239b9f694832a4c4",
+    "tests/browser/run.mjs": "046947f5bf26151c63f5a22a6f16e06ab972d1f24ab929c4ee7e329f72cfe99e"
+  },
+  "same_limits_as": "intent.json",
+  "selectors": [
+    "storage_manifests::",
+    "storage_observe_cli::",
+    "standalone_lifecycle::",
+    "storage_tenants::client::",
+    "chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation"
+  ],
+  "deployed_provider_requests": 0,
+  "paid_effects": 0,
+  "gateway": "private loopback synthetic server"
+}

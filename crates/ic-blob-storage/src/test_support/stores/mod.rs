@@ -2,7 +2,7 @@
 use crate::ops::service::stores::{
     ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores,
 };
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// Construct fixture owners in fresh exclusive memories.
 /// # Errors

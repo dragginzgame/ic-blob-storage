@@ -4,6 +4,7 @@ use blob_test_protocol::storage::reference::ReferenceFaultInput;
 use ic_blob_storage_contracts::dto::reference::*;
 use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod receipts;
 mod status;
 use blob_test_protocol::{
@@ -41,12 +42,12 @@ impl Fixture {
     ) -> Result<ReferenceMutationResponse, ReferenceFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 self.tenant,
                 REFERENCE_APPLY_METHOD,
-                (receipt_request(request),),
-                REPLY_LIMITS,
+                receipt_request(request),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -56,12 +57,12 @@ impl Fixture {
     ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 self.tenant,
                 REFERENCE_RECEIPT_METHOD,
-                (receipt_request(request),),
-                REPLY_LIMITS,
+                receipt_request(request),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -76,12 +77,12 @@ impl Fixture {
         let result: Result<ReferenceStatusResponse, ReferenceFailure> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 self.tenant,
                 "blob_reference_status",
-                (request,),
-                REPLY_LIMITS,
+                request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         result.map(|response| {
@@ -347,12 +348,12 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
         let denied: Result<ReferenceReceiptLookup, ReferenceFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 f.service,
                 f.controller,
                 REFERENCE_RECEIPT_METHOD,
-                (receipt_request(release),),
-                REPLY_LIMITS,
+                receipt_request(release),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(denied, Err(ReferenceFailure::Denied));

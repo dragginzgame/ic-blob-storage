@@ -21,17 +21,21 @@ fn update(
     agent: &Agent,
     service: Principal,
     method: &str,
-    argument: impl candid::CandidType,
+    argument: Vec<u8>,
 ) -> Result<Vec<u8>, ic_agent::AgentError> {
     runtime.block_on(
         agent
             .update(&service, method)
-            .with_arg(candid::encode_one(argument).unwrap())
+            .with_arg(argument)
             .call_and_wait(),
     )
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One signed two-user journey preserves identities through certificate refusal and restore"
+)]
 fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate_authority() {
     let mut f = Fixture::with_harness(Harness::with_builder(
         PocketIcBuilder::new()
@@ -65,23 +69,27 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             &tenant,
             f.service,
             "blob_admit_upload",
-            manifest.permission,
+            ic_blob_storage_contracts::wire::encode(manifest.permission).unwrap(),
         )
         .unwrap();
-        candid::decode_one::<Result<UploadAdmissionMutation, UploadAdmissionFailure>>(&admission)
-            .unwrap()
-            .unwrap();
+        ic_blob_storage_contracts::wire::decode::<
+            Result<UploadAdmissionMutation, UploadAdmissionFailure>,
+        >(&admission, 4096)
+        .unwrap()
+        .unwrap();
         let prepared = update(
             &runtime,
             uploader,
             f.service,
             "blob_prepare_upload",
-            manifest,
+            ic_blob_storage_contracts::wire::encode(manifest).unwrap(),
         )
         .unwrap();
-        candid::decode_one::<Result<UploadManifestMutation, UploadManifestFailure>>(&prepared)
-            .unwrap()
-            .unwrap();
+        ic_blob_storage_contracts::wire::decode::<
+            Result<UploadManifestMutation, UploadManifestFailure>,
+        >(&prepared, 4096)
+        .unwrap()
+        .unwrap();
     }
     // Actual signed callers cannot borrow another user's root or grant themselves a tenant role.
     for (index, uploader) in uploaders.iter().enumerate() {
@@ -91,7 +99,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
                 uploader,
                 f.service,
                 ISSUE,
-                root(&manifests[1 - index])
+                candid::encode_one(root(&manifests[1 - index])).unwrap()
             )
             .is_err()
         );
@@ -100,23 +108,41 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             uploader,
             f.service,
             "blob_admit_upload",
-            manifests[index].permission,
+            ic_blob_storage_contracts::wire::encode(manifests[index].permission).unwrap(),
         )
         .unwrap();
         assert_eq!(
-            candid::decode_one::<Result<UploadAdmissionMutation, UploadAdmissionFailure>>(&denied)
-                .unwrap(),
+            ic_blob_storage_contracts::wire::decode::<
+                Result<UploadAdmissionMutation, UploadAdmissionFailure>,
+            >(&denied, 4096)
+            .unwrap(),
             Err(UploadAdmissionFailure::Denied)
         );
     }
     for (manifest, uploader) in manifests.iter().zip(&uploaders) {
         let root = root(manifest);
-        let bytes = update(&runtime, uploader, f.service, ISSUE, &root).unwrap();
+        let bytes = update(
+            &runtime,
+            uploader,
+            f.service,
+            ISSUE,
+            candid::encode_one(&root).unwrap(),
+        )
+        .unwrap();
         let reply: CaffeineUploadCertificateResponse = candid::decode_one(&bytes).unwrap();
         assert_eq!(reply.method, "upload");
         assert_eq!(reply.blob_hash, root);
         // IC-Agent verifies the local IC certificate against the explicit emulator root.
-        assert!(update(&runtime, uploader, f.service, ISSUE, &root).is_err());
+        assert!(
+            update(
+                &runtime,
+                uploader,
+                f.service,
+                ISSUE,
+                candid::encode_one(&root).unwrap()
+            )
+            .is_err()
+        );
     }
     f.harness.pic.stop_live();
     for manifest in &manifests {
@@ -125,7 +151,8 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             UploadState::ExposurePossible
         );
     }
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     for manifest in &manifests {
         assert_eq!(
             inspect(&f, manifest.permission.uploader, &root(manifest)),

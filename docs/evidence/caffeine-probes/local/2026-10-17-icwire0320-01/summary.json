@@ -1,0 +1,151 @@
+{
+  "evidence_class": "local PocketIC candidate-source qualification, not published 0.3 or deployed provider evidence",
+  "candidate_source_manifest": ".tmp/review-validation/icwire0320/upstream-source.json",
+  "candidate_source_manifest_sha256": "c331b55bd736f469cccf85bb155da4a60833a5748608f62d687474894df042d1",
+  "consumer_input_manifest": ".tmp/review-validation/icwire0320/consumer-inputs.json",
+  "compiled_own_version": "0.31.0",
+  "pending_own_version": "0.32.0",
+  "requested_wire_publication": "0.3.0",
+  "candidate_wire_manifest_version": "0.2.2",
+  "published_package_qualified": false,
+  "registry_result": "no matching ic-wire package; root lock unchanged",
+  "surface_cases_passed": 10,
+  "installed_cases_passed": 9,
+  "results": [
+    {
+      "name": "surface",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        ".tmp/review-validation/icwire0320/consumer/Cargo.toml",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_installation_cli::deployment_surface_matches_catalog_and_provider_contract",
+        "--",
+        "--exact"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 17.11
+    },
+    {
+      "name": "installation",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        ".tmp/review-validation/icwire0320/consumer/Cargo.toml",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_installation_cli::standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service",
+        "--",
+        "--exact"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 4.59
+    },
+    {
+      "name": "admission-restore",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        ".tmp/review-validation/icwire0320/consumer/Cargo.toml",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_admission_manifest_and_restore_use_shared_authority",
+        "--",
+        "--exact"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 7.55
+    },
+    {
+      "name": "wire-ingress",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        ".tmp/review-validation/icwire0320/consumer/Cargo.toml",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_ingress::tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation",
+        "--",
+        "--exact"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 5.24
+    },
+    {
+      "name": "tenant-clients-policy",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        ".tmp/review-validation/icwire0320/consumer/Cargo.toml",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "storage",
+        "storage_tenants::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 6,
+      "seconds": 31.54
+    }
+  ],
+  "artifacts": {
+    "POCKET_IC_BIN": {
+      "path": "/home/adam/projects/ic-blob-storage/.tools/testkit-server/16.1.0-x86_64-linux/pocket-ic",
+      "sha256": "b44e1eccd66e02328146b3e209e3403e3a3428a25d25555aca2f67500e5ae9db"
+    },
+    "BLOB_CLI_BIN": {
+      "path": "/home/adam/projects/ic-blob-storage/target/debug/blob-storage",
+      "sha256": "e4771a1db49c7f74d182e5d1b79b2b69130700fa7e4dc0ae4dcf41cd056eb99a"
+    },
+    "BLOB_STANDALONE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/.tmp/review-validation/icwire0320/consumer/target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+      "sha256": "fb48931f3386f83f9870875ce3bfb2ce18f15c499b7a048de65b90dc8926ce04"
+    },
+    "BLOB_STORAGE_PROBE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/.tmp/review-validation/icwire0320/consumer/target/wasm32-unknown-unknown/release/blob_storage_probe.wasm",
+      "sha256": "5df306f589bc96dee1b190a2bed0dd56d50c32f97481c52a66492d2e4eabfeb7"
+    },
+    "BLOB_CONSUMER_PROBE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/.tmp/review-validation/icwire0320/consumer/target/wasm32-unknown-unknown/release/blob_consumer_probe.wasm",
+      "sha256": "aa956122a588b35904730f99aa84a87a97357f2016a963daed6ee1b2902a52c7"
+    }
+  },
+  "raw_checks": ".tmp/review-validation/icwire0320/checks-retry.json",
+  "deployed_provider_requests": 0,
+  "paid_effects": 0,
+  "external_cleanup_obligations": 0,
+  "remaining": "Resolve published 0.3 registry graph; convert remaining 29 owned methods and lifecycle before freezing 0.32.",
+  "native_cases_passed": 9,
+  "final_unit_checks": ".tmp/review-validation/icwire0320/final-unit-checks.json",
+  "registry_readback_log": ".tmp/review-validation/icwire0320/registry-final-readback.log"
+}

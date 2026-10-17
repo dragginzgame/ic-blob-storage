@@ -3,7 +3,6 @@ use crate::dto::reference::ReferenceUpload;
 use crate::dto::upload::UploadStatusFailure;
 use crate::dto::upload::UploadStatusResponse;
 use crate::upload::binding::UploadContext;
-use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 /// Reply refusal, never authority to repeat an uncertain upload.
@@ -49,9 +48,8 @@ pub fn decode(
     if bytes.len() > max.get() {
         return Err(UploadStatusReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(max.get()));
     let response: Result<UploadStatusResponse, UploadStatusFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| UploadStatusReplyError::Invalid)?;
+        crate::wire::decode(bytes, max.get()).map_err(|_| UploadStatusReplyError::Invalid)?;
     let response = response.map_err(UploadStatusReplyError::Remote)?;
     if response.upload != upload {
         return Err(UploadStatusReplyError::Binding);

@@ -7,6 +7,7 @@ use crate::{
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use ic_agent::{Identity, identity::BasicIdentity};
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
@@ -42,7 +43,11 @@ fn submission(receipt: &[String], directory: &Path) -> Vec<String> {
 }
 fn response(directory: &Path, failure: ReferenceFailure) {
     let value: Result<ReferenceMutationResponse, ReferenceFailure> =
-        candid::decode_one(&std::fs::read(directory.join("response.candid")).unwrap()).unwrap();
+        ic_blob_storage_contracts::wire::decode(
+            &std::fs::read(directory.join("response.cbor")).unwrap(),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+        )
+        .unwrap();
     assert_eq!(value, Err(failure));
     let outcome = read_json(&directory.join("outcome.json"));
     assert_eq!(outcome["outcome"], "refused");
@@ -60,7 +65,7 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
             service: f.service,
             actor: f.tenant,
             method: "blob_apply_reference",
-            argument_file: "request.candid",
+            argument_file: "request.cbor",
         },
         reply,
     );
@@ -97,7 +102,7 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
     change_native(
         &mut recover,
         "--request",
-        directory.join("request.candid").to_str().unwrap(),
+        directory.join("request.cbor").to_str().unwrap(),
     );
     let lookup = run(&recover, 3);
     assert_eq!(lookup["error"], "reference_unknown");
@@ -157,7 +162,8 @@ fn restored(
     mut current: ReferenceCommand,
 ) -> ReferenceCommand {
     f.harness.pic.stop_live();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let url = live(f);
     for args in [&mut *receipt, status] {
@@ -166,8 +172,8 @@ fn restored(
     }
     current.operation -= 1;
     std::fs::write(
-        directory.join("receipt.candid"),
-        candid::encode_one(current).unwrap(),
+        directory.join("receipt.cbor"),
+        ic_blob_storage_contracts::wire::encode(current).unwrap(),
     )
     .unwrap();
     phase_submission(
@@ -235,12 +241,12 @@ fn prepared(
     f.harness.pic.stop_live();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -286,8 +292,8 @@ fn journey(reply: Reply, label: &str) {
     let mut current = input;
     current.operation -= 1;
     std::fs::write(
-        dir.path().join("receipt.candid"),
-        candid::encode_one(current).unwrap(),
+        dir.path().join("receipt.cbor"),
+        ic_blob_storage_contracts::wire::encode(current).unwrap(),
     )
     .unwrap();
     phase_submission(
@@ -301,8 +307,8 @@ fn journey(reply: Reply, label: &str) {
     current.operation -= 1;
     current.action = ReferenceAction::Release;
     std::fs::write(
-        dir.path().join("receipt.candid"),
-        candid::encode_one(current).unwrap(),
+        dir.path().join("receipt.cbor"),
+        ic_blob_storage_contracts::wire::encode(current).unwrap(),
     )
     .unwrap();
     phase_submission(
@@ -324,8 +330,8 @@ fn journey(reply: Reply, label: &str) {
         current,
     );
     assert_eq!(
-        std::fs::read(dir.path().join("receipt.candid")).unwrap(),
-        candid::encode_one(current).unwrap()
+        std::fs::read(dir.path().join("receipt.cbor")).unwrap(),
+        ic_blob_storage_contracts::wire::encode(current).unwrap()
     );
     save(
         &report,

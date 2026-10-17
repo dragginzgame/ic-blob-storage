@@ -16,7 +16,7 @@ use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 fn exact<M: Memory>(
     store: &StableUploads<M>,

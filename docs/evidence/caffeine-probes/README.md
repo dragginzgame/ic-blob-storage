@@ -14,6 +14,44 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Matched tenant codec experiment — 2026-10-17
+
+The [intent](local/2026-10-17-wire-bench0320-01/intent.json),
+[summary](local/2026-10-17-wire-bench0320-01/summary.json) and
+[comparison](../wire-bench0320.md) record 180 successful measured local calls
+and 180 counter queries across exact released Candid, CBOR and the captured Wire
+candidate. An earlier successful current-DTO control remains separately retained;
+both runs total 360 measured calls and 360 counter queries.
+Exact bytes/native values match in all six cases. These are codec-only synthetic
+handlers, not Blob policy/storage, Canic or deployed-provider qualification.
+Preparation failures remain retained. Zero external requests/paid effects;
+the owned local server closes with no provider obligations or external cleanup.
+
+## Initial IC Wire tenant adoption — 2026-10-17
+
+The [intent](local/2026-10-17-icwire0320-01/intent.json),
+[summary](local/2026-10-17-icwire0320-01/summary.json) and
+[receipt](../icwire0320.md) record ten passing candidate-source surface cases,
+including nine installed cases for the tenant IC Wire boundary, policy and
+replicated clients. This is a frozen local prepublication snapshot, not published
+0.3 qualification or deployed provider evidence. No paid effects or external
+cleanup obligations were created. Remaining owned methods/lifecycle and the root
+registry lock still need adoption before freezing 0.32. Earlier CBOR evidence
+below retains its original scope.
+
+## Incoming service codec cut — 2026-10-17
+
+[The recorded intent](local/2026-10-17-service0320-01/intent.json) qualifies the
+pending 0.32 CBOR boundary against local PocketIC and substitute peers only.
+The provider-required certificate method remains Candid; no deployed provider
+requests, paid effects or external cleanup were performed. The
+[summary](local/2026-10-17-service0320-01/summary.json) and
+[receipt](../service0320.md) record 36 selected passing surface cases, including
+35 installed cases and ten Chromium scenarios within one case, at the settled
+Memory 0.46 / Build 0.12.1 graph. Failed attempts and intermediate graph results
+remain separately retained. Local fixture scopes close; earlier source/live
+evidence is unchanged. Canic and deployed provider acceptance remain unqualified.
+
 ## Capacity diagnostics and reduced consumer tooling — 2026-10-09
 
 The [intent](local/2026-10-09-capacity0210-01/intent.json),

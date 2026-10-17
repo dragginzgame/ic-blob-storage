@@ -6,6 +6,7 @@ use crate::{
     authenticated_cli::{PEM, run},
 };
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
     net::TcpListener,
@@ -37,7 +38,7 @@ fn arguments(
         "--namespace",
         &f.config.namespace.to_string(),
         "--request",
-        report.join("request.candid").to_str().unwrap(),
+        report.join("request.cbor").to_str().unwrap(),
         "--project",
         PROJECT,
         "--gateway",
@@ -70,12 +71,12 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     let permission = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission.permission,),
-            REPLY_LIMITS,
+            permission.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -91,8 +92,8 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
         reference: upload.first_reference,
     };
     std::fs::write(
-        report.join("request.candid"),
-        candid::encode_one(request).unwrap(),
+        report.join("request.cbor"),
+        ic_blob_storage_contracts::wire::encode(request).unwrap(),
     )
     .unwrap();
     std::fs::write(temp.path().join("identity.pem"), PEM).unwrap();
@@ -114,7 +115,8 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     ] {
         if label == "restored" {
             f.harness.pic.stop_progress();
-            f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+            f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+                .unwrap();
             f.harness.pic.auto_progress();
         }
         let directory = report.join(label);

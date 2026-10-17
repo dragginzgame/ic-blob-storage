@@ -7,6 +7,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityReques
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 const REFERENCES: u64 = 256;
 
@@ -31,12 +32,12 @@ fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
     let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             f.project,
             "blob_reference_capacity",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     let response = result.unwrap();

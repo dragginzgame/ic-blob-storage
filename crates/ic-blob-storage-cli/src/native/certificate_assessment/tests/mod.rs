@@ -46,9 +46,9 @@ fn arguments(p: UploadAdmissionRequest, path: &std::path::Path) -> Vec<String> {
 #[test]
 fn saved_permission_scope_and_uploader_are_checked_before_identity_or_transport() {
     let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("permission.candid");
+    let path = dir.path().join("permission.cbor");
     let p = permission();
-    let bytes = candid::encode_one(p).unwrap();
+    let bytes = ic_blob_storage_contracts::wire::encode(p).unwrap();
     std::fs::write(&path, &bytes).unwrap();
     let mut args = arguments(p, &path);
     let options = Options::parse(&args).unwrap();
@@ -90,7 +90,7 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
             assessed_at_ns: u64::MAX,
             blockers,
         };
-        let bytes = candid::encode_one(Ok::<_, E>(&response)).unwrap();
+        let bytes = ic_blob_storage_contracts::wire::encode(Ok::<_, E>(&response)).unwrap();
         let value = output(p, &bytes, &options).unwrap();
         assert_eq!(value["upload"]["object"], p.upload.object.to_string());
         assert_eq!(value["upload"]["bytes"], u64::MAX.to_string());
@@ -113,7 +113,11 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
     }
     let denied: Result<UploadCertificateAssessmentResponse, _> = Err(E::Revoked);
     assert_eq!(
-        output(p, &candid::encode_one(denied).unwrap(), &options),
+        output(
+            p,
+            &ic_blob_storage_contracts::wire::encode(denied).unwrap(),
+            &options
+        ),
         Err(Failure::AssessmentRefused(E::Revoked))
     );
 }

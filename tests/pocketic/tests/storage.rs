@@ -1,5 +1,6 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod authenticated_cli;
 mod browser_driver;
 mod install_code;
@@ -68,17 +69,12 @@ impl Fixture {
     fn local_status(&self) -> ic_blob_storage_contracts::dto::operator::LocalServiceStatus {
         self.harness
             .pic
-            .query_candid_as::<Result<_, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>, _>(
-                self.service,
-                self.operator,
-                ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD,
-                (ic_blob_storage_contracts::dto::operator::OperatorScope {
+            .query_blob_as::<Result<_, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>, _>(self.service, self.operator, ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD, ic_blob_storage_contracts::dto::operator::OperatorScope {
                     service: self.service,
                     namespace: 1,
                     cashier: self.operator,
                     payment_account: self.service,
-                },),
-             REPLY_LIMITS)
+                }, REPLY_LIMITS.reply_bytes)
             .unwrap()
             .unwrap()
     }
@@ -176,12 +172,12 @@ impl Fixture {
         > = self
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 "blob_admit_upload",
-                (admission_input(input),),
-                REPLY_LIMITS,
+                admission_input(input),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         result.map(|r| !r.replayed).map_err(admission_failure)
@@ -194,12 +190,12 @@ impl Fixture {
         > = self
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 self.uploader,
                 "blob_prepare_upload",
-                (self.preparation_input(input),),
-                REPLY_LIMITS,
+                self.preparation_input(input),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         result.map(|r| r.changed).map_err(|e| match e {
@@ -281,12 +277,12 @@ impl Fixture {
         > = self
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 self.tenant,
                 "blob_revoke_upload",
-                (admission_input(input),),
-                REPLY_LIMITS,
+                admission_input(input),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         result.map(|r| r.changed).map_err(admission_failure)
@@ -320,16 +316,16 @@ impl Fixture {
         let response: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 self.operator,
                 TENANT_UPDATE_METHOD,
-                (TenantUpdateRequest {
+                TenantUpdateRequest {
                     scope: self.tenant_scope(),
                     expected,
                     active,
-                },),
-                REPLY_LIMITS,
+                },
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         response.map(|v| {
@@ -342,12 +338,12 @@ impl Fixture {
         let result: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 self.tenant,
                 TENANT_INSPECTION_METHOD,
-                (self.tenant_scope(),),
-                REPLY_LIMITS,
+                self.tenant_scope(),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         let response = result.unwrap();

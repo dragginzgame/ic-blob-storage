@@ -1,5 +1,6 @@
 //! Actual replicated account queries over a passive source; no provider qualification.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod native_cli;
 use super::*;
 use blob_test_protocol::balance::BalanceSourceConfig;
@@ -92,12 +93,12 @@ fn inspect(
 ) -> Result<AccountInspectionResponse, AccountInspectionFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             actor,
             "blob_inspect_account",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
@@ -212,7 +213,8 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
         &f.harness.pic.get_stable_memory(input.scope.cashier),
         &source_before,
     );
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     assert_eq!(
         inspect(&f, f.operator, input),
         Err(AccountInspectionFailure::Fenced)
@@ -386,7 +388,8 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
         AccountObservation::Balance(_)
     ));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     assert_eq!(
         inspect(&f, f.operator, input),
         Err(AccountInspectionFailure::Fenced)

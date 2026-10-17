@@ -60,7 +60,7 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
             &mut driver,
             scenario == "success",
         );
-        let grant = serde_json::json!({ "permission": candid::encode_one(input.permission).unwrap(),
+        let grant = serde_json::json!({ "permission": ic_blob_storage_contracts::wire::encode(input.permission).unwrap(),
                 "consumer": admission::consumer_commands(&consumer) });
         driver.send(&grant);
         let report = driver.finish();

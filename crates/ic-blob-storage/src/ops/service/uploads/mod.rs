@@ -48,7 +48,7 @@ use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
-use ic_memory::ic_stable_structures::{BTreeMap, Memory};
+use ic_stable_structures::{BTreeMap, Memory};
 pub use lifecycle::ConfirmedUploadView;
 use std::num::NonZeroU64;
 use thiserror::Error;

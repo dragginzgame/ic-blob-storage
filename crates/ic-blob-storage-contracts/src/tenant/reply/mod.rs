@@ -6,7 +6,6 @@ use crate::dto::tenant::TenantScope;
 use crate::dto::tenant::TenantUpdateRequest;
 use crate::tenant::next_enrollment;
 use candid::Principal;
-use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 
@@ -73,9 +72,15 @@ pub fn inspection(
     if bytes.len() > max.get() {
         return Err(TenantReplyError::Limit);
     }
-    let config = crate::decoding::limits(100_000, 1024, 64, Some(max.get()));
     let result: Result<TenantEnrollmentResponse, TenantFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| TenantReplyError::Invalid)?;
+        crate::wire::tenant::decode_inspection_response(bytes)
+            .map_err(|_| TenantReplyError::Invalid)?;
+    observation(scope, result)
+}
+fn observation(
+    scope: TenantScope,
+    result: Result<TenantEnrollmentResponse, TenantFailure>,
+) -> Result<TenantEnrollmentResponse, TenantReplyError> {
     let observed = result.map_err(TenantReplyError::Remote)?;
     if observed.scope != scope {
         return Err(TenantReplyError::Binding);
@@ -96,7 +101,12 @@ pub fn mutation(
     max: NonZeroUsize,
 ) -> Result<TenantEnrollmentResponse, TenantReplyError> {
     let next = expected(input)?;
-    let observed = inspection(input.scope, bytes, max)?;
+    if bytes.len() > max.get() {
+        return Err(TenantReplyError::Limit);
+    }
+    let result = crate::wire::tenant::decode_update_response(bytes)
+        .map_err(|_| TenantReplyError::Invalid)?;
+    let observed = observation(input.scope, result)?;
     if observed.fenced || observed.enrollment != Some(next) {
         return Err(TenantReplyError::Invalid);
     }

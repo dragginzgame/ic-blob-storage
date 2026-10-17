@@ -82,11 +82,12 @@ impl ReplicatedTenantClient {
         max: NonZeroUsize,
     ) -> Result<TenantEnrollmentResponse, TenantClientError> {
         self.check(self.scope)?;
-        let response = client::call(
+        let response = client::call_raw(
             self.scope.service,
             TENANT_INSPECTION_METHOD,
             self.timeout,
-            self.scope,
+            &ic_blob_storage_contracts::wire::tenant::inspection_request(self.scope)
+                .map_err(|_| TenantClientError::NotEnqueued)?,
         )
         .await
         .map_err(|e| {
@@ -112,11 +113,12 @@ impl ReplicatedTenantClient {
     ) -> Result<TenantEnrollmentResponse, TenantClientError> {
         self.check(input.scope)?;
         reply::validate_update(input)?;
-        let response = client::call(
+        let response = client::call_raw(
             self.scope.service,
             TENANT_UPDATE_METHOD,
             self.timeout,
-            input,
+            &ic_blob_storage_contracts::wire::tenant::update_request(input)
+                .map_err(|_| TenantClientError::NotEnqueued)?,
         )
         .await
         .map_err(|e| {

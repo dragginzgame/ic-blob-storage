@@ -18,7 +18,7 @@ use crate::model::gateway::registry::record::MAX_MEMBERS;
 use candid::Principal;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::{BTreeMap, Memory};
+use ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 
 /// Passive operator inspection. Membership alone is not authenticated provider

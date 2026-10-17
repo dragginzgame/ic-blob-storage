@@ -10,7 +10,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 pub(crate) fn authorize<M: Memory>(
     store: &StableUploads<M>,

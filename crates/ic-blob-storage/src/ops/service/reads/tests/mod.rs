@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_memory::ic_stable_structures::{Storable, VectorMemory};
+use ic_stable_structures::{Storable, VectorMemory};
 use std::num::{NonZeroU64, NonZeroU128};
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])

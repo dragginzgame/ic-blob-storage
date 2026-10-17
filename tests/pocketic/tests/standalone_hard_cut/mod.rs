@@ -38,7 +38,7 @@ fn raw_configuration(f: &Fixture) -> Vec<u8> {
             f.service,
             f.operator,
             "blob_configuration",
-            candid::encode_args(()).unwrap(),
+            ic_blob_storage_contracts::wire::encode(()).unwrap(),
         )
         .unwrap()
 }
@@ -68,8 +68,110 @@ fn pinned_image() -> (serde_json::Value, Vec<u8>, String) {
     (pinned, old, old_hash)
 }
 
+// These calls target pinned Candid images, never the current service.
+fn frozen_update<T: candid::CandidType + serde::de::DeserializeOwned>(
+    f: &Fixture,
+    actor: Principal,
+    method: &str,
+    input: impl candid::CandidType,
+) -> T {
+    f.harness
+        .pic
+        .update_candid_as(f.service, actor, method, (input,), REPLY_LIMITS)
+        .unwrap()
+}
+fn frozen_admission(f: &Fixture, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
+    f.harness
+        .pic
+        .query_candid_as::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
+            f.service,
+            f.tenant,
+            "blob_upload_admission",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .unwrap()
+        .unwrap()
+}
+
 fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) {
-    standalone_lifecycle::confirm_and_release_locally(f);
+    use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
+    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
+    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
+    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+    frozen_update::<Result<TenantEnrollmentResponse, TenantFailure>>(
+        f,
+        f.operator,
+        "blob_update_tenant",
+        TenantUpdateRequest {
+            scope: f.scope(),
+            expected: None,
+            active: true,
+        },
+    )
+    .unwrap();
+    let manifest = f.small_manifest();
+    f.harness
+        .pic
+        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (manifest.permission,),
+            REPLY_LIMITS,
+        )
+        .unwrap()
+        .unwrap();
+    frozen_update::<Result<UploadManifestMutation, UploadManifestFailure>>(
+        f,
+        f.uploader,
+        "blob_prepare_upload",
+        &manifest,
+    )
+    .unwrap();
+    let _: CaffeineUploadCertificateResponse = f
+        .harness
+        .pic
+        .update_candid_as(
+            f.service,
+            f.uploader,
+            ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
+            (super::standalone_certificate::root(&manifest),),
+            REPLY_LIMITS,
+        )
+        .unwrap();
+    // This statement is a local verifier substitute, not a deployed byte observation.
+    f.harness
+        .pic
+        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+            f.service,
+            Fake::principal(90),
+            "blob_attest_upload",
+            (UploadAttestationRequest {
+                permission: manifest.permission,
+                content_digest: [1; 32],
+                observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
+            },),
+            REPLY_LIMITS,
+        )
+        .unwrap()
+        .unwrap();
+    f.harness
+        .pic
+        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+            f.service,
+            f.tenant,
+            "blob_apply_reference",
+            (ReferenceCommand {
+                upload: manifest.permission.upload,
+                reference: manifest.permission.upload.first_reference,
+                operation: 2,
+                action: ReferenceAction::Release,
+            },),
+            REPLY_LIMITS,
+        )
+        .unwrap()
+        .unwrap();
     let released = f.small_manifest().permission;
     let mut pending = f.manifest();
     pending.permission.upload.upload = 2;
@@ -86,7 +188,13 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
         )
         .unwrap()
         .unwrap();
-    f.prepare(f.uploader, &pending).unwrap();
+    frozen_update::<Result<UploadManifestMutation, UploadManifestFailure>>(
+        f,
+        f.uploader,
+        "blob_prepare_upload",
+        &pending,
+    )
+    .unwrap();
     (released, pending.permission)
 }
 
@@ -124,8 +232,8 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
         status.uploads.reserved_bytes,
         u128::from(pending.upload.bytes)
     );
-    let released_before = f.admission(released);
-    let pending_before = f.admission(pending);
+    let released_before = frozen_admission(&f, released);
+    let pending_before = frozen_admission(&f, pending);
     let before = f.harness.pic.get_stable_memory(f.service);
     assert!(before.len() <= 32 * 1024 * 1024);
     std::fs::write(report.join("before.bin"), &before).unwrap();
@@ -159,7 +267,7 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
         .upgrade_canister(
             f.service,
             target,
-            candid::encode_args(()).unwrap(),
+            ic_blob_storage_contracts::wire::encode(()).unwrap(),
             Some(f.controller),
         )
         .unwrap_err();
@@ -170,8 +278,8 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
     unchanged(&after, &before);
     assert_eq!(raw_configuration(&f), configuration);
     assert_eq!(raw_status(&f), raw);
-    assert_eq!(f.admission(released), released_before);
-    assert_eq!(f.admission(pending), pending_before);
+    assert_eq!(frozen_admission(&f, released), released_before);
+    assert_eq!(frozen_admission(&f, pending), pending_before);
     std::fs::write(
         report.join("summary.json"),
         serde_json::to_vec_pretty(&serde_json::json!({
@@ -216,16 +324,27 @@ fn single_uploader_installation_upgrade_refuses_without_losing_owner_or_obligati
         .unwrap();
     assert_eq!(installed.release, "0.18.4");
     let (released, pending) = obligations(&f);
-    let admissions = [f.admission(released), f.admission(pending)];
+    let admissions = [
+        frozen_admission(&f, released),
+        frozen_admission(&f, pending),
+    ];
     let status = raw_status(&f);
     let before = f.harness.pic.get_stable_memory(f.service);
-    let failure = f.upgrade(candid::encode_args(()).unwrap()).unwrap_err();
+    let failure = f
+        .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap_err();
     assert_eq!(failure.reject_code, RejectCode::CanisterError);
     let after = f.harness.pic.get_stable_memory(f.service);
     unchanged(&after, &before);
     assert_eq!(raw_configuration(&f), configuration);
     assert_eq!(raw_status(&f), status);
-    assert_eq!([f.admission(released), f.admission(pending)], admissions);
+    assert_eq!(
+        [
+            frozen_admission(&f, released),
+            frozen_admission(&f, pending)
+        ],
+        admissions
+    );
     for (name, bytes) in [
         ("installation.candid", init),
         ("configuration.candid", configuration),

@@ -117,9 +117,9 @@ impl Run {
         self.admit_directory()?;
         #[cfg(unix)]
         {
-            use ic_host_fs::durable::{PublicationMode, WriteOptions, write_at_with};
+            use ic_host_fs::durable::{PublicationMode, WriteOptions, write_at_validated_with};
             use std::{ffi::OsStr, os::fd::AsFd as _};
-            write_at_with(
+            write_at_validated_with(
                 self.directory.as_fd(),
                 OsStr::new(name),
                 WriteOptions {
@@ -127,6 +127,7 @@ impl Run {
                     permissions: 0o600,
                 },
                 produce,
+                |_| Ok(()),
             )
             .map_err(|_| Failure::File)
         }

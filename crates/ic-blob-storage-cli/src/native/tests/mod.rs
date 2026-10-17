@@ -114,7 +114,7 @@ fn parsed_command_requires_its_identity_role_and_refuses_the_other_flag() {
     );
     actor_args.extend([
         "--request".into(),
-        "request.candid".into(),
+        "request.cbor".into(),
         "--root-key".into(),
         "root.der".into(),
     ]);
@@ -185,7 +185,7 @@ fn status() -> LocalServiceStatus {
     }
 }
 fn encoded(s: &LocalServiceStatus) -> Vec<u8> {
-    candid::encode_one(Ok::<_, LocalStatusFailure>(s)).unwrap()
+    ic_blob_storage_contracts::wire::encode(Ok::<_, LocalStatusFailure>(s)).unwrap()
 }
 
 #[test]
@@ -222,7 +222,8 @@ fn bounded_decode_checks_scope_and_json_preserves_full_width_and_fences() {
     ] {
         assert_eq!(
             reply::decode(
-                &candid::encode_one(Err::<LocalServiceStatus, _>(error)).unwrap(),
+                &ic_blob_storage_contracts::wire::encode(Err::<LocalServiceStatus, _>(error))
+                    .unwrap(),
                 status.scope
             ),
             Err(failure)
@@ -302,7 +303,8 @@ fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
     value.funding.renewal_ceiling = 2000;
     value.funding.available_allocation = 700;
     value.funding.transport_accepted = 300;
-    let encoded = candid::encode_one(Ok::<_, LocalStatusFailure>(&value)).unwrap();
+    let encoded =
+        ic_blob_storage_contracts::wire::encode(Ok::<_, LocalStatusFailure>(&value)).unwrap();
     assert_eq!(reply::decode(&encoded, value.scope), Ok(value.clone()));
     for changed in [
         LocalFundingStatus {
@@ -355,7 +357,8 @@ fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
             funding: changed,
             ..value.clone()
         };
-        let encoded = candid::encode_one(Ok::<_, LocalStatusFailure>(altered)).unwrap();
+        let encoded =
+            ic_blob_storage_contracts::wire::encode(Ok::<_, LocalStatusFailure>(altered)).unwrap();
         assert_eq!(
             reply::decode(&encoded, value.scope),
             Err(Failure::InvalidReply)

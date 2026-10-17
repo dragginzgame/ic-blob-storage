@@ -51,7 +51,7 @@ fn args() -> Vec<String> {
 fn render(view: Option<&FundingOutcomeResponse>) -> Value {
     output(
         input(),
-        &candid::encode_one(Ok::<_, FundingOutcomeFailure>(view)).unwrap(),
+        &ic_blob_storage_contracts::wire::encode(Ok::<_, FundingOutcomeFailure>(view)).unwrap(),
         &Options::parse(&args()).unwrap(),
     )
     .unwrap()
@@ -164,7 +164,11 @@ fn exact_intent_conflict_binding_and_decode_failure_remain_observable() {
     let options = Options::parse(&args()).unwrap();
     let refused: Result<Option<FundingOutcomeResponse>, _> = Err(FundingOutcomeFailure::Conflict);
     assert_eq!(
-        output(input(), &candid::encode_one(refused).unwrap(), &options),
+        output(
+            input(),
+            &ic_blob_storage_contracts::wire::encode(refused).unwrap(),
+            &options
+        ),
         Err(Failure::FundingConflict)
     );
     let changed = FundingOutcomeResponse {
@@ -181,7 +185,8 @@ fn exact_intent_conflict_binding_and_decode_failure_remain_observable() {
     assert_eq!(
         output(
             input(),
-            &candid::encode_one(Ok::<_, FundingOutcomeFailure>(Some(changed))).unwrap(),
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, FundingOutcomeFailure>(Some(changed)))
+                .unwrap(),
             &options
         ),
         Err(Failure::Binding)

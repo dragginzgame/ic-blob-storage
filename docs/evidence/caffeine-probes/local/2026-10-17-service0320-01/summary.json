@@ -1,0 +1,389 @@
+{
+  "evidence_class": "local PocketIC and Chromium with substitute provider/gateway peers; not deployed provider evidence",
+  "base": "d2b5877e1449c434feacb2cb9b0fa9811a6810a2",
+  "compiled_release": "0.31.0",
+  "pending_release": "0.32.0",
+  "selected_graph": {
+    "memory": "0.46.0",
+    "build": "0.12.1",
+    "host_direct": "0.24.0",
+    "testkit": "0.50.0",
+    "ciborium": "0.2.2",
+    "stable_structures": "0.7.2"
+  },
+  "source_sha256": {
+    "Cargo.toml": "45d7421d10f07f552f1c5ea56710c7c399ebaadb3fd7fd6fce68ceda9d25332d",
+    "Cargo.lock": "1fd0afa80045b2a05266fa5657bb2d75b4d5d0215d5758e0a9af13b07afdde0a",
+    "canisters/standalone/src/api/mod.rs": "6e60856854414523c05113a3316dde2abac6ba18e5106d2dc79545164305dc2a",
+    "canisters/standalone/src/ops/mod.rs": "6099f1be8c0d866067ad14e989828ab9c753c388792cfbda3eff1d6cc0cb4fe6",
+    "canisters/standalone/src/ops/memory/mod.rs": "9cb39c767ea205958c702b135b7c3441a0b75f88a2fb9dd9a34153656cd7af58",
+    "crates/ic-blob-storage-contracts/src/wire/mod.rs": "69215ad87cc4f2f13c041ed8c596e4c3241d1dcec8c81ec07c586a1eaf33413a",
+    "crates/ic-blob-storage-contracts/src/wire/decimal/mod.rs": "4b5d51ff61a577da9002378f1e48c9b9d0b1cee3b61582cfb8c41f9b075182b5",
+    "crates/ic-blob-storage-contracts/src/endpoints/mod.rs": "2ad6cca25d6600c8d8ba4184b650f94ced374d867f9eec174c3f5a9125c8327e",
+    "tests/pocketic/src/service_calls/mod.rs": "3dee7d31d7861dea2f3b447baf92b092a6fbc0c85e3cdd87e5bb07880fb6eeac"
+  },
+  "artifacts": {
+    "BLOB_CLI_BIN": {
+      "path": "/home/adam/projects/ic-blob-storage/target/debug/blob-storage",
+      "sha256": "e4771a1db49c7f74d182e5d1b79b2b69130700fa7e4dc0ae4dcf41cd056eb99a"
+    },
+    "POCKET_IC_BIN": {
+      "path": "/home/adam/projects/ic-blob-storage/.tools/testkit-server/16.1.0-x86_64-linux/pocket-ic",
+      "sha256": "b44e1eccd66e02328146b3e209e3403e3a3428a25d25555aca2f67500e5ae9db"
+    },
+    "BLOB_AUTHORITY_PROBE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/target/wasm32-unknown-unknown/release/blob_authority_probe.wasm",
+      "sha256": "5254daa583f245ddd4f13182c91374b1069059f67067f04a519598f1594eb93b"
+    },
+    "BLOB_STORAGE_PROBE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/target/wasm32-unknown-unknown/release/blob_storage_probe.wasm",
+      "sha256": "d6d2ccab2db6a7c6b2b07fc851220f5f8ea6856377d5872d464b88d806e5b8b2"
+    },
+    "BLOB_CONSUMER_PROBE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/target/wasm32-unknown-unknown/release/blob_consumer_probe.wasm",
+      "sha256": "ad89177d1548589f59eaadb37a2c753c91ddd8e70ae435f080eb5538e6ece5f8"
+    },
+    "BLOB_FUNDING_PROBE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/target/wasm32-unknown-unknown/release/blob_funding_probe.wasm",
+      "sha256": "20d14b75752bf4e9c9b74dd5f569cccd1114322e591088d3337400ab1a25ade2"
+    },
+    "BLOB_GATEWAY_SOURCE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/target/wasm32-unknown-unknown/release/blob_gateway_source.wasm",
+      "sha256": "eef9731faabd937d60b6ffe9b6c2da12266b1011d9d346fbc2a9740028dd408c"
+    },
+    "BLOB_STANDALONE_WASM": {
+      "path": "/home/adam/projects/ic-blob-storage/target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+      "sha256": "bcee4df8efbdc84c31ccb72e6297cb6ecebd8e5fd14f68c622203f396e32c686"
+    }
+  },
+  "selected_results": [
+    {
+      "name": "exports",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_installation_cli::deployment_surface_matches_catalog_and_provider_contract",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 11.1,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "installation",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_installation_cli::standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 3.52,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "admission-restore",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_admission_manifest_and_restore_use_shared_authority",
+        "--",
+        "--exact",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 5.46,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "ingress",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_ingress::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 2,
+      "seconds": 8.45,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "certificate",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_certificate::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 3,
+      "seconds": 21.89,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "signed-cli",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_cli::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 5.23,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "signed-reference",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_reference_native_cli::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 3,
+      "seconds": 30.81,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "account",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_account::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 4,
+      "seconds": 14.24,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "signed-probe-reference",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "storage",
+        "storage_reference_native_cli::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 14.47,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "signed-probe-attestation",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "storage",
+        "storage_attestation_cli::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 4.65,
+      "attempt": "20261017T075634156601Z"
+    },
+    {
+      "name": "manifest-recovery",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "storage",
+        "storage_manifests::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 7,
+      "seconds": 31.35,
+      "attempt": "20261017T075935036165Z"
+    },
+    {
+      "name": "browser-codec",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "storage",
+        "storage_exposure::certificate::ingress::browser::chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation",
+        "--",
+        "--exact",
+        "--ignored",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 1,
+      "seconds": 44.82,
+      "attempt": "20261017T075935036165Z"
+    },
+    {
+      "name": "signed-probe-observe",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "storage",
+        "storage_observe_cli::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 3,
+      "seconds": 12.88,
+      "attempt": "20261017T075935036165Z"
+    },
+    {
+      "name": "lifecycle",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "standalone",
+        "standalone_lifecycle::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 4,
+      "seconds": 10.67,
+      "attempt": "20261017T075935036165Z"
+    },
+    {
+      "name": "replicated-clients",
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "-p",
+        "ic-blob-storage-pocketic-tests",
+        "--test",
+        "storage",
+        "storage_tenants::client::",
+        "--",
+        "--test-threads=1"
+      ],
+      "status": 0,
+      "passed": 3,
+      "seconds": 16.75,
+      "attempt": "20261017T075935036165Z"
+    }
+  ],
+  "surface_cases_passed": 36,
+  "installed_cases": 35,
+  "chromium_scenarios_within_one_case": 10,
+  "native_cases": {
+    "contracts": 115,
+    "cli_and_probe_and_native_files": 127,
+    "service_stores": 11,
+    "memory_composition": 2
+  },
+  "prior_failure_logs": "See ../../../service0320.md for distinct retained attempts and corrections",
+  "raw_root": ".tmp/review-validation/service0320",
+  "deployed_provider_requests": 0,
+  "paid_effects": 0,
+  "external_cleanup_obligations": 0,
+  "cleanup": "Owned local fixture/server/browser lifetimes completed; no deployed account, object or billing obligation was created. Retain raw attempts and artifacts.",
+  "limitations": [
+    "full CI unrun",
+    "pinned old-image ignored tests compile only",
+    "optimized Wasm qualification unrun",
+    "native macOS unrun",
+    "Canic consumer adoption unrun",
+    "deployed provider behavior unqualified"
+  ]
+}

@@ -2,9 +2,8 @@
 pub(crate) mod account;
 pub(crate) mod gateways;
 mod memory;
-use candid::{CandidType, DecoderConfig, Deserialize};
+use ic_blob_storage::ic_memory::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::MemoryRuntime;
-use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
 use ic_blob_storage::ops::service::installation::ServiceInstallation;
 use ic_blob_storage::ops::service::installation::ServiceInstallationMemories;
 use ic_blob_storage::ops::service::installation::ValidatedServiceInstallation;
@@ -57,11 +56,7 @@ pub(crate) fn install(input: &ServiceInstallationInput) {
     });
 }
 pub(crate) fn restore() {
-    assert_eq!(
-        ic_cdk::api::msg_arg_data(),
-        b"DIDL\0\0",
-        "upgrade takes no arguments"
-    );
+    // The lifecycle adapter has already decoded one exact CBOR unit value.
     assert_uninitialized();
     let Grants {
         runtime,
@@ -172,20 +167,18 @@ pub(crate) fn with_certificate<R>(f: impl FnOnce(&mut ServiceInstallation<Memory
     observe_version();
     HOST.with_borrow_mut(|host| f(&mut host.as_mut().expect("initialized host").installation))
 }
-fn bounded<T: CandidType + for<'de> Deserialize<'de>>(
-    bytes: &[u8],
-    max: usize,
-    skipping: usize,
-) -> T {
-    assert!(bytes.len() <= max, "ingress byte bound");
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(2_000_000)
-        .set_skipping_quota(skipping)
-        .set_max_type_len(64)
-        .set_max_header_len(max)
-        .set_full_error_message(false);
-    candid::decode_one_with_config(bytes, &config).expect("invalid ingress")
+fn bounded<T: serde::de::DeserializeOwned>(bytes: &[u8], max: usize) -> T {
+    ic_blob_storage_contracts::wire::decode(bytes, max).expect("invalid Blob CBOR ingress")
+}
+/// Keep only the external provider certificate method on its mandated Candid codec.
+#[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
+pub(crate) fn decode_certificate(bytes: Vec<u8>) -> String {
+    assert!(bytes.len() <= 4096, "certificate ingress byte bound");
+    let config = ic_blob_storage_contracts::decoding::limits(2_000_000, 1024, 64, Some(4096));
+    candid::decode_one_with_config(&bytes, &config).expect("invalid certificate ingress")
+}
+pub(crate) fn encode<T: serde::Serialize>(value: T) -> Vec<u8> {
+    ic_blob_storage_contracts::wire::encode(value).expect("Blob CBOR reply encoding failed")
 }
 pub(crate) struct RecoveryHost;
 impl ic_blob_storage::ops::service::recovery::RecoveryInstallationAccess for RecoveryHost {
@@ -213,18 +206,55 @@ impl ic_blob_storage::ops::service::recovery::ContinuityInstallationAccess for R
     }
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
-pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
-    bounded(&bytes, 4096, 1024)
+pub(crate) fn decode<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
+    bounded(&bytes, 4096)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
 pub(crate) fn decode_configuration(bytes: Vec<u8>) -> ServiceInstallationInput {
-    // Initialization must not silently discard a retired authority field or an
-    // extra argument. Ordinary endpoint decoding keeps its bounded allowance.
-    bounded(&bytes, 16_384, 0)
+    // Initialization and ordinary requests reject unknown fields and trailing
+    // values before entering the service. Installation has its separate byte bound.
+    bounded(&bytes, 16_384)
 }
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns ingress buffers")]
 pub(crate) fn decode_manifest(
     bytes: Vec<u8>,
 ) -> ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest {
-    bounded(&bytes, 131_072, 1024)
+    bounded(&bytes, 131_072)
+}
+
+/// Endpoint-owned trap on invalid method-bound tenant ingress.
+#[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
+pub(crate) fn decode_tenant_inspection(
+    bytes: Vec<u8>,
+) -> ic_blob_storage_contracts::dto::tenant::TenantScope {
+    ic_blob_storage_contracts::wire::tenant::decode_inspection_request(&bytes)
+        .expect("invalid tenant inspection ingress")
+}
+/// Endpoint-owned trap on invalid method-bound tenant mutation ingress.
+#[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
+pub(crate) fn decode_tenant_update(
+    bytes: Vec<u8>,
+) -> ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest {
+    ic_blob_storage_contracts::wire::tenant::decode_update_request(&bytes)
+        .expect("invalid tenant update ingress")
+}
+/// Fail with a trap if a response cannot be encoded.
+pub(crate) fn encode_tenant_inspection(
+    value: Result<
+        ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse,
+        ic_blob_storage_contracts::dto::tenant::TenantFailure,
+    >,
+) -> Vec<u8> {
+    ic_blob_storage_contracts::wire::tenant::inspection_response(value)
+        .expect("tenant inspection response encoding")
+}
+/// A trap preserves IC rollback for synchronous response encoding failure.
+pub(crate) fn encode_tenant_update(
+    value: Result<
+        ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse,
+        ic_blob_storage_contracts::dto::tenant::TenantFailure,
+    >,
+) -> Vec<u8> {
+    ic_blob_storage_contracts::wire::tenant::update_response(value)
+        .expect("tenant update response encoding")
 }

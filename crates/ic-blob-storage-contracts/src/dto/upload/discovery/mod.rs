@@ -5,7 +5,8 @@ use candid::CandidType;
 use candid::Deserialize;
 
 /// Discover retained content without already knowing its operation identity.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadDiscoveryRequest {
     /// Actual tenant/service and installed namespace.
     pub scope: TenantScope,
@@ -13,7 +14,8 @@ pub struct UploadDiscoveryRequest {
     pub root: [u8; 32],
 }
 /// One synchronous local observation. Absence is not upload or retry permission.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadDiscoveryResponse {
     /// Exact request echoed even for absent or foreign content.
     pub request: UploadDiscoveryRequest,
@@ -23,7 +25,8 @@ pub struct UploadDiscoveryResponse {
     pub fenced: bool,
 }
 /// Refusal must never be interpreted as an absent root.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadDiscoveryFailure {
     /// Invalid tenant or zero namespace.
     Invalid,

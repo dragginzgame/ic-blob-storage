@@ -30,7 +30,7 @@ fn send(
     method: &str,
     packet: Vec<u8>,
 ) -> Result<Vec<u8>, RejectResponse> {
-    retain_bytes(directory, &format!("{name}.candid"), &packet);
+    retain_bytes(directory, &format!("{name}.cbor"), &packet);
     assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
     let result = f.harness.pic.update_call(f.service, actor, method, packet);
     retain(
@@ -263,7 +263,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         max_tenant_read_sessions: (workload.reads / workload.tenants).max(1),
     })
     .unwrap();
-    retain_bytes(directory, "installation.candid", &installation);
+    retain_bytes(directory, "installation.cbor", &installation);
     harness.pic.install_canister(
         service,
         Fixture::wasm(),

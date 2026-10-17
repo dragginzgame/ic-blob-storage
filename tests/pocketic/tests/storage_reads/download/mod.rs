@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 use ic_blob_storage_contracts::dto::download::DownloadFailure;
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
@@ -14,12 +15,12 @@ impl Fixture {
     ) -> Result<DownloadResponse, DownloadFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 "blob_download_descriptor",
-                (wire(input),),
-                REPLY_LIMITS,
+                wire(input),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }

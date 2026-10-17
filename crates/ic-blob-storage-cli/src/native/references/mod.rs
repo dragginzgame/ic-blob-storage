@@ -45,9 +45,7 @@ fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
                 argument,
             });
         }
-        Kind::Status => {
-            crate::native::exact_candid::decode(&read(&input.request, 4096)?, 4096, 64, 100_000)?
-        }
+        Kind::Status => crate::native::exact_wire::decode(&read(&input.request, 4096)?, 4096)?,
     };
     let argument = reply::status_request(request).map_err(|_| Failure::Arguments)?;
     let upload = request.upload;
@@ -68,8 +66,7 @@ pub(super) fn command(
     path: &Path,
     actor: Principal,
 ) -> Result<(ReferenceCommand, Vec<u8>), Failure> {
-    let request: ReferenceCommand =
-        crate::native::exact_candid::decode(&read(path, 4096)?, 4096, 64, 100_000)?;
+    let request: ReferenceCommand = crate::native::exact_wire::decode(&read(path, 4096)?, 4096)?;
     let argument = reply::receipt_request(request).map_err(|_| Failure::Arguments)?;
     if request.upload.service != service || request.upload.namespace != namespace {
         return Err(Failure::Binding);

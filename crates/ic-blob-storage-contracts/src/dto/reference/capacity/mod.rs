@@ -4,7 +4,8 @@ use candid::CandidType;
 use candid::Deserialize;
 
 /// Root lookup; a digest is not tenant authority or proof of global absence.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReferenceCapacityRequest {
     /// Actual service, positive namespace and tenant caller must match.
     pub scope: TenantScope,
@@ -12,7 +13,8 @@ pub struct ReferenceCapacityRequest {
     pub root: [u8; 32],
 }
 /// Independent lifetime capacity dimensions, without allocating a reference or receipt.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReferenceHeadroom {
     /// Unused lifetime reference identities.
     pub reference_slots: u64,
@@ -25,7 +27,8 @@ pub struct ReferenceHeadroom {
     pub fresh_retains: u64,
 }
 /// Correlated observation, not reservation, liveness or mutation authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReferenceCapacityResponse {
     /// Exact original tenant/root request.
     pub request: ReferenceCapacityRequest,
@@ -35,7 +38,8 @@ pub struct ReferenceCapacityResponse {
     pub fenced: bool,
 }
 /// Typed inspection refusal; never interpreted as absent content.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum ReferenceCapacityFailure {
     /// Zero namespace or invalid tenant principal.
     Invalid,

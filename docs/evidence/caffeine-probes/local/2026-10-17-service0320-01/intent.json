@@ -1,0 +1,36 @@
+{
+  "kind": "owned_local_interface_qualification",
+  "target": "pending Blob 0.32.0 over released 0.31.0",
+  "source": "d2b5877e1449c434feacb2cb9b0fa9811a6810a2",
+  "source_files": {
+    "canisters/standalone/src/api/mod.rs": "6e60856854414523c05113a3316dde2abac6ba18e5106d2dc79545164305dc2a",
+    "canisters/standalone/src/ops/mod.rs": "7a40a44fecbbd1acd06412a258ae856232e99a80be3d0e13b67766b899616110",
+    "crates/ic-blob-storage-contracts/src/endpoints/mod.rs": "2ad6cca25d6600c8d8ba4184b650f94ced374d867f9eec174c3f5a9125c8327e",
+    "clients/browser/certificate.js": "aeceab7c60a9e5af8342ff50ad2c5ec60e2af149c75b76b563bc3adf19c3de74",
+    "tests/pocketic/tests/standalone_certificate/mod.rs": "ff03765a0e00f7b522c2a39aa390b7caa4fd2bca4f99ccfd8131f8bb1638be14"
+  },
+  "question": "Do owned CBOR requests/replies preserve authorization, recovery and current provider-required Candid certificate behavior?",
+  "evidence_class": "local PocketIC and local substitute peers; not deployed provider behavior",
+  "selectors": [
+    "catalog/export equality",
+    "CLI CBOR installation",
+    "admission/manifest/restore",
+    "CBOR ingress refusals",
+    "Caffeine certificate issuance",
+    "native signed queries/recovery",
+    "provider account reports via service CBOR"
+  ],
+  "actors": "fixed disposable signing keys and fixture principals from retained test source; actual canister IDs assigned by local PocketIC",
+  "budgets": {
+    "selected_tests_max": 80,
+    "per_test_timeout_owner": "existing managed PocketIC/client deadlines",
+    "deployed_provider_requests": 0,
+    "paid_effects": 0,
+    "provider_attached_cycles": 0
+  },
+  "stop_conditions": [
+    "first failed stage retains original log and stops dependent dispatch",
+    "no automatic paid or deployed retry"
+  ],
+  "cleanup": "Harness drops its owned instance/server; preserve inputs, Wasms, selected server hashes and raw logs. No external account/object/billing obligation is created."
+}

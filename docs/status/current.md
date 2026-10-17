@@ -2,6 +2,70 @@
 
 Date: 2026-10-17
 
+## Host 0.25 feature/caller repair — dependency conflict remains
+
+The retired `candid-service` feature is removed from PocketIC's Host Tools edge;
+service inspection is unconditional in 0.25. The CLI record publisher uses the
+new validated-write entrypoint with unchanged create-only/private-file behavior.
+Incoming selections and other pending work are preserved.
+[The repair receipt](../evidence/host0250320.md) records isolated caller checks.
+The registry update now reaches Host Tools' `thiserror ^2.0.21` requirement versus
+PocketIC 16.1.0's exact `=2.0.18` pin. A compatible producer publication is needed;
+the root lock is unchanged by this task. No complete selected-graph qualification
+or resolution success is claimed. Earlier Wire/CBOR evidence retains its scope.
+
+## IC Wire adoption started — pending 0.32.0, publication required
+
+Tenant inspection/update now use explicit bounded IC Wire contracts across the
+standalone, storage probe and replicated client, preserving native DTOs, policy,
+journals and recovery. Their frames bind method and direction; Candid and pending
+CBOR tenant requests refuse. The catalog marks these two methods as IC Wire.
+The provider certificate remains Candid. Other 29 owned methods and lifecycle
+inputs still use CBOR during conversion; this is not the final frozen 0.32 contract.
+
+[The receipt](../evidence/icwire0320.md) records candidate-source unit, lint, actual
+Rust 1.91 native/Wasm and installed checks. Ten selected surface cases pass,
+including nine installed cases covering authority, exact compare-and-set conflicts,
+rollback, restore fences and replicated-client uncertainty/recovery. All use a
+captured private prepublication dependency snapshot, not a published 0.3 package.
+
+The maintainer selected IC Wire 0.3. Tracked manifests use its registry line;
+Cargo.lock remains unchanged because crates.io has no package yet. Resolve and
+qualify the published package when available, finish the remaining methods and
+lifecycle conversion, then retire the superseded direct CBOR codec. No sibling,
+Git index/ref, release or publication effects ran. Own versions remain 0.31.0.
+The earlier CBOR receipt below retains its original source/graph scope.
+
+[The matched codec experiment](../evidence/wire-bench0320.md) now records 180
+successful installed tenant calls across released Candid, pending CBOR and the
+same frozen Wire candidate. Wire uses 62–72% fewer codec instructions than CBOR
+in these six cases; the partial production Wasm adds 2,039 bytes. These are
+codec-only measurements, not complete Blob/Canic or published 0.3 qualification.
+The receipt retains concrete upstream feedback; no sibling or runtime code changed.
+
+## Owned endpoint CBOR hard cut — pending 0.32.0
+
+Released 0.31.0 is the base. All 31 Blob-owned methods now take and return bounded
+CBOR; standalone init/post-upgrade inputs and controlled clients/packets move with
+them. The provider certificate remains Candid, as do external provider/management
+calls and stable records. [The wire guide](../service-wire.md) names the exact
+representations, new JSON installation proposal, `.cbor` artifacts, provider-only
+DID and coordinated host/Canic changes. Old Candid requests have no fallback.
+
+Incoming Memory 0.46 / Build 0.12.1 selections are preserved and caller repairs
+use the already locked stable-structures dependency directly. Host backing and
+allocation leases retain their Memory owner. [The receipt](../evidence/service0320.md)
+records 255 native cases and 36 selected surface cases (35 installed, including
+one Chromium case with ten scenarios), fresh canisters, strict affected lint,
+actual Rust 1.91 native/Wasm, Rustdoc and browser/native handoff success.
+
+Canic must adopt both request decoding and reply encoding in its own wrappers,
+callers and tests before claiming integration. Pinned historical image tests are
+compile-only here. Full CI, optimized Wasm, actual archives, native macOS and
+live provider/Canic qualification remain separate. Own package metadata is still
+0.31.0; the maintainer owns the 0.32 release. No sibling or Git/release effects ran.
+Historical sections below retain their original selections and scope.
+
 ## Build 0.12 duplicate dependency name repaired — pending 0.31.0
 
 Build 0.12 and direct Host both select process 0.24.0. Remove the obsolete

@@ -75,7 +75,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             service: input.service,
             method: REFERENCE_APPLY_METHOD,
             argument: &argument,
-            argument_file: "request.candid",
+            argument_file: "request.cbor",
             directory: &input.directory,
             reply_limit: SMALL_REPLY_BYTES,
         },

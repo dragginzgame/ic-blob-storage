@@ -2,7 +2,7 @@
 use crate::ops::service::uploads::StableUploads;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// Shared canonical endpoint handler. The adapter must authenticate the actual
 /// caller/service and supply its installed serving scope; linking exports nothing.

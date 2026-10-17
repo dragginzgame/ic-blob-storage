@@ -8,7 +8,8 @@ use candid::Nat;
 use candid::Principal;
 
 /// Explicit observation kind; account and owner come from the installed scope.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum AccountInspectionKind {
     /// Reported payer balances.
     Balance,
@@ -16,7 +17,8 @@ pub enum AccountInspectionKind {
     PaymentRelationship,
 }
 /// Operator-selected read, never arbitrary provider arguments.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct AccountInspectionRequest {
     /// Exact installed scope checked before dispatch and again after the await.
     pub scope: OperatorScope,
@@ -24,15 +26,18 @@ pub struct AccountInspectionRequest {
     pub kind: AccountInspectionKind,
 }
 /// Provider relationship figures retained without arithmetic or sentinel interpretation.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct AccountRelationshipView {
     /// Exact paid canister, checked against the service.
     pub paid_canister: Principal,
     /// Exact expected payer, checked independently.
     pub payment_account: Principal,
     /// Signed daily limit, not assumed to be an allowance.
+    #[serde(with = "crate::wire::decimal")]
     pub spending_limit_per_day: Int,
     /// Signed reported spend.
+    #[serde(with = "crate::wire::decimal")]
     pub current_period_spent: Int,
     /// Uninterpreted provider period start.
     pub current_period_start: u64,
@@ -41,14 +46,17 @@ pub struct AccountRelationshipView {
     /// Optional provider expiry; absence grants no perpetual authority.
     pub expiration_timestamp: Option<u64>,
     /// Arbitrary-width reported uploaded baseline.
+    #[serde(with = "crate::wire::decimal")]
     pub bandwidth_baseline_uploaded: Nat,
     /// Arbitrary-width reported downloaded baseline.
+    #[serde(with = "crate::wire::decimal")]
     pub bandwidth_baseline_downloaded: Nat,
     /// Provider baseline timestamp.
     pub bandwidth_baseline_ts_ns: u64,
 }
 /// Account reports and structured provider errors remain distinct from transport failure.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum AccountObservation {
     /// Independently reported balance components, not proof of payment credit.
     Balance(FundingReportedBalance),
@@ -68,7 +76,8 @@ pub enum AccountObservation {
     ProviderInternalError,
 }
 /// Reply bound to this exact invocation; not persisted or usable as a funding permit.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct AccountInspectionResponse {
     /// Exact request, including installed scope and selected observation kind.
     pub request: AccountInspectionRequest,
@@ -76,7 +85,8 @@ pub struct AccountInspectionResponse {
     pub observation: AccountObservation,
 }
 /// Refusal or unusable observation; none supplies fallback account data.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum AccountInspectionFailure {
     /// Invalid positive bounds or principal.
     Invalid,

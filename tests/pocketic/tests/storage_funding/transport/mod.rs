@@ -1,6 +1,7 @@
 //! Actual IC transport/refunds through the shared journal and a labelled substitute.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod dispatch;
 use blob_test_protocol::{
     funding::{
@@ -158,12 +159,12 @@ impl Fixture {
     ) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 "blob_funding_outcome",
-                (outcome_request(intent),),
-                REPLY_LIMITS,
+                outcome_request(intent),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }

@@ -3,7 +3,8 @@ use candid::CandidType;
 use candid::Deserialize;
 
 /// Recovery refusal never clears an existing fence or discards an obligation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum CurrentInstanceRecoveryFailure {
     /// Caller is not the installed operator.
     Denied,

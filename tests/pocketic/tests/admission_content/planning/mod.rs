@@ -4,6 +4,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod inventory;
 use blob_test_protocol::admission::release::LifecycleCommand;
 
@@ -22,12 +23,12 @@ fn capacity(
 ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             actor,
             "blob_upload_capacity",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }

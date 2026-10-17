@@ -3,7 +3,7 @@ use crate::model::lifecycle::roots::RootClaims;
 use crate::ops::service::tenant::tests::config;
 use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
-use ic_memory::ic_stable_structures::VectorMemory;
+use ic_stable_structures::VectorMemory;
 use std::num::NonZeroU128;
 
 fn p(n: u8) -> Principal {

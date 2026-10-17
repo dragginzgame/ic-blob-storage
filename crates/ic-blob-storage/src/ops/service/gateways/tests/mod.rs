@@ -4,7 +4,7 @@ mod revocation;
 mod sync;
 use crate::ops::service::tenant::tests::config;
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
-use ic_memory::ic_stable_structures::{Storable, VectorMemory};
+use ic_stable_structures::{Storable, VectorMemory};
 use std::num::NonZeroU128;
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])

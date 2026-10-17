@@ -1,0 +1,21 @@
+{
+  "evidence_class": "local PocketIC and substitute peers only",
+  "purpose": "Qualify incoming Memory 0.46 / Build 0.12.1 with current CBOR endpoints and isolated frozen Candid fixture calls",
+  "source_files": {
+    "Cargo.toml": "b81253daa1a7114ee0c81dc7ba706a89feba97d54a5ceef6ec3005bd3f540b29",
+    "Cargo.lock": "1fd0afa80045b2a05266fa5657bb2d75b4d5d0215d5758e0a9af13b07afdde0a",
+    "canisters/standalone/src/api/mod.rs": "6e60856854414523c05113a3316dde2abac6ba18e5106d2dc79545164305dc2a",
+    "canisters/standalone/src/ops/mod.rs": "6099f1be8c0d866067ad14e989828ab9c753c388792cfbda3eff1d6cc0cb4fe6",
+    "canisters/standalone/src/ops/memory/mod.rs": "9cb39c767ea205958c702b135b7c3441a0b75f88a2fb9dd9a34153656cd7af58",
+    "crates/ic-blob-storage-contracts/src/wire/mod.rs": "69215ad87cc4f2f13c041ed8c596e4c3241d1dcec8c81ec07c586a1eaf33413a",
+    "tests/pocketic/tests/standalone_hard_cut/mod.rs": "beac2003b235c32f10ce4f37d6bbcc0c729d8b365977bedff29350580b980f79"
+  },
+  "same_limits_as": "intent.json",
+  "additional_selectors": [
+    "signed probe reference and attestation packets",
+    "signed upload observation",
+    "current-instance restore and repeated upgrade"
+  ],
+  "deployed_provider_requests": 0,
+  "paid_effects": 0
+}

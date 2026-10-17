@@ -13,7 +13,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::identity::ContentDigest;
-use ic_testkit::pic::CandidCallExt;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use serde_json::{Value, json};
 
 // One complete-session deadline, shared with browser bootstrap and subprocess
@@ -92,12 +92,12 @@ impl Serial {
             .f
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.trial.f.service,
                 self.trial.f.tenant,
                 "blob_upload_admission",
-                (self.files[1].permission,),
-                REPLY_LIMITS,
+                self.files[1].permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(second, Err(UploadAdmissionFailure::Unknown));
@@ -105,7 +105,7 @@ impl Serial {
             !self
                 .trial
                 .report
-                .join("observation-0/statement.candid")
+                .join("observation-0/statement.cbor")
                 .exists()
         );
         let map = self.status_using(control, None, gateway, "blocked-map");
@@ -321,13 +321,14 @@ impl Serial {
         );
         let files = (0..2)
             .map(|index| {
-                candid::decode_one(
+                ic_blob_storage_contracts::wire::decode(
                     &std::fs::read(
                         trial
                             .report
-                            .join(format!("batch/file-{index:04}/manifest.candid")),
+                            .join(format!("batch/file-{index:04}/manifest.cbor")),
                     )
                     .unwrap(),
+                    ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
                 )
                 .unwrap()
             })
@@ -419,7 +420,7 @@ impl Serial {
             "--permission".into(),
             self.trial
                 .report
-                .join(format!("batch/file-{index:04}/permission.candid"))
+                .join(format!("batch/file-{index:04}/permission.cbor"))
                 .display()
                 .to_string(),
             "--gateway".into(),
@@ -590,7 +591,7 @@ impl Serial {
             !self
                 .trial
                 .report
-                .join("foreign-observation/verification-0000/attestation-query.candid")
+                .join("foreign-observation/verification-0000/attestation-query.cbor")
                 .exists()
         );
     }
@@ -604,22 +605,22 @@ impl Serial {
         for name in [
             "plan.json",
             "summary.json",
-            "permission.candid",
-            "service-response.candid",
+            "permission.cbor",
+            "service-response.cbor",
             "download-request.json",
             "download-outcome.json",
             "http-response.json",
-            "statement.candid",
+            "statement.cbor",
         ] {
             std::fs::copy(source.join(name), copy.join(name)).unwrap();
         }
         // Same upload, verified digest and current live reference, but a distinct
         // observation time: content equality cannot reconcile another statement.
         let mut statement: ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest =
-            candid::decode_one(&std::fs::read(copy.join("statement.candid")).unwrap()).unwrap();
+            ic_blob_storage_contracts::wire::decode(&std::fs::read(copy.join("statement.cbor")).unwrap(), ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES).unwrap();
         statement.observed_at_ns += 1;
-        let encoded = candid::encode_one(statement).unwrap();
-        std::fs::write(copy.join("statement.candid"), &encoded).unwrap();
+        let encoded = ic_blob_storage_contracts::wire::encode(statement).unwrap();
+        std::fs::write(copy.join("statement.cbor"), &encoded).unwrap();
         let mut summary: Value =
             serde_json::from_slice(&std::fs::read(copy.join("summary.json")).unwrap()).unwrap();
         summary["observed_at_ns"] = json!(statement.observed_at_ns.to_string());
@@ -745,8 +746,12 @@ impl Serial {
         panic!("driver must finish within the two selected session budgets");
     }
     fn reference(&self, command: ReferenceCommand, label: &str) -> ReferenceMutationResponse {
-        let request = self.trial.report.join(format!("{label}.candid"));
-        std::fs::write(&request, candid::encode_one(command).unwrap()).unwrap();
+        let request = self.trial.report.join(format!("{label}.cbor"));
+        std::fs::write(
+            &request,
+            ic_blob_storage_contracts::wire::encode(command).unwrap(),
+        )
+        .unwrap();
         let mut args = self
             .trial
             .args("submit-reference", "tenant.pem", self.trial.f.tenant);
@@ -759,8 +764,9 @@ impl Serial {
         let report = self.trial.invoke(label, &args, 0);
         assert_eq!(report["outcome"], "recorded");
         let response: Result<ReferenceMutationResponse, crate::ReferenceFailure> =
-            candid::decode_one(
-                &std::fs::read(self.trial.report.join(label).join("response.candid")).unwrap(),
+            ic_blob_storage_contracts::wire::decode(
+                &std::fs::read(self.trial.report.join(label).join("response.cbor")).unwrap(),
+                ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
             )
             .unwrap();
         let response = response.unwrap();
@@ -876,7 +882,7 @@ impl Serial {
             "--request".into(),
             self.trial
                 .report
-                .join("shared-retain.candid")
+                .join("shared-retain.cbor")
                 .display()
                 .to_string(),
         ]);
@@ -888,12 +894,12 @@ impl Serial {
             .f
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.trial.f.service,
                 self.trial.f.tenant,
                 "blob_reference_receipt",
-                (retain,),
-                REPLY_LIMITS,
+                retain,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(lookup, Ok(ReferenceReceiptLookup::Found(original.receipt)));

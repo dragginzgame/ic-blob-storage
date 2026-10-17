@@ -11,7 +11,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRespon
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 use std::num::NonZeroU128;
 
 /// One synchronous owner observation, without a reservation or lifetime-history scan.

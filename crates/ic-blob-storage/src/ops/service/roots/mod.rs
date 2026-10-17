@@ -10,7 +10,7 @@ use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::{BTreeMap, Memory};
+use ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 
 const METADATA: [u8; 33] = [0; 33];

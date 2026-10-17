@@ -11,7 +11,7 @@ use crate::policy::gateway::GatewayCallbackContext;
 use crate::policy::gateway::assess_gateway_callback;
 use crate::policy::gateway::assess_gateway_membership;
 use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 use thiserror::Error;
 
 /// A gateway observation was refused before returning any batch data.

@@ -108,7 +108,7 @@ pub fn parse(input: TenantUpdateRequest) -> Result<TenantUpdate, TenantFailure> 
         tenant: input.scope.tenant,
         expected: input
             .expected
-            .map(|v| {
+            .map(|v| -> Result<_, TenantFailure> {
                 Ok(TenantEnrollmentView {
                     generation: NonZeroU64::new(v.generation).ok_or(TenantFailure::Invalid)?,
                     active: v.active,

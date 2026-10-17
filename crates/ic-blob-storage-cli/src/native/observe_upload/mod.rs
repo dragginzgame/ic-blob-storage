@@ -52,8 +52,7 @@ fn now() -> Result<u64, Failure> {
 }
 fn permission(input: &Input) -> Result<UploadAdmissionRequest, Failure> {
     let bytes = read(&input.permission, 4096)?;
-    let permission: UploadAdmissionRequest =
-        crate::native::exact_candid::decode(&bytes, 4096, 32, 100_000)?;
+    let permission: UploadAdmissionRequest = crate::native::exact_wire::decode(&bytes, 4096)?;
     if permission.upload.bytes > input.max_bytes.get() {
         return Err(Failure::Arguments);
     }
@@ -81,7 +80,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     })?;
     let identity = identity(&options.identity, options.actor)?;
     let run = Run::create(&input.directory)?;
-    run.bytes("permission.candid", &argument)?;
+    run.bytes("permission.cbor", &argument)?;
     run.json(
         "plan.json",
         &record::ObservationPlanRecord {
@@ -140,7 +139,7 @@ async fn capture(
     if bytes.len() > 64 * 1024 {
         return Err(Failure::ReplyLimit);
     }
-    run.bytes("service-response.candid", &bytes)?;
+    run.bytes("service-response.cbor", &bytes)?;
     let plan = verification::reply::decode(
         authority,
         permission,
@@ -177,8 +176,8 @@ async fn capture(
         content_digest: *digest.as_bytes(),
         observed_at_ns,
     };
-    let encoded = candid::encode_one(statement).map_err(|_| Failure::File)?;
-    run.bytes("statement.candid", &encoded)?;
+    let encoded = ic_blob_storage_contracts::wire::encode(statement).map_err(|_| Failure::File)?;
+    run.bytes("statement.cbor", &encoded)?;
     let report = record::ObservationSummaryRecord {
         schema: 1,
         observation: "provider_content",

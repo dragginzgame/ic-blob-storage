@@ -167,7 +167,7 @@ fn run_case(
             "failed"
         }
     );
-    assert!(!path.join("statement.candid").exists());
+    assert!(!path.join("statement.cbor").exists());
     serde_json::from_slice(&std::fs::read(path.join("http-response-headers.json")).unwrap())
         .unwrap()
 }

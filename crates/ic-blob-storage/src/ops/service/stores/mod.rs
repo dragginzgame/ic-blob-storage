@@ -17,7 +17,7 @@ use crate::model::billing::allocation::FundingAllocation;
 use crate::model::service::read::session::ReadSessionError;
 use crate::model::service::read::session::ReadSessionLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 use thiserror::Error;
 
 /// Validated limits for all maintained stable owners; no deployment or effect authority.

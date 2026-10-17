@@ -16,7 +16,7 @@ use crate::ops::service::gateways::StableGatewayRegistry;
 use crate::ops::service::gateways::reply::GatewaySyncReplyError;
 use crate::ops::service::gateways::reply::GatewaySyncRequest;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// Authenticate, construct the canonical query, then persist its pending identity.
 /// Returning a request authorizes no paid effect. A host must not dispatch before

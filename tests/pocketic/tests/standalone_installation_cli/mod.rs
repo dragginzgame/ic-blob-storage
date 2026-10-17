@@ -2,11 +2,13 @@
 use super::*;
 use crate::authenticated_cli::run;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_contracts::endpoints::{MethodCodec, MethodMode, SERVICE_METHODS};
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use std::path::Path;
 
 #[test]
-fn deployment_candid_matches_the_exported_contract() {
+fn deployment_surface_matches_catalog_and_provider_contract() {
     use ic_host_artifacts::wasm::{InspectionLimits, inspect};
     use ic_host_tools::{
         candid::service::{ServiceLimits, ServiceMethod},
@@ -17,12 +19,14 @@ fn deployment_candid_matches_the_exported_contract() {
     let declared = include_str!("../../../../canisters/standalone/service.did");
     candid_parser::utils::service_equal(
         candid_parser::utils::CandidSource::Text(declared),
-        candid_parser::utils::CandidSource::Text(&ic_blob_storage_canister::candid_interface()),
+        candid_parser::utils::CandidSource::Text(
+            &ic_blob_storage_canister::provider_candid_interface(),
+        ),
     )
     .unwrap();
 
     // Native registration equality cannot prove the compiled IC dispatch surface.
-    // Derive names and call kinds from Candid, not a second endpoint inventory.
+    // Derive names and call kinds from the catalog and provider-only Candid contract.
     let methods = ic_host_tools::candid::service::inspect(
         declared,
         ServiceLimits {
@@ -31,10 +35,33 @@ fn deployment_candid_matches_the_exported_contract() {
         },
     )
     .expect("inspect standalone Candid methods");
-    let expected = methods
+    let provider = methods
         .iter()
         .map(ServiceMethod::as_export)
         .collect::<BTreeSet<_>>();
+    let expected = SERVICE_METHODS
+        .iter()
+        .map(|method| interface::ExportedMethod {
+            name: method.name,
+            mode: match method.mode {
+                MethodMode::Query => interface::MethodMode::Query,
+                MethodMode::Update => interface::MethodMode::Update,
+            },
+        })
+        .collect::<BTreeSet<_>>();
+    let declared_provider = SERVICE_METHODS
+        .iter()
+        .filter(|m| m.codec == MethodCodec::Candid)
+        .map(|m| m.name)
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        methods
+            .iter()
+            .map(|m| m.name.as_str())
+            .collect::<BTreeSet<_>>(),
+        declared_provider
+    );
+    assert_eq!(provider.len(), declared_provider.len());
     let bytes = wasm();
     let facts = inspect(
         &bytes,
@@ -54,16 +81,13 @@ fn deployment_candid_matches_the_exported_contract() {
         // This namespace is reserved by IC CDK and is not an application API.
         .filter(|method| !method.name.starts_with("<ic-cdk internal> "))
         .collect::<BTreeSet<_>>();
-    assert_eq!(
-        exported, expected,
-        "callable standalone Wasm/Candid surface"
-    );
+    assert_eq!(exported, expected, "complete callable standalone surface");
 }
 
 fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
-    let mut template =
-        include_str!("../../../../canisters/standalone/trial/configuration.args.template")
-            .to_owned();
+    let template =
+        include_str!("../../../../canisters/standalone/trial/configuration.json.template");
+    let mut template = template.to_owned();
     for (placeholder, principal) in [
         ("ACTUAL_SERVICE_PRINCIPAL", f.service),
         ("OPERATOR_PRINCIPAL", f.operator),
@@ -72,18 +96,7 @@ fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
     ] {
         template = template.replace(placeholder, &principal.to_text());
     }
-    let declared = include_str!("../../../../canisters/standalone/service.did");
-    let (env, _) = candid_parser::utils::CandidSource::Text(declared)
-        .load()
-        .unwrap();
-    let args = candid_parser::parse_idl_args(&template).unwrap();
-    let bytes = args
-        .to_bytes_with_types(
-            &env,
-            &[env.find_type("ServiceConfigurationInput").unwrap().clone()],
-        )
-        .unwrap();
-    candid::decode_one(&bytes).unwrap()
+    serde_json::from_str(&template).unwrap()
 }
 
 fn record_trial(f: &Fixture, installation: &[u8], view: &HostConfigurationView) {
@@ -94,11 +107,14 @@ fn record_trial(f: &Fixture, installation: &[u8], view: &HostConfigurationView) 
     std::fs::create_dir(path).unwrap();
     for (name, bytes) in [
         (
-            "configuration.candid",
-            candid::encode_one(f.config).unwrap(),
+            "configuration.cbor",
+            ic_blob_storage_contracts::wire::encode(f.config).unwrap(),
         ),
-        ("installation.candid", installation.to_vec()),
-        ("readback.candid", candid::encode_one(view).unwrap()),
+        ("installation.cbor", installation.to_vec()),
+        (
+            "readback.cbor",
+            ic_blob_storage_contracts::wire::encode(view).unwrap(),
+        ),
         (
             "summary.json",
             serde_json::to_vec_pretty(&serde_json::json!({
@@ -123,9 +139,9 @@ fn record_trial(f: &Fixture, installation: &[u8], view: &HostConfigurationView) 
 }
 
 fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) -> Vec<u8> {
-    let source = directory.join("input.candid");
+    let source = directory.join("input.cbor");
     let output = directory.join("output");
-    std::fs::write(&source, candid::encode_one(f.config).unwrap()).unwrap();
+    std::fs::write(&source, serde_json::to_vec(&f.config).unwrap()).unwrap();
     let args = [
         "installation-check",
         "--configuration",
@@ -143,7 +159,7 @@ fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) ->
     ]
     .map(str::to_owned);
     let report = run(&args, 0);
-    let bytes = std::fs::read(output.join("installation.candid")).unwrap();
+    let bytes = std::fs::read(output.join("installation.cbor")).unwrap();
     assert_eq!(report["host_init_encoded"], true);
     assert_eq!(report["platform_identity_checked"], false);
     assert_eq!(report["installation_dispatched"], false);
@@ -207,12 +223,12 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     let manifest = f.small_manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();

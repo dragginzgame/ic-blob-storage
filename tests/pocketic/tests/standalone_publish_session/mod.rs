@@ -83,9 +83,10 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
     }
     let files = (0..2)
         .map(|index| {
-            candid::decode_one(
-                &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.candid")))
+            ic_blob_storage_contracts::wire::decode(
+                &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.cbor")))
                     .unwrap(),
+                ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
             )
             .unwrap()
         })
@@ -473,7 +474,7 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
         original,
     );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    std::fs::write(Path::new(original).join("manifest.candid"), b"DIDL").unwrap();
+    std::fs::write(Path::new(original).join("manifest.cbor"), b"DIDL").unwrap();
     change_native(
         &mut args,
         "--run-dir",

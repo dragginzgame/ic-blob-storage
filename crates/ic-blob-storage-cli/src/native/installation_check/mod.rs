@@ -1,7 +1,7 @@
 //! Offline complete candidate validation and init encoding; no platform or provider effect.
 
 use super::parsing::principal;
-use super::{Failure, artifacts::Run, exact_candid, read};
+use super::{Failure, artifacts::Run, exact_wire, read};
 use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::configuration::ValidatedInstallationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
@@ -9,7 +9,7 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use serde_json::{Value, json};
 use std::path::Path;
 
-const CONFIGURATION_BYTES: usize = exact_candid::INSTALLATION_BYTES;
+const CONFIGURATION_BYTES: usize = exact_wire::INSTALLATION_BYTES;
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let mut flags = super::parsing::flags(&args[1..])?;
@@ -24,7 +24,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         return Err(Failure::Arguments);
     }
     let bytes = read(path, CONFIGURATION_BYTES as u64)?;
-    let configuration = exact_candid::decode(&bytes, CONFIGURATION_BYTES, 64, 100_000)?;
+    let configuration = serde_json::from_slice(&bytes).map_err(|_| Failure::Arguments)?;
     let candidate = ServiceInstallationCandidate {
         configuration,
         project,
@@ -39,11 +39,13 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         project: project.into(),
         completion_verifier: verifier,
     };
-    let installation = candid::encode_one(input).map_err(|_| Failure::File)?;
+    let configuration_bytes =
+        ic_blob_storage_contracts::wire::encode(configuration).map_err(|_| Failure::File)?;
+    let installation = ic_blob_storage_contracts::wire::encode(input).map_err(|_| Failure::File)?;
     let report = json!({"schema":1,"observation":"local_installation_check",
-        "configuration_validated":true,"configuration_file":"configuration.candid",
-        "configuration_sha256":ContentDigest::compute(&bytes).to_string(),
-        "installation_file":"installation.candid",
+        "configuration_validated":true,"configuration_file":"configuration.cbor",
+        "proposal_file":"configuration.json","proposal_sha256":ContentDigest::compute(&bytes).to_string(),"configuration_sha256":ContentDigest::compute(&configuration_bytes).to_string(),
+        "installation_file":"installation.cbor",
         "installation_sha256":ContentDigest::compute(&installation).to_string(),
         "service":service.to_text(),"operator":configuration.operator.to_text(),
         "payment_account":configuration.payment_account.to_text(),
@@ -56,8 +58,9 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         "namespace_provisioned":false,"provider_qualified":false,
         "operational_recovery_qualified":false,"retry_authorized":false});
     let output = Run::create(directory)?;
-    output.bytes("configuration.candid", &bytes)?;
-    output.bytes("installation.candid", &installation)?;
+    output.bytes("configuration.json", &bytes)?;
+    output.bytes("configuration.cbor", &configuration_bytes)?;
+    output.bytes("installation.cbor", &installation)?;
     output.json("summary.json", &report)?;
     Ok(report)
 }

@@ -9,6 +9,7 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     candid::encode_one(principals).unwrap()
 }
@@ -26,12 +27,12 @@ impl Fixture {
     ) -> Result<(), GatewaySyncFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 "blob_cancel_gateway_sync",
-                (self.cancellation(sequence),),
-                REPLY_LIMITS,
+                self.cancellation(sequence),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -70,12 +71,12 @@ impl Fixture {
     ) -> Result<GatewayRevocationResponse, GatewayRevocationFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 GATEWAY_REVOCATION_METHOD,
-                (self.revocation(gateway),),
-                REPLY_LIMITS,
+                self.revocation(gateway),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }

@@ -1,0 +1,34 @@
+{
+  "status": "completed",
+  "class": "local installed codec experiment; synthetic handler; no deployed-provider/Canic result",
+  "external_calls": 0,
+  "paid_effects": 0,
+  "successful_samples_per_case": 10,
+  "cases": 6,
+  "codecs": 3,
+  "reply_and_native_equivalence": "all passed",
+  "measured_wasm_sha256": "c90df7b7e4f0101006912b9e7d6575f9ed2b82314eef424258dc3188f7a76fc6",
+  "record": "../../../wire-bench0320.json",
+  "raw_directory": ".tmp/review-validation/wire-bench0320",
+  "failures_retained": "lock comparisons exposed multi-version comparison error, regenerated lock drift and native SHA default feature; no installed dispatch before corrected frozen final inputs; native runner initially used unavailable LowerHex with no-default-feature SHA; fixed byte formatting before dispatch; exact released DTO control initially omitted direct serde derive dependency, repaired before dispatch",
+  "cleanup": "PocketIC owned server/instance dropped normally; synthetic canister only, no retained provider obligations; raw source, locks, packets and logs retained locally",
+  "limitations": [
+    "tenant inspection/update only",
+    "same single harness Wasm links all three codecs; no isolated codec Wasm size claim",
+    "counter excludes raw argument copying, framework dispatch, transport/reply delivery; includes counter overhead",
+    "synthetic native handler excludes policy, storage, provider calls and Canic",
+    "Candid uses exact released DTO source/derives and released endpoint decoder limits; not a rebuilt complete 0.31 artifact",
+    "CBOR lacks Wire method/direction identity and canonical validation; guarantees differ",
+    "production sizes from prior source-bound default-release artifacts; no new optimization/size rebuild",
+    "no claim about throughput, cycles, full-service instruction counts or unconverted methods"
+  ],
+  "selected_updates": 180,
+  "selected_counter_queries": 180,
+  "total_updates_including_earlier_control": 360,
+  "total_counter_queries_including_earlier_control": 360,
+  "earlier_control": {
+    "directory": ".tmp/review-validation/wire-bench0320/attempts/current-dto-control",
+    "reason": "representation-equivalent current DTOs had additional Serde attributes; exact released DTO comparison selected instead",
+    "results_sha256": "43c87c4ad381ffa6f069f04adbb7cea3c5a60addacfa4ab14962edd398d6fea4"
+  }
+}

@@ -3,6 +3,7 @@ use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
 fn live(f: &mut Fixture, args: &mut [String]) {
@@ -17,10 +18,14 @@ fn live(f: &mut Fixture, args: &mut [String]) {
 fn args(f: &Fixture, dir: &std::path::Path, permission: UploadAdmissionRequest) -> Vec<String> {
     let key = dir.join("identity.pem");
     let root = dir.join("root.der");
-    let saved = dir.join("permission.candid");
+    let saved = dir.join("permission.cbor");
     std::fs::write(&key, PEM).unwrap();
     std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
-    std::fs::write(&saved, candid::encode_one(permission).unwrap()).unwrap();
+    std::fs::write(
+        &saved,
+        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+    )
+    .unwrap();
     [
         "certificate-assessment",
         "--network",
@@ -50,12 +55,20 @@ fn rejects_changed_permission_and_trust(
     dir: &std::path::Path,
     permission: UploadAdmissionRequest,
 ) {
-    let saved = dir.join("permission.candid");
+    let saved = dir.join("permission.cbor");
     let mut changed = permission;
     changed.expires_at_ns -= 1;
-    std::fs::write(&saved, candid::encode_one(changed).unwrap()).unwrap();
+    std::fs::write(
+        &saved,
+        ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+    )
+    .unwrap();
     assert_eq!(run(args, 3)["error"], "binding");
-    std::fs::write(&saved, candid::encode_one(permission).unwrap()).unwrap();
+    std::fs::write(
+        &saved,
+        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+    )
+    .unwrap();
     let root = dir.join("root.der");
     let trusted = std::fs::read(&root).unwrap();
     let mut wrong = trusted.clone();
@@ -82,12 +95,12 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
     let permission = manifest.permission;
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -114,12 +127,12 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
     f.harness.pic.stop_live();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -130,7 +143,8 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
     f.harness.pic.stop_live();
     let revoked = f.admission(permission);
     assert!(revoked.revoked);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     live(&mut f, &mut args);
     assert_eq!(run(&args, 3)["error"], "assessment_permission_fenced");

@@ -6,7 +6,8 @@ use candid::Deserialize;
 
 /// Exact uploader-only preparation assessment. This snapshot cannot authorize a
 /// later update; issuance rechecks the original permission and current host facts.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadCertificateAssessmentResponse {
     /// Original retained permission resolved from the provider root locator.
     pub permission: UploadAdmissionRequest,
@@ -19,7 +20,8 @@ pub struct UploadCertificateAssessmentResponse {
 /// Successful `_immutableObjectStorageCreateCertificate` response, matching the
 /// reviewed Caffeine Mixin. This record alone is neither a signed certificate nor
 /// proof of provider acceptance, completed upload, or billing behavior.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct CaffeineUploadCertificateResponse {
     /// Exactly `upload` for the supported operation.
     pub method: String,

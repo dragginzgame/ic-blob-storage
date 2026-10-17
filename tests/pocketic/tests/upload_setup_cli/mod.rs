@@ -1,5 +1,6 @@
 //! Signed local reservation/preparation/cancellation journey for the standalone host.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod inputs;
 mod phases;
 use crate::{
@@ -36,14 +37,13 @@ pub(crate) fn cancelled_totals(
 ) {
     use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
     use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
-    use ic_testkit::pic::CandidCallExt;
     let status = pic
-        .query_candid_as::<Result<LocalServiceStatus, LocalStatusFailure>, _>(
+        .query_blob_as::<Result<LocalServiceStatus, LocalStatusFailure>, _>(
             scope.service,
             operator,
             "blob_local_status",
-            (scope,),
-            REPLY_LIMITS,
+            scope,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -147,9 +147,9 @@ impl Client {
             self.report
                 .join("inputs")
                 .join(if command == "prepare-upload" {
-                    "manifest.candid"
+                    "manifest.cbor"
                 } else {
-                    "permission.candid"
+                    "permission.cbor"
                 })
                 .to_str()
                 .unwrap()
@@ -199,7 +199,7 @@ impl Client {
                 service: self.permission.permission.upload.service,
                 actor: actual,
                 method,
-                argument_file: "request.candid",
+                argument_file: "request.cbor",
             },
             reply,
         );
@@ -236,7 +236,7 @@ impl Client {
         change(
             &mut recovery,
             "--request",
-            directory.join("permission.candid").to_str().unwrap(),
+            directory.join("permission.cbor").to_str().unwrap(),
         );
         let observed = self.call(&recovery, 0);
         assert_eq!(observed["retry_authorized"], false);

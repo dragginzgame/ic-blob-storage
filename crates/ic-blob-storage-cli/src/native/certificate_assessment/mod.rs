@@ -19,8 +19,7 @@ pub(super) struct Input {
 
 fn open(input: &Input, actor: Principal) -> Result<(UploadAdmissionRequest, Vec<u8>), Failure> {
     let bytes = read(&input.permission, 4096)?;
-    let permission: UploadAdmissionRequest =
-        crate::native::exact_candid::decode(&bytes, 4096, 64, 100_000)?;
+    let permission: UploadAdmissionRequest = crate::native::exact_wire::decode(&bytes, 4096)?;
     let argument = reply::assessment_request(permission).map_err(|_| Failure::Arguments)?;
     if permission.upload.service != input.service || permission.upload.namespace != input.namespace
     {

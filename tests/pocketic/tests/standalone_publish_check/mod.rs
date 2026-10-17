@@ -8,6 +8,7 @@ use crate::{
 };
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -69,8 +70,8 @@ pub(super) fn freeze_bodies(
     assert_eq!(bodies.len(), cache_controls.len());
     let host = fixture.configuration(fixture.operator).unwrap();
     std::fs::write(
-        directory.join("installation.candid"),
-        candid::encode_one(ServiceInstallationInput {
+        directory.join("installation.cbor"),
+        ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
             configuration: host.configuration,
             project: host.project.clone(),
             completion_verifier: host.completion_verifier,
@@ -132,7 +133,7 @@ pub(super) fn freeze_bodies(
         "--root",
         directory.to_str().unwrap(),
         "--installation",
-        directory.join("installation.candid").to_str().unwrap(),
+        directory.join("installation.cbor").to_str().unwrap(),
         "--max-bytes",
         &maximum,
         "--max-total-bytes",
@@ -198,12 +199,12 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (p,),
-            REPLY_LIMITS,
+            p,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -220,7 +221,8 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
     let repeated = run(&args(&f, d.path(), &url, "pending"), 3);
     assert_eq!(repeated["error"], "new_run_required");
     f.harness.pic.stop_progress();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     f.harness.pic.auto_progress();
     let before = f.harness.pic.get_stable_memory(f.service);
     let restored = run(&args(&f, d.path(), &url, "restored"), 0);
@@ -245,23 +247,23 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
     p.upload.object = 99;
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (p,),
-            REPLY_LIMITS,
+            p,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (p,),
-            REPLY_LIMITS,
+            p,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();

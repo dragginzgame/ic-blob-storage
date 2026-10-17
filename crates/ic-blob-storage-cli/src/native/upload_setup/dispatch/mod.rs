@@ -21,7 +21,7 @@ pub(super) async fn run(
             service: input.service,
             method: input.kind.method(),
             argument: &saved.argument,
-            argument_file: "request.candid",
+            argument_file: "request.cbor",
             directory,
             reply_limit: MANIFEST_REPLY_BYTES,
         },
@@ -36,8 +36,9 @@ pub(super) async fn run(
         },
     )?;
     prepared.run().bytes(
-        "permission.candid",
-        &candid::encode_one(saved.payload.permission()).map_err(|_| Failure::Arguments)?,
+        "permission.cbor",
+        &ic_blob_storage_contracts::wire::encode(saved.payload.permission())
+            .map_err(|_| Failure::Arguments)?,
     )?;
     let (observation, report) = prepared.dispatch(agent).await.finish(
         |bytes| observation(input, saved, bytes),

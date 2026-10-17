@@ -11,6 +11,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
 use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 #[test]
 fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
@@ -32,12 +33,12 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
      -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
         f.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 f.service,
                 actor,
                 FUNDING_OUTCOME_METHOD,
-                (request,),
-                REPLY_LIMITS,
+                request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     };
@@ -88,17 +89,18 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
     let replicated: Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             FUNDING_OUTCOME_METHOD,
-            (request,),
-            REPLY_LIMITS,
+            request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(None));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(read(f.operator, request), Ok(None));
     assert_eq!(
@@ -131,12 +133,12 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
      -> Result<FundingHistoryPage, FundingHistoryFailure> {
         f.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 f.service,
                 actor,
                 FUNDING_HISTORY_METHOD,
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     };
@@ -209,17 +211,18 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
     let replicated: Result<FundingHistoryPage, FundingHistoryFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             FUNDING_HISTORY_METHOD,
-            (request,),
-            REPLY_LIMITS,
+            request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected.clone()));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     expected.fenced = true;
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(read(f.operator, request), Ok(expected));

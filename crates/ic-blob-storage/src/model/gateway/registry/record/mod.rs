@@ -82,7 +82,7 @@ impl GatewayRegistryRecord {
 crate::model::record_codec::storable!(
     GatewayRegistryRecord, bytes: MAX_BYTES, work: 500_000, skipping: 1000,
     types: 32, header: MAX_BYTES,
-    layout: ic_memory::ic_stable_structures::storable::Bound::Bounded {
+    layout: ic_stable_structures::storable::Bound::Bounded {
         max_size: MAX_BYTES, is_fixed_size: false,
     },
 );

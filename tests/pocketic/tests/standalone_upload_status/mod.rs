@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 impl Fixture {
     pub(super) fn upload_status(
@@ -14,12 +15,12 @@ impl Fixture {
     ) -> Result<UploadStatusResponse, UploadStatusFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 UPLOAD_STATUS_METHOD,
-                (upload,),
-                REPLY_LIMITS,
+                upload,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -41,12 +42,12 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     admitted.unwrap();
@@ -60,12 +61,12 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let replicated: Result<UploadStatusResponse, UploadStatusFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             UPLOAD_STATUS_METHOD,
-            (permission.upload,),
-            REPLY_LIMITS,
+            permission.upload,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -73,16 +74,16 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            (TenantUpdateRequest {
+            TenantUpdateRequest {
                 scope: f.scope(),
                 expected: enrollment.enrollment,
                 active: false,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     suspended.unwrap();
@@ -91,19 +92,20 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     revoked.unwrap();
     expected.state = UploadState::Cancelled;
     expected.revoked = true;
     assert_eq!(f.upload_status(f.tenant, permission.upload), Ok(expected));
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert!(f.configuration(f.operator).unwrap().fenced);
     assert_eq!(f.upload_status(f.tenant, permission.upload), Ok(expected));
@@ -126,12 +128,12 @@ fn standalone_upload_status_rejects_foreign_malformed_and_changed_original_bindi
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     admitted.unwrap();

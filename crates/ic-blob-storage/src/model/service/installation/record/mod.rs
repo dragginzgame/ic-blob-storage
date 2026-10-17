@@ -69,7 +69,7 @@ impl ConfigurationRecord {
 crate::model::record_codec::storable!(
     ConfigurationRecord, bytes: 16_384, work: 100_000, skipping: 1024,
     types: 64, header: 16_384,
-    layout: ic_memory::ic_stable_structures::storable::Bound::Bounded {
+    layout: ic_stable_structures::storable::Bound::Bounded {
         max_size: 16_384, is_fixed_size: false,
     },
 );

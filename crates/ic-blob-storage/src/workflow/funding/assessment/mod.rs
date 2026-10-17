@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailu
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// Inspect one proposed new intent synchronously with authenticated local facts.
 /// Independent provider, recovery, spendability and account-activity evidence is

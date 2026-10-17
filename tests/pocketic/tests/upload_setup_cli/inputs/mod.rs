@@ -29,13 +29,13 @@ pub(super) fn prepare(c: &Client, body: &[u8]) {
     let source = c.temporary.path().join("source.bin");
     save(&source, body);
     save(
-        &c.report.join("installation.candid"),
-        &candid::encode_one(&c.installation).unwrap(),
+        &c.report.join("installation.cbor"),
+        &ic_blob_storage_contracts::wire::encode(&c.installation).unwrap(),
     );
     let args = vec![
         "upload-inputs".into(),
         "--installation".into(),
-        c.report.join("installation.candid").display().to_string(),
+        c.report.join("installation.cbor").display().to_string(),
         "--binding".into(),
         c.report.join("binding.json").display().to_string(),
         "--manifest".into(),
@@ -54,9 +54,11 @@ pub(super) fn prepare(c: &Client, body: &[u8]) {
     assert_eq!(result["body_verified"], true);
     assert_eq!(result["service_dispatched"], false);
     assert_eq!(result["provider_dispatched"], false);
-    let generated: UploadManifestRequest =
-        candid::decode_one(&std::fs::read(c.report.join("inputs/manifest.candid")).unwrap())
-            .unwrap();
+    let generated: UploadManifestRequest = ic_blob_storage_contracts::wire::decode(
+        &std::fs::read(c.report.join("inputs/manifest.cbor")).unwrap(),
+        ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+    )
+    .unwrap();
     assert_eq!(generated, c.permission);
     assert_eq!(
         std::fs::read(c.report.join("inputs/body.bin")).unwrap(),
@@ -91,7 +93,7 @@ pub(super) fn unconfirmed_reference(c: &Client) {
         &mut args,
         "--request",
         c.report
-            .join("inputs/reference-status.candid")
+            .join("inputs/reference-status.cbor")
             .to_str()
             .unwrap(),
     );
@@ -101,7 +103,7 @@ pub(super) fn unconfirmed_reference(c: &Client) {
     change(
         &mut args,
         "--request",
-        c.report.join("inputs/download.candid").to_str().unwrap(),
+        c.report.join("inputs/download.cbor").to_str().unwrap(),
     );
     args.extend([
         "--project".into(),

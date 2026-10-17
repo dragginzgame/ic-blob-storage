@@ -1,0 +1,13 @@
+{
+  "class": "local codec-only experiment addendum",
+  "reason": "replace representation-equivalent current Candid DTO control with exact released derives, preserving first successful run separately",
+  "additional_budget": {
+    "measured_updates": 180,
+    "counter_queries": 180,
+    "paid_effects": 0,
+    "external_calls": 0
+  },
+  "target": "same six cases and frozen dependencies; released Candid DTO source at HEAD; exact source recorded before build",
+  "retention": ".tmp/review-validation/wire-bench0320/attempts/current-dto-control",
+  "cleanup": "owned local server/instance; no provider effects"
+}

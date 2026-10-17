@@ -68,8 +68,8 @@ pub(super) fn validate(
         .map_err(|_| Failure::Arguments)?;
     let (permission, manifest) = selected.setup_requests();
     if intent != *expected
-        || read_at(origin, "permission.candid", 4096)? != permission
-        || read_at(origin, "manifest.candid", 65536)? != manifest
+        || read_at(origin, "permission.cbor", 4096)? != permission
+        || read_at(origin, "manifest.cbor", 65536)? != manifest
     {
         return Err(Failure::Binding);
     }
@@ -120,8 +120,8 @@ pub(super) fn validate_attempt(
         request,
         root,
     )?;
-    let packets_match = packet("request.candid", 65536)? == request
-        && packet("permission.candid", 4096)? == permission
+    let packets_match = packet("request.cbor", 65536)? == request
+        && packet("permission.cbor", 4096)? == permission
         && intent["request_sha256"] == ContentDigest::compute(request).to_string();
     let role_and_scope_match = intent["actor"] == actor.to_text()
         && intent["service"] == selected.permission.upload.service.to_text()

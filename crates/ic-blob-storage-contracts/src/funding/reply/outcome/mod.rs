@@ -17,7 +17,7 @@ use std::num::NonZeroUsize;
 /// Rejects invalid scope, zero identities/amounts or encoding failure.
 pub fn inspection_request(input: FundingOutcomeRequest) -> Result<Vec<u8>, FundingReplyError> {
     check_outcome(input)?;
-    candid::encode_one(input).map_err(|_| FundingReplyError::Invalid)
+    crate::wire::encode(input).map_err(|_| FundingReplyError::Invalid)
 }
 
 /// Decode a response from the independently authenticated selected service.

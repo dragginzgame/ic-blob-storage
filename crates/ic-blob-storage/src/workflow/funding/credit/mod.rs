@@ -5,7 +5,7 @@ use crate::ops::service::funding::FundingJournalError;
 use crate::ops::service::funding::StableFundingJournal;
 use crate::ops::service::funding::outcome::FundingOutcomeView;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// One synchronous reconciliation result, never permission to repeat a payment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

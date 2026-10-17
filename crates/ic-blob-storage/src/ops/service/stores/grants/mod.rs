@@ -7,7 +7,8 @@ use super::ServiceMemories;
 use crate::ops::service::{
     funding::FundingMemories, reads::ReadSessionMemories, uploads::UploadMemories,
 };
-use ic_memory::{MemoryDeclarationError, MemoryRequest, ic_stable_structures::Memory};
+use ic_memory::{MemoryDeclarationError, MemoryRequest};
+use ic_stable_structures::Memory;
 
 // Logical identities are independent of host-selected physical IDs. Keep this
 // mapping shared so an adapter cannot accidentally swap accounting and history.

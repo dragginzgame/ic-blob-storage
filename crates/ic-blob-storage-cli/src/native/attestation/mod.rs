@@ -58,8 +58,7 @@ impl Recovery {
         actor: Principal,
         bytes: &[u8],
     ) -> Result<Self, Failure> {
-        let statement: UploadAttestationRequest =
-            crate::native::exact_candid::decode(bytes, 4096, 64, 100_000)?;
+        let statement: UploadAttestationRequest = crate::native::exact_wire::decode(bytes, 4096)?;
         let authority = CompletionAuthority::new(
             service,
             namespace.try_into().map_err(|_| Failure::Arguments)?,

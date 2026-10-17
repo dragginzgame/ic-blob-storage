@@ -3,16 +3,17 @@ use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -42,17 +43,18 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
         )
         .unwrap();
     assert_eq!(f.admission(permission).state, UploadState::ExposurePossible);
-    pic.update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+    pic.update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
         f.service,
         f.tenant,
         "blob_revoke_upload",
-        (permission,),
-        REPLY_LIMITS,
+        permission,
+        REPLY_LIMITS.reply_bytes,
     )
     .unwrap()
     .unwrap();
     assert!(f.admission(permission).revoked);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
 
     // Loading includes the old heap owner; it does not run ops::restore.
@@ -89,12 +91,12 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     // The old backup may omit later history, but neither absence nor its local
     // counters authorize admission or a fresh certificate for the reused identity.
     assert_eq!(
-        pic.update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        pic.update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS
+            permission,
+            REPLY_LIMITS.reply_bytes
         )
         .unwrap(),
         Err(UploadAdmissionFailure::Fenced)

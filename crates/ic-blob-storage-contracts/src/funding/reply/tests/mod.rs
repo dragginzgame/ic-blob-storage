@@ -36,7 +36,8 @@ fn outcome_request_validates_original_intent_without_defaulting_target() {
         };
         let encoded = outcome::inspection_request(input).unwrap();
         assert_eq!(
-            candid::decode_one::<FundingOutcomeRequest>(&encoded).unwrap(),
+            crate::wire::decode::<FundingOutcomeRequest>(&encoded, crate::wire::MAX_MESSAGE_BYTES)
+                .unwrap(),
             input
         );
     }
@@ -99,8 +100,8 @@ fn page() -> FundingHistoryPage {
         fenced: true,
     }
 }
-fn bytes<T: CandidType>(value: T) -> Vec<u8> {
-    candid::encode_one(value).unwrap()
+fn bytes<T: serde::Serialize>(value: T) -> Vec<u8> {
+    crate::wire::encode(value).unwrap()
 }
 fn history_bytes(page: FundingHistoryPage) -> Vec<u8> {
     bytes(Ok::<_, FundingHistoryFailure>(page))

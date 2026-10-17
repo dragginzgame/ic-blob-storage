@@ -4,6 +4,7 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::reference::{ReferenceProbeFailure, ReferenceStatusClientInput};
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn request(input: ReferenceInput) -> ReferenceStatusRequest {
     let command = receipt_request(input);
@@ -19,12 +20,12 @@ fn inspect(
 ) -> Result<ReferenceStatusResponse, ReferenceFailure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             actor,
             "blob_reference_status",
-            (request,),
-            REPLY_LIMITS,
+            request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
@@ -82,12 +83,12 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
     let replicated: Result<ReferenceStatusResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_reference_status",
-            (query,),
-            REPLY_LIMITS,
+            query,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(retired));

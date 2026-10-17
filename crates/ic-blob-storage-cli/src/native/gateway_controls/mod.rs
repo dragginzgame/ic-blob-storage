@@ -43,15 +43,19 @@ impl Input {
     }
     fn argument(&self) -> Result<Vec<u8>, Failure> {
         match self.action {
-            Action::Sync => candid::encode_one(self.scope),
-            Action::Cancel(sequence) => candid::encode_one(GatewaySyncCancellation {
-                scope: self.scope,
-                sequence,
-            }),
-            Action::Revoke(gateway) => candid::encode_one(GatewayRevocationRequest {
-                scope: self.scope,
-                gateway,
-            }),
+            Action::Sync => ic_blob_storage_contracts::wire::encode(self.scope),
+            Action::Cancel(sequence) => {
+                ic_blob_storage_contracts::wire::encode(GatewaySyncCancellation {
+                    scope: self.scope,
+                    sequence,
+                })
+            }
+            Action::Revoke(gateway) => {
+                ic_blob_storage_contracts::wire::encode(GatewayRevocationRequest {
+                    scope: self.scope,
+                    gateway,
+                })
+            }
         }
         .map_err(|_| Failure::Arguments)
     }
@@ -85,7 +89,7 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
             service: input.scope.service,
             method: input.method(),
             argument: &argument,
-            argument_file: "request.candid",
+            argument_file: "request.cbor",
             directory: &input.directory,
             reply_limit: SMALL_REPLY_BYTES,
         },

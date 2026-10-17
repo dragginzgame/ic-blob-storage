@@ -13,8 +13,8 @@ use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 #[cfg(test)]
-use ic_memory::ic_stable_structures::Storable;
-use ic_memory::ic_stable_structures::storable::Bound;
+use ic_stable_structures::Storable;
+use ic_stable_structures::storable::Bound;
 #[cfg(test)]
 use std::borrow::Cow;
 

@@ -1,5 +1,6 @@
 //! Standalone operator removal delegates to the shared durable owner.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod funding_assessment;
 mod native_cli;
 mod sync;
@@ -19,12 +20,12 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     let call = |actor, input| -> Result<GatewayRevocationResponse, Error> {
         f.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 f.service,
                 actor,
                 GATEWAY_REVOCATION_METHOD,
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     };
@@ -79,7 +80,8 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
         !f.harness.pic.get_stable_memory(f.service).eq(&before),
         "revocation did not advance durable invalidation"
     );
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(call(f.operator, input), Err(Error::Fenced));
     assert!(

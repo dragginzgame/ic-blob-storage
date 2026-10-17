@@ -26,7 +26,7 @@ fn revocation_reply_requires_withdrawal_and_the_complete_original_permission() {
         },
         changed: true,
     };
-    let bytes = encode_one(Ok::<_, UploadAdmissionFailure>(response)).unwrap();
+    let bytes = encode(Ok::<_, UploadAdmissionFailure>(response)).unwrap();
     assert_eq!(revocation(permission, &bytes, max), Ok(response));
     let unrevoked = UploadRevocationResponse {
         admission: UploadAdmissionResponse {
@@ -38,7 +38,7 @@ fn revocation_reply_requires_withdrawal_and_the_complete_original_permission() {
     assert_eq!(
         revocation(
             permission,
-            &encode_one(Ok::<_, UploadAdmissionFailure>(unrevoked)).unwrap(),
+            &encode(Ok::<_, UploadAdmissionFailure>(unrevoked)).unwrap(),
             max
         ),
         Err(UploadAdmissionReplyError::Invalid)
@@ -77,7 +77,7 @@ fn revocation_reply_requires_withdrawal_and_the_complete_original_permission() {
     let refused: Result<UploadRevocationResponse, UploadAdmissionFailure> =
         Err(UploadAdmissionFailure::Fenced);
     assert_eq!(
-        revocation(permission, &encode_one(refused).unwrap(), max),
+        revocation(permission, &encode(refused).unwrap(), max),
         Err(UploadAdmissionReplyError::Remote(
             UploadAdmissionFailure::Fenced
         ))

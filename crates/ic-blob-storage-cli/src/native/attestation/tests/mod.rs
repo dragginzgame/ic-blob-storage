@@ -39,7 +39,7 @@ fn open(path: &Path, statement: &UploadAttestationRequest) -> Result<Recovery, F
 fn output(recovery: &Recovery, attestation: &UploadAttestationLookup, fenced: bool) -> Value {
     let inspection = recovery
         .inspect(
-            &candid::encode_one(Ok::<_, UploadAttestationFailure>(
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, UploadAttestationFailure>(
                 UploadAttestationResponse {
                     permission: recovery.statement.permission,
                     attestation: *attestation,
@@ -64,7 +64,7 @@ fn output(recovery: &Recovery, attestation: &UploadAttestationLookup, fenced: bo
 fn saved_statement_recovery_distinguishes_absence_match_and_conflict_without_retry() {
     let file = tempfile::NamedTempFile::new().unwrap();
     let statement = statement();
-    let original = candid::encode_one(statement).unwrap();
+    let original = ic_blob_storage_contracts::wire::encode(statement).unwrap();
     std::fs::write(file.path(), &original).unwrap();
     let recovery = open(file.path(), &statement).unwrap();
     // Inspection depends only on retained exact intent, not the original content file.
@@ -111,7 +111,11 @@ fn saved_statement_recovery_distinguishes_absence_match_and_conflict_without_ret
 fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
     let file = tempfile::NamedTempFile::new().unwrap();
     let s = statement();
-    std::fs::write(file.path(), candid::encode_one(s).unwrap()).unwrap();
+    std::fs::write(
+        file.path(),
+        ic_blob_storage_contracts::wire::encode(s).unwrap(),
+    )
+    .unwrap();
     let mut other_scope = s;
     other_scope.permission.upload.namespace = 1;
     assert!(matches!(
@@ -147,10 +151,10 @@ fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
     let mut invalid = s;
     invalid.permission.upload.upload = 0;
     for bytes in [
-        candid::encode_one(invalid).unwrap(),
+        ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
         b"DIDL".to_vec(),
-        candid::encode_args((s, 1_u8)).unwrap(),
-        candid::encode_args((s, candid::Reserved)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((s, 1_u8)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((s, candid::Reserved)).unwrap(),
     ] {
         std::fs::write(file.path(), bytes).unwrap();
         assert!(matches!(open(file.path(), &s), Err(Failure::Arguments)));
@@ -178,7 +182,7 @@ fn command_requires_saved_statement_and_explicit_expected_verifier() {
         "--namespace",
         &u128::MAX.to_string(),
         "--statement",
-        "statement.candid",
+        "statement.cbor",
         "--verifier",
         &verifier().to_text(),
     ]

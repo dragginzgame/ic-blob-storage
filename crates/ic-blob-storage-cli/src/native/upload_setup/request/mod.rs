@@ -16,13 +16,9 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
         },
     )?;
     let payload = if input.kind == Kind::Prepare {
-        Payload::Manifest(crate::native::exact_candid::decode(
-            &bytes, 65536, 64, 2_000_000,
-        )?)
+        Payload::Manifest(crate::native::exact_wire::decode(&bytes, 65536)?)
     } else {
-        Payload::Permission(crate::native::exact_candid::decode(
-            &bytes, 65536, 64, 2_000_000,
-        )?)
+        Payload::Permission(crate::native::exact_wire::decode(&bytes, 65536)?)
     };
     let permission = payload.permission();
     admission::validate_request(permission).map_err(admission_error)?;
@@ -48,8 +44,8 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
             .map_err(manifest_error)?;
     }
     let argument = match &payload {
-        Payload::Manifest(manifest) => candid::encode_one(manifest),
-        Payload::Permission(permission) => candid::encode_one(permission),
+        Payload::Manifest(manifest) => ic_blob_storage_contracts::wire::encode(manifest),
+        Payload::Permission(permission) => ic_blob_storage_contracts::wire::encode(permission),
     }
     .map_err(|_| Failure::Arguments)?;
     Ok(Request { payload, argument })

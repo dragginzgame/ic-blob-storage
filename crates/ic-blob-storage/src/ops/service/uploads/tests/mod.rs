@@ -22,7 +22,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadRequestId;
-use ic_memory::ic_stable_structures::VectorMemory;
+use ic_stable_structures::VectorMemory;
 use std::num::NonZeroU128;
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
@@ -424,7 +424,7 @@ fn missing_or_substituted_manifest_is_not_repaired_on_reopen() {
 
 #[test]
 fn codec_envelope_is_checked_before_installation_and_binds_reopening() {
-    use ic_memory::ic_stable_structures::Storable;
+    use ic_stable_structures::Storable;
     use std::num::NonZeroUsize;
     let base = config();
     let mut limits = base.limits();

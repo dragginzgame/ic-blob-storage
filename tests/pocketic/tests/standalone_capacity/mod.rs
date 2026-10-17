@@ -4,6 +4,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure as F;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     pub(super) fn capacity(
         &self,
@@ -12,12 +13,12 @@ impl Fixture {
     ) -> Result<UploadCapacityResponse, F> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 UPLOAD_CAPACITY_METHOD,
-                (scope,),
-                REPLY_LIMITS,
+                scope,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -92,12 +93,12 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
     let replicated: Result<UploadCapacityResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             UPLOAD_CAPACITY_METHOD,
-            (scope,),
-            REPLY_LIMITS,
+            scope,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(observed));
@@ -131,16 +132,16 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let enrolled: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            (TenantUpdateRequest {
+            TenantUpdateRequest {
                 scope: other_scope,
                 expected: None,
                 active: true,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     enrolled.unwrap();
@@ -156,12 +157,12 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
         let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 f.service,
                 permission.upload.tenant,
                 "blob_admit_upload",
-                (permission,),
-                REPLY_LIMITS,
+                permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         admitted.unwrap();
@@ -174,28 +175,28 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            (TenantUpdateRequest {
+            TenantUpdateRequest {
                 scope,
                 expected: enrollment.enrollment,
                 active: false,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     suspended.unwrap();
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     revoked.unwrap();
@@ -208,7 +209,8 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
         cancelled.remaining_bytes,
         initial.remaining_bytes - u128::from(other_permission.upload.bytes)
     );
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(
         f.capacity(f.tenant, scope),

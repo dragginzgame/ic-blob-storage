@@ -21,7 +21,7 @@ use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_blob_storage_contracts::upload::manifests::bounds;
 use ic_blob_storage_contracts::upload::manifests::headers;
 
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 fn parse(
     context: UploadContext,
     input: UploadAdmissionRequest,

@@ -55,7 +55,8 @@ pub(super) async fn run(
     request: AccountInspectionRequest,
 ) -> Result<Value, Failure> {
     let agent = agent(options)?;
-    let argument = candid::encode_one(request).map_err(|_| Failure::Arguments)?;
+    let argument =
+        ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?;
     let bytes = super::inspection_update(
         &agent,
         request.scope.service,

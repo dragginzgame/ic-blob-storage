@@ -1,0 +1,16 @@
+{
+  "class": "local codec-only PocketIC experiment; no provider behavior inferred",
+  "target": "released Candid decoder configuration vs pending CBOR vs frozen prepublication IC Wire tenant adapters",
+  "budget": {
+    "codecs": 3,
+    "scenarios": 6,
+    "successful_samples_each": 10,
+    "local_instances": 1,
+    "paid_effects": 0,
+    "external_calls": 0
+  },
+  "measurement": "raw argument copy excluded; instruction_counter includes decode, native DTO conversion, deterministic synthetic handler and encode; no service policy/storage measured",
+  "source": "private candidate snapshot from icwire0320, captured upstream HEAD 226a11fce6d5cdd59a77d9a006c91f5a46c58b42 plus recorded dirty source",
+  "retention": ".tmp/review-validation/wire-bench0320",
+  "cleanup": "local synthetic canisters and server owned by harness; no external obligations"
+}

@@ -15,7 +15,7 @@ use crate::model::service::read::session::record::ReadUsageRecord;
 use candid::Principal;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::{BTreeMap, Memory};
+use ic_stable_structures::{BTreeMap, Memory};
 use std::{collections::BTreeMap as HeapMap, num::NonZeroU32, ops::Bound};
 
 /// Three distinct memories, exclusively granted by the host; no implicit registration.

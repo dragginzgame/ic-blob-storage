@@ -86,13 +86,10 @@ impl NativeAccountCli {
     }
     pub fn reports(&self, configure: impl Fn(Kind, Vec<u8>)) {
         for (index, (kind, bytes, expected)) in cases(self.scope).into_iter().enumerate() {
+            save(&self.report.join(format!("source-{index:02}.cbor")), &bytes);
             save(
-                &self.report.join(format!("source-{index:02}.candid")),
-                &bytes,
-            );
-            save(
-                &self.report.join(format!("request-{index:02}.candid")),
-                &candid::encode_one(AccountInspectionRequest {
+                &self.report.join(format!("request-{index:02}.cbor")),
+                &ic_blob_storage_contracts::wire::encode(AccountInspectionRequest {
                     scope: self.scope,
                     kind,
                 })
@@ -113,7 +110,7 @@ impl NativeAccountCli {
             (1, vec![0; 4097], "account_reply_too_large"),
         ] {
             save(
-                &self.report.join(format!("invalid-source-{index}.candid")),
+                &self.report.join(format!("invalid-source-{index}.cbor")),
                 &bytes,
             );
             configure(Kind::Balance, bytes);

@@ -1,5 +1,6 @@
 //! Actual configured host: project-bound multi-user issuance, quotas and restore fences.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod signed;
 use super::*;
 use ic_blob_storage_contracts::dto::upload::UploadState;
@@ -15,7 +16,13 @@ pub(super) fn inspect(
 ) -> Result<UploadCertificateAssessmentResponse, E> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, INSPECT, (root.to_owned(),), REPLY_LIMITS)
+        .query_blob_as(
+            f.service,
+            actor,
+            INSPECT,
+            root.to_owned(),
+            REPLY_LIMITS.reply_bytes,
+        )
         .unwrap()
 }
 pub(super) fn refuses(f: &Fixture, actor: Principal, root: &str) {
@@ -46,12 +53,12 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     assert_eq!(admit(&f, oversized), Err(UploadAdmissionFailure::Capacity));
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -100,12 +107,12 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -115,7 +122,8 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         usage
     );
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     assert_eq!(
         inspect(&f, f.uploader, &root),
         Err(E::Permission(UploadAdmissionFailure::Fenced))
@@ -214,12 +222,12 @@ fn admit(
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
@@ -232,12 +240,12 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     let root = root(&manifest);
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -282,12 +290,12 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     refuses(&f, f.uploader, &root);
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -298,7 +306,8 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         usage
     );
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     assert_eq!(f.admission(manifest.permission), retained);
     let restored = f.harness.pic.get_stable_memory(f.service);
     refuses(&f, f.uploader, &root);
@@ -349,19 +358,19 @@ fn malformed(f: &Fixture, root: &str) {
             unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
         }
     }
-    let reply = f
-        .harness
-        .pic
-        .query_call(
-            f.service,
-            f.uploader,
-            INSPECT,
-            candid::encode_args((root, "small")).unwrap(),
-        )
-        .unwrap();
-    let current = candid::decode_one::<Result<UploadCertificateAssessmentResponse, E>>(&reply)
-        .unwrap()
-        .unwrap();
+    // The owned assessment no longer accepts Candid subtyping or extra arguments.
+    assert!(
+        f.harness
+            .pic
+            .query_call(
+                f.service,
+                f.uploader,
+                INSPECT,
+                candid::encode_args((root, "small")).unwrap()
+            )
+            .is_err()
+    );
+    let current = inspect(f, f.uploader, root).unwrap();
     assert_eq!(current.permission, assessment.permission);
     assert_eq!(current.blockers, assessment.blockers);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);

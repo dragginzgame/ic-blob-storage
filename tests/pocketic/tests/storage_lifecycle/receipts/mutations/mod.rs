@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn mutate(
     f: &Fixture,
     input: &ReferenceClientInput,
@@ -148,12 +149,12 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
         let denied: Result<ReferenceMutationResponse, ReferenceFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 f.service,
                 actor,
                 REFERENCE_APPLY_METHOD,
-                (selected.request,),
-                REPLY_LIMITS,
+                selected.request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(denied, Err(ReferenceFailure::Denied));

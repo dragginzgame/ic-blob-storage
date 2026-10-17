@@ -22,7 +22,7 @@
 //! ```
 //! Component stores cannot be installed independently through the production API:
 //! ```compile_fail
-//! use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
+//! use ic_stable_structures::Memory;
 //! use ic_blob_storage::ops::service::stores::{
 //!     ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores,
 //! };
@@ -50,13 +50,13 @@ pub mod workflow;
 /// This identifies the library contract, not the host Wasm or its deployment.
 pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// Shared allocation governance and its exact stable-structures substrate.
+/// Shared allocation governance for host-owned memory.
 ///
 /// The integrating host owns memory bootstrap, policy, bucket configuration and
 /// allocation grants. Linking this crate does not register stores, initialize a
 /// memory manager or export lifecycle hooks. Access stable collections through
-/// `ic_memory::ic_stable_structures` to preserve the runtime's type identity.
-/// Hosts with a direct Memory dependency must select the same 0.45 release line.
+/// the direct `ic-stable-structures` dependency selected by this workspace.
+/// Hosts with a direct Memory dependency must select the same 0.46 release line.
 pub use ic_memory;
 
 /// Probe-only reference models and fault-injection access.

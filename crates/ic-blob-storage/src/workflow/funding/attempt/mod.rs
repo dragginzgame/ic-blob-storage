@@ -8,7 +8,7 @@ use crate::policy::billing::admission::attempt::FundingAttemptEvidence;
 use crate::policy::billing::admission::attempt::FundingAttemptObservation;
 use crate::policy::billing::admission::attempt::assess_first_attempt;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// Synchronous result. No call is sent and no retry authority is created.
 #[derive(Clone, Debug, Eq, PartialEq)]

@@ -1,27 +1,72 @@
-//! Opt-in service declarations shared by standalone and framework hosts.
-//!
-//! This module owns method names, DTO signatures and immediate workflow delegation.
-//! Hosts supply endpoint attributes, authenticated runtime context, clock and workflow
-//! adapters. Linking contracts exports no IC methods or lifecycle participant.
+//! Canonical service declarations and callable surface shared by host adapters.
+//! Hosts own authentication, lifecycle and endpoint registration. Blob-owned
+//! methods declare their codec; the Caffeine certificate remains Candid.
 
-/// Emit the maintained Blob service methods through a host-owned item callback.
-///
-/// The callback receives `query` or `update`, the `request`/`manifest` decoding
-/// category and a function item. The provider certificate additionally supplies
-/// its exact wire name. The host must attach its bounded decoding/authentication
-/// attributes. Its context must capture the actual caller and canister; clock,
-/// caller and trap paths must be trusted platform adapters. Workflow adapters
-/// retain continuity checks, state borrowing and post-await observation.
-/// Invoke inside the host endpoint module and pass its visible contract-crate
-/// alias. Passive type imports are also available to the enclosing Candid scope.
-/// This invocation does not install storage, allocate memory or export lifecycle.
-///
-/// Define the item callback lexically before this invocation when the host collects
-/// Candid registrations during macro expansion. An imported emitter alias can
-/// defer registrations past the host's export pass. Validate generated Candid
-/// against every callable Wasm endpoint and compare its Blob method projection
-/// with the canonical service contract;
-/// native compilation alone does not establish a complete mounted interface.
+/// Platform dispatch mode of a maintained service method.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum MethodMode {
+    /// Read-only platform query.
+    Query,
+    /// Replicated platform update.
+    Update,
+}
+/// Codec required by this method's external contract.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum MethodCodec {
+    /// Blob-owned exact CBOR value.
+    Cbor,
+    /// Bounded, method- and direction-bound IC Wire contract.
+    IcWire,
+    /// Provider-defined Caffeine certificate contract.
+    Candid,
+}
+/// Passive callable metadata emitted from the same catalog as host endpoints.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct MethodSpec {
+    /// Exact platform method name.
+    pub name: &'static str,
+    /// Query or update dispatch.
+    pub mode: MethodMode,
+    /// Required application codec.
+    pub codec: MethodCodec,
+}
+macro_rules! method_spec {
+    (query, tenant_inspection, $($rest:tt)*) => {
+        MethodSpec { name: crate::protocol::TENANT_INSPECTION_METHOD, mode: MethodMode::Query, codec: MethodCodec::IcWire }
+    };
+    (update, tenant_update, $($rest:tt)*) => {
+        MethodSpec { name: crate::protocol::TENANT_UPDATE_METHOD, mode: MethodMode::Update, codec: MethodCodec::IcWire }
+    };
+    (query, $category:ident, fn $name:ident $($rest:tt)*) => {
+        MethodSpec { name: stringify!($name), mode: MethodMode::Query, codec: MethodCodec::Cbor }
+    };
+    (update, $category:ident, $($rest:tt)*) => { method_spec!(@update $($rest)*) };
+    (@update async fn $name:ident $($rest:tt)*) => {
+        MethodSpec { name: stringify!($name), mode: MethodMode::Update, codec: MethodCodec::Cbor }
+    };
+    (certificate, $category:ident, $name:literal, $($rest:tt)*) => {
+        MethodSpec { name: $name, mode: MethodMode::Update, codec: MethodCodec::Candid }
+    };
+}
+macro_rules! method_specs {
+    ($emit:ident; $([$($entry:tt)*])*) => { &[$(method_spec!($($entry)*)),*] };
+}
+/// Complete callable service surface; linking this value exports no endpoint.
+pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
+    dispatch = method_specs,
+    emit = unused,
+    workflow = unused,
+    context = unused,
+    contracts = crate,
+    clock = unused,
+    caller = unused,
+    trap = unused,
+);
+
+/// Mount the canonical methods through a host's per-method bounded endpoint emitter.
+/// The provider certificate entry uses its separate Candid emitter. The context
+/// must capture the actual caller/canister; clock, caller and trap paths must be
+/// trusted platform adapters. Linking contracts exports no lifecycle or endpoints.
 #[macro_export]
 macro_rules! mount_service_endpoints {
     (emit = $emit:ident, workflow = $workflow:ident, context = $context:ident, contracts = $contracts:ident,
@@ -60,55 +105,72 @@ macro_rules! mount_service_endpoints {
             },
         };
         pub(super) use $contracts::upload::binding::UploadContext;
-        $emit! { update, request,
+        use $crate::__emit_blob_service;
+        $crate::__blob_service_catalog!(
+            dispatch = __emit_blob_service,
+            emit = $emit,
+            workflow = $workflow,
+            context = $context,
+            contracts = $contracts,
+            clock = $clock,
+            caller = $caller,
+            trap = $trap,
+        );
+    };
+}
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __emit_blob_service {
+    ($emit:ident; $([$($entry:tt)*])*) => { $($emit! { $($entry)* })* };
+}
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __blob_service_catalog {
+    (dispatch = $dispatch:ident, emit = $emit:ident, workflow = $workflow:ident, context = $context:ident,
+     contracts = $contracts:ident, clock = $clock:path, caller = $caller:path, trap = $trap:path $(,)?) => {
+        $dispatch! { $emit;
+            [update, request,
             async fn blob_resume_current_instance()
             -> Result<(), $contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
                 $workflow::resume_current_instance($context()).await
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_configuration() -> Result<HostConfigurationView, HostFailure> {
                 $workflow::configuration($caller())
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_local_status(
                 input: OperatorScope,
             ) -> Result<LocalServiceStatus, LocalStatusFailure> {
                 $workflow::local_status($context(), input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, tenant_update,
             async fn blob_update_tenant(
                 input: TenantUpdateRequest,
             ) -> Result<TenantEnrollmentResponse, TenantFailure> {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::update_tenant(call_context, input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, tenant_inspection,
             fn blob_tenant(input: TenantScope) -> Result<TenantEnrollmentResponse, TenantFailure> {
                 $workflow::tenant($context(), input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_admit_upload(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::admit(call_context, input, $clock())
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_upload_admission(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadAdmissionResponse, UploadAdmissionFailure> {
                 $workflow::admission($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_upload_status(
                 input: $contracts::dto::reference::ReferenceUpload,
             ) -> Result<
@@ -116,27 +178,24 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::upload::UploadStatusFailure,
             > {
                 $workflow::upload_status($context(), input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_revoke_upload(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadRevocationResponse, UploadAdmissionFailure> {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::revoke(call_context, input)
-            }
-        }
-        $emit! { update, manifest,
+            }]
+            [update, manifest,
             async fn blob_prepare_upload(
                 input: UploadManifestRequest,
             ) -> Result<UploadManifestMutation, UploadManifestFailure> {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::prepare(call_context, &input, $clock())
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_upload_certificate_assessment(
                 root: String,
             ) -> Result<
@@ -144,9 +203,8 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::upload::exposure::UploadExposureFailure,
             > {
                 $workflow::certificate_assessment($context(), &root, $clock())
-            }
-        }
-        $emit! { certificate, request, "_immutableObjectStorageCreateCertificate",
+            }]
+            [certificate, request, "_immutableObjectStorageCreateCertificate",
             async fn caffeine_upload_certificate(
                 root: String,
             ) -> $contracts::dto::upload::certificate::CaffeineUploadCertificateResponse {
@@ -156,60 +214,52 @@ macro_rules! mount_service_endpoints {
                 // rechecks current authority/evidence and commits exposure synchronously.
                 $workflow::certificate(call_context, &root, $clock())
                     .unwrap_or_else(|_| $trap("certificate issuance refused"))
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_upload_manifest(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadManifestResponse, UploadManifestFailure> {
                 $workflow::manifest($context(), input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_apply_reference(
                 input: ReferenceCommand,
             ) -> Result<ReferenceMutationResponse, ReferenceFailure> {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::reference(call_context, input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_reference_receipt(
                 input: ReferenceCommand,
             ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
                 $workflow::receipt($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_upload_history(
                 input: UploadHistoryRequest,
             ) -> Result<UploadHistoryPage, UploadHistoryFailure> {
                 $workflow::history($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_funding_history(
                 input: FundingHistoryRequest,
             ) -> Result<FundingHistoryPage, FundingHistoryFailure> {
                 $workflow::funding_history($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_funding_outcome(
                 input: FundingOutcomeRequest,
             ) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
                 $workflow::funding_outcome($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_funding_preparation_assessment(
                 input: FundingPreparationRequest,
             ) -> Result<FundingPreparationResponse, FundingPreparationFailure> {
                 $workflow::funding_assessment($context(), input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_revoke_gateway(
                 input: $contracts::dto::gateway::GatewayRevocationRequest,
             ) -> Result<
@@ -219,9 +269,8 @@ macro_rules! mount_service_endpoints {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::revoke_gateway(call_context, input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_sync_gateways(
                 input: OperatorScope,
             ) -> Result<
@@ -231,18 +280,16 @@ macro_rules! mount_service_endpoints {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::sync_gateways(call_context, input).await
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_cancel_gateway_sync(
                 input: $contracts::dto::gateway::sync::GatewaySyncCancellation,
             ) -> Result<(), $contracts::dto::gateway::sync::GatewaySyncFailure> {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::cancel_gateway_sync(call_context, input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_upload_capacity(
                 input: $contracts::dto::tenant::TenantScope,
             ) -> Result<
@@ -250,9 +297,8 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::upload::capacity::UploadCapacityFailure,
             > {
                 $workflow::upload_capacity($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_reference_capacity(
                 input: $contracts::dto::reference::capacity::ReferenceCapacityRequest,
             ) -> Result<
@@ -260,9 +306,8 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::reference::capacity::ReferenceCapacityFailure,
             > {
                 $workflow::reference_capacity($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_lookup_content(
                 input: $contracts::dto::upload::discovery::UploadDiscoveryRequest,
             ) -> Result<
@@ -270,9 +315,8 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::upload::discovery::UploadDiscoveryFailure,
             > {
                 $workflow::discover($context(), input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_download_descriptor(
                 input: $contracts::dto::download::DownloadRequest,
             ) -> Result<
@@ -282,9 +326,8 @@ macro_rules! mount_service_endpoints {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::download(call_context, input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_reference_status(
                 input: $contracts::dto::reference::status::ReferenceStatusRequest,
             ) -> Result<
@@ -292,9 +335,8 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::reference::ReferenceFailure,
             > {
                 $workflow::reference_status($context(), input)
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_inspect_account(
                 input: $contracts::dto::account::AccountInspectionRequest,
             ) -> Result<
@@ -304,9 +346,8 @@ macro_rules! mount_service_endpoints {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::inspect_account(call_context, input).await
-            }
-        }
-        $emit! { update, request,
+            }]
+            [update, request,
             async fn blob_attest_upload(
                 input: $contracts::dto::upload::completion::UploadAttestationRequest,
             ) -> Result<
@@ -316,9 +357,8 @@ macro_rules! mount_service_endpoints {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::attest(call_context, &input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_upload_attestation(
                 input: UploadAdmissionRequest,
             ) -> Result<
@@ -326,16 +366,14 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::upload::completion::UploadAttestationFailure,
             > {
                 $workflow::attestation($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_verification_manifest(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadManifestResponse, UploadManifestFailure> {
                 $workflow::verification_manifest($context(), input)
-            }
-        }
-        $emit! { query, request,
+            }]
+            [query, request,
             fn blob_verification_plan(
                 input: UploadAdmissionRequest,
             ) -> Result<
@@ -343,7 +381,7 @@ macro_rules! mount_service_endpoints {
                 $contracts::dto::upload::completion::UploadAttestationFailure,
             > {
                 $workflow::verification_plan($context(), input)
-            }
+            }]
         }
     };
 }

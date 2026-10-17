@@ -1,0 +1,13 @@
+{
+  "evidence_class": "local PocketIC only",
+  "purpose": "Qualify the corrected CBOR post-upgrade boundary after preserving the failed old empty-Candid guard attempt",
+  "source_sha256": "5af3fbb9e42a806c74c45e1b288dd389048b7d320e9daab2ac48a195458babb8",
+  "preceding_attempts": [
+    "20261017T073326858064Z",
+    "20261017T073417621418Z",
+    "20261017T073517328826Z"
+  ],
+  "same_limits_as": "intent.json",
+  "deployed_provider_requests": 0,
+  "paid_effects": 0
+}

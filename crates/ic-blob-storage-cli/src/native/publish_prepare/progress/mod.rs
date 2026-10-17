@@ -41,9 +41,9 @@ impl Context<'_> {
             service: self.input.service,
             namespace: self.input.namespace,
             request: self.origin.join(if kind == upload_setup::Kind::Prepare {
-                "manifest.candid"
+                "manifest.cbor"
             } else {
-                "permission.candid"
+                "permission.cbor"
             }),
             directory: kind
                 .mutation()

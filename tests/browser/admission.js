@@ -1,4 +1,4 @@
-// Private IC integration fixture. Rust supplies/validates opaque Candid using the
+// Private IC integration fixture. Rust supplies/validates opaque packets using the
 // maintained DTOs; this module defines neither a consumer API nor production intent storage.
 import { HttpAgent } from '@icp-sdk/core/agent';
 import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';

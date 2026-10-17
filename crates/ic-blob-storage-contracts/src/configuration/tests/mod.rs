@@ -68,7 +68,7 @@ fn decoded(
 ) -> Result<ValidatedConfiguration, ConfigurationInputError> {
     decode_candidate(
         p(1),
-        &candid::encode_one(input).unwrap(),
+        &crate::wire::encode(input).unwrap(),
         NonZeroUsize::new(4096).unwrap(),
     )
 }
@@ -239,7 +239,7 @@ fn zero_fields_and_inconsistent_resource_relationships_are_rejected() {
 
 #[test]
 fn byte_and_decoder_limits_reject_before_any_candidate_is_accepted() {
-    let bytes = candid::encode_one(candidate()).unwrap();
+    let bytes = crate::wire::encode(candidate()).unwrap();
     let exact = NonZeroUsize::new(bytes.len()).unwrap();
     assert!(decode_candidate(p(1), &bytes, exact).is_ok());
     assert_eq!(
@@ -250,7 +250,7 @@ fn byte_and_decoder_limits_reject_before_any_candidate_is_accepted() {
         decode_candidate(p(1), &vec![0; bytes.len() + 1], exact),
         Err(ConfigurationInputError::Limit)
     );
-    for malformed in [vec![], b"DIDL".to_vec(), candid::encode_one(1_u8).unwrap()] {
+    for malformed in [vec![], b"DIDL".to_vec(), crate::wire::encode(1_u8).unwrap()] {
         assert_eq!(
             decode_candidate(p(1), &malformed, exact),
             Err(ConfigurationInputError::Encoding)

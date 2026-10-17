@@ -7,7 +7,15 @@ fn scope() -> TenantScope {
     }
 }
 fn bytes(enrollment: Option<TenantEnrollment>, fenced: bool) -> Vec<u8> {
-    candid::encode_one(Ok::<_, TenantFailure>(TenantEnrollmentResponse {
+    crate::wire::tenant::inspection_response(Ok(TenantEnrollmentResponse {
+        scope: scope(),
+        enrollment,
+        fenced,
+    }))
+    .unwrap()
+}
+fn update_bytes(enrollment: Option<TenantEnrollment>, fenced: bool) -> Vec<u8> {
+    crate::wire::tenant::update_response(Ok(TenantEnrollmentResponse {
         scope: scope(),
         enrollment,
         fenced,
@@ -63,15 +71,15 @@ fn acknowledgments_reuse_the_exact_model_transition_including_generation_exhaust
         };
         let value = TenantEnrollment { generation, active };
         assert_eq!(
-            mutation(input, &bytes(Some(value), false), max())
+            mutation(input, &update_bytes(Some(value), false), max())
                 .unwrap()
                 .enrollment,
             Some(value)
         );
         for bad in [
-            bytes(None, false),
-            bytes(Some(value), true),
-            bytes(
+            update_bytes(None, false),
+            update_bytes(Some(value), true),
+            update_bytes(
                 Some(TenantEnrollment {
                     active: !active,
                     ..value
@@ -108,7 +116,7 @@ fn acknowledgments_reuse_the_exact_model_transition_including_generation_exhaust
     assert_eq!(
         mutation(
             input,
-            &bytes(
+            &update_bytes(
                 Some(TenantEnrollment {
                     generation: 2,
                     active: true
@@ -188,7 +196,7 @@ fn byte_bounds_malformed_encoding_and_remote_refusals_remain_distinct() {
     for malformed in [
         Vec::new(),
         b"DIDL".to_vec(),
-        candid::encode_one(1u8).unwrap(),
+        crate::wire::encode(1u8).unwrap(),
     ] {
         assert_eq!(
             inspection(scope(), &malformed, max()),
@@ -200,8 +208,7 @@ fn byte_bounds_malformed_encoding_and_remote_refusals_remain_distinct() {
         expected: None,
         active: true,
     };
-    let refused =
-        candid::encode_one(Err::<TenantEnrollmentResponse, _>(TenantFailure::Conflict)).unwrap();
+    let refused = crate::wire::tenant::update_response(Err(TenantFailure::Conflict)).unwrap();
     assert_eq!(
         mutation(input, &refused, max()),
         Err(TenantReplyError::Remote(TenantFailure::Conflict))

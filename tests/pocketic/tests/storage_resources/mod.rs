@@ -1,5 +1,6 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod credits;
 mod histories;
 mod reads;
@@ -39,7 +40,7 @@ pub(super) fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
 #[test]
 fn retained_resource_artifacts_preserve_exact_bytes_and_refuse_replacement() {
     let directory = tempfile::tempdir().unwrap();
-    retain_bytes(directory.path(), "request.candid", b"original request");
+    retain_bytes(directory.path(), "request.cbor", b"original request");
     retain(
         directory.path(),
         "report.json",
@@ -51,12 +52,12 @@ fn retained_resource_artifacts_preserve_exact_bytes_and_refuse_replacement() {
     );
     assert!(
         std::panic::catch_unwind(|| {
-            retain_bytes(directory.path(), "request.candid", b"replacement");
+            retain_bytes(directory.path(), "request.cbor", b"replacement");
         })
         .is_err()
     );
     assert_eq!(
-        std::fs::read(directory.path().join("request.candid")).unwrap(),
+        std::fs::read(directory.path().join("request.cbor")).unwrap(),
         b"original request"
     );
 }
@@ -236,12 +237,12 @@ fn manifest(f: &Fixture, input: &PreparationInput) -> UploadManifestResponse {
     let result: Result<UploadManifestResponse, UploadManifestFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             input.request.tenant,
             "blob_upload_manifest",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     result.unwrap()

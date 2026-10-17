@@ -9,7 +9,6 @@ use crate::dto::upload::history::UploadHistoryScope;
 use crate::upload::history::LifecyclePhase;
 use crate::upload::history::UploadRootState;
 use candid::Principal;
-use candid::decode_one_with_config;
 use std::collections::BTreeSet;
 use std::num::NonZeroU64;
 use std::num::NonZeroUsize;
@@ -88,7 +87,7 @@ fn check(input: UploadHistoryRequest) -> Result<(), UploadHistoryReplyError> {
 /// Rejects malformed identities and a foreign or malformed saved cursor.
 pub fn request(input: UploadHistoryRequest) -> Result<Vec<u8>, UploadHistoryReplyError> {
     check(input)?;
-    candid::encode_one(input).map_err(|_| UploadHistoryReplyError::Invalid)
+    crate::wire::encode(input).map_err(|_| UploadHistoryReplyError::Invalid)
 }
 fn position(c: UploadHistoryCursor) -> (Principal, u128) {
     (c.after_tenant, c.after_request)
@@ -124,9 +123,9 @@ pub fn page(
     if bytes.len() > limits.bytes.get() {
         return Err(UploadHistoryReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(limits.bytes.get()));
     let page: Result<UploadHistoryPage, UploadHistoryFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| UploadHistoryReplyError::Invalid)?;
+        crate::wire::decode(bytes, limits.bytes.get())
+            .map_err(|_| UploadHistoryReplyError::Invalid)?;
     let page = page.map_err(UploadHistoryReplyError::Remote)?;
     if page.request != input {
         return Err(UploadHistoryReplyError::Binding);

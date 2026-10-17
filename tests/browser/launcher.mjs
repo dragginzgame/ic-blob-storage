@@ -201,7 +201,7 @@ try {
   const intentPath = join(native.nativeSession, 'intent.json'), readyPath = join(native.nativeSession, 'ready.json');
   await writeFile(intentPath, JSON.stringify(nativeIntent)); await writeFile(readyPath, JSON.stringify(nativeReady));
   await writeFile(join(native.nativeSession, 'inventory.json'), inventory);
-  await writeFile(join(native.nativeSession, 'installation.candid'), installation);
+  await writeFile(join(native.nativeSession, 'installation.cbor'), installation);
   const beforeNative = launches;
   for (const [key, value] of [['service', 'foreign'], ['root_key_sha256', '0'.repeat(64)],
     ['gateway', 'https://foreign.invalid'], ['inventory_sha256', '0'.repeat(64)], ['browser', null]]) {

@@ -1,5 +1,5 @@
 //! Single-call mechanics shared by the role-specific replicated clients.
-use candid::{CandidType, Principal};
+use candid::Principal;
 use ic_cdk::call::{Call, CallFailed, Response};
 use std::num::NonZeroU32;
 
@@ -14,24 +14,45 @@ pub(super) fn configured(principals: &[Principal], timeout: NonZeroU32) -> bool 
 
 /// Dispatch once after caller-owned binding, execution and request validation.
 /// Attaches no cycles and performs no fallback or retry.
-pub(super) async fn call<A: CandidType>(
+pub(super) async fn call<A: serde::Serialize>(
     service: Principal,
     method: &str,
     timeout: NonZeroU32,
     argument: A,
-) -> Result<Response, CallFailed> {
+) -> Result<Response, ClientCallError> {
+    let bytes =
+        ic_blob_storage_contracts::wire::encode(argument).map_err(|_| ClientCallError::Encoding)?;
+    call_raw(service, method, timeout, &bytes).await
+}
+/// Send the caller's already encoded method-bound request once, without retry.
+pub(super) async fn call_raw(
+    service: Principal,
+    method: &str,
+    timeout: NonZeroU32,
+    bytes: &[u8],
+) -> Result<Response, ClientCallError> {
     Call::bounded_wait(service, method)
         .change_timeout(timeout.get())
-        .with_arg(argument)
+        .with_raw_args(bytes)
         .await
+        .map_err(ClientCallError::Transport)
+}
+
+/// Encoding failure is local; transport failure retains its platform classification.
+pub(super) enum ClientCallError {
+    Encoding,
+    Transport(CallFailed),
 }
 
 /// Preserve raw rejection codes and distinguish calls that could not be enqueued.
-pub(super) fn failure<E>(error: CallFailed, not_enqueued: E, rejected: fn(u32) -> E) -> E {
+pub(super) fn failure<E>(error: ClientCallError, not_enqueued: E, rejected: fn(u32) -> E) -> E {
     match error {
-        CallFailed::CallRejected(error) => rejected(error.raw_reject_code()),
-        CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_) => {
-            not_enqueued
+        ClientCallError::Transport(CallFailed::CallRejected(error)) => {
+            rejected(error.raw_reject_code())
         }
+        ClientCallError::Encoding
+        | ClientCallError::Transport(
+            CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_),
+        ) => not_enqueued,
     }
 }

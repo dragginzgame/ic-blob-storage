@@ -22,14 +22,14 @@ pub(super) fn before_restore(c: &Client) {
     let mut invalid = c.permission.clone();
     invalid.declaration.chunks[0][0] ^= 1;
     save(
-        &c.report.join("invalid-manifest.candid"),
-        &candid::encode_one(invalid).unwrap(),
+        &c.report.join("invalid-manifest.cbor"),
+        &ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
     );
     let mut invalid_args = c.args("prepare-upload", Some("invalid-prepare"), true);
     change(
         &mut invalid_args,
         "--request",
-        c.report.join("invalid-manifest.candid").to_str().unwrap(),
+        c.report.join("invalid-manifest.cbor").to_str().unwrap(),
     );
     assert_eq!(c.call(&invalid_args, 3)["error"], "invalid_reply");
     assert!(!c.report.join("invalid-prepare").exists());
@@ -46,14 +46,14 @@ pub(super) fn before_restore(c: &Client) {
     let mut changed = c.permission.permission;
     changed.expires_at_ns -= 1;
     save(
-        &c.report.join("changed-permission.candid"),
-        &candid::encode_one(changed).unwrap(),
+        &c.report.join("changed-permission.cbor"),
+        &ic_blob_storage_contracts::wire::encode(changed).unwrap(),
     );
     let mut args = c.args("upload-permission", None, false);
     change(
         &mut args,
         "--request",
-        c.report.join("changed-permission.candid").to_str().unwrap(),
+        c.report.join("changed-permission.cbor").to_str().unwrap(),
     );
     assert_eq!(c.call(&args, 3)["error"], "upload_conflict");
     let revoked = c.dispatch("revoke-upload", "revoke", Reply::Pass);

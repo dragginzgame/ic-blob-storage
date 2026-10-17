@@ -3,6 +3,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod admission;
 mod manifests;
 mod revocation;
@@ -67,12 +68,12 @@ fn inspect(
 ) -> Result<UploadStatusResponse, UploadStatusFailure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             actor,
             "blob_upload_status",
-            (upload,),
-            REPLY_LIMITS,
+            upload,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }

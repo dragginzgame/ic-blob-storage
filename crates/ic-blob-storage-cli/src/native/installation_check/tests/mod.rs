@@ -3,22 +3,25 @@ use candid::Principal;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 
 fn fixture() -> Vec<u8> {
-    // Independent didc encoding against the maintained standalone declaration.
-    hex::decode(
+    // Preserve the independent historical Candid vector as input values, not as the new wire encoding.
+    let bytes = hex::decode(
         include_str!(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/tests/fixtures/installation/configuration.hex"
         ))
         .trim(),
     )
-    .expect("fixture hex")
+    .unwrap();
+    let value: ServiceConfigurationInput = candid::decode_one(&bytes).unwrap();
+    serde_json::to_vec(&value).unwrap()
 }
+
 fn args(base: &Path, bytes: &[u8]) -> Vec<String> {
-    std::fs::write(base.join("input.candid"), bytes).unwrap();
+    std::fs::write(base.join("input.cbor"), bytes).unwrap();
     [
         "installation-check",
         "--configuration",
-        &base.join("input.candid").display().to_string(),
+        &base.join("input.cbor").display().to_string(),
         "--service",
         "rrkah-fqaaa-aaaaa-aaaaq-cai",
         "--project",
@@ -46,11 +49,16 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     let report = crate::native::execute(&arguments).unwrap();
     let output = base.path().join("output");
     assert_eq!(
-        std::fs::read(output.join("configuration.candid")).unwrap(),
+        std::fs::read(output.join("configuration.json")).unwrap(),
         original
     );
     assert_eq!(
         report["configuration_sha256"],
+        ContentDigest::compute(&std::fs::read(output.join("configuration.cbor")).unwrap())
+            .to_string()
+    );
+    assert_eq!(
+        report["proposal_sha256"],
         ContentDigest::compute(&original).to_string()
     );
     assert_eq!(report["namespace"], u128::MAX.to_string());
@@ -60,15 +68,18 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     assert_eq!(report["expected_host_release"], env!("CARGO_PKG_VERSION"));
     assert_eq!(report["configuration_validated"], true);
     assert_eq!(report["host_init_encoded"], true);
-    let installation = std::fs::read(output.join("installation.candid")).unwrap();
-    assert_eq!(report["installation_file"], "installation.candid");
+    let installation = std::fs::read(output.join("installation.cbor")).unwrap();
+    assert_eq!(report["installation_file"], "installation.cbor");
     assert_eq!(
         report["installation_sha256"],
         ContentDigest::compute(&installation).to_string()
     );
-    let encoded: ServiceInstallationInput = candid::decode_one(&installation).unwrap();
-    let decoded: ServiceConfigurationInput =
-        exact_candid::decode(&original, CONFIGURATION_BYTES, 64, 100_000).unwrap();
+    let encoded: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode(
+        &installation,
+        ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+    )
+    .unwrap();
+    let decoded: ServiceConfigurationInput = serde_json::from_slice(&original).unwrap();
     assert_eq!(encoded.configuration, decoded);
     assert_eq!(encoded.project, "isolated local fixture/β");
     assert_eq!(
@@ -91,54 +102,45 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
         assert_eq!(report[field], false);
     }
     let summary = std::fs::read(output.join("summary.json")).unwrap();
-    std::fs::write(
-        base.path().join("input.candid"),
-        b"edited after preparation",
-    )
-    .unwrap();
+    std::fs::write(base.path().join("input.cbor"), b"edited after preparation").unwrap();
     assert_eq!(
-        std::fs::read(output.join("configuration.candid")).unwrap(),
+        std::fs::read(output.join("configuration.json")).unwrap(),
         original
     );
     // Restore only the source input; repeat must preserve the original artifacts.
-    std::fs::write(base.path().join("input.candid"), &original).unwrap();
+    std::fs::write(base.path().join("input.cbor"), &original).unwrap();
     assert_eq!(
         crate::native::execute(&arguments),
         Err(Failure::ExistingRun)
     );
     assert_eq!(std::fs::read(output.join("summary.json")).unwrap(), summary);
     assert_eq!(
-        std::fs::read(output.join("installation.candid")).unwrap(),
+        std::fs::read(output.join("installation.cbor")).unwrap(),
         installation
     );
     assert_eq!(
-        std::fs::read(output.join("configuration.candid")).unwrap(),
+        std::fs::read(output.join("configuration.json")).unwrap(),
         original
     );
     let partial = tempfile::tempdir().unwrap();
     let arguments = args(partial.path(), &original);
     std::fs::create_dir(partial.path().join("output")).unwrap();
-    std::fs::write(
-        partial.path().join("output/configuration.candid"),
-        b"partial",
-    )
-    .unwrap();
+    std::fs::write(partial.path().join("output/configuration.cbor"), b"partial").unwrap();
     assert_eq!(
         crate::native::execute(&arguments),
         Err(Failure::ExistingRun)
     );
     assert_eq!(
-        std::fs::read(partial.path().join("output/configuration.candid")).unwrap(),
+        std::fs::read(partial.path().join("output/configuration.cbor")).unwrap(),
         b"partial"
     );
     assert!(!partial.path().join("output/summary.json").exists());
-    assert!(!partial.path().join("output/installation.candid").exists());
+    assert!(!partial.path().join("output/installation.cbor").exists());
 }
 
 #[test]
 fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_before_output() {
-    let original: ServiceConfigurationInput =
-        exact_candid::decode(&fixture(), CONFIGURATION_BYTES, 64, 100_000).unwrap();
+    let original: ServiceConfigurationInput = serde_json::from_slice(&fixture()).unwrap();
     let setters: [fn(&mut ServiceConfigurationInput); 6] = [
         |input| input.namespace = 0,
         |input| input.operator = Principal::anonymous(),
@@ -151,7 +153,7 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
         let base = tempfile::tempdir().unwrap();
         let mut input = original;
         change(&mut input);
-        let arguments = args(base.path(), &candid::encode_one(input).unwrap());
+        let arguments = args(base.path(), &serde_json::to_vec(&input).unwrap());
         assert_eq!(crate::native::execute(&arguments), Err(Failure::Arguments));
         assert!(!base.path().join("output").exists());
     }
@@ -178,8 +180,7 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
 
 #[test]
 fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
-    let input: ServiceConfigurationInput =
-        exact_candid::decode(&fixture(), CONFIGURATION_BYTES, 64, 100_000).unwrap();
+    let input: ServiceConfigurationInput = serde_json::from_slice(&fixture()).unwrap();
     let mut trailing = fixture();
     trailing.push(0);
     for (bytes, expected) in [
@@ -187,7 +188,7 @@ fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
         (b"not candid".to_vec(), Failure::Arguments),
         (vec![0; CONFIGURATION_BYTES + 1], Failure::File),
         (
-            candid::encode_args((input, ())).unwrap(),
+            serde_json::to_vec(&(input, ())).unwrap(),
             Failure::Arguments,
         ),
         (trailing, Failure::Arguments),

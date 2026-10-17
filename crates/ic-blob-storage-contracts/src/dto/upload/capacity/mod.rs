@@ -5,7 +5,8 @@ use candid::CandidType;
 use candid::Deserialize;
 
 /// Current tighter global/tenant headroom, including retained provider liabilities.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadCapacityResponse {
     /// Exact authenticated service, namespace and tenant.
     pub scope: TenantScope,
@@ -39,7 +40,8 @@ pub struct UploadCapacityResponse {
 }
 
 /// Refusal to inspect capacity, never an implicit zero or permission to upload.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadCapacityFailure {
     /// Invalid tenant principal or zero namespace.
     Invalid,

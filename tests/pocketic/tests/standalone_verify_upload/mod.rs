@@ -3,6 +3,7 @@ use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
 fn live(f: &mut Fixture) -> String {
@@ -33,6 +34,10 @@ fn rejects_wrong_root(args: &[String], root: &std::path::Path) {
     std::fs::write(root, trusted).unwrap();
 }
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep original-manifest verification and restore fencing in one installed scenario"
+)]
 fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_fences() {
     let mut f = Fixture::with_harness(Harness::with_builder(
         PocketIcBuilder::new()
@@ -49,24 +54,28 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     let permission = manifest.permission;
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
     let dir = tempfile::tempdir().unwrap();
     let key = dir.path().join("identity.pem");
     let root = dir.path().join("root.der");
-    let saved = dir.path().join("permission.candid");
+    let saved = dir.path().join("permission.cbor");
     let body = dir.path().join("body");
     let original = vec![42; 10 * 1024 * 1024];
     std::fs::write(&key, PEM).unwrap();
     std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
-    std::fs::write(&saved, candid::encode_one(permission).unwrap()).unwrap();
+    std::fs::write(
+        &saved,
+        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+    )
+    .unwrap();
     std::fs::write(&body, &original).unwrap();
     let url = live(&mut f);
     let mut args: Vec<String> = [
@@ -112,13 +121,22 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     rejects_changed_bytes(&args, &body, &original);
     let mut changed = permission;
     changed.expires_at_ns -= 1;
-    std::fs::write(&saved, candid::encode_one(changed).unwrap()).unwrap();
+    std::fs::write(
+        &saved,
+        ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+    )
+    .unwrap();
     assert_eq!(run(&args, 3)["error"], "manifest_refused");
-    std::fs::write(&saved, candid::encode_one(permission).unwrap()).unwrap();
+    std::fs::write(
+        &saved,
+        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+    )
+    .unwrap();
     rejects_wrong_root(&args, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     change(&mut args, "--url", &live(&mut f));
     let restored = run(&args, 0);

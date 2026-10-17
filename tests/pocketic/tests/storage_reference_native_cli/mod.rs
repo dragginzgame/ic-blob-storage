@@ -11,6 +11,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 
@@ -27,12 +28,12 @@ fn live(f: &mut Fixture, receipt: &mut [String], status: &mut [String]) {
 fn apply(f: &Fixture, command: ReferenceCommand) {
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_blob_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",
-            (command,),
-            REPLY_LIMITS,
+            command,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -72,10 +73,10 @@ fn failed_receipt(
     status: &mut [String],
 ) -> Vec<String> {
     let before = f.harness.pic.get_stable_memory(f.service);
-    let path = directory.join("receipt.candid");
+    let path = directory.join("receipt.cbor");
     std::fs::write(
         &path,
-        candid::encode_one(ReferenceCommand {
+        ic_blob_storage_contracts::wire::encode(ReferenceCommand {
             action: ReferenceAction::Release,
             ..input
         })
@@ -83,7 +84,11 @@ fn failed_receipt(
     )
     .unwrap();
     assert_eq!(run(receipt, 3)["error"], "reference_conflict");
-    std::fs::write(&path, candid::encode_one(input).unwrap()).unwrap();
+    std::fs::write(
+        &path,
+        ic_blob_storage_contracts::wire::encode(input).unwrap(),
+    )
+    .unwrap();
     unchanged(f, &before);
     f.harness.pic.stop_live();
     // Keep the original object's reserved final-release receipt within its three-slot budget.
@@ -110,8 +115,12 @@ fn failed_receipt(
     for fact in [ProviderFact::Deleted, ProviderFact::Settled] {
         f.fact(permission.request, fact).unwrap();
     }
-    let path = directory.join("failed.candid");
-    std::fs::write(&path, candid::encode_one(failed).unwrap()).unwrap();
+    let path = directory.join("failed.cbor");
+    std::fs::write(
+        &path,
+        ic_blob_storage_contracts::wire::encode(failed).unwrap(),
+    )
+    .unwrap();
     live(f, receipt, status);
     let mut failure = receipt.to_vec();
     change_native(&mut failure, "--request", path.to_str().unwrap());
@@ -215,8 +224,8 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
     );
     unchanged(&f, &before);
     assert_eq!(
-        std::fs::read(dir.path().join("receipt.candid")).unwrap(),
-        candid::encode_one(input).unwrap()
+        std::fs::read(dir.path().join("receipt.cbor")).unwrap(),
+        ic_blob_storage_contracts::wire::encode(input).unwrap()
     );
     f.harness.pic.stop_live();
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {

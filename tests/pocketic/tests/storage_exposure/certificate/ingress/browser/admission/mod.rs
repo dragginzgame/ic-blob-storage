@@ -91,8 +91,8 @@ pub(super) fn handshake(
     let commands = serde_json::json!({
         "verifyAuthority": verify_authority,
         "admission": candid::encode_one(&run).unwrap(),
-        "permission": candid::encode_one(request.permission).unwrap(),
-        "preparation": candid::encode_one(&request).unwrap(),
+        "permission": ic_blob_storage_contracts::wire::encode(request.permission).unwrap(),
+        "preparation": ic_blob_storage_contracts::wire::encode(&request).unwrap(),
     });
     driver.send(&commands);
     let replies: BrowserReplies = driver.read(32768);
@@ -125,7 +125,7 @@ fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) 
         candid::decode_one(&replies.foreign_admission).unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
     let denied: Result<UploadAdmissionMutation, A> =
-        candid::decode_one(&replies.direct_admission).unwrap();
+        ic_blob_storage_contracts::wire::decode(&replies.direct_admission, 4096).unwrap();
     assert_eq!(denied, Err(A::Denied));
     assert_eq!(
         reply::mutation(

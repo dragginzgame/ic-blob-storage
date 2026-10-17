@@ -95,7 +95,8 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     std::fs::write(&root, root_bytes).unwrap();
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let mut args = args;
     change(&mut args, "--url", &live(&mut f));

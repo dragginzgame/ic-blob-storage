@@ -7,16 +7,17 @@ use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::completion::*;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn inspect(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestationResponse {
     f.harness
         .pic
-        .query_candid_as::<Result<_, UploadAttestationFailure>, _>(
+        .query_blob_as::<Result<_, UploadAttestationFailure>, _>(
             f.service,
             f.tenant,
             "blob_upload_attestation",
-            (statement.permission,),
-            REPLY_LIMITS,
+            statement.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap()
@@ -28,12 +29,12 @@ fn attest(
 ) -> Result<UploadAttestationMutation, UploadAttestationFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             caller,
             "blob_attest_upload",
-            (statement,),
-            REPLY_LIMITS,
+            statement,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
@@ -105,17 +106,17 @@ fn verifier_attestation_rolls_back_replays_without_resurrection_and_survives_res
     let released: Result<ReferenceMutationResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_apply_reference",
-            (ReferenceCommand {
+            ReferenceCommand {
                 upload: statement.permission.upload,
                 operation: 1,
                 reference: statement.permission.upload.first_reference,
                 action: ReferenceAction::Release,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     released.unwrap();

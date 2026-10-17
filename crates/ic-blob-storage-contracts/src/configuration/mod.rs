@@ -23,7 +23,6 @@ use crate::dto::configuration::ServiceReadInput;
 use crate::upload::completion::CompletionAuthority;
 use crate::upload::completion::InvalidCompletionAuthority;
 use candid::Principal;
-use candid::decode_one_with_config;
 use std::num::NonZeroU64;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;
@@ -81,10 +80,10 @@ pub enum ConfigurationScalar {
 /// Candidate rejection before any store is installed or opened.
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
 pub enum ConfigurationInputError {
-    /// Encoded Candid exceeds the caller's buffering budget.
+    /// Encoded CBOR exceeds the caller's buffering budget.
     #[error("configuration input exceeds byte limit")]
     Limit,
-    /// Invalid Candid, unsupported numeric width or exceeded decoding quota.
+    /// Invalid CBOR, unsupported numeric width or exceeded nesting limit.
     #[error("invalid configuration encoding")]
     Encoding,
     /// The candidate names another service, not the host's actual canister.
@@ -121,7 +120,7 @@ pub enum ConfigurationInputError {
 /// `actual_service` must come from the platform, never from the candidate itself.
 /// This is not a reconfiguration endpoint, persisted schema or authority to deploy.
 /// # Errors
-/// Rejects oversized/malformed Candid, service mismatch or invalid configuration.
+/// Rejects oversized/malformed CBOR, service mismatch or invalid configuration.
 pub fn decode_candidate(
     actual_service: Principal,
     bytes: &[u8],
@@ -130,9 +129,8 @@ pub fn decode_candidate(
     if bytes.len() > max_bytes.get() {
         return Err(ConfigurationInputError::Limit);
     }
-    let decoder = crate::decoding::limits(100_000, 1024, 64, Some(max_bytes.get()));
-    let input =
-        decode_one_with_config(bytes, &decoder).map_err(|_| ConfigurationInputError::Encoding)?;
+    let input = crate::wire::decode(bytes, max_bytes.get())
+        .map_err(|_| ConfigurationInputError::Encoding)?;
     validate_candidate(actual_service, input)
 }
 

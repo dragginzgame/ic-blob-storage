@@ -5,7 +5,7 @@ use super::{
     Failure, PreparedBatch, SessionIntentRecord,
     control::{Frame, UnattemptedPhaseRecord},
 };
-use crate::native::{artifacts::Run, exact_candid, publish_map};
+use crate::native::{artifacts::Run, exact_wire, publish_map};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -111,7 +111,7 @@ fn history_binding(
     if original != *expected
         || packet(&source.join("inventory.json"), batch.inventory.len() as u64)? != batch.inventory
         || packet(
-            &source.join("installation.candid"),
+            &source.join("installation.cbor"),
             batch.installation.bytes.len() as u64,
         )? != batch.installation.bytes
     {
@@ -121,8 +121,8 @@ fn history_binding(
     let host = publish_map::decode_configuration(
         batch,
         &packet(
-            &configuration.join("query-0000-reply.candid"),
-            exact_candid::INSTALLATION_BYTES as u64,
+            &configuration.join("query-0000-reply.cbor"),
+            exact_wire::INSTALLATION_BYTES as u64,
         )?,
     )?;
     if host.fenced {

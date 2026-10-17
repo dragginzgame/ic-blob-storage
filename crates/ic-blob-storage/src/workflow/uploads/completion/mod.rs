@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 /// Obtain installed provider mapping and original metadata for exposed unfinished content.
 /// This is a snapshot, not a lease, upload/retry authority or provider availability evidence.
 /// # Errors

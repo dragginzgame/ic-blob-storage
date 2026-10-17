@@ -6,7 +6,8 @@ use candid::Deserialize;
 use candid::Principal;
 /// One authenticated observation for the installed verifier to inspect exposed bytes.
 /// No origin, credential, upload certificate or retry permission is supplied.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadVerificationPlan {
     /// Full original permission; independent identities must remain intact.
     pub permission: UploadAdmissionRequest,
@@ -22,7 +23,8 @@ pub struct UploadVerificationPlan {
     pub declaration: super::manifest::UploadManifestDeclaration,
 }
 /// Save this exact statement before sending. Changed statements cannot replace a receipt.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadAttestationRequest {
     /// Full original permission, root, length and object/reference identities.
     pub permission: UploadAdmissionRequest,
@@ -32,7 +34,8 @@ pub struct UploadAttestationRequest {
     pub observed_at_ns: u64,
 }
 /// First accepted verifier evidence. Historical confirmation does not grant current liveness.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadAttestationReceipt {
     /// Exact original statement.
     pub request: UploadAttestationRequest,
@@ -42,7 +45,7 @@ pub struct UploadAttestationReceipt {
     pub accepted_at_ns: u64,
 }
 /// Read-only exact permission lookup, available through restore fencing.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[expect(
     clippy::large_enum_variant,
     reason = "One bounded receipt; preserve allocation-free value semantics"
@@ -54,7 +57,8 @@ pub enum UploadAttestationLookup {
     Found(UploadAttestationReceipt),
 }
 /// Attestation observation and the upload owner's restore fence.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadAttestationResponse {
     /// Full exact permission echo, also when evidence is absent.
     pub permission: UploadAdmissionRequest,
@@ -64,7 +68,8 @@ pub struct UploadAttestationResponse {
     pub fenced: bool,
 }
 /// Successful atomic confirmation or exact replay.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadAttestationMutation {
     /// First accepted immutable evidence.
     pub receipt: UploadAttestationReceipt,
@@ -72,7 +77,8 @@ pub struct UploadAttestationMutation {
     pub changed: bool,
 }
 /// No failure authorizes a new upload or discards uncertain provider effects.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadAttestationFailure {
     /// Original permission or store rejection.
     Permission(UploadAdmissionFailure),

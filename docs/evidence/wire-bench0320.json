@@ -1,0 +1,1815 @@
+{
+  "evidence_class": "local installed codec experiment; synthetic handler; no deployed-provider/Canic result",
+  "source": {
+    "base": {
+      "head": "d2b5877e1449c434feacb2cb9b0fa9811a6810a2",
+      "scope": "incoming dirty IC Wire tenant adoption; benchmark and documentation only"
+    },
+    "ic_wire": "captured unpublished dirty source; source version 0.2.2; selected future registry line 0.3; not a 0.3 release benchmark",
+    "upstream_head": "226a11fce6d5cdd59a77d9a006c91f5a46c58b42",
+    "inputs": {
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+      "cargo": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+      "environment": {},
+      "profile": "Cargo default release; opt-level 3; no LTO; no postprocessing",
+      "sources": {
+        ".tmp/review-validation/wire-bench0320/canister/Cargo.toml": "3cd6cf5377ee03427f701b23de4dbf70f297e04c71d99b0741654ceb960ba343",
+        ".tmp/review-validation/wire-bench0320/canister/src/lib.rs": "255c749fbb531994a48ecbf3351c87d71134034cfefb84ea2d7f5cf0144958e9",
+        ".tmp/review-validation/wire-bench0320/runner/Cargo.toml": "150ff467bd3039033c6b279a0d42105e76f5e09ffa816cd2b8c3acbb2938df99",
+        ".tmp/review-validation/wire-bench0320/runner/src/main.rs": "488fa65c700140f6a2480b61a1f7a0aff654f69a3f3430874dba56b87307c86d",
+        ".tmp/review-validation/wire-bench0320/Cargo.toml": "a8a0ba4f076d937aa8ae0e7db845ca39782f916ffa5df7cb2837e68a99d45c69",
+        ".tmp/review-validation/wire-bench0320/Cargo.lock": "6dfb103ab01bbeb4bde9a5e8db8833391b33eb2eea583bd60275bf73ac044033",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/lib.rs": "8fd7d121fa19b23d5e1fafbd6850d61eb71b75f7e7508bd41622dc5333b75b14",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/download/mod.rs": "1dd639aa7c3c04aa8c068a40e45f2105ba81735efe68fec845f6d8577108f1da",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/reference/mod.rs": "17776d8a15c7a51ba114e23d08f08b4fc8343a8a096fb5046c87a800bd102443",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/protocol/mod.rs": "80743cdd688d4f5519adde3b4c3db776246b6370c9eeaaf5df4a32a5d885d917",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/mod.rs": "4e73dbcd9ece08b70d8461d121f20b34a3e0069401764ec515b659c441effb1e",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/mod.rs": "6b8064fc89e9fb797f63a721479b2f74fdf58bace582ceac950e559c5728eac7",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/wire/mod.rs": "8a0922ab904bf08dda9fc478aece6edb2c50016c9d1bb1b67eb89fd18841d84e",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/mod.rs": "29fd88766aa2c9a60bef81ed582b513df88ec21fa0636226b8475c4814bf2489",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/binding/mod.rs": "cd43041e79f6539bde1ad4efec9c08547017a6e3800ee6f52b95a25eb873c929",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/decoding/mod.rs": "99546ffc4844aa906b04142971680ef4bb0982ebc12c70804271976ff2de6df0",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/mod.rs": "ab3a3cb38413f7cc909a18e67c9099b2b806a40aa0e090e06760a7938274961e",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/tenant/mod.rs": "488033f25923d0b82458d04cce5e9d33bed09050ae664e6974c37a911e28b4a9",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/mod.rs": "09bc0bc2e8a311591d787eb5c975e2a627fd93dc81685287e1213ce708a3317b",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/funding/mod.rs": "ed3c2afa5921d877e365ac7e0b4fd99c6b3b7e944ff2d8fecd442330ebaf8e1a",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/endpoints/mod.rs": "8193a7d55fc4f0043b87f01da8ff4cb00f907c206b27c93595a040b1726ef851",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/download/reply/mod.rs": "99df8c6e690aca160a30546b0cd480c1353499b47a4de937ba2cce1a09a6a4a2",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/download/scope/mod.rs": "670473ef186fc12687fbfc6e7ed7c3639a3af2aa5b90a771eb877eb30bebaa01",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/download/reply/tests/mod.rs": "b184a35727956dee38474c4faf4e4cc987f7ed7803e91d376575f0491d3fc841",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/download/scope/tests/mod.rs": "8c38ff75d9cc96095531492a2bd3f91c8bea12e796f97434eefcb4de9881d34e",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/reference/status/mod.rs": "7a1393e22783cf24b93463f1014ecafc6f6d576e6049d2af07255ff4a7db1def",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/reference/reply/mod.rs": "4fd0f82afbf2302d4dc9cc4c6c96eb166fb07343753e3d01e7ac20cd1df3cc3a",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/reference/binding/mod.rs": "c98e350d729beca19044a1900c03e09e1bc3832d23a00a9d548965f13ea74416",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/reference/reply/tests/mod.rs": "e16332aaa16fdbf78a9ba08429715d5f9081da8ac5f4f64a2b7e349b5238a9f2",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/admission/mod.rs": "1c4bd2b374e63c3b8c01cd0c572111d89a8d380dcfd7124348970d9d6b38de5c",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/status/mod.rs": "7c5ff7c3275da16dfaee65ae693103dcd531c7ad5b5cd11403656f54d7a971e3",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/capacity/mod.rs": "28912f5e33587e12662e138e1315c0eba1113401ef850892a18bcaac915f1297",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/history/mod.rs": "498089513356c2c9698436111410dea891a89102c26497129b9d01d4a916b9e7",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/certificate/mod.rs": "eca17c6b208426fade833b2478b8fc248c2a95273a5086a6d18c67fe492707e9",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/discovery/mod.rs": "7cfadcab3df41636e1db71857ae93d05c843e6c77da27870313809a0c96d9101",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/metadata/mod.rs": "74f2c74ce5dc56f6a0843f437c5d5047073c428a52155559480747456297fbeb",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/binding/mod.rs": "340aeaf5be623b7c4eb1191045e26d697efa142b0855226d318556ddf01cd1c9",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/completion/mod.rs": "92f088faedf605edf4bf3a512b528479c8afc8d47e8b9a624d3ac3c8492a7b53",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/inventory/mod.rs": "ba79303008845bbf10ecce1e18dcf3a855ae885df88c3e19aab8f12a97b85fd0",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/manifests/mod.rs": "3ca0141d70c6a48f2de9860197ea9a15b34ac82c21e3aec0d7c7b2bdc60a0f0f",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/admission/reply/mod.rs": "0c1264ef811e8aedff4e98a142bc2a623448f8164e2ff733947746e06cb11c13",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/admission/reply/tests/mod.rs": "5cedca06fcb1927d73751dbc1b9c8158ed1212bda9888e6774aee5264c71be67",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/admission/reply/tests/revocation/mod.rs": "b70e036893d40565f8162549e57d6b6c498d983cdacf7462df499126eea148fa",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/status/reply/mod.rs": "da7a7ac909ff67a068bec9fc63716c061099354c9cd0701d48863449e0a6b57d",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/status/reply/tests/mod.rs": "1f33efe316b4b324c9427aead5311ebdba5da0b6c0be519c1c73a711ee6538c2",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/capacity/reply/mod.rs": "43563fd2fa4aea9b4fad3cfb3b797dbd658f7f436d18c87705f3d77fe05272ec",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/capacity/reply/tests/mod.rs": "72e15b1a3b1cd587cad1fa8a5759f0e694d70d89ab0eccb04d72d1407b3f8679",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/history/reply/mod.rs": "7bea511d8f0804e96a6163bac4840aee579be3320bb23ff0e362b7a701ba3899",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/history/reply/tests/mod.rs": "70da71ee12e19518b1fc42d58f2ad7098b122714cf0b96f94a1580da944beb12",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/certificate/reply/mod.rs": "c7bc870f928d2c2b058426d4c4de91148e6d89f9ab617f21627c281f9e68cbba",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/certificate/reply/tests/mod.rs": "03818f4224faf75d6662c24e9125e0eb3e49f3624a3040eef8ef8bd7bfae379b",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/discovery/reply/mod.rs": "e45882ba9a654cc5d5dc9683913c9e1a6e98eb275918910b2d21839ea8d38a2d",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/discovery/reply/tests/mod.rs": "6f5d70d53a596bc91a0f31c86d32c5a2ce8ce4cde2813bceaaec71b8383a26a5",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/completion/reply/mod.rs": "157eb6b1e1bbf9368e9a280dfe4e2cd87c13645ca0bbda0ed0175c57787f74fe",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/completion/verification/mod.rs": "ca944d1e6cceedbe9de249ca3c5b416570fb0b49370dbc45df3effcc2bb56952",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/completion/reply/tests/mod.rs": "1f2155ebc39d006b052ae8a870a18b824b3673257d08128d5a4cdacecb0cd094",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/completion/verification/reply/mod.rs": "e49d4b8779ff3d6ff8e16bde9c68eb3d2fa160cf4201cb69e0f847e71b7062de",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/upload/manifests/reply/mod.rs": "89331d9322c729d96bf5b9a3f2a0656490746ac8402667f518a10bc67f0dd1b1",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/download/mod.rs": "37eac6c19dcb947d44e526b5d0a3eb69f25f82c6e691edc538ba9f6a2ef95711",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/recovery/mod.rs": "230021577eeceab6044771cb9cf0defd04e5e12089cbd015ff01564c24fa78f3",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/reference/mod.rs": "9419f66fc8c701fca4744cfb983612468ce8a65ed822a269009d0c5045b9a5cc",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/mod.rs": "7ea6b602fc4006e58290384358ff5a77c4f09126bb6b3602f2b02e40c25ef92e",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/operator/mod.rs": "8d9576e5dd8d83b11e5581328cbd061532b905d93c3117710d087abcbded5a05",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/gateway/mod.rs": "d4a63d3143c8a3dd17bb2d89e1274fe8d957ba4f9a8455da6c9aefd8bcf2babf",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/account/mod.rs": "ca1ab804ebfd8361918d695b2c6ead6ac5efe378d022edc5b764f402c3fede68",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/tenant/mod.rs": "d907f35efaed7aea44a05b6e79a4a9d05a5e645b3917277279546cb3264ff7f6",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/configuration/mod.rs": "1ba82a800e525371078feaf1a9514504e16c26ef2ad35e55d470c77898c96dd1",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/funding/mod.rs": "ce217b4d8f4cf75db821512519498190b3d35f4b8bb4023f2f3d3e6928138130",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/reference/status/mod.rs": "6866b4ebafc77e6df44156bf6f946d6335da2e777400a11a4b9ea948baabe0f5",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/reference/capacity/mod.rs": "357af192104517b73c4bb455eb5b88e9295cceea13eebf8d1ec678df472571dc",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/admission/mod.rs": "73899c8965917e47a4540a50501aa1d5d32ae65c9139cb3eb765159b6fd3590c",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/manifest/mod.rs": "897330f20ed014daac1e0fd888ca595f9ebcb8aefedc6b519be6bd9255da27ec",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/capacity/mod.rs": "1142f93ad47ee3fe60e1e21569889b12df23c02f534eed19e59ca15b475932c0",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/history/mod.rs": "7849cd79955b35915757fff942762a3a6a2427d5b1026c4e50d1c5fc87ee8ee2",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/certificate/mod.rs": "241ad5765d2a4ea81b750d5d0c0a46bcc5ae415f3d047cac48291062d56ed757",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/discovery/mod.rs": "2ac39a96094eeaf48fc027f7e70199c32a695a6b992d9ffd5ef939146b543004",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/exposure/mod.rs": "6742c0c1177145a6290fa9834b89affb51fb6d5ca94a3a454df56aa8a21e88ce",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/upload/completion/mod.rs": "4456d1887c64065c8cb9f1b649179b9401b3aa82e18db01902b1fe4ecd477d31",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/gateway/sync/mod.rs": "75c6584b596d19c381a5ed4e7175f7237cd5c6e0dab3814d957095ac951f1d85",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/funding/outcome/mod.rs": "2ecff625ddf7beb6b36cb2379e35995319fda55a55d53ea024b6029ed608fd8e",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/dto/funding/assessment/mod.rs": "f3f64bb928dd95810208edef7bd731d710ad325cb5b78f2874d65ca9afdbd433",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/wire/tests/mod.rs": "63996c08ec4e1b4b9f7d25dbf87d3e6ff44cd89a84b558d499584d29f5a826ce",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/wire/decimal/mod.rs": "4b5d51ff61a577da9002378f1e48c9b9d0b1cee3b61582cfb8c41f9b075182b5",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/wire/tenant/mod.rs": "a8f83b3e3dddf7a4ce824f33fea324c2d4e690c22de3ab27c14bac99f9ba4ac4",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/wire/tenant/tests/mod.rs": "1ffdade7be51cea675c24a75dce625e9ae6df376cd00040d5c4744e908fa13ce",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/onboarding/mod.rs": "8fa3a8160d7de46dfd5f4b35b48b388ef8b0cbfb5c89b1dd9584990ed38c2ff6",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/download/mod.rs": "8b67b9922efa1cc446e6aea0dce345a1c4fa860f0e4db7a5cff4e0d1224c40ba",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/preparation/mod.rs": "940ea1ca10dc00594c59ec10b8dcf0ca52347d46a299d016da360922734a723a",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/wire/mod.rs": "5836fc41b15efba6da594cfb01c76a922ceb462026d15298943f91c92454e233",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/onboarding/tests/mod.rs": "829442fec78a0f426b4494f4d2ce79ac6eb6be922fc4af8cf3ca90f30863f606",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/download/tests/mod.rs": "39775630632101c5df71e44d2608e1e5f6df14ba54566588b8b5f70bea71fad2",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/provider/preparation/tests/mod.rs": "e9acd014e9f78f224172ab9d937d809c70022fdac3d51e3599e2f6cbf19928e2",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/batch/mod.rs": "40734374851f9c3ab4f4e85921addb37f76a754d031402bb2a283ef4792bcd23",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/mod.rs": "6a277c9a8ad67f767670ff2d1f70cce5ef1647421637dc34ba577c63c8bdbde4",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/verification/mod.rs": "0ba0ee7936c53142174c3632ed7972221d5f73519a7ddf9e181732d385832f8a",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/mod.rs": "bb0176089b1f6513c7a1edf2385f866f2e31f18fedfbd913dfd274108b27a271",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/verification/mod.rs": "2163ca5ca39525266a001f70fd828246b85943f4da8008b00a4153a1196c6731",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/tests/mod.rs": "6b5e846b69acaa288d183b9956da145b0592cc394fb528c0e6e788105ee01523",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/metadata/mod.rs": "17c4366f6f2751780fb27e90b89bf94d93dfc5e52bce1ed011e0f64c1ee93c42",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/mod.rs": "9896ff14bc6fc32282820970bd1d9ef9b26f969e78aaf8d79fc395bede621c33",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/tests/mod.rs": "963dfa2e2a8289c869dcb3b59750486412eb7798f543d59e183749e836941e04",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/builder/mod.rs": "8e16e5b7d7388b04914f80aa4268f800c6b71345ed1e40a59798d0d5de600f6f",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/missing/mod.rs": "433c90c33f0ef1cbc453e20fe217bf20e401561e64bcab962e7c878ff7118c12",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/mod.rs": "4f2fa6893117fd5e99cb347c476367c7f186b40d11875a538923937ad41adb58",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/tests/mod.rs": "7eb151ec98d251b884aa3fa0a961fcbc03c107b724c51f760d7ba5f36a496699",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/missing/tests/mod.rs": "e0f854f3373f2fde595b0de1a041b6b00d302a6deff54313fece78a4102008aa",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/tests/mod.rs": "35c943985ee03b9cf7e7eb9647ce0d872d543393b7384f65955f8cf6df7b9315",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/checkpoint/mod.rs": "f7737f4092937494827dd4abae483b0112b69b0b2afe0413bfc1fab750c98b32",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/verification/ordered/checkpoint/tests/mod.rs": "f55b2c35e088e8805da4c0c54fc1dd31eb7e05df1c0dae92f25ab7ba0241bbb6",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/builder/tests/mod.rs": "f05dcb6db9aa8d6623c851f7a71116843ceb4024cc06f26daa3f3bb1165b584f",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/caffeine/verification/tests/mod.rs": "51d201764c155d06c1f6e7cacf06b1395840d8dface4e2680a3c01fa648286d0",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/identity/verification/checkpoint/mod.rs": "98f05e0561c687c593e71fc4f6471cc3f2afd6cadb67317aee4e615f3645d78f",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/tenant/reply/mod.rs": "6243003681931ef0955d28e2b6dcb43dbed4566d1f9ba76eca04b32f08a22cf5",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/tenant/reply/tests/mod.rs": "214c1bf17689720f338c7fb34c5ac5957de19fe99479cb19fa8bb2a4a0cad070",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/envelope/mod.rs": "303068bfd18d99a92fb2fa70d9cdd03e88c4277a9ecfe5051cda36629285cccd",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/service/mod.rs": "f3c335dc709a3c55874deaa8bebd895515e63d4fa75ba9cca619dfff02db6fa8",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/tests/mod.rs": "9e4230146d8a390a107710d6b03dedf1f0d3a51739ab8c49c5cb1a3627fabb53",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/billing/mod.rs": "74a8b3c4c360b4680ec3527e5b55d4a5c82ff28f856f01894f1b21af5d1bf42c",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/funding/mod.rs": "b5f0e908ea1afa0cc425c7a1f3b0f326c91b4a330d5e657086aa3a07444bfc5e",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/limits/mod.rs": "8f0a7b1667a2ee4314235423a4b2c28820e870709bd4cdf5c3526b261f5f2499",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/configuration/service/tests/mod.rs": "0e345cdd55a011b2bcf02d7be6fee44f2beb4399ae951f8c6a91c368bc4eb4df",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/funding/reply/mod.rs": "a621da63b62701cee050405ac7f0d4b857824f702c30356d5db7947463ab4594",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/funding/transfer/mod.rs": "1d4fc778786fa214cd8a48bf36be5f4526766511ce95a973e6428f68fc90053d",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/funding/reply/outcome/mod.rs": "4ef1af43a00625c6f6c3df7c2e467c31a7db9233e8dd88cc5d6d9c3d91b4ec12",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/funding/reply/tests/mod.rs": "0b13449e47a74bb3cdde3d68cc77b08ed89a0cfdf2240cd9a4b81ea1329b76bb",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/funding/reply/assessment/mod.rs": "eda3560e5784c48a3b3c8ffc17406e554026446e066f6505188d03a6fc9c6c5b",
+        ".tmp/review-validation/icwire0320/consumer/crates/ic-blob-storage-contracts/src/funding/reply/assessment/tests/mod.rs": "4015659334fc37d39365667a082cdf3d19e9990c059901e487ed0172563f1626",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/lib.rs": "111afe28fe8627f005063d92cf5a74692e30cdf479347dbd0d4d3c88a01b189e",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/examples/macro_fixture/mod.rs": "fc779930acef375eda0b593d9c547fa1f4c4cf7a8061be99ad0ab6eb55ba82af",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/examples/build_evaluation/mod.rs": "01cdde50822b82bbc17a1106d9ecda5839d8ef957f000f709edfe63606ca9e83",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/examples/runtime_measure/mod.rs": "6ff91ef2be92c14bc5da4627acb8f4f87d503389ab72672702e6c84806649df0",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/examples/browser_fixture/mod.rs": "df94541d749b3f4cda1e286b5065b6b805b80dca5800f22ad3ab8af2f1467e06",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/examples/replay_fixture/mod.rs": "ce9c4c64d19753865c7a29f1e4fe2657f05f6fd45fd4ee847d26f8ab20918369",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/runtime_benchmark/mod.rs": "f7c0e660255a826d81aa0196ea58bcb126b4ff4b200b37956844c397ecdf0665",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/macro_fixture/mod.rs": "848e9cc0f9a98251bdbbc438fc75df3d607663b39d55bbc17eea7f5f6ad7b3e7",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/commands/mod.rs": "71f2ffd4d2aaabdeac60034c7fcedcca6338b920f17e4121cc81a415b2e97ca2",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/replay/mod.rs": "55dae24bf15172441f111dc43b5741d9af4bea9c63af24255898bee72b743b67",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/runtime_benchmark/shapes/mod.rs": "d150e027f787d37e9bbe2b8f6ba4e060684cdc600ef0ff653d7d506fe39cacf8",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/macro_fixture/tests/mod.rs": "fc422e5827bfb0e63aedac2894dbb1312e8b718fbeffbf3aa666c1efa00fe64d",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-canister-evaluation/src/replay/tests/mod.rs": "1e341691f215286e5901695449b3a238c8307009aa3756c8653f3f6f3fab36c5",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/src/lib.rs": "d2b30abfc8203f4107c680c7871caaf989fbc0b30c85bd4429a84df64a1bc202",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/mod.rs": "13ad7ef435182611d23c6f3377e2df0e380434be995924d2011846b343db2135",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/export_name/mod.rs": "5a7e28387577b9522c5b512d798be1ba043feb51426a16cb02a9ebb5ef90af6c",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/async_response/mod.rs": "cb138f28060b1122531fed3b66cd0ea3420367495d8764beefad3c11c7328086",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/candid_selector/mod.rs": "6c0155ba9267f6dd0adab7dc0c8f3643f7b2c1893ed859ab822ea12ef8641348",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/missing_guard/mod.rs": "8261435821367cec92189ce93b616fe61a49f54df1c3f737b9f559520e24bd82",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/request/mod.rs": "0f4045abfa38a705f4135d67de127f831a25481fe190b1700d2625c2a5e47f06",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/valid/mod.rs": "192e3535b88b008d9882f7745a51ee1c326dae6078be033549b50605df8de275",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/response/mod.rs": "40973defcfa20ddd195bc4da2065116e2555f6d166c435745260cfc2f835433a",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/async_query/mod.rs": "ae56906ff3a41adab23d42a1bb7ce91581c19dc130915eb9d400f8eff1b3470b",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/tests/ui/support/mod.rs": "b4a4e9ef283cbb4b3360c529b571b8d1489fffa957a8e19fc657b0749769740f",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire-derive/src/adapter_fixture/mod.rs": "b2fef4afdc2be800064b91a5dc21f2d5e536fa35199359785313c6a02abe77a6",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/src/lib.rs": "24a2775615804e593d4cf802e8c76f333c2db43fd31127027145f0ec9bbb6007",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/examples/typescript_conformance/mod.rs": "3f1223a3b43ebb9191a91214f63c9e099b2158aa87b2e30cc27e30498ef6b16b",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/examples/fuzz_runtime/mod.rs": "2c102528e421a224e2f0945a50d660d217951b6f51c59a2bd5a8103facf85bb7",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/examples/typescript_conformance/consumer/mod.rs": "6e3be2a51c5aaa25d494a6cde2d8adaba5f274bd3369d87de72cc4ac8930baa9",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/runtime/mod.rs": "5acfed8e24be518fa435ec9eaf759b8fb2dce598ed95dde58b3671b32bd0b65c",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/mod.rs": "775a0dee3935e110062626c64a0d58f683a306eb7ebbe22f5cda307a03c71782",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/generic_contract/mod.rs": "8f854ada940fbf3b9dc5530e47d65feccd862fef55d4921927ecb5ae723b7644",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/duplicate_field_id/mod.rs": "46260759593be711cbf70c697577aa5c1fc19c7e39009d2b91d4e0bada267845",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/missing_id/mod.rs": "2654d1bdab59e2b10e726cec99968b11a769b23340592fe3665c4e936edac80e",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/unsupported_field/mod.rs": "8806f2d92dbd0690663d33bd1fe1673f27c2ca6929e9614e45f17a34025dc44d",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/wrong_handler_argument/mod.rs": "96243e82b09ca926c81d6050475372c3d8deb81ceb7f990f68cbd6206b9f2f82",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/valid/mod.rs": "17680ee8d8f0f9ac5f697c9648390f3ad43e0be843b132316e51a4d7cf7c6a41",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/wrong_reply/mod.rs": "2bfb11c71327569a3059115d0e8ca93b30965d4a2ff52f7d95c4826e95adefde",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/wrong_async_handler/mod.rs": "88dc2e478bd8f6172dbde09b55008951f12c70eae75f445e8bcb701a018550b4",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/tuple_record/mod.rs": "a4cc82e7603ee97d19dd967f7545a5275a215c3dcb061fe6be14ddc6454edfc7",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/wrong_request/mod.rs": "af5225545afb36225125624cd9c1530f7324d23b1f1535d685858ccf0ea6df84",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/duplicate_variant_id/mod.rs": "a37423e15d733fb839884a8ce2521c9b05caaad88cab7b478408b33408d541cf",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/wrong_handler/mod.rs": "975a68df62c355302a7e3696bb0ee81e2f9de26edb457dfe697f7ffac9c81b98",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/tests/ui/support/mod.rs": "7b5f8780b68dc1a2e828096ac7c800339d2683bd7c795c1e87953f7e5e613d03",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/src/typescript/mod.rs": "50d396aaa6e7005f9d02f722f9a1ff5845121cde427dbcce58b98bbc146b9ce3",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/src/bounded/mod.rs": "06adcc2fc06b7e20ae8d930b5ec2a9d42f2119c6dc10074e7829bc079fdcb9d2",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/src/contract/mod.rs": "25675267cd4786e63169ce68a585ac84be96f0d8fd9a035a74fe46b43f967211",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/src/shape/mod.rs": "9026af4e33f7de8ee2834bb133227ed0992f1282e5bd9a2c7a2fe4cfcd03ed06",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/src/float/mod.rs": "ed8eb372a3a69f4f1b27a47ec37426ac56232d812bfe94763150530c51f2ea04",
+        ".tmp/review-validation/icwire0320/upstream/crates/ic-wire/src/schema/mod.rs": "e177ff609382eff2aaa687013506d963465782120f6e9896d1af150ea15e6ba8",
+        ".tmp/review-validation/wire-bench0320/canister/src/released/mod.rs": "4ea3a4d2b70ab1c8dd7fde2c47c1b0f9801fbe1516d578d3587f3bdaede8cf13"
+      },
+      "preparation_attempts": "lock comparisons exposed multi-version comparison error, regenerated lock drift and native SHA default feature; no installed dispatch before corrected frozen final inputs; native runner initially used unavailable LowerHex with no-default-feature SHA; fixed byte formatting before dispatch; exact released DTO control initially omitted direct serde derive dependency, repaired before dispatch",
+      "released_source": {
+        "commit": "d2b5877e1449c434feacb2cb9b0fa9811a6810a2",
+        "path": "crates/ic-blob-storage-contracts/src/dto/tenant/mod.rs",
+        "sha256": "4ea3a4d2b70ab1c8dd7fde2c47c1b0f9801fbe1516d578d3587f3bdaede8cf13"
+      },
+      "earlier_measurement": "180 successful calls/180 counter queries using current native DTO Candid control retained at attempts/current-dto-control; selected comparison reruns exact released Serde derives"
+    }
+  },
+  "server": {
+    "version": "pocket-ic-server 16.1.0",
+    "binary_sha256": "b44e1eccd66e02328146b3e209e3403e3a3428a25d25555aca2f67500e5ae9db",
+    "archive_sha256": "131219d90dcf9bf6f3ed8ee02d8f55504ea24a6db382f5680675b7bd6b7ed3bf"
+  },
+  "artifact": {
+    "samples_per_case": 10,
+    "warmup_samples_discarded": 0,
+    "wasm_bytes": 856450,
+    "wasm_sha256": "c90df7b7e4f0101006912b9e7d6575f9ed2b82314eef424258dc3188f7a76fc6"
+  },
+  "production_artifacts_reused_hash_checked": [
+    {
+      "variant": "cbor",
+      "path": "target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+      "sha256": "bcee4df8efbdc84c31ccb72e6297cb6ecebd8e5fd14f68c622203f396e32c686",
+      "bytes": 3332291
+    },
+    {
+      "variant": "partial-wire",
+      "path": ".tmp/review-validation/icwire0320/consumer/target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+      "sha256": "fb48931f3386f83f9870875ce3bfb2ce18f15c499b7a048de65b90dc8926ce04",
+      "bytes": 3334330
+    }
+  ],
+  "samples": [
+    {
+      "case": "inspect absent",
+      "codecs": [
+        {
+          "codec": "candid",
+          "instruction_samples_decode_handler_encode": [
+            [
+              43679,
+              326,
+              128464
+            ],
+            [
+              31079,
+              326,
+              145721
+            ],
+            [
+              31608,
+              326,
+              161751
+            ],
+            [
+              31608,
+              326,
+              161751
+            ],
+            [
+              31608,
+              326,
+              161751
+            ],
+            [
+              31608,
+              326,
+              161751
+            ],
+            [
+              31608,
+              326,
+              161751
+            ],
+            [
+              31608,
+              326,
+              161751
+            ],
+            [
+              31608,
+              326,
+              161751
+            ],
+            [
+              31608,
+              326,
+              161751
+            ]
+          ],
+          "method": "candid_inspect",
+          "request_bytes": 51,
+          "request_sha256": "5559959f4f4118c2fb7740c0499fda5091a6b4bcd3fc1a829b54da5a9cf4b6dc",
+          "response_bytes": 149,
+          "response_sha256": "738cd369e25a85c3b2c7ecb250b3be8044ca8205b9ccd3db847f9a9b6f628619"
+        },
+        {
+          "codec": "cbor",
+          "instruction_samples_decode_handler_encode": [
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ],
+            [
+              8802,
+              280,
+              10230
+            ]
+          ],
+          "method": "cbor_inspect",
+          "request_bytes": 49,
+          "request_sha256": "22e8d232a210c47e1d8f39e38a8170c7e502bcb138e7cd22b2489776699bd77c",
+          "response_bytes": 80,
+          "response_sha256": "9fb101ece3b4bca716fb64dfc0848b2b7e699e68e8a87b99bf89448731630520"
+        },
+        {
+          "codec": "wire",
+          "instruction_samples_decode_handler_encode": [
+            [
+              3381,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ],
+            [
+              3350,
+              280,
+              2908
+            ]
+          ],
+          "method": "wire_inspect",
+          "request_bytes": 34,
+          "request_sha256": "6426bc5fbfde6f6b3f1e5c24c58326bb793fc869d1bbd693643e7b9a1b22aad9",
+          "response_bytes": 37,
+          "response_sha256": "19fa12185cb3924630dd44c9891d90a815636f88d3ec09db78cf651a550f43b8"
+        }
+      ]
+    },
+    {
+      "case": "inspect full width",
+      "codecs": [
+        {
+          "codec": "candid",
+          "instruction_samples_decode_handler_encode": [
+            [
+              32988,
+              326,
+              165392
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ],
+            [
+              33068,
+              326,
+              163594
+            ]
+          ],
+          "method": "candid_inspect",
+          "request_bytes": 107,
+          "request_sha256": "0ea7400da3d9e20c3e89a5b66c7ce7b7dcb5e09d7a29629babe0f8ddf7531976",
+          "response_bytes": 214,
+          "response_sha256": "b1dbb94bf8d7c0eb1e169cca5b47d79923dbc3c56c60af4d91e77d9658aacca2"
+        },
+        {
+          "codec": "cbor",
+          "instruction_samples_decode_handler_encode": [
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ],
+            [
+              10394,
+              280,
+              14001
+            ]
+          ],
+          "method": "cbor_inspect",
+          "request_bytes": 106,
+          "request_sha256": "3e86964ae4013e1911ebad3b2806be66adae44ba6cc7f24a4c24851165cbe809",
+          "response_bytes": 165,
+          "response_sha256": "3fe0b923f5f8e6f151f3627a4e8b09b21a2221e6716571c13ea9979afb77948c"
+        },
+        {
+          "codec": "wire",
+          "instruction_samples_decode_handler_encode": [
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ],
+            [
+              5691,
+              280,
+              3689
+            ]
+          ],
+          "method": "wire_inspect",
+          "request_bytes": 90,
+          "request_sha256": "6f5d8cb180ae509fb2a0da3244aac5c6cbd035faad5ed75955208fd5bdfefd12",
+          "response_bytes": 104,
+          "response_sha256": "4a5e1b8a2ceeb413dfcde28fea89f0003334ad68f02446a7a974325165793a21"
+        }
+      ]
+    },
+    {
+      "case": "update create",
+      "codecs": [
+        {
+          "codec": "candid",
+          "instruction_samples_decode_handler_encode": [
+            [
+              89106,
+              314,
+              160670
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ],
+            [
+              89482,
+              314,
+              167434
+            ]
+          ],
+          "method": "candid_update",
+          "request_bytes": 89,
+          "request_sha256": "316947e389e5ac5bbb7f3a7dcce68bc64651cf7881483c81eb7c98ae2721b2ed",
+          "response_bytes": 158,
+          "response_sha256": "7617be36148c0e87d299da3d10765f7e96c796ab5382521f5e748d2b79d1e811"
+        },
+        {
+          "codec": "cbor",
+          "instruction_samples_decode_handler_encode": [
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ],
+            [
+              12462,
+              279,
+              12550
+            ]
+          ],
+          "method": "cbor_update",
+          "request_bytes": 74,
+          "request_sha256": "cd73fea8532ed875d9bb94dd27746e993cb6162d24180e60463f08f2dfb04cb4",
+          "response_bytes": 100,
+          "response_sha256": "f80e9b921cbae311eadcd912ac592be83011a831a7d2c2e2f67a44432aeba9e5"
+        },
+        {
+          "codec": "wire",
+          "instruction_samples_decode_handler_encode": [
+            [
+              4099,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ],
+            [
+              4068,
+              279,
+              3133
+            ]
+          ],
+          "method": "wire_update",
+          "request_bytes": 36,
+          "request_sha256": "9c9830c149acf6fd84b6a3ff3cc8670bdc8831d4293e9026ea8900363495fb78",
+          "response_bytes": 39,
+          "response_sha256": "aafb9bd9c9bef0e7c84c153f4582c5a396f8283bff87cacacf46c4b17a4d03b1"
+        }
+      ]
+    },
+    {
+      "case": "update suspend",
+      "codecs": [
+        {
+          "codec": "candid",
+          "instruction_samples_decode_handler_encode": [
+            [
+              93707,
+              314,
+              168043
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ],
+            [
+              93639,
+              314,
+              168525
+            ]
+          ],
+          "method": "candid_update",
+          "request_bytes": 98,
+          "request_sha256": "a57c2e17099b858aa332bc57bdc1ab7962b9f3f3388c2daaecfdf001293463f5",
+          "response_bytes": 158,
+          "response_sha256": "67216007805cf7bae25aba83ab3c80f72b8a1220017a852c6db445d6a5663bf3"
+        },
+        {
+          "codec": "cbor",
+          "instruction_samples_decode_handler_encode": [
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ],
+            [
+              14711,
+              279,
+              12259
+            ]
+          ],
+          "method": "cbor_update",
+          "request_bytes": 94,
+          "request_sha256": "03bd17241e8c038e45db0c88fa91b20d3e6d61bf888d707489ab131ba74ab920",
+          "response_bytes": 100,
+          "response_sha256": "2d7cb081577ff4babb8a63f5f042dad287ae1589530a786701f9fbc2b1a57a81"
+        },
+        {
+          "codec": "wire",
+          "instruction_samples_decode_handler_encode": [
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ],
+            [
+              4366,
+              279,
+              3188
+            ]
+          ],
+          "method": "wire_update",
+          "request_bytes": 38,
+          "request_sha256": "df4f681928330edd68a141daa916c7ce13d032df29189ec15eee9809814ca18f",
+          "response_bytes": 39,
+          "response_sha256": "ac7dd6f04b78cadd4327eb7c2d2a80ea6efde57916a238703d7f1d04cdf4cff9"
+        }
+      ]
+    },
+    {
+      "case": "update full width",
+      "codecs": [
+        {
+          "codec": "candid",
+          "instruction_samples_decode_handler_encode": [
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ],
+            [
+              96390,
+              314,
+              169541
+            ]
+          ],
+          "method": "candid_update",
+          "request_bytes": 154,
+          "request_sha256": "30ac6603cc0450bc4132657db78e1d5f7f14ebb59cbb54984e5dc76e33ca98f9",
+          "response_bytes": 214,
+          "response_sha256": "b1dbb94bf8d7c0eb1e169cca5b47d79923dbc3c56c60af4d91e77d9658aacca2"
+        },
+        {
+          "codec": "cbor",
+          "instruction_samples_decode_handler_encode": [
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ],
+            [
+              16474,
+              279,
+              14001
+            ]
+          ],
+          "method": "cbor_update",
+          "request_bytes": 159,
+          "request_sha256": "0b92311615f4ad553674bc91b2efdbd2a91517447f7005d982f2abbcea2251ff",
+          "response_bytes": 165,
+          "response_sha256": "3fe0b923f5f8e6f151f3627a4e8b09b21a2221e6716571c13ea9979afb77948c"
+        },
+        {
+          "codec": "wire",
+          "instruction_samples_decode_handler_encode": [
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ],
+            [
+              7279,
+              279,
+              3689
+            ]
+          ],
+          "method": "wire_update",
+          "request_bytes": 103,
+          "request_sha256": "bad832bd39d1e89963d04b28a3248646d0e7e195d091a1b83c531cdcae10da22",
+          "response_bytes": 104,
+          "response_sha256": "9ca196d154b5d537916b3e16611b56113b9a4f8bf7557250f77d30e26b7931de"
+        }
+      ]
+    },
+    {
+      "case": "update denied",
+      "codecs": [
+        {
+          "codec": "candid",
+          "instruction_samples_decode_handler_encode": [
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ],
+            [
+              93639,
+              271,
+              166877
+            ]
+          ],
+          "method": "candid_update",
+          "request_bytes": 98,
+          "request_sha256": "ab2d0da3e30d57a3d8135a49c914a879ee676ffb2ea01e1d04982c746df06dd4",
+          "response_bytes": 123,
+          "response_sha256": "94aeb3a9f554ae82af607054b7d105d299dceb408615f9edcd9653e1a7d9d0e2"
+        },
+        {
+          "codec": "cbor",
+          "instruction_samples_decode_handler_encode": [
+            [
+              14711,
+              235,
+              2595
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ],
+            [
+              14711,
+              235,
+              2564
+            ]
+          ],
+          "method": "cbor_update",
+          "request_bytes": 94,
+          "request_sha256": "6f834efada9090f99b5c4f0fe5d12146701b4ad6207f375ad733e02aba18fc88",
+          "response_bytes": 12,
+          "response_sha256": "d927ae49dd8aefa4946830f0861f99ea4a19199371ff09b46ff48165bfb481a9"
+        },
+        {
+          "codec": "wire",
+          "instruction_samples_decode_handler_encode": [
+            [
+              4337,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ],
+            [
+              4368,
+              235,
+              1073
+            ]
+          ],
+          "method": "wire_update",
+          "request_bytes": 38,
+          "request_sha256": "17d3ed203cbbe900e728ec9103901ec2ad0d5369382d5466184d71dd961c68be",
+          "response_bytes": 13,
+          "response_sha256": "47e3286d1ee950ec408cf4da8c3b37092af565fa41ae1ee6ce6eee299aa50948"
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "case": "inspect absent",
+      "codecs": [
+        {
+          "codec": "candid",
+          "request_bytes": 51,
+          "response_bytes": 149,
+          "median_decode_instructions": 31608.0,
+          "median_encode_instructions": 161751.0,
+          "median_codec_instructions": 193359.0,
+          "median_total_instructions": 193685.0,
+          "ranges_decode_handler_encode": [
+            [
+              31079,
+              43679
+            ],
+            [
+              326,
+              326
+            ],
+            [
+              128464,
+              161751
+            ]
+          ]
+        },
+        {
+          "codec": "cbor",
+          "request_bytes": 49,
+          "response_bytes": 80,
+          "median_decode_instructions": 8802.0,
+          "median_encode_instructions": 10230.0,
+          "median_codec_instructions": 19032.0,
+          "median_total_instructions": 19312.0,
+          "ranges_decode_handler_encode": [
+            [
+              8802,
+              8802
+            ],
+            [
+              280,
+              280
+            ],
+            [
+              10230,
+              10230
+            ]
+          ]
+        },
+        {
+          "codec": "wire",
+          "request_bytes": 34,
+          "response_bytes": 37,
+          "median_decode_instructions": 3350.0,
+          "median_encode_instructions": 2908.0,
+          "median_codec_instructions": 6258.0,
+          "median_total_instructions": 6538.0,
+          "ranges_decode_handler_encode": [
+            [
+              3350,
+              3381
+            ],
+            [
+              280,
+              280
+            ],
+            [
+              2908,
+              2908
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case": "inspect full width",
+      "codecs": [
+        {
+          "codec": "candid",
+          "request_bytes": 107,
+          "response_bytes": 214,
+          "median_decode_instructions": 33068.0,
+          "median_encode_instructions": 163594.0,
+          "median_codec_instructions": 196662.0,
+          "median_total_instructions": 196988.0,
+          "ranges_decode_handler_encode": [
+            [
+              32988,
+              33068
+            ],
+            [
+              326,
+              326
+            ],
+            [
+              163594,
+              165392
+            ]
+          ]
+        },
+        {
+          "codec": "cbor",
+          "request_bytes": 106,
+          "response_bytes": 165,
+          "median_decode_instructions": 10394.0,
+          "median_encode_instructions": 14001.0,
+          "median_codec_instructions": 24395.0,
+          "median_total_instructions": 24675.0,
+          "ranges_decode_handler_encode": [
+            [
+              10394,
+              10394
+            ],
+            [
+              280,
+              280
+            ],
+            [
+              14001,
+              14001
+            ]
+          ]
+        },
+        {
+          "codec": "wire",
+          "request_bytes": 90,
+          "response_bytes": 104,
+          "median_decode_instructions": 5691.0,
+          "median_encode_instructions": 3689.0,
+          "median_codec_instructions": 9380.0,
+          "median_total_instructions": 9660.0,
+          "ranges_decode_handler_encode": [
+            [
+              5691,
+              5691
+            ],
+            [
+              280,
+              280
+            ],
+            [
+              3689,
+              3689
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case": "update create",
+      "codecs": [
+        {
+          "codec": "candid",
+          "request_bytes": 89,
+          "response_bytes": 158,
+          "median_decode_instructions": 89482.0,
+          "median_encode_instructions": 167434.0,
+          "median_codec_instructions": 256916.0,
+          "median_total_instructions": 257230.0,
+          "ranges_decode_handler_encode": [
+            [
+              89106,
+              89482
+            ],
+            [
+              314,
+              314
+            ],
+            [
+              160670,
+              167434
+            ]
+          ]
+        },
+        {
+          "codec": "cbor",
+          "request_bytes": 74,
+          "response_bytes": 100,
+          "median_decode_instructions": 12462.0,
+          "median_encode_instructions": 12550.0,
+          "median_codec_instructions": 25012.0,
+          "median_total_instructions": 25291.0,
+          "ranges_decode_handler_encode": [
+            [
+              12462,
+              12462
+            ],
+            [
+              279,
+              279
+            ],
+            [
+              12550,
+              12550
+            ]
+          ]
+        },
+        {
+          "codec": "wire",
+          "request_bytes": 36,
+          "response_bytes": 39,
+          "median_decode_instructions": 4068.0,
+          "median_encode_instructions": 3133.0,
+          "median_codec_instructions": 7201.0,
+          "median_total_instructions": 7480.0,
+          "ranges_decode_handler_encode": [
+            [
+              4068,
+              4099
+            ],
+            [
+              279,
+              279
+            ],
+            [
+              3133,
+              3133
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case": "update suspend",
+      "codecs": [
+        {
+          "codec": "candid",
+          "request_bytes": 98,
+          "response_bytes": 158,
+          "median_decode_instructions": 93639.0,
+          "median_encode_instructions": 168525.0,
+          "median_codec_instructions": 262164.0,
+          "median_total_instructions": 262478.0,
+          "ranges_decode_handler_encode": [
+            [
+              93639,
+              93707
+            ],
+            [
+              314,
+              314
+            ],
+            [
+              168043,
+              168525
+            ]
+          ]
+        },
+        {
+          "codec": "cbor",
+          "request_bytes": 94,
+          "response_bytes": 100,
+          "median_decode_instructions": 14711.0,
+          "median_encode_instructions": 12259.0,
+          "median_codec_instructions": 26970.0,
+          "median_total_instructions": 27249.0,
+          "ranges_decode_handler_encode": [
+            [
+              14711,
+              14711
+            ],
+            [
+              279,
+              279
+            ],
+            [
+              12259,
+              12259
+            ]
+          ]
+        },
+        {
+          "codec": "wire",
+          "request_bytes": 38,
+          "response_bytes": 39,
+          "median_decode_instructions": 4366.0,
+          "median_encode_instructions": 3188.0,
+          "median_codec_instructions": 7554.0,
+          "median_total_instructions": 7833.0,
+          "ranges_decode_handler_encode": [
+            [
+              4366,
+              4366
+            ],
+            [
+              279,
+              279
+            ],
+            [
+              3188,
+              3188
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case": "update full width",
+      "codecs": [
+        {
+          "codec": "candid",
+          "request_bytes": 154,
+          "response_bytes": 214,
+          "median_decode_instructions": 96390.0,
+          "median_encode_instructions": 169541.0,
+          "median_codec_instructions": 265931.0,
+          "median_total_instructions": 266245.0,
+          "ranges_decode_handler_encode": [
+            [
+              96390,
+              96390
+            ],
+            [
+              314,
+              314
+            ],
+            [
+              169541,
+              169541
+            ]
+          ]
+        },
+        {
+          "codec": "cbor",
+          "request_bytes": 159,
+          "response_bytes": 165,
+          "median_decode_instructions": 16474.0,
+          "median_encode_instructions": 14001.0,
+          "median_codec_instructions": 30475.0,
+          "median_total_instructions": 30754.0,
+          "ranges_decode_handler_encode": [
+            [
+              16474,
+              16474
+            ],
+            [
+              279,
+              279
+            ],
+            [
+              14001,
+              14001
+            ]
+          ]
+        },
+        {
+          "codec": "wire",
+          "request_bytes": 103,
+          "response_bytes": 104,
+          "median_decode_instructions": 7279.0,
+          "median_encode_instructions": 3689.0,
+          "median_codec_instructions": 10968.0,
+          "median_total_instructions": 11247.0,
+          "ranges_decode_handler_encode": [
+            [
+              7279,
+              7279
+            ],
+            [
+              279,
+              279
+            ],
+            [
+              3689,
+              3689
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "case": "update denied",
+      "codecs": [
+        {
+          "codec": "candid",
+          "request_bytes": 98,
+          "response_bytes": 123,
+          "median_decode_instructions": 93639.0,
+          "median_encode_instructions": 166877.0,
+          "median_codec_instructions": 260516.0,
+          "median_total_instructions": 260787.0,
+          "ranges_decode_handler_encode": [
+            [
+              93639,
+              93639
+            ],
+            [
+              271,
+              271
+            ],
+            [
+              166877,
+              166877
+            ]
+          ]
+        },
+        {
+          "codec": "cbor",
+          "request_bytes": 94,
+          "response_bytes": 12,
+          "median_decode_instructions": 14711.0,
+          "median_encode_instructions": 2564.0,
+          "median_codec_instructions": 17275.0,
+          "median_total_instructions": 17510.0,
+          "ranges_decode_handler_encode": [
+            [
+              14711,
+              14711
+            ],
+            [
+              235,
+              235
+            ],
+            [
+              2564,
+              2595
+            ]
+          ]
+        },
+        {
+          "codec": "wire",
+          "request_bytes": 38,
+          "response_bytes": 13,
+          "median_decode_instructions": 4368.0,
+          "median_encode_instructions": 1073.0,
+          "median_codec_instructions": 5441.0,
+          "median_total_instructions": 5676.0,
+          "ranges_decode_handler_encode": [
+            [
+              4337,
+              4368
+            ],
+            [
+              235,
+              235
+            ],
+            [
+              1073,
+              1073
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "tenant inspection/update only",
+    "same single harness Wasm links all three codecs; no isolated codec Wasm size claim",
+    "counter excludes raw argument copying, framework dispatch, transport/reply delivery; includes counter overhead",
+    "synthetic native handler excludes policy, storage, provider calls and Canic",
+    "Candid uses exact released DTO source/derives and released endpoint decoder limits; not a rebuilt complete 0.31 artifact",
+    "CBOR lacks Wire method/direction identity and canonical validation; guarantees differ",
+    "production sizes from prior source-bound default-release artifacts; no new optimization/size rebuild",
+    "no claim about throughput, cycles, full-service instruction counts or unconverted methods"
+  ],
+  "local_request_budget_used": {
+    "selected_measured_updates": 180,
+    "selected_counter_queries": 180,
+    "earlier_control_measured_updates": 180,
+    "earlier_control_counter_queries": 180,
+    "total_measured_updates": 360,
+    "total_counter_queries": 360,
+    "external_requests": 0,
+    "paid_effects": 0
+  },
+  "preparation_failures": "lock comparisons exposed multi-version comparison error, regenerated lock drift and native SHA default feature; no installed dispatch before corrected frozen final inputs; native runner initially used unavailable LowerHex with no-default-feature SHA; fixed byte formatting before dispatch; exact released DTO control initially omitted direct serde derive dependency, repaired before dispatch",
+  "cleanup": "PocketIC owned server/instance dropped normally; synthetic canister only, no retained provider obligations; raw source, locks, packets and logs retained locally",
+  "raw_directory": ".tmp/review-validation/wire-bench0320",
+  "earlier_control": {
+    "directory": ".tmp/review-validation/wire-bench0320/attempts/current-dto-control",
+    "reason": "representation-equivalent current DTOs had additional Serde attributes; exact released DTO comparison selected instead",
+    "results_sha256": "43c87c4ad381ffa6f069f04adbb7cea3c5a60addacfa4ab14962edd398d6fea4"
+  }
+}

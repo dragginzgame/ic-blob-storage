@@ -12,6 +12,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
@@ -128,12 +129,12 @@ fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
     let value: Result<ReferenceReceiptLookup, ReferenceFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             f.tenant,
             "blob_reference_receipt",
-            (command,),
-            REPLY_LIMITS,
+            command,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     value.unwrap()

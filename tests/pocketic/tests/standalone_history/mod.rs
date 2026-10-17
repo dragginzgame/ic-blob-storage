@@ -10,6 +10,7 @@ use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
 use ic_blob_storage_contracts::protocol::UPLOAD_HISTORY_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 impl Fixture {
     fn history(
@@ -19,12 +20,12 @@ impl Fixture {
     ) -> Result<UploadHistoryPage, UploadHistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 UPLOAD_HISTORY_METHOD,
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -50,12 +51,12 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     admitted.unwrap();
@@ -75,12 +76,12 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let replicated: Result<UploadHistoryPage, UploadHistoryFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             UPLOAD_HISTORY_METHOD,
-            (request,),
-            REPLY_LIMITS,
+            request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected.clone()));
@@ -88,12 +89,12 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     revoked.unwrap();
@@ -101,16 +102,16 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            (TenantUpdateRequest {
+            TenantUpdateRequest {
                 scope: f.scope(),
                 expected: enrollment.enrollment,
                 active: false,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     suspended.unwrap();
@@ -123,7 +124,8 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     assert_eq!(page.request, active);
     assert_eq!(page.entries, []);
     assert_eq!(page.scanned, 1);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     expected.fenced = true;
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(f.history(f.tenant, request), Ok(expected.clone()));

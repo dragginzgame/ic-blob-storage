@@ -7,6 +7,7 @@ use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::upload::completion::*;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
     io::Write,
@@ -43,7 +44,7 @@ fn arguments(f: &Fixture, url: &str, directory: &Path, gateway: &str) -> Vec<Str
         "--namespace",
         "1",
         "--permission",
-        directory.join("permission.candid").to_str().unwrap(),
+        directory.join("permission.cbor").to_str().unwrap(),
         "--gateway",
         gateway,
         "--max-bytes",
@@ -93,7 +94,7 @@ fn interrupted(args: &[String], directory: &Path) {
     );
     drop(stream);
     drop(listener);
-    assert!(!path.join("statement.candid").exists());
+    assert!(!path.join("statement.cbor").exists());
     assert!(!path.join("summary.json").exists());
     let mut submit = shared_arguments("submit-attestation", &args);
     submit.extend(["--run-dir".into(), path.to_str().unwrap().into()]);
@@ -108,19 +109,20 @@ fn interrupted(args: &[String], directory: &Path) {
 fn receipt(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestationResponse {
     f.harness
         .pic
-        .query_candid_as::<Result<_, UploadAttestationFailure>, _>(
+        .query_blob_as::<Result<_, UploadAttestationFailure>, _>(
             f.service,
             f.operator,
             "blob_upload_attestation",
-            (statement.permission,),
-            REPLY_LIMITS,
+            statement.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap()
 }
 fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String], reply: proxy::Reply) {
-    let saved = std::fs::read(path.join("statement.candid")).unwrap();
-    let statement: UploadAttestationRequest = candid::decode_one(&saved).unwrap();
+    let saved = std::fs::read(path.join("statement.cbor")).unwrap();
+    let statement: UploadAttestationRequest =
+        ic_blob_storage_contracts::wire::decode(&saved, 4096).unwrap();
     assert_eq!(
         statement.content_digest,
         *ContentDigest::compute(&[5; 10]).as_bytes()
@@ -157,15 +159,15 @@ fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String], reply: prox
         "--verifier".into(),
         f.operator.to_text(),
         "--statement".into(),
-        path.join("attestation/statement.candid")
+        path.join("attestation/statement.cbor")
             .to_str()
             .unwrap()
             .into(),
     ]);
     assert_eq!(run(&recovery, 0)["outcome"], "matched");
-    assert_eq!(std::fs::read(path.join("statement.candid")).unwrap(), saved);
+    assert_eq!(std::fs::read(path.join("statement.cbor")).unwrap(), saved);
     assert_eq!(
-        std::fs::read(path.join("attestation/statement.candid")).unwrap(),
+        std::fs::read(path.join("attestation/statement.cbor")).unwrap(),
         saved
     );
     let outcome: serde_json::Value =
@@ -225,9 +227,9 @@ fn reject_damaged_runs(path: &Path, args: &[String]) {
     for name in [
         "plan.json",
         "summary.json",
-        "statement.candid",
-        "permission.candid",
-        "service-response.candid",
+        "statement.cbor",
+        "permission.cbor",
+        "service-response.cbor",
         "download-request.json",
         "download-outcome.json",
         "http-response.json",
@@ -336,8 +338,8 @@ fn journey(reply: proxy::Reply) {
     std::fs::write(dir.join("identity.pem"), PEM).unwrap();
     std::fs::write(dir.join("root.der"), f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(
-        dir.join("permission.candid"),
-        candid::encode_one(admission_input(permission)).unwrap(),
+        dir.join("permission.cbor"),
+        ic_blob_storage_contracts::wire::encode(admission_input(permission)).unwrap(),
     )
     .unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -358,7 +360,7 @@ fn journey(reply: proxy::Reply) {
             service: f.service,
             actor: f.operator,
             method: "blob_attest_upload",
-            argument_file: "statement.candid",
+            argument_file: "statement.cbor",
         },
         reply,
     );

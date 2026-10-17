@@ -4,8 +4,8 @@ use crate::dto::reference::ReferenceReceiptResponse;
 use crate::dto::reference::ReferenceTransitionFailure;
 use crate::dto::reference::ReferenceUpload;
 use crate::reference::reply::*;
+use crate::wire::encode;
 use candid::Principal;
-use candid::encode_one;
 fn request() -> ReferenceCommand {
     ReferenceCommand {
         upload: ReferenceUpload {
@@ -25,13 +25,17 @@ fn request() -> ReferenceCommand {
     }
 }
 fn encoded(value: Result<ReferenceReceiptLookup, ReferenceFailure>) -> Vec<u8> {
-    encode_one(value).unwrap()
+    encode(value).unwrap()
 }
 #[test]
 fn passive_request_encoders_preserve_independent_identities_and_validate_inputs() {
     let r = request();
     assert_eq!(
-        candid::decode_one::<ReferenceCommand>(&receipt_request(r).unwrap()).unwrap(),
+        crate::wire::decode::<ReferenceCommand>(
+            &receipt_request(r).unwrap(),
+            crate::wire::MAX_MESSAGE_BYTES
+        )
+        .unwrap(),
         r
     );
     let s = ReferenceStatusRequest {
@@ -39,7 +43,11 @@ fn passive_request_encoders_preserve_independent_identities_and_validate_inputs(
         reference: r.reference,
     };
     assert_eq!(
-        candid::decode_one::<ReferenceStatusRequest>(&status_request(s).unwrap()).unwrap(),
+        crate::wire::decode::<ReferenceStatusRequest>(
+            &status_request(s).unwrap(),
+            crate::wire::MAX_MESSAGE_BYTES
+        )
+        .unwrap(),
         s
     );
     assert_eq!(
@@ -171,7 +179,7 @@ fn receipt_reply_bounds_and_rejects_malformed_inputs() {
         Err(ReferenceReplyError::Invalid)
     );
     assert_eq!(
-        decode_reply(&encode_one(17_u64).unwrap()),
+        decode_reply(&encode(17_u64).unwrap()),
         Err(ReferenceReplyError::Invalid)
     );
     let mut trailing = bytes.clone();
@@ -198,13 +206,13 @@ fn receipt_reply_bounds_and_rejects_malformed_inputs() {
 
 #[test]
 fn receipt_reply_rejects_wrong_found_payload_instead_of_reporting_absence() {
-    #[derive(candid::CandidType)]
+    #[derive(serde::Serialize)]
     enum WrongLookup {
         Found(u64),
     }
     let value: Result<WrongLookup, ReferenceFailure> = Ok(WrongLookup::Found(17));
     assert_eq!(
-        decode_reply(&encode_one(value).unwrap()),
+        decode_reply(&encode(value).unwrap()),
         Err(ReferenceReplyError::Invalid)
     );
 }
@@ -224,7 +232,7 @@ fn mutation_reply_keeps_inner_failure_distinct_and_rejects_foreign_or_incomplete
                 replayed,
                 receipt: ReferenceReceiptResponse { request, result },
             };
-            let bytes = encode_one(Ok::<_, ReferenceFailure>(response)).unwrap();
+            let bytes = encode(Ok::<_, ReferenceFailure>(response)).unwrap();
             assert_eq!(decode_mutation(request, &bytes, max), Ok(response));
             assert_eq!(
                 decode_mutation(request, &bytes, 1.try_into().unwrap()),
@@ -246,13 +254,13 @@ fn mutation_reply_keeps_inner_failure_distinct_and_rejects_foreign_or_incomplete
     let refusal: Result<ReferenceMutationResponse, ReferenceFailure> =
         Err(ReferenceFailure::Capacity);
     assert_eq!(
-        decode_mutation(request, &encode_one(refusal).unwrap(), max),
+        decode_mutation(request, &encode(refusal).unwrap(), max),
         Err(ReferenceReplyError::Remote(ReferenceFailure::Capacity))
     );
     for bytes in [
         b"not candid".to_vec(),
         encoded(Ok(ReferenceReceiptLookup::Absent)),
-        encode_one(17_u64).unwrap(),
+        encode(17_u64).unwrap(),
     ] {
         assert_eq!(
             decode_mutation(request, &bytes, max),
@@ -275,7 +283,7 @@ fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_fai
             live,
             fenced,
         };
-        let bytes = encode_one(Ok::<_, ReferenceFailure>(response)).unwrap();
+        let bytes = encode(Ok::<_, ReferenceFailure>(response)).unwrap();
         assert_eq!(decode_status(request, &bytes, limit), Ok(response));
         assert_eq!(
             decode_status(request, &bytes, NonZeroUsize::MIN),
@@ -338,7 +346,7 @@ fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_fai
         altered.push(ReferenceStatusRequest { upload, ..request });
     }
     for changed in altered {
-        let bytes = encode_one(Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
+        let bytes = encode(Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
             request: changed,
             live: true,
             fenced: false,
@@ -353,7 +361,7 @@ fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_fai
         decode_status(request, b"DIDL", limit),
         Err(ReferenceReplyError::Invalid)
     );
-    let denied = encode_one(Err::<ReferenceStatusResponse, _>(ReferenceFailure::Denied)).unwrap();
+    let denied = encode(Err::<ReferenceStatusResponse, _>(ReferenceFailure::Denied)).unwrap();
     assert_eq!(
         decode_status(request, &denied, limit),
         Err(ReferenceReplyError::Remote(ReferenceFailure::Denied))

@@ -2,6 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::gateways::ReplicatedInput;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn replicated_input(&self, token: u64) -> ReplicatedInput {
         ReplicatedInput {
@@ -35,12 +36,12 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
     > = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_sync_gateways",
-            (f.revocation(f.other).scope,),
-            REPLY_LIMITS,
+            f.revocation(f.other).scope,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(refreshed.unwrap().sequence, 1);

@@ -4,7 +4,7 @@ use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertifica
 use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// Assess installed-owner eligibility and evidence through an immutable borrow.
 /// Resolves actual uploader authority before deriving the installation's facts;

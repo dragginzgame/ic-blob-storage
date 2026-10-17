@@ -10,6 +10,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 const OBJECTS: usize = 704;
@@ -87,12 +88,12 @@ fn capacity(
     let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             actor,
             "blob_reference_capacity",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     result.map(|response| {

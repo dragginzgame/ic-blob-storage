@@ -5,7 +5,8 @@ use candid::CandidType;
 use candid::Deserialize;
 
 /// Explicit proposed identity and complete attachment; no amount is defaulted.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct FundingPreparationRequest {
     /// Exact installed service/namespace/Cashier/payer scope.
     pub scope: OperatorScope,
@@ -17,7 +18,8 @@ pub struct FundingPreparationRequest {
     pub target_balance: Option<u128>,
 }
 /// Independent current reason preparation is blocked in the unqualified hosts.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum FundingPreparationBlocker {
     /// Installed provider/account behavior has not been qualified.
     ProviderUnqualified,
@@ -44,7 +46,8 @@ pub enum FundingPreparationBlocker {
     SpendabilityUnknown,
 }
 /// Synchronous observation of local facts and explicitly missing host evidence.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct FundingPreparationResponse {
     /// Complete echoed proposed request, including optional target.
     pub request: FundingPreparationRequest,
@@ -54,7 +57,8 @@ pub struct FundingPreparationResponse {
     pub blockers: Vec<FundingPreparationBlocker>,
 }
 /// Rejected assessment leaves all journals unchanged and calls no provider.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum FundingPreparationFailure {
     /// Zero namespace, operation, offer or present target.
     Invalid,

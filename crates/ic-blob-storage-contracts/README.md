@@ -1,7 +1,7 @@
 # IC Blob Storage Contracts
 
 Runtime-free contracts shared by IC Blob Storage, its native CLI and offline
-preparation/verification examples. This crate owns passive Candid DTOs, protocol
+preparation/verification examples. This crate owns passive service DTOs and their per-method codecs, protocol
 method names, checked identities, request/reply correlation, bounded decoders,
 content verification and immutable installation inputs.
 
@@ -12,8 +12,9 @@ provider behavior or authorize an effect. Hosts and the service retain those own
 Use `ic_blob_storage_contracts::{dto, identity, protocol}` for wire/client data.
 Use `ic_blob_storage` for service workflows, policy and durable owners. Both library
 packages inherit one workspace version. The 0.18.0 extraction removes the
-former service Rust paths without compatibility reexports; Candid and hash identities
-remain unchanged. Cross-release service transitions remain reinstall-only.
+former service Rust paths without compatibility reexports; that extraction preserved
+wire/hash identities. The 0.32 cut is adopting bounded IC Wire for owned methods under
+[the current adoption state](../../docs/service-wire.md); provider Candid and hashes remain. Cross-release service transitions remain reinstall-only.
 
 ```sh
 cargo run -p ic-blob-storage-contracts --example prepare_upload -- --help
@@ -28,13 +29,23 @@ The `mount_service_endpoints!` API, available since 0.22.11, shares service decl
 with a host-owned callback. Invoke it inside an endpoint module and supply its
 visible contract-crate alias, workflow adapter, actual caller/service context,
 trusted clock/caller/trap paths and bounded query/update attributes. The callback
-receives the request/manifest decoding category and the provider certificate's
+receives the method-specific decoding category and the provider certificate's
 exact wire name. Keep lifecycle, installation, memory allocation and post-await
 continuity in the host. See the standalone API module for a complete expansion.
 Linking this runtime-free crate alone exports no endpoint or lifecycle hook.
 
-Define the callback lexically before invoking the shared owner when the host
-collects Candid registrations during expansion. Imported emitter aliases can
-defer registrations past the host's export pass. Verify both structural equality
-of its Blob method projection with the canonical service and agreement between generated Candid and every
-callable Wasm endpoint; successful native compilation alone is insufficient.
+Use the exact IC Wire tenant contracts for their two categories and bounded CBOR
+for unconverted ordinary/manifest declarations. Both request and reply codecs
+must agree with the method catalog.
+The certificate category remains Candid. Keep provider Candid registration and
+schema export in the same emitter expansion pass. `endpoints::SERVICE_METHODS`
+provides the complete method/mode/codec inventory from the same catalog; compare
+that inventory with actual Wasm exports and compare only the provider subset
+with generated Candid. Native compilation alone is insufficient.
+
+The pending 0.32 IC Wire adoption starts with tenant inspection/update. Their
+bounded projections use explicit field/variant identities, method/direction-bound
+frames and finite resource limits while native DTO/policy and persisted schemas
+retain their existing owners. See [the adoption state](../../docs/service-wire.md).
+The registry requirement targets 0.3; candidate-source tests do not qualify that
+unpublished package or complete the other methods' conversion.

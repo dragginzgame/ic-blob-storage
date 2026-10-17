@@ -3,6 +3,7 @@ use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn reference_status(
         &self,
@@ -11,12 +12,12 @@ impl Fixture {
     ) -> Result<ReferenceStatusResponse, ReferenceFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 "blob_reference_status",
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -45,12 +46,12 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     admitted.unwrap();
@@ -62,12 +63,12 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
     let replicated: Result<ReferenceStatusResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_reference_status",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Err(ReferenceFailure::Unconfirmed));
@@ -152,7 +153,8 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
         assert_eq!(failure.reject_code, RejectCode::CanisterError);
     }
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(
         f.reference_status(f.tenant, input),

@@ -129,46 +129,38 @@ including service/operator/payer bindings, portable quotas, reference cleanup
 capacity, funding reserves, read limits, project and trusted completion verifier. It emits the complete shared `ServiceInstallationInput`
 without opening memory or dispatching installation.
 
-Prepare one `ServiceConfigurationInput` using the maintained Candid type and your
-explicitly reviewed values. Candid numeric literals preserve u128 widths; quote
-the `service` field name in textual Candid. The
-[local fixture](../crates/ic-blob-storage-cli/tests/fixtures/installation/configuration.args)
-illustrates syntax only: its principals, namespace and financial values are not
-trial defaults. From the repository root:
+Prepare one strict JSON `ServiceConfigurationInput` using explicitly reviewed
+principals, namespace and quotas. The
+[JSON proposal template](../canisters/standalone/trial/configuration.json.template)
+is syntax, not deployment authority or provider defaults. Preserve full u128 numeric
+literals with integer-preserving tooling. From the repository root:
 
 ```sh
-didc encode --defs canisters/standalone/service.did \
-  --types '(ServiceConfigurationInput)' < trial-configuration.args > trial-configuration.hex
-perl -ne 'chomp; print pack("H*", $_)' trial-configuration.hex > trial-configuration.candid
+cp canisters/standalone/trial/configuration.json.template trial-configuration.json
+# Replace every named principal and review every limit before proceeding.
 cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
 target/debug/blob-storage installation-check \
-  --configuration trial-configuration.candid --service "$SERVICE" \
+  --configuration trial-configuration.json --service "$SERVICE" \
   --project "$PROJECT" --verifier "$VERIFIER" --release "$HOST_RELEASE" \
   --run-dir .tmp/trial-installation-check
 ```
 
-The command accepts at most 16 KiB of Candid with one exact typed value, bounded
-decode work, no skipped fields and no trailing values/bytes. Unknown or repeated
-CLI options refuse. Complete semantic validation precedes creation of a new
-private directory containing the original `configuration.candid`, complete
-`installation.candid` and `summary.json` with both byte hashes; existing or partial
-output is never replaced. The report keeps full-width namespace as a decimal
-string. `host_init_encoded` is true; authentication, actual platform identity,
-compiled release and effect facts remain false.
-It is a local proposal, not a deployment permit or recovery journal.
+The command accepts at most 16 KiB of strict JSON, rejecting unknown/duplicate
+fields, ambiguous options and trailing input. Complete semantic validation precedes
+creation of a new private directory containing the original `configuration.json`,
+encoded `configuration.cbor`, complete `installation.cbor` and `summary.json` with
+packet hashes. Existing or partial output is never replaced. Full-width namespace
+is reported as decimal text. `host_init_encoded` is true; authentication, platform
+identity, compiled release and effect facts remain false.
 
-The supplied service and release are planned inputs. Deployment must independently
-check the actual canister and compiled artifact. Standalone takes the core's
+The service and release are planned inputs. Deployment independently checks the
+actual canister and compiled artifact. Standalone accepts the complete CBOR
 `ServiceInstallationInput { configuration, project, completion_verifier }`;
-`installation.candid` is its exact init argument. `configuration.candid` alone is
-insufficient. Independently decode the generated carrier before installation:
+`installation.cbor` is its init argument. `configuration.cbor` alone is insufficient.
+Use `ic_blob_storage_contracts::wire::decode::<ServiceInstallationInput>(&bytes,
+16_384)` to inspect the carrier with the shared codec before installation.
 
-```sh
-perl -0777 -ne 'print unpack("H*", $_)' .tmp/trial-installation-check/installation.candid |
-  didc decode --defs canisters/standalone/service.did --types '(ServiceInstallationInput)'
-```
-
-Compare the decoded values and both file hashes with the finalized plan. No
+Compare the decoded values and retained file hashes with the finalized plan. No
 identity credential is embedded. External consumer wrappers can import the same
 passive DTO without depending on the standalone crate; wrappers still own their
 initialization hooks and preserve the complete validator, actual service binding,
@@ -189,7 +181,7 @@ wrapper. This repository supplies no framework adapter or integration suite.
 | Stage | Concrete preparation or observation | Required before moving on |
 | --- | --- | --- |
 | Bind the trial | Select host, controller/deployer, operator, tenant, uploader, verifier, explicit payer, Cashier, project/bucket, gateway origin and cleanup owner | Exact identities, namespace assignment and separately authorized creation/deployment; no implicit account or role defaults |
-| Freeze local inputs | Run `installation-check`, prepare `account-link-inputs`, bind exact Wasm/Candid/release hashes and choose a nonempty file within installed limits (1 KiB for the retained first live owner) | Original configuration/terms/body retained; size larger/multi-file installations explicitly and recheck actual service after authorized creation; no fixture defaults |
+| Freeze local inputs | Run `installation-check`, prepare `account-link-inputs`, bind exact Wasm/interface/release hashes and choose a nonempty file within installed limits (1 KiB for the retained first live owner) | Original configuration/terms/body retained; size larger/multi-file installations explicitly and recheck actual service after authorized creation; no fixture defaults |
 | Review economics and lifecycle | Record raw price/expiry units, selected spending controls, retained uncertainty and the accepted fresh-owner lifecycle | No guaranteed provider spending cap or replay charges; use trusted participants and preserve all continuing obligations |
 | Provision and inspect | After exact action authority, create the isolated owner, recheck configuration against its actual principal, then install and separately submit account/funding actions; inspect configuration, relationship/balance and gateway scope | Actual identities match the finalized plan, namespace is provisioned, obligations and every failed/uncertain action are retained; no automatic retry |
 | Admit and prepare | Use maintained SDK preparation, `upload-inputs`, tenant `admit-upload` and uploader `prepare-upload` | Original snapshot/root/permission match; trusted roles and current certificate assessment checked |
@@ -487,7 +479,7 @@ and [trial gates](evidence/caffeine-upload-gates.json).
 ## Generate upload inputs offline
 
 `upload-inputs` converts the upstream Caffeine preparation's `manifestJSON` and
-your application's original binding into the Candid files used by the signed
+your application's original binding into the CBOR files used by the signed
 commands below. The required `--body` file is root-verified and saved as the same
 exact buffers, so subsequent source edits cannot change the prepared snapshot.
 Caffeine still owns upload preparation and transfer; this command reuses the
@@ -545,12 +537,12 @@ operation journals and obligations; changing input format never authorizes repla
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  upload-inputs --installation reviewed-installation/installation.candid \
+  upload-inputs --installation reviewed-installation/installation.cbor \
   --binding binding.json --manifest manifest.json --body source.bin \
   --max-bytes 10485760 --run-dir new-upload-inputs
 ```
 
-Use complete `installation.candid` from the reviewed `installation-check` output,
+Use complete `installation.cbor` from the reviewed `installation-check` output,
 not its configuration-only file. The command decodes one bounded exact current
 `ServiceInstallationInput`, applies the shared candidate validator and requires
 the original service, local namespace and project to match. The exact upload
@@ -560,9 +552,9 @@ caller ceiling. This checks a proposed installation, without observing actual
 installed state, remaining capacity, tenant authority, release or provisioning.
 The host and authenticated service workflows still make those decisions.
 
-The fresh private directory retains exact `installation.candid`, both JSON inputs, a verified `body.bin`,
-`permission.candid`, `manifest.candid`, first-reference `download.candid` and
-`reference-status.candid`, browser `certificate-binding.json`, and a final `summary.json` with input/output
+The fresh private directory retains exact `installation.cbor`, both JSON inputs, a verified `body.bin`,
+`permission.cbor`, `manifest.cbor`, first-reference `download.cbor` and
+`reference-status.cbor`, browser `certificate-binding.json`, and a final `summary.json` with input/output
 hashes and the raw content digest. It opens a regular source file once, checks its
 declared length, then hashes and copies the same 64 KiB frames. Complete EOF/root
 verification and file sync precede publication without replacement. Source-path
@@ -575,7 +567,7 @@ certificate issuance or gateway requests.
 
 `certificate-binding.json` is the existing browser certificate client's input:
 canonical service/tenant/uploader, upload ID as its `operation`, root, exact
-permission Candid as a byte array, and `${service}:${tenant}:${operation}` as
+permission CBOR as a byte array, and `${service}:${tenant}:${operation}` as
 `key`. Its hash is in the final summary. Load it as `binding` when creating the
 [browser client](../clients/browser/README.md); the application supplies its
 authenticated identity, trusted IC root/origin and durable intent store separately.
@@ -587,18 +579,18 @@ no controls or surrounding whitespace; project must fit the SDK HTTP-header
 ByteString contract too. Invalid namespace values refuse before creating output.
 The browser transfer reads these immutable values from the certificate intent,
 so a separate setup argument cannot redirect the same saved upload after a reload.
-The original `permission.candid` remains the input for signed service admission.
+The original `permission.cbor` remains the input for signed service admission.
 This JSON is neither a certificate nor a ready-to-upload grant, and it contains
 no gateway origin, provider account or qualification override. Keep it with the
 verified snapshot under the application's intent policy.
 
 Existing directories refuse, including partial runs. Failed verification retains
-private `body.part` and `failure.json`, with no published body, Candid request files
+private `body.part` and `failure.json`, with no published body, CBOR request files
 or summary. A later write failure can leave verified output without a summary;
 retain the incomplete run and do not treat it as complete preparation. Input bindings
 are capped at 4 KiB, upstream JSON at 256 KiB, ordered leaves at 1,024 and metadata
 at 16 headers/4 KiB. The selected content maximum is at most 1 GiB; the service may
-have smaller installed limits. Generated permission/manifest Candid is capped at
+have smaller installed limits. Generated permission/manifest CBOR is capped at
 4/64 KiB for the native upload commands.
 
 No signer, URL or root key is needed. This command neither allocates nor proves
@@ -647,7 +639,7 @@ objects and bytes. Reopening frozen batches applies the same guard.
 
 ```sh
 blob-storage publish-inputs --inventory inventory.json --root frozen-inputs \
-  --installation reviewed-installation/installation.candid \
+  --installation reviewed-installation/installation.cbor \
   --max-bytes 10485760 --max-total-bytes 335544320 \
   --run-dir new-publication-inputs
 ```
@@ -661,7 +653,7 @@ and overlapping releases can consume additional capacity on an installed service
 Per-file maximum is at most 1 GiB; total maximum is at most 1 TiB.
 
 After preflight, a new private directory retains `inventory.json`, exact
-`installation.candid` and `plan.json`. Serial `file-0000`, `file-0001`, … directories
+`installation.cbor` and `plan.json`. Serial `file-0000`, `file-0001`, … directories
 contain the same verified body and request files as single-file preparation.
 Each raw body digest must also match the inventory before usable request files
 are written. Root/digest failure preserves that file's evidence and the batch's
@@ -1086,8 +1078,8 @@ work; inspect typed report fields before continuing or publishing.
 ## Admit and prepare an upload
 
 These commands make the service setup callable without a test harness. Start
-with a saved binary Candid `UploadAdmissionRequest` (`permission.candid`) and
-`UploadManifestRequest` (`manifest.candid`). The latter contains that exact
+with a saved binary CBOR `UploadAdmissionRequest` (`permission.cbor`) and
+`UploadManifestRequest` (`manifest.cbor`). The latter contains that exact
 permission and the prepared original headers/ordered leaves. Obtain these from
 [`upload-inputs`](#generate-upload-inputs-offline), the integrating application's maintained Rust DTOs and
 [existing file preparation](local-tools.md#prepare-one-file), or the upstream
@@ -1099,12 +1091,12 @@ them or renews them. The operator must already have enrolled the tenant.
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   admit-upload --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
   --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --request permission.candid --run-dir new-admission
+  --namespace "$SERVICE_NAMESPACE" --request permission.cbor --run-dir new-admission
 
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   prepare-upload --network ic --url "$IC_API_URL" --identity "$UPLOADER_PEM" \
   --actor "$UPLOADER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --request manifest.candid --run-dir new-preparation
+  --namespace "$SERVICE_NAMESPACE" --request manifest.cbor --run-dir new-preparation
 ```
 
 Admission and withdrawal require the actual named tenant; preparation requires
@@ -1117,14 +1109,14 @@ bytes and 1 GiB declared content; permission input/reply is bounded to 4 KiB.
 Service configuration may impose smaller limits. Transport retains the common
 256 KiB HTTP ceiling, thirty-second deadline and identity/trust rules below.
 
-Each mutation claims a fresh private run, writes canonical `request.candid`,
-`permission.candid`, `signed-request.cbor` and `intent.json` before dispatch, then
+Each mutation claims a fresh private run, writes canonical `request.cbor`,
+`permission.cbor`, `signed-request.cbor` and `intent.json` before dispatch, then
 records `outcome.json`. `acknowledged`, typed `refused`, `pending` and `uncertain`
 remain distinct. Existing/partial runs refuse reuse; no polling or automatic retry.
 An unusable acknowledgment can follow a committed reservation or preparation.
 
-Recover with `upload-permission --request new-admission/permission.candid` as the
-tenant, or `upload-manifest --request new-preparation/permission.candid` as tenant
+Recover with `upload-permission --request new-admission/permission.cbor` as the
+tenant, or `upload-manifest --request new-preparation/permission.cbor` as tenant
 or uploader, using the same identity/trust/service/namespace flags and no run-dir.
 These signed queries leave the original submission artifacts unchanged. They
 report retained history, not which lost call produced it, current readiness,
@@ -1158,7 +1150,7 @@ worker fit the tenant-signed publication session.
    The manifest must contain that exact permission and original ordered leaves
    and headers. Independently retain the application's raw content digest;
    the Caffeine root also binds metadata and is not a raw file SHA-256.
-2. Run `prepare-upload` with the uploader identity and original `manifest.candid`
+2. Run `prepare-upload` with the uploader identity and original `manifest.cbor`
    into a fresh preparation run. Require an authenticated acknowledgment; inspect
    uncertain or pending work using `upload-manifest` with the original permission.
    An absent manifest is not authority to redispatch.
@@ -1193,9 +1185,9 @@ transaction and deployed-provider acceptance under
 
 ## Download a verified file
 
-Use the tenant's own PEM and the exact current `DownloadRequest`, Candid-encoded
+Use the tenant's own PEM and the exact current `DownloadRequest`, CBOR-encoded
 from the asset's saved service/tenant/namespace/root/object/incarnation/reference.
-For the first reference, use `download.candid` from `upload-inputs`; for another
+For the first reference, use `download.cbor` from `upload-inputs`; for another
 explicit reference use the output of [`reference-inputs`](#generate-reference-inputs-offline).
 Obtain the expected project and approved gateway origin from installation policy;
 the command never discovers them from the provider response.
@@ -1204,7 +1196,7 @@ the command never discovers them from the provider response.
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   download --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
   --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --request download.candid \
+  --namespace "$SERVICE_NAMESPACE" --request download.cbor \
   --project "$CAFFEINE_PROJECT" --gateway "$APPROVED_GATEWAY_ORIGIN" \
   --max-bytes 10485760 --run-dir new-download
 ```
@@ -1241,7 +1233,7 @@ metadata still owns the content root. Production serving and the consumer's
 certified media-map/asset publication need their own acceptance evidence.
 
 Both the descriptor wait and GET have thirty-second deadlines. The service
-transport has a 256 KiB response ceiling; request/reply Candid is bounded to 4 KiB
+transport has a 256 KiB response ceiling; request/reply CBOR is bounded to 4 KiB
 with decoding-work limits. `--max-bytes` is an explicit positive ceiling, at most
 1 GiB, and also bounds the independently declared body. No redirects, automatic
 retries, range response or content decompression are accepted. Local mode requires
@@ -1289,7 +1281,7 @@ means an observation was returned (even if fenced), 2 means invalid arguments,
 and 3 means a file, identity, transport, decoder, binding or service refusal. Errors
 are structured JSON codes; private key contents and remote diagnostics are omitted.
 The call has a 30-second deadline, a 256 KiB HTTP response ceiling and a 64 KiB
-Candid reply bound with decoder work limits. It never falls back to an update.
+CBOR reply bound with byte/nesting limits. It never falls back to an update.
 Run `make test-standalone` for the local signed HTTP subprocess evidence.
 
 ## Account inspection
@@ -1325,7 +1317,7 @@ refusals exit 3. No failure becomes a zero balance. Every successful output sets
 `retry_authorized: false`.
 
 The command has a thirty-second deadline, 256 KiB HTTP response ceiling and 4 KiB
-Candid reply bound with work/type/header limits and no skipped fields. Waiting
+CBOR reply bound with byte/nesting limits and no unknown fields or trailing values. Waiting
 may inspect the exact IC request ID; it never resubmits, automatically refreshes,
 funds or writes a journal. A timeout or failed certificate validation can follow
 execution of this read update: treat the result as unobserved, not proof the
@@ -1366,7 +1358,7 @@ ban future re-addition. Neither cancellation nor revocation queries the provider
 Sync attaches no provider cycles; normal IC execution costs remain separate.
 
 Before network dispatch, the client atomically claims a private directory and
-syncs `request.candid`, `signed-request.cbor` and `intent.json`, binding the
+syncs `request.cbor`, `signed-request.cbor` and `intent.json`, binding the
 complete scope/operator/decision, method, request ID, expiry and hashes of request,
 signature and trusted root. Existing or partial directories refuse before sending.
 These files are operator-owned recovery evidence; they are not an independent
@@ -1374,11 +1366,11 @@ freshness authority after copying/restoring. Keep signed artifacts private.
 
 The client submits once with a thirty-second deadline and does not poll, retry,
 allocate sync IDs or automatically inspect status. HTTP backpressure also refuses
-without resubmission. A verified, bounded Candid acknowledgment is saved with the
+without resubmission. A verified, bounded CBOR acknowledgment is saved with the
 original request; sync scope/positive sequence and revocation scope/gateway must
 match. Cancellation's unit reply acknowledges the saved exact request under its
-IC request ID. Native limits are 256 KiB HTTP and 4 KiB Candid with work/type/header
-bounds and no skipped fields. Oversized replies remain uncertain without storing
+IC request ID. Native limits are 256 KiB HTTP and 4 KiB CBOR with byte/nesting
+bounds and no unknown fields or trailing values. Oversized replies remain uncertain without storing
 unbounded bytes. Bounded malformed replies remain retained.
 
 `outcome.json` distinguishes `acknowledged`, `pending`, `refused` and
@@ -1449,7 +1441,7 @@ credit, complete account activity or spendability.
 Exit 0 means a successfully observed assessment, including its blockers; typed
 refusals exit 3 and invalid arguments exit 2. JSON uses decimal strings for amounts
 and identities. The CLI checks exact echo, bounded decoding and consistency of
-local blockers, with a thirty-second deadline, 256 KiB HTTP and 4 KiB Candid
+local blockers, with a thirty-second deadline, 256 KiB HTTP and 4 KiB CBOR
 ceilings. Query signatures require the same explicit trust as status. No reservation,
 payment, provider query, automatic retry or restore-fence release occurs;
 preparation/dispatch/retry authority are always false. Never cache the report as
@@ -1526,7 +1518,7 @@ obligations. Physical deletion alone does not establish billing cessation.
 No Cashier or payer flags are needed for this local history query.
 
 Each command queries `blob_upload_history` once, accepting at most 64 inspected
-rows and 32 matching entries in 64 KiB of bounded Candid. JSON preserves all original
+rows and 32 matching entries in 64 KiB of bounded CBOR. JSON preserves all original
 upload/object/incarnation/first-reference identities, roots, byte lengths, local
 states, the independent restore fence and decimal-string `scanned` count.
 
@@ -1545,7 +1537,7 @@ no mutation and never grants retry, serving or recovery authority.
 
 ## Generate reference inputs offline
 
-Use the exact original `permission.candid` from upload preparation. Select the
+Use the exact original `permission.cbor` from upload preparation. Select the
 reference and operation through the application's allocation/intent policy; these
 canonical positive decimal u128 values are supplied explicitly, never allocated
 by this tool. For release, name the reference being released. For retain, name
@@ -1553,14 +1545,14 @@ the application's fresh reference. Preserve that exact operation for recovery.
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  reference-inputs --permission permission.candid --action release \
+  reference-inputs --permission permission.cbor --action release \
   --reference "$REFERENCE_ID" --operation "$OPERATION_ID" --run-dir new-reference-inputs
 ```
 
-The fresh private directory saves the exact permission, `reference.candid` for
-`submit-reference`/`reference-receipt`, `reference-status.candid` for status and
-`download.candid` for the same reference, followed by a hashed `summary.json`.
-Use `--action retain` for a retain command. It checks bounded Candid and the
+The fresh private directory saves the exact permission, `reference.cbor` for
+`submit-reference`/`reference-receipt`, `reference-status.cbor` for status and
+`download.cbor` for the same reference, followed by a hashed `summary.json`.
+Use `--action retain` for a retain command. It checks bounded CBOR and the
 maintained core binding invariants before claiming output. Permission input is
 capped at 4 KiB with bounded decoding work; malformed, noncanonical and duplicate
 options refuse. Existing or partial directories never resume or overwrite.
@@ -1579,16 +1571,16 @@ Saved files remain mutable local data under the application's intent policy.
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   submit-reference --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
   --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --request reference-command.candid \
+  --namespace "$SERVICE_NAMESPACE" --request reference-command.cbor \
   --run-dir ./reference-dispatch
 ```
 
-The input is one binary Candid `ReferenceCommand`, with the original upload,
+The input is one binary CBOR `ReferenceCommand`, with the original upload,
 explicit positive reference/operation IDs and exact retain/release action.
 Generate it with [`reference-inputs`](#generate-reference-inputs-offline) and use
-its `reference.candid`, or encode the same maintained DTO in the application.
+its `reference.cbor`, or encode the same maintained DTO in the application.
 The client validates its tenant and scope before signing, claims a new private
-directory and syncs `request.candid`, `signed-request.cbor` and `intent.json`
+directory and syncs `request.cbor`, `signed-request.cbor` and `intent.json`
 before sending one `blob_apply_reference` update. The intent binds signer,
 target, network/trust, full operation, signed expiry/request ID and file hashes.
 There is no polling, automatic resend, ID allocation or provider call. Keep
@@ -1598,7 +1590,7 @@ Read `outcome.json` and the JSON output together: `recorded` means the service
 returned an exact receipt; `result.state` is either `success` or a stored
 transition `failure`. A recorded failure exits zero and does not mean retain/release
 succeeded. `pending` and `uncertain` require `reference-receipt` with the saved
-`reference-dispatch/request.candid`; `refused` preserves the typed service refusal.
+`reference-dispatch/request.cbor`; `refused` preserves the typed service refusal.
 If receipt inspection itself refuses (`reference_unknown`, `reference_unconfirmed`
 or another typed error), the original pending/uncertain outcome stays unresolved.
 Do not replace it with absence or assume non-execution. Standalone tests exercise
@@ -1620,18 +1612,18 @@ Tenant-owned reference inspection uses separate saved boundary requests:
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   reference-receipt --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
   --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --request reference-command.candid
+  --namespace "$SERVICE_NAMESPACE" --request reference-command.cbor
 
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   reference-status --network ic --url "$IC_API_URL" --identity "$TENANT_PEM" \
   --actor "$TENANT_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --request reference-status.candid
+  --namespace "$SERVICE_NAMESPACE" --request reference-status.cbor
 ```
 
-`reference-command.candid` is the original binary Candid `ReferenceCommand` saved
+`reference-command.cbor` is the original binary CBOR `ReferenceCommand` saved
 before dispatch. It includes the complete original upload, independent reference
-and operation IDs and exact retain/release action. `reference-status.candid` is a
-binary Candid `ReferenceStatusRequest` containing that original upload and the
+and operation IDs and exact retain/release action. `reference-status.cbor` is a
+binary CBOR `ReferenceStatusRequest` containing that original upload and the
 reference to inspect; it has no mutation operation or action. Both inputs are
 bounded to 4 KiB and validated against explicit service, namespace and tenant
 before identity/network access. The PEM must sign as that tenant. Operator and
@@ -1669,18 +1661,18 @@ access or upload the body again.
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  reference-inputs --permission permission.candid --action retain \
+  reference-inputs --permission permission.cbor --action retain \
   --reference "$SECOND_REFERENCE_ID" --operation "$RETAIN_OPERATION_ID" \
   --run-dir second-reference-inputs
 ```
 
-Submit `second-reference-inputs/reference.candid` using
+Submit `second-reference-inputs/reference.cbor` using
 [`submit-reference`](#submit-a-reference) and a fresh dispatch directory. Confirm
 `result.state: success`; after a lost/pending reply, inspect the exact dispatch's
-saved `request.candid` with `reference-receipt` and inspect current liveness with
-`second-reference-inputs/reference-status.candid`. Keep the uncertain artifacts;
+saved `request.cbor` with `reference-receipt` and inspect current liveness with
+`second-reference-inputs/reference-status.cbor`. Keep the uncertain artifacts;
 receipt success does not overwrite the transport outcome or authorize resend.
-Use `second-reference-inputs/download.candid` for its verified download.
+Use `second-reference-inputs/download.cbor` for its verified download.
 
 | Local step | First reference | Second reference | Accounting |
 | --- | --- | --- | --- |
@@ -1774,10 +1766,10 @@ consumer adoption and actual deletion/final billing remain open under
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   certificate-assessment --network ic --url "$IC_API_URL" --identity "$UPLOADER_PEM" \
   --actor "$UPLOADER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --permission permission.candid
+  --namespace "$SERVICE_NAMESPACE" --permission permission.cbor
 ```
 
-The input is one binary Candid `UploadAdmissionRequest` (4 KiB maximum). Service,
+The input is one binary CBOR `UploadAdmissionRequest` (4 KiB maximum). Service,
 namespace and original uploader must match before transport. The command signs one
 `blob_upload_certificate_assessment` query, verifies query signatures and decodes
 at most 4 KiB against the complete saved permission, including independent object
@@ -1804,12 +1796,12 @@ enable the standalone certificate endpoint.
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   verify-upload --network ic --url "$IC_API_URL" --identity "$UPLOADER_PEM" \
   --actor "$UPLOADER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --permission permission.candid \
+  --namespace "$SERVICE_NAMESPACE" --permission permission.cbor \
   --body downloaded.bin --max-bytes 10485760
 ```
 
-`permission.candid` contains one binary Candid `UploadAdmissionRequest` saved by
-the integrating application (for example, `candid::encode_one(permission)`), not
+`permission.cbor` contains one binary CBOR `UploadAdmissionRequest` saved by
+the integrating application (for example, `ic_blob_storage_contracts::wire::encode(permission)`), not
 JSON or hexadecimal text. It is bounded to 4 KiB and binds the full original
 operation, uploader and expiry. The signer must be that uploader or the tenant;
 operator status supplies no override. The command queries `blob_upload_manifest`,
@@ -1836,10 +1828,10 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   upload-attestation --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
   --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
   --namespace "$SERVICE_NAMESPACE" --verifier "$VERIFIER_PRINCIPAL" \
-  --statement statement.candid
+  --statement statement.cbor
 ```
 
-The statement is one binary Candid `UploadAttestationRequest`, bounded to 4 KiB.
+The statement is one binary CBOR `UploadAttestationRequest`, bounded to 4 KiB.
 It contains the complete original permission, raw digest and observation time.
 Obtain `--verifier` from the trusted installation configuration; the command does
 not discover or install a verifier. The signer may be that verifier, the tenant
@@ -1852,7 +1844,7 @@ and checks the exact scope, permission, verifier and receipt chronology. JSON
 Conflicts retain both the expected digest/time and the accepted digest/time.
 All three observations exit 0, including when fenced; callers must inspect the
 outcome. Failures exit 3 and never become absence. IDs and times remain decimal
-strings. Limits are 30 seconds, 256 KiB HTTP and 4 KiB Candid with bounded decoding.
+strings. Limits are 30 seconds, 256 KiB HTTP and 4 KiB CBOR with bounded decoding.
 
 A matched receipt proves the service retained that exact trusted statement. It
 does not establish current availability, reference liveness or billing cessation.
@@ -1874,7 +1866,7 @@ when a loopback origin forwards requests. No live trial was performed here.
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
   observe-upload --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
   --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --permission permission.candid \
+  --namespace "$SERVICE_NAMESPACE" --permission permission.cbor \
   --gateway "$APPROVED_GATEWAY_ORIGIN" --max-bytes 10485760 --run-dir new-observation
 ```
 
@@ -1890,7 +1882,7 @@ suspended exposed uploads remain eligible for reconciliation.
 
 One GET is allowed, with no redirects, HTTP retries, credentials or automatic
 decompression. IC mode requires HTTPS origins; local mode accepts literal loopback
-origins only. Both query and GET have 30-second deadlines. Service Candid is bounded
+origins only. Both query and GET have 30-second deadlines. Service CBOR is bounded
 to 64 KiB, 1,024 leaves and 16 headers/4 KiB metadata. The explicit content budget is
 at most 1 GiB and is checked before fetching. Whole-body streaming checks the
 original root, metadata and exact length off-canister. HTTP metadata cannot replace
@@ -1898,9 +1890,9 @@ the original declaration; partial/encoded responses and incomplete EOF reject.
 These request/byte limits are not a billing guarantee or a bound on transport overhead.
 
 The run directory must be new and its parent must exist. Intent is synced before
-the query and GET. Artifacts include `plan.json`, `permission.candid`, the bounded
-`service-response.candid`, `download-request.json`, HTTP status and download outcome.
-Only complete verification writes and syncs `statement.candid`, followed by
+the query and GET. Artifacts include `plan.json`, `permission.cbor`, the bounded
+`service-response.cbor`, `download-request.json`, HTTP status and download outcome.
+Only complete verification writes and syncs `statement.cbor`, followed by
 `summary.json` with its hash and observation time. The runner fingerprint covers its
 observation/transport/argument sources and lockfile; artifact hashes establish local
 integrity, not portable IC/provider signatures. Download bodies and identity keys
@@ -1935,7 +1927,7 @@ against someone who can rewrite the entire run. Keep the directory under the
 verifier's control, including during submission. No provider read occurs here.
 
 An exclusive `attestation/` directory claims the run. Before one signed update,
-the command syncs an exact `statement.candid` copy, `signed-request.cbor` and
+the command syncs an exact `statement.cbor` copy, `signed-request.cbor` and
 `intent.json` containing the runner version/source fingerprint, request ID, expiry,
 root-key and artifact hashes. The fingerprint covers the native submission,
 observation-reader, shared transport/record/argument sources and lockfile.
@@ -1951,7 +1943,7 @@ Every existing claim, including an empty directory left by a killed process, ref
 resubmission with `submission_already_claimed`. Do not remove or copy the claim to
 retry. This is a local single-submission guard, not a distributed lock or global
 exactly-once guarantee. Recover with `upload-attestation` using the saved
-`attestation/statement.candid` and independently configured verifier. If interruption
+`attestation/statement.cbor` and independently configured verifier. If interruption
 preceded that copy, the original observation statement remains available for lookup.
 An absent receipt, expired ingress request or local error never authorizes another
 submission. No statement, digest or observation time is regenerated. Exit zero can

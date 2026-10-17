@@ -18,7 +18,7 @@ fn observation_arguments_require_origin_budget_and_new_directory() {
         "--namespace",
         "1",
         "--permission",
-        "permission.candid",
+        "permission.cbor",
         "--gateway",
         "https://gateway.example",
         "--max-bytes",
@@ -51,14 +51,11 @@ fn observation_artifacts_are_no_clobber_and_partial_runs_stay_visible() {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("run");
     let run = Run::create(&path).unwrap();
-    run.bytes("statement.candid", b"original").unwrap();
-    assert_eq!(
-        run.bytes("statement.candid", b"changed"),
-        Err(Failure::File)
-    );
+    run.bytes("statement.cbor", b"original").unwrap();
+    assert_eq!(run.bytes("statement.cbor", b"changed"), Err(Failure::File));
     assert!(matches!(Run::create(&path), Err(Failure::ExistingRun)));
     assert_eq!(
-        std::fs::read(path.join("statement.candid")).unwrap(),
+        std::fs::read(path.join("statement.cbor")).unwrap(),
         b"original"
     );
     assert!(!path.join("summary.json").exists());

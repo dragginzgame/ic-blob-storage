@@ -9,8 +9,9 @@ use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRuntime, RuntimeOpenError, SealedDeclarationSnapshot, ic_stable_structures::VectorMemory,
+    MemoryRuntime, RuntimeOpenError, SealedDeclarationSnapshot,
 };
+use ic_stable_structures::VectorMemory;
 
 fn pool(first: u8) -> MemoryAllocationPool {
     MemoryAllocationPool::new(

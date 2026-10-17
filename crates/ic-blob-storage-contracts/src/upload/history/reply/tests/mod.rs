@@ -54,7 +54,7 @@ fn position_for(request: UploadHistoryRequest, id: u128) -> UploadHistoryCursor 
     }
 }
 fn encoded(p: &UploadHistoryPage) -> Vec<u8> {
-    candid::encode_one(Ok::<_, UploadHistoryFailure>(p)).unwrap()
+    crate::wire::encode(Ok::<_, UploadHistoryFailure>(p)).unwrap()
 }
 fn observation() -> UploadHistoryPage {
     UploadHistoryPage {
@@ -71,7 +71,11 @@ fn current_pages_keep_full_width_independent_ids_fences_and_scoped_request_echo(
     let p = observation();
     assert_eq!(page(input(), &encoded(&p), limits()), Ok(p.clone()));
     assert_eq!(
-        candid::decode_one::<UploadHistoryRequest>(&request(input()).unwrap()).unwrap(),
+        crate::wire::decode::<UploadHistoryRequest>(
+            &request(input()).unwrap(),
+            crate::wire::MAX_MESSAGE_BYTES
+        )
+        .unwrap(),
         input()
     );
     let mut changed = p.clone();
@@ -361,7 +365,7 @@ fn independent_limits_malformed_replies_and_typed_refusals_do_not_become_empty_h
         );
     }
     assert_eq!(
-        page(input(), &candid::encode_one(true).unwrap(), budget),
+        page(input(), &crate::wire::encode(true).unwrap(), budget),
         Err(UploadHistoryReplyError::Invalid)
     );
     for error in [
@@ -372,7 +376,7 @@ fn independent_limits_malformed_replies_and_typed_refusals_do_not_become_empty_h
     ] {
         let response: Result<UploadHistoryPage, _> = Err(error);
         assert_eq!(
-            page(input(), &candid::encode_one(response).unwrap(), budget),
+            page(input(), &crate::wire::encode(response).unwrap(), budget),
             Err(UploadHistoryReplyError::Remote(error))
         );
     }

@@ -1,6 +1,6 @@
 //! Bind local preparation to one complete candidate, without installed-state authority.
 use super::{Binding, Failure, NonZeroU64, UploadAdmissionRequest};
-use crate::native::exact_candid;
+use crate::native::exact_wire;
 use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::configuration::ValidatedInstallationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
@@ -16,7 +16,7 @@ pub(in crate::native) struct Installation {
 impl Installation {
     pub fn decode(bytes: Vec<u8>, maximum: NonZeroU64) -> Result<Rc<Self>, Failure> {
         let input: ServiceInstallationInput =
-            exact_candid::decode(&bytes, exact_candid::INSTALLATION_BYTES, 64, 100_000)?;
+            exact_wire::decode(&bytes, exact_wire::INSTALLATION_BYTES)?;
         // Offline model validation only. Each file must independently bind the
         // proposed service below; this supplies no authenticated platform identity.
         ValidatedInstallationInput::new(

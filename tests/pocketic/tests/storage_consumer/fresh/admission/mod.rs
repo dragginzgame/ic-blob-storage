@@ -3,6 +3,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn permission(input: &Run) -> UploadAdmissionRequest {
     match input.registration.source {
         RegistrationSource::Fresh(p) => p,
@@ -15,12 +16,12 @@ fn inspect_permission(
 ) -> Result<UploadAdmissionResponse, A> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             f.tenant,
             "blob_upload_admission",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }

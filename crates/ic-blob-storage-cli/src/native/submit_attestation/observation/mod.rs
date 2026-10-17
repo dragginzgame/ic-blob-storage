@@ -88,7 +88,7 @@ impl Observation {
             outcome: artifacts.json("download-outcome.json")?,
             response: artifacts.json("http-response.json")?,
         };
-        let statement = artifacts.bytes("statement.candid", 4096)?;
+        let statement = artifacts.bytes("statement.cbor", 4096)?;
         let recovery = Recovery::decode(
             input.service,
             input.namespace,
@@ -98,18 +98,20 @@ impl Observation {
         )?;
         // The maintained observer always writes canonical Candid.
         require(
-            candid::encode_one(recovery.statement).map_err(|_| Failure::Observation)? == statement,
+            ic_blob_storage_contracts::wire::encode(recovery.statement)
+                .map_err(|_| Failure::Observation)?
+                == statement,
         )?;
         let authority = recovery.authority;
         let permission = recovery.statement.permission;
-        let encoded_permission = artifacts.bytes("permission.candid", 4096)?;
+        let encoded_permission = artifacts.bytes("permission.cbor", 4096)?;
         require(
             inspection_request(authority, permission).map_err(|_| Failure::Observation)?
                 == encoded_permission,
         )?;
         let maximum = time(&records.plan.max_content_bytes)?;
         require(maximum > 0 && maximum <= 1024 * 1024 * 1024)?;
-        let service_response = artifacts.bytes("service-response.candid", 64 * 1024)?;
+        let service_response = artifacts.bytes("service-response.cbor", 64 * 1024)?;
         let verified = verification::reply::decode(
             authority,
             permission,

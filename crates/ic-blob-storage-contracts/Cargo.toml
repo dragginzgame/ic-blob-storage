@@ -14,6 +14,8 @@ ic-host-artifacts.workspace = true
 
 [dependencies]
 candid.workspace = true
+ciborium.workspace = true
+ic-wire.workspace = true
 percent-encoding.workspace = true
 serde.workspace = true
 serde_json.workspace = true

@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod cli;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor as Cursor;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry as Entry;
@@ -13,12 +14,12 @@ impl Fixture {
     fn funding_history(&self, actor: Principal, input: Input) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 "blob_funding_history",
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }

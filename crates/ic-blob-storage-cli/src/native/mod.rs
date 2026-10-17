@@ -5,7 +5,7 @@ mod artifacts;
 mod attestation;
 mod certificate_assessment;
 mod download;
-mod exact_candid;
+mod exact_wire;
 mod funding_assessment;
 mod funding_outcome;
 mod gateway_controls;
@@ -52,9 +52,9 @@ const USAGE: &str = concat!(
     "blob-storage account-link-inputs --cashier PRINCIPAL --caller PRINCIPAL --owner PRINCIPAL --payer PRINCIPAL --daily-limit DECIMAL --expiry DECIMAL --run-dir NEW_DIRECTORY\n",
     "account-link-inputs is offline. It encodes explicit positive raw provider terms with an explicit payer/expiry, never selects units, signs, links or funds an account. Existing/partial output refuses; generated input is not an effect journal, financial cap proof or retry permit.\n",
     "blob-storage installation-check --configuration CONFIGURATION_CANDID --service PRINCIPAL --project PROJECT --verifier PRINCIPAL --release HOST_RELEASE --run-dir NEW_DIRECTORY\n",
-    "installation-check is offline. It validates the complete proposed installation, preserving original configuration.candid and full installation.candid with hashes and a passive summary. It does not authenticate platform/release identity, grant memory, deploy, provision, fund or qualify provider facts. Existing/partial output refuses.\n",
+    "installation-check is offline. It reads a strict JSON configuration proposal and validates the complete proposed installation, preserving configuration.json and encoded configuration.cbor/installation.cbor with hashes and a passive summary. It does not authenticate platform/release identity, grant memory, deploy, provision, fund or qualify provider facts. Existing/partial output refuses.\n",
     "blob-storage upload-inputs --installation INSTALLATION_CANDID --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
-    "Offline preparation checks the complete installation candidate against the original service/namespace/project/trusted uploader and installed resource bounds. It saves installation.candid, permission.candid, manifest.candid, first-reference requests, certificate-binding.json and a root-verified body.bin snapshot. No authentication, actual installed-state/provisioning proof, signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
+    "Offline preparation checks the complete installation candidate against the original service/namespace/project/trusted uploader and installed resource bounds. It saves installation.cbor, permission.cbor, manifest.cbor, first-reference requests, certificate-binding.json and a root-verified body.bin snapshot. No authentication, actual installed-state/provisioning proof, signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
     "blob-storage publish-inputs --inventory JSON --root DIRECTORY --installation INSTALLATION_CANDID --max-bytes DECIMAL --max-total-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline batch preparation verifies frozen input hashes, unique identities, one tenant/provider scope and aggregate fresh-installation capacity before serial root-verified snapshots. Final summary appears only on complete success; failures retain partial evidence and refuse overwrite. No remaining-live-capacity proof, allocation, certificate, network, publication or retry authority.\n",
     "blob-storage publish-map --network ic|local --url URL --identity TENANT_PEM --actor TENANT --operator-identity OPERATOR_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --gateway ORIGIN --max-bytes DECIMAL --max-total-bytes DECIMAL --max-queries DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
@@ -69,11 +69,11 @@ const USAGE: &str = concat!(
     "A bounded JSON-lines session retains one validated batch. Prepare/status/verify accept the current original index; advancement requires exact verifier completion and live reference. Optional --verifier-identity authenticates the installed verifier before ready and enables one bounded provider GET and attestation per file through the maintained owners. Verify recovery names source_observation and only inspects original history, with no GET or submission. Map finishes only after every index passes. Preserve all original claims and profiles; no automatic retry, certificate dispatch or publication lease. Browser launch/bootstrap remains external.\n",
     "Verify the frozen batch once and serially prepare its files through the same signed setup workflow. Each file has an independent file-NNNN journal, at most two updates and four queries. Stop at the first blocker, uncertainty or failure; never repeat a claimed step or resume the whole batch. The overall deadline covers all setup calls. Recovery uses publish-prepare-resume with the original file directory. No certificate, provider transfer or publication; active reservation capacity still limits progress.\n",
     "blob-storage reference-inputs --permission PERMISSION_CANDID --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
-    "Offline exact reference.candid, reference-status.candid and download.candid generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
+    "Offline exact reference.cbor, reference-status.cbor and download.cbor generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
     "blob-storage admit-upload|prepare-upload|revoke-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "Upload setup persists exact signed intent before one local service update, with no polling or retry. Admit/revoke require the tenant; prepare requires the uploader and a complete UploadManifestRequest. No certificate, provider transfer or publication. Existing or partial runs refuse.\n",
     "blob-storage upload-permission|upload-manifest --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request PERMISSION_CANDID [--root-key DER]\n",
-    "Exact historical inspection uses a saved UploadAdmissionRequest (permission.candid). Permission requires the tenant; manifest permits tenant or uploader. A retained record or unprepared/unknown result never authorizes redispatch or renews an expiry.\n",
+    "Exact historical inspection uses a saved UploadAdmissionRequest (permission.cbor). Permission requires the tenant; manifest permits tenant or uploader. A retained record or unprepared/unknown result never authorizes redispatch or renews an expiry.\n",
     "blob-storage download --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID --project PROJECT --gateway ORIGIN --max-bytes DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "download authenticates one exact live-reference descriptor through a replicated update, then performs one bounded provider GET. Original metadata/root and complete EOF verification precede body.bin publication; failed bodies remain body.part. No redirects, decoding, retry, publication lease or funding. Provider reads require an approved origin and budget. Existing or partial runs refuse.\n",
     "blob-storage funding-assessment --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
@@ -83,7 +83,7 @@ const USAGE: &str = concat!(
     "blob-storage inspect-account --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --kind balance|relationship [--root-key DER]\n",
     "inspect-account submits one scoped service read update, then waits for that exact IC request within thirty seconds. It reports one provider balance or relationship, including absence/errors; no payment, gateway change, credit inference, automatic refresh or redispatch. A lost result remains unobserved.\n",
     "blob-storage submit-reference --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID --run-dir NEW_DIRECTORY [--root-key DER]\n",
-    "submit-reference validates one exact ReferenceCommand, claims a new private directory and saves request.candid, the signed update and intent before one dispatch. Pending or uncertain results require reference-receipt inspection with saved request.candid; no polling, retry or identity allocation. A recorded inner failure is not a successful retain/release. Existing or partial runs refuse.\n",
+    "submit-reference validates one exact ReferenceCommand, claims a new private directory and saves request.cbor, the signed update and intent before one dispatch. Pending or uncertain results require reference-receipt inspection with saved request.cbor; no polling, retry or identity allocation. A recorded inner failure is not a successful retain/release. Existing or partial runs refuse.\n",
     "blob-storage reference-receipt|reference-status --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CANDID [--root-key DER]\n",
     "reference-receipt inspects one saved binary Candid ReferenceCommand; original success/failure is historical, with no fence or liveness observation. reference-status reads one ReferenceStatusRequest and returns current local liveness and fence. Each signs one tenant query; no mutation, provider call or retry authority. Canister tenants use ReplicatedReferenceClient.\n",
     "blob-storage funding-outcome --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
@@ -97,8 +97,8 @@ const USAGE: &str = concat!(
     "upload-attestation --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --verifier PRINCIPAL --statement CANDID [--root-key DER]\n",
     "observe-upload --network ic|local --url URL --identity PEM --actor VERIFIER --service PRINCIPAL --namespace DECIMAL --permission CANDID --gateway ORIGIN --max-bytes DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "submit-attestation --network ic|local --url URL --identity PEM --actor VERIFIER --service PRINCIPAL --namespace DECIMAL --run-dir COMPLETED_OBSERVATION_DIRECTORY [--root-key DER]\n",
-    "submit-attestation validates a complete successful observation, saves the exact signed update and intent under run-dir/attestation, then submits once. Existing submission directories refuse; pending or uncertain results require upload-attestation inspection using attestation/statement.candid. No polling, retry, provider read or regenerated statement. Keep these signed artifacts private.\n",
-    "observe-upload queries the installed verification plan, performs one bounded gateway GET, checks all bytes against original metadata/root and durably saves statement.candid. Explicit gateway origin and provider read budget are required. Partial runs remain; no resume, redirects, retries or attestation dispatch. Provider reads may incur charges.\n",
+    "submit-attestation validates a complete successful observation, saves the exact signed update and intent under run-dir/attestation, then submits once. Existing submission directories refuse; pending or uncertain results require upload-attestation inspection using attestation/statement.cbor. No polling, retry, provider read or regenerated statement. Keep these signed artifacts private.\n",
+    "observe-upload queries the installed verification plan, performs one bounded gateway GET, checks all bytes against original metadata/root and durably saves statement.cbor. Explicit gateway origin and provider read budget are required. Partial runs remain; no resume, redirects, retries or attestation dispatch. Provider reads may incur charges.\n",
     "upload-attestation compares one saved binary Candid UploadAttestationRequest with immutable service history. The expected verifier must come from installation configuration. Outcomes are matched, conflict or absent; none authorizes retry. No mutation, provider fetch or journal write occurs.\n",
     "verify-upload checks a regular local file against the authenticated original manifest. Permission is one binary Candid UploadAdmissionRequest; maximum is at most 1 GiB. No provider availability, completion, or retry authority is established.\n",
     "funding-history additionally accepts --cursor FILE containing the previous non-null next object; reads one page, never auto-paginates. Local mode requires an explicit trusted root-key file and literal loopback origins. IC mode uses the built-in IC root and HTTPS; root-key overrides are rejected. Supports Ed25519 and secp256k1 PEM identities. Observe-upload fetches provider bytes; inspect-account asks the service for a provider observation; submit-attestation and submit-reference mutate the service. Exit 0: observation (including conflict, empty or fenced), recorded submission (inspect its result) or pending request; 2: arguments; 3: failure. Query signatures and update certificates are verified; observations are not provider credit or dispatch authority.\n",
@@ -345,7 +345,7 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
                 options,
                 request.scope.service,
                 ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD,
-                candid::encode_one(request).map_err(|_| Failure::Arguments)?,
+                ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?,
             )
             .await?;
             history::output(
@@ -375,7 +375,8 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
                 options,
                 verification.permission.upload.service,
                 ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
-                candid::encode_one(verification.permission).map_err(|_| Failure::Arguments)?,
+                ic_blob_storage_contracts::wire::encode(verification.permission)
+                    .map_err(|_| Failure::Arguments)?,
             )
             .await?;
             verification.finish(
@@ -390,7 +391,7 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
                 options,
                 scope.service,
                 LOCAL_STATUS_METHOD,
-                candid::encode_one(scope).map_err(|_| Failure::Arguments)?,
+                ic_blob_storage_contracts::wire::encode(scope).map_err(|_| Failure::Arguments)?,
             )
             .await?;
             let status = reply::decode(&response, *scope)?;

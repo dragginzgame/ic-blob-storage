@@ -4,7 +4,8 @@ use candid::Deserialize;
 use candid::Principal;
 
 /// Complete installed service/provider/account scope for explicit operator requests.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct OperatorScope {
     /// Actual storage service.
     pub service: Principal,
@@ -17,7 +18,8 @@ pub struct OperatorScope {
 }
 /// One synchronous local snapshot. No provider call or history traversal occurs.
 /// Separate fences remain visible; none of these observations authorize dispatch.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct LocalServiceStatus {
     /// Independently checked full request scope.
     pub scope: OperatorScope,
@@ -31,7 +33,8 @@ pub struct LocalServiceStatus {
     pub reads: LocalReadStatus,
 }
 /// Maintained upload counters, including cancelled/settled lifetime history.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct LocalUploadStatus {
     /// Lifetime operation slots; cancellation does not free these.
     pub operations: u64,
@@ -49,7 +52,8 @@ pub struct LocalUploadStatus {
     pub fenced: bool,
 }
 /// Complete maintained totals for this local funding journal only.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct LocalFundingStatus {
     /// Cumulative local authorization, including immutable budget grants.
     pub cumulative_allocation: u128,
@@ -79,7 +83,8 @@ pub struct LocalFundingStatus {
     pub fenced: bool,
 }
 /// One bounded membership row, not evidence of deployed provider authorization.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct LocalGatewayStatus {
     /// Installed principals in retained order, at most 1024.
     pub members: Vec<Principal>,
@@ -91,7 +96,8 @@ pub struct LocalGatewayStatus {
     pub fenced: bool,
 }
 /// Occupied read slots survive interruption; inspection does not release them.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct LocalReadStatus {
     /// Highest locally allocated session identity.
     pub last_sequence: u64,
@@ -103,7 +109,8 @@ pub struct LocalReadStatus {
     pub fenced: bool,
 }
 /// Local inspection refusal; failures never become empty or zero observations.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum LocalStatusFailure {
     /// Actual/requested scope or assembled owners differ.
     Binding,

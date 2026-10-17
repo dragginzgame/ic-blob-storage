@@ -13,7 +13,7 @@ use crate::ops::service::tenant::tests::config;
 use candid::Principal;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_blob_storage_contracts::funding::transfer::FundingTransferError;
-use ic_memory::ic_stable_structures::{Storable, VectorMemory};
+use ic_stable_structures::{Storable, VectorMemory};
 use std::num::{NonZeroU128, NonZeroUsize};
 fn n(value: u128) -> NonZeroU128 {
     NonZeroU128::new(value).unwrap()

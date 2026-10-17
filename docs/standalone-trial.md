@@ -340,11 +340,13 @@ make test-sdk-inputs \
 The output uses **local fixture identities and an unqualified setup-only store**.
 It is not a selected live upload. Use a fresh output directory every time.
 
-A one-object candidate passes the shared installation validator. The maintained
-offline `installation-check` now produces complete `ServiceInstallationInput`
+A one-object candidate passes the shared installation validator. The retained 0.31
+offline `installation-check` produced complete `ServiceInstallationInput`
 bytes in `installation.candid`, with project and verifier alongside the configuration. Actual local PocketIC installation accepts the exact
 generated carrier and rejects a proposed service that differs from the host;
-independent DID decoding also passes. `configuration.candid` alone is not init.
+independent DID decoding passed on that graph. `configuration.candid` alone was
+not init. Current 0.32 preparation follows [the CBOR protocol](service-wire.md),
+using a strict JSON proposal and complete `installation.cbor` carrier.
 The earlier review's carriers and financial values remain historical syntax
 evidence, without live trial authority.
 

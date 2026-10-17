@@ -3,9 +3,7 @@
 use std::cell::RefCell;
 
 use candid::{de::DecoderConfig, decode_one_with_config};
-use ic_memory::{
-    MemoryManagerConfig, ic_stable_structures::DefaultMemoryImpl, testing::FixtureCell,
-};
+use ic_memory::{DefaultMemoryImpl, MemoryManagerConfig, testing::FixtureCell};
 
 use crate::model::archive::AuthorityArchiveRecord;
 

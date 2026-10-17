@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 /// Prepare as the actual admitted uploader after bounding ingress decoding. Raw
 /// declaration budgets precede conversion; the shared owner checks activation,
 /// time, phase and root/metadata consistency. Persist intent before dispatch and

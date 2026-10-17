@@ -14,7 +14,9 @@ use blob_test_protocol::{
     storage::{Failure, Observation, Status, WriteFault},
 };
 use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use ic_blob_storage::ic_memory::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::GenericAllocationPolicy;
+use ic_blob_storage::ic_memory::Memory;
 use ic_blob_storage::ic_memory::MemoryAllocationPool;
 use ic_blob_storage::ic_memory::MemoryAuthority;
 use ic_blob_storage::ic_memory::MemoryManagerConfig;
@@ -22,8 +24,6 @@ use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
-use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
-use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
 use ic_blob_storage::model::service::upload::UploadManifestState;
 use ic_blob_storage::ops::service::stores::ServiceMemories;
 use ic_blob_storage::ops::service::stores::ServiceStores;
@@ -472,4 +472,54 @@ pub(crate) fn status(context: UploadContext) -> Result<Status, Failure> {
             fenced: state.uploads.is_fenced(),
         })
     })
+}
+
+/// Production-facing probe methods use the exact current service codec.
+pub(crate) fn decode_blob<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
+    ic_blob_storage_contracts::wire::decode(&bytes, 4096).expect("Blob CBOR probe input")
+}
+pub(crate) fn encode_blob<T: serde::Serialize>(value: T) -> Vec<u8> {
+    ic_blob_storage_contracts::wire::encode(value).expect("Blob CBOR probe reply")
+}
+
+pub(crate) fn decode_manifest_blob<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
+    ic_blob_storage_contracts::wire::decode(&bytes, 131_072)
+        .expect("Blob CBOR manifest probe input")
+}
+
+/// Endpoint-owned trap on invalid method-bound tenant ingress.
+#[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
+pub(crate) fn decode_tenant_inspection(
+    bytes: Vec<u8>,
+) -> ic_blob_storage_contracts::dto::tenant::TenantScope {
+    ic_blob_storage_contracts::wire::tenant::decode_inspection_request(&bytes)
+        .expect("invalid tenant inspection ingress")
+}
+/// Endpoint-owned trap on invalid method-bound tenant mutation ingress.
+#[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
+pub(crate) fn decode_tenant_update(
+    bytes: Vec<u8>,
+) -> ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest {
+    ic_blob_storage_contracts::wire::tenant::decode_update_request(&bytes)
+        .expect("invalid tenant update ingress")
+}
+/// Fail with a trap if a response cannot be encoded.
+pub(crate) fn encode_tenant_inspection(
+    value: Result<
+        ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse,
+        ic_blob_storage_contracts::dto::tenant::TenantFailure,
+    >,
+) -> Vec<u8> {
+    ic_blob_storage_contracts::wire::tenant::inspection_response(value)
+        .expect("tenant inspection response encoding")
+}
+/// A trap preserves IC rollback for synchronous response encoding failure.
+pub(crate) fn encode_tenant_update(
+    value: Result<
+        ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse,
+        ic_blob_storage_contracts::dto::tenant::TenantFailure,
+    >,
+) -> Vec<u8> {
+    ic_blob_storage_contracts::wire::tenant::update_response(value)
+        .expect("tenant update response encoding")
 }

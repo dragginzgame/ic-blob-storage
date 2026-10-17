@@ -23,19 +23,19 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
     let base = tempfile::tempdir().unwrap();
     let directory = base.path().join("attempt");
     let service = Principal::self_authenticating([7]);
-    let argument = candid::encode_one(42u64).unwrap();
+    let argument = ic_blob_storage_contracts::wire::encode(42u64).unwrap();
     let input = || UpdateInput {
         service,
         method: "test_update",
         argument: &argument,
-        argument_file: "request.candid",
+        argument_file: "request.cbor",
         directory: &directory,
         reply_limit: SMALL_REPLY_BYTES,
     };
     let prepared = PreparedUpdate::claim(&agent, input(), || json!({"operation":"test"})).unwrap();
     let packet = std::fs::read(directory.join("signed-request.cbor")).unwrap();
     assert_eq!(
-        std::fs::read(directory.join("request.candid")).unwrap(),
+        std::fs::read(directory.join("request.cbor")).unwrap(),
         argument
     );
     ic_agent::agent::signed_update_inspect(
@@ -103,7 +103,7 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
 fn historical_reader_accepts_expired_correspondence_and_refuses_corrupt_claims() {
     let (agent, actor) = agent();
     let service = Principal::self_authenticating([7]);
-    let argument = candid::encode_one(42u64).unwrap();
+    let argument = ic_blob_storage_contracts::wire::encode(42u64).unwrap();
     let signed = agent
         .update(&service, "test_update")
         .with_arg(argument.clone())
@@ -182,7 +182,7 @@ fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
         service: Principal::self_authenticating([7]),
         method: "test_update",
         argument: b"request",
-        argument_file: "request.candid",
+        argument_file: "request.cbor",
         directory: &directory,
         reply_limit: SMALL_REPLY_BYTES,
     };
@@ -191,7 +191,7 @@ fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
         Err(Failure::File)
     ));
     assert_eq!(
-        std::fs::read(directory.join("request.candid")).unwrap(),
+        std::fs::read(directory.join("request.cbor")).unwrap(),
         b"request"
     );
     assert!(directory.join("signed-request.cbor").is_file());

@@ -11,6 +11,7 @@ use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;
@@ -41,20 +42,21 @@ fn setup(directory: &Path) -> (Fixture, Vec<UploadAdmissionRequest>) {
     (f, permissions)
 }
 fn manifest(directory: &Path, index: usize) -> UploadManifestRequest {
-    candid::decode_one(
-        &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.candid"))).unwrap(),
+    ic_blob_storage_contracts::wire::decode(
+        &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.cbor"))).unwrap(),
+        ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
     .unwrap()
 }
 pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -66,7 +68,7 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
             f.service,
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
-            candid::encode_one(root).unwrap(),
+            ic_blob_storage_contracts::wire::encode(root).unwrap(),
         )
         .unwrap();
     let statement = UploadAttestationRequest {
@@ -84,12 +86,12 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
     // A locally trusted statement exercises service confirmation, not provider availability.
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+        .update_blob_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
             f.service,
             Fake::principal(90),
             "blob_attest_upload",
-            (statement,),
-            REPLY_LIMITS,
+            statement,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -178,17 +180,17 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
     f.harness.pic.stop_live();
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_blob_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",
-            (ReferenceCommand {
+            ReferenceCommand {
                 upload: permissions[1].upload,
                 reference: permissions[1].upload.first_reference,
                 operation: 900,
                 action: ReferenceAction::Release,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -200,7 +202,8 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
     );
     assert!(!directory.path().join("released/media-map.json").exists());
     f.harness.pic.stop_live();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = run(&args(&mut f, directory.path(), "restored"), 0);
     assert_eq!(restored["all_references_live"], false);
     assert!(!directory.path().join("restored/media-map.json").exists());

@@ -13,7 +13,7 @@ fn scope() -> OperatorScope {
 fn render(page: &FundingHistoryPage) -> Result<Value, Failure> {
     output(
         page.request,
-        &candid::encode_one(Ok::<_, FundingHistoryFailure>(page)).unwrap(),
+        &ic_blob_storage_contracts::wire::encode(Ok::<_, FundingHistoryFailure>(page)).unwrap(),
         Principal::self_authenticating([4]),
         "local",
         "http://127.0.0.1",
@@ -122,7 +122,10 @@ fn history_reuses_strict_decoder_and_never_turns_errors_into_empty_pages() {
         (FundingHistoryFailure::Invalid, Failure::ServiceInvalid),
     ] {
         assert_eq!(
-            run(&candid::encode_one(Err::<FundingHistoryPage, _>(error)).unwrap()),
+            run(
+                &ic_blob_storage_contracts::wire::encode(Err::<FundingHistoryPage, _>(error))
+                    .unwrap()
+            ),
             Err(expected)
         );
     }
@@ -141,7 +144,10 @@ fn history_reuses_strict_decoder_and_never_turns_errors_into_empty_pages() {
         fenced: false,
     };
     assert_eq!(
-        run(&candid::encode_one(Ok::<_, FundingHistoryFailure>(forged)).unwrap()),
+        run(
+            &ic_blob_storage_contracts::wire::encode(Ok::<_, FundingHistoryFailure>(forged))
+                .unwrap()
+        ),
         Err(Failure::Binding)
     );
     let file = tempfile::NamedTempFile::new().unwrap();

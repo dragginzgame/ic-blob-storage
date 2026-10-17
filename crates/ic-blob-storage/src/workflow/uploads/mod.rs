@@ -13,7 +13,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 /// Inspect the actual tenant's original upload, including during suspension and
 /// restore fencing. Confirmed means the first reference was created historically;
 /// it does not prove current liveness or operational restore authority. The adapter

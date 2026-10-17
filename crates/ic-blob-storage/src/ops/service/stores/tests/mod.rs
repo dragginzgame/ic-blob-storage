@@ -2,7 +2,7 @@ use super::*;
 mod account;
 mod operator;
 use crate::ops::service::configuration::{tests::candidate, validate_candidate};
-use ic_memory::ic_stable_structures::VectorMemory;
+use ic_stable_structures::VectorMemory;
 
 fn memories(m: &[VectorMemory; 16]) -> ServiceMemories<VectorMemory> {
     let requests = grants::requests("store-test").unwrap();

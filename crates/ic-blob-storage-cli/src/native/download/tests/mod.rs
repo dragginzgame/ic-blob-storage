@@ -11,8 +11,12 @@ fn input() -> (tempfile::TempDir, Input, DownloadRequest) {
         incarnation: u128::MAX,
         reference: u128::MAX,
     };
-    let path = temp.path().join("request.candid");
-    std::fs::write(&path, candid::encode_one(request).unwrap()).unwrap();
+    let path = temp.path().join("request.cbor");
+    std::fs::write(
+        &path,
+        ic_blob_storage_contracts::wire::encode(request).unwrap(),
+    )
+    .unwrap();
     let input = Input {
         service: principal,
         namespace: request.namespace,
@@ -30,14 +34,18 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
     let (_, scope) = open(&input, request.tenant).unwrap();
     std::fs::write(
         &input.request,
-        candid::encode_args((request, candid::Reserved)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((request, candid::Reserved)).unwrap(),
     )
     .unwrap();
     assert!(matches!(
         open(&input, request.tenant),
         Err(Failure::Arguments)
     ));
-    std::fs::write(&input.request, candid::encode_one(request).unwrap()).unwrap();
+    std::fs::write(
+        &input.request,
+        ic_blob_storage_contracts::wire::encode(request).unwrap(),
+    )
+    .unwrap();
     assert_eq!(
         open(&input, Principal::self_authenticating([2])).unwrap_err(),
         Failure::Binding
@@ -52,7 +60,8 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
             value: "3".into(),
         }],
     };
-    let encode = |r: &DownloadResponse| candid::encode_one(Ok::<_, E>(r)).unwrap();
+    let encode =
+        |r: &DownloadResponse| ic_blob_storage_contracts::wire::encode(Ok::<_, E>(r)).unwrap();
     assert_eq!(
         decode(&input, request, &scope, &encode(&response)).unwrap(),
         response
@@ -80,7 +89,8 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
             &input,
             request,
             &scope,
-            &candid::encode_one(Err::<DownloadResponse, _>(E::Fenced)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Err::<DownloadResponse, _>(E::Fenced))
+                .unwrap()
         ),
         Err(Failure::DownloadRefused(E::Fenced))
     ));
@@ -128,7 +138,7 @@ fn tenant_download_arguments_require_explicit_origin_project_budget_and_request(
         "--namespace",
         "1",
         "--request",
-        "request.candid",
+        "request.cbor",
         "--project",
         "project",
         "--gateway",

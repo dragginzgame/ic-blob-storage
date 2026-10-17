@@ -1,0 +1,20 @@
+{
+  "evidence_class": "local PocketIC and substitute peers only",
+  "purpose": "Final selected installed cases after formatting and native lease fixture correction",
+  "source_files": {
+    "Cargo.toml": "45d7421d10f07f552f1c5ea56710c7c399ebaadb3fd7fd6fce68ceda9d25332d",
+    "Cargo.lock": "1fd0afa80045b2a05266fa5657bb2d75b4d5d0215d5758e0a9af13b07afdde0a",
+    "canisters/standalone/src/api/mod.rs": "6e60856854414523c05113a3316dde2abac6ba18e5106d2dc79545164305dc2a",
+    "canisters/standalone/src/ops/mod.rs": "6099f1be8c0d866067ad14e989828ab9c753c388792cfbda3eff1d6cc0cb4fe6",
+    "canisters/standalone/src/ops/memory/mod.rs": "9cb39c767ea205958c702b135b7c3441a0b75f88a2fb9dd9a34153656cd7af58",
+    "crates/ic-blob-storage-contracts/src/wire/mod.rs": "69215ad87cc4f2f13c041ed8c596e4c3241d1dcec8c81ec07c586a1eaf33413a",
+    "tests/pocketic/tests/standalone_hard_cut/mod.rs": "beac2003b235c32f10ce4f37d6bbcc0c729d8b365977bedff29350580b980f79",
+    "tests/pocketic/tests/storage_attestation_cli/mod.rs": "0d1de400a710b00089926173eecdd1960a994187deb74bcf6364f0bd4407f00d",
+    "tests/pocketic/tests/storage_observe_cli/mod.rs": "3952905510168854c7b5fb215bbf1a8acb9fb55595d6cd496cab5c650551653b",
+    "tests/pocketic/tests/storage_reference_native_cli/mod.rs": "cc5b62ccbdcc07bcbb043db84e36bb9fe88bfdc857a2cf1561c30dd023f185bf"
+  },
+  "same_limits_as": "intent.json",
+  "prior_intent": "attempt3-intent.json",
+  "deployed_provider_requests": 0,
+  "paid_effects": 0
+}

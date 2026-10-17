@@ -24,7 +24,7 @@ use crate::model::billing::journal::record::FundingJournalRecord;
 use crate::ops::caffeine::funding::request::{CashierTopUpRequest, TopUpRequestError};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::{BTreeMap, Memory};
+use ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 
 /// Two distinct, exclusively owned memories granted by the integrating host.

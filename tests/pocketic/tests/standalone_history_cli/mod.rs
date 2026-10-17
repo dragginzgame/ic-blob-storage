@@ -3,6 +3,7 @@ use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;
@@ -75,24 +76,24 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
         permission.upload.root = [id; 32];
         f.harness
             .pic
-            .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+            .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
                 f.service,
                 f.tenant,
                 "blob_admit_upload",
-                (permission,),
-                REPLY_LIMITS,
+                permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
             .unwrap();
         if id != 65 {
             f.harness
                 .pic
-                .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+                .update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
                     f.service,
                     f.tenant,
                     "blob_revoke_upload",
-                    (permission,),
-                    REPLY_LIMITS,
+                    permission,
+                    REPLY_LIMITS.reply_bytes,
                 )
                 .unwrap()
                 .unwrap();
@@ -187,7 +188,8 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
     assert_eq!(run(&wrong, 3)["error"], "identity_binding");
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     live(&mut f, &mut args);
     let restored = run(&cursor(&args, &saved, &empty["next"]), 0);

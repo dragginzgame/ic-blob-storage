@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 /// Inspect an exact original result for the authenticated tenant. The adapter
 /// supplies actual caller/service and bounds ingress decoding. Inspection remains
 /// available under suspension and restore fences, and after settlement. `Absent`

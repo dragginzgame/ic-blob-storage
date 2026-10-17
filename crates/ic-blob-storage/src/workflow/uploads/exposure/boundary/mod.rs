@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 /// Result of this synchronous operation; never a reusable certificate-issuance permit.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum UploadExposureResult {

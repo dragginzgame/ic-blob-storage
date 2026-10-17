@@ -6,7 +6,7 @@
 macro_rules! storable {
     ($record:ty, bytes: $bytes:expr, work: $work:expr, skipping: $skipping:expr,
      types: $types:expr, header: $header:expr, layout: $layout:expr $(,)?) => {
-        impl ic_memory::ic_stable_structures::Storable for $record {
+        impl ic_stable_structures::Storable for $record {
             fn to_bytes(&self) -> std::borrow::Cow<'_, [u8]> {
                 let bytes = candid::encode_one(self).expect("stable record encoding");
                 assert!(bytes.len() <= $bytes as usize, "stable record byte bound");
@@ -26,7 +26,7 @@ macro_rules! storable {
                     .set_full_error_message(false);
                 candid::decode_one_with_config(&bytes, &config).expect("valid same-release record")
             }
-            const BOUND: ic_memory::ic_stable_structures::storable::Bound = $layout;
+            const BOUND: ic_stable_structures::storable::Bound = $layout;
         }
     };
 }

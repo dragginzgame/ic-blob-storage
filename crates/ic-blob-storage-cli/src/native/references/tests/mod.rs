@@ -48,13 +48,16 @@ fn arguments(kind: &str, path: &std::path::Path) -> Vec<String> {
 #[test]
 fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
     let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("request.candid");
+    let path = dir.path().join("request.cbor");
     let c = command();
     for (kind, encoded) in [
-        ("reference-receipt", candid::encode_one(c).unwrap()),
+        (
+            "reference-receipt",
+            ic_blob_storage_contracts::wire::encode(c).unwrap(),
+        ),
         (
             "reference-status",
-            candid::encode_one(ReferenceStatusRequest {
+            ic_blob_storage_contracts::wire::encode(ReferenceStatusRequest {
                 upload: c.upload,
                 reference: c.reference,
             })
@@ -96,7 +99,7 @@ fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
     }
     std::fs::write(
         &path,
-        candid::encode_one(ReferenceCommand { reference: 0, ..c }).unwrap(),
+        ic_blob_storage_contracts::wire::encode(ReferenceCommand { reference: 0, ..c }).unwrap(),
     )
     .unwrap();
     assert_eq!(
@@ -119,7 +122,8 @@ fn historical_success_failure_and_absence_never_observe_current_liveness_or_fenc
         Err(ReferenceTransitionFailure::Released),
     ] {
         let lookup = ReferenceReceiptLookup::Found(ReferenceReceiptResponse { request: c, result });
-        let bytes = candid::encode_one(Ok::<_, ReferenceFailure>(lookup)).unwrap();
+        let bytes =
+            ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(lookup)).unwrap();
         let value = output(&Request::Receipt(c), &bytes, &options).unwrap();
         assert_eq!(value["outcome"], "found");
         assert_eq!(value["upload"]["object"], c.upload.object.to_string());
@@ -137,8 +141,10 @@ fn historical_success_failure_and_absence_never_observe_current_liveness_or_fenc
             );
         }
     }
-    let absent =
-        candid::encode_one(Ok::<_, ReferenceFailure>(ReferenceReceiptLookup::Absent)).unwrap();
+    let absent = ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
+        ReferenceReceiptLookup::Absent,
+    ))
+    .unwrap();
     let value = output(&Request::Receipt(c), &absent, &options).unwrap();
     assert_eq!(value["outcome"], "absent");
     assert_eq!(value["result"], Value::Null);
@@ -147,7 +153,7 @@ fn historical_success_failure_and_absence_never_observe_current_liveness_or_fenc
     assert_eq!(
         output(
             &Request::Receipt(c),
-            &candid::encode_one(refused).unwrap(),
+            &ic_blob_storage_contracts::wire::encode(refused).unwrap(),
             &options
         ),
         Err(Failure::ReferenceRefused(ReferenceFailure::Conflict))
@@ -167,11 +173,13 @@ fn current_liveness_and_restore_fence_are_independent_bounded_observations() {
     ))
     .unwrap();
     for (live, fenced) in [(true, false), (true, true), (false, true)] {
-        let bytes = candid::encode_one(Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
-            request,
-            live,
-            fenced,
-        }))
+        let bytes = ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
+            ReferenceStatusResponse {
+                request,
+                live,
+                fenced,
+            },
+        ))
         .unwrap();
         let value = output(&Request::Status(request), &bytes, &options).unwrap();
         assert_eq!(value["live"], live);
@@ -180,14 +188,16 @@ fn current_liveness_and_restore_fence_are_independent_bounded_observations() {
         assert_eq!(value["retry_authorized"], false);
         assert!(value.get("operation").is_none());
     }
-    let bytes = candid::encode_one(Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
-        request: ReferenceStatusRequest {
-            reference: 1,
-            ..request
+    let bytes = ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
+        ReferenceStatusResponse {
+            request: ReferenceStatusRequest {
+                reference: 1,
+                ..request
+            },
+            live: true,
+            fenced: false,
         },
-        live: true,
-        fenced: false,
-    }))
+    ))
     .unwrap();
     assert_eq!(
         output(&Request::Status(request), &bytes, &options),

@@ -34,8 +34,8 @@ fn fixture() -> (CompletionAuthority, UploadAttestationReceipt) {
     };
     (authority, receipt)
 }
-fn encoded<T: CandidType>(value: T) -> Vec<u8> {
-    candid::encode_one(Ok::<_, UploadAttestationFailure>(value)).unwrap()
+fn encoded<T: serde::Serialize>(value: T) -> Vec<u8> {
+    crate::wire::encode(Ok::<_, UploadAttestationFailure>(value)).unwrap()
 }
 fn inspect(
     authority: CompletionAuthority,
@@ -55,8 +55,9 @@ fn historical_receipts_and_absence_preserve_exact_scope_times_and_fences() {
     let (authority, receipt) = fixture();
     let permission = receipt.request.permission;
     assert_eq!(
-        candid::decode_one::<UploadAdmissionRequest>(
-            &inspection_request(authority, permission).unwrap()
+        crate::wire::decode::<UploadAdmissionRequest>(
+            &inspection_request(authority, permission).unwrap(),
+            crate::wire::MAX_MESSAGE_BYTES
         )
         .unwrap(),
         permission
@@ -219,7 +220,7 @@ fn malformed_oversized_and_remote_refusals_never_become_absence() {
             crate::dto::upload::admission::UploadAdmissionFailure::Fenced,
         ),
     ] {
-        let bytes = candid::encode_one(Err::<UploadAttestationResponse, _>(failure)).unwrap();
+        let bytes = crate::wire::encode(Err::<UploadAttestationResponse, _>(failure)).unwrap();
         assert_eq!(
             inspection(authority, permission, &bytes, 4096.try_into().unwrap()),
             Err(UploadAttestationReplyError::Remote(failure))

@@ -77,8 +77,8 @@ impl Trial {
         )
         .unwrap();
         fs::write(
-            self.base.path().join("installation.candid"),
-            candid::encode_one(&self.installation).unwrap(),
+            self.base.path().join("installation.cbor"),
+            ic_blob_storage_contracts::wire::encode(&self.installation).unwrap(),
         )
         .unwrap();
         vec![
@@ -94,7 +94,7 @@ impl Trial {
             "--installation".into(),
             self.base
                 .path()
-                .join("installation.candid")
+                .join("installation.cbor")
                 .display()
                 .to_string(),
             "--max-bytes".into(),
@@ -146,7 +146,11 @@ fn serial_snapshots_bind_the_inventory_and_survive_source_change_without_overwri
         let directory = trial.output().join(name);
         assert_eq!(fs::read(directory.join("body.bin")).unwrap(), b"abc");
         let permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest =
-            candid::decode_one(&fs::read(directory.join("permission.candid")).unwrap()).unwrap();
+            ic_blob_storage_contracts::wire::decode(
+                &fs::read(directory.join("permission.cbor")).unwrap(),
+                ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+            )
+            .unwrap();
         assert_eq!(permission.upload.bytes, 3);
     }
     let summary = fs::read(trial.output().join("summary.json")).unwrap();
@@ -259,12 +263,12 @@ fn corrupt_later_body_retains_completed_inputs_and_failure_without_a_batch_succe
         fs::read(trial.output().join("file-0000/body.bin")).unwrap(),
         b"abc"
     );
-    assert!(trial.output().join("file-0000/permission.candid").is_file());
+    assert!(trial.output().join("file-0000/permission.cbor").is_file());
     assert_eq!(
         fs::read(trial.output().join("file-0001/body.part")).unwrap(),
         b"abd"
     );
-    assert!(!trial.output().join("file-0001/permission.candid").exists());
+    assert!(!trial.output().join("file-0001/permission.cbor").exists());
     assert!(!trial.output().join("summary.json").exists());
     let failure: Value =
         serde_json::from_slice(&fs::read(trial.output().join("failure.json")).unwrap()).unwrap();
@@ -282,7 +286,7 @@ fn inventory_raw_digest_must_match_verified_body_before_usable_requests() {
         fs::read(trial.output().join("file-0000/body.bin")).unwrap(),
         b"abc"
     );
-    assert!(!trial.output().join("file-0000/permission.candid").exists());
+    assert!(!trial.output().join("file-0000/permission.cbor").exists());
     assert!(!trial.output().join("summary.json").exists());
 }
 

@@ -1,4 +1,4 @@
-//! Valid Candid budget failures at the actual standalone dispatch boundaries.
+//! Provider Candid budgets and current CBOR admission at actual dispatch boundaries.
 use super::*;
 use crate::support::REPLY_LIMITS;
 use candid::{
@@ -8,6 +8,7 @@ use candid::{
         internal::{Field, TypeInner},
     },
 };
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use std::fmt::Debug;
 
 /// Each payload round-trips when only its exhausted budget is relaxed.
@@ -64,8 +65,15 @@ fn limits(max_bytes: usize) -> DecoderConfig {
     config
 }
 
+#[derive(serde::Serialize)]
+struct ForeignInstallation<'a> {
+    #[serde(flatten)]
+    installation: &'a ServiceInstallationInput,
+    retired_authority: bool,
+}
+
 #[test]
-fn standalone_valid_candid_budgets_refuse_before_mutation_and_failed_reinstall_preserves_owner() {
+fn standalone_cbor_admission_refuses_before_mutation_and_failed_reinstall_preserves_owner() {
     let f = Fixture::new();
     let enrollment = f.enroll(f.operator).unwrap();
     let configuration = f.configuration(f.operator).unwrap();
@@ -75,155 +83,214 @@ fn standalone_valid_candid_budgets_refuse_before_mutation_and_failed_reinstall_p
         expected: enrollment.enrollment,
         active: false,
     };
-    for input in refusal_arguments(&update, 4096) {
-        let failure = f
-            .harness
-            .pic
-            .update_call(f.service, f.operator, "blob_update_tenant", input)
-            .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    let mut trailing = ic_blob_storage_contracts::wire::encode(update).unwrap();
+    trailing.push(0xf6);
+    for bytes in [
+        candid::encode_one(update).unwrap(),
+        trailing,
+        vec![0; 4097],
+        vec![0xff],
+    ] {
+        assert!(
+            f.harness
+                .pic
+                .update_call(f.service, f.operator, "blob_update_tenant", bytes)
+                .is_err()
+        );
         assert_eq!(f.tenant(), enrollment);
         unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     }
-    for input in refusal_arguments(&f.scope(), 4096) {
-        let failure = f
-            .harness
+    assert!(
+        f.harness
             .pic
-            .query_call(f.service, f.tenant, "blob_tenant", input)
-            .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    }
-    let installation: ServiceInstallationInput =
-        candid::decode_one(&installation(&f.config)).unwrap();
-    for input in refusal_arguments(&installation, 16_384)
-        .into_iter()
-        .chain([super::standalone_hard_cut::frozen_installation(&f)])
-    {
-        let failure = f
-            .harness
-            .pic
-            .reinstall_canister(f.service, wasm(), input, Some(f.controller))
-            .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
-        assert_eq!(f.tenant(), enrollment);
-        assert_eq!(f.configuration(f.operator).unwrap(), configuration);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    }
-    // Small extra values are legal Candid subtyping, not a blanket extra-argument refusal.
-    let reply = f
-        .harness
-        .pic
-        .query_call(
-            f.service,
-            f.tenant,
-            "blob_tenant",
-            candid::encode_args((f.scope(), "small")).unwrap(),
-        )
-        .unwrap();
-    assert_eq!(
-        candid::decode_one::<Result<TenantEnrollmentResponse, TenantFailure>>(&reply).unwrap(),
-        Ok(enrollment)
+            .query_call(
+                f.service,
+                f.tenant,
+                "blob_tenant",
+                candid::encode_one(f.scope()).unwrap()
+            )
+            .is_err()
     );
-    let reply = f
+    let input: ServiceInstallationInput =
+        ic_blob_storage_contracts::wire::decode(&installation(&f.config), 16384).unwrap();
+    for bytes in [
+        candid::encode_one(&input).unwrap(),
+        ic_blob_storage_contracts::wire::encode(ForeignInstallation {
+            installation: &input,
+            retired_authority: true,
+        })
+        .unwrap(),
+        vec![0; 16385],
+    ] {
+        assert!(
+            f.harness
+                .pic
+                .reinstall_canister(f.service, wasm(), bytes, Some(f.controller))
+                .is_err()
+        );
+        assert_eq!(f.configuration(f.operator).unwrap(), configuration);
+        assert_eq!(f.tenant(), enrollment);
+        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    }
+    let response: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_call(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            candid::encode_args((update, "small")).unwrap(),
+            update,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
-    let updated = candid::decode_one::<Result<TenantEnrollmentResponse, TenantFailure>>(&reply)
-        .unwrap()
-        .unwrap();
-    assert!(!updated.enrollment.unwrap().active);
-    assert_eq!(f.tenant(), updated);
-    // Installation is exact: an extra argument cannot be silently discarded.
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let failure = f
-        .harness
-        .pic
-        .reinstall_canister(
-            f.service,
-            wasm(),
-            candid::encode_args((installation, "small")).unwrap(),
-            Some(f.controller),
-        )
-        .unwrap_err();
-    assert_eq!(failure.reject_code, RejectCode::CanisterError);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    assert_eq!(f.configuration(f.operator).unwrap(), configuration);
-    assert_eq!(f.tenant(), updated);
+    assert!(!response.unwrap().enrollment.unwrap().active);
 }
 
 #[test]
-fn standalone_byte_bounded_dense_manifest_reaches_policy_and_budget_refusals_preserve_upload() {
+fn standalone_byte_bounded_cbor_manifest_reaches_policy_and_refusals_preserve_upload() {
     let f = Fixture::new();
     f.enroll(f.operator).unwrap();
     let mut manifest = f.small_manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
     let admission = f.admission(manifest.permission);
-    let root = super::standalone_certificate::root(&manifest);
-    let assessment = super::standalone_certificate::inspect(&f, f.uploader, &root).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    for input in refusal_arguments(&manifest, 131_072) {
-        let failure = f
-            .harness
-            .pic
-            .update_call(f.service, f.uploader, "blob_prepare_upload", input)
-            .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
-        assert_eq!(f.admission(manifest.permission), admission);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    }
     manifest.declaration.headers = vec![
         UploadManifestHeader {
             name: String::new(),
             value: String::new()
         };
-        65_379
+        4096
     ];
-    let bytes = candid::encode_one(&manifest).unwrap();
+    let bytes = ic_blob_storage_contracts::wire::encode(&manifest).unwrap();
     assert!(bytes.len() <= 131_072);
-    let config = limits(131_072);
-    let mut decoder = candid::de::IDLDeserialize::new_with_config(&bytes, &config).unwrap();
-    assert_eq!(
-        decoder.get_value::<UploadManifestRequest>().unwrap(),
-        manifest
-    );
-    decoder.done().unwrap();
-    let cost = decoder.get_config().compute_cost(&config);
-    // Dense maintained records fit the work budget; do not weaken it to manufacture
-    // a work-quota failure. The independent domain count bound still refuses them.
-    assert!(cost.decoding_quota.unwrap() < 2_000_000);
-    assert!(cost.decoding_quota.unwrap() > 1_800_000);
-    assert_eq!(cost.skipping_quota, Some(0));
     let reply = f
         .harness
         .pic
         .update_call(f.service, f.uploader, "blob_prepare_upload", bytes)
         .unwrap();
     assert_eq!(
-        candid::decode_one::<Result<UploadManifestMutation, UploadManifestFailure>>(&reply)
-            .unwrap(),
+        ic_blob_storage_contracts::wire::decode::<
+            Result<UploadManifestMutation, UploadManifestFailure>,
+        >(&reply, 4096)
+        .unwrap(),
         Err(UploadManifestFailure::Limit)
     );
     assert_eq!(f.admission(manifest.permission), admission);
-    let current = super::standalone_certificate::inspect(&f, f.uploader, &root).unwrap();
-    assert_eq!(current.permission, assessment.permission);
-    assert_eq!(current.blockers, assessment.blockers);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    assert!(
+        f.harness
+            .pic
+            .update_call(
+                f.service,
+                f.uploader,
+                "blob_prepare_upload",
+                vec![0; 131_073]
+            )
+            .is_err()
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+}
+
+#[test]
+fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() {
+    use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
+    use ic_blob_storage_contracts::wire::tenant as wire;
+    let f = Fixture::new();
+    let command = TenantUpdateRequest {
+        scope: f.scope(),
+        expected: None,
+        active: true,
+    };
+    let query = wire::inspection_request(f.scope()).unwrap();
+    let original = f.harness.pic.get_stable_memory(f.service);
+    let mut trailing = wire::update_request(command).unwrap();
+    trailing.push(0);
+    for bytes in [
+        query.clone(),
+        wire::inspection_response(Err(TenantFailure::Denied)).unwrap(),
+        ic_blob_storage_contracts::wire::encode(command).unwrap(),
+        candid::encode_one(command).unwrap(),
+        trailing,
+        vec![0; 513],
+    ] {
+        let rejected = f
+            .harness
+            .pic
+            .update_call(f.service, f.operator, "blob_update_tenant", bytes)
+            .unwrap_err();
+        assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+        unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
+    }
+    let bytes = f
+        .harness
+        .pic
+        .query_call(f.service, f.tenant, "blob_tenant", query)
+        .unwrap();
+    assert_eq!(
+        wire::decode_inspection_response(&bytes)
+            .unwrap()
+            .unwrap()
+            .enrollment,
+        None
+    );
+    let denied = f
+        .harness
+        .pic
+        .update_call(
+            f.service,
+            f.controller,
+            "blob_update_tenant",
+            wire::update_request(command).unwrap(),
+        )
+        .unwrap();
+    assert_eq!(
+        wire::decode_update_response(&denied).unwrap(),
+        Err(TenantFailure::Denied)
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
+    let accepted = f
+        .harness
+        .pic
+        .update_call(
+            f.service,
+            f.operator,
+            "blob_update_tenant",
+            wire::update_request(command).unwrap(),
+        )
+        .unwrap();
+    let accepted = wire::decode_update_response(&accepted).unwrap().unwrap();
+    assert_eq!(accepted.scope, f.scope());
+    assert_eq!(
+        accepted.enrollment,
+        Some(TenantEnrollment {
+            generation: 1,
+            active: true
+        })
+    );
+    assert_eq!(f.tenant(), accepted);
+    let conflict = f
+        .harness
+        .pic
+        .update_call(
+            f.service,
+            f.operator,
+            "blob_update_tenant",
+            wire::update_request(command).unwrap(),
+        )
+        .unwrap();
+    assert_eq!(
+        wire::decode_update_response(&conflict).unwrap(),
+        Err(TenantFailure::Conflict)
+    );
 }

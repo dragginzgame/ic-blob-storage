@@ -344,7 +344,7 @@ macro_rules! codec {
     ($record:ty, $max:expr) => {
         crate::model::record_codec::storable!(
             $record, bytes: $max, work: 30_000, skipping: 1000,
-            types: 64, header: $max, layout: ic_memory::ic_stable_structures::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
+            types: 64, header: $max, layout: ic_stable_structures::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
         );
     };
 }

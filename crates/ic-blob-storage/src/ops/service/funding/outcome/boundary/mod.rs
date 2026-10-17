@@ -17,7 +17,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation as R
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 use std::num::NonZeroU128;
 
 pub(crate) fn read<M: Memory>(

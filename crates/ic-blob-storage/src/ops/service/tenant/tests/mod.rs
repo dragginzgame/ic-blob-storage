@@ -9,8 +9,9 @@ use ic_blob_storage_contracts::configuration::service::ServiceLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceManifestLimits;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRequest, MemoryRuntime, SealedDeclarationSnapshot, ic_stable_structures::VectorMemory,
+    MemoryRequest, MemoryRuntime, SealedDeclarationSnapshot,
 };
+use ic_stable_structures::VectorMemory;
 use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 
 fn p(n: u8) -> Principal {

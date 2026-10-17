@@ -39,7 +39,7 @@ for optimization in original O3 Os Oz; do
     export BLOB_STORAGE_PROBE_WASM="$report/$optimization/storage.wasm"
     (
         bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone \
-            standalone_installation_cli::deployment_candid_matches_the_exported_contract -- --exact --test-threads=1
+            standalone_installation_cli::deployment_surface_matches_catalog_and_provider_contract -- --exact --test-threads=1
         bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone \
             standalone_installation_cli::standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service -- --exact --test-threads=1
         bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone \

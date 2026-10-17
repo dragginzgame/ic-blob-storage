@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
-use ic_testkit::pic::CandidCallExt;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn retained_bytes(trial: &Trial, logical: u128) {
     let status = trial
@@ -91,6 +91,10 @@ fn chromium_standalone_trial_lost_chunk_reply_verifies_after_stop_start_without_
 
 #[test]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep withdrawal and late completion in one installed browser recovery scenario"
+)]
 fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
     let mut trial = Trial::new("withdrawn");
     let (driver, input, uploaded) = upload(&trial, Scenario::Withdrawn);
@@ -100,27 +104,32 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         observation["content_digest"],
         ContentDigest::compute(&[42; 1024]).to_string()
     );
-    let original = std::fs::read(trial.report.join("observation/statement.candid")).unwrap();
+    let original = std::fs::read(trial.report.join("observation/statement.cbor")).unwrap();
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = trial
         .f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             trial.f.service,
             trial.f.tenant,
             "blob_revoke_upload",
-            (input.permission,),
-            REPLY_LIMITS,
+            input.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);
     assert_eq!(trial.attest(0, "attestation")["outcome"], "accepted");
-    let result: Result<UploadAttestationMutation, UploadAttestationFailure> = candid::decode_one(
-        &std::fs::read(trial.report.join("observation/attestation/response.candid")).unwrap(),
-    )
-    .unwrap();
+    let result: Result<UploadAttestationMutation, UploadAttestationFailure> =
+        ic_blob_storage_contracts::wire::decode(
+            &std::fs::read(trial.report.join("observation/attestation/response.cbor")).unwrap(),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+        )
+        .unwrap();
     let receipt = result.unwrap().receipt;
-    assert_eq!(candid::encode_one(receipt.request).unwrap(), original);
+    assert_eq!(
+        ic_blob_storage_contracts::wire::encode(receipt.request).unwrap(),
+        original
+    );
     let outcome: serde_json::Value = serde_json::from_slice(
         &std::fs::read(trial.report.join("observation/attestation/outcome.json")).unwrap(),
     )
@@ -132,19 +141,19 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         "submission_already_claimed"
     );
     assert_eq!(
-        std::fs::read(trial.report.join("observation/statement.candid")).unwrap(),
+        std::fs::read(trial.report.join("observation/statement.cbor")).unwrap(),
         original
     );
     let lookup: Result<UploadAttestationResponse, UploadAttestationFailure> = trial
         .f
         .harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             trial.f.service,
             trial.f.tenant,
             "blob_upload_attestation",
-            (input.permission,),
-            REPLY_LIMITS,
+            input.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(
@@ -159,12 +168,12 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         .f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             trial.f.service,
             receipt.verifier,
             "blob_attest_upload",
-            (receipt.request,),
-            REPLY_LIMITS,
+            receipt.request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     let replay = replay.unwrap();

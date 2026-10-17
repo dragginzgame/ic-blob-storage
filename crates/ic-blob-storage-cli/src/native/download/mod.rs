@@ -41,7 +41,7 @@ fn open(
     actor: Principal,
 ) -> Result<(DownloadRequest, CaffeineDownloadScope), Failure> {
     let bytes = read(&input.request, 4096)?;
-    let request: DownloadRequest = crate::native::exact_candid::decode(&bytes, 4096, 64, 100_000)?;
+    let request: DownloadRequest = crate::native::exact_wire::decode(&bytes, 4096)?;
     if request.service != input.service
         || request.namespace != input.namespace
         || request.tenant != actor
@@ -94,8 +94,9 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     let (request, scope) = open(input, options.actor)?;
     let identity = identity(&options.identity, options.actor)?;
     let run = Run::create(&input.directory)?;
-    let argument = candid::encode_one(request).map_err(|_| Failure::Arguments)?;
-    run.bytes("request.candid", &argument)?;
+    let argument =
+        ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?;
+    run.bytes("request.cbor", &argument)?;
     run.json("plan.json", &json!({"schema":1,"operation":"tenant_download",
         "network":options.network,"service_url":options.url.as_str(),"actor":options.actor.to_text(),
         "service":input.service.to_text(),"namespace":input.namespace.to_string(),
@@ -131,7 +132,7 @@ async fn capture(
     if bytes.len() > 4096 {
         return Err(Failure::ReplyTooLarge);
     }
-    run.bytes("service-response.candid", &bytes)?;
+    run.bytes("service-response.cbor", &bytes)?;
     let descriptor = decode(input, request, scope, &bytes)?;
     let root = ProviderRootHash::try_from(request.root.as_slice()).expect("fixed root");
     let url = input

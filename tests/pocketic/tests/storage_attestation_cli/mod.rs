@@ -10,6 +10,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
 fn live(f: &mut Fixture) -> String {
@@ -69,7 +70,11 @@ fn rejects_conflicts(
         } else {
             conflict.content_digest[0] ^= 1;
         }
-        std::fs::write(saved, candid::encode_one(conflict).unwrap()).unwrap();
+        std::fs::write(
+            saved,
+            ic_blob_storage_contracts::wire::encode(conflict).unwrap(),
+        )
+        .unwrap();
         let observed = run(args, 0);
         assert_eq!(observed["outcome"], "conflict");
         assert_eq!(observed["receipt"], accepted["receipt"]);
@@ -77,9 +82,17 @@ fn rejects_conflicts(
     }
     let mut changed = *statement;
     changed.permission.expires_at_ns -= 1;
-    std::fs::write(saved, candid::encode_one(changed).unwrap()).unwrap();
+    std::fs::write(
+        saved,
+        ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+    )
+    .unwrap();
     assert_eq!(run(args, 3)["error"], "attestation_refused");
-    std::fs::write(saved, candid::encode_one(statement).unwrap()).unwrap();
+    std::fs::write(
+        saved,
+        ic_blob_storage_contracts::wire::encode(statement).unwrap(),
+    )
+    .unwrap();
     change(args, "--verifier", &f.other.to_text());
     assert_eq!(run(args, 3)["error"], "binding");
     change(args, "--verifier", &f.operator.to_text());
@@ -93,17 +106,17 @@ fn rejects_conflicts(
 fn release(f: &Fixture, upload: ic_blob_storage_contracts::dto::reference::ReferenceUpload) {
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_blob_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",
-            (ReferenceCommand {
+            ReferenceCommand {
                 upload,
                 operation: 1,
                 reference: upload.first_reference,
                 action: ReferenceAction::Release,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -132,8 +145,8 @@ fn signed_attestation_recovery_preserves_lost_reply_conflicts_and_settled_restor
     let dir = tempfile::tempdir().unwrap();
     let key = dir.path().join("identity.pem");
     let root = dir.path().join("root.der");
-    let saved = dir.path().join("statement.candid");
-    let original = candid::encode_one(statement).unwrap();
+    let saved = dir.path().join("statement.cbor");
+    let original = ic_blob_storage_contracts::wire::encode(statement).unwrap();
     std::fs::write(&key, PEM).unwrap();
     std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(&saved, &original).unwrap();
@@ -148,12 +161,12 @@ fn signed_attestation_recovery_preserves_lost_reply_conflicts_and_settled_restor
     // Deliberately discard the mutation acknowledgment, as a worker with a lost reply must.
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+        .update_blob_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
             f.service,
             f.operator,
             "blob_attest_upload",
-            (statement,),
-            REPLY_LIMITS,
+            statement,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();

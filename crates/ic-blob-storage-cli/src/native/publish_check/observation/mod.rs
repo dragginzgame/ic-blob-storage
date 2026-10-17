@@ -110,7 +110,7 @@ where
             run,
             0,
             UPLOAD_CAPACITY_METHOD,
-            candid::encode_one(scope).map_err(|_| Failure::Arguments)?,
+            ic_blob_storage_contracts::wire::encode(scope).map_err(|_| Failure::Arguments)?,
             &mut query,
         )
         .await?,
@@ -141,7 +141,7 @@ where
                 run,
                 index + 1,
                 UPLOAD_DISCOVERY_METHOD,
-                candid::encode_one(request).map_err(|_| Failure::Arguments)?,
+                ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?,
                 &mut query,
             )
             .await?,

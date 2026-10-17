@@ -6,9 +6,7 @@ use crate::dto::reference::ReferenceReceiptLookup;
 use crate::dto::reference::status::ReferenceStatusRequest;
 use crate::dto::reference::status::ReferenceStatusResponse;
 use crate::upload::binding::UploadContext;
-use candid::CandidType;
 use candid::Deserialize;
-use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 /// Reference response failure, separate from a stored transition failure.
@@ -20,7 +18,7 @@ pub enum ReferenceReplyError {
     /// Complete encoded response exceeds the configured application limit.
     #[error("reference reply exceeds limit")]
     Limit,
-    /// Malformed request or Candid response.
+    /// Malformed request or CBOR response.
     #[error("invalid reference reply")]
     Invalid,
     /// Authenticated service refused the request.
@@ -47,7 +45,7 @@ pub fn check_request(request: ReferenceCommand) -> Result<(), ReferenceReplyErro
 /// Rejects invalid identities/declarations or encoding failure.
 pub fn receipt_request(request: ReferenceCommand) -> Result<Vec<u8>, ReferenceReplyError> {
     check_request(request)?;
-    candid::encode_one(request).map_err(|_| ReferenceReplyError::Invalid)
+    crate::wire::encode(request).map_err(|_| ReferenceReplyError::Invalid)
 }
 /// Decode a reply from an independently authenticated service. Absence, original
 /// success, original failure and lookup refusal remain distinct. Neither absence
@@ -105,7 +103,7 @@ pub fn check_status_request(request: ReferenceStatusRequest) -> Result<(), Refer
 /// Rejects invalid identities/declarations or encoding failure.
 pub fn status_request(request: ReferenceStatusRequest) -> Result<Vec<u8>, ReferenceReplyError> {
     check_status_request(request)?;
-    candid::encode_one(request).map_err(|_| ReferenceReplyError::Invalid)
+    crate::wire::encode(request).map_err(|_| ReferenceReplyError::Invalid)
 }
 
 /// Decode exact current liveness after independent service authentication.
@@ -125,16 +123,15 @@ pub fn decode_status(
     Ok(response)
 }
 
-fn bounded<T: CandidType + for<'de> Deserialize<'de>>(
+fn bounded<T: for<'de> Deserialize<'de>>(
     bytes: &[u8],
     max_reply_bytes: NonZeroUsize,
 ) -> Result<T, ReferenceReplyError> {
     if bytes.len() > max_reply_bytes.get() {
         return Err(ReferenceReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(max_reply_bytes.get()));
-    let response: Result<T, ReferenceFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| ReferenceReplyError::Invalid)?;
+    let response: Result<T, ReferenceFailure> = crate::wire::decode(bytes, max_reply_bytes.get())
+        .map_err(|_| ReferenceReplyError::Invalid)?;
     response.map_err(ReferenceReplyError::Remote)
 }
 #[cfg(test)]

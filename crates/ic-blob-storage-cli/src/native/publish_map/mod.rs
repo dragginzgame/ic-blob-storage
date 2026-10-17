@@ -1,6 +1,6 @@
 //! Complete authenticated reference observations; never a serving or publication lease.
 use super::{
-    Failure, arguments::Options, artifacts::Run, exact_candid, publish_check, publish_inputs,
+    Failure, arguments::Options, artifacts::Run, exact_wire, publish_check, publish_inputs,
 };
 use candid::Principal;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
@@ -100,7 +100,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     )?;
     let run = Run::create(&limits.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.candid", &batch.installation.bytes)?;
+    run.bytes("installation.cbor", &batch.installation.bytes)?;
     run.json("intent.json", &json!({"schema":1,"operation":input.selection.operation(),
         "file_index":match input.selection { Selection::Batch => None, Selection::File(index) => Some(index) },
         "service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"tenant":scope.tenant.to_text(),
@@ -173,7 +173,7 @@ where
             run,
             1,
             UPLOAD_CAPACITY_METHOD,
-            candid::encode_one(scope).map_err(|_| Failure::Arguments)?,
+            ic_blob_storage_contracts::wire::encode(scope).map_err(|_| Failure::Arguments)?,
             &mut query,
         )
         .await?,
@@ -239,7 +239,7 @@ where
         run,
         0,
         "blob_configuration",
-        candid::encode_args(()).map_err(|_| Failure::Arguments)?,
+        ic_blob_storage_contracts::wire::encode(()).map_err(|_| Failure::Arguments)?,
         query,
     )
     .await?;
@@ -252,11 +252,11 @@ pub(in crate::native) fn decode_configuration(
     bytes: &[u8],
 ) -> Result<HostConfigurationView, Failure> {
     let installation = batch.installation();
-    if bytes.len() > exact_candid::INSTALLATION_BYTES {
+    if bytes.len() > exact_wire::INSTALLATION_BYTES {
         return Err(Failure::ReplyLimit);
     }
     let host: Result<HostConfigurationView, HostFailure> =
-        exact_candid::decode(bytes, exact_candid::INSTALLATION_BYTES, 64, 100_000)
+        exact_wire::decode(bytes, exact_wire::INSTALLATION_BYTES)
             .map_err(|_| Failure::InvalidReply)?;
     let host = host.map_err(|_| Failure::Denied)?;
     if host.configuration != installation.configuration

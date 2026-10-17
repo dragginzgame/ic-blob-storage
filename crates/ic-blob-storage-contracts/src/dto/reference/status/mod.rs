@@ -4,7 +4,8 @@ use candid::CandidType;
 use candid::Deserialize;
 
 /// Tenant-owned lookup, with no mutation operation or action to replay.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReferenceStatusRequest {
     /// Complete original upload binding, including independent object/first-reference IDs.
     pub upload: ReferenceUpload,
@@ -12,7 +13,8 @@ pub struct ReferenceStatusRequest {
     pub reference: u128,
 }
 /// One synchronous retained-state observation, never a serving or mutation lease.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct ReferenceStatusResponse {
     /// Full request echoed for correlation.
     pub request: ReferenceStatusRequest,

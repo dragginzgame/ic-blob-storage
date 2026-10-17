@@ -6,7 +6,8 @@ use candid::CandidType;
 use candid::Deserialize;
 
 /// Descending local operation position, never a snapshot or retry permission.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct FundingHistoryCursor {
     /// Complete original journal scope.
     pub scope: OperatorScope,
@@ -14,7 +15,8 @@ pub struct FundingHistoryCursor {
     pub before_operation: u128,
 }
 /// One operator history query with host-owned result bounds.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct FundingHistoryRequest {
     /// Explicit installed service, namespace, Cashier and payer.
     pub scope: OperatorScope,
@@ -22,7 +24,8 @@ pub struct FundingHistoryRequest {
     pub cursor: Option<FundingHistoryCursor>,
 }
 /// Local attachment progress, separate from any provider response or credit.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum FundingPhase {
     /// Attachment reserved before a local attempt marker.
     Prepared,
@@ -37,7 +40,8 @@ pub enum FundingPhase {
     },
 }
 /// Original identity and amounts recovered without a saved caller request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct FundingHistoryEntry {
     /// Full retained scope, not a caller-selected transport destination.
     pub scope: OperatorScope,
@@ -51,7 +55,8 @@ pub struct FundingHistoryEntry {
     pub phase: FundingPhase,
 }
 /// Bounded current observations, newest local operation first.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct FundingHistoryPage {
     /// Complete request echoed for correlation.
     pub request: FundingHistoryRequest,
@@ -63,7 +68,8 @@ pub struct FundingHistoryPage {
     pub fenced: bool,
 }
 /// Inspection refusals never become empty history or retry permission.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum FundingHistoryFailure {
     /// Zero namespace or continuation identity.
     Invalid,

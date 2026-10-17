@@ -1,5 +1,6 @@
 //! Standalone Wasm installation, maintained endpoints and synchronous restore fencing.
 #![cfg(not(target_family = "wasm"))]
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod account_native_cli;
 mod authenticated_cli;
 mod browser_driver;
@@ -241,14 +242,17 @@ impl Fixture {
                 config.reads.tenant_bytes = total_bytes;
             }
         }
-        let mut input: ServiceInstallationInput =
-            candid::decode_one(&installation(&config)).unwrap();
+        let mut input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode(
+            &installation(&config),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+        )
+        .unwrap();
         input.completion_verifier = verifier;
         input.project = project.into();
         harness.pic.install_canister(
             service,
             wasm(),
-            candid::encode_one(input).unwrap(),
+            ic_blob_storage_contracts::wire::encode(input).unwrap(),
             Some(controller),
         );
         Self {
@@ -264,7 +268,13 @@ impl Fixture {
     fn configuration(&self, actor: Principal) -> Result<HostConfigurationView, HostFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "blob_configuration", (), REPLY_LIMITS)
+            .query_blob_as(
+                self.service,
+                actor,
+                "blob_configuration",
+                (),
+                REPLY_LIMITS.reply_bytes,
+            )
             .unwrap()
     }
     fn scope(&self) -> TenantScope {
@@ -277,28 +287,28 @@ impl Fixture {
     fn enroll(&self, actor: Principal) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 "blob_update_tenant",
-                (TenantUpdateRequest {
+                TenantUpdateRequest {
                     scope: self.scope(),
                     expected: None,
                     active: true,
-                },),
-                REPLY_LIMITS,
+                },
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
     fn tenant(&self) -> TenantEnrollmentResponse {
         self.harness
             .pic
-            .query_candid_as::<Result<TenantEnrollmentResponse, TenantFailure>, _>(
+            .query_blob_as::<Result<TenantEnrollmentResponse, TenantFailure>, _>(
                 self.service,
                 self.tenant,
                 "blob_tenant",
-                (self.scope(),),
-                REPLY_LIMITS,
+                self.scope(),
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
             .unwrap()
@@ -306,12 +316,12 @@ impl Fixture {
     fn admission(&self, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
         self.harness
             .pic
-            .query_candid_as::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
+            .query_blob_as::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
                 self.service,
                 self.tenant,
                 "blob_upload_admission",
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
             .unwrap()
@@ -323,12 +333,12 @@ impl Fixture {
     ) -> Result<UploadManifestMutation, UploadManifestFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 "blob_prepare_upload",
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -343,12 +353,12 @@ impl Fixture {
     ) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 "blob_resume_current_instance",
                 (),
-                REPLY_LIMITS,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -467,12 +477,12 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
         let result: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 f.service,
                 actor,
                 "blob_admit_upload",
-                (request.permission,),
-                REPLY_LIMITS,
+                request.permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(result, Err(UploadAdmissionFailure::Denied));
@@ -480,12 +490,12 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (request.permission,),
-            REPLY_LIMITS,
+            request.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert!(!admitted.unwrap().replayed);
@@ -501,17 +511,17 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let reference: Result<ReferenceMutationResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_apply_reference",
-            (ReferenceCommand {
+            ReferenceCommand {
                 upload: request.permission.upload,
                 reference: 4,
                 operation: 5,
                 action: ReferenceAction::Retain,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(reference, Err(ReferenceFailure::Unconfirmed));
@@ -540,7 +550,8 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     assert_eq!(f.configuration(f.operator).unwrap(), installed);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
     install_code::settle_install_code_debt(&f.harness.pic);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     // The memory runtime commits its allocation ledger during bootstrap.
     // Service observations must survive; fenced calls must not write afterward.
     let restored = f.harness.pic.get_stable_memory(f.service);
@@ -551,12 +562,12 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             f.uploader,
             "blob_upload_manifest",
-            (request.permission,),
-            REPLY_LIMITS,
+            request.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(retained.unwrap(), prepared.observation);
@@ -569,12 +580,12 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_revoke_upload",
-            (request.permission,),
-            REPLY_LIMITS,
+            request.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(revoked, Err(UploadAdmissionFailure::Fenced));
@@ -638,7 +649,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     );
     assert_eq!(
         target
-            .upgrade(candid::encode_args(()).unwrap())
+            .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
             .unwrap_err()
             .reject_code,
         RejectCode::CanisterError
@@ -654,7 +665,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     );
     assert_eq!(
         target
-            .upgrade(candid::encode_args(()).unwrap())
+            .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
             .unwrap_err()
             .reject_code,
         RejectCode::CanisterError
@@ -684,7 +695,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     );
     assert_eq!(
         original
-            .upgrade(candid::encode_args(()).unwrap())
+            .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
             .unwrap_err()
             .reject_code,
         RejectCode::CanisterError
@@ -697,7 +708,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
 
 const PROJECT: &str = "standalone fixture project/β?&=";
 fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
-    candid::encode_one(ServiceInstallationInput {
+    ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
         configuration: *configuration,
         project: PROJECT.into(),
         completion_verifier: Fake::principal(90),

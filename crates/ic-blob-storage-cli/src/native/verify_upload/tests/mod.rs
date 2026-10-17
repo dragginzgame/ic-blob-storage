@@ -65,7 +65,7 @@ fn fixture() -> (
     };
     std::fs::write(
         dir.path().join("permission"),
-        candid::encode_one(permission).unwrap(),
+        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
     )
     .unwrap();
     std::fs::write(dir.path().join("body"), b"abc").unwrap();
@@ -82,7 +82,7 @@ fn open(dir: &Path, p: UploadAdmissionRequest) -> Result<Verification, Failure> 
     )
 }
 fn reply(value: UploadManifestResponse) -> Vec<u8> {
-    candid::encode_one(Ok::<_, UploadManifestFailure>(value)).unwrap()
+    ic_blob_storage_contracts::wire::encode(Ok::<_, UploadManifestFailure>(value)).unwrap()
 }
 #[test]
 fn verified_local_bytes_preserve_exact_identity_without_completion_authority() {
@@ -165,7 +165,7 @@ fn permission_scope_actor_and_resource_bounds_reject_before_query() {
         mutate(&mut invalid);
         std::fs::write(
             dir.path().join("permission"),
-            candid::encode_one(invalid).unwrap(),
+            ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
         )
         .unwrap();
         assert_eq!(

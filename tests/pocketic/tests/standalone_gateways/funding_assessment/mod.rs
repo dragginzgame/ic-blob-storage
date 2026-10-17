@@ -2,6 +2,7 @@
 use super::{super::*, sync};
 use crate::support::REPLY_LIMITS;
 use crate::{account_native_cli::signer, funding_assessment_cli::AssessmentCli};
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
 #[test]
@@ -18,12 +19,12 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
     let request = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (request.permission,),
-            REPLY_LIMITS,
+            request.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -47,7 +48,8 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     assert_eq!(f.harness.pic.get_stable_memory(scope.cashier), source);
     f.harness.pic.stop_progress();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     f.harness.pic.auto_progress();
     cli.inspect(true);

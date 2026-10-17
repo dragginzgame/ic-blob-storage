@@ -1,7 +1,7 @@
 use crate::dto::upload::UploadState;
 use crate::upload::status::reply::*;
+use crate::wire::encode;
 use candid::Principal;
-use candid::encode_one;
 fn upload() -> ReferenceUpload {
     ReferenceUpload {
         service: Principal::from_slice(&[1, 1]),
@@ -30,7 +30,7 @@ fn exact_upload_status_preserves_phases_refusals_and_full_original_binding() {
             state,
             revoked: true,
         };
-        let bytes = encode_one(Ok::<_, UploadStatusFailure>(response)).unwrap();
+        let bytes = encode(Ok::<_, UploadStatusFailure>(response)).unwrap();
         assert_eq!(decode(u, &bytes, max), Ok(response));
         for changed in [
             ReferenceUpload {
@@ -68,10 +68,10 @@ fn exact_upload_status_preserves_phases_refusals_and_full_original_binding() {
     let absent: Result<UploadStatusResponse, UploadStatusFailure> =
         Err(UploadStatusFailure::Unknown);
     assert_eq!(
-        decode(u, &encode_one(absent).unwrap(), max),
+        decode(u, &encode(absent).unwrap(), max),
         Err(UploadStatusReplyError::Remote(UploadStatusFailure::Unknown))
     );
-    for bad in [b"not candid".to_vec(), encode_one(7_u64).unwrap()] {
+    for bad in [b"not candid".to_vec(), encode(7_u64).unwrap()] {
         assert_eq!(decode(u, &bad, max), Err(UploadStatusReplyError::Invalid));
     }
 }

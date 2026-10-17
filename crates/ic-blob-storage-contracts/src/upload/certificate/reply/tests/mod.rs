@@ -2,8 +2,8 @@ use crate::dto::reference::ReferenceUpload;
 use crate::dto::upload::admission::UploadAdmissionFailure as A;
 use crate::dto::upload::exposure::UploadExposureBlocker as B;
 use crate::upload::certificate::reply::*;
+use crate::wire::encode;
 use candid::Principal;
-use candid::encode_one;
 
 fn permission() -> UploadAdmissionRequest {
     UploadAdmissionRequest {
@@ -27,14 +27,14 @@ fn permission() -> UploadAdmissionRequest {
 fn assessment_validates_the_full_permission_before_root_lookup_and_after_reply() {
     let permission = permission();
     let argument = assessment_request(permission).unwrap();
-    let root: String = candid::decode_one(&argument).unwrap();
+    let root: String = crate::wire::decode(&argument, crate::wire::MAX_MESSAGE_BYTES).unwrap();
     assert_eq!(root, format!("sha256:{}", "06".repeat(32)));
     let response = UploadCertificateAssessmentResponse {
         permission,
         assessed_at_ns: u64::MAX,
         blockers: vec![B::CurrentOwner],
     };
-    let bytes = encode_one(Ok::<_, UploadExposureFailure>(&response)).unwrap();
+    let bytes = encode(Ok::<_, UploadExposureFailure>(&response)).unwrap();
     let maximum = 4096.try_into().unwrap();
     assert_eq!(assessment(permission, &bytes, maximum), Ok(response));
     let u = permission.upload;
@@ -100,21 +100,21 @@ fn assessments_preserve_empty_snapshots_refusals_and_decoder_limits() {
         blockers: vec![],
     };
     let maximum = 4096.try_into().unwrap();
-    let bytes = encode_one(Ok::<_, UploadExposureFailure>(&response)).unwrap();
+    let bytes = encode(Ok::<_, UploadExposureFailure>(&response)).unwrap();
     assert_eq!(assessment(p, &bytes, maximum), Ok(response.clone()));
     assert_eq!(
         assessment(p, &bytes, 1.try_into().unwrap()),
         Err(UploadCertificateAssessmentReplyError::Limit)
     );
     assert_eq!(
-        assessment(p, &encode_one(true).unwrap(), maximum),
+        assessment(p, &encode(true).unwrap(), maximum),
         Err(UploadCertificateAssessmentReplyError::Invalid)
     );
     response.blockers = vec![B::CurrentOwner, B::CurrentOwner];
     assert_eq!(
         assessment(
             p,
-            &encode_one(Ok::<_, UploadExposureFailure>(response)).unwrap(),
+            &encode(Ok::<_, UploadExposureFailure>(response)).unwrap(),
             maximum
         ),
         Err(UploadCertificateAssessmentReplyError::Invalid)
@@ -126,7 +126,7 @@ fn assessments_preserve_empty_snapshots_refusals_and_decoder_limits() {
     ] {
         let result: Result<UploadCertificateAssessmentResponse, _> = Err(error);
         assert_eq!(
-            assessment(p, &encode_one(result).unwrap(), maximum),
+            assessment(p, &encode(result).unwrap(), maximum),
             Err(UploadCertificateAssessmentReplyError::Remote(error))
         );
     }

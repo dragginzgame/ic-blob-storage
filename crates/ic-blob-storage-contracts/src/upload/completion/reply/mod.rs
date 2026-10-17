@@ -8,9 +8,7 @@ use crate::dto::upload::completion::UploadAttestationRequest;
 use crate::dto::upload::completion::UploadAttestationResponse;
 use crate::upload::admission;
 use crate::upload::completion::CompletionAuthority;
-use candid::CandidType;
 use candid::Deserialize;
-use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 
 /// Unusable evidence. No error or absent receipt authorizes a provider retry.
@@ -53,19 +51,18 @@ pub fn inspection_request(
     permission: UploadAdmissionRequest,
 ) -> Result<Vec<u8>, UploadAttestationReplyError> {
     validate(authority, permission)?;
-    candid::encode_one(permission).map_err(|_| UploadAttestationReplyError::Invalid)
+    crate::wire::encode(permission).map_err(|_| UploadAttestationReplyError::Invalid)
 }
 
-fn decode<T: CandidType + for<'de> Deserialize<'de>>(
+fn decode<T: for<'de> Deserialize<'de>>(
     bytes: &[u8],
     maximum: NonZeroUsize,
 ) -> Result<T, UploadAttestationReplyError> {
     if bytes.len() > maximum.get() {
         return Err(UploadAttestationReplyError::Limit);
     }
-    let config = crate::decoding::limits(100_000, 0, 64, Some(maximum.get()));
-    let result: Result<T, UploadAttestationFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| UploadAttestationReplyError::Invalid)?;
+    let result: Result<T, UploadAttestationFailure> = crate::wire::decode(bytes, maximum.get())
+        .map_err(|_| UploadAttestationReplyError::Invalid)?;
     result.map_err(UploadAttestationReplyError::Remote)
 }
 

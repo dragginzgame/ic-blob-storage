@@ -1,6 +1,7 @@
 //! Operational descriptor delivery uses the installed scope and the shared live-reference gate.
 //! Verified serving and withheld delivery are exercised by standalone browser journeys.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod native;
 use super::*;
 use ic_blob_storage_contracts::dto::download::DownloadFailure as F;
@@ -12,12 +13,12 @@ impl Fixture {
     fn download(&self, actor: Principal, request: DownloadRequest) -> Result<DownloadResponse, F> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 DOWNLOAD_METHOD,
-                (request,),
-                REPLY_LIMITS,
+                request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -87,7 +88,7 @@ fn standalone_download_authenticates_scope_bounds_ingress_and_requires_replicate
             f.service,
             f.tenant,
             DOWNLOAD_METHOD,
-            candid::encode_one(input).unwrap(),
+            ic_blob_storage_contracts::wire::encode(input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(query.reject_code, RejectCode::CanisterError);
@@ -107,12 +108,12 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     admitted.unwrap();
@@ -124,21 +125,22 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            (TenantUpdateRequest {
+            TenantUpdateRequest {
                 scope: f.scope(),
                 expected: enrolled.enrollment,
                 active: false,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     suspended.unwrap();
     assert_eq!(f.download(f.tenant, input), Err(F::Inactive));
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(f.configuration(f.operator).unwrap().project, PROJECT);
     assert_eq!(f.download(f.tenant, input), Err(F::Fenced));
@@ -158,7 +160,7 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
         "a\nb".into(),
         "é".repeat(129),
     ] {
-        let input = candid::encode_one(ServiceInstallationInput {
+        let input = ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
             configuration: f.config,
             project,
             completion_verifier: Fake::principal(90),
@@ -190,7 +192,9 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
         corrupted.clone(),
         ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
     );
-    let error = f.upgrade(candid::encode_args(()).unwrap()).unwrap_err();
+    let error = f
+        .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &corrupted);
 }
@@ -242,7 +246,8 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Unavailable)));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Fenced)));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
@@ -263,14 +268,15 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
         .reinstall_canister(
             f.service,
             wasm(),
-            candid::encode_one(installation).unwrap(),
+            ic_blob_storage_contracts::wire::encode(installation).unwrap(),
             Some(f.controller),
         )
         .unwrap();
     let installed = f.configuration(f.operator).unwrap();
     assert_eq!(installed.project, project);
     assert_eq!(installed.configuration, f.config);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(
         f.configuration(f.operator).unwrap(),

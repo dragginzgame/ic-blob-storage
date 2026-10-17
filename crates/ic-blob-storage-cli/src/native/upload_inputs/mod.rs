@@ -221,7 +221,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         installation: installation::Installation::decode(
             read(
                 installation_path,
-                super::exact_candid::INSTALLATION_BYTES as u64,
+                super::exact_wire::INSTALLATION_BYTES as u64,
             )?,
             maximum,
         )?,
@@ -331,9 +331,11 @@ impl PreparedInput {
             permission,
             declaration,
         };
-        let admission = candid::encode_one(permission).map_err(|_| Failure::Arguments)?;
+        let admission =
+            ic_blob_storage_contracts::wire::encode(permission).map_err(|_| Failure::Arguments)?;
         let references = ReferenceFiles::new(permission.upload, permission.upload.first_reference)?;
-        let preparation = candid::encode_one(&request).map_err(|_| Failure::Arguments)?;
+        let preparation =
+            ic_blob_storage_contracts::wire::encode(&request).map_err(|_| Failure::Arguments)?;
         if admission.len() > 4096 || preparation.len() > 65536 {
             return Err(Failure::ReplyLimit);
         }
@@ -381,7 +383,7 @@ impl PreparedInput {
         let run = Run::create(directory)?;
         run.bytes("binding.json", &files.binding)?;
         run.bytes("manifest.json", &files.manifest)?;
-        run.bytes("installation.candid", &files.installation.bytes)?;
+        run.bytes("installation.cbor", &files.installation.bytes)?;
         let hashes = snapshot(
             source,
             &request,
@@ -399,13 +401,13 @@ impl PreparedInput {
             )?;
             return Err(Failure::Content);
         }
-        run.bytes("permission.candid", &admission)?;
-        run.bytes("manifest.candid", &preparation)?;
+        run.bytes("permission.cbor", &admission)?;
+        run.bytes("manifest.cbor", &preparation)?;
         references.save(&run)?;
         run.bytes("certificate-binding.json", &browser)?;
         let result = json!({
             "schema": 1, "observation": "local_upload_inputs",
-            "installation_file": "installation.candid",
+            "installation_file": "installation.cbor",
             "installation_sha256": digest(&files.installation.bytes),
             "installation_binding_checked": true,
             "installed_state_observed": false, "namespace_provisioned": false,
@@ -413,7 +415,7 @@ impl PreparedInput {
             "permission_sha256": digest(&admission), "preparation_sha256": digest(&preparation),
             "root": binding.root, "bytes": binding.bytes,
             "chunks": request.declaration.chunks.len(),
-            "permission_file": "permission.candid", "preparation_file": "manifest.candid",
+            "permission_file": "permission.cbor", "preparation_file": "manifest.cbor",
             "first_reference": references.summary(),
             "certificate_binding_file": "certificate-binding.json",
             "project": binding.project, "bucket": binding.bucket,

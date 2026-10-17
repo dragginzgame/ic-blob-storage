@@ -53,7 +53,7 @@ fn statement_alone_or_failure_marker_never_authorizes_submission() {
         panic!("submit command")
     };
     input.directory = dir.path().into();
-    std::fs::write(dir.path().join("statement.candid"), b"not an observation").unwrap();
+    std::fs::write(dir.path().join("statement.cbor"), b"not an observation").unwrap();
     assert!(matches!(
         observation::Observation::open(&options, &input),
         Err(Failure::Observation)

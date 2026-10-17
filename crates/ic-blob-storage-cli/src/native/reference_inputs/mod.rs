@@ -23,7 +23,7 @@ impl ReferenceFiles {
     pub(super) fn new(upload: ReferenceUpload, reference: u128) -> Result<Self, Failure> {
         let status = reply::status_request(ReferenceStatusRequest { upload, reference })
             .map_err(|_| Failure::Arguments)?;
-        let download = candid::encode_one(DownloadRequest {
+        let download = ic_blob_storage_contracts::wire::encode(DownloadRequest {
             service: upload.service,
             tenant: upload.tenant,
             namespace: upload.namespace,
@@ -36,11 +36,11 @@ impl ReferenceFiles {
         Ok(Self { status, download })
     }
     pub(super) fn save(&self, run: &Run) -> Result<(), Failure> {
-        run.bytes("reference-status.candid", &self.status)?;
-        run.bytes("download.candid", &self.download)
+        run.bytes("reference-status.cbor", &self.status)?;
+        run.bytes("download.cbor", &self.download)
     }
     pub(super) fn summary(&self) -> Value {
-        json!({"status_file":"reference-status.candid", "download_file":"download.candid",
+        json!({"status_file":"reference-status.cbor", "download_file":"download.cbor",
             "status_sha256":ContentDigest::compute(&self.status).to_string(),
             "download_sha256":ContentDigest::compute(&self.download).to_string()})
     }
@@ -62,7 +62,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     }
     let permission_bytes = read(path, 4096)?;
     let permission: UploadAdmissionRequest =
-        crate::native::exact_candid::decode(&permission_bytes, 4096, 64, 100_000)?;
+        crate::native::exact_wire::decode(&permission_bytes, 4096)?;
     validate_request(permission).map_err(|_| Failure::Arguments)?;
     let request = ReferenceCommand {
         upload: permission.upload,
@@ -74,8 +74,8 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let files = ReferenceFiles::new(permission.upload, reference)?;
     // Validation precedes the durable claim. Exact input is retained, never renewed.
     let run = Run::create(directory)?;
-    run.bytes("permission.candid", &permission_bytes)?;
-    run.bytes("reference.candid", &command)?;
+    run.bytes("permission.cbor", &permission_bytes)?;
+    run.bytes("reference.cbor", &command)?;
     files.save(&run)?;
     let result = json!({"schema":1,"observation":"local_reference_inputs",
         "upload":references::upload_json(permission.upload),"reference":reference.to_string(),
@@ -83,7 +83,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
             ReferenceAction::Retain => "retain", ReferenceAction::Release => "release" },
         "permission_sha256":ContentDigest::compute(&permission_bytes).to_string(),
         "request_sha256":ContentDigest::compute(&command).to_string(),
-        "request_file":"reference.candid","reads":files.summary(),
+        "request_file":"reference.cbor","reads":files.summary(),
         "authenticated":false,"identities_allocated":false,
         "service_dispatched":false,"provider_dispatched":false,"retry_authorized":false});
     run.json("summary.json", &result)?;

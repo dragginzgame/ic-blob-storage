@@ -3,7 +3,6 @@ use crate::dto::funding::assessment::{
     FundingPreparationBlocker as B, FundingPreparationFailure as E,
     FundingPreparationRequest as Request, FundingPreparationResponse as Response,
 };
-use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 
@@ -38,9 +37,8 @@ pub fn inspect(
     if bytes.len() > max_bytes.get() {
         return Err(FundingAssessmentReplyError::Limit);
     }
-    let config = crate::decoding::limits(100_000, 0, 128, Some(max_bytes.get()));
-    let response: Result<Response, E> =
-        decode_one_with_config(bytes, &config).map_err(|_| FundingAssessmentReplyError::Invalid)?;
+    let response: Result<Response, E> = crate::wire::decode(bytes, max_bytes.get())
+        .map_err(|_| FundingAssessmentReplyError::Invalid)?;
     let response = response.map_err(FundingAssessmentReplyError::Remote)?;
     if response.request != request {
         return Err(FundingAssessmentReplyError::Binding);

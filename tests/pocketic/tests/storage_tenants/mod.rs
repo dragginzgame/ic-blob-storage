@@ -1,6 +1,7 @@
 //! Maintained enrollment API through actual callers and IC rollback.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 
 impl Fixture {
@@ -11,12 +12,12 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.service,
                 actor,
                 TENANT_UPDATE_METHOD,
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -27,12 +28,12 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 TENANT_INSPECTION_METHOD,
-                (scope,),
-                REPLY_LIMITS,
+                scope,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }

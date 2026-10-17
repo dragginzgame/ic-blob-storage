@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn discovery(
         &self,
@@ -13,12 +14,12 @@ impl Fixture {
     ) -> Result<UploadDiscoveryResponse, F> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 UPLOAD_DISCOVERY_METHOD,
-                (request,),
-                REPLY_LIMITS,
+                request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -40,12 +41,12 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             UPLOAD_DISCOVERY_METHOD,
-            (request,),
-            REPLY_LIMITS,
+            request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -103,12 +104,12 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     admitted.unwrap();
@@ -132,12 +133,12 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             UPLOAD_DISCOVERY_METHOD,
-            (request,),
-            REPLY_LIMITS,
+            request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -145,21 +146,22 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            (TenantUpdateRequest {
+            TenantUpdateRequest {
                 scope: request.scope,
                 expected: enrollment.enrollment,
                 active: false,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     suspended.unwrap();
     assert_eq!(f.discovery(f.tenant, request), Ok(expected));
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(
         f.discovery(f.tenant, request),

@@ -5,15 +5,15 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
     MemoryRequest, MemoryRuntime, RuntimeMemory, RuntimeOpenError, SealedDeclarationSnapshot,
-    ic_stable_structures::{Cell, VectorMemory},
 };
+use ic_stable_structures::{Cell, VectorMemory};
 
 // This host uses ic-memory directly. Blob consumers use the crate's re-export;
 // both paths must accept exactly the same runtime memory and collection types.
 fn open_blob_cell(
     memory: RuntimeMemory<VectorMemory>,
-) -> blob_memory::ic_stable_structures::Cell<u64, blob_memory::RuntimeMemory<VectorMemory>> {
-    blob_memory::ic_stable_structures::Cell::init(memory, 0)
+) -> ic_stable_structures::Cell<u64, blob_memory::RuntimeMemory<VectorMemory>> {
+    ic_stable_structures::Cell::init(memory, 0)
 }
 
 #[test]
@@ -90,6 +90,11 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
     );
     blob.set(37);
     assert_eq!(*database.get(), 91);
+    assert!(matches!(
+        host.open_memory("fixture.blob.data.v1"),
+        Err(RuntimeOpenError::AlreadyOpen { .. })
+    ));
+    drop(blob);
     let reopened = open_blob_cell(
         host.open_memory("fixture.blob.data.v1")
             .expect("same grant"),

@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
@@ -21,12 +22,12 @@ fn inspect(
 ) -> Result<UploadManifestResponse, F> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_blob_as(
             f.service,
             actor,
             UPLOAD_MANIFEST_INSPECT_METHOD,
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
@@ -37,12 +38,12 @@ fn prepare(
 ) -> Result<UploadManifestMutation, F> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             actor,
             UPLOAD_MANIFEST_PREPARE_METHOD,
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
@@ -75,7 +76,7 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
             f.service,
             f.uploader,
             UPLOAD_MANIFEST_PREPARE_METHOD,
-            candid::encode_one(&input).unwrap(),
+            ic_blob_storage_contracts::wire::encode(&input).unwrap(),
         )
         .unwrap();
     assert_eq!(

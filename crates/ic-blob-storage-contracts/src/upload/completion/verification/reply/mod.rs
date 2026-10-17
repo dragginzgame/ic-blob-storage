@@ -9,7 +9,6 @@ use crate::upload::completion::reply::inspection_request;
 use crate::upload::manifests::reply::UploadManifestReplyError;
 use crate::upload::manifests::reply::UploadManifestReplyLimits;
 use crate::upload::manifests::reply::validate_declaration;
-use candid::decode_one_with_config;
 
 /// Authenticate the selected service before using this decoder. The returned project
 /// is the service's installed mapping; only the caller may select an approved origin.
@@ -25,9 +24,9 @@ pub fn decode(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(UploadAttestationReplyError::Limit);
     }
-    let config = crate::decoding::limits(2_000_000, 0, 64, Some(limits.max_reply_bytes.get()));
     let response: Result<UploadVerificationPlan, UploadAttestationFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| UploadAttestationReplyError::Invalid)?;
+        crate::wire::decode(bytes, limits.max_reply_bytes.get())
+            .map_err(|_| UploadAttestationReplyError::Invalid)?;
     let response = response.map_err(UploadAttestationReplyError::Remote)?;
     if response.permission != permission
         || response.verifier != authority.verifier()

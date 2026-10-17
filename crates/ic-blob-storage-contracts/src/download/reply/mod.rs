@@ -6,7 +6,6 @@ use crate::dto::download::DownloadResponse;
 use crate::identity::caffeine::CaffeineHeader;
 use crate::upload::binding::UploadContext;
 use crate::upload::metadata::validate_upload_metadata;
-use candid::decode_one_with_config;
 use std::num::NonZeroU64;
 use std::num::NonZeroUsize;
 use thiserror::Error;
@@ -33,7 +32,7 @@ pub enum DownloadReplyError {
     /// Encoded bytes, declared content or metadata exceed trusted limits.
     #[error("descriptor exceeds limit")]
     Limit,
-    /// Malformed Candid, invalid identity or inconsistent metadata.
+    /// Malformed CBOR, invalid identity or inconsistent metadata.
     #[error("invalid descriptor reply")]
     Invalid,
     /// Typed refusal by the authenticated service.
@@ -76,9 +75,9 @@ pub fn decode(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(DownloadReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(limits.max_reply_bytes.get()));
     let response: Result<DownloadResponse, DownloadFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| DownloadReplyError::Invalid)?;
+        crate::wire::decode(bytes, limits.max_reply_bytes.get())
+            .map_err(|_| DownloadReplyError::Invalid)?;
     let response = response.map_err(DownloadReplyError::Remote)?;
     if response.request != request
         || response.owner != scope.owner()

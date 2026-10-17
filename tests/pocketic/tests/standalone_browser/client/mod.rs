@@ -12,6 +12,7 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use std::{
     num::{NonZeroU64, NonZeroUsize},
     path::PathBuf,
@@ -167,17 +168,18 @@ impl Trial {
             completion_verifier: host.completion_verifier,
         };
         std::fs::write(
-            self.report.join("installation.candid"),
-            candid::encode_one(carrier).unwrap(),
+            self.report.join("installation.cbor"),
+            ic_blob_storage_contracts::wire::encode(carrier).unwrap(),
         )
         .unwrap();
         self.freeze();
         assert_eq!(
-            std::fs::read(self.report.join("inputs/installation.candid")).unwrap(),
-            std::fs::read(self.report.join("installation.candid")).unwrap()
+            std::fs::read(self.report.join("inputs/installation.cbor")).unwrap(),
+            std::fs::read(self.report.join("installation.cbor")).unwrap()
         );
-        let generated = candid::decode_one(
-            &std::fs::read(self.report.join("inputs/file-0000/manifest.candid")).unwrap(),
+        let generated = ic_blob_storage_contracts::wire::decode(
+            &std::fs::read(self.report.join("inputs/file-0000/manifest.cbor")).unwrap(),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
         assert_eq!(expected, &generated);
@@ -204,7 +206,7 @@ impl Trial {
             "--root",
             self.report.to_str().unwrap(),
             "--installation",
-            self.report.join("installation.candid").to_str().unwrap(),
+            self.report.join("installation.cbor").to_str().unwrap(),
             "--max-bytes",
             "1024",
             "--max-total-bytes",
@@ -304,7 +306,7 @@ impl Trial {
         args.extend([
             "--permission".into(),
             self.report
-                .join("inputs/file-0000/permission.candid")
+                .join("inputs/file-0000/permission.cbor")
                 .display()
                 .to_string(),
             "--gateway".into(),
@@ -347,8 +349,12 @@ impl Trial {
             incarnation: u.incarnation,
             reference,
         };
-        let file = self.report.join(format!("{label}.candid"));
-        std::fs::write(&file, candid::encode_one(request).unwrap()).unwrap();
+        let file = self.report.join(format!("{label}.cbor"));
+        std::fs::write(
+            &file,
+            ic_blob_storage_contracts::wire::encode(request).unwrap(),
+        )
+        .unwrap();
         let mut args = self.args("download", "tenant.pem", self.f.tenant);
         args.extend([
             "--request".into(),
@@ -376,20 +382,20 @@ impl Trial {
             action: ReferenceAction::Release,
         };
         std::fs::write(
-            self.report.join("release-intent.candid"),
-            candid::encode_one(command).unwrap(),
+            self.report.join("release-intent.cbor"),
+            ic_blob_storage_contracts::wire::encode(command).unwrap(),
         )
         .unwrap();
         let result: Result<ReferenceMutationResponse, ReferenceFailure> = self
             .f
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 self.f.service,
                 self.f.tenant,
                 "blob_apply_reference",
-                (command,),
-                REPLY_LIMITS,
+                command,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert!(result.unwrap().receipt.result.is_ok());

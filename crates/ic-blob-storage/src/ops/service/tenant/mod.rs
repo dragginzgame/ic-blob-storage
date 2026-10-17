@@ -14,7 +14,7 @@ use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::tenant::next_enrollment;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::{BTreeMap, Memory};
+use ic_stable_structures::{BTreeMap, Memory};
 use thiserror::Error;
 
 /// One host-granted memory holding a bounded lifetime enrollment map.

@@ -12,7 +12,7 @@ use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 #[cfg(test)]
-use ic_memory::ic_stable_structures::Storable;
+use ic_stable_structures::Storable;
 use std::num::NonZeroU128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -217,7 +217,7 @@ macro_rules! storable {
     ($record:ty, $max:expr) => {
         crate::model::record_codec::storable!(
             $record, bytes: $max, work: 100_000, skipping: 1000,
-            types: 32, header: $max, layout: ic_memory::ic_stable_structures::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
+            types: 32, header: $max, layout: ic_stable_structures::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
         );
     };
 }

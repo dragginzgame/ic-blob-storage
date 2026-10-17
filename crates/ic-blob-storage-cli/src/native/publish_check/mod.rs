@@ -33,7 +33,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     let agent = super::agent(options)?;
     let run = Run::create(&input.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.candid", &batch.installation.bytes)?;
+    run.bytes("installation.cbor", &batch.installation.bytes)?;
     run.json(
         "intent.json",
         &json!({"schema":1,"operation":"publish_check",

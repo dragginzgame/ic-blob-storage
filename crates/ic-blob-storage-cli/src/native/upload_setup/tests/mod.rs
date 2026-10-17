@@ -23,10 +23,14 @@ fn saved(kind: Kind) -> (tempfile::TempDir, Input, UploadAdmissionRequest) {
         kind,
         service: permission.upload.service,
         namespace: permission.upload.namespace,
-        request: temp.path().join("permission.candid"),
+        request: temp.path().join("permission.cbor"),
         directory: Some(temp.path().join("run")),
     };
-    std::fs::write(&input.request, candid::encode_one(permission).unwrap()).unwrap();
+    std::fs::write(
+        &input.request,
+        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+    )
+    .unwrap();
     (temp, input, permission)
 }
 #[test]
@@ -35,14 +39,18 @@ fn exact_roles_scope_and_invalid_ids_refuse_before_artifact_claim() {
     assert!(request::load(&input, p.upload.tenant).is_ok());
     std::fs::write(
         &input.request,
-        candid::encode_args((p, candid::Reserved)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((p, candid::Reserved)).unwrap(),
     )
     .unwrap();
     assert!(matches!(
         request::load(&input, p.upload.tenant),
         Err(Failure::Arguments)
     ));
-    std::fs::write(&input.request, candid::encode_one(p).unwrap()).unwrap();
+    std::fs::write(
+        &input.request,
+        ic_blob_storage_contracts::wire::encode(p).unwrap(),
+    )
+    .unwrap();
     assert!(matches!(
         request::load(&input, p.uploader),
         Err(Failure::Binding)
@@ -57,7 +65,11 @@ fn exact_roles_scope_and_invalid_ids_refuse_before_artifact_claim() {
     input.namespace = p.upload.namespace;
     let mut invalid = p;
     invalid.upload.first_reference = 0;
-    std::fs::write(&input.request, candid::encode_one(invalid).unwrap()).unwrap();
+    std::fs::write(
+        &input.request,
+        ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
+    )
+    .unwrap();
     assert!(matches!(
         request::load(&input, p.upload.tenant),
         Err(Failure::InvalidReply)
@@ -76,7 +88,9 @@ fn original_permission_echo_and_typed_refusal_are_required_for_acknowledgment() 
         },
         replayed: false,
     };
-    let encode = |r: &UploadAdmissionMutation| candid::encode_one(Ok::<_, A>(r)).unwrap();
+    let encode = |r: &UploadAdmissionMutation| {
+        ic_blob_storage_contracts::wire::encode(Ok::<_, A>(r)).unwrap()
+    };
     assert_eq!(
         observation(&input, &saved, &encode(&reply)).unwrap().json()["replayed"],
         false
@@ -90,7 +104,8 @@ fn original_permission_echo_and_typed_refusal_are_required_for_acknowledgment() 
         observation(
             &input,
             &saved,
-            &candid::encode_one(Err::<UploadAdmissionMutation, _>(A::Fenced)).unwrap()
+            &ic_blob_storage_contracts::wire::encode(Err::<UploadAdmissionMutation, _>(A::Fenced))
+                .unwrap()
         ),
         Err(Failure::UploadAdmissionRefused(A::Fenced))
     ));

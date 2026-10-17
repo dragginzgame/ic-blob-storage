@@ -48,7 +48,7 @@ async function exercise() {
   await a.evaluate(() => fixture.initializeStore());
   const upstreamPlan = await a.evaluate(c => fixture.plan(c), config);
   assert.deepEqual(gateway, []);
-  // Rust converts the actual declaration into opaque Candid. The browser signs
+  // Rust encodes each declaration using its boundary codec. The browser signs
   // consumer admission and uploader preparation; Rust checks replies before grant.
   control.send(upstreamPlan);
   const commands = await control.next();

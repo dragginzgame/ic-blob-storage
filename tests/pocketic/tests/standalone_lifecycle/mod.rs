@@ -10,6 +10,7 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn fences(status: &LocalServiceStatus, expected: bool) {
     assert_eq!(status.uploads.fenced, expected);
@@ -34,30 +35,30 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
     let removed: Result<GatewayRevocationResponse, GatewayRevocationFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             GATEWAY_REVOCATION_METHOD,
-            (GatewayRevocationRequest {
+            GatewayRevocationRequest {
                 scope: f.operator_scope(),
                 gateway: Fake::principal(9),
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(removed, Err(GatewayRevocationFailure::Fenced));
     let account: Result<AccountInspectionResponse, AccountInspectionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_inspect_account",
-            (AccountInspectionRequest {
+            AccountInspectionRequest {
                 scope: f.operator_scope(),
                 kind: AccountInspectionKind::Balance,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(account, Err(AccountInspectionFailure::Fenced));
@@ -70,12 +71,12 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
     let manifest = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -126,7 +127,8 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
     );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     for _ in 0..2 {
-        f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+        f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+            .unwrap();
         let before = f.harness.pic.get_stable_memory(f.service);
         let mut expected = installation.clone();
         expected.fenced = true;
@@ -138,12 +140,12 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
         let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 f.service,
                 f.uploader,
                 "blob_upload_manifest",
-                (manifest.permission,),
-                REPLY_LIMITS,
+                manifest.permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(retained.unwrap(), prepared);
@@ -200,7 +202,8 @@ fn current_instance_recovery_refuses_expired_platform_history_without_rotating_a
 fn current_instance_recovery_rejects_management_change_during_history_await() {
     use ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure;
     let f = Fixture::new();
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let message = f
         .harness
         .pic
@@ -208,7 +211,7 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
             f.service,
             f.operator,
             "blob_resume_current_instance",
-            candid::encode_args(()).unwrap(),
+            ic_blob_storage_contracts::wire::encode(()).unwrap(),
         )
         .unwrap();
     f.harness.pic.tick();
@@ -217,7 +220,11 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
         .set_controllers(f.service, Some(f.controller), vec![f.controller])
         .unwrap();
     let reply: Result<(), CurrentInstanceRecoveryFailure> =
-        candid::decode_one(&f.harness.pic.await_call(message).unwrap()).unwrap();
+        ic_blob_storage_contracts::wire::decode(
+            &f.harness.pic.await_call(message).unwrap(),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+        )
+        .unwrap();
     assert_eq!(reply, Err(CurrentInstanceRecoveryFailure::Binding));
     assert!(f.configuration(f.operator).unwrap().fenced);
     // A fresh explicit history read may qualify this ordinary controller change;
@@ -235,12 +242,12 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
     let manifest = f.small_manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -259,32 +266,32 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
     // This statement is a local verifier substitute, not a deployed byte observation.
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+        .update_blob_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
             f.service,
             Fake::principal(90),
             "blob_attest_upload",
-            (UploadAttestationRequest {
+            UploadAttestationRequest {
                 permission: manifest.permission,
                 content_digest: [1; 32],
                 observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_blob_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",
-            (ReferenceCommand {
+            ReferenceCommand {
                 upload: manifest.permission.upload,
                 reference: manifest.permission.upload.first_reference,
                 operation: 2,
                 action: ReferenceAction::Release,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -300,7 +307,8 @@ fn active_current_instance_recovery_retains_released_physical_and_billing_obliga
     assert_eq!(before.uploads.physical_bytes, 1024);
     assert_eq!(before.uploads.liability_bytes, 1024);
     let admission = f.admission(permission);
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     fences(
         &f.local_status(f.operator, f.operator_scope()).unwrap(),
         true,

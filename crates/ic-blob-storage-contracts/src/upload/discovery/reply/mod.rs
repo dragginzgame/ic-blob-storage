@@ -11,7 +11,7 @@ pub enum UploadDiscoveryReplyError {
     /// Encoded response exceeds the caller's complete-input ceiling.
     #[error("discovery reply exceeds limit")]
     Limit,
-    /// Malformed or over-budget Candid.
+    /// Malformed or over-budget CBOR.
     #[error("invalid discovery reply")]
     Invalid,
     /// Echoed request or original content scope/root differs from the lookup.
@@ -39,9 +39,8 @@ pub fn decode(
     if bytes.len() > max_reply_bytes.get() {
         return Err(E::Limit);
     }
-    let limits = crate::decoding::limits(100_000, 1000, 64, Some(max_reply_bytes.get()));
     let response: Result<UploadDiscoveryResponse, UploadDiscoveryFailure> =
-        candid::decode_one_with_config(bytes, &limits).map_err(|_| E::Invalid)?;
+        crate::wire::decode(bytes, max_reply_bytes.get()).map_err(|_| E::Invalid)?;
     let response = response.map_err(E::Remote)?;
     if response.request != request {
         return Err(E::Binding);

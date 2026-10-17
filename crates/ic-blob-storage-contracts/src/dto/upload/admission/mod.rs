@@ -5,7 +5,8 @@ use candid::CandidType;
 use candid::Deserialize;
 use candid::Principal;
 /// Immutable permission. Persist every field before dispatch; IDs are caller allocated.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadAdmissionRequest {
     /// Complete original upload and first-reference identity.
     pub upload: ReferenceUpload,
@@ -15,7 +16,8 @@ pub struct UploadAdmissionRequest {
     pub expires_at_ns: u64,
 }
 /// Exact retained permission and historical phase, not issuance or serving authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadAdmissionResponse {
     /// Complete original permission, checked on both admission and inspection.
     pub permission: UploadAdmissionRequest,
@@ -25,7 +27,8 @@ pub struct UploadAdmissionResponse {
     pub revoked: bool,
 }
 /// Result of a synchronous local reservation, with no certificate or provider call.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadAdmissionMutation {
     /// Exact retained permission and phase.
     pub admission: UploadAdmissionResponse,
@@ -33,7 +36,8 @@ pub struct UploadAdmissionMutation {
     pub replayed: bool,
 }
 /// Local permission withdrawal, distinct from reference release or provider deletion.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadRevocationResponse {
     /// Exact permission and retained phase; revocation must be true.
     pub admission: UploadAdmissionResponse,
@@ -41,7 +45,8 @@ pub struct UploadRevocationResponse {
     pub changed: bool,
 }
 /// Admission/inspection refusal; missing history never proves safe provider retry.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadAdmissionFailure {
     /// Malformed identity, uploader or object length.
     Invalid,

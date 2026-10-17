@@ -28,7 +28,7 @@ ic-agent.workspace = true
 ic-blob-storage-canister.workspace = true
 ic-host-artifacts = { workspace = true, features = ["wasm"] }
 ic-host-process = { workspace = true, features = ["test-support"] }
-ic-host-tools = { workspace = true, features = ["candid-service", "ic-interface"] }
+ic-host-tools = { workspace = true, features = ["ic-interface"] }
 reqwest.workspace = true
 serde_cbor.workspace = true
 tokio = { workspace = true, features = ["rt", "time"] }

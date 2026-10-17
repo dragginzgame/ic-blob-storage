@@ -9,7 +9,11 @@ Build with `make build-standalone`; run its local lifecycle cases with
 `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm`.
 These commands do not deploy or contact Caffeine.
 
-The [Candid contract](service.did) is generated from the endpoint declarations:
+Tenant inspection/update use bounded IC Wire; the remaining owned methods and
+installation still use CBOR during the pending conversion. See
+[the current adoption state](../../docs/service-wire.md) before using either.
+The [provider Candid contract](service.did) describes only
+`_immutableObjectStorageCreateCertificate` and is generated from its declaration:
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > canisters/standalone/service.did
@@ -18,16 +22,17 @@ cargo run --offline --locked -p ic-blob-storage-canister --example export_candid
 Default Wasm builds omit the native Candid extraction pointer and type-export
 machinery. The native example above remains available without features. For a
 Wasm intended only for extraction, explicitly build with
-`--features candid-export`; do not deploy that artifact. Rebuild with
+`--features provider-candid-export`; do not deploy that artifact. Rebuild with
 `make build-standalone` afterward to select the normal production artifact.
-The interface-parity test compares the native declaration with `service.did` and
-the actual production Wasm method names/modes, and rejects the extraction export.
+The interface test compares the provider declaration with `service.did` and
+checks every production method name/mode against the shared endpoint catalog.
+It also rejects the extraction export in production Wasm.
 
 Installation takes one explicit
 `ServiceInstallationInput { configuration, project, completion_verifier }`
 from `ic_blob_storage_contracts::dto::configuration`. The offline
 [`installation-check`](../../docs/operator-guide.md#check-installation-inputs-offline)
-command produces its complete binary Candid and hash; no manual wrapper is needed.
+command produces its complete binary CBOR and hash; no manual wrapper is needed.
 Initialization accepts only the exact current record; removed authority fields
 and extra init arguments refuse without allocating or replacing an owner.
 `configuration` is the shared `ServiceConfigurationInput`, including the actual
@@ -41,7 +46,7 @@ This replaces the previous host init/schema and requires a minor release;
 cross-release transitions are reinstall-only, without migration or fallback.
 Host observation types come directly from
 `ic_blob_storage_contracts::dto::configuration::{HostConfigurationView, HostFailure}`;
-the standalone crate exports only its Candid interface helper.
+the standalone crate exports only its provider Candid interface helper.
 Management-canister installation authorization remains the platform's responsibility.
 There are no deployment defaults, provider namespace provisioning or account changes.
 Operator-only `blob_configuration` returns the installed values, package release
@@ -56,7 +61,7 @@ unprepared, expired, revoked or restored work refuse. Inspection changes no stat
 and never reserves a later issuance attempt.
 
 The native [`blob-storage certificate-assessment`](../../docs/operator-guide.md#certificate-assessment) command signs
-this query as the original uploader and binds the reply to a saved binary Candid
+this query as the original uploader and binds the reply to a saved binary CBOR
 permission. It reports all missing prerequisites and distinct refusal codes without
 calling the certificate update or a provider. An empty blocker list remains only
 an observation; issuance always rechecks current authority.
@@ -334,11 +339,12 @@ release; host package and Wasm/module identities remain separate. Runtime,
 allocation policy, ingress authentication and lifecycle calls stay local to this
 host. The host explicitly composes the requests before bootstrap.
 The shared library chooses no physical IDs and registers nothing on linkage.
-Ingress bounds are 16 KiB for installation, 4 KiB for fixed commands and 128 KiB
-for manifests, with bounded Candid decoding and shared semantic limits afterward.
+Tenant IC Wire methods use their 512-byte per-direction allowance and finite
+schema bounds. Remaining CBOR ingress admits 16 KiB for installation, 4 KiB for
+fixed commands and 128 KiB for manifests, with shared semantic limits afterward.
 The CDK first copies the separately platform-bounded ingress buffer.
 
-Same-release upgrade takes Candid empty arguments `()`. It loads the saved
+Same-release upgrade takes one CBOR unit/null value (`f6`). It loads the saved
 configuration, checks service and package-release identity, validates every owner
 and leaves mutations fenced. It never repairs missing state or accepts replacement
 configuration. The ic-memory runtime commits allocation-ledger metadata during

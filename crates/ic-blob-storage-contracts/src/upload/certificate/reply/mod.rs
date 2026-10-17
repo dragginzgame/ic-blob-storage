@@ -3,7 +3,6 @@ use crate::dto::upload::admission::UploadAdmissionRequest;
 use crate::dto::upload::certificate::UploadCertificateAssessmentResponse;
 use crate::dto::upload::exposure::UploadExposureFailure;
 use crate::identity::ProviderRootHash;
-use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 
@@ -35,7 +34,8 @@ pub fn assessment_request(
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
     let root = ProviderRootHash::try_from(permission.upload.root.as_slice())
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
-    candid::encode_one(root.to_string()).map_err(|_| UploadCertificateAssessmentReplyError::Invalid)
+    crate::wire::encode(root.to_string())
+        .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)
 }
 
 /// Decode one independently authenticated assessment of the exact saved permission.
@@ -52,9 +52,8 @@ pub fn assessment(
     if bytes.len() > maximum.get() {
         return Err(UploadCertificateAssessmentReplyError::Limit);
     }
-    let config = crate::decoding::limits(100_000, 0, 64, Some(maximum.get()));
     let response: Result<UploadCertificateAssessmentResponse, UploadExposureFailure> =
-        decode_one_with_config(bytes, &config)
+        crate::wire::decode(bytes, maximum.get())
             .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
     let response = response.map_err(UploadCertificateAssessmentReplyError::Remote)?;
     if response.permission != permission {

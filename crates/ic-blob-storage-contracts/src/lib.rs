@@ -13,6 +13,7 @@ pub mod provider;
 pub mod reference;
 pub mod tenant;
 pub mod upload;
+pub mod wire;
 
 /// Compiled client/service contract identity; not a host deployment identity.
 pub const CONTRACT_VERSION: &str = env!("CARGO_PKG_VERSION");

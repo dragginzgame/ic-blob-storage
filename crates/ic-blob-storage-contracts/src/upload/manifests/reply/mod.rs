@@ -11,15 +11,13 @@ use crate::identity::caffeine::manifest::CaffeineChunkHash;
 use crate::identity::caffeine::manifest::CaffeineChunkManifest;
 use crate::identity::caffeine::manifest::CaffeineManifestLimits;
 use crate::upload::admission;
-use candid::CandidType;
 use candid::Deserialize;
-use candid::decode_one_with_config;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 /// Encoded response and declaration budgets, separate from platform ingress/buffer limits.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct UploadManifestReplyLimits {
-    /// Complete encoded Candid reply bound, checked before decoding.
+    /// Complete encoded CBOR reply bound, checked before decoding.
     pub max_reply_bytes: NonZeroUsize,
     /// Content length, leaf count and original metadata bounds before conversion.
     pub declaration: CaffeineManifestLimits,
@@ -40,7 +38,7 @@ pub enum UploadManifestReplyError {
     #[error("manifest refused: {0:?}")]
     Remote(UploadManifestFailure),
 }
-fn decode<T: CandidType + for<'de> Deserialize<'de>>(
+fn decode<T: for<'de> Deserialize<'de>>(
     input: UploadAdmissionRequest,
     bytes: &[u8],
     limits: UploadManifestReplyLimits,
@@ -50,9 +48,9 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(UploadManifestReplyError::Limit);
     }
-    let config = crate::decoding::limits(2_000_000, 1024, 64, Some(limits.max_reply_bytes.get()));
     let result: Result<T, UploadManifestFailure> =
-        decode_one_with_config(bytes, &config).map_err(|_| UploadManifestReplyError::Invalid)?;
+        crate::wire::decode(bytes, limits.max_reply_bytes.get())
+            .map_err(|_| UploadManifestReplyError::Invalid)?;
     result.map_err(UploadManifestReplyError::Remote)
 }
 /// Validate a saved declaration against the original permission before dispatch.

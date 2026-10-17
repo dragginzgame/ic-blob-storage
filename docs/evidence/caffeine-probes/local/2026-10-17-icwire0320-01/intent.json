@@ -1,0 +1,23 @@
+{
+  "evidence_class": "local PocketIC; no deployed provider observation",
+  "purpose": "Qualify initial tenant IC Wire adoption against a frozen prepublication source snapshot",
+  "target": "pending Blob 0.32, compiled own metadata 0.31.0, requested IC Wire 0.3",
+  "candidate_package_version": "0.2.2 source snapshot; private fixture selection only, not published 0.3 qualification",
+  "candidate_source_record": ".tmp/review-validation/icwire0320/upstream-source.json",
+  "candidate_source_record_sha256": "c331b55bd736f469cccf85bb155da4a60833a5748608f62d687474894df042d1",
+  "consumer_inputs_record": ".tmp/review-validation/icwire0320/consumer-inputs.json",
+  "selectors": [
+    "standalone catalog/export inspection",
+    "CLI installation carrier",
+    "admission and restore",
+    "tenant raw IC Wire ingress refusals",
+    "storage tenant policy/client/restore cases"
+  ],
+  "budgets": {
+    "selected_cases_max": 30,
+    "deployed_provider_requests": 0,
+    "paid_effects": 0,
+    "provider_attached_cycles": 0
+  },
+  "cleanup": "Managed disposable local PocketIC lifetimes; no external account, object or billing obligation created. Retain failed and successful attempts separately."
+}

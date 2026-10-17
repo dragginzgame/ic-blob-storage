@@ -14,10 +14,13 @@ fn one_installation_prepares_exact_permissions_for_two_distinct_uploaders() {
         let args = arguments(base.path(), &input, &manifest());
         crate::native::execute(&args).unwrap();
         let output = base.path().join("output");
-        let permission: UploadAdmissionRequest =
-            candid::decode_one(&std::fs::read(output.join("permission.candid")).unwrap()).unwrap();
+        let permission: UploadAdmissionRequest = ic_blob_storage_contracts::wire::decode(
+            &std::fs::read(output.join("permission.cbor")).unwrap(),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+        )
+        .unwrap();
         assert_eq!(permission.uploader, uploader);
-        let installation = std::fs::read(output.join("installation.candid")).unwrap();
+        let installation = std::fs::read(output.join("installation.cbor")).unwrap();
         if let Some(original) = &retained_installation {
             assert_eq!(&installation, original);
         } else {
@@ -44,8 +47,8 @@ fn different_installation_bindings_and_invalid_models_refuse_before_output() {
         let mut candidate = installation(&input);
         change(&mut candidate);
         std::fs::write(
-            base.path().join("installation.candid"),
-            candid::encode_one(candidate).unwrap(),
+            base.path().join("installation.cbor"),
+            ic_blob_storage_contracts::wire::encode(candidate).unwrap(),
         )
         .unwrap();
         assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
@@ -56,18 +59,18 @@ fn different_installation_bindings_and_invalid_models_refuse_before_output() {
 #[test]
 fn exact_candidate_decoding_and_file_bounds_refuse_before_output() {
     let candidate = installation(&binding());
-    let mut trailing = candid::encode_one(&candidate).unwrap();
+    let mut trailing = ic_blob_storage_contracts::wire::encode(&candidate).unwrap();
     trailing.push(0);
-    let extended = candid::encode_one((candidate.clone(), true)).unwrap();
+    let extended = ic_blob_storage_contracts::wire::encode((candidate.clone(), true)).unwrap();
     for (bytes, expected) in [
         (b"not candid".to_vec(), Failure::Arguments),
         (vec![], Failure::File),
         (
-            vec![0; crate::native::exact_candid::INSTALLATION_BYTES + 1],
+            vec![0; crate::native::exact_wire::INSTALLATION_BYTES + 1],
             Failure::File,
         ),
         (
-            candid::encode_args((&candidate, ())).unwrap(),
+            ic_blob_storage_contracts::wire::encode((&candidate, ())).unwrap(),
             Failure::Arguments,
         ),
         (extended, Failure::Arguments),
@@ -75,7 +78,7 @@ fn exact_candidate_decoding_and_file_bounds_refuse_before_output() {
     ] {
         let base = tempfile::tempdir().unwrap();
         let args = arguments(base.path(), &binding(), &manifest());
-        std::fs::write(base.path().join("installation.candid"), bytes).unwrap();
+        std::fs::write(base.path().join("installation.cbor"), bytes).unwrap();
         assert_eq!(crate::native::execute(&args), Err(expected));
         assert!(!base.path().join("output").exists());
     }
@@ -103,8 +106,8 @@ fn valid_installed_object_and_header_bounds_constrain_preparation() {
         let mut candidate = installation(&binding());
         change(&mut candidate);
         std::fs::write(
-            base.path().join("installation.candid"),
-            candid::encode_one(candidate).unwrap(),
+            base.path().join("installation.cbor"),
+            ic_blob_storage_contracts::wire::encode(candidate).unwrap(),
         )
         .unwrap();
         assert_eq!(

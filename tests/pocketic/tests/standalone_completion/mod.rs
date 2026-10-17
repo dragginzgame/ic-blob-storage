@@ -1,17 +1,18 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::completion::*;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn verification_manifest(f: &Fixture, manifest: &UploadManifestRequest) {
     for actor in [Fake::principal(90), f.operator, f.tenant, f.uploader] {
         let response: Result<UploadManifestResponse, UploadManifestFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 f.service,
                 actor,
                 "blob_verification_manifest",
-                (manifest.permission,),
-                REPLY_LIMITS,
+                manifest.permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         if actor == Fake::principal(90) {
@@ -36,12 +37,12 @@ fn plan_refuses(f: &Fixture, permission: UploadAdmissionRequest, fenced: bool) {
         let result: Result<UploadVerificationPlan, UploadAttestationFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 f.service,
                 actor,
                 "blob_verification_plan",
-                (permission,),
-                REPLY_LIMITS,
+                permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         let expected = if actor != Fake::principal(90) {
@@ -70,12 +71,12 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     let manifest = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
         .unwrap();
@@ -92,12 +93,12 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
         let result: Result<UploadAttestationMutation, UploadAttestationFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 f.service,
                 actor,
                 "blob_attest_upload",
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(result, Err(UploadAttestationFailure::Denied));
@@ -105,18 +106,18 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     let result: Result<UploadAttestationMutation, UploadAttestationFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             verifier,
             "blob_attest_upload",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(result, Err(UploadAttestationFailure::Phase));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     for invalid in [Principal::anonymous(), Principal::management_canister()] {
-        let args = candid::encode_one(ServiceInstallationInput {
+        let args = ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
             configuration: f.config,
             project: PROJECT.into(),
             completion_verifier: invalid,
@@ -130,18 +131,19 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
         );
         unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     }
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     verification_manifest(&f, &manifest);
     plan_refuses(&f, manifest.permission, true);
     let result: Result<UploadAttestationMutation, UploadAttestationFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             verifier,
             "blob_attest_upload",
-            (input,),
-            REPLY_LIMITS,
+            input,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(
@@ -154,12 +156,12 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
         let result: Result<UploadAttestationResponse, UploadAttestationFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 f.service,
                 actor,
                 "blob_upload_attestation",
-                (input.permission,),
-                REPLY_LIMITS,
+                input.permission,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         let response = result.unwrap();

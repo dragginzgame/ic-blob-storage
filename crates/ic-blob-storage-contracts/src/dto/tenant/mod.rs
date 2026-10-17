@@ -4,7 +4,8 @@ use candid::Deserialize;
 use candid::Principal;
 
 /// Exact service namespace and tenant; supplied identity alone grants no authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct TenantScope {
     /// Intended running storage service.
     pub service: Principal,
@@ -15,7 +16,8 @@ pub struct TenantScope {
 }
 
 /// Passive current enrollment, also used as an exact update precondition.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct TenantEnrollment {
     /// Positive local activation generation; not a restore-safe allocation authority.
     pub generation: u64,
@@ -24,7 +26,8 @@ pub struct TenantEnrollment {
 }
 
 /// Operator-authorized compare-and-set; inspect after a lost reply before deciding again.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct TenantUpdateRequest {
     /// Exact destination and tenant.
     pub scope: TenantScope,
@@ -35,7 +38,8 @@ pub struct TenantUpdateRequest {
 }
 
 /// Correlated observation, not a durable operation receipt or upload permission.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct TenantEnrollmentResponse {
     /// Original requested service, namespace and tenant.
     pub scope: TenantScope,
@@ -46,7 +50,8 @@ pub struct TenantEnrollmentResponse {
 }
 
 /// Typed refusal without granting authority or erasing tenant history.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum TenantFailure {
     /// Wrong running service or installed namespace.
     Binding,

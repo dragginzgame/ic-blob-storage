@@ -2,3 +2,6 @@
 
 #[cfg(not(target_family = "wasm"))]
 pub mod operator;
+
+#[cfg(not(target_family = "wasm"))]
+pub mod service_calls;

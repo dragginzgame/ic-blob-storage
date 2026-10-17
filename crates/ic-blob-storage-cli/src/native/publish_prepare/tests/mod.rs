@@ -78,7 +78,8 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
             binding: serde_json::to_vec(&fixture::binding()).unwrap(),
             manifest: serde_json::to_vec(&fixture::manifest()).unwrap(),
             installation: crate::native::upload_inputs::installation::Installation::decode(
-                candid::encode_one(fixture::installation(&fixture::binding())).unwrap(),
+                ic_blob_storage_contracts::wire::encode(fixture::installation(&fixture::binding()))
+                    .unwrap(),
                 10.try_into().unwrap(),
             )
             .unwrap(),
@@ -89,21 +90,21 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
     let expected = json!({"operation":"publish_prepare","file_index":0});
     let (permission, manifest) = selected.setup_requests();
     fs::write(directory.path().join("intent.json"), expected.to_string()).unwrap();
-    fs::write(directory.path().join("permission.candid"), permission).unwrap();
-    fs::write(directory.path().join("manifest.candid"), manifest).unwrap();
+    fs::write(directory.path().join("permission.cbor"), permission).unwrap();
+    fs::write(directory.path().join("manifest.cbor"), manifest).unwrap();
     journal::validate(directory.path(), &expected, &selected).unwrap();
     let changed = json!({"operation":"publish_prepare","file_index":1});
     assert_eq!(
         journal::validate(directory.path(), &changed, &selected),
         Err(Failure::Binding)
     );
-    fs::write(directory.path().join("manifest.candid"), b"changed").unwrap();
+    fs::write(directory.path().join("manifest.cbor"), b"changed").unwrap();
     assert_eq!(
         journal::validate(directory.path(), &expected, &selected),
         Err(Failure::Binding)
     );
-    fs::write(directory.path().join("manifest.candid"), manifest).unwrap();
-    fs::write(directory.path().join("permission.candid"), b"changed").unwrap();
+    fs::write(directory.path().join("manifest.cbor"), manifest).unwrap();
+    fs::write(directory.path().join("permission.cbor"), b"changed").unwrap();
     assert_eq!(
         journal::validate(directory.path(), &expected, &selected),
         Err(Failure::Binding)

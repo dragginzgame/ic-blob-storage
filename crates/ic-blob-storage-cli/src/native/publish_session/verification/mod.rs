@@ -52,8 +52,8 @@ pub(super) async fn run(
         "gateway":input.gateway.as_str(),"max_provider_requests":1,
         "max_attestation_updates":1,"retry_authorized":false}),
     )?;
-    let encoded = candid::encode_one(permission).map_err(|_| Failure::File)?;
-    claim.bytes("permission.candid", &encoded)?;
+    let encoded = ic_blob_storage_contracts::wire::encode(permission).map_err(|_| Failure::File)?;
+    claim.bytes("permission.cbor", &encoded)?;
     if let Some(source) = source {
         claim.json(
             "recovery.json",
@@ -83,7 +83,7 @@ pub(super) async fn run(
         &observe_upload::Input {
             service: input.prepare.service,
             namespace: input.prepare.namespace,
-            permission: directory.join("permission.candid"),
+            permission: directory.join("permission.cbor"),
             gateway: input.gateway.clone(),
             directory: observation.clone(),
             max_bytes: permission

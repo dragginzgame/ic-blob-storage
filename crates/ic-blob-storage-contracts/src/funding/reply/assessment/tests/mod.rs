@@ -45,7 +45,7 @@ fn response() -> Response {
     }
 }
 fn bytes(value: &Response) -> Vec<u8> {
-    candid::encode_one(Ok::<_, E>(value)).unwrap()
+    crate::wire::encode(Ok::<_, E>(value)).unwrap()
 }
 fn decode(request: Request, bytes: &[u8]) -> Result<Response, FundingAssessmentReplyError> {
     inspect(request, bytes, 4096.try_into().unwrap())
@@ -103,7 +103,7 @@ fn decoder_refuses_changed_request_and_inconsistent_or_missing_blockers() {
     assert_eq!(
         decode(
             request(),
-            &candid::encode_one(Err::<Response, _>(E::Conflict)).unwrap()
+            &crate::wire::encode(Err::<Response, _>(E::Conflict)).unwrap()
         ),
         Err(FundingAssessmentReplyError::Remote(E::Conflict))
     );

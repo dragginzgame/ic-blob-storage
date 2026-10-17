@@ -13,8 +13,8 @@ use ic_blob_storage_contracts::download::scope::DownloadScopeError;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_blob_storage_contracts::upload::completion::InvalidCompletionAuthority;
-use ic_memory::ic_stable_structures::{BTreeMap, Memory, Storable};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
+use ic_stable_structures::{BTreeMap, Memory, Storable};
 use thiserror::Error;
 
 mod configuration;

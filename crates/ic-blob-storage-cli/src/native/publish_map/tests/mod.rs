@@ -59,13 +59,16 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
             |method, args| {
                 let value = match method {
                     "blob_configuration" => {
-                        candid::encode_one(Ok::<_, HostFailure>(&host)).unwrap()
-                    }
-                    UPLOAD_CAPACITY_METHOD => {
-                        candid::encode_one(Ok::<_, UploadCapacityFailure>(fixture::capacity(scope)))
+                        ic_blob_storage_contracts::wire::encode(Ok::<_, HostFailure>(&host))
                             .unwrap()
                     }
-                    UPLOAD_ATTESTATION_METHOD => candid::encode_one(Ok::<
+                    UPLOAD_CAPACITY_METHOD => {
+                        ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(
+                            fixture::capacity(scope),
+                        ))
+                        .unwrap()
+                    }
+                    UPLOAD_ATTESTATION_METHOD => ic_blob_storage_contracts::wire::encode(Ok::<
                         _,
                         UploadAttestationFailure,
                     >(
@@ -88,12 +91,18 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
                         if matches!(replies, Replies::Transport) {
                             return std::future::ready(Err(Failure::Transport));
                         }
-                        let request = candid::decode_one(&args).unwrap();
-                        candid::encode_one(Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
-                            request,
-                            live: !matches!(replies, Replies::Inactive),
-                            fenced: false,
-                        }))
+                        let request = ic_blob_storage_contracts::wire::decode(
+                            &args,
+                            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+                        )
+                        .unwrap();
+                        ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
+                            ReferenceStatusResponse {
+                                request,
+                                live: !matches!(replies, Replies::Inactive),
+                                fenced: false,
+                            },
+                        ))
                         .unwrap()
                     }
                     _ => panic!("unexpected query method"),

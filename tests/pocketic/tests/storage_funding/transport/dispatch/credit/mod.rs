@@ -8,7 +8,7 @@ pub(super) fn retain_packet(label: &str, bytes: &[u8]) {
     static NEXT: AtomicU64 = AtomicU64::new(0);
     if let Some(root) = std::env::var_os("BLOB_FUNDING_CREDIT_REPORT") {
         let path = std::path::PathBuf::from(root).join(format!(
-            "{:04}-{label}.candid",
+            "{:04}-{label}.cbor",
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
         let mut file = std::fs::OpenOptions::new()

@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailur
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
 use ic_blob_storage_contracts::protocol::REFERENCE_CAPACITY_METHOD;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn reference_capacity(
         &self,
@@ -13,12 +14,12 @@ impl Fixture {
     ) -> Result<ReferenceCapacityResponse, F> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 REFERENCE_CAPACITY_METHOD,
-                (request,),
-                REPLY_LIMITS,
+                request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -40,12 +41,12 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
     let replicated: Result<ReferenceCapacityResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             REFERENCE_CAPACITY_METHOD,
-            (request,),
-            REPLY_LIMITS,
+            request,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -99,12 +100,12 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,),
-            REPLY_LIMITS,
+            permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     admitted.unwrap();
@@ -123,21 +124,22 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             f.operator,
             "blob_update_tenant",
-            (TenantUpdateRequest {
+            TenantUpdateRequest {
                 scope: request.scope,
                 expected: enrollment.enrollment,
                 active: false,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     suspended.unwrap();
     assert_eq!(f.reference_capacity(f.tenant, request), Ok(expected));
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(
         f.reference_capacity(f.tenant, request),

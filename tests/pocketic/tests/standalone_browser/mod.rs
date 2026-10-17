@@ -1,5 +1,6 @@
 //! Full restricted standalone/browser/native journey with a local provider substitute.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 mod interruption;
 mod multi_user;
@@ -86,7 +87,7 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
     assert!(
         !trial
             .report
-            .join("untrusted-observation/statement.candid")
+            .join("untrusted-observation/statement.cbor")
             .exists()
     );
     assert_eq!(
@@ -98,7 +99,7 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
     assert!(
         !trial
             .report
-            .join("refused-observation/statement.candid")
+            .join("refused-observation/statement.cbor")
             .exists()
     );
     let observation = trial.observe(&input, &uploaded.gateway, 0);
@@ -158,7 +159,6 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
 #[test]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
 fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_obligations() {
-    use ic_testkit::pic::CandidCallExt;
     let mut trial = Trial::new("corrupt");
     let (driver, input, uploaded) = upload(&trial, Scenario::CorruptRead);
     assert_eq!(
@@ -166,7 +166,7 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
         "content_mismatch"
     );
     for path in [
-        "observation/statement.candid",
+        "observation/statement.cbor",
         "observation/summary.json",
         "observation/attestation",
     ] {
@@ -183,12 +183,12 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
         .f
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             trial.f.service,
             trial.f.tenant,
             "blob_revoke_upload",
-            (input.permission,),
-            REPLY_LIMITS,
+            input.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);

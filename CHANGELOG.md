@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.32.0]
+
+- Update incoming Host 0.25 callers: remove the retired `candid-service` feature
+  and use explicit result admission for durable CLI records, preserving private
+  create-only publication. Workspace resolution remains blocked by Host Tools'
+  `thiserror` minimum conflicting with PocketIC's exact pin;
+  [repair evidence](docs/evidence/host0250320.md) records the boundary.
+- **Breaking service wire protocol:** tenant inspection/update now use bounded
+  IC Wire contracts with explicit layout, method identity and request/reply
+  direction. Preserve existing authority, compare-and-set policy and recovery;
+  old Candid and pending CBOR tenant frames refuse without fallback. Target the
+  IC Wire 0.3 registry line; publication and registry lock qualification remain
+  pending. Other owned methods/lifecycle inputs still use CBOR during conversion;
+  complete that conversion before freezing the 0.32 service contract.
+- Record a [matched tenant codec comparison](docs/evidence/wire-bench0320.md)
+  against released Candid and pending CBOR, including instruction counts, packet
+  sizes and partial-adoption Wasm size. Scope results to the frozen unpublished
+  candidate and synthetic codec handlers; complete service savings remain unmeasured.
+- Retain Candid exclusively for the provider-required
+  `_immutableObjectStorageCreateCertificate` endpoint and its response. Provider
+  calls, IC management contracts and stable record encoding remain unchanged.
+- Update controlled Rust clients and native packet/recovery flows together;
+  generated service files use `.cbor`. `installation-check` reads a strict JSON
+  proposal and emits reviewed configuration/init packets. Account-report integers
+  wider than 128 bits cross as canonical decimal text without truncation.
+- Share the callable method/mode/codec catalog with endpoint expansion and check
+  the complete compiled Wasm surface against it. Generated `service.did` describes
+  only the provider method; extraction uses `provider-candid-export`.
+- Hosts and Canic wrappers must adopt both request and reply codecs together;
+  follow [the protocol cut guide](docs/service-wire.md). Retire prior installations
+  with all outstanding obligations before reinstalling; no fallback or migration
+  is provided, and prior requests must not be redispatched under the new contract.
+- Preserve the incoming Memory 0.46 / Build 0.12.1 selections. Collection imports
+  use the existing stable-structures dependency directly; host backing types use
+  Memory's supported exports. Allocation leases and exclusive backing custody
+  remain host-owned; no collection-format migration is introduced.
+
 ## [0.31.0] - 2026-10-17
 
 - Share passive fixture query-command handling while retaining command-specific

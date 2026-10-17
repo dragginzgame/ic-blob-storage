@@ -14,6 +14,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 impl Fixture {
     fn capacity_input(&self) -> TenantScope {
@@ -30,12 +31,12 @@ impl Fixture {
     ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 "blob_upload_capacity",
-                (input,),
-                REPLY_LIMITS,
+                input,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap()
     }
@@ -55,12 +56,12 @@ impl Fixture {
         let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_blob_as(
                 self.service,
                 actor,
                 "blob_reference_capacity",
-                (request,),
-                REPLY_LIMITS,
+                request,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         result.map(|response| {

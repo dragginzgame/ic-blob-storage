@@ -10,6 +10,16 @@ Candidate validation composes the local models without installing state or
 proving provider behavior. Library publication and live service acceptance are
 separate.
 
+## Incoming protocol for 0.32
+
+The pending 0.32 adoption uses [per-method contracts](service-wire.md): tenant
+inspection/update use bounded IC Wire, while other owned methods and lifecycle
+inputs still use CBOR until conversion completes. Each reply uses its method's
+codec. The external Caffeine certificate method remains Candid.
+Old Candid requests refuse. Provider calls, management traffic, persisted records,
+method authority, original operation identity and recovery obligations keep their
+separate owners. Consumer wrappers must change request and reply handling together.
+
 ## Current contract at a glance
 
 - The shared library owns tenant policy, upload records, manifests, references,
@@ -178,16 +188,15 @@ local. This structural validation grants no completion or retry authority.
 
 `dto::configuration::ServiceConfigurationInput` supplies explicit service, operator,
 payer, namespace, resource, billing, funding allocation and read-session candidates. The shared
-`ops::service::configuration` boundary bounds encoded bytes and Candid decoding work,
+`ops::service::configuration` boundary bounds encoded CBOR bytes and nesting,
 checks the actual host identity and reuses the existing model's invariants without
 defaults, clamping or allocation. It also checks every maintained stable owner's
 codec/resource envelope. Hosts may validate an already typed candidate.
 The host must authenticate installation, bound ingress buffering and obtain its
-identity from the platform. Raw installation Candid uses zero skipping quota,
-including a Blob input nested inside an application record: retired fields and
-extra init arguments refuse before installation writes. Typed candidate validation
-cannot recover fields already discarded by Candid subtyping. Ordinary service
-requests retain their separate bounded skipping policy.
+identity from the platform. Raw CBOR installation refuses unknown/duplicate fields and trailing values,
+including retired authority fields inside the Blob record, before installation
+writes. Hosts with a larger application envelope must preserve those checks at
+their outer boundary. Typed validation cannot recover fields discarded upstream.
 `ops::service::stores::ServiceStores` assembles the four
 owners synchronously under these validated limits and sixteen distinct host-granted
 memories. Fresh installation preflights the entire set before writing; aliased
@@ -235,7 +244,7 @@ the retained schema, actual service and compiled release before opening owners,
 revalidates all installed inputs and returns only after every owner is fenced.
 Missing or invalid state is never initialized or repaired. Configuration remains
 immutable; getters grant no endpoint, tenant or operational recovery authority.
-Standalone uses this owner. Current DTOs/Candid and the installation record have
+Standalone uses this owner. Current DTOs and the installation record have
 no single installed uploader; exact per-upload grants remain with the upload owner. The changed
 installation format refuses the former contract; cross-release retirement/reinstall
 is required.
@@ -245,7 +254,7 @@ hooks and grants and delegates configuration persistence to the shared owner. It
 installation validates all inputs before allocation; same-release upgrade restoration
 loads the saved service/release-bound configuration without replacement arguments
 and fences every owner synchronously. Its tenant, admission, manifest and reference
-endpoints delegate to shared workflows, with bounded typed Candid and operator-only
+endpoints delegate to shared workflows, with bounded typed CBOR and operator-only
 configuration readback. Standalone installation takes the core's passive
 `ServiceInstallationInput`:
 shared `ServiceConfigurationInput` plus required explicit Caffeine project,
@@ -268,31 +277,17 @@ Operational recovery and remaining provider/operator integration are still open.
 
 ### Standalone ingress decoding
 
-The standalone adapter's `ops::bounded` owns decoding for typed endpoint inputs:
-4 KiB for ordinary requests, 16 KiB for installation and 128 KiB for manifest
-preparation. It rejects total bytes before decoding, then sets 2,000,000 Candid
-decoding units, 1,024 skipped-value units and 64 type-table entries. These are
-decoder work counters, not IC instruction or paid-provider spending limits.
-Its header-byte ceiling equals the corresponding whole-message ceiling. A valid
-header cannot exceed that ceiling independently of the earlier whole-message
-check; tests must not relax production bounds to manufacture a separate failure.
+The adapter admits 4 KiB for ordinary inputs, 16 KiB for installation and
+128 KiB for manifest preparation before shared exact CBOR decoding. Collection
+nesting is capped at 32. Unknown/duplicate DTO fields and trailing values reject;
+Candid type-table, work and skipping quotas no longer describe owned ingress.
+The provider certificate retains its original bounded Candid decoder separately.
 
-The existing standalone PocketIC suite exercises structurally valid extra text
-and absent optional-record types, under the byte ceiling. Each payload first
-round-trips with only its targeted decoder budget relaxed. Actual query/update,
-manifest, certificate and failed-reinstall refusals then preserve owner state;
-small extra-argument controls reach maintained handlers and valid initialization.
-Certificate assessments carry a fresh timestamp, so unchanged permission and
-blockers are checked independently of that timestamp.
-
-A dense manifest with 65,379 empty name/value pairs fits just under 128 KiB and
-uses between 1.8 and 2 million decoding units under locked Candid 0.10.37, with
-no skipping. It reaches the maintained typed `UploadManifestFailure::Limit`
-without stable mutation. Independent work-quota exhaustion has not been
-reproduced under current byte/type/skipping limits; this case is not proof for
-every Candid subtype or a reason to remove the work ceiling. Any additional case
-must demonstrate a valid byte-bounded input, isolate the exhausted budget and
-preserve the same trust/state boundaries without production test hooks.
+Installed tests reject former Candid inputs, malformed/oversized CBOR, trailing
+values and retired installation fields before mutation. Failed reinstall preserves
+the original owner. Byte-bounded dense manifests still reach the separate domain
+header-count refusal without changing upload state. Earlier Candid quota experiments
+remain historical evidence under the released 0.31 source; they are not CBOR proofs.
 
 ### Library host integration
 
@@ -532,7 +527,7 @@ The durable shared receipt boundary (`workflow::references::receipt`,
 `dto::reference`) authenticates actual tenant/service and binds the complete
 original upload and reference operation. Its `blob_reference_receipt` query uses
 explicit `Absent`/`Found` variants; an incompatible payload cannot become absence
-through Candid optional coercion. `ReplicatedReferenceClient` sends one bounded
+through optional coercion. `ReplicatedReferenceClient` sends one bounded
 replicated call to the selected service with no attached cycles, checks the exact
 returned request and preserves stored inner failures. Ordinary IC fees apply.
 Inspection works under suspension and restore fences and after settlement, but
@@ -561,7 +556,7 @@ live status does not imply active enrollment, serving authority or a cleared fen
 The storage fixture's private boolean endpoint is removed.
 
 Native `blob-storage reference-receipt` and `reference-status` sign these existing
-queries as the explicit tenant using saved binary Candid ReferenceCommand and
+queries as the explicit tenant using saved binary CBOR ReferenceCommand and
 ReferenceStatusRequest respectively. Shared request encoders apply the maintained
 identity/declaration rules; file limits, exact service/namespace and tenant checks
 precede signing and transport. Native PEM principals must be actual tenants;
@@ -813,7 +808,7 @@ No file bytes, admission or authority are provided by that decoder. The local
 browser fixture now signs admission to the existing consumer canister, which retains
 the exact asset/permission and admits as the tenant. The browser separately signs
 preparation directly as the uploader. Foreign identities and direct uploader
-admission are refused. Opaque Candid uses the existing Rust schemas and validators;
+admission are refused. Opaque CBOR uses the existing Rust schemas and validators;
 this is local caller-boundary evidence, not Toko authentication or a production API.
 The browser then attempts registration through the consumer; unconfirmed exposure
 cannot publish even after successful HTTP. Explicit consumer cancellation followed
@@ -973,8 +968,8 @@ mandatory full-width `remaining_logical_bytes`, `remaining_physical_bytes` and
 `remaining_liability_bytes`; `remaining_bytes` must equal their minimum. These
 are observations from the existing accounting owner, not extra stored counters.
 Native preflight reports distinguish each exhausted byte dimension and reject
-inconsistent minima. All clients must rebuild against the pending 0.21.0 Rust/
-Candid contract; no optional fields, old decoder or compatibility reply is supplied.
+inconsistent minima. All clients must rebuild against the current Rust/
+CBOR contract; no optional fields, old decoder or compatibility reply is supplied.
 Enrollment and per-object size/metadata limits accompany
 the observation, along with the independent restore fence. Only the exact enrolled
 tenant can inspect this scope; suspended
@@ -1334,7 +1329,7 @@ library exports no endpoint or lifecycle hook.
 `ReplicatedDownloadClient` binds tenant, selected storage service and a positive
 timeout up to 300 seconds. It checks actual canister identity and replicated
 execution, then sends the update once with zero attached cycles. Platform fees
-still apply. Actual IC targeting authenticates the response source. Bounded Candid
+still apply. Actual IC targeting authenticates the response source. Bounded CBOR
 decoding validates full request equality, owner/project, declared content limits
 and the shared upload metadata invariants before returning a descriptor. This
 does not limit the CDK's earlier platform-bounded response buffer. Clients using
@@ -1495,7 +1490,7 @@ remain unexposed. A successful report grants no permission and cannot become
 cached effect authorization or establish independent identity freshness.
 
 Native `funding-assessment` performs one signed query with exact request echo,
-4 KiB bounded Candid decoding, 256 KiB HTTP and thirty-second limits. Full-width
+4 KiB bounded CBOR decoding, 256 KiB HTTP and thirty-second limits. Full-width
 numbers remain decimal strings; optional target absence stays absent. Scope/actor,
 changed echo, malformed/oversized/inconsistent reports and untrusted replies refuse.
 Local shared-core tests cover occupied funding history and uncertain reservations;

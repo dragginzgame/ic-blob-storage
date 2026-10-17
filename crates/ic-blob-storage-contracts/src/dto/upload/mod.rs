@@ -11,7 +11,8 @@ use crate::dto::reference::ReferenceUpload;
 use candid::CandidType;
 use candid::Deserialize;
 /// Retained local upload phase; neither provider dispatch nor publication authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadState {
     /// Reserved locally; upload authority has not escaped.
     Reserved,
@@ -24,7 +25,8 @@ pub enum UploadState {
     Cancelled,
 }
 /// Full original binding and current retained local state.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct UploadStatusResponse {
     /// Exact original upload, including its independent first reference identity.
     pub upload: ReferenceUpload,
@@ -34,7 +36,8 @@ pub struct UploadStatusResponse {
     pub revoked: bool,
 }
 /// Failed exact upload inspection. Absence does not authorize a fresh upload.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub enum UploadStatusFailure {
     /// Invalid original identity or length.
     Invalid,

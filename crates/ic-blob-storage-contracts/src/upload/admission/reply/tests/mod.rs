@@ -2,8 +2,8 @@ use crate::upload::admission::reply::*;
 mod revocation;
 use crate::dto::reference::ReferenceUpload;
 use crate::dto::upload::UploadState;
+use crate::wire::encode;
 use candid::Principal;
-use candid::encode_one;
 #[test]
 fn admission_replies_bind_uploader_deadline_and_every_upload_field() {
     let input = UploadAdmissionRequest {
@@ -30,8 +30,8 @@ fn admission_replies_bind_uploader_deadline_and_every_upload_field() {
         admission: response,
         replayed: false,
     };
-    let observation = encode_one(Ok::<_, UploadAdmissionFailure>(response)).unwrap();
-    let admission = encode_one(Ok::<_, UploadAdmissionFailure>(mutation_response)).unwrap();
+    let observation = encode(Ok::<_, UploadAdmissionFailure>(response)).unwrap();
+    let admission = encode(Ok::<_, UploadAdmissionFailure>(mutation_response)).unwrap();
     let max = 4096.try_into().unwrap();
     assert_eq!(inspection(input, &observation, max), Ok(response));
     assert_eq!(mutation(input, &admission, max), Ok(mutation_response));
@@ -100,7 +100,7 @@ fn admission_replies_bind_uploader_deadline_and_every_upload_field() {
     let absent: Result<UploadAdmissionResponse, UploadAdmissionFailure> =
         Err(UploadAdmissionFailure::Unknown);
     assert_eq!(
-        inspection(input, &encode_one(absent).unwrap(), max),
+        inspection(input, &encode(absent).unwrap(), max),
         Err(UploadAdmissionReplyError::Remote(
             UploadAdmissionFailure::Unknown
         ))

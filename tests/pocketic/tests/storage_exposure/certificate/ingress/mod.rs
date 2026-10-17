@@ -1,5 +1,6 @@
 //! Actual signed HTTP ingress and certificate recovery against local `PocketIC` only.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod browser;
 mod proof;
 use super::*;
@@ -200,12 +201,12 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         .fixture
         .harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             h.fixture.service,
             h.fixture.tenant,
             "blob_revoke_upload",
-            (input.permission,),
-            REPLY_LIMITS,
+            input.permission,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);

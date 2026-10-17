@@ -9,10 +9,8 @@ use crate::dto::funding::outcome::FundingOutcomeFailure;
 use crate::dto::funding::outcome::FundingOutcomeRequest;
 use crate::dto::operator::{LocalFundingStatus, OperatorScope};
 use crate::funding::transfer::FundingTransfer;
-use candid::CandidType;
 use candid::Deserialize;
 use candid::Principal;
-use candid::decode_one_with_config;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;
 use thiserror::Error;
@@ -39,7 +37,7 @@ pub enum FundingReplyError {
 /// Independent byte and entry limits. These do not change the service's page size.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct FundingHistoryReplyLimits {
-    /// Applied before Candid decoding; transport must separately bound buffering.
+    /// Applied before CBOR decoding; transport must separately bound buffering.
     pub bytes: NonZeroUsize,
     /// Maximum entries accepted after bounded decoding.
     pub entries: NonZeroUsize,
@@ -82,15 +80,14 @@ pub fn check_outcome(input: FundingOutcomeRequest) -> Result<(), FundingReplyErr
     }
     Ok(())
 }
-fn decode<T: CandidType + for<'de> Deserialize<'de>>(
+fn decode<T: for<'de> Deserialize<'de>>(
     bytes: &[u8],
     max: NonZeroUsize,
 ) -> Result<T, FundingReplyError> {
     if bytes.len() > max.get() {
         return Err(FundingReplyError::Limit);
     }
-    let config = crate::decoding::limits(500_000, 1024, 128, Some(max.get()));
-    decode_one_with_config(bytes, &config).map_err(|_| FundingReplyError::Invalid)
+    crate::wire::decode(bytes, max.get()).map_err(|_| FundingReplyError::Invalid)
 }
 fn transfer(offered: u128, phase: FundingPhase) -> Result<FundingTransfer, FundingReplyError> {
     let offered = NonZeroU128::new(offered).ok_or(FundingReplyError::Invalid)?;

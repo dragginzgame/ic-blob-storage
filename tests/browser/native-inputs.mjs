@@ -47,10 +47,10 @@ const binding = { format: 'ic-blob-storage/upload-inputs:original-preparation', 
 record('binding.json', binding);
 writeFileSync(join(output, 'manifest.json'), prepared.manifestJSON, { flag: 'wx', mode: 0o600 });
 const input = join(output, 'inputs');
-const configurationPath = join(output, 'configuration.candid');
+const configurationPath = join(output, 'configuration.json');
 writeFileSync(configurationPath, configuration(binding.service, binding.namespace), { flag: 'wx', mode: 0o600 });
 const installationDirectory = join(output, 'installation');
-const args = ['upload-inputs', '--installation', join(installationDirectory, 'installation.candid'),
+const args = ['upload-inputs', '--installation', join(installationDirectory, 'installation.cbor'),
   '--binding', join(output, 'binding.json'), '--manifest',
   join(output, 'manifest.json'), '--body', body, '--max-bytes', String(bytes.length), '--run-dir', input];
 function invoke(name, command, expected) {
@@ -68,12 +68,12 @@ const result = invoke('prepared', args, 0);
 assert.equal(result.body_verified, true);
 assert.equal(result.installation_binding_checked, true);
 assert.equal(result.installed_state_observed, false);
-assert.equal(result.installation_sha256, digest(readFileSync(join(installationDirectory, 'installation.candid'))));
-assert.deepEqual(readFileSync(join(input, 'installation.candid')), readFileSync(join(installationDirectory, 'installation.candid')));
+assert.equal(result.installation_sha256, digest(readFileSync(join(installationDirectory, 'installation.cbor'))));
+assert.deepEqual(readFileSync(join(input, 'installation.cbor')), readFileSync(join(installationDirectory, 'installation.cbor')));
 assert.equal(result.service_dispatched, false);
 const generated = JSON.parse(readFileSync(join(input, 'certificate-binding.json'), 'utf8'));
 assert.equal(result.certificate_binding_sha256, digest(readFileSync(join(input, 'certificate-binding.json'))));
-assert.deepEqual(generated.permission, Array.from(readFileSync(join(input, 'permission.candid'))));
+assert.deepEqual(generated.permission, Array.from(readFileSync(join(input, 'permission.cbor'))));
 assert.equal(generated.operation, binding.upload);
 assert.equal(generated.service, binding.service);
 assert.equal(generated.tenant, binding.tenant);
@@ -115,7 +115,7 @@ assert.equal(rebuilt.manifestJSON, prepared.manifestJSON);
 const corrupt = args.slice();
 corrupt[corrupt.indexOf('--run-dir') + 1] = join(output, 'corrupt');
 assert.equal(invoke('corrupt', corrupt, 3).error, 'content_mismatch');
-for (const file of ['body.bin', 'permission.candid', 'manifest.candid', 'certificate-binding.json', 'summary.json']) {
+for (const file of ['body.bin', 'permission.cbor', 'manifest.cbor', 'certificate-binding.json', 'summary.json']) {
   assert(!readdirSync(join(output, 'corrupt')).includes(file));
 }
 assert.deepEqual(hashes(), original);

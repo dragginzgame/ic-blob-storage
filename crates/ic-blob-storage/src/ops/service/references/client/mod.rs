@@ -145,7 +145,7 @@ impl ReplicatedReferenceClient {
         Ok(())
     }
 
-    async fn call<A: candid::CandidType>(
+    async fn call<A: serde::Serialize>(
         &self,
         method: &str,
         request: A,

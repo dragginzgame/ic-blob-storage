@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::ic_stable_structures::Memory;
+use ic_stable_structures::Memory;
 
 /// Inspect retained identities as their tenant or the configured service operator.
 /// The host supplies actual execution context and trusted scan/result bounds.

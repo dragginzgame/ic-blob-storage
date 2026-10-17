@@ -39,8 +39,8 @@ pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInp
 }
 fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
     std::fs::write(
-        base.join("installation.candid"),
-        candid::encode_one(installation(binding)).unwrap(),
+        base.join("installation.cbor"),
+        ic_blob_storage_contracts::wire::encode(installation(binding)).unwrap(),
     )
     .unwrap();
     std::fs::write(
@@ -67,7 +67,7 @@ fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
         "--body".into(),
         base.join("body.bin").display().to_string(),
         "--installation".into(),
-        base.join("installation.candid").display().to_string(),
+        base.join("installation.cbor").display().to_string(),
     ]
 }
 
@@ -78,22 +78,37 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     // Exercise the actual CLI dispatch without a signer, URL or runtime.
     let report = crate::native::execute(&args).unwrap();
     let output = base.path().join("output");
-    let permission_bytes = std::fs::read(output.join("permission.candid")).unwrap();
-    let preparation_bytes = std::fs::read(output.join("manifest.candid")).unwrap();
-    let permission: UploadAdmissionRequest = candid::decode_one(&permission_bytes).unwrap();
-    let preparation: UploadManifestRequest = candid::decode_one(&preparation_bytes).unwrap();
+    let permission_bytes = std::fs::read(output.join("permission.cbor")).unwrap();
+    let preparation_bytes = std::fs::read(output.join("manifest.cbor")).unwrap();
+    let permission: UploadAdmissionRequest = ic_blob_storage_contracts::wire::decode(
+        &permission_bytes,
+        ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+    )
+    .unwrap();
+    let preparation: UploadManifestRequest = ic_blob_storage_contracts::wire::decode(
+        &preparation_bytes,
+        ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+    )
+    .unwrap();
     assert_eq!(permission, preparation.permission);
     assert_eq!(permission.upload.namespace, u128::MAX);
     assert_eq!(permission.upload.upload, u128::MAX);
     assert_eq!(permission.expires_at_ns, u64::MAX);
     assert_ne!(permission.upload.tenant, permission.uploader);
     let status: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest =
-        candid::decode_one(&std::fs::read(output.join("reference-status.candid")).unwrap())
-            .unwrap();
+        ic_blob_storage_contracts::wire::decode(
+            &std::fs::read(output.join("reference-status.cbor")).unwrap(),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+        )
+        .unwrap();
     assert_eq!(status.upload, permission.upload);
     assert_eq!(status.reference, permission.upload.first_reference);
     let download: ic_blob_storage_contracts::dto::download::DownloadRequest =
-        candid::decode_one(&std::fs::read(output.join("download.candid")).unwrap()).unwrap();
+        ic_blob_storage_contracts::wire::decode(
+            &std::fs::read(output.join("download.cbor")).unwrap(),
+            ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
+        )
+        .unwrap();
     assert_eq!(download.reference, permission.upload.first_reference);
     assert_eq!(download.object, permission.upload.object);
     assert_eq!(download.root, permission.upload.root);
@@ -121,10 +136,10 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     );
     assert_eq!(report["certificate_binding_sha256"], digest(&browser_bytes));
     assert_eq!(report["body_verified"], true);
-    let init = std::fs::read(output.join("installation.candid")).unwrap();
+    let init = std::fs::read(output.join("installation.cbor")).unwrap();
     assert_eq!(
         init,
-        std::fs::read(base.path().join("installation.candid")).unwrap()
+        std::fs::read(base.path().join("installation.cbor")).unwrap()
     );
     assert_eq!(report["installation_sha256"], digest(&init));
     assert_eq!(report["installation_binding_checked"], true);
@@ -142,11 +157,11 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
         Err(Failure::ExistingRun)
     ));
     assert_eq!(
-        std::fs::read(output.join("permission.candid")).unwrap(),
+        std::fs::read(output.join("permission.cbor")).unwrap(),
         permission_bytes
     );
     assert_eq!(
-        std::fs::read(output.join("manifest.candid")).unwrap(),
+        std::fs::read(output.join("manifest.cbor")).unwrap(),
         preparation_bytes
     );
 }
@@ -255,7 +270,7 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
             binding: std::fs::read(base.path().join("output/binding.json")).unwrap(),
             manifest: std::fs::read(base.path().join("output/manifest.json")).unwrap(),
             installation: crate::native::upload_inputs::installation::Installation::decode(
-                std::fs::read(base.path().join("output/installation.candid")).unwrap(),
+                std::fs::read(base.path().join("output/installation.cbor")).unwrap(),
                 NonZeroU64::new(10).unwrap(),
             )
             .unwrap(),
@@ -366,10 +381,10 @@ fn corrupt_source_leaves_only_private_partial_evidence_and_no_request_files() {
     for name in [
         "body.bin",
         "summary.json",
-        "permission.candid",
-        "manifest.candid",
-        "download.candid",
-        "reference-status.candid",
+        "permission.cbor",
+        "manifest.cbor",
+        "download.cbor",
+        "reference-status.cbor",
         "certificate-binding.json",
     ] {
         assert!(!output.join(name).exists());

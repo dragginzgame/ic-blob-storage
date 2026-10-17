@@ -27,8 +27,7 @@ impl Verification {
         max_bytes: NonZeroU64,
     ) -> Result<Self, Failure> {
         let encoded = read(permission, 4096)?;
-        let permission: UploadAdmissionRequest =
-            crate::native::exact_candid::decode(&encoded, 4096, 32, 100_000)?;
+        let permission: UploadAdmissionRequest = crate::native::exact_wire::decode(&encoded, 4096)?;
         let upload = permission.upload;
         if upload.service != service || upload.namespace != namespace {
             return Err(Failure::Binding);

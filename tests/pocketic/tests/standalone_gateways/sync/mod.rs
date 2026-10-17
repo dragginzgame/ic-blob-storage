@@ -5,6 +5,7 @@ use blob_test_protocol::SourceMode;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncError;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn fixture() -> Fixture {
     fixture_with_operator(Harness::new(), Fake::principal(2))
 }
@@ -33,27 +34,27 @@ fn refresh(
 ) -> Result<GatewaySyncResponse, SyncError> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             actor,
             "blob_sync_gateways",
-            (scope,),
-            REPLY_LIMITS,
+            scope,
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
 fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_blob_as(
             f.service,
             actor,
             "blob_cancel_gateway_sync",
-            (GatewaySyncCancellation {
+            GatewaySyncCancellation {
                 scope: f.operator_scope(),
                 sequence,
-            },),
-            REPLY_LIMITS,
+            },
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap()
 }
@@ -152,7 +153,8 @@ fn standalone_restore_preserves_failed_sync_and_blocks_refresh_and_cancellation(
     assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::Rejected(4)));
     let pending = f.local_status(f.operator, scope).unwrap().gateways;
     assert_eq!(pending.pending_sequence, Some(1));
-    f.upgrade(candid::encode_args(()).unwrap()).unwrap();
+    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::Fenced));
     assert_eq!(cancel(&f, f.operator, 1), Err(SyncError::Fenced));

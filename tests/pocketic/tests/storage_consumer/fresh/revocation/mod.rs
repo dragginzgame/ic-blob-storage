@@ -4,6 +4,7 @@ use blob_test_protocol::consumer::Revocation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
+use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 pub(super) fn withdraw(
     f: &Fixture,
     fault: Fault,
@@ -154,7 +155,13 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         let result: Result<UploadRevocationResponse, A> = f
             .harness
             .pic
-            .update_candid_as(f.service, actor, "blob_revoke_upload", (p,), REPLY_LIMITS)
+            .update_blob_as(
+                f.service,
+                actor,
+                "blob_revoke_upload",
+                p,
+                REPLY_LIMITS.reply_bytes,
+            )
             .unwrap();
         assert_eq!(result, Err(A::Denied));
     }
@@ -171,12 +178,12 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         let result: Result<UploadRevocationResponse, A> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_blob_as(
                 f.service,
                 f.tenant,
                 "blob_revoke_upload",
-                (changed,),
-                REPLY_LIMITS,
+                changed,
+                REPLY_LIMITS.reply_bytes,
             )
             .unwrap();
         assert_eq!(result, Err(A::Conflict));
