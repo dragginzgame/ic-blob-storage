@@ -24,7 +24,7 @@ impl Fixture {
         assert!(
             self.harness
                 .pic
-                .update_candid_as::<bool, _>(
+                .update_candid::<bool, _>(
                     self.operator,
                     self.controller,
                     "configure_read",
@@ -37,7 +37,7 @@ impl Fixture {
     fn chunk_observation(&self) -> ReadSourceObservation {
         self.harness
             .pic
-            .query_candid_as::<Option<ReadSourceObservation>, _>(
+            .query_candid::<Option<ReadSourceObservation>, _>(
                 self.operator,
                 self.controller,
                 "read_observation",
@@ -60,7 +60,7 @@ impl Fixture {
         assert!(
             self.harness
                 .pic
-                .update_candid_as::<bool, _>(
+                .update_candid::<bool, _>(
                     self.operator,
                     self.controller,
                     "resume_read",
@@ -103,7 +103,7 @@ impl Fixture {
     fn read_chunk(&self, actor: Principal, input: ReadSessionInput) -> Result<(), Failure> {
         self.harness
             .pic
-            .update_candid_as::<Result<JourneyReadChunk, Failure>, _>(
+            .update_candid::<Result<JourneyReadChunk, Failure>, _>(
                 self.service,
                 actor,
                 "fixture_read_chunk",
@@ -123,7 +123,7 @@ impl Fixture {
             })
     }
     fn session_view(&self) -> blob_test_protocol::storage::gateways::ReadSessionsView {
-        self.harness.pic.query_candid_as::<Result<blob_test_protocol::storage::gateways::ReadSessionsView, Failure>, _>(self.service, self.operator, "read_sessions", (), REPLY_LIMITS).unwrap().unwrap()
+        self.harness.pic.query_candid::<Result<blob_test_protocol::storage::gateways::ReadSessionsView, Failure>, _>(self.service, self.operator, "read_sessions", (), REPLY_LIMITS).unwrap().unwrap()
     }
 }
 #[test]

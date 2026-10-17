@@ -25,7 +25,7 @@ impl Fixture {
         let sync: Result<(), SyncFailure> = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.authority_operator,
                 "sync_gateway",
@@ -204,7 +204,7 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
     let armed: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "journey_arm_read_callback_trap",

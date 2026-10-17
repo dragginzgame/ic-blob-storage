@@ -15,7 +15,7 @@ impl Fixture {
     ) -> Option<SourceRecoveryView> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.gateway,
                 caller,
                 "recovery_observation",
@@ -51,7 +51,7 @@ impl Fixture {
         let configured: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.operator,
                 "configure_read",
@@ -69,7 +69,7 @@ impl Fixture {
         let configured: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.operator,
                 "configure",
@@ -81,13 +81,13 @@ impl Fixture {
         let resumed: bool = self
             .harness
             .pic
-            .update_candid_as(self.gateway, self.operator, "resume_read", (), REPLY_LIMITS)
+            .update_candid(self.gateway, self.operator, "resume_read", (), REPLY_LIMITS)
             .expect("fenced resume");
         assert!(!resumed);
         let sync: Result<(), SyncFailure> = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.operator,
                 "run_sync",
@@ -138,7 +138,7 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     let result: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.operator,
             "run_sync",

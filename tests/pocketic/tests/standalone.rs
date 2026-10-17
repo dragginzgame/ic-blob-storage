@@ -264,7 +264,7 @@ impl Fixture {
     fn configuration(&self, actor: Principal) -> Result<HostConfigurationView, HostFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "blob_configuration", (), REPLY_LIMITS)
+            .query_candid(self.service, actor, "blob_configuration", (), REPLY_LIMITS)
             .unwrap()
     }
     fn scope(&self) -> TenantScope {
@@ -277,7 +277,7 @@ impl Fixture {
     fn enroll(&self, actor: Principal) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "blob_update_tenant",
@@ -293,7 +293,7 @@ impl Fixture {
     fn tenant(&self) -> TenantEnrollmentResponse {
         self.harness
             .pic
-            .query_candid_as::<Result<TenantEnrollmentResponse, TenantFailure>, _>(
+            .query_candid::<Result<TenantEnrollmentResponse, TenantFailure>, _>(
                 self.service,
                 self.tenant,
                 "blob_tenant",
@@ -306,7 +306,7 @@ impl Fixture {
     fn admission(&self, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
         self.harness
             .pic
-            .query_candid_as::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
+            .query_candid::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
                 self.service,
                 self.tenant,
                 "blob_upload_admission",
@@ -323,7 +323,7 @@ impl Fixture {
     ) -> Result<UploadManifestMutation, UploadManifestFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "blob_prepare_upload",
@@ -343,7 +343,7 @@ impl Fixture {
     ) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "blob_resume_current_instance",
@@ -467,7 +467,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
         let result: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 actor,
                 "blob_admit_upload",
@@ -480,7 +480,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -501,7 +501,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let reference: Result<ReferenceMutationResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_apply_reference",
@@ -551,7 +551,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.uploader,
             "blob_upload_manifest",
@@ -569,7 +569,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_revoke_upload",

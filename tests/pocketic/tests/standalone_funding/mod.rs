@@ -32,7 +32,7 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
      -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
         f.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 actor,
                 FUNDING_OUTCOME_METHOD,
@@ -88,7 +88,7 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
     let replicated: Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             FUNDING_OUTCOME_METHOD,
@@ -131,7 +131,7 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
      -> Result<FundingHistoryPage, FundingHistoryFailure> {
         f.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 actor,
                 FUNDING_HISTORY_METHOD,
@@ -209,7 +209,7 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
     let replicated: Result<FundingHistoryPage, FundingHistoryFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             FUNDING_HISTORY_METHOD,

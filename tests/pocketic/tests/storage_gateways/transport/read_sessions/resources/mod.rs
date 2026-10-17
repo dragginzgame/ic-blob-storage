@@ -70,14 +70,14 @@ fn funding_lookup(
 ) -> Result<Option<FundingPhase>, Failure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "funding_lookup", (intent,), REPLY_LIMITS)
+        .query_candid(f.service, actor, "funding_lookup", (intent,), REPLY_LIMITS)
         .unwrap()
 }
 
 fn funding_request(f: &Fixture, intent: Intent) -> FundingRequest {
     f.harness
         .pic
-        .query_candid_as::<Result<FundingRequest, Failure>, _>(
+        .query_candid::<Result<FundingRequest, Failure>, _>(
             f.service,
             f.operator,
             "funding_request",

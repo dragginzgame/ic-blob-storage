@@ -70,7 +70,7 @@ fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
     assert!(
         f.harness
             .pic
-            .update_candid_as::<bool, _>(
+            .update_candid::<bool, _>(
                 f.config.billing.cashier,
                 f.controller,
                 "configure_balance",
@@ -92,7 +92,7 @@ fn inspect(
 ) -> Result<AccountInspectionResponse, AccountInspectionFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             actor,
             "blob_inspect_account",
@@ -273,7 +273,7 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
     assert!(
         f.harness
             .pic
-            .update_candid_as::<bool, _>(
+            .update_candid::<bool, _>(
                 input.scope.cashier,
                 f.controller,
                 "configure_balance",

@@ -36,7 +36,7 @@ impl Fixture {
     fn configure_balance(&self, scope: BalanceScope) -> Result<(), BalanceFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.authority,
                 self.driver,
                 "configure_balance",
@@ -49,7 +49,7 @@ impl Fixture {
         let result: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.driver,
                 "configure_balance",
@@ -67,7 +67,7 @@ impl Fixture {
     fn refresh_balance(&self) -> Result<(), BalanceFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.authority,
                 self.driver,
                 "refresh_balance",
@@ -88,7 +88,7 @@ impl Fixture {
         let status: Option<OperatorStatusView> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.authority,
                 self.driver,
                 "operator_status",
@@ -102,7 +102,7 @@ impl Fixture {
         let status: Option<BalanceSourceView> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.gateway,
                 self.driver,
                 "balance_observation",
@@ -147,7 +147,7 @@ impl Fixture {
         let resumed: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.driver,
                 "resume_balance",
@@ -275,7 +275,7 @@ fn malformed_rejected_and_misbound_replies_replace_no_history_with_zero() {
     let configured: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.driver,
             "configure_balance",
@@ -374,7 +374,7 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "resume_balance", (), REPLY_LIMITS)
+        .update_candid(f.gateway, f.driver, "resume_balance", (), REPLY_LIMITS)
         .unwrap();
     assert!(resumed);
     let error = f
@@ -398,7 +398,7 @@ fn authority_and_capacity_checks_happen_before_any_source_call() {
     let denied: Result<(), BalanceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.authority,
             Principal::anonymous(),
             "configure_balance",

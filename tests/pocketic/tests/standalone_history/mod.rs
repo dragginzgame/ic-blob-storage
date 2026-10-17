@@ -19,7 +19,7 @@ impl Fixture {
     ) -> Result<UploadHistoryPage, UploadHistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 UPLOAD_HISTORY_METHOD,
@@ -50,7 +50,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -75,7 +75,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let replicated: Result<UploadHistoryPage, UploadHistoryFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             UPLOAD_HISTORY_METHOD,
@@ -88,7 +88,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_revoke_upload",
@@ -101,7 +101,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_update_tenant",

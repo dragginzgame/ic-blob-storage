@@ -13,7 +13,7 @@ impl Fixture {
     ) -> Result<JourneyProgress, CheckpointProbeFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 caller,
                 "probe_checkpoint",
@@ -200,7 +200,7 @@ fn controller_status_cannot_use_an_operator_checkpoint_probe() {
     let retained: Option<AuthorityArchiveView> = f
         .harness
         .pic
-        .query_candid_as(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
+        .query_candid(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
         .unwrap();
     assert!(retained.unwrap().fenced);
     assert_eq!(

@@ -20,13 +20,13 @@ fn input(f: &Fixture, permission: Permission) -> ExposureInput {
 fn expose(f: &Fixture, actor: Principal, input: ExposureInput) -> Result<ExposureOutcome, E> {
     f.harness
         .pic
-        .update_candid_as(f.service, actor, "expose", (input,), REPLY_LIMITS)
+        .update_candid(f.service, actor, "expose", (input,), REPLY_LIMITS)
         .unwrap()
 }
 fn preview(f: &Fixture, input: ExposureInput) -> Result<Vec<B>, E> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.uploader,
             "exposure_preview",
@@ -42,7 +42,7 @@ fn inspect(
 ) -> Result<UploadAdmissionResponse, E> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             "exposure_status",

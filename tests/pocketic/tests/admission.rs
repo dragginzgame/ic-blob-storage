@@ -81,7 +81,7 @@ impl Fixture {
     fn inspect(&self, caller: Principal, request: Request) -> Result<Observation, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, caller, "inspect", (request,), REPLY_LIMITS)
+            .query_candid(self.service, caller, "inspect", (request,), REPLY_LIMITS)
             .expect("typed query reply")
     }
 

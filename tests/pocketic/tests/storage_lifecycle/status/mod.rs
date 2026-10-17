@@ -19,7 +19,7 @@ fn inspect(
 ) -> Result<ReferenceStatusResponse, ReferenceFailure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             "blob_reference_status",
@@ -82,7 +82,7 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
     let replicated: Result<ReferenceStatusResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_reference_status",
@@ -134,7 +134,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         max_reply_bytes: 4096,
     };
     let fetch = |input: ReferenceStatusClientInput| -> Result<ReferenceStatusResponse, ReferenceProbeFailure> {
-        f.harness.pic.update_candid_as(client, f.operator, "fixture_fetch_reference_status", (input,), REPLY_LIMITS).unwrap()
+        f.harness.pic.update_candid(client, f.operator, "fixture_fetch_reference_status", (input,), REPLY_LIMITS).unwrap()
     };
     let before = f.harness.pic.get_stable_memory(f.service);
     let client_before = f.harness.pic.get_stable_memory(client);
@@ -184,7 +184,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     let query: Result<ReferenceStatusResponse, ReferenceProbeFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             client,
             f.operator,
             "fixture_nonreplicated_reference_status",
@@ -196,7 +196,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     let denied: Result<ReferenceStatusResponse, ReferenceProbeFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             client,
             f.other,
             "fixture_fetch_reference_status",

@@ -18,7 +18,7 @@ fn root(permission: Permission) -> String {
 fn configure(f: &Fixture, input: ExposureInput) {
     f.harness
         .pic
-        .update_candid_as::<(), _>(
+        .update_candid::<(), _>(
             f.service,
             f.operator,
             "configure_certificate_fixture",
@@ -108,7 +108,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
     let reply: ProviderReply = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, METHOD, (&root,), REPLY_LIMITS)
+        .update_candid(f.service, f.uploader, METHOD, (&root,), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);

@@ -15,7 +15,7 @@ fn inspect_permission(
 ) -> Result<UploadAdmissionResponse, A> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.tenant,
             "blob_upload_admission",

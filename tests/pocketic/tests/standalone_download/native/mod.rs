@@ -70,7 +70,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     let permission = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

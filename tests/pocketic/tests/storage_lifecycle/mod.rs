@@ -22,7 +22,7 @@ impl Fixture {
     pub(super) fn fact(&self, request: Request, fact: ProviderFact) -> Result<bool, Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.operator,
                 "fixture_provider_fact",
@@ -41,7 +41,7 @@ impl Fixture {
     ) -> Result<ReferenceMutationResponse, ReferenceFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.tenant,
                 REFERENCE_APPLY_METHOD,
@@ -56,7 +56,7 @@ impl Fixture {
     ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 self.tenant,
                 REFERENCE_RECEIPT_METHOD,
@@ -76,7 +76,7 @@ impl Fixture {
         let result: Result<ReferenceStatusResponse, ReferenceFailure> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 self.tenant,
                 "blob_reference_status",
@@ -117,7 +117,7 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
         let result: Result<bool, Failure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 actor,
                 "fixture_provider_fact",
@@ -347,7 +347,7 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
         let denied: Result<ReferenceReceiptLookup, ReferenceFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.service,
                 f.controller,
                 REFERENCE_RECEIPT_METHOD,

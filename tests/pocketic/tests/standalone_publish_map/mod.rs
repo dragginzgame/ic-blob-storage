@@ -49,7 +49,7 @@ fn manifest(directory: &Path, index: usize) -> UploadManifestRequest {
 pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -84,7 +84,7 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
     // A locally trusted statement exercises service confirmation, not provider availability.
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+        .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
             f.service,
             Fake::principal(90),
             "blob_attest_upload",
@@ -178,7 +178,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
     f.harness.pic.stop_live();
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_candid::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",

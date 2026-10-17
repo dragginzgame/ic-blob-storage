@@ -165,7 +165,7 @@ fn standalone_byte_bounded_dense_manifest_reaches_policy_and_budget_refusals_pre
     let mut manifest = f.small_manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

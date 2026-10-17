@@ -11,7 +11,7 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 TENANT_UPDATE_METHOD,
@@ -27,7 +27,7 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 TENANT_INSPECTION_METHOD,

@@ -29,7 +29,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let saved: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.operator,
             "save_manifest",
@@ -42,7 +42,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let wrong: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "save_manifest",
@@ -54,7 +54,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let sent: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.operator,
             "dispatch_manifest",
@@ -72,7 +72,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let recovered: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.operator,
             "recover_manifest",

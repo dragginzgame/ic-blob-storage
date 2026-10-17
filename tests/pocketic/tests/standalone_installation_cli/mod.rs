@@ -207,7 +207,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     let manifest = f.small_manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

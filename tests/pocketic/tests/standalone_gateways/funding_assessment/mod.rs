@@ -18,7 +18,7 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
     let request = f.manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

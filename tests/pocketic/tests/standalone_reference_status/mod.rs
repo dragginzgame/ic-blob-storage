@@ -11,7 +11,7 @@ impl Fixture {
     ) -> Result<ReferenceStatusResponse, ReferenceFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "blob_reference_status",
@@ -45,7 +45,7 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -62,7 +62,7 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
     let replicated: Result<ReferenceStatusResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_reference_status",

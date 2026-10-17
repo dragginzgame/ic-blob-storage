@@ -125,7 +125,7 @@ pub(super) fn resources(f: &Fixture) -> serde_json::Value {
     let result: Result<RestorationResources, Failure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.operator,
             "restoration_resources",
@@ -236,7 +236,7 @@ fn manifest(f: &Fixture, input: &PreparationInput) -> UploadManifestResponse {
     let result: Result<UploadManifestResponse, UploadManifestFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             input.request.tenant,
             "blob_upload_manifest",
@@ -395,7 +395,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             &packet,
         );
         assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
-        let result = f.harness.pic.update_candid_as::<Result<(), Failure>, _>(
+        let result = f.harness.pic.update_candid::<Result<(), Failure>, _>(
             service,
             operator,
             "populate_resources",
@@ -524,7 +524,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
     let refused: Result<(), Failure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             service,
             operator,
             "populate_resources",

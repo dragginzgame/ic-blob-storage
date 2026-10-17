@@ -384,7 +384,7 @@ impl Trial {
             .f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.f.service,
                 self.f.tenant,
                 "blob_apply_reference",

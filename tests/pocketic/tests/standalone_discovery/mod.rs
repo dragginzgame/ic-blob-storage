@@ -13,7 +13,7 @@ impl Fixture {
     ) -> Result<UploadDiscoveryResponse, F> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 UPLOAD_DISCOVERY_METHOD,
@@ -40,7 +40,7 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             UPLOAD_DISCOVERY_METHOD,
@@ -103,7 +103,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -132,7 +132,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             UPLOAD_DISCOVERY_METHOD,
@@ -145,7 +145,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_update_tenant",

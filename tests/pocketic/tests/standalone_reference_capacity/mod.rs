@@ -13,7 +13,7 @@ impl Fixture {
     ) -> Result<ReferenceCapacityResponse, F> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 REFERENCE_CAPACITY_METHOD,
@@ -40,7 +40,7 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
     let replicated: Result<ReferenceCapacityResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             REFERENCE_CAPACITY_METHOD,
@@ -99,7 +99,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -123,7 +123,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_update_tenant",

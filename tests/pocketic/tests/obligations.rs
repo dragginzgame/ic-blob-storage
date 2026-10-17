@@ -21,7 +21,7 @@ fn objects(
     canister: Principal,
     caller: Principal,
 ) -> Option<Vec<ObligationProbeView>> {
-    pic.query_candid_as(canister, caller, "unsettled_objects", (), REPLY_LIMITS)
+    pic.query_candid(canister, caller, "unsettled_objects", (), REPLY_LIMITS)
         .expect("tenant query")
 }
 fn confirm(
@@ -30,7 +30,7 @@ fn confirm(
     caller: Principal,
     fact: ObligationProbeFact,
 ) -> bool {
-    pic.update_candid_as(
+    pic.update_candid(
         canister,
         caller,
         "confirm_obligation",
@@ -108,7 +108,7 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
     ));
     assert_eq!(objects(pic, canister, first), Some(vec![first_live]));
     let released: bool = pic
-        .update_candid_as(canister, first, "release", (1_u8,), REPLY_LIMITS)
+        .update_candid(canister, first, "release", (1_u8,), REPLY_LIMITS)
         .expect("release");
     assert!(released);
     assert_eq!(
@@ -137,7 +137,7 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
     };
     assert_eq!(objects(pic, canister, first), Some(vec![deleted]));
     let pending: Option<Vec<u8>> = pic
-        .query_candid_as(canister, gateway, "pending", (), REPLY_LIMITS)
+        .query_candid(canister, gateway, "pending", (), REPLY_LIMITS)
         .expect("deletion queue");
     assert_eq!(pending, Some(vec![]));
     assert!(confirm(

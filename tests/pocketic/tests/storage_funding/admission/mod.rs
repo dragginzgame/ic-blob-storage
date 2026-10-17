@@ -6,7 +6,7 @@ impl Fixture {
     fn inspect_attempt(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "funding_attempt",
@@ -18,7 +18,7 @@ impl Fixture {
     fn guarded_attempt(&self, actor: Principal, intent: Intent) -> Result<Attempt, Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "mark_funding_attempt",
@@ -30,7 +30,7 @@ impl Fixture {
     fn inspect_preparation(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "funding_preparation",
@@ -42,7 +42,7 @@ impl Fixture {
     fn guarded_prepare(&self, actor: Principal, intent: Intent) -> Result<Preparation, Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "prepare_funding",

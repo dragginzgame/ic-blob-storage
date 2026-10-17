@@ -92,7 +92,7 @@ impl Serial {
             .f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.trial.f.service,
                 self.trial.f.tenant,
                 "blob_upload_admission",
@@ -888,7 +888,7 @@ impl Serial {
             .f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.trial.f.service,
                 self.trial.f.tenant,
                 "blob_reference_receipt",

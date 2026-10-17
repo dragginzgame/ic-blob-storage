@@ -45,7 +45,7 @@ fn history(
 ) -> Result<FundingHistoryPage, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             client,
             f.controller,
             "fixture_funding_history",
@@ -64,7 +64,7 @@ fn outcome(
 ) -> Result<Option<FundingOutcomeResponse>, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             client,
             f.controller,
             "fixture_funding_outcome",
@@ -210,7 +210,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
         let denied: Result<FundingHistoryPage, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 client,
                 f.other,
                 "fixture_funding_history",
@@ -222,7 +222,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
         let query: Result<FundingHistoryPage, ConsumerFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 client,
                 f.controller,
                 "fixture_query_funding",

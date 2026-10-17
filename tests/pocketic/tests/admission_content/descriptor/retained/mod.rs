@@ -13,7 +13,7 @@ fn inspect(
 ) -> Result<Option<RetainedDescriptor>, Failure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             "retained_content_descriptor",

@@ -14,7 +14,7 @@ impl Fixture {
     ) -> Result<UploadStatusResponse, UploadStatusFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 UPLOAD_STATUS_METHOD,
@@ -41,7 +41,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -60,7 +60,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let replicated: Result<UploadStatusResponse, UploadStatusFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             UPLOAD_STATUS_METHOD,
@@ -73,7 +73,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_update_tenant",
@@ -91,7 +91,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_revoke_upload",
@@ -126,7 +126,7 @@ fn standalone_upload_status_rejects_foreign_malformed_and_changed_original_bindi
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",

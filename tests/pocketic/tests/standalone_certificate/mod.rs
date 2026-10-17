@@ -15,7 +15,7 @@ pub(super) fn inspect(
 ) -> Result<UploadCertificateAssessmentResponse, E> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, INSPECT, (root.to_owned(),), REPLY_LIMITS)
+        .query_candid(f.service, actor, INSPECT, (root.to_owned(),), REPLY_LIMITS)
         .unwrap()
 }
 pub(super) fn refuses(f: &Fixture, actor: Principal, root: &str) {
@@ -46,7 +46,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     assert_eq!(admit(&f, oversized), Err(UploadAdmissionFailure::Capacity));
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -85,7 +85,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
+        .update_candid(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
@@ -100,7 +100,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",
@@ -176,7 +176,7 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             second.permission.uploader,
             ISSUE,
@@ -214,7 +214,7 @@ fn admit(
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -232,7 +232,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     let root = root(&manifest);
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -254,7 +254,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
+        .update_candid(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
@@ -282,7 +282,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     refuses(&f, f.uploader, &root);
     f.harness
         .pic
-        .update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_revoke_upload",

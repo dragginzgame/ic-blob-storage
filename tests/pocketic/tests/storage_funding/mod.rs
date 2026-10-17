@@ -22,7 +22,7 @@ impl Fixture {
     ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "funding_summary",
@@ -50,7 +50,7 @@ impl Fixture {
     ) -> Result<bool, Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "fixture_funding",
@@ -67,7 +67,7 @@ impl Fixture {
     fn funding_lookup(&self, actor: Principal, intent: Intent) -> Result<Option<Phase>, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "funding_lookup",
@@ -79,7 +79,7 @@ impl Fixture {
     pub(super) fn funding_allocation(&self) -> Allocation {
         self.harness
             .pic
-            .query_candid_as::<Result<Allocation, Failure>, _>(
+            .query_candid::<Result<Allocation, Failure>, _>(
                 self.service,
                 self.operator,
                 "funding_allocation",
@@ -243,7 +243,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
     let inspect = |actor, intent| {
         f.harness
             .pic
-            .query_candid_as::<Result<blob_test_protocol::storage::funding::Request, Failure>, _>(
+            .query_candid::<Result<blob_test_protocol::storage::funding::Request, Failure>, _>(
                 f.service,
                 actor,
                 "funding_request",
@@ -290,7 +290,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
     let wrong_source: Result<bool, Failure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "fixture_funding",

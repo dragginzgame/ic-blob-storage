@@ -22,7 +22,7 @@ fn capacity(
 ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             "blob_upload_capacity",

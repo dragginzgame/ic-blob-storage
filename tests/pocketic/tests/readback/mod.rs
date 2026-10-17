@@ -21,7 +21,7 @@ impl Fixture {
     ) -> Result<Option<ReadExecutionProfile>, JourneyFailure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 caller,
                 "journey_read_resources",
@@ -42,7 +42,7 @@ impl Fixture {
         let accepted: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.operator,
                 "configure_read",
@@ -63,7 +63,7 @@ impl Fixture {
         let observed: Option<ReadSourceObservation> = self
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.gateway,
                 self.operator,
                 "read_observation",
@@ -82,7 +82,7 @@ impl Fixture {
     ) -> Result<JourneyReadChunk, JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 caller,
                 "journey_read",
@@ -116,7 +116,7 @@ impl Fixture {
         let resumed: bool = self
             .harness
             .pic
-            .update_candid_as(self.gateway, self.operator, "resume_read", (), REPLY_LIMITS)
+            .update_candid(self.gateway, self.operator, "resume_read", (), REPLY_LIMITS)
             .expect("resume source");
         assert!(resumed);
         candid::decode_one(&self.harness.pic.await_call(id).expect("read callback"))
@@ -259,7 +259,7 @@ fn release_during_a_held_read_prevents_reply_disclosure_and_later_reads() {
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.first, "resume_read", (), REPLY_LIMITS)
+        .update_candid(f.gateway, f.first, "resume_read", (), REPLY_LIMITS)
         .expect("denied resume");
     assert!(!resumed);
     assert_eq!(
@@ -316,13 +316,13 @@ fn revoked_and_readded_gateway_cannot_validate_its_old_held_reply() {
         let configured: bool = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.operator, "configure", (mode,), REPLY_LIMITS)
+            .update_candid(f.gateway, f.operator, "configure", (mode,), REPLY_LIMITS)
             .expect("sync source mode");
         assert!(configured);
         let result: Result<(), SyncFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.gateway,
                 f.operator,
                 "run_sync",

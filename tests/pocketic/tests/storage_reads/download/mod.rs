@@ -14,7 +14,7 @@ impl Fixture {
     ) -> Result<DownloadResponse, DownloadFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "blob_download_descriptor",

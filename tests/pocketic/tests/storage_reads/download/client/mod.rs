@@ -7,7 +7,7 @@ fn fetch(
 ) -> Result<DownloadResponse, DownloadProbeFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "fixture_fetch_descriptor",
@@ -81,7 +81,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
     let denied: Result<DownloadResponse, DownloadProbeFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             client,
             f.other,
             "fixture_fetch_descriptor",
@@ -93,7 +93,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
     let query: Result<DownloadResponse, DownloadProbeFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             client,
             f.operator,
             "fixture_nonreplicated_descriptor",

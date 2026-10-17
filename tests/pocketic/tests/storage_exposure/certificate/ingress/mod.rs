@@ -200,7 +200,7 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         .fixture
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             h.fixture.service,
             h.fixture.tenant,
             "blob_revoke_upload",

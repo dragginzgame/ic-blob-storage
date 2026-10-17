@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -33,7 +33,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     f.resume(f.operator).unwrap();
     let root = super::standalone_certificate::root(&manifest);
     let _: ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse =
-        pic.update_candid_as(
+        pic.update_candid(
             f.service,
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
@@ -42,7 +42,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
         )
         .unwrap();
     assert_eq!(f.admission(permission).state, UploadState::ExposurePossible);
-    pic.update_candid_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
+    pic.update_candid::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
         f.service,
         f.tenant,
         "blob_revoke_upload",
@@ -89,7 +89,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     // The old backup may omit later history, but neither absence nor its local
     // counters authorize admission or a fresh certificate for the reused identity.
     assert_eq!(
-        pic.update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        pic.update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

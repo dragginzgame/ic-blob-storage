@@ -12,7 +12,7 @@ impl Fixture {
     ) -> Result<UploadCapacityResponse, F> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 UPLOAD_CAPACITY_METHOD,
@@ -92,7 +92,7 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
     let replicated: Result<UploadCapacityResponse, F> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             UPLOAD_CAPACITY_METHOD,
@@ -131,7 +131,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let enrolled: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_update_tenant",
@@ -156,7 +156,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
         let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 permission.upload.tenant,
                 "blob_admit_upload",
@@ -174,7 +174,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.operator,
             "blob_update_tenant",
@@ -190,7 +190,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.tenant,
             "blob_revoke_upload",

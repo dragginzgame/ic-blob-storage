@@ -274,7 +274,7 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
         let armed: bool = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 caller,
                 "journey_arm_read_callback_trap",

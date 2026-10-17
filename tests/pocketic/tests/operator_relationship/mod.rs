@@ -55,7 +55,7 @@ impl Fixture {
         let configured: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.driver,
                 "configure_balance",
@@ -176,7 +176,7 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
     let configured: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.driver,
             "configure_balance",
