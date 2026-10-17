@@ -12,8 +12,8 @@ use ic_management_canister_types::{
 /// Synchronous host access to the same restored installation. The host releases
 /// its borrow before returning; no saved handle crosses the platform await.
 pub trait RecoveryInstallationAccess {
-    /// Host-granted memory, from its sole runtime.
-    type Memory: ic_stable_structures::Memory;
+    /// Backing memory of the host's sole runtime; owners consume its exclusive leases.
+    type Memory: ic_memory::Memory;
     /// Borrow the same installation for an authenticated synchronous operation.
     fn with_installation<R>(
         &self,

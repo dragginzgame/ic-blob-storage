@@ -133,7 +133,7 @@ fn manifest_boundary_preserves_original_declaration_and_exact_permission_through
         );
     }
     drop(store);
-    let mut restored = StableUploads::open(m, config()).unwrap();
+    let mut restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(
         inspect(&restored, context(5), input.permission),
         Ok(first.observation)
@@ -145,7 +145,7 @@ fn manifest_boundary_preserves_original_declaration_and_exact_permission_through
 }
 #[test]
 fn manifest_boundary_rejects_raw_overruns_and_inconsistent_declarations_without_binding() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     enroll(&mut store);
     let input = input();
     admit(&mut store, context(4), input.permission, 1).unwrap();

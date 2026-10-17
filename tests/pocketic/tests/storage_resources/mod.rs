@@ -327,7 +327,7 @@ fn populated_service_restoration_profile() {
         "summary.json",
         &serde_json::json!({"failed_restore_workloads":failures,
         "provider_requests":0,"paid_cycles":"0","subnet":"normal application",
-        "limitations":["synthetic client-prepared manifests and local completion facts", "instrumented reads include observer overhead", "allocated linear memory is not live heap", "same-release synchronous reopen; no freshness resume", "no million-object or populated funding/read-history qualification"]}),
+        "limitations":["synthetic client-prepared manifests and local completion facts", "instrumented reads include observer and nested fixture-manager overhead", "allocated linear memory is not live heap", "same-release synchronous reopen; no freshness resume", "no million-object or populated funding/read-history qualification"]}),
     );
     assert!(failures.is_empty(), "failed restoration workloads retained");
 }

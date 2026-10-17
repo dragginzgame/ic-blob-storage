@@ -32,24 +32,24 @@ fn batch(roots: &[Vec<u8>]) -> ProviderRootBatch {
     )
     .unwrap()
 }
-fn registry(memory: VectorMemory) -> StableGatewayRegistry<VectorMemory> {
-    let mut registry = StableGatewayRegistry::install(memory, config()).unwrap();
+fn registry(memory: &FixtureBackingMemory) -> StableGatewayRegistry<FixtureBackingMemory> {
+    let mut registry = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     registry.add(context(2), scope(), p(6)).unwrap();
     registry
 }
 #[test]
 fn gateway_callbacks_reject_each_restored_owner_independently() {
-    let gm = VectorMemory::default();
+    let gm = FixtureBackingMemory::default();
     let um = memory();
-    let live_registry = registry(gm.clone());
+    let live_registry = registry(&gm);
     let live_uploads = StableUploads::install(clone_memory(&um), config()).unwrap();
     let empty = batch(&[]);
     assert_eq!(
         observe_roots(&live_registry, &live_uploads, caller(p(6)), scope(), &empty),
         Ok(vec![])
     );
-    let restored_registry = StableGatewayRegistry::open(gm, config()).unwrap();
-    let restored_uploads = StableUploads::open(clone_memory(&um), config()).unwrap();
+    let restored_registry = StableGatewayRegistry::open(gm.snapshot().lease(), config()).unwrap();
+    let restored_uploads = StableUploads::open(snapshot_memory(&um), config()).unwrap();
     assert_eq!(
         observe_roots(
             &restored_registry,
@@ -73,8 +73,8 @@ fn gateway_callbacks_reject_each_restored_owner_independently() {
 }
 #[test]
 fn gateway_callbacks_bind_actual_service_and_complete_owner_configuration() {
-    let registry = registry(VectorMemory::default());
-    let uploads = StableUploads::install(memory(), config()).unwrap();
+    let registry = registry(&FixtureBackingMemory::default());
+    let uploads = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let empty = batch(&[]);
     assert_eq!(
         observe_roots(
@@ -110,7 +110,7 @@ fn gateway_callbacks_bind_actual_service_and_complete_owner_configuration() {
         (original.bindings(), changed_limits),
     ] {
         let changed = ServiceConfiguration::new(bindings, limits, original.billing()).unwrap();
-        let uploads = StableUploads::install(memory(), changed).unwrap();
+        let uploads = StableUploads::install(clone_memory(&(memory())), changed).unwrap();
         assert_eq!(
             observe_roots(&registry, &uploads, caller(p(6)), scope(), &empty),
             Err(GatewayCallbackError::Registry(GatewayStoreError::Binding))
@@ -119,8 +119,8 @@ fn gateway_callbacks_bind_actual_service_and_complete_owner_configuration() {
 }
 #[test]
 fn gateway_callbacks_fail_closed_on_missing_root_request_index() {
-    let registry = registry(VectorMemory::default());
-    let mut uploads = StableUploads::install(memory(), config()).unwrap();
+    let registry = registry(&FixtureBackingMemory::default());
+    let mut uploads = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     enroll(&mut uploads);
     let input = permission(1);
     uploads.admit(context(4), input, 1).unwrap();

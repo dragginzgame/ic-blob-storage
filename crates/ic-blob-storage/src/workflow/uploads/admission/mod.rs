@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 /// Reserve one exact permission synchronously using actual host caller/service/time.
 /// Persist consumer intent before dispatch. This issues no certificate or provider effect.
 /// The adapter must propagate traps to preserve IC atomic rollback of stable writes.

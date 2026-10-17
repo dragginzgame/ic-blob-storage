@@ -115,9 +115,10 @@ open integration work and retained trial obligations are recorded in the
 [current status](docs/status/current.md). Earlier live trials remain frozen and
 do not establish production readiness for the current release.
 
-The current 0.23 release line publicly re-exports ic-memory 0.36. Hosts compose
-one memory package identity and one allocation pool; rebuild their composition
-against that line. Cross-release installations require safe obligation
+The pending 0.33 storage API uses IC Storage 0.5 and publicly re-exports IC Memory
+0.48. Hosts compose one memory package identity and one allocation pool. Owner
+type parameters name the backing memory; construction takes exclusive runtime
+leases. Cross-release installations require safe obligation
 disposition before reinstall, as described in the
 [service contract](docs/service-contract.md#current-persisted-boundaries).
 

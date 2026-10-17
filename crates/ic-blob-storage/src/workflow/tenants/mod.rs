@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantFailure;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Apply one exact operator precondition synchronously; suspension retains obligations.
 /// Lost replies require inspection: the command is not an idempotent operation receipt.

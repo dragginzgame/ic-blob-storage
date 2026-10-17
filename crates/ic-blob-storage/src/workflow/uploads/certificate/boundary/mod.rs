@@ -9,7 +9,7 @@ use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertifica
 use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 use super::UploadCertificateFailure;
 /// Inspect the same local eligibility and independent evidence used at issuance.

@@ -25,8 +25,8 @@ fn request() -> ReferenceStatusRequest {
     }
 }
 fn reserved() -> (
-    StableUploads<VectorMemory>,
-    UploadMemories<VectorMemory>,
+    StableUploads<FixtureBackingMemory>,
+    UploadMemories<FixtureBackingMemory>,
     UploadPermission,
 ) {
     let m = memory();
@@ -221,7 +221,7 @@ fn reference_status_boundary_preserves_liveness_through_suspension_release_settl
     store.confirm_billing_stopped(permission.request).unwrap();
     assert_eq!(inspect(&store, context(4), input), Ok(expected));
     drop(store);
-    let restored = StableUploads::open(memory, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(memory)), config()).unwrap();
     expected.fenced = true;
     assert_eq!(inspect(&restored, context(4), input), Ok(expected));
     assert_eq!(

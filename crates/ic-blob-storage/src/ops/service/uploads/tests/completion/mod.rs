@@ -13,7 +13,7 @@ fn authority() -> CompletionAuthority {
 
 #[test]
 fn attestation_binds_role_permission_and_observation_without_bypassing_exposure() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     enroll(&mut store);
     let manifest = manifest_boundary::input();
     let permission = manifest.permission;
@@ -106,6 +106,7 @@ fn late_attestation_survives_revocation_and_fenced_restore_as_immutable_evidence
     };
     let accepted = attest(&mut store, authority(), context(9), &input, 101).unwrap();
     let usage = store.usage().unwrap();
+    drop(store);
     let mut restored = StableUploads::open(clone_memory(&m), config()).unwrap();
     let response = inspect(&restored, authority(), context(4), permission).unwrap();
     assert!(response.fenced);

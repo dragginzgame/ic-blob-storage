@@ -23,7 +23,9 @@ pub(super) fn evidence() -> UploadExposureHostEvidence {
         durable_commit: true,
     }
 }
-pub(super) fn prepared(m: UploadMemories<VectorMemory>) -> StableUploads<VectorMemory> {
+pub(super) fn prepared(
+    m: UploadMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>>,
+) -> StableUploads<FixtureBackingMemory> {
     let mut store = StableUploads::install(m, config()).unwrap();
     enroll(&mut store);
     let input = manifest_boundary::input();
@@ -96,7 +98,7 @@ fn exposure_policy_keeps_each_missing_host_fact_independent() {
 }
 #[test]
 fn exposure_binds_complete_permission_and_current_evidence_before_any_write() {
-    let mut store = prepared(memory());
+    let mut store = prepared(clone_memory(&(memory())));
     let p = manifest_boundary::input().permission;
     let yes = evidence();
     let usage = store.usage().unwrap();
@@ -211,7 +213,7 @@ fn exposure_preview_never_overrides_revocation_activation_expiry_or_restore() {
     assert!(cancelled.revoked);
     assert_eq!(cancelled.state, UploadState::Cancelled);
     drop(store);
-    let mut restored = StableUploads::open(m, config()).unwrap();
+    let mut restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(exposure::inspect(&restored, context(4), p), Ok(cancelled));
     assert_eq!(
         exposure::commit(&mut restored, context(5), p, yes, 2),
@@ -243,7 +245,7 @@ fn exposure_requires_preparation_and_retains_charged_uncertainty_after_withdrawa
         Err(F::Permission(A::Denied))
     );
     drop(store);
-    let restored = StableUploads::open(m, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(
         exposure::inspect(&restored, context(5), input.permission),
         Ok(retained)

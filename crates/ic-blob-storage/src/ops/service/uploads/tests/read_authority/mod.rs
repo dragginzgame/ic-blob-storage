@@ -16,13 +16,14 @@ fn scope() -> GatewayScope {
     GatewayScope::new(p(1), NonZeroU128::MIN, p(3)).unwrap()
 }
 pub(super) fn setup() -> (
-    StableGatewayRegistry<VectorMemory>,
-    StableUploads<VectorMemory>,
+    StableGatewayRegistry<FixtureBackingMemory>,
+    StableUploads<FixtureBackingMemory>,
     UploadPermission,
 ) {
-    let mut registry = StableGatewayRegistry::install(VectorMemory::default(), config()).unwrap();
+    let mut registry =
+        StableGatewayRegistry::install(FixtureBackingMemory::default().lease(), config()).unwrap();
     registry.add(context(2), scope(), p(6)).unwrap();
-    let mut uploads = StableUploads::install(memory(), config()).unwrap();
+    let mut uploads = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = lifecycle::exposed(&mut uploads);
     uploads.confirm_upload(input.request).unwrap();
     (registry, uploads, input)
@@ -174,16 +175,16 @@ fn read_authority_binds_tenant_generation_caller_and_exact_reference() {
 }
 #[test]
 fn read_authority_refuses_either_restored_owner_and_wrong_scope() {
-    let gm = VectorMemory::default();
+    let gm = FixtureBackingMemory::default();
     let um = memory();
-    let mut registry = StableGatewayRegistry::install(gm.clone(), config()).unwrap();
+    let mut registry = StableGatewayRegistry::install(gm.clone().lease(), config()).unwrap();
     registry.add(context(2), scope(), p(6)).unwrap();
     let mut uploads = StableUploads::install(clone_memory(&um), config()).unwrap();
     let input = lifecycle::exposed(&mut uploads);
     uploads.confirm_upload(input.request).unwrap();
     let stamp = capture(&registry, &uploads, context(4), scope(), target(input)).unwrap();
-    let reopened_registry = StableGatewayRegistry::open(gm, config()).unwrap();
-    let reopened_uploads = StableUploads::open(clone_memory(&um), config()).unwrap();
+    let reopened_registry = StableGatewayRegistry::open(gm.snapshot().lease(), config()).unwrap();
+    let reopened_uploads = StableUploads::open(snapshot_memory(&um), config()).unwrap();
     assert_eq!(
         recheck(&reopened_registry, &uploads, context(4), &stamp),
         Err(ReadAuthorityError::Registry(GatewayStoreError::Fenced))

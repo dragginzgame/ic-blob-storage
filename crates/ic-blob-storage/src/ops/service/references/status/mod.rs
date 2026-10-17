@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 use ic_blob_storage_contracts::reference::status::parse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 pub(crate) fn inspect<M: Memory>(
     uploads: &StableUploads<M>,

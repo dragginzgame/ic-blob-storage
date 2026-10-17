@@ -3,7 +3,7 @@ use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 #[cfg(test)]
-use ic_stable_structures::Storable;
+use ic_storage::adapter::Storable;
 #[cfg(test)]
 use std::borrow::Cow;
 use std::num::NonZeroU64;
@@ -67,7 +67,7 @@ pub(crate) enum TenantStoreRecord {
 crate::model::record_codec::storable!(
     TenantStoreRecord, bytes: MAX_BYTES, work: 20_000, skipping: 1000,
     types: 32, header: MAX_BYTES,
-    layout: ic_stable_structures::storable::Bound::Bounded {
+    layout: ic_storage::adapter::storable::Bound::Bounded {
         max_size: MAX_BYTES, is_fixed_size: false,
     },
 );

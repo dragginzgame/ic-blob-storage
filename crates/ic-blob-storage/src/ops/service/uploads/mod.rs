@@ -48,7 +48,8 @@ use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
-use ic_stable_structures::{BTreeMap, Memory};
+use ic_memory::{Memory, RuntimeMemory};
+use ic_storage::adapter::StableBTreeMap;
 pub use lifecycle::ConfirmedUploadView;
 use std::num::NonZeroU64;
 use thiserror::Error;
@@ -100,13 +101,13 @@ pub struct StableUploads<M: Memory> {
     config: ServiceConfiguration,
     tenants: StableTenantEnrollments<M>,
     roots: StableRootClaims<M>,
-    permissions: BTreeMap<Key, UploadStoreRecord, M>,
-    usage: BTreeMap<Principal, UploadUsageRecord, M>,
-    manifests: BTreeMap<Key, UploadManifestRecord, M>,
-    confirmed: BTreeMap<Key, ConfirmedLifecycleRecord, M>,
-    references: BTreeMap<(Key, u128), ReferenceRecord, M>,
-    receipts: BTreeMap<(Key, u128), ReferenceReceiptRecord, M>,
-    root_requests: BTreeMap<[u8; 32], u128, M>,
+    permissions: StableBTreeMap<Key, UploadStoreRecord, M>,
+    usage: StableBTreeMap<Principal, UploadUsageRecord, M>,
+    manifests: StableBTreeMap<Key, UploadManifestRecord, M>,
+    confirmed: StableBTreeMap<Key, ConfirmedLifecycleRecord, M>,
+    references: StableBTreeMap<(Key, u128), ReferenceRecord, M>,
+    receipts: StableBTreeMap<(Key, u128), ReferenceReceiptRecord, M>,
+    root_requests: StableBTreeMap<[u8; 32], u128, M>,
     fenced: bool,
 }
 #[expect(
@@ -125,7 +126,7 @@ impl<M: Memory> StableUploads<M> {
     /// # Panics
     /// Aliased memories or stable writes trap. Hosts must propagate this for IC rollback.
     pub(crate) fn install(
-        memory: UploadMemories<M>,
+        memory: UploadMemories<RuntimeMemory<M>>,
         config: ServiceConfiguration,
     ) -> Result<Self, UploadStoreError> {
         recovery::envelope(&config)?;
@@ -151,23 +152,23 @@ impl<M: Memory> StableUploads<M> {
         let roots = StableRootClaims::install(memory.roots, memory.objects, config)
             .expect("fresh distinct root memories");
         assert_eq!(memory.permissions.size(), 0, "distinct permission memory");
-        let mut permissions = BTreeMap::new(memory.permissions);
+        let mut permissions = StableBTreeMap::new(memory.permissions);
         assert_eq!(memory.usage.size(), 0, "distinct usage memory");
-        let mut usage = BTreeMap::new(memory.usage);
+        let mut usage = StableBTreeMap::new(memory.usage);
         assert_eq!(memory.manifests.size(), 0, "distinct manifest memory");
-        let manifests = BTreeMap::new(memory.manifests);
+        let manifests = StableBTreeMap::new(memory.manifests);
         assert_eq!(memory.confirmed.size(), 0, "distinct confirmed memory");
-        let confirmed = BTreeMap::new(memory.confirmed);
+        let confirmed = StableBTreeMap::new(memory.confirmed);
         assert_eq!(memory.references.size(), 0, "distinct reference memory");
-        let references = BTreeMap::new(memory.references);
+        let references = StableBTreeMap::new(memory.references);
         assert_eq!(memory.receipts.size(), 0, "distinct receipt memory");
-        let receipts = BTreeMap::new(memory.receipts);
+        let receipts = StableBTreeMap::new(memory.receipts);
         assert_eq!(
             memory.root_requests.size(),
             0,
             "distinct root request memory"
         );
-        let root_requests = BTreeMap::new(memory.root_requests);
+        let root_requests = StableBTreeMap::new(memory.root_requests);
         permissions.insert(
             metadata(),
             UploadStoreRecord::Configuration(UploadConfigurationRecord::new(&config)),
@@ -197,7 +198,7 @@ impl<M: Memory> StableUploads<M> {
     /// # Panics
     /// Corrupt binary memory/records trap without seeding a new owner.
     pub(crate) fn open(
-        memory: UploadMemories<M>,
+        memory: UploadMemories<RuntimeMemory<M>>,
         config: ServiceConfiguration,
     ) -> Result<Self, UploadStoreError> {
         recovery::envelope(&config)?;
@@ -224,13 +225,13 @@ impl<M: Memory> StableUploads<M> {
             config,
             tenants,
             roots,
-            permissions: BTreeMap::load(memory.permissions),
-            usage: BTreeMap::load(memory.usage),
-            manifests: BTreeMap::load(memory.manifests),
-            confirmed: BTreeMap::load(memory.confirmed),
-            references: BTreeMap::load(memory.references),
-            receipts: BTreeMap::load(memory.receipts),
-            root_requests: BTreeMap::load(memory.root_requests),
+            permissions: StableBTreeMap::load(memory.permissions),
+            usage: StableBTreeMap::load(memory.usage),
+            manifests: StableBTreeMap::load(memory.manifests),
+            confirmed: StableBTreeMap::load(memory.confirmed),
+            references: StableBTreeMap::load(memory.references),
+            receipts: StableBTreeMap::load(memory.receipts),
+            root_requests: StableBTreeMap::load(memory.root_requests),
             fenced: true,
         };
         owner.validate()?;

@@ -16,7 +16,7 @@ use crate::policy::billing::admission::journal::FundingJournalAdmissionObservati
 use crate::policy::billing::admission::journal::FundingPreparationAssessment;
 use crate::policy::billing::admission::journal::assess_journal_preparation;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Exact passive report. It cannot be passed back to the preparation handler.
 #[derive(Clone, Debug, Eq, PartialEq)]

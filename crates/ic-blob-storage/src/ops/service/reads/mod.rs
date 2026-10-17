@@ -15,7 +15,8 @@ use crate::model::service::read::session::record::ReadUsageRecord;
 use candid::Principal;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::{BTreeMap, Memory};
+use ic_memory::{Memory, RuntimeMemory};
+use ic_storage::adapter::StableBTreeMap;
 use std::{collections::BTreeMap as HeapMap, num::NonZeroU32, ops::Bound};
 
 /// Three distinct memories, exclusively granted by the host; no implicit registration.
@@ -51,9 +52,9 @@ pub struct ReadSessionView {
 /// revocation and elapsed time retain capacity; only the exact callback completes.
 /// The host must use one exclusive owner and enforce installation identity.
 pub struct StableReadSessions<M: Memory> {
-    journal: BTreeMap<u8, ReadJournalRecord, M>,
-    sessions: BTreeMap<u64, ReadSessionRecord, M>,
-    tenants: BTreeMap<Principal, ReadUsageRecord, M>,
+    journal: StableBTreeMap<u8, ReadJournalRecord, M>,
+    sessions: StableBTreeMap<u64, ReadSessionRecord, M>,
+    tenants: StableBTreeMap<Principal, ReadUsageRecord, M>,
     config: ServiceConfiguration,
     limits: ReadSessionLimits,
     fenced: bool,
@@ -75,7 +76,7 @@ impl<M: Memory> StableReadSessions<M> {
     /// # Panics
     /// Aliased grants and stable failures trap; the host must propagate rollback.
     pub(crate) fn install(
-        memory: ReadSessionMemories<M>,
+        memory: ReadSessionMemories<RuntimeMemory<M>>,
         config: ServiceConfiguration,
         limits: ReadSessionLimits,
     ) -> Result<Self, ReadSessionError> {
@@ -83,11 +84,11 @@ impl<M: Memory> StableReadSessions<M> {
         if memory.journal.size() != 0 || memory.sessions.size() != 0 || memory.tenants.size() != 0 {
             return Err(ReadSessionError::AlreadyAllocated);
         }
-        let mut journal = BTreeMap::new(memory.journal);
+        let mut journal = StableBTreeMap::new(memory.journal);
         assert_eq!(memory.sessions.size(), 0, "distinct read memories");
-        let sessions = BTreeMap::new(memory.sessions);
+        let sessions = StableBTreeMap::new(memory.sessions);
         assert_eq!(memory.tenants.size(), 0, "distinct read memories");
-        let tenants = BTreeMap::new(memory.tenants);
+        let tenants = StableBTreeMap::new(memory.tenants);
         journal.insert(0, ReadJournalRecord::new(&config, limits));
         Ok(Self {
             journal,
@@ -105,7 +106,7 @@ impl<M: Memory> StableReadSessions<M> {
     /// # Panics
     /// Invalid binary records or collection headers trap.
     pub(crate) fn open(
-        memory: ReadSessionMemories<M>,
+        memory: ReadSessionMemories<RuntimeMemory<M>>,
         config: ServiceConfiguration,
         limits: ReadSessionLimits,
     ) -> Result<Self, ReadSessionError> {
@@ -114,9 +115,9 @@ impl<M: Memory> StableReadSessions<M> {
             return Err(ReadSessionError::Missing);
         }
         let store = Self {
-            journal: BTreeMap::load(memory.journal),
-            sessions: BTreeMap::load(memory.sessions),
-            tenants: BTreeMap::load(memory.tenants),
+            journal: StableBTreeMap::load(memory.journal),
+            sessions: StableBTreeMap::load(memory.sessions),
+            tenants: StableBTreeMap::load(memory.tenants),
             config,
             limits,
             fenced: true,
@@ -124,7 +125,7 @@ impl<M: Memory> StableReadSessions<M> {
         let recorded = store.record()?;
         let mut total = ReadUsageRecord::empty();
         let mut tenants = HeapMap::<Principal, ReadUsageRecord>::new();
-        for entry in store.sessions.iter() {
+        for entry in &store.sessions {
             let ticket = entry
                 .value()
                 .ticket()

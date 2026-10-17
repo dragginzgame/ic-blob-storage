@@ -1,12 +1,13 @@
 use super::*;
 use crate::model::service::read::ReadTarget;
 use crate::ops::service::tenant::tests::config;
+use crate::test_support::memory::FixtureBackingMemory;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_stable_structures::{Storable, VectorMemory};
+use ic_storage::adapter::Storable;
 use std::num::{NonZeroU64, NonZeroU128};
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
@@ -27,18 +28,20 @@ fn limits() -> ReadSessionLimits {
     )
     .unwrap()
 }
-fn memory() -> ReadSessionMemories<VectorMemory> {
+fn memory() -> ReadSessionMemories<FixtureBackingMemory> {
     ReadSessionMemories {
-        journal: VectorMemory::default(),
-        sessions: VectorMemory::default(),
-        tenants: VectorMemory::default(),
+        journal: FixtureBackingMemory::default(),
+        sessions: FixtureBackingMemory::default(),
+        tenants: FixtureBackingMemory::default(),
     }
 }
-fn cloned(m: &ReadSessionMemories<VectorMemory>) -> ReadSessionMemories<VectorMemory> {
+fn cloned(
+    m: &ReadSessionMemories<FixtureBackingMemory>,
+) -> ReadSessionMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
     ReadSessionMemories {
-        journal: m.journal.clone(),
-        sessions: m.sessions.clone(),
-        tenants: m.tenants.clone(),
+        journal: m.journal.lease(),
+        sessions: m.sessions.lease(),
+        tenants: m.tenants.lease(),
     }
 }
 fn intent(tenant: u8) -> ReadSessionIntent {
@@ -138,6 +141,7 @@ fn read_session_byte_limits_are_independent_and_codec_restore_preserves_fenced_o
     let record = store.sessions.get(&first.sequence).unwrap();
     assert_eq!(ReadSessionRecord::from_bytes(record.to_bytes()), record);
     let summary = store.inspect(operator()).unwrap();
+    drop(store);
     let mut restored = StableReadSessions::open(cloned(&m), config(), limits).unwrap();
     assert_eq!(
         restored.inspect(operator()).unwrap(),
@@ -158,14 +162,17 @@ fn read_session_byte_limits_are_independent_and_codec_restore_preserves_fenced_o
             .len(),
         2
     );
+    drop(restored);
     assert!(matches!(
         StableReadSessions::open(cloned(&m), config(), self::limits()),
         Err(ReadSessionError::Binding)
     ));
+    let mut store = StableReadSessions::open(cloned(&m), config(), limits).unwrap();
     store.tenants.remove(&p(4));
+    assert_eq!(store.sessions.len(), 2);
+    drop(store);
     assert!(matches!(
         StableReadSessions::open(cloned(&m), config(), limits),
         Err(ReadSessionError::InvalidRecord)
     ));
-    assert_eq!(store.sessions.len(), 2);
 }

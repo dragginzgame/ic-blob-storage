@@ -9,7 +9,7 @@ use ic_blob_storage_contracts::reference::parse;
     reason = "One ordered independent-identity receipt journey through settlement"
 )]
 fn reference_receipt_boundary_preserves_independent_full_width_identities_and_failures() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     enroll(&mut store);
     let manifest = built();
     let mut input = permission(1);

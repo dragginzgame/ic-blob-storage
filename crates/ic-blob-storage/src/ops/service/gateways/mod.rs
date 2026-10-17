@@ -18,7 +18,8 @@ use crate::model::gateway::registry::record::MAX_MEMBERS;
 use candid::Principal;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::{BTreeMap, Memory};
+use ic_memory::{Memory, RuntimeMemory};
+use ic_storage::adapter::StableBTreeMap;
 use thiserror::Error;
 
 /// Passive operator inspection. Membership alone is not authenticated provider
@@ -40,7 +41,7 @@ pub struct GatewayRegistryView {
 /// one complete record; their cost is bounded by configured membership, not
 /// lifetime sync history. No implicit memory IDs, endpoints or lifecycle hooks.
 pub struct StableGatewayRegistry<M: Memory> {
-    records: BTreeMap<u8, GatewayRegistryRecord, M>,
+    records: StableBTreeMap<u8, GatewayRegistryRecord, M>,
     config: ServiceConfiguration,
     fenced: bool,
 }
@@ -61,7 +62,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// # Panics
     /// Stable allocation/encoding failures trap; hosts must propagate IC rollback.
     pub(crate) fn install(
-        memory: M,
+        memory: RuntimeMemory<M>,
         config: ServiceConfiguration,
     ) -> Result<Self, GatewayStoreError> {
         validate_envelope(&config)?;
@@ -73,7 +74,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
             scope,
             GatewayMembership::new(config.billing().gateway_limits()),
         );
-        let mut records = BTreeMap::new(memory);
+        let mut records = StableBTreeMap::new(memory);
         records.insert(0, GatewayRegistryRecord::new(&config, &registry));
         Ok(Self {
             records,
@@ -88,13 +89,16 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// Rejects missing/mismatched/corrupt records or unsupported bounds.
     /// # Panics
     /// Invalid collection/record bytes trap without initializing replacement state.
-    pub(crate) fn open(memory: M, config: ServiceConfiguration) -> Result<Self, GatewayStoreError> {
+    pub(crate) fn open(
+        memory: RuntimeMemory<M>,
+        config: ServiceConfiguration,
+    ) -> Result<Self, GatewayStoreError> {
         validate_envelope(&config)?;
         if memory.size() == 0 {
             return Err(GatewayStoreError::Missing);
         }
         let store = Self {
-            records: BTreeMap::load(memory),
+            records: StableBTreeMap::load(memory),
             config,
             fenced: true,
         };

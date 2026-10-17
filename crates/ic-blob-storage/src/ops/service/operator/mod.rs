@@ -14,7 +14,7 @@ use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::LocalUploadStatus;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Borrowed owners from one installed service, held only for synchronous inspection.
 /// Full configurations are checked before any accounting is returned.

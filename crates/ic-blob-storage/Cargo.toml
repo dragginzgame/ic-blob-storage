@@ -11,7 +11,7 @@ readme = "../../README.md"
 
 [features]
 # Non-default access for this workspace's unpublished probe canisters only.
-test-support = []
+test-support = ["ic-memory/test-support"]
 
 [dependencies]
 candid.workspace = true
@@ -19,13 +19,14 @@ ic-blob-storage-contracts.workspace = true
 ic-cdk.workspace = true
 ic-management-canister-types.workspace = true
 ic-memory.workspace = true
-ic-stable-structures.workspace = true
+ic-storage.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
 
 [dev-dependencies]
 hex.workspace = true
+ic-memory = { workspace = true, features = ["test-support"] }
 tempfile.workspace = true
 
 [lints]

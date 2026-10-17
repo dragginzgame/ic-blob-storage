@@ -2,6 +2,35 @@
 
 Date: 2026-10-17
 
+## Governed IC Storage collections — pending 0.33.0
+
+Released 0.32.2 is HEAD `043f96a`. The working hard cut removes every direct
+substrate dependency/import and selects published IC Storage 0.5.2, sharing Memory
+0.48. Collection owners and workflow/transport memory parameters now name backing
+memory; construction requires its exclusive runtime leases. Standalone retains
+one runtime and seventeen grants. Record codecs and production collection layouts
+are unchanged. Hosts must update owner/associated-type annotations together;
+package versions remain 0.32.2 until the maintainer's minor release.
+
+Native corruption fixtures retain one runtime per backing, drop owners before
+reopening and use independent copied backings for concurrent restored-instance
+comparisons. The instrumented storage probe alone uses nested fixture governance
+to retain per-allocation read/fault attribution. Its counters include that manager
+and are a new measurement baseline; earlier private probe images require reinstall.
+Normal cross-release retirement obligations remain unchanged.
+
+Focused Linux evidence passes: 386 core native tests, five documentation boundary
+tests, affected-owner/caller strict Clippy, Rust 1.91 native/Wasm compilation,
+fresh probe and default standalone Wasm, metadata/graph admission, runtime-free
+Contracts/CLI graphs, manifest/Rust formatting, pins and documentation links.
+Four installed PocketIC cases pass: admission write rollback, refused growth with
+exact retry/neighbor retention, complete retained obligations on upgrade, and
+standalone restart/repeated-upgrade fences. Raw source identities, graph, earlier
+fixture failures and final results remain at `.tmp/review-validation/storage0330/`.
+Full CI, package archives, native macOS, deployed provider and downstream Canic
+composition were not exercised. No sibling edit, package version change, commit,
+push, release or publication ran.
+
 ## Host framing and shared release/fixture owners — pending 0.32.2
 
 Released 0.32.1 is HEAD `397717a`. This compatible working batch replaces three

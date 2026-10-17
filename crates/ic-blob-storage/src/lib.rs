@@ -22,11 +22,11 @@
 //! ```
 //! Component stores cannot be installed independently through the production API:
 //! ```compile_fail
-//! use ic_stable_structures::Memory;
+//! use ic_memory::Memory;
 //! use ic_blob_storage::ops::service::stores::{
 //!     ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores,
 //! };
-//! fn construct<M: Memory>(memory: ServiceMemories<M>, config: ServiceStoreConfiguration)
+//! fn construct<M: Memory>(memory: ServiceMemories<RuntimeMemory<M>>, config: ServiceStoreConfiguration)
 //!     -> Result<ServiceStores<M>, ServiceStoreError>
 //! {
 //!     ServiceStores::install(memory, config)
@@ -54,9 +54,10 @@ pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
 ///
 /// The integrating host owns memory bootstrap, policy, bucket configuration and
 /// allocation grants. Linking this crate does not register stores, initialize a
-/// memory manager or export lifecycle hooks. Access stable collections through
-/// the direct `ic-stable-structures` dependency selected by this workspace.
-/// Hosts with a direct Memory dependency must select the same 0.46 release line.
+/// memory manager or export lifecycle hooks. IC Storage owns stable collections;
+/// constructors require this runtime's exclusive allocation leases. Store and
+/// workflow type parameters name the backing memory, not `RuntimeMemory<Backing>`.
+/// Hosts with a direct Memory dependency must select the same 0.48 release line.
 pub use ic_memory;
 
 /// Probe-only reference models and fault-injection access.

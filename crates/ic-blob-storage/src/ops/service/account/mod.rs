@@ -24,13 +24,13 @@ use ic_blob_storage_contracts::dto::account::AccountObservation;
 use ic_blob_storage_contracts::dto::account::AccountRelationshipView;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Synchronous host borrowing across independent stages; never retain borrows over await.
 /// Host configuration must remain immutable during the invocation. No cached reports
 /// or ingress-provided account evidence can satisfy this interface.
 pub trait AccountInspectionAccess {
-    /// Host-granted stable-memory implementation.
+    /// Backing memory of the host runtime; store owners retain exclusive leases.
     type Memory: Memory;
     /// Borrow the same installed owners on every call, without performing transport.
     fn with_account_stores<R>(&self, f: impl FnOnce(OperatorStores<'_, Self::Memory>) -> R) -> R;

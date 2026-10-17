@@ -16,8 +16,8 @@ fn input(sequence: u64) -> GatewaySyncCancellation {
 }
 #[test]
 fn cancellation_uses_retained_identity_and_preserves_membership_generations_and_history() {
-    let memory = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     let original = store.begin_sync(context(), scope()).unwrap();
     let generation = store.registry().unwrap().read_generation;
@@ -49,7 +49,8 @@ fn cancellation_uses_retained_identity_and_preserves_membership_generations_and_
         Err(Error::Conflict)
     );
     assert!(memory.borrow().eq(&bytes));
-    let mut restored = StableGatewayRegistry::open(memory.clone(), config()).unwrap();
+    drop(store);
+    let mut restored = StableGatewayRegistry::open(memory.lease(), config()).unwrap();
     assert_eq!(
         cancel(&mut restored, context(), input(2)),
         Err(Error::Fenced)
@@ -66,8 +67,8 @@ fn cancellation_uses_retained_identity_and_preserves_membership_generations_and_
 }
 #[test]
 fn cancellation_rejects_invalid_scope_and_actual_caller_before_mutation() {
-    let memory = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.begin_sync(context(), scope()).unwrap();
     let bytes = memory.borrow().clone();
     let input = input(1);

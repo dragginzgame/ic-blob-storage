@@ -39,7 +39,7 @@ fn certificate_root_resolves_exact_original_permission_and_commits_before_plain_
         Err(F::Exposure(E::Phase))
     );
     drop(store);
-    let mut restored = StableUploads::open(m, config()).unwrap();
+    let mut restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(
         certificate::issue(&mut restored, context(5), &root, yes, 2),
         Err(F::Exposure(E::Permission(A::Fenced)))

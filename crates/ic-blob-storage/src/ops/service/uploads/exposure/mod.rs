@@ -10,7 +10,7 @@ use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Present every independent policy blocker at the Candid boundary. Conversion
 /// grants no issuance authority and does not acquire or authenticate host evidence.

@@ -2,18 +2,17 @@
 
 use ic_blob_storage::ic_memory as blob_memory;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_memory::VectorMemory;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
     MemoryRequest, MemoryRuntime, RuntimeMemory, RuntimeOpenError, SealedDeclarationSnapshot,
 };
-use ic_stable_structures::{Cell, VectorMemory};
+use ic_storage::adapter::StableCell;
 
 // This host uses ic-memory directly. Blob consumers use the crate's re-export;
 // both paths must accept exactly the same runtime memory and collection types.
-fn open_blob_cell(
-    memory: RuntimeMemory<VectorMemory>,
-) -> ic_stable_structures::Cell<u64, blob_memory::RuntimeMemory<VectorMemory>> {
-    ic_stable_structures::Cell::init(memory, 0)
+fn open_blob_cell(memory: RuntimeMemory<VectorMemory>) -> StableCell<u64, VectorMemory> {
+    StableCell::init(memory, 0)
 }
 
 #[test]
@@ -78,7 +77,7 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
     host.open_memory(ic_blob_storage::ops::service::installation::INSTALLATION_MEMORY_KEY)
         .expect("public installation request grants host memory");
     let committed = host.committed_allocations().expect("host capability");
-    let mut database: Cell<u64, RuntimeMemory<VectorMemory>> = Cell::init(
+    let mut database: StableCell<u64, VectorMemory> = StableCell::init(
         host.open_memory("fixture.database.data.v1")
             .expect("database grant"),
         0,

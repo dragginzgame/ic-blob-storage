@@ -26,7 +26,7 @@ fn request(intent: FundingIntent) -> FundingOutcomeRequest {
     }
 }
 fn check_boundary(
-    store: &StableFundingJournal<VectorMemory>,
+    store: &StableFundingJournal<FixtureBackingMemory>,
     intent: FundingIntent,
     response: FundingResponse,
     fenced: bool,
@@ -116,7 +116,7 @@ fn exact_outcome_boundary_rejects_changed_intent_and_preserves_absence_without_w
         "inspection changed retained bytes"
     );
 }
-fn check_scope(store: &StableFundingJournal<VectorMemory>, query: FundingOutcomeRequest) {
+fn check_scope(store: &StableFundingJournal<FixtureBackingMemory>, query: FundingOutcomeRequest) {
     let foreign = Principal::anonymous();
     for scope in [
         OperatorScope {
@@ -291,7 +291,8 @@ fn structured_outcomes_roundtrip_without_converting_reports_or_errors_to_credit(
 
 #[test]
 fn absent_pending_and_transport_only_outcomes_remain_distinct_and_authorized() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let intent = input(1, 900);
     let stranger = UploadContext {
         actor: Principal::anonymous(),

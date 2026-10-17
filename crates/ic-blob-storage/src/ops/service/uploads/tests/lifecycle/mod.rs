@@ -21,7 +21,7 @@ fn command(upload: UploadRequest, id: u128, reference: u128, retain: bool) -> Re
         },
     }
 }
-pub(super) fn exposed(store: &mut StableUploads<VectorMemory>) -> UploadPermission {
+pub(super) fn exposed(store: &mut StableUploads<FixtureBackingMemory>) -> UploadPermission {
     enroll(store);
     let built = built();
     let mut input = permission(1);
@@ -173,7 +173,7 @@ fn confirmed_reference_and_settlement_journey_matches_heap_accounting() {
 }
 #[test]
 fn receipt_headroom_preserves_cleanup_and_suspension_allows_replay_and_release() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = exposed(&mut store);
     store.confirm_upload(input.request).unwrap();
     let retained = command(input.request, 1, 2, true);
@@ -370,7 +370,7 @@ fn missing_or_orphaned_reference_receipt_and_lifecycle_rows_reject_restore() {
 }
 #[test]
 fn premature_or_changed_confirmation_never_releases_capacity() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     enroll(&mut store);
     let input = permission(1);
     store.admit(context(4), input, 1).unwrap();

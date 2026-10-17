@@ -12,11 +12,11 @@ use ic_blob_storage::ops::service::installation;
 use ic_blob_storage::ops::service::installation::INSTALLATION_MEMORY_KEY;
 use ic_blob_storage::ops::service::stores::ServiceMemories;
 use ic_blob_storage::ops::service::stores::grants;
-pub(super) type Memory = RuntimeMemory<DefaultMemoryImpl>;
+pub(super) type Memory = DefaultMemoryImpl;
 pub(super) struct Grants {
     pub(super) runtime: MemoryRuntime<DefaultMemoryImpl>,
-    pub(super) configuration: Memory,
-    pub(super) stores: ServiceMemories<Memory>,
+    pub(super) configuration: RuntimeMemory<Memory>,
+    pub(super) stores: ServiceMemories<RuntimeMemory<Memory>>,
 }
 pub(super) fn open(fresh: bool) -> Grants {
     let backing = DefaultMemoryImpl::default();

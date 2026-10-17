@@ -83,7 +83,7 @@ fn discovery_boundary_checks_authority_before_absence_and_reports_restored_absen
         );
     }
     drop(store);
-    let restored = StableUploads::open(memory, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(memory)), config()).unwrap();
     assert_eq!(
         inspect(&restored, context(4), request),
         Ok(UploadDiscoveryResponse {
@@ -161,7 +161,7 @@ fn discovery_boundary_preserves_independent_full_width_identities_and_cancelled_
     assert_eq!(inspect(&store, context(4), request), Ok(expected));
     assert_eq!(inspect(&heap, context(4), request), Ok(expected));
     drop(store);
-    let restored = StableUploads::open(memory, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(memory)), config()).unwrap();
     expected.fenced = true;
     assert_eq!(inspect(&restored, context(4), request), Ok(expected));
     assert_eq!(

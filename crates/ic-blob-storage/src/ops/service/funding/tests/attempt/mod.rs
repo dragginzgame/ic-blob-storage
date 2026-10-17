@@ -189,7 +189,8 @@ fn attempt_exclusion_binds_every_field_and_refusals_preserve_the_reservation() {
 }
 #[test]
 fn exact_pending_exclusion_cannot_hide_older_accepted_cycles() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let prior = input(1, 100);
     store.prepare(execution(), prior).unwrap();
     store.mark_attempted(execution(), prior).unwrap();

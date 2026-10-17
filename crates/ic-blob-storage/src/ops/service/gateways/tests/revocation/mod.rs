@@ -17,8 +17,8 @@ fn request() -> GatewayRevocationRequest {
 }
 #[test]
 fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_restore() {
-    let memory = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     for removed in [true, false] {
         let token = store.begin_sync(context(), scope()).unwrap();
@@ -55,7 +55,8 @@ fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_re
         );
     }
     let before = memory.borrow().clone();
-    let mut restored = StableGatewayRegistry::open(memory.clone(), config()).unwrap();
+    drop(store);
+    let mut restored = StableGatewayRegistry::open(memory.lease(), config()).unwrap();
     assert_eq!(restored.inspect(context(), scope()).unwrap().principals, []);
     assert_eq!(
         revoke(&mut restored, context(), request()),
@@ -65,8 +66,8 @@ fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_re
 }
 #[test]
 fn shared_revocation_checks_full_scope_and_actual_caller_without_writes() {
-    let memory = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     store.begin_sync(context(), scope()).unwrap();
     let before = memory.borrow().clone();

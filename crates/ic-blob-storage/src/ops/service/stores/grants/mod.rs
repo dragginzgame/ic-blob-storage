@@ -7,8 +7,8 @@ use super::ServiceMemories;
 use crate::ops::service::{
     funding::FundingMemories, reads::ReadSessionMemories, uploads::UploadMemories,
 };
+use ic_memory::{Memory, RuntimeMemory};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
-use ic_stable_structures::Memory;
 
 // Logical identities are independent of host-selected physical IDs. Keep this
 // mapping shared so an adapter cannot accidentally swap accounting and history.
@@ -54,8 +54,8 @@ pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclaration
 /// # Panics
 /// Only an inconsistent internal key count can panic.
 pub fn open<M: Memory, E>(
-    mut lookup: impl FnMut(&str) -> Result<M, E>,
-) -> Result<ServiceMemories<M>, E> {
+    mut lookup: impl FnMut(&str) -> Result<RuntimeMemory<M>, E>,
+) -> Result<ServiceMemories<RuntimeMemory<M>>, E> {
     let memories = KEYS
         .into_iter()
         .map(&mut lookup)

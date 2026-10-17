@@ -3,7 +3,7 @@ use crate::model::billing::journal::renewal::FundingBudgetRenewal;
 use crate::ops::service::funding::FundingJournalError;
 use crate::ops::service::funding::StableFundingJournal;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Commit one host-authorized budget increase after exact credit reconciliation.
 /// Linking creates no endpoint. Caller authentication and the installed ceiling

@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as Failure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 pub(crate) fn scope<M: Memory>(
     store: &StableGatewayRegistry<M>,

@@ -26,7 +26,7 @@ fn content(input: UploadPermission) -> ContentLookup {
     }
 }
 pub(super) fn parity(
-    store: &StableUploads<VectorMemory>,
+    store: &StableUploads<FixtureBackingMemory>,
     heap: &UploadAdmissions,
     input: UploadPermission,
 ) {
@@ -166,7 +166,7 @@ fn root_observations_preserve_order_uncertainty_cleanup_and_fenced_history() {
         },
     )
     .unwrap();
-    let observe = |store: &StableUploads<VectorMemory>| {
+    let observe = |store: &StableUploads<FixtureBackingMemory>| {
         store
             .observe_roots(context(2), NonZeroU128::MIN, &batch)
             .unwrap()

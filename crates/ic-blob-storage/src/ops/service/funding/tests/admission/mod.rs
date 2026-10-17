@@ -64,7 +64,8 @@ fn guarded_preparation_rechecks_current_journal_instead_of_accepting_a_prior_pre
 }
 #[test]
 fn unknown_host_facts_cannot_be_filled_by_clear_local_state_or_gross_allocation() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let intent = input(1, 100);
     let host = FundingHostEvidence {
         provider_qualified: false,

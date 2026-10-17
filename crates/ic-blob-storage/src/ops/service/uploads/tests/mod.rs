@@ -12,6 +12,7 @@ mod reference_status_boundary;
 mod revocation;
 use crate::ops::service::tenant::tests::config;
 use crate::test_support::admission::UploadAdmissions;
+use crate::test_support::memory::FixtureBackingMemory;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
@@ -22,7 +23,6 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadRequestId;
-use ic_stable_structures::VectorMemory;
 use std::num::NonZeroU128;
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
@@ -33,33 +33,51 @@ fn context(n: u8) -> UploadContext {
         actor: p(n),
     }
 }
-fn memory() -> UploadMemories<VectorMemory> {
+fn memory() -> UploadMemories<FixtureBackingMemory> {
     UploadMemories {
-        tenants: VectorMemory::default(),
-        roots: VectorMemory::default(),
-        objects: VectorMemory::default(),
-        permissions: VectorMemory::default(),
-        usage: VectorMemory::default(),
-        manifests: VectorMemory::default(),
-        confirmed: VectorMemory::default(),
-        references: VectorMemory::default(),
-        receipts: VectorMemory::default(),
-        root_requests: VectorMemory::default(),
+        tenants: FixtureBackingMemory::default(),
+        roots: FixtureBackingMemory::default(),
+        objects: FixtureBackingMemory::default(),
+        permissions: FixtureBackingMemory::default(),
+        usage: FixtureBackingMemory::default(),
+        manifests: FixtureBackingMemory::default(),
+        confirmed: FixtureBackingMemory::default(),
+        references: FixtureBackingMemory::default(),
+        receipts: FixtureBackingMemory::default(),
+        root_requests: FixtureBackingMemory::default(),
     }
 }
-fn clone_memory(m: &UploadMemories<VectorMemory>) -> UploadMemories<VectorMemory> {
+fn clone_memory(
+    m: &UploadMemories<FixtureBackingMemory>,
+) -> UploadMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
     UploadMemories {
-        tenants: m.tenants.clone(),
-        roots: m.roots.clone(),
-        objects: m.objects.clone(),
-        permissions: m.permissions.clone(),
-        usage: m.usage.clone(),
-        manifests: m.manifests.clone(),
-        confirmed: m.confirmed.clone(),
-        references: m.references.clone(),
-        receipts: m.receipts.clone(),
-        root_requests: m.root_requests.clone(),
+        tenants: m.tenants.lease(),
+        roots: m.roots.lease(),
+        objects: m.objects.lease(),
+        permissions: m.permissions.lease(),
+        usage: m.usage.lease(),
+        manifests: m.manifests.lease(),
+        confirmed: m.confirmed.lease(),
+        references: m.references.lease(),
+        receipts: m.receipts.lease(),
+        root_requests: m.root_requests.lease(),
     }
+}
+fn snapshot_memory(
+    m: &UploadMemories<FixtureBackingMemory>,
+) -> UploadMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
+    clone_memory(&UploadMemories {
+        tenants: m.tenants.snapshot(),
+        roots: m.roots.snapshot(),
+        objects: m.objects.snapshot(),
+        permissions: m.permissions.snapshot(),
+        usage: m.usage.snapshot(),
+        manifests: m.manifests.snapshot(),
+        confirmed: m.confirmed.snapshot(),
+        references: m.references.snapshot(),
+        receipts: m.receipts.snapshot(),
+        root_requests: m.root_requests.snapshot(),
+    })
 }
 fn permission(id: u128) -> UploadPermission {
     let n = NonZeroU128::new(id).unwrap();
@@ -89,7 +107,7 @@ fn permission(id: u128) -> UploadPermission {
         expires_at_ns: 100,
     }
 }
-fn enroll(store: &mut StableUploads<VectorMemory>) -> TenantEnrollmentView {
+fn enroll(store: &mut StableUploads<FixtureBackingMemory>) -> TenantEnrollmentView {
     store
         .update_tenant(
             context(2),
@@ -153,7 +171,7 @@ fn exact_admission_and_cancellation_match_heap_and_survive_fenced_reopen() {
 
 #[test]
 fn rejected_admissions_cannot_claim_roots_or_charge_capacity() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = permission(1);
     assert_eq!(
         store.admit(context(4), input, 1),
@@ -291,9 +309,6 @@ fn manifest_exposure_and_revocation_retain_uncertain_bytes_and_original_metadata
         Ok(LifecycleChange::Unchanged)
     );
     let original = UploadManifestRecord::new(manifest);
-    // A one-leaf declaration must not allocate a tree node sized for several
-    // maximum 64 KiB records. This is a native storage ceiling, not IC sizing.
-    assert!(m.manifests.size() * 65_536 <= 128 * 1024);
     assert_eq!(
         store.manifests.get(&key(input.request)),
         Some(original.clone())
@@ -312,6 +327,8 @@ fn manifest_exposure_and_revocation_retain_uncertain_bytes_and_original_metadata
         Err(UploadAdmissionError::Revoked.into())
     );
     drop(store);
+    // Inspect the released allocation without bypassing collection custody.
+    assert!(m.manifests.lease().size() * 65_536 <= 128 * 1024);
     let restored = StableUploads::open(clone_memory(&m), config()).unwrap();
     assert_eq!(restored.usage(), Ok(totals));
     assert_eq!(restored.manifests.get(&key(input.request)), Some(original));
@@ -324,7 +341,7 @@ fn manifest_exposure_and_revocation_retain_uncertain_bytes_and_original_metadata
 
 #[test]
 fn suspension_and_reactivation_do_not_renew_old_permissions() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let active = enroll(&mut store);
     let built = built();
     let mut input = permission(1);
@@ -424,7 +441,7 @@ fn missing_or_substituted_manifest_is_not_repaired_on_reopen() {
 
 #[test]
 fn codec_envelope_is_checked_before_installation_and_binds_reopening() {
-    use ic_stable_structures::Storable;
+    use ic_storage::adapter::Storable;
     use std::num::NonZeroUsize;
     let base = config();
     let mut limits = base.limits();
@@ -435,8 +452,8 @@ fn codec_envelope_is_checked_before_installation_and_binds_reopening() {
         StableUploads::install(clone_memory(&m), oversized),
         Err(UploadStoreError::UnsupportedEnvelope)
     ));
-    assert_eq!(m.tenants.size(), 0);
-    assert_eq!(m.manifests.size(), 0);
+    assert_eq!(m.tenants.lease().size(), 0);
+    assert_eq!(m.manifests.lease().size(), 0);
     limits.max_header_bytes = NonZeroUsize::new(64_000).unwrap();
     let wide = ServiceConfiguration::new(base.bindings(), limits, base.billing()).unwrap();
     let mut store = StableUploads::install(clone_memory(&m), wide).unwrap();

@@ -14,7 +14,7 @@ fn scope() -> FundingJournalScope {
     }
 }
 fn finish(
-    store: &mut StableFundingJournal<VectorMemory>,
+    store: &mut StableFundingJournal<FixtureBackingMemory>,
     intent: FundingIntent,
     outcome: FundingTransportOutcome,
 ) {
@@ -27,7 +27,8 @@ fn finish(
 
 #[test]
 fn newest_first_pages_recover_complete_intents_with_gaps_and_full_width_ids() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let empty = FundingHistoryPage {
         entries: vec![],
         next: None,
@@ -103,7 +104,7 @@ fn newest_first_pages_recover_complete_intents_with_gaps_and_full_width_ids() {
 
 #[test]
 fn authority_and_each_scope_component_are_checked_even_for_empty_ranges() {
-    let store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let store = StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let foreign = Principal::anonymous();
     assert_eq!(
         store.history(
@@ -235,7 +236,8 @@ fn fresh_sweeps_find_new_intents_and_state_changes_without_restoring_mutation_au
 
 #[test]
 fn pages_check_only_returned_rows_and_reject_invalid_identity_or_scope() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     finish(
         &mut store,
         input(1, 20),

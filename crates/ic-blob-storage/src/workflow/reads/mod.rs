@@ -17,7 +17,7 @@ use crate::policy::gateway::GatewayAccessError;
 use crate::policy::gateway::GatewayCallbackContext;
 use crate::policy::gateway::assess_gateway_callback;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 use std::num::NonZeroU64;
 use thiserror::Error;
 

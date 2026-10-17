@@ -56,6 +56,7 @@ fn shared_history_preserves_full_width_attachment_target_and_refund_without_writ
     assert!(!page.fenced);
     let roundtrip = candid::decode_one(&candid::encode_one(&page).unwrap()).unwrap();
     assert_eq!(page, roundtrip);
+    drop(store);
     let restored = StableFundingJournal::open(copy(&memory), config(), allocation).unwrap();
     page.fenced = true;
     assert_eq!(

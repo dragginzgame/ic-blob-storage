@@ -75,7 +75,7 @@ impl<M: Memory> StableUploads<M> {
         let mut confirmed_count = 0;
         let mut reference_count = 0;
         let mut receipt_count = 0;
-        for entry in self.permissions.iter() {
+        for entry in &self.permissions {
             if *entry.key() == metadata() {
                 continue;
             }

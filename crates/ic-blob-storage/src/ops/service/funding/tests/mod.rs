@@ -10,10 +10,11 @@ mod renewal;
 mod summary;
 use crate::model::billing::journal::FundingIntentState;
 use crate::ops::service::tenant::tests::config;
+use crate::test_support::memory::FixtureBackingMemory;
 use candid::Principal;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_blob_storage_contracts::funding::transfer::FundingTransferError;
-use ic_stable_structures::{Storable, VectorMemory};
+use ic_storage::adapter::Storable;
 use std::num::{NonZeroU128, NonZeroUsize};
 fn n(value: u128) -> NonZeroU128 {
     NonZeroU128::new(value).unwrap()
@@ -27,16 +28,18 @@ fn execution() -> UploadContext {
 fn allocation() -> FundingAllocation {
     FundingAllocation::new(1000, n(100), NonZeroUsize::new(4).unwrap()).unwrap()
 }
-fn memories() -> FundingMemories<VectorMemory> {
+fn memories() -> FundingMemories<FixtureBackingMemory> {
     FundingMemories {
-        accounting: VectorMemory::default(),
-        intents: VectorMemory::default(),
+        accounting: FixtureBackingMemory::default(),
+        intents: FixtureBackingMemory::default(),
     }
 }
-fn copy(m: &FundingMemories<VectorMemory>) -> FundingMemories<VectorMemory> {
+fn copy(
+    m: &FundingMemories<FixtureBackingMemory>,
+) -> FundingMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
     FundingMemories {
-        accounting: m.accounting.clone(),
-        intents: m.intents.clone(),
+        accounting: m.accounting.lease(),
+        intents: m.intents.lease(),
     }
 }
 fn input(operation: u128, offered: u128) -> FundingIntent {
@@ -52,7 +55,8 @@ fn input(operation: u128, offered: u128) -> FundingIntent {
 }
 #[test]
 fn exact_intents_hold_full_reservations_and_cannot_repeat_an_uncertain_attempt() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let original = input(u128::MAX, 900);
     assert_eq!(
         store.prepare(execution(), original),
@@ -95,7 +99,8 @@ fn exact_intents_hold_full_reservations_and_cannot_repeat_an_uncertain_attempt()
 }
 #[test]
 fn incremental_totals_match_shared_reconstruction_and_terminal_replay_never_refunds_twice() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let mut transfers = Vec::new();
     for (id, amount, outcome) in [
         (1, 900, FundingTransportOutcome::Callback { refunded: 500 }),
@@ -153,7 +158,7 @@ fn incremental_totals_match_shared_reconstruction_and_terminal_replay_never_refu
 #[test]
 fn invalid_refunds_capacity_and_lifetime_return_overflow_leave_intent_and_totals_unchanged() {
     let maximum = FundingAllocation::new(u128::MAX, n(1), NonZeroUsize::new(2).unwrap()).unwrap();
-    let mut store = StableFundingJournal::install(memories(), config(), maximum).unwrap();
+    let mut store = StableFundingJournal::install(copy(&(memories())), config(), maximum).unwrap();
     for id in [1, 2] {
         let request = input(id, u128::MAX - 1);
         store.prepare(execution(), request).unwrap();

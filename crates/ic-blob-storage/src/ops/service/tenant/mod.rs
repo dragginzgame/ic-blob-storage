@@ -14,7 +14,8 @@ use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::tenant::next_enrollment;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::{BTreeMap, Memory};
+use ic_memory::{Memory, RuntimeMemory};
+use ic_storage::adapter::StableBTreeMap;
 use thiserror::Error;
 
 /// One host-granted memory holding a bounded lifetime enrollment map.
@@ -24,7 +25,7 @@ use thiserror::Error;
 /// IC message transaction. Storage traps must propagate, never be caught and
 /// converted into successful updates. Memory must have one live owning handle.
 pub struct StableTenantEnrollments<M: Memory> {
-    entries: BTreeMap<Principal, TenantStoreRecord, M>,
+    entries: StableBTreeMap<Principal, TenantStoreRecord, M>,
     config: ServiceConfiguration,
     fenced: bool,
 }
@@ -44,13 +45,13 @@ impl<M: Memory> StableTenantEnrollments<M> {
     /// Traps on stable-memory allocation or encoding failure; the IC rolls back
     /// the message. Native callers do not receive that platform guarantee.
     pub(crate) fn install(
-        memory: M,
+        memory: RuntimeMemory<M>,
         config: ServiceConfiguration,
     ) -> Result<Self, TenantStoreError> {
         if memory.size() != 0 {
             return Err(TenantStoreError::AlreadyAllocated);
         }
-        let mut entries = BTreeMap::new(memory);
+        let mut entries = StableBTreeMap::new(memory);
         entries.insert(
             Principal::management_canister(),
             TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config)),
@@ -74,12 +75,15 @@ impl<M: Memory> StableTenantEnrollments<M> {
     /// # Panics
     /// Corrupt stable collection headers or encoded records trap without seeding
     /// replacement data. The host must propagate restoration failure.
-    pub(crate) fn open(memory: M, config: ServiceConfiguration) -> Result<Self, TenantStoreError> {
+    pub(crate) fn open(
+        memory: RuntimeMemory<M>,
+        config: ServiceConfiguration,
+    ) -> Result<Self, TenantStoreError> {
         if memory.size() == 0 {
             return Err(TenantStoreError::Missing);
         }
         // `init` can overwrite unrecognized memory; restoration must use `load`.
-        let entries = BTreeMap::load(memory);
+        let entries = StableBTreeMap::load(memory);
         let expected = TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config));
         if entries.get(&Principal::management_canister()) != Some(expected) {
             return Err(TenantStoreError::Binding);
@@ -94,7 +98,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
         };
         // Bounded by the configured lifetime tenant count. Restore validates every
         // enrollment before exposing even inspection, without copying the map.
-        for entry in store.entries.iter() {
+        for entry in &store.entries {
             if *entry.key() != Principal::management_canister() {
                 enrollment(*entry.key(), entry.value())?;
             }

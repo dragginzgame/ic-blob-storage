@@ -1,9 +1,9 @@
 use super::*;
 use crate::model::lifecycle::roots::RootClaims;
 use crate::ops::service::tenant::tests::config;
+use crate::test_support::memory::FixtureBackingMemory;
 use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
-use ic_stable_structures::VectorMemory;
 use std::num::NonZeroU128;
 
 fn p(n: u8) -> Principal {
@@ -30,14 +30,17 @@ fn object(tenant: u8, id: u128) -> ObjectBinding {
     )
     .unwrap()
 }
-fn memories() -> (VectorMemory, VectorMemory) {
-    (VectorMemory::default(), VectorMemory::default())
+fn memories() -> (FixtureBackingMemory, FixtureBackingMemory) {
+    (
+        FixtureBackingMemory::default(),
+        FixtureBackingMemory::default(),
+    )
 }
 
 #[test]
 fn heap_and_stable_claims_agree_and_full_history_keeps_exact_replays() {
     let (a, b) = memories();
-    let mut stable = StableRootClaims::install(a.clone(), b.clone(), config()).unwrap();
+    let mut stable = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
     let mut heap = RootClaims::new(p(1), config().limits().catalog.max_objects).unwrap();
     for (r, o) in [
         (root(1), object(4, 1)),
@@ -65,7 +68,7 @@ fn heap_and_stable_claims_agree_and_full_history_keeps_exact_replays() {
         assert_eq!(stable.slots(), heap.slots() as u64);
     }
     drop(stable);
-    let mut reopened = StableRootClaims::open(a, b, config()).unwrap();
+    let mut reopened = StableRootClaims::open(a.lease(), b.lease(), config()).unwrap();
     assert!(reopened.is_fenced());
     assert_eq!(reopened.lookup(context(4), root(1)), Ok(Some(object(4, 1))));
     assert_eq!(reopened.lookup(context(5), root(1)), Ok(None));
@@ -78,7 +81,7 @@ fn heap_and_stable_claims_agree_and_full_history_keeps_exact_replays() {
 #[test]
 fn caller_service_namespace_and_full_object_identity_are_checked() {
     let (a, b) = memories();
-    let mut store = StableRootClaims::install(a.clone(), b.clone(), config()).unwrap();
+    let mut store = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
     let before = (a.borrow().clone(), b.borrow().clone());
     assert_eq!(
         store.claim(context(2), root(1), object(4, 1)),
@@ -126,19 +129,19 @@ fn caller_service_namespace_and_full_object_identity_are_checked() {
 fn missing_indexes_or_configuration_changes_never_reset_retained_claims() {
     let (a, b) = memories();
     assert!(matches!(
-        StableRootClaims::open(a.clone(), b.clone(), config()),
+        StableRootClaims::open(a.lease(), b.lease(), config()),
         Err(RootStoreError::Missing)
     ));
-    let mut store = StableRootClaims::install(a.clone(), b.clone(), config()).unwrap();
+    let mut store = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
     store.claim(context(4), root(1), object(4, 1)).unwrap();
     drop(store);
     let before = (a.borrow().clone(), b.borrow().clone());
     assert!(matches!(
-        StableRootClaims::install(a.clone(), b.clone(), config()),
+        StableRootClaims::install(a.lease(), b.lease(), config()),
         Err(RootStoreError::AlreadyAllocated)
     ));
     assert!(matches!(
-        StableRootClaims::open(a.clone(), VectorMemory::default(), config()),
+        StableRootClaims::open(a.lease(), FixtureBackingMemory::default().lease(), config()),
         Err(RootStoreError::Missing)
     ));
     for field in 0..3 {
@@ -152,7 +155,7 @@ fn missing_indexes_or_configuration_changes_never_reset_retained_claims() {
         }
         let changed = ServiceConfiguration::new(bindings, limits, old.billing()).unwrap();
         assert!(matches!(
-            StableRootClaims::open(a.clone(), b.clone(), changed),
+            StableRootClaims::open(a.lease(), b.lease(), changed),
             Err(RootStoreError::Binding)
         ));
         assert_eq!((&*a.borrow(), &*b.borrow()), (&before.0, &before.1));
@@ -163,7 +166,7 @@ fn missing_indexes_or_configuration_changes_never_reset_retained_claims() {
 fn every_incomplete_or_conflicting_index_pair_is_rejected_without_repair() {
     for damage in 0..5 {
         let (a, b) = memories();
-        let mut store = StableRootClaims::install(a.clone(), b.clone(), config()).unwrap();
+        let mut store = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
         let key = RootObjectKeyRecord::new(object(4, 1));
         store.claim(context(4), root(1), object(4, 1)).unwrap();
         match damage {
@@ -191,7 +194,7 @@ fn every_incomplete_or_conflicting_index_pair_is_rejected_without_repair() {
         drop(store);
         let before = (a.borrow().clone(), b.borrow().clone());
         assert!(matches!(
-            StableRootClaims::open(a.clone(), b.clone(), config()),
+            StableRootClaims::open(a.lease(), b.lease(), config()),
             Err(RootStoreError::InvalidRecord)
         ));
         assert_eq!((&*a.borrow(), &*b.borrow()), (&before.0, &before.1));

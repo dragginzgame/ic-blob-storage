@@ -3,8 +3,9 @@ use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 mod revocation;
 mod sync;
 use crate::ops::service::tenant::tests::config;
+use crate::test_support::memory::FixtureBackingMemory;
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
-use ic_stable_structures::{Storable, VectorMemory};
+use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
@@ -21,8 +22,8 @@ fn scope() -> GatewayScope {
 
 #[test]
 fn gateway_scope_operator_and_restoration_never_reset_pending_history() {
-    let m = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(m.clone(), config()).unwrap();
+    let m = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(m.lease(), config()).unwrap();
     let token = store.begin_sync(context(), scope()).unwrap();
     for candidate in [
         GatewayScope::new(p(8), NonZeroU128::MIN, p(3)).unwrap(),
@@ -46,7 +47,7 @@ fn gateway_scope_operator_and_restoration_never_reset_pending_history() {
     );
     let before = store.inspect(context(), scope()).unwrap();
     drop(store);
-    let mut restored = StableGatewayRegistry::open(m.clone(), config()).unwrap();
+    let mut restored = StableGatewayRegistry::open(m.lease(), config()).unwrap();
     assert_eq!(
         restored.inspect(context(), scope()).unwrap(),
         GatewayRegistryView {
@@ -66,12 +67,13 @@ fn gateway_scope_operator_and_restoration_never_reset_pending_history() {
         restored.remove(context(), scope(), p(4)),
         Err(GatewayStoreError::Fenced)
     );
+    drop(restored);
     assert!(matches!(
-        StableGatewayRegistry::install(m, config()),
+        StableGatewayRegistry::install(m.lease(), config()),
         Err(GatewayStoreError::AlreadyAllocated)
     ));
     assert!(matches!(
-        StableGatewayRegistry::open(VectorMemory::default(), config()),
+        StableGatewayRegistry::open(FixtureBackingMemory::default().lease(), config()),
         Err(GatewayStoreError::Missing)
     ));
 }
@@ -93,8 +95,8 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
         .unwrap()
     };
     let config = make(MAX_MEMBERS as u64);
-    let m = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(m.clone(), config).unwrap();
+    let m = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(m.lease(), config).unwrap();
     let principals: Vec<_> = (0..MAX_MEMBERS)
         .map(|n| {
             let mut bytes = [0xff; 29];
@@ -123,22 +125,23 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
     let generation = store.registry().unwrap().read_generation;
     assert_eq!(GatewayRegistryRecord::from_bytes(record.to_bytes()), record);
     drop(store);
-    let restored = StableGatewayRegistry::open(m, config).unwrap();
+    let restored = StableGatewayRegistry::open(m.lease(), config).unwrap();
     assert_eq!(restored.registry().unwrap().read_generation, generation);
     let view = restored.inspect(context(), scope()).unwrap();
     assert_eq!(view.principals, principals);
     assert_eq!(view.sync.pending_sequence, Some(2));
-    let empty = VectorMemory::default();
+    let empty = FixtureBackingMemory::default();
     assert!(matches!(
-        StableGatewayRegistry::install(empty.clone(), make(MAX_MEMBERS as u64 + 1)),
+        StableGatewayRegistry::install(empty.clone().lease(), make(MAX_MEMBERS as u64 + 1)),
         Err(GatewayStoreError::UnsupportedEnvelope)
     ));
-    assert_eq!(empty.size(), 0);
+    assert_eq!(empty.lease().size(), 0);
 }
 #[test]
 fn changed_gateway_bindings_and_extra_rows_reject_restore_without_repair() {
-    let m = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(m.clone(), config()).unwrap();
+    let m = FixtureBackingMemory::default();
+    let store = StableGatewayRegistry::install(m.lease(), config()).unwrap();
+    drop(store);
     let base = config();
     for changed in [
         ServiceConfiguration::new(
@@ -164,14 +167,16 @@ fn changed_gateway_bindings_and_extra_rows_reject_restore_without_repair() {
         .unwrap(),
     ] {
         assert!(matches!(
-            StableGatewayRegistry::open(m.clone(), changed),
+            StableGatewayRegistry::open(m.lease(), changed),
             Err(GatewayStoreError::Binding)
         ));
     }
+    let mut store = StableGatewayRegistry::open(m.lease(), config()).unwrap();
     store.records.insert(1, store.records.get(&0).unwrap());
+    drop(store);
     let before = m.borrow().clone();
     assert!(matches!(
-        StableGatewayRegistry::open(m.clone(), config()),
+        StableGatewayRegistry::open(m.lease(), config()),
         Err(GatewayStoreError::InvalidRecord)
     ));
     assert_eq!(*m.borrow(), before);

@@ -87,7 +87,7 @@ fn reference_capacity_boundary_checks_authority_before_absence_and_reports_resto
         );
     }
     drop(store);
-    let restored = StableUploads::open(memory, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(memory)), config()).unwrap();
     assert_eq!(
         inspect(&restored, context(4), request),
         Ok(ReferenceCapacityResponse {
@@ -177,7 +177,7 @@ fn reference_capacity_boundary_retains_cleanup_reservations_and_retired_history(
     store.confirm_billing_stopped(permission.request).unwrap();
     assert_eq!(inspect(&store, context(4), request), Ok(retired));
     drop(store);
-    let restored = StableUploads::open(memory, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(memory)), config()).unwrap();
     let retained = ReferenceCapacityResponse {
         fenced: true,
         ..retired

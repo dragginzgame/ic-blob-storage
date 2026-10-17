@@ -17,7 +17,8 @@ use crate::model::billing::allocation::FundingAllocation;
 use crate::model::service::read::session::ReadSessionError;
 use crate::model::service::read::session::ReadSessionLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
+use ic_memory::RuntimeMemory;
 use thiserror::Error;
 
 /// Validated limits for all maintained stable owners; no deployment or effect authority.
@@ -129,7 +130,7 @@ impl<M: Memory> ServiceStores<M> {
     /// # Panics
     /// Aliased grants or allocation/write failures trap; never catch and continue.
     pub(crate) fn install(
-        memory: ServiceMemories<M>,
+        memory: ServiceMemories<RuntimeMemory<M>>,
         config: ServiceStoreConfiguration,
     ) -> Result<Self, ServiceStoreError> {
         if memory.all().iter().any(|m| m.size() != 0) {
@@ -160,7 +161,7 @@ impl<M: Memory> ServiceStores<M> {
     /// # Panics
     /// Corrupt binary records or collection headers trap.
     pub(crate) fn open(
-        memory: ServiceMemories<M>,
+        memory: ServiceMemories<RuntimeMemory<M>>,
         config: ServiceStoreConfiguration,
     ) -> Result<Self, ServiceStoreError> {
         if memory.all().iter().any(|m| m.size() == 0) {

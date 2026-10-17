@@ -4,7 +4,7 @@ use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 #[cfg(test)]
-use ic_stable_structures::Storable;
+use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
 
 /// All non-service object identity fields; service is fixed by store metadata.
@@ -77,7 +77,7 @@ macro_rules! bounded_record {
     ($record:ty, $bound:expr) => {
         crate::model::record_codec::storable!(
             $record, bytes: $bound, work: 20_000, skipping: 1000,
-            types: 32, header: $bound, layout: ic_stable_structures::storable::Bound::Bounded { max_size: $bound as u32, is_fixed_size: false },
+            types: 32, header: $bound, layout: ic_storage::adapter::storable::Bound::Bounded { max_size: $bound as u32, is_fixed_size: false },
         );
     };
 }

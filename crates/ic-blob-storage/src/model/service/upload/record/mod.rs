@@ -21,8 +21,8 @@ use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
 #[cfg(test)]
-use ic_stable_structures::Storable;
-use ic_stable_structures::storable::Bound;
+use ic_storage::adapter::Storable;
+use ic_storage::adapter::storable::Bound;
 #[cfg(test)]
 use std::borrow::Cow;
 use std::num::{NonZeroU64, NonZeroU128};

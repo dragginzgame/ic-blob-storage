@@ -80,6 +80,6 @@ fn upload_status_is_exact_tenant_history_not_liveness_or_mutation_authority() {
     let original = inspect(&store, context(4), upload).unwrap();
     assert_eq!(original.state, UploadState::Confirmed);
     drop(store);
-    let restored = StableUploads::open(m, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(inspect(&restored, context(4), upload), Ok(original));
 }

@@ -19,7 +19,7 @@ fn download_descriptor_binds_service_not_payer_or_tenant_and_preserves_original_
         base.billing(),
     )
     .unwrap();
-    let mut store = StableUploads::install(memory(), config).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config).unwrap();
     let input = lifecycle::exposed(&mut store);
     let root = input.request.object.root;
     let reference = input.request.object.first;
@@ -138,7 +138,8 @@ fn operational_download_refuses_suspension_release_and_restore_while_inspection_
     let live = store
         .download_descriptor(context(4), &scope, root, second)
         .unwrap();
-    let restored = StableUploads::open(m, config()).unwrap();
+    drop(store);
+    let restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(
         restored.download_descriptor(context(4), &scope, root, second),
         Err(DownloadDescriptorError::Store(UploadStoreError::Fenced))

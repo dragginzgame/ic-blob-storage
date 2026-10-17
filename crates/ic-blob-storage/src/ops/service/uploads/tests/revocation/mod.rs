@@ -75,7 +75,7 @@ fn revocation_preserves_exposed_and_confirmed_obligations_and_checks_permission_
         assert_eq!(store.usage().unwrap(), before);
         assert!(!revoke(&mut store, context(4), input).unwrap().changed);
         drop(store);
-        let mut restored = StableUploads::open(m, config()).unwrap();
+        let mut restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
         assert_eq!(inspect(&restored, context(4), input), Ok(revoked.admission));
         assert_eq!(revoke(&mut restored, context(4), input), Err(F::Fenced));
     }

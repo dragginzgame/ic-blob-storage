@@ -188,7 +188,7 @@ const MEMORY_KEYS: [&str; 16] = [
 ];
 fn granted_memories() -> (
     MemoryRuntime<ProbeBackingMemory>,
-    ServiceMemories<ProbeMemory>,
+    ServiceMemories<RuntimeMemory<ProbeMemory>>,
 ) {
     let mut requests = MEMORY_KEYS
         .map(|key| MemoryRequest::new("fixture", key).unwrap())
@@ -260,8 +260,8 @@ fn probe_memory(
     runtime: &mut MemoryRuntime<ProbeBackingMemory>,
     key: &str,
     index: usize,
-) -> ProbeMemory {
-    ProbeMemory {
+) -> RuntimeMemory<ProbeMemory> {
+    let backing = ProbeMemory {
         memory: runtime.open_memory(key).unwrap(),
         index,
         fault: match key {
@@ -282,8 +282,21 @@ fn probe_memory(
             "fixture.read_tenants.v1" => Some(WriteFault::ReadTenants),
             _ => None,
         },
-    }
+    };
+    // Fixture-only nested governance keeps per-allocation fault/read instrumentation
+    // below Storage's governed handle. Counts include this local manager's reads.
+    ic_blob_storage::ic_memory::testing::fixture_runtime(
+        backing,
+        "probe",
+        "probe.",
+        &["probe.collection.v1"],
+        MemoryManagerConfig::new(1).unwrap(),
+    )
+    .unwrap()
+    .open_memory("probe.collection.v1")
+    .unwrap()
 }
+
 #[expect(
     clippy::needless_pass_by_value,
     reason = "CDK decoder owns the argument buffer"

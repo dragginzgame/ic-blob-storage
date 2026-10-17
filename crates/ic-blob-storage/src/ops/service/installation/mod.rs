@@ -13,8 +13,9 @@ use ic_blob_storage_contracts::download::scope::DownloadScopeError;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_blob_storage_contracts::upload::completion::InvalidCompletionAuthority;
+use ic_memory::{Memory, RuntimeMemory};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
-use ic_stable_structures::{BTreeMap, Memory, Storable};
+use ic_storage::adapter::{StableBTreeMap, Storable};
 use thiserror::Error;
 
 mod configuration;
@@ -84,6 +85,15 @@ pub struct ServiceInstallationMemories<M: Memory> {
 /// The embedding host retains its memory runtime, supplies caller/time authority,
 /// publishes only after synchronous construction and propagates traps for IC rollback.
 /// Linking registers no endpoints, grants, bootstrap or lifecycle hooks.
+/// `M` names the runtime's backing; construction accepts only governed leases.
+/// Raw memory bundles cannot construct a production installation:
+/// ```compile_fail
+/// use ic_blob_storage::{ic_memory::VectorMemory, ops::service::installation::{
+///     ServiceInstallation, ServiceInstallationMemories, ValidatedServiceInstallation,
+/// }};
+/// let install: fn(ServiceInstallationMemories<VectorMemory>, ValidatedServiceInstallation) -> _ =
+///     ServiceInstallation::<VectorMemory>::install;
+/// ```
 pub struct ServiceInstallation<M: Memory> {
     configuration: ConfigurationRecord,
     download_scope: CaffeineDownloadScope,
@@ -99,7 +109,7 @@ impl<M: Memory> ServiceInstallation<M> {
     /// # Panics
     /// Corrupt/aliased grants, allocation or stable-write failures trap.
     pub fn install(
-        memories: ServiceInstallationMemories<M>,
+        memories: ServiceInstallationMemories<RuntimeMemory<M>>,
         candidate: ValidatedServiceInstallation,
     ) -> Result<Self, ServiceInstallationError> {
         if memories.configuration.size() != 0 {
@@ -111,7 +121,7 @@ impl<M: Memory> ServiceInstallation<M> {
             0,
             "configuration grant aliases service memory"
         );
-        let mut records = BTreeMap::new(memories.configuration);
+        let mut records = StableBTreeMap::new(memories.configuration);
         records.insert(0u8, candidate.configuration.clone());
         Ok(Self {
             configuration: candidate.configuration,
@@ -129,14 +139,15 @@ impl<M: Memory> ServiceInstallation<M> {
     /// # Panics
     /// Corrupt binary state or collection headers trap; IC hosts must propagate them.
     pub fn open(
-        memories: ServiceInstallationMemories<M>,
+        memories: ServiceInstallationMemories<RuntimeMemory<M>>,
         actual_service: Principal,
         release: &str,
     ) -> Result<Self, ServiceInstallationError> {
         if memories.configuration.size() == 0 {
             return Err(ServiceInstallationError::Missing);
         }
-        let records: BTreeMap<u8, ConfigurationRecord, M> = BTreeMap::load(memories.configuration);
+        let records: StableBTreeMap<u8, ConfigurationRecord, M> =
+            StableBTreeMap::load(memories.configuration);
         if records.len() != 1 {
             return Err(ServiceInstallationError::RecordCount);
         }

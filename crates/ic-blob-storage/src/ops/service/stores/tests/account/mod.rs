@@ -19,14 +19,14 @@ use std::{
 };
 
 struct Host {
-    stores: RefCell<ServiceStores<VectorMemory>>,
-    memory: [VectorMemory; 16],
+    stores: RefCell<Option<ServiceStores<FixtureBackingMemory>>>,
+    memory: [FixtureBackingMemory; 16],
     config: ServiceStoreConfiguration,
 }
 impl AccountInspectionAccess for Host {
-    type Memory = VectorMemory;
+    type Memory = FixtureBackingMemory;
     fn with_account_stores<R>(&self, f: impl FnOnce(OperatorStores<'_, Self::Memory>) -> R) -> R {
-        f(OperatorStores::from(&*self.stores.borrow()))
+        f(OperatorStores::from(self.stores.borrow().as_ref().unwrap()))
     }
 }
 struct Source<'a> {
@@ -44,8 +44,9 @@ impl CashierQueryTransport for Source<'_> {
         self.calls.set(self.calls.get() + 1);
         if self.restore {
             // No store borrow may survive dispatch; publish an independently reopened owner.
+            drop(self.host.stores.borrow_mut().take());
             *self.host.stores.borrow_mut() =
-                ServiceStores::open(memories(&self.host.memory), self.host.config).unwrap();
+                Some(ServiceStores::open(memories(&self.host.memory), self.host.config).unwrap());
         }
         std::future::ready(Ok(CashierQueryResponse {
             cashier: request.cashier(),
@@ -66,9 +67,11 @@ fn ready<F: Future>(future: F) -> F::Output {
 fn account_inspection_checks_authority_before_dispatch_and_restore_before_decoding() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    let memory = std::array::from_fn(|_| VectorMemory::default());
+    let memory = std::array::from_fn(|_| FixtureBackingMemory::default());
     let host = Host {
-        stores: RefCell::new(ServiceStores::install(memories(&memory), config).unwrap()),
+        stores: RefCell::new(Some(
+            ServiceStores::install(memories(&memory), config).unwrap(),
+        )),
         memory,
         config,
     };

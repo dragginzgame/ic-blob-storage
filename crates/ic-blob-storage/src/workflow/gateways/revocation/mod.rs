@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Revoke local membership and invalidate pending sync/read observations together.
 /// The host supplies actual service/caller and commits synchronously before replying.

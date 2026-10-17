@@ -50,7 +50,7 @@ fn verification_plan_binds_installed_provider_and_only_exposed_unfenced_work() {
     assert_eq!(plan.project, scope.project());
     assert_eq!(plan.verifier, p(9));
     assert_eq!(plan.admitted_at_ns, 1);
-    let restored = StableUploads::open(clone_memory(&m), config()).unwrap();
+    let restored = StableUploads::open(snapshot_memory(&m), config()).unwrap();
     assert_eq!(
         verification_plan(&restored, authority(), &scope, context(9), permission),
         Err(UploadAttestationFailure::Permission(A::Fenced))

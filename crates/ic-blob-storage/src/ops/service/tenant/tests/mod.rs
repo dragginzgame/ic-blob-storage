@@ -1,5 +1,6 @@
 use super::*;
 use crate::test_support::admission::UploadAdmissions;
+use crate::test_support::memory::FixtureBackingMemory;
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
@@ -11,7 +12,6 @@ use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
     MemoryRequest, MemoryRuntime, SealedDeclarationSnapshot,
 };
-use ic_stable_structures::VectorMemory;
 use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 
 fn p(n: u8) -> Principal {
@@ -75,7 +75,7 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
     )
     .expect("host allocation pool");
     let declarations = SealedDeclarationSnapshot::new(vec![request]).unwrap();
-    let raw = VectorMemory::default();
+    let raw = ic_memory::VectorMemory::default();
     let mut runtime =
         MemoryRuntime::new_with_config(raw.clone(), MemoryManagerConfig::new(16).unwrap()).unwrap();
     runtime
@@ -112,7 +112,9 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
 #[test]
 fn stable_and_heap_owners_share_compare_and_set_generation_and_capacity_rules() {
     let mut heap = UploadAdmissions::new(config());
-    let mut stable = StableTenantEnrollments::install(VectorMemory::default(), config()).unwrap();
+    let mut stable =
+        StableTenantEnrollments::install(FixtureBackingMemory::default().lease(), config())
+            .unwrap();
     for (tenant, active) in [
         (4, true),
         (4, false),
@@ -158,8 +160,8 @@ fn stable_and_heap_owners_share_compare_and_set_generation_and_capacity_rules() 
 
 #[test]
 fn rejected_authority_never_changes_stable_bytes() {
-    let memory = VectorMemory::default();
-    let mut store = StableTenantEnrollments::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     let before = memory.borrow().clone();
     assert_eq!(
         store.update(context(4), update(4, None, true)),
@@ -182,17 +184,17 @@ fn rejected_authority_never_changes_stable_bytes() {
 
 #[test]
 fn missing_or_mismatched_storage_is_never_initialized_or_rebound() {
-    let memory = VectorMemory::default();
+    let memory = FixtureBackingMemory::default();
     assert!(matches!(
-        StableTenantEnrollments::open(memory.clone(), config()),
+        StableTenantEnrollments::open(memory.lease(), config()),
         Err(TenantStoreError::Missing)
     ));
-    assert_eq!(memory.size(), 0);
-    let store = StableTenantEnrollments::install(memory.clone(), config()).unwrap();
+    assert_eq!(memory.lease().size(), 0);
+    let store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     drop(store);
     let before = memory.borrow().clone();
     assert!(matches!(
-        StableTenantEnrollments::install(memory.clone(), config()),
+        StableTenantEnrollments::install(memory.lease(), config()),
         Err(TenantStoreError::AlreadyAllocated)
     ));
     for field in 0..4 {
@@ -207,7 +209,7 @@ fn missing_or_mismatched_storage_is_never_initialized_or_rebound() {
         }
         let changed = ServiceConfiguration::new(bindings, limits, original.billing()).unwrap();
         assert!(matches!(
-            StableTenantEnrollments::open(memory.clone(), changed),
+            StableTenantEnrollments::open(memory.lease(), changed),
             Err(TenantStoreError::Binding)
         ));
         assert_eq!(*memory.borrow(), before);
@@ -217,8 +219,8 @@ fn missing_or_mismatched_storage_is_never_initialized_or_rebound() {
 #[test]
 fn invalid_records_and_over_capacity_state_fail_restoration_without_repair() {
     for invalid_tenant in [p(4), Principal::anonymous()] {
-        let memory = VectorMemory::default();
-        let mut store = StableTenantEnrollments::install(memory.clone(), config()).unwrap();
+        let memory = FixtureBackingMemory::default();
+        let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
         store.entries.insert(
             invalid_tenant,
             TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config())),
@@ -226,13 +228,13 @@ fn invalid_records_and_over_capacity_state_fail_restoration_without_repair() {
         drop(store);
         let before = memory.borrow().clone();
         assert!(matches!(
-            StableTenantEnrollments::open(memory.clone(), config()),
+            StableTenantEnrollments::open(memory.lease(), config()),
             Err(TenantStoreError::InvalidRecord)
         ));
         assert_eq!(*memory.borrow(), before);
     }
-    let memory = VectorMemory::default();
-    let mut store = StableTenantEnrollments::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     for tenant in [4, 5, 6] {
         store.entries.insert(
             p(tenant),
@@ -244,15 +246,15 @@ fn invalid_records_and_over_capacity_state_fail_restoration_without_repair() {
     }
     drop(store);
     assert!(matches!(
-        StableTenantEnrollments::open(memory, config()),
+        StableTenantEnrollments::open(memory.lease(), config()),
         Err(TenantStoreError::InvalidRecord)
     ));
 }
 
 #[test]
 fn exhausted_generations_preserve_suspension_and_stable_history() {
-    let memory = VectorMemory::default();
-    let mut store = StableTenantEnrollments::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     let last = TenantEnrollmentView {
         generation: NonZeroU64::MAX,
         active: true,
@@ -271,32 +273,32 @@ fn exhausted_generations_preserve_suspension_and_stable_history() {
     );
     assert_eq!(*memory.borrow(), before);
     drop(store);
-    let reopened = StableTenantEnrollments::open(memory, config()).unwrap();
+    let reopened = StableTenantEnrollments::open(memory.lease(), config()).unwrap();
     assert_eq!(reopened.inspect(context(4), p(4)), Ok(Some(suspended)));
 }
 
 #[test]
 fn unrecognized_memory_and_missing_metadata_never_seed_a_fresh_store() {
-    let memory = VectorMemory::default();
-    memory.grow(1);
-    memory.write(0, b"unrecognized stable data");
+    let memory = FixtureBackingMemory::default();
+    ic_memory::Memory::grow(&memory.lease(), 1);
+    memory.lease().write(0, b"unrecognized stable data");
     let before = memory.borrow().clone();
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        StableTenantEnrollments::open(memory.clone(), config())
+        StableTenantEnrollments::open(memory.lease(), config())
     }));
     assert!(result.is_err());
     assert_eq!(*memory.borrow(), before);
     assert!(matches!(
-        StableTenantEnrollments::install(memory, config()),
+        StableTenantEnrollments::install(memory.lease(), config()),
         Err(TenantStoreError::AlreadyAllocated)
     ));
-    let memory = VectorMemory::default();
-    let mut store = StableTenantEnrollments::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     store.entries.remove(&Principal::management_canister());
     drop(store);
     let before = memory.borrow().clone();
     assert!(matches!(
-        StableTenantEnrollments::open(memory.clone(), config()),
+        StableTenantEnrollments::open(memory.lease(), config()),
         Err(TenantStoreError::Binding)
     ));
     assert_eq!(*memory.borrow(), before);

@@ -28,7 +28,7 @@ fn content(input: UploadPermission) -> ContentLookup {
         root: input.request.object.root,
     }
 }
-fn prepared(store: &mut StableUploads<VectorMemory>, id: u128) -> UploadPermission {
+fn prepared(store: &mut StableUploads<FixtureBackingMemory>, id: u128) -> UploadPermission {
     enroll(store);
     let built = built();
     let mut input = permission(1);
@@ -199,7 +199,7 @@ fn descriptors_require_the_exact_live_reference_and_preserve_first_headers() {
 }
 #[test]
 fn filtered_pages_advance_and_new_sweeps_find_phase_changes_behind_the_cursor() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = prepared(&mut store, 1);
     store.expose(context(5), input.request, 3).unwrap();
     store.confirm_upload(input.request).unwrap();
@@ -280,7 +280,7 @@ fn filtered_pages_advance_and_new_sweeps_find_phase_changes_behind_the_cursor() 
 }
 #[test]
 fn tenant_ranges_do_not_consume_other_tenants_scan_budget() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     enroll(&mut store);
     store
         .update_tenant(
@@ -353,7 +353,7 @@ fn missing_changed_or_orphaned_root_request_index_rejects_reopen_without_repair(
 
 #[test]
 fn scan_and_result_limits_are_independent_and_terminal_history_stays_bounded() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     enroll(&mut store);
     let first = permission(1);
     let mut last = permission(2);
@@ -404,7 +404,7 @@ fn scan_and_result_limits_are_independent_and_terminal_history_stays_bounded() {
 }
 #[test]
 fn cleanup_views_keep_billing_obligations_after_physical_deletion() {
-    let mut store = StableUploads::install(memory(), config()).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = prepared(&mut store, 1);
     store.expose(context(5), input.request, 3).unwrap();
     store.confirm_upload(input.request).unwrap();

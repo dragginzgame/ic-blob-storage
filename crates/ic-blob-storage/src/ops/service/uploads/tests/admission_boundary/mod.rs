@@ -75,7 +75,7 @@ fn exact_admission_recovers_permission_without_renewal_through_expiry_suspension
         cancelled
     );
     drop(store);
-    let mut restored = StableUploads::open(m, config()).unwrap();
+    let mut restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(inspect(&restored, context(4), input), Ok(cancelled));
     assert_eq!(admit(&mut restored, context(4), input, 200), Err(F::Fenced));
 }

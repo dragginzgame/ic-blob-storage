@@ -15,6 +15,7 @@ lockfiles; this repository's qualification does not cover every future resolutio
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
 | IC Memory | 0.48.0 | Public host runtime and exclusive allocation leases; backing custody stays with the host |
+| IC Storage | 0.5.2 | Governed stable collections and record codecs; substrate dependency stays upstream |
 | IC Metrics (direct) | 0.13.4 | Private storage probe measurements; Testkit retains its own transitive selection |
 | IC Testkit | 0.52.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
 | IC Testkit Candid | 0.52.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
@@ -115,9 +116,9 @@ The [0.32 incoming protocol](service-wire.md) still uses the already locked Cibo
 the standalone, storage and admission probe manifests. This codec adds no external selection. Incoming maintainer edits separately select
 Memory 0.47. Contributor Build 0.15 now matches selected Host 0.26 process types;
 [the verifier repair](evidence/build0150320.md) records focused qualification.
-Collection code names the already locked
-`ic-stable-structures` 0.7.2 directly after Memory removed its blanket substrate
-re-export; host backing types use Memory's supported root exports. Runtime leases
+Collection code uses IC Storage's governed adapters and codec exports. Blob has
+no direct substrate dependency; IC Storage and IC Memory own that implementation
+detail. Host backing types use Memory's supported root exports. Runtime leases
 remain host-owned. Unconverted clients, native packets and owned probe methods
 retain CBOR; tenant inspection/update use Wire. Candid remains at provider,
 management and persisted-record owners. Public Memory changes belong to the
@@ -403,7 +404,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.46 host-wide allocation pool and open
+compose all namespaces in one Memory 0.48 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -415,6 +416,16 @@ library registers declarations, chooses physical IDs, initializes stores or
 exports endpoints. Supply `grants::open(|key| runtime.open_memory(key))` from the
 host's retained, already bootstrapped runtime. No default singleton adapter remains.
 Standalone owns its bootstrap.
+IC Storage's `adapter::StableBTreeMap` owns collection access. Blob's
+`ServiceInstallation<M>`, store owners and workflow/transport associated memory
+types now use the backing `M`; their memory bundles carry `RuntimeMemory<M>`.
+For example, an owner formerly annotated with `RuntimeMemory<DefaultMemoryImpl>`
+uses `DefaultMemoryImpl` as its type argument. Supply the same runtime leases;
+do not introduce another production manager or use a dependency rename to expose
+raw collections. Record bytes, stable keys and production collection layouts
+remain unchanged. The private instrumented storage probe alone uses nested
+fixture managers, so its read counts include those managers and cannot be
+compared directly with older profiles.
 Lifecycle restoration is synchronous and leaves the service fenced until the
 maintained recovery workflow proves safe activation. Use `LIBRARY_VERSION` for
 installation and exact same-release reopening.

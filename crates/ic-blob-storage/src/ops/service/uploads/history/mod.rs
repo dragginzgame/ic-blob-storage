@@ -19,7 +19,7 @@ use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
 use ic_blob_storage_contracts::upload::history::filter;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 use std::num::NonZeroU128;
 
 fn number(value: u128) -> Result<NonZeroU128, UploadHistoryFailure> {

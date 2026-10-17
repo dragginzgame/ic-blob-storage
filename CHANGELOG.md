@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.33.0]
+
+- **Breaking Rust storage API:** route stable collections and record codecs
+  through IC Storage 0.5.2; remove Blob's direct `ic-stable-structures` dependency.
+  Service owners and workflow type parameters now name the runtime's backing
+  memory; constructors require its exclusive `RuntimeMemory` leases. Update host
+  type annotations and trait implementations together. Record encodings and
+  production collection layouts are unchanged; cross-release reinstalls still
+  require safe disposition of all retained obligations.
+- Keep corruption and restored-instance fixtures under explicit runtime custody.
+  The private storage probe preserves per-allocation faults/read measurement with
+  nested fixture governance; its read totals include that additional manager and
+  form a new measurement baseline. Earlier private probe images require reinstall.
+
 ## [0.32.2] - 2026-10-17
 
 - Reuse Host's bounded process framing for publication control and native/browser

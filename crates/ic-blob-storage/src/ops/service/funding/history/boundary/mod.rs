@@ -11,7 +11,7 @@ use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 fn scope(input: OperatorScope) -> Result<FundingJournalScope, FundingHistoryFailure> {

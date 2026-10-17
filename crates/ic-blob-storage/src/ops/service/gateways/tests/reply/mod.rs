@@ -24,8 +24,8 @@ fn rejected(error: GatewayReplyError) -> GatewaySyncReplyError {
 }
 #[test]
 fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded_reply() {
-    let memory = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(9)).unwrap();
     let attempt = begin_sync(&mut store, context(), scope()).unwrap();
     assert_eq!(attempt.scope(), scope());
@@ -100,8 +100,8 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
 }
 #[test]
 fn durable_gateway_reply_checks_authority_source_and_revocation_before_decode() {
-    let memory = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     let old = begin_sync(&mut store, context(), scope()).unwrap();
     let before = memory.borrow().clone();
     let bad = vec![0; 4097];
@@ -180,11 +180,11 @@ fn durable_gateway_reply_checks_authority_source_and_revocation_before_decode() 
 }
 #[test]
 fn durable_gateway_restoration_rejects_even_the_original_host_retained_request() {
-    let memory = VectorMemory::default();
-    let mut store = StableGatewayRegistry::install(memory.clone(), config()).unwrap();
+    let memory = FixtureBackingMemory::default();
+    let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     let attempt = begin_sync(&mut store, context(), scope()).unwrap();
     drop(store);
-    let mut restored = StableGatewayRegistry::open(memory.clone(), config()).unwrap();
+    let mut restored = StableGatewayRegistry::open(memory.lease(), config()).unwrap();
     let before = memory.borrow().clone();
     let expected = GatewaySyncReplyError::Store(GatewayStoreError::Fenced);
     assert_eq!(

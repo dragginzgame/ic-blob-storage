@@ -10,7 +10,8 @@ use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::{BTreeMap, Memory};
+use ic_memory::{Memory, RuntimeMemory};
+use ic_storage::adapter::StableBTreeMap;
 use thiserror::Error;
 
 const METADATA: [u8; 33] = [0; 33];
@@ -27,8 +28,8 @@ fn root_key(root: ProviderRootHash) -> [u8; 33] {
 /// rollback. Native memory offers no such transaction guarantee. This component
 /// does not enroll tenants, allocate IDs, authenticate providers or prove uploads.
 pub struct StableRootClaims<M: Memory> {
-    roots: BTreeMap<[u8; 33], RootClaimRecord, M>,
-    objects: BTreeMap<RootObjectKeyRecord, [u8; 32], M>,
+    roots: StableBTreeMap<[u8; 33], RootClaimRecord, M>,
+    objects: StableBTreeMap<RootObjectKeyRecord, [u8; 32], M>,
     config: ServiceConfiguration,
     fenced: bool,
 }
@@ -48,20 +49,20 @@ impl<M: Memory> StableRootClaims<M> {
     /// Traps on aliased memories, allocation or encoding failures. The host must
     /// propagate the trap to roll back all writes in the IC message.
     pub(crate) fn install(
-        roots: M,
-        objects: M,
+        roots: RuntimeMemory<M>,
+        objects: RuntimeMemory<M>,
         config: ServiceConfiguration,
     ) -> Result<Self, RootStoreError> {
         if roots.size() != 0 || objects.size() != 0 {
             return Err(RootStoreError::AlreadyAllocated);
         }
-        let mut roots = BTreeMap::new(roots);
+        let mut roots = StableBTreeMap::new(roots);
         assert_eq!(
             objects.size(),
             0,
             "root and object memories must be distinct"
         );
-        let objects = BTreeMap::new(objects);
+        let objects = StableBTreeMap::new(objects);
         roots.insert(
             METADATA,
             RootClaimRecord::Metadata(RootStoreMetadataRecord::new(&config)),
@@ -85,15 +86,15 @@ impl<M: Memory> StableRootClaims<M> {
     /// # Panics
     /// Corrupt stable collection/record encodings trap; no replacement is seeded.
     pub(crate) fn open(
-        roots: M,
-        objects: M,
+        roots: RuntimeMemory<M>,
+        objects: RuntimeMemory<M>,
         config: ServiceConfiguration,
     ) -> Result<Self, RootStoreError> {
         if roots.size() == 0 || objects.size() == 0 {
             return Err(RootStoreError::Missing);
         }
-        let roots = BTreeMap::load(roots);
-        let objects = BTreeMap::load(objects);
+        let roots = StableBTreeMap::load(roots);
+        let objects = StableBTreeMap::load(objects);
         if roots.get(&METADATA)
             != Some(RootClaimRecord::Metadata(RootStoreMetadataRecord::new(
                 &config,
@@ -112,7 +113,7 @@ impl<M: Memory> StableRootClaims<M> {
             config,
             fenced: true,
         };
-        for entry in store.roots.iter() {
+        for entry in &store.roots {
             let key = entry.key();
             if *key == METADATA {
                 continue;

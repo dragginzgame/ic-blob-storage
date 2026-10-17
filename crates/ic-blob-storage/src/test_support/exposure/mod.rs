@@ -5,7 +5,7 @@ pub use crate::workflow::uploads::exposure::boundary::{
 };
 pub use crate::workflow::uploads::exposure::inspect;
 use ic_blob_storage_contracts::upload::binding::{UploadContext, UploadRequest};
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Record exposure bookkeeping without minting a certificate, for resource fixtures.
 /// No provider or host-evidence claim is established by this test-only access.

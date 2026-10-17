@@ -3,4 +3,6 @@
 pub mod admission;
 pub mod certificate;
 pub mod exposure;
+#[cfg(test)]
+pub(crate) mod memory;
 pub mod stores;

@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 use std::num::NonZeroUsize;
 
 /// Recover exact local identities and amounts as the installed operator.

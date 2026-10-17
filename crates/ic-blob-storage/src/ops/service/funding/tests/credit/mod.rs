@@ -27,7 +27,7 @@ pub(super) fn receipt(
     }
 }
 pub(super) fn paid(
-    store: &mut StableFundingJournal<VectorMemory>,
+    store: &mut StableFundingJournal<FixtureBackingMemory>,
     intent: FundingIntent,
     refunded: u128,
 ) {
@@ -60,7 +60,8 @@ fn host(intent: FundingIntent) -> FundingHostEvidence {
 }
 #[test]
 fn exact_credit_enables_next_guarded_topup_without_refunding_spent_allocation() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let first = input(1, 200);
     paid(&mut store, first, 50);
     let second = input(2, 200);
@@ -245,7 +246,8 @@ fn uncertain_unsent_and_fully_refunded_intents_cannot_claim_credit() {
         Some(FundingTransportOutcome::NotEnqueued),
         Some(FundingTransportOutcome::Callback { refunded: 100 }),
     ] {
-        let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+        let mut store =
+            StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
         let intent = input(1, 100);
         store.prepare(execution(), intent).unwrap();
         store.mark_attempted(execution(), intent).unwrap();

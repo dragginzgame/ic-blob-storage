@@ -2,11 +2,12 @@ use super::*;
 use crate::model::billing::journal::FundingIntent;
 use crate::ops::service::configuration::tests::candidate;
 use crate::ops::service::stores::grants;
+use crate::test_support::memory::FixtureBackingMemory;
 use crate::workflow::operator::inspect;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::{Storable, VectorMemory};
+use ic_storage::adapter::Storable;
 
 const RELEASE: &str = "test-release";
 
@@ -93,24 +94,26 @@ fn input() -> ServiceInstallationCandidate<'static> {
 fn validated() -> ValidatedServiceInstallation {
     ValidatedServiceInstallation::new(candidate().service, input()).unwrap()
 }
-fn memory() -> [VectorMemory; 17] {
-    std::array::from_fn(|_| VectorMemory::default())
+fn memory() -> [FixtureBackingMemory; 17] {
+    std::array::from_fn(|_| FixtureBackingMemory::default())
 }
-fn memories(memory: &[VectorMemory; 17]) -> ServiceInstallationMemories<VectorMemory> {
+fn memories(
+    memory: &[FixtureBackingMemory; 17],
+) -> ServiceInstallationMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
     let requests = grants::requests("installation-test").unwrap();
     ServiceInstallationMemories {
-        configuration: memory[0].clone(),
+        configuration: memory[0].lease(),
         stores: grants::open::<_, std::convert::Infallible>(|key| {
             let index = requests
                 .iter()
                 .position(|r| r.stable_key().as_str() == key)
                 .unwrap();
-            Ok(memory[index + 1].clone())
+            Ok(memory[index + 1].lease())
         })
         .unwrap(),
     }
 }
-fn bytes(memory: &[VectorMemory; 17]) -> [Vec<u8>; 17] {
+fn bytes(memory: &[FixtureBackingMemory; 17]) -> [Vec<u8>; 17] {
     memory.each_ref().map(|m| m.borrow().clone())
 }
 
@@ -281,8 +284,10 @@ fn whole_candidate_rejects_invalid_bindings_project_verifier_and_release() {
 fn allocated_grant_anywhere_rejects_before_installation_or_owner_writes() {
     for occupied in 0..17 {
         let memory = memory();
-        assert_eq!(memory[occupied].grow(1), 0);
-        memory[occupied].write(0, b"retained installation obligation");
+        assert_eq!(ic_memory::Memory::grow(&memory[occupied].lease(), 1), 0);
+        memory[occupied]
+            .lease()
+            .write(0, b"retained installation obligation");
         let before = bytes(&memory);
         let result = ServiceInstallation::install(memories(&memory), validated());
         if occupied == 0 {
@@ -309,12 +314,16 @@ fn missing_configuration_and_wrong_row_count_refuse_without_initialization() {
         ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
         Err(ServiceInstallationError::Missing)
     ));
-    assert!(memory.iter().all(|m| m.size() == 0));
-    let mut records: BTreeMap<u8, ConfigurationRecord, _> = BTreeMap::new(memory[0].clone());
+    assert!(memory.iter().all(|m| m.lease().size() == 0));
+    drop(StableBTreeMap::<u8, ConfigurationRecord, _>::new(
+        memory[0].lease(),
+    ));
     for count in [0, 2] {
+        let mut records = StableBTreeMap::<u8, ConfigurationRecord, _>::load(memory[0].lease());
         for key in 0..count {
             records.insert(key, configuration::record(&input()));
         }
+        drop(records);
         let before = bytes(&memory);
         assert!(matches!(
             ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
@@ -348,19 +357,21 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
         assert_eq!(bytes(&memory), before);
     }
     let mut missing = memory.clone();
-    missing[16] = VectorMemory::default();
+    missing[16] = FixtureBackingMemory::default();
     let missing_before = bytes(&missing);
     assert!(matches!(
         ServiceInstallation::open(memories(&missing), candidate().service, RELEASE),
         Err(ServiceInstallationError::Stores(ServiceStoreError::Missing))
     ));
     assert_eq!(bytes(&missing), missing_before);
-    let mut records: BTreeMap<u8, ConfigurationRecord, _> = BTreeMap::load(memory[0].clone());
+    let mut records: StableBTreeMap<u8, ConfigurationRecord, _> =
+        StableBTreeMap::load(memory[0].lease());
     let mut record = records.get(&0).unwrap();
     // Prior single-uploader layout must refuse even if the release is unchanged.
     record.format =
         "ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal".to_owned();
     records.insert(0, record.clone());
+    drop(records);
     let before = bytes(&memory);
     assert!(matches!(
         ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
@@ -371,7 +382,9 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
     assert_eq!(bytes(&memory), before);
     record.format = ConfigurationRecord::FORMAT.to_owned();
     record.project = " invalid-project".to_owned();
+    let mut records = StableBTreeMap::<u8, ConfigurationRecord, _>::load(memory[0].lease());
     records.insert(0, record);
+    drop(records);
     let before = bytes(&memory);
     assert!(matches!(
         ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),

@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
 
 /// Inspect one explicit service/provider/account scope as its configured operator.
 /// The host supplies actual caller/service and holds all owner borrows synchronously.

@@ -41,6 +41,9 @@ it does not override shared rules or depend on a mutable sibling checkout.
 
 ## Ownership and layering
 
+- Stable collections and record codecs use `ic_storage::adapter`; host backing
+  types and allocation leases use `ic_memory`. Do not declare a direct or renamed
+  `ic-stable-structures` dependency in this workspace.
 - Prefer one authoritative storage owner and its local durable journals. Defer
   external journals, recovery-controller canisters and extra metadata calls until
   a clear consumer/recovery use case justifies them. This preference does not

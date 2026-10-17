@@ -19,12 +19,12 @@ use std::{
     num::NonZeroUsize,
     task::{Context, Poll, Waker},
 };
-struct Host(RefCell<StableGatewayRegistry<VectorMemory>>);
+struct Host(RefCell<StableGatewayRegistry<FixtureBackingMemory>>);
 impl GatewayRegistryAccess for Host {
-    type Memory = VectorMemory;
+    type Memory = FixtureBackingMemory;
     fn with_gateway_registry<R>(
         &self,
-        op: impl FnOnce(&mut StableGatewayRegistry<VectorMemory>) -> R,
+        op: impl FnOnce(&mut StableGatewayRegistry<FixtureBackingMemory>) -> R,
     ) -> R {
         op(&mut self.0.borrow_mut())
     }
@@ -64,9 +64,9 @@ fn ready<F: Future>(future: F) -> F::Output {
 }
 #[test]
 fn gateway_transport_checks_pending_state_on_poll_and_source_before_committing() {
-    let memory = VectorMemory::default();
+    let memory = FixtureBackingMemory::default();
     let host = Host(RefCell::new(
-        StableGatewayRegistry::install(memory.clone(), config()).unwrap(),
+        StableGatewayRegistry::install(memory.lease(), config()).unwrap(),
     ));
     let attempt = host
         .with_gateway_registry(|store| begin_sync(store, context(), scope()))

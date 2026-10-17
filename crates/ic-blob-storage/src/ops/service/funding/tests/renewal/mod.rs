@@ -162,7 +162,8 @@ fn renewal_refuses_uncredited_unknown_wrong_authority_amount_identity_and_confli
 }
 #[test]
 fn renewal_never_recycles_lifetime_intent_slots_or_exceeds_the_disabled_ceiling() {
-    let mut store = StableFundingJournal::install(memories(), config(), bounded()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), bounded()).unwrap();
     for operation in 1..=4 {
         let original = input(operation, 100);
         paid(&mut store, original, 0);
@@ -181,7 +182,8 @@ fn renewal_never_recycles_lifetime_intent_slots_or_exceeds_the_disabled_ceiling(
         store.prepare(execution(), input(5, 100)),
         Err(FundingAllocationError::Capacity.into())
     );
-    let mut finite = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut finite =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     let first = input(1, 100);
     paid(&mut finite, first, 0);
     finite

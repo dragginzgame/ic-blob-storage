@@ -2,16 +2,18 @@ use super::*;
 mod account;
 mod operator;
 use crate::ops::service::configuration::{tests::candidate, validate_candidate};
-use ic_stable_structures::VectorMemory;
+use crate::test_support::memory::FixtureBackingMemory;
 
-fn memories(m: &[VectorMemory; 16]) -> ServiceMemories<VectorMemory> {
+fn memories(
+    m: &[FixtureBackingMemory; 16],
+) -> ServiceMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
     let requests = grants::requests("store-test").unwrap();
     grants::open::<_, std::convert::Infallible>(|key| {
         let index = requests
             .iter()
             .position(|request| request.stable_key().as_str() == key)
             .unwrap();
-        Ok(m[index].clone())
+        Ok(m[index].lease())
     })
     .unwrap()
 }
@@ -21,9 +23,10 @@ fn allocated_grant_anywhere_rejects_before_other_memories_are_written() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
     for occupied in 0..16 {
-        let m: [VectorMemory; 16] = std::array::from_fn(|_| VectorMemory::default());
-        assert_eq!(m[occupied].grow(1), 0);
-        m[occupied].write(0, b"retained obligation");
+        let m: [FixtureBackingMemory; 16] =
+            std::array::from_fn(|_| FixtureBackingMemory::default());
+        assert_eq!(ic_memory::Memory::grow(&m[occupied].lease(), 1), 0);
+        m[occupied].lease().write(0, b"retained obligation");
         let before = m.each_ref().map(|m| m.borrow().clone());
         assert!(matches!(
             ServiceStores::install(memories(&m), config),
@@ -38,12 +41,12 @@ fn missing_grant_anywhere_rejects_without_loading_or_initializing_any_store() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
     for missing in 0..16 {
-        let m: [VectorMemory; 16] = std::array::from_fn(|i| {
-            let memory = VectorMemory::default();
+        let m: [FixtureBackingMemory; 16] = std::array::from_fn(|i| {
+            let memory = FixtureBackingMemory::default();
             if i != missing {
-                assert_eq!(memory.grow(1), 0);
+                assert_eq!(ic_memory::Memory::grow(&memory.lease(), 1), 0);
                 // Deliberately not a collection: preflight must precede loading.
-                memory.write(0, b"retained obligation");
+                memory.lease().write(0, b"retained obligation");
             }
             memory
         });
@@ -60,7 +63,7 @@ fn missing_grant_anywhere_rejects_without_loading_or_initializing_any_store() {
 fn changed_funding_or_read_limits_reject_without_repairing_other_stores() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    let m: [VectorMemory; 16] = std::array::from_fn(|_| VectorMemory::default());
+    let m: [FixtureBackingMemory; 16] = std::array::from_fn(|_| FixtureBackingMemory::default());
     drop(ServiceStores::install(memories(&m), config).unwrap());
     let before = m.each_ref().map(|m| m.borrow().clone());
 

@@ -21,7 +21,7 @@ fn capacity_boundary_keeps_full_width_namespace_and_byte_headroom() {
     limits.catalog.max_liability_bytes = NonZeroU128::new(u128::MAX).unwrap();
     limits.catalog.max_tenant_logical_bytes = NonZeroU128::new(u128::MAX).unwrap();
     let config = ServiceConfiguration::new(bindings, limits, original.billing()).unwrap();
-    let mut store = StableUploads::install(memory(), config).unwrap();
+    let mut store = StableUploads::install(clone_memory(&(memory())), config).unwrap();
     enroll(&mut store);
     let scope = TenantScope {
         namespace: u128::MAX,
@@ -42,7 +42,7 @@ fn capacity_boundary_keeps_full_width_namespace_and_byte_headroom() {
 
 #[test]
 fn capacity_boundary_checks_scope_actor_and_enrollment_before_disclosing_counters() {
-    let store = StableUploads::install(memory(), config()).unwrap();
+    let store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     assert_eq!(inspect(&store, context(4), scope()), Err(F::NotEnrolled));
     for actor in [2, 5, 6] {
         assert_eq!(inspect(&store, context(actor), scope()), Err(F::Denied));
@@ -139,7 +139,7 @@ fn capacity_boundary_preserves_heap_parity_and_reports_durable_restore_fence() {
     );
     assert_eq!(cancelled.remaining_bytes, reserved.remaining_bytes + 10);
     drop(store);
-    let restored = StableUploads::open(memory, config()).unwrap();
+    let restored = StableUploads::open(clone_memory(&(memory)), config()).unwrap();
     let expected = UploadCapacityResponse {
         fenced: true,
         ..cancelled

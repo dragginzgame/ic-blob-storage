@@ -68,7 +68,7 @@ fn reopening_preserves_independent_activations_and_rejects_a_later_future_genera
         assert!(restored.is_fenced());
         drop(restored);
 
-        let mut permissions = BTreeMap::load(m.permissions.clone());
+        let mut permissions = StableBTreeMap::load(m.permissions.lease());
         permissions.insert(
             key(second.request),
             UploadStoreRecord::Permission(UploadPermissionRecord::new(
@@ -149,7 +149,7 @@ fn reopening_binds_each_root_to_one_exact_tenant_and_request() {
         // Keep collection cardinalities unchanged: restoration must verify the
         // actual root-to-request and root-to-tenant bindings, not just counts.
         second.request.object.root = first.request.object.root;
-        let mut permissions = BTreeMap::load(m.permissions.clone());
+        let mut permissions = StableBTreeMap::load(m.permissions.lease());
         permissions.insert(
             key(second.request),
             UploadStoreRecord::Permission(UploadPermissionRecord::new(second, 1, NonZeroU64::MIN)),

@@ -2,7 +2,8 @@
 use crate::ops::service::stores::{
     ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores,
 };
-use ic_stable_structures::Memory;
+use ic_memory::Memory;
+use ic_memory::RuntimeMemory;
 
 /// Construct fixture owners in fresh exclusive memories.
 /// # Errors
@@ -10,7 +11,7 @@ use ic_stable_structures::Memory;
 /// # Panics
 /// Stable-write or aliased-memory traps must propagate for IC rollback.
 pub fn install<M: Memory>(
-    memory: ServiceMemories<M>,
+    memory: ServiceMemories<RuntimeMemory<M>>,
     config: ServiceStoreConfiguration,
 ) -> Result<ServiceStores<M>, ServiceStoreError> {
     ServiceStores::install(memory, config)
@@ -21,7 +22,7 @@ pub fn install<M: Memory>(
 /// # Panics
 /// Corrupt records or collection headers trap.
 pub fn open<M: Memory>(
-    memory: ServiceMemories<M>,
+    memory: ServiceMemories<RuntimeMemory<M>>,
     config: ServiceStoreConfiguration,
 ) -> Result<ServiceStores<M>, ServiceStoreError> {
     ServiceStores::open(memory, config)

@@ -24,7 +24,8 @@ use crate::model::billing::journal::record::FundingJournalRecord;
 use crate::ops::caffeine::funding::request::{CashierTopUpRequest, TopUpRequestError};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_stable_structures::{BTreeMap, Memory};
+use ic_memory::{Memory, RuntimeMemory};
+use ic_storage::adapter::StableBTreeMap;
 use thiserror::Error;
 
 /// Two distinct, exclusively owned memories granted by the integrating host.
@@ -47,8 +48,8 @@ pub struct FundingMemories<M: Memory> {
 /// owns callback authentication and complete account activity. Canonical Cashier
 /// method/argument binding is local evidence, not provider deployment qualification.
 pub struct StableFundingJournal<M: Memory> {
-    accounting: BTreeMap<[u8; 32], FundingAccountingRecord, M>,
-    intents: BTreeMap<u128, FundingIntentRecord, M>,
+    accounting: StableBTreeMap<[u8; 32], FundingAccountingRecord, M>,
+    intents: StableBTreeMap<u128, FundingIntentRecord, M>,
     config: ServiceConfiguration,
     fenced: bool,
 }
@@ -69,7 +70,7 @@ impl<M: Memory> StableFundingJournal<M> {
     /// # Panics
     /// Aliased memories and stable writes trap; the host must propagate IC rollback.
     pub(crate) fn install(
-        memory: FundingMemories<M>,
+        memory: FundingMemories<RuntimeMemory<M>>,
         config: ServiceConfiguration,
         allocation: FundingAllocation,
     ) -> Result<Self, FundingJournalError> {
@@ -78,9 +79,9 @@ impl<M: Memory> StableFundingJournal<M> {
         if memory.accounting.size() != 0 || memory.intents.size() != 0 {
             return Err(FundingJournalError::AlreadyAllocated);
         }
-        let mut accounting = BTreeMap::new(memory.accounting);
+        let mut accounting = StableBTreeMap::new(memory.accounting);
         assert_eq!(memory.intents.size(), 0, "distinct funding memories");
-        let intents = BTreeMap::new(memory.intents);
+        let intents = StableBTreeMap::new(memory.intents);
         accounting.insert([0; 32], FundingAccountingRecord::Totals(record));
         Ok(Self {
             accounting,
@@ -97,7 +98,7 @@ impl<M: Memory> StableFundingJournal<M> {
     /// # Panics
     /// Corrupt binary records/collection headers trap; hosts must reject restoration.
     pub(crate) fn open(
-        memory: FundingMemories<M>,
+        memory: FundingMemories<RuntimeMemory<M>>,
         config: ServiceConfiguration,
         allocation: FundingAllocation,
     ) -> Result<Self, FundingJournalError> {
@@ -107,8 +108,8 @@ impl<M: Memory> StableFundingJournal<M> {
             return Err(FundingJournalError::Missing);
         }
         let store = Self {
-            accounting: BTreeMap::load(memory.accounting),
-            intents: BTreeMap::load(memory.intents),
+            accounting: StableBTreeMap::load(memory.accounting),
+            intents: StableBTreeMap::load(memory.intents),
             config,
             fenced: true,
         };
@@ -120,7 +121,7 @@ impl<M: Memory> StableFundingJournal<M> {
             return Err(FundingJournalError::InvalidRecord);
         }
         let mut receipts = 0_u64;
-        for entry in store.intents.iter() {
+        for entry in &store.intents {
             let record = entry.value();
             let view = record.view().ok_or(FundingJournalError::InvalidRecord)?;
             if *entry.key() != view.intent.operation.get() || !recorded.scope_matches(view.intent) {

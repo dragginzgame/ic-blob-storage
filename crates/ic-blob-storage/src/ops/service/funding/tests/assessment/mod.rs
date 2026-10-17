@@ -53,7 +53,8 @@ fn passive_assessment_preserves_full_width_identity_and_unknowns_without_reservi
 }
 #[test]
 fn original_obligations_retained_identity_and_lifetime_capacity_remain_blockers() {
-    let mut store = StableFundingJournal::install(memories(), config(), allocation()).unwrap();
+    let mut store =
+        StableFundingJournal::install(copy(&(memories())), config(), allocation()).unwrap();
     for id in 1..=4 {
         let original = input(id, 1);
         store.prepare(execution(), original).unwrap();
