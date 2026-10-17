@@ -39,7 +39,7 @@ pub fn decode(
     if bytes.len() > max_reply_bytes.get() {
         return Err(E::Limit);
     }
-    let limits = crate::decoding::limits(100_000, 1000, 64, max_reply_bytes.get());
+    let limits = crate::decoding::limits(100_000, 1000, 64, Some(max_reply_bytes.get()));
     let response: Result<UploadDiscoveryResponse, UploadDiscoveryFailure> =
         candid::decode_one_with_config(bytes, &limits).map_err(|_| E::Invalid)?;
     let response = response.map_err(E::Remote)?;

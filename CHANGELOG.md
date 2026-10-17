@@ -2,6 +2,24 @@
 
 ## [0.31.0]
 
+- Share passive fixture query-command handling while retaining command-specific
+  reports, exact target diagnostics and unchanged exit/refusal behavior.
+- Share explicit Candid decoder configuration through Contracts; preserve every
+  boundary's byte/work/skipping/type/header limits and exact-input checks.
+- Use the maintained percent encoder for provider URL components, preserving
+  exact UTF-8, reserved-character and `sha256:` escaping.
+- **Breaking Memory API/storage:** qualify key-only request callers on incoming
+  Memory 0.45 and numeric pool exclusions. Hosts must use the matching family;
+  retire earlier retained installations before reinstalling. No ledger migration
+  or automatic clearing is provided.
+- Use Host HTTP readers directly in native fixtures after Testkit 0.50 removes
+  its duplicate helpers, incorporating
+  [PR #78](https://github.com/dragginzgame/ic-blob-storage/pull/78). Pass explicit,
+  finite reply-decoding budgets at all installed fixture query/update calls.
+- Bind the optional archive verifier to IC Build 0.11's exposed Host process
+  family while ordinary native fixtures use Host 0.24; preserve bounded output,
+  retained failure evidence and original exit/signal statuses.
+
 - Keep inventory metadata and upload bodies beneath one held input-directory
   descriptor through published Host readers, including when its pathname is
   replaced. Use the same owner for recovery-journal reads; preserve byte limits,

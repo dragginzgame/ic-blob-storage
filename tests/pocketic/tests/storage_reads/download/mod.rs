@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod client;
 use ic_blob_storage_contracts::dto::download::DownloadFailure;
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
@@ -18,6 +19,7 @@ impl Fixture {
                 actor,
                 "blob_download_descriptor",
                 (wire(input),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }

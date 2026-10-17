@@ -1,5 +1,6 @@
 //! Actual query-only recovery of local evidence, not provider credit reconciliation.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::lookup::{
     FundingLookupFailure, FundingLookupRequest, FundingLookupState, FundingLookupView,
 };
@@ -158,7 +159,7 @@ fn old_backup_absence_cannot_erase_a_receipt_or_authorize_another_transfer() {
     let result: Result<FundingObservation, FundingFailure> = f
         .harness
         .pic
-        .update_candid_as(f.sender, f.driver, "fund", (original,))
+        .update_candid_as(f.sender, f.driver, "fund", (original,), REPLY_LIMITS)
         .unwrap();
     assert_eq!(result, Err(FundingFailure::Fenced));
     assert!(
@@ -228,7 +229,7 @@ fn live_lookup_observes_pending_then_original_completion_without_repeating_it() 
         let result: Result<FundingLookupView, FundingLookupFailure> = f
             .harness
             .pic
-            .query_candid_as(f.sender, f.driver, "lookup_funding", (query,))
+            .query_candid_as(f.sender, f.driver, "lookup_funding", (query,), REPLY_LIMITS)
             .unwrap();
         if result.unwrap().state == FundingLookupState::Pending {
             pending = true;

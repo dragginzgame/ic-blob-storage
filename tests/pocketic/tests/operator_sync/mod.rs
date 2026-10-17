@@ -1,5 +1,6 @@
 //! Actual sync commands with a controlled source; simulated caller is explicit.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::status::OperatorStatusView;
 use blob_test_protocol::{GatewaySyncRequest, SourceMode, SourceObservation, SyncFailure};
 
@@ -43,6 +44,7 @@ fn status(f: &Fixture) -> OperatorStatusView {
             f.gateway,
             "operator_status",
             (),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap()
@@ -50,7 +52,13 @@ fn status(f: &Fixture) -> OperatorStatusView {
 fn observed(f: &Fixture) -> SourceObservation {
     f.harness
         .pic
-        .query_candid_as::<Option<SourceObservation>, _>(f.gateway, f.driver, "observation", ())
+        .query_candid_as::<Option<SourceObservation>, _>(
+            f.gateway,
+            f.driver,
+            "observation",
+            (),
+            REPLY_LIMITS,
+        )
         .unwrap()
         .unwrap()
 }
@@ -58,7 +66,7 @@ fn configure(f: &Fixture, mode: SourceMode) {
     let result: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "configure", (mode,))
+        .update_candid_as(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
         .unwrap();
     assert!(result);
 }
@@ -66,7 +74,7 @@ fn revoke(f: &Fixture) {
     let result: bool = f
         .harness
         .pic
-        .update_candid_as(f.authority, f.gateway, "revoke_gateway", ())
+        .update_candid_as(f.authority, f.gateway, "revoke_gateway", (), REPLY_LIMITS)
         .unwrap();
     assert!(result);
 }
@@ -176,7 +184,7 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "resume_sync", ())
+        .update_candid_as(f.gateway, f.driver, "resume_sync", (), REPLY_LIMITS)
         .unwrap();
     assert!(resumed);
     let completed: Result<(), SyncFailure> =
@@ -216,7 +224,7 @@ fn forced_restore_during_sync_retains_pending_evidence_when_callback_arrives() {
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "resume_sync", ())
+        .update_candid_as(f.gateway, f.driver, "resume_sync", (), REPLY_LIMITS)
         .unwrap();
     assert!(resumed);
     // Actual upgrade clears the async heap: the late callback can trap before

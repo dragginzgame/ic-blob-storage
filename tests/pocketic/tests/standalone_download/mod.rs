@@ -1,5 +1,6 @@
 //! Operational descriptor delivery uses the installed scope and the shared live-reference gate.
 //! Verified serving and withheld delivery are exercised by standalone browser journeys.
+use crate::support::REPLY_LIMITS;
 mod native;
 use super::*;
 use ic_blob_storage_contracts::dto::download::DownloadFailure as F;
@@ -11,7 +12,13 @@ impl Fixture {
     fn download(&self, actor: Principal, request: DownloadRequest) -> Result<DownloadResponse, F> {
         self.harness
             .pic
-            .update_candid_as(self.service, actor, DOWNLOAD_METHOD, (request,))
+            .update_candid_as(
+                self.service,
+                actor,
+                DOWNLOAD_METHOD,
+                (request,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -105,6 +112,7 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     admitted.unwrap();
@@ -125,6 +133,7 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
                 expected: enrolled.enrollment,
                 active: false,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     suspended.unwrap();
@@ -223,6 +232,7 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
                 f.operator,
                 "fixture_fetch_descriptor",
                 (input.clone(),),
+                REPLY_LIMITS,
             )
             .unwrap()
     };

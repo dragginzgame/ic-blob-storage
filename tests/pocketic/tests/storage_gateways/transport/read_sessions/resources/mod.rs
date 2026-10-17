@@ -1,6 +1,7 @@
 //! Opt-in measurements of ordinary bounded funding history and interrupted reads.
 use super::*;
 use crate::storage_resources::{resources, retain, retain_bytes};
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::funding::{
     Action as FundingAction, Command as FundingCommand, Intent, Phase as FundingPhase,
     Request as FundingRequest,
@@ -69,7 +70,7 @@ fn funding_lookup(
 ) -> Result<Option<FundingPhase>, Failure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "funding_lookup", (intent,))
+        .query_candid_as(f.service, actor, "funding_lookup", (intent,), REPLY_LIMITS)
         .unwrap()
 }
 
@@ -81,6 +82,7 @@ fn funding_request(f: &Fixture, intent: Intent) -> FundingRequest {
             f.operator,
             "funding_request",
             (intent,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap()

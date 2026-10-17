@@ -1,5 +1,6 @@
 //! Native client preparation, bounded IC admission and consumer verification.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 
@@ -73,6 +74,7 @@ fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
                 f.project,
                 "retained_content_descriptor",
                 (input,),
+                REPLY_LIMITS,
             )
             .unwrap()
     };

@@ -1,5 +1,6 @@
 //! Actual standalone signed map checks, with locally trusted synthetic completion.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use crate::{
     account_native_cli::signer,
     authenticated_cli::{PEM, run},
@@ -53,6 +54,7 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -87,6 +89,7 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
             Fake::principal(90),
             "blob_attest_upload",
             (statement,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -185,6 +188,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
                 operation: 900,
                 action: ReferenceAction::Release,
             },),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

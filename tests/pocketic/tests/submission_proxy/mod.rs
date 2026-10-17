@@ -159,9 +159,15 @@ impl Drop for Proxy {
     }
 }
 fn request(stream: &mut std::net::TcpStream) -> (String, Vec<u8>) {
-    let request =
-        ic_testkit::testing::read_http_request(stream, Duration::from_secs(5), 8192, 256 * 1024)
-            .expect("bounded complete signed request");
+    let request = ic_host_process::testing::http::capture_http_request(
+        stream,
+        Duration::from_secs(5),
+        8192,
+        256 * 1024,
+        ic_host_process::testing::http::HttpContentLength::Optional,
+    )
+    .into_result()
+    .expect("bounded complete signed request");
     let end = request
         .windows(4)
         .position(|part| part == b"\r\n\r\n")

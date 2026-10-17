@@ -14,12 +14,12 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.44.0 | Public memory types and explicit host runtime; new ledger format requires retirement/reinstallation |
+| IC Memory | 0.45.0 | Public memory types and explicit host runtime; new ledger format requires retirement/reinstallation |
 | IC Metrics | 0.11.7 | Private storage probe and Testkit measurements; tracked overflow quality |
-| IC Testkit | 0.49.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
-| IC Testkit Candid | 0.49.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
-| IC Host artifacts/fs/process/tools (direct) | 0.23.1 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.11.0 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
+| IC Testkit | 0.50.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
+| IC Testkit Candid | 0.50.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
+| IC Host artifacts/fs/process/tools (direct) | 0.24.0 | Native artifacts, filesystem and test/tool boundaries |
+| IC Build | 0.11.1 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
@@ -35,11 +35,16 @@ exclude concurrent source writers, and complete digest verification still owns
 content admission. [The reader qualification](evidence/host-readers0310.md) records
 the selected registry graph, source-replacement refusals and installed recovery.
 
-Published Testkit owns whole-request and phased request-line/completion capture
-for native provider, signed-update and backpressure fixtures.
-[#70 — Finish native HTTP fixture retirement](https://github.com/dragginzgame/ic-blob-storage/issues/70) retains
-delivered consumer/native acceptance. The CLI uses Testkit only as a native
-development dependency; public libraries/contracts gain no testing dependency.
+Published Host now owns whole-request and phased request-line/completion capture
+for native provider, signed-update and backpressure fixtures. This applies
+[PR #78](https://github.com/dragginzgame/ic-blob-storage/pull/78)'s payload locally
+with explicit native test-support features. Testkit 0.50 removes its old testing
+module and requires explicit reply limits on installed Candid calls. All 393
+fixture calls now supply the test-owned `support::REPLY_LIMITS`: 4 MiB wire,
+20 million decoding work, 1 million skipping work, 512 type entries and 64 KiB
+header. These finite local-fixture bounds cover status/history and byte-bearing
+probe replies; production clients retain their own narrower policies. No
+former-signature wrapper or production default is added.
 The separate Testkit Candid crate supplies bounded fixture reply decoding without
 transport or lifecycle ownership. Blob retains binding checks and error mapping;
 the [fixture cleanup receipt](evidence/fixture-convergence0291.md) records adoption.
@@ -73,15 +78,26 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-Direct Host 0.23.1 and incoming IC Build 0.11 share Host 0.23 process types;
-Testkit 0.49 retains its separate Host 0.22 family. The optional package verifier
-now passes strict all-feature compilation and Rust 1.91 on the selected graph.
-Actual archive qualification remains separate. The
-[current cleanup receipt](evidence/content-hex-origins0310.md) records the graph
-and passing scope. The [previous receipt](evidence/probe-decoding0310.md) retains
-the Build 0.10/Host 0.23 compilation failure unchanged. Earlier Build 0.10 archive
-passes retain their direct Host 0.22 scope in [current status](status/current.md).
-Native fixture children retain explicit immediate kill-and-wait cleanup.
+Direct Host remains 0.24.0; Build 0.11.1 exposes Host process 0.23.1. The
+optional verifier imports that existing selected family through the explicit
+`ic-build-host-process` dependency name. It is confined to `package-verification`;
+ordinary native HTTP tests select Host 0.24 with test-support. The two Host type
+identities are never mixed, and no external version/source/checksum selection
+changes. Review this private dependency with future Build API changes.
+[The caller repair receipt](evidence/ci-api0310.md) records all-feature
+compilation, installed recovery and real archive replacement/refusal tests.
+Actual Blob archives and required native-host acceptance remain under
+[#69](https://github.com/dragginzgame/ic-blob-storage/issues/69). The
+[earlier receipt](evidence/decoder-commands0310.md) retains the original failures
+before these repairs. Earlier
+[0.11/0.23 compilation success](evidence/content-hex-origins0310.md) retains its
+own graph and does not qualify this newer selection.
+
+Contracts owns explicit Candid configuration construction for itself, the core
+and native CLI. Each boundary retains byte/work/skipping/type/header choices,
+source authentication and error mapping; exact input decoding still checks
+argument exhaustion locally. Provider URL components use the already locked
+percent-encoding crate directly, with the original RFC 3986 unreserved set.
 
 Fixture hex decoding uses the already locked `hex` crate as a direct development
 dependency of the library, Contracts, CLI and PocketIC test package. It adds no
@@ -213,10 +229,10 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.44 requires 1.91 |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.45 requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The selected `ic-memory` 0.44 dependency requires Rust 1.91.0, which is now
+The selected `ic-memory` 0.45 dependency requires Rust 1.91.0, which is now
 the workspace's consumer floor. The harness inherits that same minimum.
 Earlier Rust 1.88 checks remain evidence for their original source and graphs;
 repeat checks with the declared minimum after source or dependency changes
@@ -354,7 +370,7 @@ guarantee. Existing evidence directories refuse reuse; build artifacts are kept.
 ## Memory composition
 
 Use `ic_blob_storage::ic_memory` for the library's public storage types. Hosts
-compose all namespaces in one Memory 0.44 host-wide allocation pool and open
+compose all namespaces in one Memory 0.45 host-wide allocation pool and open
 permanent keys through its committed runtime. A source-identical package with a
 different Cargo identity does not share Rust types. Never place a second manager
 on the same backing memory.
@@ -421,7 +437,7 @@ guarded funding and actual application/provider acceptance retain their owners.
 For consumer adoption of the current Blob line:
 
 1. Select one coherent published Canic family, matching Blob runtime/contracts and
-   one Memory 0.44 identity. Freeze the application's actual lock and all independent
+   one Memory 0.45 identity for pending 0.31. Freeze the application's actual lock and all independent
    fixture locks; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot
    and grant the `blob.` namespace in its allocation pool before bootstrap.

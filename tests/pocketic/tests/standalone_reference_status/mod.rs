@@ -1,5 +1,6 @@
 //! Standalone exact reference inspection: shared validation, bounded ingress and no synthetic completion.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 impl Fixture {
@@ -10,7 +11,13 @@ impl Fixture {
     ) -> Result<ReferenceStatusResponse, ReferenceFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "blob_reference_status", (input,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "blob_reference_status",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -38,7 +45,13 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     admitted.unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -49,7 +62,13 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
     let replicated: Result<ReferenceStatusResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_reference_status", (input,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_reference_status",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Err(ReferenceFailure::Unconfirmed));
     for actor in [f.controller, f.operator, f.uploader, Principal::anonymous()] {

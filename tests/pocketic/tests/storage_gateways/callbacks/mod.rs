@@ -1,5 +1,6 @@
 //! Actual caller, live membership and restored fencing of phase-only observations.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     admission::{ContentState, input::ReferenceInput},
     storage::{
@@ -15,7 +16,13 @@ impl Fixture {
     ) -> Result<Vec<RootView>, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "fixture_gateway_roots", (input,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "fixture_gateway_roots",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn gateway_phase(&self, root: [u8; 32], state: ContentState) {

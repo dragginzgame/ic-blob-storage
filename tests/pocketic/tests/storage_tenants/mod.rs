@@ -1,5 +1,6 @@
 //! Maintained enrollment API through actual callers and IC rollback.
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod client;
 
 impl Fixture {
@@ -10,7 +11,13 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .update_candid_as(self.service, actor, TENANT_UPDATE_METHOD, (input,))
+            .update_candid_as(
+                self.service,
+                actor,
+                TENANT_UPDATE_METHOD,
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn inspect_enrollment(
@@ -20,7 +27,13 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, TENANT_INSPECTION_METHOD, (scope,))
+            .query_candid_as(
+                self.service,
+                actor,
+                TENANT_INSPECTION_METHOD,
+                (scope,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }

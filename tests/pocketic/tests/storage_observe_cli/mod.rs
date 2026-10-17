@@ -3,6 +3,7 @@ use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::observation_provider::{incoming, serve};
 use crate::submission_proxy as proxy;
+use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::upload::completion::*;
 use ic_blob_storage_contracts::identity::ContentDigest;
@@ -112,6 +113,7 @@ fn receipt(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestati
             f.operator,
             "blob_upload_attestation",
             (statement.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap()

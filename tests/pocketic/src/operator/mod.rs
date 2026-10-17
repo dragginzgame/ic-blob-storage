@@ -98,3 +98,43 @@ pub fn run(args: &[String]) -> CommandResult {
         output: value.to_string(),
     }
 }
+
+/// Shared passive-query shell; each command retains parsing and report semantics.
+fn query_command<S>(
+    args: &[String],
+    usage: &str,
+    parse: impl FnOnce(&[String]) -> Result<S, Failure>,
+    target: impl Fn(&S) -> &model::Target,
+    query: impl FnOnce(&S) -> Result<ops::Report, Failure>,
+    render: impl FnOnce(&S, serde_json::Value) -> serde_json::Value,
+) -> CommandResult {
+    if args == ["--help"] {
+        return CommandResult {
+            exit_code: 0,
+            output: usage.into(),
+        };
+    }
+    let selection = parse(args);
+    let result = selection
+        .as_ref()
+        .map_err(|error| *error)
+        .and_then(|selected| query(selected).map(|report| (selected, report)));
+    let (exit_code, value) = match result {
+        Ok((selected, report)) => (
+            if report.blocked { 4 } else { 0 },
+            render(selected, report.value),
+        ),
+        Err(error) => (
+            if error == Failure::Arguments { 2 } else { 3 },
+            json!({"scope":"pocketic_fixture", "error":error.code(),
+                "target":selection.as_ref().ok().map(|selected| ops::target_json(target(selected)))}),
+        ),
+    };
+    CommandResult {
+        exit_code,
+        output: value.to_string(),
+    }
+}
+
+#[cfg(test)]
+mod tests;

@@ -1,5 +1,6 @@
 //! Actual caller authorization and descriptor-to-client verification.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::{ContentDescriptor, release::LifecycleCommand};
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
@@ -16,7 +17,13 @@ fn read(
 ) -> Result<Option<ContentDescriptor>, Failure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "content_descriptor", (input,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "content_descriptor",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 

@@ -1,5 +1,6 @@
 //! Signed indexed setup, distinct actors and lost-reply recovery against real IC state.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use crate::{
     account_native_cli::OUTSIDER_PEM,
     authenticated_cli::{PEM, run},
@@ -417,6 +418,7 @@ fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_p
             fixture.tenant,
             "blob_revoke_upload",
             (permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

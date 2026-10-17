@@ -1,5 +1,6 @@
 //! Local ingress update payload/rollback evidence, not gateway certificate acceptance.
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod ingress;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as METHOD;
@@ -22,6 +23,7 @@ fn configure(f: &Fixture, input: ExposureInput) {
             f.operator,
             "configure_certificate_fixture",
             (input,),
+            REPLY_LIMITS,
         )
         .unwrap();
 }
@@ -106,7 +108,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
     let reply: ProviderReply = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, METHOD, (&root,))
+        .update_candid_as(f.service, f.uploader, METHOD, (&root,), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);

@@ -1,5 +1,6 @@
 //! Local Wasm cost observations and rejected-ingress atomicity, not provider pricing.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     admission::{ExecutionProfile, RESOURCE_SAMPLE_CAPACITY, input::PreparationInput},
     journey::JourneyManifest,
@@ -87,6 +88,7 @@ impl Fixture {
                 caller,
                 "resources",
                 (u8::try_from(limit).unwrap(),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }

@@ -1,8 +1,15 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 fn cancel(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_candid_as(f.uploader, f.operator, "cancel_manifest", (id,))
+        .update_candid_as(
+            f.uploader,
+            f.operator,
+            "cancel_manifest",
+            (id,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 #[test]
@@ -16,7 +23,13 @@ fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and
         let denied: Result<ManifestIntentView, C> = f
             .harness
             .pic
-            .update_candid_as(f.uploader, f.other, "cancel_manifest", (1u128,))
+            .update_candid_as(
+                f.uploader,
+                f.other,
+                "cancel_manifest",
+                (1u128,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(denied, Err(C::Denied));
         assert!(!view(&f, 1).unwrap().cancelled);

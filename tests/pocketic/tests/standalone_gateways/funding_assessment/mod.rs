@@ -1,5 +1,6 @@
 //! Passive signed funding queries beside an occupied standalone upload and stopped Cashier.
 use super::{super::*, sync};
+use crate::support::REPLY_LIMITS;
 use crate::{account_native_cli::signer, funding_assessment_cli::AssessmentCli};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
@@ -22,6 +23,7 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
             f.tenant,
             "blob_admit_upload",
             (request.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

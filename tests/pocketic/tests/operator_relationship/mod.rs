@@ -1,5 +1,6 @@
 //! Query-only relationship inspection over a controlled local source, not Cashier.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::balance::BalanceSourceConfig;
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::{
@@ -64,6 +65,7 @@ impl Fixture {
                     hold,
                     reject,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert!(configured);
@@ -184,6 +186,7 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
                 hold: false,
                 reject: false,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert!(configured);

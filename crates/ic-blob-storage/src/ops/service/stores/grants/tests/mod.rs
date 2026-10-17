@@ -9,8 +9,7 @@ use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryManagerIdRange, MemoryRuntime, RuntimeOpenError, SealedDeclarationSnapshot,
-    ic_stable_structures::VectorMemory,
+    MemoryRuntime, RuntimeOpenError, SealedDeclarationSnapshot, ic_stable_structures::VectorMemory,
 };
 
 fn pool(first: u8) -> MemoryAllocationPool {
@@ -19,10 +18,7 @@ fn pool(first: u8) -> MemoryAllocationPool {
             MemoryAuthority::new("test-blob", "blob.").unwrap(),
             MemoryAuthority::new("application", "application.").unwrap(),
         ],
-        vec![
-            MemoryManagerIdRange::new(0, first - 1).unwrap(),
-            MemoryManagerIdRange::new(first + 17, 254).unwrap(),
-        ],
+        (0..first).chain(first + 17..=254).collect(),
     )
     .unwrap()
 }
@@ -31,14 +27,7 @@ fn snapshot(missing: Option<usize>) -> SealedDeclarationSnapshot {
     if let Some(index) = missing {
         service.remove(index);
     }
-    service.push(
-        MemoryRequest::new(
-            "application",
-            "application.settings.v1",
-            SchemaMetadata::default(),
-        )
-        .unwrap(),
-    );
+    service.push(MemoryRequest::new("application", "application.settings.v1").unwrap());
     SealedDeclarationSnapshot::new(service).unwrap()
 }
 fn runtime(backing: VectorMemory) -> MemoryRuntime<VectorMemory> {

@@ -1,5 +1,6 @@
 //! Opt-in fully credited local funding histories; receipts are synthetic host facts.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::{
     funding::{CreditCommand, Intent, Phase as FundingPhase},
     resources::{FundingCreditResources, FundingPopulationIntent, HistoryPopulationBatch},
@@ -76,6 +77,7 @@ fn credit_measurements_have_independent_exact_read_windows() {
             f.operator,
             "populate_histories",
             (batch,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

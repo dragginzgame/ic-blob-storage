@@ -6,7 +6,7 @@ fn main() {
             PackageArchiveSpec, PackageCommandError, PackageQualificationLimits,
             qualify_package_archives,
         };
-        use ic_host_process::tool::{OutputLimit, OutputLimits, ToolError};
+        use ic_build_host_process::tool::{OutputLimit, OutputLimits, ToolError};
         use std::{path::PathBuf, process::Command};
         let args = std::env::args_os().skip(1).collect::<Vec<_>>();
         if args.len() != 4 {

@@ -49,7 +49,7 @@ pub fn decode(
     if bytes.len() > max.get() {
         return Err(UploadStatusReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, max.get());
+    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(max.get()));
     let response: Result<UploadStatusResponse, UploadStatusFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadStatusReplyError::Invalid)?;
     let response = response.map_err(UploadStatusReplyError::Remote)?;

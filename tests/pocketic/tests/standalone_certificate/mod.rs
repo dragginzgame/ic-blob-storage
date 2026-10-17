@@ -1,4 +1,5 @@
 //! Actual configured host: project-bound multi-user issuance, quotas and restore fences.
+use crate::support::REPLY_LIMITS;
 mod signed;
 use super::*;
 use ic_blob_storage_contracts::dto::upload::UploadState;
@@ -14,7 +15,7 @@ pub(super) fn inspect(
 ) -> Result<UploadCertificateAssessmentResponse, E> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, INSPECT, (root.to_owned(),))
+        .query_candid_as(f.service, actor, INSPECT, (root.to_owned(),), REPLY_LIMITS)
         .unwrap()
 }
 pub(super) fn refuses(f: &Fixture, actor: Principal, root: &str) {
@@ -50,6 +51,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -83,7 +85,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),))
+        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
@@ -103,6 +105,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
             f.tenant,
             "blob_revoke_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -178,6 +181,7 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
             second.permission.uploader,
             ISSUE,
             (second_root.clone(),),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(reply.blob_hash, second_root);
@@ -210,7 +214,13 @@ fn admit(
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     f.harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 
@@ -227,6 +237,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -243,7 +254,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),))
+        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
@@ -276,6 +287,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
             f.tenant,
             "blob_revoke_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

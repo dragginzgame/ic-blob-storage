@@ -20,16 +20,10 @@ pub fn request_target(scope: &CaffeineDownloadScope, root: ProviderRootHash) -> 
     )
 }
 fn component(value: &str) -> String {
-    const HEX: &[u8; 16] = b"0123456789ABCDEF";
-    let mut encoded = String::with_capacity(value.len());
-    for b in value.bytes() {
-        if b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.' | b'~') {
-            encoded.push(char::from(b));
-        } else {
-            encoded.push('%');
-            encoded.push(char::from(HEX[usize::from(b >> 4)]));
-            encoded.push(char::from(HEX[usize::from(b & 15)]));
-        }
-    }
-    encoded
+    const QUERY_COMPONENT: &percent_encoding::AsciiSet = &percent_encoding::NON_ALPHANUMERIC
+        .remove(b'-')
+        .remove(b'_')
+        .remove(b'.')
+        .remove(b'~');
+    percent_encoding::utf8_percent_encode(value, QUERY_COMPONENT).to_string()
 }

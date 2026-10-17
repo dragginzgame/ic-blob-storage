@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::reference::ReferenceFaultInput;
 use ic_blob_storage_contracts::dto::reference::*;
 use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
@@ -30,6 +31,7 @@ impl Fixture {
                     fact,
                     fault: None,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -44,6 +46,7 @@ impl Fixture {
                 self.tenant,
                 REFERENCE_APPLY_METHOD,
                 (receipt_request(request),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -58,6 +61,7 @@ impl Fixture {
                 self.tenant,
                 REFERENCE_RECEIPT_METHOD,
                 (receipt_request(request),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -77,6 +81,7 @@ impl Fixture {
                 self.tenant,
                 "blob_reference_status",
                 (request,),
+                REPLY_LIMITS,
             )
             .unwrap();
         result.map(|response| {
@@ -121,6 +126,7 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
                     fact: ProviderFact::Uploaded,
                     fault: None,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(result, Err(Failure::Denied));
@@ -346,6 +352,7 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
                 f.controller,
                 REFERENCE_RECEIPT_METHOD,
                 (receipt_request(release),),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(denied, Err(ReferenceFailure::Denied));

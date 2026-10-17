@@ -18,4 +18,9 @@ fn direct_download_target_encodes_each_identity_without_query_injection() {
     let injected =
         CaffeineDownloadScope::new(owner, std::num::NonZeroU128::MIN, "a#b&owner_id=x%2F").unwrap();
     assert!(request_target(&injected, root).ends_with("&project_id=a%23b%26owner_id%3Dx%252F"));
+    let punctuation =
+        CaffeineDownloadScope::new(owner, std::num::NonZeroU128::MIN, "AZaz09-._~+!'()*").unwrap();
+    assert!(
+        request_target(&punctuation, root).ends_with("&project_id=AZaz09-._~%2B%21%27%28%29%2A")
+    );
 }

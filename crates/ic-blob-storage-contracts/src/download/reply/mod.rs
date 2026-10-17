@@ -76,7 +76,7 @@ pub fn decode(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(DownloadReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, limits.max_reply_bytes.get());
+    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(limits.max_reply_bytes.get()));
     let response: Result<DownloadResponse, DownloadFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| DownloadReplyError::Invalid)?;
     let response = response.map_err(DownloadReplyError::Remote)?;

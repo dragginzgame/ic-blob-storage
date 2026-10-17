@@ -25,7 +25,7 @@ pub fn decode(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(UploadAttestationReplyError::Limit);
     }
-    let config = crate::decoding::limits(2_000_000, 0, 64, limits.max_reply_bytes.get());
+    let config = crate::decoding::limits(2_000_000, 0, 64, Some(limits.max_reply_bytes.get()));
     let response: Result<UploadVerificationPlan, UploadAttestationFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadAttestationReplyError::Invalid)?;
     let response = response.map_err(UploadAttestationReplyError::Remote)?;

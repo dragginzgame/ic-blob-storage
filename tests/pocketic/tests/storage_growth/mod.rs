@@ -1,5 +1,6 @@
 //! Real IC rollback after refused backing growth; no provider effect is involved.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::GrowthAdmission;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
@@ -44,6 +45,7 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
                 refuse: false,
                 ..input
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     result.unwrap();

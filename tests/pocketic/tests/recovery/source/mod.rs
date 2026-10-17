@@ -1,5 +1,6 @@
 //! Source reconstruction and refusal to act from retained or older stable state.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     SourceMode, SyncFailure,
     journey::readback::ReadSourceConfig,
@@ -14,7 +15,13 @@ impl Fixture {
     ) -> Option<SourceRecoveryView> {
         self.harness
             .pic
-            .query_candid_as(self.gateway, caller, "recovery_observation", ())
+            .query_candid_as(
+                self.gateway,
+                caller,
+                "recovery_observation",
+                (),
+                REPLY_LIMITS,
+            )
             .expect("journal inspection")
     }
 
@@ -55,6 +62,7 @@ impl Fixture {
                     mode: ReadSourceMode::Valid,
                     hold: false,
                 },),
+                REPLY_LIMITS,
             )
             .expect("fenced configuration");
         assert!(!configured);
@@ -66,13 +74,14 @@ impl Fixture {
                 self.operator,
                 "configure",
                 (SourceMode::Reject,),
+                REPLY_LIMITS,
             )
             .expect("fenced list configuration");
         assert!(!configured);
         let resumed: bool = self
             .harness
             .pic
-            .update_candid_as(self.gateway, self.operator, "resume_read", ())
+            .update_candid_as(self.gateway, self.operator, "resume_read", (), REPLY_LIMITS)
             .expect("fenced resume");
         assert!(!resumed);
         let sync: Result<(), SyncFailure> = self
@@ -83,6 +92,7 @@ impl Fixture {
                 self.operator,
                 "run_sync",
                 (self.sync_request(),),
+                REPLY_LIMITS,
             )
             .expect("fenced outgoing sync");
         assert_eq!(sync, Err(SyncFailure::Denied));
@@ -128,7 +138,13 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     let result: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.operator, "run_sync", (f.sync_request(),))
+        .update_candid_as(
+            f.gateway,
+            f.operator,
+            "run_sync",
+            (f.sync_request(),),
+            REPLY_LIMITS,
+        )
         .expect("actual source sync");
     assert_eq!(result, Ok(()));
     assert_eq!(f.delete(vec![]), Ok(()));

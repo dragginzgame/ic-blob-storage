@@ -1,5 +1,6 @@
 //! The same executable refuses an unconfirmed or restored standalone object before HTTP.
 use super::super::*;
+use crate::support::REPLY_LIMITS;
 use crate::{
     account_native_cli::signer,
     authenticated_cli::{PEM, run},
@@ -74,6 +75,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
             f.tenant,
             "blob_admit_upload",
             (permission.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

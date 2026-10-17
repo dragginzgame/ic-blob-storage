@@ -1,5 +1,6 @@
 //! Read protected checkpoint bytes from stable memory and test a disposable copy.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::authority::{CheckpointProbeFailure, CheckpointProbeInput};
 
 impl Fixture {
@@ -21,6 +22,7 @@ impl Fixture {
                     index,
                     bytes: bytes.to_vec(),
                 },),
+                REPLY_LIMITS,
             )
             .expect("isolated verifier probe")
     }
@@ -198,7 +200,7 @@ fn controller_status_cannot_use_an_operator_checkpoint_probe() {
     let retained: Option<AuthorityArchiveView> = f
         .harness
         .pic
-        .query_candid_as(f.service, f.gateway, "authority_archive", ())
+        .query_candid_as(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
         .unwrap();
     assert!(retained.unwrap().fenced);
     assert_eq!(

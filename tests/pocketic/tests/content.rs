@@ -6,7 +6,7 @@ mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
 use ic_testkit::{Fake, pic::CandidCallExt, pocket_ic::CanisterSettings};
-use support::{Harness, fixture_path};
+use support::{Harness, REPLY_LIMITS, fixture_path};
 
 #[test]
 fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_budget() {
@@ -34,6 +34,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             tenant,
             "probe_content",
             (ContentProbeCase::FullChunk,),
+            REPLY_LIMITS,
         )
         .expect("denial");
     assert_eq!(denied, Err(ContentProbeFailure::Denied));
@@ -54,7 +55,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             .find(|vector| vector["name"] == name)
             .expect("selected vector");
         let result: Result<ContentProbeReport, ContentProbeFailure> = pic
-            .update_candid_as(canister, operator, "probe_content", (case,))
+            .update_candid_as(canister, operator, "probe_content", (case,), REPLY_LIMITS)
             .expect("Wasm execution");
         let report = result.expect("verified identities");
         assert_eq!(
@@ -88,7 +89,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         (ContentProbeCase::Truncated, ContentProbeFailure::Incomplete),
     ] {
         let result: Result<ContentProbeReport, ContentProbeFailure> = pic
-            .update_candid_as(canister, operator, "probe_content", (case,))
+            .update_candid_as(canister, operator, "probe_content", (case,), REPLY_LIMITS)
             .expect("expected rejection");
         assert_eq!(result, Err(error));
     }

@@ -1,5 +1,6 @@
 //! Local provider facts substitute completion/settlement; tenant queries are signed.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use crate::{
     authenticated_cli::run,
     reference_cli::{change_native, native_requests},
@@ -31,6 +32,7 @@ fn apply(f: &Fixture, command: ReferenceCommand) {
             f.tenant,
             "blob_apply_reference",
             (command,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

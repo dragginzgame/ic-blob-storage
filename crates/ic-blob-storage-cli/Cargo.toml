@@ -11,9 +11,9 @@ candid.workspace = true
 ic-agent = { workspace = true, features = ["pem"] }
 ic-blob-storage-contracts.workspace = true
 ic-build = { workspace = true, optional = true }
+ic-build-host-process = { workspace = true, optional = true }
 ic-host-artifacts.workspace = true
 ic-host-fs.workspace = true
-ic-host-process = { workspace = true, optional = true }
 reqwest = { workspace = true, features = ["rustls", "http2"] }
 serde.workspace = true
 serde_json.workspace = true
@@ -25,6 +25,7 @@ libc.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 hex.workspace = true
+ic-host-process = { workspace = true, features = ["test-support"] }
 ic-testkit.workspace = true
 tempfile.workspace = true
 
@@ -42,7 +43,7 @@ path = "src/bin/blob_package_verify/main.rs"
 required-features = ["package-verification"]
 
 [features]
-package-verification = ["dep:ic-build", "dep:ic-host-process"]
+package-verification = ["dep:ic-build", "dep:ic-build-host-process"]
 
 [build-dependencies]
 ic-build.workspace = true

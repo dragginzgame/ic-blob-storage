@@ -1,5 +1,6 @@
 //! Actual IC persistence/rollback of gateway membership and sync correlation.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::gateways::{Action, Command, Outcome, Scope, View};
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
@@ -30,6 +31,7 @@ impl Fixture {
                 actor,
                 "blob_cancel_gateway_sync",
                 (self.cancellation(sequence),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -73,6 +75,7 @@ impl Fixture {
                 actor,
                 GATEWAY_REVOCATION_METHOD,
                 (self.revocation(gateway),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -112,6 +115,7 @@ impl Fixture {
                     action,
                     fault: false,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -123,6 +127,7 @@ impl Fixture {
                 self.operator,
                 "gateway_registry",
                 (self.gateway_scope(),),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap()
@@ -303,7 +308,13 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
         let view: Result<View, Failure> = f
             .harness
             .pic
-            .query_candid_as(f.service, actor, "gateway_registry", (f.gateway_scope(),))
+            .query_candid_as(
+                f.service,
+                actor,
+                "gateway_registry",
+                (f.gateway_scope(),),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(view, Err(Failure::Denied));
     }
@@ -324,7 +335,13 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
         let view: Result<View, Failure> = f
             .harness
             .pic
-            .query_candid_as(f.service, f.operator, "gateway_registry", (scope,))
+            .query_candid_as(
+                f.service,
+                f.operator,
+                "gateway_registry",
+                (scope,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(view, Err(Failure::Binding));
     }

@@ -1,5 +1,6 @@
 //! Actual standalone quota observations, independent of admission and restore authority.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure as F;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
@@ -11,7 +12,13 @@ impl Fixture {
     ) -> Result<UploadCapacityResponse, F> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, UPLOAD_CAPACITY_METHOD, (scope,))
+            .query_candid_as(
+                self.service,
+                actor,
+                UPLOAD_CAPACITY_METHOD,
+                (scope,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -85,7 +92,13 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
     let replicated: Result<UploadCapacityResponse, F> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, UPLOAD_CAPACITY_METHOD, (scope,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            UPLOAD_CAPACITY_METHOD,
+            (scope,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Ok(observed));
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
@@ -100,6 +113,10 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep contention, cleanup and fenced history in one installed lifecycle scenario"
+)]
 fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_history() {
     let f = Fixture::new();
     let enrollment = f.enroll(f.operator).unwrap();
@@ -123,6 +140,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
                 expected: None,
                 active: true,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     enrolled.unwrap();
@@ -143,6 +161,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
                 permission.upload.tenant,
                 "blob_admit_upload",
                 (permission,),
+                REPLY_LIMITS,
             )
             .unwrap();
         admitted.unwrap();
@@ -164,13 +183,20 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
                 expected: enrollment.enrollment,
                 active: false,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     suspended.unwrap();
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_revoke_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_revoke_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     revoked.unwrap();
     let cancelled = f.capacity(f.tenant, scope).unwrap();

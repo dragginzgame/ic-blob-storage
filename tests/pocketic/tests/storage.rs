@@ -40,7 +40,7 @@ use ic_testkit::{
     pocket_ic::{CanisterSettings, RejectCode},
 };
 use std::num::{NonZeroU64, NonZeroUsize};
-use support::{Harness, fixture_path};
+use support::{Harness, REPLY_LIMITS, fixture_path};
 struct Fixture {
     harness: Harness,
     service: Principal,
@@ -78,7 +78,7 @@ impl Fixture {
                     cashier: self.operator,
                     payment_account: self.service,
                 },),
-            )
+             REPLY_LIMITS)
             .unwrap()
             .unwrap()
     }
@@ -181,6 +181,7 @@ impl Fixture {
                 actor,
                 "blob_admit_upload",
                 (admission_input(input),),
+                REPLY_LIMITS,
             )
             .unwrap();
         result.map(|r| !r.replayed).map_err(admission_failure)
@@ -198,6 +199,7 @@ impl Fixture {
                 self.uploader,
                 "blob_prepare_upload",
                 (self.preparation_input(input),),
+                REPLY_LIMITS,
             )
             .unwrap();
         result.map(|r| r.changed).map_err(|e| match e {
@@ -257,6 +259,7 @@ impl Fixture {
                     trap_write: false,
                     trap_after: false,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap();
         result
@@ -283,6 +286,7 @@ impl Fixture {
                 self.tenant,
                 "blob_revoke_upload",
                 (admission_input(input),),
+                REPLY_LIMITS,
             )
             .unwrap();
         result.map(|r| r.changed).map_err(admission_failure)
@@ -290,14 +294,14 @@ impl Fixture {
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "lookup", (input,))
+            .query_candid_as(self.service, actor, "lookup", (input,), REPLY_LIMITS)
             .unwrap()
     }
     fn status(&self) -> Status {
         let result: Result<Status, Failure> = self
             .harness
             .pic
-            .query_candid_as(self.service, self.operator, "status", ())
+            .query_candid_as(self.service, self.operator, "status", (), REPLY_LIMITS)
             .unwrap();
         result.unwrap()
     }
@@ -325,6 +329,7 @@ impl Fixture {
                     expected,
                     active,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap();
         response.map(|v| {
@@ -342,6 +347,7 @@ impl Fixture {
                 self.tenant,
                 TENANT_INSPECTION_METHOD,
                 (self.tenant_scope(),),
+                REPLY_LIMITS,
             )
             .unwrap();
         let response = result.unwrap();

@@ -1,4 +1,5 @@
 //! Actual replicated account queries over a passive source; no provider qualification.
+use crate::support::REPLY_LIMITS;
 mod native_cli;
 use super::*;
 use blob_test_protocol::balance::BalanceSourceConfig;
@@ -78,7 +79,8 @@ fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
                     bytes,
                     reject: false,
                     hold: false
-                },)
+                },),
+                REPLY_LIMITS
             )
             .unwrap()
     );
@@ -90,7 +92,13 @@ fn inspect(
 ) -> Result<AccountInspectionResponse, AccountInspectionFailure> {
     f.harness
         .pic
-        .update_candid_as(f.service, actor, "blob_inspect_account", (input,))
+        .update_candid_as(
+            f.service,
+            actor,
+            "blob_inspect_account",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 fn balance(account: Principal, total: Int) -> Vec<u8> {
@@ -274,7 +282,8 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
                     bytes: vec![],
                     reject: true,
                     hold: false
-                },)
+                },),
+                REPLY_LIMITS
             )
             .unwrap()
     );

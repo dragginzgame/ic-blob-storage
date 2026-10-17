@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::Revocation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
@@ -19,13 +20,20 @@ pub(super) fn withdraw(
                 fault,
                 max_reply_bytes,
             },),
+            REPLY_LIMITS,
         )
         .unwrap()
 }
 fn recover_withdrawal(f: &Fixture) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "recover_revocation", (1_u128,))
+        .update_candid_as(
+            f.tenant,
+            f.operator,
+            "recover_revocation",
+            (1_u128,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 #[test]
@@ -146,7 +154,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         let result: Result<UploadRevocationResponse, A> = f
             .harness
             .pic
-            .update_candid_as(f.service, actor, "blob_revoke_upload", (p,))
+            .update_candid_as(f.service, actor, "blob_revoke_upload", (p,), REPLY_LIMITS)
             .unwrap();
         assert_eq!(result, Err(A::Denied));
     }
@@ -163,7 +171,13 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         let result: Result<UploadRevocationResponse, A> = f
             .harness
             .pic
-            .update_candid_as(f.service, f.tenant, "blob_revoke_upload", (changed,))
+            .update_candid_as(
+                f.service,
+                f.tenant,
+                "blob_revoke_upload",
+                (changed,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(result, Err(A::Conflict));
     }

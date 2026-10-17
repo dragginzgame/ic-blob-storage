@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
@@ -42,7 +43,13 @@ fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let view: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "prepare", (&input.registration,))
+        .update_candid_as(
+            f.tenant,
+            f.operator,
+            "prepare",
+            (&input.registration,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(view.unwrap().upload_state, None);
     (input, permission, manifest)
@@ -60,7 +67,13 @@ fn inspect(
 ) -> Result<UploadStatusResponse, UploadStatusFailure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "blob_upload_status", (upload,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "blob_upload_status",
+            (upload,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 #[test]
@@ -249,6 +262,6 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
 fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "admit", (input,))
+        .update_candid_as(f.tenant, f.operator, "admit", (input,), REPLY_LIMITS)
         .unwrap()
 }

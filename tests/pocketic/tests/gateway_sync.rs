@@ -13,7 +13,7 @@ use ic_testkit::{
     pic::CandidCallExt,
     pocket_ic::{CanisterSettings, PocketIc},
 };
-use support::{Harness, fixture_path};
+use support::{Harness, REPLY_LIMITS, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -53,7 +53,7 @@ impl Fixture {
             Some(driver),
         );
         let released: bool = pic
-            .update_candid_as(service, tenant, "release", (1_u8,))
+            .update_candid_as(service, tenant, "release", (1_u8,), REPLY_LIMITS)
             .expect("owner release");
         assert!(released);
         Self {
@@ -73,7 +73,7 @@ impl Fixture {
     fn configure(&self, mode: SourceMode) {
         let accepted: bool = self
             .pic()
-            .update_candid_as(self.source, self.driver, "configure", (mode,))
+            .update_candid_as(self.source, self.driver, "configure", (mode,), REPLY_LIMITS)
             .expect("source configuration");
         assert!(accepted);
     }
@@ -85,6 +85,7 @@ impl Fixture {
                 self.driver,
                 "run_sync",
                 (sync_request::read(self.pic(), self.service, self.source),),
+                REPLY_LIMITS,
             )
             .expect("drive actual source-to-probe call")
     }
@@ -92,14 +93,14 @@ impl Fixture {
     fn observation(&self) -> SourceObservation {
         let observation: Option<SourceObservation> = self
             .pic()
-            .query_candid_as(self.source, self.driver, "observation", ())
+            .query_candid_as(self.source, self.driver, "observation", (), REPLY_LIMITS)
             .expect("source observation");
         observation.expect("authorized driver")
     }
 
     fn pending(&self, actor: Principal) -> Option<Vec<u8>> {
         self.pic()
-            .query_candid_as(self.service, actor, "pending", ())
+            .query_candid_as(self.service, actor, "pending", (), REPLY_LIMITS)
             .expect("pending query")
     }
 }
@@ -125,6 +126,7 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
                     fixture.service,
                     fixture.source,
                 ),),
+                REPLY_LIMITS,
             )
             .expect("sync denial");
         assert_eq!(result, Err(SyncFailure::Denied));

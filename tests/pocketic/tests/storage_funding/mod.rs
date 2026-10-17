@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod admission;
 mod client;
 mod history;
@@ -21,7 +22,13 @@ impl Fixture {
     ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "funding_summary", (scope,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "funding_summary",
+                (scope,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     pub(super) fn funding_intent(&self, operation: u128, offered: u128) -> Intent {
@@ -53,13 +60,20 @@ impl Fixture {
                     fault: None,
                     source: None,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
     fn funding_lookup(&self, actor: Principal, intent: Intent) -> Result<Option<Phase>, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "funding_lookup", (intent,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "funding_lookup",
+                (intent,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     pub(super) fn funding_allocation(&self) -> Allocation {
@@ -70,6 +84,7 @@ impl Fixture {
                 self.operator,
                 "funding_allocation",
                 (),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap()
@@ -233,6 +248,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
                 actor,
                 "funding_request",
                 (intent,),
+                REPLY_LIMITS,
             )
             .unwrap()
     };
@@ -284,6 +300,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
                 fault: None,
                 source: Some(f.other),
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(wrong_source, Err(Failure::Binding));

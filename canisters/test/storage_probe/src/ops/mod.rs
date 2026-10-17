@@ -21,7 +21,6 @@ use ic_blob_storage::ic_memory::MemoryManagerConfig;
 use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
-use ic_blob_storage::ic_memory::SchemaMetadata;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
 use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
@@ -192,11 +191,9 @@ fn granted_memories() -> (
     ServiceMemories<ProbeMemory>,
 ) {
     let mut requests = MEMORY_KEYS
-        .map(|key| MemoryRequest::new("fixture", key, SchemaMetadata::default()).unwrap())
+        .map(|key| MemoryRequest::new("fixture", key).unwrap())
         .to_vec();
-    requests.push(
-        MemoryRequest::new("neighbor", "neighbor.data.v1", SchemaMetadata::default()).unwrap(),
-    );
+    requests.push(MemoryRequest::new("neighbor", "neighbor.data.v1").unwrap());
     let pool = MemoryAllocationPool::new(
         vec![
             MemoryAuthority::new("fixture", "fixture.").unwrap(),

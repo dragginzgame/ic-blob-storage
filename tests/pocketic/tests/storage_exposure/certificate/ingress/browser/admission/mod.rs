@@ -1,5 +1,6 @@
 //! Actual browser identity -> consumer intent -> tenant admission -> uploader preparation.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{
     AssetView, Failure as ConsumerFailure, Fault, Registration, RegistrationSource, Revocation, Run,
 };
@@ -151,7 +152,13 @@ fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
     let stored: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .query_candid_as(f.tenant, f.uploader, "asset", (run.registration.asset,))
+        .query_candid_as(
+            f.tenant,
+            f.uploader,
+            "asset",
+            (run.registration.asset,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(stored, Ok(admitted));
 }
@@ -204,7 +211,13 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
     let stored: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .query_candid_as(f.tenant, f.uploader, "asset", (run.registration.asset,))
+        .query_candid_as(
+            f.tenant,
+            f.uploader,
+            "asset",
+            (run.registration.asset,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(stored, Ok(expected));
     // Neither an HTTP success nor withdrawal erases the exposed reservation.

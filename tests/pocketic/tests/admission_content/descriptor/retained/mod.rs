@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
 
 fn lifecycle(f: &Fixture, actor: Principal, command: LifecycleCommand) -> Result<Outcome, Failure> {
@@ -12,7 +13,13 @@ fn inspect(
 ) -> Result<Option<RetainedDescriptor>, Failure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "retained_content_descriptor", (input,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "retained_content_descriptor",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 

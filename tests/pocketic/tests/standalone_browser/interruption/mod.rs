@@ -1,5 +1,6 @@
 //! Late verified completion retains obligations; release and attestation replay stay separate.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
@@ -109,6 +110,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
             trial.f.tenant,
             "blob_revoke_upload",
             (input.permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);
@@ -142,6 +144,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
             trial.f.tenant,
             "blob_upload_attestation",
             (input.permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(
@@ -161,6 +164,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
             receipt.verifier,
             "blob_attest_upload",
             (receipt.request,),
+            REPLY_LIMITS,
         )
         .unwrap();
     let replay = replay.unwrap();

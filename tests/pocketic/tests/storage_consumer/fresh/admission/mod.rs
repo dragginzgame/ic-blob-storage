@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
@@ -14,7 +15,13 @@ fn inspect_permission(
 ) -> Result<UploadAdmissionResponse, A> {
     f.harness
         .pic
-        .query_candid_as(f.service, f.tenant, "blob_upload_admission", (input,))
+        .query_candid_as(
+            f.service,
+            f.tenant,
+            "blob_upload_admission",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 #[test]

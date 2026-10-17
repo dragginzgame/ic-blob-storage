@@ -5,7 +5,7 @@
 
 mod support;
 
-use support::{Harness, fixture_path};
+use support::{Harness, REPLY_LIMITS, fixture_path};
 
 use candid::Principal;
 use ic_testkit::{
@@ -15,7 +15,7 @@ use ic_testkit::{
 };
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    pic.query_candid_as(canister, caller, "usage", ())
+    pic.query_candid_as(canister, caller, "usage", (), REPLY_LIMITS)
         .expect("usage query")
 }
 
@@ -27,17 +27,23 @@ fn live(
     service: Principal,
     tenant: Principal,
 ) -> Option<bool> {
-    pic.query_candid_as(canister, caller, "reference_live", (root, service, tenant))
-        .expect("liveness query")
+    pic.query_candid_as(
+        canister,
+        caller,
+        "reference_live",
+        (root, service, tenant),
+        REPLY_LIMITS,
+    )
+    .expect("liveness query")
 }
 
 fn release(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    pic.update_candid_as(canister, caller, "release", (root,))
+    pic.update_candid_as(canister, caller, "release", (root,), REPLY_LIMITS)
         .expect("release update")
 }
 
 fn pending(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    pic.query_candid_as(canister, caller, "pending", ())
+    pic.query_candid_as(canister, caller, "pending", (), REPLY_LIMITS)
         .expect("pending query")
 }
 
@@ -89,12 +95,12 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
         assert_eq!(pending(pic, canister, caller), None);
     }
     let denied: bool = pic
-        .update_candid_as(canister, first, "revoke_gateway", ())
+        .update_candid_as(canister, first, "revoke_gateway", (), REPLY_LIMITS)
         .expect("operator denial");
     assert!(!denied);
     assert_eq!(pending(pic, canister, gateway), Some(vec![1]));
     let revoked: bool = pic
-        .update_candid_as(canister, controller, "revoke_gateway", ())
+        .update_candid_as(canister, controller, "revoke_gateway", (), REPLY_LIMITS)
         .expect("operator revocation");
     assert!(revoked);
     assert_eq!(pending(pic, canister, gateway), None);

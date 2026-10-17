@@ -1,5 +1,6 @@
 //! Current-instance restoration retains obligations and requires independent IC history.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
 use ic_blob_storage_contracts::dto::account::AccountInspectionKind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
@@ -41,6 +42,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
                 scope: f.operator_scope(),
                 gateway: Fake::principal(9),
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(removed, Err(GatewayRevocationFailure::Fenced));
@@ -55,6 +57,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
                 scope: f.operator_scope(),
                 kind: AccountInspectionKind::Balance,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(account, Err(AccountInspectionFailure::Fenced));
@@ -72,6 +75,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -139,6 +143,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
                 f.uploader,
                 "blob_upload_manifest",
                 (manifest.permission,),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(retained.unwrap(), prepared);
@@ -235,6 +240,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -247,6 +253,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
             (super::standalone_certificate::root(&manifest),),
+            REPLY_LIMITS,
         )
         .unwrap();
     // This statement is a local verifier substitute, not a deployed byte observation.
@@ -261,6 +268,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
                 content_digest: [1; 32],
                 observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
             },),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -276,6 +284,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
                 operation: 2,
                 action: ReferenceAction::Release,
             },),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

@@ -1,5 +1,6 @@
 //! Actual caller/scope enforcement and unchanged accounting through passive reads.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
@@ -21,7 +22,13 @@ fn capacity(
 ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "blob_upload_capacity", (input,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "blob_upload_capacity",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 

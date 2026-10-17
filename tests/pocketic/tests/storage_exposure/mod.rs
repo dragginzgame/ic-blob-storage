@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod certificate;
 mod snapshot;
 use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
@@ -19,13 +20,19 @@ fn input(f: &Fixture, permission: Permission) -> ExposureInput {
 fn expose(f: &Fixture, actor: Principal, input: ExposureInput) -> Result<ExposureOutcome, E> {
     f.harness
         .pic
-        .update_candid_as(f.service, actor, "expose", (input,))
+        .update_candid_as(f.service, actor, "expose", (input,), REPLY_LIMITS)
         .unwrap()
 }
 fn preview(f: &Fixture, input: ExposureInput) -> Result<Vec<B>, E> {
     f.harness
         .pic
-        .query_candid_as(f.service, f.uploader, "exposure_preview", (input,))
+        .query_candid_as(
+            f.service,
+            f.uploader,
+            "exposure_preview",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 fn inspect(
@@ -35,7 +42,13 @@ fn inspect(
 ) -> Result<UploadAdmissionResponse, E> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "exposure_status", (input.permission,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "exposure_status",
+            (input.permission,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 #[test]

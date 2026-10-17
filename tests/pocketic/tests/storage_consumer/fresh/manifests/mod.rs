@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::manifests::{
     ManifestDispatch, ManifestFault, ManifestIntent, ManifestIntentView,
 };
@@ -28,14 +29,26 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let saved: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(f.uploader, f.operator, "save_manifest", (&intent,))
+        .update_candid_as(
+            f.uploader,
+            f.operator,
+            "save_manifest",
+            (&intent,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert!(!saved.unwrap().started);
     // Tenant authority cannot be substituted for the admitted uploader.
     let wrong: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "save_manifest", (&intent,))
+        .update_candid_as(
+            f.tenant,
+            f.operator,
+            "save_manifest",
+            (&intent,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(wrong, Err(ConsumerFailure::Invalid));
     let sent: Result<ManifestIntentView, ConsumerFailure> = f
@@ -51,6 +64,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
                 max_reply_bytes: 1,
                 fault: ManifestFault::None,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(sent, Err(ConsumerFailure::Transport));
@@ -58,7 +72,13 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let recovered: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_candid_as(f.uploader, f.operator, "recover_manifest", (1u128,))
+        .update_candid_as(
+            f.uploader,
+            f.operator,
+            "recover_manifest",
+            (1u128,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(
         recovered.unwrap().result,

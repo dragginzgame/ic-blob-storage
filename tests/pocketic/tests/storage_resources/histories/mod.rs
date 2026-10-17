@@ -1,5 +1,6 @@
 //! Opt-in larger lifetime funding histories and workflow-admitted read occupancy.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     admission::{ContentLookup, input::RetainedDescriptorInput},
     storage::{
@@ -120,7 +121,13 @@ fn read_page(
 ) -> Result<Vec<RestorationRead>, Failure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "restoration_read_page", (page,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "restoration_read_page",
+            (page,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 
@@ -150,13 +157,25 @@ fn selected_funding(
             let phase: Result<Option<FundingPhase>, Failure> = f
                 .harness
                 .pic
-                .query_candid_as(f.service, f.operator, "funding_lookup", (input.intent,))
+                .query_candid_as(
+                    f.service,
+                    f.operator,
+                    "funding_lookup",
+                    (input.intent,),
+                    REPLY_LIMITS,
+                )
                 .unwrap();
             assert_eq!(phase, Ok(Some(input.phase)));
             let request: Result<FundingRequest, Failure> = f
                 .harness
                 .pic
-                .query_candid_as(f.service, f.operator, "funding_request", (input.intent,))
+                .query_candid_as(
+                    f.service,
+                    f.operator,
+                    "funding_request",
+                    (input.intent,),
+                    REPLY_LIMITS,
+                )
                 .unwrap();
             (input.intent, input.phase, request.unwrap())
         })

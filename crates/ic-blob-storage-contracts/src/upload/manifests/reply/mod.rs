@@ -50,7 +50,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(UploadManifestReplyError::Limit);
     }
-    let config = crate::decoding::limits(2_000_000, 1024, 64, limits.max_reply_bytes.get());
+    let config = crate::decoding::limits(2_000_000, 1024, 64, Some(limits.max_reply_bytes.get()));
     let result: Result<T, UploadManifestFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadManifestReplyError::Invalid)?;
     result.map_err(UploadManifestReplyError::Remote)

@@ -1,5 +1,6 @@
 //! Canonical query-only entry point exercised through the shared replicated caller.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::gateways::ReplicatedInput;
 impl Fixture {
     fn replicated_input(&self, token: u64) -> ReplicatedInput {
@@ -18,6 +19,7 @@ impl Fixture {
                 actor,
                 "fixture_replicated_gateway_transport",
                 (input,),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -38,6 +40,7 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
             f.operator,
             "blob_sync_gateways",
             (f.revocation(f.other).scope,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(refreshed.unwrap().sequence, 1);
@@ -92,6 +95,7 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
             f.operator,
             "fixture_nonreplicated_gateway_transport",
             (f.replicated_input(token),),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(rejected, Err(Failure::Phase));

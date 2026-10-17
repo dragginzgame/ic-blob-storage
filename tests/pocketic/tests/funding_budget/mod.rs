@@ -1,5 +1,6 @@
 //! Actual IC effects against an explicitly installed local attachment envelope.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::{
     budget::FundingBudgetInput,
     preview::{
@@ -67,6 +68,7 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
             f.driver,
             "fund",
             (request(99, 50_000_000, FundingReplyMode::Success),),
+            REPLY_LIMITS,
         )
         .unwrap();
     incoming.unwrap();
@@ -131,6 +133,7 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
                 requested_cycles: 1,
                 revision: pending.revision,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     let preview = preview.unwrap();
@@ -170,7 +173,13 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
         let result: Result<FundingPreviewView, FundingPreviewFailure> = f
             .harness
             .pic
-            .query_candid_as(f.sender, f.driver, "preview_funding", (request,))
+            .query_candid_as(
+                f.sender,
+                f.driver,
+                "preview_funding",
+                (request,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         result.unwrap()
     };
@@ -270,6 +279,7 @@ fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
                     requested_cycles,
                     revision: 0,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap();
         result.unwrap()

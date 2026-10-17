@@ -1,5 +1,6 @@
 //! Actual caller isolation and passive discovery through the shared owner.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::{ContentLookup, ContentState};
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
@@ -28,7 +29,13 @@ fn query(
     let response: Result<UploadDiscoveryResponse, DiscoveryFailure> = f
         .harness
         .pic
-        .query_candid_as(f.service, actor, "blob_lookup_content", (request,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "blob_lookup_content",
+            (request,),
+            REPLY_LIMITS,
+        )
         .expect("typed content query");
     response.map(|response| {
         assert_eq!(response.request, request);

@@ -73,7 +73,7 @@ pub fn inspection(
     if bytes.len() > max.get() {
         return Err(TenantReplyError::Limit);
     }
-    let config = crate::decoding::limits(100_000, 1024, 64, max.get());
+    let config = crate::decoding::limits(100_000, 1024, 64, Some(max.get()));
     let result: Result<TenantEnrollmentResponse, TenantFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| TenantReplyError::Invalid)?;
     let observed = result.map_err(TenantReplyError::Remote)?;

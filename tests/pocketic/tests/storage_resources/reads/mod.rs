@@ -1,10 +1,11 @@
 //! The host owns measurement windows and authority; shared arithmetic owns the aggregate.
 use super::*;
+use crate::support::REPLY_LIMITS;
 
 fn observe(f: &Fixture, actor: Principal) -> Result<RestorationResources, Failure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "restoration_resources", ())
+        .query_candid_as(f.service, actor, "restoration_resources", (), REPLY_LIMITS)
         .unwrap()
 }
 

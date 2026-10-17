@@ -1,5 +1,6 @@
 //! Real signed batch queries preserve reservation history and restored fences.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use crate::{
     account_native_cli::signer,
     authenticated_cli::{PEM, run},
@@ -202,6 +203,7 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
             f.tenant,
             "blob_admit_upload",
             (p,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -248,6 +250,7 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             f.tenant,
             "blob_admit_upload",
             (p,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -258,6 +261,7 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             f.tenant,
             "blob_revoke_upload",
             (p,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

@@ -1,5 +1,6 @@
 //! Synthetic multi-file manifests and explicit host-fact substitutes, not Miner acceptance.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::release::LifecycleCommand;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
@@ -86,7 +87,13 @@ fn capacity(
     let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = f
         .harness
         .pic
-        .query_candid_as(f.service, actor, "blob_reference_capacity", (input,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "blob_reference_capacity",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     result.map(|response| {
         assert_eq!(response.request, input);

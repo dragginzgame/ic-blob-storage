@@ -33,6 +33,8 @@ ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.30.0" }
 ic-build = "0.11"
+# Build 0.11's archive API exposes this Host family; keep it feature-local.
+ic-build-host-process = { package = "ic-host-process", version = "0.23" }
 ic-cdk = "0.20"
 ic-host-artifacts = "0.24"
 ic-host-fs = "0.24"
@@ -44,6 +46,7 @@ ic-metrics = "0.11"
 ic-testkit = "0.50"
 ic-testkit-candid = "0.50"
 libc = "0.2.190"
+percent-encoding = "2.3.2"
 reqwest = { version = "0.13.5", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_bytes = "0.11.19"

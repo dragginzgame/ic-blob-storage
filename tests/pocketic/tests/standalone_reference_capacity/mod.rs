@@ -1,5 +1,6 @@
 //! Production-host absence and authority; confirmed lifecycle coverage uses labelled fixtures.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure as F;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
@@ -12,7 +13,13 @@ impl Fixture {
     ) -> Result<ReferenceCapacityResponse, F> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, REFERENCE_CAPACITY_METHOD, (request,))
+            .query_candid_as(
+                self.service,
+                actor,
+                REFERENCE_CAPACITY_METHOD,
+                (request,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -33,7 +40,13 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
     let replicated: Result<ReferenceCapacityResponse, F> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, REFERENCE_CAPACITY_METHOD, (request,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            REFERENCE_CAPACITY_METHOD,
+            (request,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
     for actor in [f.operator, f.controller, f.uploader, Principal::anonymous()] {
@@ -86,7 +99,13 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     admitted.unwrap();
     let request = ReferenceCapacityRequest {
@@ -113,6 +132,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
                 expected: enrollment.enrollment,
                 active: false,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     suspended.unwrap();

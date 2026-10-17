@@ -89,7 +89,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > max.get() {
         return Err(FundingReplyError::Limit);
     }
-    let config = crate::decoding::limits(500_000, 1024, 128, max.get());
+    let config = crate::decoding::limits(500_000, 1024, 128, Some(max.get()));
     decode_one_with_config(bytes, &config).map_err(|_| FundingReplyError::Invalid)
 }
 fn transfer(offered: u128, phase: FundingPhase) -> Result<FundingTransfer, FundingReplyError> {

@@ -1,5 +1,6 @@
 //! Actual IC transport/refunds through the shared journal and a labelled substitute.
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod dispatch;
 use blob_test_protocol::{
     funding::{
@@ -120,6 +121,7 @@ impl Fixture {
                         trap_callback: false,
                     },
                 },),
+                REPLY_LIMITS,
             )
             .unwrap();
         result.unwrap();
@@ -127,7 +129,13 @@ impl Fixture {
     fn transport(&self, actor: Principal, input: Input) -> Result<Observation, Failure> {
         self.harness
             .pic
-            .update_candid_as(self.service, actor, "fixture_funding_transport", (input,))
+            .update_candid_as(
+                self.service,
+                actor,
+                "fixture_funding_transport",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn incoming(&self) -> Vec<FundingReceiptRecord> {
@@ -138,6 +146,7 @@ impl Fixture {
                 self.controller,
                 "receipts",
                 (),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap()
@@ -154,6 +163,7 @@ impl Fixture {
                 actor,
                 "blob_funding_outcome",
                 (outcome_request(intent),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }

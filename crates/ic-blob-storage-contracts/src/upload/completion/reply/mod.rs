@@ -63,7 +63,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > maximum.get() {
         return Err(UploadAttestationReplyError::Limit);
     }
-    let config = crate::decoding::limits(100_000, 0, 64, maximum.get());
+    let config = crate::decoding::limits(100_000, 0, 64, Some(maximum.get()));
     let result: Result<T, UploadAttestationFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadAttestationReplyError::Invalid)?;
     result.map_err(UploadAttestationReplyError::Remote)

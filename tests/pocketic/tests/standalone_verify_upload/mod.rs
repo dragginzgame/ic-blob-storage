@@ -1,6 +1,7 @@
 //! Authenticated historical manifest + native byte verification, with no provider effects.
 use super::*;
 use crate::authenticated_cli::{PEM, run};
+use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
@@ -53,6 +54,7 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
             f.tenant,
             "blob_admit_upload",
             (permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

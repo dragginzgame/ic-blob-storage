@@ -1,5 +1,6 @@
 //! Shared threshold diagnosis with real status/CLI queries and unknown spendability.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     billing::{BillingLimitsInput, FundingNeedView},
     status::BillingBlockerView,
@@ -22,7 +23,13 @@ impl Fixture {
     ) -> Result<(), BalanceFailure> {
         self.harness
             .pic
-            .update_candid_as(self.authority, actor, "configure_billing_limits", (input,))
+            .update_candid_as(
+                self.authority,
+                actor,
+                "configure_billing_limits",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn configure_limits(&self, minimum: u128, target: u128) {

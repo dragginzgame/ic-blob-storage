@@ -1,4 +1,5 @@
 //! Real IC scheduling against an explicitly different local source method.
+use crate::support::REPLY_LIMITS;
 mod read_sessions;
 use super::*;
 use blob_test_protocol::{
@@ -23,7 +24,13 @@ impl Fixture {
         assert!(
             self.harness
                 .pic
-                .update_candid_as::<bool, _>(self.operator, self.controller, "configure", (mode,))
+                .update_candid_as::<bool, _>(
+                    self.operator,
+                    self.controller,
+                    "configure",
+                    (mode,),
+                    REPLY_LIMITS
+                )
                 .unwrap()
         );
     }
@@ -35,6 +42,7 @@ impl Fixture {
                 self.controller,
                 "observation",
                 (),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap()
@@ -55,6 +63,7 @@ impl Fixture {
                 actor,
                 "fixture_gateway_transport",
                 (self.transport_input(token),),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -64,7 +73,13 @@ impl Fixture {
             let view: Option<SourceRecoveryView> = self
                 .harness
                 .pic
-                .query_candid_as(self.operator, self.controller, "recovery_observation", ())
+                .query_candid_as(
+                    self.operator,
+                    self.controller,
+                    "recovery_observation",
+                    (),
+                    REPLY_LIMITS,
+                )
                 .unwrap();
             if view.unwrap().held_sync.is_some() {
                 return;
@@ -76,7 +91,13 @@ impl Fixture {
         assert!(
             self.harness
                 .pic
-                .update_candid_as::<bool, _>(self.operator, self.controller, "resume_sync", ())
+                .update_candid_as::<bool, _>(
+                    self.operator,
+                    self.controller,
+                    "resume_sync",
+                    (),
+                    REPLY_LIMITS
+                )
                 .unwrap()
         );
     }

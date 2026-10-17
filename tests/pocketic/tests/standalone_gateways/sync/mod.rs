@@ -1,5 +1,6 @@
 //! Real standalone refresh against a labelled query-only Cashier substitute.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::SourceMode;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncError;
@@ -32,7 +33,13 @@ fn refresh(
 ) -> Result<GatewaySyncResponse, SyncError> {
     f.harness
         .pic
-        .update_candid_as(f.service, actor, "blob_sync_gateways", (scope,))
+        .update_candid_as(
+            f.service,
+            actor,
+            "blob_sync_gateways",
+            (scope,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError> {
@@ -46,6 +53,7 @@ fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError>
                 scope: f.operator_scope(),
                 sequence,
             },),
+            REPLY_LIMITS,
         )
         .unwrap()
 }
@@ -57,7 +65,8 @@ pub(super) fn mode(f: &Fixture, selected: SourceMode) {
                 f.config.billing.cashier,
                 f.controller,
                 "configure",
-                (selected,)
+                (selected,),
+                REPLY_LIMITS
             )
             .unwrap()
     );

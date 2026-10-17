@@ -19,7 +19,7 @@ use ic_testkit::{
     pic::CandidCallExt,
     pocket_ic::{CreateCanisterParams, RejectCode},
 };
-use support::{Harness, fixture_path};
+use support::{Harness, REPLY_LIMITS, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -78,7 +78,7 @@ impl Fixture {
     ) -> Result<FundingObservation, FundingFailure> {
         self.harness
             .pic
-            .update_candid_as(self.sender, caller, "fund", (request,))
+            .update_candid_as(self.sender, caller, "fund", (request,), REPLY_LIMITS)
             .expect("funding call completed")
     }
 
@@ -86,7 +86,7 @@ impl Fixture {
         let result: Option<Vec<FundingAttemptRecord>> = self
             .harness
             .pic
-            .query_candid_as(self.sender, self.driver, "attempts", ())
+            .query_candid_as(self.sender, self.driver, "attempts", (), REPLY_LIMITS)
             .expect("sender journal");
         result.expect("driver allowed")
     }
@@ -95,7 +95,7 @@ impl Fixture {
         let result: Option<Vec<FundingReceiptRecord>> = self
             .harness
             .pic
-            .query_candid_as(self.receiver, self.driver, "receipts", ())
+            .query_candid_as(self.receiver, self.driver, "receipts", (), REPLY_LIMITS)
             .expect("receiver journal");
         result.expect("driver allowed")
     }
@@ -107,7 +107,7 @@ impl Fixture {
     ) -> Option<FundingOperatorStatusView> {
         self.harness
             .pic
-            .query_candid_as(canister, caller, "operator_status", ())
+            .query_candid_as(canister, caller, "operator_status", (), REPLY_LIMITS)
             .expect("read-only funding diagnosis")
     }
 
@@ -719,7 +719,13 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
     let hidden: Option<Vec<FundingAttemptRecord>> = fixture
         .harness
         .pic
-        .query_candid_as(fixture.sender, Principal::anonymous(), "attempts", ())
+        .query_candid_as(
+            fixture.sender,
+            Principal::anonymous(),
+            "attempts",
+            (),
+            REPLY_LIMITS,
+        )
         .expect("private journal query");
     assert_eq!(hidden, None);
     let rejected = fixture

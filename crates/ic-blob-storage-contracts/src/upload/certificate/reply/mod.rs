@@ -52,7 +52,7 @@ pub fn assessment(
     if bytes.len() > maximum.get() {
         return Err(UploadCertificateAssessmentReplyError::Limit);
     }
-    let config = crate::decoding::limits(100_000, 0, 64, maximum.get());
+    let config = crate::decoding::limits(100_000, 0, 64, Some(maximum.get()));
     let response: Result<UploadCertificateAssessmentResponse, UploadExposureFailure> =
         decode_one_with_config(bytes, &config)
             .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;

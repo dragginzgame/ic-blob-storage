@@ -79,7 +79,7 @@ use ic_testkit::{
     pic::CandidCallExt,
     pocket_ic::{CanisterSettings, RejectCode},
 };
-use support::{Harness, fixture_path};
+use support::{Harness, REPLY_LIMITS, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -264,7 +264,7 @@ impl Fixture {
     fn configuration(&self, actor: Principal) -> Result<HostConfigurationView, HostFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "blob_configuration", ())
+            .query_candid_as(self.service, actor, "blob_configuration", (), REPLY_LIMITS)
             .unwrap()
     }
     fn scope(&self) -> TenantScope {
@@ -286,6 +286,7 @@ impl Fixture {
                     expected: None,
                     active: true,
                 },),
+                REPLY_LIMITS,
             )
             .unwrap()
     }
@@ -297,6 +298,7 @@ impl Fixture {
                 self.tenant,
                 "blob_tenant",
                 (self.scope(),),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap()
@@ -309,6 +311,7 @@ impl Fixture {
                 self.tenant,
                 "blob_upload_admission",
                 (input,),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap()
@@ -320,7 +323,13 @@ impl Fixture {
     ) -> Result<UploadManifestMutation, UploadManifestFailure> {
         self.harness
             .pic
-            .update_candid_as(self.service, actor, "blob_prepare_upload", (input,))
+            .update_candid_as(
+                self.service,
+                actor,
+                "blob_prepare_upload",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_testkit::pocket_ic::RejectResponse> {
@@ -334,7 +343,13 @@ impl Fixture {
     ) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
         self.harness
             .pic
-            .update_candid_as(self.service, actor, "blob_resume_current_instance", ())
+            .update_candid_as(
+                self.service,
+                actor,
+                "blob_resume_current_instance",
+                (),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn manifest(&self) -> UploadManifestRequest {
@@ -452,7 +467,13 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
         let result: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
             .harness
             .pic
-            .update_candid_as(f.service, actor, "blob_admit_upload", (request.permission,))
+            .update_candid_as(
+                f.service,
+                actor,
+                "blob_admit_upload",
+                (request.permission,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(result, Err(UploadAdmissionFailure::Denied));
     }
@@ -464,6 +485,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             f.tenant,
             "blob_admit_upload",
             (request.permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert!(!admitted.unwrap().replayed);
@@ -489,6 +511,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
                 operation: 5,
                 action: ReferenceAction::Retain,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(reference, Err(ReferenceFailure::Unconfirmed));
@@ -533,6 +556,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             f.uploader,
             "blob_upload_manifest",
             (request.permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(retained.unwrap(), prepared.observation);
@@ -550,6 +574,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             f.tenant,
             "blob_revoke_upload",
             (request.permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(revoked, Err(UploadAdmissionFailure::Fenced));

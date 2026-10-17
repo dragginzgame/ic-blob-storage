@@ -9,8 +9,7 @@ use ic_blob_storage_contracts::configuration::service::ServiceLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceManifestLimits;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRequest, MemoryRuntime, SchemaMetadata, SealedDeclarationSnapshot,
-    ic_stable_structures::VectorMemory,
+    MemoryRequest, MemoryRuntime, SealedDeclarationSnapshot, ic_stable_structures::VectorMemory,
 };
 use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 
@@ -68,8 +67,7 @@ fn update(tenant: u8, expected: Option<TenantEnrollmentView>, active: bool) -> T
 
 #[test]
 fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
-    let request =
-        MemoryRequest::new("fixture", "fixture.tenants.v1", SchemaMetadata::default()).unwrap();
+    let request = MemoryRequest::new("fixture", "fixture.tenants.v1").unwrap();
     let pool = MemoryAllocationPool::new(
         vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
         vec![],

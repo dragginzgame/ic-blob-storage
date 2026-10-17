@@ -1,6 +1,7 @@
 //! Offline CLI init bytes installed by the actual host, with independent platform binding.
 use super::*;
 use crate::authenticated_cli::run;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use std::path::Path;
 
@@ -211,6 +212,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

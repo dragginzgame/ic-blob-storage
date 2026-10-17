@@ -1,5 +1,6 @@
 //! Production-host indexed discovery, exact independent identities and restore fencing.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as F;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
@@ -12,7 +13,13 @@ impl Fixture {
     ) -> Result<UploadDiscoveryResponse, F> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, UPLOAD_DISCOVERY_METHOD, (request,))
+            .query_candid_as(
+                self.service,
+                actor,
+                UPLOAD_DISCOVERY_METHOD,
+                (request,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -33,7 +40,13 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, UPLOAD_DISCOVERY_METHOD, (request,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            UPLOAD_DISCOVERY_METHOD,
+            (request,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
     for actor in [f.operator, f.controller, f.uploader, Principal::anonymous()] {
@@ -90,7 +103,13 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     admitted.unwrap();
     let request = UploadDiscoveryRequest {
@@ -113,7 +132,13 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, UPLOAD_DISCOVERY_METHOD, (request,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            UPLOAD_DISCOVERY_METHOD,
+            (request,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
@@ -129,6 +154,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
                 expected: enrollment.enrollment,
                 active: false,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     suspended.unwrap();

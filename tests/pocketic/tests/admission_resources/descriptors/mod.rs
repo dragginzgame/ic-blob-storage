@@ -1,5 +1,6 @@
 //! Maximal retained metadata under the existing lifetime object envelope.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::{ContentDescriptor, ContentLookup, ContentState};
 use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
@@ -66,6 +67,7 @@ fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
                 namespace: 1,
                 root: p.request.root,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     result.unwrap().unwrap()

@@ -1,6 +1,7 @@
 //! Signed historical recovery; exposure/content/provider outcomes are fixture substitutes.
 use super::*;
 use crate::authenticated_cli::{PEM, run};
+use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
@@ -102,6 +103,7 @@ fn release(f: &Fixture, upload: ic_blob_storage_contracts::dto::reference::Refer
                 reference: upload.first_reference,
                 action: ReferenceAction::Release,
             },),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -151,6 +153,7 @@ fn signed_attestation_recovery_preserves_lost_reply_conflicts_and_settled_restor
             f.operator,
             "blob_attest_upload",
             (statement,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

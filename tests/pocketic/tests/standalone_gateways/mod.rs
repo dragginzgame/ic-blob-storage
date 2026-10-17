@@ -1,4 +1,5 @@
 //! Standalone operator removal delegates to the shared durable owner.
+use crate::support::REPLY_LIMITS;
 mod funding_assessment;
 mod native_cli;
 mod sync;
@@ -18,7 +19,13 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     let call = |actor, input| -> Result<GatewayRevocationResponse, Error> {
         f.harness
             .pic
-            .update_candid_as(f.service, actor, GATEWAY_REVOCATION_METHOD, (input,))
+            .update_candid_as(
+                f.service,
+                actor,
+                GATEWAY_REVOCATION_METHOD,
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     };
     let before = f.harness.pic.get_stable_memory(f.service);

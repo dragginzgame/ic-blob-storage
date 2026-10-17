@@ -124,7 +124,7 @@ pub fn page(
     if bytes.len() > limits.bytes.get() {
         return Err(UploadHistoryReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, limits.bytes.get());
+    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(limits.bytes.get()));
     let page: Result<UploadHistoryPage, UploadHistoryFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| UploadHistoryReplyError::Invalid)?;
     let page = page.map_err(UploadHistoryReplyError::Remote)?;

@@ -4,8 +4,7 @@ use ic_blob_storage::ic_memory as blob_memory;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRequest, MemoryRuntime, RuntimeMemory, RuntimeOpenError, SchemaMetadata,
-    SealedDeclarationSnapshot,
+    MemoryRequest, MemoryRuntime, RuntimeMemory, RuntimeOpenError, SealedDeclarationSnapshot,
     ic_stable_structures::{Cell, VectorMemory},
 };
 
@@ -53,9 +52,8 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
     let mut requests: Vec<MemoryRequest> =
         ic_blob_storage::ops::service::installation::requests("blob").expect("Blob requests");
     requests.extend(
-        ["fixture.blob.data.v1", "fixture.database.data.v1"].map(|key| {
-            MemoryRequest::new("fixture", key, SchemaMetadata::default()).expect("request")
-        }),
+        ["fixture.blob.data.v1", "fixture.database.data.v1"]
+            .map(|key| MemoryRequest::new("fixture", key).expect("request")),
     );
     let pool = MemoryAllocationPool::new(
         vec![

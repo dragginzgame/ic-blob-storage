@@ -2,6 +2,51 @@
 
 Date: 2026-10-16
 
+## Dependency caller compilation repaired — pending 0.31.0
+
+The reported Memory 0.45 and removed Testkit HTTP imports were already repaired
+in the incoming dirty batch. The remaining Testkit 0.50 call sites now pass
+explicit finite fixture reply budgets; the optional archive verifier uses Build
+0.11.1's existing Host 0.23.1 types. Ordinary native fixtures retain Host 0.24.
+No external dependency selection or own package version changes. One private
+CLI dependency edge is added to the existing Host family; its unused normal
+Host 0.24 edge is removed while native dev/test support remains explicit.
+
+[The repair receipt](../evidence/ci-api0310.md) records affected all-target/
+all-feature compilation, strict lint, actual Rust 1.91, four fresh probe Wasms,
+16 installed PocketIC cases and real archive replacement/refusal regressions.
+These clear both compilation blockers described in the historical section below.
+Full CI, actual Blob archives, native macOS and deployed provider/Canic acceptance
+remain separate. No sibling, Git index/ref, release or publication effects ran.
+Previously prepared GitHub reports were not posted and their failure claims are
+now superseded locally; no new issue is needed for the repaired caller defects.
+
+## Query commands, Candid configuration and URL encoding — pending 0.31.0
+
+The accepted three cleanups are applied over clean commit
+`831874938b2ba92653d828221f61b0496def6b53` (subject 0.31.0; own package metadata
+still 0.30.0). Query commands share their passive help/result/error shell;
+Contracts owns Candid configuration with unchanged explicit boundary budgets;
+provider URLs use the existing locked percent encoder with identical escaping.
+[The receipt](../evidence/decoder-commands0310.md) records 315 focused passing
+cases, strict affected-owner lint, actual Rust 1.91 native/Wasm and Rustdoc.
+
+Incoming Memory 0.45/Host 0.24/Testkit 0.50/Build 0.11.1 selections are preserved.
+Memory request callers no longer pass removed schema metadata; fixture pool
+ranges become equivalent numeric exclusions. PR #78's Rust HTTP payload is
+applied with native Host test-support features. Only one workspace dependency
+edge to the already locked percent-encoding package is added; external selections
+and own versions are unchanged. Pending 0.31 includes the public Memory/ledger
+hard cut: retain obligations and retire/reinstall, never clear old ledgers.
+
+Installed tests still fail compilation because Testkit 0.50 requires explicit
+DecodeLimits at their Candid calls; no new PocketIC result is claimed. The optional
+archive verifier still mixes Build's Host 0.23 types with direct Host 0.24.
+Prepared owning GitHub reports are retained in the raw evidence; automatic
+approval review rejected publication, so neither report was posted. No full gate,
+actual archives, native macOS, provider effects, sibling edits or Git/release
+changes ran. Historical receipts below retain their original graph scope.
+
 ## Published Host readers and PR licenses — pending 0.31.0
 
 The remaining [#69](https://github.com/dragginzgame/ic-blob-storage/issues/69)

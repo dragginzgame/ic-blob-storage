@@ -5,6 +5,7 @@ use crate::UploadAdmissionFailure;
 use crate::UploadAdmissionResponse;
 use crate::UploadManifestRequest;
 use crate::standalone_publish_check::freeze_bodies;
+use crate::support::REPLY_LIMITS;
 use crate::{browser_driver::BrowserPreparation, native_session::NativeSession};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceChange;
@@ -96,6 +97,7 @@ impl Serial {
                 self.trial.f.tenant,
                 "blob_upload_admission",
                 (self.files[1].permission,),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(second, Err(UploadAdmissionFailure::Unknown));
@@ -891,6 +893,7 @@ impl Serial {
                 self.trial.f.tenant,
                 "blob_reference_receipt",
                 (retain,),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(lookup, Ok(ReferenceReceiptLookup::Found(original.receipt)));

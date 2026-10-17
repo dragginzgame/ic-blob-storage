@@ -1,5 +1,6 @@
 //! Actual canister actor, committed command intent and shared client recovery.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, TenantDispatch};
 
 fn consumer_wasm() -> Vec<u8> {
@@ -43,6 +44,7 @@ fn saved(f: &Fixture, client: Principal) -> Option<TenantUpdateRequest> {
             f.controller,
             "fixture_tenant_command",
             (),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap()
@@ -55,6 +57,7 @@ fn inspect(f: &Fixture, client: Principal) -> TenantEnrollmentResponse {
             f.controller,
             "fixture_inspect_tenant",
             (f.tenant_scope(),),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap()
@@ -66,11 +69,21 @@ fn dispatch(
 ) -> Result<TenantEnrollmentResponse, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(client, f.controller, "fixture_update_tenant", (input,))
+        .update_candid_as(
+            client,
+            f.controller,
+            "fixture_update_tenant",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep exact command retention across success, reply limits and callback traps"
+)]
 fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
     for (max_reply_bytes, trap_after_reply) in [(4096, false), (1, false), (4096, true)] {
         let (f, client) = fixture(true);
@@ -88,7 +101,13 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
         let denied: Result<TenantEnrollmentResponse, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(client, f.other, "fixture_update_tenant", (input,))
+            .update_candid_as(
+                client,
+                f.other,
+                "fixture_update_tenant",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(denied, Err(ConsumerFailure::Denied));
         assert_eq!(saved(&f, client), None);
@@ -191,6 +210,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
             f.controller,
             "fixture_query_tenant",
             (f.tenant_scope(),),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(query, Err(ConsumerFailure::Transport));
@@ -225,6 +245,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
                 tenant: f.other,
                 ..f.tenant_scope()
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(foreign, Err(ConsumerFailure::Transport));

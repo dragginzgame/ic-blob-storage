@@ -1,6 +1,7 @@
 //! Signed native assessment uses production host facts; no provider or update dispatch.
 use super::*;
 use crate::authenticated_cli::{PEM, run};
+use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
@@ -86,6 +87,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
             f.tenant,
             "blob_admit_upload",
             (permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -117,6 +119,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
             f.tenant,
             "blob_revoke_upload",
             (permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

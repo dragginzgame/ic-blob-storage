@@ -1,4 +1,5 @@
 //! Real local chunks validate durable sessions, verification and callback authority.
+use crate::support::REPLY_LIMITS;
 mod resources;
 use super::*;
 use blob_test_protocol::{
@@ -27,7 +28,8 @@ impl Fixture {
                     self.operator,
                     self.controller,
                     "configure_read",
-                    (config,)
+                    (config,),
+                    REPLY_LIMITS
                 )
                 .unwrap()
         );
@@ -40,6 +42,7 @@ impl Fixture {
                 self.controller,
                 "read_observation",
                 (),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap()
@@ -57,7 +60,13 @@ impl Fixture {
         assert!(
             self.harness
                 .pic
-                .update_candid_as::<bool, _>(self.operator, self.controller, "resume_read", ())
+                .update_candid_as::<bool, _>(
+                    self.operator,
+                    self.controller,
+                    "resume_read",
+                    (),
+                    REPLY_LIMITS
+                )
                 .unwrap()
         );
     }
@@ -99,6 +108,7 @@ impl Fixture {
                 actor,
                 "fixture_read_chunk",
                 (input,),
+                REPLY_LIMITS,
             )
             .unwrap()
             .map(|chunk| {
@@ -113,7 +123,7 @@ impl Fixture {
             })
     }
     fn session_view(&self) -> blob_test_protocol::storage::gateways::ReadSessionsView {
-        self.harness.pic.query_candid_as::<Result<blob_test_protocol::storage::gateways::ReadSessionsView, Failure>, _>(self.service, self.operator, "read_sessions", ()).unwrap().unwrap()
+        self.harness.pic.query_candid_as::<Result<blob_test_protocol::storage::gateways::ReadSessionsView, Failure>, _>(self.service, self.operator, "read_sessions", (), REPLY_LIMITS).unwrap().unwrap()
     }
 }
 #[test]

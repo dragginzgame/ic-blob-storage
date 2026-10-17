@@ -1,5 +1,6 @@
 //! Signed submission/inspection preserves actual standalone phase and restore refusals.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use crate::{
     authenticated_cli::run,
     reference_cli::{change_native, native_requests},
@@ -239,6 +240,7 @@ fn prepared(
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

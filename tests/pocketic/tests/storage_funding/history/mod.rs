@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod cli;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor as Cursor;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry as Entry;
@@ -12,7 +13,13 @@ impl Fixture {
     fn funding_history(&self, actor: Principal, input: Input) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "blob_funding_history", (input,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "blob_funding_history",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -143,7 +150,13 @@ fn check_recovered_request(f: &Fixture, recovered: Intent) {
     let wire: Result<blob_test_protocol::storage::funding::Request, Failure> = f
         .harness
         .pic
-        .query_candid_as(f.service, f.operator, "funding_request", (recovered,))
+        .query_candid_as(
+            f.service,
+            f.operator,
+            "funding_request",
+            (recovered,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     let expected = ic_blob_storage::ops::caffeine::funding::request::CashierTopUpRequest::new(
         recovered.cashier,

@@ -1,5 +1,6 @@
 //! Actual lifecycle recovery preserves obligations but cannot resume authority.
 use super::*;
+use crate::support::REPLY_LIMITS;
 
 impl Fixture {
     pub(in crate::recovery) fn upgrade_authority(&self) {
@@ -29,6 +30,7 @@ impl Fixture {
                 self.authority_operator,
                 "sync_gateway",
                 (self.sync_request(),),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(sync, Err(SyncFailure::Fenced));
@@ -207,6 +209,7 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
             f.operator,
             "journey_arm_read_callback_trap",
             (root(v.upload.root),),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert!(armed);

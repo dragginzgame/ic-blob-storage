@@ -1,6 +1,11 @@
 //! Actual late uploader acknowledgment cannot undo either application's cancellation.
 use super::*;
+use crate::support::REPLY_LIMITS;
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep held acknowledgment, cancellation and exposed cleanup in one installed scenario"
+)]
 fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_exposed_cleanup() {
     for exposed in [false, true] {
         let f = uploader_fixture();
@@ -13,7 +18,13 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let saved: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(f.uploader, f.operator, "save_manifest", (&intent,))
+            .update_candid_as(
+                f.uploader,
+                f.operator,
+                "save_manifest",
+                (&intent,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         saved.unwrap();
         let dispatch = ManifestDispatch {
@@ -38,7 +49,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             let waiting: Result<bool, ConsumerFailure> = f
                 .harness
                 .pic
-                .query_candid_as(f.uploader, f.operator, "waiting", ())
+                .query_candid_as(f.uploader, f.operator, "waiting", (), REPLY_LIMITS)
                 .unwrap();
             if waiting.unwrap() {
                 held = true;
@@ -54,7 +65,13 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let withdrawn: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(f.uploader, f.operator, "cancel_manifest", (1u128,))
+            .update_candid_as(
+                f.uploader,
+                f.operator,
+                "cancel_manifest",
+                (1u128,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         let withdrawn = withdrawn.unwrap();
         assert!(withdrawn.cancelled && withdrawn.started);
@@ -67,7 +84,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let resumed: Result<(), ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(f.uploader, f.operator, "resume", ())
+            .update_candid_as(f.uploader, f.operator, "resume", (), REPLY_LIMITS)
             .unwrap();
         resumed.unwrap();
         let late: Result<ManifestIntentView, ConsumerFailure> =
@@ -86,13 +103,20 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                     hold: false,
                     ..dispatch
                 },),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(retry, Err(ConsumerFailure::State));
         let saved: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(f.uploader, f.operator, "save_manifest", (&intent,))
+            .update_candid_as(
+                f.uploader,
+                f.operator,
+                "save_manifest",
+                (&intent,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(saved, Ok(late));
         assert_eq!(f.harness.pic.get_stable_memory(f.service), before);

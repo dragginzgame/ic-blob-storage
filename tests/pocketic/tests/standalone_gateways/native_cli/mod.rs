@@ -1,5 +1,6 @@
 //! Signed gateway decisions through standalone, with occupied unrelated owners.
 use super::{super::*, sync};
+use crate::support::REPLY_LIMITS;
 use crate::{account_native_cli::signer, gateway_native_cli::GatewayCli};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
@@ -22,6 +23,7 @@ fn standalone_signed_gateway_decisions_preserve_uncertainty_and_occupied_restore
             f.tenant,
             "blob_admit_upload",
             (request.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

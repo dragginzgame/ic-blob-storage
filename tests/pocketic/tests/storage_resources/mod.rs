@@ -1,4 +1,5 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
+use crate::support::REPLY_LIMITS;
 mod credits;
 mod histories;
 mod reads;
@@ -124,7 +125,13 @@ pub(super) fn resources(f: &Fixture) -> serde_json::Value {
     let result: Result<RestorationResources, Failure> = f
         .harness
         .pic
-        .query_candid_as(f.service, f.operator, "restoration_resources", ())
+        .query_candid_as(
+            f.service,
+            f.operator,
+            "restoration_resources",
+            (),
+            REPLY_LIMITS,
+        )
         .unwrap();
     let r = result.unwrap();
     let status = f
@@ -234,6 +241,7 @@ fn manifest(f: &Fixture, input: &PreparationInput) -> UploadManifestResponse {
             input.request.tenant,
             "blob_upload_manifest",
             (permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     result.unwrap()
@@ -392,6 +400,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             operator,
             "populate_resources",
             (batch,),
+            REPLY_LIMITS,
         );
         if !matches!(result, Ok(Ok(()))) {
             retain(
@@ -523,6 +532,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
                 start: count,
                 uploads: vec![samples[0].clone()],
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(refused, Err(Failure::Fenced));

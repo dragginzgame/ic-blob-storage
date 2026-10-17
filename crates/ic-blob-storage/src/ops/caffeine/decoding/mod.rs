@@ -17,12 +17,11 @@ pub struct CaffeineReplyLimits {
 
 impl CaffeineReplyLimits {
     pub(super) fn config(self) -> DecoderConfig {
-        let mut config = DecoderConfig::new();
-        config
-            .set_decoding_quota(self.decoding_quota.get())
-            .set_skipping_quota(self.skipping_quota.get())
-            .set_max_type_len(self.max_type_entries.get())
-            .set_full_error_message(false);
-        config
+        ic_blob_storage_contracts::decoding::limits(
+            self.decoding_quota.get(),
+            self.skipping_quota.get(),
+            self.max_type_entries.get(),
+            None,
+        )
     }
 }

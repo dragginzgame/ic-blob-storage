@@ -38,7 +38,7 @@ fn server(status: u16) -> (String, mpsc::Sender<()>, thread::JoinHandle<Vec<Stri
                     stream
                         .set_write_timeout(Some(Duration::from_secs(2)))
                         .unwrap();
-                    let line = match ic_testkit::testing::read_http_request_line(
+                    let line = match ic_host_process::testing::http::read_http_request_line(
                         &mut stream,
                         deadline,
                         MAX_HEADERS,
@@ -60,7 +60,7 @@ fn server(status: u16) -> (String, mpsc::Sender<()>, thread::JoinHandle<Vec<Stri
                     assert!(request_line.starts_with("POST "));
                     let operation = service_operation(&request_line);
                     if operation {
-                        let request = ic_testkit::testing::read_http_request_with_line(
+                        let request = ic_host_process::testing::http::read_http_request_with_line(
                             &mut stream,
                             request_line.as_bytes(),
                             deadline,

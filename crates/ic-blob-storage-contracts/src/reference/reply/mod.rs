@@ -132,7 +132,7 @@ fn bounded<T: CandidType + for<'de> Deserialize<'de>>(
     if bytes.len() > max_reply_bytes.get() {
         return Err(ReferenceReplyError::Limit);
     }
-    let config = crate::decoding::limits(1_000_000, 1024, 64, max_reply_bytes.get());
+    let config = crate::decoding::limits(1_000_000, 1024, 64, Some(max_reply_bytes.get()));
     let response: Result<T, ReferenceFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| ReferenceReplyError::Invalid)?;
     response.map_err(ReferenceReplyError::Remote)

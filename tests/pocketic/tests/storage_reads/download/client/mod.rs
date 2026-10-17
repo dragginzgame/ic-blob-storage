@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::read::{DownloadClientInput, DownloadProbeFailure};
 fn fetch(
     f: &Fixture,
@@ -6,7 +7,13 @@ fn fetch(
 ) -> Result<DownloadResponse, DownloadProbeFailure> {
     f.harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "fixture_fetch_descriptor", (input,))
+        .update_candid_as(
+            f.tenant,
+            f.operator,
+            "fixture_fetch_descriptor",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 fn consumer() -> Fixture {
@@ -79,6 +86,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
             f.other,
             "fixture_fetch_descriptor",
             (selection.clone(),),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(denied, Err(DownloadProbeFailure::Denied));
@@ -90,6 +98,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
             f.operator,
             "fixture_nonreplicated_descriptor",
             (selection.clone(),),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(query, Err(DownloadProbeFailure::Execution));

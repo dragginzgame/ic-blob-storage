@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod client;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
@@ -25,6 +26,7 @@ fn inspect(
             actor,
             UPLOAD_MANIFEST_INSPECT_METHOD,
             (permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
 }
@@ -35,7 +37,13 @@ fn prepare(
 ) -> Result<UploadManifestMutation, F> {
     f.harness
         .pic
-        .update_candid_as(f.service, actor, UPLOAD_MANIFEST_PREPARE_METHOD, (input,))
+        .update_candid_as(
+            f.service,
+            actor,
+            UPLOAD_MANIFEST_PREPARE_METHOD,
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 fn limits() -> UploadManifestReplyLimits {

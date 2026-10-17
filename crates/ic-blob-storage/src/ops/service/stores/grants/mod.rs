@@ -7,9 +7,7 @@ use super::ServiceMemories;
 use crate::ops::service::{
     funding::FundingMemories, reads::ReadSessionMemories, uploads::UploadMemories,
 };
-use ic_memory::{
-    MemoryDeclarationError, MemoryRequest, SchemaMetadata, ic_stable_structures::Memory,
-};
+use ic_memory::{MemoryDeclarationError, MemoryRequest, ic_stable_structures::Memory};
 
 // Logical identities are independent of host-selected physical IDs. Keep this
 // mapping shared so an adapter cannot accidentally swap accounting and history.
@@ -40,7 +38,7 @@ const KEYS: [&str; 16] = [
 /// Rejects an authority unsupported by `ic-memory`.
 pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclarationError> {
     KEYS.into_iter()
-        .map(|key| MemoryRequest::new(authority, key, SchemaMetadata::default()))
+        .map(|key| MemoryRequest::new(authority, key))
         .collect()
 }
 

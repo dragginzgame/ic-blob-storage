@@ -1,29 +1,54 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::funding::admission::{Attempt, Blocker as B, Preparation, View};
 
 impl Fixture {
     fn inspect_attempt(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "funding_attempt", (intent,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "funding_attempt",
+                (intent,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn guarded_attempt(&self, actor: Principal, intent: Intent) -> Result<Attempt, Failure> {
         self.harness
             .pic
-            .update_candid_as(self.service, actor, "mark_funding_attempt", (intent,))
+            .update_candid_as(
+                self.service,
+                actor,
+                "mark_funding_attempt",
+                (intent,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn inspect_preparation(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "funding_preparation", (intent,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "funding_preparation",
+                (intent,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn guarded_prepare(&self, actor: Principal, intent: Intent) -> Result<Preparation, Failure> {
         self.harness
             .pic
-            .update_candid_as(self.service, actor, "prepare_funding", (intent,))
+            .update_candid_as(
+                self.service,
+                actor,
+                "prepare_funding",
+                (intent,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }

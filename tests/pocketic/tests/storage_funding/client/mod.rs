@@ -1,5 +1,6 @@
 //! Real replicated observers, bounded replies and passive inspection after restore.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, funding::FundingHistoryInspection};
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
@@ -52,6 +53,7 @@ fn history(
                 request,
                 max_reply_bytes,
             },),
+            REPLY_LIMITS,
         )
         .unwrap()
 }
@@ -62,7 +64,13 @@ fn outcome(
 ) -> Result<Option<FundingOutcomeResponse>, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(client, f.controller, "fixture_funding_outcome", (request,))
+        .update_candid_as(
+            client,
+            f.controller,
+            "fixture_funding_outcome",
+            (request,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 fn request(f: &Fixture, operation: u128) -> FundingOutcomeRequest {
@@ -202,13 +210,25 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
         let denied: Result<FundingHistoryPage, ConsumerFailure> = f
             .harness
             .pic
-            .update_candid_as(client, f.other, "fixture_funding_history", (input,))
+            .update_candid_as(
+                client,
+                f.other,
+                "fixture_funding_history",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(denied, Err(ConsumerFailure::Denied));
         let query: Result<FundingHistoryPage, ConsumerFailure> = f
             .harness
             .pic
-            .query_candid_as(client, f.controller, "fixture_query_funding", (input,))
+            .query_candid_as(
+                client,
+                f.controller,
+                "fixture_query_funding",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         assert_eq!(query, Err(ConsumerFailure::Transport));
         if authorized {

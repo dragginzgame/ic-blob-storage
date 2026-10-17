@@ -1,5 +1,6 @@
 //! Valid Candid budget failures at the actual standalone dispatch boundaries.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use candid::{
     CandidType, DecoderConfig, Deserialize, IDLArgs, IDLValue,
     types::{
@@ -169,6 +170,7 @@ fn standalone_byte_bounded_dense_manifest_reaches_policy_and_budget_refusals_pre
             f.tenant,
             "blob_admit_upload",
             (manifest.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

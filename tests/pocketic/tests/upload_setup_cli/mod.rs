@@ -1,4 +1,5 @@
 //! Signed local reservation/preparation/cancellation journey for the standalone host.
+use crate::support::REPLY_LIMITS;
 mod inputs;
 mod phases;
 use crate::{
@@ -42,6 +43,7 @@ pub(crate) fn cancelled_totals(
             operator,
             "blob_local_status",
             (scope,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

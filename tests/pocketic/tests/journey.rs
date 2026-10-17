@@ -20,7 +20,7 @@ use ic_testkit::{
 };
 use sha2::{Digest, Sha256};
 use std::fmt::Write;
-use support::{Harness, fixture_path};
+use support::{Harness, REPLY_LIMITS, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -88,13 +88,13 @@ impl Fixture {
     ) -> Result<(), JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(self.service, caller, method, (input,))
+            .update_candid_as(self.service, caller, method, (input,), REPLY_LIMITS)
             .expect("local control reply")
     }
     fn usage(&self, caller: Principal) -> Result<JourneyUsage, JourneyFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, caller, "journey_usage", ())
+            .query_candid_as(self.service, caller, "journey_usage", (), REPLY_LIMITS)
             .expect("usage reply")
     }
     fn reserve(&self, caller: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
@@ -123,6 +123,7 @@ impl Fixture {
                     upload: input,
                     manifest,
                 },),
+                REPLY_LIMITS,
             )
             .expect("admission reply")
     }
@@ -138,6 +139,7 @@ impl Fixture {
                 caller,
                 "journey_progress",
                 (root(input.root),),
+                REPLY_LIMITS,
             )
             .expect("progress reply")
     }
@@ -155,6 +157,7 @@ impl Fixture {
                 caller,
                 "journey_append",
                 (root(input.root), index, bytes.to_vec()),
+                REPLY_LIMITS,
             )
             .expect("verification reply")
     }
@@ -182,6 +185,7 @@ impl Fixture {
                 self.gateway,
                 "journey_complete",
                 (owner, input),
+                REPLY_LIMITS,
             )
             .expect("substituted completion")
     }
@@ -193,7 +197,7 @@ impl Fixture {
     ) -> Result<(), JourneyFailure> {
         self.harness
             .pic
-            .update_candid_as(self.service, caller, method, (root(seed),))
+            .update_candid_as(self.service, caller, method, (root(seed),), REPLY_LIMITS)
             .expect("root control")
     }
     fn pending(&self) -> Vec<Vec<u8>> {
@@ -204,6 +208,7 @@ impl Fixture {
                 self.gateway,
                 "_immutableObjectStorageBlobsToDelete",
                 (),
+                REPLY_LIMITS,
             )
             .expect("binary-root deletion list")
     }
@@ -216,13 +221,20 @@ impl Fixture {
                 self.gateway,
                 "_immutableObjectStorageBlobsAreLive",
                 (roots,),
+                REPLY_LIMITS,
             )
             .expect("liveness batch")
     }
     fn delete(&self, roots: Vec<Vec<u8>>) -> Result<(), u32> {
         self.harness
             .pic
-            .update_candid_as(self.gateway, self.operator, "run_deletion", (roots,))
+            .update_candid_as(
+                self.gateway,
+                self.operator,
+                "run_deletion",
+                (roots,),
+                REPLY_LIMITS,
+            )
             .expect("real inter-canister callback")
     }
 }
@@ -374,7 +386,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     let revoked: bool = f
         .harness
         .pic
-        .update_candid_as(f.service, f.operator, "revoke_gateway", ())
+        .update_candid_as(f.service, f.operator, "revoke_gateway", (), REPLY_LIMITS)
         .expect("revoke");
     assert!(revoked);
     assert_eq!(f.delete(delayed), Err(RejectCode::CanisterError as u32));

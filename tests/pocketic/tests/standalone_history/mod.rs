@@ -1,5 +1,6 @@
 //! Scoped operation recovery through the actual standalone endpoint.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
@@ -18,7 +19,13 @@ impl Fixture {
     ) -> Result<UploadHistoryPage, UploadHistoryFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, UPLOAD_HISTORY_METHOD, (input,))
+            .query_candid_as(
+                self.service,
+                actor,
+                UPLOAD_HISTORY_METHOD,
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn history_request(&self) -> UploadHistoryRequest {
@@ -43,7 +50,13 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     admitted.unwrap();
     let request = f.history_request();
@@ -62,14 +75,26 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let replicated: Result<UploadHistoryPage, UploadHistoryFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, UPLOAD_HISTORY_METHOD, (request,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            UPLOAD_HISTORY_METHOD,
+            (request,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Ok(expected.clone()));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_revoke_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_revoke_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     revoked.unwrap();
     expected.entries[0].state = UploadContentState::Cancelled;
@@ -85,6 +110,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
                 expected: enrollment.enrollment,
                 active: false,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     suspended.unwrap();

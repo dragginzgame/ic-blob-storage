@@ -1,5 +1,6 @@
 //! Many simultaneously live references; cleanup capacity remains reserved.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::release::LifecycleCommand;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
@@ -30,7 +31,13 @@ fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
     let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = f
         .harness
         .pic
-        .query_candid_as(f.service, f.project, "blob_reference_capacity", (input,))
+        .query_candid_as(
+            f.service,
+            f.project,
+            "blob_reference_capacity",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     let response = result.unwrap();
     assert_eq!(response.request, input);

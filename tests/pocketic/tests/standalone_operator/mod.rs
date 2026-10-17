@@ -1,5 +1,6 @@
 //! Actual standalone operator scope, maintained accounting and passive restore inspection.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
@@ -20,7 +21,13 @@ impl Fixture {
     ) -> Result<LocalServiceStatus, LocalStatusFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, LOCAL_STATUS_METHOD, (scope,))
+            .query_candid_as(
+                self.service,
+                actor,
+                LOCAL_STATUS_METHOD,
+                (scope,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -80,7 +87,13 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     let replicated: Result<LocalServiceStatus, LocalStatusFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.operator, LOCAL_STATUS_METHOD, (scope,))
+        .update_candid_as(
+            f.service,
+            f.operator,
+            LOCAL_STATUS_METHOD,
+            (scope,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Ok(initial.clone()));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
@@ -89,7 +102,13 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     admitted.unwrap();
     let occupied = f.local_status(f.operator, scope).unwrap();
@@ -114,7 +133,13 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_revoke_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_revoke_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     revoked.unwrap();
     let mut released = initial;

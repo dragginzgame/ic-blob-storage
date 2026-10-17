@@ -1,5 +1,6 @@
 //! Maintained query shape over a controlled local source, not a deployed Cashier.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::SourceMode;
 use ic_blob_storage::model::gateway::GatewayListError;
 use ic_blob_storage::model::gateway::membership::GatewayMembership;
@@ -111,7 +112,7 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         let configured: bool = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.driver, "configure", (mode,))
+            .update_candid_as(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
             .unwrap();
         assert!(configured);
         let before = f.journals();
@@ -124,7 +125,13 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
     let configured: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "configure", (SourceMode::Valid,))
+        .update_candid_as(
+            f.gateway,
+            f.driver,
+            "configure",
+            (SourceMode::Valid,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert!(configured);
     assert!(query(f.driver).is_ok());
@@ -159,7 +166,7 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
         let configured: bool = f
             .harness
             .pic
-            .update_candid_as(f.gateway, f.driver, "configure", (mode,))
+            .update_candid_as(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
             .unwrap();
         assert!(configured);
         let before = f.journals();

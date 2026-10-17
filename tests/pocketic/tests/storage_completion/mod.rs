@@ -1,5 +1,6 @@
 //! Actual IC rollback/replay/restore for trusted verifier statements (content source substituted).
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
@@ -15,6 +16,7 @@ fn inspect(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestati
             f.tenant,
             "blob_upload_attestation",
             (statement.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap()
@@ -26,7 +28,13 @@ fn attest(
 ) -> Result<UploadAttestationMutation, UploadAttestationFailure> {
     f.harness
         .pic
-        .update_candid_as(f.service, caller, "blob_attest_upload", (statement,))
+        .update_candid_as(
+            f.service,
+            caller,
+            "blob_attest_upload",
+            (statement,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 fn check_write_rollback(f: &Fixture, statement: &UploadAttestationRequest) {
@@ -45,6 +53,7 @@ fn check_write_rollback(f: &Fixture, statement: &UploadAttestationRequest) {
                 f.operator,
                 "attest_with_write_trap",
                 (statement, fault),
+                REPLY_LIMITS,
             );
         assert!(result.is_err());
         assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
@@ -106,6 +115,7 @@ fn verifier_attestation_rolls_back_replays_without_resurrection_and_survives_res
                 reference: statement.permission.upload.first_reference,
                 action: ReferenceAction::Release,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     released.unwrap();

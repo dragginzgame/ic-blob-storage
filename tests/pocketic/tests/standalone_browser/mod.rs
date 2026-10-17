@@ -1,4 +1,5 @@
 //! Full restricted standalone/browser/native journey with a local provider substitute.
+use crate::support::REPLY_LIMITS;
 mod client;
 mod interruption;
 mod multi_user;
@@ -187,6 +188,7 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
             trial.f.tenant,
             "blob_revoke_upload",
             (input.permission,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);

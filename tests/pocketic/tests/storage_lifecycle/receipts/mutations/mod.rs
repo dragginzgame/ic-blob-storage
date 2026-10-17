@@ -1,11 +1,18 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 fn mutate(
     f: &Fixture,
     input: &ReferenceClientInput,
 ) -> Result<ReferenceMutationResponse, ReferenceProbeFailure> {
     f.harness
         .pic
-        .update_candid_as(f.tenant, f.operator, "fixture_mutate_reference", (input,))
+        .update_candid_as(
+            f.tenant,
+            f.operator,
+            "fixture_mutate_reference",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 #[test]
@@ -146,6 +153,7 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
                 actor,
                 REFERENCE_APPLY_METHOD,
                 (selected.request,),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert_eq!(denied, Err(ReferenceFailure::Denied));
@@ -190,6 +198,7 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
             f.operator,
             "fixture_nonreplicated_reference_mutation",
             (selected,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));

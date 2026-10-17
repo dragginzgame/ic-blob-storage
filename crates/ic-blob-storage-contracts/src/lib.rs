@@ -2,7 +2,7 @@
 //! No storage, CDK, lifecycle, provider dispatch or implicit authority is owned here.
 pub mod binding;
 pub mod configuration;
-mod decoding;
+pub mod decoding;
 pub mod download;
 pub mod dto;
 pub mod endpoints;

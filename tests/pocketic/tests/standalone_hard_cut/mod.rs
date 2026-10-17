@@ -1,5 +1,6 @@
 //! Actual old allocation bytes must refuse upgrade without losing the old owner.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use std::path::PathBuf;
 
@@ -81,6 +82,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
             f.tenant,
             "blob_admit_upload",
             (pending.permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();

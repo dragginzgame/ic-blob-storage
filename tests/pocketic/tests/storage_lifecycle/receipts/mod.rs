@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 mod mutations;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
 fn consumer() -> Fixture {
@@ -24,6 +25,7 @@ fn fetch(
             f.operator,
             "fixture_fetch_reference_receipt",
             (input,),
+            REPLY_LIMITS,
         )
         .unwrap()
 }
@@ -149,6 +151,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
             f.other,
             "fixture_fetch_reference_receipt",
             (selected,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(denied, Err(ReferenceProbeFailure::Denied));
@@ -160,6 +163,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
             f.operator,
             "fixture_nonreplicated_reference_receipt",
             (selected,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));

@@ -1,5 +1,6 @@
 //! Exact historical observation through the production host, including fenced restoration.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
@@ -13,7 +14,13 @@ impl Fixture {
     ) -> Result<UploadStatusResponse, UploadStatusFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, UPLOAD_STATUS_METHOD, (upload,))
+            .query_candid_as(
+                self.service,
+                actor,
+                UPLOAD_STATUS_METHOD,
+                (upload,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
 }
@@ -34,7 +41,13 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     admitted.unwrap();
     let mut expected = UploadStatusResponse {
@@ -52,6 +65,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
             f.tenant,
             UPLOAD_STATUS_METHOD,
             (permission.upload,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -68,6 +82,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
                 expected: enrollment.enrollment,
                 active: false,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     suspended.unwrap();
@@ -76,7 +91,13 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_revoke_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_revoke_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     revoked.unwrap();
     expected.state = UploadState::Cancelled;
@@ -105,7 +126,13 @@ fn standalone_upload_status_rejects_foreign_malformed_and_changed_original_bindi
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_admit_upload", (permission,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_admit_upload",
+            (permission,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     admitted.unwrap();
     let upload = permission.upload;

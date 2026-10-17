@@ -1,5 +1,6 @@
-use super::{Failure, exact_candid};
+use super::Failure;
 use candid::{Principal, decode_one_with_config};
+use ic_blob_storage_contracts::decoding;
 use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
@@ -14,7 +15,7 @@ pub(super) fn decode_small<T: candid::CandidType + for<'de> serde::Deserialize<'
     if bytes.len() > 4096 {
         return Err(too_large);
     }
-    let config = exact_candid::limits(100_000, 0, 128, Some(4096));
+    let config = decoding::limits(100_000, 0, 128, Some(4096));
     decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)
 }
 
@@ -22,7 +23,7 @@ pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceS
     if bytes.len() > 64 * 1024 {
         return Err(Failure::ReplyTooLarge);
     }
-    let config = exact_candid::limits(1_000_000, 1024, 128, None);
+    let config = decoding::limits(1_000_000, 1024, 128, None);
     let response: Result<LocalServiceStatus, LocalStatusFailure> =
         decode_one_with_config(bytes, &config).map_err(|_| Failure::InvalidReply)?;
     let status = response.map_err(|error| match error {

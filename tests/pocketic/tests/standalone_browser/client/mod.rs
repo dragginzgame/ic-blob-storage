@@ -1,6 +1,7 @@
 //! Current native tooling supplies exact files and real signed standalone requests.
 use super::super::*;
 use super::BrowserPreparation;
+use crate::support::REPLY_LIMITS;
 use crate::{
     account_native_cli::OUTSIDER_PEM,
     authenticated_cli::{PEM, run_with_tls_roots},
@@ -388,6 +389,7 @@ impl Trial {
                 self.f.tenant,
                 "blob_apply_reference",
                 (command,),
+                REPLY_LIMITS,
             )
             .unwrap();
         assert!(result.unwrap().receipt.result.is_ok());

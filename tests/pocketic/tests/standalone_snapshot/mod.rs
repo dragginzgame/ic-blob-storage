@@ -1,5 +1,6 @@
 //! Actual snapshot loads bypass lifecycle hooks but cannot regain operational authority.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 
@@ -11,6 +12,7 @@ fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
             f.tenant,
             "blob_admit_upload",
             (permission,),
+            REPLY_LIMITS,
         )
         .unwrap()
         .unwrap();
@@ -36,6 +38,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
             (root.clone(),),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(f.admission(permission).state, UploadState::ExposurePossible);
@@ -44,6 +47,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
         f.tenant,
         "blob_revoke_upload",
         (permission,),
+        REPLY_LIMITS,
     )
     .unwrap()
     .unwrap();
@@ -89,7 +93,8 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
             f.service,
             f.tenant,
             "blob_admit_upload",
-            (permission,)
+            (permission,),
+            REPLY_LIMITS
         )
         .unwrap(),
         Err(UploadAdmissionFailure::Fenced)

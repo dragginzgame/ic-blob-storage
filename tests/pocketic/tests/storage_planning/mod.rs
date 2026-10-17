@@ -1,4 +1,5 @@
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     admission::{ContentLookup, ContentState, input::ReferenceInput},
     storage::{
@@ -29,7 +30,13 @@ impl Fixture {
     ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "blob_upload_capacity", (input,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "blob_upload_capacity",
+                (input,),
+                REPLY_LIMITS,
+            )
             .unwrap()
     }
     fn reference_headroom(
@@ -48,7 +55,13 @@ impl Fixture {
         let result: Result<ReferenceCapacityResponse, ReferenceCapacityFailure> = self
             .harness
             .pic
-            .query_candid_as(self.service, actor, "blob_reference_capacity", (request,))
+            .query_candid_as(
+                self.service,
+                actor,
+                "blob_reference_capacity",
+                (request,),
+                REPLY_LIMITS,
+            )
             .unwrap();
         result.map(|response| {
             assert_eq!(response.request, request);
@@ -63,7 +76,7 @@ impl Fixture {
     ) -> Result<Vec<RootObservation>, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "observe_roots", (input,))
+            .query_candid_as(self.service, actor, "observe_roots", (input,), REPLY_LIMITS)
             .unwrap()
     }
 }

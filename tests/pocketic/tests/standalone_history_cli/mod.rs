@@ -1,6 +1,7 @@
 //! Signed one-page inventory preserves filtered progress and inspection-only restoration.
 use super::*;
 use crate::authenticated_cli::{PEM, run};
+use crate::support::REPLY_LIMITS;
 use ic_agent::{Identity, identity::BasicIdentity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
@@ -79,6 +80,7 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
                 f.tenant,
                 "blob_admit_upload",
                 (permission,),
+                REPLY_LIMITS,
             )
             .unwrap()
             .unwrap();
@@ -90,6 +92,7 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
                     f.tenant,
                     "blob_revoke_upload",
                     (permission,),
+                    REPLY_LIMITS,
                 )
                 .unwrap()
                 .unwrap();

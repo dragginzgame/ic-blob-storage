@@ -1,5 +1,6 @@
 //! Passive funding admission against actual transfer journals, not a payment client.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::preview::{
     FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
 };
@@ -8,7 +9,7 @@ fn args(f: &Fixture, id: u64, amount: u128) -> Vec<String> {
     let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> = f
         .harness
         .pic
-        .query_candid_as(f.sender, f.driver, "operator_status", ())
+        .query_candid_as(f.sender, f.driver, "operator_status", (), REPLY_LIMITS)
         .unwrap();
     let mut args = f.args(
         f.sender,
@@ -240,7 +241,7 @@ fn wrong_binding_denied_callers_and_invalid_amounts_never_change_journals() {
         let result: Result<FundingPreviewView, FundingPreviewFailure> = f
             .harness
             .pic
-            .query_candid_as(f.sender, caller, "preview_funding", (input,))
+            .query_candid_as(f.sender, caller, "preview_funding", (input,), REPLY_LIMITS)
             .unwrap();
         assert_eq!(result, Err(expected));
     }
@@ -335,6 +336,7 @@ fn preview_reports_the_same_amount_bound_enforced_before_update_admission() {
                 reply: FundingReplyMode::Success,
                 trap_callback: true,
             },),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(result, Err(FundingFailure::Limit));

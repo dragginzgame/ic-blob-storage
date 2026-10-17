@@ -12,7 +12,6 @@ use ic_blob_storage::ic_memory::MemoryManagerConfig;
 use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
-use ic_blob_storage::ic_memory::SchemaMetadata;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
 use ic_blob_storage::ic_memory::ic_stable_structures::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::ic_stable_structures::Memory;
@@ -59,7 +58,7 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
     candid::decode_one_with_config(&bytes, &config()).expect("consumer ingress")
 }
 pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
-    let request = MemoryRequest::new("fixture", KEY, SchemaMetadata::default()).unwrap();
+    let request = MemoryRequest::new("fixture", KEY).unwrap();
     let pool = MemoryAllocationPool::new(
         vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
         vec![],

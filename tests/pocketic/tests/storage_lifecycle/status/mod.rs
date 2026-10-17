@@ -1,5 +1,6 @@
 //! The shared query distinguishes current reference state from retained mutation receipts.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::reference::{ReferenceProbeFailure, ReferenceStatusClientInput};
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
@@ -18,7 +19,13 @@ fn inspect(
 ) -> Result<ReferenceStatusResponse, ReferenceFailure> {
     f.harness
         .pic
-        .query_candid_as(f.service, actor, "blob_reference_status", (request,))
+        .query_candid_as(
+            f.service,
+            actor,
+            "blob_reference_status",
+            (request,),
+            REPLY_LIMITS,
+        )
         .unwrap()
 }
 #[test]
@@ -75,7 +82,13 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
     let replicated: Result<ReferenceStatusResponse, ReferenceFailure> = f
         .harness
         .pic
-        .update_candid_as(f.service, f.tenant, "blob_reference_status", (query,))
+        .update_candid_as(
+            f.service,
+            f.tenant,
+            "blob_reference_status",
+            (query,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(replicated, Ok(retired));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
@@ -121,7 +134,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         max_reply_bytes: 4096,
     };
     let fetch = |input: ReferenceStatusClientInput| -> Result<ReferenceStatusResponse, ReferenceProbeFailure> {
-        f.harness.pic.update_candid_as(client, f.operator, "fixture_fetch_reference_status", (input,)).unwrap()
+        f.harness.pic.update_candid_as(client, f.operator, "fixture_fetch_reference_status", (input,), REPLY_LIMITS).unwrap()
     };
     let before = f.harness.pic.get_stable_memory(f.service);
     let client_before = f.harness.pic.get_stable_memory(client);
@@ -176,13 +189,20 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
             f.operator,
             "fixture_nonreplicated_reference_status",
             (input,),
+            REPLY_LIMITS,
         )
         .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));
     let denied: Result<ReferenceStatusResponse, ReferenceProbeFailure> = f
         .harness
         .pic
-        .update_candid_as(client, f.other, "fixture_fetch_reference_status", (input,))
+        .update_candid_as(
+            client,
+            f.other,
+            "fixture_fetch_reference_status",
+            (input,),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert_eq!(denied, Err(ReferenceProbeFailure::Denied));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);

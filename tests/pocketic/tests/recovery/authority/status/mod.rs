@@ -1,5 +1,6 @@
 //! Execute diagnostics as actual queries, including while calls are outstanding.
 use super::*;
+use crate::support::REPLY_LIMITS;
 use blob_test_protocol::status::{
     CatalogStatusView, OperatorBlockerView as Blocker, OperatorStatusView,
     OperatorWarningView as Warning,
@@ -9,7 +10,7 @@ impl Fixture {
     fn status(&self, actor: Principal) -> Option<OperatorStatusView> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "operator_status", ())
+            .query_candid_as(self.service, actor, "operator_status", (), REPLY_LIMITS)
             .expect("read-only operator query")
     }
 
@@ -235,7 +236,13 @@ fn pending_sync_and_invalidated_reads_remain_visible_without_diagnostic_retry() 
     let revoked: bool = f
         .harness
         .pic
-        .update_candid_as(f.service, f.authority_operator, "revoke_gateway", ())
+        .update_candid_as(
+            f.service,
+            f.authority_operator,
+            "revoke_gateway",
+            (),
+            REPLY_LIMITS,
+        )
         .unwrap();
     assert!(revoked);
     let no_gateway = f.status_unchanged();
