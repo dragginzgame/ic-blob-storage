@@ -25,7 +25,7 @@ admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canoni
 committed source; include every directly used helper as an entrypoint. Never patch
 vendored bytes or use mutable sibling tools. See
 [Shared snapshot adoption](consuming-snapshots.md) and
-[the latest qualified adoption](evidence/cleanup0280.md).
+[the latest qualified adoption](evidence/shared023-host0270321.md).
 
 Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
 binary. Release preparation uses Shared’s literal manifest renderer; no separate

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared companions: make/consumer.mk scripts/ci/check-make-execution.sh scripts/ci/verify-file-checksum.sh .githooks/pre-commit scripts/ci/check-pipe-jobserver.pl
+# Shared companions: scripts/ci/prepare-script-fixture.sh make/consumer.mk scripts/ci/check-make-execution.sh scripts/ci/verify-file-checksum.sh .githooks/pre-commit scripts/ci/check-pipe-jobserver.pl
 set -euo pipefail
 unset MAKEFLAGS MFLAGS MAKEOVERRIDES GNUMAKEFLAGS MAKEFILES
 root="${BASH_SOURCE[0]}"
@@ -21,10 +21,8 @@ snapshot="$consumer/vendor/shared"
 mkdir -p "$snapshot/make" "$snapshot/scripts/ci" "$snapshot/scripts/dev" \
     "$consumer/ci" "$snapshot/ci" "$consumer/scripts/ci" "$consumer/.githooks" \
     "$consumer/.tools/rust/common/bin"
-for file in consumer tools release rust-format execution; do
-    cp "$root/make/$file.mk" "$snapshot/make/"
-done
-for file in check-make-execution check-format-tools run-formatting verify-shared-tooling-snapshot; do
+bash "$root/scripts/ci/prepare-script-fixture.sh" "$root" "$snapshot" make/consumer.mk
+for file in check-format-tools verify-shared-tooling-snapshot; do
     cp "$root/scripts/ci/$file.sh" "$snapshot/scripts/ci/"
 done
 cp "$root/scripts/dev/install-git-hooks.sh" "$snapshot/scripts/dev/"

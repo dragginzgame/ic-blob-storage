@@ -2,6 +2,26 @@
 
 Date: 2026-10-17
 
+## Shared 0.23 / Host 0.27 adopted — pending 0.32.1
+
+Released 0.32.0 is tagged and pushed at `d76c5f2`; its full release gate passed.
+This later working batch adopts Shared 0.23.0 at `0b351cd2` (136 payloads), native
+Host 0.27.1 and contributor Build 0.16.0, preserving the incoming Cargo edits.
+Blob explicitly retains IC/Testkit setup after the common host/Rust set; reviewed
+ICP CLI now selects 1.7.0. The imported published-example qualification owns Linux
+and native macOS workflow coverage and also triggers on snapshot updates.
+
+[The adoption receipt](../evidence/shared023-host0270321.md) records passing setup,
+offline admission, adapter/lint/hook checks, the isolated release matrix, actual
+Rust 1.91, strict Clippy, all 126 CLI/probe cases, real archive regressions and two
+fresh standalone carrier/interface cases. Frozen published-example installation
+also passes on Linux. A Metrics 0.13.4 lock update arrived during checking; its
+Rust source matches 0.13.3 and final compiled/archive/release checks pass after the
+checkpoint restart. Testkit retains its internal Host 0.26 family. No Rust callers,
+public contracts, durable schemas, MSRV or own package versions change. Full CI
+and native macOS remain separate. No commit, push, release or sibling edit ran
+for this adoption; the real index/HEAD remain at released 0.32.0.
+
 ## Incoming Host patch selection — 0.32.0
 
 The third minor-release gate passed hook behavior but stopped at its input guard:

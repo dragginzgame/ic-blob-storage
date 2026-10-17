@@ -15,11 +15,11 @@ lockfiles; this repository's qualification does not cover every future resolutio
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
 | IC Memory | 0.48.0 | Public host runtime and exclusive allocation leases; backing custody stays with the host |
-| IC Metrics (direct) | 0.12.0 | Private storage probe measurements; Testkit retains its own transitive selection |
+| IC Metrics (direct) | 0.13.4 | Private storage probe measurements; Testkit retains its own transitive selection |
 | IC Testkit | 0.52.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
 | IC Testkit Candid | 0.52.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
-| IC Host artifacts/fs/process/tools (direct) | 0.26.2 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.12.1 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
+| IC Host artifacts/fs/process/tools (direct) | 0.27.1 | Native artifacts, filesystem and test/tool boundaries |
+| IC Build | 0.16.0 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
 
 Memory 0.48 changes the protected allocation-ledger format. Earlier installations
@@ -58,14 +58,14 @@ before ordinary offline tool gates. Scoped installed evidence may use an explici
 server binary with caller-owned byte admission; that does not qualify the missing
 lock-selected CLI installation.
 
-The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.15.1 at
-`4f3eec42f52d4ec308bb68ab2daa3e5266b3175a`, with 131 payloads. Common installation,
-checks, hooks and formatting use `make/consumer.mk`; product targets and Testkit
-extensions stay local. The canonical Rust-tool fixture runs directly from this
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.23.0 at
+`0b351cd2ba2bcd8927b783a5fec89afc8013f708`, with 136 payloads. Common installation,
+checks, hooks and formatting use `make/consumer.mk`; product targets, explicit IC tools and Testkit
+extensions stay local. ICP CLI now selects 1.7.0; other executable pins are unchanged. The canonical Rust-tool fixture runs directly from this
 consumer. Generic formatter-prerequisite and digest backend matrices run at
 Shared; Blob retains real hook rollback, selected-tool admission and archive
 checks. Their unused snapshot entrypoints are retired through the exporter. Snapshot adoption does not automatically adopt Shared's CI cache policy.
-The [current adoption receipt](evidence/cleanup0280.md) records the selected
+The [current adoption receipt](evidence/shared023-host0270321.md) records the selected
 source, required local adapters and published Host qualification.
 The [0.23.3 cleanup/adoption evidence](evidence/next-three0233.md) records its original
 graph; [client/reply cleanup qualification](evidence/fourth-cleanup0233.md) records
@@ -83,7 +83,8 @@ Earlier dependency reviews remain in their existing evidence records and the
 [frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
 those graphs are not current setup instructions.
 
-IC Build 0.12.0 and direct Host now share process 0.24.0. The optional archive
+IC Build 0.16.0 and direct Host now share process 0.27.1. Testkit 0.52 retains
+its internal Host 0.26 family; Blob does not pass values across those identities. The optional archive
 verifier and native HTTP tests use the single `ic-host-process` dependency name;
 `package-verification` activates its normal dependency, while HTTP test-support
 remains development-only. The former separate Build-family alias is removed:

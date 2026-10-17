@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.32.1]
+
+- Adopt Shared Tooling 0.23.0 and native Host 0.27.1 with matching IC Build 0.16.
+  Keep IC tool setup/checks explicit after the common host/Rust tools, and select
+  the reviewed ICP CLI 1.7.0 catalog. Public service/storage contracts are unchanged.
+- Own frozen published-example installation qualification in Linux and native
+  macOS workflows, including rejection and retained-evidence checks
+  ([#80 — Own frozen published-example installation qualification](https://github.com/dragginzgame/ic-blob-storage/pull/80)).
+
 ## [0.32.0] - 2026-10-17
 
 - Exercise refused backing growth through an independently leased probe allocation,

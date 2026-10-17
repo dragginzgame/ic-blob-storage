@@ -1,0 +1,61 @@
+name: Published example installation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/published-example-install.yml'
+      - '.shared-tooling.snapshot'
+      - 'scripts/ci/qualify-published-example-install.sh'
+      - 'scripts/ci/test-published-example-install.sh'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/published-example-install.yml'
+      - '.shared-tooling.snapshot'
+      - 'scripts/ci/qualify-published-example-install.sh'
+      - 'scripts/ci/test-published-example-install.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  published-example:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - name: Prepare the assessment compiler and host tools
+        run: |
+          rustup toolchain install 1.99.0 --profile minimal
+          make --no-print-directory install-host-tools host-tools-check
+          echo "$GITHUB_WORKSPACE/.tools/host/bin" >> "$GITHUB_PATH"
+      - name: Check adapter rejection and retained evidence
+        run: bash scripts/ci/test-published-example-install.sh
+      - name: Qualify the frozen published example through Cargo and the shared installer
+        run: |
+          mkdir -p "$RUNNER_TEMP/portable-fixtures"
+          bash scripts/ci/qualify-published-example-install.sh "$RUNNER_TEMP/portable-fixtures/published-example" \
+            2>&1 | tee "$RUNNER_TEMP/published-example-install.log"
+      - name: Retain assessment evidence
+        if: always()
+        uses: ./.github/actions/retain-failure-evidence
+        with:
+          name: published-example-${{ matrix.os }}-${{ github.run_attempt }}
+          temp-root: ${{ runner.temp }}
+          repository-root: ${{ github.workspace }}
+          compact-successful-tools: 'true'

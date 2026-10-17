@@ -3,9 +3,10 @@ SHELL := /bin/bash
 
 # Keep all builds in this repository, including calls from another workspace.
 export CARGO_TARGET_DIR := $(CURDIR)/target
-LOCAL_TOOL_INSTALL_TARGETS := install-testkit
-LOCAL_TOOL_CHECK_TARGETS := testkit-check
+LOCAL_TOOL_INSTALL_TARGETS := install-ic-tools install-testkit
+LOCAL_TOOL_CHECK_TARGETS := ic-tools-check testkit-check
 override SHARED_TOOLING_ROOT := $(CURDIR)
+export PATH := $(CURDIR)/.tools/ic/bin:$(PATH)
 include make/consumer.mk
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm

@@ -64,9 +64,10 @@ the offline checkers never download missing tools. The reviewed snapshot owns th
 no independent common-tool catalog. Explicit host, Rust and IC exceptions are
 independent selections, and host overrides do not implicitly select Rust pins.
 The shared aggregate runs
-host, IC and Cargo setup/check stages in order, stopping on the first failure,
-including under parallel Make. Shared's reviewed 0.4.0 changes retain read-only
-IC/platform and Rust/Cargo preflight before common installation. Common Rust
+common host and Cargo setup/checks, then Blob's selected IC and Testkit stages,
+stopping on the first failure including under parallel Make. Shared 0.23 retains
+Rust/Cargo preflight before common installation; the selected IC installer owns
+its platform admission before effects. Common Rust
 tools use the canonical Cargo build/store owner, receipt and byte admission;
 the complete set is activated atomically through `common`. Explicit
 `make install-rust-tools` prepares the current layout without converting or
@@ -83,8 +84,8 @@ artifacts or select mutable sibling tools. See
 [shared executable storage](../local-setup.md#shared-executable-storage).
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
-`LOCAL_TOOL_CHECK_TARGETS` with the existing `install-testkit` and `testkit-check`
-owner targets after the common set. Primitive Testkit targets do only their
+`LOCAL_TOOL_CHECK_TARGETS` with `install-ic-tools`/`ic-tools-check` followed by
+`install-testkit`/`testkit-check` after the common set. Primitive Testkit targets do only their
 named operation; CI uses the same complete aggregate. `make install-testkit`
 provisions the lock-selected CLI/server; `make testkit-check` authenticates it
 offline. Tool installation may compile and use the

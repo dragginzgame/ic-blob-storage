@@ -148,15 +148,13 @@ for target in install-tools tools-check; do
     make --no-print-directory -j4 -C "$consumer" "$target" > "$fixture/$target.log" 2>&1
     offset=0
     if [[ "$target" == install-tools ]]; then
-        offset=2
-        [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == preflight-ic ]] || exit 1
-        [[ "$(sed -n '2p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]] || exit 1
+        offset=1
+        [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]] || exit 1
     fi
     [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((5 + offset)) ]] || exit 1
-    printf 'common-host\ncommon-ic\n' > "$fixture/common-expected"
-    sed -n "$((offset + 1)),$((offset + 2))p" "$TESTKIT_COMMAND_LOG" > "$fixture/common-actual"
-    cmp "$fixture/common-expected" "$fixture/common-actual"
-    [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]] || exit 1
+    [[ "$(sed -n "$((offset + 1))p" "$TESTKIT_COMMAND_LOG")" == common-host ]] || exit 1
+    [[ "$(sed -n "$((offset + 2))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]] || exit 1
+    [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == common-ic ]] || exit 1
     [[ "$(sed -n "$((offset + 4))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]] || exit 1
     [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]] || exit 1
     if [[ "$action" == check ]]; then
@@ -166,8 +164,8 @@ for target in install-tools tools-check; do
     admitted_targets=("$target")
     [[ "$target" != tools-check ]] || admitted_targets[1]=test-native-host
     count=0
-    failures=(common-host common-ic common-rust install "$action")
-    [[ "$target" != install-tools ]] || failures=(preflight-ic preflight-rust "${failures[@]}")
+    failures=(common-host common-rust common-ic install "$action")
+    [[ "$target" != install-tools ]] || failures=(preflight-rust "${failures[@]}")
     for failure in "${failures[@]}"; do
         count=$((count + 1))
         for admitted_target in "${admitted_targets[@]}"; do
