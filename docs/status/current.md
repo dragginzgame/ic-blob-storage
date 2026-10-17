@@ -2,6 +2,17 @@
 
 Date: 2026-10-17
 
+## Growth refusal probe repaired — 0.32.0
+
+The second minor-release attempt passed all standalone cases and reached one
+storage failure: the growth probe reopened the permissions allocation while its
+collection still owned the exclusive lease. It now grows the independent neighbor
+allocation through a temporary lease. The installed test requires the intentional
+backing-refusal trap, then checks exact stable rollback, successful retry and
+fenced upgrade. Fresh storage Wasm and that exact case pass. Source repair and
+prior failures remain at `.tmp/review-validation/release0320/`; dependency inputs
+are unchanged. A fresh full release gate follows the committed repair.
+
 ## Publication certificate fixture repaired — 0.32.0
 
 The first requested minor-release attempt passed compilation/lint and failed two

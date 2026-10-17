@@ -2,6 +2,8 @@
 
 ## [0.32.0]
 
+- Exercise refused backing growth through an independently leased probe allocation,
+  preserving application rollback, neighbor bytes and exact retry coverage.
 - Repair publication map/session fixtures to use the provider certificate
   endpoint's required Candid encoding, preserving Blob-owned packet codecs.
 - Update the shared PocketIC harness for Testkit 0.52 startup configuration,

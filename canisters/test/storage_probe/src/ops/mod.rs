@@ -333,11 +333,13 @@ pub(crate) fn admit_with_growth(
     // physical backing reservation through the maintained runtime growth API.
     let result = admit(context, input.permission, None)?;
     STATE.with_borrow(|state| {
+        // The neighbor has no collection holding its lease. Exercise real backing
+        // growth without reopening an upload store's exclusively owned memory.
         let memory = state
             .as_ref()
             .unwrap()
             .runtime
-            .open_memory("fixture.permissions.v1")
+            .open_memory("neighbor.data.v1")
             .unwrap();
         let before = memory.size();
         REFUSE_GROWTH.set(input.refuse);

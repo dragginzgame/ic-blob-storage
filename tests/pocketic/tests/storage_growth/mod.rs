@@ -27,6 +27,12 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert!(
+        error
+            .reject_message
+            .contains("fixture backing growth refused"),
+        "expected actual backing refusal: {error:?}"
+    );
     // Includes the populated independent neighbor and all manager/ledger metadata.
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     assert_eq!(f.local_status(), status);
