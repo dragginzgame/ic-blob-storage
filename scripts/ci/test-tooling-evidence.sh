@@ -49,7 +49,7 @@ mkdir -p "$repository/.tools/host-set.failed/.git" "$repository/.tools/ic-set.fa
     "$repository/.tools/testkit-server/failed-candidate" "$repository/target/release-tests.failed" \
     "$temporary/file-digests.failed/.git" "$temporary/host-tools-test.failed/Linux:x86_64" \
     "$temporary/blob-validation-logging.failed" "$temporary/evidence-archive.failed" \
-    "$temporary/tool-evidence-test.failed" "$temporary/unrelated"
+    "$temporary/tool-evidence-test.failed" "$temporary/blob-release-tests.failed" "$temporary/unrelated"
 printf 'candidate_status=23\n' > "$repository/.tools/host-set.failed/.hidden"
 printf 'not uploaded\n' > "$repository/.tools/host-set.failed/.git/config"
 printf 'ic candidate\n' > "$repository/.tools/ic-set.failed/payload"
@@ -59,6 +59,7 @@ mkdir -p "$repository/.tools/rust/common-tool-slot/installed"
 printf 'common Cargo selection\n' > "$repository/.tools/rust/common-tool-slot/installed/selection.json"
 printf 'original server download failure\n' > "$repository/.tools/testkit-server/failed-candidate/download.stderr"
 printf 'original_status=9\n' > "$repository/target/release-tests.failed/outcome"
+printf 'original_status=17\n' > "$temporary/blob-release-tests.failed/outcome"
 printf 'portable bytes\n' > "$temporary/file-digests.failed/"$'line\nbreak:payload'
 chmod 640 "$temporary/file-digests.failed/"$'line\nbreak:payload'
 printf '#!/bin/sh\nexit 23\n' > "$temporary/host-tools-test.failed/Linux:x86_64/executable"
@@ -114,7 +115,7 @@ cmp "$shared_candidate/download.stderr" "$fixture/unpacked/$shared_relative/down
 for path in $'file-digests.failed/line\nbreak:payload' \
     host-tools-test.failed/Linux:x86_64/executable nonempty-cargo-test.failed.log formatting.failed \
     blob-validation-logging.failed/status evidence-archive.failed/outcome \
-    tool-evidence-test.failed/outcome; do
+    tool-evidence-test.failed/outcome blob-release-tests.failed/outcome; do
     cmp "$temporary/$path" "$fixture/unpacked/$path"
 done
 [[ "$(perl -e 'printf "%o", (stat($ARGV[0]))[2] & 0777' \

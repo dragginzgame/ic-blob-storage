@@ -46,9 +46,11 @@ make release-patch # Select the increment from the complete pending batch.
 # For another batch, select patch/minor/major from its complete compatibility.
 ```
 
-All three invoke the same pinned runner. This repository explicitly selects
-`RELEASE_DELIVERY=direct`; a different command-line or inherited selection refuses
-before entering the runner, validation or metadata preparation. The shared PR
+All three invoke the same pinned runner. This repository's
+`ci/release-delivery-policy.txt` admits only `RELEASE_DELIVERY=direct`. The shared
+checker enforces the same file at Make's standard release-command/metadata-hook
+boundary and in standalone metadata commands; unsupported or explicitly empty
+selections refuse before effects. The shared PR
 helper is included with the baseline, but Blob has not adopted merged-source
 receipt adapters. Default destination inputs are `RELEASE_REMOTE=origin`
 and `RELEASE_BRANCH=main`; an explicit override is saved with the exact push URL.

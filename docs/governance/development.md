@@ -169,13 +169,14 @@ the approved layout. It retains one actual-consumer
 mutating-formatter rollback and lock-preservation check. Shared Tooling owns the
 generic Make-mode and failed-tree-observation matrices for the identical hook.
 `make release-commands-check` copies the
-reviewed Makefile, explicit parse-time inputs and the direct-delivery admission
-adapter into a private fixture,
+reviewed Makefile, explicit parse-time inputs and the direct-delivery policy
+file/checker into a private fixture,
 then uses a substitute runner. `make release-check` includes that shared routing
 check and retains the repository's metadata, publication and recovery fixtures.
 The reviewed `make/consumer.mk` includes the existing component owners once.
 Its `make/release.mk` owns standard entrypoint recipes and conflicting
-goals; Blob attaches direct-delivery admission to all four entrypoints. The
+goals and delivery admission; Blob selects the same direct-only policy file for
+Make and standalone metadata commands. The
 reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
 check. Its `scripts/ci/run-formatting.sh` companion reports one success line or
 a failing status and complete retained log. All isolated Make/hook/release fixtures
@@ -188,6 +189,11 @@ the release-command checker binds its tooling root to the disposable checkout.
 The common entrypoint's routing fixture runs in `make shared-tooling-tests`.
 Actual hook, release and parallel Testkit fixtures export `make/consumer.mk`
 with all parsed companions; none may fall back to the real checkout's adapters.
+Release and Testkit fixtures use `prepare-script-fixture.sh` for explicit roots
+and their declared companion closure, then install their product-specific
+substitutes. Release fixtures live outside the checkout under
+`${TMPDIR:-/tmp}/blob-release-tests.*`; failed fixtures remain there and the
+tooling evidence collector includes that prefix.
 The [snapshot adoption record](../evidence/shared01500270.md) qualifies the
 current direct-delivery adapter and changed shared helpers. The
 [fixture ownership map](../evidence/release-fixture-ownership.md) records

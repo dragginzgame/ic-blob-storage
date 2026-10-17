@@ -1,8 +1,9 @@
 //! Bounded private process control; messages confer no service or retry authority.
 use crate::native::Failure;
+use ic_host_process::framing::{FrameReadError, read_line};
 use serde::{Deserialize, Serialize};
 use std::{
-    io::{BufRead, BufReader, Read, Write},
+    io::{BufRead, BufReader, Write},
     path::PathBuf,
 };
 use tokio::sync::mpsc;
@@ -59,17 +60,10 @@ pub(super) enum Frame {
 }
 
 fn read_frame(reader: &mut impl BufRead) -> Result<Frame, Failure> {
-    let mut bytes = Vec::new();
-    reader
-        .take(MAX_FRAME_BYTES + 1)
-        .read_until(b'\n', &mut bytes)
-        .map_err(|_| Failure::Transport)?;
-    if bytes.is_empty() {
-        return Err(Failure::Transport);
-    }
-    if bytes.len() as u64 > MAX_FRAME_BYTES || !bytes.ends_with(b"\n") {
-        return Err(Failure::ReplyLimit);
-    }
+    let bytes = read_line(reader, MAX_FRAME_BYTES).map_err(|error| match error {
+        FrameReadError::EndOfStream | FrameReadError::Io(_) => Failure::Transport,
+        FrameReadError::TooLarge(_) | FrameReadError::Unterminated(_) => Failure::ReplyLimit,
+    })?;
     serde_json::from_slice(&bytes).map_err(|_| Failure::Arguments)
 }
 

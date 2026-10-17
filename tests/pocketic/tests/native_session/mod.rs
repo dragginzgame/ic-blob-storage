@@ -2,7 +2,7 @@
 use ic_host_process::child::OwnedChild;
 use serde_json::Value;
 use std::{
-    io::{BufRead, BufReader, Read, Write},
+    io::{BufReader, Write},
     process::{ChildStdin, ChildStdout, Stdio},
     time::{Duration, Instant},
 };
@@ -42,15 +42,8 @@ impl NativeSession {
         writer.flush().unwrap();
     }
     pub(crate) fn read(&mut self) -> Value {
-        let mut bytes = Vec::new();
-        (&mut self.reader)
-            .take(1024 * 1024 + 1)
-            .read_until(b'\n', &mut bytes)
-            .unwrap();
-        assert!(
-            bytes.len() <= 1024 * 1024 && bytes.ends_with(b"\n"),
-            "bounded complete session response"
-        );
+        let bytes = ic_host_process::framing::read_line(&mut self.reader, 1024 * 1024)
+            .expect("bounded complete session response");
         serde_json::from_slice(&bytes).unwrap()
     }
     /// Wait without closing stdin: the session's deadline must end an idle read.

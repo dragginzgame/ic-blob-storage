@@ -1,7 +1,7 @@
 //! Shared bounded control channel and process ownership for opt-in Chromium cases.
 use ic_host_process::child::OwnedChild;
 use std::{
-    io::{BufRead, BufReader, Read, Write},
+    io::{BufReader, Write},
     path::PathBuf,
     process::{ChildStdin, ChildStdout, Command, Output, Stdio},
 };
@@ -56,21 +56,15 @@ impl BrowserDriver {
         writer.flush().unwrap();
     }
     pub(crate) fn read<T: serde::de::DeserializeOwned>(&mut self, limit: u64) -> T {
-        let mut line = Vec::new();
-        self.reader
-            .as_mut()
-            .unwrap()
-            .take(limit + 1)
-            .read_until(b'\n', &mut line)
-            .unwrap();
-        if line.len() as u64 > limit || !line.ends_with(b"\n") {
-            let output = self.output(true);
-            panic!(
-                "invalid bounded browser control: {}\n{}",
-                String::from_utf8_lossy(&line),
-                String::from_utf8_lossy(&output.stderr)
-            );
-        }
+        let line = ic_host_process::framing::read_line(self.reader.as_mut().unwrap(), limit)
+            .unwrap_or_else(|error| {
+                let output = self.output(true);
+                panic!(
+                    "invalid bounded browser control: {error}: {}\n{}",
+                    String::from_utf8_lossy(error.rejected_bytes().unwrap_or_default()),
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            });
         serde_json::from_slice(&line).unwrap()
     }
     pub(crate) fn finish(mut self) -> serde_json::Value {

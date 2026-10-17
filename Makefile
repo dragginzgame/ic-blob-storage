@@ -6,6 +6,7 @@ export CARGO_TARGET_DIR := $(CURDIR)/target
 LOCAL_TOOL_INSTALL_TARGETS := install-ic-tools install-testkit
 LOCAL_TOOL_CHECK_TARGETS := ic-tools-check testkit-check
 override SHARED_TOOLING_ROOT := $(CURDIR)
+override RELEASE_DELIVERY_POLICY := ci/release-delivery-policy.txt
 export PATH := $(CURDIR)/.tools/ic/bin:$(PATH)
 include make/consumer.mk
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
@@ -28,14 +29,14 @@ export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
 CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test test-wasm-opt wasm-check package
-CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv \
+CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package package-verifier clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
-	release-plan ensure-clean release-delivery-check \
+	release-plan ensure-clean \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
@@ -134,7 +135,7 @@ documentation-links-check:
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release.sh scripts/release/release-data.pl make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl ci/release-delivery-policy.txt make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/check-release-delivery.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh
 
 dependency-pins-check:
 	+@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \
@@ -361,11 +362,6 @@ release-plan:
 
 ensure-clean:
 	@$(RELEASE) ensure-clean
-
-release-delivery-check:
-	@$(RELEASE) delivery-check
-
-release-patch release-minor release-major release-resume: release-delivery-check
 
 release-version:
 	@$(RELEASE) version

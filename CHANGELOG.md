@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.32.2]
+
+- Reuse Host's bounded process framing for publication control and native/browser
+  test drivers, preserving JSON validation, byte limits and process ownership.
+- Share direct-release admission between Make and standalone metadata commands
+  through Shared Tooling's validator and one local policy file.
+- Prepare release and Testkit fixtures from declared shared dependencies instead
+  of hand-maintained copy lists; retain external release-fixture failures in
+  tooling evidence archives.
+
 ## [0.32.1] - 2026-10-17
 
 - Adopt Shared Tooling 0.23.0 and native Host 0.27.1 with matching IC Build 0.16.

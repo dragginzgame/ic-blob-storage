@@ -11,8 +11,8 @@ TEST_REAL_GIT="$(command -v git)"
 TEST_REAL_PERL="$(command -v perl)"
 TEST_REAL_AWK="$(command -v awk)"
 export TEST_REAL_MAKE TEST_REAL_GIT TEST_REAL_PERL TEST_REAL_AWK
-mkdir -p "$ROOT/target"
-TEMPORARY="$(mktemp -d "$ROOT/target/release-tests.XXXXXX")"
+TEMPORARY="$(mktemp -d "${TMPDIR:-/tmp}/blob-release-tests.XXXXXX")"
+TEMPORARY="$(cd -P "$TEMPORARY" && pwd -P)"
 mkdir "$TEMPORARY/bin"
 CASE_NAME=setup
 CASE_LOG=/dev/null
@@ -49,22 +49,9 @@ run_case() {
 }
 create_fixture() {
     mkdir -p "$FIXTURE/scripts/release" "$FIXTURE/scripts/ci" "$FIXTURE/scripts/dev" "$FIXTURE/ci" "$FIXTURE/docs" "$FIXTURE/make" "$FIXTURE/target/debug"
-    cp "$ROOT/scripts/release/release.sh" "$ROOT/scripts/release/release-data.pl" "$FIXTURE/scripts/release/"
-    cp "$ROOT/scripts/ci/run-release.sh" "$ROOT/scripts/ci/next-release-version.sh" \
-        "$ROOT/scripts/ci/run-validation-targets.sh" "$ROOT/scripts/ci/check-release-tag.sh" \
-        "$ROOT/scripts/ci/rewrite-local-lock-versions.pl" \
-        "$ROOT/scripts/ci/cargo-release-metadata.sh" "$ROOT/scripts/ci/read-cargo-workspace-version.sh" \
-        "$ROOT/scripts/ci/cargo-workspace-members.jq" "$ROOT/scripts/ci/compare-stable-versions.pl" \
-        "$ROOT/scripts/ci/render-cargo-workspace-version.pl" "$ROOT/scripts/ci/StableVersion.pm" "$ROOT/scripts/ci/validate-release-inputs.pl" \
-        "$ROOT/scripts/ci/check-make-execution.sh" \
-        "$ROOT/scripts/ci/verify-file-checksum.sh" \
-        "$ROOT/scripts/ci/check-release-source.sh" \
-        "$ROOT/scripts/ci/check-crates-io-version.sh" \
-        "$ROOT/scripts/ci/finalize-release-changelog.awk" \
-        "$ROOT/scripts/ci/check-format-tools.sh" "$ROOT/scripts/ci/run-formatting.sh" "$FIXTURE/scripts/ci/"
-    cp "$ROOT/ci/tool-versions.env" "$FIXTURE/ci/"
-    cp "$ROOT/Makefile" "$FIXTURE/Makefile"
-    cp "$ROOT/make/consumer.mk" "$ROOT/make/tools.mk" "$ROOT/make/release.mk" "$ROOT/make/rust-format.mk" "$ROOT/make/execution.mk" "$FIXTURE/make/"
+    bash "$ROOT/scripts/ci/prepare-script-fixture.sh" "$ROOT" "$FIXTURE" \
+        Makefile make/consumer.mk scripts/release/release.sh \
+        scripts/ci/run-validation-targets.sh ci/tool-versions.env
     cd "$FIXTURE"
     cat >> Makefile <<'MAKE'
 CI_TARGETS := fixture-verify
@@ -532,8 +519,10 @@ test_directory_admission() {
         cr) invalid="$regular"$'\r' ;;
     esac
     for path in "$regular" "$invalid"; do
-        mkdir -p "$path/scripts/release"
+        mkdir -p "$path/scripts/release" "$path/scripts/ci" "$path/ci"
         cp scripts/release/release.sh scripts/release/release-data.pl "$path/scripts/release/"
+        cp scripts/ci/check-release-delivery.sh "$path/scripts/ci/"
+        cp ci/release-delivery-policy.txt "$path/ci/"
     done
     printf '[workspace]\n[workspace.package]\nversion = "1.2.3"\n' > "$regular/Cargo.toml"
     printf '[workspace]\n[workspace.package]\nversion = "9.9.9"\n' > "$invalid/Cargo.toml"
@@ -1017,18 +1006,29 @@ test_delivery_refusal() {
     # boundary, before the shared runner or any metadata/effect adapter runs.
     if [[ "$selection" == inherited ]]; then
         expect_failure env RELEASE_DELIVERY=pr "$TEST_REAL_MAKE" --no-print-directory "$target" VERSION=0.1.1
+    elif [[ "$selection" == policy-override ]]; then
+        expect_failure "$TEST_REAL_MAKE" --no-print-directory "$target" VERSION=0.1.1 RELEASE_DELIVERY=pr RELEASE_DELIVERY_POLICY=
     else
         expect_failure "$TEST_REAL_MAKE" --no-print-directory "$target" VERSION=0.1.1 "RELEASE_DELIVERY=$selection"
     fi
+    rg -F 'release delivery refused:' target/rejection.log >/dev/null
+    # Direct adapters share admission, even without Make's parse-time boundary.
+    for selection in pr '' invalid; do
+        expect_failure env RELEASE_DELIVERY="$selection" bash scripts/release/release.sh prepare
+        rg -F 'release delivery refused:' target/rejection.log >/dev/null
+    done
     assert_unchanged
     [[ ! -s "$TEST_LOG" && ! -s "$TEST_EFFECTS" && ! -e target/release-state ]] || exit 1
 }
 
 run_case make-execution-refusal test_make_execution_refusal
 for target in release-patch release-minor release-major release-resume; do
-    for selection in pr inherited invalid; do
+    for selection in pr inherited invalid '' policy-override; do
         run_case "delivery-$target-$selection" test_delivery_refusal "$target" "$selection"
     done
+done
+for target in release-version release-prepare-version release-verify; do
+    run_case "delivery-$target" test_delivery_refusal "$target" pr
 done
 run_case bootstrap-success test_dependency_bootstrap success
 run_case bootstrap-snapshot test_dependency_bootstrap snapshot

@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# Shared companions: scripts/ci/finalize-release-changelog.awk
 use strict;
 use warnings;
 use JSON::PP;

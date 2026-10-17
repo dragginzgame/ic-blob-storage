@@ -2,6 +2,28 @@
 
 Date: 2026-10-17
 
+## Host framing and shared release/fixture owners — pending 0.32.2
+
+Released 0.32.1 is HEAD `397717a`. This compatible working batch replaces three
+bounded frame readers with Host 0.27.1 framing, retaining Blob JSON/error mapping,
+limits, deadlines and child ownership. CLI now selects Host process in its default
+native dependency set; package-verification still selects its optional Build tool.
+Make and standalone release adapters share one direct-only policy file and the
+canonical validator. The policy is a guarded CI input. Release/Testkit fixture
+exports follow declared companion closure; release fixtures live outside the
+checkout, and the evidence collector retains their new temporary prefix.
+
+Focused Linux checks pass: framing regression, default CLI build, affected-package
+strict Clippy, actual Rust 1.91 CLI compilation, isolated release routing/adapter
+matrix, parallel Testkit forwarding/refusals, fixture completion, evidence archive,
+ShellCheck, formatting, snapshot and documentation links. Fresh standalone Wasm
+and CLI pass the installed session step-budget/idle-stdin case. The first PocketIC
+attempt could not bind loopback inside the sandbox; the permitted retry passes.
+Both attempts and command/source identities remain under
+`.tmp/review-validation/consolidation0322/`. Browser support compiles; Chromium,
+full CI, native macOS and deployed behavior were not exercised. No version bump,
+commit, push, release, publication or sibling edit ran.
+
 ## Shared 0.23 / Host 0.27 adopted — pending 0.32.1
 
 Released 0.32.0 is tagged and pushed at `d76c5f2`; its full release gate passed.

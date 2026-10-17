@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Shared companions: scripts/release/release-data.pl ci/release-delivery-policy.txt scripts/ci/check-release-delivery.sh scripts/ci/check-release-source.sh scripts/ci/cargo-release-metadata.sh scripts/ci/check-release-tag.sh scripts/ci/check-crates-io-version.sh scripts/ci/next-release-version.sh
 set -euo pipefail
 
 # Consumer metadata and qualification only. Shared Tooling owns every Git effect.
@@ -19,10 +20,6 @@ DATA="$ROOT/scripts/release/release-data.pl"
 RELEASE_FILES=(Cargo.toml Cargo.lock CHANGELOG.md docs/release.json)
 
 fail() { echo "release metadata refused: $*" >&2; exit 1; }
-direct_delivery() {
-    [[ "${RELEASE_DELIVERY:-direct}" == direct ]] ||
-        fail 'this repository supports RELEASE_DELIVERY=direct; PR delivery requires separately adopted merged-source receipt adapters'
-}
 version() { perl "$DATA" version; }
 ensure_clean() {
     git rev-parse --verify HEAD >/dev/null || fail 'cannot resolve release HEAD'
@@ -35,7 +32,6 @@ allowed_changes() {
 }
 preflight() {
     local head previous
-    direct_delivery
     ensure_clean
     head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
     previous="$(version)" || fail 'cannot read previous version'
@@ -198,6 +194,7 @@ publish() {
 }
 command="${1:-}"
 shift || true
+bash scripts/ci/check-release-delivery.sh ci/release-delivery-policy.txt "${RELEASE_DELIVERY-direct}"
 case "$command" in
     version) version ;;
     plan)
@@ -208,7 +205,6 @@ case "$command" in
         echo 'Committed unfinished releases reconcile first; newer fixes or a different increment receive fresh validation. Publication and cleanup are separate.'
         ;;
     ensure-clean) ensure_clean ;;
-    delivery-check) direct_delivery ;;
     preflight) preflight ;;
     prepare) prepare ;;
     prepared-check) verify_prepared ;;
