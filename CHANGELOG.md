@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.31.0]
+## [0.31.0] - 2026-10-17
 
 - Share passive fixture query-command handling while retaining command-specific
   reports, exact target diagnostics and unchanged exit/refusal behavior.
