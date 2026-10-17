@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.32.2]
+## [0.32.2] - 2026-10-17
 
 - Reuse Host's bounded process framing for publication control and native/browser
   test drivers, preserving JSON validation, byte limits and process ownership.
