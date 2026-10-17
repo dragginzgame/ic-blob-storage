@@ -11,7 +11,7 @@
 - Repair private probe journals for Memory 0.48: create only on installation,
   reopen retained cells with byte admission before loading, and bound writes.
   Preserve same-release history, corruption refusal and restore fences.
-- Align contributor IC Build 0.15 with the selected Host 0.26 family so package
+- Align contributor IC Build 0.15 with the selected Host 0.26.2 family so package
   verification accepts matching process limits and preserves typed execution
   failures. Retain output budgets, exit/signal statuses and archive admission.
 - Complete the inventory fixture's CBOR request/reply path and matching admission

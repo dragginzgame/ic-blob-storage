@@ -2,6 +2,18 @@
 
 Date: 2026-10-17
 
+## Incoming Host patch selection — 0.32.0
+
+The third minor-release gate passed hook behavior but stopped at its input guard:
+Cargo.lock changed the four Host packages from 0.26.1 to 0.26.2 during validation.
+The incoming update is preserved. Published source comparison finds only an
+additive FS tree-sync helper; Blob does not adopt that API. CLI and PocketIC
+all-target/all-feature compilation passes on 0.26.2. Manifests and other selections
+are unchanged. The next release attempt must validate this committed lock from
+the beginning; prior gate results are not reused. Original/updated input hashes,
+source comparison context and attempt logs remain in
+`.tmp/review-validation/release0320/`.
+
 ## Growth refusal probe repaired — 0.32.0
 
 The second minor-release attempt passed all standalone cases and reached one
