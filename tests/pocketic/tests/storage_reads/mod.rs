@@ -67,7 +67,7 @@ impl Fixture {
     ) -> Result<Option<ContentDescriptor>, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "content_descriptor",
@@ -83,7 +83,7 @@ impl Fixture {
     ) -> Result<Option<RetainedDescriptor>, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "retained_content_descriptor",

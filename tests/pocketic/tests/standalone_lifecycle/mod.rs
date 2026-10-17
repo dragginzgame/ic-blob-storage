@@ -255,7 +255,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
     let _: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,

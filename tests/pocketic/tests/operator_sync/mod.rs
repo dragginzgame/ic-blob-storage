@@ -39,7 +39,7 @@ fn sync_command(args: &[String]) -> (i32, Value) {
 fn status(f: &Fixture) -> OperatorStatusView {
     f.harness
         .pic
-        .query_candid_as::<Option<OperatorStatusView>, _>(
+        .query_candid::<Option<OperatorStatusView>, _>(
             f.authority,
             f.gateway,
             "operator_status",
@@ -52,7 +52,7 @@ fn status(f: &Fixture) -> OperatorStatusView {
 fn observed(f: &Fixture) -> SourceObservation {
     f.harness
         .pic
-        .query_candid_as::<Option<SourceObservation>, _>(
+        .query_candid::<Option<SourceObservation>, _>(
             f.gateway,
             f.driver,
             "observation",
@@ -66,7 +66,7 @@ fn configure(f: &Fixture, mode: SourceMode) {
     let result: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
+        .update_candid(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
         .unwrap();
     assert!(result);
 }
@@ -74,7 +74,7 @@ fn revoke(f: &Fixture) {
     let result: bool = f
         .harness
         .pic
-        .update_candid_as(f.authority, f.gateway, "revoke_gateway", (), REPLY_LIMITS)
+        .update_candid(f.authority, f.gateway, "revoke_gateway", (), REPLY_LIMITS)
         .unwrap();
     assert!(result);
 }
@@ -184,7 +184,7 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "resume_sync", (), REPLY_LIMITS)
+        .update_candid(f.gateway, f.driver, "resume_sync", (), REPLY_LIMITS)
         .unwrap();
     assert!(resumed);
     let completed: Result<(), SyncFailure> =
@@ -224,7 +224,7 @@ fn forced_restore_during_sync_retains_pending_evidence_when_callback_arrives() {
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.driver, "resume_sync", (), REPLY_LIMITS)
+        .update_candid(f.gateway, f.driver, "resume_sync", (), REPLY_LIMITS)
         .unwrap();
     assert!(resumed);
     // Actual upgrade clears the async heap: the late callback can trap before

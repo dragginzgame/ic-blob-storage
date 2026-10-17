@@ -24,7 +24,7 @@ impl Fixture {
         assert!(
             self.harness
                 .pic
-                .update_candid_as::<bool, _>(
+                .update_candid::<bool, _>(
                     self.operator,
                     self.controller,
                     "configure",
@@ -37,7 +37,7 @@ impl Fixture {
     fn source_requests(&self) -> u64 {
         self.harness
             .pic
-            .query_candid_as::<Option<SourceObservation>, _>(
+            .query_candid::<Option<SourceObservation>, _>(
                 self.operator,
                 self.controller,
                 "observation",
@@ -58,7 +58,7 @@ impl Fixture {
     fn query_gateways(&self, actor: Principal, token: u64) -> Result<(), Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 actor,
                 "fixture_gateway_transport",
@@ -73,7 +73,7 @@ impl Fixture {
             let view: Option<SourceRecoveryView> = self
                 .harness
                 .pic
-                .query_candid_as(
+                .query_candid(
                     self.operator,
                     self.controller,
                     "recovery_observation",
@@ -91,7 +91,7 @@ impl Fixture {
         assert!(
             self.harness
                 .pic
-                .update_candid_as::<bool, _>(
+                .update_candid::<bool, _>(
                     self.operator,
                     self.controller,
                     "resume_sync",

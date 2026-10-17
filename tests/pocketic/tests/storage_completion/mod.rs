@@ -49,7 +49,7 @@ fn check_write_rollback(f: &Fixture, statement: &UploadAttestationRequest) {
         let result = f
             .harness
             .pic
-            .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+            .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
                 f.service,
                 f.operator,
                 "attest_with_write_trap",

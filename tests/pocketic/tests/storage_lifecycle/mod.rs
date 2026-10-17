@@ -23,7 +23,7 @@ impl Fixture {
     pub(super) fn fact(&self, request: Request, fact: ProviderFact) -> Result<bool, Failure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.operator,
                 "fixture_provider_fact",
@@ -118,7 +118,7 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
         let result: Result<bool, Failure> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.service,
                 actor,
                 "fixture_provider_fact",

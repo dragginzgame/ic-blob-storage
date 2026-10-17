@@ -77,13 +77,13 @@ fn frozen_update<T: candid::CandidType + serde::de::DeserializeOwned>(
 ) -> T {
     f.harness
         .pic
-        .update_candid_as(f.service, actor, method, (input,), REPLY_LIMITS)
+        .update_candid(f.service, actor, method, (input,), REPLY_LIMITS)
         .unwrap()
 }
 fn frozen_admission(f: &Fixture, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
     f.harness
         .pic
-        .query_candid_as::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
+        .query_candid::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_upload_admission",
@@ -113,7 +113,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     let manifest = f.small_manifest();
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",
@@ -132,7 +132,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     let _: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
@@ -143,7 +143,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     // This statement is a local verifier substitute, not a deployed byte observation.
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
+        .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
             f.service,
             Fake::principal(90),
             "blob_attest_upload",
@@ -158,7 +158,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
         .unwrap();
     f.harness
         .pic
-        .update_candid_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
+        .update_candid::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
             f.service,
             f.tenant,
             "blob_apply_reference",
@@ -179,7 +179,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     pending.permission.upload.first_reference = 5;
     f.harness
         .pic
-        .update_candid_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
+        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
             f.service,
             f.tenant,
             "blob_admit_upload",

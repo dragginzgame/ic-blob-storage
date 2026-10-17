@@ -16,7 +16,7 @@ impl Fixture {
     ) -> Result<Vec<RootView>, Failure> {
         self.harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 self.service,
                 actor,
                 "fixture_gateway_roots",

@@ -9,7 +9,7 @@ impl Fixture {
         let configured: bool = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.gateway,
                 self.operator,
                 "configure",
@@ -46,7 +46,7 @@ impl Fixture {
         let resumed: bool = self
             .harness
             .pic
-            .update_candid_as(self.gateway, self.operator, "resume_sync", (), REPLY_LIMITS)
+            .update_candid(self.gateway, self.operator, "resume_sync", (), REPLY_LIMITS)
             .unwrap();
         assert!(resumed);
         candid::decode_one(&self.harness.pic.await_call(id).unwrap()).unwrap()
@@ -56,7 +56,7 @@ impl Fixture {
         let observed: Option<SourceObservation> = self
             .harness
             .pic
-            .query_candid_as(self.gateway, self.operator, "observation", (), REPLY_LIMITS)
+            .query_candid(self.gateway, self.operator, "observation", (), REPLY_LIMITS)
             .unwrap();
         observed.unwrap()
     }
@@ -88,7 +88,7 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     let overlap: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             f.gateway,
             "sync_gateway",
@@ -102,7 +102,7 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
         let resumed: bool = f
             .harness
             .pic
-            .update_candid_as(f.gateway, actor, "resume_sync", (), REPLY_LIMITS)
+            .update_candid(f.gateway, actor, "resume_sync", (), REPLY_LIMITS)
             .unwrap();
         assert!(!resumed);
     }
@@ -128,13 +128,13 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     let resumed: bool = f
         .harness
         .pic
-        .update_candid_as(f.gateway, f.operator, "resume_sync", (), REPLY_LIMITS)
+        .update_candid(f.gateway, f.operator, "resume_sync", (), REPLY_LIMITS)
         .unwrap();
     assert!(!resumed);
     let retry: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.operator,
             "run_sync",
@@ -153,7 +153,7 @@ fn revocation_while_list_is_held_survives_stale_reply_and_fenced_upgrade() {
     let configured: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.operator,
             "configure",
@@ -165,7 +165,7 @@ fn revocation_while_list_is_held_survives_stale_reply_and_fenced_upgrade() {
     let revoked: bool = f
         .harness
         .pic
-        .update_candid_as(f.service, f.gateway, "revoke_gateway", (), REPLY_LIMITS)
+        .update_candid(f.service, f.gateway, "revoke_gateway", (), REPLY_LIMITS)
         .unwrap();
     assert!(revoked);
     let mut revoked = f.archive();
@@ -213,7 +213,7 @@ fn exhausted_local_hold_releases_exact_read_only_attempt_without_automatic_retry
     let configured: bool = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.operator,
             "configure",
@@ -225,7 +225,7 @@ fn exhausted_local_hold_releases_exact_read_only_attempt_without_automatic_retry
     let explicit: Result<(), SyncFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.gateway,
             f.operator,
             "run_sync",

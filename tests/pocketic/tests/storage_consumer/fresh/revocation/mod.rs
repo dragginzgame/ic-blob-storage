@@ -12,7 +12,7 @@ pub(super) fn withdraw(
 ) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "revoke",
@@ -28,7 +28,7 @@ pub(super) fn withdraw(
 fn recover_withdrawal(f: &Fixture) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "recover_revocation",

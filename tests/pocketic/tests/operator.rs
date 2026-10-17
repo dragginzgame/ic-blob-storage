@@ -218,7 +218,7 @@ fn funding_report_keeps_accepted_cycles_separate_from_credit_after_restore() {
     let result: Result<FundingObservation, FundingFailure> = f
         .harness
         .pic
-        .update_candid_as(f.sender, f.driver, "fund", (request,), REPLY_LIMITS)
+        .update_candid(f.sender, f.driver, "fund", (request,), REPLY_LIMITS)
         .unwrap();
     result.unwrap();
     let args = f.args(
@@ -297,7 +297,7 @@ fn funding_provider_failures_reach_json_without_becoming_refunds_or_credit() {
         let result: Result<FundingObservation, FundingFailure> = f
             .harness
             .pic
-            .update_candid_as(f.sender, f.driver, "fund", (request,), REPLY_LIMITS)
+            .update_candid(f.sender, f.driver, "fund", (request,), REPLY_LIMITS)
             .unwrap();
         result.unwrap();
         let before = f.journals();

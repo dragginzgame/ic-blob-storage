@@ -241,7 +241,7 @@ impl Fixture {
         let result: Result<ExposureOutcome, E> = self
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.service,
                 self.uploader,
                 "expose",
@@ -290,14 +290,14 @@ impl Fixture {
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "lookup", (input,), REPLY_LIMITS)
+            .query_candid(self.service, actor, "lookup", (input,), REPLY_LIMITS)
             .unwrap()
     }
     fn status(&self) -> Status {
         let result: Result<Status, Failure> = self
             .harness
             .pic
-            .query_candid_as(self.service, self.operator, "status", (), REPLY_LIMITS)
+            .query_candid(self.service, self.operator, "status", (), REPLY_LIMITS)
             .unwrap();
         result.unwrap()
     }

@@ -2,17 +2,20 @@
 
 ## [0.32.0]
 
+- Update PocketIC typed Candid calls for Testkit 0.51, preserving explicit
+  callers, reply-decoding budgets and application errors. Qualify the affected
+  test package and seven installed cases on the current published graph;
+  [repair evidence](docs/evidence/testkit0510320.md) records the scoped results.
 - Update incoming Host 0.25 callers: remove the retired `candid-service` feature
   and use explicit result admission for durable CLI records, preserving private
-  create-only publication. Workspace resolution remains blocked by Host Tools'
-  `thiserror` minimum conflicting with PocketIC's exact pin;
-  [repair evidence](docs/evidence/host0250320.md) records the boundary.
+  create-only publication. Selected Host 0.25.1 resolves the earlier `thiserror`
+  conflict; [the original receipt](docs/evidence/host0250320.md) retains that failure.
 - **Breaking service wire protocol:** tenant inspection/update now use bounded
   IC Wire contracts with explicit layout, method identity and request/reply
   direction. Preserve existing authority, compare-and-set policy and recovery;
   old Candid and pending CBOR tenant frames refuse without fallback. Target the
-  IC Wire 0.3 registry line; publication and registry lock qualification remain
-  pending. Other owned methods/lifecycle inputs still use CBOR during conversion;
+  IC Wire 0.3 registry line; the current lock selects published 0.3.2 and focused
+  tenant checks pass. Other owned methods/lifecycle inputs still use CBOR during conversion;
   complete that conversion before freezing the 0.32 service contract.
 - Record a [matched tenant codec comparison](docs/evidence/wire-bench0320.md)
   against released Candid and pending CBOR, including instruction counts, packet
@@ -32,7 +35,7 @@
   follow [the protocol cut guide](docs/service-wire.md). Retire prior installations
   with all outstanding obligations before reinstalling; no fallback or migration
   is provided, and prior requests must not be redispatched under the new contract.
-- Preserve the incoming Memory 0.46 / Build 0.12.1 selections. Collection imports
+- Preserve the incoming Memory 0.47 / Build 0.13 selections. Collection imports
   use the existing stable-structures dependency directly; host backing types use
   Memory's supported exports. Allocation leases and exclusive backing custody
   remain host-owned; no collection-format migration is introduced.

@@ -57,7 +57,7 @@ fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
     let result: Result<Option<ContentDescriptor>, Failure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             p.request.tenant,
             "content_descriptor",

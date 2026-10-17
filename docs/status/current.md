@@ -2,6 +2,21 @@
 
 Date: 2026-10-17
 
+## Testkit 0.51 caller repair — pending 0.32.0
+
+All 250 affected typed Candid test calls use Testkit's renamed methods with the
+original explicit callers and reply limits. [The receipt](../evidence/testkit0510320.md)
+records passing package all-target/all-feature compilation, strict Clippy,
+actual Rust 1.91 and seven installed content/tenant cases with fresh probes.
+The incoming graph selects published Host Tools 0.25.1, Testkit/Candid 0.51.0,
+Wire/derive 0.3.2, Memory 0.47 and Build 0.13. Manifests/lock remain unchanged
+by this repair; the missing Wire source was fetched explicitly with the lock held.
+Host's compatible `thiserror` minimum has already shipped, so no sibling edit is
+needed. These results supersede the publication/resolution blockers below;
+historical receipts and candidate benchmarks keep their original scope.
+Other owned methods/lifecycle still need Wire conversion before freezing 0.32.
+Own versions remain 0.31.0. No full CI, release or publication ran.
+
 ## Host 0.25 feature/caller repair — dependency conflict remains
 
 The retired `candid-service` feature is removed from PocketIC's Host Tools edge;

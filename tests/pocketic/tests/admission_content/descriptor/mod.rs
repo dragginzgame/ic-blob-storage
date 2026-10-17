@@ -17,7 +17,7 @@ fn read(
 ) -> Result<Option<ContentDescriptor>, Failure> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             actor,
             "content_descriptor",

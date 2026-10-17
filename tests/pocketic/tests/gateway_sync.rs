@@ -53,7 +53,7 @@ impl Fixture {
             Some(driver),
         );
         let released: bool = pic
-            .update_candid_as(service, tenant, "release", (1_u8,), REPLY_LIMITS)
+            .update_candid(service, tenant, "release", (1_u8,), REPLY_LIMITS)
             .expect("owner release");
         assert!(released);
         Self {
@@ -73,14 +73,14 @@ impl Fixture {
     fn configure(&self, mode: SourceMode) {
         let accepted: bool = self
             .pic()
-            .update_candid_as(self.source, self.driver, "configure", (mode,), REPLY_LIMITS)
+            .update_candid(self.source, self.driver, "configure", (mode,), REPLY_LIMITS)
             .expect("source configuration");
         assert!(accepted);
     }
 
     fn sync(&self) -> Result<(), SyncFailure> {
         self.pic()
-            .update_candid_as(
+            .update_candid(
                 self.source,
                 self.driver,
                 "run_sync",
@@ -93,14 +93,14 @@ impl Fixture {
     fn observation(&self) -> SourceObservation {
         let observation: Option<SourceObservation> = self
             .pic()
-            .query_candid_as(self.source, self.driver, "observation", (), REPLY_LIMITS)
+            .query_candid(self.source, self.driver, "observation", (), REPLY_LIMITS)
             .expect("source observation");
         observation.expect("authorized driver")
     }
 
     fn pending(&self, actor: Principal) -> Option<Vec<u8>> {
         self.pic()
-            .query_candid_as(self.service, actor, "pending", (), REPLY_LIMITS)
+            .query_candid(self.service, actor, "pending", (), REPLY_LIMITS)
             .expect("pending query")
     }
 }
@@ -117,7 +117,7 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
     ] {
         let result: Result<(), SyncFailure> = fixture
             .pic()
-            .update_candid_as(
+            .update_candid(
                 fixture.service,
                 caller,
                 "sync_gateway",

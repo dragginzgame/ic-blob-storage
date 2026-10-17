@@ -92,7 +92,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
+        .update_candid(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
@@ -184,7 +184,7 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.service,
             second.permission.uploader,
             ISSUE,
@@ -262,7 +262,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     let reply: CaffeineUploadCertificateResponse = f
         .harness
         .pic
-        .update_candid_as(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
+        .update_candid(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
         .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);

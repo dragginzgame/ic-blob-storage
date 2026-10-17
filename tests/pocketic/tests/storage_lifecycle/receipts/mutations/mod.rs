@@ -7,7 +7,7 @@ fn mutate(
 ) -> Result<ReferenceMutationResponse, ReferenceProbeFailure> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.tenant,
             f.operator,
             "fixture_mutate_reference",
@@ -194,7 +194,7 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
     let query: Result<ReferenceMutationResponse, ReferenceProbeFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.tenant,
             f.operator,
             "fixture_nonreplicated_reference_mutation",

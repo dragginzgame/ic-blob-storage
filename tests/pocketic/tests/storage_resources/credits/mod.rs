@@ -72,7 +72,7 @@ fn credit_measurements_have_independent_exact_read_windows() {
     };
     f.harness
         .pic
-        .update_candid_as::<Result<(), Failure>, _>(
+        .update_candid::<Result<(), Failure>, _>(
             f.service,
             f.operator,
             "populate_histories",

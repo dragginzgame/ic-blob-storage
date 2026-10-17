@@ -23,7 +23,7 @@ impl Fixture {
     ) -> Result<(), BalanceFailure> {
         self.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 self.authority,
                 actor,
                 "configure_billing_limits",

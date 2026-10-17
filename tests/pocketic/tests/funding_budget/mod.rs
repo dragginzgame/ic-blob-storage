@@ -63,7 +63,7 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
     let incoming: Result<FundingObservation, FundingFailure> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.receiver,
             f.driver,
             "fund",
@@ -122,7 +122,7 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
     let preview: Result<FundingPreviewView, FundingPreviewFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.sender,
             f.driver,
             "preview_funding",
@@ -173,7 +173,7 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
         let result: Result<FundingPreviewView, FundingPreviewFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.sender,
                 f.driver,
                 "preview_funding",
@@ -268,7 +268,7 @@ fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
         let result: Result<FundingPreviewView, FundingPreviewFailure> = f
             .harness
             .pic
-            .query_candid_as(
+            .query_candid(
                 f.sender,
                 f.driver,
                 "preview_funding",

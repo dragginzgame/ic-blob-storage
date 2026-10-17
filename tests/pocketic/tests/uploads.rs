@@ -12,19 +12,19 @@ use ic_testkit::{
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    pic.query_candid_as(canister, caller, "upload_usage", (), REPLY_LIMITS)
+    pic.query_candid(canister, caller, "upload_usage", (), REPLY_LIMITS)
         .expect("usage")
 }
 fn active(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    pic.query_candid_as(canister, caller, "active_uploads", (), REPLY_LIMITS)
+    pic.query_candid(canister, caller, "active_uploads", (), REPLY_LIMITS)
         .expect("active uploads")
 }
 fn roots(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<UploadProbeState>> {
-    pic.query_candid_as(canister, caller, "upload_roots", (), REPLY_LIMITS)
+    pic.query_candid(canister, caller, "upload_roots", (), REPLY_LIMITS)
         .expect("root observations")
 }
 fn cancel(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    pic.update_candid_as(canister, caller, "cancel_upload", (root,), REPLY_LIMITS)
+    pic.update_candid(canister, caller, "cancel_upload", (root,), REPLY_LIMITS)
         .expect("cancel")
 }
 
@@ -93,7 +93,7 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
         ])
     );
     let revoked: bool = pic
-        .update_candid_as(canister, controller, "revoke_gateway", (), REPLY_LIMITS)
+        .update_candid(canister, controller, "revoke_gateway", (), REPLY_LIMITS)
         .expect("revoke");
     assert!(revoked);
     assert_eq!(roots(pic, canister, gateway), None);

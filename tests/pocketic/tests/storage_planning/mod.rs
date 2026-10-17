@@ -77,7 +77,7 @@ impl Fixture {
     ) -> Result<Vec<RootObservation>, Failure> {
         self.harness
             .pic
-            .query_candid_as(self.service, actor, "observe_roots", (input,), REPLY_LIMITS)
+            .query_candid(self.service, actor, "observe_roots", (input,), REPLY_LIMITS)
             .unwrap()
     }
 }

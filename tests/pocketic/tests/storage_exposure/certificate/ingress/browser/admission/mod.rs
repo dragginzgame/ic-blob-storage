@@ -152,7 +152,7 @@ fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
     let stored: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.tenant,
             f.uploader,
             "asset",
@@ -211,7 +211,7 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
     let stored: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.tenant,
             f.uploader,
             "asset",

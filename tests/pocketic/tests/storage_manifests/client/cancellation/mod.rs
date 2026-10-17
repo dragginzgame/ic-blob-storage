@@ -3,7 +3,7 @@ use crate::support::REPLY_LIMITS;
 fn cancel(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.operator,
             "cancel_manifest",
@@ -23,7 +23,7 @@ fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and
         let denied: Result<ManifestIntentView, C> = f
             .harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 f.uploader,
                 f.other,
                 "cancel_manifest",

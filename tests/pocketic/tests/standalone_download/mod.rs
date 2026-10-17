@@ -231,7 +231,7 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
     let fetch = || -> Result<DownloadResponse, DownloadProbeFailure> {
         f.harness
             .pic
-            .update_candid_as(
+            .update_candid(
                 client,
                 f.operator,
                 "fixture_fetch_descriptor",

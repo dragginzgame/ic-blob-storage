@@ -30,7 +30,7 @@ fn fixture() -> Fixture {
 fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.operator,
             "save_manifest",
@@ -42,7 +42,7 @@ fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
 fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.uploader,
             f.operator,
             "manifest_intent",
@@ -54,7 +54,7 @@ fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
 fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.operator,
             "dispatch_manifest",
@@ -66,7 +66,7 @@ fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, 
 fn recover(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.operator,
             "recover_manifest",
@@ -183,7 +183,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
     let queried: Result<UploadManifestResponse, C> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.uploader,
             f.operator,
             "query_manifest",
@@ -195,7 +195,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
     let denied: Result<ManifestIntentView, C> = f
         .harness
         .pic
-        .update_candid_as(
+        .update_candid(
             f.uploader,
             f.other,
             "dispatch_manifest",

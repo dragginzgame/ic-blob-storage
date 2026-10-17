@@ -62,7 +62,7 @@ pub(super) fn mode(f: &Fixture, selected: SourceMode) {
     assert!(
         f.harness
             .pic
-            .update_candid_as::<bool, _>(
+            .update_candid::<bool, _>(
                 f.config.billing.cashier,
                 f.controller,
                 "configure",

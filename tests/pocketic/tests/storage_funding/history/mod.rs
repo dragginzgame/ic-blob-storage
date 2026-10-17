@@ -151,7 +151,7 @@ fn check_recovered_request(f: &Fixture, recovered: Intent) {
     let wire: Result<blob_test_protocol::storage::funding::Request, Failure> = f
         .harness
         .pic
-        .query_candid_as(
+        .query_candid(
             f.service,
             f.operator,
             "funding_request",

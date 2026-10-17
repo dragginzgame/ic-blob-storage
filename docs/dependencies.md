@@ -94,27 +94,29 @@ before these repairs. Earlier
 [0.11/0.23 compilation success](evidence/content-hex-origins0310.md) retains its
 own graph and does not qualify this newer selection.
 
-The initial [IC Wire adoption](evidence/icwire0320.md) declares the 0.3 registry
-line in Contracts for tenant inspection/update. Publication and the root lockfile
-entry are pending. A captured prepublication source snapshot (still identifying
-itself as 0.2.2) is used only in an ignored private consumer fixture; no tracked
-sibling/path override or provisional registry checksum is added. Candidate-source
-checks do not qualify the future published 0.3 package. Remaining CBOR methods
-still need conversion before freezing the service contract.
+The initial [IC Wire adoption](evidence/icwire0320.md) retains its prepublication
+source qualification. The current root lock selects published Wire/derive 0.3.2,
+Testkit/Candid 0.51.0 and Host Tools 0.25.1; no source override is needed. The
+[current caller repair](evidence/testkit0510320.md) records package compilation,
+strict lint, Rust 1.91 and seven selected installed cases on that graph. This
+does not relabel the earlier candidate benchmark or qualify every service method.
+Remaining CBOR methods still need conversion before freezing the service contract.
 
 The [0.32 incoming protocol](service-wire.md) still uses the already locked Ciborium
 0.2.2 through Contracts for unconverted CBOR methods and replies. Serde is explicit in
 the standalone and storage probe manifests. This codec adds no external selection. Incoming maintainer edits separately select
-Memory 0.46 and Build 0.12.1. Collection code names the already locked
+Memory 0.47 and Build 0.13. Collection code names the already locked
 `ic-stable-structures` 0.7.2 directly after Memory removed its blanket substrate
 re-export; host backing types use Memory's supported root exports. Runtime leases
-remain host-owned, and this does not adopt a new collection engine or format. Core replicated clients, native packets and owned probe methods
-use that codec; Candid remains at provider, management and persisted-record owners.
+remain host-owned. Unconverted clients, native packets and owned probe methods
+retain CBOR; tenant inspection/update use Wire. Candid remains at provider,
+management and persisted-record owners. Public Memory changes belong to the
+pending minor hard cut; these focused caller checks do not qualify all storage contracts.
 Canic must coordinate its endpoint emitters, raw callers and interface checks before
 adopting this hard cut. Its own integration results remain consumer-owned.
 
 Contracts retains explicit Candid decoder configuration for external provider
-contracts; owned service boundaries use the separate CBOR codec. Each provider
+contracts; owned service boundaries select Wire or CBOR explicitly. Each provider
 boundary retains its byte/work/skipping/type/header choices, authentication and
 error mapping; exact CBOR inputs check byte/depth limits and exhaustion locally. Provider URL components use the already locked
 percent-encoding crate directly, with the original RFC 3986 unreserved set.
