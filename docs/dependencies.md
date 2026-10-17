@@ -14,13 +14,18 @@ lockfiles; this repository's qualification does not cover every future resolutio
 
 | Owner | Current locked selection | Scope |
 | --- | --- | --- |
-| IC Memory | 0.46.0 | Public host runtime and exclusive allocation leases; backing custody stays with the host |
+| IC Memory | 0.48.0 | Public host runtime and exclusive allocation leases; backing custody stays with the host |
 | IC Metrics (direct) | 0.12.0 | Private storage probe measurements; Testkit retains its own transitive selection |
 | IC Testkit | 0.50.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
 | IC Testkit Candid | 0.50.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
 | IC Host artifacts/fs/process/tools (direct) | 0.24.0 | Native artifacts, filesystem and test/tool boundaries |
 | IC Build | 0.12.1 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
+
+Memory 0.48 changes the protected allocation-ledger format. Earlier installations
+require retirement before fresh backing; no automatic clearing or migration is
+provided. Private probe journals explicitly create bounded cells on installation
+and reopen retained cells on restore, preserving payload validation and fences.
 
 Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
 the retained creation/publication used by verified body staging.

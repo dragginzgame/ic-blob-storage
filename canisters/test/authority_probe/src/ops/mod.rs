@@ -88,7 +88,7 @@ pub(crate) fn initialize(
     gateway: Principal,
     operator: Principal,
 ) {
-    archive::open();
+    archive::create();
     STATE.with_borrow_mut(|state| {
         *state = Some(fresh(service, first, second, gateway, operator));
         archive::save(state.as_ref().expect("initialized"));

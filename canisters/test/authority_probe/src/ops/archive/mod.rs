@@ -25,8 +25,8 @@ use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 
-pub(super) fn open() {
-    storage::open();
+pub(super) fn create() {
+    storage::create();
 }
 
 pub(super) fn save(state: &State) {

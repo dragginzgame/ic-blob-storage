@@ -2,6 +2,25 @@
 
 Date: 2026-10-17
 
+## Memory 0.48 probe journals repaired — pending 0.32.0
+
+All three private journal owners use explicit bounded creation, retained reopening
+and fallible bounded writes. Initialization cannot replace an occupied cell;
+restore cannot seed a missing journal. Keys, codecs, bucket profile, payload/decode
+limits, identity checks and restore fences are preserved. No manifests or lock
+changed. Earlier ledger images remain reinstall-only after retirement.
+
+Focused Linux checks pass for all three probe packages: all targets/features,
+strict Clippy, actual Rust 1.91 and fresh release Wasm. Three installed PocketIC
+cases pass: lifetime funding history, invalid-journal/failed-restore rollback,
+and authority/source pending-journal restoration with fences and no replay.
+Commands, logs, original source, prepared input hashes and artifact/server hashes
+remain at `.tmp/review-validation/memory048-probes0320/`. Manifest/lock inputs
+remain unchanged throughout. These are same-release local substitute cases;
+full CI, the complete Memory upgrade and deployed provider/Canic behavior remain
+separate. Package metadata and release receipt still say 0.31.0; the commit label
+0.32.0 does not establish a tagged release. No release/publication ran.
+
 ## Build/Host archive verifier alignment — pending 0.32.0
 
 Build 0.15 now matches the selected Host 0.26 process types, clearing both

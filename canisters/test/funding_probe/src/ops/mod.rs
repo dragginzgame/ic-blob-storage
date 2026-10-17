@@ -45,7 +45,7 @@ pub(crate) fn initialize(
     driver: Principal,
     input: blob_test_protocol::funding::budget::FundingBudgetInput,
 ) {
-    storage::open();
+    storage::create();
     STATE.with_borrow_mut(|state| {
         let budget = crate::model::budget::FundingBudgetRecord::new(
             input.allocated,

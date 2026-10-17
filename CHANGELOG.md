@@ -2,6 +2,9 @@
 
 ## [0.32.0]
 
+- Repair private probe journals for Memory 0.48: create only on installation,
+  reopen retained cells with byte admission before loading, and bound writes.
+  Preserve same-release history, corruption refusal and restore fences.
 - Align contributor IC Build 0.15 with the selected Host 0.26 family so package
   verification accepts matching process limits and preserves typed execution
   failures. Retain output budgets, exit/signal statuses and archive admission.
@@ -44,10 +47,11 @@
   follow [the protocol cut guide](docs/service-wire.md). Retire prior installations
   with all outstanding obligations before reinstalling; no fallback or migration
   is provided, and prior requests must not be redispatched under the new contract.
-- Preserve the incoming Memory 0.47 selection. Collection imports
-  use the existing stable-structures dependency directly; host backing types use
-  Memory's supported exports. Allocation leases and exclusive backing custody
-  remain host-owned; no collection-format migration is introduced.
+- **Breaking Memory storage:** preserve the incoming Memory 0.48 selection.
+  Hosts must retire earlier ledger installations before using fresh backing;
+  incompatible images refuse without migration or automatic clearing. Collection
+  imports use stable-structures directly; allocation leases and exclusive backing
+  custody remain host-owned.
 
 ## [0.31.0] - 2026-10-17
 

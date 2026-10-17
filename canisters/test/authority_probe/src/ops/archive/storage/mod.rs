@@ -14,22 +14,40 @@ thread_local! {
     static STORE: RefCell<Option<FixtureCell<DefaultMemoryImpl>>> = const { RefCell::new(None) };
 }
 
-pub(super) fn open() {
-    let journal = FixtureCell::new(
+pub(super) fn create() {
+    let journal = FixtureCell::create_bounded(
         DefaultMemoryImpl::default(),
         "fixture",
         "fixture.",
         JOURNAL_KEY,
         MemoryManagerConfig::new(16).expect("host bucket profile"),
-    );
+        MAX_JOURNAL_BYTES,
+    )
+    .expect("fresh bounded fixture journal");
+    STORE.with_borrow_mut(|store| *store = Some(journal));
+}
+
+pub(super) fn open() {
+    let journal = FixtureCell::open_bounded(
+        DefaultMemoryImpl::default(),
+        "fixture",
+        "fixture.",
+        JOURNAL_KEY,
+        MemoryManagerConfig::new(16).expect("host bucket profile"),
+        MAX_JOURNAL_BYTES,
+    )
+    .expect("retained bounded fixture journal");
     STORE.with_borrow_mut(|store| *store = Some(journal));
 }
 
 pub(super) fn save(state: &AuthorityArchiveRecord) {
     let bytes = candid::encode_one(state).expect("bounded fixture journal");
-    assert!(bytes.len() <= MAX_JOURNAL_BYTES, "journal byte budget");
     STORE.with_borrow_mut(|store| {
-        store.as_mut().expect("opened journal").set(bytes);
+        store
+            .as_mut()
+            .expect("opened journal")
+            .try_set(bytes)
+            .expect("journal byte budget");
     });
 }
 

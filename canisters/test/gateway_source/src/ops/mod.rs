@@ -23,7 +23,7 @@ thread_local! {
 }
 
 pub(crate) fn initialize(service: Principal, gateway: Principal, driver: Principal) {
-    storage::open();
+    storage::create();
     let state = SourceJournalRecord::new(service, gateway, driver);
     storage::save(&state);
     STATE.with_borrow_mut(|slot| *slot = Some(state));
