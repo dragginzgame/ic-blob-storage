@@ -2,6 +2,17 @@
 
 Date: 2026-10-17
 
+## Build/Host archive verifier alignment — pending 0.32.0
+
+Build 0.15 now matches the selected Host 0.26 process types, clearing both
+`blob-package-verify` type errors without changing Rust code, output limits or
+typed failure handling. [The receipt](../evidence/build0150320.md) records passing
+CLI all-target/all-feature compilation, strict Clippy, actual Rust 1.91, a fresh
+verifier and real archive replacement/refusal regressions. The only package
+version change is Build 0.14.0 to 0.15.0; other incoming selections are preserved.
+Full CI, actual Blob archives and native macOS remain separate. Own versions stay
+0.31.0; no release, publication or sibling edit ran.
+
 ## Inventory request/reply codec repaired — pending 0.32.0
 
 The inventory command, its reply fixtures and the admission probe's three Blob

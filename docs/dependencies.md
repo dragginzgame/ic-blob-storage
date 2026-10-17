@@ -107,7 +107,9 @@ Remaining CBOR methods still need conversion before freezing the service contrac
 The [0.32 incoming protocol](service-wire.md) still uses the already locked Ciborium
 0.2.2 through Contracts for unconverted CBOR methods and replies. Serde is explicit in
 the standalone, storage and admission probe manifests. This codec adds no external selection. Incoming maintainer edits separately select
-Memory 0.47 and Build 0.13. Collection code names the already locked
+Memory 0.47. Contributor Build 0.15 now matches selected Host 0.26 process types;
+[the verifier repair](evidence/build0150320.md) records focused qualification.
+Collection code names the already locked
 `ic-stable-structures` 0.7.2 directly after Memory removed its blanket substrate
 re-export; host backing types use Memory's supported root exports. Runtime leases
 remain host-owned. Unconverted clients, native packets and owned probe methods

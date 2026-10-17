@@ -2,6 +2,9 @@
 
 ## [0.32.0]
 
+- Align contributor IC Build 0.15 with the selected Host 0.26 family so package
+  verification accepts matching process limits and preserves typed execution
+  failures. Retain output budgets, exit/signal statuses and archive admission.
 - Complete the inventory fixture's CBOR request/reply path and matching admission
   probe queries, preserving passive inspection, exact scope/content binding,
   reply limits, blocker reports and reference-capacity error distinctions.
@@ -41,7 +44,7 @@
   follow [the protocol cut guide](docs/service-wire.md). Retire prior installations
   with all outstanding obligations before reinstalling; no fallback or migration
   is provided, and prior requests must not be redispatched under the new contract.
-- Preserve the incoming Memory 0.47 / Build 0.13 selections. Collection imports
+- Preserve the incoming Memory 0.47 selection. Collection imports
   use the existing stable-structures dependency directly; host backing types use
   Memory's supported exports. Allocation leases and exclusive backing custody
   remain host-owned; no collection-format migration is introduced.
