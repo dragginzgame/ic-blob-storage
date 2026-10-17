@@ -2,6 +2,8 @@
 
 ## [0.32.0]
 
+- Repair publication map/session fixtures to use the provider certificate
+  endpoint's required Candid encoding, preserving Blob-owned packet codecs.
 - Update the shared PocketIC harness for Testkit 0.52 startup configuration,
   preserving explicit server selection, startup deadline and owned teardown.
 - Repair private probe journals for Memory 0.48: create only on installation,

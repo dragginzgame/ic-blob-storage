@@ -2,6 +2,18 @@
 
 Date: 2026-10-17
 
+## Publication certificate fixture repaired — 0.32.0
+
+The first requested minor-release attempt passed compilation/lint and failed two
+standalone publication tests. Their shared completion helper encoded a provider
+certificate request as CBOR; the required external endpoint remains Candid.
+The helper now uses Candid. Both exact failing installed cases pass, with existing
+service/CLI artifacts and unchanged manifest/lock inputs. Application codecs and
+provider authority are unchanged. First-attempt logs and focused retry evidence
+remain in `.tmp/review-validation/release0320/`; earlier gate failure logs remain
+under Git's release-state. The full gate must run again on committed repaired
+source. The [release receipt](../release.json) and matching tag own completion.
+
 ## Testkit 0.52 startup repaired — pending 0.32.0
 
 The shared PocketIC harness constructs the explicit owned Spawn variant with the

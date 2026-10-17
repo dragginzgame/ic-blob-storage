@@ -68,7 +68,7 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
             f.service,
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
-            ic_blob_storage_contracts::wire::encode(root).unwrap(),
+            candid::encode_one(root).unwrap(),
         )
         .unwrap();
     let statement = UploadAttestationRequest {
