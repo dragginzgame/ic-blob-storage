@@ -52,14 +52,14 @@ fn capacity(s: &Selection) -> UploadCapacityResponse {
     }
 }
 fn capacity_reply(value: UploadCapacityResponse) -> Vec<u8> {
-    candid::encode_one(Ok::<_, UploadCapacityFailure>(value)).unwrap()
+    wire::encode(Ok::<_, UploadCapacityFailure>(value)).unwrap()
 }
 fn reference_reply(
     s: &Selection,
     inventory: &Inventory,
     headroom: Option<ReferenceHeadroom>,
 ) -> Vec<u8> {
-    candid::encode_one(Ok::<_, ReferenceCapacityFailure>(
+    wire::encode(Ok::<_, ReferenceCapacityFailure>(
         ReferenceCapacityResponse {
             request: ReferenceCapacityRequest {
                 scope: s.scope,
@@ -104,7 +104,7 @@ fn reference_observation_rejects_wrong_echoes_and_keeps_later_restore_fences() {
                 Some(content(&s, &inventory, UploadContentState::Live)),
             ),
             "blob_reference_capacity" => {
-                Ok(candid::encode_one(Ok::<_, ReferenceCapacityFailure>(response)).unwrap())
+                Ok(wire::encode(Ok::<_, ReferenceCapacityFailure>(response)).unwrap())
             }
             _ => panic!("unexpected query"),
         });
@@ -158,7 +158,7 @@ fn discovery_reply(
     inventory: &Inventory,
     content: Option<UploadHistoryEntry>,
 ) -> Result<Vec<u8>, Failure> {
-    candid::encode_one(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
+    wire::encode(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
         request: UploadDiscoveryRequest {
             scope: s.scope,
             root: *inventory.blobs[0].root.as_bytes(),
@@ -286,6 +286,22 @@ fn live_content_checks_each_assets_new_reference_and_stops_on_lost_observations(
         _ => panic!("unexpected call"),
     });
     assert_eq!(failed, Err(Failure::Transport));
+    for (reply, expected) in [
+        (vec![0; 4097], Failure::ReplyTooLarge),
+        (b"bad".to_vec(), Failure::InvalidReply),
+    ] {
+        let observed = inspect(&s, &inventory, |method, _| match method {
+            "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
+            "blob_lookup_content" => discovery_reply(
+                &s,
+                &inventory,
+                Some(content(&s, &inventory, UploadContentState::Live)),
+            ),
+            "blob_reference_capacity" => Ok(reply.clone()),
+            _ => panic!("unexpected call"),
+        });
+        assert_eq!(observed, Err(expected));
+    }
 }
 
 #[test]
@@ -318,7 +334,7 @@ fn rejects_wrong_scope_wrong_content_and_malformed_or_denied_replies() {
         decode_capacity(s.scope, &[0; 10]),
         Err(Failure::InvalidReply)
     ));
-    let denied = candid::encode_one(Err::<UploadCapacityResponse, _>(
+    let denied = wire::encode(Err::<UploadCapacityResponse, _>(
         UploadCapacityFailure::Denied,
     ))
     .unwrap();
@@ -428,8 +444,8 @@ fn batch_size_does_not_require_every_new_upload_to_fit_concurrently() {
         if method == "blob_upload_capacity" {
             Ok(capacity_reply(capacity(&s)))
         } else {
-            candid::encode_one(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
-                request: candid::decode_one(&args).unwrap(),
+            wire::encode(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
+                request: wire::decode(&args, 4096).unwrap(),
                 content: None,
                 fenced: false,
             }))
@@ -504,7 +520,7 @@ fn discovery_rejects_wrong_echoes_even_for_absence_and_keeps_a_later_fence() {
         let observed = inspect(&s, &inventory, |method, _| match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
             "blob_lookup_content" => {
-                Ok(candid::encode_one(Ok::<_, UploadDiscoveryFailure>(response)).unwrap())
+                Ok(wire::encode(Ok::<_, UploadDiscoveryFailure>(response)).unwrap())
             }
             _ => panic!("unexpected query"),
         });
@@ -568,7 +584,7 @@ fn discovery_rejects_zero_independent_identities_and_remote_refusals() {
         let result = inspect(&s, &inventory, |method, _| match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
             "blob_lookup_content" => {
-                Ok(candid::encode_one(Err::<UploadDiscoveryResponse, _>(remote)).unwrap())
+                Ok(wire::encode(Err::<UploadDiscoveryResponse, _>(remote)).unwrap())
             }
             _ => panic!("unexpected query"),
         });

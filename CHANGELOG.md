@@ -2,6 +2,9 @@
 
 ## [0.32.0]
 
+- Complete the inventory fixture's CBOR request/reply path and matching admission
+  probe queries, preserving passive inspection, exact scope/content binding,
+  reply limits, blocker reports and reference-capacity error distinctions.
 - Encode manifest and verification-plan reply fixtures with the current CBOR
   codec, restoring success, binding, budget and remote-error assertions. Keep
   malformed-payload coverage on valid CBOR with an incompatible field shape.
@@ -17,9 +20,9 @@
   IC Wire contracts with explicit layout, method identity and request/reply
   direction. Preserve existing authority, compare-and-set policy and recovery;
   old Candid and pending CBOR tenant frames refuse without fallback. Target the
-  IC Wire 0.3 registry line; the current lock selects published 0.3.2 and focused
-  tenant checks pass. Other owned methods/lifecycle inputs still use CBOR during conversion;
-  complete that conversion before freezing the 0.32 service contract.
+  published IC Wire 0.3 registry line. Other owned methods/lifecycle inputs still
+  use CBOR during conversion; complete that conversion before freezing the
+  0.32 service contract.
 - Record a [matched tenant codec comparison](docs/evidence/wire-bench0320.md)
   against released Candid and pending CBOR, including instruction counts, packet
   sizes and partial-adoption Wasm size. Scope results to the frozen unpublished

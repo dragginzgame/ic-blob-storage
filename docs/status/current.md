@@ -2,6 +2,18 @@
 
 Date: 2026-10-17
 
+## Inventory request/reply codec repaired — pending 0.32.0
+
+The inventory command, its reply fixtures and the admission probe's three Blob
+queries now agree on CBOR. This also removes the stale Candid reference-capacity
+decoder while preserving byte admission, bindings, passive reads and blockers.
+[The receipt](../evidence/inventory-codec0320.md) records all 25 library cases
+passing, strict affected lint, actual Rust 1.91 and six installed cases with a
+fresh admission Wasm and actual inventory executable. Cargo.lock adds only the
+probe's direct edge to existing Serde; no external selection changes. Earlier
+Wire qualification retains its own source/graph scope. Full CI and release were
+not run; other owned methods/lifecycle still need Wire conversion.
+
 ## Manifest and verification reply fixtures repaired — pending 0.32.0
 
 The two reported native failures used stale Candid success packets against CBOR

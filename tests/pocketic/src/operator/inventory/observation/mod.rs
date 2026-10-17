@@ -4,11 +4,7 @@ use super::{
     input::{Inventory, PreparedBlob},
     selection::Selection,
 };
-use crate::operator::{
-    Failure,
-    ops::{Report, decode},
-    transport::query_target,
-};
+use crate::operator::{Failure, ops::Report, transport::query_target};
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
@@ -20,7 +16,7 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
-use ic_testkit_candid::DecodeLimits;
+use ic_blob_storage_contracts::wire;
 use serde_json::{Value, json};
 
 fn decode_capacity(scope: TenantScope, bytes: &[u8]) -> Result<UploadCapacityResponse, Failure> {
@@ -59,7 +55,7 @@ fn inspect(
         selection.scope,
         &query(
             "blob_upload_capacity",
-            candid::encode_one(selection.scope).expect("capacity scope"),
+            wire::encode(selection.scope).expect("capacity scope"),
         )?,
     )?;
     let mut blockers = Vec::new();
@@ -163,19 +159,17 @@ fn existing(
                 root: content.request.root,
             };
             let response: ReferenceCapacityResponse =
-                decode::<Result<_, ReferenceCapacityFailure>>(
+                wire::decode::<Result<_, ReferenceCapacityFailure>>(
                     &query(
                         "blob_reference_capacity",
-                        candid::encode_one(lookup).expect("content scope"),
+                        wire::encode(lookup).expect("content scope"),
                     )?,
-                    DecodeLimits {
-                        reply_bytes: 4096,
-                        decoding_quota: 100_000,
-                        skipping_quota: 1000,
-                        type_entries: 64,
-                        header_bytes: 4096,
-                    },
-                )?
+                    4096,
+                )
+                .map_err(|error| match error {
+                    wire::Error::Limit => Failure::ReplyTooLarge,
+                    wire::Error::Invalid | wire::Error::Trailing => Failure::InvalidReply,
+                })?
                 .map_err(|error| match error {
                     ReferenceCapacityFailure::Binding => Failure::Binding,
                     ReferenceCapacityFailure::Denied => Failure::Denied,
@@ -227,7 +221,7 @@ fn discover(
     };
     let bytes = query(
         "blob_lookup_content",
-        candid::encode_one(request).expect("content scope"),
+        wire::encode(request).expect("content scope"),
     )?;
     let response = decode(
         request,

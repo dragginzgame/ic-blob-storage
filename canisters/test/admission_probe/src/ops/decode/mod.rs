@@ -35,11 +35,6 @@ pub(crate) fn request(bytes: Vec<u8>) -> Request {
 pub(crate) fn content(bytes: Vec<u8>) -> ContentLookup {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
-pub(crate) fn reference_capacity(
-    bytes: Vec<u8>,
-) -> ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest {
-    decode(&bytes, SMALL_BYTES, 32 * 1024)
-}
 
 pub(crate) fn retained_descriptor(
     bytes: Vec<u8>,
@@ -48,12 +43,6 @@ pub(crate) fn retained_descriptor(
 }
 
 pub(crate) fn installation(bytes: Vec<u8>) -> Installation {
-    decode(&bytes, SMALL_BYTES, 32 * 1024)
-}
-
-pub(crate) fn admission_capacity(
-    bytes: Vec<u8>,
-) -> ic_blob_storage_contracts::dto::tenant::TenantScope {
     decode(&bytes, SMALL_BYTES, 32 * 1024)
 }
 
@@ -83,8 +72,8 @@ fn config(bytes: &[u8], maximum: usize, work: usize) -> DecoderConfig {
     config
 }
 
-pub(crate) fn discovery(
-    bytes: Vec<u8>,
-) -> ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest {
-    decode(&bytes, SMALL_BYTES, 32 * 1024)
+/// Decode the bounded current Blob interface; other fixture commands retain Candid.
+pub(crate) fn blob<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
+    ic_blob_storage_contracts::wire::decode(&bytes, SMALL_BYTES)
+        .expect("invalid or over-budget Blob probe input")
 }

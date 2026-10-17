@@ -95,16 +95,18 @@ before these repairs. Earlier
 own graph and does not qualify this newer selection.
 
 The initial [IC Wire adoption](evidence/icwire0320.md) retains its prepublication
-source qualification. The current root lock selects published Wire/derive 0.3.2,
-Testkit/Candid 0.51.0 and Host Tools 0.25.1; no source override is needed. The
-[current caller repair](evidence/testkit0510320.md) records package compilation,
-strict lint, Rust 1.91 and seven selected installed cases on that graph. This
-does not relabel the earlier candidate benchmark or qualify every service method.
+source qualification. Wire/derive use the published 0.3 registry line; Cargo.lock
+owns the exact selection, without a source override. The
+[Testkit caller repair](evidence/testkit0510320.md) records package compilation,
+strict lint, Rust 1.91 and seven selected installed cases on its then-selected
+Wire 0.3.2 graph. The [inventory repair](evidence/inventory-codec0320.md) records
+the later locked graph and adds only the admission probe's direct Serde edge.
+Neither relabels the earlier candidate benchmark or qualifies every service method.
 Remaining CBOR methods still need conversion before freezing the service contract.
 
 The [0.32 incoming protocol](service-wire.md) still uses the already locked Ciborium
 0.2.2 through Contracts for unconverted CBOR methods and replies. Serde is explicit in
-the standalone and storage probe manifests. This codec adds no external selection. Incoming maintainer edits separately select
+the standalone, storage and admission probe manifests. This codec adds no external selection. Incoming maintainer edits separately select
 Memory 0.47 and Build 0.13. Collection code names the already locked
 `ic-stable-structures` 0.7.2 directly after Memory removed its blanket substrate
 re-export; host backing types use Memory's supported root exports. Runtime leases

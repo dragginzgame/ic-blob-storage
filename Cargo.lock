@@ -267,6 +267,7 @@ dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
  "ic-cdk",
+ "serde",
 ]
 
 [[package]]
@@ -329,7 +330,7 @@ dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
  "ic-cdk",
- "ic-metrics",
+ "ic-metrics 0.13.1",
  "serde",
 ]
 
@@ -1850,6 +1851,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c30a384477a9783da95cd991e576f6f6a76c5d3691299fffe294f95affae3fd7"
 
 [[package]]
+name = "ic-metrics"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73e022ddde901fdc0de3862d0c36923252ac010bcd0434804ea90ace60390d6d"
+
+[[package]]
 name = "ic-stable-structures"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1869,7 +1876,7 @@ dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
  "ic-host-process",
- "ic-metrics",
+ "ic-metrics 0.12.0",
  "ic-testkit-candid",
  "libc",
  "pocket-ic",
@@ -1922,9 +1929,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "254149ca601b593a3d1b9074705298a9ad3201547c57f34348dbeedf213e23e1"
+checksum = "4c135a8fd8bd3cbbf390ce50a645d0f9c603a70e3d0c39e22a37106a8a63c4e8"
 dependencies = [
  "ic-wire-derive",
  "postcard",
@@ -1933,9 +1940,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire-derive"
-version = "0.3.2"
+version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d38276ba95b73b70dbebf8405590fff154f600867c459615a0d37e42677f1bd"
+checksum = "ca2cc4b804694bb998cecd95e2c7f0e16bf9366c0f38e7fc592c93a1aa35aa6b"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -92,7 +92,7 @@ fn inspect(request: Request) -> Result<Observation, Failure> {
     workflow::inspect(context(), request)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::discovery")]
+#[ic_cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
 fn blob_lookup_content(
     input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
 ) -> Result<
@@ -114,7 +114,7 @@ fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
     workflow::resources(context(), limit)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::admission_capacity")]
+#[ic_cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
 fn blob_upload_capacity(
     input: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<
@@ -131,7 +131,7 @@ fn retained_content_descriptor(
     workflow::retained_content_descriptor(context(), input)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::reference_capacity")]
+#[ic_cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
 fn blob_reference_capacity(
     input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
 ) -> Result<
