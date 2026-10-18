@@ -260,7 +260,7 @@ checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
 name = "blob-admission-probe"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -271,7 +271,7 @@ dependencies = [
 
 [[package]]
 name = "blob-authority-probe"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -284,7 +284,7 @@ dependencies = [
 
 [[package]]
 name = "blob-consumer-probe"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -296,7 +296,7 @@ dependencies = [
 
 [[package]]
 name = "blob-funding-probe"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -308,7 +308,7 @@ dependencies = [
 
 [[package]]
 name = "blob-gateway-source"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "blob-test-protocol",
  "ic-memory",
@@ -318,7 +318,7 @@ dependencies = [
 
 [[package]]
 name = "blob-storage-probe"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -331,7 +331,7 @@ dependencies = [
 
 [[package]]
 name = "blob-test-protocol"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
@@ -1567,7 +1567,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "hex",
  "ic-blob-storage-contracts",
@@ -1581,7 +1581,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-canister"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
@@ -1591,7 +1591,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-cli"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "hex",
  "ic-blob-storage-contracts",
@@ -1611,7 +1611,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-client"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "ic-blob-storage-contracts",
  "ic-platform",
@@ -1621,7 +1621,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-contracts"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "ciborium",
  "hex",
@@ -1638,7 +1638,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-pocketic-tests"
-version = "0.34.0"
+version = "0.35.0"
 dependencies = [
  "blob-test-protocol",
  "hex",

@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.35.0]
+## [0.35.0] - 2026-10-18
 
 - **Breaking client imports:** use the published `ic-blob-storage-client` role
   modules for replicated calls instead of Core's `ops::service::*::client`
