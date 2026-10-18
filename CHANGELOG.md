@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.34.0]
+## [0.34.0] - 2026-10-18
 
 - **Breaking provider decoder API:** import chunk-reply decoding and its status/error
   types from `ic_blob_storage_contracts::provider::upload` instead of
