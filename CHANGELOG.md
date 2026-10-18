@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.33.1]
+## [0.33.1] - 2026-10-18
 
 - Finish Testkit 0.54 adoption: use Platform's bounded Candid decoder types,
   remove the retired Testkit decoder dependency and forbid its direct
