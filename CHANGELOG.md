@@ -2,7 +2,7 @@
 
 ## [0.33.1]
 
-- Keep generic host/IC/Cargo installer and release-runner regression matrices
+- Keep generic host/IC/Cargo installer, Cargo-version observer and release-runner regression matrices
   at Shared Tooling. Narrow the canonical snapshot roots without changing its
   source revision. Blob retains actual tool admission, hook, release and recovery
   checks; the library and service contracts are unchanged.

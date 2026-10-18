@@ -119,7 +119,6 @@ shared-tooling-tests:
 	+bash scripts/ci/test-cargo-metadata.sh
 	+bash scripts/ci/test-crates-io-version.sh
 	+bash scripts/ci/test-npm-pins.sh
-	+bash scripts/ci/test-cargo-tool-versions.sh
 	+bash scripts/ci/test-tool-commands.sh
 	+bash scripts/ci/test-testkit-commands.sh
 	+bash scripts/ci/test-cloc.sh

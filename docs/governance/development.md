@@ -282,3 +282,24 @@ The maintainer removed B1 ownership/readiness as a library-publication gate.
 The validation gate proves the implemented native behavior and release tooling;
 service qualification still requires its actual PocketIC/provider/recovery
 evidence. Publication does not establish those guarantees.
+
+## Consumer tooling qualification
+
+Shared Tooling owns generic installer, Cargo-version observer and release-runner
+regression matrices at the revision in `.shared-tooling.snapshot`. Blob keeps
+qualification of its actual selected inputs and callers:
+
+| Consumer obligation | Retained proof |
+| --- | --- |
+| Installed host/Rust tools and selected catalog | `make tools-check`, including its explicit Testkit extension |
+| Dependency declarations and lock selections | `make dependency-pins-check` and `scripts/ci/test-local-lock-versions.pl` |
+| Make/tool command forwarding and server admission | `scripts/ci/test-tool-commands.sh` and `scripts/ci/test-testkit-commands.sh` |
+| Hook preservation and actual formatter selection | `make hooks-check` |
+| Release/publication refusals and recovery | `scripts/release/test-release.sh` and `make release-commands-check` |
+| Evidence selection, archives and retention | `make tooling-evidence-check` and `scripts/ci/test-evidence-archive.sh` |
+
+The Cargo-version observer fixture uses substitute catalogs, receipts and network
+responses; it adds no check of Blob's installed selection beyond the retained
+consumer admission. Snapshot roots retire through the canonical exporter at the
+unchanged revision. Native Linux and both macOS lanes retain their product/tool
+qualification; producer CI does not qualify Blob's native hosts.
