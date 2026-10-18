@@ -137,14 +137,15 @@ continuous evidence recording and separates source/local/live observations.
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
 URLs. `make shared-tooling-tests` exercises consumer fixture completion, evidence
-archive, IC installer, local lockfile, Cargo metadata, host/Cargo-tool installation and common Make/LOC refusals
+archive, local lockfile, Cargo metadata and common Make/LOC refusals
 with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks.
 The upstream exporter/governance integration fixture runs in Shared Tooling;
 it is omitted from Blob's selected files and gate. Actual snapshot verification,
 consumer adapter checks and native adoption qualification remain here. Reusable
 fixture dependencies are explicit companions checked by the canonical exporter.
-Shared owns the generic formatter-prerequisite and digest backend matrices;
+Shared owns the generic formatter-prerequisite, digest backend, host/IC/Cargo
+installer and release-runner matrices; these run in the producer's CI.
 Blob retains actual hook rollback, prepared-tool admission, archive checksums
 and failure propagation. The exported fixture roots are retired with the
 canonical snapshot exporter after checking callers.

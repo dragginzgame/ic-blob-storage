@@ -106,7 +106,7 @@ install-testkit:
 testkit-check:
 	+bash scripts/dev/testkit-server.sh check
 
-# Shared owns generic formatter-prerequisite and digest backend matrices.
+# Shared owns generic formatter, digest, installer and release-runner matrices.
 # Blob retains actual Make/hook/tool admission and archive/retention callers below.
 shared-tooling-tests:
 	+bash scripts/ci/test-make-consumer.sh
@@ -115,13 +115,10 @@ shared-tooling-tests:
 	+bash scripts/ci/test-evidence-archive.sh
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
-	+bash scripts/ci/test-ic-tools.sh
 	+perl scripts/ci/test-local-lock-versions.pl
 	+bash scripts/ci/test-cargo-metadata.sh
 	+bash scripts/ci/test-crates-io-version.sh
 	+bash scripts/ci/test-npm-pins.sh
-	+bash scripts/ci/test-host-tools.sh
-	+bash scripts/ci/test-rust-tools.sh
 	+bash scripts/ci/test-cargo-tool-versions.sh
 	+bash scripts/ci/test-tool-commands.sh
 	+bash scripts/ci/test-testkit-commands.sh
@@ -343,7 +340,6 @@ shell-check:
 	perl -c scripts/ci/check-documentation-links.pl
 
 release-check: release-commands-check
-	bash scripts/ci/test-release-runner.sh
 	bash scripts/release/test-release.sh
 
 ci:

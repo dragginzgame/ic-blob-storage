@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.1]
+
+- Keep generic host/IC/Cargo installer and release-runner regression matrices
+  at Shared Tooling. Narrow the canonical snapshot roots without changing its
+  source revision. Blob retains actual tool admission, hook, release and recovery
+  checks; the library and service contracts are unchanged.
+
 ## [0.33.0] - 2026-10-18
 
 - Share complete service dispatch between standalone and consumer hosts through
