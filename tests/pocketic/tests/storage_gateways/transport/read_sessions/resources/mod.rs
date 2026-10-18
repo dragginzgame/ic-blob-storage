@@ -6,6 +6,7 @@ use blob_test_protocol::storage::funding::{
     Action as FundingAction, Command as FundingCommand, Intent, Phase as FundingPhase,
     Request as FundingRequest,
 };
+use ic_testkit::pic::query_candid_args;
 use std::{path::Path, time::Instant};
 
 fn funding_command(
@@ -68,24 +69,30 @@ fn funding_lookup(
     actor: Principal,
     intent: Intent,
 ) -> Result<Option<FundingPhase>, Failure> {
-    f.harness
-        .pic
-        .query_candid(f.service, actor, "funding_lookup", (intent,), REPLY_LIMITS)
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.service,
+        actor,
+        "funding_lookup",
+        (intent,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 
 fn funding_request(f: &Fixture, intent: Intent) -> FundingRequest {
-    f.harness
-        .pic
-        .query_candid::<Result<FundingRequest, Failure>, _>(
-            f.service,
-            f.operator,
-            "funding_request",
-            (intent,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap()
+    query_candid_args::<(Result<FundingRequest, Failure>,), _>(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "funding_request",
+        (intent,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap()
 }
 
 #[test]

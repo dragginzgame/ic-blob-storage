@@ -1,5 +1,6 @@
 //! Real IC scheduling against an explicitly different local source method.
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod read_sessions;
 use super::*;
 use blob_test_protocol::{
@@ -22,31 +23,31 @@ impl Fixture {
     }
     fn source_mode(&self, mode: SourceMode) {
         assert!(
-            self.harness
-                .pic
-                .update_candid::<bool, _>(
-                    self.operator,
-                    self.controller,
-                    "configure",
-                    (mode,),
-                    REPLY_LIMITS
-                )
-                .unwrap()
+            update_candid_args::<(bool,), _>(
+                &self.harness.pic,
+                self.operator,
+                self.controller,
+                "configure",
+                (mode,),
+                REPLY_LIMITS
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
         );
     }
     fn source_requests(&self) -> u64 {
-        self.harness
-            .pic
-            .query_candid::<Option<SourceObservation>, _>(
-                self.operator,
-                self.controller,
-                "observation",
-                (),
-                REPLY_LIMITS,
-            )
-            .unwrap()
-            .unwrap()
-            .requests
+        query_candid_args::<(Option<SourceObservation>,), _>(
+            &self.harness.pic,
+            self.operator,
+            self.controller,
+            "observation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+        .unwrap()
+        .requests
     }
     fn transport_input(&self, token: u64) -> TransportInput {
         TransportInput {
@@ -56,31 +57,30 @@ impl Fixture {
         }
     }
     fn query_gateways(&self, actor: Principal, token: u64) -> Result<(), Failure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                actor,
-                "fixture_gateway_transport",
-                (self.transport_input(token),),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "fixture_gateway_transport",
+            (self.transport_input(token),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn wait_source(&self) {
         for _ in 0..30 {
             self.harness.pic.tick();
-            let view: Option<SourceRecoveryView> = self
-                .harness
-                .pic
-                .query_candid(
-                    self.operator,
-                    self.controller,
-                    "recovery_observation",
-                    (),
-                    REPLY_LIMITS,
-                )
-                .unwrap();
+            let view: Option<SourceRecoveryView> = query_candid_args(
+                &self.harness.pic,
+                self.operator,
+                self.controller,
+                "recovery_observation",
+                (),
+                REPLY_LIMITS,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
             if view.unwrap().held_sync.is_some() {
                 return;
             }
@@ -89,16 +89,16 @@ impl Fixture {
     }
     fn resume_source(&self) {
         assert!(
-            self.harness
-                .pic
-                .update_candid::<bool, _>(
-                    self.operator,
-                    self.controller,
-                    "resume_sync",
-                    (),
-                    REPLY_LIMITS
-                )
-                .unwrap()
+            update_candid_args::<(bool,), _>(
+                &self.harness.pic,
+                self.operator,
+                self.controller,
+                "resume_sync",
+                (),
+                REPLY_LIMITS
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
         );
     }
 }

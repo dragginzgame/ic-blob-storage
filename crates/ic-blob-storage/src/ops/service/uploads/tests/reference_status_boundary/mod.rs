@@ -25,8 +25,8 @@ fn request() -> ReferenceStatusRequest {
     }
 }
 fn reserved() -> (
-    StableUploads<FixtureBackingMemory>,
-    UploadMemories<FixtureBackingMemory>,
+    StableUploads<ic_memory::VectorMemory>,
+    UploadMemories<FixtureMemory>,
     UploadPermission,
 ) {
     let m = memory();

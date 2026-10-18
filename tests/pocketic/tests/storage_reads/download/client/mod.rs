@@ -1,20 +1,21 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::read::{DownloadClientInput, DownloadProbeFailure};
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn fetch(
     f: &Fixture,
     input: DownloadClientInput,
 ) -> Result<DownloadResponse, DownloadProbeFailure> {
-    f.harness
-        .pic
-        .update_candid(
-            f.tenant,
-            f.operator,
-            "fixture_fetch_descriptor",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "fixture_fetch_descriptor",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn consumer() -> Fixture {
     let mut f = Fixture::new();
@@ -78,29 +79,27 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
         ),
         Err(DownloadProbeFailure::Limit)
     );
-    let denied: Result<DownloadResponse, DownloadProbeFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            client,
-            f.other,
-            "fixture_fetch_descriptor",
-            (selection.clone(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let denied: Result<DownloadResponse, DownloadProbeFailure> = update_candid_args(
+        &f.harness.pic,
+        client,
+        f.other,
+        "fixture_fetch_descriptor",
+        (selection.clone(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(denied, Err(DownloadProbeFailure::Denied));
-    let query: Result<DownloadResponse, DownloadProbeFailure> = f
-        .harness
-        .pic
-        .query_candid(
-            client,
-            f.operator,
-            "fixture_nonreplicated_descriptor",
-            (selection.clone(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let query: Result<DownloadResponse, DownloadProbeFailure> = query_candid_args(
+        &f.harness.pic,
+        client,
+        f.operator,
+        "fixture_nonreplicated_descriptor",
+        (selection.clone(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(query, Err(DownloadProbeFailure::Execution));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     f.enroll(Some(f.tenant().unwrap()), false).unwrap();

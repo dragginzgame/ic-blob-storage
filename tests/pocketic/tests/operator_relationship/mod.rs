@@ -10,6 +10,7 @@ use ic_blob_storage::ops::caffeine::{
         PaymentRelationshipReplyError,
     },
 };
+use ic_testkit::pic::update_candid_args;
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
 use std::num::NonZeroUsize;
 
@@ -52,22 +53,21 @@ impl Fixture {
     }
     fn relationship_response(&self, bytes: Vec<u8>, hold: bool, reject: bool) {
         // The existing bounded raw-response slot is shared by the local experiments.
-        let configured: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.driver,
-                "configure_balance",
-                (BalanceSourceConfig {
-                    account: owner(),
-                    bytes,
-                    hold,
-                    reject,
-                },),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let configured: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.driver,
+            "configure_balance",
+            (BalanceSourceConfig {
+                account: owner(),
+                bytes,
+                hold,
+                reject,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(configured);
     }
     fn inspect_relationship(
@@ -173,22 +173,21 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
     );
     // Configure an otherwise valid report for another requested owner. The source
     // accepts that request but the shared decoder rejects the returned owner.
-    let configured: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.driver,
-            "configure_balance",
-            (BalanceSourceConfig {
-                account: payer(),
-                bytes: bytes("linked"),
-                hold: false,
-                reject: false,
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let configured: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.driver,
+        "configure_balance",
+        (BalanceSourceConfig {
+            account: payer(),
+            bytes: bytes("linked"),
+            hold: false,
+            reject: false,
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(configured);
     assert_eq!(
         f.inspect_relationship(&f.relationship_request(payer(), payer())),

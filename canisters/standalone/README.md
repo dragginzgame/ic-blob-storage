@@ -10,8 +10,8 @@ Build with `make build-standalone`; run its local lifecycle cases with
 These commands do not deploy or contact Caffeine.
 
 Tenant inspection/update use bounded IC Wire; the remaining owned methods and
-installation still use CBOR during the pending conversion. See
-[the current adoption state](../../docs/service-wire.md) before using either.
+installation use bounded CBOR. See [the protocol](../../docs/service-wire.md)
+for the exact per-method contract; no codec detection or fallback is provided.
 The [provider Candid contract](service.did) describes only
 `_immutableObjectStorageCreateCertificate` and is generated from its declaration:
 

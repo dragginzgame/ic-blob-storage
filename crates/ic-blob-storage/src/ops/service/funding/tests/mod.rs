@@ -10,7 +10,7 @@ mod renewal;
 mod summary;
 use crate::model::billing::journal::FundingIntentState;
 use crate::ops::service::tenant::tests::config;
-use crate::test_support::memory::FixtureBackingMemory;
+use crate::test_support::memory::FixtureMemory;
 use candid::Principal;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_blob_storage_contracts::funding::transfer::FundingTransferError;
@@ -28,15 +28,15 @@ fn execution() -> UploadContext {
 fn allocation() -> FundingAllocation {
     FundingAllocation::new(1000, n(100), NonZeroUsize::new(4).unwrap()).unwrap()
 }
-fn memories() -> FundingMemories<FixtureBackingMemory> {
+fn memories() -> FundingMemories<FixtureMemory> {
     FundingMemories {
-        accounting: FixtureBackingMemory::default(),
-        intents: FixtureBackingMemory::default(),
+        accounting: FixtureMemory::default(),
+        intents: FixtureMemory::default(),
     }
 }
 fn copy(
-    m: &FundingMemories<FixtureBackingMemory>,
-) -> FundingMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
+    m: &FundingMemories<FixtureMemory>,
+) -> FundingMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     FundingMemories {
         accounting: m.accounting.lease(),
         intents: m.intents.lease(),

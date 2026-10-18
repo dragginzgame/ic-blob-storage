@@ -1,6 +1,7 @@
 //! The uploader is a distinct canister, separate from the admitted tenant.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod cancellation;
 use blob_test_protocol::consumer::{
     Failure as C,
@@ -28,52 +29,52 @@ fn fixture() -> Fixture {
     f
 }
 fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
-    f.harness
-        .pic
-        .update_candid(
-            f.uploader,
-            f.operator,
-            "save_manifest",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.uploader,
+        f.operator,
+        "save_manifest",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
-    f.harness
-        .pic
-        .query_candid(
-            f.uploader,
-            f.operator,
-            "manifest_intent",
-            (id,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.uploader,
+        f.operator,
+        "manifest_intent",
+        (id,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, C> {
-    f.harness
-        .pic
-        .update_candid(
-            f.uploader,
-            f.operator,
-            "dispatch_manifest",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.uploader,
+        f.operator,
+        "dispatch_manifest",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn recover(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
-    f.harness
-        .pic
-        .update_candid(
-            f.uploader,
-            f.operator,
-            "recover_manifest",
-            (id,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.uploader,
+        f.operator,
+        "recover_manifest",
+        (id,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn run(id: u128) -> ManifestDispatch {
     ManifestDispatch {
@@ -180,29 +181,27 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
         .unwrap_err();
     assert_eq!(rejected.reject_code, RejectCode::CanisterError);
     assert!(!view(&f, 1).unwrap().started);
-    let queried: Result<UploadManifestResponse, C> = f
-        .harness
-        .pic
-        .query_candid(
-            f.uploader,
-            f.operator,
-            "query_manifest",
-            (1u128,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let queried: Result<UploadManifestResponse, C> = query_candid_args(
+        &f.harness.pic,
+        f.uploader,
+        f.operator,
+        "query_manifest",
+        (1u128,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(queried, Err(C::Transport));
-    let denied: Result<ManifestIntentView, C> = f
-        .harness
-        .pic
-        .update_candid(
-            f.uploader,
-            f.other,
-            "dispatch_manifest",
-            (run(1),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let denied: Result<ManifestIntentView, C> = update_candid_args(
+        &f.harness.pic,
+        f.uploader,
+        f.other,
+        "dispatch_manifest",
+        (run(1),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(denied, Err(C::Denied));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     assert_eq!(f.harness.pic.get_stable_memory(f.uploader), local);

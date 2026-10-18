@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod certificate;
 mod snapshot;
 use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
@@ -18,38 +19,44 @@ fn input(f: &Fixture, permission: Permission) -> ExposureInput {
     }
 }
 fn expose(f: &Fixture, actor: Principal, input: ExposureInput) -> Result<ExposureOutcome, E> {
-    f.harness
-        .pic
-        .update_candid(f.service, actor, "expose", (input,), REPLY_LIMITS)
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.service,
+        actor,
+        "expose",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn preview(f: &Fixture, input: ExposureInput) -> Result<Vec<B>, E> {
-    f.harness
-        .pic
-        .query_candid(
-            f.service,
-            f.uploader,
-            "exposure_preview",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.uploader,
+        "exposure_preview",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn inspect(
     f: &Fixture,
     actor: Principal,
     input: ExposureInput,
 ) -> Result<UploadAdmissionResponse, E> {
-    f.harness
-        .pic
-        .query_candid(
-            f.service,
-            actor,
-            "exposure_status",
-            (input.permission,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.service,
+        actor,
+        "exposure_status",
+        (input.permission,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 #[test]
 fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_authority() {

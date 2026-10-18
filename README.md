@@ -129,14 +129,11 @@ provider verification and consumer integration remain host-owned.
 
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.
-Canic owns dedicated and embedded adapters. Published `canic-blob-service` 0.111.0
-selects Blob 0.22 and Memory 0.35; it is not the adapter for this Blob 0.23 line.
-Canic's pending 0.112 composition targets Blob 0.23 and Memory 0.36; family delivery
-remains separate from its local managed proofs. Follow the
+Canic owns dedicated and embedded adapters and their composition tests. Follow the
 [integration recipe](docs/dependencies.md#canic-integration) for coherent dependency
 selection, the host's compiler floor and target-bound initialization.
-[The earlier delivery review](docs/evidence/canic0229.md) retains its older graph
-and does not qualify current production/provider behavior.
+Historical integration reviews retain their original graphs and do not qualify
+current application or provider behavior.
 The [service contract](docs/service-contract.md) defines wrapper and lifecycle
 obligations; [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues)
 track publication, serving and consumer integration work.

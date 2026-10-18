@@ -20,7 +20,7 @@ use ic_storage::adapter::StableBTreeMap;
 use std::{collections::BTreeMap as HeapMap, num::NonZeroU32, ops::Bound};
 
 /// Three distinct memories, exclusively granted by the host; no implicit registration.
-pub struct ReadSessionMemories<M: Memory> {
+pub struct ReadSessionMemories<M> {
     /// Configuration, high-water identity and aggregate occupancy.
     pub journal: M,
     /// One bounded intent per occupied session, removed only by exact completion.

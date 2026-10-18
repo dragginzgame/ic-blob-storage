@@ -10,180 +10,81 @@ The root [Cargo catalog](../Cargo.toml) owns all direct dependency requirements;
 all twelve members inherit package versions and dependencies. The root
 [lockfile](../Cargo.lock) owns this checkout's selected graph. Member manifests
 select features and targets. Registry consumers resolve their own compatible
-lockfiles; this repository's qualification does not cover every future resolution.
+lockfiles; local qualification does not cover every future resolution.
 
-| Owner | Current locked selection | Scope |
+| Owner | Locked selection | Responsibility |
 | --- | --- | --- |
-| IC Memory | 0.48.0 | Public host runtime and exclusive allocation leases; backing custody stays with the host |
-| IC Storage | 0.5.2 | Governed stable collections and record codecs; substrate dependency stays upstream |
-| IC Metrics (direct) | 0.13.4 | Private storage probe measurements; Testkit retains its own transitive selection |
-| IC Testkit | 0.52.0 | Native PocketIC client, bounded fixture capture, server setup and managed lifetime |
-| IC Testkit Candid | 0.52.0 | Native fixture reply decoding with explicit caller limits; no public library dependency |
-| IC Host artifacts/fs/process/tools (direct) | 0.27.1 | Native artifacts, filesystem and test/tool boundaries |
-| IC Build | 0.16.0 | CLI build-time source fingerprints and opt-in native archive qualification; absent from public libraries and production Wasm |
-| PocketIC | 16.1.0 | Selected and admitted by Testkit; no separate Blob server pin |
+| Blob core | Workspace version | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
+| Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
+| IC Memory | 0.48.1 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
+| IC Storage | 0.5.2 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
+| IC Wire | 0.4.0 | Bounded method/direction framing for the two tenant contracts |
+| IC Metrics | 0.13.4 | Private probe measurement arithmetic; not a public Blob API |
+| IC Testkit / Testkit Candid | 0.53.0 | PocketIC client/server selection, managed lifetime and bounded native Candid fixture decoding |
+| IC Host artifacts/fs/process/tools | 0.27.1 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Build | 0.16.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
+| PocketIC | 16.1.0 | Testkit-selected local IC execution; no separate Blob server catalog |
 
-Memory 0.48 changes the protected allocation-ledger format. Earlier installations
-require retirement before fresh backing; no automatic clearing or migration is
-provided. Private probe journals explicitly create bounded cells on installation
-and reopen retained cells on restore, preserving payload validation and fences.
+The standalone owns endpoint registration, caller capture, lifecycle and memory
+composition. The core exports none of these implicitly. Consumer frameworks own
+their wrappers and composition tests; see [Canic integration](#canic-integration).
+The [service contract](service-contract.md) owns supported service invariants.
 
-Native input opening requires Host fs 0.17.9 or newer. That owner also supplies
-the retained creation/publication used by verified body staging.
+Collection constructors take exclusive `RuntimeMemory<Backing>` handles from the
+host runtime. Store/workflow generic parameters name `Backing`; passive memory
+bundles carry handles without granting access. Production hosts compose all
+seventeen Blob requests before a single bootstrap. Cross-release installations
+require [safe retirement](retiring-installations.md), not automatic migration.
 
-Published Host 0.23 supplies descriptor-rooted descendant opening. Inventory
-metadata and body selection retain one admitted input root instead of returning
-canonical paths to reopen later. Historical preparation-journal reads use the
-same Host owner with their existing bounds and binding failures. Explicit
-single-file input paths retain their original following policy. Held descriptors
-do not freeze file contents or prove current pathname containment: callers must
-exclude concurrent source writers, and complete digest verification still owns
-content admission. [The reader qualification](evidence/host-readers0310.md) records
-the selected registry graph, source-replacement refusals and installed recovery.
+Native fixture custody uses Memory's published `testing::fixture_runtime` with
+retained backing and explicit leases. Raw bytes remain available only to native
+corruption/restore fixtures. Memory fixture support is selected by core unit tests
+and isolated probes; the default standalone build must exclude those selections.
+Do not infer production feature admission from a workspace-wide unified build.
 
-Published Host now owns whole-request and phased request-line/completion capture
-for native provider, signed-update and backpressure fixtures. This applies
-[PR #78](https://github.com/dragginzgame/ic-blob-storage/pull/78)'s payload locally
-with explicit native test-support features. Testkit 0.50 removes its old testing
-module and requires explicit reply limits on installed Candid calls. Retained Candid
-fixture calls supply the test-owned `support::REPLY_LIMITS`: 4 MiB wire,
-20 million decoding work, 1 million skipping work, 512 type entries and 64 KiB
-header. These finite local-fixture bounds cover status/history and byte-bearing
-probe replies; production clients retain their own narrower policies. No
-former-signature wrapper or production default is added.
-The separate Testkit Candid crate supplies bounded fixture reply decoding without
-transport or lifecycle ownership. Blob retains binding checks and error mapping;
-the [fixture cleanup receipt](evidence/fixture-convergence0291.md) records adoption.
-After changing the selected Testkit CLI, explicitly run `make install-testkit`
-before ordinary offline tool gates. Scoped installed evidence may use an explicit
-server binary with caller-owned byte admission; that does not qualify the missing
-lock-selected CLI installation.
+Host owns descriptor-rooted inventory and journal reads, retained creation,
+validated publication and bounded subprocess framing. Blob retains input bounds,
+request/reply correlation, JSON contracts, uncertainty records and error mapping.
+Held descriptors do not freeze contents: callers exclude concurrent writers and
+verify complete body digests. Interrupted probe evidence deliberately uses retained
+creation rather than an atomic writer that discards partial bytes. These are
+necessary consumer policies, not independent filesystem implementations.
+
+The optional archive verifier and HTTP fixtures use the same Host process package
+identity. Its normal dependency also supplies the default CLI's bounded framing;
+`package-verification` activates Build, not Host process. HTTP fixture support
+remains development-only. Build's source inventory is descriptive provenance,
+not executable attestation or retry authority. Testkit's transitive dependencies
+retain their own identities; Blob must not pass typed values across incompatible
+package versions. Installed tool selection is separate from the application lock:
+run `make install-testkit` then `make testkit-check` after changing Testkit.
+
+The [service wire guide](service-wire.md) describes the implemented protocol:
+tenant inspection/update use published IC Wire; the other 29 owned methods and
+standalone lifecycle use bounded CBOR through Ciborium. This mixed surface is
+explicit in the canonical method catalog, with no codec fallback. Candid remains
+for external provider/management contracts and existing persisted records.
+Do not remove Ciborium or Candid as migration leftovers while those consumers exist.
+Provider decoders retain their own work/type/byte budgets and authority checks;
+Testkit Candid owns fixture decoding, not production provider transport.
 
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.23.0 at
-`0b351cd2ba2bcd8927b783a5fec89afc8013f708`, with 136 payloads. Common installation,
-checks, hooks and formatting use `make/consumer.mk`; product targets, explicit IC tools and Testkit
-extensions stay local. ICP CLI now selects 1.7.0; other executable pins are unchanged. The canonical Rust-tool fixture runs directly from this
-consumer. Generic formatter-prerequisite and digest backend matrices run at
-Shared; Blob retains real hook rollback, selected-tool admission and archive
-checks. Their unused snapshot entrypoints are retired through the exporter. Snapshot adoption does not automatically adopt Shared's CI cache policy.
-The [current adoption receipt](evidence/shared023-host0270321.md) records the selected
-source, required local adapters and published Host qualification.
-The [0.23.3 cleanup/adoption evidence](evidence/next-three0233.md) records its original
-graph; [client/reply cleanup qualification](evidence/fourth-cleanup0233.md) records
-focused checks of its original selection. The following
-[view/intent/accounting cleanup](evidence/fifth-cleanup0233.md) records the incoming
-Testkit 0.38/Host 0.17.7 graph and explicit server-tool preparation.
-See [current status](status/current.md) for released versus prepared identities and
-[the adoption evidence](evidence/memory036-host016-shared0913.md) for source-bound results.
-The earlier private Metrics 0.9 overflow getter adoption is
-recorded in [the probe qualification](evidence/metrics0900232.md). Metrics types
-do not cross the public Blob package boundary; probe wire fields are retained.
-The [Shared 0.10.2 / Host 0.17.2 refresh](evidence/upstream0232.md) records
-the subsequent focused checks; earlier graph evidence is retained separately.
-Earlier dependency reviews remain in their existing evidence records and the
-[frozen former guide](https://github.com/dragginzgame/ic-blob-storage/blob/0d720d1745c1c9e87fe2a9cb922ba21c1dec5293/docs/dependencies.md);
-those graphs are not current setup instructions.
+`0b351cd2ba2bcd8927b783a5fec89afc8013f708` (136 payloads). It owns common Make,
+installation, tool storage, formatting, hooks and release mechanics. Blob owns
+product inputs, release metadata/publication order, validation selection, Testkit
+forwarding and evidence selection. Snapshot files are reviewed distribution,
+not independent local implementations; do not edit them in place.
+Common versions and digests belong to `ci/tool-versions.env` and `ci/ic-tools.tsv`;
+Blob has no common-tool exception. Compiler and application dependencies remain
+local selections. The [setup guide](local-setup.md) and
+[development governance](governance/development.md) own executable commands.
 
-IC Build 0.16.0 and direct Host now share process 0.27.1. Testkit 0.52 retains
-its internal Host 0.26 family; Blob does not pass values across those identities. The optional archive
-verifier and native HTTP tests use the single `ic-host-process` dependency name;
-`package-verification` activates its normal dependency, while HTTP test-support
-remains development-only. The former separate Build-family alias is removed:
-using two names for this now-identical crate makes Cargo reject all-feature
-checks. No dependency selection or lockfile change is required for this repair.
-[The caller repair receipt](evidence/ci-api0310.md#build-012-dependency-name-repair)
-records current CLI compilation, lint, MSRV and archive replacement/refusal tests.
-Earlier installed recovery results in that receipt retain their original graph.
-Actual Blob archives and required native-host acceptance remain under
-[#69](https://github.com/dragginzgame/ic-blob-storage/issues/69). The
-[earlier receipt](evidence/decoder-commands0310.md) retains the original failures
-before these repairs. Earlier
-[0.11/0.23 compilation success](evidence/content-hex-origins0310.md) retains its
-own graph and does not qualify this newer selection.
-
-The initial [IC Wire adoption](evidence/icwire0320.md) retains its prepublication
-source qualification. Wire/derive use the published 0.3 registry line; Cargo.lock
-owns the exact selection, without a source override. The
-[Testkit caller repair](evidence/testkit0510320.md) records package compilation,
-strict lint, Rust 1.91 and seven selected installed cases on its then-selected
-Wire 0.3.2 graph. The [inventory repair](evidence/inventory-codec0320.md) records
-the later locked graph and adds only the admission probe's direct Serde edge.
-Neither relabels the earlier candidate benchmark or qualifies every service method.
-Remaining CBOR methods still need conversion before freezing the service contract.
-
-The [0.32 incoming protocol](service-wire.md) still uses the already locked Ciborium
-0.2.2 through Contracts for unconverted CBOR methods and replies. Serde is explicit in
-the standalone, storage and admission probe manifests. This codec adds no external selection. Incoming maintainer edits separately select
-Memory 0.47. Contributor Build 0.15 now matches selected Host 0.26 process types;
-[the verifier repair](evidence/build0150320.md) records focused qualification.
-Collection code uses IC Storage's governed adapters and codec exports. Blob has
-no direct substrate dependency; IC Storage and IC Memory own that implementation
-detail. Host backing types use Memory's supported root exports. Runtime leases
-remain host-owned. Unconverted clients, native packets and owned probe methods
-retain CBOR; tenant inspection/update use Wire. Candid remains at provider,
-management and persisted-record owners. Public Memory changes belong to the
-pending minor hard cut; these focused caller checks do not qualify all storage contracts.
-Canic must coordinate its endpoint emitters, raw callers and interface checks before
-adopting this hard cut. Its own integration results remain consumer-owned.
-
-Contracts retains explicit Candid decoder configuration for external provider
-contracts; owned service boundaries select Wire or CBOR explicitly. Each provider
-boundary retains its byte/work/skipping/type/header choices, authentication and
-error mapping; exact CBOR inputs check byte/depth limits and exhaustion locally. Provider URL components use the already locked
-percent-encoding crate directly, with the original RFC 3986 unreserved set.
-
-Fixture hex decoding uses the already locked `hex` crate as a direct development
-dependency of the library, Contracts, CLI and PocketIC test package. It adds no
-normal dependency to those packages. Frozen `.hex`/JSON inputs retain their
-original owners and byte content; provider hash parsing remains a separate contract.
-The [boundary cleanup receipt](evidence/boundaries0291.md) retains the initial
-Memory 0.44 compilation failures and isolated Memory 0.43 results. The
-[Memory 0.44 qualification](evidence/memory044.md) records their repair: remove
-the default-runtime adapter and use the existing explicit committed lookup.
-The public dependency and allocation-ledger format cut shipped in 0.30.0;
-hosts must retire earlier installations before reinstalling with the new format.
-Actual archive/release qualification remains separate; see
-[#69 — Adopt Host custody and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69#issuecomment-6210216854).
-The [earlier cleanup receipt](evidence/assessment-finalize0290.md) retains the
-Build 0.7 mismatch; [current qualification](evidence/publication-planning0290.md)
-records the confirmed Build 0.8/Memory 0.43 graph without relabelling old evidence.
-IC Build captures the complete CLI source inventory at build time. Native records
-retain `sha256:` digests and public-source probe records retain raw hexadecimal.
-The inventory includes source-directory membership, the build script, package/root
-manifests and root lock, using workspace-relative evidence. It is descriptive
-provenance, not executable attestation or retry authority. The default CLI runtime
-graph excludes Build; the optional archive verifier uses it at runtime. Public
-libraries/contracts and production Wasm have no Build dependency.
-[Current qualification](evidence/canic-issues0310.md) records the source-change
-invalidation check and the published graph.
-Memory's `test-support` feature is selected directly only by the authority,
-funding and gateway-source probes. Production standalone compilation excludes
-those probe selections; its Memory graph does not enable fixture support.
-Testkit's separately installed CLI uses the published packaged lock; explicitly run
-`make install-testkit` then `make testkit-check` after changing its selection.
-Changing the application lock alone does not update the installed tool. Earlier
-[issue-repair qualification](evidence/integration0234.md#published-opener-and-native-ci-setup-repair)
-retains its original graph. Host 0.25 includes Candid service inspection without
-a feature; interface tests enable only `ic-interface` for Wasm export projection.
-Host Tools defaults are empty; disabling them no longer excludes Candid parsing.
-No Candid extraction feature is needed by Blob. Memory request factories return
-`MemoryDeclarationError`; hosts supply their complete owned `Vec<MemoryRequest>`
-to `SealedDeclarationSnapshot::new` before the single runtime bootstrap.
-No global registry or constructor is involved.
-
-Descriptor-rooted inventory/journal reads remain a prepared consumer replacement,
-pending publication of
-[Host PR #114 — Root-relative opening](https://github.com/dragginzgame/ic-host-tooling/pull/114).
-The [inspection cleanup receipt](evidence/inspection0290.md) separates ordinary
-registry qualification from the isolated Host-source candidate. Do not copy its
-private dependency overrides or lockfile into normal application setup.
-
-Common tool versions and digests belong to the reviewed snapshot catalogs in
-`ci/tool-versions.env` and `ci/ic-tools.tsv`. Blob has no common-tool exception.
-Make, standalone installers, formatting, freshness inspection and evidence
-collection use those same defaults. Any future host, Rust or IC exception must
-be explicitly selected independently; a host override does not select Rust pins.
-Compiler, application dependencies and Testkit/PocketIC remain locally owned.
+Earlier source-bound receipts remain in [evidence](evidence/), including
+[the Host reader adoption](evidence/host-readers0310.md),
+[the initial Wire candidate](evidence/icwire0320.md) and
+[Shared/Host qualification](evidence/shared023-host0270321.md).
+Their older graphs and preparation blockers are historical evidence, not current
+setup requirements. See [current status](status/current.md) for validation limits.
 
 ## Quick setup
 
@@ -263,7 +164,7 @@ different purposes:
 | Scope | Rust version | Reason |
 | --- | --- | --- |
 | Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
-| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; selected Memory 0.46 requires 1.91 |
+| Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; the selected Memory 0.48 line requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
 The selected `ic-memory` 0.46 dependency requires Rust 1.91.0, which is now
@@ -436,74 +337,43 @@ Canic owns its adapter, dedicated shell, embedded wrapper and composition tests
 in its repository. Blob owns the framework-independent core and standalone host.
 Do not add Canic dependencies, wrappers or fixtures here. The
 [Canic composition guide](https://github.com/dragginzgame/canic/blob/main/docs/features/blob-storage/README.md)
-owns current framework mounting APIs; [current status](status/current.md#canic-boundary)
-links source-bound composition results and remaining owner work.
+owns current framework mounting APIs. Blob's local tests do not qualify Canic.
 
-The released 0.30.0 public cut requires the same Memory 0.44 identity in Blob
-and the host. [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
-retains the earlier 0.41 acceptance; it does not qualify 0.44. Canic owns fresh
-root/private-fixture lock and adapter qualification for this family. Local Blob
-checks do not qualify that consumer. Testkit's native Host identity does not
-replace the application's public Memory identity.
+For consumer adoption of this source:
 
-**Historical 2026-10-14 review:** Canic's released `v0.111.0` points to
-`25b73cd403b20b4e148c6e340f8c760a26d97f6e`. Its catalog requires Blob/contracts
-`0.22.2` and Memory `0.35`; Cargo cannot resolve those requirements to this
-Blob 0.23 / Memory 0.36 family. Adding this Blob version directly to an application
-does not upgrade the adapter's types or its memory runtime. Do not combine the
-two graphs or substitute a path override as published integration evidence.
-
-**Read-only review, 2026-10-16:** Canic HEAD
-`600a831e0d8241796b70773ea8c4d8fbd63e422c` was clean at initial inspection;
-concurrent owner edits later changed its root lock/Host callers. Its Blob/Memory
-selections and both private locks remain as reviewed. The root
-lock selects Blob/contracts 0.30.0 and Memory 0.44.0. Both independent Blob
-fixture locks still select Blob/contracts 0.27.1 and Memory 0.41.0; the embedded
-fixture also declares Memory 0.41 directly. Both fixture workspaces refuse
-`cargo metadata --offline --locked` because their locks need updating. This is
-an observed preparation failure, not an installed test failure. Canic must align
-all three graphs and repeat its dedicated/embedded composition cases; earlier
-0.27.1 installed successes do not qualify the current root. See
-[Canic #517](https://github.com/dragginzgame/canic/issues/517) and
-[Blob #77](https://github.com/dragginzgame/ic-blob-storage/issues/77).
-
-Pending Blob 0.31.0 additionally replaces the two limit types used in Canic's
-`integrations/blob-service/src/ops/account/mod.rs` and `ops/gateways/mod.rs` with
-`ops::caffeine::decoding::CaffeineReplyLimits`. Preserve the existing numeric
-budgets; there is no wire or persisted-format change from this consolidation.
-Apply that caller change only with the selected 0.31 family, following
-[the public upgrade guidance](service-contract.md#explicit-provider-decoder-budgets).
-The [current review receipt](evidence/canic-issues0310.md) records the exact
-source, locked metadata refusals and a checked, unapplied caller patch. Canic's
-configuration decoder already uses zero skipping quota; parent authority,
-guarded funding and actual application/provider acceptance retain their owners.
-
-For consumer adoption of the current Blob line:
-
-1. Select one coherent published Canic family, matching Blob runtime/contracts and
-   one Memory 0.45 identity for pending 0.31. Freeze the application's actual lock and all independent
-   fixture locks; sibling paths are not registry-delivery evidence.
+1. Select compatible Blob core/Contracts packages and the host's same Memory 0.48
+   identity. Store/workflow type parameters now name backing memory; constructors
+   take exclusive runtime leases. Freeze the application's actual lock and every
+   independent fixture lock; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot
-   and grant the `blob.` namespace in its allocation pool before bootstrap.
-   Validate the complete installation for the allocated Principal before opening.
-3. For a dedicated Component, require application initialization, encode the exact
-   `ServiceInstallationInput` and bind it through Root's authenticated initializer.
-   Retain the original operation, target and bytes for lost-reply reconciliation.
-   For embedding, keep one application lifecycle and compose synchronous Blob
-   installation/restoration plus its metrics sampler. Mounting initializes nothing.
-4. Before producing Blob's passive DTO, enforce zero Candid skipping quota and
-   exact argument count, including nested application initialization. Ordinary
-   query/update decoding retains its own independent limits. Build normal Wasms
-   with one memory runtime and check canonical Candid types and callable exports.
+   and grant the `blob.` namespace before bootstrap. Validate installation for the
+   allocated Principal before opening stores. Mounting initializes nothing.
+3. Preserve the host's authenticated initializer and one synchronous lifecycle.
+   Translate its admitted configuration to `ServiceInstallationInput`; standalone
+   initialization is CBOR, not a template for the framework's outer envelope.
+   A Candid outer initializer still requires zero skipping quota and exact argument
+   count, including nested application configuration.
+   Retain exact target/operation bytes for lost-reply reconciliation.
+4. Mount both request and response codecs from the current method catalog:
+   tenant methods use Wire, other owned methods use CBOR, and the provider
+   certificate uses Candid. Check actual Wasm names/modes and the provider-only
+   Candid subset. A Candid service file does not describe the complete Blob API.
 5. Run dedicated/embedded PocketIC initialization, target/caller refusal, rollback,
-   lost-result, metrics and same-image recovery cases. Apply the
+   lost-result, metrics and same-image recovery cases in Canic. Apply the
    [retirement contract](retiring-installations.md) before a cross-release reinstall.
    Same-release recovery never authorizes upgrading a retained installation.
+
+The [2026-10-16 receipt](evidence/canic-issues0310.md) retains its historical
+source, stale fixture-lock failures and proposed caller repairs. It does not
+establish current integration. The latest read-only source observations and
+inspection limits are recorded in the
+[architectural sediment audit](reports/audits/2026/10/18/architectural-sediment/01/report.md).
+No sibling source or lockfile is changed by Blob adoption.
 
 Managed installation does not complete application acceptance. The application
 must authenticate two users, issue exact tenant-approved permissions, operate the
 [completion verifier](completion-verifier.md), qualify deployed provider reads and
-commit its own media map only after exact completion/live references. See
+commit its media map only after exact completion/live references. See
 [multi-user authority](multi-user-upload-authority.md),
 [confirmed-reference publication](operator-guide.md#produce-a-complete-confirmed-reference-map)
 and [funding qualification](funding-consumer-qualification.md). Provider payer,

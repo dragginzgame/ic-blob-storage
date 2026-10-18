@@ -24,7 +24,7 @@ fn scope() -> OperatorScope {
 fn local_operator_snapshot_preserves_width_and_checks_every_scope_field_without_writes() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    let memory = std::array::from_fn(|_| FixtureBackingMemory::default());
+    let memory = std::array::from_fn(|_| FixtureMemory::default());
     let stores = ServiceStores::install(memories(&memory), config).unwrap();
     let before = memory.each_ref().map(|m| m.borrow().clone());
     let view = inspect((&stores).into(), context(), scope()).unwrap();
@@ -95,14 +95,14 @@ fn local_operator_snapshot_preserves_width_and_checks_every_scope_field_without_
 fn operator_snapshot_rejects_mixed_owners_even_with_same_service_and_operator() {
     let input = candidate();
     let original = ServiceStores::install(
-        memories(&std::array::from_fn(|_| FixtureBackingMemory::default())),
+        memories(&std::array::from_fn(|_| FixtureMemory::default())),
         validate_candidate(input.service, input).unwrap(),
     )
     .unwrap();
     let mut changed = input;
     changed.namespace = 1;
     let other = ServiceStores::install(
-        memories(&std::array::from_fn(|_| FixtureBackingMemory::default())),
+        memories(&std::array::from_fn(|_| FixtureMemory::default())),
         validate_candidate(changed.service, changed).unwrap(),
     )
     .unwrap();
@@ -130,9 +130,9 @@ fn operator_snapshot_rejects_mixed_owners_even_with_same_service_and_operator() 
 fn operator_snapshot_preserves_each_restore_fence_independently() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    let memory = std::array::from_fn(|_| FixtureBackingMemory::default());
+    let memory = std::array::from_fn(|_| FixtureMemory::default());
     let fresh = ServiceStores::install(memories(&memory), config).unwrap();
-    let snapshot = memory.each_ref().map(FixtureBackingMemory::snapshot);
+    let snapshot = memory.each_ref().map(FixtureMemory::snapshot);
     let restored = ServiceStores::open(memories(&snapshot), config).unwrap();
     let before = memory.each_ref().map(|m| m.borrow().clone());
     let mixed = inspect(

@@ -5,6 +5,7 @@ use blob_test_protocol::admission::{ContentDescriptor, ContentLookup, ContentSta
 use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_testkit::pic::query_candid_args;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest) {
@@ -54,22 +55,21 @@ fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest)
 }
 
 fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
-    let result: Result<Option<ContentDescriptor>, Failure> = f
-        .harness
-        .pic
-        .query_candid(
-            f.service,
-            p.request.tenant,
-            "content_descriptor",
-            (ContentLookup {
-                service: f.service,
-                tenant: p.request.tenant,
-                namespace: 1,
-                root: p.request.root,
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let result: Result<Option<ContentDescriptor>, Failure> = query_candid_args(
+        &f.harness.pic,
+        f.service,
+        p.request.tenant,
+        "content_descriptor",
+        (ContentLookup {
+            service: f.service,
+            tenant: p.request.tenant,
+            namespace: 1,
+            root: p.request.root,
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     result.unwrap().unwrap()
 }
 

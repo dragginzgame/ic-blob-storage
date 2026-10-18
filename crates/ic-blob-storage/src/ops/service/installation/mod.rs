@@ -74,7 +74,7 @@ impl ValidatedServiceInstallation {
 }
 
 /// Seventeen distinct exclusive host grants; the library selects no physical IDs.
-pub struct ServiceInstallationMemories<M: Memory> {
+pub struct ServiceInstallationMemories<M> {
     /// Immutable current installation record, separate from all service stores.
     pub configuration: M,
     /// Sixteen memories for the four service owners.
@@ -95,6 +95,7 @@ pub struct ServiceInstallationMemories<M: Memory> {
 ///     ServiceInstallation::<VectorMemory>::install;
 /// ```
 pub struct ServiceInstallation<M: Memory> {
+    last_platform_version: Option<u64>,
     configuration: ConfigurationRecord,
     download_scope: CaffeineDownloadScope,
     completion: CompletionAuthority,
@@ -124,6 +125,7 @@ impl<M: Memory> ServiceInstallation<M> {
         let mut records = StableBTreeMap::new(memories.configuration);
         records.insert(0u8, candidate.configuration.clone());
         Ok(Self {
+            last_platform_version: Some(candidate.configuration.platform_installation_version),
             configuration: candidate.configuration,
             download_scope: candidate.download_scope,
             completion: candidate.completion,
@@ -165,6 +167,7 @@ impl<M: Memory> ServiceInstallation<M> {
         )?;
         let stores = ServiceStores::open(memories.stores, candidate.limits)?;
         Ok(Self {
+            last_platform_version: None,
             configuration: record,
             download_scope: candidate.download_scope,
             completion: candidate.completion,
@@ -251,11 +254,14 @@ impl<M: Memory> ServiceInstallation<M> {
     /// Observe the host's actual platform version against its retained heap
     /// checkpoint. Rollback/gaps fence every owner; later observations never
     /// clear that fence. The checkpoint alone never proves current ownership.
-    pub fn observe_platform_version(&mut self, previous: &mut u64, current: u64) {
-        if crate::policy::recovery::version_gap(*previous, current) {
+    pub fn observe_platform_version(&mut self, current: u64) {
+        if self
+            .last_platform_version
+            .is_some_and(|previous| crate::policy::recovery::version_gap(previous, current))
+        {
             self.fence();
         }
-        *previous = current;
+        self.last_platform_version = Some(current);
     }
     /// Fence a version gap before mutation and request independent IC history
     /// only when the installation was active before this observation. Already-
@@ -263,13 +269,14 @@ impl<M: Memory> ServiceInstallation<M> {
     #[must_use]
     pub fn prepare_active_continuity(
         &mut self,
-        previous: &mut u64,
         current: u64,
     ) -> Option<super::recovery::ActiveContinuityRequest> {
-        let needs_check = crate::policy::recovery::version_gap(*previous, current);
+        let needs_check = self
+            .last_platform_version
+            .is_some_and(|previous| crate::policy::recovery::version_gap(previous, current));
         let was_active = !self.stores.uploads.is_fenced();
         let anchor = self.platform_installation_version();
-        self.observe_platform_version(previous, current);
+        self.observe_platform_version(current);
         (needs_check && was_active).then_some(super::recovery::ActiveContinuityRequest {
             installation_version: anchor,
         })

@@ -1,6 +1,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::query_candid_args;
 mod cli;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor as Cursor;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry as Entry;
@@ -148,17 +149,16 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
 }
 
 fn check_recovered_request(f: &Fixture, recovered: Intent) {
-    let wire: Result<blob_test_protocol::storage::funding::Request, Failure> = f
-        .harness
-        .pic
-        .query_candid(
-            f.service,
-            f.operator,
-            "funding_request",
-            (recovered,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let wire: Result<blob_test_protocol::storage::funding::Request, Failure> = query_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "funding_request",
+        (recovered,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     let expected = ic_blob_storage::ops::caffeine::funding::request::CashierTopUpRequest::new(
         recovered.cashier,
         recovered.account,

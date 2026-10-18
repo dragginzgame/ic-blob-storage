@@ -1,6 +1,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::query_candid_args;
 mod download;
 use blob_test_protocol::{
     admission::{
@@ -65,32 +66,32 @@ impl Fixture {
         actor: Principal,
         input: ContentLookup,
     ) -> Result<Option<ContentDescriptor>, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                actor,
-                "content_descriptor",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "content_descriptor",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn retained(
         &self,
         actor: Principal,
         input: RetainedDescriptorInput,
     ) -> Result<Option<RetainedDescriptor>, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                actor,
-                "retained_content_descriptor",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "retained_content_descriptor",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn scan(&self, actor: Principal, input: ScanInput) -> Result<Page, HistoryFailure> {
         self.harness

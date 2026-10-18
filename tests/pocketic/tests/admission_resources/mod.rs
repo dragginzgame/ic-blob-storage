@@ -5,8 +5,8 @@ use blob_test_protocol::{
     admission::{ExecutionProfile, RESOURCE_SAMPLE_CAPACITY, input::PreparationInput},
     journey::JourneyManifest,
 };
+use ic_testkit::pic::query_candid_args;
 use sha2::{Digest, Sha256};
-use std::fmt::Write;
 
 mod descriptors;
 mod history;
@@ -81,16 +81,16 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
 
 impl Fixture {
     fn resources(&self, caller: Principal, limit: usize) -> Result<Vec<ExecutionProfile>, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                caller,
-                "resources",
-                (u8::try_from(limit).unwrap(),),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "resources",
+            (u8::try_from(limit).unwrap(),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
 
     fn sample(&self, caller: Principal) -> ExecutionProfile {
@@ -390,9 +390,5 @@ fn resource_profile_ten_mib_direct_manifest_and_exposure() {
 }
 
 fn wasm_hash() -> String {
-    let mut hex = String::with_capacity(64);
-    for byte in Sha256::digest(Fixture::wasm()) {
-        write!(&mut hex, "{byte:02x}").unwrap();
-    }
-    hex
+    hex::encode(Sha256::digest(Fixture::wasm()))
 }

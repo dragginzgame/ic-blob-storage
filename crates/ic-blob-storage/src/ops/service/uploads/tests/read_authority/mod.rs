@@ -16,12 +16,12 @@ fn scope() -> GatewayScope {
     GatewayScope::new(p(1), NonZeroU128::MIN, p(3)).unwrap()
 }
 pub(super) fn setup() -> (
-    StableGatewayRegistry<FixtureBackingMemory>,
-    StableUploads<FixtureBackingMemory>,
+    StableGatewayRegistry<ic_memory::VectorMemory>,
+    StableUploads<ic_memory::VectorMemory>,
     UploadPermission,
 ) {
     let mut registry =
-        StableGatewayRegistry::install(FixtureBackingMemory::default().lease(), config()).unwrap();
+        StableGatewayRegistry::install(FixtureMemory::default().lease(), config()).unwrap();
     registry.add(context(2), scope(), p(6)).unwrap();
     let mut uploads = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = lifecycle::exposed(&mut uploads);
@@ -175,7 +175,7 @@ fn read_authority_binds_tenant_generation_caller_and_exact_reference() {
 }
 #[test]
 fn read_authority_refuses_either_restored_owner_and_wrong_scope() {
-    let gm = FixtureBackingMemory::default();
+    let gm = FixtureMemory::default();
     let um = memory();
     let mut registry = StableGatewayRegistry::install(gm.clone().lease(), config()).unwrap();
     registry.add(context(2), scope(), p(6)).unwrap();

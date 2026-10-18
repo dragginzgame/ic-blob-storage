@@ -1,6 +1,64 @@
 # Current status
 
-Date: 2026-10-17
+Date: 2026-10-18
+
+## Shared host dispatch — pending 0.33.0
+
+Standalone now binds the canonical catalog to `ServiceWorkflow<Host>`. Blob owns
+operation dispatch, borrowing projections, provider orchestration and continuity
+observations; the host supplies installation access, actual platform facts and
+explicit limits. The installation owns its volatile checkpoint. Persistent record
+bytes, provider authority and restore obligations retain their existing contracts.
+
+Eleven installation cases, ten installed standalone cases, strict affected-owner
+Clippy and actual Rust 1.91 native/Wasm checks pass. The gateway attempt initially
+lacked its source fixture; the recorded retry passes after an explicit fresh build.
+Raw checks: `.tmp/review-validation/host0330/`.
+
+The [implementation receipt](../reports/audits/2026/10/18/architectural-sediment/03/report.md)
+also records the isolated Canic contribution at `/tmp/canic-blob-host0330`, commit
+`b6f5b75ec`, stacked on protocol-neutral PR #591. It removes Canic's dispatch copy,
+uses canonical Wire/CBOR requests and retains measured async raw updates. Its macro
+regression and native/Wasm emitter shape checks pass with framework substitutes;
+these do not qualify installed Canic. Registry Blob 0.33 publication, aligned Memory
+callers, refreshed consumer locks and actual dedicated/embedded journeys remain
+prerequisites. Automatic approval review refused branch/PR publication pending
+explicit approval; the normal sibling checkout is untouched. No Blob Git or
+release effects ran, and package versions remain 0.32.2.
+
+## Architectural sediment follow-up — pending 0.33.0
+
+The [second ownership audit](../reports/audits/2026/10/18/architectural-sediment/02/report.md)
+preserves the first pass and fixes a pre-existing Testkit 0.53 migration gap:
+250 native calls now use its explicit Candid argument functions without a local
+compatibility trait. Tenant Wire refusal coverage owns its former-Candid query
+case; CBOR installation rollback remains separate. Four fixture hex loops now
+use the existing dependency. The service contract describes Storage collections,
+Memory leases and implemented per-method codecs.
+
+All PocketIC test targets compile and pass strict Clippy. Fresh standalone and
+authority-probe Wasms build; three installed ingress cases and two content-target
+cases pass. Formatting, links and whitespace checks pass. No full CI or live
+provider qualification is claimed. Raw evidence:
+`.tmp/review-validation/sediment0330-02/`. Manifests, lock and snapshot are unchanged.
+
+## Architectural sediment cleanup — pending 0.33.0
+
+The [ownership audit](../reports/audits/2026/10/18/architectural-sediment/01/report.md)
+reviews clean source `e938a1d` against published dependencies and read-only sibling
+evidence. Native fixture custody now holds backing and runtime directly, without
+a recursive Memory implementation; store construction still requires exclusive
+leases. Core corruption, restore and accounting assertions remain. Current setup,
+protocol and framework guides describe implemented owners instead of obsolete
+adoption blockers. CBOR remains active at 29 owned methods and lifecycle; the two
+tenant methods use published Wire. Completing that conversion is a separate cut.
+
+386 core native cases, five boundary doctests, strict core Clippy and actual Rust
+1.91 native/default-standalone Wasm checks pass. The probe's nested observation
+remains explicitly fixture-only pending a suitable allocation-level upstream API.
+Raw checks and graph evidence are under `.tmp/review-validation/sediment0330/`.
+Manifests, lock, snapshot, production schemas and own versions are unchanged.
+No sibling edit, commit, release, publication or deployed-provider probe ran.
 
 ## Governed IC Storage collections — pending 0.33.0
 

@@ -24,7 +24,7 @@ fn rejected(error: GatewayReplyError) -> GatewaySyncReplyError {
 }
 #[test]
 fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded_reply() {
-    let memory = FixtureBackingMemory::default();
+    let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(9)).unwrap();
     let attempt = begin_sync(&mut store, context(), scope()).unwrap();
@@ -100,7 +100,7 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
 }
 #[test]
 fn durable_gateway_reply_checks_authority_source_and_revocation_before_decode() {
-    let memory = FixtureBackingMemory::default();
+    let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     let old = begin_sync(&mut store, context(), scope()).unwrap();
     let before = memory.borrow().clone();
@@ -180,7 +180,7 @@ fn durable_gateway_reply_checks_authority_source_and_revocation_before_decode() 
 }
 #[test]
 fn durable_gateway_restoration_rejects_even_the_original_host_retained_request() {
-    let memory = FixtureBackingMemory::default();
+    let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     let attempt = begin_sync(&mut store, context(), scope()).unwrap();
     drop(store);

@@ -9,12 +9,12 @@ use crate::{
         sessions::{ReadSessionWorkflowError, begin, complete},
     },
 };
-pub(super) fn store() -> StableReadSessions<FixtureBackingMemory> {
+pub(super) fn store() -> StableReadSessions<ic_memory::VectorMemory> {
     StableReadSessions::install(
         ReadSessionMemories {
-            journal: FixtureBackingMemory::default().lease(),
-            sessions: FixtureBackingMemory::default().lease(),
-            tenants: FixtureBackingMemory::default().lease(),
+            journal: FixtureMemory::default().lease(),
+            sessions: FixtureMemory::default().lease(),
+            tenants: FixtureMemory::default().lease(),
         },
         config(),
         ReadSessionLimits::new(
@@ -86,7 +86,7 @@ fn read_sessions_hold_capacity_across_revocation_and_stale_callbacks_cannot_free
 #[test]
 fn read_session_completion_keeps_capacity_when_either_authority_owner_is_restored() {
     use crate::ops::service::gateways::StableGatewayRegistry;
-    let gm = FixtureBackingMemory::default();
+    let gm = FixtureMemory::default();
     let um = memory();
     let mut registry = StableGatewayRegistry::install(gm.clone().lease(), config()).unwrap();
     let scope =

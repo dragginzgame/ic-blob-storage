@@ -12,7 +12,6 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::json;
 use sha2::{Digest, Sha256};
-use std::fmt::Write as _;
 use std::path::Path;
 
 pub(super) fn setup() -> Fixture {
@@ -103,14 +102,7 @@ pub(super) fn freeze_bodies(
         std::fs::write(directory.join(format!("binding-{index}.json")), &binding).unwrap();
         std::fs::write(directory.join(format!("manifest-{index}.json")), &manifest).unwrap();
         std::fs::write(directory.join(format!("body-{index}.bin")), body).unwrap();
-        let hash = |b: &[u8]| {
-            Sha256::digest(b)
-                .iter()
-                .fold(String::with_capacity(64), |mut output, byte| {
-                    write!(output, "{byte:02x}").unwrap();
-                    output
-                })
-        };
+        let hash = |b: &[u8]| hex::encode(Sha256::digest(b));
         entries.push(
             json!({"binding":format!("binding-{index}.json"),"binding_sha256":hash(&binding),
         "manifest":format!("manifest-{index}.json"),"manifest_sha256":hash(&manifest),

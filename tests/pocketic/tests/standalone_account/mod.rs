@@ -1,6 +1,7 @@
 //! Actual replicated account queries over a passive source; no provider qualification.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::update_candid_args;
 mod native_cli;
 use super::*;
 use blob_test_protocol::balance::BalanceSourceConfig;
@@ -69,21 +70,21 @@ fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
         AccountInspectionKind::PaymentRelationship => f.service,
     };
     assert!(
-        f.harness
-            .pic
-            .update_candid::<bool, _>(
-                f.config.billing.cashier,
-                f.controller,
-                "configure_balance",
-                (BalanceSourceConfig {
-                    account,
-                    bytes,
-                    reject: false,
-                    hold: false
-                },),
-                REPLY_LIMITS
-            )
-            .unwrap()
+        update_candid_args::<(bool,), _>(
+            &f.harness.pic,
+            f.config.billing.cashier,
+            f.controller,
+            "configure_balance",
+            (BalanceSourceConfig {
+                account,
+                bytes,
+                reject: false,
+                hold: false
+            },),
+            REPLY_LIMITS
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     );
 }
 fn inspect(
@@ -273,21 +274,21 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
         );
     }
     assert!(
-        f.harness
-            .pic
-            .update_candid::<bool, _>(
-                input.scope.cashier,
-                f.controller,
-                "configure_balance",
-                (BalanceSourceConfig {
-                    account: f.config.payment_account,
-                    bytes: vec![],
-                    reject: true,
-                    hold: false
-                },),
-                REPLY_LIMITS
-            )
-            .unwrap()
+        update_candid_args::<(bool,), _>(
+            &f.harness.pic,
+            input.scope.cashier,
+            f.controller,
+            "configure_balance",
+            (BalanceSourceConfig {
+                account: f.config.payment_account,
+                bytes: vec![],
+                reject: true,
+                hold: false
+            },),
+            REPLY_LIMITS
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     );
     assert_eq!(
         inspect(&f, f.operator, input),

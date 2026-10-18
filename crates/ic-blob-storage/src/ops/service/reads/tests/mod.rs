@@ -1,7 +1,7 @@
 use super::*;
 use crate::model::service::read::ReadTarget;
 use crate::ops::service::tenant::tests::config;
-use crate::test_support::memory::FixtureBackingMemory;
+use crate::test_support::memory::FixtureMemory;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
@@ -28,16 +28,16 @@ fn limits() -> ReadSessionLimits {
     )
     .unwrap()
 }
-fn memory() -> ReadSessionMemories<FixtureBackingMemory> {
+fn memory() -> ReadSessionMemories<FixtureMemory> {
     ReadSessionMemories {
-        journal: FixtureBackingMemory::default(),
-        sessions: FixtureBackingMemory::default(),
-        tenants: FixtureBackingMemory::default(),
+        journal: FixtureMemory::default(),
+        sessions: FixtureMemory::default(),
+        tenants: FixtureMemory::default(),
     }
 }
 fn cloned(
-    m: &ReadSessionMemories<FixtureBackingMemory>,
-) -> ReadSessionMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
+    m: &ReadSessionMemories<FixtureMemory>,
+) -> ReadSessionMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     ReadSessionMemories {
         journal: m.journal.lease(),
         sessions: m.sessions.lease(),

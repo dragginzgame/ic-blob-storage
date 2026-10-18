@@ -64,9 +64,10 @@ impl ServiceStoreConfiguration {
     }
 }
 
-/// Sixteen distinct exclusive memories supplied by the host's `ic-memory` runtime.
+/// Passive bundle of sixteen service slots; it grants no memory access itself.
+/// Store construction requires exclusive `RuntimeMemory` handles from the host.
 /// The library never chooses memory IDs or registers grants implicitly.
-pub struct ServiceMemories<M: Memory> {
+pub struct ServiceMemories<M> {
     /// Ten upload, reference and accounting memories.
     pub uploads: UploadMemories<M>,
     /// Two funding accounting/history memories.

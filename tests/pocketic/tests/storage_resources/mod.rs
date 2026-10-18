@@ -1,6 +1,7 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod credits;
 mod histories;
 mod reads;
@@ -123,17 +124,16 @@ fn wide_instruction_totals_survive_candid_and_retained_json() {
 }
 
 pub(super) fn resources(f: &Fixture) -> serde_json::Value {
-    let result: Result<RestorationResources, Failure> = f
-        .harness
-        .pic
-        .query_candid(
-            f.service,
-            f.operator,
-            "restoration_resources",
-            (),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let result: Result<RestorationResources, Failure> = query_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "restoration_resources",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     let r = result.unwrap();
     let status = f
         .harness
@@ -396,13 +396,15 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             &packet,
         );
         assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
-        let result = f.harness.pic.update_candid::<Result<(), Failure>, _>(
+        let result = update_candid_args::<(Result<(), Failure>,), _>(
+            &f.harness.pic,
             service,
             operator,
             "populate_resources",
             (batch,),
             REPLY_LIMITS,
-        );
+        )
+        .map(|(reply,)| reply);
         if !matches!(result, Ok(Ok(()))) {
             retain(
                 directory,
@@ -522,20 +524,19 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         assert_eq!(f.live(*reference).unwrap(), reference.retain);
         assert_eq!(f.receipt(*reference).unwrap(), *receipt);
     }
-    let refused: Result<(), Failure> = f
-        .harness
-        .pic
-        .update_candid(
-            service,
-            operator,
-            "populate_resources",
-            (PopulationBatch {
-                start: count,
-                uploads: vec![samples[0].clone()],
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let refused: Result<(), Failure> = update_candid_args(
+        &f.harness.pic,
+        service,
+        operator,
+        "populate_resources",
+        (PopulationBatch {
+            start: count,
+            uploads: vec![samples[0].clone()],
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(refused, Err(Failure::Fenced));
     assert_eq!(
         f.status(),

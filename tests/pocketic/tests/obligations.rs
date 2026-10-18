@@ -9,9 +9,9 @@ use blob_test_protocol::obligations::{
     ObligationProbeFact, ObligationProbePhase, ObligationProbeView,
 };
 use candid::Principal;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, PocketIc},
 };
 use support::{Harness, REPLY_LIMITS, fixture_path};
@@ -21,7 +21,8 @@ fn objects(
     canister: Principal,
     caller: Principal,
 ) -> Option<Vec<ObligationProbeView>> {
-    pic.query_candid(canister, caller, "unsettled_objects", (), REPLY_LIMITS)
+    query_candid_args(pic, canister, caller, "unsettled_objects", (), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("tenant query")
 }
 fn confirm(
@@ -30,13 +31,15 @@ fn confirm(
     caller: Principal,
     fact: ObligationProbeFact,
 ) -> bool {
-    pic.update_candid(
+    update_candid_args(
+        pic,
         canister,
         caller,
         "confirm_obligation",
         (1_u8, fact),
         REPLY_LIMITS,
     )
+    .map(|(reply,)| reply)
     .expect("fixture fact")
 }
 
@@ -107,8 +110,8 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
         ObligationProbeFact::Deleted
     ));
     assert_eq!(objects(pic, canister, first), Some(vec![first_live]));
-    let released: bool = pic
-        .update_candid(canister, first, "release", (1_u8,), REPLY_LIMITS)
+    let released: bool = update_candid_args(pic, canister, first, "release", (1_u8,), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("release");
     assert!(released);
     assert_eq!(
@@ -136,9 +139,10 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
         ..first_live
     };
     assert_eq!(objects(pic, canister, first), Some(vec![deleted]));
-    let pending: Option<Vec<u8>> = pic
-        .query_candid(canister, gateway, "pending", (), REPLY_LIMITS)
-        .expect("deletion queue");
+    let pending: Option<Vec<u8>> =
+        query_candid_args(pic, canister, gateway, "pending", (), REPLY_LIMITS)
+            .map(|(reply,)| reply)
+            .expect("deletion queue");
     assert_eq!(pending, Some(vec![]));
     assert!(confirm(
         pic,

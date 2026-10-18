@@ -21,19 +21,19 @@ use std::{
     task::{Context, Poll, Waker},
 };
 struct Owners {
-    registry: StableGatewayRegistry<FixtureBackingMemory>,
-    uploads: StableUploads<FixtureBackingMemory>,
-    sessions: StableReadSessions<FixtureBackingMemory>,
+    registry: StableGatewayRegistry<ic_memory::VectorMemory>,
+    uploads: StableUploads<ic_memory::VectorMemory>,
+    sessions: StableReadSessions<ic_memory::VectorMemory>,
 }
 struct Host(RefCell<Owners>);
 impl ReadSessionAccess for Host {
-    type Memory = FixtureBackingMemory;
+    type Memory = ic_memory::VectorMemory;
     fn with_read_sessions<R>(
         &self,
         operation: impl FnOnce(
-            &StableGatewayRegistry<FixtureBackingMemory>,
-            &StableUploads<FixtureBackingMemory>,
-            &mut StableReadSessions<FixtureBackingMemory>,
+            &StableGatewayRegistry<ic_memory::VectorMemory>,
+            &StableUploads<ic_memory::VectorMemory>,
+            &mut StableReadSessions<ic_memory::VectorMemory>,
         ) -> R,
     ) -> R {
         let mut state = self.0.borrow_mut();

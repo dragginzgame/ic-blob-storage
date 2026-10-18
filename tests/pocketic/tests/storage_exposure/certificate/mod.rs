@@ -1,6 +1,7 @@
 //! Local ingress update payload/rollback evidence, not gateway certificate acceptance.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::update_candid_args;
 mod ingress;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as METHOD;
@@ -16,16 +17,16 @@ fn root(permission: Permission) -> String {
         .to_string()
 }
 fn configure(f: &Fixture, input: ExposureInput) {
-    f.harness
-        .pic
-        .update_candid::<(), _>(
-            f.service,
-            f.operator,
-            "configure_certificate_fixture",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    update_candid_args::<((),), _>(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "configure_certificate_fixture",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
 }
 fn refused(f: &Fixture, actor: Principal, root: &str) {
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -105,11 +106,16 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
     refused(&f, f.uploader, &self::root(other)); // Configured evidence belongs to the first root.
 
     // Independent wire shape mirrors official Mixin.mo; no Result wrapper is accepted.
-    let reply: ProviderReply = f
-        .harness
-        .pic
-        .update_candid(f.service, f.uploader, METHOD, (&root,), REPLY_LIMITS)
-        .unwrap();
+    let reply: ProviderReply = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.uploader,
+        METHOD,
+        (&root,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
     assert_eq!(

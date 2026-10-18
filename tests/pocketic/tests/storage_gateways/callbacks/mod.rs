@@ -8,22 +8,23 @@ use blob_test_protocol::{
         gateways::{RootView, RootsInput},
     },
 };
+use ic_testkit::pic::query_candid_args;
 impl Fixture {
     fn gateway_roots(
         &self,
         actor: Principal,
         input: &RootsInput,
     ) -> Result<Vec<RootView>, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                actor,
-                "fixture_gateway_roots",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "fixture_gateway_roots",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn gateway_phase(&self, root: [u8; 32], state: ContentState) {
         let before = self.harness.pic.get_stable_memory(self.service);

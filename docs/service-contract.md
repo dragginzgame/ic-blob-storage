@@ -12,9 +12,9 @@ separate.
 
 ## Incoming protocol for 0.32
 
-The pending 0.32 adoption uses [per-method contracts](service-wire.md): tenant
+The implemented protocol uses [per-method contracts](service-wire.md): tenant
 inspection/update use bounded IC Wire, while other owned methods and lifecycle
-inputs still use CBOR until conversion completes. Each reply uses its method's
+inputs use CBOR. Each reply uses its method's
 codec. The external Caffeine certificate method remains Candid.
 Old Candid requests refuse. Provider calls, management traffic, persisted records,
 method authority, original operation identity and recovery obligations keep their
@@ -57,15 +57,13 @@ separate owners. Consumer wrappers must change request and reply handling togeth
 
 ## Explicit provider decoder budgets
 
-The pending 0.31.0 Rust API uses
+The Rust API uses
 `ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits` for balance,
 gateway, top-up, ledger-deposit, payment-relationship and account inspection.
 It carries the same explicit `max_bytes`, `decoding_quota`, `skipping_quota`
 and `max_type_entries` fields, with no inferred production defaults.
 
-Hosts must replace `BalanceReplyLimits`, `GatewayReplyLimits`, `TopUpReplyLimits`,
-`LedgerDepositReplyLimits`, `PaymentRelationshipReplyLimits` and
-`AccountInspectionLimits` imports and constructor names with the shared type.
+Hosts use this shared type while retaining their method-specific budget values.
 `AuditLogReplyLimits` retains its CSV/reported-entry bounds and nests those four
 resource fields under `decoding`. Keep the exact existing values at each caller;
 sharing a Rust representation does not authorize sharing authority or budgets.
@@ -215,13 +213,13 @@ their own bootstrap. Store-only compositions can use the sixteen requests from
 `ops::service::stores::grants::requests`. `grants::open` assembles the current store mapping using that host's
 committed-memory lookup; missing grants refuse without creating or repairing a
 store. Hosts supply `grants::open(|key| runtime.open_memory(key))` from their own
-retained, bootstrapped Memory 0.44 runtime; the default-runtime adapter is removed.
+retained, bootstrapped Memory runtime; there is no default-runtime adapter.
 Opening cannot silently choose a bucket policy or create a second manager.
-These helpers do not grant exclusive access themselves:
-the host must assign the handles to one storage owner. Standalone uses the shared
-mapping with its unchanged configuration grant, range and bucket policy.
+The runtime owns exclusive leases; the host assigns them to one storage owner.
+Standalone uses the shared mapping with its configuration grant and host-owned
+bucket policy.
 Framework consumers own their generic lifecycle wrapper and endpoint adapter.
-Memory 0.44 also changes the allocation ledger format. Earlier images require
+Only the current allocation ledger is supported. Earlier images require
 [installation retirement](retiring-installations.md) and fresh reinstall, preserving
 all objects, uncertain effects, balances and continuing billing obligations;
 neither failed restoration nor missing grants authorize clearing or migration.
@@ -254,7 +252,7 @@ hooks and grants and delegates configuration persistence to the shared owner. It
 installation validates all inputs before allocation; same-release upgrade restoration
 loads the saved service/release-bound configuration without replacement arguments
 and fences every owner synchronously. Its tenant, admission, manifest and reference
-endpoints delegate to shared workflows, with bounded typed CBOR and operator-only
+endpoints delegate to shared workflows, with bounded per-method codecs and operator-only
 configuration readback. Standalone installation takes the core's passive
 `ServiceInstallationInput`:
 shared `ServiceConfigurationInput` plus required explicit Caffeine project,
@@ -277,7 +275,8 @@ Operational recovery and remaining provider/operator integration are still open.
 
 ### Standalone ingress decoding
 
-The adapter admits 4 KiB for ordinary inputs, 16 KiB for installation and
+Tenant methods use their bounded IC Wire request/response contracts, including
+method and direction checks. For CBOR methods the adapter admits 4 KiB for ordinary inputs, 16 KiB for installation and
 128 KiB for manifest preparation before shared exact CBOR decoding. Collection
 nesting is capped at 32. Unknown/duplicate DTO fields and trailing values reject;
 Candid type-table, work and skipping quotas no longer describe owned ingress.
@@ -437,16 +436,18 @@ the actual canister and retained anchor. Operator and installation are rechecked
 after the await. Activation changes only owner fences; it never modifies IDs,
 reservations, journals, receipts, balances or liabilities, and dispatches no
 provider effect. An expired history window is not rotated or replaced by a
-local counter. Hosts own their explicit lifecycle/endpoint and heap checkpoint.
+local counter. Hosts own their explicit lifecycle and endpoints. The installation
+owns its volatile observation checkpoint; it is never freshness evidence.
 
-Library hosts compose `ContinuityInstallationAccess` with their existing
-`RecoveryInstallationAccess` adapter. Delegate version observation and active
-preflight to `ServiceInstallation::observe_platform_version` and
-`prepare_active_continuity`, supplying the host's retained heap checkpoint and
-actual platform version. Shared installation recovery workflows own `before_update`
-and `resume_host_instance`, including post-await observation on refusal. The
-host still owns synchronous memory restoration, borrowing and authenticated
-endpoint context; linking the library installs no endpoints or lifecycle hooks.
+Library hosts bind the endpoint catalog to `workflow::service::ServiceWorkflow<H>`.
+`ServiceHost` supplies synchronous access to the sole installation, actual platform
+version/time and explicit execution limits. Shared dispatch owns version observations,
+borrowing projections and post-await checks. Its installation checkpoint starts
+at the installation version for fresh state; reopening starts inspection-only and
+the first observation records a checkpoint without clearing any fence. Lower-level
+recovery access remains available for independent compositions. The host still owns
+synchronous memory restoration and authenticated endpoint context; linking the
+library installs no endpoints or lifecycle hooks.
 Use certificate workflow `inspect_installation` through an immutable borrow and
 `issue_installation` through the synchronous replicated update boundary. These
 flows resolve uploader permission before deriving installed-owner evidence;
@@ -1034,12 +1035,13 @@ does not establish billing cessation or fix loss of history after an old backup.
 The installed owners below use the current v1 records. Their exclusive memory
 grants remain independent of a consumer framework's memory IDs and store layout.
 The maintainer selected `ic-memory` as the sole allocation owner shared with hosts
-and IcyDB. Core stores use its re-exported stable collections, and the
+and IcyDB. IC Storage owns the stable collections and record codec traits; the
+core consumes them through `ic_storage::adapter`. The
 integrating host owns bootstrap, policy, grants and bucket profile. Cross-release
 schema transitions are reinstall-only, subject to retirement of existing obligations;
 the dependency choice does not close provider and recovery qualification gates.
 
-The current library publicly re-exports Memory 0.36. Hosts must align their
+The library publicly re-exports its selected Memory dependency. Hosts must align their
 composed graph to one package identity and include all permanent Blob requests
 in one host-wide allocation pool. Key-only committed opens preserve host-owned
 placement and authority; linking the library registers nothing. See

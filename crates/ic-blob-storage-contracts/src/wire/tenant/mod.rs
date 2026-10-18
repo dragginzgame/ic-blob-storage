@@ -1,4 +1,4 @@
-//! Explicit bounded tenant contracts for IC Wire 0.3.
+//! Explicit bounded tenant contracts for IC Wire.
 //!
 //! These projections preserve native DTOs and their existing persisted/provider
 //! uses. Field and variant IDs own wire order. Principals are bounded bytes;
@@ -88,8 +88,10 @@ pub enum Failure {
 pub struct Inspect;
 /// Tenant compare-and-set method; retain exact original request bytes before effects.
 pub struct Update;
+/// Request byte ceiling shared by method contracts and host preallocation admission.
+pub const MAX_REQUEST_BYTES: usize = 512;
 const LIMITS: Limits = Limits {
-    bytes: 512,
+    bytes: MAX_REQUEST_BYTES,
     allocation: 1024,
     nodes: 32,
     depth: 8,

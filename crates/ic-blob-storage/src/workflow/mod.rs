@@ -6,5 +6,6 @@ pub mod installation;
 pub mod operator;
 pub mod reads;
 pub mod references;
+pub mod service;
 pub mod tenants;
 pub mod uploads;

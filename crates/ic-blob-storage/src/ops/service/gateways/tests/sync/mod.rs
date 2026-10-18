@@ -16,7 +16,7 @@ fn input(sequence: u64) -> GatewaySyncCancellation {
 }
 #[test]
 fn cancellation_uses_retained_identity_and_preserves_membership_generations_and_history() {
-    let memory = FixtureBackingMemory::default();
+    let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     let original = store.begin_sync(context(), scope()).unwrap();
@@ -67,7 +67,7 @@ fn cancellation_uses_retained_identity_and_preserves_membership_generations_and_
 }
 #[test]
 fn cancellation_rejects_invalid_scope_and_actual_caller_before_mutation() {
-    let memory = FixtureBackingMemory::default();
+    let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.begin_sync(context(), scope()).unwrap();
     let bytes = memory.borrow().clone();

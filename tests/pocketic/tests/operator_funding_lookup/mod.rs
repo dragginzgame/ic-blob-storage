@@ -4,6 +4,7 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::lookup::{
     FundingLookupFailure, FundingLookupRequest, FundingLookupState, FundingLookupView,
 };
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 fn request() -> FundingRequest {
@@ -156,11 +157,16 @@ fn old_backup_absence_cannot_erase_a_receipt_or_authorize_another_transfer() {
     assert_eq!(absent["lookup"]["state"], "Absent");
     assert_eq!(absent["lookup"]["fenced"], true);
     assert!(absent["lookup"]["observation"].is_null());
-    let result: Result<FundingObservation, FundingFailure> = f
-        .harness
-        .pic
-        .update_candid(f.sender, f.driver, "fund", (original,), REPLY_LIMITS)
-        .unwrap();
+    let result: Result<FundingObservation, FundingFailure> = update_candid_args(
+        &f.harness.pic,
+        f.sender,
+        f.driver,
+        "fund",
+        (original,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(result, Err(FundingFailure::Fenced));
     assert!(
         f.harness.pic.get_stable_memory(f.receiver) == receiver,
@@ -226,11 +232,16 @@ fn live_lookup_observes_pending_then_original_completion_without_repeating_it() 
     let mut pending = false;
     for _ in 0..20 {
         f.harness.pic.tick();
-        let result: Result<FundingLookupView, FundingLookupFailure> = f
-            .harness
-            .pic
-            .query_candid(f.sender, f.driver, "lookup_funding", (query,), REPLY_LIMITS)
-            .unwrap();
+        let result: Result<FundingLookupView, FundingLookupFailure> = query_candid_args(
+            &f.harness.pic,
+            f.sender,
+            f.driver,
+            "lookup_funding",
+            (query,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         if result.unwrap().state == FundingLookupState::Pending {
             pending = true;
             break;

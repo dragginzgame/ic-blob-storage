@@ -77,7 +77,6 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, RejectCode},
 };
 use support::{Harness, REPLY_LIMITS, fixture_path};

@@ -19,12 +19,12 @@ use std::{
 };
 
 struct Host {
-    stores: RefCell<Option<ServiceStores<FixtureBackingMemory>>>,
-    memory: [FixtureBackingMemory; 16],
+    stores: RefCell<Option<ServiceStores<ic_memory::VectorMemory>>>,
+    memory: [FixtureMemory; 16],
     config: ServiceStoreConfiguration,
 }
 impl AccountInspectionAccess for Host {
-    type Memory = FixtureBackingMemory;
+    type Memory = ic_memory::VectorMemory;
     fn with_account_stores<R>(&self, f: impl FnOnce(OperatorStores<'_, Self::Memory>) -> R) -> R {
         f(OperatorStores::from(self.stores.borrow().as_ref().unwrap()))
     }
@@ -67,7 +67,7 @@ fn ready<F: Future>(future: F) -> F::Output {
 fn account_inspection_checks_authority_before_dispatch_and_restore_before_decoding() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    let memory = std::array::from_fn(|_| FixtureBackingMemory::default());
+    let memory = std::array::from_fn(|_| FixtureMemory::default());
     let host = Host {
         stores: RefCell::new(Some(
             ServiceStores::install(memories(&memory), config).unwrap(),

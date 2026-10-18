@@ -22,7 +22,7 @@
 //! ```
 //! Component stores cannot be installed independently through the production API:
 //! ```compile_fail
-//! use ic_memory::Memory;
+//! use ic_memory::{Memory, RuntimeMemory};
 //! use ic_blob_storage::ops::service::stores::{
 //!     ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores,
 //! };

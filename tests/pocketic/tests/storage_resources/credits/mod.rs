@@ -5,6 +5,7 @@ use blob_test_protocol::storage::{
     funding::{CreditCommand, Intent, Phase as FundingPhase},
     resources::{FundingCreditResources, FundingPopulationIntent, HistoryPopulationBatch},
 };
+use ic_testkit::pic::update_candid_args;
 
 fn digest(operation: u128) -> [u8; 32] {
     use sha2::{Digest, Sha256};
@@ -70,17 +71,17 @@ fn credit_measurements_have_independent_exact_read_windows() {
             credit_digest: None,
         }],
     };
-    f.harness
-        .pic
-        .update_candid::<Result<(), Failure>, _>(
-            f.service,
-            f.operator,
-            "populate_histories",
-            (batch,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap();
+    update_candid_args::<(Result<(), Failure>,), _>(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "populate_histories",
+        (batch,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap();
     let command = CreditCommand {
         intent: intent(&f, 1),
         accepted: 1,

@@ -13,8 +13,9 @@ Use `ic_blob_storage_contracts::{dto, identity, protocol}` for wire/client data.
 Use `ic_blob_storage` for service workflows, policy and durable owners. Both library
 packages inherit one workspace version. The 0.18.0 extraction removes the
 former service Rust paths without compatibility reexports; that extraction preserved
-wire/hash identities. The 0.32 cut is adopting bounded IC Wire for owned methods under
-[the current adoption state](../../docs/service-wire.md); provider Candid and hashes remain. Cross-release service transitions remain reinstall-only.
+wire/hash identities. The current service uses bounded IC Wire for tenant methods
+and CBOR for its other owned methods; see [the protocol](../../docs/service-wire.md).
+Provider Candid and hashes remain. Cross-release transitions remain reinstall-only.
 
 ```sh
 cargo run -p ic-blob-storage-contracts --example prepare_upload -- --help
@@ -43,9 +44,9 @@ provides the complete method/mode/codec inventory from the same catalog; compare
 that inventory with actual Wasm exports and compare only the provider subset
 with generated Candid. Native compilation alone is insufficient.
 
-The pending 0.32 IC Wire adoption starts with tenant inspection/update. Their
+Tenant inspection/update use published IC Wire. Their
 bounded projections use explicit field/variant identities, method/direction-bound
 frames and finite resource limits while native DTO/policy and persisted schemas
 retain their existing owners. See [the adoption state](../../docs/service-wire.md).
-The registry requirement targets 0.3; candidate-source tests do not qualify that
-unpublished package or complete the other methods' conversion.
+The registry requirement targets 0.4. Candidate-source evidence retains its
+original scope; it does not qualify later dependencies or other methods.

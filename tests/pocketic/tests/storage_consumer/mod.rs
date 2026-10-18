@@ -13,6 +13,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
@@ -69,61 +70,79 @@ fn input(f: &Fixture, id: u8) -> Run {
     }
 }
 fn register(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
-    f.harness
-        .pic
-        .update_candid(f.tenant, f.operator, "register", (input,), REPLY_LIMITS)
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "register",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn asset(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
-    f.harness
-        .pic
-        .query_candid(f.tenant, f.operator, "asset", (id,), REPLY_LIMITS)
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "asset",
+        (id,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn cancel(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
-    f.harness
-        .pic
-        .update_candid(f.tenant, f.operator, "cancel", (id,), REPLY_LIMITS)
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "cancel",
+        (id,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
-    f.harness
-        .pic
-        .update_candid(
-            f.tenant,
-            f.operator,
-            "release",
-            (Release {
-                asset: id,
-                fault: Fault::None,
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "release",
+        (Release {
+            asset: id,
+            fault: Fault::None,
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFailure> {
-    f.harness
-        .pic
-        .update_candid(
-            f.tenant,
-            f.operator,
-            "recover",
-            (Recovery { asset: id, release },),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "recover",
+        (Recovery { asset: id, release },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn use_asset(f: &Fixture, attach: bool) -> Result<AssetView, ConsumerFailure> {
-    f.harness
-        .pic
-        .update_candid(
-            f.tenant,
-            f.operator,
-            "use_asset",
-            (Use { asset: 1, attach },),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "use_asset",
+        (Use { asset: 1, attach },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
     let value: Result<ReferenceReceiptLookup, ReferenceFailure> = f
@@ -157,11 +176,16 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
     let mut held = false;
     for _ in 0..40 {
         f.harness.pic.tick();
-        let waiting: Result<bool, ConsumerFailure> = f
-            .harness
-            .pic
-            .query_candid(f.tenant, f.operator, "waiting", (), REPLY_LIMITS)
-            .unwrap();
+        let waiting: Result<bool, ConsumerFailure> = query_candid_args(
+            &f.harness.pic,
+            f.tenant,
+            f.operator,
+            "waiting",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         if waiting.unwrap() {
             held = true;
             break;
@@ -178,11 +202,16 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
         release(&f, 1).unwrap().release_result,
         Some(Ok(ReferenceChange::Changed))
     );
-    let resumed: Result<(), ConsumerFailure> = f
-        .harness
-        .pic
-        .update_candid(f.tenant, f.operator, "resume", (), REPLY_LIMITS)
-        .unwrap();
+    let resumed: Result<(), ConsumerFailure> = update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "resume",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     resumed.unwrap();
     let result: Result<AssetView, ConsumerFailure> =
         candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
@@ -321,11 +350,16 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
     third.registration.source = RegistrationSource::Existing(command);
     third.registration.release_operation = 4;
     assert_eq!(register(&f, &third), Err(ConsumerFailure::Capacity));
-    let denied: Result<AssetView, ConsumerFailure> = f
-        .harness
-        .pic
-        .update_candid(f.tenant, f.other, "register", (&first,), REPLY_LIMITS)
-        .unwrap();
+    let denied: Result<AssetView, ConsumerFailure> = update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.other,
+        "register",
+        (&first,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     for id in [1, 2] {

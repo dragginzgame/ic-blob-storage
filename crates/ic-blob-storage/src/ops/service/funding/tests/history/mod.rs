@@ -14,7 +14,7 @@ fn scope() -> FundingJournalScope {
     }
 }
 fn finish(
-    store: &mut StableFundingJournal<FixtureBackingMemory>,
+    store: &mut StableFundingJournal<ic_memory::VectorMemory>,
     intent: FundingIntent,
     outcome: FundingTransportOutcome,
 ) {

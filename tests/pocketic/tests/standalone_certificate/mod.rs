@@ -1,6 +1,7 @@
 //! Actual configured host: project-bound multi-user issuance, quotas and restore fences.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::update_candid_args;
 mod signed;
 use super::*;
 use ic_blob_storage_contracts::dto::upload::UploadState;
@@ -89,11 +90,16 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         inspect(&f, f.uploader, &root).unwrap().blockers,
         assessment.blockers
     );
-    let reply: CaffeineUploadCertificateResponse = f
-        .harness
-        .pic
-        .update_candid(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
-        .unwrap();
+    let reply: CaffeineUploadCertificateResponse = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.uploader,
+        ISSUE,
+        (root.clone(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
     assert_eq!(
@@ -181,17 +187,16 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
             .blockers,
         []
     );
-    let reply: CaffeineUploadCertificateResponse = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            second.permission.uploader,
-            ISSUE,
-            (second_root.clone(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let reply: CaffeineUploadCertificateResponse = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        second.permission.uploader,
+        ISSUE,
+        (second_root.clone(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(reply.blob_hash, second_root);
     assert_eq!(
         f.admission(second.permission).state,
@@ -259,11 +264,16 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     malformed(&f, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
-    let reply: CaffeineUploadCertificateResponse = f
-        .harness
-        .pic
-        .update_candid(f.service, f.uploader, ISSUE, (root.clone(),), REPLY_LIMITS)
-        .unwrap();
+    let reply: CaffeineUploadCertificateResponse = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.uploader,
+        ISSUE,
+        (root.clone(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root);
     assert_eq!(

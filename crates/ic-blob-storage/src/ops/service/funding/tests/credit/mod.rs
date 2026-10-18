@@ -27,7 +27,7 @@ pub(super) fn receipt(
     }
 }
 pub(super) fn paid(
-    store: &mut StableFundingJournal<FixtureBackingMemory>,
+    store: &mut StableFundingJournal<ic_memory::VectorMemory>,
     intent: FundingIntent,
     refunded: u128,
 ) {

@@ -21,7 +21,7 @@ fn command(upload: UploadRequest, id: u128, reference: u128, retain: bool) -> Re
         },
     }
 }
-pub(super) fn exposed(store: &mut StableUploads<FixtureBackingMemory>) -> UploadPermission {
+pub(super) fn exposed(store: &mut StableUploads<ic_memory::VectorMemory>) -> UploadPermission {
     enroll(store);
     let built = built();
     let mut input = permission(1);

@@ -1,7 +1,7 @@
-//! Per-method service codec owners during the pending 0.32 hard cut.
+//! Explicit per-method service codec owners.
 //!
-//! Tenant methods use bounded, method-bound IC Wire contracts. Remaining owned
-//! methods temporarily retain CBOR until their coordinated conversion completes.
+//! Tenant methods use bounded, method-bound IC Wire contracts. Other owned
+//! methods use bounded CBOR; replacing them requires a coordinated protocol cut.
 //! Provider contracts and stable records have separate encoding owners.
 pub(crate) mod decimal;
 /// Bounded IC Wire tenant contracts; provider contracts remain separate.

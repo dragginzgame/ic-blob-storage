@@ -15,7 +15,8 @@ use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
 };
 use candid::Principal;
-use ic_testkit::{Fake, pic::CandidCallExt, pocket_ic::CreateCanisterParams};
+use ic_testkit::pic::update_candid_args;
+use ic_testkit::{Fake, pocket_ic::CreateCanisterParams};
 use serde_json::Value;
 use std::process::Command;
 use support::{Harness, REPLY_LIMITS, fixture_path};
@@ -215,11 +216,16 @@ fn funding_report_keeps_accepted_cycles_separate_from_credit_after_restore() {
         reply: FundingReplyMode::Success,
         trap_callback: false,
     };
-    let result: Result<FundingObservation, FundingFailure> = f
-        .harness
-        .pic
-        .update_candid(f.sender, f.driver, "fund", (request,), REPLY_LIMITS)
-        .unwrap();
+    let result: Result<FundingObservation, FundingFailure> = update_candid_args(
+        &f.harness.pic,
+        f.sender,
+        f.driver,
+        "fund",
+        (request,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     result.unwrap();
     let args = f.args(
         f.sender,
@@ -294,11 +300,16 @@ fn funding_provider_failures_reach_json_without_becoming_refunds_or_credit() {
             reply,
             trap_callback: false,
         };
-        let result: Result<FundingObservation, FundingFailure> = f
-            .harness
-            .pic
-            .update_candid(f.sender, f.driver, "fund", (request,), REPLY_LIMITS)
-            .unwrap();
+        let result: Result<FundingObservation, FundingFailure> = update_candid_args(
+            &f.harness.pic,
+            f.sender,
+            f.driver,
+            "fund",
+            (request,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         result.unwrap();
         let before = f.journals();
         let (code, report) = command(&args);

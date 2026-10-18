@@ -12,6 +12,7 @@ use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
+use ic_testkit::pic::query_candid_args;
 
 pub(super) fn install(f: &mut Fixture) {
     let consumer = f.harness.pic.create_canister_with_settings(
@@ -149,17 +150,16 @@ fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
     assert!(admitted.admission_started);
     assert_eq!(admitted.admission_result, Some(Ok(())));
     assert!(!admitted.published);
-    let stored: Result<AssetView, ConsumerFailure> = f
-        .harness
-        .pic
-        .query_candid(
-            f.tenant,
-            f.uploader,
-            "asset",
-            (run.registration.asset,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let stored: Result<AssetView, ConsumerFailure> = query_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.uploader,
+        "asset",
+        (run.registration.asset,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(stored, Ok(admitted));
 }
 
@@ -208,17 +208,16 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
     } else {
         pending
     };
-    let stored: Result<AssetView, ConsumerFailure> = f
-        .harness
-        .pic
-        .query_candid(
-            f.tenant,
-            f.uploader,
-            "asset",
-            (run.registration.asset,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let stored: Result<AssetView, ConsumerFailure> = query_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.uploader,
+        "asset",
+        (run.registration.asset,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(stored, Ok(expected));
     // Neither an HTTP success nor withdrawal erases the exposed reservation.
     assert_eq!(f.status().bytes, 10);

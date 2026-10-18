@@ -1,55 +1,56 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::funding::admission::{Attempt, Blocker as B, Preparation, View};
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 impl Fixture {
     fn inspect_attempt(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                actor,
-                "funding_attempt",
-                (intent,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "funding_attempt",
+            (intent,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn guarded_attempt(&self, actor: Principal, intent: Intent) -> Result<Attempt, Failure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                actor,
-                "mark_funding_attempt",
-                (intent,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "mark_funding_attempt",
+            (intent,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn inspect_preparation(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                actor,
-                "funding_preparation",
-                (intent,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "funding_preparation",
+            (intent,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn guarded_prepare(&self, actor: Principal, intent: Intent) -> Result<Preparation, Failure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                actor,
-                "prepare_funding",
-                (intent,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "prepare_funding",
+            (intent,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
 }
 #[test]

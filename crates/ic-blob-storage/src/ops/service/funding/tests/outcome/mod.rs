@@ -26,7 +26,7 @@ fn request(intent: FundingIntent) -> FundingOutcomeRequest {
     }
 }
 fn check_boundary(
-    store: &StableFundingJournal<FixtureBackingMemory>,
+    store: &StableFundingJournal<ic_memory::VectorMemory>,
     intent: FundingIntent,
     response: FundingResponse,
     fenced: bool,
@@ -116,7 +116,10 @@ fn exact_outcome_boundary_rejects_changed_intent_and_preserves_absence_without_w
         "inspection changed retained bytes"
     );
 }
-fn check_scope(store: &StableFundingJournal<FixtureBackingMemory>, query: FundingOutcomeRequest) {
+fn check_scope(
+    store: &StableFundingJournal<ic_memory::VectorMemory>,
+    query: FundingOutcomeRequest,
+) {
     let foreign = Principal::anonymous();
     for scope in [
         OperatorScope {

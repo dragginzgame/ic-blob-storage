@@ -5,6 +5,7 @@ use blob_test_protocol::admission::{ContentDescriptor, release::LifecycleCommand
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
+use ic_testkit::pic::query_candid_args;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 mod preparation;
@@ -15,16 +16,16 @@ fn read(
     actor: Principal,
     input: ContentLookup,
 ) -> Result<Option<ContentDescriptor>, Failure> {
-    f.harness
-        .pic
-        .query_candid(
-            f.service,
-            actor,
-            "content_descriptor",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.service,
+        actor,
+        "content_descriptor",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 
 fn lookup(f: &Fixture, p: Permission) -> ContentLookup {

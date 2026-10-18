@@ -11,6 +11,7 @@ use blob_test_protocol::{
         },
     },
 };
+use ic_testkit::pic::query_candid_args;
 use ic_testkit::pocket_ic::RejectResponse;
 
 #[derive(Clone, Copy)]
@@ -119,16 +120,16 @@ fn read_page(
     actor: Principal,
     page: RestorationReadPage,
 ) -> Result<Vec<RestorationRead>, Failure> {
-    f.harness
-        .pic
-        .query_candid(
-            f.service,
-            actor,
-            "restoration_read_page",
-            (page,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.service,
+        actor,
+        "restoration_read_page",
+        (page,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 
 fn occupied_reads(f: &Fixture) -> Vec<RestorationRead> {
@@ -154,29 +155,27 @@ fn selected_funding(
         .into_iter()
         .map(|index| {
             let input = funding(f, workload, index);
-            let phase: Result<Option<FundingPhase>, Failure> = f
-                .harness
-                .pic
-                .query_candid(
-                    f.service,
-                    f.operator,
-                    "funding_lookup",
-                    (input.intent,),
-                    REPLY_LIMITS,
-                )
-                .unwrap();
+            let phase: Result<Option<FundingPhase>, Failure> = query_candid_args(
+                &f.harness.pic,
+                f.service,
+                f.operator,
+                "funding_lookup",
+                (input.intent,),
+                REPLY_LIMITS,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
             assert_eq!(phase, Ok(Some(input.phase)));
-            let request: Result<FundingRequest, Failure> = f
-                .harness
-                .pic
-                .query_candid(
-                    f.service,
-                    f.operator,
-                    "funding_request",
-                    (input.intent,),
-                    REPLY_LIMITS,
-                )
-                .unwrap();
+            let request: Result<FundingRequest, Failure> = query_candid_args(
+                &f.harness.pic,
+                f.service,
+                f.operator,
+                "funding_request",
+                (input.intent,),
+                REPLY_LIMITS,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
             (input.intent, input.phase, request.unwrap())
         })
         .collect()

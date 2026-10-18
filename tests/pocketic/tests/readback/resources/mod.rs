@@ -48,12 +48,7 @@ fn sample(label: &str, p: ReadExecutionProfile, memory: u64) -> serde_json::Valu
 
 fn wasm_hash(variable: &str) -> String {
     let bytes = std::fs::read(fixture_path(variable)).unwrap();
-    Sha256::digest(bytes)
-        .iter()
-        .fold(String::new(), |mut out, byte| {
-            write!(&mut out, "{byte:02x}").unwrap();
-            out
-        })
+    hex::encode(Sha256::digest(bytes))
 }
 
 #[test]

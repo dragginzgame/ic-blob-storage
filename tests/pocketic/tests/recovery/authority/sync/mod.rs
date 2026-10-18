@@ -2,21 +2,21 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{SourceObservation, source::SourceHeldSyncView};
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::pocket_ic::common::rest::RawMessageId;
 
 impl Fixture {
     pub(super) fn hold_sync(&self) -> RawMessageId {
-        let configured: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.operator,
-                "configure",
-                (SourceMode::Hold,),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let configured: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "configure",
+            (SourceMode::Hold,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(configured);
         let id = self
             .harness
@@ -43,21 +43,31 @@ impl Fixture {
     }
 
     pub(super) fn resume_sync(&self, id: RawMessageId) -> Result<(), SyncFailure> {
-        let resumed: bool = self
-            .harness
-            .pic
-            .update_candid(self.gateway, self.operator, "resume_sync", (), REPLY_LIMITS)
-            .unwrap();
+        let resumed: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "resume_sync",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(resumed);
         candid::decode_one(&self.harness.pic.await_call(id).unwrap()).unwrap()
     }
 
     pub(super) fn list_observation(&self) -> SourceObservation {
-        let observed: Option<SourceObservation> = self
-            .harness
-            .pic
-            .query_candid(self.gateway, self.operator, "observation", (), REPLY_LIMITS)
-            .unwrap();
+        let observed: Option<SourceObservation> = query_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "observation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         observed.unwrap()
     }
 }
@@ -85,25 +95,29 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     }
     assert_eq!(f.archive(), authority);
     // Ordinary overlap allocates no token and sends no second source request.
-    let overlap: Result<(), SyncFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.gateway,
-            "sync_gateway",
-            (f.sync_request(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let overlap: Result<(), SyncFailure> = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.gateway,
+        "sync_gateway",
+        (f.sync_request(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(overlap, Err(SyncFailure::InProgress));
     assert_eq!(f.list_observation().requests, 1);
     for actor in [f.first, f.second, f.service, Principal::anonymous()] {
-        let resumed: bool = f
-            .harness
-            .pic
-            .update_candid(f.gateway, actor, "resume_sync", (), REPLY_LIMITS)
-            .unwrap();
+        let resumed: bool = update_candid_args(
+            &f.harness.pic,
+            f.gateway,
+            actor,
+            "resume_sync",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(!resumed);
     }
     assert_eq!(f.resume_sync(id), Ok(()));
@@ -125,23 +139,27 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     f.upgrade_skipping_outgoing_hook(f.gateway, true);
     source.fenced = true;
     assert_eq!(f.source_recovery(f.operator).unwrap(), source);
-    let resumed: bool = f
-        .harness
-        .pic
-        .update_candid(f.gateway, f.operator, "resume_sync", (), REPLY_LIMITS)
-        .unwrap();
+    let resumed: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.operator,
+        "resume_sync",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(!resumed);
-    let retry: Result<(), SyncFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.operator,
-            "run_sync",
-            (f.sync_request(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let retry: Result<(), SyncFailure> = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.operator,
+        "run_sync",
+        (f.sync_request(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(retry, Err(SyncFailure::Denied));
     assert_eq!(f.source_recovery(f.operator).unwrap(), source);
 }
@@ -150,23 +168,27 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
 fn revocation_while_list_is_held_survives_stale_reply_and_fenced_upgrade() {
     let f = Fixture::with_source_operator(true);
     let id = f.hold_sync();
-    let configured: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.operator,
-            "configure",
-            (SourceMode::Valid,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let configured: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.operator,
+        "configure",
+        (SourceMode::Valid,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(!configured);
-    let revoked: bool = f
-        .harness
-        .pic
-        .update_candid(f.service, f.gateway, "revoke_gateway", (), REPLY_LIMITS)
-        .unwrap();
+    let revoked: bool = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.gateway,
+        "revoke_gateway",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(revoked);
     let mut revoked = f.archive();
     assert_eq!(revoked.gateways, []);
@@ -210,29 +232,27 @@ fn exhausted_local_hold_releases_exact_read_only_attempt_without_automatic_retry
     assert!(source.held_sync.is_none());
     assert_eq!(source.effects.last().unwrap().succeeded, Some(false));
     assert_eq!(f.list_observation().requests, 1);
-    let configured: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.operator,
-            "configure",
-            (SourceMode::Valid,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let configured: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.operator,
+        "configure",
+        (SourceMode::Valid,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(configured);
-    let explicit: Result<(), SyncFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.operator,
-            "run_sync",
-            (f.sync_request(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let explicit: Result<(), SyncFailure> = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.operator,
+        "run_sync",
+        (f.sync_request(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(explicit, Ok(()));
     assert_eq!((f.archive().last_sync, f.archive().pending_sync), (2, None));
     assert_eq!(f.list_observation().requests, 2);

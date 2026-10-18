@@ -4,6 +4,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::update_candid_args;
 
 fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
     f.harness
@@ -34,13 +35,15 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     f.resume(f.operator).unwrap();
     let root = super::standalone_certificate::root(&manifest);
     let _: ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse =
-        pic.update_candid(
+        update_candid_args(
+            pic,
             f.service,
             f.uploader,
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
             (root.clone(),),
             REPLY_LIMITS,
         )
+        .map(|(reply,)| reply)
         .unwrap();
     assert_eq!(f.admission(permission).state, UploadState::ExposurePossible);
     pic.update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(

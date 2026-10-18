@@ -1,6 +1,7 @@
 //! Actual lifecycle recovery preserves obligations but cannot resume authority.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::update_candid_args;
 
 impl Fixture {
     pub(in crate::recovery) fn upgrade_authority(&self) {
@@ -22,17 +23,16 @@ impl Fixture {
             self.read_resources(self.authority_operator),
             Err(JourneyFailure::Denied)
         );
-        let sync: Result<(), SyncFailure> = self
-            .harness
-            .pic
-            .update_candid(
-                self.service,
-                self.authority_operator,
-                "sync_gateway",
-                (self.sync_request(),),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let sync: Result<(), SyncFailure> = update_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.authority_operator,
+            "sync_gateway",
+            (self.sync_request(),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert_eq!(sync, Err(SyncFailure::Fenced));
         let args = |root: [u8; 32]| candid::encode_args((root.to_vec(),)).unwrap();
         let updates = [
@@ -201,17 +201,16 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
-    let armed: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.operator,
-            "journey_arm_read_callback_trap",
-            (root(v.upload.root),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let armed: bool = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "journey_arm_read_callback_trap",
+        (root(v.upload.root),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(armed);
     let failure = f
         .harness

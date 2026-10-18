@@ -9,6 +9,7 @@ use ic_blob_storage::model::gateway::registry::GatewayScope;
 use ic_blob_storage::model::gateway::registry::GatewaySyncError;
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::gateway::GatewayReplyError;
+use ic_testkit::pic::update_candid_args;
 
 use ic_blob_storage::ops::caffeine::query::CashierQuery;
 use ic_blob_storage::ops::caffeine::query::CashierQueryRequest;
@@ -109,11 +110,16 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         SourceMode::Revoke,
         SourceMode::Replace(Fake::principal(99)),
     ] {
-        let configured: bool = f
-            .harness
-            .pic
-            .update_candid(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
-            .unwrap();
+        let configured: bool = update_candid_args(
+            &f.harness.pic,
+            f.gateway,
+            f.driver,
+            "configure",
+            (mode,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(configured);
         let before = f.journals();
         assert!(query(f.driver).is_err());
@@ -122,17 +128,16 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
             "query must not execute a scripted source action"
         );
     }
-    let configured: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.driver,
-            "configure",
-            (SourceMode::Valid,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let configured: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.driver,
+        "configure",
+        (SourceMode::Valid,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(configured);
     assert!(query(f.driver).is_ok());
     f.upgrade_fixture(f.gateway, true);
@@ -163,11 +168,16 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(GatewayListError::Empty)),
         ),
     ] {
-        let configured: bool = f
-            .harness
-            .pic
-            .update_candid(f.gateway, f.driver, "configure", (mode,), REPLY_LIMITS)
-            .unwrap();
+        let configured: bool = update_candid_args(
+            &f.harness.pic,
+            f.gateway,
+            f.driver,
+            "configure",
+            (mode,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(configured);
         let before = f.journals();
         let bytes = f

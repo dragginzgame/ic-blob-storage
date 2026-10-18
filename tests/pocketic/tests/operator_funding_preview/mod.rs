@@ -4,13 +4,19 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::preview::{
     FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
 };
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 fn args(f: &Fixture, id: u64, amount: u128) -> Vec<String> {
-    let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> = f
-        .harness
-        .pic
-        .query_candid(f.sender, f.driver, "operator_status", (), REPLY_LIMITS)
-        .unwrap();
+    let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> = query_candid_args(
+        &f.harness.pic,
+        f.sender,
+        f.driver,
+        "operator_status",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     let mut args = f.args(
         f.sender,
         f.driver,
@@ -238,11 +244,16 @@ fn wrong_binding_denied_callers_and_invalid_amounts_never_change_journals() {
             FundingPreviewFailure::InvalidAmount,
         ),
     ] {
-        let result: Result<FundingPreviewView, FundingPreviewFailure> = f
-            .harness
-            .pic
-            .query_candid(f.sender, caller, "preview_funding", (input,), REPLY_LIMITS)
-            .unwrap();
+        let result: Result<FundingPreviewView, FundingPreviewFailure> = query_candid_args(
+            &f.harness.pic,
+            f.sender,
+            caller,
+            "preview_funding",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert_eq!(result, Err(expected));
     }
     let mut denied = args(&f, 1, 1);
@@ -322,23 +333,22 @@ fn preview_reports_the_same_amount_bound_enforced_before_update_admission() {
             .iter()
             .any(|b| b.get("AmountLimitExceeded").is_some())
     );
-    let result: Result<FundingObservation, FundingFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.sender,
-            f.driver,
-            "fund",
-            (FundingRequest {
-                id: 1,
-                offered: maximum + 1,
-                accept: 0,
-                reply: FundingReplyMode::Success,
-                trap_callback: true,
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let result: Result<FundingObservation, FundingFailure> = update_candid_args(
+        &f.harness.pic,
+        f.sender,
+        f.driver,
+        "fund",
+        (FundingRequest {
+            id: 1,
+            offered: maximum + 1,
+            accept: 0,
+            reply: FundingReplyMode::Success,
+            trap_callback: true,
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(result, Err(FundingFailure::Limit));
     assert!(
         f.journals() == before,

@@ -4,6 +4,7 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::GrowthAdmission;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_testkit::pic::update_candid_args;
 
 #[test]
 fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_succeeds() {
@@ -40,20 +41,19 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
         f.lookup(f.tenant, permission.request),
         Err(Failure::Unknown)
     );
-    let result: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.tenant,
-            "admit_with_growth",
-            (GrowthAdmission {
-                refuse: false,
-                ..input
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let result: Result<UploadAdmissionMutation, UploadAdmissionFailure> = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.tenant,
+        "admit_with_growth",
+        (GrowthAdmission {
+            refuse: false,
+            ..input
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     result.unwrap();
     assert_eq!(f.status().operations, 1);
     assert_eq!(f.status().active, 1);

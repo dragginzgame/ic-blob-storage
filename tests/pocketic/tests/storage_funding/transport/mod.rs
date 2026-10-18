@@ -2,6 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod dispatch;
 use blob_test_protocol::{
     funding::{
@@ -105,52 +106,51 @@ impl Fixture {
                 .map(|value| NonZeroU128::new(value).unwrap()),
         )
         .unwrap();
-        let result: Result<(), FundingFailure> = self
-            .harness
-            .pic
-            .update_candid(
-                self.operator,
-                self.controller,
-                "configure_cashier",
-                (Substitute {
-                    expected_arguments: request.arguments().to_vec(),
-                    behavior: FundingRequest {
-                        id: u64::try_from(intent.operation).unwrap(),
-                        offered: intent.offered,
-                        accept: accepted,
-                        reply,
-                        trap_callback: false,
-                    },
-                },),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let result: Result<(), FundingFailure> = update_candid_args(
+            &self.harness.pic,
+            self.operator,
+            self.controller,
+            "configure_cashier",
+            (Substitute {
+                expected_arguments: request.arguments().to_vec(),
+                behavior: FundingRequest {
+                    id: u64::try_from(intent.operation).unwrap(),
+                    offered: intent.offered,
+                    accept: accepted,
+                    reply,
+                    trap_callback: false,
+                },
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         result.unwrap();
     }
     fn transport(&self, actor: Principal, input: Input) -> Result<Observation, Failure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                actor,
-                "fixture_funding_transport",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "fixture_funding_transport",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn incoming(&self) -> Vec<FundingReceiptRecord> {
-        self.harness
-            .pic
-            .query_candid::<Option<Vec<FundingReceiptRecord>>, _>(
-                self.operator,
-                self.controller,
-                "receipts",
-                (),
-                REPLY_LIMITS,
-            )
-            .unwrap()
-            .unwrap()
+        query_candid_args::<(Option<Vec<FundingReceiptRecord>>,), _>(
+            &self.harness.pic,
+            self.operator,
+            self.controller,
+            "receipts",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+        .unwrap()
     }
     fn retained_outcome(
         &self,

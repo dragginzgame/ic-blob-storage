@@ -1,5 +1,6 @@
 //! Atomic stable inspection records, without pretending to resume authority.
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod capacity;
 mod checkpoint;
 mod restore;
@@ -15,31 +16,29 @@ use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
     pub(super) fn archive(&self) -> AuthorityArchiveView {
-        let result: Option<AuthorityArchiveView> = self
-            .harness
-            .pic
-            .query_candid(
-                self.service,
-                self.authority_operator,
-                "authority_archive",
-                (),
-                REPLY_LIMITS,
-            )
-            .expect("stable archive query");
+        let result: Option<AuthorityArchiveView> = query_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.authority_operator,
+            "authority_archive",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("stable archive query");
         result.expect("explicit operator")
     }
     fn sample_fact(&self, fact: ObligationProbeFact) {
-        let accepted: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.service,
-                self.authority_operator,
-                "confirm_obligation",
-                (1_u8, fact),
-                REPLY_LIMITS,
-            )
-            .expect("sample fact");
+        let accepted: bool = update_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.authority_operator,
+            "confirm_obligation",
+            (1_u8, fact),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("sample fact");
         assert!(accepted);
     }
 
@@ -53,17 +52,16 @@ impl Fixture {
         let result: Result<
             blob_test_protocol::content::ContentProbeReport,
             blob_test_protocol::content::ContentProbeFailure,
-        > = self
-            .harness
-            .pic
-            .update_candid(
-                self.service,
-                self.authority_operator,
-                "probe_content",
-                (blob_test_protocol::content::ContentProbeCase::UnicodeMetadata,),
-                REPLY_LIMITS,
-            )
-            .expect("stateless update after memory injection");
+        > = update_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.authority_operator,
+            "probe_content",
+            (blob_test_protocol::content::ContentProbeCase::UnicodeMetadata,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("stateless update after memory injection");
         result.expect("independent content probe");
     }
 }
@@ -102,29 +100,32 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
     let cancelled = upload(3, b"cancelled");
     assert_eq!(f.reserve(f.first, cancelled), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
-    let released: bool = f
-        .harness
-        .pic
-        .update_candid(f.service, f.first, "release", (1_u8,), REPLY_LIMITS)
-        .unwrap();
+    let (released,): (bool,) = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.first,
+        "release",
+        (1_u8,),
+        REPLY_LIMITS,
+    )
+    .unwrap();
     assert!(released);
     f.sample_fact(ObligationProbeFact::Deleted);
-    let sample_cancel: bool = f
-        .harness
-        .pic
-        .update_candid(f.service, f.first, "cancel_upload", (11_u8,), REPLY_LIMITS)
-        .unwrap();
+    let (sample_cancel,): (bool,) = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.first,
+        "cancel_upload",
+        (11_u8,),
+        REPLY_LIMITS,
+    )
+    .unwrap();
     assert!(sample_cancel);
     let archive = f.archive();
-    assert_eq!(
-        (
-            archive.service,
-            archive.operator,
-            archive.tenants,
-            archive.namespace
-        ),
-        (f.service, f.operator, [f.first, f.second], 1)
-    );
+    assert_eq!(archive.service, f.service);
+    assert_eq!(archive.operator, f.operator);
+    assert_eq!(archive.tenants, [f.first, f.second]);
+    assert_eq!(archive.namespace, 1);
     assert_sample_history(&archive);
     let entry = object(&archive, ArchiveCatalog::Journey, partial.upload.root);
     assert_eq!(entry.manifest, Some(partial.manifest));
@@ -208,17 +209,15 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
-    let armed: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.operator,
-            "journey_arm_read_callback_trap",
-            (root(v.upload.root),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let (armed,): (bool,) = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "journey_arm_read_callback_trap",
+        (root(v.upload.root),),
+        REPLY_LIMITS,
+    )
+    .unwrap();
     assert!(armed);
     assert_eq!(f.archive().armed_read_trap, Some(v.upload.root));
     let id = f.hold_read(v.upload);
@@ -232,11 +231,15 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     assert_eq!(before.last_read, read.token);
     assert!(read.valid);
     assert_eq!(before.armed_read_trap, None);
-    let resumed: bool = f
-        .harness
-        .pic
-        .update_candid(f.gateway, f.operator, "resume_read", (), REPLY_LIMITS)
-        .unwrap();
+    let (resumed,): (bool,) = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.operator,
+        "resume_read",
+        (),
+        REPLY_LIMITS,
+    )
+    .unwrap();
     assert!(resumed);
     let error = f
         .harness
@@ -245,11 +248,15 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
         .expect_err("actual read callback trap");
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     assert_eq!(f.archive(), before);
-    let revoked: bool = f
-        .harness
-        .pic
-        .update_candid(f.service, f.operator, "revoke_gateway", (), REPLY_LIMITS)
-        .unwrap();
+    let (revoked,): (bool,) = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "revoke_gateway",
+        (),
+        REPLY_LIMITS,
+    )
+    .unwrap();
     assert!(revoked);
     let after = f.archive();
     assert_eq!(after.gateways, []);
@@ -272,18 +279,27 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
         Principal::anonymous(),
         f.service,
     ] {
-        let denied: Option<AuthorityArchiveView> = f
-            .harness
-            .pic
-            .query_candid(f.service, caller, "authority_archive", (), REPLY_LIMITS)
-            .unwrap();
+        let denied: Option<AuthorityArchiveView> = query_candid_args(
+            &f.harness.pic,
+            f.service,
+            caller,
+            "authority_archive",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(denied.is_none());
     }
-    let initial: Option<AuthorityArchiveView> = f
-        .harness
-        .pic
-        .query_candid(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
-        .unwrap();
+    let (initial,): (Option<AuthorityArchiveView>,) = query_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.gateway,
+        "authority_archive",
+        (),
+        REPLY_LIMITS,
+    )
+    .unwrap();
     assert!(initial.is_some());
     let f = Fixture::new();
     let initial = f.archive();
@@ -381,11 +397,16 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
 fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
     let f = Fixture::with_source_operator(true);
     let query = || -> AuthorityArchiveView {
-        let value: Option<AuthorityArchiveView> = f
-            .harness
-            .pic
-            .query_candid(f.service, f.gateway, "authority_archive", (), REPLY_LIMITS)
-            .unwrap();
+        let value: Option<AuthorityArchiveView> = query_candid_args(
+            &f.harness.pic,
+            f.service,
+            f.gateway,
+            "authority_archive",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         value.unwrap()
     };
     let initial = query();
@@ -395,23 +416,27 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
         (SourceMode::Overlap, Ok(())),
         (SourceMode::Revoke, Err(SyncFailure::Stale)),
     ] {
-        let configured: bool = f
-            .harness
-            .pic
-            .update_candid(f.gateway, f.operator, "configure", (mode,), REPLY_LIMITS)
-            .unwrap();
+        let configured: bool = update_candid_args(
+            &f.harness.pic,
+            f.gateway,
+            f.operator,
+            "configure",
+            (mode,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(configured);
-        let result: Result<(), SyncFailure> = f
-            .harness
-            .pic
-            .update_candid(
-                f.gateway,
-                f.operator,
-                "run_sync",
-                (f.sync_request(),),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let result: Result<(), SyncFailure> = update_candid_args(
+            &f.harness.pic,
+            f.gateway,
+            f.operator,
+            "run_sync",
+            (f.sync_request(),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert_eq!(result, expected);
     }
     let after = query();

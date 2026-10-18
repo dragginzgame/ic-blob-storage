@@ -3,6 +3,7 @@ use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::gateways::ReplicatedInput;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 impl Fixture {
     fn replicated_input(&self, token: u64) -> ReplicatedInput {
         ReplicatedInput {
@@ -13,16 +14,16 @@ impl Fixture {
         }
     }
     fn replicated_gateways(&self, actor: Principal, input: ReplicatedInput) -> Result<(), Failure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                actor,
-                "fixture_replicated_gateway_transport",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "fixture_replicated_gateway_transport",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
 }
 #[test]
@@ -88,17 +89,16 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
     f.gateways(f.operator, Action::Add(f.tenant)).unwrap();
     let token = f.gateway_begin();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let rejected: Result<(), Failure> = f
-        .harness
-        .pic
-        .query_candid(
-            f.service,
-            f.operator,
-            "fixture_nonreplicated_gateway_transport",
-            (f.replicated_input(token),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let rejected: Result<(), Failure> = query_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "fixture_nonreplicated_gateway_transport",
+        (f.replicated_input(token),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(rejected, Err(Failure::Phase));
     assert_eq!(
         f.replicated_gateways(

@@ -2,7 +2,7 @@ use super::*;
 use crate::model::billing::journal::FundingIntent;
 use crate::ops::service::configuration::tests::candidate;
 use crate::ops::service::stores::grants;
-use crate::test_support::memory::FixtureBackingMemory;
+use crate::test_support::memory::FixtureMemory;
 use crate::workflow::operator::inspect;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
@@ -94,12 +94,12 @@ fn input() -> ServiceInstallationCandidate<'static> {
 fn validated() -> ValidatedServiceInstallation {
     ValidatedServiceInstallation::new(candidate().service, input()).unwrap()
 }
-fn memory() -> [FixtureBackingMemory; 17] {
-    std::array::from_fn(|_| FixtureBackingMemory::default())
+fn memory() -> [FixtureMemory; 17] {
+    std::array::from_fn(|_| FixtureMemory::default())
 }
 fn memories(
-    memory: &[FixtureBackingMemory; 17],
-) -> ServiceInstallationMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
+    memory: &[FixtureMemory; 17],
+) -> ServiceInstallationMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     let requests = grants::requests("installation-test").unwrap();
     ServiceInstallationMemories {
         configuration: memory[0].lease(),
@@ -113,7 +113,7 @@ fn memories(
         .unwrap(),
     }
 }
-fn bytes(memory: &[FixtureBackingMemory; 17]) -> [Vec<u8>; 17] {
+fn bytes(memory: &[FixtureMemory; 17]) -> [Vec<u8>; 17] {
     memory.each_ref().map(|m| m.borrow().clone())
 }
 
@@ -139,15 +139,15 @@ fn observed_version_gaps_fence_without_changing_journals_or_the_installation_anc
         .unwrap();
         let mut installation = ServiceInstallation::install(memories(&memory), validated).unwrap();
         let before = bytes(&memory);
-        let mut checkpoint = previous;
-        let request = installation.prepare_active_continuity(&mut checkpoint, current);
+        installation.last_platform_version = Some(previous);
+        let request = installation.prepare_active_continuity(current);
         assert_eq!(request.map(|r| r.installation_version), gap.then_some(7));
-        assert_eq!(checkpoint, current);
+        assert_eq!(installation.last_platform_version, Some(current));
         assert_eq!(installation.stores().uploads.is_fenced(), gap);
         assert_eq!(installation.stores().funding.is_fenced(), gap);
         assert_eq!(installation.platform_installation_version(), 7);
         assert_eq!(bytes(&memory), before);
-        installation.observe_platform_version(&mut checkpoint, current);
+        installation.observe_platform_version(current);
         assert_eq!(installation.stores().uploads.is_fenced(), gap);
         assert_eq!(bytes(&memory), before);
     }
@@ -161,14 +161,10 @@ fn already_fenced_restoration_never_requests_automatic_continuity_recovery() {
     let mut restored =
         ServiceInstallation::open(memories(&memory), candidate().service, RELEASE).unwrap();
     let before = bytes(&memory);
-    let mut checkpoint = 7;
+    restored.last_platform_version = Some(7);
     for current in [9, 10, 0, u64::MAX] {
-        assert!(
-            restored
-                .prepare_active_continuity(&mut checkpoint, current)
-                .is_none()
-        );
-        assert_eq!(checkpoint, current);
+        assert!(restored.prepare_active_continuity(current).is_none());
+        assert_eq!(restored.last_platform_version, Some(current));
         assert!(restored.stores().uploads.is_fenced());
         assert!(restored.stores().funding.is_fenced());
         assert_eq!(bytes(&memory), before);
@@ -357,7 +353,7 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
         assert_eq!(bytes(&memory), before);
     }
     let mut missing = memory.clone();
-    missing[16] = FixtureBackingMemory::default();
+    missing[16] = FixtureMemory::default();
     let missing_before = bytes(&missing);
     assert!(matches!(
         ServiceInstallation::open(memories(&missing), candidate().service, RELEASE),

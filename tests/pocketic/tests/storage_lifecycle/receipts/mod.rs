@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod mutations;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
 fn consumer() -> Fixture {
@@ -18,16 +19,16 @@ fn fetch(
     f: &Fixture,
     input: &ReferenceClientInput,
 ) -> Result<ReferenceReceiptLookup, ReferenceProbeFailure> {
-    f.harness
-        .pic
-        .update_candid(
-            f.tenant,
-            f.operator,
-            "fixture_fetch_reference_receipt",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "fixture_fetch_reference_receipt",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn selection(f: &Fixture, request: ReferenceInput) -> ReferenceClientInput {
     ReferenceClientInput {
@@ -143,29 +144,27 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
         fetch(&f, &wrong_tenant),
         Err(ReferenceProbeFailure::Binding)
     );
-    let denied: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.tenant,
-            f.other,
-            "fixture_fetch_reference_receipt",
-            (selected,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let denied: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = update_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.other,
+        "fixture_fetch_reference_receipt",
+        (selected,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(denied, Err(ReferenceProbeFailure::Denied));
-    let query: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = f
-        .harness
-        .pic
-        .query_candid(
-            f.tenant,
-            f.operator,
-            "fixture_nonreplicated_reference_receipt",
-            (selected,),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let query: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = query_candid_args(
+        &f.harness.pic,
+        f.tenant,
+        f.operator,
+        "fixture_nonreplicated_reference_receipt",
+        (selected,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     f.harness

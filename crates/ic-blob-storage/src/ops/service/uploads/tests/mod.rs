@@ -12,7 +12,7 @@ mod reference_status_boundary;
 mod revocation;
 use crate::ops::service::tenant::tests::config;
 use crate::test_support::admission::UploadAdmissions;
-use crate::test_support::memory::FixtureBackingMemory;
+use crate::test_support::memory::FixtureMemory;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
@@ -33,23 +33,23 @@ fn context(n: u8) -> UploadContext {
         actor: p(n),
     }
 }
-fn memory() -> UploadMemories<FixtureBackingMemory> {
+fn memory() -> UploadMemories<FixtureMemory> {
     UploadMemories {
-        tenants: FixtureBackingMemory::default(),
-        roots: FixtureBackingMemory::default(),
-        objects: FixtureBackingMemory::default(),
-        permissions: FixtureBackingMemory::default(),
-        usage: FixtureBackingMemory::default(),
-        manifests: FixtureBackingMemory::default(),
-        confirmed: FixtureBackingMemory::default(),
-        references: FixtureBackingMemory::default(),
-        receipts: FixtureBackingMemory::default(),
-        root_requests: FixtureBackingMemory::default(),
+        tenants: FixtureMemory::default(),
+        roots: FixtureMemory::default(),
+        objects: FixtureMemory::default(),
+        permissions: FixtureMemory::default(),
+        usage: FixtureMemory::default(),
+        manifests: FixtureMemory::default(),
+        confirmed: FixtureMemory::default(),
+        references: FixtureMemory::default(),
+        receipts: FixtureMemory::default(),
+        root_requests: FixtureMemory::default(),
     }
 }
 fn clone_memory(
-    m: &UploadMemories<FixtureBackingMemory>,
-) -> UploadMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
+    m: &UploadMemories<FixtureMemory>,
+) -> UploadMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     UploadMemories {
         tenants: m.tenants.lease(),
         roots: m.roots.lease(),
@@ -64,8 +64,8 @@ fn clone_memory(
     }
 }
 fn snapshot_memory(
-    m: &UploadMemories<FixtureBackingMemory>,
-) -> UploadMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>> {
+    m: &UploadMemories<FixtureMemory>,
+) -> UploadMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     clone_memory(&UploadMemories {
         tenants: m.tenants.snapshot(),
         roots: m.roots.snapshot(),
@@ -107,7 +107,7 @@ fn permission(id: u128) -> UploadPermission {
         expires_at_ns: 100,
     }
 }
-fn enroll(store: &mut StableUploads<FixtureBackingMemory>) -> TenantEnrollmentView {
+fn enroll(store: &mut StableUploads<ic_memory::VectorMemory>) -> TenantEnrollmentView {
     store
         .update_tenant(
             context(2),

@@ -15,6 +15,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::query_candid_args;
 
 impl Fixture {
     fn capacity_input(&self) -> TenantScope {
@@ -75,10 +76,16 @@ impl Fixture {
         actor: Principal,
         input: &RootBatchInput,
     ) -> Result<Vec<RootObservation>, Failure> {
-        self.harness
-            .pic
-            .query_candid(self.service, actor, "observe_roots", (input,), REPLY_LIMITS)
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "observe_roots",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
 }
 

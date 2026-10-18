@@ -1,5 +1,6 @@
 //! Real local source calls; no deployed provider durability or HTTP claims.
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod resources;
 
 use super::*;
@@ -19,16 +20,16 @@ impl Fixture {
         &self,
         caller: Principal,
     ) -> Result<Option<ReadExecutionProfile>, JourneyFailure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                caller,
-                "journey_read_resources",
-                (),
-                REPLY_LIMITS,
-            )
-            .expect("read resource observation")
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "journey_read_resources",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("read resource observation")
     }
 
     pub(super) fn source_config(
@@ -39,38 +40,36 @@ impl Fixture {
         mode: ReadSourceMode,
         hold: bool,
     ) {
-        let accepted: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.operator,
-                "configure_read",
-                (ReadSourceConfig {
-                    root: input.root,
-                    index,
-                    bytes: bytes.to_vec(),
-                    mode,
-                    hold,
-                },),
-                REPLY_LIMITS,
-            )
-            .expect("configure local source");
+        let accepted: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "configure_read",
+            (ReadSourceConfig {
+                root: input.root,
+                index,
+                bytes: bytes.to_vec(),
+                mode,
+                hold,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("configure local source");
         assert!(accepted);
     }
 
     pub(super) fn source_observation(&self) -> ReadSourceObservation {
-        let observed: Option<ReadSourceObservation> = self
-            .harness
-            .pic
-            .query_candid(
-                self.gateway,
-                self.operator,
-                "read_observation",
-                (),
-                REPLY_LIMITS,
-            )
-            .expect("source observation");
+        let observed: Option<ReadSourceObservation> = query_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "read_observation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("source observation");
         observed.expect("driver authority")
     }
 
@@ -80,16 +79,16 @@ impl Fixture {
         input: JourneyUpload,
         index: u64,
     ) -> Result<JourneyReadChunk, JourneyFailure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                caller,
-                "journey_read",
-                (root(input.root), index),
-                REPLY_LIMITS,
-            )
-            .expect("read reply")
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "journey_read",
+            (root(input.root), index),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("read reply")
     }
 
     pub(super) fn hold_read(&self, input: JourneyUpload) -> RawMessageId {
@@ -113,11 +112,16 @@ impl Fixture {
     }
 
     pub(super) fn resume_read(&self, id: RawMessageId) -> Result<JourneyReadChunk, JourneyFailure> {
-        let resumed: bool = self
-            .harness
-            .pic
-            .update_candid(self.gateway, self.operator, "resume_read", (), REPLY_LIMITS)
-            .expect("resume source");
+        let resumed: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "resume_read",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("resume source");
         assert!(resumed);
         candid::decode_one(&self.harness.pic.await_call(id).expect("read callback"))
             .expect("typed reply")
@@ -256,11 +260,16 @@ fn release_during_a_held_read_prevents_reply_disclosure_and_later_reads() {
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);
-    let resumed: bool = f
-        .harness
-        .pic
-        .update_candid(f.gateway, f.first, "resume_read", (), REPLY_LIMITS)
-        .expect("denied resume");
+    let resumed: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.first,
+        "resume_read",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .expect("denied resume");
     assert!(!resumed);
     assert_eq!(
         f.read_chunk(f.first, v.upload, 0),
@@ -313,23 +322,27 @@ fn revoked_and_readded_gateway_cannot_validate_its_old_held_reply() {
         (SourceMode::Revoke, Err(SyncFailure::Stale)),
         (SourceMode::Valid, Ok(())),
     ] {
-        let configured: bool = f
-            .harness
-            .pic
-            .update_candid(f.gateway, f.operator, "configure", (mode,), REPLY_LIMITS)
-            .expect("sync source mode");
+        let configured: bool = update_candid_args(
+            &f.harness.pic,
+            f.gateway,
+            f.operator,
+            "configure",
+            (mode,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("sync source mode");
         assert!(configured);
-        let result: Result<(), SyncFailure> = f
-            .harness
-            .pic
-            .update_candid(
-                f.gateway,
-                f.operator,
-                "run_sync",
-                (f.sync_request(),),
-                REPLY_LIMITS,
-            )
-            .expect("sync response");
+        let result: Result<(), SyncFailure> = update_candid_args(
+            &f.harness.pic,
+            f.gateway,
+            f.operator,
+            "run_sync",
+            (f.sync_request(),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("sync response");
         assert_eq!(result, expected);
     }
     assert_eq!(

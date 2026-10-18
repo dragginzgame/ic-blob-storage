@@ -1,23 +1,22 @@
-# Blob-owned service protocol adoption — pending 0.32
+# Blob-owned service protocol
 
-The 0.32 hard cut is being converted to IC Wire 0.3. **Adoption is incomplete:**
-tenant inspection/update have moved; the other 29 owned methods and standalone
-lifecycle inputs retain their pending CBOR implementation until conversion.
-Do not freeze or qualify this mixed development state as the final 0.32 contract.
-The registry package is not yet available. Tracked manifests select `ic-wire =
-"0.3"`; Cargo.lock completion and published-package qualification remain pending.
-Candidate-source results are [recorded separately](evidence/icwire0320.md).
+The implemented surface uses IC Wire for tenant inspection/update and bounded
+CBOR for the other 29 owned methods and standalone lifecycle inputs. The catalog
+and endpoint emitters agree on this mixed surface. Completing Wire conversion
+would be a coordinated protocol change, not deletion of an unused CBOR codec.
+The root manifest selects published IC Wire 0.4; the lockfile owns its exact
+selection. Initial candidate-source results remain
+[historical evidence](evidence/icwire0320.md), not current registry qualification.
 
 Each endpoint accepts one declared codec with no detection or fallback. Former
-Candid requests refuse at owned methods, and pending CBOR tenant frames now refuse
-too. The core and Contracts package versions remain maintainer-owned until release.
+Candid requests refuse at owned methods, and CBOR tenant frames refuse too.
 
 ## Boundaries and ownership
 
 | Boundary | Encoding |
 | --- | --- |
 | `blob_tenant` and `blob_update_tenant` request/reply | Bounded IC Wire, method- and direction-bound Postcard frame |
-| Other 29 `blob_*` methods, pending conversion | One complete CBOR value |
+| Other 29 `blob_*` methods | One complete CBOR value |
 | Standalone initialization | One CBOR `ServiceInstallationInput` record |
 | Same-release standalone post-upgrade input | CBOR unit/null (`f6`), with no replacement configuration |
 | `_immutableObjectStorageCreateCertificate` request/reply | Existing provider-defined Candid contract |

@@ -28,7 +28,7 @@ fn content(input: UploadPermission) -> ContentLookup {
         root: input.request.object.root,
     }
 }
-fn prepared(store: &mut StableUploads<FixtureBackingMemory>, id: u128) -> UploadPermission {
+fn prepared(store: &mut StableUploads<ic_memory::VectorMemory>, id: u128) -> UploadPermission {
     enroll(store);
     let built = built();
     let mut input = permission(1);

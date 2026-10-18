@@ -1,5 +1,6 @@
 //! Real local chunks validate durable sessions, verification and callback authority.
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod resources;
 use super::*;
 use blob_test_protocol::{
@@ -22,30 +23,30 @@ impl Fixture {
             hold,
         };
         assert!(
-            self.harness
-                .pic
-                .update_candid::<bool, _>(
-                    self.operator,
-                    self.controller,
-                    "configure_read",
-                    (config,),
-                    REPLY_LIMITS
-                )
-                .unwrap()
+            update_candid_args::<(bool,), _>(
+                &self.harness.pic,
+                self.operator,
+                self.controller,
+                "configure_read",
+                (config,),
+                REPLY_LIMITS
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
         );
     }
     fn chunk_observation(&self) -> ReadSourceObservation {
-        self.harness
-            .pic
-            .query_candid::<Option<ReadSourceObservation>, _>(
-                self.operator,
-                self.controller,
-                "read_observation",
-                (),
-                REPLY_LIMITS,
-            )
-            .unwrap()
-            .unwrap()
+        query_candid_args::<(Option<ReadSourceObservation>,), _>(
+            &self.harness.pic,
+            self.operator,
+            self.controller,
+            "read_observation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+        .unwrap()
     }
     fn wait_chunk(&self) {
         for _ in 0..30 {
@@ -58,16 +59,16 @@ impl Fixture {
     }
     fn resume_chunk(&self) {
         assert!(
-            self.harness
-                .pic
-                .update_candid::<bool, _>(
-                    self.operator,
-                    self.controller,
-                    "resume_read",
-                    (),
-                    REPLY_LIMITS
-                )
-                .unwrap()
+            update_candid_args::<(bool,), _>(
+                &self.harness.pic,
+                self.operator,
+                self.controller,
+                "resume_read",
+                (),
+                REPLY_LIMITS
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
         );
     }
     fn read_input(&self) -> ReadSessionInput {
@@ -101,29 +102,42 @@ impl Fixture {
         }
     }
     fn read_chunk(&self, actor: Principal, input: ReadSessionInput) -> Result<(), Failure> {
-        self.harness
-            .pic
-            .update_candid::<Result<JourneyReadChunk, Failure>, _>(
-                self.service,
-                actor,
-                "fixture_read_chunk",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
-            .map(|chunk| {
-                assert_eq!(
-                    chunk,
-                    JourneyReadChunk {
-                        index: input.index,
-                        offset: 0,
-                        bytes: vec![1; 10]
-                    }
-                );
-            })
+        update_candid_args::<(Result<JourneyReadChunk, Failure>,), _>(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "fixture_read_chunk",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+        .map(|chunk| {
+            assert_eq!(
+                chunk,
+                JourneyReadChunk {
+                    index: input.index,
+                    offset: 0,
+                    bytes: vec![1; 10]
+                }
+            );
+        })
     }
     fn session_view(&self) -> blob_test_protocol::storage::gateways::ReadSessionsView {
-        self.harness.pic.query_candid::<Result<blob_test_protocol::storage::gateways::ReadSessionsView, Failure>, _>(self.service, self.operator, "read_sessions", (), REPLY_LIMITS).unwrap().unwrap()
+        query_candid_args::<
+            (Result<blob_test_protocol::storage::gateways::ReadSessionsView, Failure>,),
+            _,
+        >(
+            &self.harness.pic,
+            self.service,
+            self.operator,
+            "read_sessions",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+        .unwrap()
     }
 }
 #[test]

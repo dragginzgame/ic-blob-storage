@@ -2,6 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use std::path::PathBuf;
 
 // Frozen producer for retired installation contracts, used only to install their
@@ -75,23 +76,29 @@ fn frozen_update<T: candid::CandidType + serde::de::DeserializeOwned>(
     method: &str,
     input: impl candid::CandidType,
 ) -> T {
-    f.harness
-        .pic
-        .update_candid(f.service, actor, method, (input,), REPLY_LIMITS)
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.service,
+        actor,
+        method,
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 fn frozen_admission(f: &Fixture, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
-    f.harness
-        .pic
-        .query_candid::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
-            f.service,
-            f.tenant,
-            "blob_upload_admission",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap()
+    query_candid_args::<(Result<UploadAdmissionResponse, UploadAdmissionFailure>,), _>(
+        &f.harness.pic,
+        f.service,
+        f.tenant,
+        "blob_upload_admission",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap()
 }
 
 fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) {
@@ -111,17 +118,17 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     )
     .unwrap();
     let manifest = f.small_manifest();
-    f.harness
-        .pic
-        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
-            f.service,
-            f.tenant,
-            "blob_admit_upload",
-            (manifest.permission,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap();
+    update_candid_args::<(Result<UploadAdmissionMutation, UploadAdmissionFailure>,), _>(
+        &f.harness.pic,
+        f.service,
+        f.tenant,
+        "blob_admit_upload",
+        (manifest.permission,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap();
     frozen_update::<Result<UploadManifestMutation, UploadManifestFailure>>(
         f,
         f.uploader,
@@ -129,65 +136,64 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
         &manifest,
     )
     .unwrap();
-    let _: CaffeineUploadCertificateResponse = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.uploader,
-            ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
-            (super::standalone_certificate::root(&manifest),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let _: CaffeineUploadCertificateResponse = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.uploader,
+        ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
+        (super::standalone_certificate::root(&manifest),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     // This statement is a local verifier substitute, not a deployed byte observation.
-    f.harness
-        .pic
-        .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
-            f.service,
-            Fake::principal(90),
-            "blob_attest_upload",
-            (UploadAttestationRequest {
-                permission: manifest.permission,
-                content_digest: [1; 32],
-                observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap();
-    f.harness
-        .pic
-        .update_candid::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
-            f.service,
-            f.tenant,
-            "blob_apply_reference",
-            (ReferenceCommand {
-                upload: manifest.permission.upload,
-                reference: manifest.permission.upload.first_reference,
-                operation: 2,
-                action: ReferenceAction::Release,
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap();
+    update_candid_args::<(Result<UploadAttestationMutation, UploadAttestationFailure>,), _>(
+        &f.harness.pic,
+        f.service,
+        Fake::principal(90),
+        "blob_attest_upload",
+        (UploadAttestationRequest {
+            permission: manifest.permission,
+            content_digest: [1; 32],
+            observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap();
+    update_candid_args::<(Result<ReferenceMutationResponse, ReferenceFailure>,), _>(
+        &f.harness.pic,
+        f.service,
+        f.tenant,
+        "blob_apply_reference",
+        (ReferenceCommand {
+            upload: manifest.permission.upload,
+            reference: manifest.permission.upload.first_reference,
+            operation: 2,
+            action: ReferenceAction::Release,
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap();
     let released = f.small_manifest().permission;
     let mut pending = f.manifest();
     pending.permission.upload.upload = 2;
     pending.permission.upload.object = 4;
     pending.permission.upload.first_reference = 5;
-    f.harness
-        .pic
-        .update_candid::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
-            f.service,
-            f.tenant,
-            "blob_admit_upload",
-            (pending.permission,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap();
+    update_candid_args::<(Result<UploadAdmissionMutation, UploadAdmissionFailure>,), _>(
+        &f.harness.pic,
+        f.service,
+        f.tenant,
+        "blob_admit_upload",
+        (pending.permission,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap();
     frozen_update::<Result<UploadManifestMutation, UploadManifestFailure>>(
         f,
         f.uploader,

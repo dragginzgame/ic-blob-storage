@@ -4,28 +4,39 @@
 mod support;
 use blob_test_protocol::uploads::UploadProbeState;
 use candid::Principal;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, PocketIc},
 };
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    pic.query_candid(canister, caller, "upload_usage", (), REPLY_LIMITS)
+    query_candid_args(pic, canister, caller, "upload_usage", (), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("usage")
 }
 fn active(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    pic.query_candid(canister, caller, "active_uploads", (), REPLY_LIMITS)
+    query_candid_args(pic, canister, caller, "active_uploads", (), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("active uploads")
 }
 fn roots(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<UploadProbeState>> {
-    pic.query_candid(canister, caller, "upload_roots", (), REPLY_LIMITS)
+    query_candid_args(pic, canister, caller, "upload_roots", (), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("root observations")
 }
 fn cancel(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    pic.update_candid(canister, caller, "cancel_upload", (root,), REPLY_LIMITS)
-        .expect("cancel")
+    update_candid_args(
+        pic,
+        canister,
+        caller,
+        "cancel_upload",
+        (root,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .expect("cancel")
 }
 
 #[test]
@@ -92,9 +103,16 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
             UploadProbeState::Cancelled
         ])
     );
-    let revoked: bool = pic
-        .update_candid(canister, controller, "revoke_gateway", (), REPLY_LIMITS)
-        .expect("revoke");
+    let revoked: bool = update_candid_args(
+        pic,
+        canister,
+        controller,
+        "revoke_gateway",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .expect("revoke");
     assert!(revoked);
     assert_eq!(roots(pic, canister, gateway), None);
     assert_eq!(active(pic, canister, first), Some(vec![12]));

@@ -3,6 +3,7 @@ use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_testkit::pic::query_candid_args;
 
 const BYTES: usize = 10 * 1024 * 1024;
 
@@ -67,16 +68,16 @@ fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
         reference: 1,
     };
     let inspect = || -> Result<Option<RetainedDescriptor>, Failure> {
-        f.harness
-            .pic
-            .query_candid(
-                f.service,
-                f.project,
-                "retained_content_descriptor",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &f.harness.pic,
+            f.service,
+            f.project,
+            "retained_content_descriptor",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     };
     assert_eq!(inspect(), Ok(None));
     f.call(f.uploader, Command::Expose(permission.request.root))

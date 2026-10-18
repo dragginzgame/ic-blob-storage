@@ -2,6 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, TenantDispatch};
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
@@ -37,46 +38,46 @@ fn fixture(operator_client: bool) -> (Fixture, Principal) {
     (f, client)
 }
 fn saved(f: &Fixture, client: Principal) -> Option<TenantUpdateRequest> {
-    f.harness
-        .pic
-        .query_candid::<Result<Option<TenantUpdateRequest>, ConsumerFailure>, _>(
-            client,
-            f.controller,
-            "fixture_tenant_command",
-            (),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap()
+    query_candid_args::<(Result<Option<TenantUpdateRequest>, ConsumerFailure>,), _>(
+        &f.harness.pic,
+        client,
+        f.controller,
+        "fixture_tenant_command",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap()
 }
 fn inspect(f: &Fixture, client: Principal) -> TenantEnrollmentResponse {
-    f.harness
-        .pic
-        .update_candid::<Result<TenantEnrollmentResponse, ConsumerFailure>, _>(
-            client,
-            f.controller,
-            "fixture_inspect_tenant",
-            (f.tenant_scope(),),
-            REPLY_LIMITS,
-        )
-        .unwrap()
-        .unwrap()
+    update_candid_args::<(Result<TenantEnrollmentResponse, ConsumerFailure>,), _>(
+        &f.harness.pic,
+        client,
+        f.controller,
+        "fixture_inspect_tenant",
+        (f.tenant_scope(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
+    .unwrap()
 }
 fn dispatch(
     f: &Fixture,
     client: Principal,
     input: TenantDispatch,
 ) -> Result<TenantEnrollmentResponse, ConsumerFailure> {
-    f.harness
-        .pic
-        .update_candid(
-            client,
-            f.controller,
-            "fixture_update_tenant",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        client,
+        f.controller,
+        "fixture_update_tenant",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 
 #[test]
@@ -98,17 +99,16 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
             trap_after_reply,
         };
         assert_eq!(saved(&f, client), None);
-        let denied: Result<TenantEnrollmentResponse, ConsumerFailure> = f
-            .harness
-            .pic
-            .update_candid(
-                client,
-                f.other,
-                "fixture_update_tenant",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let denied: Result<TenantEnrollmentResponse, ConsumerFailure> = update_candid_args(
+            &f.harness.pic,
+            client,
+            f.other,
+            "fixture_update_tenant",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert_eq!(denied, Err(ConsumerFailure::Denied));
         assert_eq!(saved(&f, client), None);
         if trap_after_reply {
@@ -202,17 +202,16 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
         })
     );
     let before = f.harness.pic.get_stable_memory(f.service);
-    let query: Result<TenantEnrollmentResponse, ConsumerFailure> = f
-        .harness
-        .pic
-        .query_candid(
-            client,
-            f.controller,
-            "fixture_query_tenant",
-            (f.tenant_scope(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let query: Result<TenantEnrollmentResponse, ConsumerFailure> = query_candid_args(
+        &f.harness.pic,
+        client,
+        f.controller,
+        "fixture_query_tenant",
+        (f.tenant_scope(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(query, Err(ConsumerFailure::Transport));
     let command = TenantUpdateRequest {
         scope: f.tenant_scope(),
@@ -234,20 +233,19 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
     assert_eq!(saved(&f, client), Some(command));
     assert_eq!(inspect(&f, client), observed);
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    let foreign: Result<TenantEnrollmentResponse, ConsumerFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            client,
-            f.controller,
-            "fixture_inspect_tenant",
-            (TenantScope {
-                tenant: f.other,
-                ..f.tenant_scope()
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let foreign: Result<TenantEnrollmentResponse, ConsumerFailure> = update_candid_args(
+        &f.harness.pic,
+        client,
+        f.controller,
+        "fixture_inspect_tenant",
+        (TenantScope {
+            tenant: f.other,
+            ..f.tenant_scope()
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(foreign, Err(ConsumerFailure::Transport));
 }
 

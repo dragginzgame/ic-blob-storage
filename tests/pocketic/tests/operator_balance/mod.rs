@@ -1,5 +1,6 @@
 //! Actual balance reads with independently encoded bytes and adversarial schedules.
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod refresh;
 use super::*;
 use blob_test_protocol::{
@@ -34,47 +35,46 @@ impl Fixture {
         }
     }
     fn configure_balance(&self, scope: BalanceScope) -> Result<(), BalanceFailure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.authority,
-                self.driver,
-                "configure_balance",
-                (scope,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.authority,
+            self.driver,
+            "configure_balance",
+            (scope,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn source_balance(&self, reply: Vec<u8>, hold: bool, reject: bool) {
-        let result: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.driver,
-                "configure_balance",
-                (BalanceSourceConfig {
-                    account: account(),
-                    bytes: reply,
-                    hold,
-                    reject,
-                },),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let result: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.driver,
+            "configure_balance",
+            (BalanceSourceConfig {
+                account: account(),
+                bytes: reply,
+                hold,
+                reject,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(result);
     }
     fn refresh_balance(&self) -> Result<(), BalanceFailure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.authority,
-                self.driver,
-                "refresh_balance",
-                (self.refresh_request(),),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.authority,
+            self.driver,
+            "refresh_balance",
+            (self.refresh_request(),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn refresh_request(&self) -> BalanceRefreshRequest {
         let balance = self.balance_status().balance_observation;
@@ -85,31 +85,29 @@ impl Fixture {
         }
     }
     fn balance_status(&self) -> OperatorStatusView {
-        let status: Option<OperatorStatusView> = self
-            .harness
-            .pic
-            .query_candid(
-                self.authority,
-                self.driver,
-                "operator_status",
-                (),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let status: Option<OperatorStatusView> = query_candid_args(
+            &self.harness.pic,
+            self.authority,
+            self.driver,
+            "operator_status",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         status.unwrap()
     }
     fn balance_source_status(&self) -> BalanceSourceView {
-        let status: Option<BalanceSourceView> = self
-            .harness
-            .pic
-            .query_candid(
-                self.gateway,
-                self.driver,
-                "balance_observation",
-                (),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let status: Option<BalanceSourceView> = query_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.driver,
+            "balance_observation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         status.unwrap()
     }
     fn balance_cli(&self) -> Value {
@@ -144,17 +142,16 @@ impl Fixture {
         panic!("balance read did not reach held source");
     }
     fn resume_balance(&self, id: RawMessageId) -> Result<(), BalanceFailure> {
-        let resumed: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.driver,
-                "resume_balance",
-                (),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let resumed: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.driver,
+            "resume_balance",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert!(resumed);
         candid::decode_one(&self.harness.pic.await_call(id).unwrap()).unwrap()
     }
@@ -272,22 +269,21 @@ fn malformed_rejected_and_misbound_replies_replace_no_history_with_zero() {
         ..f.balance_scope()
     };
     f.configure_balance(changed).unwrap();
-    let configured: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.driver,
-            "configure_balance",
-            (BalanceSourceConfig {
-                account: other,
-                bytes: bytes("success"),
-                hold: false,
-                reject: false,
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let configured: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.driver,
+        "configure_balance",
+        (BalanceSourceConfig {
+            account: other,
+            bytes: bytes("success"),
+            hold: false,
+            reject: false,
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(configured);
     assert_eq!(f.refresh_balance(), Err(BalanceFailure::AccountMismatch));
     assert!(f.balance_cli()["status"]["provider_balance"].is_null());
@@ -371,11 +367,16 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
     let id = f.hold_balance();
     let pending = f.balance_status().balance_observation.attempts;
     f.upgrade_fixture(f.authority, true);
-    let resumed: bool = f
-        .harness
-        .pic
-        .update_candid(f.gateway, f.driver, "resume_balance", (), REPLY_LIMITS)
-        .unwrap();
+    let resumed: bool = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.driver,
+        "resume_balance",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(resumed);
     let error = f
         .harness
@@ -395,17 +396,16 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
 fn authority_and_capacity_checks_happen_before_any_source_call() {
     let f = Fixture::new();
     let before = f.journals();
-    let denied: Result<(), BalanceFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.authority,
-            Principal::anonymous(),
-            "configure_balance",
-            (f.balance_scope(),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let denied: Result<(), BalanceFailure> = update_candid_args(
+        &f.harness.pic,
+        f.authority,
+        Principal::anonymous(),
+        "configure_balance",
+        (f.balance_scope(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(denied, Err(BalanceFailure::Denied));
     assert_eq!(
         f.configure_balance(BalanceScope {

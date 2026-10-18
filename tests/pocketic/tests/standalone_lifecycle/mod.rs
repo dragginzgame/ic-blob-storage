@@ -11,6 +11,7 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::update_candid_args;
 
 fn fences(status: &LocalServiceStatus, expected: bool) {
     assert_eq!(status.uploads.fenced, expected);
@@ -252,17 +253,16 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
         .unwrap()
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
-    let _: CaffeineUploadCertificateResponse = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.uploader,
-            ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
-            (super::standalone_certificate::root(&manifest),),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let _: CaffeineUploadCertificateResponse = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.uploader,
+        ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
+        (super::standalone_certificate::root(&manifest),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     // This statement is a local verifier substitute, not a deployed byte observation.
     f.harness
         .pic

@@ -3,7 +3,8 @@
     clippy::needless_pass_by_value,
     reason = "Endpoint macros own decoded inputs"
 )]
-use crate::{ops, workflow};
+use crate::ops;
+use crate::ops::Workflow as workflow;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 
 fn context() -> UploadContext {
@@ -14,11 +15,11 @@ fn context() -> UploadContext {
 }
 #[ic_cdk::init(hidden = true, decode_with = "ops::decode_configuration")]
 fn init(input: ServiceInstallationInput) {
-    workflow::install(&input);
+    ops::install(&input);
 }
 #[ic_cdk::post_upgrade(decode_with = "ops::decode")]
 fn post_upgrade() {
-    workflow::restore();
+    ops::restore();
 }
 macro_rules! endpoint {
     (query, tenant_inspection, $($item:tt)*) => {

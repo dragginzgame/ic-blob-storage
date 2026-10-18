@@ -6,6 +6,7 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncError;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::update_candid_args;
 fn fixture() -> Fixture {
     fixture_with_operator(Harness::new(), Fake::principal(2))
 }
@@ -60,16 +61,16 @@ fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError>
 }
 pub(super) fn mode(f: &Fixture, selected: SourceMode) {
     assert!(
-        f.harness
-            .pic
-            .update_candid::<bool, _>(
-                f.config.billing.cashier,
-                f.controller,
-                "configure",
-                (selected,),
-                REPLY_LIMITS
-            )
-            .unwrap()
+        update_candid_args::<(bool,), _>(
+            &f.harness.pic,
+            f.config.billing.cashier,
+            f.controller,
+            "configure",
+            (selected,),
+            REPLY_LIMITS
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     );
 }
 #[test]

@@ -8,6 +8,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::completion::*;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::update_candid_args;
 
 fn inspect(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestationResponse {
     f.harness
@@ -46,16 +47,18 @@ fn check_write_rollback(f: &Fixture, statement: &UploadAttestationRequest) {
         WriteFault::Usage,
     ] {
         let before = f.harness.pic.get_stable_memory(f.service);
-        let result = f
-            .harness
-            .pic
-            .update_candid::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
-                f.service,
-                f.operator,
-                "attest_with_write_trap",
-                (statement, fault),
-                REPLY_LIMITS,
-            );
+        let result = update_candid_args::<
+            (Result<UploadAttestationMutation, UploadAttestationFailure>,),
+            _,
+        >(
+            &f.harness.pic,
+            f.service,
+            f.operator,
+            "attest_with_write_trap",
+            (statement, fault),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply);
         assert!(result.is_err());
         assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
         assert_eq!(

@@ -67,7 +67,7 @@ fn metadata() -> Key {
 
 /// Ten distinct, exclusively owned memories granted by the host's `ic-memory` runtime.
 /// No IDs or allocations are silently registered by the library.
-pub struct UploadMemories<M: Memory> {
+pub struct UploadMemories<M> {
     /// Enrollment history.
     pub tenants: M,
     /// Forward root claims and their scope metadata.

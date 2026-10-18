@@ -17,7 +17,7 @@ fn request() -> GatewayRevocationRequest {
 }
 #[test]
 fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_restore() {
-    let memory = FixtureBackingMemory::default();
+    let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     for removed in [true, false] {
@@ -66,7 +66,7 @@ fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_re
 }
 #[test]
 fn shared_revocation_checks_full_scope_and_actual_caller_without_writes() {
-    let memory = FixtureBackingMemory::default();
+    let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     store.begin_sync(context(), scope()).unwrap();

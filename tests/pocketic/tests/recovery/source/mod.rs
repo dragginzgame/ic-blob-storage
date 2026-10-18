@@ -6,6 +6,7 @@ use blob_test_protocol::{
     journey::readback::ReadSourceConfig,
     source::{SourceAction, SourceEffectView, SourceRecoveryView},
 };
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
@@ -13,16 +14,16 @@ impl Fixture {
         &self,
         caller: Principal,
     ) -> Option<SourceRecoveryView> {
-        self.harness
-            .pic
-            .query_candid(
-                self.gateway,
-                caller,
-                "recovery_observation",
-                (),
-                REPLY_LIMITS,
-            )
-            .expect("journal inspection")
+        query_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            caller,
+            "recovery_observation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("journal inspection")
     }
 
     fn upgrade_source(&self) {
@@ -48,53 +49,55 @@ impl Fixture {
             self.read_chunk(self.first, v.upload, 0),
             Err(JourneyFailure::Transport)
         );
-        let configured: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.operator,
-                "configure_read",
-                (ReadSourceConfig {
-                    root: v.upload.root,
-                    index: 0,
-                    bytes: b"replacement".to_vec(),
-                    mode: ReadSourceMode::Valid,
-                    hold: false,
-                },),
-                REPLY_LIMITS,
-            )
-            .expect("fenced configuration");
+        let configured: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "configure_read",
+            (ReadSourceConfig {
+                root: v.upload.root,
+                index: 0,
+                bytes: b"replacement".to_vec(),
+                mode: ReadSourceMode::Valid,
+                hold: false,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("fenced configuration");
         assert!(!configured);
-        let configured: bool = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.operator,
-                "configure",
-                (SourceMode::Reject,),
-                REPLY_LIMITS,
-            )
-            .expect("fenced list configuration");
+        let configured: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "configure",
+            (SourceMode::Reject,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("fenced list configuration");
         assert!(!configured);
-        let resumed: bool = self
-            .harness
-            .pic
-            .update_candid(self.gateway, self.operator, "resume_read", (), REPLY_LIMITS)
-            .expect("fenced resume");
+        let resumed: bool = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "resume_read",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("fenced resume");
         assert!(!resumed);
-        let sync: Result<(), SyncFailure> = self
-            .harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.operator,
-                "run_sync",
-                (self.sync_request(),),
-                REPLY_LIMITS,
-            )
-            .expect("fenced outgoing sync");
+        let sync: Result<(), SyncFailure> = update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "run_sync",
+            (self.sync_request(),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("fenced outgoing sync");
         assert_eq!(sync, Err(SyncFailure::Denied));
         let deletion = self
             .harness
@@ -135,17 +138,16 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
             .bytes,
         v.bytes
     );
-    let result: Result<(), SyncFailure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.gateway,
-            f.operator,
-            "run_sync",
-            (f.sync_request(),),
-            REPLY_LIMITS,
-        )
-        .expect("actual source sync");
+    let result: Result<(), SyncFailure> = update_candid_args(
+        &f.harness.pic,
+        f.gateway,
+        f.operator,
+        "run_sync",
+        (f.sync_request(),),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .expect("actual source sync");
     assert_eq!(result, Ok(()));
     assert_eq!(f.delete(vec![]), Ok(()));
     let rejected_root = [99; 32];

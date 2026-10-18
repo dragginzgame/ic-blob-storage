@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::dto::reference::*;
 use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::update_candid_args;
 mod receipts;
 mod status;
 use blob_test_protocol::{
@@ -21,20 +22,20 @@ impl Fixture {
         permission
     }
     pub(super) fn fact(&self, request: Request, fact: ProviderFact) -> Result<bool, Failure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                self.operator,
-                "fixture_provider_fact",
-                (FactInput {
-                    request,
-                    fact,
-                    fault: None,
-                },),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.operator,
+            "fixture_provider_fact",
+            (FactInput {
+                request,
+                fact,
+                fault: None,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     pub(super) fn reference(
         &self,
@@ -115,21 +116,20 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
     let permission = f.exposed();
     let before = f.status();
     for actor in [f.tenant, f.uploader, f.controller] {
-        let result: Result<bool, Failure> = f
-            .harness
-            .pic
-            .update_candid(
-                f.service,
-                actor,
-                "fixture_provider_fact",
-                (FactInput {
-                    request: permission.request,
-                    fact: ProviderFact::Uploaded,
-                    fault: None,
-                },),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let result: Result<bool, Failure> = update_candid_args(
+            &f.harness.pic,
+            f.service,
+            actor,
+            "fixture_provider_fact",
+            (FactInput {
+                request: permission.request,
+                fact: ProviderFact::Uploaded,
+                fault: None,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert_eq!(result, Err(Failure::Denied));
     }
     for fault in [

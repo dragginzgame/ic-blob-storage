@@ -1,6 +1,7 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod authenticated_cli;
 mod browser_driver;
 mod install_code;
@@ -37,7 +38,6 @@ use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, RejectCode},
 };
 use std::num::{NonZeroU64, NonZeroUsize};
@@ -238,26 +238,25 @@ impl Fixture {
             ExposureInput, ExposureOutcome, ExposureScenario,
         };
         use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
-        let result: Result<ExposureOutcome, E> = self
-            .harness
-            .pic
-            .update_candid(
-                self.service,
-                self.uploader,
-                "expose",
-                (ExposureInput {
-                    permission: admission_input(Permission {
-                        request: input,
-                        uploader: self.uploader,
-                        expires_at_ns: u64::MAX,
-                    }),
-                    scenario: ExposureScenario::QualifiedSubstitute,
-                    trap_write: false,
-                    trap_after: false,
-                },),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let result: Result<ExposureOutcome, E> = update_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.uploader,
+            "expose",
+            (ExposureInput {
+                permission: admission_input(Permission {
+                    request: input,
+                    uploader: self.uploader,
+                    expires_at_ns: u64::MAX,
+                }),
+                scenario: ExposureScenario::QualifiedSubstitute,
+                trap_write: false,
+                trap_after: false,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         result
             .map(|r| {
                 assert!(matches!(r, ExposureOutcome::Exposed(_)));
@@ -288,17 +287,28 @@ impl Fixture {
         result.map(|r| r.changed).map_err(admission_failure)
     }
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
-        self.harness
-            .pic
-            .query_candid(self.service, actor, "lookup", (input,), REPLY_LIMITS)
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "lookup",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn status(&self) -> Status {
-        let result: Result<Status, Failure> = self
-            .harness
-            .pic
-            .query_candid(self.service, self.operator, "status", (), REPLY_LIMITS)
-            .unwrap();
+        let result: Result<Status, Failure> = query_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.operator,
+            "status",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         result.unwrap()
     }
     fn tenant_scope(&self) -> TenantScope {

@@ -1,7 +1,7 @@
 use super::*;
 use crate::model::lifecycle::roots::RootClaims;
 use crate::ops::service::tenant::tests::config;
-use crate::test_support::memory::FixtureBackingMemory;
+use crate::test_support::memory::FixtureMemory;
 use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use std::num::NonZeroU128;
@@ -30,11 +30,8 @@ fn object(tenant: u8, id: u128) -> ObjectBinding {
     )
     .unwrap()
 }
-fn memories() -> (FixtureBackingMemory, FixtureBackingMemory) {
-    (
-        FixtureBackingMemory::default(),
-        FixtureBackingMemory::default(),
-    )
+fn memories() -> (FixtureMemory, FixtureMemory) {
+    (FixtureMemory::default(), FixtureMemory::default())
 }
 
 #[test]
@@ -141,7 +138,7 @@ fn missing_indexes_or_configuration_changes_never_reset_retained_claims() {
         Err(RootStoreError::AlreadyAllocated)
     ));
     assert!(matches!(
-        StableRootClaims::open(a.lease(), FixtureBackingMemory::default().lease(), config()),
+        StableRootClaims::open(a.lease(), FixtureMemory::default().lease(), config()),
         Err(RootStoreError::Missing)
     ));
     for field in 0..3 {

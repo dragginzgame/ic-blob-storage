@@ -1,4 +1,4 @@
-//! Provider Candid budgets and current CBOR admission at actual dispatch boundaries.
+//! Provider Candid budgets and current Wire/CBOR admission at actual dispatch boundaries.
 use super::*;
 use crate::support::REPLY_LIMITS;
 use candid::{
@@ -73,44 +73,11 @@ struct ForeignInstallation<'a> {
 }
 
 #[test]
-fn standalone_cbor_admission_refuses_before_mutation_and_failed_reinstall_preserves_owner() {
+fn standalone_cbor_installation_refusals_preserve_the_existing_owner() {
     let f = Fixture::new();
     let enrollment = f.enroll(f.operator).unwrap();
     let configuration = f.configuration(f.operator).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let update = TenantUpdateRequest {
-        scope: f.scope(),
-        expected: enrollment.enrollment,
-        active: false,
-    };
-    let mut trailing = ic_blob_storage_contracts::wire::encode(update).unwrap();
-    trailing.push(0xf6);
-    for bytes in [
-        candid::encode_one(update).unwrap(),
-        trailing,
-        vec![0; 4097],
-        vec![0xff],
-    ] {
-        assert!(
-            f.harness
-                .pic
-                .update_call(f.service, f.operator, "blob_update_tenant", bytes)
-                .is_err()
-        );
-        assert_eq!(f.tenant(), enrollment);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    }
-    assert!(
-        f.harness
-            .pic
-            .query_call(
-                f.service,
-                f.tenant,
-                "blob_tenant",
-                candid::encode_one(f.scope()).unwrap()
-            )
-            .is_err()
-    );
     let input: ServiceInstallationInput =
         ic_blob_storage_contracts::wire::decode(&installation(&f.config), 16384).unwrap();
     for bytes in [
@@ -132,18 +99,6 @@ fn standalone_cbor_admission_refuses_before_mutation_and_failed_reinstall_preser
         assert_eq!(f.tenant(), enrollment);
         unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     }
-    let response: Result<TenantEnrollmentResponse, TenantFailure> = f
-        .harness
-        .pic
-        .update_blob_as(
-            f.service,
-            f.operator,
-            "blob_update_tenant",
-            update,
-            REPLY_LIMITS.reply_bytes,
-        )
-        .unwrap();
-    assert!(!response.unwrap().enrollment.unwrap().active);
 }
 
 #[test]
@@ -232,18 +187,25 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         assert_eq!(rejected.reject_code, RejectCode::CanisterError);
         unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
     }
+    assert!(
+        f.harness
+            .pic
+            .query_call(
+                f.service,
+                f.tenant,
+                "blob_tenant",
+                candid::encode_one(f.scope()).unwrap(),
+            )
+            .is_err()
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
     let bytes = f
         .harness
         .pic
         .query_call(f.service, f.tenant, "blob_tenant", query)
         .unwrap();
-    assert_eq!(
-        wire::decode_inspection_response(&bytes)
-            .unwrap()
-            .unwrap()
-            .enrollment,
-        None
-    );
+    let inspected = wire::decode_inspection_response(&bytes).unwrap().unwrap();
+    assert_eq!(inspected.enrollment, None);
     let denied = f
         .harness
         .pic

@@ -1,5 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod admission;
 mod client;
 mod history;
@@ -20,16 +21,16 @@ impl Fixture {
         actor: Principal,
         scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
     ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                actor,
-                "funding_summary",
-                (scope,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "funding_summary",
+            (scope,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     pub(super) fn funding_intent(&self, operation: u128, offered: u128) -> Intent {
         Intent {
@@ -48,46 +49,46 @@ impl Fixture {
         intent: Intent,
         action: Action,
     ) -> Result<bool, Failure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                actor,
-                "fixture_funding",
-                (Command {
-                    intent,
-                    action,
-                    fault: None,
-                    source: None,
-                },),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "fixture_funding",
+            (Command {
+                intent,
+                action,
+                fault: None,
+                source: None,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn funding_lookup(&self, actor: Principal, intent: Intent) -> Result<Option<Phase>, Failure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                actor,
-                "funding_lookup",
-                (intent,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "funding_lookup",
+            (intent,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     pub(super) fn funding_allocation(&self) -> Allocation {
-        self.harness
-            .pic
-            .query_candid::<Result<Allocation, Failure>, _>(
-                self.service,
-                self.operator,
-                "funding_allocation",
-                (),
-                REPLY_LIMITS,
-            )
-            .unwrap()
-            .unwrap()
+        query_candid_args::<(Result<Allocation, Failure>,), _>(
+            &self.harness.pic,
+            self.service,
+            self.operator,
+            "funding_allocation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+        .unwrap()
     }
     fn funding_trap(&self, intent: Intent, action: Action, fault: WriteFault) {
         let error = self
@@ -241,16 +242,16 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
         ..f.funding_intent(1, 900)
     };
     let inspect = |actor, intent| {
-        f.harness
-            .pic
-            .query_candid::<Result<blob_test_protocol::storage::funding::Request, Failure>, _>(
-                f.service,
-                actor,
-                "funding_request",
-                (intent,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        query_candid_args::<(Result<blob_test_protocol::storage::funding::Request, Failure>,), _>(
+            &f.harness.pic,
+            f.service,
+            actor,
+            "funding_request",
+            (intent,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     };
     assert_eq!(inspect(f.operator, original), Err(Failure::Unknown));
     f.funding(f.operator, original, Action::Prepare).unwrap();
@@ -287,22 +288,21 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
     }
     f.funding(f.operator, original, Action::Attempt).unwrap();
     let before = f.funding_allocation();
-    let wrong_source: Result<bool, Failure> = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.operator,
-            "fixture_funding",
-            (Command {
-                intent: original,
-                action: Action::Callback(900),
-                fault: None,
-                source: Some(f.other),
-            },),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let wrong_source: Result<bool, Failure> = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "fixture_funding",
+        (Command {
+            intent: original,
+            action: Action::Callback(900),
+            fault: None,
+            source: Some(f.other),
+        },),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert_eq!(wrong_source, Err(Failure::Binding));
     assert_eq!(f.funding_allocation(), before);
     assert_eq!(

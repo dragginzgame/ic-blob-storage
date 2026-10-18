@@ -1,16 +1,17 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::update_candid_args;
 fn cancel(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
-    f.harness
-        .pic
-        .update_candid(
-            f.uploader,
-            f.operator,
-            "cancel_manifest",
-            (id,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    update_candid_args(
+        &f.harness.pic,
+        f.uploader,
+        f.operator,
+        "cancel_manifest",
+        (id,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 #[test]
 fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and_upgrade() {
@@ -20,17 +21,16 @@ fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and
         f.admit(f.tenant, first).unwrap();
         save(&f, &input).unwrap();
         let before = f.harness.pic.get_stable_memory(f.service);
-        let denied: Result<ManifestIntentView, C> = f
-            .harness
-            .pic
-            .update_candid(
-                f.uploader,
-                f.other,
-                "cancel_manifest",
-                (1u128,),
-                REPLY_LIMITS,
-            )
-            .unwrap();
+        let denied: Result<ManifestIntentView, C> = update_candid_args(
+            &f.harness.pic,
+            f.uploader,
+            f.other,
+            "cancel_manifest",
+            (1u128,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         assert_eq!(denied, Err(C::Denied));
         assert!(!view(&f, 1).unwrap().cancelled);
         let unsent = cancel(&f, 1).unwrap();

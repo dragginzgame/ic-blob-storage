@@ -5,17 +5,18 @@
 
 mod support;
 
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
 use candid::Principal;
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, PocketIc},
 };
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    pic.query_candid(canister, caller, "usage", (), REPLY_LIMITS)
+    query_candid_args(pic, canister, caller, "usage", (), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("usage query")
 }
 
@@ -27,23 +28,27 @@ fn live(
     service: Principal,
     tenant: Principal,
 ) -> Option<bool> {
-    pic.query_candid(
+    query_candid_args(
+        pic,
         canister,
         caller,
         "reference_live",
         (root, service, tenant),
         REPLY_LIMITS,
     )
+    .map(|(reply,)| reply)
     .expect("liveness query")
 }
 
 fn release(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    pic.update_candid(canister, caller, "release", (root,), REPLY_LIMITS)
+    update_candid_args(pic, canister, caller, "release", (root,), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("release update")
 }
 
 fn pending(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    pic.query_candid(canister, caller, "pending", (), REPLY_LIMITS)
+    query_candid_args(pic, canister, caller, "pending", (), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("pending query")
 }
 
@@ -94,14 +99,21 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
     for caller in [first, second, controller, Principal::anonymous()] {
         assert_eq!(pending(pic, canister, caller), None);
     }
-    let denied: bool = pic
-        .update_candid(canister, first, "revoke_gateway", (), REPLY_LIMITS)
+    let denied: bool = update_candid_args(pic, canister, first, "revoke_gateway", (), REPLY_LIMITS)
+        .map(|(reply,)| reply)
         .expect("operator denial");
     assert!(!denied);
     assert_eq!(pending(pic, canister, gateway), Some(vec![1]));
-    let revoked: bool = pic
-        .update_candid(canister, controller, "revoke_gateway", (), REPLY_LIMITS)
-        .expect("operator revocation");
+    let revoked: bool = update_candid_args(
+        pic,
+        canister,
+        controller,
+        "revoke_gateway",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .expect("operator revocation");
     assert!(revoked);
     assert_eq!(pending(pic, canister, gateway), None);
     assert_eq!(usage(pic, canister, second), Some(200));

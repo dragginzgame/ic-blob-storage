@@ -5,7 +5,8 @@
 mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
-use ic_testkit::{Fake, pic::CandidCallExt, pocket_ic::CanisterSettings};
+use ic_testkit::pic::update_candid_args;
+use ic_testkit::{Fake, pocket_ic::CanisterSettings};
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
 #[test]
@@ -28,15 +29,16 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             .expect("init"),
         Some(operator),
     );
-    let denied: Result<ContentProbeReport, ContentProbeFailure> = pic
-        .update_candid(
-            canister,
-            tenant,
-            "probe_content",
-            (ContentProbeCase::FullChunk,),
-            REPLY_LIMITS,
-        )
-        .expect("denial");
+    let denied: Result<ContentProbeReport, ContentProbeFailure> = update_candid_args(
+        pic,
+        canister,
+        tenant,
+        "probe_content",
+        (ContentProbeCase::FullChunk,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .expect("denial");
     assert_eq!(denied, Err(ContentProbeFailure::Denied));
     let vectors: serde_json::Value = serde_json::from_str(include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
@@ -54,9 +56,16 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             .iter()
             .find(|vector| vector["name"] == name)
             .expect("selected vector");
-        let result: Result<ContentProbeReport, ContentProbeFailure> = pic
-            .update_candid(canister, operator, "probe_content", (case,), REPLY_LIMITS)
-            .expect("Wasm execution");
+        let result: Result<ContentProbeReport, ContentProbeFailure> = update_candid_args(
+            pic,
+            canister,
+            operator,
+            "probe_content",
+            (case,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("Wasm execution");
         let report = result.expect("verified identities");
         assert_eq!(
             report.raw_digest,
@@ -88,9 +97,16 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         ),
         (ContentProbeCase::Truncated, ContentProbeFailure::Incomplete),
     ] {
-        let result: Result<ContentProbeReport, ContentProbeFailure> = pic
-            .update_candid(canister, operator, "probe_content", (case,), REPLY_LIMITS)
-            .expect("expected rejection");
+        let result: Result<ContentProbeReport, ContentProbeFailure> = update_candid_args(
+            pic,
+            canister,
+            operator,
+            "probe_content",
+            (case,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("expected rejection");
         assert_eq!(result, Err(error));
     }
 }

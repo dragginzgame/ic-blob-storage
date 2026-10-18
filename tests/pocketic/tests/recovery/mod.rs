@@ -1,5 +1,6 @@
 //! Authority and source journal recovery with permanent restore fences on the IC.
 use crate::support::REPLY_LIMITS;
+use ic_testkit::pic::update_candid_args;
 mod authority;
 mod source;
 use super::*;
@@ -271,17 +272,16 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
         Principal::anonymous(),
         f.operator,
     ] {
-        let armed: bool = f
-            .harness
-            .pic
-            .update_candid(
-                f.service,
-                caller,
-                "journey_arm_read_callback_trap",
-                (root(v.upload.root),),
-                REPLY_LIMITS,
-            )
-            .expect("fault control");
+        let armed: bool = update_candid_args(
+            &f.harness.pic,
+            f.service,
+            caller,
+            "journey_arm_read_callback_trap",
+            (root(v.upload.root),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("fault control");
         assert_eq!(armed, caller == f.operator);
     }
     let error = f

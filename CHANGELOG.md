@@ -2,6 +2,10 @@
 
 ## [0.33.0]
 
+- Share complete service dispatch between standalone and consumer hosts through
+  explicit installation access and host-selected limits. The installation now
+  owns its volatile continuity checkpoint; version observation methods take only
+  the actual current version. Hosts retain endpoints, lifecycle and memory custody.
 - **Breaking Rust storage API:** route stable collections and record codecs
   through IC Storage 0.5.2; remove Blob's direct `ic-stable-structures` dependency.
   Service owners and workflow type parameters now name the runtime's backing
@@ -13,6 +17,14 @@
   The private storage probe preserves per-allocation faults/read measurement with
   nested fixture governance; its read totals include that additional manager and
   form a new measurement baseline. Earlier private probe images require reinstall.
+- Separate native fixture custody from backing-memory implementations, retaining
+  exclusive leases and independent restored images without a forwarding memory
+  wrapper. Correct current dependency and integration instructions to describe
+  the implemented protocol and canonical infrastructure owners.
+- Finish native callers' adoption of Testkit 0.53's explicit Candid argument
+  functions, retaining caller identities and decoder budgets without a local
+  compatibility trait. Consolidate tenant ingress refusal coverage under Wire,
+  preserve installation rollback checks and use `hex` for fixture encodings.
 
 ## [0.32.2] - 2026-10-17
 

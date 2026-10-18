@@ -8,9 +8,9 @@ mod sync_request;
 
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use candid::Principal;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, PocketIc},
 };
 use support::{Harness, REPLY_LIMITS, fixture_path};
@@ -52,9 +52,10 @@ impl Fixture {
             candid::encode_args((service, gateway, driver)).expect("source init"),
             Some(driver),
         );
-        let released: bool = pic
-            .update_candid(service, tenant, "release", (1_u8,), REPLY_LIMITS)
-            .expect("owner release");
+        let released: bool =
+            update_candid_args(pic, service, tenant, "release", (1_u8,), REPLY_LIMITS)
+                .map(|(reply,)| reply)
+                .expect("owner release");
         assert!(released);
         Self {
             harness,
@@ -71,36 +72,49 @@ impl Fixture {
     }
 
     fn configure(&self, mode: SourceMode) {
-        let accepted: bool = self
-            .pic()
-            .update_candid(self.source, self.driver, "configure", (mode,), REPLY_LIMITS)
-            .expect("source configuration");
+        let accepted: bool = update_candid_args(
+            self.pic(),
+            self.source,
+            self.driver,
+            "configure",
+            (mode,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("source configuration");
         assert!(accepted);
     }
 
     fn sync(&self) -> Result<(), SyncFailure> {
-        self.pic()
-            .update_candid(
-                self.source,
-                self.driver,
-                "run_sync",
-                (sync_request::read(self.pic(), self.service, self.source),),
-                REPLY_LIMITS,
-            )
-            .expect("drive actual source-to-probe call")
+        update_candid_args(
+            self.pic(),
+            self.source,
+            self.driver,
+            "run_sync",
+            (sync_request::read(self.pic(), self.service, self.source),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("drive actual source-to-probe call")
     }
 
     fn observation(&self) -> SourceObservation {
-        let observation: Option<SourceObservation> = self
-            .pic()
-            .query_candid(self.source, self.driver, "observation", (), REPLY_LIMITS)
-            .expect("source observation");
+        let observation: Option<SourceObservation> = query_candid_args(
+            self.pic(),
+            self.source,
+            self.driver,
+            "observation",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("source observation");
         observation.expect("authorized driver")
     }
 
     fn pending(&self, actor: Principal) -> Option<Vec<u8>> {
-        self.pic()
-            .query_candid(self.service, actor, "pending", (), REPLY_LIMITS)
+        query_candid_args(self.pic(), self.service, actor, "pending", (), REPLY_LIMITS)
+            .map(|(reply,)| reply)
             .expect("pending query")
     }
 }
@@ -115,20 +129,20 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
         fixture.driver,
         Principal::anonymous(),
     ] {
-        let result: Result<(), SyncFailure> = fixture
-            .pic()
-            .update_candid(
+        let result: Result<(), SyncFailure> = update_candid_args(
+            fixture.pic(),
+            fixture.service,
+            caller,
+            "sync_gateway",
+            (sync_request::read(
+                fixture.pic(),
                 fixture.service,
-                caller,
-                "sync_gateway",
-                (sync_request::read(
-                    fixture.pic(),
-                    fixture.service,
-                    fixture.source,
-                ),),
-                REPLY_LIMITS,
-            )
-            .expect("sync denial");
+                fixture.source,
+            ),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("sync denial");
         assert_eq!(result, Err(SyncFailure::Denied));
     }
     assert_eq!(fixture.observation(), before);

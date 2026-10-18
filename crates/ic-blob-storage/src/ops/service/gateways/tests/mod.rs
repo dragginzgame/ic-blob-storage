@@ -3,7 +3,7 @@ use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 mod revocation;
 mod sync;
 use crate::ops::service::tenant::tests::config;
-use crate::test_support::memory::FixtureBackingMemory;
+use crate::test_support::memory::FixtureMemory;
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
 use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
@@ -22,7 +22,7 @@ fn scope() -> GatewayScope {
 
 #[test]
 fn gateway_scope_operator_and_restoration_never_reset_pending_history() {
-    let m = FixtureBackingMemory::default();
+    let m = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(m.lease(), config()).unwrap();
     let token = store.begin_sync(context(), scope()).unwrap();
     for candidate in [
@@ -73,7 +73,7 @@ fn gateway_scope_operator_and_restoration_never_reset_pending_history() {
         Err(GatewayStoreError::AlreadyAllocated)
     ));
     assert!(matches!(
-        StableGatewayRegistry::open(FixtureBackingMemory::default().lease(), config()),
+        StableGatewayRegistry::open(FixtureMemory::default().lease(), config()),
         Err(GatewayStoreError::Missing)
     ));
 }
@@ -95,7 +95,7 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
         .unwrap()
     };
     let config = make(MAX_MEMBERS as u64);
-    let m = FixtureBackingMemory::default();
+    let m = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(m.lease(), config).unwrap();
     let principals: Vec<_> = (0..MAX_MEMBERS)
         .map(|n| {
@@ -130,7 +130,7 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
     let view = restored.inspect(context(), scope()).unwrap();
     assert_eq!(view.principals, principals);
     assert_eq!(view.sync.pending_sequence, Some(2));
-    let empty = FixtureBackingMemory::default();
+    let empty = FixtureMemory::default();
     assert!(matches!(
         StableGatewayRegistry::install(empty.clone().lease(), make(MAX_MEMBERS as u64 + 1)),
         Err(GatewayStoreError::UnsupportedEnvelope)
@@ -139,7 +139,7 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
 }
 #[test]
 fn changed_gateway_bindings_and_extra_rows_reject_restore_without_repair() {
-    let m = FixtureBackingMemory::default();
+    let m = FixtureMemory::default();
     let store = StableGatewayRegistry::install(m.lease(), config()).unwrap();
     drop(store);
     let base = config();

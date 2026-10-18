@@ -13,13 +13,12 @@ use blob_test_protocol::journey::{
     JourneyUpload, JourneyUsage, JourneyVerification,
 };
 use candid::Principal;
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, RejectCode},
 };
 use sha2::{Digest, Sha256};
-use std::fmt::Write;
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
 struct Fixture {
@@ -86,16 +85,28 @@ impl Fixture {
         method: &str,
         input: JourneyUpload,
     ) -> Result<(), JourneyFailure> {
-        self.harness
-            .pic
-            .update_candid(self.service, caller, method, (input,), REPLY_LIMITS)
-            .expect("local control reply")
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            method,
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("local control reply")
     }
     fn usage(&self, caller: Principal) -> Result<JourneyUsage, JourneyFailure> {
-        self.harness
-            .pic
-            .query_candid(self.service, caller, "journey_usage", (), REPLY_LIMITS)
-            .expect("usage reply")
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "journey_usage",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("usage reply")
     }
     fn reserve(&self, caller: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
         self.reserve_manifest(
@@ -113,35 +124,35 @@ impl Fixture {
         input: JourneyUpload,
         manifest: JourneyManifest,
     ) -> Result<(), JourneyFailure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                caller,
-                "journey_reserve",
-                (JourneyReservation {
-                    upload: input,
-                    manifest,
-                },),
-                REPLY_LIMITS,
-            )
-            .expect("admission reply")
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "journey_reserve",
+            (JourneyReservation {
+                upload: input,
+                manifest,
+            },),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("admission reply")
     }
     fn progress(
         &self,
         caller: Principal,
         input: JourneyUpload,
     ) -> Result<JourneyProgress, JourneyFailure> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                caller,
-                "journey_progress",
-                (root(input.root),),
-                REPLY_LIMITS,
-            )
-            .expect("progress reply")
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "journey_progress",
+            (root(input.root),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("progress reply")
     }
     fn append(
         &self,
@@ -150,16 +161,16 @@ impl Fixture {
         index: u64,
         bytes: &[u8],
     ) -> Result<(), JourneyFailure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                caller,
-                "journey_append",
-                (root(input.root), index, bytes.to_vec()),
-                REPLY_LIMITS,
-            )
-            .expect("verification reply")
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "journey_append",
+            (root(input.root), index, bytes.to_vec()),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("verification reply")
     }
     fn certificate(
         &self,
@@ -178,16 +189,16 @@ impl Fixture {
             .map_err(|error| error.reject_code)
     }
     fn complete(&self, owner: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.service,
-                self.gateway,
-                "journey_complete",
-                (owner, input),
-                REPLY_LIMITS,
-            )
-            .expect("substituted completion")
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.gateway,
+            "journey_complete",
+            (owner, input),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("substituted completion")
     }
     fn root_control(
         &self,
@@ -195,47 +206,53 @@ impl Fixture {
         method: &str,
         seed: [u8; 32],
     ) -> Result<(), JourneyFailure> {
-        self.harness
-            .pic
-            .update_candid(self.service, caller, method, (root(seed),), REPLY_LIMITS)
-            .expect("root control")
+        update_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            method,
+            (root(seed),),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("root control")
     }
     fn pending(&self) -> Vec<Vec<u8>> {
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                self.gateway,
-                "_immutableObjectStorageBlobsToDelete",
-                (),
-                REPLY_LIMITS,
-            )
-            .expect("binary-root deletion list")
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.gateway,
+            "_immutableObjectStorageBlobsToDelete",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("binary-root deletion list")
     }
     fn live(&self, seeds: &[[u8; 32]]) -> Vec<bool> {
         let roots: Vec<_> = seeds.iter().map(|seed| root(*seed)).collect();
-        self.harness
-            .pic
-            .query_candid(
-                self.service,
-                self.gateway,
-                "_immutableObjectStorageBlobsAreLive",
-                (roots,),
-                REPLY_LIMITS,
-            )
-            .expect("liveness batch")
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            self.gateway,
+            "_immutableObjectStorageBlobsAreLive",
+            (roots,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("liveness batch")
     }
     fn delete(&self, roots: Vec<Vec<u8>>) -> Result<(), u32> {
-        self.harness
-            .pic
-            .update_candid(
-                self.gateway,
-                self.operator,
-                "run_deletion",
-                (roots,),
-                REPLY_LIMITS,
-            )
-            .expect("real inter-canister callback")
+        update_candid_args(
+            &self.harness.pic,
+            self.gateway,
+            self.operator,
+            "run_deletion",
+            (roots,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("real inter-canister callback")
     }
 }
 
@@ -243,12 +260,7 @@ fn root(seed: [u8; 32]) -> Vec<u8> {
     seed.to_vec()
 }
 fn root_text(seed: [u8; 32]) -> String {
-    let mut text = String::with_capacity(71);
-    text.push_str("sha256:");
-    for byte in seed {
-        write!(text, "{byte:02x}").expect("string write");
-    }
-    text
+    format!("sha256:{}", hex::encode(seed))
 }
 fn usage(logical: u128, physical: u128, liability: u128) -> JourneyUsage {
     JourneyUsage {
@@ -383,11 +395,16 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     assert_eq!(f.root_control(f.first, "journey_release", b.root), Ok(()));
     let delayed = f.pending();
     assert_eq!(delayed, vec![root(b.root)]);
-    let revoked: bool = f
-        .harness
-        .pic
-        .update_candid(f.service, f.operator, "revoke_gateway", (), REPLY_LIMITS)
-        .expect("revoke");
+    let revoked: bool = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.operator,
+        "revoke_gateway",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .expect("revoke");
     assert!(revoked);
     assert_eq!(f.delete(delayed), Err(RejectCode::CanisterError as u32));
     assert_eq!(f.delete(vec![]), Err(RejectCode::CanisterError as u32));

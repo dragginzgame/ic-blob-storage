@@ -1,6 +1,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
+use ic_testkit::pic::query_candid_args;
 
 fn lifecycle(f: &Fixture, actor: Principal, command: LifecycleCommand) -> Result<Outcome, Failure> {
     f.call(actor, Command::FixtureLifecycle(command))
@@ -11,16 +12,16 @@ fn inspect(
     actor: Principal,
     input: RetainedDescriptorInput,
 ) -> Result<Option<RetainedDescriptor>, Failure> {
-    f.harness
-        .pic
-        .query_candid(
-            f.service,
-            actor,
-            "retained_content_descriptor",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .unwrap()
+    query_candid_args(
+        &f.harness.pic,
+        f.service,
+        actor,
+        "retained_content_descriptor",
+        (input,),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap()
 }
 
 fn reference(p: Permission, reference: u128, operation: u128, retain: bool) -> LifecycleCommand {

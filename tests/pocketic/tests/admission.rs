@@ -13,9 +13,9 @@ use blob_test_protocol::admission::{
     Phase, Request, Workload,
 };
 use candid::Principal;
+use ic_testkit::pic::query_candid_args;
 use ic_testkit::{
     Fake,
-    pic::CandidCallExt,
     pocket_ic::{CanisterSettings, RejectCode},
 };
 use std::time::Duration;
@@ -79,10 +79,16 @@ impl Fixture {
     }
 
     fn inspect(&self, caller: Principal, request: Request) -> Result<Observation, Failure> {
-        self.harness
-            .pic
-            .query_candid(self.service, caller, "inspect", (request,), REPLY_LIMITS)
-            .expect("typed query reply")
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            caller,
+            "inspect",
+            (request,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("typed query reply")
     }
 
     fn enrollment(&self, expected: Option<Enrollment>, active: bool) -> Command {

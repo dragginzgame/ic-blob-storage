@@ -24,8 +24,8 @@ pub(super) fn evidence() -> UploadExposureHostEvidence {
     }
 }
 pub(super) fn prepared(
-    m: UploadMemories<ic_memory::RuntimeMemory<FixtureBackingMemory>>,
-) -> StableUploads<FixtureBackingMemory> {
+    m: UploadMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>>,
+) -> StableUploads<ic_memory::VectorMemory> {
     let mut store = StableUploads::install(m, config()).unwrap();
     enroll(&mut store);
     let input = manifest_boundary::input();

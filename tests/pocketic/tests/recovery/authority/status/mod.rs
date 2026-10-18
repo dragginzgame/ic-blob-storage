@@ -5,13 +5,20 @@ use blob_test_protocol::status::{
     CatalogStatusView, OperatorBlockerView as Blocker, OperatorStatusView,
     OperatorWarningView as Warning,
 };
+use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 impl Fixture {
     fn status(&self, actor: Principal) -> Option<OperatorStatusView> {
-        self.harness
-            .pic
-            .query_candid(self.service, actor, "operator_status", (), REPLY_LIMITS)
-            .expect("read-only operator query")
+        query_candid_args(
+            &self.harness.pic,
+            self.service,
+            actor,
+            "operator_status",
+            (),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .expect("read-only operator query")
     }
 
     fn status_unchanged(&self) -> OperatorStatusView {
@@ -233,17 +240,16 @@ fn pending_sync_and_invalidated_reads_remain_visible_without_diagnostic_retry() 
     assert!(stale.warnings.contains(&Warning::ReadPending));
     assert_eq!(f.resume_read(read), Err(JourneyFailure::StaleRead));
     assert_eq!(f.status_unchanged().pending_read, None);
-    let revoked: bool = f
-        .harness
-        .pic
-        .update_candid(
-            f.service,
-            f.authority_operator,
-            "revoke_gateway",
-            (),
-            REPLY_LIMITS,
-        )
-        .unwrap();
+    let revoked: bool = update_candid_args(
+        &f.harness.pic,
+        f.service,
+        f.authority_operator,
+        "revoke_gateway",
+        (),
+        REPLY_LIMITS,
+    )
+    .map(|(reply,)| reply)
+    .unwrap();
     assert!(revoked);
     let no_gateway = f.status_unchanged();
     assert_eq!(no_gateway.gateways, []);

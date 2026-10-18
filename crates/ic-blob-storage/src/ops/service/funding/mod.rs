@@ -29,7 +29,7 @@ use ic_storage::adapter::StableBTreeMap;
 use thiserror::Error;
 
 /// Two distinct, exclusively owned memories granted by the integrating host.
-pub struct FundingMemories<M: Memory> {
+pub struct FundingMemories<M> {
     /// Configuration/accounting and bounded receipt index; one authoritative owner.
     pub accounting: M,
     /// Bounded lifetime exact intent/outcome history, keyed by operation identity.

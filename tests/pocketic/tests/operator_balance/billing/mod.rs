@@ -5,6 +5,7 @@ use blob_test_protocol::{
     billing::{BillingLimitsInput, FundingNeedView},
     status::BillingBlockerView,
 };
+use ic_testkit::pic::update_candid_args;
 
 impl Fixture {
     fn limits(&self, minimum: u128, target: u128) -> BillingLimitsInput {
@@ -21,16 +22,16 @@ impl Fixture {
         actor: Principal,
         input: BillingLimitsInput,
     ) -> Result<(), BalanceFailure> {
-        self.harness
-            .pic
-            .update_candid(
-                self.authority,
-                actor,
-                "configure_billing_limits",
-                (input,),
-                REPLY_LIMITS,
-            )
-            .unwrap()
+        update_candid_args(
+            &self.harness.pic,
+            self.authority,
+            actor,
+            "configure_billing_limits",
+            (input,),
+            REPLY_LIMITS,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
     }
     fn configure_limits(&self, minimum: u128, target: u128) {
         assert_eq!(
