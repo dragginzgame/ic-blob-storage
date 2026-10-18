@@ -4,14 +4,13 @@ Date: 2026-10-18
 
 ## Source and scope
 
-HEAD is released 0.33.1 at `67b20989ebdb555e9fac6022685be51ba866fb4a`.
-Workspace package versions remain 0.33.1; pending notes are 0.34.0 because the
-provider chunk-reply decoder moves from Core's public API to Contracts.
-The working tree adopts published Platform 0.1.11, narrows Shared's exported test
-roots and selects development Rust 1.99.1. Earlier Platform/Testkit and ownership
-changes below are delivered;
-their receipts retain their original sources and graphs. No new release,
-publication, deployment or current-repository Git effect ran in this pass.
+The delivered baseline is released 0.34.0 at
+`926e91fe6fe98bb1caba6a3a343b5f940b4db714`; workspace versions are 0.34.0.
+That release includes the provider decoder move, Platform 0.1.11, Shared's
+reduced test roots and development Rust 1.99.1. Earlier receipts retain their
+original sources and graphs; they are not fresh results for this release.
+This maintenance continuation changes documentation only. It does not change
+dependencies, package versions, release metadata or provider state.
 
 The [archived handoff](handoff-2026-10-18.md) preserves all earlier source-bound
 results, failed attempts and consumer prerequisites. Its pending-release and
@@ -28,13 +27,13 @@ Linking the core never mounts endpoints or lifecycle hooks. Consumer frameworks
 own their wrappers and installed integration qualification in their own repos.
 
 Memory 0.48.2 owns allocation/backing governance; Storage 0.5.3 owns collections
-and codecs. The pending lock selects Platform 0.1.11 for supported principal,
+and codecs. The delivered lock selects Platform 0.1.11 for supported principal,
 Candid/native Agent/certificate, entrypoint and call/system APIs. No direct
 Candid/CDK exceptions remain; runtime implementation retains its upstream owner.
 Wire 0.4.1 owns the two tenant method frames. Other 29 owned methods and standalone
 lifecycle inputs still use bounded CBOR. Provider/management Candid and persisted
 record encodings retain their separate contracts. No storage or wire migration
-is part of the pending cleanup.
+was part of that release's cleanup.
 
 ## Delivered dependency and tooling adoption
 
@@ -58,7 +57,7 @@ is part of the pending cleanup.
   [0.1.5 receipt](../evidence/platform0150331.md) retains its earlier native/MSRV,
   vector/example and thirteen installed-case evidence against its original graph.
 - Shared Tooling 0.24.0 at `cab12cd3dfa4fdb34846b25397f0d72881bb9ae0` now has
-  131 selected payloads after the pending compatible test-root retirement
+  131 selected payloads after the delivered test-root retirement
   (137 in released 0.33.1), including the direct-boundary checker. Role
   labels, grouped formatting and prepared/selected-commit release checks agree.
   Common Cargo setup omits the unused extractor executable.
@@ -83,7 +82,25 @@ is part of the pending cleanup.
 
 ## Current checks and next work
 
-The pending 0.34.0 provider codec consolidation moves chunk-reply decoding and
+The full open backlog and PR discussions were reviewed against default main
+0.34.0. [The 0.33.1 tooling matrix](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39126998913)
+now passes Linux, Apple Silicon, Intel macOS and MSRV. That completes the
+previously unfinished delivered-source acceptance for
+[#82 — Review the unused core dependency in the gateway-source fixture](https://github.com/dragginzgame/ic-blob-storage/issues/82).
+That issue is closed. The delivered Memory identity/release guidance in
+[#77 — Align exposed Memory types with 0.41 and classify the public hard cut](https://github.com/dragginzgame/ic-blob-storage/issues/77)
+and producer/standalone workflow ownership in
+[#72 — Own shared host continuity and certificate workflows used by Canic and standalone](https://github.com/dragginzgame/ic-blob-storage/issues/72)
+are also complete and closed; Canic's newer graph/managed acceptance remains
+with its linked owners below, rather than keeping completed Blob work open.
+
+The [0.34.0 tooling workflow](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39138592222)
+passes Linux and MSRV at inspection; Apple Silicon and Intel macOS remain in
+progress. Its [published-example workflow](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39138592220)
+passes all three hosts. These observations do not declare the unfinished matrix
+green. Native compiler acceptance remains with #81 below.
+
+The released 0.34.0 provider codec consolidation moves chunk-reply decoding and
 its status/error types from Core's public `ops::caffeine::upload` module to
 `ic_blob_storage_contracts::provider::upload`, with no compatibility re-export.
 The decoder and its tests are byte-identical; limits, JSON refusals and provider
@@ -97,7 +114,8 @@ dependency boundaries/pins and documentation links pass. The CLI's inspected
 all-feature/all-target normal/build/dev graph no longer includes Testkit.
 Logs and starting files remain under
 `.tmp/review-validation/dependency-consolidation0340/`. Full CI, native macOS and
-installed-IC qualification were not run for this source-only API relocation.
+installed-IC qualification were not run in that local relocation pass; hosted
+release checks are separately bounded above.
 
 [The fifth ownership audit](../reports/audits/2026/10/18/architectural-sediment/05/report.md)
 corrects CLI/browser format guidance left by the JSON/CBOR cut and removes a
@@ -120,33 +138,50 @@ Wasms, 348 core tests, five installed funding/counter/lifecycle cases and separa
 provider DID/export parity. The hook's dependency-sorting fixture now selects
 remaining catalog entries; sorting, rollback and lock preservation pass.
 
-The pending cleanup adapts [PR #83 — Keep generic installer and
+Released 0.34.0 adapts [PR #83 — Keep generic installer and
 release-runner regressions at Shared](https://github.com/dragginzgame/ic-blob-storage/pull/83)
 to the unchanged Shared 0.24 revision. Canonical export retires five generic test
 roots and their unused cache-key companion; Blob retains actual tool admission,
 Make/Testkit forwarding, hooks, evidence and release/publication recovery checks.
-All retained focused regressions pass. PRs #73, #78 and #80 are closed as already
-incorporated; the old Testkit 0.51 draft #79 is closed as superseded.
+All retained focused regressions pass. PR #83 is closed as already incorporated:
+its older branch has no unique change left to merge, and its original hosted
+matrix passes. Current 0.34.0 native acceptance remains separately bounded above.
+PRs #73, #78 and #80 were already incorporated; the old Testkit 0.51 draft #79
+was superseded.
 
 [#81 — Qualify Rust 1.99.1 as the development compiler](https://github.com/dragginzgame/ic-blob-storage/issues/81)
-is implemented locally, including the frozen-example CI override. MSRV remains
+is delivered in 0.34.0, including the frozen-example CI override. MSRV remains
 1.91; that compiler-only change alters no package/dependency version or lock.
 New compiler-bound
 formatter/Testkit tool receipts are prepared. Native production-package checks
 and strict lint, 348 core plus 118 Contracts unit cases, fresh standalone/peer
 Wasms and three installed account/rollback/lifecycle cases pass on Linux.
 Formatting, boundary/pin/snapshot/tool checks and the substitute-Cargo example
-adapter pass. Native macOS and full CI for these dirty changes are not established.
+adapter pass. Keep #81 open until the exact 0.34.0 native macOS jobs above pass;
+earlier 0.33.1 used the previous development compiler and cannot qualify this change.
 Before-images, canonical export records, CI observations, failed prerequisites
 and successful checks remain under `.tmp/review-validation/issues0332/`.
 
 [The issue-maintenance receipt](../evidence/issues0331.md) retains #82's original
 fixture-removal evidence. The fix is delivered in 0.33.1, whose exact tooling
-workflow still has unfinished Linux/macOS jobs at this inspection; keep its issue
-open until required delivered-source checks finish. The 0.33.1 frozen-example
-workflow and MSRV pass. These results do not qualify the current dirty tree. Public DTO
+workflow is now complete as recorded above. Its source-bound receipt retains
+the original pending status; that historical observation is not rewritten. Public DTO
 Candid removal remains the separate coordinated hard cut in
 [#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+
+For #84, current private probes and their callers still expose application DTOs
+through Candid. Migrate those consumers to canonical Wire/CBOR before removing
+public traits, and retain provider/management Candid and frozen-image refusal
+proofs. The Canic draft below owns its separate codec adoption. This is a new
+coordinated public cut after released 0.34.0, not a compatible declaration cleanup.
+
+[#76 — Adopt Host retained-record write completion after publication](https://github.com/dragginzgame/ic-blob-storage/issues/76)
+still awaits a published completion API. Host's original PR #132 was consolidated
+into [Host PR #172 — Integrate remaining artifact, filesystem and process contributions](https://github.com/dragginzgame/ic-host-tooling/pull/172),
+which remains open. Delivered Host FS 0.27.4 supplies retained creation/publication
+but not the proposed complete retained write. Keep Blob's bounded producer and
+file/directory synchronization until that API is available; an atomic writer's
+failure cleanup would discard required partial probe evidence.
 
 The Platform 0.1.8 receipt records focused native and installed recovery checks,
 fresh standalone Wasm, native/MSRV/lint/boundary checks and unchanged upstream
