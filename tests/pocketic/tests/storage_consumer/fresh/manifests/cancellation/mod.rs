@@ -1,7 +1,6 @@
 //! Actual late uploader acknowledgment cannot undo either application's cancellation.
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 #[test]
 #[expect(
@@ -17,16 +16,17 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             id: 1,
             request: f.preparation_input(&manifest),
         };
-        let saved: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-            &f.harness.pic,
-            f.uploader,
-            f.operator,
-            "save_manifest",
-            (&intent,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let saved: Result<ManifestIntentView, ConsumerFailure> = f
+            .harness
+            .pic
+            .update_blob_as(
+                f.uploader,
+                f.operator,
+                "save_manifest",
+                &intent,
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         saved.unwrap();
         let dispatch = ManifestDispatch {
             id: 1,
@@ -41,7 +41,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                 f.uploader,
                 f.operator,
                 "dispatch_manifest",
-                ic_platform::candid::contract::encode_one(dispatch).unwrap(),
+                wire::encode(dispatch).unwrap(),
             )
             .unwrap();
         let mut held = false;
@@ -68,16 +68,17 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             f.expose(permission.request).unwrap();
         }
         let charged = f.status();
-        let withdrawn: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-            &f.harness.pic,
-            f.uploader,
-            f.operator,
-            "cancel_manifest",
-            (1u128,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let withdrawn: Result<ManifestIntentView, ConsumerFailure> = f
+            .harness
+            .pic
+            .update_blob_as(
+                f.uploader,
+                f.operator,
+                "cancel_manifest",
+                1u128,
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         let withdrawn = withdrawn.unwrap();
         assert!(withdrawn.cancelled && withdrawn.started);
         assert_eq!(withdrawn.result, None);
@@ -97,38 +98,40 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         .map(|(reply,)| reply)
         .unwrap();
         resumed.unwrap();
-        let late: Result<ManifestIntentView, ConsumerFailure> = decoder::decode_one_with_config(
+        let late: Result<ManifestIntentView, ConsumerFailure> = wire::decode(
             &f.harness.pic.await_call(call).unwrap(),
-            &decoder::DecoderConfig::new(),
+            REPLY_LIMITS.reply_bytes,
         )
         .unwrap();
         let late = late.unwrap();
         assert!(late.cancelled);
         assert_eq!(late.result, Some(Ok(intent.request.declaration.clone())));
-        let retry: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-            &f.harness.pic,
-            f.uploader,
-            f.operator,
-            "dispatch_manifest",
-            (ManifestDispatch {
-                hold: false,
-                ..dispatch
-            },),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let retry: Result<ManifestIntentView, ConsumerFailure> = f
+            .harness
+            .pic
+            .update_blob_as(
+                f.uploader,
+                f.operator,
+                "dispatch_manifest",
+                ManifestDispatch {
+                    hold: false,
+                    ..dispatch
+                },
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         assert_eq!(retry, Err(ConsumerFailure::State));
-        let saved: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-            &f.harness.pic,
-            f.uploader,
-            f.operator,
-            "save_manifest",
-            (&intent,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let saved: Result<ManifestIntentView, ConsumerFailure> = f
+            .harness
+            .pic
+            .update_blob_as(
+                f.uploader,
+                f.operator,
+                "save_manifest",
+                &intent,
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         assert_eq!(saved, Ok(late));
         assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
         finish_cancelled(&f, &input, permission, exposed);

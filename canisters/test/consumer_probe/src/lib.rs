@@ -12,7 +12,11 @@ use blob_test_protocol::consumer::manifests::{
 use blob_test_protocol::consumer::{AssetView, Failure, Recovery, Release, Run, Use};
 use ic_platform::Principal;
 
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn fixture_funding_history(
     input: Box<blob_test_protocol::consumer::funding::FundingHistoryInspection>,
 ) -> Result<ic_blob_storage_contracts::dto::funding::FundingHistoryPage, Failure> {
@@ -23,7 +27,12 @@ async fn fixture_funding_history(
     )
     .await
 }
-#[ic_platform::cdk::query(composite = true, decode_with = "ops::decode")]
+#[ic_platform::cdk::query(
+    composite = true,
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn fixture_query_funding(
     input: Box<blob_test_protocol::consumer::funding::FundingHistoryInspection>,
 ) -> Result<ic_blob_storage_contracts::dto::funding::FundingHistoryPage, Failure> {
@@ -34,7 +43,11 @@ async fn fixture_query_funding(
     )
     .await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn fixture_funding_outcome(
     input: ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest,
 ) -> Result<Option<ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse>, Failure>
@@ -82,27 +95,52 @@ fn fixture_tenant_command()
 -> Result<Option<ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest>, Failure> {
     workflow::tenants::saved(ic_platform::cdk::api::msg_caller())
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn save_manifest(input: Box<ManifestIntent>) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::save(ic_platform::cdk::api::msg_caller(), &input)
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn dispatch_manifest(input: ManifestDispatch) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::dispatch(ic_platform::cdk::api::msg_caller(), input).await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn recover_manifest(id: u128) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::recover(ic_platform::cdk::api::msg_caller(), id).await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn cancel_manifest(id: u128) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::cancel(ic_platform::cdk::api::msg_caller(), id)
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode")]
+#[ic_platform::cdk::query(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn manifest_intent(id: u128) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::view(ic_platform::cdk::api::msg_caller(), id)
 }
-#[ic_platform::cdk::query(composite = true, decode_with = "ops::decode")]
+#[ic_platform::cdk::query(
+    composite = true,
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn query_manifest(
     id: u128,
 ) -> Result<ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse, Failure> {

@@ -189,16 +189,22 @@ contracts and the [probe ledger](../evidence/caffeine-probes/README.md).
 
 Pending compatible 0.34.1 starts
 [#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84)
-with the private tenant-client controls. Four probe endpoints now decode/encode
-bounded canonical CBOR; their private dispatch envelope drops CandidType and
-rejects unknown fields. Service tenant calls remain on exact Wire codecs.
-The other probe transports, public DTO traits, lifecycle arguments and persisted
-journals are unchanged. Fresh consumer/storage Wasms pass all four focused
-installed tenant-client cases: authority, query refusal, saved original command,
-reply loss/callback trap, stale commands and same-release restore fences, plus
-malformed/trailing/oversized/unknown-field refusal before either owner writes.
+with private tenant, funding-observer and manifest controls. Thirteen probe
+endpoints now decode/encode bounded canonical CBOR; scheduling/reply-only types
+drop CandidType, and request envelopes reject unknown fields. Service calls retain
+their exact tenant Wire or funding/manifest CBOR codecs. Other probe transports,
+public DTO traits, lifecycle arguments and persisted journals are unchanged.
+`ManifestIntent` still requires CandidType for the current stored consumer record;
+the full public cut must include actual persisted DTO consumers, not just ingress.
+Fresh consumer/storage Wasms pass all thirteen focused installed cases covering
+authority/query refusal, full-width funding pages/outcomes, saved commands,
+reply loss/callback traps, cancellation and late acknowledgments, capacity,
+stale commands and same-release fences. Malformed/trailing/oversized/unknown-field
+controls refuse before either owner writes.
 Focused native checks, strict probe/protocol/harness Clippy, Rust 1.91 Wasm,
 formatting, dependency boundaries and documentation links pass.
 These are local IC controls, not new Canic or provider qualification. Source,
-server admission and check logs remain in `.tmp/review-validation/backlog0340/`;
+server admission and earlier checks remain in `.tmp/review-validation/backlog0340/`;
+the expanded checks and initial caller failure/retry remain in
+`.tmp/review-validation/probe-controls0341/`;
 the isolated implementation is `.tmp/worktrees/tenant-probe0341/`.
