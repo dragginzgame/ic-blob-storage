@@ -42,25 +42,42 @@ async fn fixture_funding_outcome(
     workflow::funding::outcome(ic_platform::cdk::api::msg_caller(), input).await
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn fixture_update_tenant(
     input: blob_test_protocol::consumer::TenantDispatch,
 ) -> Result<ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse, Failure> {
     workflow::tenants::update(ic_platform::cdk::api::msg_caller(), input).await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn fixture_inspect_tenant(
     scope: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse, Failure> {
     workflow::tenants::inspect(ic_platform::cdk::api::msg_caller(), scope).await
 }
-#[ic_platform::cdk::query(composite = true, decode_with = "ops::decode")]
+#[ic_platform::cdk::query(
+    composite = true,
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn fixture_query_tenant(
     scope: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse, Failure> {
     workflow::tenants::inspect(ic_platform::cdk::api::msg_caller(), scope).await
 }
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn fixture_tenant_command()
 -> Result<Option<ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest>, Failure> {
     workflow::tenants::saved(ic_platform::cdk::api::msg_caller())

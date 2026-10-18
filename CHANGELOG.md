@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.34.1]
+
+- Move private tenant-client probe controls to bounded canonical CBOR, retaining
+  the service's tenant Wire protocol, caller authority, original saved commands
+  and same-release recovery. Remove the retired Candid trait from the private
+  dispatch envelope; public application DTO traits remain pending the rest of
+  [#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+
 ## [0.34.0] - 2026-10-18
 
 - **Breaking provider decoder API:** import chunk-reply decoding and its status/error

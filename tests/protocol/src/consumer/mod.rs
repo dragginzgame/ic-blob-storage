@@ -9,16 +9,8 @@ pub mod funding;
 pub mod manifests;
 
 /// One local operator-client dispatch, not a production persistence contract.
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    PartialEq,
-    ic_platform::candid::contract::CandidType,
-    ic_platform::candid::contract::serde::Deserialize,
-)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct TenantDispatch {
     /// Exact scoped compare-and-set retained before the inter-canister call.
     pub command: ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest,
@@ -125,7 +117,7 @@ pub struct AssetView {
     pub uses: u32,
 }
 /// Fixture admission/coordination refusal; never a provider failure schema.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub enum Failure {
     /// Actual caller lacks application authority.

@@ -81,6 +81,16 @@ call limits and typed decoder failures. The retired Testkit decoder package is
 forbidden by the direct-boundary policy; neither tool owns production provider
 transport or its authority.
 
+Private consumer-probe tenant controls use the same bounded CBOR codec as other
+Blob-owned CBOR boundaries, with a 4 KiB ingress ceiling and exact whole-value
+decoding. Their command/status envelopes belong to test protocol support, not
+the public service catalog. They forward actual tenant operations through the
+unchanged method-bound Wire client. Other current probe controls and their
+Candid-derived DTO consumers still require the coordinated migration in
+[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84);
+this private control change does not remove public application DTO traits or
+alter persisted probe journals, provider contracts or production installation bytes.
+
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.24.0 at
 `cab12cd3dfa4fdb34846b25397f0d72881bb9ae0` (131 selected payloads, including the dependency-boundary checker). It owns common Make,
 installation, tool storage, formatting, hooks and release mechanics. Blob owns

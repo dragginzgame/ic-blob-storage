@@ -186,3 +186,19 @@ work, not proof of that API. Do not replace exact journal recovery, uncertain
 funding records or restore fences with reset/retry shortcuts. Provider acceptance,
 retirement and continuing-billing obligations remain governed by their service
 contracts and the [probe ledger](../evidence/caffeine-probes/README.md).
+
+Pending compatible 0.34.1 starts
+[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84)
+with the private tenant-client controls. Four probe endpoints now decode/encode
+bounded canonical CBOR; their private dispatch envelope drops CandidType and
+rejects unknown fields. Service tenant calls remain on exact Wire codecs.
+The other probe transports, public DTO traits, lifecycle arguments and persisted
+journals are unchanged. Fresh consumer/storage Wasms pass all four focused
+installed tenant-client cases: authority, query refusal, saved original command,
+reply loss/callback trap, stale commands and same-release restore fences, plus
+malformed/trailing/oversized/unknown-field refusal before either owner writes.
+Focused native checks, strict probe/protocol/harness Clippy, Rust 1.91 Wasm,
+formatting, dependency boundaries and documentation links pass.
+These are local IC controls, not new Canic or provider qualification. Source,
+server admission and check logs remain in `.tmp/review-validation/backlog0340/`;
+the isolated implementation is `.tmp/worktrees/tenant-probe0341/`.
