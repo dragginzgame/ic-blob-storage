@@ -19,11 +19,11 @@ lockfiles; local qualification does not cover every future resolution.
 | IC Memory | 0.48.2 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
 | IC Storage | 0.5.3 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
 | IC Platform | 0.1.8 | Principal, external Candid types/encoding/configured decoding/service export; management-history DTOs and supported native Agent, parser and certificate identities |
-| IC Wire | 0.4.0 | Bounded method/direction framing for the two tenant contracts |
-| IC Metrics | 0.13.4 | Private probe measurement arithmetic; not a public Blob API |
-| IC Testkit / Testkit Candid | 0.53.0 | PocketIC client/server selection, managed lifetime and bounded native Candid fixture decoding |
-| IC Host artifacts/fs/process/tools | 0.27.2 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
-| IC Build | 0.17.1 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
+| IC Wire | 0.4.1 | Bounded method/direction framing for the two tenant contracts |
+| IC Metrics | 0.14.1 | Private probe measurement arithmetic; not a public Blob API |
+| IC Testkit | 0.54.0 | PocketIC client/server selection and managed lifetime; bounded Candid decoding uses Platform |
+| IC Host artifacts/fs/process/tools | 0.27.3 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Build | 0.17.3 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Testkit-selected local IC execution; no separate Blob server catalog |
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
@@ -67,8 +67,9 @@ explicit in the canonical method catalog, with no codec fallback. Candid remains
 for external provider/management contracts and existing persisted records.
 Do not remove Ciborium or Candid as migration leftovers while those consumers exist.
 Provider decoders retain their own work/type/byte budgets and authority checks;
-Platform owns supported independent decoding. Published Testkit still requires
-its own limits identity for simulator calls; neither owns production provider
+Platform owns supported independent decoding, including Testkit 0.54 simulator
+call limits and typed decoder failures. The retired Testkit decoder package is
+forbidden by the direct-boundary policy; neither tool owns production provider
 transport or its authority.
 
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.24.0 at
@@ -142,9 +143,6 @@ Necessary direct exceptions are explicit:
   service registration/export and handwritten decoders already use Platform.
   Core and canisters retain CDK call/system/entrypoint APIs until the qualified
   runtime facade exists ([Platform #1](https://github.com/dragginzgame/ic-platform/issues/1)).
-- Published Testkit 0.53 still takes its own DecodeLimits, so the old decoder
-  remains a native dev dependency for simulator call helpers only
-  ([Platform #2](https://github.com/dragginzgame/ic-platform/issues/2)).
 
 `make platform-boundary-check` runs Shared's canonical identity checker against
 [local policy](../ci/cargo-dependency-boundaries.json), also in CI/release validation.

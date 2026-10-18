@@ -4,7 +4,8 @@ Date: 2026-10-18
 
 ## Source and scope
 
-HEAD is released 0.33.0 at `55d70cb0351093b5cc25fcc7b9c27a04e610a1f8`.
+HEAD is `c7ef51e` with pending 0.33.1 work over released 0.33.0
+`55d70cb0351093b5cc25fcc7b9c27a04e610a1f8`.
 Workspace package versions remain 0.33.0; the pending compatible batch is 0.33.1.
 The working tree contains the Platform and Shared Tooling adoptions below plus
 bounded ownership/documentation cleanup. No new release, publication, deployment
@@ -27,7 +28,7 @@ own their wrappers and installed integration qualification in their own repos.
 Memory 0.48.2 owns allocation/backing governance; Storage 0.5.3 owns collections
 and codecs. Published Platform 0.1.8 supplies supported principal/Candid/native
 Agent/certificate APIs; direct runtime exceptions retain upstream owners.
-Wire 0.4.0 owns the two tenant method frames. Other 29 owned methods and standalone
+Wire 0.4.1 owns the two tenant method frames. Other 29 owned methods and standalone
 lifecycle inputs still use bounded CBOR. Provider/management Candid and persisted
 record encodings retain their separate contracts. No storage or wire migration
 is part of the pending compatible cleanup.
@@ -39,7 +40,7 @@ is part of the pending compatible cleanup.
   direct Candid. Native Agent/certificate/parsing imports use the supported
   published APIs. Dynamic native fixture serializers and Agent response enums now
   use Platform too; native direct Candid and all direct Agent declarations are
-  removed. CDK macros/runtime and Testkit decoder identity retain documented
+  removed. CDK macros/runtime retain documented
   exceptions and owning issues in
   [the dependency guide](../dependencies.md#ic-platform-boundary).
   Management-history DTOs now route through Platform's exact upstream identities;
@@ -59,8 +60,16 @@ is part of the pending compatible cleanup.
   Common Cargo setup omits the unused extractor executable.
   [The adoption receipt](../evidence/shared0240331.md) records the initial snapshot
   qualification; [Platform adoption](../evidence/platform0331.md) records adding
-  the checker. Current manifests and lock retain Host 0.27.2, Build 0.17.1 and
-  Testkit 0.53.0 without new selections in this audit.
+  the checker. That audit retained Host 0.27.2, Build 0.17.1 and Testkit 0.53.0.
+- The current pending Testkit 0.54.0 selection uses Platform decoder limits and
+  typed causes; the retired decoder
+  dependency and its allowance are removed. All existing reply budgets remain.
+  Incoming Host 0.27.3, Build 0.17.3 and Wire 0.4.1 selections are preserved.
+  Published Testkit source is `ff88087d6757121ac92e0dec4705ecaccfd8ebed`; its archive checksum is
+  verified against the lock. Native all-target/all-feature checks and strict lint,
+  Rust 1.91 checks, three installed account/gateway cases, fresh standalone/peer
+  Wasms and boundary/format/tool checks pass. Native macOS/full CI are not rerun.
+  Raw before-images and checks remain under `.tmp/review-validation/testkit0540331/`.
 - [The fourth ownership audit](../reports/audits/2026/10/18/architectural-sediment/04/report.md)
   finishes the substrate declaration guard and runtime-free Storage exclusion.
   It routes trial preparation to the maintained strict-JSON-to-CBOR command and

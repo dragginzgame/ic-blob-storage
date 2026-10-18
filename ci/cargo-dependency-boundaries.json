@@ -21,9 +21,7 @@
   },
   {
     "dependency": "ic-testkit-candid",
-    "allowed_packages": [
-      "ic-blob-storage-pocketic-tests"
-    ]
+    "allowed_packages": []
   },
   {
     "dependency": "ic-cdk",

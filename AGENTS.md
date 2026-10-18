@@ -43,9 +43,9 @@ it does not override shared rules or depend on a mutable sibling checkout.
 
 - Use published `ic-platform` for Principal, Candid contracts/decoding/service
   export, management-history DTOs and supported native Agent/certification APIs;
-  keep application protocols on `ic-wire`. Native dynamic fixtures and Agent
-  responses also use Platform. Runtime/macros and Testkit limits exceptions are
-  recorded in
+  keep application protocols on `ic-wire`. Native dynamic fixtures, Agent
+  responses and native Testkit decoder limits also use Platform. Runtime/macros
+  exceptions are recorded in
   `ci/cargo-dependency-boundaries.json` and the dependency guide.
 - Stable collections and record codecs use `ic_storage::adapter`; host backing
   types and allocation leases use `ic_memory`. Do not declare a direct or renamed

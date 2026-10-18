@@ -2,6 +2,10 @@
 
 ## [0.33.1]
 
+- Finish Testkit 0.54 adoption: use Platform's bounded Candid decoder types,
+  remove the retired Testkit decoder dependency and forbid its direct
+  reintroduction. Keep existing reply byte/work/type/header limits unchanged.
+
 - Remove the gateway-source fixture's unused direct core dependency while keeping
   its shared protocol dependency and maintained installed gateway/read/account
   behavior ([#82 — Review the unused core dependency in the gateway-source fixture](https://github.com/dragginzgame/ic-blob-storage/issues/82)).

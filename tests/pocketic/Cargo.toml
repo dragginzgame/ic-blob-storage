@@ -26,7 +26,6 @@ ic-host-artifacts = { workspace = true, features = ["wasm"] }
 ic-host-process = { workspace = true, features = ["test-support"] }
 ic-host-tools = { workspace = true, features = ["ic-interface"] }
 ic-platform = { workspace = true, features = ["agent", "candid-parser", "certification"] }
-ic-testkit-candid.workspace = true
 reqwest.workspace = true
 serde_cbor.workspace = true
 tokio = { workspace = true, features = ["rt", "time"] }

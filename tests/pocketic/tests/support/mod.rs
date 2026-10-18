@@ -19,13 +19,14 @@ use ic_testkit::{
 /// Finite decoding budgets for replies from Blob's installed local fixtures.
 /// These cover bounded status/history pages and byte-bearing probe replies;
 /// production provider and operator clients retain their own narrower policies.
-pub(super) const REPLY_LIMITS: ic_testkit_candid::DecodeLimits = ic_testkit_candid::DecodeLimits {
-    reply_bytes: 4 * 1024 * 1024,
-    decoding_quota: 20_000_000,
-    skipping_quota: 1_000_000,
-    type_entries: 512,
-    header_bytes: 64 * 1024,
-};
+pub(super) const REPLY_LIMITS: ic_platform::candid::DecodeLimits =
+    ic_platform::candid::DecodeLimits {
+        reply_bytes: 4 * 1024 * 1024,
+        decoding_quota: 20_000_000,
+        skipping_quota: 1_000_000,
+        type_entries: 512,
+        header_bytes: 64 * 1024,
+    };
 
 /// Drain caller-owned pipes while Host waits and cleans the child group.
 /// Keep buffered protocol bytes: converting a reader back to its pipe loses them.
