@@ -39,7 +39,7 @@ fn uncertain_admission_recovers_exact_permission_without_resending_after_cancell
                     f.tenant,
                     f.operator,
                     "admit",
-                    ic_platform::candid::contract::encode_one(&input).unwrap(),
+                    ic_blob_storage_contracts::wire::encode(&input).unwrap(),
                 )
                 .unwrap_err();
             assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -94,7 +94,7 @@ fn admission_intent_rolls_back_before_dispatch_and_refusal_is_retained_without_r
             f.tenant,
             f.operator,
             "admit",
-            ic_platform::candid::contract::encode_one(&input).unwrap(),
+            ic_blob_storage_contracts::wire::encode(&input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);

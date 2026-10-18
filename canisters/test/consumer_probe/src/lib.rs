@@ -1,7 +1,7 @@
 //! Local application transaction/outbox substitute. Never deploy as a product or Toko adapter.
 #![expect(
     clippy::needless_pass_by_value,
-    reason = "Candid endpoints own decoded inputs"
+    reason = "Entrypoints own decoded inputs"
 )]
 mod model;
 mod ops;
@@ -154,11 +154,19 @@ fn init(operator: Principal, service: Principal) {
 fn post_upgrade() {
     ops::initialize(None);
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn register(input: Box<Run>) -> Result<AssetView, Failure> {
     workflow::register(ic_platform::cdk::api::msg_caller(), &input).await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn cancel(asset: u128) -> Result<AssetView, Failure> {
     let actor = ic_platform::cdk::api::msg_caller();
     ops::mutate(actor, |r| {
@@ -166,7 +174,11 @@ fn cancel(asset: u128) -> Result<AssetView, Failure> {
         r.view(asset)
     })
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn release(input: Release) -> Result<AssetView, Failure> {
     workflow::release(
         ic_platform::cdk::api::msg_caller(),
@@ -175,7 +187,11 @@ async fn release(input: Release) -> Result<AssetView, Failure> {
     )
     .await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn recover(input: Recovery) -> Result<AssetView, Failure> {
     workflow::recover(
         ic_platform::cdk::api::msg_caller(),
@@ -184,7 +200,11 @@ async fn recover(input: Recovery) -> Result<AssetView, Failure> {
     )
     .await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn use_asset(input: Use) -> Result<AssetView, Failure> {
     let actor = ic_platform::cdk::api::msg_caller();
     ops::mutate(actor, |r| {
@@ -192,38 +212,70 @@ fn use_asset(input: Use) -> Result<AssetView, Failure> {
         r.view(input.asset)
     })
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode")]
+#[ic_platform::cdk::query(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn asset(asset: u128) -> Result<AssetView, Failure> {
     ops::view(ic_platform::cdk::api::msg_caller(), asset)
 }
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn waiting() -> Result<bool, Failure> {
     ops::waiting(ic_platform::cdk::api::msg_caller())
 }
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn fenced() -> Result<bool, Failure> {
     ops::read(ic_platform::cdk::api::msg_caller(), |r| Ok(r.fenced))
 }
-#[ic_platform::cdk::update]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn resume() -> Result<(), Failure> {
     ops::resume(ic_platform::cdk::api::msg_caller())
 }
 
 // Save intent without dispatch; admit also persists intent before its first call.
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 fn prepare(input: Box<blob_test_protocol::consumer::Registration>) -> Result<AssetView, Failure> {
     workflow::prepare(ic_platform::cdk::api::msg_caller(), &input)
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn admit(input: Box<Run>) -> Result<AssetView, Failure> {
     workflow::admit(ic_platform::cdk::api::msg_caller(), &input).await
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn revoke(input: blob_test_protocol::consumer::Revocation) -> Result<AssetView, Failure> {
     workflow::revoke(ic_platform::cdk::api::msg_caller(), input).await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode")]
+#[ic_platform::cdk::update(
+    hidden = true,
+    decode_with = "ops::controls::decode",
+    encode_with = "ops::controls::encode"
+)]
 async fn recover_revocation(asset: u128) -> Result<AssetView, Failure> {
     workflow::recover_revocation(ic_platform::cdk::api::msg_caller(), asset).await
 }

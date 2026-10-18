@@ -187,24 +187,32 @@ funding records or restore fences with reset/retry shortcuts. Provider acceptanc
 retirement and continuing-billing obligations remain governed by their service
 contracts and the [probe ledger](../evidence/caffeine-probes/README.md).
 
-Pending compatible 0.34.1 starts
+Pending compatible 0.34.1 advances
 [#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84)
-with private tenant, funding-observer and manifest controls. Thirteen probe
-endpoints now decode/encode bounded canonical CBOR; scheduling/reply-only types
-drop CandidType, and request envelopes reject unknown fields. Service calls retain
-their exact tenant Wire or funding/manifest CBOR codecs. Other probe transports,
-public DTO traits, lifecycle arguments and persisted journals are unchanged.
-`ManifestIntent` still requires CandidType for the current stored consumer record;
-the full public cut must include actual persisted DTO consumers, not just ingress.
-Fresh consumer/storage Wasms pass all thirteen focused installed cases covering
-authority/query refusal, full-width funding pages/outcomes, saved commands,
-reply loss/callback traps, cancellation and late acknowledgments, capacity,
-stale commands and same-release fences. Malformed/trailing/oversized/unknown-field
-controls refuse before either owner writes.
-Focused native checks, strict probe/protocol/harness Clippy, Rust 1.91 Wasm,
-formatting, dependency boundaries and documentation links pass.
-These are local IC controls, not new Canic or provider qualification. Source,
-server admission and earlier checks remain in `.tmp/review-validation/backlog0340/`;
-the expanded checks and initial caller failure/retry remain in
-`.tmp/review-validation/probe-controls0341/`;
-the isolated implementation is `.tmp/worktrees/tenant-probe0341/`.
+through [PR #86 — Move private consumer-probe controls to CBOR](https://github.com/dragginzgame/ic-blob-storage/pull/86).
+All 26 callable controls now use bounded canonical CBOR, including tenant,
+funding-observer, manifest and asset admission/publication/cleanup controls.
+Actual Rust callers and the opaque Chromium control packets use the same codec;
+service calls retain their exact Wire or CBOR clients. Transient fixture types
+drop CandidType, and the unused Candid ingress decoder is removed. Public DTO
+traits, lifecycle arguments and persisted record encoders remain unchanged.
+`Registration`, its source and `ManifestIntent` retain CandidType because the
+current consumer journal stores them. The full public cut must inventory these
+real stored consumers and pinned framework callers, not just incoming endpoints.
+
+Fresh consumer/storage Wasms pass all nineteen affected consumer transaction
+cases, covering authority, trap rollback, lost acknowledgments, cancellation,
+late completion, original-operation recovery, capacity and same-release fences.
+Malformed/trailing/oversized/unknown-field and legacy Candid controls refuse
+before either owner writes. Eleven related tenant/funding/manifest cases pass
+on those same fresh Wasms. The opt-in pinned Chromium fixture also passes all
+ten scenarios, including full-width IDs, foreign-caller refusal, reload/competing
+tabs, gateway failures and consumer cancellation/withdrawal. This is local IC and
+browser substitute evidence, not deployed-provider or Canic qualification.
+Focused native checks, strict affected Clippy, actual Rust 1.91 Wasm, formatting,
+dependency boundaries/runtime-free graphs and documentation links pass.
+Earlier tenant/funding/manifest checks remain under
+`.tmp/review-validation/probe-controls0341/`; current checks and the initial
+sandbox npm-admission failure plus successful retry remain under
+`.tmp/review-validation/asset-controls0341/`. The isolated implementation is
+`.tmp/worktrees/tenant-probe0341/`. Package, manifest and lock selections are unchanged.

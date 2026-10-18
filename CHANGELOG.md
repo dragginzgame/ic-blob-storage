@@ -2,11 +2,10 @@
 
 ## [0.34.1]
 
-- Move private tenant, funding-observer and manifest probe controls to bounded
-  canonical CBOR, retaining exact service codecs, caller authority, original
-  saved commands, cancellation and same-release recovery. Remove Candid traits
-  from scheduling/reply-only fixture types; retain traits needed by stored
-  records. Public application DTO traits remain pending the rest of
+- Move all private consumer-probe controls and their Rust/Chromium callers to
+  bounded canonical CBOR, preserving service codecs, authority, saved intents,
+  cancellation and recovery. Remove transient fixture Candid traits and the old
+  ingress decoder; retain stored-record traits. The public DTO cut remains
   [#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
 
 ## [0.34.0] - 2026-10-18

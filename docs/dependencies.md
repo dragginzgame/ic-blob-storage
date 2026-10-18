@@ -81,17 +81,18 @@ call limits and typed decoder failures. The retired Testkit decoder package is
 forbidden by the direct-boundary policy; neither tool owns production provider
 transport or its authority.
 
-Private consumer-probe tenant, funding-observer and manifest controls use the
-same bounded CBOR codec as other Blob-owned CBOR boundaries, with a 4 KiB ingress
-ceiling and exact whole-value
+All 26 private consumer-probe controls use the same bounded CBOR codec as other
+Blob-owned CBOR boundaries, with a 4 KiB ingress ceiling and exact whole-value
 decoding. Their command/status envelopes belong to test protocol support, not
-the public service catalog. They forward actual tenant operations through the
-unchanged method-bound Wire client; funding and manifest calls retain their
-canonical service CBOR codecs. Other current probe controls and their
-Candid-derived DTO consumers still require the coordinated migration in
-[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84);
-this private control change does not remove public application DTO traits or
-alter persisted probe journals, provider contracts or production installation bytes.
+the public service catalog. The Rust callers and the opaque packets supplied to
+Chromium use that codec; JavaScript defines no duplicate fixture schemas.
+They forward actual tenant operations through the unchanged method-bound Wire
+client; funding, manifest and asset operations retain their canonical service
+CBOR clients. Transient scheduling/reply types no longer derive CandidType.
+Lifecycle arguments and the stored consumer record still use Candid. Other
+current probes and public application DTO consumers need the coordinated cut in
+[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+No persisted journal, provider contract or production installation byte changes.
 For example, `ManifestIntent` retains CandidType because the consumer's
 `ManifestIntentRecord` stores it inside the Candid-encoded `ConsumerRecord`.
 Public trait removal must account for these actual stored DTO consumers as well

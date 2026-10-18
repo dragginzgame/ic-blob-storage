@@ -1,7 +1,6 @@
 //! Actual late uploader acknowledgment cannot undo either application's cancellation.
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 #[test]
 #[expect(
     clippy::too_many_lines,
@@ -47,16 +46,17 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let mut held = false;
         for _ in 0..40 {
             f.harness.pic.tick();
-            let waiting: Result<bool, ConsumerFailure> = query_candid_args(
-                &f.harness.pic,
-                f.uploader,
-                f.operator,
-                "waiting",
-                (),
-                REPLY_LIMITS,
-            )
-            .map(|(reply,)| reply)
-            .unwrap();
+            let waiting: Result<bool, ConsumerFailure> = f
+                .harness
+                .pic
+                .query_blob_as(
+                    f.uploader,
+                    f.operator,
+                    "waiting",
+                    (),
+                    REPLY_LIMITS.reply_bytes,
+                )
+                .unwrap();
             if waiting.unwrap() {
                 held = true;
                 break;
@@ -87,16 +87,17 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         revocation::withdraw(&f, Fault::None, 4096).unwrap();
         f.enroll(Some(f.tenant().unwrap()), false).unwrap();
         let before = f.harness.pic.get_stable_memory(f.service);
-        let resumed: Result<(), ConsumerFailure> = update_candid_args(
-            &f.harness.pic,
-            f.uploader,
-            f.operator,
-            "resume",
-            (),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let resumed: Result<(), ConsumerFailure> = f
+            .harness
+            .pic
+            .update_blob_as(
+                f.uploader,
+                f.operator,
+                "resume",
+                (),
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         resumed.unwrap();
         let late: Result<ManifestIntentView, ConsumerFailure> = wire::decode(
             &f.harness.pic.await_call(call).unwrap(),

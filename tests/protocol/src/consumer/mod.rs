@@ -20,7 +20,7 @@ pub struct TenantDispatch {
     pub trap_after_reply: bool,
 }
 /// Exact application intent, retained before permission or reference dispatch.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct Registration {
     /// Never reused application asset identity.
@@ -33,7 +33,7 @@ pub struct Registration {
     pub release_operation: u128,
 }
 /// Current supported registration sources, with no fabricated retain for a first reference.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub enum RegistrationSource {
     /// Add a distinct reference to existing content.
@@ -42,8 +42,7 @@ pub enum RegistrationSource {
     Fresh(ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest),
 }
 /// Deliberate IC transaction interruption.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Fault {
     /// No interruption.
     None,
@@ -63,8 +62,8 @@ pub enum Fault {
     AfterRelease,
 }
 /// Private scheduling controls, separate from the immutable registration intent.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Run {
     /// Exact application intent.
     pub registration: Registration,
@@ -76,8 +75,7 @@ pub struct Run {
     pub max_reply_bytes: u32,
 }
 /// Read-only original intent and retained publication/cleanup state.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[expect(
     clippy::struct_excessive_bools,
     reason = "Read-only independent publication, tombstone and two dispatch facts"
@@ -117,8 +115,7 @@ pub struct AssetView {
     pub uses: u32,
 }
 /// Fixture admission/coordination refusal; never a provider failure schema.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Failure {
     /// Actual caller lacks application authority.
     Denied,
@@ -141,8 +138,8 @@ pub enum Failure {
 }
 
 /// Exact asset selected for release and an optional test interruption.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Release {
     /// Existing asset identity.
     pub asset: u128,
@@ -150,8 +147,8 @@ pub struct Release {
     pub fault: Fault,
 }
 /// Withdraw the saved fresh-upload permission after local cancellation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Revocation {
     /// Existing asset identity; the original permission is never supplied anew.
     pub asset: u128,
@@ -161,8 +158,8 @@ pub struct Revocation {
     pub max_reply_bytes: u32,
 }
 /// Exact retained operation to inspect; never a new dispatch.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Recovery {
     /// Existing asset identity.
     pub asset: u128,
@@ -170,8 +167,8 @@ pub struct Recovery {
     pub release: bool,
 }
 /// One bounded local application dependency change.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
+#[serde(deny_unknown_fields)]
 pub struct Use {
     /// Existing asset identity.
     pub asset: u128,
