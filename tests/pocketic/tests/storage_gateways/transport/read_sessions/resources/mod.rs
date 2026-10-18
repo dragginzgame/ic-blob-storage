@@ -6,6 +6,7 @@ use blob_test_protocol::storage::funding::{
     Action as FundingAction, Command as FundingCommand, Intent, Phase as FundingPhase,
     Request as FundingRequest,
 };
+use ic_platform::candid::decoder;
 use ic_testkit::pic::query_candid_args;
 use std::{path::Path, time::Instant};
 
@@ -15,7 +16,7 @@ fn funding_command(
     intent: Intent,
     action: FundingAction,
 ) -> Result<bool, Failure> {
-    let packet = candid::encode_one(FundingCommand {
+    let packet = ic_platform::candid::contract::encode_one(FundingCommand {
         intent,
         action,
         fault: None,
@@ -33,7 +34,7 @@ fn funding_command(
         &format!("{name}.json"),
         &serde_json::json!({"result": format!("{result:?}")}),
     );
-    candid::decode_one(&result.unwrap()).unwrap()
+    decoder::decode_one_with_config(&result.unwrap(), &decoder::DecoderConfig::new()).unwrap()
 }
 
 fn read_command(
@@ -43,7 +44,7 @@ fn read_command(
     input: ReadSessionInput,
     interrupted: bool,
 ) -> Result<(), Failure> {
-    let packet = candid::encode_one(input).unwrap();
+    let packet = ic_platform::candid::contract::encode_one(input).unwrap();
     retain_bytes(directory, &format!("{name}.candid"), &packet);
     let result = f
         .harness
@@ -59,7 +60,8 @@ fn read_command(
         Ok(())
     } else {
         let result: Result<JourneyReadChunk, Failure> =
-            candid::decode_one(&result.unwrap()).unwrap();
+            decoder::decode_one_with_config(&result.unwrap(), &decoder::DecoderConfig::new())
+                .unwrap();
         result.map(|chunk| assert_eq!(chunk.bytes, vec![1; 10]))
     }
 }

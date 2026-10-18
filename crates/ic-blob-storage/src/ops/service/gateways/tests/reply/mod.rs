@@ -31,9 +31,13 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
     assert_eq!(attempt.scope(), scope());
     assert_eq!(attempt.request().cashier(), scope().cashier());
     assert_eq!(attempt.request().method_name(), "storage_gateway_list_v1");
-    candid::decode_args::<()>(attempt.request().arguments()).unwrap();
+    ic_platform::candid::decoder::decode_args_with_config::<()>(
+        attempt.request().arguments(),
+        &ic_platform::candid::decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     let before = memory.borrow().clone();
-    let good = candid::encode_one(vec![p(4), p(5), p(4)]).unwrap();
+    let good = ic_platform::candid::contract::encode_one(vec![p(4), p(5), p(4)]).unwrap();
     for (bytes, bounded, error) in [
         (vec![], limits(), GatewayReplyError::InvalidReply),
         (
@@ -53,12 +57,12 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
             GatewayReplyError::InvalidReply,
         ),
         (
-            candid::encode_one(Vec::<Principal>::new()).unwrap(),
+            ic_platform::candid::contract::encode_one(Vec::<Principal>::new()).unwrap(),
             limits(),
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(GatewayListError::Empty)),
         ),
         (
-            candid::encode_one(vec![p(4); 9]).unwrap(),
+            ic_platform::candid::contract::encode_one(vec![p(4); 9]).unwrap(),
             limits(),
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(
                 GatewayListError::TooManyEntries {

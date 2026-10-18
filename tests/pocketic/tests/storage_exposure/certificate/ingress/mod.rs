@@ -4,11 +4,7 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod browser;
 mod proof;
 use super::*;
-use ic_agent::{
-    Agent, Identity,
-    agent::{RequestStatusResponse, signed::SignedUpdate},
-    identity::BasicIdentity,
-};
+use ic_platform::agent::{Agent, BasicIdentity, Identity, RequestStatusResponse, SignedUpdate};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use proof::{ProofError, extract, submit};
 use std::time::Duration;
@@ -79,7 +75,7 @@ impl Headless {
     fn sign(&self, expected: &ExpectedUpload) -> SignedUpdate {
         self.agent
             .update(&expected.service, METHOD)
-            .with_arg(candid::encode_one(&expected.root).unwrap())
+            .with_arg(ic_platform::candid::contract::encode_one(&expected.root).unwrap())
             .sign()
             .unwrap()
     }
@@ -99,7 +95,8 @@ fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_p
             .state,
         UploadState::ExposurePossible
     );
-    let mut forged: ic_agent::Certificate = serde_cbor::from_slice(&certificate).unwrap();
+    let mut forged: ic_platform::certification::Certificate =
+        serde_cbor::from_slice(&certificate).unwrap();
     forged.signature[0] ^= 1;
     assert_eq!(
         extract(

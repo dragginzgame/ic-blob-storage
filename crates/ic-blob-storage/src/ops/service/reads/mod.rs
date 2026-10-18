@@ -12,10 +12,10 @@ use crate::model::service::read::session::ReadSessionUsage;
 use crate::model::service::read::session::record::ReadJournalRecord;
 use crate::model::service::read::session::record::ReadSessionRecord;
 use crate::model::service::read::session::record::ReadUsageRecord;
-use candid::Principal;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{Memory, RuntimeMemory};
+use ic_platform::Principal;
 use ic_storage::adapter::StableBTreeMap;
 use std::{collections::BTreeMap as HeapMap, num::NonZeroU32, ops::Bound};
 

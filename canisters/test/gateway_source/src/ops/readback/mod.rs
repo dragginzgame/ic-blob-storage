@@ -102,11 +102,14 @@ pub(crate) fn reply(mut config: ReadSourceConfig) {
             return;
         }
         ReadSourceMode::WrongType => {
-            super::reply(candid::encode_one(vec![0_u16]).expect("wrong-type fixture"));
+            super::reply(
+                ic_platform::candid::contract::encode_one(vec![0_u16]).expect("wrong-type fixture"),
+            );
             return;
         }
         ReadSourceMode::TruncatedEncoding => {
-            let mut bytes = candid::encode_one(config.bytes).expect("fixture bytes");
+            let mut bytes =
+                ic_platform::candid::contract::encode_one(config.bytes).expect("fixture bytes");
             bytes.pop();
             super::reply(bytes);
             return;
@@ -121,5 +124,5 @@ pub(crate) fn reply(mut config: ReadSourceConfig) {
         }
         ReadSourceMode::Valid => {}
     }
-    super::reply(candid::encode_one(config.bytes).expect("fixture bytes"));
+    super::reply(ic_platform::candid::contract::encode_one(config.bytes).expect("fixture bytes"));
 }

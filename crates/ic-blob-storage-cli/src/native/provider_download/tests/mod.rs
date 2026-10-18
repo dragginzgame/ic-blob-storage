@@ -1,5 +1,4 @@
 use super::*;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan;
@@ -7,6 +6,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_platform::Principal;
 use std::{io::Write, net::TcpListener, time::Instant};
 
 fn plan(bytes: &[u8]) -> UploadVerificationPlan {

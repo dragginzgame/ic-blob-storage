@@ -1,7 +1,7 @@
 //! Deliberate reentrant schedules with captured request data across each await.
 
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
-use candid::Principal;
+use ic_platform::Principal;
 
 use crate::ops;
 pub(crate) mod readback;

@@ -6,7 +6,7 @@
 
 use std::num::NonZeroU128;
 
-use candid::{Int, Nat};
+use ic_platform::candid::contract::{Int, Nat};
 use thiserror::Error;
 
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;

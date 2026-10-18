@@ -1,10 +1,10 @@
 //! One owner of the local receive call and its current platform cost observation.
 use super::{ObservedFundingCall, read};
 use blob_test_protocol::funding::{FundingOutcome, FundingRequest};
-use candid::Principal;
 use ic_blob_storage::policy::billing::liquidity::FundingLiquidity;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_cdk::call::Call;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 pub(crate) struct PreparedFundingCall {

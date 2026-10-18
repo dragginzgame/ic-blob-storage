@@ -29,12 +29,9 @@ mod reply;
 mod signed_update;
 mod submit_attestation;
 mod submit_reference;
-use candid::Principal;
-use ic_agent::{
-    Agent, Identity,
-    identity::{BasicIdentity, Secp256k1Identity},
-};
 use ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD;
+use ic_platform::Principal;
+use ic_platform::agent::{Agent, BasicIdentity, Identity, Secp256k1Identity};
 use serde_json::json;
 use std::{path::Path, process::ExitCode, time::Duration};
 

@@ -3,7 +3,7 @@ use ic_blob_storage_contracts::upload::binding::UploadPermission;
 
 use std::num::NonZeroU64;
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 pub(crate) mod capacity;

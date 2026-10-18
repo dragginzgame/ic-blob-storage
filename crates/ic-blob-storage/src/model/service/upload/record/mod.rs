@@ -12,7 +12,6 @@ use super::UploadRequest;
 use super::UploadRequestId;
 use super::manifest;
 use crate::model::catalog::admission::UploadUsage;
-use candid::{CandidType, Deserialize};
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
@@ -20,6 +19,8 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use ic_storage::adapter::storable::Bound;
@@ -30,6 +31,7 @@ use std::num::{NonZeroU64, NonZeroU128};
 use ic_blob_storage_contracts::configuration::envelope::MAX_MANIFEST_RECORD_BYTES as MANIFEST_BYTES;
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct UploadConfigurationRecord {
     version: u8,
     service: Principal,
@@ -82,6 +84,7 @@ impl UploadConfigurationRecord {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 enum UploadPhaseRecord {
     Reserved,
     ExposurePossible,
@@ -89,6 +92,7 @@ enum UploadPhaseRecord {
     Confirmed,
 }
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct UploadPermissionRecord {
     version: u8,
     service: Principal,
@@ -227,12 +231,14 @@ impl UploadPermissionRecord {
     }
 }
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum UploadStoreRecord {
     Configuration(UploadConfigurationRecord),
     Permission(UploadPermissionRecord),
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct UploadUsageRecord {
     version: u8,
     operations: u64,
@@ -323,11 +329,13 @@ pub(crate) fn chunks(bytes: u64) -> u64 {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 struct UploadHeaderRecord {
     name: String,
     value: String,
 }
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct UploadManifestRecord {
     version: u8,
     chunks: Vec<[u8; 32]>,

@@ -2,7 +2,7 @@
 
 use std::num::NonZeroU128;
 
-use candid::Principal;
+use ic_platform::Principal;
 
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;

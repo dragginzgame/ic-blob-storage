@@ -3,12 +3,12 @@ use super::{
     Failure, local_body::LocalBody, read, references::upload_json,
     upload_setup::manifest_reply_limits,
 };
-use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
 use ic_blob_storage_contracts::upload::admission::reply::validate_request;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path};
 

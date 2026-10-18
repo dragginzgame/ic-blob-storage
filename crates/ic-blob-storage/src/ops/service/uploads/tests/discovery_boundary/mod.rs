@@ -4,6 +4,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as F;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
+use ic_platform::candid::decoder;
 fn request(root: [u8; 32]) -> UploadDiscoveryRequest {
     UploadDiscoveryRequest {
         scope: TenantScope {
@@ -165,8 +166,11 @@ fn discovery_boundary_preserves_independent_full_width_identities_and_cancelled_
     expected.fenced = true;
     assert_eq!(inspect(&restored, context(4), request), Ok(expected));
     assert_eq!(
-        candid::decode_one::<UploadDiscoveryResponse>(&candid::encode_one(expected).unwrap())
-            .unwrap(),
+        decoder::decode_one_with_config::<UploadDiscoveryResponse>(
+            &ic_platform::candid::contract::encode_one(expected).unwrap(),
+            &decoder::DecoderConfig::new()
+        )
+        .unwrap(),
         expected
     );
 }

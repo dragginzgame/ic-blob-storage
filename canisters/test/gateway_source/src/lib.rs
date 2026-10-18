@@ -9,7 +9,7 @@ use std::marker::PhantomData;
 
 use blob_test_protocol::journey::readback::{ReadSourceConfig, ReadSourceObservation};
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
-use candid::Principal;
+use ic_platform::Principal;
 
 #[ic_cdk::init]
 fn init(service: Principal, gateway: Principal, driver: Principal) {

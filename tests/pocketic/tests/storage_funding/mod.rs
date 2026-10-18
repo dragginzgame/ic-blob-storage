@@ -98,7 +98,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_funding",
-                candid::encode_one(Command {
+                ic_platform::candid::contract::encode_one(Command {
                     intent,
                     action,
                     fault: Some(fault),

@@ -8,7 +8,7 @@ pub(super) async fn wait(ready: impl Fn() -> bool) -> bool {
         if ready() {
             return true;
         }
-        if Call::unbounded_wait(candid::Principal::management_canister(), "raw_rand")
+        if Call::unbounded_wait(ic_platform::Principal::management_canister(), "raw_rand")
             .await
             .is_err()
         {

@@ -54,7 +54,7 @@ fn revocation_traps_preserve_tombstone_and_recover_without_resending() {
                 f.tenant,
                 f.operator,
                 "revoke",
-                candid::encode_one(Revocation {
+                ic_platform::candid::contract::encode_one(Revocation {
                     asset: 1,
                     fault,
                     max_reply_bytes: 4096,
@@ -225,7 +225,7 @@ fn consumer_upgrade_keeps_uncertain_withdrawal_and_blocks_dispatch_or_acknowledg
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

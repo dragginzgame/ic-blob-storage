@@ -1,12 +1,13 @@
 //! Caffeine's update reply payload. The IC supplies the ingress response certificate.
 use crate::dto::upload::admission::UploadAdmissionRequest;
 use crate::dto::upload::exposure::UploadExposureBlocker;
-use candid::CandidType;
-use candid::Deserialize;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Exact uploader-only preparation assessment. This snapshot cannot authorize a
 /// later update; issuance rechecks the original permission and current host facts.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadCertificateAssessmentResponse {
     /// Original retained permission resolved from the provider root locator.
@@ -21,6 +22,7 @@ pub struct UploadCertificateAssessmentResponse {
 /// reviewed Caffeine Mixin. This record alone is neither a signed certificate nor
 /// proof of provider acceptance, completed upload, or billing behavior.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct CaffeineUploadCertificateResponse {
     /// Exactly `upload` for the supported operation.

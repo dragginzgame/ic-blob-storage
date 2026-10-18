@@ -1,9 +1,10 @@
 //! Passive recovery outcomes; ingress supplies no freshness evidence.
-use candid::CandidType;
-use candid::Deserialize;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Recovery refusal never clears an existing fence or discards an obligation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum CurrentInstanceRecoveryFailure {
     /// Caller is not the installed operator.

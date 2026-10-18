@@ -5,12 +5,12 @@ use blob_test_protocol::journey::{
     JourneyFailure,
     readback::{JourneyReadChunk, ReadExecutionProfile},
 };
-use candid::Principal;
 use ic_blob_storage::policy::{
     gateway::{GatewayCallbackContext, assess_gateway_callback},
     liveness::assess_reference_liveness,
     tenant::TenantAccessContext,
 };
+use ic_platform::Principal;
 use ops::journey::readback::resources::Measurement;
 
 pub(crate) fn arm_callback_trap(context: TenantAccessContext, root: &[u8]) -> bool {

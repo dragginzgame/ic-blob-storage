@@ -1,11 +1,12 @@
 //! Bounded retained operation discovery. A page never grants effect authority.
 use crate::dto::reference::ReferenceUpload;
-use candid::CandidType;
-use candid::Deserialize;
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Independently authenticated observer scope.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum UploadHistoryScope {
     /// Caller must be this tenant, including while suspended.
@@ -15,6 +16,7 @@ pub enum UploadHistoryScope {
 }
 /// Current local states to select, not a provider reconciliation result.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum UploadHistoryFilter {
     /// Every retained operation, including cancelled and settled history.
@@ -28,6 +30,7 @@ pub enum UploadHistoryFilter {
 }
 /// Untrusted forward position. Changes behind it require a fresh sweep.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryCursor {
     /// Original service.
@@ -45,6 +48,7 @@ pub struct UploadHistoryCursor {
 }
 /// One scan; work and result limits are host-owned, never supplied by ingress.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryRequest {
     /// Actual intended storage service.
@@ -60,6 +64,7 @@ pub struct UploadHistoryRequest {
 }
 /// Current local reservation or confirmed lifecycle.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum UploadContentState {
     /// Unexposed local reservation.
@@ -79,6 +84,7 @@ pub enum UploadContentState {
 }
 /// Complete original upload identity with its current local lifecycle.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryEntry {
     /// Operation, object and first-reference IDs are independent.
@@ -88,6 +94,7 @@ pub struct UploadHistoryEntry {
 }
 /// One bounded synchronous observation, available during inspection-only restore.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryPage {
     /// Full original request echoed for correlation.
@@ -103,6 +110,7 @@ pub struct UploadHistoryPage {
 }
 /// Refusal never means empty history or safe retry.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum UploadHistoryFailure {
     /// Zero or malformed identity.

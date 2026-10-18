@@ -23,7 +23,8 @@ pub(super) fn fixture_with_operator(harness: Harness, operator: Principal) -> Fi
     f.harness.pic.install_canister(
         cashier,
         std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-        candid::encode_args((f.service, Fake::principal(9), driver)).unwrap(),
+        ic_platform::candid::contract::encode_args((f.service, Fake::principal(9), driver))
+            .unwrap(),
         Some(driver),
     );
     f

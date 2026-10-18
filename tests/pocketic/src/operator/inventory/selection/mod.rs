@@ -44,7 +44,7 @@ impl Selection {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use candid::Principal;
+    use ic_platform::Principal;
 
     #[test]
     fn targets_are_explicit_local_and_tenant_bound() {

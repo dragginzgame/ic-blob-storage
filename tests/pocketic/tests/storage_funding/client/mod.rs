@@ -33,7 +33,7 @@ fn fixture(authorized: bool) -> (Fixture, Principal) {
     f.harness.pic.install_canister(
         client,
         consumer_wasm(),
-        candid::encode_args((driver, f.service)).unwrap(),
+        ic_platform::candid::contract::encode_args((driver, f.service)).unwrap(),
         Some(driver),
     );
     (f, client)
@@ -180,7 +180,7 @@ fn funding_client_reads_pages_and_exact_outcomes_through_both_restorations() {
         .upgrade_canister(
             client,
             consumer_wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

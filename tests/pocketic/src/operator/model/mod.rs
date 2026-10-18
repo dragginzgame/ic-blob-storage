@@ -1,6 +1,6 @@
 use std::{collections::BTreeMap, net::SocketAddr, str::FromStr};
 
-use candid::Principal;
+use ic_platform::Principal;
 
 use super::Failure;
 

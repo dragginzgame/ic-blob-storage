@@ -13,7 +13,10 @@ use blob_test_protocol::{
     admission::{Permission, Request},
     storage::{Failure, Observation, Status, WriteFault},
 };
-use candid::{CandidType, DecoderConfig, Deserialize, Principal, decode_one_with_config};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
+
 use ic_blob_storage::ic_memory::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::GenericAllocationPolicy;
 use ic_blob_storage::ic_memory::Memory;
@@ -305,15 +308,17 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
     if bytes.len() > blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES {
         ic_cdk::trap("fixture input byte bound");
     }
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(32_768)
-        .set_skipping_quota(1000)
-        .set_max_header_len(4096)
-        .set_max_type_len(64)
-        .set_full_error_message(false);
-    decode_one_with_config(&bytes, &config)
-        .unwrap_or_else(|_| ic_cdk::trap("invalid fixture input"))
+    ic_platform::candid::decode_one(
+        &bytes,
+        ic_platform::candid::DecodeLimits {
+            reply_bytes: blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES,
+            decoding_quota: 32_768,
+            skipping_quota: 1000,
+            type_entries: 64,
+            header_bytes: 4096,
+        },
+    )
+    .unwrap_or_else(|_| ic_cdk::trap("invalid fixture input"))
 }
 pub(crate) fn admit(
     context: UploadContext,

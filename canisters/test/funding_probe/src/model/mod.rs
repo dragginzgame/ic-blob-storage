@@ -6,9 +6,10 @@ use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingFailure, FundingObservation, FundingOutcome, FundingReceiptRecord,
     FundingRequest,
 };
-use candid::{CandidType, Principal};
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 use std::{collections::BTreeSet, num::NonZeroU128};
 
@@ -22,6 +23,7 @@ pub(crate) struct FundingIdentityView {
 }
 
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct FundingJournalRecord {
     service: Principal,
     release: [u8; 32],

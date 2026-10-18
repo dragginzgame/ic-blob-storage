@@ -78,7 +78,7 @@ fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and
             .upgrade_canister(
                 f.uploader,
                 wasm(),
-                candid::encode_args(()).unwrap(),
+                ic_platform::candid::contract::encode_args(()).unwrap(),
                 Some(f.controller),
             )
             .unwrap();

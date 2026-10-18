@@ -10,9 +10,9 @@ use crate::model::billing::journal::FundingTransportContext;
 use crate::model::billing::journal::FundingTransportOutcome;
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::policy::billing::liquidity::FundingLiquidity;
-use candid::Principal;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_cdk::call::{Call, CallFailed};
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 pub(crate) fn running_service() -> Principal {

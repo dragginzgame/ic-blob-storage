@@ -2,7 +2,6 @@
 
 use std::num::{NonZeroU128, NonZeroUsize};
 
-use candid::Principal;
 use ic_blob_storage::model::catalog::BlobCatalog;
 use ic_blob_storage::model::catalog::CatalogError;
 use ic_blob_storage::model::catalog::CatalogInsertOutcome;
@@ -49,6 +48,7 @@ use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_platform::Principal;
 
 fn p(id: u8) -> Principal {
     Principal::from_slice(&[id, 1])

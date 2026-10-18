@@ -4,8 +4,8 @@ pub(crate) mod tenants;
 use crate::ops;
 pub(crate) mod funding;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault, RegistrationSource, Run};
-use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
+use ic_platform::Principal;
 pub(crate) async fn register(actor: Principal, input: &Run) -> Result<AssetView, Failure> {
     let id = input.registration.asset;
     let send = ops::mutate(actor, |r| {

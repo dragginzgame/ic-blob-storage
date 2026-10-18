@@ -1,9 +1,9 @@
 use super::Failure;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 
 /// Shared bounded small replies; command owners retain error and binding policy.

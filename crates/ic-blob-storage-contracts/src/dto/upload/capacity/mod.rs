@@ -1,11 +1,12 @@
 //! Passive admission headroom; independent dimensions never reserve capacity.
 use crate::dto::tenant::TenantEnrollment;
 use crate::dto::tenant::TenantScope;
-use candid::CandidType;
-use candid::Deserialize;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Current tighter global/tenant headroom, including retained provider liabilities.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadCapacityResponse {
     /// Exact authenticated service, namespace and tenant.
@@ -41,6 +42,7 @@ pub struct UploadCapacityResponse {
 
 /// Refusal to inspect capacity, never an implicit zero or permission to upload.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum UploadCapacityFailure {
     /// Invalid tenant principal or zero namespace.

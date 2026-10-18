@@ -6,8 +6,8 @@ use crate::{
     reference_cli::{change_native, native_requests},
     submission_proxy::{Dispatch, Proxy, Reply},
 };
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};

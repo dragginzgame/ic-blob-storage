@@ -43,7 +43,6 @@ mod standalone_verify_upload;
 mod submission_proxy;
 mod support;
 mod upload_setup_cli;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
 use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
@@ -75,6 +74,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_platform::Principal;
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, RejectCode},

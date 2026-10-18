@@ -3,7 +3,7 @@ use crate::dto::upload::admission::UploadAdmissionFailure as A;
 use crate::dto::upload::exposure::UploadExposureBlocker as B;
 use crate::upload::certificate::reply::*;
 use crate::wire::encode;
-use candid::Principal;
+use ic_platform::Principal;
 
 fn permission() -> UploadAdmissionRequest {
     UploadAdmissionRequest {

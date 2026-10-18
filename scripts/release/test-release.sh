@@ -109,7 +109,7 @@ LOCK
     unset PUBLISH_PACKAGE TEST_PUBLISH_FAIL TEST_PUBLISH_LOST_REPLY TEST_REGISTRY_FAILURE TEST_REGISTRY_FOREIGN TEST_REGISTRY_YANKED
     mkdir -p target/registry
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
-    unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND
+    unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND TEST_SORT_SELECTED_FAIL
     unset TEST_FINALIZER_FAIL
     unset TEST_FMT_FAIL
     unset TEST_RELEASE_SETUP_FAIL TEST_RELEASE_SETUP_CHANGE
@@ -248,7 +248,12 @@ case "$1" in
             echo "$tag_sha" > "target/tags/$3.sha"
             echo tag >> "$TEST_EFFECTS"
         elif [[ -f "target/tags/$3.commit" ]]; then echo "$3"; fi ;;
-    cat-file) echo "${TEST_TAG_TYPE:-tag}" ;;
+    cat-file)
+        if [[ "$3" == refs/tags/* ]]; then echo "${TEST_TAG_TYPE:-tag}"
+        else echo commit; fi ;;
+    archive)
+        [[ "$2" == --format=tar ]] || exit 97
+        tar -cf - -C "target/history/$(resolve "$3").files" . ;;
     ls-remote)
         for ref in "$@"; do
             case "$ref" in
@@ -275,14 +280,16 @@ echo "cargo $*" >> "$TEST_LOG"
 case "$*" in
     'metadata --offline --locked --no-deps --format-version 1'|'metadata --locked --offline --format-version 1')
         [[ "${TEST_METADATA_FAIL:-0}" != 1 ]] || exit 1
-        current="$(perl scripts/release/release-data.pl version)"
+        current="$(yq -p toml -o json '.workspace.package.version' Cargo.toml | jq -er .)"
         [[ "$(yq -p toml '.workspace.dependencies.ic-blob-storage-contracts.version' Cargo.toml)" == "$current" ]] || exit 1
         ! rg -q '^foreign-package' Cargo.toml || exit 1
         printf '{"workspace_members":["local","contracts"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage/Cargo.toml"},{"id":"contracts","name":"ic-blob-storage-contracts","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage-contracts/Cargo.toml"}]}\n' "$current" "$PWD" "$current" "$PWD" ;;
     locate-project*) printf '%s/Cargo.toml\n' "$PWD" ;;
     'sort --version') [[ "${TEST_SORT_FAIL:-0}" != 1 ]] || exit 1; echo "cargo-sort ${TEST_SORT_VERSION:-2.1.4}" ;;
     'fmt --version') echo rustfmt; [[ "${TEST_FMT_FAIL:-0}" != 1 ]] ;;
-    'sort --workspace --check') [[ "${TEST_PREPARE_FAIL:-0}" != 1 ]] ;;
+    'sort --workspace --grouped --check'|'sort --workspace --check --grouped')
+        [[ "${TEST_PREPARE_FAIL:-0}" != 1 ]] || exit 1
+        [[ "${TEST_SORT_SELECTED_FAIL:-0}:$PWD" != 1:*/source ]] ;;
     'fmt --all -- --check') ;;
     'fetch --locked') echo fetch >> "$TEST_EFFECTS"; [[ "${TEST_FETCH_FAIL:-0}" != 1 ]] || exit 1; touch target/mock-cargo-cache ;;
     'check --offline --locked --workspace --all-targets --all-features') [[ -f target/mock-cargo-cache ]] || exit 1; echo check >> "$TEST_EFFECTS" ;;
@@ -879,6 +886,7 @@ test_selected_commit() {
         tag) echo 6666666666666666666666666666666666666666 > target/tags/v0.1.1.commit ;;
         tag-type) export TEST_TAG_TYPE=commit ;;
         dirty) export TEST_DIRTY=1 ;;
+        manifest-order) export TEST_SORT_SELECTED_FAIL=1 ;;
         publication) target=publish ;;
     esac
     if [[ "$1" == valid ]]; then
@@ -1077,7 +1085,7 @@ done
 for invalid in tag receipt parent merge; do run_case "bad-$invalid" test_invalid_publish "$invalid"; done
 run_case publication-lock test_publication_lock
 run_case real-index test_actual_index
-for shape in valid missing invalid source parent merge receipt absent tag tag-type dirty publication; do
+for shape in valid missing invalid source parent merge receipt absent tag tag-type dirty manifest-order publication; do
     run_case "selected-$shape" test_selected_commit "$shape"
 done
 run_case recovery-integration test_recovery_integration

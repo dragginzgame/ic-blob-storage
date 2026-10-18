@@ -2,8 +2,8 @@ use super::*;
 use crate::model::lifecycle::roots::RootClaims;
 use crate::ops::service::tenant::tests::config;
 use crate::test_support::memory::FixtureMemory;
-use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 fn p(n: u8) -> Principal {

@@ -3,12 +3,12 @@ use crate::ops;
 use blob_test_protocol::funding::preview::{
     FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
 };
-use candid::Principal;
 use ic_blob_storage::policy::billing::{
     RecoveryState,
     admission::evidence::{FundingAdmissionEvidence, assess_funding_evidence},
     reconciliation::{assess_funding_reconciliation, assess_uncredited_activity},
 };
+use ic_platform::Principal;
 
 pub(crate) fn preview(
     service: Principal,

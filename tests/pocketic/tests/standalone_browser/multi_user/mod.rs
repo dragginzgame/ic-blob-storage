@@ -2,9 +2,9 @@
 use super::{BrowserDriver, Trial, UploadState};
 use crate::Envelope;
 use crate::browser_driver::BrowserPreparation;
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::json;
 use std::path::Path;
 

@@ -1,5 +1,6 @@
 //! Real local source calls; no deployed provider durability or HTTP claims.
 use crate::support::REPLY_LIMITS;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod resources;
 
@@ -99,7 +100,8 @@ impl Fixture {
                 self.service,
                 self.first,
                 "journey_read",
-                candid::encode_args((root(input.root), 0_u64)).expect("read args"),
+                ic_platform::candid::contract::encode_args((root(input.root), 0_u64))
+                    .expect("read args"),
             )
             .expect("submit read");
         for _ in 0..30 {
@@ -123,8 +125,11 @@ impl Fixture {
         .map(|(reply,)| reply)
         .expect("resume source");
         assert!(resumed);
-        candid::decode_one(&self.harness.pic.await_call(id).expect("read callback"))
-            .expect("typed reply")
+        decoder::decode_one_with_config(
+            &self.harness.pic.await_call(id).expect("read callback"),
+            &decoder::DecoderConfig::new(),
+        )
+        .expect("typed reply")
     }
 
     pub(super) fn confirm_bytes(&self, v: &content_vectors::Vector) {
@@ -247,7 +252,7 @@ fn rejected_source_replies_return_no_bytes_and_release_the_exact_read_slot() {
             f.gateway,
             f.first,
             "fixture_chunk",
-            candid::encode_args((root(v.upload.root), 0_u64)).expect("args"),
+            ic_platform::candid::contract::encode_args((root(v.upload.root), 0_u64)).expect("args"),
         )
         .expect_err("source is service-only");
     assert_eq!(rejected.reject_code, RejectCode::CanisterReject);

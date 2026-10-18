@@ -25,7 +25,6 @@ use blob_test_protocol::{
     journey::{JourneyManifest, JourneyUsage},
     storage::{Failure, FaultAdmission, FaultPreparation, Observation, Status, WriteFault},
 };
-use candid::Principal;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
 use ic_blob_storage_contracts::dto::tenant::TenantFailure;
@@ -36,6 +35,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
+use ic_platform::Principal;
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, RejectCode},
@@ -53,7 +53,7 @@ struct Fixture {
 }
 impl Fixture {
     fn installation(operator: Principal) -> Vec<u8> {
-        candid::encode_one(
+        ic_platform::candid::contract::encode_one(
             blob_test_protocol::storage::resources::StorageProbeInstallation {
                 operator,
                 max_objects: 2,
@@ -390,7 +390,7 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
                 f.service,
                 f.tenant,
                 "admit_with_write_trap",
-                candid::encode_one(FaultAdmission {
+                ic_platform::candid::contract::encode_one(FaultAdmission {
                     permission: admission_input(attempted),
                     fault,
                 })
@@ -444,7 +444,7 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
                 f.service,
                 f.uploader,
                 "prepare_with_write_trap",
-                candid::encode_one(FaultPreparation {
+                ic_platform::candid::contract::encode_one(FaultPreparation {
                     preparation: f.preparation_input(&preparation),
                     fault,
                 })
@@ -564,7 +564,7 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             f.service,
             f.tenant,
             "revoke_with_usage_write_trap",
-            candid::encode_one(admission_input(permission)).unwrap(),
+            ic_platform::candid::contract::encode_one(admission_input(permission)).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);

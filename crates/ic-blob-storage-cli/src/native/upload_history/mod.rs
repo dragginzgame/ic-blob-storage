@@ -1,7 +1,6 @@
 //! Explicit bounded service-wide history; no provider calls, sweep or reconciliation claim.
 mod cursor;
 use super::{Failure, arguments::Options, query, references::upload_json};
-use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState as S;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure as F;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter;
@@ -11,6 +10,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_HISTORY_METHOD;
 use ic_blob_storage_contracts::upload::history::reply;
 use ic_blob_storage_contracts::upload::history::reply::UploadHistoryReplyError as R;
 use ic_blob_storage_contracts::upload::history::reply::UploadHistoryReplyLimits;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::path::PathBuf;
 

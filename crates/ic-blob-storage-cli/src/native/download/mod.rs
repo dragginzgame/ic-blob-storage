@@ -8,7 +8,6 @@ use super::identity;
 use super::provider_download;
 use super::provider_download::ExpectedBody;
 use super::read;
-use candid::Principal;
 use ic_blob_storage_contracts::download::reply;
 use ic_blob_storage_contracts::download::reply::DownloadReplyError;
 use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;
@@ -21,6 +20,7 @@ use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
 use ic_blob_storage_contracts::provider::download::request_target;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf};
 use url::Url;
@@ -126,7 +126,7 @@ async fn capture(
     scope: &CaffeineDownloadScope,
     argument: Vec<u8>,
     run: &Run,
-    agent: &ic_agent::Agent,
+    agent: &ic_platform::agent::Agent,
 ) -> Result<Value, Failure> {
     let bytes = super::inspection_update(agent, input.service, DOWNLOAD_METHOD, argument).await?;
     if bytes.len() > 4096 {

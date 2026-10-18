@@ -1,6 +1,6 @@
 use super::*;
 use crate::dto::tenant::TenantEnrollment;
-use candid::Principal;
+use ic_platform::Principal;
 
 fn response() -> UploadCapacityResponse {
     UploadCapacityResponse {

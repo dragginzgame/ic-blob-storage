@@ -1,6 +1,6 @@
 //! Persist the exact held list request before yielding to the IC scheduler.
 use crate::model::SourceJournalRecord;
-use candid::Principal;
+use ic_platform::Principal;
 
 pub(crate) fn begin(gateway: Principal) -> u64 {
     super::mutate(|state| state.begin_held_sync(gateway))

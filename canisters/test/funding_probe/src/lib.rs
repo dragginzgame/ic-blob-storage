@@ -8,7 +8,7 @@ use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingFailure, FundingObservation, FundingOperatorStatusView,
     FundingReceiptRecord, FundingRequest, FundingUpgradeArgs,
 };
-use candid::Principal;
+use ic_platform::Principal;
 
 #[ic_cdk::init]
 fn init(

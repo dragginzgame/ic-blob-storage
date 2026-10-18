@@ -1,6 +1,6 @@
 //! Fresh-installation arithmetic; the live service remains authoritative.
 use super::{Failure, PreparedInput};
-use candid::Principal;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, num::NonZeroU64};
 

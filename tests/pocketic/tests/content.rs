@@ -5,6 +5,7 @@
 mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
+use ic_platform::candid::contract::encode_args;
 use ic_testkit::pic::update_candid_args;
 use ic_testkit::{Fake, pocket_ic::CanisterSettings};
 use support::{Harness, REPLY_LIMITS, fixture_path};
@@ -25,8 +26,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
     pic.install_canister(
         canister,
         std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("Wasm"),
-        candid::encode_args((tenant, Fake::principal(2), Fake::principal(3), operator))
-            .expect("init"),
+        encode_args((tenant, Fake::principal(2), Fake::principal(3), operator)).expect("init"),
         Some(operator),
     );
     let denied: Result<ContentProbeReport, ContentProbeFailure> = update_candid_args(

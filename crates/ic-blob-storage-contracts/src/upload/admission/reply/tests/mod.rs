@@ -3,7 +3,7 @@ mod revocation;
 use crate::dto::reference::ReferenceUpload;
 use crate::dto::upload::UploadState;
 use crate::wire::encode;
-use candid::Principal;
+use ic_platform::Principal;
 #[test]
 fn admission_replies_bind_uploader_deadline_and_every_upload_field() {
     let input = UploadAdmissionRequest {

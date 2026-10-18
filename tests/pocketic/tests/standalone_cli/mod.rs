@@ -1,7 +1,7 @@
 //! Actual signed query subprocess; no simulated caller and no provider effects.
 use super::*;
 use crate::authenticated_cli::{PEM, arguments, run};
-use ic_agent::{Identity, identity::BasicIdentity};
+use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
 fn change(args: &mut [String], flag: &str, value: &str) {

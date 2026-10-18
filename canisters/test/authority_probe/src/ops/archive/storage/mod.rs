@@ -2,8 +2,8 @@
 
 use std::cell::RefCell;
 
-use candid::{de::DecoderConfig, decode_one_with_config};
 use ic_memory::{DefaultMemoryImpl, MemoryManagerConfig, testing::FixtureCell};
+use ic_platform::candid::decoder::{DecoderConfig, decode_one_with_config};
 
 use crate::model::archive::AuthorityArchiveRecord;
 
@@ -41,7 +41,7 @@ pub(super) fn open() {
 }
 
 pub(super) fn save(state: &AuthorityArchiveRecord) {
-    let bytes = candid::encode_one(state).expect("bounded fixture journal");
+    let bytes = ic_platform::candid::contract::encode_one(state).expect("bounded fixture journal");
     STORE.with_borrow_mut(|store| {
         store
             .as_mut()

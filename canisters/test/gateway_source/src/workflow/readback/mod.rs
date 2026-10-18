@@ -1,7 +1,7 @@
 //! Authenticated controls for the local read-source substitute.
 use crate::ops;
 use blob_test_protocol::journey::readback::{ReadSourceConfig, ReadSourceObservation};
-use candid::Principal;
+use ic_platform::Principal;
 
 pub(crate) fn configure(caller: Principal, config: ReadSourceConfig) -> bool {
     ops::read(|state| state.driver == caller && !state.fenced) && ops::readback::configure(config)

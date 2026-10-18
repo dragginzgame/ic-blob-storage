@@ -7,7 +7,6 @@ use blob_test_protocol::SyncFailure;
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
 use blob_test_protocol::obligations::{ObligationProbeFact, ObligationProbeView};
 use blob_test_protocol::uploads::UploadProbeState;
-use candid::Principal;
 use ic_blob_storage::{
     model::catalog::{
         admission::read::UploadPageLimits, pending::PendingPageLimits,
@@ -26,6 +25,7 @@ use ic_blob_storage::{
         tenant::{TenantAccessContext, assess_tenant_access},
     },
 };
+use ic_platform::Principal;
 
 use crate::ops;
 

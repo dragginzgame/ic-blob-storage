@@ -1,8 +1,11 @@
 //! Bounded fixture traversal inputs; limits are installed by the host, not callers.
 use crate::admission::ContentObservation;
-use candid::{CandidType, Deserialize, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 /// Explicit local test client controls, never a production service request.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct DownloadClientInput {
     /// The maintained service request, shared rather than recreated in the fixture.
     pub request: ic_blob_storage_contracts::dto::download::DownloadRequest,
@@ -15,6 +18,7 @@ pub struct DownloadClientInput {
 }
 /// Typed local observation of the canonical client's result.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum DownloadProbeFailure {
     /// Proxy caller is not the fixture operator.
     Denied,
@@ -35,6 +39,7 @@ pub enum DownloadProbeFailure {
 }
 /// Bounded operator input; root knowledge never supplies tenant/provider authority.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct RootBatchInput {
     /// Expected running service.
     pub service: Principal,
@@ -45,6 +50,7 @@ pub struct RootBatchInput {
 }
 /// Local reconciliation observation, not a provider liveness/deletion boolean.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum RootObservation {
     /// Exact retained local identity and current state.
     Known(ContentObservation),

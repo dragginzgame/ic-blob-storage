@@ -1,8 +1,8 @@
 //! One common dispatch schema for writing and inspecting historical signed claims.
 use super::DEADLINE_SECONDS;
 use crate::native::Failure;
-use candid::Principal;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_platform::Principal;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 /// Facts derived by the owner that signs and dispatches the retained packet.
@@ -58,7 +58,7 @@ pub(in crate::native) fn inspect<R: DeserializeOwned>(
         .ingress_expiry_ns
         .parse()
         .map_err(|_| Failure::Binding)?;
-    ic_agent::agent::signed_update_inspect(actor, service, method, argument, expiry, signed)
+    ic_platform::agent::signed_update_inspect(actor, service, method, argument, expiry, signed)
         .map_err(|_| Failure::Binding)?;
     Ok(intent.operation)
 }

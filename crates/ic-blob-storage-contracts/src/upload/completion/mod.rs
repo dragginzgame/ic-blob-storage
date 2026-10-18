@@ -1,5 +1,5 @@
 //! Explicit host-installed trust in an external content verifier.
-use candid::Principal;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 /// Immutable authority for one service and provider namespace. Never supplied by ingress.

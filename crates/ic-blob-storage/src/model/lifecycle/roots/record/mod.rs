@@ -1,14 +1,17 @@
 //! Bounded stable root claims and reverse keys, independent of host memory IDs.
 use super::ObjectBinding;
-use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
 
 /// All non-service object identity fields; service is fixed by store metadata.
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct RootObjectKeyRecord {
     version: u8,
     tenant: Principal,
@@ -47,6 +50,7 @@ impl RootObjectKeyRecord {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct RootStoreMetadataRecord {
     version: u8,
     service: Principal,
@@ -66,6 +70,7 @@ impl RootStoreMetadataRecord {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum RootClaimRecord {
     Metadata(RootStoreMetadataRecord),
     Claim(RootObjectKeyRecord),

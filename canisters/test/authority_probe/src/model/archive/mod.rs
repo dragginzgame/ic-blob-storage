@@ -1,7 +1,8 @@
 //! Bounded fixture records; hash reconstruction does not resume service authority.
 use blob_test_protocol::authority::{ArchiveCatalog, ArchivePhase};
 use blob_test_protocol::journey::JourneyVerification;
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 // Bind even terminal-only archives to the workspace release and dependency
@@ -14,6 +15,7 @@ pub(crate) fn release_binding() -> [u8; 32] {
 }
 
 #[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct AuthorityArchiveRecord {
     pub release: [u8; 32],
     pub fenced: bool,
@@ -36,6 +38,7 @@ pub(crate) struct AuthorityArchiveRecord {
 }
 
 #[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ObjectRecord {
     pub catalog: ArchiveCatalog,
     pub tenant: Principal,
@@ -52,6 +55,7 @@ pub(crate) struct ObjectRecord {
 }
 
 #[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ContentRecord {
     pub chunks: Vec<[u8; 32]>,
     pub headers: Vec<(String, String)>,
@@ -63,6 +67,7 @@ pub(crate) struct ContentRecord {
 }
 
 #[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReadRecord {
     pub token: u64,
     pub valid: bool,

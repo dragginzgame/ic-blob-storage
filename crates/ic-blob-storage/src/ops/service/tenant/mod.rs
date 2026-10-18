@@ -7,7 +7,6 @@
 use crate::model::service::tenant::record::TenantEnrollmentRecord;
 use crate::model::service::tenant::record::TenantStoreMetadataRecord;
 use crate::model::service::tenant::record::TenantStoreRecord;
-use candid::Principal;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 use ic_blob_storage_contracts::tenant::TenantError;
@@ -15,6 +14,7 @@ use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::tenant::next_enrollment;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{Memory, RuntimeMemory};
+use ic_platform::Principal;
 use ic_storage::adapter::StableBTreeMap;
 use thiserror::Error;
 

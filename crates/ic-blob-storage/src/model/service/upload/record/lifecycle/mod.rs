@@ -7,11 +7,13 @@ use crate::model::lifecycle::ReferenceState;
 use crate::model::lifecycle::requests::ReferenceRequestError;
 use crate::model::lifecycle::requests::admit_receipt;
 use crate::model::lifecycle::transition::ReferenceStateView;
-use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use ic_storage::adapter::storable::Bound;
@@ -19,6 +21,7 @@ use ic_storage::adapter::storable::Bound;
 use std::borrow::Cow;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 enum PhaseRecord {
     Live,
     DeletionPending,
@@ -36,6 +39,7 @@ impl From<LifecyclePhase> for PhaseRecord {
     }
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ConfirmedLifecycleRecord {
     version: u8,
     phase: PhaseRecord,
@@ -46,11 +50,13 @@ pub(crate) struct ConfirmedLifecycleRecord {
 }
 /// Current schema distinguishes low-level host facts from retained verifier evidence.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum CompletionRecord {
     HostFact,
     Attested(AttestationRecord),
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct AttestationRecord {
     pub(crate) verifier: Principal,
     pub(crate) content_digest: [u8; 32],
@@ -161,6 +167,7 @@ impl ConfirmedLifecycleRecord {
     }
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReferenceRecord {
     version: u8,
     active: bool,
@@ -181,6 +188,7 @@ impl ReferenceRecord {
     }
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 enum ResultRecord {
     Changed,
     Unchanged,
@@ -190,6 +198,7 @@ enum ResultRecord {
     DeletionAlreadyQueued,
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReferenceReceiptRecord {
     version: u8,
     actor: Principal,

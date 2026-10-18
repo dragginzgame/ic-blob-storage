@@ -235,7 +235,7 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
                 f.service,
                 f.operator,
                 "fixture_update_tenant_with_write_trap",
-                candid::encode_one(TenantUpdateRequest {
+                ic_platform::candid::contract::encode_one(TenantUpdateRequest {
                     scope,
                     expected,
                     active,

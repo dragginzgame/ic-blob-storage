@@ -1,7 +1,7 @@
 use super::*;
 use crate::model::billing::allocation::FundingAllocation;
-use candid::Principal;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+use ic_platform::Principal;
 use std::num::NonZeroUsize;
 
 fn n(v: u128) -> NonZeroU128 {

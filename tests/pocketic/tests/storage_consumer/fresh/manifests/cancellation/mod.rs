@@ -1,6 +1,7 @@
 //! Actual late uploader acknowledgment cannot undo either application's cancellation.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 #[test]
 #[expect(
@@ -40,7 +41,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                 f.uploader,
                 f.operator,
                 "dispatch_manifest",
-                candid::encode_one(dispatch).unwrap(),
+                ic_platform::candid::contract::encode_one(dispatch).unwrap(),
             )
             .unwrap();
         let mut held = false;
@@ -96,8 +97,11 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         .map(|(reply,)| reply)
         .unwrap();
         resumed.unwrap();
-        let late: Result<ManifestIntentView, ConsumerFailure> =
-            candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
+        let late: Result<ManifestIntentView, ConsumerFailure> = decoder::decode_one_with_config(
+            &f.harness.pic.await_call(call).unwrap(),
+            &decoder::DecoderConfig::new(),
+        )
+        .unwrap();
         let late = late.unwrap();
         assert!(late.cancelled);
         assert_eq!(late.result, Some(Ok(intent.request.declaration.clone())));

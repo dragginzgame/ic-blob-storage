@@ -1,7 +1,7 @@
 //! Immutable upload identities; construction grants no effects or tenant authority.
 use crate::binding::ReferenceKey;
 use crate::identity::ProviderRootHash;
-use candid::Principal;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 /// Upload operation ID scoped to a tenant in this service, across namespaces.
 /// Allocation freshness and restore fencing are external requirements.

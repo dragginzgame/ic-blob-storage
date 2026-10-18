@@ -1,6 +1,7 @@
 //! Explicit top-up request encoding for the retained Cashier Candid contract.
 //! No dispatch, retry or credit authority; the service owns operation correlation.
-use candid::{CandidType, Nat, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::{CandidType, Nat};
 use std::num::NonZeroU128;
 use thiserror::Error;
 
@@ -34,11 +35,12 @@ impl CashierTopUpRequest {
                 return Err(TopUpRequestError::InvalidPrincipal);
             }
         }
-        let arguments = candid::encode_args((Some(wire::AccountTopUpRequest {
-            account: Some(account),
-            target_balance: target_balance.map(|v| Nat::from(v.get())),
-        }),))
-        .map_err(|_| TopUpRequestError::Encoding)?;
+        let arguments =
+            ic_platform::candid::contract::encode_args((Some(wire::AccountTopUpRequest {
+                account: Some(account),
+                target_balance: target_balance.map(|v| Nat::from(v.get())),
+            }),))
+            .map_err(|_| TopUpRequestError::Encoding)?;
         Ok(Self {
             cashier,
             account,
@@ -93,6 +95,7 @@ mod wire {
     use super::Nat;
     use super::Principal;
     #[derive(CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AccountTopUpRequest {
         pub account: Option<Principal>,
         pub target_balance: Option<Nat>,

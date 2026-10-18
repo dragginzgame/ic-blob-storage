@@ -152,7 +152,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
                 f.service,
                 f.uploader,
                 "expose",
-                candid::encode_one(fault).unwrap(),
+                ic_platform::candid::contract::encode_one(fault).unwrap(),
             )
             .unwrap_err();
         assert_eq!(rejection.reject_code, RejectCode::CanisterError);
@@ -170,7 +170,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
             f.service,
             f.uploader,
             "expose",
-            candid::encode_one(yes).unwrap(),
+            ic_platform::candid::contract::encode_one(yes).unwrap(),
         )
         .unwrap();
     let original = inspect(&f, f.uploader, yes).unwrap();

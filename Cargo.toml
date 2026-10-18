@@ -1,4 +1,6 @@
 [workspace]
+# Production packages: canisters/standalone and crates/*.
+# Tests and tooling packages: canisters/test/*, tests/pocketic and tests/protocol.
 members = [
     "canisters/standalone",
     "canisters/test/admission_probe",
@@ -24,27 +26,20 @@ repository = "https://github.com/dragginzgame/ic-blob-storage"
 publish = ["crates-io"]
 
 [workspace.dependencies]
-blob-test-protocol = { path = "tests/protocol" }
+# Production dependencies
 candid = "0.10.36"
-candid_parser = "0.4.1"
 ciborium = "0.2.2"
 hex = "0.4.3"
-ic-agent = { version = "0.49.2", default-features = false }
 ic-blob-storage = { path = "crates/ic-blob-storage" }
-ic-blob-storage-canister = { path = "canisters/standalone" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.33.0" }
-ic-build = "0.16"
+ic-build = "0.17"
 ic-cdk = "0.20"
 ic-host-artifacts = "0.27"
 ic-host-fs = "0.27"
 ic-host-process = "0.27"
-ic-host-tools = "0.27"
-ic-management-canister-types = "0.11.0"
 ic-memory = "0.48"
-ic-metrics = "0.13"
+ic-platform = { version = "0.1.8", default-features = false }
 ic-storage = "0.5.2"
-ic-testkit = "0.53"
-ic-testkit-candid = "0.53"
 ic-wire = "0.4"
 libc = "0.2.190"
 percent-encoding = "2.3.2"
@@ -54,11 +49,19 @@ serde_bytes = "0.11.19"
 serde_cbor = "0.11.2"
 serde_json = "1.0.151"
 sha2 = { version = "0.11.0", default-features = false }
-tempfile = "3.27.0"
 # PocketIC constrains its own thiserror dependency; the lock retains 2.0.18.
 thiserror = "2.0.18"
 tokio = "1.53.1"
 url = "2.5.8"
+
+# Tests and tooling only
+blob-test-protocol = { path = "tests/protocol" }
+ic-blob-storage-canister = { path = "canisters/standalone" }
+ic-host-tools = "0.27"
+ic-metrics = "0.14"
+ic-testkit = "0.53"
+ic-testkit-candid = "0.53"
+tempfile = "3.27.0"
 
 [workspace.lints.rust]
 missing_docs = "deny"

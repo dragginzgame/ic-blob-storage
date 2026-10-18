@@ -7,7 +7,7 @@
 use ic_blob_storage_contracts::configuration::limits::GatewayListLimits;
 use std::collections::BTreeSet;
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 pub mod membership;

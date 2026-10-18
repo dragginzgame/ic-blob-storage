@@ -175,7 +175,7 @@ fn duplicate_operation_object_reference_and_changed_scope_refuse_before_output()
         ("bucket", json!("other-bucket")),
         (
             "tenant",
-            json!(candid::Principal::self_authenticating([9]).to_text()),
+            json!(ic_platform::Principal::self_authenticating([9]).to_text()),
         ),
     ] {
         let mut trial = Trial::new();
@@ -186,7 +186,7 @@ fn duplicate_operation_object_reference_and_changed_scope_refuse_before_output()
     for (field, value) in [
         (
             "service",
-            json!(candid::Principal::self_authenticating([9]).to_text()),
+            json!(ic_platform::Principal::self_authenticating([9]).to_text()),
         ),
         ("namespace", json!("8")),
         ("project", json!("another-project")),

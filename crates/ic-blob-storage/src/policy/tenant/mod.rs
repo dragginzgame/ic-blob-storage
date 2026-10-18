@@ -5,7 +5,7 @@
 //! caller, never fields copied from an untrusted request. Delegations, per-user
 //! roles and controller privileges are not interpreted by this rule.
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use ic_blob_storage_contracts::binding::ObjectBinding;

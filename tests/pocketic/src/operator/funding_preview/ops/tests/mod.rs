@@ -25,7 +25,9 @@ fn preview_decode_binds_every_request_field_and_preserves_full_width_reserve_val
         },
     };
     let view = sample_view(request);
-    let encode = |view| candid::encode_one(Ok::<_, FundingPreviewFailure>(view)).unwrap();
+    let encode = |view| {
+        ic_platform::candid::contract::encode_one(Ok::<_, FundingPreviewFailure>(view)).unwrap()
+    };
     let decoded = report(&selection, &encode(view.clone())).unwrap();
     assert!(decoded.blocked);
     assert_eq!(

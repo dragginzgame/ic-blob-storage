@@ -4,7 +4,7 @@
 //! service/provider namespace, reject stale in-flight results after revocation,
 //! and persist changes. These operations alone do not authorize callbacks.
 
-use candid::Principal;
+use ic_platform::Principal;
 
 use super::GatewayList;
 use super::GatewayListError;

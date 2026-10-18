@@ -1,6 +1,6 @@
 //! Validate a complete configuration candidate without installing it.
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
@@ -53,7 +53,7 @@ pub fn configuration_from_candid(
 
 #[cfg(test)]
 mod tests {
-    use candid::Nat;
+    use ic_platform::candid::contract::Nat;
 
     use super::*;
     use crate::ops::billing::BillingField;

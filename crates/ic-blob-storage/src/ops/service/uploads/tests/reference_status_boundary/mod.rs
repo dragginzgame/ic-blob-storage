@@ -7,6 +7,7 @@ use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_platform::candid::decoder;
 
 fn request() -> ReferenceStatusRequest {
     ReferenceStatusRequest {
@@ -225,8 +226,11 @@ fn reference_status_boundary_preserves_liveness_through_suspension_release_settl
     expected.fenced = true;
     assert_eq!(inspect(&restored, context(4), input), Ok(expected));
     assert_eq!(
-        candid::decode_one::<ReferenceStatusResponse>(&candid::encode_one(expected).unwrap())
-            .unwrap(),
+        decoder::decode_one_with_config::<ReferenceStatusResponse>(
+            &ic_platform::candid::contract::encode_one(expected).unwrap(),
+            &decoder::DecoderConfig::new()
+        )
+        .unwrap(),
         expected
     );
 }

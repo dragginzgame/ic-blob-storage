@@ -1,10 +1,11 @@
 //! Passive local accounting observations; no readiness or provider credit assertion.
-use candid::CandidType;
-use candid::Deserialize;
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Complete installed service/provider/account scope for explicit operator requests.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct OperatorScope {
     /// Actual storage service.
@@ -19,6 +20,7 @@ pub struct OperatorScope {
 /// One synchronous local snapshot. No provider call or history traversal occurs.
 /// Separate fences remain visible; none of these observations authorize dispatch.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct LocalServiceStatus {
     /// Independently checked full request scope.
@@ -34,6 +36,7 @@ pub struct LocalServiceStatus {
 }
 /// Maintained upload counters, including cancelled/settled lifetime history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct LocalUploadStatus {
     /// Lifetime operation slots; cancellation does not free these.
@@ -53,6 +56,7 @@ pub struct LocalUploadStatus {
 }
 /// Complete maintained totals for this local funding journal only.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct LocalFundingStatus {
     /// Cumulative local authorization, including immutable budget grants.
@@ -84,6 +88,7 @@ pub struct LocalFundingStatus {
 }
 /// One bounded membership row, not evidence of deployed provider authorization.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct LocalGatewayStatus {
     /// Installed principals in retained order, at most 1024.
@@ -97,6 +102,7 @@ pub struct LocalGatewayStatus {
 }
 /// Occupied read slots survive interruption; inspection does not release them.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct LocalReadStatus {
     /// Highest locally allocated session identity.
@@ -110,6 +116,7 @@ pub struct LocalReadStatus {
 }
 /// Local inspection refusal; failures never become empty or zero observations.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum LocalStatusFailure {
     /// Actual/requested scope or assembled owners differ.

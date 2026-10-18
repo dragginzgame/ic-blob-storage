@@ -34,7 +34,8 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
     let (_, scope) = open(&input, request.tenant).unwrap();
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode((request, candid::Reserved)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((request, ic_platform::candid::contract::Reserved))
+            .unwrap(),
     )
     .unwrap();
     assert!(matches!(

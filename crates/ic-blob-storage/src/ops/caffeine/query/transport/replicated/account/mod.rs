@@ -4,7 +4,7 @@ use super::{
     ReplicatedQueryError,
 };
 use crate::ops::caffeine::{query::CashierQuery, relationship::PaymentRelationshipBinding};
-use candid::Principal;
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 
 /// One configured owner and payer, with no arbitrary account, audit or mutation route.

@@ -3,6 +3,7 @@ use crate::workflow::uploads::capacity::inspect;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure as F;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
+use ic_platform::candid::decoder;
 fn scope() -> TenantScope {
     TenantScope {
         service: p(1),
@@ -33,9 +34,13 @@ fn capacity_boundary_keeps_full_width_namespace_and_byte_headroom() {
     assert_eq!(observed.remaining_logical_bytes, u128::MAX);
     assert_eq!(observed.remaining_physical_bytes, u128::MAX);
     assert_eq!(observed.remaining_liability_bytes, u128::MAX);
-    let bytes = candid::encode_one(observed).unwrap();
+    let bytes = ic_platform::candid::contract::encode_one(observed).unwrap();
     assert_eq!(
-        candid::decode_one::<UploadCapacityResponse>(&bytes).unwrap(),
+        decoder::decode_one_with_config::<UploadCapacityResponse>(
+            &bytes,
+            &decoder::DecoderConfig::new()
+        )
+        .unwrap(),
         observed
     );
 }
@@ -145,9 +150,13 @@ fn capacity_boundary_preserves_heap_parity_and_reports_durable_restore_fence() {
         ..cancelled
     };
     assert_eq!(inspect(&restored, context(4), scope()), Ok(expected));
-    let bytes = candid::encode_one(expected).unwrap();
+    let bytes = ic_platform::candid::contract::encode_one(expected).unwrap();
     assert_eq!(
-        candid::decode_one::<UploadCapacityResponse>(&bytes).unwrap(),
+        decoder::decode_one_with_config::<UploadCapacityResponse>(
+            &bytes,
+            &decoder::DecoderConfig::new()
+        )
+        .unwrap(),
         expected
     );
 }

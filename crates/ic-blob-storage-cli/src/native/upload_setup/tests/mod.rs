@@ -39,7 +39,8 @@ fn exact_roles_scope_and_invalid_ids_refuse_before_artifact_claim() {
     assert!(request::load(&input, p.upload.tenant).is_ok());
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode((p, candid::Reserved)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((p, ic_platform::candid::contract::Reserved))
+            .unwrap(),
     )
     .unwrap();
     assert!(matches!(

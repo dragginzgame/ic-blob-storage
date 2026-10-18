@@ -1,11 +1,11 @@
 //! Boundary conversion around the authoritative durable revocation transition.
 use super::{GatewayStoreError, StableGatewayRegistry};
-use candid::Principal;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
+use ic_platform::Principal;
 
 pub(crate) fn revoke<M: Memory>(
     store: &mut StableGatewayRegistry<M>,

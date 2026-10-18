@@ -122,7 +122,13 @@ by a committed fix, lets `make release-patch` reconcile `0.15.0` and then valida
 Late checks receive `RELEASE_COMMIT` separately from `RELEASE_SOURCE`. They read
 Cargo files, notes and the receipt from that exact commit and bind its sole parent
 and annotated tag to the saved identity. New draft notes do not invalidate the
-older receipt. Recovery pushes the selected release commit; a verified remote
+older receipt. Both prepared-source checks and these committed-source checks use
+Shared metadata validation with `--manifest-order-grouped`; committed checks
+export the selected commit rather than sorting or inspecting current draft files.
+The hook and independent `fmt-check` use the same grouped policy. These checks
+do not enforce deployment dependency exclusions; see
+[dependency admission](dependencies.md#dependency-roles-and-deployment-admission).
+Recovery pushes the selected release commit; a verified remote
 descendant is preserved when only its tag is missing. New fixes need their own
 complete validation before their next release push.
 

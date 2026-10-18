@@ -1,5 +1,6 @@
 //! Actual balance reads with independently encoded bytes and adversarial schedules.
 use crate::support::REPLY_LIMITS;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod refresh;
 use super::*;
@@ -130,7 +131,7 @@ impl Fixture {
                 self.authority,
                 self.driver,
                 "refresh_balance",
-                candid::encode_one(self.refresh_request()).unwrap(),
+                ic_platform::candid::contract::encode_one(self.refresh_request()).unwrap(),
             )
             .unwrap();
         for _ in 0..30 {
@@ -153,7 +154,11 @@ impl Fixture {
         .map(|(reply,)| reply)
         .unwrap();
         assert!(resumed);
-        candid::decode_one(&self.harness.pic.await_call(id).unwrap()).unwrap()
+        decoder::decode_one_with_config(
+            &self.harness.pic.await_call(id).unwrap(),
+            &decoder::DecoderConfig::new(),
+        )
+        .unwrap()
     }
     pub(super) fn upgrade_fixture(&self, canister: Principal, skip: bool) {
         let pic = &self.harness.pic;
@@ -183,7 +188,7 @@ impl Fixture {
             canister,
             hashes,
             Sha256::digest(&wasm).to_vec(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
         )
         .unwrap();
     }
@@ -330,7 +335,7 @@ fn old_pending_journals_restore_fenced_without_replay_or_fresh_balances() {
             pic.upgrade_canister(
                 canister,
                 std::fs::read(fixture_path(variable)).unwrap(),
-                candid::encode_args(()).unwrap(),
+                ic_platform::candid::contract::encode_args(()).unwrap(),
                 None
             )
             .is_err()
@@ -451,8 +456,11 @@ fn delayed_reply_ages_from_dispatch_and_restored_source_cannot_answer() {
     f.upgrade_fixture(f.gateway, true);
     assert_eq!(f.balance_source_status().pending, Some(account()));
     // The suspended source callback observes its fence before returning configured bytes.
-    let result: Result<(), BalanceFailure> =
-        candid::decode_one(&f.harness.pic.await_call(id).unwrap()).unwrap();
+    let result: Result<(), BalanceFailure> = decoder::decode_one_with_config(
+        &f.harness.pic.await_call(id).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(result, Err(BalanceFailure::Transport));
     assert_eq!(f.balance_status().provider_balance, None);
     assert_eq!(f.balance_source_status().pending, Some(account()));

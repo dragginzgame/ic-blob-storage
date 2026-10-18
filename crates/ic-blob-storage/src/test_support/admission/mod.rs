@@ -4,8 +4,8 @@ use crate::model::service::upload::{
     UploadAdmissionError, UploadManifestState, UploadPermissionView,
 };
 use crate::model::service::upload::{capacity as manifest_capacity, validation};
-use candid::Principal;
 use ic_blob_storage_contracts::upload::binding::{UploadContext, UploadPermission};
+use ic_platform::Principal;
 use std::{collections::BTreeMap, num::NonZeroU64};
 mod adapters;
 mod capacity;

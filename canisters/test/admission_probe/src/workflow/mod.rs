@@ -4,8 +4,8 @@ use crate::ops;
 use blob_test_protocol::admission::{
     Command, ContentLookup, ExecutionProfile, Failure, Installation, Observation, Outcome, Request,
 };
-use candid::Principal;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_platform::Principal;
 
 pub(crate) fn initialize(service: Principal, installation: Installation) {
     ops::initialize(service, installation);

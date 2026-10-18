@@ -5,7 +5,10 @@ use ic_testkit::pic::update_candid_args;
 mod ingress;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as METHOD;
-#[derive(candid::CandidType, candid::Deserialize)]
+#[derive(
+    ic_platform::candid::contract::CandidType, ic_platform::candid::contract::serde::Deserialize,
+)]
+#[candid_path("ic_platform::candid::contract")]
 struct ProviderReply {
     method: String,
     blob_hash: String,
@@ -33,7 +36,12 @@ fn refused(f: &Fixture, actor: Principal, root: &str) {
     let rejection = f
         .harness
         .pic
-        .update_call(f.service, actor, METHOD, candid::encode_one(root).unwrap())
+        .update_call(
+            f.service,
+            actor,
+            METHOD,
+            ic_platform::candid::contract::encode_one(root).unwrap(),
+        )
         .unwrap_err();
     assert_eq!(rejection.reject_code, RejectCode::CanisterError);
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
@@ -55,7 +63,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
             f.service,
             f.uploader,
             "configure_certificate_fixture",
-            candid::encode_one(yes).unwrap(),
+            ic_platform::candid::contract::encode_one(yes).unwrap(),
         )
         .unwrap_err();
     assert_eq!(rejection.reject_code, RejectCode::CanisterError);
@@ -96,7 +104,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
                 f.service,
                 f.uploader,
                 METHOD,
-                candid::encode_one(&root).unwrap()
+                ic_platform::candid::contract::encode_one(&root).unwrap()
             )
             .is_err()
     );
@@ -165,7 +173,7 @@ fn certificate_response_traps_rollback_and_lost_committed_reply_cannot_reissue()
             f.service,
             f.uploader,
             METHOD,
-            candid::encode_one(&root).unwrap(),
+            ic_platform::candid::contract::encode_one(&root).unwrap(),
         )
         .unwrap();
     assert_eq!(

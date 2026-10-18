@@ -4,7 +4,7 @@ use crate::dto::{
     tenant::TenantScope,
     upload::history::{UploadContentState, UploadHistoryEntry},
 };
-use candid::Principal;
+use ic_platform::Principal;
 
 fn response() -> UploadDiscoveryResponse {
     let scope = TenantScope {

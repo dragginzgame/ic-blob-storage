@@ -1,10 +1,10 @@
 //! Service lifecycle acceptance for the shared immutable configuration.
-use candid::Principal;
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 use ic_blob_storage_contracts::configuration::limits::UploadLimits;
 use ic_blob_storage_contracts::configuration::service::*;
+use ic_platform::Principal;
 use std::num::NonZeroU64;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;

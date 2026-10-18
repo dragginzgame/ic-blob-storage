@@ -1,11 +1,12 @@
 //! Passive new-intent diagnosis, never a funding command or saved authorization.
 use crate::dto::operator::LocalFundingStatus;
 use crate::dto::operator::OperatorScope;
-use candid::CandidType;
-use candid::Deserialize;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Explicit proposed identity and complete attachment; no amount is defaulted.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingPreparationRequest {
     /// Exact installed service/namespace/Cashier/payer scope.
@@ -19,6 +20,7 @@ pub struct FundingPreparationRequest {
 }
 /// Independent current reason preparation is blocked in the unqualified hosts.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingPreparationBlocker {
     /// Installed provider/account behavior has not been qualified.
@@ -47,6 +49,7 @@ pub enum FundingPreparationBlocker {
 }
 /// Synchronous observation of local facts and explicitly missing host evidence.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingPreparationResponse {
     /// Complete echoed proposed request, including optional target.
@@ -58,6 +61,7 @@ pub struct FundingPreparationResponse {
 }
 /// Rejected assessment leaves all journals unchanged and calls no provider.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingPreparationFailure {
     /// Zero namespace, operation, offer or present target.

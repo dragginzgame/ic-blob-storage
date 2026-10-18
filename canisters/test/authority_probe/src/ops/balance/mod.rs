@@ -7,13 +7,13 @@ use blob_test_protocol::balance::{
     BalanceAmountsView, BalanceAttemptView, BalanceFailure as Failure, BalanceOutcomeView,
     BalanceRefreshRequest, BalanceScope, BalanceStatusView,
 };
-use candid::Principal;
 use ic_blob_storage::ops::caffeine::balance::{
     BalanceProviderError, BalanceReply, BalanceReplyError,
 };
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::query::reply::BoundBalanceReplyError;
 use ic_blob_storage::ops::caffeine::query::{CashierQuery, CashierQueryError, CashierQueryRequest};
+use ic_platform::Principal;
 
 /// Original encoded request retained alongside its raw response until completion.
 pub(crate) struct BalanceResponse {

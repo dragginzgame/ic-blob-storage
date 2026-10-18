@@ -84,7 +84,8 @@ fn bounded<T: serde::de::DeserializeOwned>(bytes: &[u8], max: usize) -> T {
 pub(crate) fn decode_certificate(bytes: Vec<u8>) -> String {
     assert!(bytes.len() <= 4096, "certificate ingress byte bound");
     let config = ic_blob_storage_contracts::decoding::limits(2_000_000, 1024, 64, Some(4096));
-    candid::decode_one_with_config(&bytes, &config).expect("invalid certificate ingress")
+    ic_platform::candid::decoder::decode_one_with_config(&bytes, &config)
+        .expect("invalid certificate ingress")
 }
 pub(crate) fn encode<T: serde::Serialize>(value: T) -> Vec<u8> {
     ic_blob_storage_contracts::wire::encode(value).expect("Blob CBOR reply encoding failed")

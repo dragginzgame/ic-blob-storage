@@ -3,7 +3,7 @@
 
 mod support;
 use blob_test_protocol::uploads::UploadProbeState;
-use candid::Principal;
+use ic_platform::Principal;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,
@@ -59,7 +59,8 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
     pic.install_canister(
         canister,
         std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("fixture Wasm"),
-        candid::encode_args((first, second, gateway, controller)).expect("init"),
+        ic_platform::candid::contract::encode_args((first, second, gateway, controller))
+            .expect("init"),
         Some(controller),
     );
     let observations = vec![

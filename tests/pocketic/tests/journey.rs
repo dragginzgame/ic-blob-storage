@@ -12,7 +12,8 @@ use blob_test_protocol::journey::{
     JourneyCertificate, JourneyFailure, JourneyManifest, JourneyProgress, JourneyReservation,
     JourneyUpload, JourneyUsage, JourneyVerification,
 };
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,
@@ -58,14 +59,20 @@ impl Fixture {
         pic.install_canister(
             service,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("service Wasm"),
-            candid::encode_args((first, second, gateway, authority_operator))
-                .expect("service init"),
+            ic_platform::candid::contract::encode_args((
+                first,
+                second,
+                gateway,
+                authority_operator,
+            ))
+            .expect("service init"),
             Some(operator),
         );
         pic.install_canister(
             gateway,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).expect("gateway Wasm"),
-            candid::encode_args((service, gateway, operator)).expect("gateway init"),
+            ic_platform::candid::contract::encode_args((service, gateway, operator))
+                .expect("gateway init"),
             None,
         );
         Self {
@@ -183,9 +190,12 @@ impl Fixture {
                 self.service,
                 caller,
                 "_immutableObjectStorageCreateCertificate",
-                candid::encode_one(root_text(seed)).expect("root text"),
+                ic_platform::candid::contract::encode_one(root_text(seed)).expect("root text"),
             )
-            .map(|bytes| candid::decode_one(&bytes).expect("current certificate shape"))
+            .map(|bytes| {
+                decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
+                    .expect("current certificate shape")
+            })
             .map_err(|error| error.reject_code)
     }
     fn complete(&self, owner: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
@@ -420,7 +430,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
             f.service,
             f.gateway,
             "_immutableObjectStorageBlobsToDelete",
-            candid::encode_args(()).expect("empty args"),
+            ic_platform::candid::contract::encode_args(()).expect("empty args"),
         )
         .expect_err("revoked gateway");
     assert_eq!(denied.reject_code, RejectCode::CanisterError);
@@ -445,7 +455,7 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
             f.gateway,
             f.first,
             "run_deletion",
-            candid::encode_one(vec![root(a.root)]).expect("callback roots"),
+            ic_platform::candid::contract::encode_one(vec![root(a.root)]).expect("callback roots"),
         )
         .expect_err("tenant cannot command the gateway fixture");
     assert_eq!(denied.reject_code, RejectCode::CanisterError);
@@ -468,7 +478,8 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                 f.service,
                 caller,
                 "_immutableObjectStorageBlobsAreLive",
-                candid::encode_one(Vec::<Vec<u8>>::new()).expect("empty batch"),
+                ic_platform::candid::contract::encode_one(Vec::<Vec<u8>>::new())
+                    .expect("empty batch"),
             )
             .expect_err("gateway-only even for empty batch");
         assert_eq!(rejected.reject_code, RejectCode::CanisterError);
@@ -481,7 +492,7 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                 f.service,
                 f.gateway,
                 "_immutableObjectStorageBlobsAreLive",
-                candid::encode_one(batch).expect("invalid batch"),
+                ic_platform::candid::contract::encode_one(batch).expect("invalid batch"),
             )
             .expect_err("bounded valid binary roots required");
         assert_eq!(rejected.reject_code, RejectCode::CanisterError);

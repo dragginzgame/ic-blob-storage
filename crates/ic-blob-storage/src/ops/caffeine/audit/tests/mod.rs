@@ -152,7 +152,7 @@ fn opaque_text_is_not_normalized_or_counted_as_verified_rows() {
         num_returned_entries: u64::MAX,
         has_more: false,
     });
-    let bytes = candid::encode_one(response).expect("synthetic response");
+    let bytes = ic_platform::candid::contract::encode_one(response).expect("synthetic response");
     let mut bounded = limits();
     assert_eq!(
         decode_audit_log_reply(&bytes, bounded),
@@ -177,6 +177,7 @@ fn opaque_text_is_not_normalized_or_counted_as_verified_rows() {
 #[test]
 fn malformed_unknown_and_over_budget_candid_never_become_an_empty_page() {
     #[derive(CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     enum UnknownError {
         Unsupported,
     }
@@ -184,9 +185,9 @@ fn malformed_unknown_and_over_budget_candid_never_become_an_empty_page() {
     let valid = fixture(PAGE);
     for bytes in [
         Vec::new(),
-        candid::encode_args(()).expect("empty tuple"),
+        ic_platform::candid::contract::encode_args(()).expect("empty tuple"),
         valid[..valid.len() - 1].to_vec(),
-        candid::encode_one(unknown).expect("unknown error"),
+        ic_platform::candid::contract::encode_one(unknown).expect("unknown error"),
     ] {
         assert_eq!(
             decode_audit_log_reply(&bytes, limits()),
@@ -208,8 +209,9 @@ fn malformed_unknown_and_over_budget_candid_never_become_an_empty_page() {
 
     let result: wire::AuditLogDownloadResult =
         Err(wire::AuditLogError::InvalidRequest("diagnostic".to_owned()));
-    let extended = candid::encode_args((result, "additional diagnostic".repeat(4)))
-        .expect("additional argument");
+    let extended =
+        ic_platform::candid::contract::encode_args((result, "additional diagnostic".repeat(4)))
+            .expect("additional argument");
     assert_eq!(
         decode_audit_log_reply(&extended, limits()),
         Ok(AuditLogReply::ProviderFailure(

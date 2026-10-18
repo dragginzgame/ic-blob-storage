@@ -3,8 +3,8 @@
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use std::num::NonZeroUsize;
 
-use candid::Principal;
 use ic_blob_storage::ops::caffeine::balance::BalanceReply;
+use ic_platform::Principal;
 
 use ic_blob_storage::ops::caffeine::balance::decode_balance_reply;
 use ic_blob_storage::policy::billing::BalanceObservation;

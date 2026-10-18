@@ -11,7 +11,7 @@ fn uploader_fixture() -> Fixture {
     f.harness.pic.install_canister(
         uploader,
         consumer_wasm(),
-        candid::encode_args((f.operator, f.service)).unwrap(),
+        ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
         None,
     );
     f.uploader = uploader;

@@ -8,9 +8,9 @@ use crate::{
     authenticated_cli::{PEM, run},
     submission_proxy::{Dispatch, Proxy, Reply},
 };
-use candid::Principal;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{
     cell::Cell,
@@ -25,8 +25,8 @@ pub(crate) struct Client {
     installation: ServiceInstallationInput,
 }
 pub(crate) fn uploader() -> Principal {
-    use ic_agent::Identity;
-    ic_agent::identity::BasicIdentity::from_raw_key(&[43; 32])
+    use ic_platform::agent::Identity;
+    ic_platform::agent::BasicIdentity::from_raw_key(&[43; 32])
         .sender()
         .unwrap()
 }

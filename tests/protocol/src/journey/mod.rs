@@ -1,10 +1,11 @@
 //! Local journey controls and wire-shaped observations, never provider evidence.
-use candid::CandidType;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 pub mod readback;
 
 /// Immutable upload identity and capacity declaration; no real provider upload.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct JourneyUpload {
     /// Positive tenant-scoped operation and object identifier.
     pub id: u8,
@@ -18,6 +19,7 @@ pub struct JourneyUpload {
 
 /// Bounded manifest supplied with admission, never an authorization credential.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct JourneyManifest {
     /// Ordered domain-separated leaf hashes.
     pub chunks: Vec<[u8; 32]>,
@@ -27,6 +29,7 @@ pub struct JourneyManifest {
 
 /// Admission binds both the upload identity and its validated manifest.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct JourneyReservation {
     /// Immutable operation and expected content identities.
     pub upload: JourneyUpload,
@@ -36,6 +39,7 @@ pub struct JourneyReservation {
 
 /// Local content check, distinct from provider completion.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum JourneyVerification {
     /// More manifest-bound chunks are required.
     Pending,
@@ -47,6 +51,7 @@ pub enum JourneyVerification {
 
 /// Tenant-only progress across local messages; never a restart checkpoint.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct JourneyProgress {
     /// Next required index, or the chunk count after all chunks were checked.
     pub next_chunk: u64,
@@ -58,6 +63,7 @@ pub struct JourneyProgress {
 
 /// Current source's certificate response shape, without gateway verification.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct JourneyCertificate {
     /// The literal upload method marker.
     pub method: String,
@@ -67,6 +73,7 @@ pub struct JourneyCertificate {
 
 /// Observable rejection category for local controls.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum JourneyFailure {
     /// Actual caller or service is not authorized.
     Denied,
@@ -98,6 +105,7 @@ pub enum JourneyFailure {
 
 /// Charged tenant capacity, including uncertain uploads.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct JourneyUsage {
     /// Logical bytes plus reservations.
     pub logical: u128,

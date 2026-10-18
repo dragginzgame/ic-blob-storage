@@ -4,9 +4,9 @@ pub(crate) mod resources;
 use crate::model::content::ContentRequest;
 use blob_test_protocol::chunk::{ChunkReplyError, decode_reply};
 use blob_test_protocol::journey::{JourneyFailure, readback::JourneyReadChunk};
-use candid::Principal;
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
 use ic_cdk::call::Call;
+use ic_platform::Principal;
 
 pub(crate) fn begin(
     request: ContentRequest,

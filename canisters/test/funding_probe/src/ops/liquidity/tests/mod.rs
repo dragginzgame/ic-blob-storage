@@ -11,7 +11,9 @@ fn preview_payload_bounds_every_valid_local_reply_control() {
             requested_cycles: offered,
             revision: 0,
         });
-        let maximum = candid::encode_one(request).unwrap().len();
+        let maximum = ic_platform::candid::contract::encode_one(request)
+            .unwrap()
+            .len();
         for accept in [0, offered / 2, offered] {
             for reply in [
                 FundingReplyMode::Success,
@@ -33,7 +35,12 @@ fn preview_payload_bounds_every_valid_local_reply_control() {
                         trap_callback,
                         ..request
                     };
-                    assert!(candid::encode_one(variant).unwrap().len() <= maximum);
+                    assert!(
+                        ic_platform::candid::contract::encode_one(variant)
+                            .unwrap()
+                            .len()
+                            <= maximum
+                    );
                 }
             }
         }

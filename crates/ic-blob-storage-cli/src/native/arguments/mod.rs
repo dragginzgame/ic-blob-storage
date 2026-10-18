@@ -1,7 +1,7 @@
 use super::Failure;
 use super::parsing::positive;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::Principal;
 use std::{collections::BTreeMap, path::PathBuf};
 use url::{Host, Url};
 

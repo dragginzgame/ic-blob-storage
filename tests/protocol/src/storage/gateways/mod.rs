@@ -1,7 +1,10 @@
 //! Labelled local registry controls; these do not authenticate a provider reply.
-use candid::{CandidType, Deserialize, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 /// Durable-session local await fixture, not a provider read protocol.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ReadSessionInput {
     /// Exact zero-based chunk.
     pub index: u64,
@@ -18,6 +21,7 @@ pub struct ReadSessionInput {
 }
 /// Operator-only durable session accounting.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ReadSessionsView {
     /// All allocated local identities, including completed reads.
     pub last_sequence: u64,
@@ -30,6 +34,7 @@ pub struct ReadSessionsView {
 }
 /// Bounded local gateway root observation; not the provider's liveness API.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct RootsInput {
     /// Exact service/Cashier/namespace; actor comes from actual IC context.
     pub scope: Scope,
@@ -38,6 +43,7 @@ pub struct RootsInput {
 }
 /// Minimal phase-only local view, never a deletion boolean or effect receipt.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum RootView {
     /// Local upload/lifecycle phase; no tenant or operation identity is disclosed.
     Known(crate::admission::ContentState),
@@ -51,6 +57,7 @@ pub enum RootView {
 }
 /// Adversarial local controls for the explicit replicated transport primitive.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ReplicatedInput {
     /// Previously persisted sync and callback fault selection.
     pub attempt: TransportInput,
@@ -63,6 +70,7 @@ pub struct ReplicatedInput {
 }
 /// Local transport control for a retained fixture attempt's durable sequence.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct TransportInput {
     /// Exact installed scope.
     pub scope: Scope,
@@ -73,6 +81,7 @@ pub struct TransportInput {
 }
 /// Explicit configured provider scope for every request.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Scope {
     /// Actual service.
     pub service: Principal,
@@ -83,6 +92,7 @@ pub struct Scope {
 }
 /// Test-only transitions. Sequences identify retained attempts, never ingress authority.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Action {
     /// Operator add.
     Add(Principal),
@@ -100,6 +110,7 @@ pub enum Action {
 }
 /// Bounded fixture command, separate from production callback endpoints.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Command {
     /// Explicit installed scope.
     pub scope: Scope,
@@ -110,6 +121,7 @@ pub struct Command {
 }
 /// Observable fixture result.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Outcome {
     /// Durable local sequence of the newly retained attempt.
     Begun(u64),
@@ -120,6 +132,7 @@ pub enum Outcome {
 }
 /// Passive operator view, not callback or recovery authority.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct View {
     /// Retained members in order.
     pub members: Vec<Principal>,
@@ -133,6 +146,7 @@ pub struct View {
 
 /// Local transaction fault control around the maintained revocation handler.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct FaultRevocation {
     /// Exact shared operator request.
     pub request: ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest,
@@ -142,6 +156,7 @@ pub struct FaultRevocation {
 
 /// Local stable-write interruption around exact shared cancellation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct FaultCancellation {
     /// Exact maintained request.
     pub request: ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation,

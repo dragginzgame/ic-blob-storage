@@ -2,7 +2,6 @@
 
 use super::UploadCatalog;
 use super::UploadPhase;
-use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::identity::HashParseError;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
@@ -10,6 +9,7 @@ use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_platform::Principal;
 use std::{
     collections::BTreeMap,
     num::{NonZeroU128, NonZeroUsize},

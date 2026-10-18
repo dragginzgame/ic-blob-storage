@@ -11,6 +11,7 @@ use blob_test_protocol::{
         },
     },
 };
+use ic_platform::candid::decoder;
 use ic_testkit::pic::query_candid_args;
 use ic_testkit::pocket_ic::RejectResponse;
 
@@ -54,10 +55,10 @@ fn populate(
         name,
         f.operator,
         "populate_histories",
-        candid::encode_one(batch).unwrap(),
+        ic_platform::candid::contract::encode_one(batch).unwrap(),
     )
     .unwrap();
-    candid::decode_one(&reply).unwrap()
+    decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap()
 }
 
 fn funding(f: &Fixture, workload: HistoryWorkload, index: u32) -> FundingPopulationIntent {
@@ -252,7 +253,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             ..CanisterSettings::default()
         }),
     );
-    let installation = candid::encode_one(StorageProbeInstallation {
+    let installation = ic_platform::candid::contract::encode_one(StorageProbeInstallation {
         operator,
         max_objects: workload.tenants * 4,
         max_tenants: workload.tenants,
@@ -297,11 +298,15 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             &format!("uploads-{start}"),
             operator,
             "populate_resources",
-            candid::encode_one(batch).unwrap(),
+            ic_platform::candid::contract::encode_one(batch).unwrap(),
         )
         .unwrap();
         assert_eq!(
-            candid::decode_one::<Result<(), Failure>>(&reply).unwrap(),
+            decoder::decode_one_with_config::<Result<(), Failure>>(
+                &reply,
+                &decoder::DecoderConfig::new()
+            )
+            .unwrap(),
             Ok(())
         );
     }
@@ -320,13 +325,16 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "gateway",
         operator,
         "fixture_gateways",
-        candid::encode_one(command).unwrap(),
+        ic_platform::candid::contract::encode_one(command).unwrap(),
     )
     .unwrap();
     assert!(
-        candid::decode_one::<Result<Outcome, Failure>>(&reply)
-            .unwrap()
-            .is_ok()
+        decoder::decode_one_with_config::<Result<Outcome, Failure>>(
+            &reply,
+            &decoder::DecoderConfig::new()
+        )
+        .unwrap()
+        .is_ok()
     );
     let empty = f.local_status();
     let first = HistoryPopulationBatch {
@@ -341,11 +349,15 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "wrong-actor",
         f.other,
         "populate_histories",
-        candid::encode_one(&first).unwrap(),
+        ic_platform::candid::contract::encode_one(&first).unwrap(),
     )
     .unwrap();
     assert_eq!(
-        candid::decode_one::<Result<(), Failure>>(&denied).unwrap(),
+        decoder::decode_one_with_config::<Result<(), Failure>>(
+            &denied,
+            &decoder::DecoderConfig::new()
+        )
+        .unwrap(),
         Err(Failure::Denied)
     );
     assert_eq!(
@@ -368,7 +380,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "funding-rollback",
         operator,
         "populate_histories",
-        candid::encode_one(HistoryPopulationBatch {
+        ic_platform::candid::contract::encode_one(HistoryPopulationBatch {
             funding_start: 0,
             read_start: 0,
             funding: vec![funding(&f, workload, 0), invalid],
@@ -411,7 +423,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             "read-rollback",
             operator,
             "populate_histories",
-            candid::encode_one(HistoryPopulationBatch {
+            ic_platform::candid::contract::encode_one(HistoryPopulationBatch {
                 funding_start: u64::from(workload.funding),
                 read_start: 0,
                 funding: vec![],
@@ -452,13 +464,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
                 "tenant-capacity-refusal",
                 target.target.content.tenant,
                 "fixture_read_chunk",
-                candid::encode_one(target).unwrap(),
+                ic_platform::candid::contract::encode_one(target).unwrap(),
             )
             .unwrap();
             assert_eq!(
-                candid::decode_one::<
+                decoder::decode_one_with_config::<
                     Result<blob_test_protocol::journey::readback::JourneyReadChunk, Failure>,
-                >(&reply)
+                >(&reply, &decoder::DecoderConfig::new())
                 .unwrap(),
                 Err(Failure::Capacity)
             );
@@ -505,13 +517,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             "capacity-refusal",
             target.target.content.tenant,
             "fixture_read_chunk",
-            candid::encode_one(target).unwrap(),
+            ic_platform::candid::contract::encode_one(target).unwrap(),
         )
         .unwrap();
         assert_eq!(
-            candid::decode_one::<
+            decoder::decode_one_with_config::<
                 Result<blob_test_protocol::journey::readback::JourneyReadChunk, Failure>,
-            >(&reply)
+            >(&reply, &decoder::DecoderConfig::new())
             .unwrap(),
             Err(Failure::Capacity)
         );

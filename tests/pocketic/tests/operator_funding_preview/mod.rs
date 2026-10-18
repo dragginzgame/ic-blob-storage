@@ -4,6 +4,7 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::preview::{
     FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
 };
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 fn args(f: &Fixture, id: u64, amount: u128) -> Vec<String> {
@@ -72,7 +73,7 @@ fn transfer(
             f.sender,
             f.driver,
             "fund",
-            candid::encode_one(FundingRequest {
+            ic_platform::candid::contract::encode_one(FundingRequest {
                 id,
                 offered: 1_000_000,
                 accept,
@@ -81,7 +82,9 @@ fn transfer(
             })
             .unwrap(),
         )
-        .map(|bytes| candid::decode_one(&bytes).unwrap())
+        .map(|bytes| {
+            decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new()).unwrap()
+        })
 }
 
 #[test]
@@ -156,7 +159,7 @@ fn credit_uncertainty_and_identity_reuse_survive_later_refunds_and_restore() {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            candid::encode_one(FundingUpgradeArgs {
+            ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
                 trap_after_restore: false,
             })
             .unwrap(),

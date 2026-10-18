@@ -6,7 +6,7 @@
 pub mod tenant;
 pub mod upload;
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use crate::model::catalog::BlobCatalog;

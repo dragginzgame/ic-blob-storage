@@ -10,13 +10,16 @@ use crate::model::billing::allocation::FundingAllocation;
 use crate::model::billing::allocation::FundingAllocationError;
 use crate::model::billing::allocation::FundingAllocationView;
 use crate::model::billing::allocation::record::FundingAllocationRecord;
-use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 use response::FundingResponseRecord;
 use std::num::NonZeroU128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum FundingPhaseRecord {
     Prepared,
     Uncertain,
@@ -24,6 +27,7 @@ pub(crate) enum FundingPhaseRecord {
     Callback { refunded: u128 },
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 enum FundingCreditRecord {
     Required,
     Confirmed {
@@ -32,10 +36,12 @@ enum FundingCreditRecord {
     },
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 enum FundingMethodRecord {
     AccountTopUpV1,
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct FundingIntentRecord {
     version: u8,
     service: Principal,
@@ -232,6 +238,7 @@ impl FundingIntentRecord {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct FundingJournalRecord {
     version: u8,
     service: Principal,
@@ -324,6 +331,7 @@ impl FundingJournalRecord {
 /// The accounting row and its bounded receipt index share one existing memory.
 /// Zero digest belongs exclusively to accounting; receipts always have nonzero keys.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[expect(
     clippy::large_enum_variant,
     reason = "One bounded persisted union keeps the sole totals row and receipt index together without heap boxing each accounting decode"

@@ -2,7 +2,6 @@
 
 use super::{bound, number, reference};
 use blob_test_protocol::uploads::UploadProbeState;
-use candid::Principal;
 use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::policy::catalog::upload::UploadRootStatus;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
@@ -13,6 +12,7 @@ use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_platform::Principal;
 
 pub(crate) struct Uploads {
     pub catalog: UploadCatalog,

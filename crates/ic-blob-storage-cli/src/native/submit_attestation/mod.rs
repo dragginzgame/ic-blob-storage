@@ -6,12 +6,12 @@ use super::{
     attestation,
     signed_update::{PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
-use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::protocol::UPLOAD_ATTEST_METHOD;
 use ic_blob_storage_contracts::upload::completion::reply;
+use ic_platform::Principal;
 use serde::Serialize;
 use serde_json::Value;
 use std::{collections::BTreeMap, path::PathBuf};

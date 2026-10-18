@@ -14,7 +14,7 @@ mod sync_request;
 use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
 };
-use candid::Principal;
+use ic_platform::Principal;
 use ic_testkit::pic::update_candid_args;
 use ic_testkit::{Fake, pocket_ic::CreateCanisterParams};
 use serde_json::Value;
@@ -56,7 +56,7 @@ impl Fixture {
         pic.install_canister(
             authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            candid::encode_args((
+            ic_platform::candid::contract::encode_args((
                 Fake::principal(1),
                 Fake::principal(2),
                 gateway,
@@ -68,7 +68,7 @@ impl Fixture {
         pic.install_canister(
             gateway,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-            candid::encode_args((authority, gateway, driver)).unwrap(),
+            ic_platform::candid::contract::encode_args((authority, gateway, driver)).unwrap(),
             None,
         );
         let funding = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap();
@@ -76,7 +76,7 @@ impl Fixture {
             pic.install_canister(
                 canister,
                 funding.clone(),
-                candid::encode_args((
+                ic_platform::candid::contract::encode_args((
                     peer,
                     driver,
                     blob_test_protocol::funding::budget::FundingBudgetInput {
@@ -187,7 +187,7 @@ fn status_and_check_preserve_journals_unknowns_and_instance_ownership() {
         .upgrade_canister(
             f.authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             None,
         )
         .unwrap();
@@ -252,7 +252,7 @@ fn funding_report_keeps_accepted_cycles_separate_from_credit_after_restore() {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            candid::encode_args((FundingUpgradeArgs {
+            ic_platform::candid::contract::encode_args((FundingUpgradeArgs {
                 trap_after_restore: false,
             },))
             .unwrap(),
@@ -338,7 +338,7 @@ fn funding_provider_failures_reach_json_without_becoming_refunds_or_credit() {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            candid::encode_args((FundingUpgradeArgs {
+            ic_platform::candid::contract::encode_args((FundingUpgradeArgs {
                 trap_after_restore: false,
             },))
             .unwrap(),

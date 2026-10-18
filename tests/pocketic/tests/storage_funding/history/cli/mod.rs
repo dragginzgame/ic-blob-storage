@@ -1,7 +1,7 @@
 //! Paid outcomes are explicit fixture substitutes; CLI uses genuine signed queries.
 use super::*;
 use crate::authenticated_cli::{PEM, arguments, run};
-use ic_agent::{Identity, identity::BasicIdentity};
+use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
 

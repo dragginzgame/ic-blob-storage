@@ -10,7 +10,7 @@ use crate::native::{
     Failure, agent, agent_for, arguments::Options, artifacts::Run, publish_check,
     publish_inputs::PreparedBatch, publish_map, publish_prepare, upload_inputs::digest,
 };
-use ic_agent::Agent;
+use ic_platform::agent::Agent;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{path::PathBuf, time::Duration};

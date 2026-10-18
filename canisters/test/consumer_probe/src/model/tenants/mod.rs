@@ -1,13 +1,15 @@
 //! One lifetime command in the existing fixture store, never a production operator journal.
 use super::ConsumerRecord;
 use blob_test_protocol::consumer::Failure;
-use candid::{CandidType, Principal};
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 #[derive(Clone, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct TenantCommandRecord {
     service: Principal,
     namespace: u128,

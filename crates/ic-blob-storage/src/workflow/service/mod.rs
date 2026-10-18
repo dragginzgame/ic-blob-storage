@@ -282,7 +282,9 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
     /// Delegate `configuration` with shared continuity and host-selected bounds.
     /// # Errors
     /// Returns the operation's typed authority, binding, fence or resource refusal.
-    pub fn configuration(actor: candid::Principal) -> Result<HostConfigurationView, HostFailure> {
+    pub fn configuration(
+        actor: ic_platform::Principal,
+    ) -> Result<HostConfigurationView, HostFailure> {
         Self::with_installation(|installation| {
             crate::workflow::installation::inspect(
                 installation,

@@ -12,6 +12,7 @@ use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::query_candid_args;
 
 pub(super) fn install(f: &mut Fixture) {
@@ -25,7 +26,7 @@ pub(super) fn install(f: &mut Fixture) {
     f.harness.pic.install_canister(
         consumer,
         std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap(),
-        candid::encode_args((f.uploader, f.service)).unwrap(),
+        ic_platform::candid::contract::encode_args((f.uploader, f.service)).unwrap(),
         Some(f.controller),
     );
     f.tenant = consumer;
@@ -91,7 +92,7 @@ pub(super) fn handshake(
     };
     let commands = serde_json::json!({
         "verifyAuthority": verify_authority,
-        "admission": candid::encode_one(&run).unwrap(),
+        "admission": ic_platform::candid::contract::encode_one(&run).unwrap(),
         "permission": ic_blob_storage_contracts::wire::encode(request.permission).unwrap(),
         "preparation": ic_blob_storage_contracts::wire::encode(&request).unwrap(),
     });
@@ -123,7 +124,8 @@ pub(super) fn handshake(
 
 fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) {
     let denied: Result<AssetView, ConsumerFailure> =
-        candid::decode_one(&replies.foreign_admission).unwrap();
+        decoder::decode_one_with_config(&replies.foreign_admission, &decoder::DecoderConfig::new())
+            .unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
     let denied: Result<UploadAdmissionMutation, A> =
         ic_blob_storage_contracts::wire::decode(&replies.direct_admission, 4096).unwrap();
@@ -144,7 +146,8 @@ fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) 
 }
 
 fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
-    let admitted: Result<AssetView, ConsumerFailure> = candid::decode_one(bytes).unwrap();
+    let admitted: Result<AssetView, ConsumerFailure> =
+        decoder::decode_one_with_config(bytes, &decoder::DecoderConfig::new()).unwrap();
     let admitted = admitted.unwrap();
     assert_eq!(admitted.registration, run.registration);
     assert!(admitted.admission_started);
@@ -165,9 +168,9 @@ fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
 
 pub(super) fn consumer_commands(run: &Run) -> serde_json::Value {
     serde_json::json!({
-        "registration": candid::encode_one(run).unwrap(),
-        "asset": candid::encode_one(run.registration.asset).unwrap(),
-        "revocation": candid::encode_one(Revocation {
+        "registration": ic_platform::candid::contract::encode_one(run).unwrap(),
+        "asset": ic_platform::candid::contract::encode_one(run.registration.asset).unwrap(),
+        "revocation": ic_platform::candid::contract::encode_one(Revocation {
             asset: run.registration.asset, fault: Fault::None, max_reply_bytes: 4096,
         }).unwrap(),
     })
@@ -185,7 +188,8 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
     let replies: ConsumerReplies = serde_json::from_value(value).unwrap();
     let view = |bytes: &[u8]| {
         assert!(bytes.len() <= 4096);
-        let result: Result<AssetView, ConsumerFailure> = candid::decode_one(bytes).unwrap();
+        let result: Result<AssetView, ConsumerFailure> =
+            decoder::decode_one_with_config(bytes, &decoder::DecoderConfig::new()).unwrap();
         let view = result.unwrap();
         assert_eq!(view.registration, run.registration);
         assert!(!view.published);

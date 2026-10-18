@@ -1,8 +1,8 @@
 //! Reserve future leaf-array capacity from the exact admitted content length.
 
 use crate::model::service::upload::UploadAdmissionError;
-use candid::Principal;
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
+use ic_platform::Principal;
 use std::collections::BTreeMap;
 
 use super::UploadAdmissions;

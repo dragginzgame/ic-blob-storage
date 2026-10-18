@@ -1,10 +1,12 @@
 //! Inspection-only local archive; never a resumable service checkpoint.
 use crate::journey::{JourneyManifest, JourneyProgress};
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
 /// Catalogs remain separate owners within the test fixture.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ArchiveCatalog {
     /// Two initial confirmed sample objects.
     Samples,
@@ -16,6 +18,7 @@ pub enum ArchiveCatalog {
 
 /// Local lifecycle, including byte-free history that must not disappear.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ArchivePhase {
     /// Reserved before certificate exposure.
     Reserved,
@@ -35,6 +38,7 @@ pub enum ArchivePhase {
 
 /// Read-only object history from a bounded persisted inspection archive.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ArchivedObjectView {
     /// Owning fixture catalog; equal roots across catalogs are independent.
     pub catalog: ArchiveCatalog,
@@ -67,6 +71,7 @@ pub struct ArchivedObjectView {
 
 /// Exact outstanding source read, retained even when its authority was invalidated.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ArchivedReadView {
     /// Allocated read token.
     pub token: u64,
@@ -86,6 +91,7 @@ pub struct ArchivedReadView {
 /// Namespace, object incarnation and reference identity are explicitly fixed at 1.
 /// No method consumes this view to resume work or grant authority.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct AuthorityArchiveView {
     /// Restored inspection-only instance; no operational endpoint can act.
     pub fenced: bool,
@@ -124,6 +130,7 @@ pub struct AuthorityArchiveView {
 /// One mathematical continuation against protected archived verifier state.
 /// The probe discards its copy and never changes admission, progress or authority.
 #[derive(Clone, Debug, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct CheckpointProbeInput {
     /// Existing journey root whose stored declaration is used.
     pub root: [u8; 32],
@@ -135,6 +142,7 @@ pub struct CheckpointProbeInput {
 
 /// Failed isolated checkpoint experiment, with no operational mutation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum CheckpointProbeFailure {
     /// Caller lacks explicit operator authority.
     Denied,

@@ -5,12 +5,13 @@ use ic_testkit::pic::update_candid_args;
 mod native_cli;
 use super::*;
 use blob_test_protocol::balance::BalanceSourceConfig;
-use candid::{CandidType, Int, Nat};
 use ic_blob_storage_contracts::dto::account::*;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::candid::contract::{CandidType, Int, Nat};
 
 #[derive(CandidType)]
+#[candid_path("ic_platform::candid::contract")]
 struct Balance {
     total: Int,
     cycles_prepaid: Int,
@@ -19,24 +20,29 @@ struct Balance {
     debt_target: DebtTarget,
 }
 #[derive(CandidType)]
+#[candid_path("ic_platform::candid::contract")]
 enum DebtTarget {
     Prepaid,
 }
 #[derive(CandidType)]
+#[candid_path("ic_platform::candid::contract")]
 struct BalanceReport {
     account: Principal,
     account_cycle_balances: Balance,
 }
 #[derive(CandidType)]
+#[candid_path("ic_platform::candid::contract")]
 enum BalanceError {
     AccountNotFound,
     InternalError(String),
 }
 #[derive(CandidType)]
+#[candid_path("ic_platform::candid::contract")]
 struct RelationshipReport {
     relationship: Option<AccountRelationshipView>,
 }
 #[derive(CandidType)]
+#[candid_path("ic_platform::candid::contract")]
 enum RelationshipError {
     RelationshipNotFound(Principal),
     NotAuthorized(Principal),
@@ -53,7 +59,8 @@ fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
     f.harness.pic.install_canister(
         cashier,
         std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-        candid::encode_args((f.service, Fake::principal(9), f.controller)).unwrap(),
+        ic_platform::candid::contract::encode_args((f.service, Fake::principal(9), f.controller))
+            .unwrap(),
         None,
     );
     f
@@ -104,7 +111,7 @@ fn inspect(
         .unwrap()
 }
 fn balance(account: Principal, total: Int) -> Vec<u8> {
-    candid::encode_one(Ok::<_, BalanceError>(BalanceReport {
+    ic_platform::candid::contract::encode_one(Ok::<_, BalanceError>(BalanceReport {
         account,
         account_cycle_balances: Balance {
             total,
@@ -132,7 +139,7 @@ fn relation(f: &Fixture) -> AccountRelationshipView {
     }
 }
 fn relationship(value: Option<AccountRelationshipView>) -> Vec<u8> {
-    candid::encode_one(Ok::<_, RelationshipError>(RelationshipReport {
+    ic_platform::candid::contract::encode_one(Ok::<_, RelationshipError>(RelationshipReport {
         relationship: value,
     }))
     .unwrap()
@@ -197,7 +204,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
                 f.service,
                 f.operator,
                 "blob_inspect_account",
-                candid::encode_one(input).unwrap()
+                ic_platform::candid::contract::encode_one(input).unwrap()
             )
             .is_err()
     );
@@ -266,7 +273,7 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
         configure(
             &f,
             input.kind,
-            candid::encode_one(Err::<BalanceReport, _>(error)).unwrap(),
+            ic_platform::candid::contract::encode_one(Err::<BalanceReport, _>(error)).unwrap(),
         );
         assert_eq!(
             inspect(&f, f.operator, input).unwrap().observation,
@@ -364,7 +371,7 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
         configure(
             &f,
             input.kind,
-            candid::encode_one(Err::<RelationshipReport, _>(error)).unwrap(),
+            ic_platform::candid::contract::encode_one(Err::<RelationshipReport, _>(error)).unwrap(),
         );
         assert_eq!(
             inspect(&f, f.operator, input).unwrap().observation,

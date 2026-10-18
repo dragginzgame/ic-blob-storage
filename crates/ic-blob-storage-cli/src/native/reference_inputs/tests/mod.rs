@@ -1,5 +1,5 @@
 use super::*;
-use candid::Principal;
+use ic_platform::Principal;
 
 fn permission() -> UploadAdmissionRequest {
     UploadAdmissionRequest {
@@ -136,7 +136,11 @@ fn malformed_or_invalid_permission_refuses_and_partial_runs_are_never_resumed() 
     let args = args(base.path(), permission(), "release");
     for bytes in [
         b"invalid".to_vec(),
-        ic_blob_storage_contracts::wire::encode((permission(), candid::Reserved)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((
+            permission(),
+            ic_platform::candid::contract::Reserved,
+        ))
+        .unwrap(),
         ic_blob_storage_contracts::wire::encode((permission(), ())).unwrap(),
         ic_blob_storage_contracts::wire::encode(ReferenceCommand {
             upload: permission().upload,

@@ -1,14 +1,15 @@
 //! Provider Candid budgets and current Wire/CBOR admission at actual dispatch boundaries.
 use super::*;
 use crate::support::REPLY_LIMITS;
-use candid::{
-    CandidType, DecoderConfig, Deserialize, IDLArgs, IDLValue,
-    types::{
-        TypeEnv,
-        internal::{Field, TypeInner},
-    },
-};
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::TypeEnv;
+use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::candid::contract::types::Field;
+use ic_platform::candid::contract::types::TypeInner;
+use ic_platform::candid::decoder::DecoderConfig;
+use ic_platform::candid_parser::IDLArgs;
+use ic_platform::candid_parser::IDLValue;
 use std::fmt::Debug;
 
 /// Each payload round-trips when only its exhausted budget is relaxed.
@@ -16,22 +17,26 @@ pub(super) fn refusal_arguments<T>(input: &T, max_bytes: usize) -> [Vec<u8>; 2]
 where
     T: CandidType + for<'de> Deserialize<'de> + Debug + PartialEq,
 {
-    let skipped = candid::encode_args((input, "x".repeat(2048))).unwrap();
+    let skipped = ic_platform::candid::contract::encode_args((input, "x".repeat(2048))).unwrap();
     let mut config = limits(max_bytes);
     config.set_skipping_quota(10_000);
     assert_eq!(
-        candid::decode_one_with_config::<T>(&skipped, &config).unwrap(),
+        ic_platform::candid::decoder::decode_one_with_config::<T>(&skipped, &config).unwrap(),
         *input
     );
-    assert!(candid::decode_one_with_config::<T>(&skipped, &limits(max_bytes)).is_err());
+    assert!(
+        ic_platform::candid::decoder::decode_one_with_config::<T>(&skipped, &limits(max_bytes))
+            .is_err()
+    );
 
     // Distinct absent optional records exceed the table bound with little skipping.
     // The Candid encoder owns the wire format; no handcrafted type-table offsets.
-    let mut arguments = IDLArgs::from_bytes(&candid::encode_one(input).unwrap()).unwrap();
+    let mut arguments =
+        IDLArgs::from_bytes(&ic_platform::candid::contract::encode_one(input).unwrap()).unwrap();
     let mut argument_types = arguments.get_types();
     for id in 0..33 {
         let record = TypeInner::Record(vec![Field {
-            id: candid::types::Label::Id(id).into(),
+            id: ic_platform::candid::contract::types::Label::Id(id).into(),
             ty: TypeInner::Null.into(),
         }])
         .into();
@@ -44,10 +49,13 @@ where
     let mut config = limits(max_bytes);
     config.set_max_type_len(128);
     assert_eq!(
-        candid::decode_one_with_config::<T>(&types, &config).unwrap(),
+        ic_platform::candid::decoder::decode_one_with_config::<T>(&types, &config).unwrap(),
         *input
     );
-    assert!(candid::decode_one_with_config::<T>(&types, &limits(max_bytes)).is_err());
+    assert!(
+        ic_platform::candid::decoder::decode_one_with_config::<T>(&types, &limits(max_bytes))
+            .is_err()
+    );
     for bytes in [&skipped, &types] {
         assert!(bytes.len() <= max_bytes);
     }
@@ -81,7 +89,7 @@ fn standalone_cbor_installation_refusals_preserve_the_existing_owner() {
     let input: ServiceInstallationInput =
         ic_blob_storage_contracts::wire::decode(&installation(&f.config), 16384).unwrap();
     for bytes in [
-        candid::encode_one(&input).unwrap(),
+        ic_platform::candid::contract::encode_one(&input).unwrap(),
         ic_blob_storage_contracts::wire::encode(ForeignInstallation {
             installation: &input,
             retired_authority: true,
@@ -175,7 +183,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         query.clone(),
         wire::inspection_response(Err(TenantFailure::Denied)).unwrap(),
         ic_blob_storage_contracts::wire::encode(command).unwrap(),
-        candid::encode_one(command).unwrap(),
+        ic_platform::candid::contract::encode_one(command).unwrap(),
         trailing,
         vec![0; 513],
     ] {
@@ -194,7 +202,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
                 f.service,
                 f.tenant,
                 "blob_tenant",
-                candid::encode_one(f.scope()).unwrap(),
+                ic_platform::candid::contract::encode_one(f.scope()).unwrap(),
             )
             .is_err()
     );

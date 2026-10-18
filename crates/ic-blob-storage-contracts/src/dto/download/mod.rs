@@ -1,10 +1,11 @@
 //! Current descriptor contract. Hosts expose it through authenticated update execution.
-use candid::CandidType;
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Exact tenant-owned reference, never an allocation or a publication lease.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct DownloadRequest {
     /// Intended storage service, also checked against actual execution.
@@ -24,6 +25,7 @@ pub struct DownloadRequest {
 }
 /// Original accepted hash metadata; HTTP response headers must not replace it.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct DownloadHeader {
     /// Original header name.
@@ -34,6 +36,7 @@ pub struct DownloadHeader {
 /// A current observation. Consumers must authenticate delivery and coordinate
 /// publication/reference lifetime; saved descriptors are not revocation mechanisms.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct DownloadResponse {
     /// Complete request echoed by the same synchronous observation.
@@ -50,6 +53,7 @@ pub struct DownloadResponse {
 /// Descriptor refusal; no error authorizes body disclosure, retry of paid effects
 /// or release of the consumer's reference.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum DownloadFailure {
     /// Malformed or zero identity.

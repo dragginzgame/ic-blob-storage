@@ -1,6 +1,5 @@
 //! Explicit tenant queries keep historical results separate from current liveness.
 use super::{Failure, arguments::Options, query, read};
-use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceChange;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
@@ -13,6 +12,7 @@ use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_STATUS_METHOD;
 use ic_blob_storage_contracts::reference::reply;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 

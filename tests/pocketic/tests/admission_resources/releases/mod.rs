@@ -11,6 +11,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::candid::decoder;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 const OBJECTS: usize = 704;
@@ -138,7 +139,8 @@ fn calls(
         .collect();
     for message in messages {
         let bytes = f.harness.pic.await_call(message).unwrap();
-        let result: Result<Outcome, Failure> = candid::decode_one(&bytes).unwrap();
+        let result: Result<Outcome, Failure> =
+            decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new()).unwrap();
         assert_eq!(result, Ok(expected));
     }
 }

@@ -1,5 +1,5 @@
 //! Explicit Caffeine serving identity; never inferred from the payer or tenant.
-use candid::Principal;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 use thiserror::Error;
 #[cfg(test)]

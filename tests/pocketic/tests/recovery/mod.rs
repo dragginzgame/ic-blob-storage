@@ -39,7 +39,7 @@ impl Fixture {
             .upgrade_canister(
                 canister,
                 self.wasm(canister),
-                candid::encode_args(()).expect("no args"),
+                ic_platform::candid::contract::encode_args(()).expect("no args"),
                 self.controller(canister),
             )
             .expect_err("busy or invalid restoration must reject atomically");
@@ -72,7 +72,7 @@ impl Fixture {
             canister,
             hashes,
             Sha256::digest(&wasm).to_vec(),
-            candid::encode_args(()).expect("no args"),
+            ic_platform::candid::contract::encode_args(()).expect("no args"),
         );
         if succeeds {
             result.expect("journal restores synchronously with outgoing hook skipped");
@@ -291,7 +291,8 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
             f.service,
             f.first,
             "journey_read",
-            candid::encode_args((root(v.upload.root), 0_u64)).expect("read args"),
+            ic_platform::candid::contract::encode_args((root(v.upload.root), 0_u64))
+                .expect("read args"),
         )
         .expect_err("actual callback trap");
     assert_eq!(error.reject_code, RejectCode::CanisterError);

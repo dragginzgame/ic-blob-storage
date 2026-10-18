@@ -81,7 +81,7 @@ fn read_authority_rejects_remove_readd_and_successful_same_member_sync() {
         context(2),
         &attempt,
         scope(),
-        &candid::encode_one(vec![p(6)]).unwrap(),
+        &ic_platform::candid::contract::encode_one(vec![p(6)]).unwrap(),
         limits,
     )
     .unwrap();

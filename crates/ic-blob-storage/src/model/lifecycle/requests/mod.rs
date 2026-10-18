@@ -12,7 +12,7 @@ use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 use std::collections::BTreeMap;
 use std::num::NonZeroUsize;
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use super::BlobLifecycle;

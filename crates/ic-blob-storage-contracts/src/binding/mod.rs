@@ -6,7 +6,7 @@
 
 use std::num::NonZeroU128;
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 /// Reference identity within one bound object incarnation, not an authorization token.

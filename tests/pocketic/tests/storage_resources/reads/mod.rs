@@ -30,8 +30,8 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
     f.expose(permission.request).unwrap();
     let before = f.status();
     assert_eq!(
-        candid::encode_one(observe(&f, f.operator).unwrap()).unwrap(),
-        candid::encode_one(&fresh).unwrap()
+        ic_platform::candid::contract::encode_one(observe(&f, f.operator).unwrap()).unwrap(),
+        ic_platform::candid::contract::encode_one(&fresh).unwrap()
     );
 
     // Installation instruction debt must cool before testing restore semantics.
@@ -70,13 +70,13 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
             ..before
         }
     );
-    let frozen = candid::encode_one(&restored).unwrap();
+    let frozen = ic_platform::candid::contract::encode_one(&restored).unwrap();
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
         assert!(matches!(observe(&f, actor), Err(Failure::Denied)));
     }
     f.lookup(f.tenant, permission.request).unwrap();
     assert_eq!(
-        candid::encode_one(observe(&f, f.operator).unwrap()).unwrap(),
+        ic_platform::candid::contract::encode_one(observe(&f, f.operator).unwrap()).unwrap(),
         frozen
     );
 

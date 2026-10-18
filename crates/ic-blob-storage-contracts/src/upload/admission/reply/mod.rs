@@ -5,7 +5,7 @@ use crate::dto::upload::admission::UploadAdmissionRequest;
 use crate::dto::upload::admission::UploadAdmissionResponse;
 use crate::dto::upload::admission::UploadRevocationResponse;
 use crate::upload::binding::UploadContext;
-use candid::Deserialize;
+use ic_platform::candid::contract::serde::Deserialize;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 /// Reply failure. Even an unusable admission response can follow a committed reservation.

@@ -15,10 +15,10 @@ use crate::model::gateway::registry::GatewaySyncView;
 use crate::model::gateway::registry::record::GatewayRegistryRecord;
 #[cfg(test)]
 use crate::model::gateway::registry::record::MAX_MEMBERS;
-use candid::Principal;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{Memory, RuntimeMemory};
+use ic_platform::Principal;
 use ic_storage::adapter::StableBTreeMap;
 use thiserror::Error;
 

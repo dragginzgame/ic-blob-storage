@@ -6,28 +6,28 @@ edition.workspace = true
 rust-version.workspace = true
 publish = false
 
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-candid.workspace = true
-ic-agent = { workspace = true, features = ["pem"] }
-ic-blob-storage-contracts.workspace = true
-ic-build = { workspace = true, optional = true }
-ic-host-artifacts.workspace = true
-ic-host-fs.workspace = true
-ic-host-process.workspace = true
-reqwest = { workspace = true, features = ["rustls", "http2"] }
-serde.workspace = true
-serde_json.workspace = true
-tokio = { workspace = true, features = ["rt", "time", "sync"] }
-url.workspace = true
-
 [target.'cfg(unix)'.dependencies]
 libc.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 hex.workspace = true
 ic-host-process = { workspace = true, features = ["test-support"] }
+ic-platform = { workspace = true, features = ["candid"] }
 ic-testkit.workspace = true
 tempfile.workspace = true
+
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+ic-blob-storage-contracts.workspace = true
+ic-build = { workspace = true, optional = true }
+ic-host-artifacts.workspace = true
+ic-host-fs.workspace = true
+ic-host-process.workspace = true
+ic-platform = { workspace = true, features = ["agent"] }
+reqwest = { workspace = true, features = ["rustls", "http2"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["rt", "time", "sync"] }
+url.workspace = true
 
 [[bin]]
 name = "blob-storage"

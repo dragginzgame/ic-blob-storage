@@ -1,5 +1,5 @@
 //! Explicit shared resource limits; each decoder owns binding and reply validation.
-use candid::de::DecoderConfig;
+use ic_platform::candid::decoder::DecoderConfig;
 use std::num::NonZeroUsize;
 
 /// Explicit resource bounds for one Caffeine reply; no production budget is inferred.

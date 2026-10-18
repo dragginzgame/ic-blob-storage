@@ -125,9 +125,9 @@ impl From<native::TenantScope> for Scope {
 impl From<Scope> for native::TenantScope {
     fn from(value: Scope) -> Self {
         Self {
-            service: candid::Principal::from_slice(value.service.as_slice()),
+            service: ic_platform::Principal::from_slice(value.service.as_slice()),
             namespace: value.namespace,
-            tenant: candid::Principal::from_slice(value.tenant.as_slice()),
+            tenant: ic_platform::Principal::from_slice(value.tenant.as_slice()),
         }
     }
 }

@@ -1,7 +1,7 @@
 mod render;
 
 use blob_test_protocol::{funding::FundingOperatorStatusView, status::OperatorStatusView};
-use ic_testkit_candid::{DecodeError, DecodeLimits};
+use ic_platform::candid::{DecodeError, DecodeLimits};
 use serde_json::Value;
 
 use super::{
@@ -22,7 +22,7 @@ pub(super) use render::target as target_json;
 /// Small fixture replies share decoding limits; callers own binding and errors.
 pub(super) fn decode_small<T>(bytes: &[u8]) -> Result<T, Failure>
 where
-    T: candid::CandidType + for<'de> serde::Deserialize<'de>,
+    T: ic_platform::candid::contract::CandidType + for<'de> serde::Deserialize<'de>,
 {
     decode(
         bytes,
@@ -36,12 +36,12 @@ where
     )
 }
 
-/// Codec mechanics belong to Testkit; fixtures keep their exact limits and errors.
+/// Codec mechanics belong to Platform; fixtures keep their exact limits and errors.
 pub(super) fn decode<T>(bytes: &[u8], limits: DecodeLimits) -> Result<T, Failure>
 where
-    T: candid::CandidType + for<'de> serde::Deserialize<'de>,
+    T: ic_platform::candid::contract::CandidType + for<'de> serde::Deserialize<'de>,
 {
-    ic_testkit_candid::decode_one(bytes, limits).map_err(|error| match error {
+    ic_platform::candid::decode_one(bytes, limits).map_err(|error| match error {
         DecodeError::ReplyTooLarge { .. } => Failure::ReplyTooLarge,
         DecodeError::Candid(_) => Failure::InvalidReply,
     })
@@ -51,7 +51,7 @@ pub(super) fn query(target: &Target) -> Result<Vec<u8>, Failure> {
     query_method(
         target,
         "operator_status",
-        candid::encode_args(()).expect("empty arguments"),
+        ic_platform::candid::contract::encode_args(()).expect("empty arguments"),
     )
 }
 

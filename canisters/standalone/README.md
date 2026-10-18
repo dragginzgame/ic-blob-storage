@@ -42,8 +42,7 @@ and retained in the current v1 configuration record. It must contain 1–256 UTF
 bytes, with no controls or surrounding whitespace; these are local representation
 limits, not proof of provider assignment. Owner is the actual service, never the
 payer or tenant. Validation precedes allocation and runs again on restoration.
-This replaces the previous host init/schema and requires a minor release;
-cross-release transitions are reinstall-only, without migration or fallback.
+Cross-release transitions are reinstall-only, without migration or fallback.
 Host observation types come directly from
 `ic_blob_storage_contracts::dto::configuration::{HostConfigurationView, HostFailure}`;
 the standalone crate exports only its provider Candid interface helper.
@@ -82,7 +81,6 @@ status grants no implicit uploader authority. No global uploader list is install
 No ingress-supplied qualification flags or operator override exist. These are local
 checks: provider provisioning, spending caps and escaped-certificate replay charges
 remain unproven. No paid trial or account/deployment action follows from installation.
-This init/API/schema hard cut requires a minor release and cross-release reinstall.
 
 `completion_verifier` is an explicitly trusted principal, never an operator,
 controller or gateway default. Anonymous and management principals reject before
@@ -375,8 +373,8 @@ an old heap without lifecycle hooks, but the version guard blocks operational
 return and IC history refuses `SnapshotRestored`. Old snapshots/backups remain
 inspection-only: their missing later objects, effects and liabilities require a
 separately surviving complete inventory and freshness authority. Package release
-is not a module hash. This API/schema/lifecycle hard cut ships in 0.8.0 and
-does not change the frozen live 0.7.0 host.
+is not a module hash. Historical trial artifacts retain their original release
+and lifecycle contracts; this guide describes the current source.
 Cross-release transitions require reinstall after the separately
 defined installation-retirement requirements; controllers can erase state through
 the management canister, so these hooks cannot enforce retirement on their behalf.

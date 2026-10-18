@@ -2,7 +2,7 @@
 pub mod credit;
 pub(crate) mod record;
 pub mod renewal;
-use candid::Principal;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 use thiserror::Error;
 

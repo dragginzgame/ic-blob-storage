@@ -28,8 +28,8 @@ pub(super) fn request_json(selection: &Selection) -> Value {
 
 pub(super) fn execute(selection: &Selection) -> Result<Result<(), Value>, Failure> {
     let args = match &selection.request {
-        Request::Balance(request) => candid::encode_one(request),
-        Request::Gateway(request) => candid::encode_one(request),
+        Request::Balance(request) => ic_platform::candid::contract::encode_one(request),
+        Request::Gateway(request) => ic_platform::candid::contract::encode_one(request),
     }
     .map_err(|_| Failure::Transport)?;
     let bytes = if selection.dry_run {

@@ -1,7 +1,8 @@
 //! Private fixture controls shared by local test canisters and the host harness.
 //! These are not a production service API or an independently defined provider contract.
 
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
 pub mod admission;
@@ -19,6 +20,7 @@ pub mod uploads;
 
 /// Deliberate source behavior for one local gateway-list experiment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum SourceMode {
     /// Return the configured member.
     Valid,
@@ -42,6 +44,7 @@ pub enum SourceMode {
 
 /// Typed outcomes of the test-only sync orchestration.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum SyncFailure {
     /// Caller lacks the explicit fixture operator role.
     Denied,
@@ -65,6 +68,7 @@ pub enum SyncFailure {
 
 /// Explicit local sync admission; this is not a reusable registry token.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct GatewaySyncRequest {
     /// Authority fixture owning membership.
     pub service: Principal,
@@ -80,6 +84,7 @@ pub struct GatewaySyncRequest {
 
 /// Bounded observations of calls made to the controlled source.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct SourceObservation {
     /// Number of list requests observed, used to check denial before effects.
     pub requests: u64,

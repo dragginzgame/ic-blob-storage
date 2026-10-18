@@ -42,9 +42,13 @@ impl CashierQueryTransport for Reply {
     ) -> impl Future<Output = Result<CashierQueryResponse, ()>> {
         assert_eq!(request.cashier(), scope().cashier());
         assert_eq!(request.method_name(), "storage_gateway_list_v1");
-        candid::decode_args::<()>(request.arguments()).unwrap();
+        ic_platform::candid::decoder::decode_args_with_config::<()>(
+            request.arguments(),
+            &ic_platform::candid::decoder::DecoderConfig::new(),
+        )
+        .unwrap();
         self.calls.set(self.calls.get() + 1);
-        let bytes = candid::encode_one(vec![p(4)]).unwrap();
+        let bytes = ic_platform::candid::contract::encode_one(vec![p(4)]).unwrap();
         assert!(bytes.len() <= max_bytes.get());
         std::future::ready(Ok(CashierQueryResponse {
             cashier: self.cashier,

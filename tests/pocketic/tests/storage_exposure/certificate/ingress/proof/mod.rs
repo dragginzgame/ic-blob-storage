@@ -1,9 +1,7 @@
 //! Headless test extraction, not a production uploader or gateway verifier.
 use super::*;
-use ic_agent::{
-    agent::{Envelope, signed_update_inspect},
-    lookup_value, to_request_id,
-};
+use ic_platform::agent::{Envelope, lookup_value, signed_update_inspect, to_request_id};
+use ic_platform::candid::decoder;
 
 const MAX_CERTIFICATE_BYTES: usize = 128 * 1024;
 
@@ -28,7 +26,8 @@ pub(super) fn extract(
     if bytes.len() > MAX_CERTIFICATE_BYTES {
         return Err(ProofError::Size);
     }
-    let arg = candid::encode_one(&expected.root).map_err(|_| ProofError::Intent)?;
+    let arg = ic_platform::candid::contract::encode_one(&expected.root)
+        .map_err(|_| ProofError::Intent)?;
     if intent.sender != expected.uploader
         || intent.canister_id != expected.service
         || intent.effective_canister_id != expected.service
@@ -51,7 +50,7 @@ pub(super) fn extract(
     if to_request_id(&envelope.content).map_err(|_| ProofError::Intent)? != intent.request_id {
         return Err(ProofError::Intent);
     }
-    let cert: ic_agent::Certificate =
+    let cert: ic_platform::certification::Certificate =
         serde_cbor::from_slice(bytes).map_err(|_| ProofError::Encoding)?;
     agent
         .verify(&cert, expected.service)
@@ -70,7 +69,9 @@ pub(super) fn extract(
         b"reply",
     ];
     let reply = lookup_value(&cert, path).map_err(|_| ProofError::Reply)?;
-    let decoded: ProviderReply = candid::decode_one(reply).map_err(|_| ProofError::Reply)?;
+    let decoded: ProviderReply =
+        decoder::decode_one_with_config(reply, &decoder::DecoderConfig::new())
+            .map_err(|_| ProofError::Reply)?;
     if decoded.method != "upload" || decoded.blob_hash != expected.root {
         return Err(ProofError::Reply);
     }
@@ -103,8 +104,8 @@ pub(super) async fn submit(url: &str, intent: &SignedUpdate) -> Vec<u8> {
         assert!(body.len() + chunk.len() <= MAX_CERTIFICATE_BYTES * 2);
         body.extend_from_slice(&chunk);
     }
-    match serde_cbor::from_slice::<ic_agent::TransportCallResponse>(&body).unwrap() {
-        ic_agent::TransportCallResponse::Replied { certificate } => certificate,
+    match serde_cbor::from_slice::<ic_platform::agent::TransportCallResponse>(&body).unwrap() {
+        ic_platform::agent::TransportCallResponse::Replied { certificate } => certificate,
         response => panic!("local v4 call did not produce a certificate: {response:?}"),
     }
 }

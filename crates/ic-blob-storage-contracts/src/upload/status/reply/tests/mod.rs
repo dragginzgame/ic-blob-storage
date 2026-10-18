@@ -1,7 +1,7 @@
 use crate::dto::upload::UploadState;
 use crate::upload::status::reply::*;
 use crate::wire::encode;
-use candid::Principal;
+use ic_platform::Principal;
 fn upload() -> ReferenceUpload {
     ReferenceUpload {
         service: Principal::from_slice(&[1, 1]),

@@ -1,6 +1,6 @@
 //! Local HTTP fault transport around real `PocketIC`; no provider protocol substitute here.
-use candid::Principal;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_platform::Principal;
 use std::io::Write;
 use std::net::TcpListener;
 use std::sync::{
@@ -98,7 +98,7 @@ impl Proxy {
                     );
                     assert_eq!(intent["method"], dispatch.method);
                     let argument = std::fs::read(directory.join(dispatch.argument_file)).unwrap();
-                    ic_agent::agent::signed_update_inspect(
+                    ic_platform::agent::signed_update_inspect(
                         dispatch.actor,
                         dispatch.service,
                         dispatch.method,

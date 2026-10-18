@@ -1,5 +1,6 @@
 //! Real stable-memory restores fence both sides of local cycle transfers.
 use super::*;
+use ic_platform::candid::decoder;
 use ic_testkit::pocket_ic::{CanisterInstallMode, RejectResponse, common::rest::BlobCompression};
 use sha2::{Digest, Sha256};
 
@@ -8,7 +9,7 @@ impl Fixture {
         self.harness.pic.upgrade_canister(
             canister,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            candid::encode_one(FundingUpgradeArgs {
+            ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
                 trap_after_restore: trap,
             })
             .unwrap(),
@@ -50,7 +51,7 @@ impl Fixture {
             canister,
             hashes,
             Sha256::digest(&wasm).to_vec(),
-            candid::encode_one(FundingUpgradeArgs {
+            ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
                 trap_after_restore: false,
             })
             .unwrap(),
@@ -209,7 +210,7 @@ fn captured_inflight_intent_restores_as_unknown_after_the_live_call_completes() 
             f.sender,
             f.driver,
             "fund",
-            candid::encode_one(paid).unwrap(),
+            ic_platform::candid::contract::encode_one(paid).unwrap(),
         )
         .unwrap();
     let mut captured = None;
@@ -223,8 +224,11 @@ fn captured_inflight_intent_restores_as_unknown_after_the_live_call_completes() 
         }
     }
     let pending = captured.expect("real committed outgoing intent");
-    let reply: Result<FundingObservation, FundingFailure> =
-        candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
+    let reply: Result<FundingObservation, FundingFailure> = decoder::decode_one_with_config(
+        &f.harness.pic.await_call(call).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(reply.unwrap().transport_accepted, Some(paid.accept));
     let receipts = f.receipts();
     f.replace_memory(f.sender, pending);
@@ -248,7 +252,7 @@ fn upgrade_with_a_live_callback_cannot_complete_or_replay_the_restored_intent() 
             f.sender,
             f.driver,
             "fund",
-            candid::encode_one(paid).unwrap(),
+            ic_platform::candid::contract::encode_one(paid).unwrap(),
         )
         .unwrap();
     for _ in 0..20 {
@@ -290,7 +294,7 @@ fn receiver_upgrade_after_acceptance_preserves_spent_cycles_and_exact_refund() {
             f.sender,
             f.driver,
             "fund",
-            candid::encode_one(paid).unwrap(),
+            ic_platform::candid::contract::encode_one(paid).unwrap(),
         )
         .unwrap();
     for _ in 0..20 {
@@ -307,8 +311,11 @@ fn receiver_upgrade_after_acceptance_preserves_spent_cycles_and_exact_refund() {
     assert_eq!(f.receipts(), receipts);
     f.assert_unknown_status(paid);
     f.upgrade_one(f.receiver, false).unwrap();
-    let reply: Result<FundingObservation, FundingFailure> =
-        candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
+    let reply: Result<FundingObservation, FundingFailure> = decoder::decode_one_with_config(
+        &f.harness.pic.await_call(call).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(
         reply.unwrap(),
         FundingObservation {

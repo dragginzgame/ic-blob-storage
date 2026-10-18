@@ -5,7 +5,7 @@
 //! Workflows still check service, namespace, revision and exact pending attempt.
 
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use super::{CashierQuery, CashierQueryRequest};

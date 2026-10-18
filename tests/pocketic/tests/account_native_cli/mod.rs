@@ -1,10 +1,10 @@
 //! Shared signed account client journey; all provider reports are local substitutes.
 use crate::authenticated_cli::{PEM, arguments, run};
-use candid::Principal;
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::Principal;
+use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::{Value, json};
 use std::{cell::Cell, path::PathBuf};
 
@@ -172,7 +172,7 @@ fn change(args: &mut [String], flag: &str, value: &str) {
     args[i + 1] = value.into();
 }
 fn wire(value: &str) -> Vec<u8> {
-    candid_parser::parse_idl_args(value)
+    ic_platform::candid_parser::parse_idl_args(value)
         .unwrap()
         .to_bytes()
         .unwrap()

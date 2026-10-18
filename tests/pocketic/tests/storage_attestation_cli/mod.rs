@@ -2,7 +2,6 @@
 use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::support::REPLY_LIMITS;
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
@@ -11,6 +10,7 @@ use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
 fn live(f: &mut Fixture) -> String {

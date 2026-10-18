@@ -1,6 +1,7 @@
 //! Two separately signed browser identities against the actual standalone boundary.
 use super::*;
-use ic_agent::{Agent, Identity, identity::BasicIdentity};
+use ic_platform::agent::{Agent, BasicIdentity, Identity};
+use ic_platform::candid::decoder;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::time::Duration;
 
@@ -22,7 +23,7 @@ fn update(
     service: Principal,
     method: &str,
     argument: Vec<u8>,
-) -> Result<Vec<u8>, ic_agent::AgentError> {
+) -> Result<Vec<u8>, ic_platform::agent::AgentError> {
     runtime.block_on(
         agent
             .update(&service, method)
@@ -99,7 +100,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
                 uploader,
                 f.service,
                 ISSUE,
-                candid::encode_one(root(&manifests[1 - index])).unwrap()
+                ic_platform::candid::contract::encode_one(root(&manifests[1 - index])).unwrap()
             )
             .is_err()
         );
@@ -126,10 +127,11 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             uploader,
             f.service,
             ISSUE,
-            candid::encode_one(&root).unwrap(),
+            ic_platform::candid::contract::encode_one(&root).unwrap(),
         )
         .unwrap();
-        let reply: CaffeineUploadCertificateResponse = candid::decode_one(&bytes).unwrap();
+        let reply: CaffeineUploadCertificateResponse =
+            decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new()).unwrap();
         assert_eq!(reply.method, "upload");
         assert_eq!(reply.blob_hash, root);
         // IC-Agent verifies the local IC certificate against the explicit emulator root.
@@ -139,7 +141,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
                 uploader,
                 f.service,
                 ISSUE,
-                candid::encode_one(&root).unwrap()
+                ic_platform::candid::contract::encode_one(&root).unwrap()
             )
             .is_err()
         );

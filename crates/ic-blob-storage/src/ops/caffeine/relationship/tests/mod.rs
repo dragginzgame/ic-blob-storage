@@ -1,5 +1,6 @@
 use super::*;
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
+use ic_platform::candid::decoder;
 use std::num::NonZeroUsize;
 
 fn binding() -> PaymentRelationshipBinding {
@@ -128,7 +129,9 @@ fn absence_and_all_advertised_errors_remain_distinct() {
 
 #[test]
 fn an_explicit_self_payer_is_supported_without_an_absence_fallback() {
-    let mut reply: wire::GetResult = candid::decode_one(&fixture(LINKED)).expect("fixture");
+    let mut reply: wire::GetResult =
+        decoder::decode_one_with_config(&fixture(LINKED), &decoder::DecoderConfig::new())
+            .expect("fixture");
     reply
         .as_mut()
         .ok()
@@ -141,7 +144,7 @@ fn an_explicit_self_payer_is_supported_without_an_absence_fallback() {
         payment_account: binding().paid_canister,
         ..binding()
     };
-    let bytes = candid::encode_one(reply).expect("self relationship");
+    let bytes = ic_platform::candid::contract::encode_one(reply).expect("self relationship");
     let PaymentRelationshipReply::ReportedRelationship(value) =
         decode_payment_relationship_reply(&bytes, expected, limits()).expect("exact self payer")
     else {
@@ -202,7 +205,8 @@ fn both_expected_principals_are_required_even_for_absent_or_failed_replies() {
 
 #[test]
 fn malformed_unknown_and_resource_exhaustion_never_report_a_relationship() {
-    #[derive(candid::CandidType)]
+    #[derive(ic_platform::candid::contract::CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     enum Unknown {
         NewError,
     }
@@ -210,7 +214,7 @@ fn malformed_unknown_and_resource_exhaustion_never_report_a_relationship() {
     for bytes in [
         Vec::new(),
         b"DIDL".to_vec(),
-        candid::encode_one(unknown).expect("unknown error"),
+        ic_platform::candid::contract::encode_one(unknown).expect("unknown error"),
         fixture(LINKED)[..20].to_vec(),
     ] {
         assert_eq!(
@@ -262,11 +266,13 @@ fn malformed_unknown_and_resource_exhaustion_never_report_a_relationship() {
 
 #[test]
 fn optional_subtyping_is_not_evidence_of_self_payment_and_skipping_is_bounded() {
-    #[derive(candid::CandidType)]
+    #[derive(ic_platform::candid::contract::CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     struct Extended {
         extension: Vec<u64>,
     }
-    #[derive(candid::CandidType)]
+    #[derive(ic_platform::candid::contract::CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     struct Incompatible {
         relationship: Option<bool>,
     }
@@ -275,7 +281,7 @@ fn optional_subtyping_is_not_evidence_of_self_payment_and_skipping_is_bounded() 
     let reply: Result<Extended, wire::GetError> = Ok(Extended {
         extension: vec![1; 64],
     });
-    let bytes = candid::encode_one(reply).expect("extended response");
+    let bytes = ic_platform::candid::contract::encode_one(reply).expect("extended response");
     assert_eq!(
         decode_payment_relationship_reply(&bytes, binding(), limits()),
         Ok(PaymentRelationshipReply::NoRelationshipReported)
@@ -294,7 +300,8 @@ fn optional_subtyping_is_not_evidence_of_self_payment_and_skipping_is_bounded() 
     let reply: Result<Incompatible, wire::GetError> = Ok(Incompatible {
         relationship: Some(true),
     });
-    let bytes = candid::encode_one(reply).expect("incompatible optional field");
+    let bytes =
+        ic_platform::candid::contract::encode_one(reply).expect("incompatible optional field");
     assert_eq!(
         decode_payment_relationship_reply(&bytes, binding(), limits()),
         Ok(PaymentRelationshipReply::NoRelationshipReported)

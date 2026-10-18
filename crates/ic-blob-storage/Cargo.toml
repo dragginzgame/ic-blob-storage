@@ -14,11 +14,10 @@ readme = "../../README.md"
 test-support = ["ic-memory/test-support"]
 
 [dependencies]
-candid.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-cdk.workspace = true
-ic-management-canister-types.workspace = true
 ic-memory.workspace = true
+ic-platform = { workspace = true, features = ["candid", "management-canister-types"] }
 ic-storage.workspace = true
 serde.workspace = true
 serde_json.workspace = true

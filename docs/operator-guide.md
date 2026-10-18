@@ -33,8 +33,9 @@ Trusted ancestors and exclusive namespace custody remain the operator's duty.
 
 ## Current-instance recovery
 
-Frozen live 0.7.0 installations restore inspection-only. The current contract,
-released in 0.8.0, supports operator-only `blob_resume_current_instance()` with empty arguments.
+The current contract supports operator-only `blob_resume_current_instance()`
+with one CBOR unit/null argument (`f6`). Historical installations retain their
+matching released lifecycle contracts; their records are not current instructions.
 Same-release upgrade restoration remains synchronous and fenced before deferred
 work. Invoke this endpoint as the installed operator on the current canister;
 controller status supplies no authority. It reads IC-owned history once with
@@ -63,7 +64,7 @@ owner access; `SnapshotRestored`, `IncompleteHistory` or another typed refusal
 leave activation unavailable. Do not rotate the anchor or reset the owner to
 recover an exhausted history window.
 
-This record/candidate/API/lifecycle hard cut ships in 0.8.0;
+This recovery contract was introduced in 0.8.0;
 cross-release transitions remain reinstall-only after obligation disposition.
 Older snapshot/backup activation remains unsupported and needs an independently
 surviving complete inventory. See the [gap review](service-gaps.md) for separate

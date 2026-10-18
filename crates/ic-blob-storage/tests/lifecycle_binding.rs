@@ -4,7 +4,6 @@
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use std::num::{NonZeroU128, NonZeroUsize};
 
-use candid::Principal;
 use ic_blob_storage::model::lifecycle::BlobLifecycle;
 use ic_blob_storage::model::lifecycle::LifecycleChange;
 use ic_blob_storage::model::lifecycle::LifecycleError;
@@ -24,6 +23,7 @@ use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_platform::Principal;
 
 fn p(id: u8) -> Principal {
     Principal::from_slice(&[id, 1])

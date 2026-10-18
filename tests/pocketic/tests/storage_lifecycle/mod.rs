@@ -144,7 +144,7 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
                 f.service,
                 f.operator,
                 "fixture_provider_fact",
-                candid::encode_one(FactInput {
+                ic_platform::candid::contract::encode_one(FactInput {
                     request: permission.request,
                     fact: ProviderFact::Uploaded,
                     fault: Some(fault),
@@ -197,7 +197,7 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 f.service,
                 f.tenant,
                 "fixture_apply_reference_with_write_trap",
-                candid::encode_one(ReferenceFaultInput {
+                ic_platform::candid::contract::encode_one(ReferenceFaultInput {
                     request: receipt_request(retain),
                     fault,
                 })
@@ -232,7 +232,7 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
             f.service,
             f.tenant,
             "fixture_apply_reference_with_write_trap",
-            candid::encode_one(ReferenceFaultInput {
+            ic_platform::candid::contract::encode_one(ReferenceFaultInput {
                 request: receipt_request(release),
                 fault: WriteFault::Usage,
             })
@@ -272,7 +272,7 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 f.service,
                 f.operator,
                 "fixture_provider_fact",
-                candid::encode_one(FactInput {
+                ic_platform::candid::contract::encode_one(FactInput {
                     request: permission.request,
                     fact,
                     fault: Some(WriteFault::Usage),

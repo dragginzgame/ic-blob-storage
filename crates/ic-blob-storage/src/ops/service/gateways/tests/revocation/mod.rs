@@ -4,6 +4,7 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure as Error;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::candid::decoder;
 fn request() -> GatewayRevocationRequest {
     GatewayRevocationRequest {
         scope: OperatorScope {
@@ -31,9 +32,13 @@ fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_re
                 removed
             }
         );
-        let bytes = candid::encode_one(response).unwrap();
+        let bytes = ic_platform::candid::contract::encode_one(response).unwrap();
         assert_eq!(
-            candid::decode_one::<GatewayRevocationResponse>(&bytes).unwrap(),
+            decoder::decode_one_with_config::<GatewayRevocationResponse>(
+                &bytes,
+                &decoder::DecoderConfig::new()
+            )
+            .unwrap(),
             response
         );
         assert_eq!(store.inspect(context(), scope()).unwrap().principals, []);

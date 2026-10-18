@@ -5,8 +5,6 @@ use super::{
     reply::scope_json,
     signed_update::{PreparedUpdate, SMALL_REPLY_BYTES, UpdateInput},
 };
-use candid::Principal;
-use ic_agent::Agent;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure as RevokeError;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
@@ -18,6 +16,8 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 use ic_blob_storage_contracts::protocol::GATEWAY_SYNC_CANCEL_METHOD;
 use ic_blob_storage_contracts::protocol::GATEWAY_SYNC_METHOD;
+use ic_platform::Principal;
+use ic_platform::agent::Agent;
 use serde::Serialize;
 use serde_json::{Value, json};
 use std::path::PathBuf;

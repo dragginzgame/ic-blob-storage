@@ -5,9 +5,9 @@ use crate::{
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use blob_test_protocol::SourceMode;
-use candid::Principal;
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::Principal;
+use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::{Value, json};
 use std::{cell::Cell, path::PathBuf};
 

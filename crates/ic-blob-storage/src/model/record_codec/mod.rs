@@ -8,7 +8,8 @@ macro_rules! storable {
      types: $types:expr, header: $header:expr, layout: $layout:expr $(,)?) => {
         impl ic_storage::adapter::Storable for $record {
             fn to_bytes(&self) -> std::borrow::Cow<'_, [u8]> {
-                let bytes = candid::encode_one(self).expect("stable record encoding");
+                let bytes = ic_platform::candid::contract::encode_one(self)
+                    .expect("stable record encoding");
                 assert!(bytes.len() <= $bytes as usize, "stable record byte bound");
                 std::borrow::Cow::Owned(bytes)
             }
@@ -17,14 +18,15 @@ macro_rules! storable {
             }
             fn from_bytes(bytes: std::borrow::Cow<'_, [u8]>) -> Self {
                 assert!(bytes.len() <= $bytes as usize, "stable record byte bound");
-                let mut config = candid::DecoderConfig::new();
+                let mut config = ic_platform::candid::decoder::DecoderConfig::new();
                 config
                     .set_decoding_quota($work)
                     .set_skipping_quota($skipping)
                     .set_max_type_len($types)
                     .set_max_header_len($header as usize)
                     .set_full_error_message(false);
-                candid::decode_one_with_config(&bytes, &config).expect("valid same-release record")
+                ic_platform::candid::decoder::decode_one_with_config(&bytes, &config)
+                    .expect("valid same-release record")
             }
             const BOUND: ic_storage::adapter::storable::Bound = $layout;
         }

@@ -1,11 +1,8 @@
 //! One durable signed update claim, consumed by one dispatch without polling or retry.
 use super::{Failure, artifacts::Run};
-use candid::Principal;
-use ic_agent::{
-    Agent,
-    agent::{CallResponse, signed::SignedUpdate},
-};
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_platform::Principal;
+use ic_platform::agent::{Agent, CallResponse, SignedUpdate};
 use serde::Serialize;
 pub(super) mod record;
 use record::{DispatchIntentRecord, SignedDispatchRecord};

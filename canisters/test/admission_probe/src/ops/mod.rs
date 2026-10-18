@@ -13,7 +13,6 @@ use blob_test_protocol::{
     },
     journey::{JourneyManifest, JourneyUsage},
 };
-use candid::Principal;
 use conversion::{failure, phase, request};
 use ic_blob_storage::model::catalog::admission::UploadAdmission;
 use ic_blob_storage::model::lifecycle::LifecycleChange;
@@ -35,6 +34,7 @@ use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
+use ic_platform::Principal;
 use std::{
     cell::RefCell,
     collections::VecDeque,

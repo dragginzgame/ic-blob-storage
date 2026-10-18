@@ -9,7 +9,7 @@ use std::num::NonZeroU128;
 pub(crate) mod generation;
 pub(crate) mod record;
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use super::{

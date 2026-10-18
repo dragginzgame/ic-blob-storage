@@ -25,7 +25,7 @@ pub(crate) fn fact(context: UploadContext, input: FactInput) -> Result<bool, Fai
 
 // Explicit test substitute: installation operator is the configured verifier in this fixture.
 fn completion_authority(
-    operator: candid::Principal,
+    operator: ic_platform::Principal,
 ) -> ic_blob_storage_contracts::upload::completion::CompletionAuthority {
     ic_blob_storage_contracts::upload::completion::CompletionAuthority::new(
         ic_cdk::api::canister_self(),

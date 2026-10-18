@@ -9,9 +9,9 @@ use crate::model::service::upload::content::ContentLookup;
 use crate::model::service::upload::planning::AdmissionCapacityLookup;
 use crate::model::service::upload::planning::AdmissionCapacityView;
 use crate::model::service::upload::planning::headroom;
-use candid::Principal;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_platform::Principal;
 
 impl<M: Memory> StableUploads<M> {
     /// Observe independent admission dimensions using fixed enrollment/counter reads.

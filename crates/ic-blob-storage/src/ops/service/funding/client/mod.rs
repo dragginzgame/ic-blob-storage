@@ -1,6 +1,5 @@
 //! Explicit replicated funding inspection; no attached cycles or mutation methods.
 use crate::ops::service::client;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
@@ -11,6 +10,7 @@ use ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits;
 use ic_blob_storage_contracts::funding::reply::FundingReplyError;
 use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
 use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 

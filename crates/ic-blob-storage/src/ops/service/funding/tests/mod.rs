@@ -11,9 +11,9 @@ mod summary;
 use crate::model::billing::journal::FundingIntentState;
 use crate::ops::service::tenant::tests::config;
 use crate::test_support::memory::FixtureMemory;
-use candid::Principal;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_blob_storage_contracts::funding::transfer::FundingTransferError;
+use ic_platform::Principal;
 use ic_storage::adapter::Storable;
 use std::num::{NonZeroU128, NonZeroUsize};
 fn n(value: u128) -> NonZeroU128 {

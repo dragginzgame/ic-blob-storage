@@ -12,7 +12,8 @@ pub(super) fn query(selection: &Selection) -> Result<Report, Failure> {
     let bytes = query_method(
         &selection.target,
         "preview_funding",
-        candid::encode_one(selection.request).expect("bounded preview request"),
+        ic_platform::candid::contract::encode_one(selection.request)
+            .expect("bounded preview request"),
     )?;
     report(selection, &bytes)
 }

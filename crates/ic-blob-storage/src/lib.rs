@@ -2,8 +2,9 @@
 //!
 //! Service policy, lifecycle models, durable journals and explicit Cashier transport
 //! are available. Runtime-free wire contracts and content verification live in
-//! `ic_blob_storage_contracts`. Shared funding preparation composes journal facts with host evidence;
-//! production service qualification and complete adapters remain unfinished.
+//! `ic_blob_storage_contracts`. Shared funding preparation composes journal facts
+//! with host evidence. The standalone adapter mounts shared service workflows;
+//! deployed provider qualification remains separate from local implementation.
 //!
 //! The service owns tenant authorization, content references, quotas, provider
 //! effects, billing, retention, and deletion. The standalone adapter delegates

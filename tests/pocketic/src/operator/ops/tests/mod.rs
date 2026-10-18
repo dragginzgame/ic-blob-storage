@@ -3,7 +3,7 @@ use blob_test_protocol::{
     funding::{FundingAttemptStatusView, FundingReconciliationView},
     status::FundingActivityView,
 };
-use candid::Principal;
+use ic_platform::Principal;
 use ic_testkit::Fake;
 
 fn target() -> Target {
@@ -57,13 +57,13 @@ fn status() -> FundingOperatorStatusView {
 
 #[test]
 fn bounded_decode_preserves_exact_amounts_and_unknowns() {
-    let bytes = candid::encode_one(Some(status())).unwrap();
+    let bytes = ic_platform::candid::contract::encode_one(Some(status())).unwrap();
     let value = report(&target(), &bytes).unwrap().value;
     // Ordinary reply decoding retains its bounded skipping of extra values.
     assert_eq!(
         report(
             &target(),
-            &candid::encode_args((Some(status()), 7_u8)).unwrap()
+            &ic_platform::candid::contract::encode_args((Some(status()), 7_u8)).unwrap()
         )
         .unwrap()
         .value,
@@ -89,20 +89,26 @@ fn bounded_decode_preserves_exact_amounts_and_unknowns() {
     assert_eq!(
         report(
             &target(),
-            &candid::encode_one(None::<FundingOperatorStatusView>).unwrap()
+            &ic_platform::candid::contract::encode_one(None::<FundingOperatorStatusView>).unwrap()
         ),
         Err(Failure::Denied)
     );
     let mut changed = status();
     changed.peer = Fake::principal(3);
     assert_eq!(
-        report(&target(), &candid::encode_one(Some(changed)).unwrap()),
+        report(
+            &target(),
+            &ic_platform::candid::contract::encode_one(Some(changed)).unwrap()
+        ),
         Err(Failure::Binding)
     );
     let mut changed = status();
     changed.service = Fake::principal(3);
     assert_eq!(
-        report(&target(), &candid::encode_one(Some(changed)).unwrap()),
+        report(
+            &target(),
+            &ic_platform::candid::contract::encode_one(Some(changed)).unwrap()
+        ),
         Err(Failure::Binding)
     );
 }

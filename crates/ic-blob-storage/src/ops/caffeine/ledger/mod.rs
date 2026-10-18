@@ -12,7 +12,8 @@ use crate::{
     model::billing::balance::BalanceAmounts,
     ops::billing::balance::{BalanceAmountsInput, BalanceInputError, balance_amounts_from_candid},
 };
-use candid::{CandidType, Nat, decode_one_with_config};
+use ic_platform::candid::contract::{CandidType, Nat};
+use ic_platform::candid::decoder::decode_one_with_config;
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -163,12 +164,14 @@ mod wire {
 
     pub(super) type NotifyResult = Result<NotifyResponse, NotifyError>;
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct NotifyResponse {
         pub balance: AccountCycleBalances,
         pub ledger_block_index: Nat,
         pub credited: Nat,
     }
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) enum NotifyError {
         SweepFailed { message: String },
         NothingToDeposit,

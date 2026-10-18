@@ -2,7 +2,7 @@
 
 use std::num::NonZeroUsize;
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use crate::configuration::funding::FundingLimits;

@@ -7,7 +7,9 @@
 
 use std::num::{NonZeroU64, NonZeroUsize};
 
-use candid::{CandidType, Principal, decode_one_with_config};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::decoder::decode_one_with_config;
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -184,6 +186,7 @@ mod wire {
     pub(super) type AuditLogDownloadResult = Result<AuditLogDownloadResponse, AuditLogError>;
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AuditLogDownloadResponse {
         pub continuation_token: Option<AuditLogContinuationToken>,
         pub csv_content: String,
@@ -192,12 +195,14 @@ mod wire {
     }
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AuditLogContinuationToken {
         pub account: Option<Principal>,
         pub sequence: u64,
     }
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) enum AuditLogError {
         NotAuthorized(Principal),
         InvalidRequest(String),

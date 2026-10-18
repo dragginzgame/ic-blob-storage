@@ -1,7 +1,6 @@
 //! Strict reply correlation and conservative planning over sequential observations.
 use super::{Failure, Run};
 use crate::native::publish_inputs::FrozenFile;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
@@ -13,6 +12,7 @@ use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
 use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
 use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, future::Future};
 

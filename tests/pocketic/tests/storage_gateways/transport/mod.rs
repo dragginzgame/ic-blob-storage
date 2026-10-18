@@ -1,5 +1,6 @@
 //! Real IC scheduling against an explicitly different local source method.
 use crate::support::REPLY_LIMITS;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod read_sessions;
 use super::*;
@@ -16,7 +17,7 @@ impl Fixture {
         f.harness.pic.install_canister(
             source,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-            candid::encode_args((f.service, f.other, f.controller)).unwrap(),
+            ic_platform::candid::contract::encode_args((f.service, f.other, f.controller)).unwrap(),
             None,
         );
         f
@@ -151,7 +152,7 @@ fn delayed_gateway_reply_cannot_overwrite_edits_or_a_newer_pending_attempt() {
                 f.service,
                 f.operator,
                 "fixture_gateway_transport",
-                candid::encode_one(f.transport_input(old)).unwrap(),
+                ic_platform::candid::contract::encode_one(f.transport_input(old)).unwrap(),
             )
             .unwrap();
         f.wait_source();
@@ -165,8 +166,11 @@ fn delayed_gateway_reply_cannot_overwrite_edits_or_a_newer_pending_attempt() {
         let current = f.gateway_begin();
         let pending = f.gateway_view();
         f.resume_source();
-        let result: Result<(), Failure> =
-            candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
+        let result: Result<(), Failure> = decoder::decode_one_with_config(
+            &f.harness.pic.await_call(call).unwrap(),
+            &decoder::DecoderConfig::new(),
+        )
+        .unwrap();
         assert_eq!(result, Err(Failure::Conflict));
         assert_eq!(f.gateway_view(), pending);
         assert_eq!(pending.members, if cancel { vec![f.other] } else { vec![] });
@@ -187,7 +191,7 @@ fn delayed_gateway_reply_cannot_overwrite_a_completed_replacement() {
             f.service,
             f.operator,
             "fixture_gateway_transport",
-            candid::encode_one(f.transport_input(old)).unwrap(),
+            ic_platform::candid::contract::encode_one(f.transport_input(old)).unwrap(),
         )
         .unwrap();
     f.wait_source();
@@ -204,8 +208,11 @@ fn delayed_gateway_reply_cannot_overwrite_a_completed_replacement() {
     .unwrap();
     let completed = f.gateway_view();
     f.resume_source();
-    let result: Result<(), Failure> =
-        candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
+    let result: Result<(), Failure> = decoder::decode_one_with_config(
+        &f.harness.pic.await_call(call).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(result, Err(Failure::Conflict));
     assert_eq!(f.gateway_view(), completed);
     assert_eq!(completed.members, vec![f.tenant]);
@@ -223,7 +230,7 @@ fn gateway_callback_write_trap_keeps_pending_state_and_restoration_blocks_resend
             f.service,
             f.operator,
             "fixture_gateway_transport",
-            candid::encode_one(TransportInput {
+            ic_platform::candid::contract::encode_one(TransportInput {
                 callback_fault: true,
                 ..f.transport_input(token)
             })

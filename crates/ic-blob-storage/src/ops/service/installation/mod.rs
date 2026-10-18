@@ -6,7 +6,6 @@ use super::stores::ServiceStoreError;
 use super::stores::ServiceStores;
 use crate::model::service::installation::InstallationBindingError;
 use crate::model::service::installation::record::ConfigurationRecord;
-use candid::Principal;
 use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::download::scope::DownloadScopeError;
@@ -15,6 +14,7 @@ use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_blob_storage_contracts::upload::completion::InvalidCompletionAuthority;
 use ic_memory::{Memory, RuntimeMemory};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
+use ic_platform::Principal;
 use ic_storage::adapter::{StableBTreeMap, Storable};
 use thiserror::Error;
 

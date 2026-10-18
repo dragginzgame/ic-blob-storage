@@ -1,6 +1,7 @@
 //! Actual lifecycle recovery preserves obligations but cannot resume authority.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_platform::candid::contract::encode_args;
 use ic_testkit::pic::update_candid_args;
 
 impl Fixture {
@@ -10,7 +11,7 @@ impl Fixture {
             .upgrade_canister(
                 self.service,
                 self.wasm(self.service),
-                candid::encode_args(()).unwrap(),
+                encode_args(()).unwrap(),
                 Some(self.operator),
             )
             .expect("same-release fenced restore");
@@ -34,12 +35,12 @@ impl Fixture {
         .map(|(reply,)| reply)
         .unwrap();
         assert_eq!(sync, Err(SyncFailure::Fenced));
-        let args = |root: [u8; 32]| candid::encode_args((root.to_vec(),)).unwrap();
+        let args = |root: [u8; 32]| encode_args((root.to_vec(),)).unwrap();
         let updates = [
             (
                 self.first,
                 "journey_reserve",
-                candid::encode_args((JourneyReservation {
+                encode_args((JourneyReservation {
                     upload,
                     manifest: blob_test_protocol::journey::JourneyManifest {
                         chunks: vec![],
@@ -51,34 +52,34 @@ impl Fixture {
             (
                 self.first,
                 "journey_append",
-                candid::encode_args((root(upload.root), 0_u64, vec![1_u8])).unwrap(),
+                encode_args((root(upload.root), 0_u64, vec![1_u8])).unwrap(),
             ),
             (
                 self.first,
                 "journey_cancel",
-                candid::encode_args((upload,)).unwrap(),
+                encode_args((upload,)).unwrap(),
             ),
             (self.first, "journey_release", args(upload.root)),
             (self.authority_operator, "journey_settle", args(upload.root)),
             (
                 self.gateway,
                 "journey_complete",
-                candid::encode_args((self.first, upload)).unwrap(),
+                encode_args((self.first, upload)).unwrap(),
             ),
             (
                 self.first,
                 "_immutableObjectStorageCreateCertificate",
-                candid::encode_args((root_text(upload.root),)).unwrap(),
+                encode_args((root_text(upload.root),)).unwrap(),
             ),
             (
                 self.gateway,
                 "_immutableObjectStorageConfirmBlobDeletion",
-                candid::encode_args((vec![root(upload.root)],)).unwrap(),
+                encode_args((vec![root(upload.root)],)).unwrap(),
             ),
             (
                 self.first,
                 "journey_read",
-                candid::encode_args((root(upload.root), 0_u64)).unwrap(),
+                encode_args((root(upload.root), 0_u64)).unwrap(),
             ),
             (
                 self.authority_operator,
@@ -88,18 +89,14 @@ impl Fixture {
             (
                 self.authority_operator,
                 "revoke_gateway",
-                candid::encode_args(()).unwrap(),
+                encode_args(()).unwrap(),
             ),
-            (
-                self.first,
-                "cancel_upload",
-                candid::encode_args((11_u8,)).unwrap(),
-            ),
-            (self.first, "release", candid::encode_args((1_u8,)).unwrap()),
+            (self.first, "cancel_upload", encode_args((11_u8,)).unwrap()),
+            (self.first, "release", encode_args((1_u8,)).unwrap()),
             (
                 self.authority_operator,
                 "confirm_obligation",
-                candid::encode_args((1_u8, ObligationProbeFact::Deleted)).unwrap(),
+                encode_args((1_u8, ObligationProbeFact::Deleted)).unwrap(),
             ),
         ];
         for (actor, method, input) in updates {
@@ -118,14 +115,14 @@ impl Fixture {
         for (method, input) in [
             (
                 "_immutableObjectStorageBlobsAreLive",
-                candid::encode_args((vec![root(upload.root)],)).unwrap(),
+                encode_args((vec![root(upload.root)],)).unwrap(),
             ),
             (
                 "_immutableObjectStorageBlobsToDelete",
-                candid::encode_args(()).unwrap(),
+                encode_args(()).unwrap(),
             ),
-            ("pending", candid::encode_args(()).unwrap()),
-            ("upload_roots", candid::encode_args(()).unwrap()),
+            ("pending", encode_args(()).unwrap()),
+            ("upload_roots", encode_args(()).unwrap()),
         ] {
             let failure = self
                 .harness
@@ -219,7 +216,7 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
             f.service,
             f.first,
             "journey_read",
-            candid::encode_args((root(v.upload.root), 0_u64)).unwrap(),
+            encode_args((root(v.upload.root), 0_u64)).unwrap(),
         )
         .unwrap_err();
     assert_eq!(failure.reject_code, RejectCode::CanisterError);

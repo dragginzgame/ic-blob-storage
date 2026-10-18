@@ -16,6 +16,7 @@ ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-cdk.workspace = true
 ic-memory = { workspace = true, features = ["test-support"] }
+ic-platform = { workspace = true, features = ["candid"] }
 serde.workspace = true
 serde_json.workspace = true
 

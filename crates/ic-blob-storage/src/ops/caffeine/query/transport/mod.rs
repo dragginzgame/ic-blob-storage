@@ -1,7 +1,7 @@
 //! Host-supplied authenticated query transport; no IC update fallback.
 pub mod replicated;
 use super::CashierQueryRequest;
-use candid::Principal;
+use ic_platform::Principal;
 use std::{future::Future, num::NonZeroUsize};
 
 /// A transport-authenticated source and its bounded raw response.

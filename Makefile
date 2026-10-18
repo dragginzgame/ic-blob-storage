@@ -8,6 +8,8 @@ LOCAL_TOOL_CHECK_TARGETS := ic-tools-check testkit-check
 override SHARED_TOOLING_ROOT := $(CURDIR)
 override RELEASE_DELIVERY_POLICY := ci/release-delivery-policy.txt
 export PATH := $(CURDIR)/.tools/ic/bin:$(PATH)
+FORMAT_WRITE_COMMAND = bash -ec '"$$1" sort --workspace --grouped; "$$1" fmt --all' -- "$(FORMAT_CARGO)"
+FORMAT_CHECK_COMMAND = bash -ec '"$$1" sort --workspace --grouped --check; "$$1" fmt --all -- --check' -- "$(FORMAT_CARGO)"
 include make/consumer.mk
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
@@ -28,8 +30,8 @@ export RELEASE_DELIVERY ?= direct
 export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check tools-check dependency-pins-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test test-wasm-opt wasm-check package
-CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt \
+CI_TARGETS := shared-tooling-check tools-check dependency-pins-check platform-boundary-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test test-wasm-opt wasm-check package
+CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-dependency-boundaries.json \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
@@ -148,6 +150,10 @@ release-tools-check: format-tools-check
 
 hooks-check:
 	+bash scripts/ci/check-format-hooks.sh
+
+.PHONY: platform-boundary-check
+platform-boundary-check:
+	+bash scripts/ci/check-cargo-dependency-boundaries.sh --consumer "$(CURDIR)"
 
 contracts-boundary-check:
 	+bash scripts/ci/check-runtime-free-contracts.sh

@@ -2,8 +2,6 @@
 mod dispatch;
 mod request;
 use super::{Failure, arguments::Options, query, references};
-use candid::Principal;
-use ic_agent::Agent;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
@@ -18,6 +16,8 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
 use ic_blob_storage_contracts::upload::admission::reply as admission_reply;
 use ic_blob_storage_contracts::upload::manifests::reply as manifest_reply;
+use ic_platform::Principal;
+use ic_platform::agent::Agent;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf};
 

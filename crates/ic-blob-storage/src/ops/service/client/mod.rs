@@ -1,6 +1,6 @@
 //! Single-call mechanics shared by the role-specific replicated clients.
-use candid::Principal;
 use ic_cdk::call::{Call, CallFailed, Response};
+use ic_platform::Principal;
 use std::num::NonZeroU32;
 
 /// Admit ordinary identities and the platform's bounded-wait timeout range.

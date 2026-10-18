@@ -1,0 +1,69 @@
+[
+  {
+    "dependency": "ic-stable-structures",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "candid",
+    "allowed_packages": [
+      "blob-admission-probe",
+      "blob-authority-probe",
+      "blob-consumer-probe",
+      "blob-funding-probe",
+      "blob-gateway-source",
+      "blob-storage-probe",
+      "ic-blob-storage-canister"
+    ]
+  },
+  {
+    "dependency": "candid_parser",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-testkit-candid",
+    "allowed_packages": [
+      "ic-blob-storage-pocketic-tests"
+    ]
+  },
+  {
+    "dependency": "ic-cdk",
+    "allowed_packages": [
+      "blob-admission-probe",
+      "blob-authority-probe",
+      "blob-consumer-probe",
+      "blob-funding-probe",
+      "blob-gateway-source",
+      "blob-storage-probe",
+      "ic-blob-storage",
+      "ic-blob-storage-canister"
+    ]
+  },
+  {
+    "dependency": "candid_derive",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-cdk-executor",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-cdk-macros",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-cdk-timers",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-cdk-bindgen",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-agent",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-management-canister-types",
+    "allowed_packages": []
+  }
+]

@@ -6,7 +6,7 @@ use crate::dto::reference::ReferenceReceiptLookup;
 use crate::dto::reference::status::ReferenceStatusRequest;
 use crate::dto::reference::status::ReferenceStatusResponse;
 use crate::upload::binding::UploadContext;
-use candid::Deserialize;
+use ic_platform::candid::contract::serde::Deserialize;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 /// Reference response failure, separate from a stored transition failure.

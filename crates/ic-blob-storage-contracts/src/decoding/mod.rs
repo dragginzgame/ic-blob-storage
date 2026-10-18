@@ -1,5 +1,5 @@
 //! Explicit Candid decoder configuration shared by service and native boundaries.
-use candid::de::DecoderConfig;
+use ic_platform::candid::decoder::DecoderConfig;
 
 /// Configure work, skipping and type limits, optionally bounding the Candid header.
 ///

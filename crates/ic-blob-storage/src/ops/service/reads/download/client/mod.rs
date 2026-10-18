@@ -1,6 +1,5 @@
 //! Authenticated replicated descriptor call; no automatic retries or body transport.
 use crate::ops::service::client;
-use candid::Principal;
 use ic_blob_storage_contracts::download::reply;
 use ic_blob_storage_contracts::download::reply::DownloadReplyError;
 use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;
@@ -8,6 +7,7 @@ use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_blob_storage_contracts::dto::download::DownloadResponse;
 use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
+use ic_platform::Principal;
 use std::num::NonZeroU32;
 use thiserror::Error;
 /// Explicit tenant/service selection. Construction installs nothing and sends nothing.

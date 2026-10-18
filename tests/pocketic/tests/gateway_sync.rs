@@ -7,7 +7,7 @@ mod support;
 mod sync_request;
 
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
-use candid::Principal;
+use ic_platform::Principal;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,
@@ -43,13 +43,20 @@ impl Fixture {
         pic.install_canister(
             service,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("probe Wasm"),
-            candid::encode_args((tenant, Fake::principal(2), gateway, source)).expect("probe init"),
+            ic_platform::candid::contract::encode_args((
+                tenant,
+                Fake::principal(2),
+                gateway,
+                source,
+            ))
+            .expect("probe init"),
             Some(driver),
         );
         pic.install_canister(
             source,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).expect("source Wasm"),
-            candid::encode_args((service, gateway, driver)).expect("source init"),
+            ic_platform::candid::contract::encode_args((service, gateway, driver))
+                .expect("source init"),
             Some(driver),
         );
         let released: bool =

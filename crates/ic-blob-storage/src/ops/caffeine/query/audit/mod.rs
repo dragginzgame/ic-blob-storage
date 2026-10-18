@@ -1,7 +1,8 @@
 //! Explicit account-scoped audit inputs; cursor semantics remain unqualified.
 use std::num::NonZeroU64;
 
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 
 use super::{CashierQueryError, CashierQueryPrincipal, validate};
 
@@ -55,7 +56,7 @@ pub(super) fn encode(input: AuditLogQuery) -> Result<Vec<u8>, CashierQueryError>
     {
         return Err(CashierQueryError::AuditCursorAccountMismatch);
     }
-    candid::encode_args((wire::AuditLogDownloadRequest {
+    ic_platform::candid::contract::encode_args((wire::AuditLogDownloadRequest {
         account: Some(input.account),
         max_entries: Some(input.max_entries.get()),
         event_type: input.event_type.map(wire::AuditEventType::from),
@@ -73,6 +74,7 @@ mod wire {
     use super::Principal;
 
     #[derive(CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AuditLogDownloadRequest {
         pub continuation_token: Option<AuditLogContinuationToken>,
         pub max_entries: Option<u64>,
@@ -81,12 +83,14 @@ mod wire {
     }
 
     #[derive(CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AuditLogContinuationToken {
         pub account: Option<Principal>,
         pub sequence: u64,
     }
 
     #[derive(CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) enum AuditEventType {
         Spend,
         RelationshipAdd,

@@ -281,8 +281,8 @@ mod tests {
     use std::num::NonZeroU128;
 
     fn key(value: u128) -> ReferenceKey {
-        use candid::Principal;
         use ic_blob_storage_contracts::binding::ObjectIdentity;
+        use ic_platform::Principal;
         let one = NonZeroU128::new(1).expect("positive identity");
         let object = ObjectBinding::new(
             Principal::from_slice(&[1, 1]),

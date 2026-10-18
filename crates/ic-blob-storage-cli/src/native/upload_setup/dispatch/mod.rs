@@ -11,7 +11,7 @@ pub(super) async fn run(
     options: &Options,
     input: &Input,
     saved: &Request,
-    agent: &ic_agent::Agent,
+    agent: &ic_platform::agent::Agent,
 ) -> Result<SetupOutcome, Failure> {
     let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
     let directory = input.directory.as_ref().ok_or(Failure::Arguments)?;

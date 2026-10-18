@@ -138,7 +138,7 @@ fn replicated_query_callback_trap_preserves_pending_and_restored_transport_stays
             f.service,
             f.operator,
             "fixture_replicated_gateway_transport",
-            candid::encode_one(input).unwrap(),
+            ic_platform::candid::contract::encode_one(input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);

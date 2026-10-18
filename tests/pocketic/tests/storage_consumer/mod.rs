@@ -13,6 +13,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
@@ -29,7 +30,7 @@ fn fixture() -> Fixture {
     f.harness.pic.install_canister(
         tenant,
         consumer_wasm(),
-        candid::encode_args((f.operator, f.service)).unwrap(),
+        ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
         Some(f.controller),
     );
     f.tenant = tenant;
@@ -170,7 +171,7 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
             f.tenant,
             f.operator,
             "register",
-            candid::encode_one(&input).unwrap(),
+            ic_platform::candid::contract::encode_one(&input).unwrap(),
         )
         .unwrap();
     let mut held = false;
@@ -213,8 +214,11 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
     .map(|(reply,)| reply)
     .unwrap();
     resumed.unwrap();
-    let result: Result<AssetView, ConsumerFailure> =
-        candid::decode_one(&f.harness.pic.await_call(call).unwrap()).unwrap();
+    let result: Result<AssetView, ConsumerFailure> = decoder::decode_one_with_config(
+        &f.harness.pic.await_call(call).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(result, Err(ConsumerFailure::State));
     let state = register(&f, &input).unwrap();
     assert!(state.cancelled);
@@ -242,7 +246,7 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
                 f.tenant,
                 f.operator,
                 "register",
-                candid::encode_one(&input).unwrap(),
+                ic_platform::candid::contract::encode_one(&input).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -296,7 +300,7 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
             f.tenant,
             f.operator,
             "release",
-            candid::encode_one(Release {
+            ic_platform::candid::contract::encode_one(Release {
                 asset: 1,
                 fault: Fault::AfterRelease,
             })
@@ -320,7 +324,7 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap();
@@ -385,7 +389,7 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
             f.tenant,
             f.operator,
             "register",
-            candid::encode_one(&input).unwrap(),
+            ic_platform::candid::contract::encode_one(&input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -402,7 +406,7 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

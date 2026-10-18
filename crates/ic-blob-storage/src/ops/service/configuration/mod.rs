@@ -2,10 +2,10 @@
 use super::stores::{ServiceStoreConfiguration, ServiceStoreError};
 use crate::model::billing::allocation::FundingAllocation;
 use crate::model::service::read::session::ReadSessionLimits;
-use candid::Principal;
 use ic_blob_storage_contracts::configuration;
 use ic_blob_storage_contracts::configuration::ConfigurationInputError;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroU64, NonZeroU128, NonZeroUsize};
 /// Validate and convert immutable inputs; allocation accounting remains service-owned.
 /// # Errors

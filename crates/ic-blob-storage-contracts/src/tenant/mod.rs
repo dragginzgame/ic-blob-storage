@@ -1,7 +1,7 @@
 //! Pure tenant contracts.
 use crate::dto::tenant::TenantFailure;
 use crate::dto::tenant::TenantUpdateRequest;
-use candid::Principal;
+use ic_platform::Principal;
 use std::num::NonZeroU64;
 use thiserror::Error;
 

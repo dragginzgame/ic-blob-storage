@@ -1,6 +1,5 @@
 //! Explicit single-call mutation and receipt inspection; no automatic retry.
 use crate::ops::service::client;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
@@ -12,6 +11,7 @@ use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
 use ic_blob_storage_contracts::reference::reply;
 use ic_blob_storage_contracts::reference::reply::ReferenceReplyError;
 use ic_cdk::call::Response;
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit tenant/service configuration. Construction installs and sends nothing.

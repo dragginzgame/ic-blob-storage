@@ -3,10 +3,13 @@ pub mod admission;
 pub mod summary;
 pub mod transport;
 use super::WriteFault;
-use candid::{CandidType, Deserialize, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Private synthetic host-credit fixture input; never a production endpoint DTO.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct CreditCommand {
     /// Original exact funding scope and identity.
     pub intent: Intent,
@@ -21,6 +24,7 @@ pub struct CreditCommand {
 }
 /// Complete exact local identity, without inferred payer/provider scope.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Intent {
     /// Actual service.
     pub service: Principal,
@@ -39,6 +43,7 @@ pub struct Intent {
 }
 /// Local progress only; no provider credit or effect authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Phase {
     /// Reserved before an attempt marker.
     Prepared,
@@ -51,6 +56,7 @@ pub enum Phase {
 }
 /// Operator-only local bookkeeping transition.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Action {
     /// Reserve attachment.
     Prepare,
@@ -63,6 +69,7 @@ pub enum Action {
 }
 /// Bounded test command, not a production payment endpoint.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Command {
     /// Exact immutable identity.
     pub intent: Intent,
@@ -75,6 +82,7 @@ pub struct Command {
 }
 /// Canonical shared request inspection; no dispatch capability.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Request {
     /// Explicit Cashier target.
     pub cashier: Principal,
@@ -87,6 +95,7 @@ pub struct Request {
 }
 /// Local allocation observation, never provider credit/spendability.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Allocation {
     /// Available installed attachment allocation, including reserve.
     pub available: u128,
@@ -103,7 +112,14 @@ pub struct Allocation {
 }
 
 /// Private fixture request for one local host-authorized budget increase.
-#[derive(Clone, Copy, Debug, candid::CandidType, candid::Deserialize)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    ic_platform::candid::contract::CandidType,
+    ic_platform::candid::contract::serde::Deserialize,
+)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct RenewalCommand {
     /// Exact original credited intent; not a new payment.
     pub intent: Intent,

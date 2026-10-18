@@ -12,7 +12,8 @@ use blob_test_protocol::admission::{
     Command, Enrollment, Failure, Installation, ManifestState, Observation, Outcome, Permission,
     Phase, Request, Workload,
 };
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::decoder;
 use ic_testkit::pic::query_candid_args;
 use ic_testkit::{
     Fake,
@@ -50,7 +51,8 @@ impl Fixture {
         harness.pic.install_canister(
             service,
             Self::wasm(),
-            candid::encode_args((Installation { operator, workload },)).unwrap(),
+            ic_platform::candid::contract::encode_args((Installation { operator, workload },))
+                .unwrap(),
             Some(controller),
         );
         Self {
@@ -75,7 +77,8 @@ impl Fixture {
             .pic
             .update_call(self.service, caller, method, bytes)
             .expect("typed update reply, not a trap");
-        candid::decode_one(&reply).expect("typed update reply")
+        decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new())
+            .expect("typed update reply")
     }
 
     fn inspect(&self, caller: Principal, request: Request) -> Result<Observation, Failure> {

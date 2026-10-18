@@ -1,6 +1,5 @@
 //! Native admission/read composition. Context and provider facts are substitutes.
 
-use candid::Principal;
 use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::model::catalog::admission::UploadPhase;
 use ic_blob_storage::model::catalog::admission::UploadUsage;
@@ -37,6 +36,7 @@ use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_platform::Principal;
 use std::num::{NonZeroU128, NonZeroUsize};
 
 fn n(value: u128) -> NonZeroU128 {

@@ -1,6 +1,5 @@
 use super::*;
 use crate::native::{execute, upload_inputs::tests as fixture};
-use candid::Principal;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
@@ -9,6 +8,7 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_platform::Principal;
 use std::fs;
 
 pub(in crate::native) fn frozen() -> tempfile::TempDir {

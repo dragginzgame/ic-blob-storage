@@ -4,7 +4,7 @@
 //! numeric conversion does not define that response's wire schema or interpret
 //! its payment/debt mode. Decoder resource limits remain the caller's concern.
 
-use candid::Int;
+use ic_platform::candid::contract::Int;
 use thiserror::Error;
 
 use crate::model::billing::balance::BalanceAmounts;

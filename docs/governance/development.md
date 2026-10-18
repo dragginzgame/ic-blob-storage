@@ -40,6 +40,7 @@ gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
 declared files, hashes and executable modes without a sibling checkout. It then
 runs offline `make tools-check`, `make dependency-pins-check`,
+`make platform-boundary-check`,
 `make documentation-links-check` and `make shared-tooling-tests`, then
 `make deps` (`cargo fetch --locked`) to populate the cache
 for the selected lockfile; this step may use the network and does not select new
@@ -65,7 +66,7 @@ no independent common-tool catalog. Explicit host, Rust and IC exceptions are
 independent selections, and host overrides do not implicitly select Rust pins.
 The shared aggregate runs
 common host and Cargo setup/checks, then Blob's selected IC and Testkit stages,
-stopping on the first failure including under parallel Make. Shared 0.23 retains
+stopping on the first failure including under parallel Make. Shared 0.24 retains
 Rust/Cargo preflight before common installation; the selected IC installer owns
 its platform admission before effects. Common Rust
 tools use the canonical Cargo build/store owner, receipt and byte admission;
@@ -139,7 +140,10 @@ docs, audits and rules; it verifies supported local targets, not anchors or remo
 URLs. `make shared-tooling-tests` exercises consumer fixture completion, evidence
 archive, IC installer, local lockfile, Cargo metadata, host/Cargo-tool installation and common Make/LOC refusals
 with offline substitutes. The declaration
-gate opts in to shared Cargo package/dependency inheritance checks.
+gate opts in to shared Cargo package/dependency inheritance checks. The separate
+Platform boundary target uses Shared's canonical package-identity checker and
+Blob's explicit exception policy; that policy is a guarded CI input. It covers
+all direct dependency kinds/targets, not transitive deployment admission.
 The upstream exporter/governance integration fixture runs in Shared Tooling;
 it is omitted from Blob's selected files and gate. Actual snapshot verification,
 consumer adapter checks and native adoption qualification remain here. Reusable
@@ -178,7 +182,9 @@ Its `make/release.mk` owns standard entrypoint recipes and conflicting
 goals and delivery admission; Blob selects the same direct-only policy file for
 Make and standalone metadata commands. The
 reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
-check. Its `scripts/ci/run-formatting.sh` companion reports one success line or
+check. Blob selects `cargo sort --workspace --grouped` in both write and check
+commands to preserve dependency-role groups. Prepared and selected committed
+release metadata checks use the matching `--manifest-order-grouped` policy. Its `scripts/ci/run-formatting.sh` companion reports one success line or
 a failing status and complete retained log. All isolated Make/hook/release fixtures
 include these inputs; product
 validation, metadata exports, tool setup and publication remain local.

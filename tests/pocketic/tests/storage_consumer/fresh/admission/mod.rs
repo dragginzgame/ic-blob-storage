@@ -39,7 +39,7 @@ fn uncertain_admission_recovers_exact_permission_without_resending_after_cancell
                     f.tenant,
                     f.operator,
                     "admit",
-                    candid::encode_one(&input).unwrap(),
+                    ic_platform::candid::contract::encode_one(&input).unwrap(),
                 )
                 .unwrap_err();
             assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -94,7 +94,7 @@ fn admission_intent_rolls_back_before_dispatch_and_refusal_is_retained_without_r
             f.tenant,
             f.operator,
             "admit",
-            candid::encode_one(&input).unwrap(),
+            ic_platform::candid::contract::encode_one(&input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -137,7 +137,7 @@ fn consumer_upgrade_retains_uncertain_admission_and_blocks_reconciliation_and_re
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

@@ -128,7 +128,7 @@ fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap();
@@ -190,7 +190,7 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
             f.tenant,
             f.operator,
             "register",
-            candid::encode_one(&input).unwrap(),
+            ic_platform::candid::contract::encode_one(&input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);

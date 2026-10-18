@@ -6,8 +6,8 @@
 pub mod account;
 use super::{CashierQueryRequest, CashierQueryResponse, CashierQueryTransport};
 use crate::ops::caffeine::query::CashierQuery;
-use candid::Principal;
 use ic_cdk::call::{Call, CallFailed};
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 

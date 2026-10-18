@@ -5,6 +5,7 @@ use blob_test_protocol::storage::{
     funding::{CreditCommand, Intent, Phase as FundingPhase},
     resources::{FundingCreditResources, FundingPopulationIntent, HistoryPopulationBatch},
 };
+use ic_platform::candid::decoder;
 use ic_testkit::pic::update_candid_args;
 
 fn digest(operation: u128) -> [u8; 32] {
@@ -31,7 +32,7 @@ fn measured(
     actor: Principal,
     input: CreditCommand,
 ) -> FundingCreditResources {
-    let packet = candid::encode_one(input).unwrap();
+    let packet = ic_platform::candid::contract::encode_one(input).unwrap();
     retain_bytes(directory, &format!("{name}-request.candid"), &packet);
     let reply =
         f.harness
@@ -44,7 +45,8 @@ fn measured(
     );
     let reply = reply.unwrap();
     retain_bytes(directory, &format!("{name}-reply.cbor"), &reply);
-    let observation: FundingCreditResources = candid::decode_one(&reply).unwrap();
+    let observation: FundingCreditResources =
+        decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap();
     retain(
         directory,
         &format!("{name}-metrics.json"),
@@ -147,7 +149,7 @@ fn profile(directory: &Path, count: u32) {
             ..CanisterSettings::default()
         }),
     );
-    let installation = candid::encode_one(StorageProbeInstallation {
+    let installation = ic_platform::candid::contract::encode_one(StorageProbeInstallation {
         operator,
         max_objects: 2,
         max_tenants: 2,
@@ -190,7 +192,7 @@ fn profile(directory: &Path, count: u32) {
                 })
                 .collect(),
         };
-        let packet = candid::encode_one(batch).unwrap();
+        let packet = ic_platform::candid::contract::encode_one(batch).unwrap();
         assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
         retain_bytes(
             directory,
@@ -211,7 +213,11 @@ fn profile(directory: &Path, count: u32) {
         let reply = reply.unwrap();
         retain_bytes(directory, &format!("population-{start}-reply.cbor"), &reply);
         assert_eq!(
-            candid::decode_one::<Result<(), Failure>>(&reply).unwrap(),
+            decoder::decode_one_with_config::<Result<(), Failure>>(
+                &reply,
+                &decoder::DecoderConfig::new()
+            )
+            .unwrap(),
             Ok(())
         );
         assert!(

@@ -8,7 +8,7 @@ mod support;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
-use candid::Principal;
+use ic_platform::Principal;
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, PocketIc},
@@ -72,7 +72,8 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
     pic.install_canister(
         canister,
         std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("fixture Wasm"),
-        candid::encode_args((first, second, gateway, controller)).expect("init"),
+        ic_platform::candid::contract::encode_args((first, second, gateway, controller))
+            .expect("init"),
         Some(controller),
     );
     assert_eq!(usage(pic, canister, first), Some(100));

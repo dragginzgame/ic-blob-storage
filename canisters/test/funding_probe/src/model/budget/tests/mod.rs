@@ -4,7 +4,7 @@ use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingOutcome, FundingReceiptRecord,
     FundingReconciliationView, FundingReplyMode, FundingRequest,
 };
-use candid::Principal;
+use ic_platform::Principal;
 
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])

@@ -8,7 +8,7 @@ use crate::dto::upload::history::UploadHistoryRequest;
 use crate::dto::upload::history::UploadHistoryScope;
 use crate::upload::history::LifecyclePhase;
 use crate::upload::history::UploadRootState;
-use candid::Principal;
+use ic_platform::Principal;
 use std::collections::BTreeSet;
 use std::num::NonZeroU64;
 use std::num::NonZeroUsize;

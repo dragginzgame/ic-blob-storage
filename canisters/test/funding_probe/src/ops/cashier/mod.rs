@@ -3,7 +3,7 @@ use blob_test_protocol::{
     funding::{FundingFailure, FundingReplyMode},
     storage::funding::transport::Substitute,
 };
-use candid::Principal;
+use ic_platform::Principal;
 use std::cell::RefCell;
 thread_local! {
     // Deliberately ephemeral test controls. Restored receiver accounting is fenced.

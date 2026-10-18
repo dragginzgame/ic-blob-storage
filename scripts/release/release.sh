@@ -95,7 +95,7 @@ verify_prepared() {
     [[ "$source" == "${RELEASE_SOURCE:?}" ]] || fail 'receipt source does not match release intent'
     [[ "$head" == "$RELEASE_SOURCE" ]] || fail 'source commit does not match release intent'
     allowed_changes
-    cargo metadata --offline --locked --no-deps --format-version 1 >/dev/null
+    bash scripts/ci/cargo-release-metadata.sh check ic-blob-storage --manifest-order-grouped
     make --no-print-directory fmt-check
 }
 commit_check() {
@@ -117,6 +117,7 @@ committed_check() {
     perl "$DATA" verify-commit "$commit" "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
     parent="$(git log -1 --format=%P "$commit")" || fail 'cannot read release parent'
     [[ "$parent" == "$RELEASE_SOURCE" ]] || fail 'release parent does not match validated source'
+    RELEASE_COMMIT="$commit" bash scripts/ci/cargo-release-metadata.sh check ic-blob-storage --manifest-order-grouped
 }
 verify_tag() {
     bash scripts/ci/check-release-tag.sh "$1" "$2" || fail 'release tag does not match exact release identity'

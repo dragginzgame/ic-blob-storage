@@ -1,6 +1,6 @@
 //! Transport backpressure never causes automatic native query or update resubmission.
 use super::{Failure, change, execute, options};
-use ic_agent::{Identity, identity::BasicIdentity};
+use ic_platform::agent::{BasicIdentity, Identity};
 use std::io;
 use std::io::Read;
 use std::io::Write;

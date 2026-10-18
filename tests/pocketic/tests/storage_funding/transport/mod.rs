@@ -81,7 +81,7 @@ impl Fixture {
         f.harness.pic.install_canister(
             cashier,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            candid::encode_args((
+            ic_platform::candid::contract::encode_args((
                 f.service,
                 f.controller,
                 blob_test_protocol::funding::budget::FundingBudgetInput {
@@ -394,7 +394,7 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
             f.service,
             f.operator,
             "fixture_funding_transport",
-            candid::encode_one(Input {
+            ic_platform::candid::contract::encode_one(Input {
                 callback_fault: Some(WriteFault::FundingAccounting),
                 ..input(intent)
             })

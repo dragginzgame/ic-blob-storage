@@ -5,7 +5,9 @@
 )]
 
 use blob_test_protocol::admission::{ContentLookup, Installation, Request};
-use candid::{CandidType, DecoderConfig, Deserialize, de::IDLDeserialize, decode_one_with_config};
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::candid::decoder::{DecoderConfig, IDLDeserialize, decode_one_with_config};
 
 // Bounded manifests only. No file bytes enter this probe. These limits are
 // fixture inputs, not a production API or a network ingress maximum.
@@ -54,7 +56,7 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
     checked(decode_one_with_config(bytes, &config(bytes, maximum, work)))
 }
 
-fn checked<T>(result: candid::Result<T>) -> T {
+fn checked<T>(result: Result<T, ic_platform::candid::contract::Error>) -> T {
     result.unwrap_or_else(|_| ic_cdk::trap("invalid or over-budget probe input"))
 }
 

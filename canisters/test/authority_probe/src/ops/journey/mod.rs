@@ -6,7 +6,6 @@ use crate::model::content::{ContentError, ContentSession, ContentVerdict, manife
 use blob_test_protocol::journey::{
     JourneyFailure, JourneyManifest, JourneyProgress, JourneyUpload, JourneyVerification,
 };
-use candid::Principal;
 use ic_blob_storage::model::catalog::admission::UploadAdmission;
 use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::model::catalog::admission::UploadError;
@@ -29,6 +28,7 @@ use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+use ic_platform::Principal;
 
 pub(crate) struct Journey {
     pub catalog: UploadCatalog,

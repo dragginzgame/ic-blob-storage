@@ -1,8 +1,9 @@
 //! Actual IC rollback, repeated dispatch and same-image restore of bounded grants.
 use super::*;
 use blob_test_protocol::storage::funding::RenewalCommand;
+use ic_platform::candid::decoder;
 fn increase(f: &Fixture, actor: Principal, input: RenewalCommand) -> Result<bool, Failure> {
-    let packet = candid::encode_one(input).unwrap();
+    let packet = ic_platform::candid::contract::encode_one(input).unwrap();
     retain_packet("renewal-request", &packet);
     let reply = f
         .harness
@@ -10,7 +11,7 @@ fn increase(f: &Fixture, actor: Principal, input: RenewalCommand) -> Result<bool
         .update_call(f.service, actor, "fixture_renew_funding_budget", packet)
         .unwrap();
     retain_packet("renewal-reply", &reply);
-    candid::decode_one(&reply).unwrap()
+    decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap()
 }
 #[test]
 #[expect(
@@ -47,7 +48,7 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
         "refused grant changed stable bytes"
     );
     for fault in [WriteFault::FundingAccounting, WriteFault::FundingCommit] {
-        let packet = candid::encode_one(RenewalCommand {
+        let packet = ic_platform::candid::contract::encode_one(RenewalCommand {
             fault: Some(fault),
             ..grant
         })
@@ -144,7 +145,7 @@ fn post_commit_credit_trap_rolls_back_intent_index_and_accounting_without_anothe
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
     let before = f.harness.pic.get_stable_memory(f.service);
-    let packet = candid::encode_one(CreditCommand {
+    let packet = ic_platform::candid::contract::encode_one(CreditCommand {
         fault: Some(WriteFault::FundingCommit),
         ..credit(first, 300, 1)
     })

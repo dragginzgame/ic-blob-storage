@@ -1,12 +1,12 @@
 //! Compare saved intent to immutable service history without resending it.
 use super::{Failure, read, references::upload_json};
-use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_blob_storage_contracts::upload::completion::reply;
 use ic_blob_storage_contracts::upload::completion::reply::UploadAttestationReplyError;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::path::Path;
 

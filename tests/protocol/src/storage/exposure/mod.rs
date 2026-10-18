@@ -1,10 +1,12 @@
 //! Labelled host-evidence substitutes for exposure tests. Never accept these controls in production.
-use candid::{CandidType, Deserialize};
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 /// Scenario selected by the local test host, not evidence from Caffeine.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ExposureScenario {
     /// Every provider/recovery/durability fact is unknown.
     Unknown,
@@ -17,6 +19,7 @@ pub enum ExposureScenario {
 }
 /// Private exposure control, also used for operator-only certificate test setup.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ExposureInput {
     /// Exact original permission.
     pub permission: UploadAdmissionRequest,
@@ -29,6 +32,7 @@ pub struct ExposureInput {
 }
 /// Simulated exposure or missing prerequisites; never a provider certificate.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ExposureOutcome {
     /// No mutation took place.
     Blocked(Vec<UploadExposureBlocker>),

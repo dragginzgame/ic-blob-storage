@@ -1,7 +1,7 @@
 use crate::provider::download::*;
 #[test]
 fn direct_download_target_encodes_each_identity_without_query_injection() {
-    let owner = candid::Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
+    let owner = ic_platform::Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
     let scope =
         CaffeineDownloadScope::new(owner, std::num::NonZeroU128::MIN, "fixture project/β?&=")
             .unwrap();

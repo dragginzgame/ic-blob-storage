@@ -11,7 +11,7 @@ use crate::identity::caffeine::manifest::CaffeineChunkHash;
 use crate::identity::caffeine::manifest::CaffeineChunkManifest;
 use crate::identity::caffeine::manifest::CaffeineManifestLimits;
 use crate::upload::admission;
-use candid::Deserialize;
+use ic_platform::candid::contract::serde::Deserialize;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 /// Encoded response and declaration budgets, separate from platform ingress/buffer limits.

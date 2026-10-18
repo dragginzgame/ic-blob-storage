@@ -1,7 +1,7 @@
 //! Bounded authenticated batch observations, never allocation or dispatch authority.
 pub(super) mod observation;
 use super::{Failure, arguments::Options, artifacts::Run, publish_inputs};
-use candid::Principal;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
 

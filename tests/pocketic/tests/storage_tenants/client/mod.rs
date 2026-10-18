@@ -28,7 +28,7 @@ fn fixture(operator_client: bool) -> (Fixture, Principal) {
     f.harness.pic.install_canister(
         client,
         consumer_wasm(),
-        candid::encode_args((driver, f.service)).unwrap(),
+        ic_platform::candid::contract::encode_args((driver, f.service)).unwrap(),
         Some(driver),
     );
     if !operator_client {
@@ -119,7 +119,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
                     client,
                     f.controller,
                     "fixture_update_tenant",
-                    candid::encode_one(input).unwrap(),
+                    ic_platform::candid::contract::encode_one(input).unwrap(),
                 )
                 .unwrap_err();
             assert_eq!(failure.reject_code, RejectCode::CanisterError);
@@ -163,7 +163,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
             .upgrade_canister(
                 client,
                 consumer_wasm(),
-                candid::encode_args(()).unwrap(),
+                ic_platform::candid::contract::encode_args(()).unwrap(),
                 Some(f.controller),
             )
             .unwrap();
@@ -304,7 +304,7 @@ fn tenant_client_retains_stale_command_without_overwriting_newer_enrollment() {
             .upgrade_canister(
                 client,
                 consumer_wasm(),
-                candid::encode_args(()).unwrap(),
+                ic_platform::candid::contract::encode_args(()).unwrap(),
                 Some(f.controller),
             )
             .unwrap();

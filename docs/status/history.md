@@ -9,6 +9,9 @@ dependency, validation and next-step statements below describe their original
 batch; they are not current operating instructions. Start with
 [the current handoff](current.md) for maintained behavior and remaining work.
 
+The [2026-10-18 archived handoff](handoff-2026-10-18.md) retains the later
+0.23–0.33 implementation batches and the initial pending 0.33.1 adoption results.
+
 ## How to use this history
 
 - Search for the release number, date or feature named by the evidence you are

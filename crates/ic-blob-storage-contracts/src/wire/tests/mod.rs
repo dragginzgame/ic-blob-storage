@@ -1,6 +1,6 @@
 use super::*;
 use crate::dto::tenant::TenantScope;
-use candid::Principal;
+use ic_platform::Principal;
 
 #[test]
 fn full_width_numbers_and_binary_principals_round_trip() {
@@ -26,7 +26,10 @@ fn old_candid_trailing_and_oversized_inputs_refuse() {
         tenant: Principal::self_authenticating(b"tenant"),
     };
     assert_eq!(
-        decode::<TenantScope>(&candid::encode_one(value).unwrap(), 4096),
+        decode::<TenantScope>(
+            &ic_platform::candid::contract::encode_one(value).unwrap(),
+            4096
+        ),
         Err(Error::Invalid)
     );
     let mut bytes = encode(value).unwrap();

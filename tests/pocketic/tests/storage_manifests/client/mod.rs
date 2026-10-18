@@ -22,7 +22,7 @@ fn fixture() -> Fixture {
     f.harness.pic.install_canister(
         f.uploader,
         wasm(),
-        candid::encode_args((f.operator, f.service)).unwrap(),
+        ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
         Some(f.controller),
     );
     f.enroll(None, true).unwrap();
@@ -112,7 +112,7 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
                     f.uploader,
                     f.operator,
                     "dispatch_manifest",
-                    candid::encode_one(ManifestDispatch {
+                    ic_platform::candid::contract::encode_one(ManifestDispatch {
                         fault: ManifestFault::AfterPreparation,
                         ..run(1)
                     })
@@ -172,7 +172,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
             f.uploader,
             f.operator,
             "dispatch_manifest",
-            candid::encode_one(ManifestDispatch {
+            ic_platform::candid::contract::encode_one(ManifestDispatch {
                 fault: ManifestFault::BeforeDispatch,
                 ..run(1)
             })
@@ -281,7 +281,7 @@ fn manifest_intent_capacity_conflicts_and_upgrade_preserve_uncertain_originals()
         .upgrade_canister(
             f.uploader,
             wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

@@ -6,8 +6,14 @@ use blob_test_protocol::admission::{
 };
 
 pub(super) fn encode(command: Command) -> (&'static str, Vec<u8>) {
-    fn input<T: candid::CandidType>(method: &'static str, value: T) -> (&'static str, Vec<u8>) {
-        (method, candid::encode_one(value).unwrap())
+    fn input<T: ic_platform::candid::contract::CandidType>(
+        method: &'static str,
+        value: T,
+    ) -> (&'static str, Vec<u8>) {
+        (
+            method,
+            ic_platform::candid::contract::encode_one(value).unwrap(),
+        )
     }
     match command {
         Command::Enroll {

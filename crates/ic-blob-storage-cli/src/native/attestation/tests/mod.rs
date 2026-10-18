@@ -154,7 +154,8 @@ fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
         ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
         b"DIDL".to_vec(),
         ic_blob_storage_contracts::wire::encode((s, 1_u8)).unwrap(),
-        ic_blob_storage_contracts::wire::encode((s, candid::Reserved)).unwrap(),
+        ic_blob_storage_contracts::wire::encode((s, ic_platform::candid::contract::Reserved))
+            .unwrap(),
     ] {
         std::fs::write(file.path(), bytes).unwrap();
         assert!(matches!(open(file.path(), &s), Err(Failure::Arguments)));

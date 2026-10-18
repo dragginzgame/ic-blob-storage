@@ -1,14 +1,24 @@
 //! Bounded application substitute for local publication/outbox evidence, not Toko's API.
-use candid::{CandidType, Deserialize};
 use ic_blob_storage_contracts::dto::reference::ReferenceChange;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 pub mod funding;
 pub mod manifests;
 
 /// One local operator-client dispatch, not a production persistence contract.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, candid::CandidType, candid::Deserialize)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    ic_platform::candid::contract::CandidType,
+    ic_platform::candid::contract::serde::Deserialize,
+)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct TenantDispatch {
     /// Exact scoped compare-and-set retained before the inter-canister call.
     pub command: ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest,
@@ -19,6 +29,7 @@ pub struct TenantDispatch {
 }
 /// Exact application intent, retained before permission or reference dispatch.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Registration {
     /// Never reused application asset identity.
     pub asset: u128,
@@ -31,6 +42,7 @@ pub struct Registration {
 }
 /// Current supported registration sources, with no fabricated retain for a first reference.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum RegistrationSource {
     /// Add a distinct reference to existing content.
     Existing(ReferenceCommand),
@@ -39,6 +51,7 @@ pub enum RegistrationSource {
 }
 /// Deliberate IC transaction interruption.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Fault {
     /// No interruption.
     None,
@@ -59,6 +72,7 @@ pub enum Fault {
 }
 /// Private scheduling controls, separate from the immutable registration intent.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Run {
     /// Exact application intent.
     pub registration: Registration,
@@ -71,6 +85,7 @@ pub struct Run {
 }
 /// Read-only original intent and retained publication/cleanup state.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[expect(
     clippy::struct_excessive_bools,
     reason = "Read-only independent publication, tombstone and two dispatch facts"
@@ -111,6 +126,7 @@ pub struct AssetView {
 }
 /// Fixture admission/coordination refusal; never a provider failure schema.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Failure {
     /// Actual caller lacks application authority.
     Denied,
@@ -134,6 +150,7 @@ pub enum Failure {
 
 /// Exact asset selected for release and an optional test interruption.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Release {
     /// Existing asset identity.
     pub asset: u128,
@@ -142,6 +159,7 @@ pub struct Release {
 }
 /// Withdraw the saved fresh-upload permission after local cancellation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Revocation {
     /// Existing asset identity; the original permission is never supplied anew.
     pub asset: u128,
@@ -152,6 +170,7 @@ pub struct Revocation {
 }
 /// Exact retained operation to inspect; never a new dispatch.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Recovery {
     /// Existing asset identity.
     pub asset: u128,
@@ -160,6 +179,7 @@ pub struct Recovery {
 }
 /// One bounded local application dependency change.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Use {
     /// Existing asset identity.
     pub asset: u128,

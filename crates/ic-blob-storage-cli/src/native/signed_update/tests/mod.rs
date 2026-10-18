@@ -1,5 +1,5 @@
 use super::*;
-use ic_agent::{Identity, identity::BasicIdentity};
+use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::json;
 
 fn agent() -> (Agent, Principal) {
@@ -38,7 +38,7 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
         std::fs::read(directory.join("request.cbor")).unwrap(),
         argument
     );
-    ic_agent::agent::signed_update_inspect(
+    ic_platform::agent::signed_update_inspect(
         actor,
         service,
         "test_update",

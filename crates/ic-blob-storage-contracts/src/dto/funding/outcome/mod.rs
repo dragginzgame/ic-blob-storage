@@ -1,12 +1,13 @@
 //! Exact retained observations, distinct from provider credit or payment authority.
 use crate::dto::funding::FundingPhase;
 use crate::dto::operator::OperatorScope;
-use candid::CandidType;
-use candid::Deserialize;
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Complete original local intent; changed amounts or target options must reject.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingOutcomeRequest {
     /// Installed service, namespace, Cashier and payer.
@@ -20,6 +21,7 @@ pub struct FundingOutcomeRequest {
 }
 /// Provider-reported balance components, never a credited-amount receipt.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingReportedBalance {
     /// Reported total.
@@ -33,6 +35,7 @@ pub struct FundingReportedBalance {
 }
 /// Balance component whose decoding or amount validation failed.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingBalanceField {
     /// Total balance.
@@ -46,6 +49,7 @@ pub enum FundingBalanceField {
 }
 /// Retained structured response, independent of the exact callback refund.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingResponse {
     /// The prepared call was consumed without polling it.
@@ -73,6 +77,7 @@ pub enum FundingResponse {
 }
 /// Conservative follow-up derived only from retained attachment facts.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingReconciliation {
     /// Immutable receipt established by the trusted host, not inferred from balance.
@@ -91,6 +96,7 @@ pub enum FundingReconciliation {
 }
 /// One retained local observation; no field authorizes retry or unfencing.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingOutcomeResponse {
     /// Complete original intent checked before disclosure.
@@ -109,6 +115,7 @@ pub struct FundingOutcomeResponse {
 }
 /// Exact inspection refusal; absence is returned separately and never permits retry.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingOutcomeFailure {
     /// Zero namespace, operation, offer or present target balance.

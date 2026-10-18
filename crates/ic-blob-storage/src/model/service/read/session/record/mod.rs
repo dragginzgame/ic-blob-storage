@@ -4,18 +4,19 @@ use super::{
     ReadSessionIntent, ReadSessionLimits, ReadSessionTicket, ReadSessionUsage, ReadTarget,
     UploadContext,
 };
-use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_platform::Principal;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReadUsageRecord {
     count: u32,
     bytes: u64,
@@ -65,6 +66,7 @@ impl ReadUsageRecord {
     }
 }
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReadJournalRecord {
     version: u8,
     service: Principal,
@@ -131,6 +133,7 @@ impl ReadJournalRecord {
     }
 }
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReadSessionRecord {
     version: u8,
     sequence: u64,

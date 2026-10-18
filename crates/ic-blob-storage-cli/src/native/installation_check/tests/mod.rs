@@ -1,6 +1,6 @@
 use super::*;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_platform::Principal;
 
 fn fixture() -> Vec<u8> {
     // Preserve the independent historical Candid vector as input values, not as the new wire encoding.
@@ -12,7 +12,17 @@ fn fixture() -> Vec<u8> {
         .trim(),
     )
     .unwrap();
-    let value: ServiceConfigurationInput = candid::decode_one(&bytes).unwrap();
+    let value: ServiceConfigurationInput = ic_platform::candid::decode_one(
+        &bytes,
+        ic_platform::candid::DecodeLimits {
+            reply_bytes: 16_384,
+            decoding_quota: 2_000_000,
+            skipping_quota: 100_000,
+            type_entries: 128,
+            header_bytes: 4096,
+        },
+    )
+    .unwrap();
     serde_json::to_vec(&value).unwrap()
 }
 

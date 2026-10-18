@@ -21,12 +21,12 @@ use super::check_bytes;
 use crate::model::lifecycle::LifecycleChange;
 use crate::model::lifecycle::requests::ReferenceRequestOutcome;
 use crate::model::lifecycle::roots::RootClaimError;
-use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectBindingError;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
+use ic_platform::Principal;
 use std::collections::BTreeMap;
 use thiserror::Error;
 

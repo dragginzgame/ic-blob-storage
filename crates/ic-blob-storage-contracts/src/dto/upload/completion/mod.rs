@@ -1,12 +1,13 @@
 //! Trusted verifier statements about observed bytes, separate from provider durability.
 use crate::dto::upload::admission::UploadAdmissionFailure;
 use crate::dto::upload::admission::UploadAdmissionRequest;
-use candid::CandidType;
-use candid::Deserialize;
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 /// One authenticated observation for the installed verifier to inspect exposed bytes.
 /// No origin, credential, upload certificate or retry permission is supplied.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadVerificationPlan {
     /// Full original permission; independent identities must remain intact.
@@ -24,6 +25,7 @@ pub struct UploadVerificationPlan {
 }
 /// Save this exact statement before sending. Changed statements cannot replace a receipt.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadAttestationRequest {
     /// Full original permission, root, length and object/reference identities.
@@ -35,6 +37,7 @@ pub struct UploadAttestationRequest {
 }
 /// First accepted verifier evidence. Historical confirmation does not grant current liveness.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadAttestationReceipt {
     /// Exact original statement.
@@ -46,6 +49,7 @@ pub struct UploadAttestationReceipt {
 }
 /// Read-only exact permission lookup, available through restore fencing.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[expect(
     clippy::large_enum_variant,
     reason = "One bounded receipt; preserve allocation-free value semantics"
@@ -58,6 +62,7 @@ pub enum UploadAttestationLookup {
 }
 /// Attestation observation and the upload owner's restore fence.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadAttestationResponse {
     /// Full exact permission echo, also when evidence is absent.
@@ -69,6 +74,7 @@ pub struct UploadAttestationResponse {
 }
 /// Successful atomic confirmation or exact replay.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadAttestationMutation {
     /// First accepted immutable evidence.
@@ -78,6 +84,7 @@ pub struct UploadAttestationMutation {
 }
 /// No failure authorizes a new upload or discards uncertain provider effects.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum UploadAttestationFailure {
     /// Original permission or store rejection.

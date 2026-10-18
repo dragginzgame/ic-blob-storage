@@ -10,7 +10,7 @@ use blob_test_protocol::consumer::manifests::{
     ManifestDispatch, ManifestIntent, ManifestIntentView,
 };
 use blob_test_protocol::consumer::{AssetView, Failure, Recovery, Release, Run, Use};
-use candid::Principal;
+use ic_platform::Principal;
 
 #[ic_cdk::update(decode_with = "ops::decode")]
 async fn fixture_funding_history(

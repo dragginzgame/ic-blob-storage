@@ -17,6 +17,7 @@ candid.workspace = true
 ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-cdk.workspace = true
+ic-platform = { workspace = true, features = ["candid"] }
 serde.workspace = true
 
 [lints]

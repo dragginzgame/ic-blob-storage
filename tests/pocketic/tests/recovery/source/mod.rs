@@ -32,7 +32,7 @@ impl Fixture {
             .upgrade_canister(
                 self.gateway,
                 self.wasm(self.gateway),
-                candid::encode_args(()).expect("no args"),
+                ic_platform::candid::contract::encode_args(()).expect("no args"),
                 None,
             )
             .expect("fenced source restore");
@@ -106,7 +106,8 @@ impl Fixture {
                 self.gateway,
                 self.operator,
                 "run_deletion",
-                candid::encode_args((vec![root(v.upload.root)],)).expect("deletion input"),
+                ic_platform::candid::contract::encode_args((vec![root(v.upload.root)],))
+                    .expect("deletion input"),
             )
             .expect_err("fenced outgoing deletion");
         assert_eq!(deletion.reject_code, RejectCode::CanisterError);
@@ -117,7 +118,7 @@ impl Fixture {
                 self.gateway,
                 self.service,
                 "fixture_gateways",
-                candid::encode_one(self.sync_request()).expect("list input"),
+                ic_platform::candid::contract::encode_one(self.sync_request()).expect("list input"),
             )
             .expect_err("fenced list response");
         assert_eq!(list.reject_code, RejectCode::CanisterReject);
@@ -223,7 +224,7 @@ fn source_intents_have_a_lifetime_budget_and_restore_does_not_reset_it() {
             f.gateway,
             f.operator,
             "run_deletion",
-            candid::encode_args((roots,)).unwrap(),
+            ic_platform::candid::contract::encode_args((roots,)).unwrap(),
         )
         .expect_err("lifetime capacity exhausted");
     assert_eq!(rejected.reject_code, RejectCode::CanisterError);
@@ -299,7 +300,7 @@ fn unresolved_source_call_survives_a_forced_fenced_restore() {
             f.gateway,
             f.operator,
             "run_sync",
-            candid::encode_one(request).unwrap(),
+            ic_platform::candid::contract::encode_one(request).unwrap(),
         )
         .expect_err("real failed call traps source callback");
     assert_eq!(failure.reject_code, RejectCode::CanisterError);

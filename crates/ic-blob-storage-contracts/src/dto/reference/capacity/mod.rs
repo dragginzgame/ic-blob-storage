@@ -1,10 +1,11 @@
 //! Passive reference headroom for one tenant-scoped root.
 use crate::dto::tenant::TenantScope;
-use candid::CandidType;
-use candid::Deserialize;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Root lookup; a digest is not tenant authority or proof of global absence.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceCapacityRequest {
     /// Actual service, positive namespace and tenant caller must match.
@@ -14,6 +15,7 @@ pub struct ReferenceCapacityRequest {
 }
 /// Independent lifetime capacity dimensions, without allocating a reference or receipt.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceHeadroom {
     /// Unused lifetime reference identities.
@@ -28,6 +30,7 @@ pub struct ReferenceHeadroom {
 }
 /// Correlated observation, not reservation, liveness or mutation authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceCapacityResponse {
     /// Exact original tenant/root request.
@@ -39,6 +42,7 @@ pub struct ReferenceCapacityResponse {
 }
 /// Typed inspection refusal; never interpreted as absent content.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceCapacityFailure {
     /// Zero namespace or invalid tenant principal.

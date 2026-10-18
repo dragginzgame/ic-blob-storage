@@ -1,7 +1,6 @@
 //! Native composition of operator input, Candid values and funding policy.
 //! No canister, provider response or payment effect is simulated here.
 
-use candid::{Int, Nat, Principal, decode_one, encode_one};
 use ic_blob_storage::{
     model::{
         billing::balance::BalanceAmounts,
@@ -25,6 +24,9 @@ use ic_blob_storage::{
         assess_funding, assess_readiness,
     },
 };
+use ic_platform::Principal;
+use ic_platform::candid::contract::{Int, Nat, encode_one};
+use ic_platform::candid::decoder;
 
 #[test]
 fn wire_valid_malformed_component_cannot_make_billing_ready() {
@@ -47,7 +49,8 @@ fn wire_valid_malformed_component_cannot_make_billing_ready() {
         let wire = encode_one((Int::from(100), Int::from(1), Int::from(2), ledger))
             .expect("wire-valid signed amounts");
         let (total, prepaid, promotional, ledger): (Int, Int, Int, Int) =
-            decode_one(&wire).expect("decode numeric fixture");
+            decoder::decode_one_with_config(&wire, &decoder::DecoderConfig::new())
+                .expect("decode numeric fixture");
         let amounts = balance_amounts_from_candid(BalanceAmountsInput {
             total: &total,
             prepaid: &prepaid,
@@ -91,7 +94,8 @@ fn operator_amounts_survive_candid_and_keep_full_request_reserve_rules() {
     for (text, fits) in [("000500", true), ("501", false)] {
         let operator_amount = parse_funding_cycles(text).expect("valid operator amount");
         let bytes = encode_one(Nat::from(operator_amount.get())).expect("Candid encode");
-        let decoded: Nat = decode_one(&bytes).expect("Candid decode");
+        let decoded: Nat = decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
+            .expect("Candid decode");
         let amount = funding_from_nat(&decoded).expect("bounded positive input");
         assert_eq!(amount, operator_amount);
         let decision = assess_funding(limits, amount, 1_000);
@@ -179,7 +183,8 @@ fn valid_candid_encoding_does_not_make_out_of_range_numbers_valid() {
     let oversized =
         Nat::parse(b"340282366920938463463374607431768211456").expect("arbitrary-precision input");
     let bytes = encode_one(oversized).expect("Candid encode");
-    let decoded: Nat = decode_one(&bytes).expect("Candid decode");
+    let decoded: Nat = decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
+        .expect("Candid decode");
     assert_eq!(
         funding_from_nat(&decoded),
         Err(BillingInputError::OutOfRange {
@@ -197,7 +202,8 @@ fn valid_candid_encoding_does_not_make_out_of_range_numbers_valid() {
         (Int::from(u128::MAX), Ok(u128::MAX)),
     ] {
         let bytes = encode_one(balance).expect("Candid encode");
-        let decoded: Int = decode_one(&bytes).expect("Candid decode");
+        let decoded: Int = decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
+            .expect("Candid decode");
         assert_eq!(cycles_from_int(&decoded), expected);
     }
 }

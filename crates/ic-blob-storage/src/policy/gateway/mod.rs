@@ -1,6 +1,6 @@
 //! Pure gateway membership and object-scope checks over trusted local values.
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use crate::model::gateway::registry::GatewayRegistry;

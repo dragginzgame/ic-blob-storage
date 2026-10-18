@@ -145,7 +145,7 @@ fn gateway_request_preserves_rejections_and_consumes_only_a_valid_pending_reply(
         (vec![], GatewayReplyError::InvalidReply),
         (vec![0; 4097], GatewayReplyError::ReplyTooLarge),
         (
-            candid::encode_one(vec![p(4); 3]).unwrap(),
+            ic_platform::candid::contract::encode_one(vec![p(4); 3]).unwrap(),
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(
                 GatewayListError::TooManyEntries {
                     actual: 3,

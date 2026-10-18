@@ -2,8 +2,8 @@
 //! The schema is the maintained Cashier Candid. Explicit raw limits/expiry do not
 //! establish their units, enforcement, caller authority or a financial guarantee.
 use super::wire;
-use candid::Int;
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::contract::Int;
 use std::num::NonZeroU64;
 use std::num::NonZeroU128;
 use thiserror::Error;
@@ -56,13 +56,14 @@ impl AccountLinkRequest {
                 return Err(AccountLinkError::InvalidPrincipal(role));
             }
         }
-        let arguments = candid::encode_args((wire::PaymentAccountCanisterAddRequest {
-            spending_limit_per_day: Int::from(terms.daily_limit.get()),
-            paid_canister: binding.paid_canister,
-            expiration_timestamp: Some(terms.expiration_timestamp.get()),
-            payment_account: Some(binding.payment_account),
-        },))
-        .map_err(|_| AccountLinkError::Encoding)?;
+        let arguments =
+            ic_platform::candid::contract::encode_args((wire::PaymentAccountCanisterAddRequest {
+                spending_limit_per_day: Int::from(terms.daily_limit.get()),
+                paid_canister: binding.paid_canister,
+                expiration_timestamp: Some(terms.expiration_timestamp.get()),
+                payment_account: Some(binding.payment_account),
+            },))
+            .map_err(|_| AccountLinkError::Encoding)?;
         Ok(Self {
             binding,
             terms,

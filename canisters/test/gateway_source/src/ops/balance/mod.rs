@@ -1,7 +1,7 @@
 //! Source state access and real IC scheduling, not provider semantics.
 use crate::model::balance::ReplyRecord;
 use blob_test_protocol::balance::{BalanceSourceConfig, BalanceSourceView};
-use candid::Principal;
+use ic_platform::Principal;
 
 pub(crate) fn configure(config: BalanceSourceConfig) -> bool {
     super::mutate(|state| {

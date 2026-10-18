@@ -6,7 +6,7 @@
 //! remain the workflow's responsibility. Reconstructing a request is not retry
 //! permission. Schema: `docs/evidence/caffeine-cashier.did`.
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use super::relationship::PaymentRelationshipBinding;
@@ -57,7 +57,7 @@ impl CashierQueryRequest {
         let arguments = match query {
             CashierQuery::Balance { account } => {
                 validate(account, CashierQueryPrincipal::BalanceAccount)?;
-                candid::encode_args((wire::AccountGetRequest { account },))
+                ic_platform::candid::contract::encode_args((wire::AccountGetRequest { account },))
             }
             CashierQuery::PaymentRelationship(binding) => {
                 validate(binding.paid_canister, CashierQueryPrincipal::PaidCanister)?;
@@ -65,11 +65,13 @@ impl CashierQueryRequest {
                     binding.payment_account,
                     CashierQueryPrincipal::PaymentAccount,
                 )?;
-                candid::encode_args((wire::PaymentAccountCanisterGetRequest {
-                    canister: binding.paid_canister,
-                },))
+                ic_platform::candid::contract::encode_args((
+                    wire::PaymentAccountCanisterGetRequest {
+                        canister: binding.paid_canister,
+                    },
+                ))
             }
-            CashierQuery::StorageGateways => candid::encode_args(()),
+            CashierQuery::StorageGateways => ic_platform::candid::contract::encode_args(()),
             CashierQuery::AuditLog(input) => Ok(audit::encode(input)?),
         }
         .map_err(|_| CashierQueryError::EncodingFailed)?;
@@ -150,15 +152,17 @@ fn validate(value: Principal, field: CashierQueryPrincipal) -> Result<(), Cashie
 }
 
 mod wire {
-    use candid::CandidType;
-    use candid::Principal;
+    use ic_platform::Principal;
+    use ic_platform::candid::contract::CandidType;
 
     #[derive(CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AccountGetRequest {
         pub account: Principal,
     }
 
     #[derive(CandidType)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct PaymentAccountCanisterGetRequest {
         pub canister: Principal,
     }

@@ -1,10 +1,11 @@
 //! Shared private Cashier DTOs, owned by the provider boundary.
 
-use candid::CandidType;
-use candid::Int;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::Int;
 use serde::Deserialize;
 
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(super) struct AccountCycleBalances {
     pub total: Int,
     pub cycles_prepaid: Int,
@@ -14,6 +15,7 @@ pub(super) struct AccountCycleBalances {
 }
 
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(super) enum DebtTarget {
     Prepaid,
     Ledger,

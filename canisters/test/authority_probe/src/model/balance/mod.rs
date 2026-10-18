@@ -2,13 +2,15 @@
 pub(crate) mod billing;
 
 use blob_test_protocol::balance::{BalanceFailure as Failure, BalanceUsability};
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 pub(crate) const MAX_AGE_NS: u64 = 30_000_000_000;
 const MAX_ATTEMPTS: usize = 16;
 
 #[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct BalanceJournalRecord {
     pub configured: Option<ScopeRecord>,
     pub revision: u64,
@@ -17,6 +19,7 @@ pub(crate) struct BalanceJournalRecord {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ScopeRecord {
     pub service: Principal,
     pub namespace: u128,
@@ -25,6 +28,7 @@ pub(crate) struct ScopeRecord {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct AttemptRecord {
     pub revision: u64,
     pub scope: ScopeRecord,
@@ -33,6 +37,7 @@ pub(crate) struct AttemptRecord {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum OutcomeRecord {
     Reported {
         amounts: [u128; 4],

@@ -1,11 +1,11 @@
 //! Single replicated authenticated upload observation, with no automatic retry.
 use crate::ops::service::client;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;
 use ic_blob_storage_contracts::upload::status::reply;
 use ic_blob_storage_contracts::upload::status::reply::UploadStatusReplyError;
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit actual tenant/service selection; construction sends nothing.

@@ -12,7 +12,6 @@ use blob_test_protocol::{
     },
     journey::{JourneyManifest, JourneyProgress, JourneyVerification},
 };
-use candid::Principal;
 use ic_blob_storage::model::catalog::BlobCatalog;
 use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::model::catalog::admission::UploadPhase;
@@ -24,6 +23,7 @@ use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
+use ic_platform::Principal;
 
 pub(super) fn create() {
     storage::create();

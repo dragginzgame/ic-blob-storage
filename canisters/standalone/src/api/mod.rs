@@ -44,7 +44,7 @@ macro_rules! endpoint {
     };
     (certificate, request, $wire_name:literal, $($item:tt)*) => {
         #[ic_cdk::update(name = $wire_name, hidden = true, decode_with = "ops::decode_certificate")]
-        #[candid::candid_method(update, rename = $wire_name)]
+        #[ic_platform::candid::contract::candid_method(update, rename = $wire_name)]
         $($item)*
 
         // Keep provider registration and schema export in the same expansion pass.
@@ -52,7 +52,7 @@ macro_rules! endpoint {
         ic_cdk::export_candid!();
 
         #[cfg(not(target_arch = "wasm32"))]
-        candid::export_service!();
+        ic_platform::candid::contract::export_service!(ic_platform::candid::contract);
 
         #[cfg(any(not(target_arch = "wasm32"), feature = "provider-candid-export"))]
         pub(crate) fn interface() -> String {

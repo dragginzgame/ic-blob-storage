@@ -1,10 +1,10 @@
 //! Reference-owner enrollment history; no stable records or restore path.
 
-use candid::Principal;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::tenant::next_enrollment;
+use ic_platform::Principal;
 use std::{
     collections::BTreeMap,
     num::{NonZeroU64, NonZeroUsize},

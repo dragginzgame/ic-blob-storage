@@ -1,16 +1,13 @@
 # Prepare an isolated standalone trial
 
-The [current contract](../../../docs/standalone-trial.md) uses configurable resource
-limits. This directory supplies the original isolated trial's deliberately small
-one-object/1 KiB sample envelope, not a library-wide maximum; it does not
-deploy, select a payer or provision a Caffeine namespace.
-
-Copy [configuration.args.template](configuration.args.template) into a fresh private
-directory and replace every named principal with its reviewed value. Obtain the
-actual service principal after separately authorized canister creation. The
-operator and isolated payer are explicit; their controller status is insufficient.
-Choose the project and independent verifier separately. Each tenant-approved
-upload permission names its original uploader; uploader identity is not installed.
+This directory owns the deliberately small
+[JSON proposal template](configuration.json.template), not a deployment flow or
+provider defaults. The maintained
+[offline installation command](../../../docs/operator-guide.md#check-installation-inputs-offline)
+owns candidate validation and encoding. Follow that command with explicitly
+reviewed service, operator, payer, Cashier, project and verifier bindings.
+Controller status grants no tenant or payer authority; upload permissions name
+their original uploader separately.
 
 | Proposed setting | Value and purpose |
 | --- | --- |
@@ -25,76 +22,46 @@ upload permission names its original uploader; uploader identity is not installe
 | Service cycle attachment allocation | One cycle, entirely reserved; no attachment offer available |
 | Gateway reply entries / unique principals | Two / one; drift refuses and needs explicit review |
 
+Preserve full-width integer literals using integer-preserving tooling.
+`installation-check` reads strict JSON and emits `configuration.cbor`, complete
+`installation.cbor` and their hashes in a new private run directory. Only the
+complete installation packet is a current standalone init argument. The provider
+`service.did` describes the certificate endpoint; it contains no installation
+schema. Former Candid installation packets are not accepted by the current host.
+
 The funding reserve prevents service attachment offers within this installation.
 It does not limit external provider bills, fund an account, revoke certificates or
-end retention charges. Proposed provider funding uses the separately reviewed
-cycles-ledger route; its existence in the Cashier interface does not establish
-account creation, credit, authorization or enforcement semantics.
-
-Encode and validate the **completed** configuration offline:
-
-```sh
-didc encode --defs canisters/standalone/service.did \
-  --types '(ServiceConfigurationInput)' < "$RUN/configuration.args" \
-  > "$RUN/configuration.hex"
-xxd -r -p "$RUN/configuration.hex" > "$RUN/configuration.candid"
-blob-storage installation-check \
-  --configuration "$RUN/configuration.candid" --service "$SERVICE" \
-  --project "$PROJECT" --verifier "$VERIFIER" \
-  --release "$REVIEWED_HOST_RELEASE" --run-dir "$RUN/installation-check"
-```
-
-Use the validated `installation-check/installation.candid` as the complete init
-argument. Bind it to the reviewed source, Wasm and DID hashes before installation.
-Decode independently using `xxd -p` and `didc decode --types
-'(ServiceInstallationInput)' --defs canisters/standalone/service.did` through stdin.
-Do not pass a filename as didc's hex argument. A package label alone does not bind
-an unpublished working-tree artifact to the published release receipt.
-
-The proposal is tested with an explicitly labelled local service stand-in in
-[retained evidence](../../../docs/evidence/caffeine-probes/local/2026-10-02-trial-provisioning-01/summary.json).
-Its installation bytes are **local-only** and must not be used for deployment.
-Current trial role candidates and secret-file locations remain in private
-`.tmp/trial-provisioning-01/proposal.json`; no keys are committed or imported into
-the global identity manager. Follow the
+end retention charges. Account provisioning and verified credit remain separate
+provider obligations. The
 [provisioning sequence](../../../docs/operator-guide.md#prepare-isolated-trial-provisioning)
-before any live action.
+owns those steps and their effect authorization.
 
 ## Bind the installation to reviewed artifacts
-
-The released 0.6.0 review packet is private in `.tmp/trial-release-01`.
-Its [retained summary](../../../docs/evidence/caffeine-probes/local/2026-10-02-trial-release-01/summary.json)
-records the source revision, artifact hashes and actual local installation result.
-Fresh trial signing keys remain in the separate private proposal directory.
-Preserve this packet instead of deploying mutable `target/`
-paths or reusing the earlier 0.5.0 preparation copies.
 
 | Artifact | Required binding |
 | --- | --- |
 | Source and release | Exact reviewed commit, source archive, Cargo/lock/toolchain and receipt; receipt hashes bind release files, not the Wasm |
-| Standalone Wasm | Frozen file and SHA-256; observed compiled release must match the selected release |
-| Native CLI and DID | Frozen CLI/DID hashes; declared and host-exported Candid contracts must agree |
-| Configuration and init | Exact validated carrier and hash for the actual created service principal; all local stand-in inputs remain local-only |
+| Standalone Wasm | Frozen default build and SHA-256; observed compiled release must match the selected release |
+| Native CLI and provider DID | Frozen hashes; declared and host-exported provider Candid contracts must agree; check the complete Wasm method surface against the shared catalog |
+| Configuration and init | Exact validated CBOR carrier and hash for the actual created service principal; all local stand-in inputs remain local-only |
 | Installed readback | Explicit operator inspects service, payer, namespace, project, verifier, resource envelope, release and fence before tenant admission |
 
-The maintained PocketIC installation test encodes this template with local roles,
-passes it through `installation-check`, and checks the actual host readback and
-authority rejections. Set `BLOB_TRIAL_INSTALLATION_REPORT` to a **new directory**
-when running that focused case to retain init/readback Candid and a summary.
-Local byte agreement and release readback do not authorize live installation or
-qualify provider account/project behavior. After authorized creation, regenerate
-the candidate for the actual service and retain its new hash alongside the frozen
-artifacts before requesting installation.
+The maintained `standalone_installation_cli` PocketIC cases consume this JSON
+template through the actual CLI, install the complete carrier and check readback,
+wrong-service refusal and authority boundaries. `BLOB_TRIAL_INSTALLATION_REPORT`
+selects a **new directory** for retained CBOR init/readback and a summary. This is
+local installed evidence, not deployed-provider qualification or live authority.
+No mutable `target/` path or package version alone identifies reviewed bytes.
+Cross-release replacement requires the
+[retirement contract](../../../docs/retiring-installations.md); do not discard the
+only records of provider objects, uncertain effects, balances or continuing bills.
 
-The [authorized mainnet installation](../../../docs/evidence/caffeine-probes/deployed/2026-10-02-trial-install-02/summary.json)
-now runs frozen 0.6.0 on `4wyfo-qaaaa-aaaam-qjlpq-cai` with the exact actual-service
-carrier. Every role/configuration reads back; local activity is zero and owners
-are unfenced. Its module hash binds submitted gzip bytes, whose decompression
-matches the reviewed raw Wasm. This completes installation, while provider
-project provisioning and upload/download remain open. The later
-[isolated funding](../../../docs/evidence/caffeine-probes/deployed/2026-10-02-trial-funding-01/summary.json)
-creates/credits the installed payer's account with 999.8B cycles from one 1T-gross
-deposit and notification. Verified settings have zero overdraft and no target
-refill; owner linkage and raw expiry terms still need qualification. The maintainer
-preapproves up to 100T total trial spending; retain exact intents and reconcile
-uncertain outcomes rather than requesting the same covered approval again.
+## Historical trial evidence
+
+The [first accepted trial contract](../../../docs/standalone-trial.md) and its
+[probe ledger](../../../docs/evidence/caffeine-probes/README.md) retain the original
+0.6/0.7 proposals, private artifact locations, authorizations, installations,
+funding results and unresolved obligations. Those records describe their frozen
+release and observation time. Use the matching historical source/tools to inspect
+old packets; do not relabel or re-encode them as current dispatch authority.
+Current commands and admission rules belong to the operator and protocol guides.

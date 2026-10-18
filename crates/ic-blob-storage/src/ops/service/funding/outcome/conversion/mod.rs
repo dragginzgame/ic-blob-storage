@@ -93,7 +93,8 @@ mod tests {
     use super::*;
     #[test]
     fn bounded_diagnostics_preserve_every_decoder_category_and_component() {
-        let principal = candid::Principal::self_authenticating(b"reported unauthorized principal");
+        let principal =
+            ic_platform::Principal::self_authenticating(b"reported unauthorized principal");
         let mut statuses = vec![
             CashierTopUpStatus::NotDispatched,
             CashierTopUpStatus::NotEnqueued,

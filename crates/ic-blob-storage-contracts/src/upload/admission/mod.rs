@@ -25,7 +25,7 @@ pub fn parse(
 /// # Errors
 /// Rejects malformed or differently bound identities without effects.
 pub fn parse_binding(
-    service: candid::Principal,
+    service: ic_platform::Principal,
     input: UploadAdmissionRequest,
 ) -> Result<UploadPermission, UploadAdmissionFailure> {
     let request = reference::parse_upload_binding(service, input.upload).map_err(|e| match e {
@@ -34,8 +34,8 @@ pub fn parse_binding(
         _ => UploadAdmissionFailure::Invalid,
     })?;
     if [
-        candid::Principal::anonymous(),
-        candid::Principal::management_canister(),
+        ic_platform::Principal::anonymous(),
+        ic_platform::Principal::management_canister(),
     ]
     .contains(&input.uploader)
     {

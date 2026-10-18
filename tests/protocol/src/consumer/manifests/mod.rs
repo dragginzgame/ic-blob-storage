@@ -1,10 +1,12 @@
 //! Private bounded uploader intent controls; distinct from tenant registration.
-use candid::{CandidType, Deserialize};
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 /// Exact locally assigned identity and immutable declaration intent.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ManifestIntent {
     /// Explicit lifetime journal identity; never allocated by the fixture.
     pub id: u128,
@@ -13,6 +15,7 @@ pub struct ManifestIntent {
 }
 /// Read-only retained intent and dispatch result.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ManifestIntentView {
     /// Immutable original request.
     pub intent: ManifestIntent,
@@ -25,6 +28,7 @@ pub struct ManifestIntentView {
 }
 /// Scheduling controls do not change saved intent.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ManifestDispatch {
     /// Previously saved local intent.
     pub id: u128,
@@ -37,6 +41,7 @@ pub struct ManifestDispatch {
 }
 /// Fixture-only IC transaction interruption.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ManifestFault {
     /// No interruption.
     None,

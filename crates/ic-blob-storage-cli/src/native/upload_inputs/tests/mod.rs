@@ -28,7 +28,17 @@ pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInp
         "/tests/fixtures/installation/configuration.hex"
     ));
     let bytes = hex::decode(fixture.trim()).expect("fixture hex");
-    let mut configuration: ServiceConfigurationInput = candid::decode_one(&bytes).unwrap();
+    let mut configuration: ServiceConfigurationInput = ic_platform::candid::decode_one(
+        &bytes,
+        ic_platform::candid::DecodeLimits {
+            reply_bytes: 16_384,
+            decoding_quota: 2_000_000,
+            skipping_quota: 100_000,
+            type_entries: 128,
+            header_bytes: 4096,
+        },
+    )
+    .unwrap();
     configuration.service = principal(binding["service"].as_str().unwrap()).unwrap();
     configuration.namespace = u128::MAX;
     ServiceInstallationInput {

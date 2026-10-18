@@ -2,7 +2,6 @@
 pub mod client;
 use super::{StableUploads, UploadStoreError};
 use crate::ops::service::tenant::TenantStoreError;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
 use ic_blob_storage_contracts::dto::tenant::TenantFailure;
@@ -11,6 +10,7 @@ use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
+use ic_platform::Principal;
 
 pub(crate) fn authorize<M: Memory>(
     store: &StableUploads<M>,

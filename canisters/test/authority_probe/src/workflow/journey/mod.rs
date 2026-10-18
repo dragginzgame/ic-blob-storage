@@ -6,7 +6,6 @@ use blob_test_protocol::journey::{
     JourneyCertificate, JourneyFailure, JourneyProgress, JourneyReservation, JourneyUpload,
     JourneyUsage,
 };
-use candid::Principal;
 use ic_blob_storage::model::catalog::pending::PendingPageLimits;
 use ic_blob_storage::policy::catalog::assess_gateway_pending;
 use ic_blob_storage::policy::catalog::upload::UploadRootStatus;
@@ -20,6 +19,7 @@ use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
 use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
+use ic_platform::Principal;
 
 fn tenant(context: TenantAccessContext) -> Result<(), JourneyFailure> {
     ops::read(|s| {

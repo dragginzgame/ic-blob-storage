@@ -4,6 +4,7 @@ use crate::workflow::operator::inspect;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_platform::candid::decoder;
 fn context() -> UploadContext {
     let input = candidate();
     UploadContext {
@@ -36,7 +37,11 @@ fn local_operator_snapshot_preserves_width_and_checks_every_scope_field_without_
     assert_eq!(view.uploads.operations, 0);
     assert_eq!(view.reads.sessions, 0);
     assert_eq!(view.gateways.members, []);
-    let roundtrip = candid::decode_one(&candid::encode_one(&view).unwrap()).unwrap();
+    let roundtrip = decoder::decode_one_with_config(
+        &ic_platform::candid::contract::encode_one(&view).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(view, roundtrip);
     for bad in [
         OperatorScope {
@@ -76,7 +81,7 @@ fn local_operator_snapshot_preserves_width_and_checks_every_scope_field_without_
         ),
         Err(LocalStatusFailure::Binding)
     );
-    for actor in [input.payment_account, candid::Principal::anonymous()] {
+    for actor in [input.payment_account, ic_platform::Principal::anonymous()] {
         assert_eq!(
             inspect(
                 (&stores).into(),

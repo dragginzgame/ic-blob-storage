@@ -6,7 +6,11 @@ use exposure_boundary::{evidence, prepared};
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
-#[derive(candid::CandidType, candid::Deserialize)]
+use ic_platform::candid::decoder;
+#[derive(
+    ic_platform::candid::contract::CandidType, ic_platform::candid::contract::serde::Deserialize,
+)]
+#[candid_path("ic_platform::candid::contract")]
 struct ProviderReply {
     method: String,
     blob_hash: String,
@@ -31,7 +35,11 @@ fn certificate_root_resolves_exact_original_permission_and_commits_before_plain_
         UploadState::ExposurePossible
     );
     // Decode independently as the reviewed provider record, without a Result envelope.
-    let decoded: ProviderReply = candid::decode_one(&candid::encode_one(&reply).unwrap()).unwrap();
+    let decoded: ProviderReply = decoder::decode_one_with_config(
+        &ic_platform::candid::contract::encode_one(&reply).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(decoded.method, "upload");
     assert_eq!(decoded.blob_hash, root);
     assert_eq!(
@@ -152,8 +160,9 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
         ]
     );
     assert_eq!(
-        candid::decode_one::<UploadCertificateAssessmentResponse>(
-            &candid::encode_one(&result).unwrap()
+        decoder::decode_one_with_config::<UploadCertificateAssessmentResponse>(
+            &ic_platform::candid::contract::encode_one(&result).unwrap(),
+            &decoder::DecoderConfig::new()
         )
         .unwrap(),
         result

@@ -1,9 +1,12 @@
 //! Bounded local response schema, distinct from the provider's wire contract.
 use super::FundingPhaseRecord;
-use candid::{CandidType, Deserialize, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Fixed-size diagnostic facts. No text, wire buffers or inferred credit is stored.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum FundingResponseRecord {
     /// No structured observation was retained; transport may still be known.
     Missing,
@@ -25,6 +28,7 @@ pub(crate) enum FundingResponseRecord {
     InvalidBalance(BalanceFieldRecord),
 }
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum BalanceFieldRecord {
     Total,
     Prepaid,

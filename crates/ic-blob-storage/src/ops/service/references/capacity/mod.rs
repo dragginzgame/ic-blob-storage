@@ -4,7 +4,6 @@ use crate::model::service::upload::UploadAdmissionError;
 use crate::model::service::upload::content::ContentLookup;
 use crate::ops::service::uploads::StableUploads;
 use crate::ops::service::uploads::UploadStoreError;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure as F;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
@@ -12,6 +11,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 /// One synchronous owner observation, without a reservation or lifetime-history scan.

@@ -1,8 +1,11 @@
 //! Host-owned current configuration schema; boundary DTOs are not persisted.
-use candid::{CandidType, Deserialize, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// One bounded immutable installation record, never a freshness authority.
 #[derive(Clone, Debug, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ConfigurationRecord {
     pub(crate) format: String,
     pub(crate) release: String,

@@ -1,7 +1,7 @@
 //! One authenticated native query; callers own agents, budgets and evidence order.
 use super::{Failure, artifacts::Run};
-use candid::Principal;
-use ic_agent::Agent;
+use ic_platform::Principal;
+use ic_platform::agent::Agent;
 use serde_json::{Value, json};
 use std::future::Future;
 use std::time::Duration;

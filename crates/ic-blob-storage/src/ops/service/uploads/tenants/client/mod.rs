@@ -1,6 +1,5 @@
 //! Explicit single-call tenant management from a canister operator or observer.
 use crate::ops::service::client;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
@@ -8,6 +7,7 @@ use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
 use ic_blob_storage_contracts::tenant::reply;
 use ic_blob_storage_contracts::tenant::reply::TenantReplyError;
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 

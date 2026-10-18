@@ -1,7 +1,8 @@
 //! Transient shared-owner probe controls, not a production API or provider protocol.
 
 use crate::journey::{JourneyManifest, JourneyUsage};
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 pub mod conversion;
 pub mod input;
@@ -9,6 +10,7 @@ pub mod release;
 
 /// Fixed local measurement envelopes; none is a production configuration.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Workload {
     /// Small envelope for authority, metadata and leaf-capacity checks.
     Small,
@@ -22,6 +24,7 @@ pub enum Workload {
 
 /// Explicit test installation; no provider or account authority is supplied.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Installation {
     /// Sole observer/enrollment operator.
     pub operator: Principal,
@@ -31,6 +34,7 @@ pub struct Installation {
 
 /// Exact fixture operation. Object ID equals operation ID; incarnation/reference are one.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Request {
     /// Claimed service, checked against the actual canister.
     pub service: Principal,
@@ -48,6 +52,7 @@ pub struct Request {
 
 /// Tenant-scoped discovery without a pre-existing operation identity.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ContentLookup {
     /// Explicit fixture service, checked against the running canister.
     pub service: Principal,
@@ -61,6 +66,7 @@ pub struct ContentLookup {
 
 /// Current local content state, not a provider observation or a retain receipt.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ContentState {
     /// Admitted without exposure.
     Reserved,
@@ -80,6 +86,7 @@ pub enum ContentState {
 
 /// Original upload identity and current state, visible only to its tenant.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ContentObservation {
     /// Exact request to recover; discovery does not allocate a new operation.
     pub request: Request,
@@ -89,6 +96,7 @@ pub struct ContentObservation {
 
 /// Tenant-only declaration recovered from local state, not certified HTTP data.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ContentDescriptor {
     /// Exact original identity and current lifecycle; preparation is not completion.
     pub content: ContentObservation,
@@ -98,6 +106,7 @@ pub struct ContentDescriptor {
 
 /// Immutable project instruction, without caller or clock overrides.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Permission {
     /// Exact local operation.
     pub request: Request,
@@ -109,6 +118,7 @@ pub struct Permission {
 
 /// Passive operator compare-and-set observation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Enrollment {
     /// Positive activation generation.
     pub generation: u64,
@@ -118,6 +128,7 @@ pub struct Enrollment {
 
 /// Local manifest consistency; no content verification or provider completion.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ManifestState {
     /// No manifest bound yet.
     Unprepared,
@@ -127,6 +138,7 @@ pub enum ManifestState {
 
 /// Observable local catalog phase.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Phase {
     /// Capacity reserved, exposure not marked.
     Reserved,
@@ -166,6 +178,7 @@ pub enum Command {
 
 /// Typed mutation outcome; errors are ordinary Candid replies, never traps.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Outcome {
     /// Original or replayed reference result, including recorded lifecycle failure.
     Reference {
@@ -188,6 +201,7 @@ pub enum Outcome {
 
 /// Authenticated read-only observation, excluding bytes and hash checkpoints.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Observation {
     /// Original permission, unchanged by retries.
     pub permission: Permission,
@@ -209,6 +223,7 @@ pub const RESOURCE_SAMPLE_CAPACITY: usize = 32;
 /// Completed probe workflow, visible only to its configured operator.
 /// Counters are diagnostic observations, not authority or a production cost quote.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ExecutionProfile {
     /// Monotonic diagnostic sequence, used to detect missing samples in a batch.
     /// This transient counter grants no operational or restoration authority.
@@ -232,6 +247,7 @@ pub struct ExecutionProfile {
 
 /// Typed categories used to assert boundary behavior without freezing error prose.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum Failure {
     /// Malformed fixture identity or enrollment precondition.
     InvalidInput,

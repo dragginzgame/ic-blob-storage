@@ -1,5 +1,4 @@
 use super::{Failure, parsing::positive, read, reply::scope_json};
-use candid::Principal;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
@@ -8,6 +7,7 @@ use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::funding::reply;
 use ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits;
 use ic_blob_storage_contracts::funding::reply::FundingReplyError;
+use ic_platform::Principal;
 use serde::Deserialize;
 use serde_json::{Value, json};
 use std::path::Path;

@@ -2,8 +2,8 @@
 use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::support::REPLY_LIMITS;
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;

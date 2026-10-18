@@ -1,9 +1,11 @@
 //! Passive local funding admission; never a transfer request or Cashier schema.
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
 /// Exact proposed identity/amount against an explicitly selected local journal.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct FundingPreviewRequest {
     /// Actual sender fixture.
     pub service: Principal,
@@ -19,6 +21,7 @@ pub struct FundingPreviewRequest {
 
 /// Input/authority errors, separate from a valid but blocked preview.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum FundingPreviewFailure {
     /// Caller lacks explicit driver authority.
     Denied,
@@ -30,6 +33,7 @@ pub enum FundingPreviewFailure {
 
 /// Independent missing evidence or known reason to refuse new funding.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum FundingPreviewBlocker {
     /// The local peer is not a qualified provider/account binding.
     ProviderUnqualified,
@@ -79,6 +83,7 @@ pub enum FundingPreviewBlocker {
 
 /// Bound passive assessment. A fresh query never authorizes a later effect.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct FundingPreviewView {
     /// Exact request assessed, including amount and operation identity.
     pub request: FundingPreviewRequest,
@@ -94,6 +99,7 @@ pub struct FundingPreviewView {
 
 /// Query-time platform figures for the controlled receive call, not Caffeine credit.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct FundingLiquidityView {
     /// Current liquid balance; it can change independently of the budget revision.
     pub liquid_cycles: u128,

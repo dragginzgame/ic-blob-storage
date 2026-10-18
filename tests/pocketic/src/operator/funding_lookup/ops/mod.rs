@@ -12,7 +12,7 @@ pub(super) fn query(selection: &Selection) -> Result<Report, Failure> {
     let bytes = query_method(
         &selection.target,
         "lookup_funding",
-        candid::encode_one(selection.request).expect("bounded exact lookup"),
+        ic_platform::candid::contract::encode_one(selection.request).expect("bounded exact lookup"),
     )?;
     report(selection, &bytes)
 }

@@ -86,7 +86,7 @@ pub enum ReferenceLivenessError {
 mod tests {
     use std::num::NonZeroU128;
 
-    use candid::Principal;
+    use ic_platform::Principal;
 
     use super::*;
     use ic_blob_storage_contracts::binding::ObjectBinding;

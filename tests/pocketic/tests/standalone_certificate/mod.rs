@@ -30,7 +30,12 @@ pub(super) fn refuses(f: &Fixture, actor: Principal, root: &str) {
     let error = f
         .harness
         .pic
-        .update_call(f.service, actor, ISSUE, candid::encode_one(root).unwrap())
+        .update_call(
+            f.service,
+            actor,
+            ISSUE,
+            ic_platform::candid::contract::encode_one(root).unwrap(),
+        )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
 }
@@ -341,8 +346,8 @@ fn malformed(f: &Fixture, root: &str) {
     let before = f.harness.pic.get_stable_memory(f.service);
     let assessment = inspect(f, f.uploader, root).unwrap();
     for argument in [
-        candid::encode_one("x".repeat(4097)).unwrap(),
-        candid::encode_one(true).unwrap(),
+        ic_platform::candid::contract::encode_one("x".repeat(4097)).unwrap(),
+        ic_platform::candid::contract::encode_one(true).unwrap(),
     ]
     .into_iter()
     .chain(super::standalone_ingress::refusal_arguments(
@@ -376,7 +381,7 @@ fn malformed(f: &Fixture, root: &str) {
                 f.service,
                 f.uploader,
                 INSPECT,
-                candid::encode_args((root, "small")).unwrap()
+                ic_platform::candid::contract::encode_args((root, "small")).unwrap()
             )
             .is_err()
     );

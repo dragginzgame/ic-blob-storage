@@ -3,6 +3,7 @@ use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::status::OperatorStatusView;
 use blob_test_protocol::{GatewaySyncRequest, SourceMode, SourceObservation, SyncFailure};
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 fn request(f: &Fixture) -> GatewaySyncRequest {
@@ -174,7 +175,7 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
             f.authority,
             f.gateway,
             "sync_gateway",
-            candid::encode_one(r).unwrap(),
+            ic_platform::candid::contract::encode_one(r).unwrap(),
         )
         .unwrap();
     for _ in 0..30 {
@@ -203,8 +204,11 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
     .map(|(reply,)| reply)
     .unwrap();
     assert!(resumed);
-    let completed: Result<(), SyncFailure> =
-        candid::decode_one(&f.harness.pic.await_call(id).unwrap()).unwrap();
+    let completed: Result<(), SyncFailure> = decoder::decode_one_with_config(
+        &f.harness.pic.await_call(id).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(completed, Err(SyncFailure::Stale));
     assert_eq!(observed(&f).requests, 1);
     assert_eq!(status(&f).gateways, []);
@@ -223,7 +227,7 @@ fn forced_restore_during_sync_retains_pending_evidence_when_callback_arrives() {
             f.authority,
             f.gateway,
             "sync_gateway",
-            candid::encode_one(r).unwrap(),
+            ic_platform::candid::contract::encode_one(r).unwrap(),
         )
         .unwrap();
     for _ in 0..30 {
@@ -292,7 +296,7 @@ fn bindings_caller_and_restoration_are_checked_before_source_calls() {
         .upgrade_canister(
             f.authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             None,
         )
         .unwrap();
@@ -317,7 +321,7 @@ fn sync_result_survives_failed_post_status_and_preview_stays_query_only() {
     let r = request(&f);
     for (reply, code, outcome) in [
         (
-            candid::encode_one(Ok::<(), SyncFailure>(())).unwrap(),
+            ic_platform::candid::contract::encode_one(Ok::<(), SyncFailure>(())).unwrap(),
             7,
             "completed",
         ),

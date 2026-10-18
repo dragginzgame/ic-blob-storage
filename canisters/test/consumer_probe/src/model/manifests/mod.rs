@@ -4,7 +4,6 @@ use blob_test_protocol::consumer::{
     Failure,
     manifests::{ManifestIntent, ManifestIntentView},
 };
-use candid::{CandidType, Principal};
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
@@ -15,12 +14,15 @@ use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManifest;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
 use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 #[cfg(test)]
 mod tests;
 
 #[derive(Clone, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ManifestIntentRecord {
     intent: ManifestIntent,
     cancelled: bool,

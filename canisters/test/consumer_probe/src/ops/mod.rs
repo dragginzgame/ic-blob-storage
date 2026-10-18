@@ -4,7 +4,6 @@ pub(crate) mod manifests;
 pub(crate) mod tenants;
 use crate::model::ConsumerRecord;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault};
-use candid::{CandidType, Principal, de::DecoderConfig};
 use ic_blob_storage::ic_memory::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::GenericAllocationPolicy;
 use ic_blob_storage::ic_memory::Memory;
@@ -25,6 +24,9 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
 use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::decoder::DecoderConfig;
 use serde::Deserialize;
 use std::cell::{Cell, RefCell};
 const KEY: &str = "fixture.consumer.v1";
@@ -55,7 +57,8 @@ fn config() -> DecoderConfig {
 )]
 pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
     assert!(bytes.len() <= 4096, "consumer ingress bound");
-    candid::decode_one_with_config(&bytes, &config()).expect("consumer ingress")
+    ic_platform::candid::decoder::decode_one_with_config(&bytes, &config())
+        .expect("consumer ingress")
 }
 pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
     let request = MemoryRequest::new("fixture", KEY).unwrap();
@@ -88,7 +91,8 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
         let mut bytes = vec![0; length];
         memory.read(9, &mut bytes);
         let mut record: ConsumerRecord =
-            candid::decode_one_with_config(&bytes, &config()).expect("consumer record");
+            ic_platform::candid::decoder::decode_one_with_config(&bytes, &config())
+                .expect("consumer record");
         assert_eq!(
             record.tenant,
             ic_cdk::api::canister_self(),
@@ -110,7 +114,7 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
 }
 fn save(memory: &RuntimeMemory<DefaultMemoryImpl>, record: &ConsumerRecord) {
     record.validate().expect("consumer invariants");
-    let bytes = candid::encode_one(record).unwrap();
+    let bytes = ic_platform::candid::contract::encode_one(record).unwrap();
     assert!(bytes.len() <= MAX, "consumer record bound");
     memory.write(9, &bytes);
     memory.write(0, b"CONS\x01");

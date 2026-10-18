@@ -1,10 +1,11 @@
 //! Local diagnostic limits; neither configuration nor diagnosis grants funding authority.
 use crate::balance::BalanceScope;
-use candid::CandidType;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Configure thresholds only for an explicitly selected current observation binding.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct BillingLimitsInput {
     /// Exact service, namespace, source and account.
     pub scope: BalanceScope,
@@ -20,6 +21,7 @@ pub struct BillingLimitsInput {
 
 /// Retained validated limits, without inferring spendable accounting.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct BillingLimitsView {
     /// Positive local reserve.
     pub reserve: u128,
@@ -31,6 +33,7 @@ pub struct BillingLimitsView {
 
 /// Threshold result, distinct from reserve feasibility and payment permission.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum FundingNeedView {
     /// Current scope has no installed limits.
     NotConfigured,
@@ -46,6 +49,7 @@ pub enum FundingNeedView {
 
 /// Read-only local diagnosis, including limits invalidated by a changed scope.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct BillingStatusView {
     /// Retained scope, not automatically rebound when observation configuration changes.
     pub scope: Option<BalanceScope>,

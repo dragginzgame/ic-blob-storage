@@ -1,6 +1,6 @@
 //! Canonical syntax shared by commands; role-specific authority stays with callers.
 use super::Failure;
-use candid::Principal;
+use ic_platform::Principal;
 use std::{collections::BTreeMap, fmt::Display, str::FromStr};
 
 pub(super) fn flags(args: &[String]) -> Result<BTreeMap<&str, &str>, Failure> {

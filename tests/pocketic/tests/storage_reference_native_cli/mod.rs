@@ -6,12 +6,12 @@ use crate::{
     reference_cli::{change_native, native_requests},
 };
 use blob_test_protocol::storage::ProviderFact;
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 

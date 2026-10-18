@@ -1,6 +1,6 @@
 use super::*;
 use crate::tenant::reply;
-use candid::Principal;
+use ic_platform::Principal;
 
 fn scope() -> native::TenantScope {
     native::TenantScope {
@@ -90,7 +90,7 @@ fn method_direction_and_previous_encodings_never_become_current_authority() {
     assert!(decode_update_response(&response).is_err());
     for old in [
         crate::wire::encode(scope).unwrap(),
-        candid::encode_one(scope).unwrap(),
+        ic_platform::candid::contract::encode_one(scope).unwrap(),
     ] {
         assert!(decode_inspection_request(&old).is_err());
     }

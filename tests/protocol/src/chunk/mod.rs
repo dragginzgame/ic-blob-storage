@@ -1,5 +1,5 @@
 //! Bounded decoding of the labelled local `fixture_chunk` reply, not a provider contract.
-use candid::{de::DecoderConfig, decode_one_with_config};
+use ic_platform::candid::decoder::{DecoderConfig, decode_one_with_config};
 
 /// Failure to admit a local fixture chunk reply.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

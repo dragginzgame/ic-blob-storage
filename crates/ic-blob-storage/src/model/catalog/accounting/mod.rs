@@ -1,6 +1,6 @@
 //! Private aggregate usage; only the catalog can replace one entry's contribution.
 use super::{CatalogUsage, Entry, LifecyclePhase};
-use candid::Principal;
+use ic_platform::Principal;
 use std::collections::BTreeMap;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]

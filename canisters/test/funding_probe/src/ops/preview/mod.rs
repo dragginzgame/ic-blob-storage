@@ -3,11 +3,11 @@ use blob_test_protocol::funding::preview::{
     FundingPreviewBlocker as Blocker, FundingPreviewFailure, FundingPreviewRequest,
     FundingPreviewView,
 };
-use candid::Principal;
 use ic_blob_storage::policy::billing::admission::FundingAdmissionBlocker;
 use ic_blob_storage::policy::billing::admission::evidence::FundingAdmissionAssessment;
 use ic_blob_storage::policy::billing::admission::evidence::FundingEvidenceBlocker;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 pub(crate) struct FundingPreviewSnapshot {

@@ -5,7 +5,7 @@ use std::{
     ops::Bound::{Excluded, Unbounded},
 };
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use super::BlobCatalog;

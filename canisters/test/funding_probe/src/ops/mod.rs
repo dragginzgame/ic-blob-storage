@@ -16,12 +16,12 @@ use blob_test_protocol::funding::{
     FundingProviderErrorView, FundingReceiptRecord, FundingReconciliationView, FundingReplyMode,
     FundingRequest,
 };
-use candid::Principal;
 use ic_blob_storage::ops::caffeine::funding::{
     TopUpProviderError, TopUpReply, decode_top_up_reply,
 };
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 use ic_cdk::call::{Call, CallFailed};
+use ic_platform::Principal;
 
 thread_local! {
     static STATE: RefCell<Option<FundingJournalRecord>> = const { RefCell::new(None) };

@@ -9,7 +9,9 @@ use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 pub mod request;
 pub mod transport;
 
-use candid::{CandidType, Principal, decode_one_with_config};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::decoder::decode_one_with_config;
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -114,12 +116,14 @@ mod wire {
     pub(super) type AccountTopUpResult = Result<AccountTopUpResponse, AccountTopUpError>;
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AccountTopUpResponse {
         pub balance: AccountCycleBalances,
         pub message: String,
     }
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) enum AccountTopUpError {
         NotAuthorized(Principal),
         AccountBalanceOverflow,
@@ -219,7 +223,7 @@ mod tests {
         let known = fixture(WITHOUT_CYCLES);
         for bytes in [
             Vec::new(),
-            candid::encode_args(()).expect("empty reply"),
+            ic_platform::candid::contract::encode_args(()).expect("empty reply"),
             known[..known.len() - 1].to_vec(),
             fixture(include_str!(concat!(
                 env!("CARGO_MANIFEST_DIR"),
@@ -256,8 +260,9 @@ mod tests {
     #[test]
     fn additional_reply_data_is_subject_to_the_skipping_budget() {
         let reply: wire::AccountTopUpResult = Err(wire::AccountTopUpError::TopUpWithoutCycles);
-        let bytes = candid::encode_args((reply, "unconsumed diagnostic".repeat(4)))
-            .expect("reply with an additional argument");
+        let bytes =
+            ic_platform::candid::contract::encode_args((reply, "unconsumed diagnostic".repeat(4)))
+                .expect("reply with an additional argument");
         assert_eq!(
             decode_top_up_reply(&bytes, limits()),
             Ok(TopUpReply::ProviderFailure(

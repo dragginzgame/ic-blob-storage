@@ -1,6 +1,5 @@
 //! One explicit replicated admission or inspection; no retry or provider effects.
 use crate::ops::service::client;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
@@ -11,6 +10,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_REVOCATION_METHOD;
 use ic_blob_storage_contracts::upload::admission::reply;
 use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
 use ic_cdk::call::Response;
+use ic_platform::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit tenant/service selection. Persist full permission intent before polling.

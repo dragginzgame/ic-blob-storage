@@ -4,7 +4,6 @@ use crate::model::service::upload::planning::AdmissionCapacityLookup;
 use crate::model::service::upload::planning::AdmissionCapacityView;
 use crate::ops::service::uploads::StableUploads;
 use crate::ops::service::uploads::UploadStoreError;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
@@ -12,6 +11,7 @@ use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 /// One synchronous local observation, without reservation or restore authority.

@@ -1,11 +1,12 @@
 //! Exact tenant permission admission and recovery, without provider dispatch.
 use crate::dto::upload::ReferenceUpload;
 use crate::dto::upload::UploadState;
-use candid::CandidType;
-use candid::Deserialize;
-use candid::Principal;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 /// Immutable permission. Persist every field before dispatch; IDs are caller allocated.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadAdmissionRequest {
     /// Complete original upload and first-reference identity.
@@ -17,6 +18,7 @@ pub struct UploadAdmissionRequest {
 }
 /// Exact retained permission and historical phase, not issuance or serving authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadAdmissionResponse {
     /// Complete original permission, checked on both admission and inspection.
@@ -28,6 +30,7 @@ pub struct UploadAdmissionResponse {
 }
 /// Result of a synchronous local reservation, with no certificate or provider call.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadAdmissionMutation {
     /// Exact retained permission and phase.
@@ -37,6 +40,7 @@ pub struct UploadAdmissionMutation {
 }
 /// Local permission withdrawal, distinct from reference release or provider deletion.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct UploadRevocationResponse {
     /// Exact permission and retained phase; revocation must be true.
@@ -46,6 +50,7 @@ pub struct UploadRevocationResponse {
 }
 /// Admission/inspection refusal; missing history never proves safe provider retry.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum UploadAdmissionFailure {
     /// Malformed identity, uploader or object length.

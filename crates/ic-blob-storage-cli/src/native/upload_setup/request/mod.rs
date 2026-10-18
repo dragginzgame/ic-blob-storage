@@ -2,9 +2,9 @@
 use super::{
     Failure, Input, Kind, Payload, Request, admission_error, manifest_error, manifest_reply_limits,
 };
-use candid::Principal;
 use ic_blob_storage_contracts::upload::admission::reply as admission;
 use ic_blob_storage_contracts::upload::manifests::reply as manifest;
+use ic_platform::Principal;
 
 pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> {
     let bytes = crate::native::read(

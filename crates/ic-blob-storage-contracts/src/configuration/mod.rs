@@ -22,7 +22,7 @@ use crate::dto::configuration::ServiceFundingInput;
 use crate::dto::configuration::ServiceReadInput;
 use crate::upload::completion::CompletionAuthority;
 use crate::upload::completion::InvalidCompletionAuthority;
-use candid::Principal;
+use ic_platform::Principal;
 use std::num::NonZeroU64;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;

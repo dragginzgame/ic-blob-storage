@@ -12,7 +12,7 @@ use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
-    candid::encode_one(principals).unwrap()
+    ic_platform::candid::contract::encode_one(principals).unwrap()
 }
 impl Fixture {
     fn cancellation(&self, sequence: u64) -> GatewaySyncCancellation {
@@ -49,7 +49,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_cancel_gateway_sync",
-                candid::encode_one(request).unwrap(),
+                ic_platform::candid::contract::encode_one(request).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -93,7 +93,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_revoke_gateway",
-                candid::encode_one(input).unwrap(),
+                ic_platform::candid::contract::encode_one(input).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -148,7 +148,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_gateways",
-                candid::encode_one(Command {
+                ic_platform::candid::contract::encode_one(Command {
                     scope: self.gateway_scope(),
                     action,
                     fault: true,
@@ -391,12 +391,15 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
     let source = f.gateway_scope();
     let before = f.gateway_view();
     let stable = f.harness.pic.get_stable_memory(f.service);
-    let good = candid::encode_one(vec![f.tenant]).unwrap();
+    let good = ic_platform::candid::contract::encode_one(vec![f.tenant]).unwrap();
     let mut trailing = good.clone();
     trailing.push(0);
     for (reply, failure) in [
         (vec![], Failure::Invalid),
-        (candid::encode_one(vec![42_u64]).unwrap(), Failure::Invalid),
+        (
+            ic_platform::candid::contract::encode_one(vec![42_u64]).unwrap(),
+            Failure::Invalid,
+        ),
         (trailing, Failure::Invalid),
         (vec![0; 2049], Failure::Capacity),
     ] {

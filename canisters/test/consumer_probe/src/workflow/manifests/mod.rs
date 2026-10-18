@@ -4,7 +4,7 @@ use blob_test_protocol::consumer::{
     Failure,
     manifests::{ManifestDispatch, ManifestFault, ManifestIntent, ManifestIntentView},
 };
-use candid::Principal;
+use ic_platform::Principal;
 pub(crate) fn save(
     actor: Principal,
     input: &ManifestIntent,

@@ -1,6 +1,6 @@
 use crate::dto::reference::ReferenceUpload;
 use crate::upload::completion::reply::*;
-use candid::Principal;
+use ic_platform::Principal;
 
 fn fixture() -> (CompletionAuthority, UploadAttestationReceipt) {
     let authority = CompletionAuthority::new(
@@ -185,7 +185,7 @@ fn malformed_oversized_and_remote_refusals_never_become_absence() {
         (vec![0; 4097], UploadAttestationReplyError::Limit),
         (encoded(42_u64), UploadAttestationReplyError::Invalid),
         (
-            candid::encode_args((
+            ic_platform::candid::contract::encode_args((
                 Ok::<_, UploadAttestationFailure>(UploadAttestationResponse {
                     permission,
                     attestation: UploadAttestationLookup::Absent,

@@ -113,11 +113,13 @@ fn relationship_query_preserves_exact_fields_absence_and_provider_failures_witho
     );
     assert_eq!(
         report.spending_limit_per_day(),
-        &candid::Int::parse(b"-340282366920938463463374607431768211456").unwrap()
+        &ic_platform::candid::contract::Int::parse(b"-340282366920938463463374607431768211456")
+            .unwrap()
     );
     assert_eq!(
         report.current_period_spent(),
-        &candid::Int::parse(b"340282366920938463463374607431768211456").unwrap()
+        &ic_platform::candid::contract::Int::parse(b"340282366920938463463374607431768211456")
+            .unwrap()
     );
     assert_eq!(report.expiration_timestamp(), None);
     for (name, expected) in [

@@ -1,14 +1,15 @@
 //! Local readback experiment protocol, not a Caffeine HTTP contract.
-use candid::CandidType;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Last completed local read, overwritten in memory and visible only to the operator.
 /// Counters cover this service's call context across awaits, excluding source
 /// execution and final reply encoding. This is not a production read protocol.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ReadExecutionProfile {
     /// Authenticated initiating actor, preserved across callbacks.
-    pub caller: candid::Principal,
+    pub caller: ic_platform::Principal,
     /// Counter at workflow entry (after ingress decoding).
     pub started: u64,
     /// Immediately before the outgoing call, if admitted.
@@ -33,6 +34,7 @@ pub struct ReadExecutionProfile {
 
 /// One verified manifest leaf; no whole-file read or durable receipt is implied.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct JourneyReadChunk {
     /// Position in the reserved manifest.
     pub index: u64,
@@ -44,6 +46,7 @@ pub struct JourneyReadChunk {
 
 /// Deliberate local-source reply faults.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub enum ReadSourceMode {
     /// Return the configured bytes.
     Valid,
@@ -65,6 +68,7 @@ pub enum ReadSourceMode {
 
 /// Driver-controlled single-leaf substitute for provider storage.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ReadSourceConfig {
     /// Root expected in the service request.
     pub root: [u8; 32],
@@ -80,6 +84,7 @@ pub struct ReadSourceConfig {
 
 /// Driver-only observations for deterministic callback scheduling tests.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ReadSourceObservation {
     /// Accepted source reads, useful for proving denial before effects.
     pub requests: u64,

@@ -51,7 +51,7 @@ pub(crate) fn complete(
         let mut changed = input.intent;
         match fault {
             CallbackIdentityFault::Offered => changed.offered -= 1,
-            CallbackIdentityFault::Account => changed.account = candid::Principal::anonymous(),
+            CallbackIdentityFault::Account => changed.account = ic_platform::Principal::anonymous(),
             CallbackIdentityFault::TargetBalance => {
                 changed.target_balance = changed.target_balance.is_none().then_some(1);
             }

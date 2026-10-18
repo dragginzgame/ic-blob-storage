@@ -2,7 +2,7 @@
 use blob_test_protocol::funding::lookup::{
     FundingLookupFailure, FundingLookupRequest, FundingLookupState, FundingLookupView,
 };
-use candid::Principal;
+use ic_platform::Principal;
 
 pub(crate) fn lookup(
     caller: Principal,

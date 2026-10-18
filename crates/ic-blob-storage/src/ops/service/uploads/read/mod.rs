@@ -10,7 +10,6 @@ use crate::model::service::upload::UploadManifestState;
 use crate::model::service::upload::content::ContentLookup;
 use crate::model::service::upload::content::TenantContentView;
 use crate::model::service::upload::download::ContentHeader;
-use candid::Principal;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::identity::HashParseError;
@@ -20,6 +19,7 @@ use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
 use ic_blob_storage_contracts::upload::history::UploadScanFilter;
+use ic_platform::Principal;
 use std::{
     num::NonZeroU128,
     ops::Bound::{Excluded, Included, Unbounded},

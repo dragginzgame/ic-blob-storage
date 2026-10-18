@@ -1,11 +1,12 @@
 //! Explicit gateway refresh/cancellation; no payment or provider qualification.
 use crate::dto::operator::OperatorScope;
-use candid::CandidType;
-use candid::Deserialize;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Acknowledgment of one completed local membership replacement.
 /// Inspect local status after an uncertain reply; do not automatically start again.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct GatewaySyncResponse {
     /// Complete original installed scope.
@@ -15,6 +16,7 @@ pub struct GatewaySyncResponse {
 }
 /// Cancel exactly one observed pending read-only sync, never a paid operation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct GatewaySyncCancellation {
     /// Complete installed service/provider/account scope.
@@ -24,6 +26,7 @@ pub struct GatewaySyncCancellation {
 }
 /// Typed failure; transport/decoding failures preserve pending work for inspection.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum GatewaySyncFailure {
     /// Zero namespace/cancellation identity or invalid host transport configuration.

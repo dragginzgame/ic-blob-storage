@@ -5,6 +5,7 @@ use blob_test_protocol::{
     admission::{ExecutionProfile, RESOURCE_SAMPLE_CAPACITY, input::PreparationInput},
     journey::JourneyManifest,
 };
+use ic_platform::candid::decoder;
 use ic_testkit::pic::query_candid_args;
 use sha2::{Digest, Sha256};
 
@@ -216,7 +217,7 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
             headers: vec![("X".to_owned(), "x".repeat(16 * 1024))],
         },
     };
-    f.reject_input(candid::encode_args((too_large,)).unwrap());
+    f.reject_input(ic_platform::candid::contract::encode_args((too_large,)).unwrap());
     // Fits the encoded byte limit but exceeds the decoder's work budget.
     let excessive_work = PreparationInput {
         request: p.request,
@@ -225,10 +226,10 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
             headers: vec![(String::new(), String::new()); 6000],
         },
     };
-    f.reject_input(candid::encode_args((excessive_work,)).unwrap());
+    f.reject_input(ic_platform::candid::contract::encode_args((excessive_work,)).unwrap());
     // An extra null vector occupies little wire space but exceeds the skip budget.
     f.reject_input(
-        candid::encode_args((
+        ic_platform::candid::contract::encode_args((
             PreparationInput {
                 request: p.request,
                 manifest: v.manifest.clone(),
@@ -256,11 +257,13 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
 }
 
 fn large_type_headers(input: &PreparationInput) -> Vec<Vec<u8>> {
-    use candid::{
-        CandidType,
-        ser::{TypeSerialize, ValueSerializer},
-        types::{Field, Label, Type, TypeInner},
-    };
+    use ic_platform::candid::contract::CandidType;
+    use ic_platform::candid::contract::types::Field;
+    use ic_platform::candid::contract::types::Label;
+    use ic_platform::candid::contract::types::Type;
+    use ic_platform::candid::contract::types::TypeInner;
+    use ic_platform::candid_parser::TypeSerialize;
+    use ic_platform::candid_parser::ValueSerializer;
     let mut nested: Type = TypeInner::Null.into();
     for _ in 0..129 {
         nested = TypeInner::Opt(nested).into();
@@ -288,7 +291,11 @@ fn large_type_headers(input: &PreparationInput) -> Vec<Vec<u8>> {
             bytes.extend(types.get_result());
             bytes.extend(values.get_result());
             assert_eq!(
-                candid::decode_one::<PreparationInput>(&bytes).unwrap(),
+                decoder::decode_one_with_config::<PreparationInput>(
+                    &bytes,
+                    &decoder::DecoderConfig::new()
+                )
+                .unwrap(),
                 *input
             );
             bytes

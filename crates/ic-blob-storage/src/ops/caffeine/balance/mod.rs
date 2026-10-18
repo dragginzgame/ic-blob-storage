@@ -6,7 +6,8 @@
 
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
-use candid::{Principal, decode_one_with_config};
+use ic_platform::Principal;
+use ic_platform::candid::decoder::decode_one_with_config;
 use thiserror::Error;
 
 use crate::{
@@ -107,8 +108,8 @@ pub enum BalanceReplyError {
 }
 
 mod wire {
-    use candid::CandidType;
-    use candid::Principal;
+    use ic_platform::Principal;
+    use ic_platform::candid::contract::CandidType;
     use serde::Deserialize;
 
     use super::super::wire::AccountCycleBalances;
@@ -117,12 +118,14 @@ mod wire {
         Result<AccountBalanceGetResponse, AccountBalanceGetError>;
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AccountBalanceGetResponse {
         pub account_cycle_balances: AccountCycleBalances,
         pub account: Principal,
     }
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) enum AccountBalanceGetError {
         AccountNotFound,
         InternalError(String),
@@ -131,7 +134,7 @@ mod wire {
 
 #[cfg(test)]
 mod tests {
-    use candid::Int;
+    use ic_platform::candid::contract::Int;
     use std::num::NonZeroUsize;
 
     use super::*;
@@ -260,7 +263,7 @@ mod tests {
                     account: account(),
                     account_cycle_balances: balance,
                 });
-                let bytes = candid::encode_one(reply).expect("wire balance");
+                let bytes = ic_platform::candid::contract::encode_one(reply).expect("wire balance");
                 assert_eq!(
                     decode_balance_reply(&bytes, account(), limits()),
                     Err(BalanceReplyError::InvalidBalance(BalanceInputError {
@@ -278,7 +281,7 @@ mod tests {
         trailing.push(0);
         for bytes in [
             Vec::new(),
-            candid::encode_args(()).expect("absent result"),
+            ic_platform::candid::contract::encode_args(()).expect("absent result"),
             good[..good.len() - 1].to_vec(),
             trailing,
             fixture(include_str!(concat!(
@@ -332,7 +335,8 @@ mod tests {
         );
         let reply: wire::AccountBalanceGetResult =
             Err(wire::AccountBalanceGetError::AccountNotFound);
-        let extra = candid::encode_args((reply, "diagnostic".repeat(10))).expect("extra argument");
+        let extra = ic_platform::candid::contract::encode_args((reply, "diagnostic".repeat(10)))
+            .expect("extra argument");
         assert_eq!(
             decode_balance_reply(&extra, account(), limits()),
             Ok(BalanceReply::ProviderFailure(

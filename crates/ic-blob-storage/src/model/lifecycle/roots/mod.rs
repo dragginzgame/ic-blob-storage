@@ -11,7 +11,7 @@ use std::{
     num::{NonZeroU128, NonZeroUsize},
 };
 
-use candid::Principal;
+use ic_platform::Principal;
 use thiserror::Error;
 
 use ic_blob_storage_contracts::identity::ProviderRootHash;

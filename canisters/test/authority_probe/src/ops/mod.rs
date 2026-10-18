@@ -14,7 +14,6 @@ use std::{
     num::{NonZeroU128, NonZeroUsize},
 };
 
-use candid::Principal;
 use ic_blob_storage::model::catalog::BlobCatalog;
 use ic_blob_storage::model::catalog::CatalogReferenceKey;
 use ic_blob_storage::model::catalog::ConfirmedObject;
@@ -32,6 +31,7 @@ use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_platform::Principal;
 
 thread_local! {
     static STATE: RefCell<Option<State>> = const { RefCell::new(None) };

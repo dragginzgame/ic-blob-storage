@@ -2,11 +2,12 @@
 pub mod assessment;
 pub mod outcome;
 use crate::dto::operator::OperatorScope;
-use candid::CandidType;
-use candid::Deserialize;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Descending local operation position, never a snapshot or retry permission.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryCursor {
     /// Complete original journal scope.
@@ -16,6 +17,7 @@ pub struct FundingHistoryCursor {
 }
 /// One operator history query with host-owned result bounds.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryRequest {
     /// Explicit installed service, namespace, Cashier and payer.
@@ -25,6 +27,7 @@ pub struct FundingHistoryRequest {
 }
 /// Local attachment progress, separate from any provider response or credit.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingPhase {
     /// Attachment reserved before a local attempt marker.
@@ -41,6 +44,7 @@ pub enum FundingPhase {
 }
 /// Original identity and amounts recovered without a saved caller request.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryEntry {
     /// Full retained scope, not a caller-selected transport destination.
@@ -56,6 +60,7 @@ pub struct FundingHistoryEntry {
 }
 /// Bounded current observations, newest local operation first.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryPage {
     /// Complete request echoed for correlation.
@@ -69,6 +74,7 @@ pub struct FundingHistoryPage {
 }
 /// Inspection refusals never become empty history or retry permission.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
+#[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]
 pub enum FundingHistoryFailure {
     /// Zero namespace or continuation identity.

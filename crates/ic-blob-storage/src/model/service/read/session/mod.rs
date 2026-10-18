@@ -2,13 +2,15 @@
 pub(crate) mod record;
 use super::ReadTarget;
 use crate::model::gateway::registry::GatewayScope;
-use candid::{CandidType, Deserialize};
 use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 use std::num::{NonZeroU32, NonZeroU64};
 use thiserror::Error;
 
 /// Trusted concurrent read limits, distinct from upload bytes and lifetime history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct ReadSessionLimits {
     pub(crate) sessions: u32,
     pub(crate) tenant_sessions: u32,

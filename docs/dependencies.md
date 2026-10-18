@@ -16,13 +16,14 @@ lockfiles; local qualification does not cover every future resolution.
 | --- | --- | --- |
 | Blob core | Workspace version | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
 | Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
-| IC Memory | 0.48.1 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
-| IC Storage | 0.5.2 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
+| IC Memory | 0.48.2 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
+| IC Storage | 0.5.3 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
+| IC Platform | 0.1.8 | Principal, external Candid types/encoding/configured decoding/service export; management-history DTOs and supported native Agent, parser and certificate identities |
 | IC Wire | 0.4.0 | Bounded method/direction framing for the two tenant contracts |
 | IC Metrics | 0.13.4 | Private probe measurement arithmetic; not a public Blob API |
 | IC Testkit / Testkit Candid | 0.53.0 | PocketIC client/server selection, managed lifetime and bounded native Candid fixture decoding |
-| IC Host artifacts/fs/process/tools | 0.27.1 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
-| IC Build | 0.16.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
+| IC Host artifacts/fs/process/tools | 0.27.2 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Build | 0.17.1 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Testkit-selected local IC execution; no separate Blob server catalog |
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
@@ -66,10 +67,12 @@ explicit in the canonical method catalog, with no codec fallback. Candid remains
 for external provider/management contracts and existing persisted records.
 Do not remove Ciborium or Candid as migration leftovers while those consumers exist.
 Provider decoders retain their own work/type/byte budgets and authority checks;
-Testkit Candid owns fixture decoding, not production provider transport.
+Platform owns supported independent decoding. Published Testkit still requires
+its own limits identity for simulator calls; neither owns production provider
+transport or its authority.
 
-The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.23.0 at
-`0b351cd2ba2bcd8927b783a5fec89afc8013f708` (136 payloads). It owns common Make,
+The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.24.0 at
+`cab12cd3dfa4fdb34846b25397f0d72881bb9ae0` (137 payloads, including the dependency-boundary checker). It owns common Make,
 installation, tool storage, formatting, hooks and release mechanics. Blob owns
 product inputs, release metadata/publication order, validation selection, Testkit
 forwarding and evidence selection. Snapshot files are reviewed distribution,
@@ -86,6 +89,113 @@ Earlier source-bound receipts remain in [evidence](evidence/), including
 Their older graphs and preparation blockers are historical evidence, not current
 setup requirements. See [current status](status/current.md) for validation limits.
 
+## IC Platform boundary
+
+Published IC Platform **0.1.8** is the selected boundary, with no root default
+features. Members select `candid` for external DTOs, encoders, bounded decoders
+and upstream configuration/staged decoding. Core additionally selects
+`management-canister-types` for continuity-history DTOs. The native CLI selects `agent`;
+PocketIC's native dev declaration also selects `agent`, `candid-parser` and
+`certification`. None of those host selections enter default standalone Wasm.
+Candid derives and service-export generators name the published contract.
+
+The [0.1.8 follow-up](evidence/platform0180331.md) records the current published
+selection, unchanged used APIs and focused recovery/graph checks. Its new snapshot
+and status DTO exports require no new Blob call or feature selection. The
+[0.1.7 follow-up](evidence/platform0170331.md) retains Agent-response and native
+dynamic-fixture adoption evidence against its original graph. The
+[0.1.6 follow-up](evidence/platform0160331.md) retains installed continuity-recovery
+qualification against its original graph. The
+[0.1.5 routing receipt](evidence/platform0150331.md) and
+[earlier adoption](evidence/platform0331.md) retain their original graphs. Core,
+Contracts, protocol support, CLI and native PocketIC support have no direct Candid
+declaration. No workspace member declares Agent directly.
+Configured decoders use the same upstream DecoderConfig/IDLDeserialize identities,
+optional/default quotas, diagnostics and staged instruction observations. Existing
+default-decoder fixture calls explicitly select upstream defaults through that
+API. There is no local decoder facade or new set of automatic limits.
+Application Wire/CBOR codecs, field labels, persisted bytes, storage and memory
+remain unchanged.
+
+Platform's management module now exports CanisterInfoArgs, CanisterInfoResult,
+ChangeDetails and CodeDeploymentMode from exactly 0.11.0. Recovery imports these
+identities directly through Platform; no local DTO, call wrapper or conversion
+is added. The original 30-second call, 20-change horizon, 64 KiB reply limit,
+decoder quotas, post-await version checks and refusal/fence policy remain.
+The direct management dependency is removed and forbidden by the boundary policy
+([Platform #12](https://github.com/dragginzgame/ic-platform/issues/12)).
+ICRC ledger types and raw debug-print additions have no new Blob consumer and
+are not enabled by this adoption.
+
+Native dynamic fixtures use Platform's `candid_parser::{IDLValue, IDLField,
+TypeSerialize, ValueSerializer}` with the existing native-only parser selection.
+The original constructed values, type/header refusal packets and test admission
+limits remain. Native signed-update and headless certificate evidence use
+`agent::{CallResponse, TransportCallResponse}` with unchanged matching, certificate
+verification, request identity, deadlines and no-retry policy. Direct native
+Candid/Agent declarations and their policy exceptions are removed. The upstream
+packages remain transitive; these exports do not reduce the wire or runtime surface.
+
+Necessary direct exceptions are explicit:
+
+- Standalone and six probes retain Candid required by CDK-generated paths. Owned
+  service registration/export and handwritten decoders already use Platform.
+  Core and canisters retain CDK call/system/entrypoint APIs until the qualified
+  runtime facade exists ([Platform #1](https://github.com/dragginzgame/ic-platform/issues/1)).
+- Published Testkit 0.53 still takes its own DecodeLimits, so the old decoder
+  remains a native dev dependency for simulator call helpers only
+  ([Platform #2](https://github.com/dragginzgame/ic-platform/issues/2)).
+
+`make platform-boundary-check` runs Shared's canonical identity checker against
+[local policy](../ci/cargo-dependency-boundaries.json), also in CI/release validation.
+It observes aliases and every direct dependency kind/target/optional declaration.
+The reduced allowlist permits direct Candid only in seven current canisters for
+CDK-generated paths. Agent and direct management types are forbidden everywhere.
+Allowances are package-level, not per-use/feature/kind permissions. Do not expand
+them merely to avoid a migration. No upstream crate alias or compatibility conversion is used.
+The same policy forbids direct `ic-stable-structures` declarations in every member,
+including renamed, dev, build, optional and target-specific dependencies. IC Storage
+owns collection mechanics; IC Memory owns allocation/backing mechanics. Their
+transitive substrate dependencies remain supported. The runtime-free Contracts/CLI
+normal-graph check rejects both Memory and Storage, including indirect reachability.
+
+Standalone still reaches Candid 0.10.38, CDK/macros 0.20.3 and one executor 2.0.0;
+CLI still reaches Candid and Agent transitively. These are controlled identities,
+not claims that their code is absent from binaries. Inspected standalone/CLI
+normal/build graphs exclude parser/Testkit packages. The separate executor-only
+selection stays Candid/full-CDK-free. Automatic transitive deployment exclusions
+and binding source/lock/target/features to deployed bytes remain separate missing
+consumer admission, not supplied by this direct-policy check.
+
+## Dependency roles and deployment admission
+
+The root catalog labels `Production dependencies` and `Tests and tooling only`.
+Production includes transitive use, normal and build dependencies, and supported
+optional features/targets. IC Build belongs here because the CLI uses it during
+building and optional package verification. Hex and Serde byte/CBOR helpers also
+occur transitively in production. Member-role notes sit above the globally sorted
+member array; blank-separated dependency groups use `cargo sort --workspace
+--grouped` in both formatting modes and release metadata checks.
+
+The [0.24 adoption receipt](evidence/shared0240331.md) records locked normal/build
+graph inspections for default standalone Wasm, Core/Contracts Wasm and the native
+CLI with package verification. No test/tool catalog dependency enters those
+graphs. The selected standalone root is excluded from the comparison: its catalog
+entry is consumed only by tests, while the package itself is a production root.
+The provider interface-export feature was checked separately; it is an inspection
+configuration, not a supported deployment artifact.
+
+**Automatic deployment exclusion enforcement is missing.** The existing
+`make contracts-boundary-check` rejects service runtime dependencies in Contracts
+and CLI normal graphs across targets. It does not inspect standalone, build edges
+or arbitrary test/tool transitive reachability. Formatting, snapshot and metadata
+checks preserve declarations; they do not enforce role labels. Blob builds a local
+artifact and has no deployment command. Before deployment, the consuming host or
+operator must enforce exclusions for its exact locked target/features and bind
+source, lock and inspection evidence to the final artifact digest. The successful
+local build and retained digest are evidence for this graph, not proof of deployed
+bytes or every supported configuration.
+
 ## Quick setup
 
 For ordinary development from the repository root:
@@ -99,7 +209,7 @@ For ordinary development from the repository root:
 3. Run `make deps` to fetch the exact locked Rust dependencies.
 4. Run `make install-hooks` once per clone (also after updating
    developer setup). The reviewed hook uses `make fmt`; CI and release validation
-   independently use `make fmt-check`. Both sort all twelve manifests and format
+   independently use `make fmt-check`. Both use grouped catalog sorting across all twelve manifests and format
    Rust, without fetching dependencies, compiling or cleaning artifacts.
 5. Run `make test-native` for native development checks, or
    `make test-native-host` for CLI/examples, actual PocketIC installation and
@@ -109,7 +219,8 @@ Keep `$HOME/.cargo/bin` and `$HOME/.local/bin` on PATH when using user-local too
 Release shell checks require ShellCheck; `SHELLCHECK=/absolute/path` may select
 an already prepared binary. Install it with `sudo apt-get install shellcheck` on
 Debian/Ubuntu or `brew install shellcheck` on macOS. The common local executable
-setup covers jq/yq/rg/cloc, IC tools and cargo-sort/cargo-sort-derives/candid-extractor.
+setup covers jq/yq/rg/cloc, IC tools and cargo-sort/cargo-sort-derives. Candid extraction is no longer
+a common installation; Blob has no extractor executable consumer.
 ShellCheck and the Rust toolchain remain separate prerequisites.
 Missing prerequisites fail rather than being installed
 during a hook or validation. Cargo-sort's exact reviewed version is recorded in
@@ -149,7 +260,7 @@ installation preserves the prior active set and its failed preparation evidence.
 Validation never installs missing prerequisites.
 
 Registry requirements use compatible ranges. The maintained lockfile continues
-to select candid_parser 0.4.1, ic-agent 0.49.2, sha2 0.11.0 and thiserror 2.0.18.
+to select candid_parser 0.4.1 transitively, ic-agent 0.49.2, sha2 0.11.1 and thiserror 2.0.18.
 PocketIC 16's own exact thiserror requirement remains part of the locked native
 test graph; duplicating it in the library catalog is unnecessary. Shared Tooling
 adoption itself does not reselect dependencies. Published library consumers

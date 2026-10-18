@@ -7,7 +7,8 @@
 
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
-use candid::{Principal, decode_one_with_config};
+use ic_platform::Principal;
+use ic_platform::candid::decoder::decode_one_with_config;
 use thiserror::Error;
 
 use crate::model::gateway::registry::{
@@ -126,15 +127,19 @@ mod tests {
         let scope = registry.scope();
         let token = registry.begin_sync().expect("sync");
         let before = registry.clone();
-        let good = candid::encode_one(vec![p(5), p(4), p(5)]).expect("gateway list");
-        let extra = candid::encode_args((vec![p(5)], vec![vec!["extra".repeat(20)]]))
-            .expect("extra argument");
+        let good = ic_platform::candid::contract::encode_one(vec![p(5), p(4), p(5)])
+            .expect("gateway list");
+        let extra = ic_platform::candid::contract::encode_args((
+            vec![p(5)],
+            vec![vec!["extra".repeat(20)]],
+        ))
+        .expect("extra argument");
         let mut trailing = good.clone();
         trailing.push(0);
         for bytes in [
             Vec::new(),
-            candid::encode_args(()).expect("missing argument"),
-            candid::encode_one(vec![42_u64]).expect("wrong element type"),
+            ic_platform::candid::contract::encode_args(()).expect("missing argument"),
+            ic_platform::candid::contract::encode_one(vec![42_u64]).expect("wrong element type"),
             good[..good.len() - 1].to_vec(),
             trailing,
         ] {
@@ -243,7 +248,8 @@ mod tests {
                 },
             ),
         ] {
-            let bytes = candid::encode_one(principals).expect("gateway list");
+            let bytes =
+                ic_platform::candid::contract::encode_one(principals).expect("gateway list");
             assert_eq!(
                 apply_gateway_sync_reply(&mut registry, token, scope, &bytes, limits()),
                 Err(GatewayReplyError::Sync(GatewaySyncError::InvalidList(

@@ -6,8 +6,8 @@ pub trait ServiceCallExt {
     /// Preserves request encoding, platform rejection and reply decoding failures.
     fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: candid::Principal,
-        caller: candid::Principal,
+        canister: ic_platform::Principal,
+        caller: ic_platform::Principal,
         method: &str,
         argument: A,
         max_reply_bytes: usize,
@@ -17,8 +17,8 @@ pub trait ServiceCallExt {
     /// Preserves failures without treating an unusable reply as absence of effects.
     fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: candid::Principal,
-        caller: candid::Principal,
+        canister: ic_platform::Principal,
+        caller: ic_platform::Principal,
         method: &str,
         argument: A,
         max_reply_bytes: usize,
@@ -37,8 +37,8 @@ pub enum ServiceCallError {
 impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
     fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: candid::Principal,
-        caller: candid::Principal,
+        canister: ic_platform::Principal,
+        caller: ic_platform::Principal,
         method: &str,
         argument: A,
         max_reply_bytes: usize,
@@ -51,8 +51,8 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
     }
     fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: candid::Principal,
-        caller: candid::Principal,
+        canister: ic_platform::Principal,
+        caller: ic_platform::Principal,
         method: &str,
         argument: A,
         max_reply_bytes: usize,

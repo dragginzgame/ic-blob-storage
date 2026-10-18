@@ -2,7 +2,6 @@
 use super::{
     Failure, arguments::Options, artifacts::Run, exact_wire, publish_check, publish_inputs,
 };
-use candid::Principal;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
@@ -16,6 +15,7 @@ use ic_blob_storage_contracts::provider::download::request_target;
 use ic_blob_storage_contracts::reference::reply;
 use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_blob_storage_contracts::upload::completion::reply as completion_reply;
+use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{future::Future, path::PathBuf, time::Duration};
 use url::Url;
@@ -54,8 +54,8 @@ impl Selection {
 /// Publication reads authenticate configuration as operator and other reads as tenant.
 /// Each call has its own deadline; the caller retains the overall query budget.
 pub(super) async fn query(
-    tenant: &ic_agent::Agent,
-    operator: &ic_agent::Agent,
+    tenant: &ic_platform::agent::Agent,
+    operator: &ic_platform::agent::Agent,
     service: Principal,
     method: &'static str,
     args: Vec<u8>,

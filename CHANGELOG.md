@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.33.1]
+
+- Remove the gateway-source fixture's unused direct core dependency while keeping
+  its shared protocol dependency and maintained installed gateway/read/account
+  behavior ([#82 — Review the unused core dependency in the gateway-source fixture](https://github.com/dragginzgame/ic-blob-storage/issues/82)).
+- Reconcile delivered Host/Build adoption with released-source native qualification:
+  [#69 — Adopt published Host custody/output APIs and IC Build archive qualification](https://github.com/dragginzgame/ic-blob-storage/issues/69),
+  [#74 — Adopt published Host framing for native control channels](https://github.com/dragginzgame/ic-blob-storage/issues/74) and
+  [#75 — Adopt published IC Build source fingerprints with a qualified compiler graph](https://github.com/dragginzgame/ic-blob-storage/issues/75).
+
+- Track the isolated Canic dispatcher adoption in
+  [draft PR #603 — Adopt Blob shared dispatch and canonical endpoint codecs](https://github.com/dragginzgame/canic/pull/603).
+  Its published dependency graphs and focused codec/macro checks are resolved;
+  installed consumer acceptance remains blocked by Canic's Memory caller adoption.
+
+- Finish the Storage extraction boundary checks: forbid direct substrate
+  dependencies in all workspace members and reject Storage in runtime-free
+  Contracts/CLI graphs. Replace obsolete trial Candid installation instructions
+  with the maintained JSON-to-CBOR workflow and keep historical trial evidence
+  separate from current host instructions.
+
+- Adopt published IC Platform 0.1.8 for Principal, external Candid DTOs, encoding,
+  decoder configuration/stages, service export, native parsing, Agent,
+  certification and management-history identities. Remove the direct management
+  dependency and forbid its reintroduction. Remove direct Candid from core,
+  Contracts, protocol support, CLI and native PocketIC fixtures; route dynamic
+  fixture values/serializers and Agent response enums through Platform and remove
+  all direct Agent dependencies. Preserve decoder defaults, errors, wire/storage
+  bytes and lifecycle semantics. Keep runtime/Testkit limits exceptions explicit
+  and enforce the reduced dependency allowances in CI.
+- Adopt Shared Tooling 0.24.0, label workspace dependency/package roles and preserve
+  grouped manifest sorting in hooks, CI and prepared/committed release checks.
+  Common Cargo setup now installs only the two sorting tools; Blob needs no
+  Candid extractor executable. Document inspected production graphs and the
+  remaining consumer-owned deployment exclusion enforcement.
+
 ## [0.33.0] - 2026-10-18
 
 - Share complete service dispatch between standalone and consumer hosts through

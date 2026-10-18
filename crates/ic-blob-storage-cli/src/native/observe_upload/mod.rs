@@ -11,7 +11,6 @@ use super::provider_download::ExpectedBody;
 use super::query;
 use super::read;
 use super::upload_setup::manifest_reply_limits;
-use candid::Principal;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
@@ -23,6 +22,7 @@ use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
 use ic_blob_storage_contracts::upload::completion::reply::UploadAttestationReplyError;
 use ic_blob_storage_contracts::upload::completion::reply::inspection_request;
 use ic_blob_storage_contracts::upload::completion::verification;
+use ic_platform::Principal;
 use serde_json::Value;
 use std::{
     num::NonZeroU64,
@@ -127,7 +127,7 @@ async fn capture(
     permission: UploadAdmissionRequest,
     argument: Vec<u8>,
     run: &Run,
-    agent: &ic_agent::Agent,
+    agent: &ic_platform::agent::Agent,
 ) -> Result<Value, Failure> {
     let bytes = query::with_agent(
         agent,

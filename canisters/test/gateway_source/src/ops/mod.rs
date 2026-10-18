@@ -14,8 +14,8 @@ use blob_test_protocol::{
     SourceMode, SourceObservation, SyncFailure,
     source::{SourceAction, SourceEffectView, SourceRecoveryView},
 };
-use candid::Principal;
 use ic_cdk::call::{Call, CallFailed};
+use ic_platform::Principal;
 use std::cell::RefCell;
 
 thread_local! {
@@ -203,10 +203,12 @@ pub(crate) async fn confirm_deletion(service: Principal, roots: Vec<Vec<u8>>) ->
 }
 
 pub(crate) fn reply_list(gateway: Principal) {
-    reply(candid::encode_one(vec![gateway]).expect("fixture principal list"));
+    reply(
+        ic_platform::candid::contract::encode_one(vec![gateway]).expect("fixture principal list"),
+    );
 }
 pub(crate) fn reply_empty() {
-    reply(candid::encode_one(Vec::<Principal>::new()).expect("empty list"));
+    reply(ic_platform::candid::contract::encode_one(Vec::<Principal>::new()).expect("empty list"));
 }
 pub(crate) fn reply(bytes: Vec<u8>) {
     ic_cdk::api::msg_reply(bytes);

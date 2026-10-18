@@ -1,11 +1,13 @@
 //! Complete local journal status, never provider-account clearance.
 use super::Allocation;
 use crate::status::FundingActivityView;
-use candid::{CandidType, Deserialize};
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 
 /// Fixed-size operator observation without scanning or paging intent history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub struct Summary {
     /// Full installed journal scope.
     pub scope: OperatorScope,

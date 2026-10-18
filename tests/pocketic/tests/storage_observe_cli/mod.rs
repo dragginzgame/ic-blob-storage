@@ -4,10 +4,10 @@ use crate::authenticated_cli::{PEM, run};
 use crate::observation_provider::{incoming, serve};
 use crate::submission_proxy as proxy;
 use crate::support::REPLY_LIMITS;
-use ic_agent::{Identity, identity::BasicIdentity};
 use ic_blob_storage_contracts::dto::upload::completion::*;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
     io::Write,

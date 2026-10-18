@@ -5,8 +5,8 @@ mod progress;
 use super::{
     Failure, arguments::Options, artifacts::Run, publish_check, publish_inputs, upload_setup,
 };
-use candid::Principal;
-use ic_agent::Agent;
+use ic_platform::Principal;
+use ic_platform::agent::Agent;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
 

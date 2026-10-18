@@ -5,7 +5,7 @@ use crate::dto::reference::ReferenceTransitionFailure;
 use crate::dto::reference::ReferenceUpload;
 use crate::reference::reply::*;
 use crate::wire::encode;
-use candid::Principal;
+use ic_platform::Principal;
 fn request() -> ReferenceCommand {
     ReferenceCommand {
         upload: ReferenceUpload {

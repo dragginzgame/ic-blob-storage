@@ -17,9 +17,9 @@ fn deployment_surface_matches_catalog_and_provider_contract() {
     use std::collections::BTreeSet;
 
     let declared = include_str!("../../../../canisters/standalone/service.did");
-    candid_parser::utils::service_equal(
-        candid_parser::utils::CandidSource::Text(declared),
-        candid_parser::utils::CandidSource::Text(
+    ic_platform::candid_parser::service_equal(
+        ic_platform::candid_parser::CandidSource::Text(declared),
+        ic_platform::candid_parser::CandidSource::Text(
             &ic_blob_storage_canister::provider_candid_interface(),
         ),
     )

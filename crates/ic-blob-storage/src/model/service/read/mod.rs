@@ -1,8 +1,8 @@
 //! Exact read identity; this value alone grants no authority or session capacity.
 pub mod session;
-use candid::Principal;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_platform::Principal;
 
 /// Exact tenant-owned content/reference and selected current gateway.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

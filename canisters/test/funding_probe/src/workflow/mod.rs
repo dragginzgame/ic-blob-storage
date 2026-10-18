@@ -3,7 +3,6 @@
 use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingOperatorStatusView, FundingRequest,
 };
-use candid::Principal;
 use ic_blob_storage::policy::{
     billing::{
         liquidity::{FundingLiquidityDecision, assess_funding_liquidity},
@@ -11,6 +10,7 @@ use ic_blob_storage::policy::{
     },
     diagnostics::assess_operator,
 };
+use ic_platform::Principal;
 
 use crate::ops;
 pub(crate) mod preview;

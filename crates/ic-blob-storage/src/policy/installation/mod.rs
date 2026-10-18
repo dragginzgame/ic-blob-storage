@@ -1,5 +1,5 @@
 //! Pure installed-configuration read authority, independent of deployment roles.
-use candid::Principal;
+use ic_platform::Principal;
 
 /// Only the exact installed service and operator may disclose configuration.
 /// Managed activation, controller status and Fleet membership supply no delegation.

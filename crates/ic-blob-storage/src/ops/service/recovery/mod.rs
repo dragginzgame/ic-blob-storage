@@ -3,9 +3,10 @@ use crate::{
     model::service::recovery::{InstanceChange, InstanceChangeKind, InstanceHistory},
     policy::recovery::{InstanceContinuityError, assess_instance_continuity},
 };
-use candid::{DecoderConfig, Principal};
+use ic_platform::Principal;
+
 use ic_cdk::call::Call;
-use ic_management_canister_types::{
+use ic_platform::management_canister_types::{
     CanisterInfoArgs, CanisterInfoResult, ChangeDetails, CodeDeploymentMode,
 };
 
@@ -151,15 +152,17 @@ pub async fn prove_current_instance(
     if bytes.len() > 65_536 || service != ic_cdk::api::canister_self() {
         return Err(Error::Reply);
     }
-    let mut limits = DecoderConfig::new();
-    limits
-        .set_decoding_quota(2_000_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(128)
-        .set_max_header_len(4096)
-        .set_full_error_message(false);
-    let info: CanisterInfoResult =
-        candid::decode_one_with_config(&bytes, &limits).map_err(|_| Error::Reply)?;
+    let info: CanisterInfoResult = ic_platform::candid::decode_one(
+        &bytes,
+        ic_platform::candid::DecodeLimits {
+            reply_bytes: 65_536,
+            decoding_quota: 2_000_000,
+            skipping_quota: 1024,
+            type_entries: 128,
+            header_bytes: 4096,
+        },
+    )
+    .map_err(|_| Error::Reply)?;
     if info
         .module_hash
         .as_ref()

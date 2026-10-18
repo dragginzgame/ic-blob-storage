@@ -7,7 +7,9 @@
 
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
-use candid::{Int, Nat, Principal, decode_one_with_config};
+use ic_platform::Principal;
+use ic_platform::candid::contract::{Int, Nat};
+use ic_platform::candid::decoder::decode_one_with_config;
 use thiserror::Error;
 
 /// Expected relationship from trusted installation/request context, never defaults.
@@ -205,20 +207,22 @@ fn valid_principal(value: Principal) -> bool {
 }
 
 mod wire {
-    use candid::CandidType;
-    use candid::Int;
-    use candid::Nat;
-    use candid::Principal;
+    use ic_platform::Principal;
+    use ic_platform::candid::contract::CandidType;
+    use ic_platform::candid::contract::Int;
+    use ic_platform::candid::contract::Nat;
     use serde::Deserialize;
 
     pub(super) type GetResult = Result<GetResponse, GetError>;
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct GetResponse {
         pub relationship: Option<Relationship>,
     }
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) struct Relationship {
         pub added_timestamp: u64,
         pub spending_limit_per_day: Int,
@@ -233,6 +237,7 @@ mod wire {
     }
 
     #[derive(CandidType, Deserialize)]
+    #[candid_path("ic_platform::candid::contract")]
     pub(super) enum GetError {
         RelationshipNotFound(Principal),
         NotAuthorized(Principal),

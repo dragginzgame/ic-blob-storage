@@ -2,6 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{SourceObservation, source::SourceHeldSyncView};
+use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::pocket_ic::common::rest::RawMessageId;
 
@@ -25,7 +26,7 @@ impl Fixture {
                 self.gateway,
                 self.operator,
                 "run_sync",
-                candid::encode_one(self.sync_request()).unwrap(),
+                ic_platform::candid::contract::encode_one(self.sync_request()).unwrap(),
             )
             .unwrap();
         for _ in 0..30 {
@@ -54,7 +55,11 @@ impl Fixture {
         .map(|(reply,)| reply)
         .unwrap();
         assert!(resumed);
-        candid::decode_one(&self.harness.pic.await_call(id).unwrap()).unwrap()
+        decoder::decode_one_with_config(
+            &self.harness.pic.await_call(id).unwrap(),
+            &decoder::DecoderConfig::new(),
+        )
+        .unwrap()
     }
 
     pub(super) fn list_observation(&self) -> SourceObservation {
@@ -224,8 +229,11 @@ fn exhausted_local_hold_releases_exact_read_only_attempt_without_automatic_retry
         }
     }
     assert!(f.source_recovery(f.operator).unwrap().held_sync.is_none());
-    let result: Result<(), SyncFailure> =
-        candid::decode_one(&f.harness.pic.await_call(id).unwrap()).unwrap();
+    let result: Result<(), SyncFailure> = decoder::decode_one_with_config(
+        &f.harness.pic.await_call(id).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(result, Err(SyncFailure::Transport));
     assert_eq!((f.archive().last_sync, f.archive().pending_sync), (1, None));
     let source = f.source_recovery(f.operator).unwrap();

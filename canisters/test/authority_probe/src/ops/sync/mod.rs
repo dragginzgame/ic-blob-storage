@@ -1,7 +1,6 @@
 //! Test-only transport to the explicitly installed local source canister.
 
 use blob_test_protocol::{GatewaySyncRequest, SyncFailure};
-use candid::Principal;
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::{
     model::gateway::registry::{GatewayScope, GatewaySyncError, GatewaySyncToken},
@@ -13,6 +12,7 @@ use ic_blob_storage::{
     },
 };
 use ic_cdk::call::Call;
+use ic_platform::Principal;
 use std::num::NonZeroU128;
 
 use super::{bound, mutate};

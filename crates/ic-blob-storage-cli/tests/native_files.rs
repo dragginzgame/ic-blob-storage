@@ -16,7 +16,7 @@ fn fifo_cursor_without_a_writer_returns_typed_file_refusal_promptly() {
             .unwrap()
             .success()
     );
-    let actor = candid::Principal::self_authenticating([42]).to_text();
+    let actor = ic_platform::Principal::self_authenticating([42]).to_text();
     let mut child = Command::new(env!("CARGO_BIN_EXE_blob-storage"))
         .args([
             "funding-history",

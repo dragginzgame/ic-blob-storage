@@ -1,6 +1,5 @@
 //! Explicit canister uploader/observer transport; never an automatic retry or provider upload.
 use crate::ops::service::client;
-use candid::Principal;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
@@ -10,6 +9,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
+use ic_platform::Principal;
 use std::num::NonZeroU32;
 use thiserror::Error;
 #[cfg(test)]

@@ -17,8 +17,8 @@ use blob_test_protocol::journey::{
     JourneyUsage,
 };
 use blob_test_protocol::obligations::{ObligationProbeFact, ObligationProbeView};
-use candid::Principal;
 use ic_blob_storage::policy::tenant::TenantAccessContext;
+use ic_platform::Principal;
 
 fn context() -> TenantAccessContext {
     ops::archive::recovery::require_active();

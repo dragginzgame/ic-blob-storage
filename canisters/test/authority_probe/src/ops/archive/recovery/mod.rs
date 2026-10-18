@@ -7,7 +7,6 @@ use blob_test_protocol::{
     authority::{ArchiveCatalog, ArchivePhase},
     journey::{JourneyManifest, JourneyUpload, JourneyVerification},
 };
-use candid::Principal;
 use ic_blob_storage::model::catalog::admission::UploadAdmission;
 use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::model::gateway::membership::GatewayMembership;
@@ -18,6 +17,7 @@ use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
+use ic_platform::Principal;
 
 use crate::model::archive::AuthorityArchiveRecord;
 use crate::model::content::ContentSession;

@@ -4,6 +4,7 @@ use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
 use ic_blob_storage_contracts::dto::funding::FundingPhase;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_platform::candid::decoder;
 
 #[test]
 fn shared_history_preserves_full_width_attachment_target_and_refund_without_writes() {
@@ -54,7 +55,11 @@ fn shared_history_preserves_full_width_attachment_target_and_refund_without_writ
     );
     assert_eq!(page.next, None);
     assert!(!page.fenced);
-    let roundtrip = candid::decode_one(&candid::encode_one(&page).unwrap()).unwrap();
+    let roundtrip = decoder::decode_one_with_config(
+        &ic_platform::candid::contract::encode_one(&page).unwrap(),
+        &decoder::DecoderConfig::new(),
+    )
+    .unwrap();
     assert_eq!(page, roundtrip);
     drop(store);
     let restored = StableFundingJournal::open(copy(&memory), config(), allocation).unwrap();

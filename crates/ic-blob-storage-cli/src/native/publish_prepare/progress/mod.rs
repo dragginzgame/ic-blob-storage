@@ -14,8 +14,8 @@ use upload_setup::SetupObservation;
 
 pub(super) struct Context<'a> {
     pub options: &'a Options,
-    pub tenant: &'a ic_agent::Agent,
-    pub uploader: &'a ic_agent::Agent,
+    pub tenant: &'a ic_platform::agent::Agent,
+    pub uploader: &'a ic_platform::agent::Agent,
     pub input: &'a Input,
     pub selected: &'a PreparedInput,
     pub origin: &'a Path,

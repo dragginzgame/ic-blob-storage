@@ -223,7 +223,7 @@ fn unsupported_upgrade_preserves_manifest_even_when_outgoing_hook_is_skipped() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
             Some(f.controller),
         )
         .unwrap_err();
@@ -255,7 +255,7 @@ fn unsupported_upgrade_preserves_manifest_even_when_outgoing_hook_is_skipped() {
             f.service,
             hashes,
             Sha256::digest(&wasm).to_vec(),
-            candid::encode_args(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);

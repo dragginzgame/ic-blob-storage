@@ -1,6 +1,6 @@
 //! Private reservation totals, changed only with successful owner transitions.
 use super::{CatalogUsage, UploadUsage};
-use candid::Principal;
+use ic_platform::Principal;
 use std::collections::BTreeMap;
 
 #[derive(Debug, Default, Eq, PartialEq)]

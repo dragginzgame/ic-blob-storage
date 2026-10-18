@@ -1,7 +1,9 @@
 //! Bounded v1 enrollment records; independent of host memory IDs.
-use candid::{CandidType, Deserialize, Principal};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
+use ic_platform::candid::contract::serde::Deserialize;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 #[cfg(test)]
@@ -11,6 +13,7 @@ use std::num::NonZeroU64;
 const MAX_BYTES: u32 = 256;
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct TenantStoreMetadataRecord {
     version: u8,
     service: Principal,
@@ -32,6 +35,7 @@ impl TenantStoreMetadataRecord {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct TenantEnrollmentRecord {
     version: u8,
     generation: u64,
@@ -59,6 +63,7 @@ impl TenantEnrollmentRecord {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum TenantStoreRecord {
     Metadata(TenantStoreMetadataRecord),
     Enrollment(TenantEnrollmentRecord),

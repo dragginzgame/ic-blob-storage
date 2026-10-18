@@ -2,13 +2,15 @@
 pub(crate) mod balance;
 
 use blob_test_protocol::{SourceMode, SyncFailure, journey::readback::ReadSourceMode};
-use candid::{CandidType, Principal};
+use ic_platform::Principal;
+use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 pub(crate) const CHUNK: usize = 1024 * 1024;
 const MAX_EFFECTS: usize = 64;
 
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct SourceJournalRecord {
     pub service: Principal,
     pub gateway: Principal,
@@ -26,11 +28,13 @@ pub(crate) struct SourceJournalRecord {
 // Required record boundary: an older journal cannot decode a missing optional
 // held reply as an empty new state. Fixture schema remains v1, reinstall only.
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct SyncRecord {
     pub held: Option<HeldSyncRecord>,
 }
 
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct HeldSyncRecord {
     pub sequence: u64,
     pub gateway: Principal,
@@ -38,6 +42,7 @@ pub(crate) struct HeldSyncRecord {
 }
 
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReadRecord {
     pub config: Option<LeafRecord>,
     pub requests: u64,
@@ -46,6 +51,7 @@ pub(crate) struct ReadRecord {
 }
 
 #[derive(Clone, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct LeafRecord {
     pub root: [u8; 32],
     pub index: u64,
@@ -55,6 +61,7 @@ pub(crate) struct LeafRecord {
 }
 
 #[derive(Clone, CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) enum ActionRecord {
     Sync,
     Revoke,
@@ -62,6 +69,7 @@ pub(crate) enum ActionRecord {
 }
 
 #[derive(CandidType, Deserialize)]
+#[candid_path("ic_platform::candid::contract")]
 pub(crate) struct EffectRecord {
     pub action: ActionRecord,
     pub succeeded: Option<bool>,
