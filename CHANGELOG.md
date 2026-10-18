@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.33.0]
+## [0.33.0] - 2026-10-18
 
 - Share complete service dispatch between standalone and consumer hosts through
   explicit installation access and host-selected limits. The installation now
