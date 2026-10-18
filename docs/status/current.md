@@ -287,3 +287,13 @@ Public/persisted DTO Candid traits remain required and unchanged. Full CI, nativ
 macOS, installed Canic/registry journeys, live provider behavior, release and
 publication are not qualified by this batch. All attempts and scoped logs remain
 under `.tmp/review-validation/client-boundary0350/`.
+
+
+Adoption tracking is explicit: [Blob #87](https://github.com/dragginzgame/ic-blob-storage/issues/87)
+owns final Testkit/tool/installed qualification and producer publication readiness;
+[Canic #444](https://github.com/dragginzgame/canic/issues/444#issuecomment-6252848643)
+owns the managed dispatch/codec checklist for draft #603;
+[IC Crates #12](https://github.com/dragginzgame/ic-crates/issues/12) owns draft #11's
+published-client/lock/runtime adoption. Existing application acceptance and #84's
+deferred public DTO trait cut retain their separate owners. No new upstream
+Testkit defect is asserted for the missing local prepared tool.
