@@ -1,0 +1,19 @@
+[package]
+name = "ic-blob-storage-client"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+description = "Bounded replicated IC Blob calls without service storage dependencies"
+readme = "README.md"
+
+[dependencies]
+ic-blob-storage-contracts.workspace = true
+ic-platform = { workspace = true, features = ["cdk"] }
+serde.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

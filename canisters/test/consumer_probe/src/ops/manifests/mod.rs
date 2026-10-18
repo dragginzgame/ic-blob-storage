@@ -1,7 +1,7 @@
 //! One shared client call using separately saved uploader intent.
 use blob_test_protocol::consumer::Failure;
-use ic_blob_storage::ops::service::uploads::manifests::client::ReplicatedUploadManifestClient;
-use ic_blob_storage::ops::service::uploads::manifests::client::UploadManifestClientError;
+use ic_blob_storage_client::manifests::ReplicatedUploadManifestClient;
+use ic_blob_storage_client::manifests::UploadManifestClientError;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;

@@ -1,5 +1,5 @@
 //! Authenticated replicated descriptor call; no automatic retries or body transport.
-use crate::ops::service::client;
+use crate::transport as client;
 use ic_blob_storage_contracts::download::reply;
 use ic_blob_storage_contracts::download::reply::DownloadReplyError;
 use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;

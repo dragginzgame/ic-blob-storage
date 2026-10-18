@@ -5,38 +5,37 @@ use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::update_candid_args;
 pub(super) fn withdraw(
     f: &Fixture,
     fault: Fault,
     max_reply_bytes: u32,
 ) -> Result<AssetView, ConsumerFailure> {
-    update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "revoke",
-        (Revocation {
-            asset: 1,
-            fault,
-            max_reply_bytes,
-        },),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_blob_as(
+            f.tenant,
+            f.operator,
+            "revoke",
+            Revocation {
+                asset: 1,
+                fault,
+                max_reply_bytes,
+            },
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap()
 }
 fn recover_withdrawal(f: &Fixture) -> Result<AssetView, ConsumerFailure> {
-    update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "recover_revocation",
-        (1_u128,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_blob_as(
+            f.tenant,
+            f.operator,
+            "recover_revocation",
+            1_u128,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap()
 }
 #[test]
 fn revocation_traps_preserve_tombstone_and_recover_without_resending() {
@@ -54,7 +53,7 @@ fn revocation_traps_preserve_tombstone_and_recover_without_resending() {
                 f.tenant,
                 f.operator,
                 "revoke",
-                ic_platform::candid::contract::encode_one(Revocation {
+                ic_blob_storage_contracts::wire::encode(Revocation {
                     asset: 1,
                     fault,
                     max_reply_bytes: 4096,

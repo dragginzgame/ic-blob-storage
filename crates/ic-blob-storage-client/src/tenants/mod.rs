@@ -1,5 +1,5 @@
 //! Explicit single-call tenant management from a canister operator or observer.
-use crate::ops::service::client;
+use crate::transport as client;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;

@@ -1,8 +1,8 @@
 //! Shared descriptor boundary and an explicitly authorized local consumer probe.
 use crate::ops::read::download;
 use blob_test_protocol::storage::read::{DownloadClientInput, DownloadProbeFailure};
-use ic_blob_storage::ops::service::reads::download::client::DownloadClientError;
-use ic_blob_storage::ops::service::reads::download::client::ReplicatedDownloadClient;
+use ic_blob_storage_client::download::DownloadClientError;
+use ic_blob_storage_client::download::ReplicatedDownloadClient;
 use ic_blob_storage_contracts::download::reply::DownloadReplyError;
 use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;

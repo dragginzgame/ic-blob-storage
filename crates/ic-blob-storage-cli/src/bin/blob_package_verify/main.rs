@@ -23,6 +23,11 @@ fn main() {
                 patch_registry: true,
             },
             PackageArchiveSpec {
+                name: "ic-blob-storage-client",
+                version,
+                patch_registry: false,
+            },
+            PackageArchiveSpec {
                 name: "ic-blob-storage",
                 version,
                 patch_registry: false,

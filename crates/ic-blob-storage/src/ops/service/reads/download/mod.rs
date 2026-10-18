@@ -1,5 +1,4 @@
-//! One service-owned descriptor boundary, bounded decoding and explicit IC client.
-pub mod client;
+//! One service-owned descriptor boundary and bounded conversion.
 use crate::model::service::upload::UploadAdmissionError;
 use crate::ops::service::uploads::UploadStoreError;
 use crate::ops::service::uploads::read::RetainedUploadDescriptorView;

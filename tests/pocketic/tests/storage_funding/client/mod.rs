@@ -8,7 +8,6 @@ use ic_blob_storage_contracts::dto::funding::FundingPhase;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
@@ -44,35 +43,35 @@ fn history(
     request: FundingHistoryRequest,
     max_reply_bytes: u32,
 ) -> Result<FundingHistoryPage, ConsumerFailure> {
-    update_candid_args(
-        &f.harness.pic,
-        client,
-        f.controller,
-        "fixture_funding_history",
-        (FundingHistoryInspection {
-            request,
-            max_reply_bytes,
-        },),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_blob_as(
+            client,
+            f.controller,
+            "fixture_funding_history",
+            FundingHistoryInspection {
+                request,
+                max_reply_bytes,
+            },
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap()
 }
 fn outcome(
     f: &Fixture,
     client: Principal,
     request: FundingOutcomeRequest,
 ) -> Result<Option<FundingOutcomeResponse>, ConsumerFailure> {
-    update_candid_args(
-        &f.harness.pic,
-        client,
-        f.controller,
-        "fixture_funding_outcome",
-        (request,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_blob_as(
+            client,
+            f.controller,
+            "fixture_funding_outcome",
+            request,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap()
 }
 fn request(f: &Fixture, operation: u128) -> FundingOutcomeRequest {
     FundingOutcomeRequest {
@@ -208,27 +207,29 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
             request,
             max_reply_bytes: 16_384,
         };
-        let denied: Result<FundingHistoryPage, ConsumerFailure> = update_candid_args(
-            &f.harness.pic,
-            client,
-            f.other,
-            "fixture_funding_history",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let denied: Result<FundingHistoryPage, ConsumerFailure> = f
+            .harness
+            .pic
+            .update_blob_as(
+                client,
+                f.other,
+                "fixture_funding_history",
+                input,
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         assert_eq!(denied, Err(ConsumerFailure::Denied));
-        let query: Result<FundingHistoryPage, ConsumerFailure> = query_candid_args(
-            &f.harness.pic,
-            client,
-            f.controller,
-            "fixture_query_funding",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let query: Result<FundingHistoryPage, ConsumerFailure> = f
+            .harness
+            .pic
+            .query_blob_as(
+                client,
+                f.controller,
+                "fixture_query_funding",
+                input,
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         assert_eq!(query, Err(ConsumerFailure::Transport));
         if authorized {
             assert_eq!(history(&f, client, request, 16_384).unwrap().entries, []);

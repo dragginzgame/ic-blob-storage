@@ -3,7 +3,7 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::manifests::{
     ManifestDispatch, ManifestFault, ManifestIntent, ManifestIntentView,
 };
-use ic_testkit::pic::update_candid_args;
+use ic_blob_storage_contracts::wire;
 mod cancellation;
 fn uploader_fixture() -> Fixture {
     let mut f = fixture();
@@ -27,56 +27,60 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
         id: 1,
         request: f.preparation_input(&manifest),
     };
-    let saved: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-        &f.harness.pic,
-        f.uploader,
-        f.operator,
-        "save_manifest",
-        (&intent,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let saved: Result<ManifestIntentView, ConsumerFailure> = f
+        .harness
+        .pic
+        .update_blob_as(
+            f.uploader,
+            f.operator,
+            "save_manifest",
+            &intent,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
     assert!(!saved.unwrap().started);
     // Tenant authority cannot be substituted for the admitted uploader.
-    let wrong: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "save_manifest",
-        (&intent,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let wrong: Result<ManifestIntentView, ConsumerFailure> = f
+        .harness
+        .pic
+        .update_blob_as(
+            f.tenant,
+            f.operator,
+            "save_manifest",
+            &intent,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
     assert_eq!(wrong, Err(ConsumerFailure::Invalid));
-    let sent: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-        &f.harness.pic,
-        f.uploader,
-        f.operator,
-        "dispatch_manifest",
-        (ManifestDispatch {
-            hold: false,
-            id: 1,
-            max_reply_bytes: 1,
-            fault: ManifestFault::None,
-        },),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let sent: Result<ManifestIntentView, ConsumerFailure> = f
+        .harness
+        .pic
+        .update_blob_as(
+            f.uploader,
+            f.operator,
+            "dispatch_manifest",
+            ManifestDispatch {
+                hold: false,
+                id: 1,
+                max_reply_bytes: 1,
+                fault: ManifestFault::None,
+            },
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
     assert_eq!(sent, Err(ConsumerFailure::Transport));
     let before = f.harness.pic.get_stable_memory(f.service);
-    let recovered: Result<ManifestIntentView, ConsumerFailure> = update_candid_args(
-        &f.harness.pic,
-        f.uploader,
-        f.operator,
-        "recover_manifest",
-        (1u128,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let recovered: Result<ManifestIntentView, ConsumerFailure> = f
+        .harness
+        .pic
+        .update_blob_as(
+            f.uploader,
+            f.operator,
+            "recover_manifest",
+            1u128,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
     assert_eq!(
         recovered.unwrap().result,
         Some(Ok(intent.request.declaration))

@@ -1,5 +1,5 @@
 //! Single replicated authenticated upload observation, with no automatic retry.
-use crate::ops::service::client;
+use crate::transport as client;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;

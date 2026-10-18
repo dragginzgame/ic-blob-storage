@@ -1,5 +1,4 @@
-//! Canonical permission conversion and bounded replicated transport.
-pub mod client;
+//! Canonical permission conversion over the installed service.
 use crate::model::catalog::CatalogError;
 use crate::model::catalog::admission::UploadAdmission;
 use crate::model::catalog::admission::UploadError;

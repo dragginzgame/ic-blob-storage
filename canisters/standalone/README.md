@@ -305,7 +305,7 @@ fence and shared reconciliation diagnosis. Reported balances, provider errors an
 decoder failures stay separate from exact refunds and accepted-cycle obligations.
 The query reads local storage and never refreshes provider balances or sends funds.
 
-Canister operators can use `ops::service::funding::client::ReplicatedFundingClient`
+Canister operators can use `ic_blob_storage_client::funding::ReplicatedFundingClient`
 with their actual canister identity, complete `OperatorScope` and a bounded timeout.
 `history` accepts explicit byte/entry reply limits; `outcome` checks one original
 intent. Calls require replicated execution and attach no cycles. The client checks

@@ -1,10 +1,9 @@
 //! Local observer fixture controls; the service request remains the shared DTO.
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::{Deserialize, Serialize};
 /// One bounded history inspection, with no client persistence or mutation.
-#[derive(Clone, Copy, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct FundingHistoryInspection {
     /// Exact shared request.
     pub request: FundingHistoryRequest,

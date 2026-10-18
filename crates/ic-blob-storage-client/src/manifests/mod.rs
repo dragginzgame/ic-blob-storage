@@ -1,5 +1,5 @@
 //! Explicit canister uploader/observer transport; never an automatic retry or provider upload.
-use crate::ops::service::client;
+use crate::transport as client;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;

@@ -12,8 +12,7 @@ use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
-use ic_platform::candid::decoder;
-use ic_testkit::pic::query_candid_args;
+use ic_blob_storage_contracts::wire;
 
 pub(super) fn install(f: &mut Fixture) {
     let consumer = f.harness.pic.create_canister_with_settings(
@@ -92,7 +91,7 @@ pub(super) fn handshake(
     };
     let commands = serde_json::json!({
         "verifyAuthority": verify_authority,
-        "admission": ic_platform::candid::contract::encode_one(&run).unwrap(),
+        "admission": ic_blob_storage_contracts::wire::encode(&run).unwrap(),
         "permission": ic_blob_storage_contracts::wire::encode(request.permission).unwrap(),
         "preparation": ic_blob_storage_contracts::wire::encode(&request).unwrap(),
     });
@@ -124,8 +123,7 @@ pub(super) fn handshake(
 
 fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) {
     let denied: Result<AssetView, ConsumerFailure> =
-        decoder::decode_one_with_config(&replies.foreign_admission, &decoder::DecoderConfig::new())
-            .unwrap();
+        wire::decode(&replies.foreign_admission, REPLY_LIMITS.reply_bytes).unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
     let denied: Result<UploadAdmissionMutation, A> =
         ic_blob_storage_contracts::wire::decode(&replies.direct_admission, 4096).unwrap();
@@ -147,30 +145,31 @@ fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) 
 
 fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
     let admitted: Result<AssetView, ConsumerFailure> =
-        decoder::decode_one_with_config(bytes, &decoder::DecoderConfig::new()).unwrap();
+        wire::decode(bytes, REPLY_LIMITS.reply_bytes).unwrap();
     let admitted = admitted.unwrap();
     assert_eq!(admitted.registration, run.registration);
     assert!(admitted.admission_started);
     assert_eq!(admitted.admission_result, Some(Ok(())));
     assert!(!admitted.published);
-    let stored: Result<AssetView, ConsumerFailure> = query_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.uploader,
-        "asset",
-        (run.registration.asset,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let stored: Result<AssetView, ConsumerFailure> = f
+        .harness
+        .pic
+        .query_blob_as(
+            f.tenant,
+            f.uploader,
+            "asset",
+            run.registration.asset,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
     assert_eq!(stored, Ok(admitted));
 }
 
 pub(super) fn consumer_commands(run: &Run) -> serde_json::Value {
     serde_json::json!({
-        "registration": ic_platform::candid::contract::encode_one(run).unwrap(),
-        "asset": ic_platform::candid::contract::encode_one(run.registration.asset).unwrap(),
-        "revocation": ic_platform::candid::contract::encode_one(Revocation {
+        "registration": ic_blob_storage_contracts::wire::encode(run).unwrap(),
+        "asset": ic_blob_storage_contracts::wire::encode(run.registration.asset).unwrap(),
+        "revocation": ic_blob_storage_contracts::wire::encode(Revocation {
             asset: run.registration.asset, fault: Fault::None, max_reply_bytes: 4096,
         }).unwrap(),
     })
@@ -189,7 +188,7 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
     let view = |bytes: &[u8]| {
         assert!(bytes.len() <= 4096);
         let result: Result<AssetView, ConsumerFailure> =
-            decoder::decode_one_with_config(bytes, &decoder::DecoderConfig::new()).unwrap();
+            wire::decode(bytes, REPLY_LIMITS.reply_bytes).unwrap();
         let view = result.unwrap();
         assert_eq!(view.registration, run.registration);
         assert!(!view.published);
@@ -212,16 +211,17 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
     } else {
         pending
     };
-    let stored: Result<AssetView, ConsumerFailure> = query_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.uploader,
-        "asset",
-        (run.registration.asset,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let stored: Result<AssetView, ConsumerFailure> = f
+        .harness
+        .pic
+        .query_blob_as(
+            f.tenant,
+            f.uploader,
+            "asset",
+            run.registration.asset,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
     assert_eq!(stored, Ok(expected));
     // Neither an HTTP success nor withdrawal erases the exposed reservation.
     assert_eq!(f.status().bytes, 10);

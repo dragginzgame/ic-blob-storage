@@ -1,8 +1,8 @@
 //! Shared receipt boundary and explicit local tenant proxy.
 use crate::ops::read::download;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
-use ic_blob_storage::ops::service::references::client::ReferenceClientError;
-use ic_blob_storage::ops::service::references::client::ReplicatedReferenceClient;
+use ic_blob_storage_client::references::ReferenceClientError;
+use ic_blob_storage_client::references::ReplicatedReferenceClient;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;

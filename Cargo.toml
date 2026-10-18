@@ -11,6 +11,7 @@ members = [
     "canisters/test/storage_probe",
     "crates/ic-blob-storage",
     "crates/ic-blob-storage-cli",
+    "crates/ic-blob-storage-client",
     "crates/ic-blob-storage-contracts",
     "tests/pocketic",
     "tests/protocol",
@@ -30,8 +31,9 @@ publish = ["crates-io"]
 ciborium = "0.2.2"
 hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
+ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.34.0" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.34.0" }
-ic-build = "0.17"
+ic-build = "0.18"
 ic-host-artifacts = "0.27"
 ic-host-fs = "0.27"
 ic-host-process = "0.27"

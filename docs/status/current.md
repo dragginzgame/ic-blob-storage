@@ -4,14 +4,13 @@ Date: 2026-10-18
 
 ## Source and scope
 
-HEAD is released 0.33.1 at `67b20989ebdb555e9fac6022685be51ba866fb4a`.
-Workspace package versions remain 0.33.1; pending notes are 0.34.0 because the
-provider chunk-reply decoder moves from Core's public API to Contracts.
-The working tree adopts published Platform 0.1.11, narrows Shared's exported test
-roots and selects development Rust 1.99.1. Earlier Platform/Testkit and ownership
-changes below are delivered;
-their receipts retain their original sources and graphs. No new release,
-publication, deployment or current-repository Git effect ran in this pass.
+HEAD is released 0.34.0 at `926e91fe6fe98bb1caba6a3a343b5f940b4db714`.
+Workspace package versions remain 0.34.0; pending notes are 0.35.0 because the
+replicated clients move out of Core's public modules into their own package.
+The working tree includes the previously prepared private-control CBOR migration
+from PR #86. Incoming IC Build 0.18 and the updated lock selections are preserved;
+source-bound checks below distinguish the isolated baseline from this combined
+graph. No Blob commit, release, publication or deployment ran in this pass.
 
 The [archived handoff](handoff-2026-10-18.md) preserves all earlier source-bound
 results, failed attempts and consumer prerequisites. Its pending-release and
@@ -22,13 +21,15 @@ with its owner; archived release labels never qualify current bytes.
 
 Blob owns tenant policy, data/references, quotas, provider economics, retained
 obligations and recovery; Contracts owns passive DTOs, method catalog, application
-codecs and verification. Standalone owns explicit endpoints, authentication,
+codecs and verification. The client package owns explicit replicated calls without
+service storage; caller intent and recovery policy remain consumer-owned.
+Standalone owns explicit endpoints, authentication,
 lifecycle and memory custody. Native CLI owns Blob operations and their evidence.
 Linking the core never mounts endpoints or lifecycle hooks. Consumer frameworks
 own their wrappers and installed integration qualification in their own repos.
 
 Memory 0.48.2 owns allocation/backing governance; Storage 0.5.3 owns collections
-and codecs. The pending lock selects Platform 0.1.11 for supported principal,
+and codecs. The pending lock selects Platform 0.1.13 for supported principal,
 Candid/native Agent/certificate, entrypoint and call/system APIs. No direct
 Candid/CDK exceptions remain; runtime implementation retains its upstream owner.
 Wire 0.4.1 owns the two tenant method frames. Other 29 owned methods and standalone
@@ -186,3 +187,103 @@ work, not proof of that API. Do not replace exact journal recovery, uncertain
 funding records or restore fences with reset/retry shortcuts. Provider acceptance,
 retirement and continuing-billing obligations remain governed by their service
 contracts and the [probe ledger](../evidence/caffeine-probes/README.md).
+
+Pending compatible 0.34.1 advances
+[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84)
+through [PR #86 — Move private consumer-probe controls to CBOR](https://github.com/dragginzgame/ic-blob-storage/pull/86).
+All 26 callable controls now use bounded canonical CBOR, including tenant,
+funding-observer, manifest and asset admission/publication/cleanup controls.
+Actual Rust callers and the opaque Chromium control packets use the same codec;
+service calls retain their exact Wire or CBOR clients. Transient fixture types
+drop CandidType, and the unused Candid ingress decoder is removed. Public DTO
+traits, lifecycle arguments and persisted record encoders remain unchanged.
+`Registration`, its source and `ManifestIntent` retain CandidType because the
+current consumer journal stores them. The full public cut must inventory these
+real stored consumers and pinned framework callers, not just incoming endpoints.
+
+Fresh consumer/storage Wasms pass all nineteen affected consumer transaction
+cases, covering authority, trap rollback, lost acknowledgments, cancellation,
+late completion, original-operation recovery, capacity and same-release fences.
+Malformed/trailing/oversized/unknown-field and legacy Candid controls refuse
+before either owner writes. Eleven related tenant/funding/manifest cases pass
+on those same fresh Wasms. The opt-in pinned Chromium fixture also passes all
+ten scenarios, including full-width IDs, foreign-caller refusal, reload/competing
+tabs, gateway failures and consumer cancellation/withdrawal. This is local IC and
+browser substitute evidence, not deployed-provider or Canic qualification.
+Focused native checks, strict affected Clippy, actual Rust 1.91 Wasm, formatting,
+dependency boundaries/runtime-free graphs and documentation links pass.
+Earlier tenant/funding/manifest checks remain under
+`.tmp/review-validation/probe-controls0341/`; current checks and the initial
+sandbox npm-admission failure plus successful retry remain under
+`.tmp/review-validation/asset-controls0341/`. The isolated implementation is
+`.tmp/worktrees/tenant-probe0341/`. Package, manifest and lock selections are unchanged.
+
+
+Pending 0.35.0 moves the seven existing replicated client families to
+`crates/ic-blob-storage-client/`, with no replacement implementation or codec.
+Core's public client paths are removed; this is a minor public API cut. This
+isolated batch includes the earlier private-control migration from PR #86 and
+preserves its persisted records and public DTO traits. Workspace package versions
+remain 0.34.0. The new member inherits those versions and existing dependencies;
+this does not make an unpublished client package available to registry consumers.
+The actual consumer probe imports the client package. Package verification and
+publication selection include Contracts, Client and Core; normal client graphs
+reject service storage while Contracts/native CLI remain runtime-free.
+Canic shared-dispatch adoption remains in its existing draft PR #603, separately
+from the client extraction. Actual downstream adoption needs the published client
+family and each application's coherent runtime graph; no source override qualifies
+publication or deployment. Evidence stays under `.tmp/review-validation/client-boundary0350/`.
+
+
+## Client-boundary completion — 2026-10-18
+
+The accepted batch is applied to this normal working tree, including the earlier
+private-probe changes from PR #86. The isolated client implementation remains at
+`.tmp/worktrees/client-boundary0350/`, based on that PR's `78071e2`. No Blob index
+or ref is changed. The incoming IC Build requirement and every registry package
+and dependency edge in the incoming lock are preserved; only the new local
+Client member and its two probe edges are added.
+
+The frozen baseline passes four client unit cases, strict affected Clippy, actual
+Rust 1.91 native/Wasm checks, fresh consumer/storage Wasms and thirty installed
+consumer/tenant/funding/manifest cases. All three archives pass tests and exact
+graph/final integrity admission. Warm-cache same-version execution and archive,
+source, manifest and lock tamper refusals pass. The release adapter fixtures pass
+Contracts/Client/Core publication order, individual selection, dry runs and
+each stage's failures/lost replies. Client and Core have separate Contracts
+readback directories. The initial missing Storage-probe dependency and reused
+readback-directory failures remain in their original failed logs.
+
+The combined normal graph selects Platform 0.1.13, Host 0.27.6, Metrics 0.14.4,
+Build 0.18.0 and Testkit 0.54.1. Its client unit tests, affected all-target checks,
+strict Clippy, Rust 1.91 native/Wasm checks, fresh Wasms, three-archive tests,
+formatting, documentation links, ShellCheck, pins and dependency/storage boundary
+checks pass. After the README layout-index addition, all three archives were regenerated;
+the final Core payload differs only in README bytes, with every Rust, manifest,
+lock and other entry byte-identical to the tested payload.
+Installed qualification on this graph stops at offline tool admission: the
+prepared Testkit CLI is 0.54.0, not the selected 0.54.1. Run explicit
+`make install-testkit` and `make testkit-check`, then the thirty affected cases
+before claiming this graph's installed acceptance. The frozen-graph installed
+results are not relabeled as current-graph evidence.
+
+[Canic draft PR #603](https://github.com/dragginzgame/canic/pull/603) now has the
+0.34/Platform 0.1.13 follow-up at `3b46d119b`. It preserves Canic endpoint,
+lifecycle and memory custody, the sole installation cell and initial continuity
+observation. Forty-eight actual macro cases, strict macro lint, native/Wasm
+expansion including Rust 1.91, two isolated byte-contract cases and selected-file
+formatting pass. Its base still fails fifteen Canic Core Memory caller errors;
+framework substitutes do not qualify actual dedicated/embedded installation.
+The normal Canic checkout's newer framework work was not copied or edited.
+
+[IC Crates draft PR #11](https://github.com/dragginzgame/ic-crates/pull/11) replaces
+the registry's two Core client imports with the client-only package. It awaits
+Client/Contracts 0.35 publication, a real registry lock refresh and its existing
+framework/database convergence in PR #7. Candidate-source qualification reaches
+the same three Memory type errors as the unchanged baseline. No path override or
+lock change is committed there, and no passing installed registry is claimed.
+
+Public/persisted DTO Candid traits remain required and unchanged. Full CI, native
+macOS, installed Canic/registry journeys, live provider behavior, release and
+publication are not qualified by this batch. All attempts and scoped logs remain
+under `.tmp/review-validation/client-boundary0350/`.
