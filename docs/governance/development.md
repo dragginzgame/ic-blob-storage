@@ -138,7 +138,7 @@ continuous evidence recording and separates source/local/live observations.
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
 URLs. `make shared-tooling-tests` exercises consumer fixture completion, evidence
-archive, IC installer, local lockfile, Cargo metadata, host/Cargo-tool installation and common Make/LOC refusals
+archive, local lockfile, Cargo metadata and common Make/LOC refusals
 with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks. The separate
 Platform boundary target uses Shared's canonical package-identity checker and
@@ -148,7 +148,8 @@ The upstream exporter/governance integration fixture runs in Shared Tooling;
 it is omitted from Blob's selected files and gate. Actual snapshot verification,
 consumer adapter checks and native adoption qualification remain here. Reusable
 fixture dependencies are explicit companions checked by the canonical exporter.
-Shared owns the generic formatter-prerequisite and digest backend matrices;
+Shared owns generic formatter-prerequisite, digest backend, host/IC/Cargo
+installer, Cargo-version observer and release-runner matrices in producer CI;
 Blob retains actual hook rollback, prepared-tool admission, archive checksums
 and failure propagation. The exported fixture roots are retired with the
 canonical snapshot exporter after checking callers.
@@ -287,3 +288,20 @@ The maintainer removed B1 ownership/readiness as a library-publication gate.
 The validation gate proves the implemented native behavior and release tooling;
 service qualification still requires its actual PocketIC/provider/recovery
 evidence. Publication does not establish those guarantees.
+
+## Consumer tooling qualification
+
+Generic matrices stay with Shared Tooling; Blob qualifies its actual selection:
+
+| Consumer obligation | Retained proof |
+| --- | --- |
+| Installed tools and selected catalogs | `make tools-check`, including Testkit admission |
+| Dependency declarations and locked versions | `make dependency-pins-check` and `scripts/ci/test-local-lock-versions.pl` |
+| Make/tool forwarding and server selection | `scripts/ci/test-tool-commands.sh` and `scripts/ci/test-testkit-commands.sh` |
+| Hooks and formatter preservation | `make hooks-check` |
+| Release/publication refusals and recovery | `scripts/release/test-release.sh` and `make release-commands-check` |
+| Evidence selection, archives and retention | `make tooling-evidence-check` and `scripts/ci/test-evidence-archive.sh` |
+
+Retire exported generic fixture roots through the canonical snapshot exporter at
+its reviewed revision. Producer CI does not qualify Blob's native hosts or its
+release adapter. The retained consumer checks and all native CI lanes still run.

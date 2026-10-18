@@ -15,7 +15,7 @@ pub(crate) fn decoded(before: u64, header: u64, value: u64, after: u64) {
 }
 
 pub(crate) fn instructions() -> u64 {
-    ic_cdk::api::instruction_counter()
+    ic_platform::cdk::api::instruction_counter()
 }
 
 pub(crate) fn record(context: UploadContext, before_work: u64) {

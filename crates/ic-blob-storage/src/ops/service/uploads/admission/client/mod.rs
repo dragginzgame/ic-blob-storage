@@ -9,8 +9,8 @@ use ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_STATUS_METHOD;
 use ic_blob_storage_contracts::protocol::UPLOAD_REVOCATION_METHOD;
 use ic_blob_storage_contracts::upload::admission::reply;
 use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
-use ic_cdk::call::Response;
 use ic_platform::Principal;
+use ic_platform::cdk::call::Response;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit tenant/service selection. Persist full permission intent before polling.
@@ -81,12 +81,12 @@ impl ReplicatedUploadAdmissionClient {
     ) -> Result<Response, UploadAdmissionClientError> {
         if input.upload.service != self.service
             || input.upload.tenant != self.tenant
-            || ic_cdk::api::canister_self() != self.tenant
+            || ic_platform::cdk::api::canister_self() != self.tenant
         {
             return Err(UploadAdmissionClientError::Binding);
         }
         reply::validate_request(input)?;
-        if !ic_cdk::api::in_replicated_execution() {
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(UploadAdmissionClientError::Execution);
         }
         client::call(self.service, method, self.timeout, input)

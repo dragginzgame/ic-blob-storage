@@ -20,8 +20,8 @@ use ic_blob_storage::ops::caffeine::funding::{
     TopUpProviderError, TopUpReply, decode_top_up_reply,
 };
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
-use ic_cdk::call::{Call, CallFailed};
 use ic_platform::Principal;
+use ic_platform::cdk::call::{Call, CallFailed};
 
 thread_local! {
     static STATE: RefCell<Option<FundingJournalRecord>> = const { RefCell::new(None) };
@@ -54,7 +54,8 @@ pub(crate) fn initialize(
             input.other_liabilities,
         )
         .expect("valid explicit attachment budget");
-        let initial = FundingJournalRecord::new(ic_cdk::api::canister_self(), peer, driver, budget);
+        let initial =
+            FundingJournalRecord::new(ic_platform::cdk::api::canister_self(), peer, driver, budget);
         storage::save(&initial);
         *state = Some(initial);
     });
@@ -64,7 +65,7 @@ pub(crate) fn load() -> FundingJournalRecord {
     storage::open();
     let recovered = storage::load();
     recovered
-        .validate(ic_cdk::api::canister_self())
+        .validate(ic_platform::cdk::api::canister_self())
         .expect("bound consistent journal");
     recovered
 }
@@ -130,7 +131,9 @@ pub(crate) async fn transfer(prepared: liquidity::PreparedFundingCall) -> Observ
     // Capture in this call's continuation, before decoding, further awaits or spawning.
     // An enqueue failure runs without a response callback: never sample its ambient refund.
     let refunded = match &result {
-        Ok(_) | Err(CallFailed::CallRejected(_)) => Some(ic_cdk::api::msg_cycles_refunded()),
+        Ok(_) | Err(CallFailed::CallRejected(_)) => {
+            Some(ic_platform::cdk::api::msg_cycles_refunded())
+        }
         Err(CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_)) => {
             None
         }
@@ -175,9 +178,9 @@ fn classify(bytes: &[u8]) -> FundingOutcome {
 }
 
 pub(crate) fn accept(caller: Principal, request: FundingRequest) {
-    let available = ic_cdk::api::msg_cycles_available();
+    let available = ic_platform::cdk::api::msg_cycles_available();
     read(|state| state.check_receive(caller, request, available));
-    let accepted = ic_cdk::api::msg_cycles_accept(request.accept);
+    let accepted = ic_platform::cdk::api::msg_cycles_accept(request.accept);
     mutate(|state| {
         state.record_acceptance(FundingReceiptRecord {
             id: request.id,
@@ -241,14 +244,16 @@ pub(crate) fn reply(mode: FundingReplyMode) {
             "../../../../../crates/ic-blob-storage/tests/fixtures/caffeine-top-up/unknown-error.hex"
         ),
         FundingReplyMode::Malformed => {
-            ic_cdk::api::msg_reply(b"not candid");
+            ic_platform::cdk::api::msg_reply(b"not candid");
             return;
         }
         FundingReplyMode::Reject => {
-            ic_cdk::api::msg_reject("deliberate rejection after acceptance");
+            ic_platform::cdk::api::msg_reject("deliberate rejection after acceptance");
             return;
         }
-        FundingReplyMode::Trap => ic_cdk::trap("deliberate receiver failure after acceptance"),
+        FundingReplyMode::Trap => {
+            ic_platform::cdk::api::trap("deliberate receiver failure after acceptance")
+        }
     };
     let (pairs, remainder) = hex.trim().as_bytes().as_chunks::<2>();
     assert!(remainder.is_empty(), "whole fixture bytes");
@@ -258,5 +263,5 @@ pub(crate) fn reply(mode: FundingReplyMode) {
             u8::from_str_radix(std::str::from_utf8(pair).expect("hex text"), 16).expect("hex byte")
         })
         .collect();
-    ic_cdk::api::msg_reply(bytes);
+    ic_platform::cdk::api::msg_reply(bytes);
 }

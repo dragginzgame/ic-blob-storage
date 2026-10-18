@@ -27,11 +27,11 @@ fn fixture() -> Vec<u8> {
 }
 
 fn args(base: &Path, bytes: &[u8]) -> Vec<String> {
-    std::fs::write(base.join("input.cbor"), bytes).unwrap();
+    std::fs::write(base.join("input.json"), bytes).unwrap();
     [
         "installation-check",
         "--configuration",
-        &base.join("input.cbor").display().to_string(),
+        &base.join("input.json").display().to_string(),
         "--service",
         "rrkah-fqaaa-aaaaa-aaaaq-cai",
         "--project",
@@ -112,13 +112,13 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
         assert_eq!(report[field], false);
     }
     let summary = std::fs::read(output.join("summary.json")).unwrap();
-    std::fs::write(base.path().join("input.cbor"), b"edited after preparation").unwrap();
+    std::fs::write(base.path().join("input.json"), b"edited after preparation").unwrap();
     assert_eq!(
         std::fs::read(output.join("configuration.json")).unwrap(),
         original
     );
     // Restore only the source input; repeat must preserve the original artifacts.
-    std::fs::write(base.path().join("input.cbor"), &original).unwrap();
+    std::fs::write(base.path().join("input.json"), &original).unwrap();
     assert_eq!(
         crate::native::execute(&arguments),
         Err(Failure::ExistingRun)

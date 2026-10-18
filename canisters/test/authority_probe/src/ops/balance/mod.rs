@@ -67,7 +67,7 @@ pub(crate) fn begin(input: BalanceRefreshRequest) -> Result<(usize, ScopeRecord)
         state
             .balance
             .check_refresh(scope, input.revision, input.sequence)?;
-        state.balance.begin(ic_cdk::api::time())
+        state.balance.begin(ic_platform::cdk::api::time())
     })
 }
 
@@ -86,7 +86,7 @@ pub(crate) async fn fetch(scope: ScopeRecord) -> Result<BalanceResponse, Failure
     // Deliberately dispatch to a local substitute, not the maintained method name.
     // Exercise the library-owned argument shape and reply decoder across an actual
     // await. The fixture retains its driver controls and does not qualify Cashier.
-    let response = ic_cdk::call::Call::bounded_wait(request.cashier(), "fixture_balance")
+    let response = ic_platform::cdk::call::Call::bounded_wait(request.cashier(), "fixture_balance")
         .with_raw_args(request.arguments())
         .await
         .map_err(|_| Failure::Transport)?;
@@ -109,7 +109,7 @@ pub(crate) fn complete(
         let decoded = response.and_then(|response| decode(&response, scope.source));
         state
             .balance
-            .complete(id, scope, decoded, ic_cdk::api::time())
+            .complete(id, scope, decoded, ic_platform::cdk::api::time())
     })
 }
 

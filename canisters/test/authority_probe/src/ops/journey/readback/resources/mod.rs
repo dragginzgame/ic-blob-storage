@@ -3,8 +3,8 @@ use blob_test_protocol::journey::{
     JourneyFailure,
     readback::{JourneyReadChunk, ReadExecutionProfile},
 };
-use ic_cdk::api::call_context_instruction_counter as counter;
 use ic_platform::Principal;
+use ic_platform::cdk::api::call_context_instruction_counter as counter;
 use std::cell::Cell;
 
 thread_local! {

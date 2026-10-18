@@ -13,7 +13,7 @@ pub(crate) async fn update(
     let max = ops::tenants::start(actor, input.command, input.max_reply_bytes)?;
     let result = ops::tenants::update(input.command, max).await?;
     if input.trap_after_reply {
-        ic_cdk::trap("fixture tenant callback interruption");
+        ic_platform::cdk::api::trap("fixture tenant callback interruption");
     }
     Ok(result)
 }

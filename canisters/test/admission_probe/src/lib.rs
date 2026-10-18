@@ -13,21 +13,21 @@ use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 fn context() -> UploadContext {
     UploadContext {
-        service: ic_cdk::api::canister_self(),
-        actor: ic_cdk::api::msg_caller(),
+        service: ic_platform::cdk::api::canister_self(),
+        actor: ic_platform::cdk::api::msg_caller(),
     }
 }
 
-#[ic_cdk::init(decode_with = "ops::decode::installation")]
+#[ic_platform::cdk::init(decode_with = "ops::decode::installation")]
 fn init(installation: Installation) {
-    workflow::initialize(ic_cdk::api::canister_self(), installation);
+    workflow::initialize(ic_platform::cdk::api::canister_self(), installation);
 }
 
 fn dispatch(command: Command) -> Result<Outcome, Failure> {
-    workflow::execute(context(), command, ic_cdk::api::time())
+    workflow::execute(context(), command, ic_platform::cdk::api::time())
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn enroll(input: EnrollmentInput) -> Result<Outcome, Failure> {
     dispatch(Command::Enroll {
         tenant: input.tenant,
@@ -36,48 +36,48 @@ fn enroll(input: EnrollmentInput) -> Result<Outcome, Failure> {
     })
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn admit(input: Permission) -> Result<Outcome, Failure> {
     dispatch(Command::Admit(input))
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn prepare(input: PreparationInput) -> Result<Outcome, Failure> {
     dispatch(Command::Prepare(input.request, input.manifest))
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn expose(root: [u8; 32]) -> Result<Outcome, Failure> {
     dispatch(Command::Expose(root))
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn revoke(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::Revoke(input))
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn substitute_completion(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
         LifecycleCommand::SubstituteCompletion(input),
     ))
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn substitute_deletion(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
         LifecycleCommand::SubstituteDeletion(input),
     ))
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn substitute_settlement(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
         LifecycleCommand::SubstituteSettlement(input),
     ))
 }
 
-#[ic_cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
 fn reference(input: ReferenceInput) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(LifecycleCommand::Reference {
         object: input.object,
@@ -87,12 +87,12 @@ fn reference(input: ReferenceInput) -> Result<Outcome, Failure> {
     }))
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::request")]
+#[ic_platform::cdk::query(decode_with = "ops::decode::request")]
 fn inspect(request: Request) -> Result<Observation, Failure> {
     workflow::inspect(context(), request)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
+#[ic_platform::cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
 fn blob_lookup_content(
     input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
 ) -> Result<
@@ -102,19 +102,19 @@ fn blob_lookup_content(
     workflow::discover(context(), input)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::content")]
+#[ic_platform::cdk::query(decode_with = "ops::decode::content")]
 fn content_descriptor(
     input: ContentLookup,
 ) -> Result<Option<blob_test_protocol::admission::ContentDescriptor>, Failure> {
     workflow::content_descriptor(context(), input)
 }
 
-#[ic_cdk::query]
+#[ic_platform::cdk::query]
 fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
     workflow::resources(context(), limit)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
+#[ic_platform::cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
 fn blob_upload_capacity(
     input: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<
@@ -124,14 +124,14 @@ fn blob_upload_capacity(
     workflow::admission_capacity(context(), input)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::retained_descriptor")]
+#[ic_platform::cdk::query(decode_with = "ops::decode::retained_descriptor")]
 fn retained_content_descriptor(
     input: blob_test_protocol::admission::input::RetainedDescriptorInput,
 ) -> Result<Option<blob_test_protocol::admission::input::RetainedDescriptor>, Failure> {
     workflow::retained_content_descriptor(context(), input)
 }
 
-#[ic_cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
+#[ic_platform::cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
 fn blob_reference_capacity(
     input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
 ) -> Result<
@@ -144,12 +144,12 @@ fn blob_reference_capacity(
 // This disposable probe has no stable schema. Both hooks reject so neither a
 // normal upgrade nor skipping the outgoing hook can silently erase its owner.
 // Controller-driven reinstall/snapshot replacement remains outside its contract.
-#[ic_cdk::pre_upgrade]
+#[ic_platform::cdk::pre_upgrade]
 fn pre_upgrade() {
-    ic_cdk::trap("transient admission probe cannot upgrade");
+    ic_platform::cdk::api::trap("transient admission probe cannot upgrade");
 }
 
-#[ic_cdk::post_upgrade]
+#[ic_platform::cdk::post_upgrade]
 fn post_upgrade() {
-    ic_cdk::trap("transient admission probe cannot restore");
+    ic_platform::cdk::api::trap("transient admission probe cannot restore");
 }

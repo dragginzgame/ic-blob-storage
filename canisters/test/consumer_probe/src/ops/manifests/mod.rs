@@ -14,12 +14,12 @@ pub(crate) fn fault(
     at: blob_test_protocol::consumer::manifests::ManifestFault,
 ) {
     if selected == at {
-        ic_cdk::trap("fixture manifest interruption");
+        ic_platform::cdk::api::trap("fixture manifest interruption");
     }
 }
 fn client(permission: UploadAdmissionRequest) -> Result<ReplicatedUploadManifestClient, Failure> {
     ReplicatedUploadManifestClient::new(
-        ic_cdk::api::canister_self(),
+        ic_platform::cdk::api::canister_self(),
         permission.upload.tenant,
         permission.upload.service,
         30.try_into().unwrap(),

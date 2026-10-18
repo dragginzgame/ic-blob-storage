@@ -71,10 +71,10 @@ impl ReplicatedUploadManifestClient {
         input: UploadAdmissionRequest,
         preparing: bool,
     ) -> Result<(), UploadManifestClientError> {
-        self.binding(ic_cdk::api::canister_self(), input, preparing)?;
+        self.binding(ic_platform::cdk::api::canister_self(), input, preparing)?;
         ic_blob_storage_contracts::upload::admission::parse_binding(self.service, input)
             .map_err(|_| UploadManifestReplyError::Invalid)?;
-        if !ic_cdk::api::in_replicated_execution() {
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(UploadManifestClientError::Execution);
         }
         Ok(())

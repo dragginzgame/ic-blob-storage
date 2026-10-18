@@ -94,7 +94,7 @@ pub(crate) fn measure_credit(
     input: blob_test_protocol::storage::funding::CreditCommand,
 ) -> blob_test_protocol::storage::resources::FundingCreditResources {
     crate::ops::resources::begin_read_profile(true);
-    let started = ic_cdk::api::call_context_instruction_counter();
+    let started = ic_platform::cdk::api::call_context_instruction_counter();
     let result = confirm_credit(execution, input);
     crate::ops::resources::credit_resources(started, result)
 }

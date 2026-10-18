@@ -11,12 +11,12 @@ use crate::model::billing::journal::FundingTransportOutcome;
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::policy::billing::liquidity::FundingLiquidity;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
-use ic_cdk::call::{Call, CallFailed};
 use ic_platform::Principal;
+use ic_platform::cdk::call::{Call, CallFailed};
 use std::num::NonZeroU128;
 
 pub(crate) fn running_service() -> Principal {
-    ic_cdk::api::canister_self()
+    ic_platform::cdk::api::canister_self()
 }
 
 /// One owned, unpolled call; constructing or dropping it sends nothing.
@@ -40,7 +40,7 @@ impl PreparedCashierTopUp {
         Self {
             call: call.with_cycles(request.offered().get()),
             source: FundingTransportContext {
-                service: ic_cdk::api::canister_self(),
+                service: ic_platform::cdk::api::canister_self(),
                 cashier: request.cashier(),
             },
             offered: request.offered(),
@@ -65,7 +65,7 @@ impl PreparedCashierTopUp {
         other_liabilities: u128,
     ) -> FundingLiquidity {
         FundingLiquidity {
-            liquid_cycles: ic_cdk::api::canister_liquid_cycle_balance(),
+            liquid_cycles: ic_platform::ic0::canister_liquid_cycle_balance128(),
             call_cost: self.call_cost,
             operating_reserve,
             other_liabilities,
@@ -96,7 +96,7 @@ impl PreparedCashierTopUp {
         let transfer = match &result {
             Ok(_) | Err(CallFailed::CallRejected(_)) => {
                 // This is the matching unbounded callback, not a later observation.
-                let refunded = ic_cdk::api::msg_cycles_refunded();
+                let refunded = ic_platform::cdk::api::msg_cycles_refunded();
                 FundingTransfer::unbounded_callback(self.offered, refunded)
                     .expect("exact callback refund")
             }

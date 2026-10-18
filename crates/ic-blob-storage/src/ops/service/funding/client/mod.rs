@@ -69,8 +69,8 @@ impl ReplicatedFundingClient {
         Ok(())
     }
     fn check(&self, scope: OperatorScope) -> Result<(), FundingClientError> {
-        self.binding(ic_cdk::api::canister_self(), scope)?;
-        if !ic_cdk::api::in_replicated_execution() {
+        self.binding(ic_platform::cdk::api::canister_self(), scope)?;
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(FundingClientError::Execution);
         }
         Ok(())

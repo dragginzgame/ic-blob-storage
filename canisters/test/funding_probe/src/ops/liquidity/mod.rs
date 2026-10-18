@@ -3,8 +3,8 @@ use super::{ObservedFundingCall, read};
 use blob_test_protocol::funding::{FundingOutcome, FundingRequest};
 use ic_blob_storage::policy::billing::liquidity::FundingLiquidity;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
-use ic_cdk::call::Call;
 use ic_platform::Principal;
+use ic_platform::cdk::call::Call;
 use std::num::NonZeroU128;
 
 pub(crate) struct PreparedFundingCall {
@@ -23,7 +23,7 @@ pub(crate) fn prepare(peer: Principal, request: FundingRequest) -> PreparedFundi
         operating_reserve: NonZeroU128::new(budget.operating_reserve)
             .expect("validated operating slack"),
         other_liabilities: budget.other_liabilities,
-        liquid_cycles: ic_cdk::api::canister_liquid_cycle_balance(),
+        liquid_cycles: ic_platform::ic0::canister_liquid_cycle_balance128(),
     };
     PreparedFundingCall {
         call,

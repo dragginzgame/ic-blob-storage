@@ -11,7 +11,6 @@ pub mod gateway;
 pub mod ledger;
 pub mod query;
 pub mod relationship;
-pub mod upload;
 
 pub mod decoding;
 mod wire;

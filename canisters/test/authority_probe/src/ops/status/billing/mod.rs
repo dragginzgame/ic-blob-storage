@@ -18,7 +18,7 @@ pub(crate) struct BillingSnapshot {
 }
 
 pub(crate) fn snapshot(record: &AuthorityArchiveRecord) -> BillingSnapshot {
-    let now = ic_cdk::api::time();
+    let now = ic_platform::cdk::api::time();
     let recovery = if record.fenced {
         RecoveryState::Fenced
     } else {

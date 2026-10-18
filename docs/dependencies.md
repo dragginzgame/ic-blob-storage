@@ -18,11 +18,11 @@ lockfiles; local qualification does not cover every future resolution.
 | Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
 | IC Memory | 0.48.2 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
 | IC Storage | 0.5.3 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
-| IC Platform | 0.1.8 | Principal, external Candid types/encoding/configured decoding/service export; management-history DTOs and supported native Agent, parser and certificate identities |
+| IC Platform | 0.1.11 | Entrypoint/export macros, supported CDK calls/system APIs, Principal, external Candid encoding/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Wire | 0.4.1 | Bounded method/direction framing for the two tenant contracts |
 | IC Metrics | 0.14.1 | Private probe measurement arithmetic; not a public Blob API |
 | IC Testkit | 0.54.0 | PocketIC client/server selection and managed lifetime; bounded Candid decoding uses Platform |
-| IC Host artifacts/fs/process/tools | 0.27.3 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Host artifacts/fs/process/tools | 0.27.4 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Build | 0.17.3 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Testkit-selected local IC execution; no separate Blob server catalog |
 
@@ -30,6 +30,15 @@ The standalone owns endpoint registration, caller capture, lifecycle and memory
 composition. The core exports none of these implicitly. Consumer frameworks own
 their wrappers and composition tests; see [Canic integration](#canic-integration).
 The [service contract](service-contract.md) owns supported service invariants.
+
+Contracts owns provider JSON boundary codecs, including
+[`provider::upload`](../crates/ic-blob-storage-contracts/src/provider/upload/mod.rs).
+For 0.34, replace `ic_blob_storage::ops::caffeine::upload` imports with
+`ic_blob_storage_contracts::provider::upload`. The decoder, status and error
+semantics are unchanged; Core no longer declares `serde_json` directly.
+The CLI retains its required Serde/JSON dependencies and Host test helpers,
+but no longer declares Testkit. PocketIC retains Testkit and owns its server
+selection; removing the CLI declaration does not retire simulator setup.
 
 Collection constructors take exclusive `RuntimeMemory<Backing>` handles from the
 host runtime. Store/workflow generic parameters name `Backing`; passive memory
@@ -73,7 +82,7 @@ forbidden by the direct-boundary policy; neither tool owns production provider
 transport or its authority.
 
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.24.0 at
-`cab12cd3dfa4fdb34846b25397f0d72881bb9ae0` (137 payloads, including the dependency-boundary checker). It owns common Make,
+`cab12cd3dfa4fdb34846b25397f0d72881bb9ae0` (131 selected payloads, including the dependency-boundary checker). It owns common Make,
 installation, tool storage, formatting, hooks and release mechanics. Blob owns
 product inputs, release metadata/publication order, validation selection, Testkit
 forwarding and evidence selection. Snapshot files are reviewed distribution,
@@ -92,15 +101,22 @@ setup requirements. See [current status](status/current.md) for validation limit
 
 ## IC Platform boundary
 
-Published IC Platform **0.1.8** is the selected boundary, with no root default
-features. Members select `candid` for external DTOs, encoders, bounded decoders
+The pending lock selects published IC Platform **0.1.11** under the workspace
+`0.1.11` requirement, with no root default features. Core and the seven canisters
+select `cdk` for canonical entrypoint/export macros and supported runtime APIs;
+this also enables Candid and the exact upstream runtime/executor identities.
+Other members select `candid` for external DTOs, encoders, bounded decoders
 and upstream configuration/staged decoding. Core additionally selects
 `management-canister-types` for continuity-history DTOs. The native CLI selects `agent`;
 PocketIC's native dev declaration also selects `agent`, `candid-parser` and
 `certification`. None of those host selections enter default standalone Wasm.
 Candid derives and service-export generators name the published contract.
 
-The [0.1.8 follow-up](evidence/platform0180331.md) records the current published
+The [0.1.11 follow-up](evidence/platform01110332.md) records removing the last
+direct CDK dependencies through published cycle/counter exports. The
+[0.1.10 follow-up](evidence/platform01100332.md) retains its published archives,
+entrypoint migration and focused checks against that earlier graph. The
+[0.1.8 follow-up](evidence/platform0180331.md) retains its earlier published
 selection, unchanged used APIs and focused recovery/graph checks. Its new snapshot
 and status DTO exports require no new Blob call or feature selection. The
 [0.1.7 follow-up](evidence/platform0170331.md) retains Agent-response and native
@@ -109,8 +125,8 @@ dynamic-fixture adoption evidence against its original graph. The
 qualification against its original graph. The
 [0.1.5 routing receipt](evidence/platform0150331.md) and
 [earlier adoption](evidence/platform0331.md) retain their original graphs. Core,
-Contracts, protocol support, CLI and native PocketIC support have no direct Candid
-declaration. No workspace member declares Agent directly.
+Contracts, protocol support, CLI, native PocketIC support and all canisters have
+no direct Candid declaration. No workspace member declares Agent directly.
 Configured decoders use the same upstream DecoderConfig/IDLDeserialize identities,
 optional/default quotas, diagnostics and staged instruction observations. Existing
 default-decoder fixture calls explicitly select upstream defaults through that
@@ -137,18 +153,23 @@ verification, request identity, deadlines and no-retry policy. Direct native
 Candid/Agent declarations and their policy exceptions are removed. The upstream
 packages remain transitive; these exports do not reduce the wire or runtime surface.
 
-Necessary direct exceptions are explicit:
-
-- Standalone and six probes retain Candid required by CDK-generated paths. Owned
-  service registration/export and handwritten decoders already use Platform.
-  Core and canisters retain CDK call/system/entrypoint APIs until the qualified
-  runtime facade exists ([Platform #1](https://github.com/dragginzgame/ic-platform/issues/1)).
+No direct Candid/CDK exceptions remain. Platform 0.1.11 exports the original
+`msg_cycles_refunded`, `msg_cycles_available`, `msg_cycles_accept`,
+`instruction_counter` and `call_context_instruction_counter` helpers. Core and
+five probes now consume those identities through Platform, removing the final
+six direct CDK declarations and root catalog entry. Version, liquid balance and
+stable size continue through Platform's exact raw upstream functions. All
+entrypoints, traps, caller, time, argument/reply and supported call APIs use
+Platform. Its generated paths use Platform's Candid contract while runtime
+implementation remains upstream CDK 0.20.3, with executor 2.0.0 and ic0 1.2.0.
+No local wrapper, counter-selector copy or cycle ABI implementation is added.
 
 `make platform-boundary-check` runs Shared's canonical identity checker against
 [local policy](../ci/cargo-dependency-boundaries.json), also in CI/release validation.
 It observes aliases and every direct dependency kind/target/optional declaration.
-The reduced allowlist permits direct Candid only in seven current canisters for
-CDK-generated paths. Agent and direct management types are forbidden everywhere.
+The policy forbids direct Candid, the CDK family and raw ic0 everywhere. Direct access to
+the internal Platform macro package is also forbidden. Agent and direct
+management types are forbidden everywhere.
 Allowances are package-level, not per-use/feature/kind permissions. Do not expand
 them merely to avoid a migration. No upstream crate alias or compatibility conversion is used.
 The same policy forbids direct `ic-stable-structures` declarations in every member,
@@ -157,7 +178,8 @@ owns collection mechanics; IC Memory owns allocation/backing mechanics. Their
 transitive substrate dependencies remain supported. The runtime-free Contracts/CLI
 normal-graph check rejects both Memory and Storage, including indirect reachability.
 
-Standalone still reaches Candid 0.10.38, CDK/macros 0.20.3 and one executor 2.0.0;
+Standalone still reaches Candid 0.10.38, upstream CDK/macros 0.20.3,
+Platform macros 0.1.11 and one executor 2.0.0;
 CLI still reaches Candid and Agent transitively. These are controlled identities,
 not claims that their code is absent from binaries. Inspected standalone/CLI
 normal/build graphs exclude parser/Testkit packages. The separate executor-only
@@ -272,11 +294,11 @@ different purposes:
 
 | Scope | Rust version | Reason |
 | --- | --- | --- |
-| Development, formatting and lint | 1.99.0 | Pinned in `rust-toolchain.toml` |
+| Development, formatting and lint | 1.99.1 | Pinned in `rust-toolchain.toml` |
 | Library, standalone, CLI and examples | 1.91.0 | Inherited from `workspace.package.rust-version`; the selected Memory 0.48 line requires 1.91 |
 | Unpublished PocketIC harness | 1.91.0 | Inherits the workspace MSRV |
 
-The selected `ic-memory` 0.46 dependency requires Rust 1.91.0, which is now
+The selected `ic-memory` 0.48 dependency requires Rust 1.91.0, which is now
 the workspace's consumer floor. The harness inherits that same minimum.
 Earlier Rust 1.88 checks remain evidence for their original source and graphs;
 repeat checks with the declared minimum after source or dependency changes

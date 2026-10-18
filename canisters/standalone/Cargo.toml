@@ -13,11 +13,9 @@ crate-type = ["cdylib", "rlib"]
 provider-candid-export = []
 
 [dependencies]
-candid.workspace = true
 ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
-ic-cdk.workspace = true
-ic-platform = { workspace = true, features = ["candid"] }
+ic-platform = { workspace = true, features = ["cdk"] }
 serde.workspace = true
 
 [lints]

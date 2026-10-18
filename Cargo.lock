@@ -263,10 +263,8 @@ name = "blob-admission-probe"
 version = "0.33.1"
 dependencies = [
  "blob-test-protocol",
- "candid",
  "ic-blob-storage",
  "ic-blob-storage-contracts",
- "ic-cdk",
  "ic-platform",
  "serde",
 ]
@@ -276,10 +274,8 @@ name = "blob-authority-probe"
 version = "0.33.1"
 dependencies = [
  "blob-test-protocol",
- "candid",
  "ic-blob-storage",
  "ic-blob-storage-contracts",
- "ic-cdk",
  "ic-memory",
  "ic-platform",
  "serde",
@@ -291,10 +287,8 @@ name = "blob-consumer-probe"
 version = "0.33.1"
 dependencies = [
  "blob-test-protocol",
- "candid",
  "ic-blob-storage",
  "ic-blob-storage-contracts",
- "ic-cdk",
  "ic-platform",
  "serde",
 ]
@@ -304,10 +298,8 @@ name = "blob-funding-probe"
 version = "0.33.1"
 dependencies = [
  "blob-test-protocol",
- "candid",
  "ic-blob-storage",
  "ic-blob-storage-contracts",
- "ic-cdk",
  "ic-memory",
  "ic-platform",
  "serde",
@@ -318,8 +310,6 @@ name = "blob-gateway-source"
 version = "0.33.1"
 dependencies = [
  "blob-test-protocol",
- "candid",
- "ic-cdk",
  "ic-memory",
  "ic-platform",
  "serde",
@@ -330,10 +320,8 @@ name = "blob-storage-probe"
 version = "0.33.1"
 dependencies = [
  "blob-test-protocol",
- "candid",
  "ic-blob-storage",
  "ic-blob-storage-contracts",
- "ic-cdk",
  "ic-metrics",
  "ic-platform",
  "serde",
@@ -1581,12 +1569,10 @@ version = "0.33.1"
 dependencies = [
  "hex",
  "ic-blob-storage-contracts",
- "ic-cdk",
  "ic-memory",
  "ic-platform",
  "ic-storage",
  "serde",
- "serde_json",
  "tempfile",
  "thiserror 2.0.18",
 ]
@@ -1595,10 +1581,8 @@ dependencies = [
 name = "ic-blob-storage-canister"
 version = "0.33.1"
 dependencies = [
- "candid",
  "ic-blob-storage",
  "ic-blob-storage-contracts",
- "ic-cdk",
  "ic-platform",
  "serde",
 ]
@@ -1614,7 +1598,6 @@ dependencies = [
  "ic-host-fs",
  "ic-host-process",
  "ic-platform",
- "ic-testkit",
  "libc",
  "reqwest",
  "serde",
@@ -1855,18 +1838,33 @@ checksum = "8e8586a09ef26a61beaccd1187f5d7ecc442c04b592959332662c29f8f5a76cd"
 
 [[package]]
 name = "ic-platform"
-version = "0.1.9"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdfb66170e95bae421449fbd50e3e2a26196fbd6277ae13556026bf3001974c3"
+checksum = "8d55106ea1d1ccd65bd67c7d2a681b7d8199f3c0206ae990e24589b3ce502bdf"
 dependencies = [
  "candid",
  "candid_parser",
  "ic-agent",
+ "ic-cdk",
+ "ic-cdk-executor",
  "ic-certification",
  "ic-management-canister-types 0.11.0",
+ "ic-platform-macros",
  "ic0",
  "ic_principal",
  "serde",
+]
+
+[[package]]
+name = "ic-platform-macros"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2a7652251d6eee2c67653a8110cba93da8662b82e633325a125e710d2e0c25f"
+dependencies = [
+ "darling 0.23.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]

@@ -30,7 +30,7 @@ thread_local! {
 pub(crate) fn configure_certificate(context: UploadContext, input: ExposureInput) {
     STATE.with_borrow(|s| {
         if context.actor != s.as_ref().unwrap().operator {
-            ic_cdk::trap("fixture operator only");
+            ic_platform::cdk::api::trap("fixture operator only");
         }
     });
     CERTIFICATE_FIXTURE.set(Some(input));
@@ -41,10 +41,10 @@ pub(crate) fn certificate(
 ) -> ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse {
     let input = CERTIFICATE_FIXTURE
         .get()
-        .unwrap_or_else(|| ic_cdk::trap("fixture host evidence absent"));
-    let now = ic_cdk::api::time();
-    let evidence =
-        substitute(input, now).unwrap_or_else(|_| ic_cdk::trap("fixture invalid evidence"));
+        .unwrap_or_else(|| ic_platform::cdk::api::trap("fixture host evidence absent"));
+    let now = ic_platform::cdk::api::time();
+    let evidence = substitute(input, now)
+        .unwrap_or_else(|_| ic_platform::cdk::api::trap("fixture invalid evidence"));
     TRAP_WRITE.set(input.trap_write.then_some(WriteFault::Permissions));
     let result = STATE.with_borrow_mut(|s| {
         ic_blob_storage::test_support::certificate::issue(
@@ -57,9 +57,9 @@ pub(crate) fn certificate(
     });
     TRAP_WRITE.set(None);
     if input.trap_after {
-        ic_cdk::trap("fixture after certificate exposure write");
+        ic_platform::cdk::api::trap("fixture after certificate exposure write");
     }
-    result.unwrap_or_else(|_| ic_cdk::trap("certificate issuance refused"))
+    result.unwrap_or_else(|_| ic_platform::cdk::api::trap("certificate issuance refused"))
 }
 fn substitute(
     input: ExposureInput,
@@ -111,7 +111,7 @@ pub(crate) fn preview(
     context: UploadContext,
     input: ExposureInput,
 ) -> Result<Vec<UploadExposureBlocker>, UploadExposureFailure> {
-    let now = ic_cdk::api::time();
+    let now = ic_platform::cdk::api::time();
     let evidence = substitute(input, now)?;
     STATE.with_borrow(|s| {
         exposure::inspect_preparation(
@@ -128,7 +128,7 @@ pub(crate) fn commit(
     context: UploadContext,
     input: ExposureInput,
 ) -> Result<ExposureOutcome, UploadExposureFailure> {
-    let now = ic_cdk::api::time();
+    let now = ic_platform::cdk::api::time();
     let evidence = substitute(input, now)?;
     TRAP_WRITE.set(input.trap_write.then_some(WriteFault::Permissions));
     let result = STATE.with_borrow_mut(|s| {
@@ -142,7 +142,7 @@ pub(crate) fn commit(
     });
     TRAP_WRITE.set(None);
     if input.trap_after {
-        ic_cdk::trap("fixture after exposure write");
+        ic_platform::cdk::api::trap("fixture after exposure write");
     }
     result.map(|r| match r {
         UploadExposureResult::Blocked(a) => ExposureOutcome::Blocked(

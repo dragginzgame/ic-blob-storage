@@ -11,8 +11,8 @@ use ic_blob_storage::{
         },
     },
 };
-use ic_cdk::call::Call;
 use ic_platform::Principal;
+use ic_platform::cdk::call::Call;
 use std::num::NonZeroU128;
 
 use super::{bound, mutate};

@@ -17,10 +17,6 @@
 //! `test-support` feature exists only for isolated probes and reference-model
 //! comparisons; production integrations must leave it disabled.
 //!
-//! The transient reference owner is no longer a production model API:
-//! ```compile_fail
-//! use ic_blob_storage::model::service::upload::UploadAdmissions;
-//! ```
 //! Component stores cannot be installed independently through the production API:
 //! ```compile_fail
 //! use ic_memory::{Memory, RuntimeMemory};

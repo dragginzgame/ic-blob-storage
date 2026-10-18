@@ -57,12 +57,12 @@ fn decode<T: CandidType + for<'de> Deserialize<'de>>(
 }
 
 fn checked<T>(result: Result<T, ic_platform::candid::contract::Error>) -> T {
-    result.unwrap_or_else(|_| ic_cdk::trap("invalid or over-budget probe input"))
+    result.unwrap_or_else(|_| ic_platform::cdk::api::trap("invalid or over-budget probe input"))
 }
 
 fn config(bytes: &[u8], maximum: usize, work: usize) -> DecoderConfig {
     if bytes.len() > maximum {
-        ic_cdk::trap("probe input exceeds byte budget");
+        ic_platform::cdk::api::trap("probe input exceeds byte budget");
     }
     let mut config = DecoderConfig::new();
     config

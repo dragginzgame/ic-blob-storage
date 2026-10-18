@@ -5,7 +5,7 @@ use crate::{
 };
 use ic_platform::Principal;
 
-use ic_cdk::call::Call;
+use ic_platform::cdk::call::Call;
 use ic_platform::management_canister_types::{
     CanisterInfoArgs, CanisterInfoResult, ChangeDetails, CodeDeploymentMode,
 };
@@ -102,13 +102,13 @@ impl CurrentInstanceProof {
         service: Principal,
         installation_version: u64,
     ) -> Result<(), CurrentInstanceRecoveryError> {
-        if !ic_cdk::api::in_replicated_execution() {
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(CurrentInstanceRecoveryError::Execution);
         }
         if self.service != service
-            || self.service != ic_cdk::api::canister_self()
+            || self.service != ic_platform::cdk::api::canister_self()
             || self.installation_version != installation_version
-            || self.execution_version != ic_cdk::api::canister_version()
+            || self.execution_version != ic_platform::ic0::canister_version()
         {
             return Err(CurrentInstanceRecoveryError::Binding);
         }
@@ -132,14 +132,14 @@ pub async fn prove_current_instance(
     installation_version: u64,
 ) -> Result<CurrentInstanceProof, CurrentInstanceRecoveryError> {
     use CurrentInstanceRecoveryError as Error;
-    if !ic_cdk::api::in_replicated_execution() {
+    if !ic_platform::cdk::api::in_replicated_execution() {
         return Err(Error::Execution);
     }
     if installation_version == 0 {
         return Err(InstanceContinuityError::MissingAnchor.into());
     }
-    let service = ic_cdk::api::canister_self();
-    let request_version = ic_cdk::api::canister_version();
+    let service = ic_platform::cdk::api::canister_self();
+    let request_version = ic_platform::ic0::canister_version();
     let reply = Call::bounded_wait(Principal::management_canister(), "canister_info")
         .change_timeout(30)
         .with_arg(CanisterInfoArgs {
@@ -149,7 +149,7 @@ pub async fn prove_current_instance(
         .await
         .map_err(|_| Error::Platform)?;
     let bytes = reply.into_bytes();
-    if bytes.len() > 65_536 || service != ic_cdk::api::canister_self() {
+    if bytes.len() > 65_536 || service != ic_platform::cdk::api::canister_self() {
         return Err(Error::Reply);
     }
     let info: CanisterInfoResult = ic_platform::candid::decode_one(
@@ -197,7 +197,7 @@ pub async fn prove_current_instance(
             })
             .collect(),
     };
-    let execution_version = ic_cdk::api::canister_version();
+    let execution_version = ic_platform::ic0::canister_version();
     // The request commits once before this callback. Any additional replicated
     // execution or management change makes the returned history potentially
     // stale, even if it reached installation when the IC answered. Reacquire

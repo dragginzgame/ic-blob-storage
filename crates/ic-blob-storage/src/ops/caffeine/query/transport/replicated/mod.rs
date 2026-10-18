@@ -6,8 +6,8 @@
 pub mod account;
 use super::{CashierQueryRequest, CashierQueryResponse, CashierQueryTransport};
 use crate::ops::caffeine::query::CashierQuery;
-use ic_cdk::call::{Call, CallFailed};
 use ic_platform::Principal;
+use ic_platform::cdk::call::{Call, CallFailed};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 
@@ -88,7 +88,9 @@ impl CashierQueryTransport for ReplicatedGatewayQuery {
         request: &CashierQueryRequest,
         max_bytes: NonZeroUsize,
     ) -> Result<CashierQueryResponse, Self::Error> {
-        if request.cashier() != self.cashier || ic_cdk::api::canister_self() != self.service {
+        if request.cashier() != self.cashier
+            || ic_platform::cdk::api::canister_self() != self.service
+        {
             return Err(ReplicatedQueryError::Binding);
         }
         if request.query() != CashierQuery::StorageGateways {
@@ -104,10 +106,12 @@ impl ReplicatedGatewayQuery {
         request: &CashierQueryRequest,
         max_bytes: NonZeroUsize,
     ) -> Result<CashierQueryResponse, ReplicatedQueryError> {
-        if request.cashier() != self.cashier || ic_cdk::api::canister_self() != self.service {
+        if request.cashier() != self.cashier
+            || ic_platform::cdk::api::canister_self() != self.service
+        {
             return Err(ReplicatedQueryError::Binding);
         }
-        if !ic_cdk::api::in_replicated_execution() {
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(ReplicatedQueryError::Execution);
         }
         let response = Call::bounded_wait(self.cashier, request.method_name())

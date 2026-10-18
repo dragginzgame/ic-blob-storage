@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.34.0]
+
+- **Breaking provider decoder API:** import chunk-reply decoding and its status/error
+  types from `ic_blob_storage_contracts::provider::upload` instead of
+  `ic_blob_storage::ops::caffeine::upload`. Contracts now owns provider JSON
+  codecs; remove Core's direct JSON dependency without changing reply limits,
+  completion interpretation or malformed-input refusals.
+- Remove the CLI's unused Testkit development dependency; retain the PocketIC
+  harness and its explicit server setup.
+
+- Correct native CLI/browser input guidance left behind by the JSON/CBOR cut,
+  and remove the doctest that only checked a retired model path. Retain actual
+  installed-owner access tests, independent vectors and recovery journals.
+- Adopt published IC Platform 0.1.11 entrypoint/export macros and CDK call/system
+  APIs, including cycle and instruction-counter helpers. Remove every direct
+  Candid/CDK declaration and forbid reintroduction. Preserve application codecs,
+  provider Candid, reply limits and lifecycle/callback behavior
+  ([Platform #1](https://github.com/dragginzgame/ic-platform/issues/1)).
+- Keep generic installer, Cargo-version observer and release-runner regressions
+  at Shared Tooling; retain Blob’s actual tool admission, hook, archive and
+  release/publication recovery checks
+  ([#83 — Keep generic installer and release-runner regressions at Shared](https://github.com/dragginzgame/ic-blob-storage/pull/83)).
+- Select Rust 1.99.1 for development and the frozen-example CI override; keep
+  the consumer MSRV at Rust 1.91
+  ([#81 — Qualify Rust 1.99.1 as the development compiler](https://github.com/dragginzgame/ic-blob-storage/issues/81)).
+
 ## [0.33.1] - 2026-10-18
 
 - Finish Testkit 0.54 adoption: use Platform's bounded Candid decoder types,

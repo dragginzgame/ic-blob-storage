@@ -5,15 +5,7 @@
   },
   {
     "dependency": "candid",
-    "allowed_packages": [
-      "blob-admission-probe",
-      "blob-authority-probe",
-      "blob-consumer-probe",
-      "blob-funding-probe",
-      "blob-gateway-source",
-      "blob-storage-probe",
-      "ic-blob-storage-canister"
-    ]
+    "allowed_packages": []
   },
   {
     "dependency": "candid_parser",
@@ -25,16 +17,7 @@
   },
   {
     "dependency": "ic-cdk",
-    "allowed_packages": [
-      "blob-admission-probe",
-      "blob-authority-probe",
-      "blob-consumer-probe",
-      "blob-funding-probe",
-      "blob-gateway-source",
-      "blob-storage-probe",
-      "ic-blob-storage",
-      "ic-blob-storage-canister"
-    ]
+    "allowed_packages": []
   },
   {
     "dependency": "candid_derive",
@@ -49,11 +32,19 @@
     "allowed_packages": []
   },
   {
+    "dependency": "ic-platform-macros",
+    "allowed_packages": []
+  },
+  {
     "dependency": "ic-cdk-timers",
     "allowed_packages": []
   },
   {
     "dependency": "ic-cdk-bindgen",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic0",
     "allowed_packages": []
   },
   {

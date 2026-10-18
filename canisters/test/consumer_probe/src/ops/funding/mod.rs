@@ -15,8 +15,12 @@ fn client(actor: Principal, scope: OperatorScope) -> Result<ReplicatedFundingCli
         }
         Ok(())
     })?;
-    ReplicatedFundingClient::new(ic_cdk::api::canister_self(), scope, 30.try_into().unwrap())
-        .map_err(|_| Failure::Invalid)
+    ReplicatedFundingClient::new(
+        ic_platform::cdk::api::canister_self(),
+        scope,
+        30.try_into().unwrap(),
+    )
+    .map_err(|_| Failure::Invalid)
 }
 pub(crate) async fn history(
     actor: Principal,

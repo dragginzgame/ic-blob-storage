@@ -5,8 +5,8 @@ use crate::model::content::ContentRequest;
 use blob_test_protocol::chunk::{ChunkReplyError, decode_reply};
 use blob_test_protocol::journey::{JourneyFailure, readback::JourneyReadChunk};
 use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
-use ic_cdk::call::Call;
 use ic_platform::Principal;
+use ic_platform::cdk::call::Call;
 
 pub(crate) fn begin(
     request: ContentRequest,
@@ -54,7 +54,7 @@ pub(crate) fn finish(token: u64) -> Result<(), JourneyFailure> {
             state.trap_read_token = None;
             // The IC must roll back the preceding slot release and preserve the
             // admission made before the source call. Never production cfg(test).
-            ic_cdk::trap("deliberate fixture read callback failure");
+            ic_platform::cdk::api::trap("deliberate fixture read callback failure");
         }
         valid.then_some(()).ok_or(JourneyFailure::StaleRead)
     })
@@ -86,7 +86,7 @@ pub(crate) async fn fetch(
     Call::bounded_wait(gateway, "fixture_chunk")
         .with_args(&(request.upload.object.root.as_bytes().to_vec(), index))
         .await
-        .map(ic_cdk::call::Response::into_bytes)
+        .map(ic_platform::cdk::call::Response::into_bytes)
         .map_err(|_| JourneyFailure::Transport)
 }
 

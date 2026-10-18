@@ -156,8 +156,8 @@ pub(crate) fn inspect_relationship(caller: Principal, owner: Principal) {
     // execution with no attached cycles; external driver reads remain passive.
     let allowed = ops::read(|state| {
         let service_call = caller == state.service
-            && ic_cdk::api::in_replicated_execution()
-            && ic_cdk::api::msg_cycles_available() == 0;
+            && ic_platform::cdk::api::in_replicated_execution()
+            && ic_platform::cdk::api::msg_cycles_available() == 0;
         !state.fenced && (caller == state.driver || service_call)
     });
     if !allowed {

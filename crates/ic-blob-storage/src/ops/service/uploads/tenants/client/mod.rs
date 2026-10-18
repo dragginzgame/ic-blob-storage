@@ -60,8 +60,8 @@ impl ReplicatedTenantClient {
         })
     }
     fn check(&self, scope: TenantScope) -> Result<(), TenantClientError> {
-        self.binding(ic_cdk::api::canister_self(), scope)?;
-        if !ic_cdk::api::in_replicated_execution() {
+        self.binding(ic_platform::cdk::api::canister_self(), scope)?;
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(TenantClientError::Execution);
         }
         Ok(())

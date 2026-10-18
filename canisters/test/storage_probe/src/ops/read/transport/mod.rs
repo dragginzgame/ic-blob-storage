@@ -4,7 +4,7 @@ use blob_test_protocol::storage::Failure;
 use ic_blob_storage::ops::service::reads::transport::{
     ReadChunkRequest, ReadChunkResponse, ReadChunkTransport,
 };
-use ic_cdk::call::Call;
+use ic_platform::cdk::call::Call;
 
 pub(crate) struct LocalChunk;
 impl ReadChunkTransport for LocalChunk {

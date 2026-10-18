@@ -51,11 +51,11 @@ pub(crate) fn begin_read_profile(restored: bool) {
 pub(super) fn start_read() -> Option<u64> {
     MEASURE_READS
         .get()
-        .then(ic_cdk::api::call_context_instruction_counter)
+        .then(ic_platform::cdk::api::call_context_instruction_counter)
 }
 pub(super) fn finish_read(index: usize, bytes: usize, started: Option<u64>) {
     if let Some(started) = started {
-        let instructions = ic_cdk::api::call_context_instruction_counter() - started;
+        let instructions = ic_platform::cdk::api::call_context_instruction_counter() - started;
         READS.with_borrow_mut(|reads| {
             let row = &mut reads[index];
             // One completed wrapped read, in IC call-context instructions.
@@ -170,7 +170,7 @@ fn populate_upload(
         actor: tenant,
         ..context
     };
-    let now = ic_cdk::api::time();
+    let now = ic_platform::cdk::api::time();
     let request = conversion::request(input.request).unwrap();
     state
         .uploads
@@ -257,9 +257,9 @@ pub(crate) fn credit_resources(
 ) -> blob_test_protocol::storage::resources::FundingCreditResources {
     blob_test_protocol::storage::resources::FundingCreditResources {
         result,
-        instructions: ic_cdk::api::call_context_instruction_counter() - started,
+        instructions: ic_platform::cdk::api::call_context_instruction_counter() - started,
         heap_bytes: heap_bytes(),
-        stable_bytes: ic_cdk::api::stable_size() * 65_536,
+        stable_bytes: ic_platform::ic0::stable64_size() * 65_536,
         reads: finish_read_profile(),
     }
 }

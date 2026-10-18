@@ -23,8 +23,12 @@ pub(crate) fn saved(actor: Principal) -> Result<Option<TenantUpdateRequest>, Fai
     super::read(actor, |r| Ok(r.tenant_command()))
 }
 fn client(scope: TenantScope) -> ReplicatedTenantClient {
-    ReplicatedTenantClient::new(ic_cdk::api::canister_self(), scope, 30.try_into().unwrap())
-        .unwrap()
+    ReplicatedTenantClient::new(
+        ic_platform::cdk::api::canister_self(),
+        scope,
+        30.try_into().unwrap(),
+    )
+    .unwrap()
 }
 pub(crate) async fn update(
     input: TenantUpdateRequest,

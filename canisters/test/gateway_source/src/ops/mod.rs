@@ -6,7 +6,8 @@ mod storage;
 pub(crate) mod sync_hold;
 
 pub(crate) fn unfunded_replicated_query() -> bool {
-    ic_cdk::api::in_replicated_execution() && ic_cdk::api::msg_cycles_available() == 0
+    ic_platform::cdk::api::in_replicated_execution()
+        && ic_platform::cdk::api::msg_cycles_available() == 0
 }
 
 use crate::model::{ActionRecord, SourceJournalRecord};
@@ -14,8 +15,8 @@ use blob_test_protocol::{
     SourceMode, SourceObservation, SyncFailure,
     source::{SourceAction, SourceEffectView, SourceRecoveryView},
 };
-use ic_cdk::call::{Call, CallFailed};
 use ic_platform::Principal;
+use ic_platform::cdk::call::{Call, CallFailed};
 use std::cell::RefCell;
 
 thread_local! {
@@ -211,8 +212,8 @@ pub(crate) fn reply_empty() {
     reply(ic_platform::candid::contract::encode_one(Vec::<Principal>::new()).expect("empty list"));
 }
 pub(crate) fn reply(bytes: Vec<u8>) {
-    ic_cdk::api::msg_reply(bytes);
+    ic_platform::cdk::api::msg_reply(bytes);
 }
 pub(crate) fn reject() {
-    ic_cdk::api::msg_reject("deliberate local source rejection");
+    ic_platform::cdk::api::msg_reject("deliberate local source rejection");
 }

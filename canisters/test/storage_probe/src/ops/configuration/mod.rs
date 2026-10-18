@@ -27,7 +27,7 @@ pub(super) fn configuration(
     )
     .unwrap()
         * objects;
-    let service = ic_cdk::api::canister_self();
+    let service = ic_platform::cdk::api::canister_self();
     validate_candidate(
         service,
         ServiceConfigurationInput {

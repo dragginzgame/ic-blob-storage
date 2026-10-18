@@ -73,12 +73,12 @@ impl ReplicatedDownloadClient {
     ) -> Result<DownloadResponse, DownloadClientError> {
         if request.service != self.service
             || request.tenant != self.tenant
-            || ic_cdk::api::canister_self() != self.tenant
+            || ic_platform::cdk::api::canister_self() != self.tenant
         {
             return Err(DownloadClientError::Binding);
         }
         reply::check_request(request, scope)?;
-        if !ic_cdk::api::in_replicated_execution() {
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(DownloadClientError::Execution);
         }
         let response = client::call(self.service, DOWNLOAD_METHOD, self.timeout, request)

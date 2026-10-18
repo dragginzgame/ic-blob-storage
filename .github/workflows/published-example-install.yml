@@ -41,7 +41,7 @@ jobs:
           persist-credentials: false
       - name: Prepare the assessment compiler and host tools
         run: |
-          rustup toolchain install 1.99.0 --profile minimal
+          rustup toolchain install 1.99.1 --profile minimal
           make --no-print-directory install-host-tools host-tools-check
           echo "$GITHUB_WORKSPACE/.tools/host/bin" >> "$GITHUB_PATH"
       - name: Check adapter rejection and retained evidence

@@ -156,12 +156,12 @@ pub(crate) fn run(case: ContentProbeCase) -> Result<ContentProbeReport, ContentP
         );
         assert_eq!(ordered.verified_bytes(), before);
         data[0] ^= 1;
-        let start = ic_cdk::api::instruction_counter();
+        let start = ic_platform::cdk::api::instruction_counter();
         ordered
             .append_chunk(index64, &data)
             .expect("correct leaf retry");
         max_append_instructions =
-            max_append_instructions.max(ic_cdk::api::instruction_counter() - start);
+            max_append_instructions.max(ic_platform::cdk::api::instruction_counter() - start);
         assert_eq!(
             ordered.append_chunk(index64, &data),
             Err(CaffeineOrderedVerificationError::UnexpectedChunk {

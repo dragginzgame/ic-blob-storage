@@ -69,12 +69,12 @@ impl ReplicatedUploadStatusClient {
     ) -> Result<UploadStatusResponse, UploadStatusClientError> {
         if upload.service != self.service
             || upload.tenant != self.tenant
-            || ic_cdk::api::canister_self() != self.tenant
+            || ic_platform::cdk::api::canister_self() != self.tenant
         {
             return Err(UploadStatusClientError::Binding);
         }
         reply::check(upload)?;
-        if !ic_cdk::api::in_replicated_execution() {
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(UploadStatusClientError::Execution);
         }
         let response = client::call(self.service, UPLOAD_STATUS_METHOD, self.timeout, upload)

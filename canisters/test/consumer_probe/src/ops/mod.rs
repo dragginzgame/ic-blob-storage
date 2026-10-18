@@ -80,7 +80,7 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
     let record = if let Some((operator, service)) = initial {
         assert_eq!(memory.size(), 0, "initialization cannot reset history");
         assert_eq!(memory.grow(1), Ok(0), "fixture memory allocation");
-        ConsumerRecord::new(operator, service, ic_cdk::api::canister_self())
+        ConsumerRecord::new(operator, service, ic_platform::cdk::api::canister_self())
     } else {
         assert!(memory.size() > 0, "missing consumer history");
         let mut header = [0; 9];
@@ -95,7 +95,7 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
                 .expect("consumer record");
         assert_eq!(
             record.tenant,
-            ic_cdk::api::canister_self(),
+            ic_platform::cdk::api::canister_self(),
             "consumer identity"
         );
         record.validate().expect("consumer invariants");
@@ -149,12 +149,12 @@ pub(crate) fn view(actor: Principal, id: u128) -> Result<AssetView, Failure> {
 }
 pub(crate) fn fault(selected: Fault, at: Fault) {
     if selected == at {
-        ic_cdk::trap("consumer transaction interruption");
+        ic_platform::cdk::api::trap("consumer transaction interruption");
     }
 }
 fn client(command: ReferenceCommand) -> ReplicatedReferenceClient {
     ReplicatedReferenceClient::new(
-        ic_cdk::api::canister_self(),
+        ic_platform::cdk::api::canister_self(),
         command.upload.service,
         30.try_into().unwrap(),
     )
@@ -230,9 +230,12 @@ pub(crate) async fn hold() -> Result<(), Failure> {
             WAITING.set(false);
             return Ok(());
         }
-        if ic_cdk::call::Call::unbounded_wait(Principal::management_canister(), "raw_rand")
-            .await
-            .is_err()
+        if ic_platform::cdk::call::Call::unbounded_wait(
+            Principal::management_canister(),
+            "raw_rand",
+        )
+        .await
+        .is_err()
         {
             break;
         }
@@ -245,7 +248,7 @@ fn admission_client(
     permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
 ) -> ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient {
     ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient::new(
-        ic_cdk::api::canister_self(),
+        ic_platform::cdk::api::canister_self(),
         permission.upload.service,
         30.try_into().unwrap(),
     )

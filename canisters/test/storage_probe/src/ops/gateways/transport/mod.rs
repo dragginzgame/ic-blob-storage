@@ -33,7 +33,7 @@ pub(crate) fn attempt(
     context: UploadContext,
     input: TransportInput,
 ) -> Result<GatewaySyncRequest, Failure> {
-    if context.service != ic_cdk::api::canister_self() {
+    if context.service != ic_platform::cdk::api::canister_self() {
         return Err(Failure::Binding);
     }
     let scope = scope(input.scope)?;
@@ -68,10 +68,11 @@ impl CashierQueryTransport for LocalQuery {
         if request.query() != CashierQuery::StorageGateways {
             return Err(Failure::Binding);
         }
-        let response = ic_cdk::call::Call::bounded_wait(request.cashier(), "fixture_gateway_query")
-            .with_raw_args(request.arguments())
-            .await
-            .map_err(|_| Failure::Transport)?;
+        let response =
+            ic_platform::cdk::call::Call::bounded_wait(request.cashier(), "fixture_gateway_query")
+                .with_raw_args(request.arguments())
+                .await
+                .map_err(|_| Failure::Transport)?;
         let bytes = response.as_ref();
         if bytes.len() > max_bytes.get() {
             return Err(Failure::Capacity);

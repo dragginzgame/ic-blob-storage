@@ -10,8 +10,8 @@ use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
 use ic_blob_storage_contracts::reference::reply;
 use ic_blob_storage_contracts::reference::reply::ReferenceReplyError;
-use ic_cdk::call::Response;
 use ic_platform::Principal;
+use ic_platform::cdk::call::Response;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit tenant/service configuration. Construction installs and sends nothing.
@@ -138,7 +138,7 @@ impl ReplicatedReferenceClient {
     fn check_actor(&self, upload: ReferenceUpload) -> Result<(), ReferenceClientError> {
         if upload.service != self.service
             || upload.tenant != self.tenant
-            || ic_cdk::api::canister_self() != self.tenant
+            || ic_platform::cdk::api::canister_self() != self.tenant
         {
             return Err(ReferenceClientError::Binding);
         }
@@ -150,7 +150,7 @@ impl ReplicatedReferenceClient {
         method: &str,
         request: A,
     ) -> Result<Response, ReferenceClientError> {
-        if !ic_cdk::api::in_replicated_execution() {
+        if !ic_platform::cdk::api::in_replicated_execution() {
             return Err(ReferenceClientError::Execution);
         }
         client::call(self.service, method, self.timeout, request)

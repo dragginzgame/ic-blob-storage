@@ -13,7 +13,6 @@ libc.workspace = true
 hex.workspace = true
 ic-host-process = { workspace = true, features = ["test-support"] }
 ic-platform = { workspace = true, features = ["candid"] }
-ic-testkit.workspace = true
 tempfile.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]

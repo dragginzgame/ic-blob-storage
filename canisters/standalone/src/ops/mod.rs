@@ -19,13 +19,13 @@ thread_local! {
 pub(crate) fn install(input: &ServiceInstallationInput) {
     // The complete candidate is checked before this host bootstraps memory.
     let candidate = ValidatedServiceInstallation::new(
-        ic_cdk::api::canister_self(),
+        ic_platform::cdk::api::canister_self(),
         ServiceInstallationCandidate {
             configuration: input.configuration,
             project: &input.project,
             completion_verifier: input.completion_verifier,
             release: ic_blob_storage::LIBRARY_VERSION,
-            platform_installation_version: ic_cdk::api::canister_version(),
+            platform_installation_version: ic_platform::ic0::canister_version(),
         },
     )
     .expect("invalid installation configuration");
@@ -61,7 +61,7 @@ pub(crate) fn restore() {
             configuration,
             stores,
         },
-        ic_cdk::api::canister_self(),
+        ic_platform::cdk::api::canister_self(),
         ic_blob_storage::LIBRARY_VERSION,
     )
     .expect("service restoration");
@@ -135,10 +135,10 @@ impl ic_blob_storage::workflow::service::ServiceHost for Host {
         })
     }
     fn platform_version() -> u64 {
-        ic_cdk::api::canister_version()
+        ic_platform::ic0::canister_version()
     }
     fn time() -> u64 {
-        ic_cdk::api::time()
+        ic_platform::cdk::api::time()
     }
     fn limits() -> ic_blob_storage::workflow::service::ServiceExecutionLimits {
         use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;

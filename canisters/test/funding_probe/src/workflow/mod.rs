@@ -48,7 +48,7 @@ pub(crate) async fn fund(
     if request.trap_callback && observation.refunded.is_some() {
         // The actual IC rolls back complete() while the receiver's acceptance survives.
         // An unsent call has no callback: its refusal must commit in this message.
-        ic_cdk::trap("deliberate fixture callback failure");
+        ic_platform::cdk::api::trap("deliberate fixture callback failure");
     }
     Ok(observation)
 }

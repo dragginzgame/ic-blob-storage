@@ -22,7 +22,7 @@ pub(crate) fn run(execution: UploadContext, input: CreditCommand) -> Result<Opti
     });
     if input.fault == Some(blob_test_protocol::storage::WriteFault::FundingCommit) && result.is_ok()
     {
-        ic_cdk::trap("fixture funding post-commit failure");
+        ic_platform::cdk::api::trap("fixture funding post-commit failure");
     }
     TRAP_WRITE.set(None);
     result
@@ -53,7 +53,7 @@ pub(crate) fn renew(
     });
     if input.fault == Some(blob_test_protocol::storage::WriteFault::FundingCommit) && result.is_ok()
     {
-        ic_cdk::trap("fixture funding post-commit failure");
+        ic_platform::cdk::api::trap("fixture funding post-commit failure");
     }
     TRAP_WRITE.set(None);
     result.map_err(super::failure)

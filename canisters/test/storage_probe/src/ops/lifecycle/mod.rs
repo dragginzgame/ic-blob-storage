@@ -28,7 +28,7 @@ fn completion_authority(
     operator: ic_platform::Principal,
 ) -> ic_blob_storage_contracts::upload::completion::CompletionAuthority {
     ic_blob_storage_contracts::upload::completion::CompletionAuthority::new(
-        ic_cdk::api::canister_self(),
+        ic_platform::cdk::api::canister_self(),
         std::num::NonZeroU128::MIN,
         operator,
     )
@@ -69,7 +69,7 @@ pub(crate) fn attest(
             authority,
             context,
             input,
-            ic_cdk::api::time(),
+            ic_platform::cdk::api::time(),
         );
         TRAP_WRITE.set(None);
         result

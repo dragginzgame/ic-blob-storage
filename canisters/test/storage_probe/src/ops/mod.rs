@@ -79,7 +79,7 @@ impl Memory for ProbeMemory {
     }
     fn write(&self, offset: u64, src: &[u8]) {
         if self.fault.is_some() && self.fault == TRAP_WRITE.get() {
-            ic_cdk::trap("fixture stable write failure");
+            ic_platform::cdk::api::trap("fixture stable write failure");
         }
         self.memory.write(offset, src);
     }
@@ -116,7 +116,7 @@ pub(crate) fn initialize(
     input: blob_test_protocol::storage::resources::StorageProbeInstallation,
     restored: bool,
 ) {
-    let started = ic_cdk::api::call_context_instruction_counter();
+    let started = ic_platform::cdk::api::call_context_instruction_counter();
     let operator = input.operator;
     // Reject invalid candidates before even bootstrapping the host memory runtime.
     let config = configuration::configuration(input);
@@ -130,7 +130,7 @@ pub(crate) fn initialize(
     let mut bytes = [0; 8];
     neighbor.read(0, &mut bytes);
     assert_eq!(&bytes, b"neighbor");
-    let stores_started = ic_cdk::api::call_context_instruction_counter();
+    let stores_started = ic_platform::cdk::api::call_context_instruction_counter();
     resources::begin_read_profile(restored);
     let ServiceStores {
         uploads,
@@ -143,7 +143,8 @@ pub(crate) fn initialize(
         ic_blob_storage::test_support::stores::install(memory, config)
     }
     .unwrap();
-    let stores_instructions = ic_cdk::api::call_context_instruction_counter() - stores_started;
+    let stores_instructions =
+        ic_platform::cdk::api::call_context_instruction_counter() - stores_started;
     let reads = resources::finish_read_profile();
     STATE.with_borrow_mut(|state| {
         *state = Some(State {
@@ -159,7 +160,7 @@ pub(crate) fn initialize(
                 initialization_instructions: 0,
                 stores_instructions,
                 heap_bytes: 0,
-                stable_bytes: ic_cdk::api::stable_size() * 65_536,
+                stable_bytes: ic_platform::ic0::stable64_size() * 65_536,
                 reads,
             },
         });
@@ -168,7 +169,7 @@ pub(crate) fn initialize(
         let resources = &mut state.as_mut().unwrap().resources;
         resources.heap_bytes = resources::heap_bytes();
         resources.initialization_instructions =
-            ic_cdk::api::call_context_instruction_counter() - started;
+            ic_platform::cdk::api::call_context_instruction_counter() - started;
     });
 }
 const MEMORY_KEYS: [&str; 16] = [
@@ -306,7 +307,7 @@ fn probe_memory(
 )]
 pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
     if bytes.len() > blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES {
-        ic_cdk::trap("fixture input byte bound");
+        ic_platform::cdk::api::trap("fixture input byte bound");
     }
     ic_platform::candid::decode_one(
         &bytes,
@@ -318,7 +319,7 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
             header_bytes: 4096,
         },
     )
-    .unwrap_or_else(|_| ic_cdk::trap("invalid fixture input"))
+    .unwrap_or_else(|_| ic_platform::cdk::api::trap("invalid fixture input"))
 }
 pub(crate) fn admit(
     context: UploadContext,
@@ -334,7 +335,7 @@ pub(crate) fn admit(
             &mut state.as_mut().unwrap().uploads,
             context,
             input,
-            ic_cdk::api::time(),
+            ic_platform::cdk::api::time(),
         )
     });
     TRAP_WRITE.set(None);
@@ -381,7 +382,7 @@ pub(crate) fn admit_with_growth(
             // Only the expected typed backing refusal and unchanged extent take the trap
             // path. Unexpected outcomes return normally so the test cannot mistake
             // an assertion panic for qualified growth-refusal rollback.
-            ic_cdk::trap("fixture backing growth refused");
+            ic_platform::cdk::api::trap("fixture backing growth refused");
         }
         REFUSE_GROWTH.set(false);
         assert_eq!(grown, Ok(before));
@@ -403,7 +404,7 @@ pub(crate) fn prepare(
             &mut state.as_mut().unwrap().uploads,
             context,
             input,
-            ic_cdk::api::time(),
+            ic_platform::cdk::api::time(),
         )
     });
     TRAP_WRITE.set(None);

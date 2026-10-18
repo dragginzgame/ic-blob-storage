@@ -27,18 +27,16 @@ publish = ["crates-io"]
 
 [workspace.dependencies]
 # Production dependencies
-candid = "0.10.36"
 ciborium = "0.2.2"
 hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.33.1" }
 ic-build = "0.17"
-ic-cdk = "0.20"
 ic-host-artifacts = "0.27"
 ic-host-fs = "0.27"
 ic-host-process = "0.27"
 ic-memory = "0.48"
-ic-platform = { version = "0.1.8", default-features = false }
+ic-platform = { version = "0.1.11", default-features = false }
 ic-storage = "0.5.2"
 ic-wire = "0.4"
 libc = "0.2.190"

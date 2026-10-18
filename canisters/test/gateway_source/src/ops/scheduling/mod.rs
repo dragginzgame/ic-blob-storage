@@ -1,5 +1,5 @@
 //! Bounded local scheduling only; random bytes are discarded.
-use ic_cdk::call::Call;
+use ic_platform::cdk::call::Call;
 
 pub(super) async fn wait(ready: impl Fn() -> bool) -> bool {
     // Self-calls can drain within one round. Management callbacks let the test

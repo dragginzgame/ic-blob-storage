@@ -289,7 +289,7 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
             crate::workflow::installation::inspect(
                 installation,
                 UploadContext {
-                    service: ic_cdk::api::canister_self(),
+                    service: ic_platform::cdk::api::canister_self(),
                     actor,
                 },
             )
