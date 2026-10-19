@@ -17,15 +17,15 @@ lockfiles; local qualification does not cover every future resolution.
 | Blob core | Workspace version | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
 | Blob client | Workspace version | Explicit replicated role clients; no service storage, endpoints or lifecycle |
 | Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
-| IC Memory | 0.48.2 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
-| IC Storage | 0.5.6 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
-| IC Platform | 0.1.18 | Entrypoint/export macros, supported CDK calls/system APIs, Principal, external Candid encoding/decoding, management DTOs and native Agent/parser/certificate identities |
-| IC Wire | 0.4.6 | Bounded method/direction framing for owned service contracts and separate passive document encoding |
-| IC Metrics | 0.14.5 | Private probe measurement arithmetic; not a public Blob API |
-| IC Testkit | 0.55.2 | PocketIC client/server selection and managed lifetime; bounded Candid decoding and supported client exports use Platform |
-| IC Host artifacts/fs/process/tools | 0.29.0 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
-| IC Build | 0.21.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
-| PocketIC | 16.1.0 | Testkit-selected local IC execution; temporary native test DTO exception described below; no separate Blob server catalog |
+| IC Memory | 0.49.0 pending 0.37 cut | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
+| IC Storage | 0.5.7 pending 0.37 cut | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
+| IC Platform | 0.2.2 | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
+| IC Wire | 0.5.0 incoming | Bounded method/direction framing for owned service contracts and separate passive document encoding |
+| IC Metrics | 0.14.7 | Private probe measurement arithmetic; not a public Blob API |
+| IC Testkit | 0.56.0 | PocketIC client/server selection and managed lifetime; bounded Candid decoding and supported client exports use Platform 0.2.2 |
+| IC Host artifacts/fs/process/tools | 0.30.0 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Build | 0.22.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
+| PocketIC | 16.1.0 transitive | Testkit-selected local IC execution through Platform; no separate Blob dependency or server catalog |
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
 composition. The core exports none of these implicitly. Consumer frameworks own
@@ -61,10 +61,14 @@ verify complete body digests. Interrupted probe evidence deliberately uses retai
 creation rather than an atomic writer that discards partial bytes. These are
 necessary consumer policies, not independent filesystem implementations.
 
-The optional archive verifier and HTTP fixtures use the same Host process package
-identity. Build 0.21 and direct Host 0.29 must move together because the package
-verifier exchanges Host process limits and typed errors with Build. Its normal
-dependency also supplies the default CLI's bounded framing;
+The optional archive verifier exchanges Host process limits and typed errors
+with Build, requiring the same Host package identity. Incoming Build 0.22 and
+direct Host 0.30 align that boundary; the all-feature CLI now compiles and lints.
+The [earlier mismatch](https://github.com/dragginzgame/ic-build/issues/9#issuecomment-6269225053)
+retains its original reproduction. Keep the actual output limits and exit/signal
+propagation; no copied process types or version bridge is used. The current
+Platform adoption does not rerun the archive-verifier regression matrix.
+The normal Host process dependency supplies the default CLI's bounded framing;
 `package-verification` activates Build, not Host process. HTTP fixture support
 remains development-only. Build's source inventory is descriptive provenance,
 not executable attestation or retry authority. Dependency owners retain their
@@ -74,37 +78,64 @@ run `make install-testkit` then `make testkit-check` after changing Testkit.
 
 The [service wire guide](service-wire.md) defines the 0.36.0 contract.
 All 31 owned methods and standalone lifecycle inputs use published IC Wire
-0.4.6, with explicit method/direction identity and no old-packet fallback.
+0.4.9, with explicit method/direction identity and no old-packet fallback.
 Finite tenant frames retain their bytes; other methods use Wire's bounded native
 Serde codec. Passive offline values use a separate document identity, and new
 application artifacts use `.wire`. Exact saved-input and signed-frame binding
 remains with the CLI/workflow owner.
 
-Blob has no direct Ciborium dependency or local CBOR implementation. Ciborium
-remains transitively through Memory's persisted metadata; changing that encoding
-belongs to Memory and is not part of this cut. Native test `serde_cbor` remains
+Blob has no direct Ciborium dependency or local CBOR implementation. Incoming
+Memory 0.49 removes the remaining Ciborium tree; its ledger codec and byte
+contract stay Memory-owned. Native test `serde_cbor` remains
 for IC transport envelopes and certificates. Provider/management Candid and
 stored records retain their external/persisted contracts. Platform owns the
-supported parser/decoder/runtime APIs. Host owns bounded service inventories
-and uses Platform for its parser; the test harness explicitly selects Host's
-`candid` and `ic-interface` features. Direct Candid/CDK declarations remain
-forbidden by the boundary policy.
+supported parser/decoder/runtime APIs. The fixed provider DID is parsed through
+Platform in the deployment-surface test; it is repository input, not an untrusted
+service inventory. Host interprets the bounded Wasm function exports through
+`ic-interface` without its optional Candid parser. Direct Candid/CDK declarations
+remain forbidden by the boundary policy.
 
-Testkit 0.55 forwards Platform's explicit PocketIC surface. Published Platform
-0.1.18 omits `CanisterInstallMode` and `common::rest::RawMessageId`, required by
-Blob's skipped-hook upgrade and pending-call recovery tests. The maintainer
-approved a temporary direct `pocket-ic` dependency, selected only in native
-development dependencies of `ic-blob-storage-pocketic-tests`. Six test modules
-use those two original identities; other simulator APIs still use Testkit.
-The boundary policy rejects direct declarations in any other package. Remove
-the declaration and exception after
-[Platform #27](https://github.com/dragginzgame/ic-platform/issues/27#issuecomment-6267665526)
-publishes both original types; PocketIC's management DTOs must retain their own
-identity rather than Platform's independent management DTO version. This
-exception does not add a simulator wrapper, server selection or deployment path.
+Platform 0.2.2 owns non-cryptographic runtime adapters, using the original
+executor 2.0.0 and IC0 1.2.0 identities. Callable entrypoints select codecs
+explicitly. Blob's method emitters bind pre-copy admission to the declared
+method, not inspect-message-only APIs. Provider Candid replies remain explicit;
+no-argument management calls supply their original Candid argument bytes.
+Private Candid probe/provider substitutes retain their existing tuple decoder,
+10,000 skipping quota, empty-input handling and reply arity through the small
+`blob-test-protocol::fixture_candid` hooks. Existing narrower fixture decoders
+and method-bound Wire controls remain unchanged.
+
+Testkit 0.56 uses Platform 0.2's original `DecodeLimits` and decode-error
+identities, preserving all five caller budgets and top-level reply arity. Native
+tests no longer declare the legacy Platform alias; no conversion or copied decoder
+is needed. Testkit and the package verifier now share Host 0.30, removing Host
+0.29 and its unused capability filesystem tree from the lockfile.
+
+The legacy Platform alias and optional Wasm extraction feature are removed.
+The native standalone `export_candid` example still exports the same provider
+contract; Host's callable export inspection requires no Candid extraction pointer.
+The resolved graph no longer selects Platform 0.1 or full CDK. No bounded Host
+inventory implementation is copied into Blob. `make contracts-boundary-check`
+rejects the retired Platform/CDK across all workspace features and targets,
+including normal/build/dev edges. It separately checks the production
+normal/build Wasm graph, refusing Host, Build, Testkit,
+PocketIC, Agent and the parser. Candid itself remains through required external
+contracts and retained DTO traits; this is not a Candid-free deployment claim.
+
+Testkit 0.56 forwards Platform 0.2.2's original `CanisterInstallMode` and
+`common::rest::RawMessageId`. Six test modules use those exports for skipped-hook
+upgrades and pending-call recovery; the temporary direct PocketIC declaration
+and boundary exception are removed. Its management DTOs retain PocketIC's own
+identity, separate from Platform's independent management DTO version. Testkit
+continues to own simulator selection and server lifecycle.
 
 Native fixtures and example staging/publication use published `ic-host-fs`
-0.29.0. Fixture directories clean up after success and retain failed-test
+0.30.0 with empty defaults. Neither `capability` nor `temporary-file` is needed
+by Blob's actual callers; `test-support` selects neither. Retained scratch files
+remain distinct from the optional scoped `TemporaryFile`. Testkit's Host 0.30
+selection no longer enables either backend. PocketIC still owns transitive
+`tempfile`; Blob declares none directly.
+Fixture directories clean up after success and retain failed-test
 evidence during panic. Retained report directories remain caller-owned. Private
 invocation files use Host's mode-0600 scratch writer within their owned directory.
 Verified example outputs use Host's create-only publication of the checked file,

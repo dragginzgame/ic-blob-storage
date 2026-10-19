@@ -10,7 +10,7 @@ use blob_test_protocol::funding::{
 };
 use ic_platform::Principal;
 
-#[ic_platform::cdk::init]
+#[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_candid::decode_args")]
 fn init(
     peer: Principal,
     driver: Principal,
@@ -19,7 +19,7 @@ fn init(
     ops::initialize(peer, driver, budget);
 }
 
-#[ic_platform::cdk::post_upgrade]
+#[ic_platform::cdk::post_upgrade(decode_with = "blob_test_protocol::fixture_candid::decode_one")]
 fn post_upgrade(args: FundingUpgradeArgs) {
     // Restore before exposing endpoints; no deferred task can reset unresolved work.
     workflow::restore();
@@ -28,17 +28,26 @@ fn post_upgrade(args: FundingUpgradeArgs) {
     }
 }
 
-#[ic_platform::cdk::update]
+#[ic_platform::cdk::update(
+    decode_with = "blob_test_protocol::fixture_candid::decode_one",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 async fn fund(request: FundingRequest) -> Result<FundingObservation, FundingFailure> {
     workflow::fund(ic_platform::cdk::api::msg_caller(), request).await
 }
 
-#[ic_platform::cdk::update(manual_reply = true)]
+#[ic_platform::cdk::update(
+    manual_reply = true,
+    decode_with = "blob_test_protocol::fixture_candid::decode_one"
+)]
 async fn receive(request: FundingRequest) {
     workflow::receive(ic_platform::cdk::api::msg_caller(), request).await;
 }
 
-#[ic_platform::cdk::update]
+#[ic_platform::cdk::update(
+    decode_with = "blob_test_protocol::fixture_candid::decode_one",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn configure_cashier(
     input: blob_test_protocol::storage::funding::transport::Substitute,
 ) -> Result<(), FundingFailure> {
@@ -50,17 +59,26 @@ async fn account_top_up_v1(arguments: Vec<u8>) {
     workflow::receive_top_up(ic_platform::cdk::api::msg_caller(), arguments).await;
 }
 
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_candid::ignore_arguments",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn attempts() -> Option<Vec<FundingAttemptRecord>> {
     ops::attempts(ic_platform::cdk::api::msg_caller())
 }
 
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_candid::ignore_arguments",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn receipts() -> Option<Vec<FundingReceiptRecord>> {
     ops::receipts(ic_platform::cdk::api::msg_caller())
 }
 
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_candid::decode_one",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn lookup_funding(
     request: blob_test_protocol::funding::lookup::FundingLookupRequest,
 ) -> Result<
@@ -70,7 +88,10 @@ fn lookup_funding(
     workflow::lookup(ic_platform::cdk::api::msg_caller(), request)
 }
 
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_candid::ignore_arguments",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn operator_status() -> Option<FundingOperatorStatusView> {
     workflow::operator_status(
         ic_platform::cdk::api::canister_self(),
@@ -78,7 +99,10 @@ fn operator_status() -> Option<FundingOperatorStatusView> {
     )
 }
 
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_candid::decode_one",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn preview_funding(
     request: blob_test_protocol::funding::preview::FundingPreviewRequest,
 ) -> Result<

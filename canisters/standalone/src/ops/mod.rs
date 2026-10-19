@@ -84,6 +84,12 @@ pub(crate) fn decode_certificate(bytes: Vec<u8>) -> String {
     ic_platform::candid::decoder::decode_one_with_config(&bytes, &config)
         .expect("invalid certificate ingress")
 }
+/// Preserve the provider-defined single-value Candid response.
+pub(crate) fn encode_certificate(
+    value: ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse,
+) -> Vec<u8> {
+    ic_platform::candid::contract::encode_one(value).unwrap()
+}
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
 pub(crate) fn decode_tenant_inspection(
     bytes: Vec<u8>,
@@ -164,7 +170,28 @@ pub(crate) fn decode_owned<T: serde::Serialize + serde::de::DeserializeOwned>(me
         "request limit"
     );
     let bytes = ic_platform::cdk::api::msg_arg_data();
-    ic_blob_storage_contracts::wire::decode_request(method, &bytes, limit)
+    decode_request(method, &bytes)
+}
+/// Keep method/size admission ahead of the entrypoint's ingress-buffer copy.
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "Platform guards require this signature"
+)]
+pub(crate) fn admit_owned(method: &str) -> Result<(), String> {
+    let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
+    assert!(
+        ic_platform::ic0::msg_arg_data_size() <= limit,
+        "request limit"
+    );
+    Ok(())
+}
+/// Decode already-admitted bytes with the catalogue's exact method identity.
+pub(crate) fn decode_request<T: serde::Serialize + serde::de::DeserializeOwned>(
+    method: &str,
+    bytes: &[u8],
+) -> T {
+    let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
+    ic_blob_storage_contracts::wire::decode_request(method, bytes, limit)
         .expect("invalid owned Wire ingress")
 }
 /// Trap before reply delivery if encoding fails after a local mutation.

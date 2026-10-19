@@ -57,6 +57,6 @@
   },
   {
     "dependency": "pocket-ic",
-    "allowed_packages": ["ic-blob-storage-pocketic-tests"]
+    "allowed_packages": []
   }
 ]

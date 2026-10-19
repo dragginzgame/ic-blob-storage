@@ -224,6 +224,7 @@ pub(crate) async fn hold() -> Result<(), Failure> {
             Principal::management_canister(),
             "raw_rand",
         )
+        .with_args(&())
         .await
         .is_err()
         {

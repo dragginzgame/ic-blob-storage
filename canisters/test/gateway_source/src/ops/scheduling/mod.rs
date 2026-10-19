@@ -9,6 +9,7 @@ pub(super) async fn wait(ready: impl Fn() -> bool) -> bool {
             return true;
         }
         if Call::unbounded_wait(ic_platform::Principal::management_canister(), "raw_rand")
+            .with_args(&())
             .await
             .is_err()
         {

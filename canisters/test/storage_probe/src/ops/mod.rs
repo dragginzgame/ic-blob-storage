@@ -532,15 +532,26 @@ pub(crate) fn encode_tenant_update(
         .expect("tenant update response encoding")
 }
 
-/// Admit method identity, frame size and traversal before workflow effects.
-pub(crate) fn decode_owned<T: serde::Serialize + serde::de::DeserializeOwned>(method: &str) -> T {
+/// Preserve method/size admission before the entrypoint copies ingress bytes.
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "Platform guards require this signature"
+)]
+pub(crate) fn admit_owned(method: &str) -> Result<(), String> {
     let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
     assert!(
         ic_platform::ic0::msg_arg_data_size() <= limit,
         "request limit"
     );
-    let bytes = ic_platform::cdk::api::msg_arg_data();
-    ic_blob_storage_contracts::wire::decode_request(method, &bytes, limit)
+    Ok(())
+}
+/// Admit method identity, frame size and traversal before workflow effects.
+pub(crate) fn decode_owned<T: serde::Serialize + serde::de::DeserializeOwned>(
+    method: &str,
+    bytes: &[u8],
+) -> T {
+    let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
+    ic_blob_storage_contracts::wire::decode_request(method, bytes, limit)
         .expect("invalid owned Wire ingress")
 }
 /// Trap before reply delivery if encoding fails after a local mutation.

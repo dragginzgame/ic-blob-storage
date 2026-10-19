@@ -74,14 +74,36 @@ fn config(bytes: &[u8], maximum: usize, work: usize) -> DecoderConfig {
     config
 }
 
+/// Each guard binds a declared method without inspect-message-only system calls.
+pub(crate) fn admit_discovery() -> Result<(), String> {
+    admit_blob("blob_lookup_content")
+}
+pub(crate) fn admit_upload_capacity() -> Result<(), String> {
+    admit_blob("blob_upload_capacity")
+}
+pub(crate) fn admit_reference_capacity() -> Result<(), String> {
+    admit_blob("blob_reference_capacity")
+}
+
 /// Admit the service method and byte ceiling before copying its ingress buffer.
-pub(crate) fn blob<T: serde::Serialize + serde::de::DeserializeOwned>(method: &str) -> T {
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "Platform guards require this signature"
+)]
+fn admit_blob(method: &str) -> Result<(), String> {
     let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
     assert!(
         ic_platform::ic0::msg_arg_data_size() <= limit,
         "request limit"
     );
-    let bytes = ic_platform::cdk::api::msg_arg_data();
-    ic_blob_storage_contracts::wire::decode_request(method, &bytes, limit)
+    Ok(())
+}
+/// Decode the exact method-bound service frame after admission.
+pub(crate) fn blob<T: serde::Serialize + serde::de::DeserializeOwned>(
+    method: &str,
+    bytes: &[u8],
+) -> T {
+    let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
+    ic_blob_storage_contracts::wire::decode_request(method, bytes, limit)
         .expect("invalid or over-budget Blob probe input")
 }

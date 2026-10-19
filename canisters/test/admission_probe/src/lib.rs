@@ -27,7 +27,10 @@ fn dispatch(command: Command) -> Result<Outcome, Failure> {
     workflow::execute(context(), command, ic_platform::cdk::api::time())
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn enroll(input: EnrollmentInput) -> Result<Outcome, Failure> {
     dispatch(Command::Enroll {
         tenant: input.tenant,
@@ -36,48 +39,72 @@ fn enroll(input: EnrollmentInput) -> Result<Outcome, Failure> {
     })
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn admit(input: Permission) -> Result<Outcome, Failure> {
     dispatch(Command::Admit(input))
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn prepare(input: PreparationInput) -> Result<Outcome, Failure> {
     dispatch(Command::Prepare(input.request, input.manifest))
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn expose(root: [u8; 32]) -> Result<Outcome, Failure> {
     dispatch(Command::Expose(root))
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn revoke(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::Revoke(input))
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn substitute_completion(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
         LifecycleCommand::SubstituteCompletion(input),
     ))
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn substitute_deletion(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
         LifecycleCommand::SubstituteDeletion(input),
     ))
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn substitute_settlement(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
         LifecycleCommand::SubstituteSettlement(input),
     ))
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode::mutation")]
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode::mutation",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn reference(input: ReferenceInput) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(LifecycleCommand::Reference {
         object: input.object,
@@ -87,48 +114,78 @@ fn reference(input: ReferenceInput) -> Result<Outcome, Failure> {
     }))
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode::request")]
+#[ic_platform::cdk::query(
+    decode_with = "ops::decode::request",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn inspect(request: Request) -> Result<Observation, Failure> {
     workflow::inspect(context(), request)
 }
 
-#[ic_platform::cdk::query(manual_reply = true, hidden = true)]
-fn blob_lookup_content() {
+#[ic_platform::cdk::query(
+    manual_reply = true,
+    hidden = true,
+    guard = "ops::decode::admit_discovery",
+    decode_with = "std::convert::identity"
+)]
+fn blob_lookup_content(bytes: Vec<u8>) {
     let method = "blob_lookup_content";
-    let input = ops::decode::blob(method);
+    let input = ops::decode::blob(method, &bytes);
+    drop(bytes);
     ops::reply_blob(method, workflow::discover(context(), input));
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode::content")]
+#[ic_platform::cdk::query(
+    decode_with = "ops::decode::content",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn content_descriptor(
     input: ContentLookup,
 ) -> Result<Option<blob_test_protocol::admission::ContentDescriptor>, Failure> {
     workflow::content_descriptor(context(), input)
 }
 
-#[ic_platform::cdk::query]
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_candid::decode_one",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
     workflow::resources(context(), limit)
 }
 
-#[ic_platform::cdk::query(manual_reply = true, hidden = true)]
-fn blob_upload_capacity() {
+#[ic_platform::cdk::query(
+    manual_reply = true,
+    hidden = true,
+    guard = "ops::decode::admit_upload_capacity",
+    decode_with = "std::convert::identity"
+)]
+fn blob_upload_capacity(bytes: Vec<u8>) {
     let method = "blob_upload_capacity";
-    let input = ops::decode::blob(method);
+    let input = ops::decode::blob(method, &bytes);
+    drop(bytes);
     ops::reply_blob(method, workflow::admission_capacity(context(), input));
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode::retained_descriptor")]
+#[ic_platform::cdk::query(
+    decode_with = "ops::decode::retained_descriptor",
+    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+)]
 fn retained_content_descriptor(
     input: blob_test_protocol::admission::input::RetainedDescriptorInput,
 ) -> Result<Option<blob_test_protocol::admission::input::RetainedDescriptor>, Failure> {
     workflow::retained_content_descriptor(context(), input)
 }
 
-#[ic_platform::cdk::query(manual_reply = true, hidden = true)]
-fn blob_reference_capacity() {
+#[ic_platform::cdk::query(
+    manual_reply = true,
+    hidden = true,
+    guard = "ops::decode::admit_reference_capacity",
+    decode_with = "std::convert::identity"
+)]
+fn blob_reference_capacity(bytes: Vec<u8>) {
     let method = "blob_reference_capacity";
-    let input = ops::decode::blob(method);
+    let input = ops::decode::blob(method, &bytes);
+    drop(bytes);
     ops::reply_blob(method, workflow::reference_capacity(context(), input));
 }
 

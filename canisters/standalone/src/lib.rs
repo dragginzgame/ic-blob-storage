@@ -3,7 +3,7 @@ mod api;
 mod ops;
 
 /// Export the external provider certificate Candid contract for deployment tooling.
-#[cfg(any(not(target_arch = "wasm32"), feature = "provider-candid-export"))]
+#[cfg(not(target_arch = "wasm32"))]
 #[must_use]
 pub fn provider_candid_interface() -> String {
     api::interface()

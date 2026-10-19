@@ -9,13 +9,10 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
-[features]
-provider-candid-export = []
-
 [dependencies]
 ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
-ic-platform = { workspace = true, features = ["cdk"] }
+ic-platform = { workspace = true, features = ["candid", "cdk"] }
 serde.workspace = true
 
 [lints]

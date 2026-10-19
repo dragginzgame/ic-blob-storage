@@ -29,27 +29,37 @@ macro_rules! endpoint {
         $($item)*
     };
     (query, request, fn $name:ident($($arg:ident : $input:ty)? $(,)?) -> $output:ty $body:block) => {
-        #[ic_platform::cdk::query(manual_reply = true, hidden = true)]
-        fn $name() {
-            endpoint!(@input stringify!($name); $($arg : $input)?);
-            let value: $output = $body;
-            ops::reply_owned(stringify!($name), value);
+        mod $name {
+            use super::*;
+            fn admit() -> Result<(), String> { ops::admit_owned(stringify!($name)) }
+            #[ic_platform::cdk::query(manual_reply = true, hidden = true, guard = "admit", decode_with = "std::convert::identity")]
+            fn $name(bytes: Vec<u8>) {
+                endpoint!(@input stringify!($name), &bytes; $($arg : $input)?);
+                drop(bytes);
+                let value: $output = $body;
+                ops::reply_owned(stringify!($name), value);
+            }
         }
     };
     (update, $category:ident, async fn $name:ident($($arg:ident : $input:ty)? $(,)?) -> $output:ty $body:block) => {
-        #[ic_platform::cdk::update(manual_reply = true, hidden = true)]
-        async fn $name() {
-            endpoint!(@input stringify!($name); $($arg : $input)?);
-            let value: $output = (async $body).await;
-            ops::reply_owned(stringify!($name), value);
+        mod $name {
+            use super::*;
+            fn admit() -> Result<(), String> { ops::admit_owned(stringify!($name)) }
+            #[ic_platform::cdk::update(manual_reply = true, hidden = true, guard = "admit", decode_with = "std::convert::identity")]
+            async fn $name(bytes: Vec<u8>) {
+                endpoint!(@input stringify!($name), &bytes; $($arg : $input)?);
+                drop(bytes);
+                let value: $output = (async $body).await;
+                ops::reply_owned(stringify!($name), value);
+            }
         }
     };
-    (@input $method:expr; $arg:ident : $input:ty) => {
-        let $arg: $input = ops::decode_owned($method);
+    (@input $method:expr, $bytes:expr; $arg:ident : $input:ty) => {
+        let $arg: $input = ops::decode_request($method, $bytes);
     };
-    (@input $method:expr;) => { let _: () = ops::decode_owned($method); };
+    (@input $method:expr, $bytes:expr;) => { let _: () = ops::decode_request($method, $bytes); };
     (certificate, request, $wire_name:literal, $($item:tt)*) => {
-        #[ic_platform::cdk::update(name = $wire_name, hidden = true, decode_with = "ops::decode_certificate")]
+        #[ic_platform::cdk::update(name = $wire_name, hidden = true, decode_with = "ops::decode_certificate", encode_with = "ops::encode_certificate")]
         #[ic_platform::candid::contract::candid_method(update, rename = $wire_name)]
         $($item)*
     };
@@ -64,14 +74,11 @@ ic_blob_storage_contracts::mount_service_endpoints!(
     trap = ic_platform::cdk::api::trap,
 );
 
-// The catalogue registers its provider method before this export is expanded.
-#[cfg(all(target_arch = "wasm32", feature = "provider-candid-export"))]
-ic_platform::cdk::export_candid!();
-
+// The catalogue registers its provider method before this native export is expanded.
 #[cfg(not(target_arch = "wasm32"))]
 ic_platform::candid::contract::export_service!(ic_platform::candid::contract);
 
-#[cfg(any(not(target_arch = "wasm32"), feature = "provider-candid-export"))]
+#[cfg(not(target_arch = "wasm32"))]
 pub(crate) fn interface() -> String {
     __export_service()
 }

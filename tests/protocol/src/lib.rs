@@ -95,3 +95,5 @@ pub struct SourceObservation {
 pub mod balance;
 
 pub mod billing;
+
+pub mod fixture_candid;

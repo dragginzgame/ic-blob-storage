@@ -202,6 +202,7 @@ pub(crate) async fn delay_reply(mode: FundingReplyMode) {
                 );
             });
             Call::unbounded_wait(Principal::management_canister(), "raw_rand")
+                .with_args(&())
                 .await
                 .expect("bounded fixture scheduling round");
         }

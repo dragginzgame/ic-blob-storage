@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.37.0]
+
+- **Breaking shared-memory boundary:** select IC Memory 0.49 and matching
+  Storage 0.5.7 runtime handles. Hosts must align their Memory/Storage dependencies
+  with Blob's public memory types
+  ([shared Memory alignment](https://github.com/dragginzgame/ic-blob-storage/issues/93)).
+  Memory's codec switch removes the remaining Ciborium dependency tree; its
+  exposed decoder errors now use `serde_cbor` while its ledger/snapshot bytes
+  retain their upstream contract.
+- Select IC Wire 0.4.8's bounded geometric list growth for hidden decode-length
+  hints, preserving application frames and decoder limits.
+- Select the published IC Host 0.30 family with empty defaults; ordinary native
+  reads, retained writes and fixtures do not enable its optional capability or
+  scoped-temporary-file backends.
+- Use matching IC Build 0.22 so archive-verifier limits and errors retain the
+  selected Host 0.30 identity.
+- Adopt published IC Platform 0.2.2's runtime and explicit endpoint codecs.
+  Preserve Blob's Wire frames, required provider/management Candid contracts,
+  decoder limits and lifecycle/recovery semantics.
+- Adopt published Testkit 0.56.0, sharing Platform 0.2's original decoder limits
+  and Host 0.30 types. Remove the native test dependency on legacy Platform without
+  changing reply budgets, server ownership or recovery behavior.
+- Remove Platform 0.1 and full CDK from the resolved graph. Retire the standalone's
+  `provider-candid-export` Wasm feature; use its existing native `export_candid`
+  example instead. Keep provider type equality and exact compiled endpoint checks,
+  using Platform's parser and Host's Wasm export inspection separately.
+- Use Platform 0.2.2's original PocketIC install-mode and pending-message exports
+  through Testkit, removing the temporary direct PocketIC dependency and exception.
+- **Consumer action:** rebuild the host and Blob against one Memory runtime
+  family. Cross-release service transitions require safe retirement and reinstall;
+  preserve retained obligations and same-release interruption recovery.
+
 ## [0.36.1] - 2026-10-19
 
 - Keep Testkit 0.55's Platform boundary while using a temporary native-test-only

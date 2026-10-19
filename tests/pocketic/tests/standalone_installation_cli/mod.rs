@@ -11,10 +11,8 @@ use std::path::Path;
 #[test]
 fn deployment_surface_matches_catalog_and_provider_contract() {
     use ic_host_artifacts::wasm::{InspectionLimits, inspect};
-    use ic_host_tools::{
-        candid::service::{ServiceLimits, ServiceMethod},
-        interface,
-    };
+    use ic_host_tools::interface;
+    use ic_platform::candid_parser::{CandidSource, FuncMode, instantiate_candid};
     use std::collections::BTreeSet;
 
     let declared = include_str!("../../../../canisters/standalone/service.did");
@@ -27,18 +25,19 @@ fn deployment_surface_matches_catalog_and_provider_contract() {
     .unwrap();
 
     // Native registration equality cannot prove the compiled IC dispatch surface.
-    // Derive names and call kinds from the catalog and provider-only Candid contract.
-    let methods = ic_host_tools::candid::service::inspect(
-        declared,
-        ServiceLimits {
-            source_bytes: 1024 * 1024,
-            methods: 1024,
-        },
-    )
-    .expect("inspect standalone Candid methods");
+    // Platform checks this fixed, repository-owned DID; no untrusted inventory is loaded.
+    let (_, (environment, actor)) = instantiate_candid(CandidSource::Text(declared)).unwrap();
+    let methods = environment.as_service(&actor).unwrap();
     let provider = methods
         .iter()
-        .map(ServiceMethod::as_export)
+        .map(|(name, ty)| interface::ExportedMethod {
+            name,
+            mode: match environment.as_func(ty).unwrap().modes.first() {
+                None | Some(FuncMode::Oneway) => interface::MethodMode::Update,
+                Some(FuncMode::Query) => interface::MethodMode::Query,
+                Some(FuncMode::CompositeQuery) => interface::MethodMode::CompositeQuery,
+            },
+        })
         .collect::<BTreeSet<_>>();
     let expected = SERVICE_METHODS
         .iter()
@@ -56,13 +55,10 @@ fn deployment_surface_matches_catalog_and_provider_contract() {
         .map(|m| m.name)
         .collect::<BTreeSet<_>>();
     assert_eq!(
-        methods
-            .iter()
-            .map(|m| m.name.as_str())
-            .collect::<BTreeSet<_>>(),
+        provider.iter().map(|m| m.name).collect::<BTreeSet<_>>(),
         declared_provider
     );
-    assert_eq!(provider.len(), declared_provider.len());
+    assert!(provider.is_subset(&expected), "provider names and modes");
     let bytes = wasm();
     let facts = inspect(
         &bytes,
@@ -76,7 +72,7 @@ fn deployment_surface_matches_catalog_and_provider_contract() {
     .expect("inspect compiled standalone Wasm");
     assert!(
         !facts.exports.contains_key("get_candid_pointer"),
-        "deployment Wasm must omit optional Candid extraction machinery"
+        "deployment Wasm must omit Candid extraction machinery"
     );
     let exported = interface::exported_methods(&facts)
         // This namespace is reserved by IC CDK and is not an application API.

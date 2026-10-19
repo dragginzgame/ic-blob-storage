@@ -4,10 +4,11 @@ Date: 2026-10-19
 
 ## Delivered source and ownership
 
-Local HEAD is merge commit `047ed0269fad29a152c5cdae7aa6cf6b04eaded0`, combining
-release `c32a47f` (local tag `v0.36.0`) and remote main at
-`628d17697171a80530fbcc894d95eac06b9a387f`. Workspace metadata remains 0.36.0;
-pending **0.36.1** contains the compatible native test repair. Earlier qualification below
+Local HEAD is release commit `c80c51c` (0.36.1); workspace metadata remains
+0.36.1. The preceding merge `047ed02` incorporated release `c32a47f` (0.36.0)
+and remote main at `628d17697171a80530fbcc894d95eac06b9a387f`.
+The maintainer selected pending **0.37.0** for the incoming dependency hard cut.
+Earlier qualification below
 retains its original source, graph and limitations, including released 0.35.0
 at `583947545a3afde00c4be68dcc6bca1caec8daee`.
 Remote main includes [#89](https://github.com/dragginzgame/ic-blob-storage/pull/89)
@@ -25,6 +26,175 @@ reusing the implementation from
 source-bound evidence for that PR, not qualification of the extended document
 cut or the merged dependency graph. No sibling source override is used.
 
+## Pending 0.37.0 dependency cut
+
+Incoming edits select public Memory 0.49.0, locked Storage 0.5.7, private Metrics
+0.14.6 and Wire 0.4.8. The maintainer accepted 0.37.0 instead of a 0.36.2 patch
+because Memory types are public. The official registry confirms Storage 0.5.7
+requires Memory ^0.49; Memory's published implementation replaces Ciborium with
+serde_cbor while its producer records preserved ledger/snapshot bytes. Blob's
+cross-release retirement/reinstall disposition remains unchanged.
+
+The preceding task prepared notes only; dependency edits were preserved without
+qualification. The Platform adoption below records its separate selected scope.
+Before publication, raise the current Storage ^0.5.2 minimum to the matching
+qualified release so consumers cannot retain a 0.48-backed adapter. Native/Wasm,
+shared-runtime composition and same-release recovery acceptance remain with
+[the Memory alignment issue](https://github.com/dragginzgame/ic-blob-storage/issues/93).
+No package version, source, index, Git ref or release state changes in this task.
+
+## Pending Host 0.30 adoption
+
+The incoming direct Host family selects published 0.30.0. All four cached
+archives match official sparse-index checksums; FS's only implementation change
+gates the existing capability/scoped-tempfile APIs behind independent features.
+Process, Artifacts and Tools implementation source is unchanged from 0.29.
+Blob uses neither optional API. Explicit empty defaults retain the existing
+ordinary reads, retained publication, process limits and native fixtures.
+That resolved 0.30 FS selected only test support; older Host 0.29 remained through
+then-selected Build 0.21 and Testkit 0.55.2. Other incoming edits were preserved.
+
+The default CLI, Contracts/examples and PocketIC test-package checks/lint pass;
+294 native cases and actual Rust 1.91 native checks pass. The standalone's
+normal/build Wasm graph excludes Host, Build, Testkit, PocketIC and both optional
+filesystem backends. No installed-IC or native macOS qualification is claimed.
+
+The initial all-feature CLI check reproduced two package-verifier type mismatches:
+then-published Build 0.21 took Host 0.29 limits/errors, while the caller used 0.30.
+That registry observation had no matching Build release. The
+[existing owner](https://github.com/dragginzgame/ic-build/issues/9#issuecomment-6269225053)
+has the concrete Blob reproduction and archive/status acceptance. Do not weaken
+the package gate or introduce a version bridge. Incoming Build 0.22 now aligns
+that boundary; all-feature CLI checking/lint and Rust 1.91 checking pass in the
+Platform task below. Its archive regression matrix and full gate are not rerun.
+Before-images,
+registry/feature evidence, the initial failure and scoped successes remain under
+`.tmp/review-validation/host0300370/`. No sibling edit, Git delivery or release ran.
+
+## Recorded Platform 0.2.1 adoption
+
+Published Platform and its macro companion 0.2.1 are selected with an explicit
+0.2.1 minimum and empty defaults. Both archives match official index checksums;
+the runtime is published, without sibling overrides. All incoming Memory/Storage,
+Host/Build and Wire edits are preserved; this task's starting lock already selected
+Build 0.22 and Wire 0.4.9. The existing 0.37.0 pending release remains selected.
+
+Platform owns entrypoints, calls, callbacks, traps and protected spawning, retaining
+the original executor 2.0.0 and IC0 1.2.0. Blob owns explicit method-bound Wire
+admission and workflow policy. The endpoint emitters preserve per-method bounds
+before ingress copying, and drop raw ingress before awaiting work. Required
+provider/management Candid and private fixture contracts retain their original
+bytes, decoder policies and reply arity; four former implicit no-argument calls
+now explicitly supply Candid arguments. No storage or memory format changed here.
+
+Two published-boundary exceptions retain Platform 0.1.18 via one explicit alias:
+native Testkit 0.55 decoder limits pending
+[#133](https://github.com/dragginzgame/ic-testkit/issues/133), and the optional
+Wasm extraction helper pending
+[#37](https://github.com/dragginzgame/ic-platform/issues/37). There are no copied
+decoders, replacement runtime types or consumer-owned extraction implementation.
+The native-only direct PocketIC exception also remains: 0.2.1 still lacks both
+original fixture types tracked by
+[#27](https://github.com/dragginzgame/ic-platform/issues/27#issuecomment-6272025393).
+The legacy full CDK is selected only for optional extraction, not production.
+
+Fresh production/probe Wasms pass 95 installed Linux PocketIC cases covering
+admission, recovery, funding, consumer retries/uncertainty, every owned method's
+foreign-frame refusal and provider certificate authority. Another 130 native
+Contracts/client/codec cases, the service-export regression and the exact
+deployment-surface case pass (132 distinct native cases). Native and extracted
+Wasm provider declarations match the fixed DID byte for byte. The standalone
+was rebuilt alone and its seven installed cases plus surface check pass on the
+exact default artifact. The initial probe-unified build enabled Memory test
+support and had a different standalone hash; both artifacts and the failed
+same-hash assertion are retained. Fresh standalone graph/artifact qualification
+does not reuse that feature-unified build as deployment evidence.
+Strict affected native lint and actual Rust 1.91 native/Wasm checks pass. The dependency guard
+now separately enforces default production normal/build graph exclusions for
+legacy Platform/CDK and native owners; its actual graph and negative substitutes
+pass. Candid remains for external contracts and retained DTO traits. One executor
+identity remains in production. These are local simulator and compilation proofs,
+not native macOS or installed Canic/Caffeine qualification; full CI is not run.
+
+The initial compile/limit-identity/lint failures and installed guard failure remain
+with successful focused retries. The guard failure called `msg_method_name` from
+a query; final emitters instead bind each guard to its declared method, and no
+such inspection call remains. Before-images, official index/archive observations,
+source/graph/Wasm hashes and scoped logs remain under
+`.tmp/review-validation/platform0190370/`. No sibling source edit, Git delivery or
+release ran. Memory minimum alignment before publication still belongs to #93.
+
+After those checks, an incoming Cargo.lock edit selected Tokio 1.54.0 instead of
+the validated 1.53.3. It is preserved; the recorded hashes and runtime/native
+results must not be reused as qualification of that later lock. The maintainer
+also requested removal of the legacy Platform alias. Registry recheck still has
+Platform 0.2.1 and Testkit 0.55.2; both missing published boundaries above remain.
+The maintainer chose to preserve the compatibility boundaries until matching
+dependencies publish. The supported extraction feature remains intact; the
+following Testkit adoption removes the now-satisfied native limit exception.
+
+## Recorded Testkit 0.56 adoption
+
+The official registry publishes Testkit 0.56.0 with Platform ^0.2.1 and Host ^0.30.
+Its cached archive matches the official checksum. Native test reply budgets now
+use Platform 0.2.1 directly, removing their legacy dependency without conversions
+or copied decoding. The lock drops Host 0.29 and its unused capability filesystem
+tree; incoming Tokio 1.54.0, Wire 0.4.10 and Metrics 0.14.7 remain intact.
+The root legacy alias is retained for the existing optional Wasm extractor as
+agreed; Host Tools still selects Platform 0.1 transitively for native inspection.
+The missing original PocketIC fixture types remain covered by the approved
+native-only exception and [Platform #27](https://github.com/dragginzgame/ic-platform/issues/27).
+No sibling source or release effects.
+
+The explicit Testkit setup and offline admission pass for the new 0.56 CLI and
+unchanged PocketIC 16.1.0 server. All native test-package targets/features pass
+strict Clippy and actual Rust 1.91 checking. Twenty-five native library cases,
+the Host buffered-output regression and exact compiled deployment-surface check
+pass. Fresh six-probe and separately built default standalone Wasms pass 64
+installed recovery, funding, skipped-hook, observation, ingress and certificate
+cases. The default standalone also checks on actual Rust 1.91 Wasm. Dependency
+pins/boundaries, production graph exclusions, formatting and docs links pass.
+The initial reused funding Wasm failed its lock-hash binding assertion; rebuilding
+against the current lock resolves it without a test change. That attempt, the
+initial unprepared CLI and formatting failures, successful retries, before-images,
+official index/checksum, source/graph and artifact hashes remain under
+`.tmp/review-validation/testkit0560370/`. No full CI, native macOS, installed Canic
+or live provider qualification is claimed. Source/lock hashes stayed unchanged
+through the focused checks; the earlier late-Tokio gap is covered for this scope.
+
+## Pending legacy Platform retirement
+
+Published Platform 0.2.2 matches the incoming lock and is now the required minimum;
+its archive matches the official index checksum. The legacy alias and optional
+`provider-candid-export` Wasm feature are removed. The existing native exporter
+still produces the fixed provider DID byte for byte. Platform checks that static
+schema while Host's `ic-interface` inspects compiled function exports. Host's
+optional Candid inventory feature is no longer selected, without copying its
+bounded parser implementation. No Platform 0.1, full CDK or old CDK macros remain
+in the resolved graph. The existing executor 2.0.0 remains Platform-owned.
+
+Platform 0.2.2 also supplies the original PocketIC fixture types through Testkit
+0.56. All six callers now use that boundary; the direct PocketIC declaration and
+exception are removed. The graph guard rejects retired Platform/CDK across all
+workspace features/targets and separately excludes native owners from default
+deployment. These graph checks do not bind arbitrary deployed bytes to a source.
+Incoming Wire 0.5.0 is preserved; these scoped results do not constitute complete
+qualification of that separate public/offline-document boundary.
+
+Strict affected Clippy, actual Rust 1.91 native/Wasm checks, seven fresh Wasms,
+28 native cases and 70 installed Linux PocketIC cases pass. Coverage includes
+native provider export, exact callable names/modes, skipped-hook upgrades, held
+reads/sync/callbacks, funding and restore fences, passive observations, ingress
+and certificate authority. Formatting, declaration/graph boundaries, dependency
+pins, shell checks and documentation links pass. Full CI, native macOS, installed
+Canic and live providers are not qualified. The obsolete-package update selector
+refused after Cargo pruned the removed packages; locked metadata and all subsequent
+checks pass without other version changes. Before-images, official index/API
+evidence, source/graph/artifact hashes and logs remain under
+`.tmp/review-validation/remove-legacy0370/`. No sibling source, Git delivery or
+release effects occurred. The earlier compatibility wait is superseded by this
+retirement; Wasm extraction is no longer a Blob prerequisite for Platform #37.
+
 ## Ownership and codec cut
 
 Blob owns tenant policy, data/references, quotas, provider economics, retained
@@ -34,7 +204,7 @@ service storage. Standalone owns authentication, endpoints, lifecycle and memory
 custody; the CLI owns Blob operations and retained evidence. Consumer frameworks
 own their wrappers and installed integration qualification in their own repos.
 
-The lock selects IC Wire **0.4.6**. The original 0.4.5 adoption inspected its
+The earlier codec qualification selected IC Wire **0.4.6**. The original 0.4.5 adoption inspected its
 published package; that registry index and cached archive agree on SHA-256
 `27c2e310a91659933843cac278f17e1f0dd57dde53cd160133c6b6fc3215c822`.
 All 31 owned methods and standalone install/post-upgrade inputs use method- and
@@ -48,9 +218,9 @@ and tools for reconciliation; never rewrite or replay them. Cross-release servic
 replacement remains retirement/reinstall only. Same-release retry, backup,
 restore fences and retained obligations remain required.
 
-Blob's Ciborium implementation and direct dependency are removed. Ciborium still
-enters the deployed graph through IC Memory 0.48.2's persisted metadata, directly
-and through selected Storage 0.5.6. Memory/Storage encodings remain unchanged by
+Blob's Ciborium implementation and direct dependency are removed. In the earlier
+codec graph, Ciborium still entered deployment through IC Memory 0.48.2's persisted
+metadata, directly and through selected Storage 0.5.6. Memory/Storage encodings remained unchanged by
 the codec repair. IC-specified
 CBOR, native `serde_cbor` transport/certificate fixtures and external
 provider/management/Cashier Candid remain with their owners. Platform owns
@@ -60,7 +230,7 @@ Earlier checks retain their recorded selections. Host owns bounded
 Candid service inventories through Platform's parser; PocketIC explicitly enables
 its `candid` and `ic-interface` features.
 
-## Current Testkit compatibility repair
+## Recorded Testkit 0.55 compatibility repair
 
 The retained `20261019T123829Z-3955680-12-check.log` reports six missing imports
 after Testkit 0.55 narrowed its PocketIC re-export to Platform's explicit surface.
@@ -312,9 +482,11 @@ receipts remain at their owners, including
 [Canic follow-up](../evidence/canic-dispatch0331.md).
 
 Direct dependency checks cover aliases, kinds, targets and disabled optional
-declarations. Role labels and runtime-free library checks do not enforce general
-standalone/transitive test-tool deployment exclusions or bind inspected features
-and lock selections to deployed bytes. That admission remains missing.
+declarations. Separate graph checks now reject retired Platform/CDK across all
+workspace feature/target selections and native tooling in the default standalone
+normal/build graph. They do not bind inspected features and lock selections to
+arbitrary deployed bytes; custom deployment selections still require their own
+graph and artifact qualification.
 The merge resolution retains the finalized 0.36.0 changelog verbatim and preserves
 the Wire endpoint implementation, catalogue registration and dependency selections.
 It combines the local repair evidence with the remote handoff's recorded consumer

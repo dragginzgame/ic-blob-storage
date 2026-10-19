@@ -175,6 +175,7 @@ pub(crate) async fn sync(
 pub(crate) async fn revoke(service: Principal) {
     let id = mutate(|state| state.begin_effect(ActionRecord::Revoke));
     let revoked: bool = Call::bounded_wait(service, "revoke_gateway")
+        .with_args(&())
         .await
         .expect("local revoke transport")
         .candid()

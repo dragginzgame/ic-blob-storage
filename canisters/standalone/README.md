@@ -18,14 +18,17 @@ The [provider Candid contract](service.did) describes only
 cargo run --offline --locked -p ic-blob-storage-canister --example export_candid > canisters/standalone/service.did
 ```
 
-Default Wasm builds omit the native Candid extraction pointer and type-export
-machinery. The native example above remains available without features. For a
-Wasm intended only for extraction, explicitly build with
-`--features provider-candid-export`; do not deploy that artifact. Rebuild with
-`make build-standalone` afterward to select the normal production artifact.
+Wasm builds omit the Candid extraction pointer and type-export machinery. Use
+the native example above to export the provider declaration; no extraction-only
+Wasm build is needed. The former `provider-candid-export` feature is removed.
 The interface test compares the provider declaration with `service.did` and
 checks every production method name/mode against the shared endpoint catalog.
 It also rejects the extraction export in production Wasm.
+
+Production endpoints use Platform 0.2.2, without a legacy Platform dependency.
+Host inspects compiled function exports to verify names and modes independently
+of the native provider schema. The deployment dependency guard rejects legacy
+Platform/CDK and native tooling in the normal/build Wasm graph.
 
 Installation takes one explicit
 `ServiceInstallationInput { configuration, project, completion_verifier }`

@@ -12,7 +12,7 @@ use blob_test_protocol::{
         ReadSourceObservation,
     },
 };
-use pocket_ic::common::rest::RawMessageId;
+use ic_testkit::pocket_ic::common::rest::RawMessageId;
 
 const CHUNK: usize = 1024 * 1024;
 

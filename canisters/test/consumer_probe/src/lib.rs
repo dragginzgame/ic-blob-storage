@@ -146,7 +146,7 @@ async fn query_manifest(
 ) -> Result<ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse, Failure> {
     workflow::manifests::inspect(ic_platform::cdk::api::msg_caller(), id).await
 }
-#[ic_platform::cdk::init]
+#[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_candid::decode_args")]
 fn init(operator: Principal, service: Principal) {
     ops::initialize(Some((operator, service)));
 }

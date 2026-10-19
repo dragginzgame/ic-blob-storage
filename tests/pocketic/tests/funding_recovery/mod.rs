@@ -1,8 +1,8 @@
 //! Real stable-memory restores fence both sides of local cycle transfers.
 use super::*;
 use ic_platform::candid::decoder;
+use ic_testkit::pocket_ic::CanisterInstallMode;
 use ic_testkit::pocket_ic::{RejectResponse, common::rest::BlobCompression};
-use pocket_ic::CanisterInstallMode;
 use sha2::{Digest, Sha256};
 
 impl Fixture {
