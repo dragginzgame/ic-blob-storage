@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.37.0]
+## [0.37.0] - 2026-10-19
 
 - **Breaking shared-memory boundary:** select IC Memory 0.49 and matching
   Storage 0.5.7 runtime handles. Hosts must align their Memory/Storage dependencies
