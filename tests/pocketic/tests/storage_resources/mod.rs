@@ -1,8 +1,6 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_platform::candid::decoder;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod credits;
 mod histories;
 mod reads;
@@ -98,9 +96,14 @@ fn wide_instruction_totals_survive_candid_and_retained_json() {
         instructions_saturated: index == 4,
     });
     let rows = rows.collect::<Vec<_>>();
-    let encoded = ic_platform::candid::contract::encode_one(rows.as_slice()).unwrap();
+    let encoded =
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(rows.as_slice()).unwrap();
     let decoded: Vec<RestorationMemoryReads> =
-        decoder::decode_one_with_config(&encoded, &decoder::DecoderConfig::new()).unwrap();
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+            &encoded,
+            4 * 1024 * 1024,
+        )
+        .unwrap();
     let directory = tempfile::tempdir().unwrap();
     retain(
         directory.path(),
@@ -126,16 +129,17 @@ fn wide_instruction_totals_survive_candid_and_retained_json() {
 }
 
 pub(super) fn resources(f: &Fixture) -> serde_json::Value {
-    let result: Result<RestorationResources, Failure> = query_candid_args(
-        &f.harness.pic,
-        f.service,
-        f.operator,
-        "restoration_resources",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let result: Result<RestorationResources, Failure> =
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+            &f.harness.pic,
+            f.service,
+            f.operator,
+            "restoration_resources",
+            (),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     let r = result.unwrap();
     let status = f
         .harness
@@ -391,20 +395,24 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         samples.extend(uploads.iter().filter(|p| p.request.id <= 4).cloned());
         let end = start + u32::try_from(uploads.len()).unwrap();
         let batch = PopulationBatch { start, uploads };
-        let packet = ic_platform::candid::contract::encode_one(&batch).unwrap();
+        let packet =
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(&batch).unwrap();
         retain_bytes(
             directory,
             &format!("request-{name}-{start}.candid"),
             &packet,
         );
         assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
-        let result = update_candid_args::<(Result<(), Failure>,), _>(
+        let result = ic_blob_storage_pocketic_tests::control_calls::update_control_args::<
+            (Result<(), Failure>,),
+            _,
+        >(
             &f.harness.pic,
             service,
             operator,
             "populate_resources",
             (batch,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply);
         if !matches!(result, Ok(Ok(()))) {
@@ -526,19 +534,20 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         assert_eq!(f.live(*reference).unwrap(), reference.retain);
         assert_eq!(f.receipt(*reference).unwrap(), *receipt);
     }
-    let refused: Result<(), Failure> = update_candid_args(
-        &f.harness.pic,
-        service,
-        operator,
-        "populate_resources",
-        (PopulationBatch {
-            start: count,
-            uploads: vec![samples[0].clone()],
-        },),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let refused: Result<(), Failure> =
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
+            &f.harness.pic,
+            service,
+            operator,
+            "populate_resources",
+            (PopulationBatch {
+                start: count,
+                uploads: vec![samples[0].clone()],
+            },),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(refused, Err(Failure::Fenced));
     assert_eq!(
         f.status(),

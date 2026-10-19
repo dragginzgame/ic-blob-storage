@@ -1,0 +1,46 @@
+[
+  {
+    "input": "Denied",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Binding",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Execution",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Platform",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "Reply",
+    "hex": "495701006e65646c6f670004"
+  },
+  {
+    "input": "MissingAnchor",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": "IncompleteHistory",
+    "hex": "495701006e65646c6f670006"
+  },
+  {
+    "input": "InvalidHistory",
+    "hex": "495701006e65646c6f670007"
+  },
+  {
+    "input": "SnapshotRestored",
+    "hex": "495701006e65646c6f670008"
+  },
+  {
+    "input": "Replaced",
+    "hex": "495701006e65646c6f670009"
+  },
+  {
+    "input": "UnqualifiedChange",
+    "hex": "495701006e65646c6f67000a"
+  }
+]

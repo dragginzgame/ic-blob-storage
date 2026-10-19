@@ -1,6 +1,5 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod certificate;
 mod snapshot;
 use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
@@ -19,25 +18,25 @@ fn input(f: &Fixture, permission: Permission) -> ExposureInput {
     }
 }
 fn expose(f: &Fixture, actor: Principal, input: ExposureInput) -> Result<ExposureOutcome, E> {
-    update_candid_args(
+    ic_blob_storage_pocketic_tests::control_calls::update_control_args(
         &f.harness.pic,
         f.service,
         actor,
         "expose",
         (input,),
-        REPLY_LIMITS,
+        (REPLY_LIMITS).reply_bytes,
     )
     .map(|(reply,)| reply)
     .unwrap()
 }
 fn preview(f: &Fixture, input: ExposureInput) -> Result<Vec<B>, E> {
-    query_candid_args(
+    ic_blob_storage_pocketic_tests::control_calls::query_control_args(
         &f.harness.pic,
         f.service,
         f.uploader,
         "exposure_preview",
         (input,),
-        REPLY_LIMITS,
+        (REPLY_LIMITS).reply_bytes,
     )
     .map(|(reply,)| reply)
     .unwrap()
@@ -47,13 +46,13 @@ fn inspect(
     actor: Principal,
     input: ExposureInput,
 ) -> Result<UploadAdmissionResponse, E> {
-    query_candid_args(
+    ic_blob_storage_pocketic_tests::control_calls::query_control_args(
         &f.harness.pic,
         f.service,
         actor,
         "exposure_status",
         (input.permission,),
-        REPLY_LIMITS,
+        (REPLY_LIMITS).reply_bytes,
     )
     .map(|(reply,)| reply)
     .unwrap()
@@ -152,7 +151,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
                 f.service,
                 f.uploader,
                 "expose",
-                ic_platform::candid::contract::encode_one(fault).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(fault).unwrap(),
             )
             .unwrap_err();
         assert_eq!(rejection.reject_code, RejectCode::CanisterError);
@@ -170,7 +169,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
             f.service,
             f.uploader,
             "expose",
-            ic_platform::candid::contract::encode_one(yes).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(yes).unwrap(),
         )
         .unwrap();
     let original = inspect(&f, f.uploader, yes).unwrap();

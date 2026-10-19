@@ -1,0 +1,42 @@
+[
+  {
+    "input": "Invalid",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Denied",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Binding",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Unknown",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "Conflict",
+    "hex": "495701006e65646c6f670004"
+  },
+  {
+    "input": "Inactive",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": "Expired",
+    "hex": "495701006e65646c6f670006"
+  },
+  {
+    "input": "Capacity",
+    "hex": "495701006e65646c6f670007"
+  },
+  {
+    "input": "Fenced",
+    "hex": "495701006e65646c6f670008"
+  },
+  {
+    "input": "Internal",
+    "hex": "495701006e65646c6f670009"
+  }
+]

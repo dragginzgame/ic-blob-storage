@@ -2,14 +2,12 @@
 pub mod sync;
 use crate::dto::operator::OperatorScope;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// One current operator decision to revoke a gateway from this installation.
 /// Repeating it is another revocation, not replay of a historical receipt; it can
 /// remove membership added since an earlier call. Clients must not retry silently.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct GatewayRevocationRequest {
     /// Complete installed service/namespace/Cashier/payer scope.
@@ -18,8 +16,7 @@ pub struct GatewayRevocationRequest {
     pub gateway: Principal,
 }
 /// Synchronous acknowledgment, not a retained receipt or provider-side settlement.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct GatewayRevocationResponse {
     /// Exact operator decision applied by the service.
@@ -29,8 +26,7 @@ pub struct GatewayRevocationResponse {
     pub removed: bool,
 }
 /// Rejected revocations leave membership and pending work unchanged.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum GatewayRevocationFailure {
     /// Zero namespace or anonymous/management gateway principal.

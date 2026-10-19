@@ -1,0 +1,69 @@
+[
+  {
+    "input": {
+      "blockers": [],
+      "journal": {
+        "attachment_allowance": 4274631184,
+        "available_allocation": 1130589723,
+        "cumulative_allocation": 2951191492,
+        "fenced": false,
+        "intent_capacity": 1264446696,
+        "last_operation": null,
+        "not_enqueued": 1215087010,
+        "refunded": 554509421,
+        "renewal_ceiling": 116760780,
+        "reserved_or_uncertain": 2755981769,
+        "retained_intents": 1327094355,
+        "transport_accepted": 1895235005,
+        "uncredited_accepted": 1661861231
+      },
+      "request": {
+        "offered": 3035413672,
+        "operation": 3078010600,
+        "scope": {
+          "cashier": "jfwmu-nstvv-ocqai",
+          "namespace": 1424352306,
+          "payment_account": "rrxvd-3soay-npuai",
+          "service": "ydxjy-r7sfq-qfgai"
+        },
+        "target_balance": null
+      }
+    },
+    "hex": "495701006e65646c6f670005f22c205301b2c897a7050553ad5c2801054e061afa01e8eddabb0ba8f9b2a70b00c4b79eff0accc1d6379bdc8d9b0490e4a6f60fbdfbdb8707effab79806edc8b48802a283b3c304c9e393a20ad3b4e7f804e8d9f7da04000000"
+  },
+  {
+    "input": {
+      "blockers": [
+        "ProviderUnqualified",
+        "SpendabilityUnknown"
+      ],
+      "journal": {
+        "attachment_allowance": 2406986346,
+        "available_allocation": 1312582145,
+        "cumulative_allocation": 291526256,
+        "fenced": true,
+        "intent_capacity": 3794353035,
+        "last_operation": 2022711838,
+        "not_enqueued": 2919182787,
+        "refunded": 937553143,
+        "renewal_ceiling": 2352736848,
+        "reserved_or_uncertain": 2095458948,
+        "retained_intents": 1917299201,
+        "transport_accepted": 3481127286,
+        "uncredited_accepted": 3011189264
+      },
+      "request": {
+        "offered": 1859855923,
+        "operation": 2687482438,
+        "scope": {
+          "cashier": "4t7aa-iz67k-a7mai",
+          "namespace": 1178186304,
+          "payment_account": "oie67-qgs4u-mueai",
+          "service": "gztjr-2simu-dryai"
+        },
+        "target_balance": 2295261645
+      }
+    },
+    "hex": "495701006e65646c6f6700054865071c01c0e4e6b104053efa81f60105d2e5194201c6f4be810ab3ccecf60601cdd3bbc608f0ac818b01d0d4efe10881d4f1f104eae4defb08f692f7fb0c90b4ec9b0bf7d987bf03c3e3fcef0a84d598e70781d49e92078bf7a4910e019ec4c0c40701020009"
+  }
+]

@@ -1,0 +1,122 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "permission": {
+          "expires_at_ns": 1380491630,
+          "upload": {
+            "bytes": 535278371,
+            "first_reference": 206609898,
+            "incarnation": 38187714,
+            "namespace": 3594169188,
+            "object": 394998144,
+            "root": [
+              85,
+              92,
+              91,
+              171,
+              239,
+              44,
+              100,
+              232,
+              195,
+              92,
+              147,
+              160,
+              173,
+              8,
+              23,
+              26,
+              210,
+              118,
+              147,
+              106,
+              43,
+              198,
+              210,
+              188,
+              34,
+              64,
+              241,
+              164,
+              149,
+              180,
+              30,
+              231
+            ],
+            "service": "zpfy4-7sue5-ixqai",
+            "tenant": "l7ywd-a3v5q-ccsai",
+            "upload": 4236487585
+          },
+          "uploader": "2xxhk-swxsq-p34ai"
+        },
+        "revoked": false,
+        "state": "ExposurePossible"
+      }
+    },
+    "hex": "495705003600424f4c4201000554275178010575ec042901e4d6eab10da1d78ee40f80e3acbc01c2e59a12eabbc262555c5babef2c64e8c35c93a0ad08171ad276936a2bc6d2bc2240f1a495b41ee7a3e69eff0105d7941fbe01eec2a292050100"
+  },
+  {
+    "input": {
+      "Ok": {
+        "permission": {
+          "expires_at_ns": 1357297621,
+          "upload": {
+            "bytes": 1611323755,
+            "first_reference": 357199896,
+            "incarnation": 3625329792,
+            "namespace": 2473755195,
+            "object": 928524803,
+            "root": [
+              244,
+              1,
+              199,
+              77,
+              202,
+              55,
+              250,
+              27,
+              145,
+              74,
+              133,
+              166,
+              61,
+              190,
+              56,
+              200,
+              214,
+              167,
+              115,
+              5,
+              89,
+              79,
+              247,
+              49,
+              179,
+              242,
+              216,
+              58,
+              129,
+              244,
+              208,
+              217
+            ],
+            "service": "2vx7x-amunq-mokai",
+            "tenant": "wq7va-u3dlk-nosai",
+            "upload": 1190612790
+          },
+          "uploader": "ejd3a-whiqr-kxyai"
+        },
+        "revoked": true,
+        "state": "ExposurePossible"
+      }
+    },
+    "hex": "495705003600424f4c42010005946c18e50105635a9ae901bb84ca9b09b69eddb70483d4e0ba0380c9d8c00d98e0a9aa01f401c74dca37fa1b914a85a63dbe38c8d6a77305594ff731b3f2d83a81f4d0d9ebb2ab800605e884557c01d5ef9a87050101"
+  },
+  {
+    "input": {
+      "Err": "Conflict"
+    },
+    "hex": "495705003600424f4c42010104"
+  }
+]

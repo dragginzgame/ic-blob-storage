@@ -1,0 +1,32 @@
+[
+  {
+    "input": {
+      "removed": false,
+      "request": {
+        "gateway": "aerqm-nim2w-ftmai",
+        "scope": {
+          "cashier": "ut3rj-ttuq7-6huai",
+          "namespace": 794051909,
+          "payment_account": "uggtl-l72zr-yl4ai",
+          "service": "jxnfy-py4d2-2woai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f6700051c1eb56701c58ad1fa02057487fc7a0105facc70be01050cd58b360100"
+  },
+  {
+    "input": {
+      "removed": true,
+      "request": {
+        "gateway": "os2vg-u5wfu-2agai",
+        "scope": {
+          "cashier": "crvjj-ttqpa-nw6ai",
+          "namespace": 2924684230,
+          "payment_account": "ca3jl-wvj7x-phaai",
+          "service": "fkixf-qluti-3gaai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f670005749a366001c6c7ccf20a0570781b6f0105a9fdde700105b62d34030101"
+  }
+]

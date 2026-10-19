@@ -1,0 +1,29 @@
+[
+  {
+    "input": {
+      "enrollment": null,
+      "fenced": false,
+      "scope": {
+        "namespace": 931005808,
+        "service": "t7qdq-225k2-ypsai",
+        "tenant": "oxsxo-q55iv-ifmai"
+      }
+    },
+    "hex": "495701006e65646c6f6700055d56b0f901f08af8bb0305bd455056010000"
+  },
+  {
+    "input": {
+      "enrollment": {
+        "active": true,
+        "generation": 696921115
+      },
+      "fenced": true,
+      "scope": {
+        "namespace": 1004658103,
+        "service": "2f76b-gi63d-3vmai",
+        "tenant": "gmnbg-z3wrk-jtmai"
+      }
+    },
+    "hex": "495701006e65646c6f6700051ed8f75601b7bb87df0305768a933601019bd8a8cc020101"
+  }
+]

@@ -2,12 +2,10 @@
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 use serde::Serialize;
 /// Exact locally assigned identity and immutable declaration intent.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ManifestIntent {
     /// Explicit lifetime journal identity; never allocated by the fixture.

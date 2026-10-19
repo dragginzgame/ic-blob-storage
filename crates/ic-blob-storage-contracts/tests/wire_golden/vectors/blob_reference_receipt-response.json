@@ -1,0 +1,130 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "Found": {
+          "request": {
+            "action": "Retain",
+            "operation": 2687111974,
+            "reference": 3040236927,
+            "upload": {
+              "bytes": 4291271970,
+              "first_reference": 2593502881,
+              "incarnation": 110169145,
+              "namespace": 921483825,
+              "object": 1265235497,
+              "root": [
+                202,
+                144,
+                193,
+                27,
+                213,
+                71,
+                179,
+                9,
+                41,
+                228,
+                118,
+                37,
+                157,
+                190,
+                220,
+                238,
+                220,
+                32,
+                127,
+                52,
+                123,
+                173,
+                167,
+                31,
+                146,
+                213,
+                88,
+                31,
+                234,
+                167,
+                130,
+                136
+              ],
+              "service": "jd6ul-6xq2v-go6ai",
+              "tenant": "7fbdb-thjdb-jiyai",
+              "upload": 1607450898
+            }
+          },
+          "result": {
+            "Ok": "Unchanged"
+          }
+        }
+      }
+    },
+    "hex": "49570c003600424f4c4201000105f0d54cef0105e918528c01b1f4b2b7039282bffe05a9eca7db04b998c434a1edd6d409ca90c11bd547b30929e476259dbedceedc207f347bada71f92d5581feaa78288a2ba9efe0fffaad9a90ba6a6a8810a000001"
+  },
+  {
+    "input": {
+      "Ok": {
+        "Found": {
+          "request": {
+            "action": "Retain",
+            "operation": 3404438674,
+            "reference": 2979089520,
+            "upload": {
+              "bytes": 3766649716,
+              "first_reference": 1598976837,
+              "incarnation": 1979073419,
+              "namespace": 3184195482,
+              "object": 2584600577,
+              "root": [
+                41,
+                106,
+                59,
+                190,
+                245,
+                221,
+                182,
+                105,
+                248,
+                41,
+                62,
+                3,
+                119,
+                107,
+                72,
+                201,
+                180,
+                151,
+                36,
+                87,
+                179,
+                180,
+                89,
+                236,
+                243,
+                27,
+                207,
+                19,
+                189,
+                102,
+                184,
+                147
+              ],
+              "service": "rpmyi-5hfrr-uiaai",
+              "tenant": "vkmm5-nze3s-ueiai",
+              "upload": 2929372208
+            }
+          },
+          "result": {
+            "Err": "DeletionQueued"
+          }
+        }
+      }
+    },
+    "hex": "49570c003600424f4c4201000105e58c6880010524dca844019aefabee0bb0d8eaf40a81c0b7d0098b87d9af07c5e6b9fa05296a3bbef5ddb669f8293e03776b48c9b4972457b3b459ecf31bcf13bd66b893f4868a840ef098c58c0b92b9aed70c000103"
+  },
+  {
+    "input": {
+      "Err": "Fenced"
+    },
+    "hex": "49570c003600424f4c42010107"
+  }
+]

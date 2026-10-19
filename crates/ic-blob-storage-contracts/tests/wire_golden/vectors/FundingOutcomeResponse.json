@@ -1,0 +1,52 @@
+[
+  {
+    "input": {
+      "fenced": false,
+      "phase": {
+        "Callback": {
+          "refunded": 2098326135
+        }
+      },
+      "reconciliation": "NoTransfer",
+      "renewed_allocation": 1612738807,
+      "request": {
+        "offered": 2924945834,
+        "operation": 1073227239,
+        "scope": {
+          "cashier": "yvo5y-wlnyn-mewai",
+          "namespace": 4127298390,
+          "payment_account": "rqgub-tkluw-4tkai",
+          "service": "ft3lz-75kcl-fiuai"
+        },
+        "target_balance": null
+      },
+      "response": null
+    },
+    "hex": "495701006e65646c6f670005aa12ca8a01d6a686b00f056dc3584b01054ba5b93501e7cbe0ff03aac3dcf20a0003f7d4c7e8070001f7e181810600"
+  },
+  {
+    "input": {
+      "fenced": true,
+      "phase": {
+        "Callback": {
+          "refunded": 3534233225
+        }
+      },
+      "reconciliation": "NoTransfer",
+      "renewed_allocation": 838272888,
+      "request": {
+        "offered": 71816032,
+        "operation": 1247214897,
+        "scope": {
+          "cashier": "gkrhx-oczaw-oogai",
+          "namespace": 328037923,
+          "payment_account": "23gxr-yeoyk-zvqai",
+          "service": "xp2iz-tk2ii-nd6ai"
+        },
+        "target_balance": 3236769472
+      },
+      "response": "InternalError"
+    },
+    "hex": "495701006e65646c6f6700055a421a3f01a3ecb59c010559059ce301058ec2b35801b1fadbd204e0a69f2201c0ddb4870c0389bda0950d010601f88edc8f0301"
+  }
+]

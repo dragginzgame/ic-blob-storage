@@ -1,0 +1,118 @@
+[
+  {
+    "input": {
+      "admission": {
+        "permission": {
+          "expires_at_ns": 1927449939,
+          "upload": {
+            "bytes": 3157918616,
+            "first_reference": 3919761116,
+            "incarnation": 2091269909,
+            "namespace": 478696429,
+            "object": 1477996778,
+            "root": [
+              73,
+              57,
+              248,
+              143,
+              235,
+              4,
+              11,
+              234,
+              56,
+              82,
+              28,
+              23,
+              220,
+              196,
+              238,
+              145,
+              249,
+              34,
+              142,
+              215,
+              98,
+              63,
+              109,
+              156,
+              198,
+              136,
+              159,
+              107,
+              159,
+              176,
+              175,
+              18
+            ],
+            "service": "qswtd-6alx2-ipmai",
+            "tenant": "6zkrx-pbcir-imoai",
+            "upload": 2185550183
+          },
+          "uploader": "iahj2-sxxje-ygyai"
+        },
+        "revoked": false,
+        "state": "ExposurePossible"
+      },
+      "replayed": false
+    },
+    "hex": "495701006e65646c6f6700050bbe90f60105224450c701eda7a1e401e7b2939208eae1e1c00595fe98e507dc9d8bcd0e4939f88feb040bea38521c17dcc4ee91f9228ed7623f6d9cc6889f6b9fb0af129887e8e10b05f749306c01d39a8a9707010000"
+  },
+  {
+    "input": {
+      "admission": {
+        "permission": {
+          "expires_at_ns": 3548149324,
+          "upload": {
+            "bytes": 1565142594,
+            "first_reference": 2621979237,
+            "incarnation": 4247706247,
+            "namespace": 2099214071,
+            "object": 2788856444,
+            "root": [
+              35,
+              82,
+              29,
+              99,
+              104,
+              38,
+              68,
+              72,
+              46,
+              220,
+              171,
+              38,
+              38,
+              110,
+              185,
+              24,
+              30,
+              47,
+              171,
+              77,
+              207,
+              106,
+              142,
+              17,
+              149,
+              126,
+              200,
+              90,
+              164,
+              245,
+              72,
+              9
+            ],
+            "service": "5cnme-sj6vy-h2oai",
+            "tenant": "nw7ys-elja6-3paai",
+            "upload": 1239653142
+          },
+          "uploader": "qwhev-rcycy-h7mai"
+        },
+        "revoked": true,
+        "state": "Confirmed"
+      },
+      "replayed": true
+    },
+    "hex": "495701006e65646c6f6700053eae0fa701056907b6f001f7edfde80796b68ecf04fca4eab10a87b5bbe90fe5f4a0e20923521d63682644482edcab26266eb9181e2fab4dcf6a8e11957ec85aa4f54809c2dca8ea050558160ff601ccecf19b0d020101"
+  }
+]

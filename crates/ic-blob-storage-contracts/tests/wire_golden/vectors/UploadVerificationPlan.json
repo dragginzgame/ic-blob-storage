@@ -1,0 +1,202 @@
+[
+  {
+    "input": {
+      "admitted_at_ns": 2154634591,
+      "declaration": {
+        "chunks": [],
+        "headers": []
+      },
+      "owner": "lu37i-3sypb-l6kai",
+      "permission": {
+        "expires_at_ns": 2993365939,
+        "upload": {
+          "bytes": 3021720030,
+          "first_reference": 1510992087,
+          "incarnation": 485872518,
+          "namespace": 1628218125,
+          "object": 1168519296,
+          "root": [
+            242,
+            202,
+            183,
+            116,
+            76,
+            27,
+            246,
+            47,
+            41,
+            210,
+            250,
+            245,
+            92,
+            131,
+            192,
+            0,
+            43,
+            32,
+            207,
+            10,
+            135,
+            231,
+            70,
+            52,
+            34,
+            44,
+            57,
+            92,
+            152,
+            233,
+            166,
+            65
+          ],
+          "service": "emce6-6agiy-ieoai",
+          "tenant": "xiycl-5c677-woyai",
+          "upload": 1348085424
+        },
+        "uploader": "yevjd-4giao-sqiai"
+      },
+      "project": "fixture-UploadVerificationPlan.project",
+      "verifier": "ixe7a-xzth7-z7cai"
+    },
+    "hex": "495701006e65646c6f6700050646104701055effecec018dc6b28806b0cde8820580e198ad0486a7d7e701d7d1bfd005f2cab7744c1bf62f29d2faf55c83c0002b20cf0a87e74634222c395c98e9a641de93efa00b05c803a50401b3c7ac930b05333ff3f10105587857e50126666978747572652d55706c6f6164566572696669636174696f6e506c616e2e70726f6a656374dfbab483080000"
+  },
+  {
+    "input": {
+      "admitted_at_ns": 2822874,
+      "declaration": {
+        "chunks": [
+          [
+            203,
+            144,
+            136,
+            200,
+            66,
+            117,
+            171,
+            198,
+            93,
+            11,
+            95,
+            204,
+            120,
+            41,
+            49,
+            3,
+            73,
+            19,
+            133,
+            118,
+            153,
+            161,
+            87,
+            126,
+            86,
+            226,
+            116,
+            85,
+            11,
+            96,
+            73,
+            2
+          ],
+          [
+            156,
+            96,
+            36,
+            101,
+            153,
+            225,
+            40,
+            184,
+            53,
+            246,
+            143,
+            62,
+            241,
+            220,
+            61,
+            97,
+            210,
+            22,
+            239,
+            191,
+            53,
+            86,
+            6,
+            69,
+            189,
+            220,
+            127,
+            190,
+            220,
+            97,
+            217,
+            120
+          ]
+        ],
+        "headers": [
+          {
+            "name": "fixture-UploadVerificationPlan.declaration.headers0.name",
+            "value": "fixture-UploadVerificationPlan.declaration.headers0.value"
+          },
+          {
+            "name": "fixture-UploadVerificationPlan.declaration.headers1.name",
+            "value": "fixture-UploadVerificationPlan.declaration.headers1.value"
+          }
+        ]
+      },
+      "owner": "e4mxd-rofje-ikwai",
+      "permission": {
+        "expires_at_ns": 1987115447,
+        "upload": {
+          "bytes": 575242197,
+          "first_reference": 3867218589,
+          "incarnation": 2265804766,
+          "namespace": 3004493631,
+          "object": 3324966769,
+          "root": [
+            239,
+            4,
+            161,
+            204,
+            12,
+            43,
+            4,
+            104,
+            226,
+            69,
+            173,
+            138,
+            245,
+            41,
+            114,
+            123,
+            136,
+            48,
+            188,
+            3,
+            202,
+            73,
+            16,
+            155,
+            226,
+            137,
+            124,
+            38,
+            125,
+            191,
+            126,
+            236
+          ],
+          "service": "k6mir-gvk6d-jb4ai",
+          "tenant": "cjapy-kpslh-x2gai",
+          "upload": 1154054055
+        },
+        "uploader": "te3xc-5b56f-l7eai"
+      },
+      "project": "fixture-UploadVerificationPlan.project",
+      "verifier": "fjupt-spw37-gfaai"
+    },
+    "hex": "495701006e65646c6f670005aaf0d21e0105f259efa301bfded3980ba7efa5a604f1eebbb10cdedfb5b8089da584b40eef04a1cc0c2b0468e245ad8af529727b8830bc03ca49109be2897c267dbf7eecd5ffa59202053df157f201b7f3c3b30705f6dfcc500105c54910ab0126666978747572652d55706c6f6164566572696669636174696f6e506c616e2e70726f6a656374daa5ac0102cb9088c84275abc65d0b5fcc782931034913857699a1577e56e274550b6049029c60246599e128b835f68f3ef1dc3d61d216efbf35560645bddc7fbedc61d9780238666978747572652d55706c6f6164566572696669636174696f6e506c616e2e6465636c61726174696f6e2e68656164657273302e6e616d6539666978747572652d55706c6f6164566572696669636174696f6e506c616e2e6465636c61726174696f6e2e68656164657273302e76616c756538666978747572652d55706c6f6164566572696669636174696f6e506c616e2e6465636c61726174696f6e2e68656164657273312e6e616d6539666978747572652d55706c6f6164566572696669636174696f6e506c616e2e6465636c61726174696f6e2e68656164657273312e76616c7565"
+  }
+]

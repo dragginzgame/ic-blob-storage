@@ -80,9 +80,7 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
         assert!((1..=MAX).contains(&length), "consumer envelope length");
         let mut bytes = vec![0; length];
         memory.read(9, &mut bytes);
-        let mut record: ConsumerRecord =
-            ic_platform::candid::decoder::decode_one_with_config(&bytes, &config())
-                .expect("consumer record");
+        let mut record: ConsumerRecord = crate::model::record::decode(&bytes, &config());
         assert_eq!(
             record.tenant,
             ic_platform::cdk::api::canister_self(),
@@ -104,7 +102,7 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
 }
 fn save(memory: &RuntimeMemory<DefaultMemoryImpl>, record: &ConsumerRecord) {
     record.validate().expect("consumer invariants");
-    let bytes = ic_platform::candid::contract::encode_one(record).unwrap();
+    let bytes = crate::model::record::encode(record);
     assert!(bytes.len() <= MAX, "consumer record bound");
     memory.write(9, &bytes);
     memory.write(0, b"CONS\x01");

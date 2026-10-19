@@ -1,0 +1,24 @@
+[
+  {
+    "input": {
+      "Permission": "Unknown"
+    },
+    "hex": "495701006e65646c6f67000003"
+  },
+  {
+    "input": "Denied",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Phase",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Conflict",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "Observation",
+    "hex": "495701006e65646c6f670004"
+  }
+]

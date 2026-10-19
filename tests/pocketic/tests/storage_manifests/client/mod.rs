@@ -11,6 +11,9 @@ fn wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
 fn fixture() -> Fixture {
+    fixture_with_wasm(wasm())
+}
+fn fixture_with_wasm(image: Vec<u8>) -> Fixture {
     let mut f = Fixture::new();
     f.uploader = f.harness.pic.create_canister_with_settings(
         Some(f.controller),
@@ -21,7 +24,7 @@ fn fixture() -> Fixture {
     );
     f.harness.pic.install_canister(
         f.uploader,
-        wasm(),
+        image,
         ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
         Some(f.controller),
     );
@@ -291,4 +294,35 @@ fn manifest_intent_capacity_conflicts_and_upgrade_preserve_uncertain_originals()
     assert_eq!(recover(&f, 1), Err(C::Fenced));
     assert_eq!(dispatch(&f, run(1)), Err(C::Fenced));
     assert_eq!(save(&f, &input), Err(C::Fenced));
+}
+
+#[test]
+#[ignore = "Requires retained pre-trait-removal consumer Wasm in BLOB_PRE_TRAIT_CONSUMER_WASM"]
+fn frozen_manifest_record_preserves_preparation_and_fence_after_projection_cut() {
+    let old = std::fs::read(fixture_path("BLOB_PRE_TRAIT_CONSUMER_WASM")).unwrap();
+    assert_eq!(
+        ic_blob_storage_contracts::identity::ContentDigest::compute(&old).to_string(),
+        "sha256:9810a9144aaafeab37c2a9a0c4b239f09c593503baaeb801191ee7d35f6a5b0b"
+    );
+    assert_ne!(old, wasm());
+    let f = fixture_with_wasm(old);
+    let (permission, input) = intent(&f, 1, 7);
+    f.admit(f.tenant, permission).unwrap();
+    save(&f, &input).unwrap();
+    let before = dispatch(&f, run(1)).unwrap();
+    assert_eq!(before.result, Some(Ok(input.request.declaration.clone())));
+    let service_before = f.harness.pic.get_stable_memory(f.service);
+    crate::install_code::settle_install_code_debt(&f.harness.pic);
+    f.harness
+        .pic
+        .upgrade_canister(
+            f.uploader,
+            wasm(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
+            Some(f.controller),
+        )
+        .unwrap();
+    assert_eq!(view(&f, 1).unwrap(), before);
+    assert_eq!(dispatch(&f, run(1)), Err(C::Fenced));
+    assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
 }

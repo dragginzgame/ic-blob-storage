@@ -1,0 +1,42 @@
+[
+  {
+    "input": {
+      "max_active": 3998029086,
+      "max_chunks": 464029143,
+      "max_header_bytes": 1940910886,
+      "max_headers": 3167927148,
+      "max_liability_bytes": 3572453034,
+      "max_object_bytes": 3089509475,
+      "max_objects": 1610805496,
+      "max_physical_bytes": 683097286,
+      "max_receipts_per_object": 130779494,
+      "max_references_per_object": 1072090308,
+      "max_tenant_active": 2035990493,
+      "max_tenant_chunks": 3277981596,
+      "max_tenant_logical_bytes": 3583057497,
+      "max_tenant_objects": 144567311,
+      "max_tenants": 1917331438
+    },
+    "hex": "495701006e65646c6f6700eecfa09207e3d898c10becf6cae60ba6e6bf9d07d78ba2dd019c8f889b0cf8e18b80068fd8f744c6f9dcc502aa9dbda70dd9bcc4ac0dc4999bff03e692ae3e9eaab4f20eddffeaca07"
+  },
+  {
+    "input": {
+      "max_active": 3845002173,
+      "max_chunks": 2748252481,
+      "max_header_bytes": 2498655584,
+      "max_headers": 3791186310,
+      "max_liability_bytes": 2293395418,
+      "max_object_bytes": 3352463527,
+      "max_objects": 2594874080,
+      "max_physical_bytes": 3493700405,
+      "max_receipts_per_object": 1827743956,
+      "max_references_per_object": 2402394633,
+      "max_tenant_active": 2366574091,
+      "max_tenant_chunks": 2622829347,
+      "max_tenant_logical_bytes": 159431627,
+      "max_tenant_objects": 4174110902,
+      "max_tenants": 1970606634
+    },
+    "hex": "495701006e65646c6f6700aaa4d4ab07a791cabe0c86d3e38f0ee0eab9a709c182bc9e0aa3e6d4e209e0c5aad509b6c1afc60fb5c6f6810ddadfc9c508cbf7824c89c4c6f908d4d1c4e706bda7b8a90e8b9cbce808"
+  }
+]

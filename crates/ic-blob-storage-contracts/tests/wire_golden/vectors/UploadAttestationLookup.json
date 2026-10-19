@@ -1,0 +1,100 @@
+[
+  {
+    "input": "Absent",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": {
+      "Found": {
+        "accepted_at_ns": 2124453855,
+        "request": {
+          "content_digest": [
+            238,
+            151,
+            115,
+            59,
+            82,
+            215,
+            27,
+            84,
+            221,
+            211,
+            149,
+            133,
+            45,
+            169,
+            246,
+            5,
+            7,
+            77,
+            163,
+            182,
+            23,
+            172,
+            125,
+            202,
+            180,
+            137,
+            136,
+            45,
+            182,
+            28,
+            187,
+            15
+          ],
+          "observed_at_ns": 1968411803,
+          "permission": {
+            "expires_at_ns": 2093939694,
+            "upload": {
+              "bytes": 4159209444,
+              "first_reference": 829196189,
+              "incarnation": 1420628235,
+              "namespace": 1282703074,
+              "object": 890330441,
+              "root": [
+                134,
+                38,
+                98,
+                161,
+                146,
+                228,
+                94,
+                240,
+                72,
+                98,
+                176,
+                213,
+                224,
+                193,
+                249,
+                154,
+                194,
+                104,
+                84,
+                21,
+                33,
+                207,
+                102,
+                79,
+                18,
+                96,
+                84,
+                144,
+                157,
+                170,
+                79,
+                65
+              ],
+              "service": "vra6h-ojfkn-qkgai",
+              "tenant": "sfldr-famrl-wtcai",
+              "upload": 498221749
+            },
+            "uploader": "uow5t-q7ako-ftsai"
+          }
+        },
+        "verifier": "kdg3x-v3np7-loiai"
+      }
+    },
+    "hex": "495701006e65646c6f67000105255360a301050c8aed3101e2fdd1e304b585c9ed01c9bac5a8038ba2b4a5059d8fb28b03862662a192e45ef04862b0d5e0c1f99ac268541521cf664f126054909daa4f41e4ffa1bf0f05e0538b3901eef7bbe607ee97733b52d71b54ddd395852da9f605074da3b617ac7dcab489882db61cbb0f9ba9ceaa07056d7fd6e401dfaf82f507"
+  }
+]

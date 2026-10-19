@@ -1,7 +1,6 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod authenticated_cli;
 mod browser_driver;
 mod install_code;
@@ -238,25 +237,26 @@ impl Fixture {
             ExposureInput, ExposureOutcome, ExposureScenario,
         };
         use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
-        let result: Result<ExposureOutcome, E> = update_candid_args(
-            &self.harness.pic,
-            self.service,
-            self.uploader,
-            "expose",
-            (ExposureInput {
-                permission: admission_input(Permission {
-                    request: input,
-                    uploader: self.uploader,
-                    expires_at_ns: u64::MAX,
-                }),
-                scenario: ExposureScenario::QualifiedSubstitute,
-                trap_write: false,
-                trap_after: false,
-            },),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<ExposureOutcome, E> =
+            ic_blob_storage_pocketic_tests::control_calls::update_control_args(
+                &self.harness.pic,
+                self.service,
+                self.uploader,
+                "expose",
+                (ExposureInput {
+                    permission: admission_input(Permission {
+                        request: input,
+                        uploader: self.uploader,
+                        expires_at_ns: u64::MAX,
+                    }),
+                    scenario: ExposureScenario::QualifiedSubstitute,
+                    trap_write: false,
+                    trap_after: false,
+                },),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         result
             .map(|r| {
                 assert!(matches!(r, ExposureOutcome::Exposed(_)));
@@ -287,28 +287,29 @@ impl Fixture {
         result.map(|r| r.changed).map_err(admission_failure)
     }
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "lookup",
             (input,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
     }
     fn status(&self) -> Status {
-        let result: Result<Status, Failure> = query_candid_args(
-            &self.harness.pic,
-            self.service,
-            self.operator,
-            "status",
-            (),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<Status, Failure> =
+            ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+                &self.harness.pic,
+                self.service,
+                self.operator,
+                "status",
+                (),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         result.unwrap()
     }
     fn tenant_scope(&self) -> TenantScope {
@@ -390,7 +391,7 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
                 f.service,
                 f.tenant,
                 "admit_with_write_trap",
-                ic_platform::candid::contract::encode_one(FaultAdmission {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(FaultAdmission {
                     permission: admission_input(attempted),
                     fault,
                 })
@@ -444,10 +445,12 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
                 f.service,
                 f.uploader,
                 "prepare_with_write_trap",
-                ic_platform::candid::contract::encode_one(FaultPreparation {
-                    preparation: f.preparation_input(&preparation),
-                    fault,
-                })
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                    FaultPreparation {
+                        preparation: f.preparation_input(&preparation),
+                        fault,
+                    },
+                )
                 .unwrap(),
             )
             .unwrap_err();
@@ -564,7 +567,10 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             f.service,
             f.tenant,
             "revoke_with_usage_write_trap",
-            ic_platform::candid::contract::encode_one(admission_input(permission)).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(admission_input(
+                permission,
+            ))
+            .unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -635,4 +641,31 @@ fn admission_failure(
         A::Expired | A::Invalid => Failure::Invalid,
         A::Internal => panic!("unexpected internal permission failure"),
     }
+}
+
+#[test]
+#[ignore = "Explicit measurement creates BLOB_WIRE_REPORT; no service or provider effects"]
+fn measure_installed_wire_codecs() {
+    let path = std::env::var_os("BLOB_WIRE_REPORT").expect("BLOB_WIRE_REPORT");
+    let file = std::fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(path)
+        .unwrap();
+    let f = Fixture::new();
+    let (rows,): (Vec<blob_test_protocol::wire_benchmark::Measurement>,) =
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+            &f.harness.pic,
+            f.service,
+            f.operator,
+            "measure_wire_codecs",
+            (),
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
+    serde_json::to_writer_pretty(
+        file,
+        &serde_json::json!({"unit": "ic_instructions", "measurements": rows}),
+    )
+    .unwrap();
 }

@@ -1,0 +1,96 @@
+[
+  {
+    "input": {
+      "billing": {
+        "cashier": "dmxny-uo7gq-5z6ai",
+        "max_gateway_entries": 4231644507,
+        "max_gateway_unique": 4227172120,
+        "minimum_balance": 1105764646,
+        "reserve": 285523339,
+        "target_balance": 3872343637
+      },
+      "funding": {
+        "allocated": 3882335575,
+        "max_attempts": 4012366225,
+        "renewal_ceiling": 2715762595,
+        "reserve": 1506171924
+      },
+      "namespace": 3858933382,
+      "operator": "v3yxn-i7x2u-twyai",
+      "payment_account": "7nbaj-6w7hb-siaai",
+      "reads": {
+        "bytes": 44352164,
+        "reply_bytes": 2294541177,
+        "sessions": 2260428521,
+        "tenant_bytes": 2326466045,
+        "tenant_sessions": 284569054
+      },
+      "resources": {
+        "max_active": 900923654,
+        "max_chunks": 247413158,
+        "max_header_bytes": 68243439,
+        "max_headers": 2999335072,
+        "max_liability_bytes": 2602834317,
+        "max_object_bytes": 3073854173,
+        "max_objects": 1608331467,
+        "max_physical_bytes": 3707650560,
+        "max_receipts_per_object": 711931151,
+        "max_references_per_object": 1628070876,
+        "max_tenant_active": 1499857247,
+        "max_tenant_chunks": 1959761479,
+        "max_tenant_logical_bytes": 661405495,
+        "max_tenant_objects": 1880203805,
+        "max_tenants": 2397806341
+      },
+      "service": "fd4dk-fiud5-344ai"
+    },
+    "hex": "495701006e65646c6f670005141f77ce0105f7d5276c0105df3864800186cd8ab00e85beaef708dd95ddb90ba0f198960bef9fc520a6f3fc75c7acbea607cbe1f4fe059dc4c680078084f9e70d8db390d909b7feb0bb02dcc7a988068feabcd3028682ccad03df8298cb0505df343b9f018bfb928801a6c2a28f04d58cbdb60edb8ae7e10f988ed6df0fd7fa9ebb0ea3fffc8e0a94b899ce0591b39ff90ee9cdedb508dedbd88701f9d68fc608a4859315fd9bacd508"
+  },
+  {
+    "input": {
+      "billing": {
+        "cashier": "xbcng-wyq3i-wooai",
+        "max_gateway_entries": 4159635344,
+        "max_gateway_unique": 4004853062,
+        "minimum_balance": 16047728,
+        "reserve": 870806714,
+        "target_balance": 2275882583
+      },
+      "funding": {
+        "allocated": 518858097,
+        "max_attempts": 2250254971,
+        "renewal_ceiling": 314313990,
+        "reserve": 1194917021
+      },
+      "namespace": 2940829842,
+      "operator": "kguom-tfph7-54qai",
+      "payment_account": "zhmnf-gt6ay-vbiai",
+      "reads": {
+        "bytes": 3583327601,
+        "reply_bytes": 321175303,
+        "sessions": 823020552,
+        "tenant_bytes": 3017536758,
+        "tenant_sessions": 960029922
+      },
+      "resources": {
+        "max_active": 427353034,
+        "max_chunks": 167855215,
+        "max_header_bytes": 2959871244,
+        "max_headers": 2957708768,
+        "max_liability_bytes": 1918353126,
+        "max_object_bytes": 3606849389,
+        "max_objects": 4292221895,
+        "max_physical_bytes": 3559222565,
+        "max_receipts_per_object": 2723550994,
+        "max_references_per_object": 2645372487,
+        "max_tenant_active": 2216052159,
+        "max_tenant_chunks": 2079142917,
+        "max_tenant_logical_bytes": 1600925602,
+        "max_tenant_objects": 1006907406,
+        "max_tenants": 2636915566
+      },
+      "service": "2mmtu-fas5c-nx2ai"
+    },
+    "hex": "495701006e65646c6f67000512e89b7d0105af3ffbc801057e062a14019281a6fa0aeec6b0e909edcef0b70de09bac820b8c9ab0830bef88855085e8b4df07c7b7d8fe0f8ee090e003a5da95a10de6fdde9207a2dfb0fb05c7dcb4ed0992aed8920acac7e3cb01bf8bd9a0080510da2ce701bae99d9f03f0bcd307d7ec9cbd0890ffbbbf0fc6ead4f50ef1cab4f701869af095019df9e3b904fbd480b1088898b98803e2c9e3c90387fe929901f1fad4ac0df6e9ef9e0b"
+  }
+]

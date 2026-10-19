@@ -1,0 +1,18 @@
+[
+  {
+    "input": {
+      "namespace": 2178828865,
+      "service": "ygtdy-tbptr-layai",
+      "tenant": "4rdrn-fzebz-nmgai"
+    },
+    "hex": "495714003600424f4c4200052f9c560c01c194f98e0805240e5ac301"
+  },
+  {
+    "input": {
+      "namespace": 1003416277,
+      "service": "yvkpu-7tskw-4o4ai",
+      "tenant": "avwyj-2w7n6-iesai"
+    },
+    "hex": "495714003600424f4c4200057255b8ee01d5d5bbde0305df6f904901"
+  }
+]

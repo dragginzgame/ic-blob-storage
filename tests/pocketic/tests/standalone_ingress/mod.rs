@@ -93,7 +93,7 @@ fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
     )
     .unwrap();
     for bytes in [
-        ic_platform::candid::contract::encode_one(&input).unwrap(),
+        ic_blob_storage_pocketic_tests::historical::encode(&input).unwrap(),
         ic_blob_storage_contracts::document::encode(ForeignInstallation {
             installation: &input,
             retired_authority: true,
@@ -188,7 +188,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         query.clone(),
         wire::inspection_response(Err(TenantFailure::Denied)).unwrap(),
         ic_blob_storage_contracts::document::encode(command).unwrap(),
-        ic_platform::candid::contract::encode_one(command).unwrap(),
+        ic_blob_storage_pocketic_tests::historical::encode(command).unwrap(),
         trailing,
         vec![0; 513],
     ] {
@@ -207,7 +207,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
                 f.service,
                 f.tenant,
                 "blob_tenant",
-                ic_platform::candid::contract::encode_one(f.scope()).unwrap(),
+                ic_blob_storage_pocketic_tests::historical::encode(f.scope()).unwrap(),
             )
             .is_err()
     );

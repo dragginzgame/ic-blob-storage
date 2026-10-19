@@ -1,0 +1,18 @@
+[
+  {
+    "input": "Reserved",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "ExposurePossible",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Confirmed",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Cancelled",
+    "hex": "495701006e65646c6f670003"
+  }
+]

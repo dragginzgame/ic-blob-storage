@@ -1,0 +1,10 @@
+[
+  {
+    "input": "Balance",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "PaymentRelationship",
+    "hex": "495701006e65646c6f670001"
+  }
+]

@@ -2,12 +2,10 @@
 use super::Allocation;
 use crate::status::FundingActivityView;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 
 /// Fixed-size operator observation without scanning or paging intent history.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Summary {
     /// Full installed journal scope.
     pub scope: OperatorScope,

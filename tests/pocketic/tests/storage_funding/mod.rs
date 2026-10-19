@@ -1,6 +1,5 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod admission;
 mod client;
 mod history;
@@ -21,13 +20,13 @@ impl Fixture {
         actor: Principal,
         scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
     ) -> Result<blob_test_protocol::storage::funding::summary::Summary, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "funding_summary",
             (scope,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -49,7 +48,7 @@ impl Fixture {
         intent: Intent,
         action: Action,
     ) -> Result<bool, Failure> {
-        update_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
             &self.harness.pic,
             self.service,
             actor,
@@ -60,31 +59,34 @@ impl Fixture {
                 fault: None,
                 source: None,
             },),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
     }
     fn funding_lookup(&self, actor: Principal, intent: Intent) -> Result<Option<Phase>, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "funding_lookup",
             (intent,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
     }
     pub(super) fn funding_allocation(&self) -> Allocation {
-        query_candid_args::<(Result<Allocation, Failure>,), _>(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args::<
+            (Result<Allocation, Failure>,),
+            _,
+        >(
             &self.harness.pic,
             self.service,
             self.operator,
             "funding_allocation",
             (),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -98,7 +100,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_funding",
-                ic_platform::candid::contract::encode_one(Command {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(Command {
                     intent,
                     action,
                     fault: Some(fault),
@@ -242,13 +244,16 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
         ..f.funding_intent(1, 900)
     };
     let inspect = |actor, intent| {
-        query_candid_args::<(Result<blob_test_protocol::storage::funding::Request, Failure>,), _>(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args::<
+            (Result<blob_test_protocol::storage::funding::Request, Failure>,),
+            _,
+        >(
             &f.harness.pic,
             f.service,
             actor,
             "funding_request",
             (intent,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -288,21 +293,22 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
     }
     f.funding(f.operator, original, Action::Attempt).unwrap();
     let before = f.funding_allocation();
-    let wrong_source: Result<bool, Failure> = update_candid_args(
-        &f.harness.pic,
-        f.service,
-        f.operator,
-        "fixture_funding",
-        (Command {
-            intent: original,
-            action: Action::Callback(900),
-            fault: None,
-            source: Some(f.other),
-        },),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let wrong_source: Result<bool, Failure> =
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
+            &f.harness.pic,
+            f.service,
+            f.operator,
+            "fixture_funding",
+            (Command {
+                intent: original,
+                action: Action::Callback(900),
+                fault: None,
+                source: Some(f.other),
+            },),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(wrong_source, Err(Failure::Binding));
     assert_eq!(f.funding_allocation(), before);
     assert_eq!(

@@ -1,0 +1,122 @@
+[
+  {
+    "input": {
+      "receipt": {
+        "request": {
+          "action": "Release",
+          "operation": 951089916,
+          "reference": 1210618104,
+          "upload": {
+            "bytes": 433886454,
+            "first_reference": 2389017039,
+            "incarnation": 2219652517,
+            "namespace": 3048928771,
+            "object": 850235919,
+            "root": [
+              233,
+              216,
+              210,
+              244,
+              229,
+              18,
+              172,
+              41,
+              178,
+              31,
+              35,
+              91,
+              161,
+              246,
+              96,
+              189,
+              197,
+              201,
+              50,
+              217,
+              218,
+              192,
+              20,
+              18,
+              70,
+              121,
+              11,
+              172,
+              223,
+              154,
+              116,
+              1
+            ],
+            "service": "k4kyf-spslm-w2mai",
+            "tenant": "sivnd-zfc3b-uukai",
+            "upload": 2114015227
+          }
+        },
+        "result": {
+          "Ok": "Unchanged"
+        }
+      },
+      "replayed": false
+    },
+    "hex": "495701006e65646c6f670005f25b2da60105a2d869450183ecebad0bfb9f85f0078fa4b69503a5ebb4a208cf8396f308e9d8d2f4e512ac29b21f235ba1f660bdc5c932d9dac0141246790bacdf9a7401f6a9f2ce01f8a1a2c104fcf5c1c50301000100"
+  },
+  {
+    "input": {
+      "receipt": {
+        "request": {
+          "action": "Release",
+          "operation": 2393814900,
+          "reference": 1745520225,
+          "upload": {
+            "bytes": 3533831257,
+            "first_reference": 1596386764,
+            "incarnation": 4091483798,
+            "namespace": 3588158995,
+            "object": 2752847288,
+            "root": [
+              107,
+              177,
+              141,
+              16,
+              26,
+              205,
+              51,
+              227,
+              200,
+              9,
+              1,
+              136,
+              59,
+              12,
+              132,
+              82,
+              158,
+              34,
+              76,
+              109,
+              238,
+              121,
+              83,
+              233,
+              21,
+              144,
+              53,
+              215,
+              35,
+              41,
+              120,
+              165
+            ],
+            "service": "ikm3u-huwku-whoai",
+            "tenant": "ahazh-ideh6-6zqai",
+            "upload": 326505413
+          }
+        },
+        "result": {
+          "Err": "UnknownReference"
+        }
+      },
+      "replayed": true
+    },
+    "hex": "495701006e65646c6f67000596552c770105643fbd980193ecfbae0dc5a7d89b01b8bbd4a00a96adfc9e0fccdb9bf9056bb18d101acd33e3c80901883b0c84529e224c6dee7953e9159035d7232978a5d9f887950de18caac006f4eebaf50801010001"
+  }
+]

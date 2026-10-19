@@ -1,0 +1,26 @@
+[
+  {
+    "input": {
+      "before_operation": 3077174275,
+      "scope": {
+        "cashier": "7tbix-74b7o-tkwai",
+        "namespace": 3163877498,
+        "payment_account": "73mqy-gktrc-h6yai",
+        "service": "weusw-o5kd3-7lsai"
+      }
+    },
+    "hex": "495701006e65646c6f670005aa1efeb901fae0d3e40b0581fba6ab010553888fec0183e8a7bb0b"
+  },
+  {
+    "input": {
+      "before_operation": 1221601024,
+      "scope": {
+        "cashier": "55bvb-u6bsq-2x2ai",
+        "namespace": 3184495005,
+        "payment_account": "cbznu-el2lj-wpwai",
+        "service": "n72am-j2f3n-pywai"
+      }
+    },
+    "hex": "495701006e65646c6f67000545db5f8b019d93beee0b05c194357d01057a5a6cfb0180cec0c604"
+  }
+]

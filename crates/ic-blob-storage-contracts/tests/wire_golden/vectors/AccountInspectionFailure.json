@@ -1,0 +1,40 @@
+[
+  {
+    "input": "Invalid",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Denied",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Binding",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Fenced",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "Internal",
+    "hex": "495701006e65646c6f670004"
+  },
+  {
+    "input": "NotEnqueued",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": {
+      "Rejected": 3641009559
+    },
+    "hex": "495701006e65646c6f67000697cb95c80d"
+  },
+  {
+    "input": "ReplyTooLarge",
+    "hex": "495701006e65646c6f670007"
+  },
+  {
+    "input": "InvalidReply",
+    "hex": "495701006e65646c6f670008"
+  }
+]

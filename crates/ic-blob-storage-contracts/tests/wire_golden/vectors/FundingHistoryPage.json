@@ -1,0 +1,77 @@
+[
+  {
+    "input": {
+      "entries": [],
+      "fenced": false,
+      "next": null,
+      "request": {
+        "cursor": null,
+        "scope": {
+          "cashier": "ketp4-ysd4n-araai",
+          "namespace": 3052710853,
+          "payment_account": "cossm-ifsow-y5sai",
+          "service": "ovzjf-szcbh-ktmai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f6700052209d53601c5d7d2af0b0543e341100105b275b1d90100000000"
+  },
+  {
+    "input": {
+      "entries": [
+        {
+          "offered": 3008437163,
+          "operation": 1832360809,
+          "phase": "NotEnqueued",
+          "scope": {
+            "cashier": "rmbw4-rceol-afkai",
+            "namespace": 716371781,
+            "payment_account": "44jnt-ct5zq-4vuai",
+            "service": "7w6zf-a6wat-hoaai"
+          },
+          "target_balance": 173523335
+        },
+        {
+          "offered": 4048061069,
+          "operation": 2935646901,
+          "phase": "Prepared",
+          "scope": {
+            "cashier": "4zvp5-fsppj-2ugai",
+            "namespace": 1812507697,
+            "payment_account": "urigg-uconf-qnkai",
+            "service": "tosaj-imash-ldqai"
+          },
+          "target_balance": 2137379870
+        }
+      ],
+      "fenced": true,
+      "next": {
+        "before_operation": 3719884580,
+        "scope": {
+          "cashier": "qrqi5-mdsvm-ln2ai",
+          "namespace": 2756824289,
+          "payment_account": "gjxwn-xxxqe-zuuai",
+          "service": "mahn7-cmret-272ai"
+        }
+      },
+      "request": {
+        "cursor": {
+          "before_operation": 1459417023,
+          "scope": {
+            "cashier": "mct6e-hxr5w-jm2ai",
+            "namespace": 164624431,
+            "payment_account": "6bd7s-mcoer-ztaai",
+            "service": "7dc6q-a4jjg-buaai"
+          }
+        },
+        "scope": {
+          "cashier": "lalsg-tzofu-p4cai",
+          "namespace": 3964680572,
+          "payment_account": "2zljv-jzkay-ttgai",
+          "service": "ackrv-rx63p-e26ai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f670005fedbc9af01fcf2c0e20e052e2d1fc101052a0627330101058949834001aff0bf4e05f1ed92cd01054e24733001bfdff3b7050205d604cee001c5eecbd502054472c05501057dcc395a01e9b6dee906abb7c49a0b018783df5202058091d63801b1d8a2e006054f7a754301054e6960d501b5d5e9f70a8d85a28a0f019ea897fb070001059124f5fd01e199c7a20a0572ab16dd0105f781334a01a4dee3ed0d01"
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "observation": "ProviderInternalError",
+        "request": {
+          "kind": "Balance",
+          "scope": {
+            "cashier": "u5pbs-3iu3q-h3aai",
+            "namespace": 2541357681,
+            "payment_account": "omyrd-vtxzi-wzsai",
+            "service": "q5kiw-kkpiy-xhoai"
+          }
+        }
+      }
+    },
+    "hex": "495719003600424f4c420100054f462e7701f194e8bb090514dc0fb0010577ca2d99010007"
+  },
+  {
+    "input": {
+      "Ok": {
+        "observation": "InvalidRequest",
+        "request": {
+          "kind": "Balance",
+          "scope": {
+            "cashier": "r3aoe-xo7e6-f3aai",
+            "namespace": 2664254400,
+            "payment_account": "grgs4-v24q4-t3sai",
+            "service": "mcwau-o5dvg-qf2ai"
+          }
+        }
+      }
+    },
+    "hex": "495719003600424f4c42010005a3a9a05d01c097b5f60905df278bb001055c8727b9010006"
+  },
+  {
+    "input": {
+      "Err": {
+        "Rejected": 487846170
+      }
+    },
+    "hex": "495719003600424f4c420101069ae2cfe801"
+  }
+]

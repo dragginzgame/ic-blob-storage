@@ -1,18 +1,17 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn mutate(
     f: &Fixture,
     input: &ReferenceClientInput,
 ) -> Result<ReferenceMutationResponse, ReferenceProbeFailure> {
-    update_candid_args(
+    ic_blob_storage_pocketic_tests::control_calls::update_control_args(
         &f.harness.pic,
         f.tenant,
         f.operator,
         "fixture_mutate_reference",
         (input,),
-        REPLY_LIMITS,
+        (REPLY_LIMITS).reply_bytes,
     )
     .map(|(reply,)| reply)
     .unwrap()
@@ -192,16 +191,17 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
         mutate(&f, &wrong_namespace),
         Err(ReferenceProbeFailure::Remote(ReferenceFailure::Binding))
     );
-    let query: Result<ReferenceMutationResponse, ReferenceProbeFailure> = query_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "fixture_nonreplicated_reference_mutation",
-        (selected,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let query: Result<ReferenceMutationResponse, ReferenceProbeFailure> =
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+            &f.harness.pic,
+            f.tenant,
+            f.operator,
+            "fixture_nonreplicated_reference_mutation",
+            (selected,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));
     assert_eq!(fetch(&f, &selected), Ok(ReferenceReceiptLookup::Absent));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);

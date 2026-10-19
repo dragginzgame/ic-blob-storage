@@ -1,0 +1,112 @@
+[
+  {
+    "input": {
+      "permission": {
+        "expires_at_ns": 3320311170,
+        "upload": {
+          "bytes": 2767203653,
+          "first_reference": 3927748422,
+          "incarnation": 375051994,
+          "namespace": 2603385300,
+          "object": 3591954879,
+          "root": [
+            188,
+            193,
+            14,
+            34,
+            237,
+            69,
+            213,
+            39,
+            90,
+            185,
+            225,
+            123,
+            122,
+            241,
+            211,
+            175,
+            47,
+            159,
+            3,
+            75,
+            187,
+            136,
+            0,
+            71,
+            196,
+            122,
+            91,
+            233,
+            173,
+            15,
+            58,
+            240
+          ],
+          "service": "k4lqk-f5uxt-y4gai",
+          "tenant": "y3hcl-ciyin-eg2ai",
+          "upload": 3556375950
+        },
+        "uploader": "gapin-d3d22-u74ai"
+      },
+      "revoked": false,
+      "state": "Confirmed"
+    },
+    "hex": "495701006e65646c6f670005b4bcf1c301051843486d01d483b2d9098efbe79f0dbfc3e3b00ddaadebb201c6def2d00ebcc10e22ed45d5275ab9e17b7af1d3af2f9f034bbb880047c47a5be9ad0f3af0c5dac0a70a0563d6a9fe0182db9faf0c0200"
+  },
+  {
+    "input": {
+      "permission": {
+        "expires_at_ns": 3784353642,
+        "upload": {
+          "bytes": 37969438,
+          "first_reference": 1494077620,
+          "incarnation": 2740923807,
+          "namespace": 2119198306,
+          "object": 4159356802,
+          "root": [
+            42,
+            3,
+            126,
+            82,
+            157,
+            234,
+            179,
+            192,
+            20,
+            73,
+            140,
+            12,
+            29,
+            147,
+            121,
+            158,
+            58,
+            132,
+            38,
+            169,
+            247,
+            237,
+            59,
+            202,
+            84,
+            209,
+            96,
+            239,
+            5,
+            59,
+            49,
+            204
+          ],
+          "service": "wfbsv-znwa3-hesai",
+          "tenant": "jwtpp-i5wnn-so4ai",
+          "upload": 1614646183
+        },
+        "uploader": "fhqbt-3ufu6-rysai"
+      },
+      "revoked": true,
+      "state": "Cancelled"
+    },
+    "hex": "495701006e65646c6f670005b606ce490105b66b64ee01e2ccc1f207a797f6810682ffaabf0f9fdbfc9a0ab4a1b7c8052a037e529deab3c014498c0c1d93799e3a8426a9f7ed3bca54d160ef053b31cc9ebc8d120585a7a38901eacec28c0e0301"
+  }
+]

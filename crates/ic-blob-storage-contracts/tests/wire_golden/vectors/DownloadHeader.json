@@ -1,0 +1,16 @@
+[
+  {
+    "input": {
+      "name": "fixture-DownloadHeader.name",
+      "value": "fixture-DownloadHeader.value"
+    },
+    "hex": "495701006e65646c6f67001b666978747572652d446f776e6c6f61644865616465722e6e616d651c666978747572652d446f776e6c6f61644865616465722e76616c7565"
+  },
+  {
+    "input": {
+      "name": "fixture-DownloadHeader.name",
+      "value": "fixture-DownloadHeader.value"
+    },
+    "hex": "495701006e65646c6f67001b666978747572652d446f776e6c6f61644865616465722e6e616d651c666978747572652d446f776e6c6f61644865616465722e76616c7565"
+  }
+]

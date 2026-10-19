@@ -1,0 +1,15 @@
+[
+  {
+    "input": "Unprepared",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": {
+      "Prepared": {
+        "chunks": [],
+        "headers": []
+      }
+    },
+    "hex": "495701006e65646c6f6700010000"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "input": "All",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Active",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "DeletionPending",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Outstanding",
+    "hex": "495701006e65646c6f670003"
+  }
+]

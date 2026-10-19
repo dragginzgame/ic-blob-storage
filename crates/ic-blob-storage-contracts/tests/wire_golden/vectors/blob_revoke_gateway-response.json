@@ -1,0 +1,42 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "removed": false,
+        "request": {
+          "gateway": "hmr7h-kez4h-rjwai",
+          "scope": {
+            "cashier": "37yqm-7ty67-p6iai",
+            "namespace": 1512764642,
+            "payment_account": "dbsuz-wyh6w-igeai",
+            "service": "tfzfr-cnrfu-5m2ai"
+          }
+        }
+      }
+    },
+    "hex": "495711003600424f4c42010005b12d3acd01e2e9abd1050578f7dfe4010507f59062010599e1e29b0100"
+  },
+  {
+    "input": {
+      "Ok": {
+        "removed": true,
+        "request": {
+          "gateway": "736kq-7x6xy-bikai",
+          "scope": {
+            "cashier": "wrcau-yta7r-ausai",
+            "namespace": 1468822718,
+            "payment_account": "ju67f-keo2z-yi4ai",
+            "service": "xai7i-axxrz-obsai"
+          }
+        }
+      }
+    },
+    "hex": "495711003600424f4c42010005f78e5c1901bee9b1bc050560fc414901058ed6708e0105febe02850101"
+  },
+  {
+    "input": {
+      "Err": "Internal"
+    },
+    "hex": "495711003600424f4c42010104"
+  }
+]

@@ -18,7 +18,7 @@ pub struct JourneyUpload {
 }
 
 /// Bounded manifest supplied with admission, never an authorization credential.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct JourneyManifest {
     /// Ordered domain-separated leaf hashes.
@@ -104,7 +104,7 @@ pub enum JourneyFailure {
 }
 
 /// Charged tenant capacity, including uncertain uploads.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct JourneyUsage {
     /// Logical bytes plus reservations.

@@ -1,0 +1,103 @@
+[
+  {
+    "input": {
+      "fenced": false,
+      "headroom": null,
+      "request": {
+        "root": [
+          189,
+          34,
+          215,
+          77,
+          229,
+          177,
+          182,
+          169,
+          2,
+          38,
+          203,
+          130,
+          226,
+          104,
+          207,
+          80,
+          122,
+          23,
+          118,
+          13,
+          243,
+          157,
+          185,
+          205,
+          5,
+          15,
+          211,
+          185,
+          124,
+          124,
+          237,
+          200
+        ],
+        "scope": {
+          "namespace": 3439958253,
+          "service": "xjyf2-aesey-5jkai",
+          "tenant": "w6ymz-c7uel-df4ai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f67000592263a9501edb1a6e80c05f422c65e01bd22d74de5b1b6a90226cb82e268cf507a17760df39db9cd050fd3b97c7cedc80000"
+  },
+  {
+    "input": {
+      "fenced": true,
+      "headroom": {
+        "fresh_retains": 2675481822,
+        "reference_slots": 3595126981,
+        "release_reserved_receipts": 1068128273,
+        "unreserved_receipts": 1581114635
+      },
+      "request": {
+        "root": [
+          150,
+          127,
+          149,
+          208,
+          208,
+          112,
+          176,
+          97,
+          69,
+          176,
+          101,
+          76,
+          214,
+          123,
+          41,
+          242,
+          154,
+          143,
+          206,
+          31,
+          14,
+          166,
+          182,
+          68,
+          34,
+          112,
+          227,
+          230,
+          86,
+          116,
+          205,
+          56
+        ],
+        "scope": {
+          "namespace": 2269064091,
+          "service": "yyzci-cyb7x-wa4ai",
+          "tenant": "22unb-3i7bu-pbgai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f67000501fdec0e019bd7fcb908051f0d1e1301967f95d0d070b06145b0654cd67b29f29a8fce1f0ea6b6442270e3e65674cd3801c591a5b20d8bcaf7f10591b0a9fd03deb9e2fb0901"
+  }
+]

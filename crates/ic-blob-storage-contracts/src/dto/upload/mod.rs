@@ -8,11 +8,9 @@ pub mod exposure;
 pub mod history;
 pub mod manifest;
 use crate::dto::reference::ReferenceUpload;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 /// Retained local upload phase; neither provider dispatch nor publication authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadState {
     /// Reserved locally; upload authority has not escaped.
@@ -26,8 +24,7 @@ pub enum UploadState {
     Cancelled,
 }
 /// Full original binding and current retained local state.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadStatusResponse {
     /// Exact original upload, including its independent first reference identity.
@@ -38,8 +35,7 @@ pub struct UploadStatusResponse {
     pub revoked: bool,
 }
 /// Failed exact upload inspection. Absence does not authorize a fresh upload.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadStatusFailure {
     /// Invalid original identity or length.

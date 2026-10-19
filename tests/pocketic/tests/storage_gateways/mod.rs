@@ -10,7 +10,6 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(principals).unwrap()
 }
@@ -49,7 +48,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_cancel_gateway_sync",
-                ic_platform::candid::contract::encode_one(request).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(request).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -93,7 +92,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_revoke_gateway",
-                ic_platform::candid::contract::encode_one(input).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -106,7 +105,7 @@ impl Fixture {
         }
     }
     fn gateways(&self, actor: Principal, action: Action) -> Result<Outcome, Failure> {
-        update_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
             &self.harness.pic,
             self.service,
             actor,
@@ -116,19 +115,22 @@ impl Fixture {
                 action,
                 fault: false,
             },),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
     }
     fn gateway_view(&self) -> View {
-        query_candid_args::<(Result<View, Failure>,), _>(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args::<
+            (Result<View, Failure>,),
+            _,
+        >(
             &self.harness.pic,
             self.service,
             self.operator,
             "gateway_registry",
             (self.gateway_scope(),),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -148,7 +150,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_gateways",
-                ic_platform::candid::contract::encode_one(Command {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(Command {
                     scope: self.gateway_scope(),
                     action,
                     fault: true,
@@ -307,16 +309,17 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             f.revoke_gateway(actor, f.other),
             Err(GatewayRevocationFailure::Denied)
         );
-        let view: Result<View, Failure> = query_candid_args(
-            &f.harness.pic,
-            f.service,
-            actor,
-            "gateway_registry",
-            (f.gateway_scope(),),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let view: Result<View, Failure> =
+            ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+                &f.harness.pic,
+                f.service,
+                actor,
+                "gateway_registry",
+                (f.gateway_scope(),),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         assert_eq!(view, Err(Failure::Denied));
     }
     for scope in [
@@ -333,16 +336,17 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             ..f.gateway_scope()
         },
     ] {
-        let view: Result<View, Failure> = query_candid_args(
-            &f.harness.pic,
-            f.service,
-            f.operator,
-            "gateway_registry",
-            (scope,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let view: Result<View, Failure> =
+            ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+                &f.harness.pic,
+                f.service,
+                f.operator,
+                "gateway_registry",
+                (scope,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         assert_eq!(view, Err(Failure::Binding));
     }
     assert_eq!(f.harness.pic.get_stable_memory(f.service), bytes);

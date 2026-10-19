@@ -1,0 +1,99 @@
+[
+  {
+    "input": {
+      "funding": {
+        "attachment_allowance": 4091212183,
+        "available_allocation": 2152056373,
+        "cumulative_allocation": 4054194077,
+        "fenced": false,
+        "intent_capacity": 254772345,
+        "last_operation": null,
+        "not_enqueued": 759611713,
+        "refunded": 1647686297,
+        "renewal_ceiling": 304453211,
+        "reserved_or_uncertain": 614882075,
+        "retained_intents": 1040305876,
+        "transport_accepted": 1281472604,
+        "uncredited_accepted": 2521043234
+      },
+      "gateways": {
+        "fenced": false,
+        "last_sequence": 1887928832,
+        "members": [],
+        "pending_sequence": null
+      },
+      "reads": {
+        "fenced": false,
+        "last_sequence": 3143081702,
+        "reserved_bytes": 4020711982,
+        "sessions": 3403608609
+      },
+      "scope": {
+        "cashier": "bglkg-biepy-v6yai",
+        "namespace": 296272519,
+        "payment_account": "rd7wj-7cska-mdkai",
+        "service": "s7hlu-mwixa-ymqai"
+      },
+      "uploads": {
+        "active_reservations": 964308790,
+        "fenced": false,
+        "liability_bytes": 3205644357,
+        "logical_bytes": 3980546776,
+        "operations": 3410168063,
+        "physical_bytes": 928910562,
+        "reserved_bytes": 2507117125
+      }
+    },
+    "hex": "495701006e65646c6f670005c8b830c8018785a38d0105047e2bec01055250183501ff918cda0cb6dee8cb03c5a4beab09d8a589ea0ee299f8ba03c580c9f80b009daf988d0fdbac969101b58c97820897e3eb9e0fdcf086e304a2a290b20999e5d69106c1829bea029bb699a502d49d87f003f988be7900000080849e84070000e6bddeda0ba1e4fbd60caee49cfd0e00"
+  },
+  {
+    "input": {
+      "funding": {
+        "attachment_allowance": 3461194910,
+        "available_allocation": 3339786634,
+        "cumulative_allocation": 3653829709,
+        "fenced": true,
+        "intent_capacity": 2224883224,
+        "last_operation": 2409346431,
+        "not_enqueued": 14051257,
+        "refunded": 4107815844,
+        "renewal_ceiling": 482048160,
+        "reserved_or_uncertain": 2376200592,
+        "retained_intents": 1786752684,
+        "transport_accepted": 277693582,
+        "uncredited_accepted": 2218750327
+      },
+      "gateways": {
+        "fenced": true,
+        "last_sequence": 3958812152,
+        "members": [
+          "o3yon-4474q-4hqai",
+          "4dggq-cu47y-ggoai"
+        ],
+        "pending_sequence": 2378613496
+      },
+      "reads": {
+        "fenced": true,
+        "last_sequence": 4255078227,
+        "reserved_bytes": 389371942,
+        "sessions": 3944126742
+      },
+      "scope": {
+        "cashier": "gwf4s-hxqqh-buuai",
+        "namespace": 636698043,
+        "payment_account": "feay6-xd3mf-l5kai",
+        "service": "hfl7p-yu2pc-pbaai"
+      },
+      "uploads": {
+        "active_reservations": 1769164275,
+        "fenced": true,
+        "liability_bytes": 3233839432,
+        "logical_bytes": 165756452,
+        "operations": 3652849440,
+        "physical_bytes": 3567158556,
+        "reserved_bytes": 2605842096
+      }
+    },
+    "hex": "495701006e65646c6f6700059a789e1001bbfbccaf0205f081c34a01057b6157d501a09ee8cd0df39bcdcb06b0fdc7da09a4fc844f9c8afaa40dc8f281860c01cd88a4ce0da0f1ede5018ab3c4b80c9ec9b6f20c8e89b58401f7e2fda108a497e1a60fb9cfd90690e387ed08acddfed306988cf4a40801ffeaeefc080102059fe4387801059cfe0c6701f8dbdadf0e01f8859bee0801d3aefdec0f96b2dad80ea6b0d5b90101"
+  }
+]

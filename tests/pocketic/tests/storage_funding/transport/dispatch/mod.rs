@@ -1,6 +1,5 @@
 //! End-to-end shared workflow, using actual local IC calls and synthetic host facts.
 use super::*;
-use ic_platform::candid::decoder;
 mod credit;
 use blob_test_protocol::storage::funding::{
     admission::Blocker as B,
@@ -22,7 +21,8 @@ impl Fixture {
         actor: Principal,
         input: DispatchInput,
     ) -> Result<DispatchResult, Failure> {
-        let request = ic_platform::candid::contract::encode_one(input).unwrap();
+        let request =
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap();
         credit::retain_packet("dispatch-request", &request);
         let reply = self
             .harness
@@ -35,7 +35,8 @@ impl Fixture {
             )
             .unwrap();
         credit::retain_packet("dispatch-reply", &reply);
-        decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap()
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
+            .unwrap()
     }
 }
 fn settled(value: Result<DispatchResult, Failure>) -> Observation {
@@ -221,7 +222,7 @@ fn guarded_dispatch_marker_trap_sends_nothing_and_preserves_prepared_state() {
             f.service,
             f.operator,
             "fixture_guarded_funding_dispatch",
-            ic_platform::candid::contract::encode_one(DispatchInput {
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(DispatchInput {
                 attempt_fault: Some(WriteFault::FundingIntents),
                 ..request(intent)
             })
@@ -255,7 +256,7 @@ fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() 
                 f.service,
                 f.operator,
                 "fixture_guarded_funding_dispatch",
-                ic_platform::candid::contract::encode_one(DispatchInput {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(DispatchInput {
                     callback_fault: Some(fault),
                     ..request(intent)
                 })
@@ -318,7 +319,8 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
             f.service,
             f.operator,
             "fixture_guarded_funding_dispatch",
-            ic_platform::candid::contract::encode_one(request(intent)).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(request(intent))
+                .unwrap(),
         )
         .unwrap();
     let mut pending = None;
@@ -343,11 +345,12 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
             .0
             .contains(&B::AlreadyAttempted)
     );
-    let reply: Result<DispatchResult, Failure> = decoder::decode_one_with_config(
-        &f.harness.pic.await_call(call).unwrap(),
-        &decoder::DecoderConfig::new(),
-    )
-    .unwrap();
+    let reply: Result<DispatchResult, Failure> =
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+            &f.harness.pic.await_call(call).unwrap(),
+            4 * 1024 * 1024,
+        )
+        .unwrap();
     assert_eq!(settled(reply).accepted, 400);
     let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
     assert_eq!(retained.request, outcome_request(intent));

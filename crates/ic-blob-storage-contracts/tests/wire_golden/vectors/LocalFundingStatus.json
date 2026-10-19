@@ -1,0 +1,38 @@
+[
+  {
+    "input": {
+      "attachment_allowance": 3989071531,
+      "available_allocation": 932115073,
+      "cumulative_allocation": 4004948214,
+      "fenced": false,
+      "intent_capacity": 264425016,
+      "last_operation": null,
+      "not_enqueued": 553179446,
+      "refunded": 4280919874,
+      "renewal_ceiling": 3635875327,
+      "reserved_or_uncertain": 1399474672,
+      "retained_intents": 3169570869,
+      "transport_accepted": 3815498881,
+      "uncredited_accepted": 2078572655
+    },
+    "hex": "495701006e65646c6f6700f6d1daf50eff9bdcc50d81e5bbbc03abcd91ee0e81c9af9b0eef8092df07c2cea6f90fb6b2e38702f093a99b05b5a0afe70bb89c8b7e0000"
+  },
+  {
+    "input": {
+      "attachment_allowance": 1720805974,
+      "available_allocation": 1293197575,
+      "cumulative_allocation": 555235472,
+      "fenced": true,
+      "intent_capacity": 3889436775,
+      "last_operation": 1227138576,
+      "not_enqueued": 1151407287,
+      "refunded": 1906113571,
+      "renewal_ceiling": 1930391890,
+      "reserved_or_uncertain": 226614807,
+      "retained_intents": 4195740181,
+      "transport_accepted": 51702856,
+      "uncredited_accepted": 285821174
+    },
+    "hex": "495701006e65646c6f670090f1e08802d2e2bd980787c2d2e804d6d4c5b406c8d8d318f691a58801a3f8f38c07b7a984a50497bc876c95d4d7d00fe7b0d0be0e0190cc92c90401"
+  }
+]

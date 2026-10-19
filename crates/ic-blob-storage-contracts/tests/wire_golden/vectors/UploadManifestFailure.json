@@ -1,0 +1,24 @@
+[
+  {
+    "input": {
+      "Permission": "Unknown"
+    },
+    "hex": "495701006e65646c6f67000003"
+  },
+  {
+    "input": "Revoked",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Phase",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Declaration",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "Limit",
+    "hex": "495701006e65646c6f670004"
+  }
+]

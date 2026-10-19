@@ -1,0 +1,113 @@
+[
+  {
+    "input": {
+      "bytes": 866391763,
+      "headers": [],
+      "owner": "7obem-s5y6b-nscai",
+      "project": "fixture-DownloadResponse.project",
+      "request": {
+        "incarnation": 2562487262,
+        "namespace": 1940678628,
+        "object": 3878558950,
+        "reference": 153172447,
+        "root": [
+          157,
+          170,
+          115,
+          162,
+          148,
+          250,
+          240,
+          87,
+          106,
+          126,
+          151,
+          88,
+          116,
+          64,
+          106,
+          189,
+          211,
+          128,
+          245,
+          58,
+          161,
+          31,
+          38,
+          139,
+          6,
+          210,
+          74,
+          148,
+          221,
+          143,
+          21,
+          26
+        ],
+        "service": "b6rpd-er4bs-btyai",
+        "tenant": "bfwbe-wgtlh-vaiai"
+      }
+    },
+    "hex": "495701006e65646c6f6700053c0c833c0105d359ea0401e4cfb19d079daa73a294faf0576a7e975874406abdd380f53aa11f268b06d24a94dd8f151ae6b9b8b90edee7f1c509dff3844905b8f05b210120666978747572652d446f776e6c6f6164526573706f6e73652e70726f6a656374d3ad909d0300"
+  },
+  {
+    "input": {
+      "bytes": 273050198,
+      "headers": [
+        {
+          "name": "fixture-DownloadResponse.headers0.name",
+          "value": "fixture-DownloadResponse.headers0.value"
+        },
+        {
+          "name": "fixture-DownloadResponse.headers1.name",
+          "value": "fixture-DownloadResponse.headers1.value"
+        }
+      ],
+      "owner": "g2wu6-c36sv-i7eai",
+      "project": "fixture-DownloadResponse.project",
+      "request": {
+        "incarnation": 3246814156,
+        "namespace": 2473481828,
+        "object": 3872074707,
+        "reference": 550193827,
+        "root": [
+          30,
+          111,
+          36,
+          113,
+          224,
+          178,
+          80,
+          127,
+          180,
+          126,
+          186,
+          177,
+          98,
+          208,
+          60,
+          233,
+          205,
+          83,
+          82,
+          120,
+          173,
+          198,
+          247,
+          61,
+          26,
+          25,
+          59,
+          186,
+          200,
+          205,
+          112,
+          168
+        ],
+        "service": "24n3z-gytf6-eweai",
+        "tenant": "rt3ld-626co-tduai"
+      }
+    },
+    "hex": "495701006e65646c6f670005132f896201055e13a63a01e4acb99b091e6f2471e0b2507fb47ebab162d03ce9cd535278adc6f73d1a193bbac8cd70a8d3d7acb60ecce7998c0ca395ad8602057e9551f20120666978747572652d446f776e6c6f6164526573706f6e73652e70726f6a656374d6d49982010226666978747572652d446f776e6c6f6164526573706f6e73652e68656164657273302e6e616d6527666978747572652d446f776e6c6f6164526573706f6e73652e68656164657273302e76616c756526666978747572652d446f776e6c6f6164526573706f6e73652e68656164657273312e6e616d6527666978747572652d446f776e6c6f6164526573706f6e73652e68656164657273312e76616c7565"
+  }
+]

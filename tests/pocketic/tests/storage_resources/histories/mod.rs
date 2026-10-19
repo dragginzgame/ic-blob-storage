@@ -11,8 +11,6 @@ use blob_test_protocol::{
         },
     },
 };
-use ic_platform::candid::decoder;
-use ic_testkit::pic::query_candid_args;
 use ic_testkit::pocket_ic::RejectResponse;
 
 #[derive(Clone, Copy)]
@@ -55,10 +53,11 @@ fn populate(
         name,
         f.operator,
         "populate_histories",
-        ic_platform::candid::contract::encode_one(batch).unwrap(),
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(batch).unwrap(),
     )
     .unwrap();
-    decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap()
+    ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
+        .unwrap()
 }
 
 fn funding(f: &Fixture, workload: HistoryWorkload, index: u32) -> FundingPopulationIntent {
@@ -121,13 +120,13 @@ fn read_page(
     actor: Principal,
     page: RestorationReadPage,
 ) -> Result<Vec<RestorationRead>, Failure> {
-    query_candid_args(
+    ic_blob_storage_pocketic_tests::control_calls::query_control_args(
         &f.harness.pic,
         f.service,
         actor,
         "restoration_read_page",
         (page,),
-        REPLY_LIMITS,
+        (REPLY_LIMITS).reply_bytes,
     )
     .map(|(reply,)| reply)
     .unwrap()
@@ -156,27 +155,29 @@ fn selected_funding(
         .into_iter()
         .map(|index| {
             let input = funding(f, workload, index);
-            let phase: Result<Option<FundingPhase>, Failure> = query_candid_args(
-                &f.harness.pic,
-                f.service,
-                f.operator,
-                "funding_lookup",
-                (input.intent,),
-                REPLY_LIMITS,
-            )
-            .map(|(reply,)| reply)
-            .unwrap();
+            let phase: Result<Option<FundingPhase>, Failure> =
+                ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+                    &f.harness.pic,
+                    f.service,
+                    f.operator,
+                    "funding_lookup",
+                    (input.intent,),
+                    (REPLY_LIMITS).reply_bytes,
+                )
+                .map(|(reply,)| reply)
+                .unwrap();
             assert_eq!(phase, Ok(Some(input.phase)));
-            let request: Result<FundingRequest, Failure> = query_candid_args(
-                &f.harness.pic,
-                f.service,
-                f.operator,
-                "funding_request",
-                (input.intent,),
-                REPLY_LIMITS,
-            )
-            .map(|(reply,)| reply)
-            .unwrap();
+            let request: Result<FundingRequest, Failure> =
+                ic_blob_storage_pocketic_tests::control_calls::query_control_args(
+                    &f.harness.pic,
+                    f.service,
+                    f.operator,
+                    "funding_request",
+                    (input.intent,),
+                    (REPLY_LIMITS).reply_bytes,
+                )
+                .map(|(reply,)| reply)
+                .unwrap();
             (input.intent, input.phase, request.unwrap())
         })
         .collect()
@@ -298,13 +299,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             &format!("uploads-{start}"),
             operator,
             "populate_resources",
-            ic_platform::candid::contract::encode_one(batch).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(batch).unwrap(),
         )
         .unwrap();
         assert_eq!(
-            decoder::decode_one_with_config::<Result<(), Failure>>(
+            ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<Result<(), Failure>>(
                 &reply,
-                &decoder::DecoderConfig::new()
+                4 * 1024 * 1024
             )
             .unwrap(),
             Ok(())
@@ -325,13 +326,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "gateway",
         operator,
         "fixture_gateways",
-        ic_platform::candid::contract::encode_one(command).unwrap(),
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(command).unwrap(),
     )
     .unwrap();
     assert!(
-        decoder::decode_one_with_config::<Result<Outcome, Failure>>(
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<Result<Outcome, Failure>>(
             &reply,
-            &decoder::DecoderConfig::new()
+            4 * 1024 * 1024
         )
         .unwrap()
         .is_ok()
@@ -349,13 +350,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "wrong-actor",
         f.other,
         "populate_histories",
-        ic_platform::candid::contract::encode_one(&first).unwrap(),
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(&first).unwrap(),
     )
     .unwrap();
     assert_eq!(
-        decoder::decode_one_with_config::<Result<(), Failure>>(
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<Result<(), Failure>>(
             &denied,
-            &decoder::DecoderConfig::new()
+            4 * 1024 * 1024
         )
         .unwrap(),
         Err(Failure::Denied)
@@ -380,7 +381,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "funding-rollback",
         operator,
         "populate_histories",
-        ic_platform::candid::contract::encode_one(HistoryPopulationBatch {
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(HistoryPopulationBatch {
             funding_start: 0,
             read_start: 0,
             funding: vec![funding(&f, workload, 0), invalid],
@@ -423,12 +424,14 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             "read-rollback",
             operator,
             "populate_histories",
-            ic_platform::candid::contract::encode_one(HistoryPopulationBatch {
-                funding_start: u64::from(workload.funding),
-                read_start: 0,
-                funding: vec![],
-                reads: vec![valid, invalid],
-            })
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                HistoryPopulationBatch {
+                    funding_start: u64::from(workload.funding),
+                    read_start: 0,
+                    funding: vec![],
+                    reads: vec![valid, invalid],
+                },
+            )
             .unwrap(),
         )
         .unwrap_err();
@@ -464,13 +467,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
                 "tenant-capacity-refusal",
                 target.target.content.tenant,
                 "fixture_read_chunk",
-                ic_platform::candid::contract::encode_one(target).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(target).unwrap(),
             )
             .unwrap();
             assert_eq!(
-                decoder::decode_one_with_config::<
+                ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<
                     Result<blob_test_protocol::journey::readback::JourneyReadChunk, Failure>,
-                >(&reply, &decoder::DecoderConfig::new())
+                >(&reply, 4 * 1024 * 1024)
                 .unwrap(),
                 Err(Failure::Capacity)
             );
@@ -517,13 +520,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             "capacity-refusal",
             target.target.content.tenant,
             "fixture_read_chunk",
-            ic_platform::candid::contract::encode_one(target).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(target).unwrap(),
         )
         .unwrap();
         assert_eq!(
-            decoder::decode_one_with_config::<
+            ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<
                 Result<blob_test_protocol::journey::readback::JourneyReadChunk, Failure>,
-            >(&reply, &decoder::DecoderConfig::new())
+            >(&reply, 4 * 1024 * 1024)
             .unwrap(),
             Err(Failure::Capacity)
         );

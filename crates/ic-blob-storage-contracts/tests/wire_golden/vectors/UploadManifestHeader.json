@@ -1,0 +1,16 @@
+[
+  {
+    "input": {
+      "name": "fixture-UploadManifestHeader.name",
+      "value": "fixture-UploadManifestHeader.value"
+    },
+    "hex": "495701006e65646c6f670021666978747572652d55706c6f61644d616e69666573744865616465722e6e616d6522666978747572652d55706c6f61644d616e69666573744865616465722e76616c7565"
+  },
+  {
+    "input": {
+      "name": "fixture-UploadManifestHeader.name",
+      "value": "fixture-UploadManifestHeader.value"
+    },
+    "hex": "495701006e65646c6f670021666978747572652d55706c6f61644d616e69666573744865616465722e6e616d6522666978747572652d55706c6f61644d616e69666573744865616465722e76616c7565"
+  }
+]

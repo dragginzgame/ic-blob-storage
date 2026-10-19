@@ -1,7 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::query_candid_args;
 mod download;
 use blob_test_protocol::{
     admission::{
@@ -66,13 +65,13 @@ impl Fixture {
         actor: Principal,
         input: ContentLookup,
     ) -> Result<Option<ContentDescriptor>, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "content_descriptor",
             (input,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -82,13 +81,13 @@ impl Fixture {
         actor: Principal,
         input: RetainedDescriptorInput,
     ) -> Result<Option<RetainedDescriptor>, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "retained_content_descriptor",
             (input,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()

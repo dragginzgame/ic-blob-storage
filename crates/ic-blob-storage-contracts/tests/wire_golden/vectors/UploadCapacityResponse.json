@@ -1,0 +1,52 @@
+[
+  {
+    "input": {
+      "enrollment": {
+        "active": false,
+        "generation": 2702414350
+      },
+      "fenced": false,
+      "max_header_bytes": 1162186223,
+      "max_headers": 3819736651,
+      "max_object_bytes": 1012055773,
+      "remaining_active_uploads": 1420294988,
+      "remaining_bytes": 144118928,
+      "remaining_liability_bytes": 2669781477,
+      "remaining_logical_bytes": 1749450426,
+      "remaining_manifest_chunks": 2274312952,
+      "remaining_objects": 126786406,
+      "remaining_physical_bytes": 2863649346,
+      "scope": {
+        "namespace": 3848637648,
+        "service": "r3sfz-zxm4y-j7gai",
+        "tenant": "pigsq-ttyxp-jikai"
+      }
+    },
+    "hex": "495701006e65646c6f670005ece613f301d09996ab0e0578bbd285018ea4ce880a00ddfdcae203cb9cb29d0eef9b96aa04e6b6ba3cccf69fa505f885bdbc08bafd99c206c2a4bfd50ae5c386f90990a9dc4400"
+  },
+  {
+    "input": {
+      "enrollment": {
+        "active": true,
+        "generation": 3968187358
+      },
+      "fenced": true,
+      "max_header_bytes": 3953354018,
+      "max_headers": 2535759146,
+      "max_object_bytes": 3644319929,
+      "remaining_active_uploads": 1789524093,
+      "remaining_bytes": 121213051,
+      "remaining_liability_bytes": 1833570662,
+      "remaining_logical_bytes": 1383266274,
+      "remaining_manifest_chunks": 1677095123,
+      "remaining_objects": 2496616083,
+      "remaining_physical_bytes": 2026872067,
+      "scope": {
+        "namespace": 3532612602,
+        "service": "xyjae-igo3e-6haai",
+        "tenant": "geysw-7lvhh-ni6ai"
+      }
+    },
+    "hex": "495701006e65646c6f670005ced93c7001fac7bd940d057539da8f01def796e40e01b9d1dfc90daaba92b909a2ca8ddd0e93adbda609fdf0a7d506d3e1d99f06e2efcb930583babec607e6a2a8ea06fba0e63901"
+  }
+]

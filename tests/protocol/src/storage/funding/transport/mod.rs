@@ -4,12 +4,10 @@ use crate::{
     funding::{FundingOutcome, FundingRequest},
     storage::WriteFault,
 };
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 
 /// Operator control for one journal-bound call to the local Cashier substitute.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Input {
     /// Complete retained funding identity.
     pub intent: Intent,
@@ -23,8 +21,7 @@ pub struct Input {
     pub callback_identity_fault: Option<CallbackIdentityFault>,
 }
 /// Deliberate fixture corruption after a real call; never production input.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum CallbackIdentityFault {
     /// Decrement the retained attachment.
     Offered,
@@ -34,8 +31,7 @@ pub enum CallbackIdentityFault {
     TargetBalance,
 }
 /// Immediate local call observation; stored journal accounting remains authoritative.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Observation {
     /// Actual refunded attachment, absent for calls never enqueued.
     pub refunded: Option<u128>,
@@ -47,7 +43,15 @@ pub struct Observation {
     pub call_cost: u128,
 }
 /// Local receiver controls; none of these fields are Cashier wire arguments.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(
+    Clone,
+    Debug,
+    Eq,
+    PartialEq,
+    Deserialize,
+    serde::Serialize,
+    ic_platform::candid::contract::CandidType,
+)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct Substitute {
     /// Exact expected canonical bytes; bounded by the fixture before storage.
@@ -58,8 +62,7 @@ pub struct Substitute {
 
 /// Fixed host-evidence scenarios for the labelled guarded-dispatch experiment.
 /// These choices are not accepted by any production adapter.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum EvidenceScenario {
     /// Synthetic complete test facts; no deployed-provider qualification implied.
     Complete,
@@ -69,8 +72,7 @@ pub enum EvidenceScenario {
     MissingHolds,
 }
 /// Local experiment control; no arbitrary provider method or evidence payload.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct DispatchInput {
     /// Exact reserved intent.
     pub intent: Intent,
@@ -86,8 +88,7 @@ pub struct DispatchInput {
     pub callback_fault: Option<WriteFault>,
 }
 /// Shared dispatcher result, after durable settlement or refusal before mutation.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum DispatchResult {
     /// First-attempt blockers and independent unknown liquidity holds.
     Blocked {

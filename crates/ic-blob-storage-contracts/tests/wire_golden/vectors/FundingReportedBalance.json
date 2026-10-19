@@ -1,0 +1,20 @@
+[
+  {
+    "input": {
+      "ledger": 417781434,
+      "prepaid": 111031536,
+      "promotional": 97071298,
+      "total": 969736964
+    },
+    "hex": "495701006e65646c6f67008486b4ce03f0e9f834c2e1a42ebaad9bc701"
+  },
+  {
+    "input": {
+      "ledger": 678691043,
+      "prepaid": 2890236372,
+      "promotional": 4145097006,
+      "total": 1840954189
+    },
+    "hex": "495701006e65646c6f6700cdf6eaed06d48396e20aaed2c4b80fe381d0c302"
+  }
+]

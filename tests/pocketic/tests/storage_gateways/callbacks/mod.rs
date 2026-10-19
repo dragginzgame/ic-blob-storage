@@ -8,20 +8,19 @@ use blob_test_protocol::{
         gateways::{RootView, RootsInput},
     },
 };
-use ic_testkit::pic::query_candid_args;
 impl Fixture {
     fn gateway_roots(
         &self,
         actor: Principal,
         input: &RootsInput,
     ) -> Result<Vec<RootView>, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "fixture_gateway_roots",
             (input,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()

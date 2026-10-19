@@ -1,0 +1,30 @@
+[
+  {
+    "input": "Invalid",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Denied",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Binding",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Unavailable",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "Inactive",
+    "hex": "495701006e65646c6f670004"
+  },
+  {
+    "input": "Fenced",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": "Internal",
+    "hex": "495701006e65646c6f670006"
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "input": {
+      "active": false,
+      "generation": 1413288433
+    },
+    "hex": "495701006e65646c6f6700f1a3f4a10500"
+  },
+  {
+    "input": {
+      "active": true,
+      "generation": 3708766707
+    },
+    "hex": "495701006e65646c6f6700f393bde80d01"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "input": {
+      "cashier": "enpal-3qmcl-kjmai",
+      "max_gateway_entries": 139294049,
+      "max_gateway_unique": 1727205596,
+      "minimum_balance": 4225268029,
+      "reserve": 2673350343,
+      "target_balance": 1952138466
+    },
+    "hex": "495701006e65646c6f6700050c12d49601c7ade0fa09bdf2e1de0fe289eda207e1eab542dca1ccb706"
+  },
+  {
+    "input": {
+      "cashier": "folve-d5ime-fkuai",
+      "max_gateway_entries": 802758402,
+      "max_gateway_unique": 4182190946,
+      "minimum_balance": 3429567081,
+      "reserve": 765627000,
+      "target_balance": 2008816757
+    },
+    "hex": "495701006e65646c6f670005a8610aaa01f8948aed02e994ace30cf5b8f0bd0782bee4fe02e2d69cca0f"
+  }
+]

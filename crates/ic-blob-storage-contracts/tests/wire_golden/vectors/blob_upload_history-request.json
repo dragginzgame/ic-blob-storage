@@ -1,0 +1,33 @@
+[
+  {
+    "input": {
+      "cursor": null,
+      "filter": "All",
+      "namespace": 3312199728,
+      "scope": {
+        "Tenant": "zlzpv-cqnl6-zleai"
+      },
+      "service": "c7l6j-6uo73-nqoai"
+    },
+    "hex": "49570d003600424f4c4200058efedb0701b0d0b0ab0c00050d5fb2b2010000"
+  },
+  {
+    "input": {
+      "cursor": {
+        "after_request": 4131572602,
+        "after_tenant": "ehsd5-gx7ce-376ai",
+        "filter": "DeletionPending",
+        "namespace": 3574543330,
+        "scope": {
+          "Tenant": "7sxir-b2coh-jaeai"
+        },
+        "service": "gaeof-2wk4f-f24ai"
+      },
+      "filter": "DeletionPending",
+      "namespace": 4060497904,
+      "scope": "Service",
+      "service": "rc6p6-mxpjt-yz6ai"
+    },
+    "hex": "49570d003600424f4c420005ef4cf19f01f08f99900f01020105cae14bae01e2e7bca80d00054271d202010205ff1137ff01fa968bb20f"
+  }
+]

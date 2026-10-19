@@ -1,0 +1,59 @@
+[
+  {
+    "input": "NotDispatched",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "NotEnqueued",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": {
+      "Rejected": 352138993
+    },
+    "hex": "495701006e65646c6f670002f1edf4a701"
+  },
+  {
+    "input": {
+      "ReportedSuccess": {
+        "ledger": 3480891460,
+        "prepaid": 3011809718,
+        "promotional": 1686569517,
+        "total": 2964660426
+      }
+    },
+    "hex": "495701006e65646c6f670003cac1d4850bb6a3929c0bad849ca406c4e0e8fb0c"
+  },
+  {
+    "input": {
+      "NotAuthorized": "iwfam-fp2pk-w6kai"
+    },
+    "hex": "495701006e65646c6f67000405fa7aade501"
+  },
+  {
+    "input": "AccountBalanceOverflow",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": "InternalError",
+    "hex": "495701006e65646c6f670006"
+  },
+  {
+    "input": "TopUpWithoutCycles",
+    "hex": "495701006e65646c6f670007"
+  },
+  {
+    "input": "ReplyTooLarge",
+    "hex": "495701006e65646c6f670008"
+  },
+  {
+    "input": "InvalidReply",
+    "hex": "495701006e65646c6f670009"
+  },
+  {
+    "input": {
+      "InvalidBalance": "Prepaid"
+    },
+    "hex": "495701006e65646c6f67000a01"
+  }
+]

@@ -79,3 +79,48 @@ impl std::fmt::Display for ControlCallError {
     }
 }
 impl std::error::Error for ControlCallError {}
+
+/// Query a private probe with its explicit CBOR argument/reply tuple envelope.
+/// # Errors
+/// Preserves encoding, platform and bounded reply failures.
+pub fn query_control_args<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    pic: &ic_testkit::pocket_ic::PocketIc,
+    canister: ic_platform::Principal,
+    caller: ic_platform::Principal,
+    method: &str,
+    args: A,
+    max_reply_bytes: usize,
+) -> Result<R, ControlCallError> {
+    pic.query_control_as(canister, caller, method, args, max_reply_bytes)
+}
+/// Update a private probe with its explicit CBOR argument/reply tuple envelope.
+/// # Errors
+/// Preserves failures without inferring absence of effects.
+pub fn update_control_args<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    pic: &ic_testkit::pocket_ic::PocketIc,
+    canister: ic_platform::Principal,
+    caller: ic_platform::Principal,
+    method: &str,
+    args: A,
+    max_reply_bytes: usize,
+) -> Result<R, ControlCallError> {
+    pic.update_control_as(canister, caller, method, args, max_reply_bytes)
+}
+
+/// Encode one private storage-probe argument in its CBOR tuple envelope.
+/// # Errors
+/// Refuses oversized or unsupported values.
+pub fn encode_control_one<T: serde::Serialize>(
+    value: T,
+) -> Result<Vec<u8>, ic_blob_storage_contracts::document::Error> {
+    ic_blob_storage_contracts::document::encode((value,))
+}
+/// Decode one bounded private storage-probe reply from its CBOR tuple envelope.
+/// # Errors
+/// Refuses malformed, trailing or oversized packets.
+pub fn decode_control_one<T: serde::de::DeserializeOwned>(
+    bytes: &[u8],
+    max: usize,
+) -> Result<T, ic_blob_storage_contracts::document::Error> {
+    ic_blob_storage_contracts::document::decode::<(T,)>(bytes, max).map(|(v,)| v)
+}

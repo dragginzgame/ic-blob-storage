@@ -1,7 +1,6 @@
 //! Explicit local service configuration inputs, not a provider wire or stable schema.
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Complete installation input shared by host adapters and offline preparation.
 /// Passive data only: hosts authenticate installation, validate their actual
@@ -10,8 +9,7 @@ use ic_platform::candid::contract::serde::Deserialize;
 /// application input. The method/direction, frozen positional schema and complete
 /// consumption must be checked before writes. The adapter owns authentication
 /// and its byte ceiling; Wire also bounds allocation, nodes and depth.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceInstallationInput {
     /// Shared service identity, tenant/resource bounds and provider economics.
@@ -23,8 +21,7 @@ pub struct ServiceInstallationInput {
 }
 
 /// Operator-only installed configuration and local restore state.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct HostConfigurationView {
     /// Exact installed configuration; observation performs no provider calls.
@@ -40,8 +37,7 @@ pub struct HostConfigurationView {
 }
 
 /// Installed-configuration inspection authority rejection.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum HostFailure {
     /// Caller or service differs from the installed binding; controllers gain no authority.
@@ -50,8 +46,7 @@ pub enum HostFailure {
 
 /// Candidate configuration for a separately authorized host installation.
 /// No defaults, deployment authorization, provider namespace proof or mutation is implied.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceConfigurationInput {
     /// Exact intended canister, checked against the host's actual identity.
@@ -73,8 +68,7 @@ pub struct ServiceConfigurationInput {
 }
 
 /// Local attachment budget, not platform liquidity or provider credit.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceFundingInput {
     /// Initial attachment authorization in cycles, not available platform liquidity.
@@ -89,8 +83,7 @@ pub struct ServiceFundingInput {
 }
 
 /// Explicit concurrent read bounds; abandoned sessions continue consuming capacity.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceReadInput {
     /// Global simultaneous session slots.
@@ -106,8 +99,7 @@ pub struct ServiceReadInput {
 }
 
 /// Positive resource limits; conversion also checks all existing model relationships.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceResourceInput {
     /// Lifetime tenant slots, including suspended entries.
@@ -143,8 +135,7 @@ pub struct ServiceResourceInput {
 }
 
 /// Explicit provider identity and local cycle thresholds, with no service defaults.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceBillingInput {
     /// Configured Cashier candidate; validation does not prove deployed behavior.

@@ -1,0 +1,46 @@
+[
+  {
+    "input": "ProviderUnqualified",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "JournalFenced",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "JournalUncredited",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "IdentityRetained",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "IdentityStale",
+    "hex": "495701006e65646c6f670004"
+  },
+  {
+    "input": "JournalFull",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": {
+      "AllocationReserve": {
+        "transferable_cycles": 4069934861
+      }
+    },
+    "hex": "495701006e65646c6f6700068d8ed9940f"
+  },
+  {
+    "input": "RecoveryUnknown",
+    "hex": "495701006e65646c6f670007"
+  },
+  {
+    "input": "FundingUnknown",
+    "hex": "495701006e65646c6f670008"
+  },
+  {
+    "input": "SpendabilityUnknown",
+    "hex": "495701006e65646c6f670009"
+  }
+]

@@ -2,6 +2,16 @@
 
 ## [0.36.0]
 
+- Remove application DTO Candid traits. Preserve the provider certificate schema,
+  production records and frozen historical fixtures; give saved consumer-probe
+  records their own exact schema and use CBOR for private storage controls.
+- Freeze 505 literal Wire vectors across DTOs, variants, all owned methods and
+  lifecycle inputs, with a compile-time guard against application Candid traits.
+- Add native and installed codec measurements for actual manifest DTOs and a
+  separate opaque-byte control, retaining inputs, budgets, raw samples and hashes.
+- Retain the original passive attestation statement alongside its signed Wire
+  request before dispatch, so lost-reply recovery has its exact input artifact.
+
 - **Breaking owned protocol:** use method- and direction-bound IC Wire for all
   31 owned methods and standalone install/post-upgrade inputs. Remove service
   CBOR dispatch without fallback; preserve finite tenant frames, provider

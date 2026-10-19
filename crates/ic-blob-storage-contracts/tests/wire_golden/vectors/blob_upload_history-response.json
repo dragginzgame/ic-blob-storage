@@ -1,0 +1,159 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "entries": [],
+        "fenced": false,
+        "next": null,
+        "request": {
+          "cursor": null,
+          "filter": "Outstanding",
+          "namespace": 896106038,
+          "scope": "Service",
+          "service": "qcb4z-tvygm-kucai"
+        },
+        "scanned": 2436730617
+      }
+    },
+    "hex": "49570d003600424f4c42010005b833154101b6fca5ab030103000000f99df6890900"
+  },
+  {
+    "input": {
+      "Ok": {
+        "entries": [
+          {
+            "request": {
+              "bytes": 3574377088,
+              "first_reference": 4281622627,
+              "incarnation": 3320976324,
+              "namespace": 343654351,
+              "object": 93870845,
+              "root": [
+                25,
+                58,
+                9,
+                4,
+                26,
+                240,
+                219,
+                210,
+                36,
+                102,
+                123,
+                238,
+                87,
+                213,
+                18,
+                161,
+                166,
+                8,
+                52,
+                165,
+                240,
+                163,
+                74,
+                215,
+                156,
+                143,
+                121,
+                149,
+                198,
+                64,
+                40,
+                215
+              ],
+              "service": "jp3ih-qinyb-kn4ai",
+              "tenant": "gt73m-lidoc-yymai",
+              "upload": 2480323014
+            },
+            "state": "Cancelled"
+          },
+          {
+            "request": {
+              "bytes": 1227294675,
+              "first_reference": 3705478001,
+              "incarnation": 3285518561,
+              "namespace": 891503849,
+              "object": 3982745082,
+              "root": [
+                217,
+                83,
+                21,
+                172,
+                56,
+                170,
+                145,
+                221,
+                156,
+                62,
+                39,
+                195,
+                71,
+                220,
+                203,
+                215,
+                117,
+                241,
+                100,
+                246,
+                26,
+                83,
+                160,
+                57,
+                20,
+                79,
+                25,
+                97,
+                88,
+                227,
+                46,
+                134
+              ],
+              "service": "bjkc3-n2nsr-xfsai",
+              "tenant": "fxsph-ynhuw-ceeai",
+              "upload": 3481235005
+            },
+            "state": "ExposurePossible"
+          }
+        ],
+        "fenced": true,
+        "next": {
+          "after_request": 3599218588,
+          "after_tenant": "xpqss-umddd-vb6ai",
+          "filter": "DeletionPending",
+          "namespace": 2197093816,
+          "scope": {
+            "Tenant": "grvs7-xzid4-f7iai"
+          },
+          "service": "hsx5k-s5rlk-gteai"
+        },
+        "request": {
+          "cursor": {
+            "after_request": 2194598149,
+            "after_tenant": "3slrq-bmqn6-e4uai",
+            "filter": "All",
+            "namespace": 2801412206,
+            "scope": {
+              "Tenant": "vr3ey-lhlbd-o2yai"
+            },
+            "service": "vveyj-qqh3k-5riai"
+          },
+          "filter": "All",
+          "namespace": 1520700609,
+          "scope": {
+            "Tenant": "saorx-wpwrj-nboai"
+          },
+          "service": "vnbty-lsoxn-u7iai"
+        },
+        "scanned": 3267194202
+      }
+    },
+    "hex": "49570d003600424f4c420100054ebb69f401c19990d5050005f68a5a170100010507dabb1401eed0e8b70a0005eb08ddac010005906f89ca0185d2bb960802050dc054de01050370b18601cfffeea301c6f3da9e09fdb5e12cc4a7c8af0ce3c0d1f90f193a09041af0dbd224667bee57d512a1a60834a5f0a34ad79c8f7995c64028d780d5b2a80d02054d946e590105a7a5844201e9898da903bddcfdfb0cfabb8feb0ee191d49e0cf1b6f4e60dd95315ac38aa91dd9c3e27c347dccbd775f164f61a53a039144f196158e32e86d38f9cc904010105b15a8d3201b8fbd397080005281f0bf40102058318ea1f019cef9eb40ddadaf5950c01"
+  },
+  {
+    "input": {
+      "Err": "Invalid"
+    },
+    "hex": "49570d003600424f4c42010100"
+  }
+]

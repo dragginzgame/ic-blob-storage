@@ -99,7 +99,7 @@ pub struct FundingUpgradeArgs {
 }
 
 /// Exact identity and parameters of a local experiment.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct FundingRequest {
     /// Fixture operation identity; never reused or automatically retried.

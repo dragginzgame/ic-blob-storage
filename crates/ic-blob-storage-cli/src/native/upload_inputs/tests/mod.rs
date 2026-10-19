@@ -1,6 +1,5 @@
 use super::*;
 mod installation;
-use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 
@@ -23,22 +22,7 @@ pub(in crate::native) fn manifest() -> Value {
         "tree":{"hash":ROOT}, "headers":["Content-Length: 3", "Content-Type: text/plain"]})
 }
 pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInput {
-    let fixture = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/installation/configuration.hex"
-    ));
-    let bytes = hex::decode(fixture.trim()).expect("fixture hex");
-    let mut configuration: ServiceConfigurationInput = ic_platform::candid::decode_one(
-        &bytes,
-        ic_platform::candid::DecodeLimits {
-            reply_bytes: 16_384,
-            decoding_quota: 2_000_000,
-            skipping_quota: 100_000,
-            type_entries: 128,
-            header_bytes: 4096,
-        },
-    )
-    .unwrap();
+    let mut configuration = crate::native::tests::historical_configuration::configuration();
     configuration.service = principal(binding["service"].as_str().unwrap()).unwrap();
     configuration.namespace = u128::MAX;
     ServiceInstallationInput {

@@ -1,0 +1,65 @@
+[
+  {
+    "input": "Absent",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": {
+      "Found": {
+        "request": {
+          "action": "Release",
+          "operation": 4280834842,
+          "reference": 1311860825,
+          "upload": {
+            "bytes": 3081456470,
+            "first_reference": 4099560511,
+            "incarnation": 3928245514,
+            "namespace": 995433371,
+            "object": 3359178623,
+            "root": [
+              18,
+              239,
+              129,
+              48,
+              14,
+              89,
+              247,
+              164,
+              37,
+              200,
+              0,
+              7,
+              134,
+              5,
+              234,
+              154,
+              244,
+              7,
+              182,
+              90,
+              122,
+              214,
+              197,
+              13,
+              135,
+              183,
+              238,
+              203,
+              134,
+              59,
+              242,
+              122
+            ],
+            "service": "de7i6-nsied-qgyai",
+            "tenant": "hn44b-b66yd-kfuai",
+            "upload": 1074659060
+          }
+        },
+        "result": {
+          "Ok": "Changed"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f670001054820e06c0105dec0d45a019bb7d4da03f4fdb78004fffee3c10c8a8a91d10ebfa8e9a20f12ef81300e59f7a425c800078605ea9af407b65a7ad6c50d87b7eecb863bf27ad696adbd0bd9d0c5f1049ab6a1f90f010000"
+  }
+]

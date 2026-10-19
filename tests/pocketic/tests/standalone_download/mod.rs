@@ -2,7 +2,6 @@
 //! Verified serving and withheld delivery are exercised by standalone browser journeys.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::update_candid_args;
 mod native;
 use super::*;
 use ic_blob_storage_contracts::dto::download::DownloadFailure as F;
@@ -233,13 +232,13 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
         max_reply_bytes: 4096,
     };
     let fetch = || -> Result<DownloadResponse, DownloadProbeFailure> {
-        update_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
             &f.harness.pic,
             client,
             f.operator,
             "fixture_fetch_descriptor",
             (input.clone(),),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()

@@ -1,5 +1,6 @@
 //! Small application-owned transaction model for local integration evidence only.
 pub(crate) mod manifests;
+pub(crate) mod record;
 pub(crate) mod tenants;
 use blob_test_protocol::consumer::{AssetView, Failure, Registration, RegistrationSource};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
@@ -7,11 +8,9 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
-#[derive(Clone, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, serde::Serialize, Deserialize)]
 pub(crate) struct ConsumerRecord {
     pub(crate) operator: Principal,
     pub(crate) service: Principal,
@@ -21,8 +20,7 @@ pub(crate) struct ConsumerRecord {
     manifests: Vec<manifests::ManifestIntentRecord>,
     tenant_command: Option<tenants::TenantCommandRecord>,
 }
-#[derive(Clone, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, serde::Serialize, Deserialize)]
 #[expect(
     clippy::struct_excessive_bools,
     reason = "Independent application publication and two remote operations can overlap"

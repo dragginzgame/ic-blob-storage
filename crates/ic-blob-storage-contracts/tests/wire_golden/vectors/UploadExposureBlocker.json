@@ -1,0 +1,18 @@
+[
+  {
+    "input": "StaleObservation",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "NamespaceBinding",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "CurrentOwner",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Durability",
+    "hex": "495701006e65646c6f670003"
+  }
+]

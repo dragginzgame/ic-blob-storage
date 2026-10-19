@@ -1,3 +1,4 @@
+pub(in crate::native) mod historical_configuration;
 use super::*;
 mod http;
 use ic_blob_storage_contracts::dto::operator::*;

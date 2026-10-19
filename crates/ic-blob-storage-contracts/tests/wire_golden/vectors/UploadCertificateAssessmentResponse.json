@@ -1,0 +1,115 @@
+[
+  {
+    "input": {
+      "assessed_at_ns": 4172975109,
+      "blockers": [],
+      "permission": {
+        "expires_at_ns": 4192511278,
+        "upload": {
+          "bytes": 1451189406,
+          "first_reference": 379286479,
+          "incarnation": 296819483,
+          "namespace": 1635242034,
+          "object": 807412320,
+          "root": [
+            191,
+            204,
+            70,
+            130,
+            249,
+            230,
+            70,
+            17,
+            24,
+            212,
+            143,
+            189,
+            50,
+            19,
+            147,
+            189,
+            125,
+            76,
+            214,
+            112,
+            11,
+            143,
+            244,
+            211,
+            115,
+            174,
+            120,
+            180,
+            157,
+            186,
+            113,
+            94
+          ],
+          "service": "s4juy-nybyz-j7eai",
+          "tenant": "2le3x-fsrqe-n6kai",
+          "upload": 3242303993
+        },
+        "uploader": "femtz-5wi7x-ctkai"
+      }
+    },
+    "hex": "495701006e65646c6f67000501c653f2010551811be501b2a0df8b06f9c3868a0ce0c48081039bb6c48d01cfe7edb401bfcc4682f9e6461118d48fbd321393bd7d4cd6700b8ff4d373ae78b49dba715e9ec9fdb30505c8fdc53501aeca92cf0f8598eac50f00"
+  },
+  {
+    "input": {
+      "assessed_at_ns": 3947851688,
+      "blockers": [
+        "StaleObservation",
+        "StaleObservation"
+      ],
+      "permission": {
+        "expires_at_ns": 1867307839,
+        "upload": {
+          "bytes": 3263532751,
+          "first_reference": 2701442696,
+          "incarnation": 1445989474,
+          "namespace": 431850966,
+          "object": 3339674813,
+          "root": [
+            31,
+            226,
+            205,
+            62,
+            23,
+            133,
+            222,
+            114,
+            61,
+            20,
+            43,
+            188,
+            78,
+            218,
+            233,
+            140,
+            159,
+            161,
+            21,
+            47,
+            49,
+            157,
+            155,
+            145,
+            18,
+            248,
+            167,
+            185,
+            164,
+            134,
+            117,
+            57
+          ],
+          "service": "s3pzd-psype-df6ai",
+          "tenant": "3vexi-beoak-ruwai",
+          "upload": 3832014107
+        },
+        "uploader": "z3atq-msvnb-nigai"
+      }
+    },
+    "hex": "495701006e65646c6f6700055879065f01058e02a34b01d68bf6cd019bca9fa30ebdc9bdb80ce298c0b10588fd92880a1fe2cd3e1785de723d142bbc4edae98c9fa1152f319d9b9112f8a7b9a4867539cf9d96940c0555685a8301bfb6b3fa06a8dfbdda0e020000"
+  }
+]

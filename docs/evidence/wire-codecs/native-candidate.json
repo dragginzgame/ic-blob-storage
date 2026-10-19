@@ -1,0 +1,109 @@
+{
+  "measurements": [
+    {
+      "decode_charge": 151064,
+      "decode_samples": [
+        4047,
+        3886,
+        3946,
+        3946,
+        3926,
+        3916,
+        3926
+      ],
+      "encode_charge": 151064,
+      "encode_samples": [
+        2574,
+        2453,
+        2334,
+        2293,
+        2334,
+        2323,
+        2394
+      ],
+      "frame_bytes": 255,
+      "frame_sha256": "fe76e945fc56b34ba090b4f60fbc3dc22133319c5f81199eb228c440acb165f7",
+      "name": "manifest-1",
+      "repetitions": 4
+    },
+    {
+      "decode_charge": 182176,
+      "decode_samples": [
+        28142,
+        28143,
+        28103,
+        31707,
+        43155,
+        46750,
+        27571
+      ],
+      "encode_charge": 170912,
+      "encode_samples": [
+        19189,
+        19128,
+        19068,
+        19079,
+        30046,
+        18268,
+        18418
+      ],
+      "frame_bytes": 1249,
+      "frame_sha256": "803bf0b26abaf11f862cbbce9f111f87a4adeb2e27018d72fd5cf5a460940666",
+      "name": "manifest-32",
+      "repetitions": 4
+    },
+    {
+      "decode_charge": 1198000,
+      "decode_samples": [
+        1048549,
+        800545,
+        986566,
+        811872,
+        862948,
+        828527,
+        800826
+      ],
+      "encode_charge": 805808,
+      "encode_samples": [
+        558822,
+        532592,
+        544609,
+        575786,
+        538710,
+        526402,
+        546793
+      ],
+      "frame_bytes": 32997,
+      "frame_sha256": "83afc52ee9c73fa1aceb0c601a83d7a5c5ad2a9512280339433ff09ab1aef24e",
+      "name": "manifest-1024",
+      "repetitions": 4
+    },
+    {
+      "decode_charge": 10486144,
+      "decode_samples": [
+        133981,
+        137186,
+        134793,
+        132119,
+        135394,
+        132690,
+        132219
+      ],
+      "encode_charge": 10486144,
+      "encode_samples": [
+        77286,
+        70015,
+        68584,
+        68062,
+        68603,
+        73100,
+        68353
+      ],
+      "frame_bytes": 1048590,
+      "frame_sha256": "965d5013cfe24a66c7675465726a8a2960357003f21b3f8d2e810dc19cdc90f4",
+      "name": "opaque-1MiB-control",
+      "repetitions": 4
+    }
+  ],
+  "unit": "native_ns"
+}

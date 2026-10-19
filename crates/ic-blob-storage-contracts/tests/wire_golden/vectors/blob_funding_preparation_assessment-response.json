@@ -1,0 +1,83 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "blockers": [],
+        "journal": {
+          "attachment_allowance": 3801418623,
+          "available_allocation": 996760307,
+          "cumulative_allocation": 1192861565,
+          "fenced": false,
+          "intent_capacity": 2990942702,
+          "last_operation": null,
+          "not_enqueued": 2002933685,
+          "refunded": 1626098427,
+          "renewal_ceiling": 2307437747,
+          "reserved_or_uncertain": 1952665300,
+          "retained_intents": 1940293441,
+          "transport_accepted": 673727866,
+          "uncredited_accepted": 1463843494
+        },
+        "request": {
+          "offered": 1325268665,
+          "operation": 408041928,
+          "scope": {
+            "cashier": "gejdq-uftfq-egmai",
+            "namespace": 4061970787,
+            "payment_account": "o7kbl-cgqgy-k3iai",
+            "service": "tonjr-n4v7b-w24ai"
+          },
+          "target_balance": null
+        }
+      }
+    },
+    "hex": "495710003600424f4c4201000595f86dae01e382f3900f05b32c08660105d03615b401c8f3c8c201b9fdf7f70400fdbee6b804b3e9a2cc08f3b5a5db03ff96d4940efa8aa1c102a6f581ba05fb95b18706b5af89bb07d49d8da307c18e9a9d07eed398920b000000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "blockers": [
+          {
+            "AllocationReserve": {
+              "transferable_cycles": 1741698826
+            }
+          },
+          "SpendabilityUnknown"
+        ],
+        "journal": {
+          "attachment_allowance": 1732678266,
+          "available_allocation": 2408522648,
+          "cumulative_allocation": 425325432,
+          "fenced": true,
+          "intent_capacity": 241883785,
+          "last_operation": 1569679769,
+          "not_enqueued": 1860647017,
+          "refunded": 2376180936,
+          "renewal_ceiling": 3331283494,
+          "reserved_or_uncertain": 3360167727,
+          "retained_intents": 615855801,
+          "transport_accepted": 1820104676,
+          "uncredited_accepted": 3620243212
+        },
+        "request": {
+          "offered": 632576584,
+          "operation": 1808320290,
+          "scope": {
+            "cashier": "xdbzt-pji2d-qe6ai",
+            "namespace": 398406891,
+            "payment_account": "kbbf3-vkkw4-taoai",
+            "service": "qow4s-glujl-t2qai"
+          },
+          "target_balance": 3684361237
+        }
+      }
+    },
+    "hex": "495710003600424f4c42010005744ae7a801ebe9fcbd010528d0e04f01054ab7260701a28ea3de06c8b4d1ad020195c8ebdc0df8e6e7ca01a6b4bdb40c98c7bcfc08faa49aba06e4aff2e3068c8ea2be0dc8c986ed08e9f09cf706afaea0c20cb9edd4a50289b5ab730199d3bdec050102068aeec0be0609"
+  },
+  {
+    "input": {
+      "Err": "Denied"
+    },
+    "hex": "495710003600424f4c42010101"
+  }
+]

@@ -1,0 +1,128 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "admission": {
+          "permission": {
+            "expires_at_ns": 2921645792,
+            "upload": {
+              "bytes": 1977965087,
+              "first_reference": 2988221541,
+              "incarnation": 2713368477,
+              "namespace": 1378835711,
+              "object": 3686966133,
+              "root": [
+                187,
+                215,
+                62,
+                69,
+                99,
+                39,
+                248,
+                97,
+                233,
+                228,
+                137,
+                223,
+                174,
+                122,
+                49,
+                170,
+                60,
+                60,
+                1,
+                26,
+                79,
+                79,
+                185,
+                54,
+                135,
+                146,
+                75,
+                150,
+                36,
+                228,
+                128,
+                246
+              ],
+              "service": "3h7mu-bql4l-jdeai",
+              "tenant": "fmbaf-aapwa-syaai",
+              "upload": 2649274000
+            },
+            "uploader": "kas72-d67o5-djcai"
+          },
+          "revoked": false,
+          "state": "Confirmed"
+        },
+        "replayed": false
+      }
+    },
+    "hex": "495704003600424f4c420100050be2d23201050fb0258001ffb9bd910590eda2ef09f5c68ade0d9defea8d0ae5c8f2900bbbd73e456327f861e9e489dfae7a31aa3c3c011a4f4fb93687924b9624e480f69fb495af0705df77469101e08d93f10a020000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "admission": {
+          "permission": {
+            "expires_at_ns": 4183091627,
+            "upload": {
+              "bytes": 2940148093,
+              "first_reference": 1818790086,
+              "incarnation": 4274459221,
+              "namespace": 2222472487,
+              "object": 113515722,
+              "root": [
+                93,
+                57,
+                104,
+                9,
+                27,
+                17,
+                40,
+                222,
+                11,
+                218,
+                5,
+                43,
+                185,
+                219,
+                186,
+                221,
+                83,
+                191,
+                110,
+                37,
+                241,
+                250,
+                239,
+                92,
+                155,
+                131,
+                231,
+                238,
+                27,
+                176,
+                232,
+                60
+              ],
+              "service": "m3rmq-onhep-dwmai",
+              "tenant": "f5gbb-qjqnu-vcmai",
+              "upload": 1773870524
+            },
+            "uploader": "xpwqr-z6zx3-ro6ai"
+          },
+          "revoked": true,
+          "state": "Cancelled"
+        },
+        "replayed": true
+      }
+    },
+    "hex": "495704003600424f4c42010005a723c7660105306d2a2601a7fae0a308bcbbeccd06cab99036d5a49cf60fc691a2e3065d3968091b1128de0bda052bb9dbbadd53bf6e25f1faef5c9b83e7ee1bb0e83cfdb2fcf90a05d9bee2ef01abd3d3ca0f030101"
+  },
+  {
+    "input": {
+      "Err": "Inactive"
+    },
+    "hex": "495704003600424f4c42010105"
+  }
+]

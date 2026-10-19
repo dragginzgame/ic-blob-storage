@@ -1,53 +1,52 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::funding::admission::{Attempt, Blocker as B, Preparation, View};
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 impl Fixture {
     fn inspect_attempt(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "funding_attempt",
             (intent,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
     }
     fn guarded_attempt(&self, actor: Principal, intent: Intent) -> Result<Attempt, Failure> {
-        update_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "mark_funding_attempt",
             (intent,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
     }
     fn inspect_preparation(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
-        query_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::query_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "funding_preparation",
             (intent,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
     }
     fn guarded_prepare(&self, actor: Principal, intent: Intent) -> Result<Preparation, Failure> {
-        update_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "prepare_funding",
             (intent,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()

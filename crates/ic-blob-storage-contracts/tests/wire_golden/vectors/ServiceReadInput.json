@@ -1,0 +1,22 @@
+[
+  {
+    "input": {
+      "bytes": 3336325049,
+      "reply_bytes": 3500055145,
+      "sessions": 2741930935,
+      "tenant_bytes": 371767481,
+      "tenant_sessions": 406764588
+    },
+    "hex": "495701006e65646c6f6700b797ba9b0aacf8fac101e9b4fa840db98ff1b60cb9f1a2b101"
+  },
+  {
+    "input": {
+      "bytes": 2201136349,
+      "reply_bytes": 1880832964,
+      "sessions": 3556053275,
+      "tenant_bytes": 2827741899,
+      "tenant_sessions": 2052142743
+    },
+    "hex": "495701006e65646c6f67009ba2d49f0d97edc4d207c4f7ec8007ddd9ca9908cbd5afc40a"
+  }
+]

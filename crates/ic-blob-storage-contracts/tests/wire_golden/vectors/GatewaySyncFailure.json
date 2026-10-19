@@ -1,0 +1,52 @@
+[
+  {
+    "input": "Invalid",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Binding",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Denied",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Fenced",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "Busy",
+    "hex": "495701006e65646c6f670004"
+  },
+  {
+    "input": "Exhausted",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": "Conflict",
+    "hex": "495701006e65646c6f670006"
+  },
+  {
+    "input": "ReplyTooLarge",
+    "hex": "495701006e65646c6f670007"
+  },
+  {
+    "input": "InvalidReply",
+    "hex": "495701006e65646c6f670008"
+  },
+  {
+    "input": "NotEnqueued",
+    "hex": "495701006e65646c6f670009"
+  },
+  {
+    "input": {
+      "Rejected": 2129689937
+    },
+    "hex": "495701006e65646c6f67000ad1fac1f707"
+  },
+  {
+    "input": "Internal",
+    "hex": "495701006e65646c6f67000b"
+  }
+]

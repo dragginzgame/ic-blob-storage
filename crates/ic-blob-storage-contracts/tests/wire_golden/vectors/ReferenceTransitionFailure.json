@@ -1,0 +1,18 @@
+[
+  {
+    "input": "UnknownReference",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Released",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Limit",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "DeletionQueued",
+    "hex": "495701006e65646c6f670003"
+  }
+]

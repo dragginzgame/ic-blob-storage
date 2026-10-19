@@ -1,0 +1,108 @@
+[
+  {
+    "input": {
+      "completion_verifier": "5iykm-bykbr-ev4ai",
+      "configuration": {
+        "billing": {
+          "cashier": "u2ix5-ifynl-gquai",
+          "max_gateway_entries": 248962318,
+          "max_gateway_unique": 3910383266,
+          "minimum_balance": 4076994923,
+          "reserve": 2399980794,
+          "target_balance": 300718865
+        },
+        "funding": {
+          "allocated": 2959028733,
+          "max_attempts": 126454892,
+          "renewal_ceiling": 3965733542,
+          "reserve": 1837887963
+        },
+        "namespace": 79945349,
+        "operator": "rhxhf-47hng-bn6ai",
+        "payment_account": "kkzwg-ktbie-aaiai",
+        "reads": {
+          "bytes": 663621553,
+          "reply_bytes": 2607254038,
+          "sessions": 841104577,
+          "tenant_bytes": 4060906099,
+          "tenant_sessions": 3506258893
+        },
+        "resources": {
+          "max_active": 3428022799,
+          "max_chunks": 4227670301,
+          "max_header_bytes": 2113878784,
+          "max_headers": 4249489711,
+          "max_liability_bytes": 2029798126,
+          "max_object_bytes": 2957501051,
+          "max_objects": 3493771235,
+          "max_physical_bytes": 3363471342,
+          "max_receipts_per_object": 990894760,
+          "max_references_per_object": 1990109121,
+          "max_tenant_active": 4201800880,
+          "max_tenant_chunks": 3461814221,
+          "max_tenant_logical_bytes": 3361308628,
+          "max_tenant_objects": 1873256024,
+          "max_tenants": 1669955179
+        },
+        "service": "ymp76-timyy-mj6ai"
+      },
+      "fenced": false,
+      "project": "fixture-HostConfigurationView.project",
+      "release": "fixture-HostConfigurationView.release"
+    },
+    "hex": "495701006e65646c6f6700050cc6189f0105e76982df0105614100040185bd8f26ebfca59c06fbc49f820bafa2a8ea0f80f6fcef079dc2f4df0fcdafdcf20ce3effa810dd8bc9efd06eeffe9c30cee85f1c707d4ffe5c20cc1cffab407a8b5bfd8038ff4cde20cb0c9c9d30f05b86acd0a01fa99b3f808eb8288980f91b6b28f018ebadb76a2edcec80efde3fc820ba69581e30edbe3afec06ec98a63cc1f9889103cd87f5870d96949edb09b19fb8bc02f384b2900f25666978747572652d486f7374436f6e66696775726174696f6e566965772e70726f6a656374050a0c495e0125666978747572652d486f7374436f6e66696775726174696f6e566965772e72656c6561736500"
+  },
+  {
+    "input": {
+      "completion_verifier": "2wjzc-xyu3e-3zuai",
+      "configuration": {
+        "billing": {
+          "cashier": "j2vwk-woygt-rp6ai",
+          "max_gateway_entries": 3592767981,
+          "max_gateway_unique": 4255784661,
+          "minimum_balance": 3614415348,
+          "reserve": 1979947426,
+          "target_balance": 1721545607
+        },
+        "funding": {
+          "allocated": 3774739021,
+          "max_attempts": 1825354311,
+          "renewal_ceiling": 3183313943,
+          "reserve": 3660338225
+        },
+        "namespace": 3864276691,
+        "operator": "l5tog-khntp-47uai",
+        "payment_account": "kfflf-yz2zn-qg6ai",
+        "reads": {
+          "bytes": 2907510426,
+          "reply_bytes": 375609687,
+          "sessions": 3339478698,
+          "tenant_bytes": 823079568,
+          "tenant_sessions": 2358969780
+        },
+        "resources": {
+          "max_active": 4284803835,
+          "max_chunks": 116859270,
+          "max_header_bytes": 1664016275,
+          "max_headers": 1894297829,
+          "max_liability_bytes": 2798262234,
+          "max_object_bytes": 3184915054,
+          "max_objects": 1119493273,
+          "max_physical_bytes": 833663776,
+          "max_receipts_per_object": 2521187594,
+          "max_references_per_object": 2685465682,
+          "max_tenant_active": 1480672789,
+          "max_tenant_chunks": 3327668929,
+          "max_tenant_logical_bytes": 2316696206,
+          "max_tenant_objects": 1534267519,
+          "max_tenants": 4157801216
+        },
+        "service": "pvlwe-zsn5y-vcuai"
+      },
+      "fenced": true,
+      "project": "fixture-HostConfigurationView.project",
+      "release": "fixture-HostConfigurationView.release"
+    },
+    "hex": "495701006e65646c6f6700054dee2a2a0105ed9bf9fa01053acb606f01d3ddd0b20e8086ccbe0feee4d7ee0be5e1a2870793bfbb990686c3dc37c1e5e0b20c99b9e89504ffa0ccdb05a0e6c28d03daafa8b60a8ef5d7d008d2e8c3800a8a8a99b209fbd593fb0f958c85c20505d834e2ff01a2b38eb007f4b3bebb0d87e7f2b406ed9395b10dd5bda8ed0fcde4f7870e9788f6ed0bb1a8b1d10dc7e4b2e606aacdb1b80cb48bece408d7b28db3019aadb4ea0a90e5bc880325666978747572652d486f7374436f6e66696775726174696f6e566965772e70726f6a6563740514d9379a0125666978747572652d486f7374436f6e66696775726174696f6e566965772e72656c6561736501"
+  }
+]

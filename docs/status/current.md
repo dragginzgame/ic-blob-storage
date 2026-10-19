@@ -4,69 +4,57 @@ Date: 2026-10-19
 
 ## Source and scope
 
-This batch starts at released 0.35.0, commit
-`583947545a3afde00c4be68dcc6bca1caec8daee`, in the isolated
-`codex/wire-owned-api-cut` branch. Package versions, manifests and Cargo.lock
-remain unchanged. Pending breaking notes are 0.36.0. The earlier private-control
-CBOR migration is already in the base. No release, publication or deployment ran.
+The isolated `codex/blob-contract-qualification` branch builds on
+[PR #90](https://github.com/dragginzgame/ic-blob-storage/pull/90), `2967298`,
+and incorporates main's catalogue/export repair at `628d176`. This batch starts
+at merge `e6710ca`. Own package versions remain 0.35.0; pending breaking notes are
+0.36.0. Only unpublished fixture dependency edges change in Cargo.lock. No release,
+publication, deployment, live provider call or sibling-checkout modification ran.
 
-The [archived handoff](handoff-2026-10-18.md) retains earlier evidence and
-consumer prerequisites; its release labels qualify only its recorded source.
+## Implemented contract
 
-## Implemented boundary
+All 31 owned methods and lifecycle use Wire as described in
+[the service protocol](../service-wire.md). The new 505 literal vectors freeze DTOs,
+enum variants, method directions and lifecycle inputs. Application DTOs have no
+CandidType implementation; a compile-time negative guard prevents restoration.
+The external provider certificate response retains its trait. Cashier, management,
+HTTP bodies and production storage records retain their independent contracts.
 
-All 31 owned methods and standalone lifecycle inputs now use method-bound
-IC Wire. The two finite tenant contracts retain their exact frames; the other
-29 methods and lifecycle use published Wire 0.4.4 native Serde with an explicit
-identity table and frozen positional field/variant order. See
-[the service protocol](../service-wire.md) for exact limits and schema obligations.
-There is no old-packet detection, fallback or migration lane.
+Private storage-probe controls use bounded CBOR tuples. Historical image tests,
+CLI frozen configuration inputs and saved consumer-probe records use local frozen
+schemas preserving their original Candid bytes. These are not production fallback
+readers. Old-consumer-to-new tests preserve published/cancelled assets, prepared
+manifests, stable service bytes and restoration fences. Cross-release deployment
+still requires retirement and reinstall. Same-release retries remain exact.
 
-Standalone, storage probe, replicated Client, CLI and installed callers use the
-same contract. Platform ingress length is checked before native argument copying.
-Wrong method/direction and malformed packets refuse before workflow effects.
-The CLI preserves passive document inputs separately from dispatched Wire frames
-and signed IC envelopes, including observation, reference and retry artifacts.
-Private consumer-probe controls retain their independent CBOR protocol and explicit
-control-call helper. Provider certificate/management/Cashier Candid and Caffeine
-HTTP bodies/chunks remain external contracts. Core production logic, persisted
-records and journals are unchanged. Cross-release transitions require retirement
-and reinstall; same-release restoration fences and exact retries remain required.
+Attestation submission retains the original passive statement before dispatch,
+alongside the method-bound Wire argument and signed IC envelope, preserving
+lost-reply recovery. Installed tests exposed and now cover the void-control reply,
+manifest test packet and saved statement boundaries.
 
-## Focused evidence
+## Evidence and consumer actions
 
-Linux evidence is retained under `/tmp/blob-wire-*`; failed attempts remain beside
-corrected runs. Codec/CLI checks pass: 122 Contracts unit cases, 121 CLI unit cases,
-focused package integration/doctests, 67 Core upload cases and 17 operator inventory
-cases. Tests include full-width manifest values, independent positional projections,
-canonical bytes, wrong identities, truncation and bounded refusal.
+[Codec evidence](../evidence/wire-codecs/README.md) retains native/IC samples,
+source and input identities, Wasm hashes and explicit admission charges. The
+isolated Wire candidate reduces 1 MiB control decode instructions by 31.24%; actual
+manifest costs are essentially unchanged. Native timing is diagnostic. No linked
+size, compressed deployment size or end-to-end transfer saving is claimed.
+Blob still selects published Wire 0.4.4; the owning Wire change is uncommitted in
+its repository and needs separate publication/adoption after review.
 
-Installed standalone qualification covers all 75 default cases across the surface
-run and the corrected 19-case recovery rerun. Thirty replicated-client cases pass.
-The real Chromium standalone upload/verification/attestation/download/release
-journey and direct browser certificate-intent calls pass against local substitutes.
-Three native-verifier browser cases pass for completion, lost-reply recovery and
-corruption refusal. The native/browser offline handoff passes with a 1 MiB body;
-launcher tests pass. Strict Clippy, Rust 1.91 host/Wasm checking, release Wasm builds,
-formatting, dependency pins/boundaries and local documentation links pass.
-The owning Wire repository independently qualifies 1 MiB finite/native/generated
-TypeScript exact-byte agreement and hostile packet admission.
+Focused checks pass: Contracts' 122 unit cases and integration/doctests, 505 vectors
+and the negative trait guard, CLI 121 cases, Core service 153 cases and consumer
+model six cases. The 127 default storage cases are covered by 119 initial passes
+and corrected owning reruns; two additional frozen-consumer transition tests pass.
+Earlier failures and corrected logs remain under `/tmp/blob-dto-*`. Strict lint, 75 standalone cases, two pinned historical-image refusal tests,
+one Chromium certificate case (ten scenarios) and 23 standalone Chromium journeys
+pass. Final scope review removes unused private fixture derives; the consumer
+probe Wasm remains byte-identical, with storage-control smoke checks repeated.
+No full repository suite is claimed.
 
-Earlier sandbox loopback failures, wrong signed-envelope artifact names, private
-control/service helper confusion, installation fixture encoding and verification
-query identity failures are retained. Their corrected owning checks pass. These
-are local integration results, not deployed-provider observations or performance
-claims. No native macOS, full local CI, live provider or Canic qualification ran.
-
-## Consumer and release work
-
-Canic owns its wrapper, lifecycle and installed adoption in its repository.
-Public DTO Candid traits used by record/external contracts remain separate work in
-[#84](https://github.com/dragginzgame/ic-blob-storage/issues/84); this hard cut does
-not claim those traits or external transports have disappeared. Required hosted
-checks and maintainer review precede integration. Release, retirement disposition,
-package publication and deployment remain separately authorized operations.
-
-Upstream catalogue/export ordering repair (#89) and delivery handoff (#85) are
-incorporated from `628d176`; the next batch extends contract qualification and
-application DTO separation. Prior delivery evidence remains in Git history.
+[Canic #603](https://github.com/dragginzgame/canic/pull/603) owns wrapper and
+lifecycle adoption; inspected `4caeec25` still uses Blob 0.35's CBOR helper API.
+[#84](https://github.com/dragginzgame/ic-blob-storage/issues/84) tracks the DTO cut.
+No Canic suite, native macOS or deployed-provider qualification ran. Required
+hosted checks and maintainer review precede integration. Release, retirement,
+publication and deployment remain separately authorized operations.

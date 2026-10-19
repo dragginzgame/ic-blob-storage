@@ -11,7 +11,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingResponse;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
-use ic_platform::candid::decoder;
+use ic_blob_storage_contracts::wire;
 
 fn request(intent: FundingIntent) -> FundingOutcomeRequest {
     FundingOutcomeRequest {
@@ -39,9 +39,10 @@ fn check_boundary(
     assert_eq!(view.fenced, fenced);
     assert_eq!(
         view,
-        decoder::decode_one_with_config(
-            &ic_platform::candid::contract::encode_one(view).unwrap(),
-            &decoder::DecoderConfig::new()
+        wire::decode_response(
+            "blob_funding_outcome",
+            &wire::encode_response("blob_funding_outcome", view).unwrap(),
+            wire::MAX_MESSAGE_BYTES
         )
         .unwrap()
     );

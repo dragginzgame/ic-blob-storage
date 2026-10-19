@@ -1,0 +1,22 @@
+[
+  {
+    "input": "Prepared",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "Uncertain",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "NotEnqueued",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": {
+      "Callback": {
+        "refunded": 409600634
+      }
+    },
+    "hex": "495701006e65646c6f670003fa84a8c301"
+  }
+]

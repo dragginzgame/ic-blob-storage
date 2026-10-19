@@ -1,0 +1,87 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "entries": [],
+        "fenced": false,
+        "next": null,
+        "request": {
+          "cursor": null,
+          "scope": {
+            "cashier": "vs2ls-p6ydq-tbqai",
+            "namespace": 1958674878,
+            "payment_account": "fzcqe-7jjlm-6nwai",
+            "service": "mk5mc-7n3pe-v6qai"
+          }
+        }
+      }
+    },
+    "hex": "49570e003600424f4c42010005bb792be801be83fca50705d81c26180105295b3cdb0100000000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "entries": [
+          {
+            "offered": 3163896940,
+            "operation": 965439964,
+            "phase": "NotEnqueued",
+            "scope": {
+              "cashier": "a4tos-23ykl-plkai",
+              "namespace": 1795123150,
+              "payment_account": "pbei4-d267q-xbuai",
+              "service": "el2h3-xbgb4-jh2ai"
+            },
+            "target_balance": 2072030604
+          },
+          {
+            "offered": 1936939497,
+            "operation": 1629071571,
+            "phase": "Prepared",
+            "scope": {
+              "cashier": "mkeme-linkh-c3gai",
+              "namespace": 1224979544,
+              "payment_account": "eer5q-i4pmf-jwgai",
+              "service": "ndzmy-cvdws-sdkai"
+            },
+            "target_balance": 3652138938
+          }
+        ],
+        "fenced": true,
+        "next": {
+          "before_operation": 2550573318,
+          "scope": {
+            "cashier": "ru65c-n2g4f-7soai",
+            "namespace": 3530712992,
+            "payment_account": "5mhd2-3blra-2ryai",
+            "service": "y4n7k-tui6d-x2kai"
+          }
+        },
+        "request": {
+          "cursor": {
+            "before_operation": 1543550185,
+            "scope": {
+              "cashier": "3q2dv-agtb2-demai",
+              "namespace": 3666305328,
+              "payment_account": "xs5kc-xhr3s-kpuai",
+              "service": "dvlpc-twkev-aucai"
+            }
+          },
+          "scope": {
+            "cashier": "tibyo-pyugf-ozwai",
+            "namespace": 1257976158,
+            "payment_account": "duxlh-mtqgm-hy6ai",
+            "service": "sp5jq-bbvyh-6cyai"
+          }
+        }
+      }
+    },
+    "hex": "49570e003600424f4c4201000535c1fc2c01dee2ecd7040514315d9b010570330f8f010105ca25414101b0c29dd40d05d30e86460105f1dc94fa01e9e982e0050205260f127d01cecffdd706057852deb501055efc2e1a01dce3adcc03ecf8d4e40b018cdb82dc070205a3b4a43501d8e88ec804050d51c5b301058f61536301d3d1e68806e9b3cd9b0701baefbccd0d00010588f0efa501a0cfc9930d0546e17f2701052b88351c0186d29ac00901"
+  },
+  {
+    "input": {
+      "Err": "Internal"
+    },
+    "hex": "49570e003600424f4c42010104"
+  }
+]

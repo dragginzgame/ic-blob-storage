@@ -1,0 +1,29 @@
+[
+  {
+    "input": {
+      "active": false,
+      "expected": null,
+      "scope": {
+        "namespace": 2301517744,
+        "service": "ummkf-kyf4q-rpyai",
+        "tenant": "cl2qi-fbcdv-a4aai"
+      }
+    },
+    "hex": "495701006e65646c6f67000505e422fc01b0bfb9c90805221d41c0010000"
+  },
+  {
+    "input": {
+      "active": true,
+      "expected": {
+        "active": true,
+        "generation": 895267009
+      },
+      "scope": {
+        "namespace": 3046819607,
+        "service": "bapto-qybt6-pyyai",
+        "tenant": "g76rj-ickms-sr2ai"
+      }
+    },
+    "hex": "495701006e65646c6f670005019f9f8c01978eebac0b054a64a51d0101c1e1f2aa030101"
+  }
+]

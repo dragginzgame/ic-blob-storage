@@ -1,0 +1,128 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "admission": {
+          "permission": {
+            "expires_at_ns": 1033610795,
+            "upload": {
+              "bytes": 3158181077,
+              "first_reference": 1741744815,
+              "incarnation": 149664800,
+              "namespace": 2317842335,
+              "object": 74993075,
+              "root": [
+                153,
+                219,
+                22,
+                132,
+                137,
+                74,
+                121,
+                125,
+                18,
+                240,
+                92,
+                131,
+                49,
+                18,
+                178,
+                88,
+                106,
+                159,
+                203,
+                146,
+                80,
+                206,
+                172,
+                97,
+                134,
+                75,
+                28,
+                4,
+                63,
+                193,
+                248,
+                21
+              ],
+              "service": "hcyty-mpg5j-ig4ai",
+              "tenant": "vd365-nvz2i-kzwai",
+              "upload": 1215512041
+            },
+            "uploader": "45nfa-3hcno-dzkai"
+          },
+          "revoked": false,
+          "state": "Cancelled"
+        },
+        "changed": false
+      }
+    },
+    "hex": "495707003600424f4c42010005e6ea506e0105b9d2159b019fef9dd108e9fbccc304b39be123a0e8ae47afd5c3be0699db1684894a797d12f05c833112b2586a9fcb9250ceac61864b1c043fc1f815d589f8e10b05e26b879501abcceeec03030000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "admission": {
+          "permission": {
+            "expires_at_ns": 2840371193,
+            "upload": {
+              "bytes": 2166217713,
+              "first_reference": 2200982695,
+              "incarnation": 353176114,
+              "namespace": 1462727051,
+              "object": 1193394683,
+              "root": [
+                221,
+                38,
+                113,
+                43,
+                72,
+                182,
+                5,
+                59,
+                73,
+                23,
+                152,
+                54,
+                18,
+                107,
+                119,
+                38,
+                141,
+                236,
+                229,
+                94,
+                220,
+                247,
+                94,
+                115,
+                191,
+                102,
+                21,
+                52,
+                78,
+                27,
+                109,
+                121
+              ],
+              "service": "4yw5d-3dnav-6sqai",
+              "tenant": "ev3xk-ax4qe-ofwai",
+              "upload": 1368351100
+            },
+            "uploader": "y6wzs-o6xva-6ckai"
+          },
+          "revoked": true,
+          "state": "ExposurePossible"
+        },
+        "changed": true
+      }
+    },
+    "hex": "495707003600424f4c420100056d057d280105fc811c5b018be3bdb905fcc2bd8c05fb8387b904b294b4a801a7a9c19908dd26712b48b6053b49179836126b77268dece55edcf75e73bf6615344e1b6d79f1b7f7880805d7a83c2501f9bfb2ca0a010101"
+  },
+  {
+    "input": {
+      "Err": "Inactive"
+    },
+    "hex": "495707003600424f4c42010105"
+  }
+]

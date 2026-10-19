@@ -18,6 +18,9 @@ fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
 fn fixture() -> Fixture {
+    fixture_with_wasm(consumer_wasm())
+}
+fn fixture_with_wasm(wasm: Vec<u8>) -> Fixture {
     let mut f = Fixture::new();
     let tenant = f.harness.pic.create_canister_with_settings(
         Some(f.controller),
@@ -28,7 +31,7 @@ fn fixture() -> Fixture {
     );
     f.harness.pic.install_canister(
         tenant,
-        consumer_wasm(),
+        wasm,
         ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
         Some(f.controller),
     );
@@ -176,7 +179,7 @@ fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
         ("register", unknown),
         (
             "prepare",
-            ic_platform::candid::contract::encode_one(&input.registration).unwrap(),
+            ic_blob_storage_pocketic_tests::historical::encode(&input.registration).unwrap(),
         ),
     ] {
         let error = f
@@ -453,3 +456,39 @@ fn retained(intent: &Registration) -> ReferenceCommand {
     }
 }
 mod fresh;
+
+#[test]
+#[ignore = "Requires retained pre-trait-removal consumer Wasm in BLOB_PRE_TRAIT_CONSUMER_WASM"]
+fn frozen_consumer_records_keep_published_and_cancelled_obligations_after_projection_cut() {
+    let old = std::fs::read(fixture_path("BLOB_PRE_TRAIT_CONSUMER_WASM")).unwrap();
+    assert_eq!(
+        ic_blob_storage_contracts::identity::ContentDigest::compute(&old).to_string(),
+        "sha256:9810a9144aaafeab37c2a9a0c4b239f09c593503baaeb801191ee7d35f6a5b0b"
+    );
+    assert_ne!(
+        old,
+        consumer_wasm(),
+        "qualification must cross the actual record projection cut"
+    );
+    let f = fixture_with_wasm(old);
+    let first = input(&f, 1);
+    let second = input(&f, 2);
+    assert!(register(&f, &first).unwrap().published);
+    assert!(register(&f, &second).unwrap().published);
+    cancel(&f, 2).unwrap();
+    let before = [asset(&f, 1).unwrap(), asset(&f, 2).unwrap()];
+    let service_before = f.harness.pic.get_stable_memory(f.service);
+    crate::install_code::settle_install_code_debt(&f.harness.pic);
+    f.harness
+        .pic
+        .upgrade_canister(
+            f.tenant,
+            consumer_wasm(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
+            Some(f.controller),
+        )
+        .unwrap();
+    assert_eq!([asset(&f, 1).unwrap(), asset(&f, 2).unwrap()], before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
+    assert_eq!(register(&f, &first), Err(ConsumerFailure::Fenced));
+}

@@ -27,7 +27,12 @@ fn old_candid_trailing_and_oversized_inputs_refuse() {
     };
     assert_eq!(
         decode::<TenantScope>(
-            &ic_platform::candid::contract::encode_one(value).unwrap(),
+            &ic_platform::candid::contract::encode_one((
+                value.service,
+                value.namespace,
+                value.tenant
+            ))
+            .unwrap(),
             4096
         ),
         Err(Error::Invalid)

@@ -1,0 +1,32 @@
+[
+  {
+    "input": {
+      "offered": 487861710,
+      "operation": 708650400,
+      "phase": "Uncertain",
+      "scope": {
+        "cashier": "jwxv5-jjie6-mcmai",
+        "namespace": 749486436,
+        "payment_account": "jyl7i-bdcc4-3ciai",
+        "service": "pqaeh-nnxm6-hicai"
+      },
+      "target_balance": null
+    },
+    "hex": "495701006e65646c6f670005b7678e8101e482b1e502052827982601056217362401a0cbf4d102cedbd0e8010001"
+  },
+  {
+    "input": {
+      "offered": 1685292258,
+      "operation": 1034892084,
+      "phase": "Prepared",
+      "scope": {
+        "cashier": "hfv6d-wx6pr-4roai",
+        "namespace": 1669978650,
+        "payment_account": "slbqb-gav5y-3mmai",
+        "service": "6szoa-62kxx-gusai"
+      },
+      "target_balance": 2333812900
+    },
+    "hex": "495701006e65646c6f6700054abdcd49019ab4a79c0605fe7c7917010515ee36c601b4e6bced03e289cea30601a4d1ecd80800"
+  }
+]

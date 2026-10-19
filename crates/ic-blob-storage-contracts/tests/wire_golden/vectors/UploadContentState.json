@@ -1,0 +1,30 @@
+[
+  {
+    "input": "Reserved",
+    "hex": "495701006e65646c6f670000"
+  },
+  {
+    "input": "ExposurePossible",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Cancelled",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Live",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "DeletionPending",
+    "hex": "495701006e65646c6f670004"
+  },
+  {
+    "input": "ProviderDeleted",
+    "hex": "495701006e65646c6f670005"
+  },
+  {
+    "input": "Settled",
+    "hex": "495701006e65646c6f670006"
+  }
+]

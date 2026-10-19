@@ -1,0 +1,149 @@
+[
+  {
+    "input": {
+      "entries": [],
+      "fenced": false,
+      "next": null,
+      "request": {
+        "cursor": null,
+        "filter": "Outstanding",
+        "namespace": 1290904219,
+        "scope": {
+          "Tenant": "cdehm-kc65s-6u6ai"
+        },
+        "service": "dxegn-35b5i-pggai"
+      },
+      "scanned": 3785832940
+    },
+    "hex": "495701006e65646c6f670005a1ea1e63019bc5c6e70400055eecbd4f0103000000ecf39c8d0e00"
+  },
+  {
+    "input": {
+      "entries": [
+        {
+          "request": {
+            "bytes": 1128716912,
+            "first_reference": 2988835374,
+            "incarnation": 2721987406,
+            "namespace": 3025586643,
+            "object": 3823835922,
+            "root": [
+              201,
+              151,
+              90,
+              190,
+              41,
+              80,
+              169,
+              91,
+              229,
+              214,
+              178,
+              41,
+              161,
+              180,
+              185,
+              160,
+              155,
+              109,
+              140,
+              227,
+              74,
+              250,
+              27,
+              0,
+              209,
+              23,
+              78,
+              123,
+              100,
+              32,
+              90,
+              34
+            ],
+            "service": "op47d-lvb7l-zqsai",
+            "tenant": "ymo7h-mlryh-pb2ai",
+            "upload": 968521534
+          },
+          "state": "DeletionPending"
+        },
+        {
+          "request": {
+            "bytes": 3581547324,
+            "first_reference": 3522235065,
+            "incarnation": 3313994260,
+            "namespace": 3846979457,
+            "object": 3483107117,
+            "root": [
+              43,
+              134,
+              235,
+              91,
+              242,
+              77,
+              8,
+              134,
+              166,
+              60,
+              13,
+              32,
+              54,
+              234,
+              58,
+              171,
+              113,
+              7,
+              226,
+              153,
+              137,
+              122,
+              232,
+              240,
+              61,
+              217,
+              130,
+              145,
+              26,
+              226,
+              154,
+              64
+            ],
+            "service": "lqzkv-4jont-jymai",
+            "tenant": "ukzml-5pczo-2icai",
+            "upload": 1086947047
+          },
+          "state": "ExposurePossible"
+        }
+      ],
+      "fenced": true,
+      "next": {
+        "after_request": 2624994457,
+        "after_tenant": "25tmh-xoe6r-croai",
+        "filter": "Outstanding",
+        "namespace": 3713027372,
+        "scope": {
+          "Tenant": "4gj2d-knveh-ttwai"
+        },
+        "service": "sd6n4-u7xtn-m4cai"
+      },
+      "request": {
+        "cursor": {
+          "after_request": 1770924188,
+          "after_tenant": "gcogh-gfhya-zc6ai",
+          "filter": "All",
+          "namespace": 1615069848,
+          "scope": {
+            "Tenant": "r3gry-3ympc-7x2ai"
+          },
+          "service": "yyhig-znrzy-siqai"
+        },
+        "filter": "All",
+        "namespace": 1892602469,
+        "scope": "Service",
+        "service": "n2r77-7qqf7-2foai"
+      },
+      "scanned": 372102888
+    },
+    "hex": "495701006e65646c6f670005102ff45701e5a4bb860701000105b1ce248801988590820600050c78bf7d010005a7c0322f019cd1b8cc060205a1faf309010571c1de1d01d393dba20bbeeee9cd0392b6ac9f0ecef6f8910aae8498910bc9975abe2950a95be5d6b229a1b4b9a09b6d8ce34afa1b00d1174e7b64205a22f0b49b9a0404052e6cd3860105e2cbb4810181ffb0aa0ee7fda58604adfeeffc0c94949eac0cb995c48f0d2b86eb5bf24d0886a63c0d2036ea3aab7107e299897ae8f03dd982911ae29a40bca6e8ab0d010105f79b59c101ac9ac1ea0d0005b521e73b010305c4f445170199f9d8e309e8adb7b10101"
+  }
+]

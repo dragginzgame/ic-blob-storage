@@ -1,10 +1,8 @@
 //! Passive preparation diagnosis; no host evidence can be supplied through ingress.
 use super::Intent;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 /// Independent reasons a new intent cannot be reserved.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Blocker {
     /// Configured provider/account is not qualified.
     ProviderUnqualified,
@@ -49,8 +47,7 @@ pub enum Blocker {
     },
 }
 /// Read-only exact request and all current blockers, not a reusable authorization.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct View {
     /// Original proposed identity, offer and target.
     pub intent: Intent,
@@ -58,8 +55,7 @@ pub struct View {
     pub blockers: Vec<Blocker>,
 }
 /// Synchronous reservation result; it never sends a provider call.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Preparation {
     /// No mutation; retained diagnostics explain refusal.
     Blocked(Vec<Blocker>),
@@ -67,8 +63,7 @@ pub enum Preparation {
     Prepared,
 }
 /// First-attempt marker result, never a provider response or reusable permit.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Attempt {
     /// No mutation; the existing reservation remains charged.
     Blocked(Vec<Blocker>),

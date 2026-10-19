@@ -3,7 +3,6 @@ use crate::workflow::uploads::completion::verification_plan;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::upload::completion::verification::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
-use ic_blob_storage_contracts::wire;
 #[test]
 fn verification_plan_binds_installed_provider_and_only_exposed_unfenced_work() {
     let m = memory();

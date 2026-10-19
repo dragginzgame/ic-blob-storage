@@ -1,0 +1,12 @@
+[
+  {
+    "input": {
+      "Tenant": "ssjsw-ecuaq-himai"
+    },
+    "hex": "495701006e65646c6f6700000554040e8601"
+  },
+  {
+    "input": "Service",
+    "hex": "495701006e65646c6f670001"
+  }
+]

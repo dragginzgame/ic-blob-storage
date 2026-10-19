@@ -1,0 +1,34 @@
+[
+  {
+    "input": {
+      "observation": "InvalidRequest",
+      "request": {
+        "kind": "Balance",
+        "scope": {
+          "cashier": "jr42m-4fcm5-czmai",
+          "namespace": 4140768152,
+          "payment_account": "rg5ez-uydfp-occai",
+          "service": "wenaf-hsxlz-sz4ai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f670005575e659e0198b7bcb60f05a26745960105032bdc21010006"
+  },
+  {
+    "input": {
+      "observation": {
+        "RelationshipNotFound": "y3o7s-gpfjj-thaai"
+      },
+      "request": {
+        "kind": "Balance",
+        "scope": {
+          "cashier": "u47uy-s4c2p-sykai",
+          "namespace": 2183790162,
+          "payment_account": "lk42c-qkac6-kmoai",
+          "service": "eerp2-77jsb-qfuai"
+        }
+      }
+    },
+    "hex": "495701006e65646c6f670005e990605a01d2fca791080582d3e5850105401794c701000405e54a667001"
+  }
+]

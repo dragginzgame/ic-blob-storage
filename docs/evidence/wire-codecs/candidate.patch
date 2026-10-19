@@ -1,0 +1,15 @@
+diff --git a/tmp/ic-wire-compare-baseline/crates/ic-wire/src/contract/mod.rs b/tmp/ic-wire-compare-candidate/crates/ic-wire/src/contract/mod.rs
+index fe50de6..cc51cee 100644
+--- a/tmp/ic-wire-compare-baseline/crates/ic-wire/src/contract/mod.rs
++++ b/tmp/ic-wire-compare-candidate/crates/ic-wire/src/contract/mod.rs
+@@ -166,7 +166,9 @@ impl Flavor for Compare<'_> {
+                 let (right, right_tail) = bytes.as_chunks::<8>();
+                 left.iter()
+                     .zip(right)
+-                    .all(|(a, b)| u64::from_ne_bytes(*a) == u64::from_ne_bytes(*b))
++                    .fold(0_u64, |difference, (a, b)| {
++                        difference | (u64::from_ne_bytes(*a) ^ u64::from_ne_bytes(*b))
++                    }) == 0
+                     && left_tail == right_tail
+             } else {
+                 prefix == bytes

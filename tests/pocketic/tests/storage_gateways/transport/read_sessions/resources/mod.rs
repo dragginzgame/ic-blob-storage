@@ -6,8 +6,6 @@ use blob_test_protocol::storage::funding::{
     Action as FundingAction, Command as FundingCommand, Intent, Phase as FundingPhase,
     Request as FundingRequest,
 };
-use ic_platform::candid::decoder;
-use ic_testkit::pic::query_candid_args;
 use std::{path::Path, time::Instant};
 
 fn funding_command(
@@ -16,13 +14,14 @@ fn funding_command(
     intent: Intent,
     action: FundingAction,
 ) -> Result<bool, Failure> {
-    let packet = ic_platform::candid::contract::encode_one(FundingCommand {
-        intent,
-        action,
-        fault: None,
-        source: None,
-    })
-    .unwrap();
+    let packet =
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(FundingCommand {
+            intent,
+            action,
+            fault: None,
+            source: None,
+        })
+        .unwrap();
     let name = format!("funding-{}-{action:?}", intent.operation);
     retain_bytes(directory, &format!("{name}.candid"), &packet);
     let result = f
@@ -34,7 +33,11 @@ fn funding_command(
         &format!("{name}.json"),
         &serde_json::json!({"result": format!("{result:?}")}),
     );
-    decoder::decode_one_with_config(&result.unwrap(), &decoder::DecoderConfig::new()).unwrap()
+    ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+        &result.unwrap(),
+        4 * 1024 * 1024,
+    )
+    .unwrap()
 }
 
 fn read_command(
@@ -44,7 +47,7 @@ fn read_command(
     input: ReadSessionInput,
     interrupted: bool,
 ) -> Result<(), Failure> {
-    let packet = ic_platform::candid::contract::encode_one(input).unwrap();
+    let packet = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap();
     retain_bytes(directory, &format!("{name}.candid"), &packet);
     let result = f
         .harness
@@ -60,8 +63,11 @@ fn read_command(
         Ok(())
     } else {
         let result: Result<JourneyReadChunk, Failure> =
-            decoder::decode_one_with_config(&result.unwrap(), &decoder::DecoderConfig::new())
-                .unwrap();
+            ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+                &result.unwrap(),
+                4 * 1024 * 1024,
+            )
+            .unwrap();
         result.map(|chunk| assert_eq!(chunk.bytes, vec![1; 10]))
     }
 }
@@ -71,26 +77,29 @@ fn funding_lookup(
     actor: Principal,
     intent: Intent,
 ) -> Result<Option<FundingPhase>, Failure> {
-    query_candid_args(
+    ic_blob_storage_pocketic_tests::control_calls::query_control_args(
         &f.harness.pic,
         f.service,
         actor,
         "funding_lookup",
         (intent,),
-        REPLY_LIMITS,
+        (REPLY_LIMITS).reply_bytes,
     )
     .map(|(reply,)| reply)
     .unwrap()
 }
 
 fn funding_request(f: &Fixture, intent: Intent) -> FundingRequest {
-    query_candid_args::<(Result<FundingRequest, Failure>,), _>(
+    ic_blob_storage_pocketic_tests::control_calls::query_control_args::<
+        (Result<FundingRequest, Failure>,),
+        _,
+    >(
         &f.harness.pic,
         f.service,
         f.operator,
         "funding_request",
         (intent,),
-        REPLY_LIMITS,
+        (REPLY_LIMITS).reply_bytes,
     )
     .map(|(reply,)| reply)
     .unwrap()

@@ -67,7 +67,7 @@ pub enum SyncFailure {
 }
 
 /// Explicit local sync admission; this is not a reusable registry token.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct GatewaySyncRequest {
     /// Authority fixture owning membership.
@@ -95,3 +95,5 @@ pub struct SourceObservation {
 pub mod balance;
 
 pub mod billing;
+
+pub mod wire_benchmark;

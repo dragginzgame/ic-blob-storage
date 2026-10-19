@@ -1,0 +1,20 @@
+[
+  {
+    "input": {
+      "allocated": 3208127911,
+      "max_attempts": 4096314240,
+      "renewal_ceiling": 2683877871,
+      "reserve": 3559025432
+    },
+    "hex": "495701006e65646c6f6700a7cbe0f90beff3e2ff0998d689a10d8097a3a10f"
+  },
+  {
+    "input": {
+      "allocated": 3711914068,
+      "max_attempts": 3763039278,
+      "renewal_ceiling": 4065128547,
+      "reserve": 1106520638
+    },
+    "hex": "495701006e65646c6f6700d4a0fde90de3e0b3920fbed4d08f04aed8ad820e"
+  }
+]

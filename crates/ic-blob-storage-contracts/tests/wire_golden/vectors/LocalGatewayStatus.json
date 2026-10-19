@@ -1,0 +1,23 @@
+[
+  {
+    "input": {
+      "fenced": false,
+      "last_sequence": 1147727037,
+      "members": [],
+      "pending_sequence": null
+    },
+    "hex": "495701006e65646c6f670000bdd9a3a3040000"
+  },
+  {
+    "input": {
+      "fenced": true,
+      "last_sequence": 4228201786,
+      "members": [
+        "2jtfw-ohedu-g7aai",
+        "nozkt-2oq2y-bbcai"
+      ],
+      "pending_sequence": 1664920550
+    },
+    "hex": "495701006e65646c6f67000205e41d0df00105d0d6021101bafa94e00f01e6d7f2990601"
+  }
+]

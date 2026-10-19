@@ -33,7 +33,7 @@ pub struct Installation {
 }
 
 /// Exact fixture operation. Object ID equals operation ID; incarnation/reference are one.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct Request {
     /// Claimed service, checked against the actual canister.
@@ -51,7 +51,7 @@ pub struct Request {
 }
 
 /// Tenant-scoped discovery without a pre-existing operation identity.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct ContentLookup {
     /// Explicit fixture service, checked against the running canister.
@@ -65,7 +65,7 @@ pub struct ContentLookup {
 }
 
 /// Current local content state, not a provider observation or a retain receipt.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub enum ContentState {
     /// Admitted without exposure.
@@ -85,7 +85,7 @@ pub enum ContentState {
 }
 
 /// Original upload identity and current state, visible only to its tenant.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct ContentObservation {
     /// Exact request to recover; discovery does not allocate a new operation.
@@ -95,7 +95,7 @@ pub struct ContentObservation {
 }
 
 /// Tenant-only declaration recovered from local state, not certified HTTP data.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct ContentDescriptor {
     /// Exact original identity and current lifecycle; preparation is not completion.
@@ -105,7 +105,7 @@ pub struct ContentDescriptor {
 }
 
 /// Immutable project instruction, without caller or clock overrides.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct Permission {
     /// Exact local operation.
@@ -137,7 +137,7 @@ pub enum ManifestState {
 }
 
 /// Observable local catalog phase.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub enum Phase {
     /// Capacity reserved, exposure not marked.

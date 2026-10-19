@@ -1,0 +1,26 @@
+[
+  {
+    "input": {
+      "active_reservations": 92918933,
+      "fenced": false,
+      "liability_bytes": 19092784,
+      "logical_bytes": 836143362,
+      "operations": 620345346,
+      "physical_bytes": 4049368998,
+      "reserved_bytes": 2177062623
+    },
+    "hex": "495701006e65646c6f670082f0e6a70295a9a72cdfad8d8e088292da8e03a6eff18a0fb0aa8d0900"
+  },
+  {
+    "input": {
+      "active_reservations": 89662533,
+      "fenced": true,
+      "liability_bytes": 3044239916,
+      "logical_bytes": 1550705180,
+      "operations": 2856511497,
+      "physical_bytes": 1325557540,
+      "reserved_bytes": 1630521299
+    },
+    "hex": "495701006e65646c6f670089d08bd20ac5c8e02ad38fbf89069cc4b7e305a4ce89f804acd4cdab0b01"
+  }
+]

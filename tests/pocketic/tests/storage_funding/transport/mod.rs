@@ -128,13 +128,13 @@ impl Fixture {
         result.unwrap();
     }
     fn transport(&self, actor: Principal, input: Input) -> Result<Observation, Failure> {
-        update_candid_args(
+        ic_blob_storage_pocketic_tests::control_calls::update_control_args(
             &self.harness.pic,
             self.service,
             actor,
             "fixture_funding_transport",
             (input,),
-            REPLY_LIMITS,
+            (REPLY_LIMITS).reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -394,7 +394,7 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
             f.service,
             f.operator,
             "fixture_funding_transport",
-            ic_platform::candid::contract::encode_one(Input {
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(Input {
                 callback_fault: Some(WriteFault::FundingAccounting),
                 ..input(intent)
             })

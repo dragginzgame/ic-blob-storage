@@ -1,0 +1,116 @@
+[
+  {
+    "input": {
+      "request": {
+        "action": "Release",
+        "operation": 143331785,
+        "reference": 869859739,
+        "upload": {
+          "bytes": 1962679230,
+          "first_reference": 2993646372,
+          "incarnation": 1129487110,
+          "namespace": 4156055922,
+          "object": 766305781,
+          "root": [
+            38,
+            26,
+            155,
+            181,
+            0,
+            223,
+            210,
+            167,
+            91,
+            157,
+            66,
+            191,
+            234,
+            4,
+            184,
+            112,
+            177,
+            200,
+            192,
+            224,
+            144,
+            113,
+            180,
+            36,
+            203,
+            78,
+            157,
+            145,
+            28,
+            130,
+            208,
+            38
+          ],
+          "service": "ljimw-5fal7-lnaai",
+          "tenant": "ttpzi-p5ej4-at2ai",
+          "upload": 1467180184
+        }
+      },
+      "result": {
+        "Ok": "Unchanged"
+      }
+    },
+    "hex": "495701006e65646c6f670005a05fd6d00105a44f013d01f2c2e1bd0f98c9cdbb05f5cbb3ed0286b6ca9a04a4d6bd930b261a9bb500dfd2a75b9d42bfea04b870b1c8c0e09071b424cb4e9d911c82d026beb7f0a7079b83e49e03c9a3ac44010001"
+  },
+  {
+    "input": {
+      "request": {
+        "action": "Retain",
+        "operation": 3353297841,
+        "reference": 1566988642,
+        "upload": {
+          "bytes": 2089322476,
+          "first_reference": 2561838789,
+          "incarnation": 2964727953,
+          "namespace": 808300388,
+          "object": 2096117549,
+          "root": [
+            120,
+            20,
+            190,
+            0,
+            18,
+            143,
+            97,
+            163,
+            50,
+            0,
+            101,
+            4,
+            5,
+            197,
+            246,
+            44,
+            182,
+            238,
+            148,
+            10,
+            26,
+            50,
+            65,
+            124,
+            70,
+            86,
+            234,
+            145,
+            68,
+            102,
+            170,
+            202
+          ],
+          "service": "qik3w-lef7h-vjiai",
+          "tenant": "uctxq-6djna-p6eai",
+          "upload": 1078925601
+        }
+      },
+      "result": {
+        "Err": "UnknownReference"
+      }
+    },
+    "hex": "495701006e65646c6f67000585f9ea94010569681fe201e4deb68103a1b2bc8204adeec0e70791d1d8850bc59dcac5097814be00128f61a33200650405c5f62cb6ee940a1a32417c4656ea914466aacaec8fa2e407e2b299eb05b187fdbe0c000100"
+  }
+]

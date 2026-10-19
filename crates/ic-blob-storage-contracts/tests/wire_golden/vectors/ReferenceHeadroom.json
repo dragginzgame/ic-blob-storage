@@ -1,0 +1,20 @@
+[
+  {
+    "input": {
+      "fresh_retains": 3598476180,
+      "reference_slots": 288995069,
+      "release_reserved_receipts": 2470814280,
+      "unreserved_receipts": 2027458019
+    },
+    "hex": "495701006e65646c6f6700fdede68901e39be2c607c8c4969a0994c7f1b30d"
+  },
+  {
+    "input": {
+      "fresh_retains": 3816438417,
+      "reference_slots": 770248419,
+      "release_reserved_receipts": 309051704,
+      "unreserved_receipts": 2797334988
+    },
+    "hex": "495701006e65646c6f6700e39da4ef02cce3efb50ab882af930191f5e89b0e"
+  }
+]

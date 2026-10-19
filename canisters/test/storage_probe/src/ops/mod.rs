@@ -550,3 +550,21 @@ pub(crate) fn reply_owned<T: serde::Serialize>(method: &str, value: T) {
     ic_platform::ic0::msg_reply_data_append(&bytes);
     ic_platform::ic0::msg_reply();
 }
+
+// Private controls retain argument/reply tuple envelopes independently of service frames.
+pub(crate) fn decode_control<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
+    let (value,): (T,) =
+        ic_blob_storage_contracts::document::decode(&bytes, 4096).expect("private control ingress");
+    value
+}
+pub(crate) fn encode_control<T: serde::Serialize>(value: T) -> Vec<u8> {
+    ic_blob_storage_contracts::document::encode((value,)).expect("private control reply")
+}
+
+pub(crate) fn decode_control_unit(bytes: Vec<u8>) {
+    ic_blob_storage_contracts::document::decode::<()>(&bytes, 4096)
+        .expect("private control unit ingress");
+}
+pub(crate) fn encode_control_unit() -> Vec<u8> {
+    ic_blob_storage_contracts::document::encode(()).expect("private control unit reply")
+}

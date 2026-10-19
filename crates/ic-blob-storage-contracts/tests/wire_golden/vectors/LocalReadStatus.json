@@ -1,0 +1,20 @@
+[
+  {
+    "input": {
+      "fenced": false,
+      "last_sequence": 3501306664,
+      "reserved_bytes": 2855060322,
+      "sessions": 1965738743
+    },
+    "hex": "495701006e65646c6f6700a8e6c6850df795aba907e286b3d10a00"
+  },
+  {
+    "input": {
+      "fenced": true,
+      "last_sequence": 615270738,
+      "reserved_bytes": 2002131119,
+      "sessions": 4141172870
+    },
+    "hex": "495701006e65646c6f6700d292b1a5028691d5b60fafb1d8ba0701"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "input": {
+      "Balance": {
+        "ledger": 354220849,
+        "prepaid": 4083642221,
+        "promotional": 3547834378,
+        "total": 3094576185
+      }
+    },
+    "hex": "495701006e65646c6f670000b9f8cdc30bedde9d9b0f8ad0de9b0db1f6f3a801"
+  },
+  {
+    "input": "AccountNotFound",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": {
+      "Relationship": {
+        "added_timestamp": 3627778619,
+        "bandwidth_baseline_downloaded": "1_393_796_574_908_163_946_345_982_392_040_526_826_029_613",
+        "bandwidth_baseline_ts_ns": 3441691902,
+        "bandwidth_baseline_uploaded": "1_393_796_574_908_163_946_345_982_392_040_523_872_736_410",
+        "current_period_spent": "1_393_796_574_908_163_946_345_982_392_040_526_885_185_275",
+        "current_period_start": 1290549338,
+        "expiration_timestamp": 1971516208,
+        "paid_canister": "ksdgr-jtf5b-osmai",
+        "payment_account": "lwams-xw4jw-xmsai",
+        "spending_limit_per_day": "1_393_796_574_908_163_946_345_982_392_040_526_453_025_953"
+      }
+    },
+    "hex": "495701006e65646c6f6700020565e85d260105dc4daec90139315f3339335f3739365f3537345f3930385f3136335f3934365f3334355f3938325f3339325f3034305f3532365f3435335f3032355f39353339315f3339335f3739365f3537345f3930385f3136335f3934365f3334355f3938325f3339325f3034305f3532365f3838355f3138355f323735daf0b0e704bb84eec10d01b0e68bac0739315f3339335f3739365f3537345f3930385f3136335f3934365f3334355f3938325f3339325f3034305f3532335f3837325f3733365f34313039315f3339335f3739365f3537345f3930385f3136335f3934365f3334355f3938325f3339325f3034305f3532365f3832365f3032395f363133fe9990e90c"
+  },
+  {
+    "input": "NoRelationshipReported",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": {
+      "RelationshipNotFound": "4altg-ez24q-j3cai"
+    },
+    "hex": "495701006e65646c6f670004053ae413b101"
+  },
+  {
+    "input": {
+      "NotAuthorized": "qo3b6-bd5ko-hqaai"
+    },
+    "hex": "495701006e65646c6f670005057d538f0001"
+  },
+  {
+    "input": "InvalidRequest",
+    "hex": "495701006e65646c6f670006"
+  },
+  {
+    "input": "ProviderInternalError",
+    "hex": "495701006e65646c6f670007"
+  }
+]

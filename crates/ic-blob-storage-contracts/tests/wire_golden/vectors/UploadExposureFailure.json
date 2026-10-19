@@ -1,0 +1,24 @@
+[
+  {
+    "input": {
+      "Permission": "Inactive"
+    },
+    "hex": "495701006e65646c6f67000005"
+  },
+  {
+    "input": "Unprepared",
+    "hex": "495701006e65646c6f670001"
+  },
+  {
+    "input": "Revoked",
+    "hex": "495701006e65646c6f670002"
+  },
+  {
+    "input": "Phase",
+    "hex": "495701006e65646c6f670003"
+  },
+  {
+    "input": "EvidenceBinding",
+    "hex": "495701006e65646c6f670004"
+  }
+]

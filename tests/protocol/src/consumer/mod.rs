@@ -2,7 +2,6 @@
 use ic_blob_storage_contracts::dto::reference::ReferenceChange;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 
 pub mod funding;
@@ -20,8 +19,7 @@ pub struct TenantDispatch {
     pub trap_after_reply: bool,
 }
 /// Exact application intent, retained before permission or reference dispatch.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Registration {
     /// Never reused application asset identity.
     pub asset: u128,
@@ -33,8 +31,7 @@ pub struct Registration {
     pub release_operation: u128,
 }
 /// Current supported registration sources, with no fabricated retain for a first reference.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum RegistrationSource {
     /// Add a distinct reference to existing content.
     Existing(ReferenceCommand),

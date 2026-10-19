@@ -187,6 +187,9 @@ async fn dispatch(
             observation_sha256: observed.hashes,
         },
     )?;
+    prepared
+        .run()
+        .bytes("statement.cbor", &observed.statement)?;
     let (_, report) = prepared.dispatch(&agent).await.finish(
         |bytes| {
             reply::mutation(

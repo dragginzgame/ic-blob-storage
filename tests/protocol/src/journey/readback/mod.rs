@@ -33,7 +33,7 @@ pub struct ReadExecutionProfile {
 }
 
 /// One verified manifest leaf; no whole-file read or durable receipt is implied.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct JourneyReadChunk {
     /// Position in the reserved manifest.

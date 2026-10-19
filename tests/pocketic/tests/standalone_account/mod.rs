@@ -39,7 +39,7 @@ enum BalanceError {
 #[derive(CandidType)]
 #[candid_path("ic_platform::candid::contract")]
 struct RelationshipReport {
-    relationship: Option<AccountRelationshipView>,
+    relationship: Option<ic_blob_storage_pocketic_tests::historical::AccountRelationshipView>,
 }
 #[derive(CandidType)]
 #[candid_path("ic_platform::candid::contract")]
@@ -140,7 +140,7 @@ fn relation(f: &Fixture) -> AccountRelationshipView {
 }
 fn relationship(value: Option<AccountRelationshipView>) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(Ok::<_, RelationshipError>(RelationshipReport {
-        relationship: value,
+        relationship: ic_blob_storage_pocketic_tests::historical::project(value),
     }))
     .unwrap()
 }
@@ -204,7 +204,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
                 f.service,
                 f.operator,
                 "blob_inspect_account",
-                ic_platform::candid::contract::encode_one(input).unwrap()
+                ic_blob_storage_pocketic_tests::historical::encode(input).unwrap()
             )
             .is_err()
     );

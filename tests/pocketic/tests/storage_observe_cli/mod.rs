@@ -360,7 +360,7 @@ fn journey(reply: proxy::Reply) {
             service: f.service,
             actor: f.operator,
             method: "blob_attest_upload",
-            argument_file: "statement.cbor",
+            argument_file: "request.wire",
         },
         reply,
     );

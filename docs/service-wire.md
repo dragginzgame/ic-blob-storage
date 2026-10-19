@@ -96,9 +96,11 @@ request and reply codecs. No wrapper may fall back to CBOR when Wire rejects.
 Consumer frameworks own their wrappers, installation/lifecycle and integration
 qualification in their own repositories. Canic must adopt these native emitters
 and callers before claiming this release. Blob's local substitutes do not qualify
-Canic or the deployed provider. Public DTO Candid traits retained by existing
-record/external contracts remain separate work under
-[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+Canic or the deployed provider. Application DTOs have no CandidType implementation. The external provider
+certificate response retains its provider trait. Historical-image tests and saved
+consumer-probe records own frozen local schemas; production records are unchanged.
+See the [literal vectors](../crates/ic-blob-storage-contracts/tests/wire_golden/README.md)
+and [codec evidence](evidence/wire-codecs/README.md).
 
 Cross-release transitions remain retirement and reinstall only. Resolve provider
 objects, uncertain effects, balances and continuing billing under
