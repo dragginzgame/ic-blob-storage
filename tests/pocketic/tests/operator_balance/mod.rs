@@ -8,10 +8,8 @@ use blob_test_protocol::{
     balance::*,
     status::{OperatorBlockerView, OperatorStatusView},
 };
-use ic_testkit::pocket_ic::{
-    CanisterInstallMode,
-    common::rest::{BlobCompression, RawMessageId},
-};
+use ic_testkit::pocket_ic::common::rest::BlobCompression;
+use pocket_ic::{CanisterInstallMode, common::rest::RawMessageId};
 use sha2::{Digest, Sha256};
 use std::time::Duration;
 

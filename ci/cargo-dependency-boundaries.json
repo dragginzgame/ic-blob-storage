@@ -54,5 +54,9 @@
   {
     "dependency": "ic-management-canister-types",
     "allowed_packages": []
+  },
+  {
+    "dependency": "pocket-ic",
+    "allowed_packages": ["ic-blob-storage-pocketic-tests"]
   }
 ]

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.36.1]
+
+- Keep Testkit 0.55's Platform boundary while using a temporary native-test-only
+  PocketIC dependency for missing install-mode and pending-message types.
+  Preserve skipped-hook restoration and in-flight recovery coverage; remove the
+  exception after [Platform #27](https://github.com/dragginzgame/ic-platform/issues/27)
+  supplies published exports for both types.
+
 ## [0.36.0] - 2026-10-19
 
 - Preserve provider Candid registration when consumers mount the shared endpoint

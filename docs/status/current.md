@@ -4,9 +4,10 @@ Date: 2026-10-19
 
 ## Delivered source and ownership
 
-Local HEAD is release commit `c32a47f` with local tag `v0.36.0`; workspace
-metadata is 0.36.0. The in-progress merge incorporates remote main at
-`628d17697171a80530fbcc894d95eac06b9a387f`. Earlier qualification below
+Local HEAD is merge commit `047ed0269fad29a152c5cdae7aa6cf6b04eaded0`, combining
+release `c32a47f` (local tag `v0.36.0`) and remote main at
+`628d17697171a80530fbcc894d95eac06b9a387f`. Workspace metadata remains 0.36.0;
+pending **0.36.1** contains the compatible native test repair. Earlier qualification below
 retains its original source, graph and limitations, including released 0.35.0
 at `583947545a3afde00c4be68dcc6bca1caec8daee`.
 Remote main includes [#89](https://github.com/dragginzgame/ic-blob-storage/pull/89)
@@ -58,6 +59,32 @@ supported platform contracts/runtime/SDK APIs. The 0.36.0 release lock records P
 Earlier checks retain their recorded selections. Host owns bounded
 Candid service inventories through Platform's parser; PocketIC explicitly enables
 its `candid` and `ic-interface` features.
+
+## Current Testkit compatibility repair
+
+The retained `20261019T123829Z-3955680-12-check.log` reports six missing imports
+after Testkit 0.55 narrowed its PocketIC re-export to Platform's explicit surface.
+Published Platform 0.1.18 lacks `CanisterInstallMode` and `RawMessageId`. The
+maintainer selected retaining Testkit 0.55.2 with a temporary native-test-only
+direct PocketIC 16.1 dependency for those original types. No registry package
+versions change. Cargo also normalizes existing compatible Windows dependency
+edges in the lock; this is not native Windows qualification.
+
+Six modules use the original types; flags, held ingress identities and recovery
+semantics are unchanged. Direct declarations are restricted to the private
+PocketIC test package. The new
+[Platform evidence](https://github.com/dragginzgame/ic-platform/issues/27#issuecomment-6267665526)
+adds Blob and the missing install mode to the existing export issue. Remove the
+exception only when both original identities are available in a published release.
+
+All test-package targets/features pass checking, strict lint and actual Rust 1.91
+native checking. Four fresh fixture Wasms pass eleven installed admission,
+funding, operator and journey cases, covering skipped outgoing hooks and exact
+held read/sync recovery. Actual Rust 1.91 checks pass for all four Wasms. Metadata
+confirms the direct dependency is native/dev-only; the standalone's normal/build
+Wasm graph excludes PocketIC and Testkit. Before-images, index evidence and logs remain under
+`.tmp/review-validation/testkit0550361/`. Full CI, native macOS and downstream
+application qualification are not rerun. No Git delivery or release ran.
 
 ## Recorded local qualification and remaining boundaries
 
@@ -297,7 +324,5 @@ The catalogue export regression, standalone native all-target/all-feature check
 and actual Rust 1.91 extraction-feature Wasm check pass. Focused logs remain with
 those before-images. Full CI, installed IC and native macOS are not rerun for
 this merge resolution; earlier qualification retains its original source/graph.
-Incoming unrelated Cargo edits now select Testkit 0.55.2 and consolidate its Host
-dependencies. They are preserved separately and are not qualified by these merge
-checks. Marking the three conflict resolutions in the real index requires the
-maintainer's approval under the repository's staging rules.
+Those merge checks preceded Testkit 0.55.2; its focused qualification is recorded
+above. The maintainer completed the merge in `047ed02`.

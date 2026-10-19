@@ -5,7 +5,7 @@ mod authority;
 mod source;
 use super::*;
 use blob_test_protocol::journey::readback::ReadSourceMode;
-use ic_testkit::pocket_ic::CanisterInstallMode;
+use pocket_ic::CanisterInstallMode;
 use std::time::Duration;
 
 const CHUNK: usize = 1024 * 1024;
@@ -58,7 +58,7 @@ impl Fixture {
             .collect();
         #[expect(
             clippy::default_trait_access,
-            reason = "PocketIC reexports the mode but not UpgradeFlags; infer its own type without another direct dependency"
+            reason = "PocketIC does not reexport UpgradeFlags; infer its own management DTO type"
         )]
         let mut mode = CanisterInstallMode::Upgrade(Some(Default::default()));
         let CanisterInstallMode::Upgrade(Some(flags)) = &mut mode else {

@@ -1,6 +1,6 @@
 //! Direct-upload manifest, retained accounting and lifecycle evidence for the actual shared owner.
 use super::*;
-use ic_testkit::pocket_ic::CanisterInstallMode;
+use pocket_ic::CanisterInstallMode;
 use sha2::{Digest, Sha256};
 
 const CHUNK: usize = 1024 * 1024;

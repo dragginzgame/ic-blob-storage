@@ -22,10 +22,10 @@ lockfiles; local qualification does not cover every future resolution.
 | IC Platform | 0.1.18 | Entrypoint/export macros, supported CDK calls/system APIs, Principal, external Candid encoding/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Wire | 0.4.6 | Bounded method/direction framing for owned service contracts and separate passive document encoding |
 | IC Metrics | 0.14.5 | Private probe measurement arithmetic; not a public Blob API |
-| IC Testkit | 0.54.1 | PocketIC client/server selection and managed lifetime; bounded Candid decoding uses Platform |
-| IC Host artifacts/fs/process/tools | 0.29.0 direct; 0.27.6 through Testkit | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Testkit | 0.55.2 | PocketIC client/server selection and managed lifetime; bounded Candid decoding and supported client exports use Platform |
+| IC Host artifacts/fs/process/tools | 0.29.0 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Build | 0.21.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
-| PocketIC | 16.1.0 | Testkit-selected local IC execution; no separate Blob server catalog |
+| PocketIC | 16.1.0 | Testkit-selected local IC execution; temporary native test DTO exception described below; no separate Blob server catalog |
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
 composition. The core exports none of these implicitly. Consumer frameworks own
@@ -67,12 +67,12 @@ verifier exchanges Host process limits and typed errors with Build. Its normal
 dependency also supplies the default CLI's bounded framing;
 `package-verification` activates Build, not Host process. HTTP fixture support
 remains development-only. Build's source inventory is descriptive provenance,
-not executable attestation or retry authority. Testkit's transitive dependencies
-retain their own identities; Blob must not pass typed values across incompatible
+not executable attestation or retry authority. Dependency owners retain their
+upstream identities; Blob must not pass typed values across incompatible
 package versions. Installed tool selection is separate from the application lock:
 run `make install-testkit` then `make testkit-check` after changing Testkit.
 
-The [service wire guide](service-wire.md) defines the pending 0.36.0 contract.
+The [service wire guide](service-wire.md) defines the 0.36.0 contract.
 All 31 owned methods and standalone lifecycle inputs use published IC Wire
 0.4.6, with explicit method/direction identity and no old-packet fallback.
 Finite tenant frames retain their bytes; other methods use Wire's bounded native
@@ -90,15 +90,28 @@ and uses Platform for its parser; the test harness explicitly selects Host's
 `candid` and `ic-interface` features. Direct Candid/CDK declarations remain
 forbidden by the boundary policy.
 
+Testkit 0.55 forwards Platform's explicit PocketIC surface. Published Platform
+0.1.18 omits `CanisterInstallMode` and `common::rest::RawMessageId`, required by
+Blob's skipped-hook upgrade and pending-call recovery tests. The maintainer
+approved a temporary direct `pocket-ic` dependency, selected only in native
+development dependencies of `ic-blob-storage-pocketic-tests`. Six test modules
+use those two original identities; other simulator APIs still use Testkit.
+The boundary policy rejects direct declarations in any other package. Remove
+the declaration and exception after
+[Platform #27](https://github.com/dragginzgame/ic-platform/issues/27#issuecomment-6267665526)
+publishes both original types; PocketIC's management DTOs must retain their own
+identity rather than Platform's independent management DTO version. This
+exception does not add a simulator wrapper, server selection or deployment path.
+
 Native fixtures and example staging/publication use published `ic-host-fs`
-0.28.1. Fixture directories clean up after success and retain failed-test
+0.29.0. Fixture directories clean up after success and retain failed-test
 evidence during panic. Retained report directories remain caller-owned. Private
 invocation files use Host's mode-0600 scratch writer within their owned directory.
 Verified example outputs use Host's create-only publication of the checked file,
 including typed failures after publication; reconcile those before retrying.
 Snapshot bodies use retained-file publication, while the complete snapshot/report
 is still not a crash-durable multi-file transaction. No direct `tempfile`
-declarations remain; Testkit and PocketIC still introduce it transitively.
+declarations remain; Host FS and PocketIC still introduce it transitively.
 
 All 26 private consumer-probe controls use bounded Wire value documents, with
 a 4 KiB ingress ceiling and complete canonical decoding. Their command/status

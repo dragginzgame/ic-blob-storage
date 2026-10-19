@@ -1738,6 +1738,7 @@ dependencies = [
  "ic-host-tools",
  "ic-platform",
  "ic-testkit",
+ "pocket-ic",
  "reqwest",
  "serde",
  "serde_cbor",
@@ -2039,9 +2040,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.4.6"
+version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1b3fc0d49aa2e01cb997193bda530d9faefec2103e913bb5e0c6a3461cb0fb7"
+checksum = "3061721cc787c28cd41e2828a53b66d993b7f5951c6f8ae05a54262eda9e6af2"
 dependencies = [
  "ic-wire-derive",
  "postcard",
@@ -2050,9 +2051,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire-derive"
-version = "0.4.6"
+version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92954e4befa71a749969b0aba1e7aaf2d1156f44477fbafb85539ac3a1c15781"
+checksum = "7e61888be036b5a9b4f44fcf92d45724ad8a2b65351ab4b4e0fa8cecb1f95a9c"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -4,7 +4,7 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{SourceObservation, source::SourceHeldSyncView};
 use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
-use ic_testkit::pocket_ic::common::rest::RawMessageId;
+use pocket_ic::common::rest::RawMessageId;
 
 impl Fixture {
     pub(super) fn hold_sync(&self) -> RawMessageId {
