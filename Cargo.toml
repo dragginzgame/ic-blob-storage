@@ -19,7 +19,7 @@ members = [
 resolver = "3"
 
 [workspace.package]
-version = "0.36.0"
+version = "0.36.1"
 edition = "2024"
 rust-version = "1.91.0"
 license = "MIT"
@@ -30,8 +30,8 @@ publish = ["crates-io"]
 # Production dependencies
 hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
-ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.36.0" }
-ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.36.0" }
+ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.36.1" }
+ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.36.1" }
 ic-build = "0.21"
 ic-host-artifacts = "0.29"
 ic-host-fs = "0.29"

@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.36.1]
+## [0.36.1] - 2026-10-19
 
 - Keep Testkit 0.55's Platform boundary while using a temporary native-test-only
   PocketIC dependency for missing install-mode and pending-message types.
