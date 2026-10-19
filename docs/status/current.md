@@ -4,7 +4,7 @@ Date: 2026-10-19
 
 ## Source and scope
 
-Local HEAD is committed candidate `7bf89ea6079b39383f34218bb29e806ec584bc64`
+Local HEAD is committed candidate `fed932f122200614e0a54b518739e64f9f5f2c43`
 (subject `0.36.0`); workspace metadata remains 0.35.0. Earlier qualification
 below records its original source, including release
 `583947545a3afde00c4be68dcc6bca1caec8daee`. Unrelated incoming work is preserved.
@@ -151,6 +151,25 @@ also pass. Manifest/lock selections remain unchanged. Before-images and logs,
 including the initial sandbox localhost refusal and successful permitted retry,
 remain under `.tmp/review-validation/storage-wire0360/`. Full CI, native macOS
 and deployed-provider qualification are not rerun. No release or Git delivery ran.
+
+## Native package-verifier dependency alignment
+
+The retained `20261019T115907Z-2113410-12-check.log` reports two incompatible
+Host type identities: incoming direct Host 0.29 selections crossed Build 0.20's
+Host 0.28 boundary. Published Build 0.21.0 selects Host 0.29 and has byte-identical
+Rust implementation source to 0.20.0. Its archive checksum matches the official
+registry index. Only Build is upgraded; all incoming selections are preserved.
+The lock drops the three now-unused Host 0.28 packages. Testkit's separate Host
+0.27.6 remains transitive, without values crossing the package-verifier boundary.
+
+The actual verifier builds. Its maintained archive regression passes same-version
+replacement, graph/integrity refusals and exact command-exit/signal propagation.
+All CLI targets/features pass native checking, strict lint and actual Rust 1.91
+checking. Before-images, published evidence and scoped logs remain under
+`.tmp/review-validation/build0210360/`. The dependency table records the current
+lock; earlier runtime qualification retains its recorded graph. Full CI, Wasm,
+installed IC and native macOS are not rerun for this native tooling dependency
+repair. No release or Git delivery ran.
 
 ## Historical checkpoints
 

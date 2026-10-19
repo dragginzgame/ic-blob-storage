@@ -32,7 +32,7 @@ hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.35.0" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.35.0" }
-ic-build = "0.20"
+ic-build = "0.21"
 ic-host-artifacts = "0.29"
 ic-host-fs = "0.29"
 ic-host-process = "0.29"

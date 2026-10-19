@@ -18,13 +18,13 @@ lockfiles; local qualification does not cover every future resolution.
 | Blob client | Workspace version | Explicit replicated role clients; no service storage, endpoints or lifecycle |
 | Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
 | IC Memory | 0.48.2 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
-| IC Storage | 0.5.4 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
-| IC Platform | 0.1.15 | Entrypoint/export macros, supported CDK calls/system APIs, Principal, external Candid encoding/decoding, management DTOs and native Agent/parser/certificate identities |
-| IC Wire | 0.4.1 | Bounded method/direction framing for the two tenant contracts |
-| IC Metrics | 0.14.4 | Private probe measurement arithmetic; not a public Blob API |
+| IC Storage | 0.5.6 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
+| IC Platform | 0.1.18 | Entrypoint/export macros, supported CDK calls/system APIs, Principal, external Candid encoding/decoding, management DTOs and native Agent/parser/certificate identities |
+| IC Wire | 0.4.6 | Bounded method/direction framing for owned service contracts and separate passive document encoding |
+| IC Metrics | 0.14.5 | Private probe measurement arithmetic; not a public Blob API |
 | IC Testkit | 0.54.1 | PocketIC client/server selection and managed lifetime; bounded Candid decoding uses Platform |
-| IC Host artifacts/fs/process/tools | 0.27.6 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
-| IC Build | 0.18.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
+| IC Host artifacts/fs/process/tools | 0.29.0 direct; 0.27.6 through Testkit | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Build | 0.21.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Testkit-selected local IC execution; no separate Blob server catalog |
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
@@ -62,7 +62,9 @@ creation rather than an atomic writer that discards partial bytes. These are
 necessary consumer policies, not independent filesystem implementations.
 
 The optional archive verifier and HTTP fixtures use the same Host process package
-identity. Its normal dependency also supplies the default CLI's bounded framing;
+identity. Build 0.21 and direct Host 0.29 must move together because the package
+verifier exchanges Host process limits and typed errors with Build. Its normal
+dependency also supplies the default CLI's bounded framing;
 `package-verification` activates Build, not Host process. HTTP fixture support
 remains development-only. Build's source inventory is descriptive provenance,
 not executable attestation or retry authority. Testkit's transitive dependencies
@@ -72,7 +74,7 @@ run `make install-testkit` then `make testkit-check` after changing Testkit.
 
 The [service wire guide](service-wire.md) defines the pending 0.36.0 contract.
 All 31 owned methods and standalone lifecycle inputs use published IC Wire
-0.4.5, with explicit method/direction identity and no old-packet fallback.
+0.4.6, with explicit method/direction identity and no old-packet fallback.
 Finite tenant frames retain their bytes; other methods use Wire's bounded native
 Serde codec. Passive offline values use a separate document identity, and new
 application artifacts use `.wire`. Exact saved-input and signed-frame binding

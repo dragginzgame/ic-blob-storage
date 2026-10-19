@@ -26,6 +26,8 @@
 - Use published Host FS for temporary fixtures and verified example publication,
   removing every direct `tempfile` dependency. Retain failed test fixtures and
   preserve explicit publication/cleanup failures without overwriting outputs.
+- Align the native package verifier with Host 0.29 through published IC Build
+  0.21, preserving process limits, command exit status and retained evidence.
 
 ## [0.35.0] - 2026-10-18
 
