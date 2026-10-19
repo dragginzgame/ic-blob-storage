@@ -187,6 +187,10 @@ async fn dispatch(
             observation_sha256: observed.hashes,
         },
     )?;
+    // Keep the original passive document for receipt recovery before any dispatch.
+    prepared
+        .run()
+        .bytes("statement.wire", &observed.statement)?;
     let (_, report) = prepared.dispatch(&agent).await.finish(
         |bytes| {
             reply::mutation(

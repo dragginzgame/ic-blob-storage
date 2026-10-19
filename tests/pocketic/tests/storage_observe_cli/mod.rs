@@ -146,6 +146,17 @@ fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String], reply: prox
         concurrent_submission(&submit);
     }
     let intent = std::fs::read(path.join("attestation/intent.json")).unwrap();
+    let request = std::fs::read(path.join("attestation/request.wire")).unwrap();
+    assert_eq!(
+        ic_blob_storage_contracts::wire::decode_request::<UploadAttestationRequest>(
+            "blob_attest_upload",
+            &request,
+            4096,
+        )
+        .unwrap(),
+        statement
+    );
+    assert_ne!(request, saved);
     assert_eq!(run(&submit, 3)["error"], "submission_already_claimed");
     assert_eq!(
         std::fs::read(path.join("attestation/intent.json")).unwrap(),
@@ -361,7 +372,7 @@ fn journey(reply: proxy::Reply) {
             service: f.service,
             actor: f.operator,
             method: "blob_attest_upload",
-            argument_file: "statement.wire",
+            argument_file: "request.wire",
         },
         reply,
     );

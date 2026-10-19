@@ -1929,7 +1929,8 @@ against someone who can rewrite the entire run. Keep the directory under the
 verifier's control, including during submission. No provider read occurs here.
 
 An exclusive `attestation/` directory claims the run. Before one signed update,
-the command syncs the method-bound `request.wire`, `signed-request.cbor` and
+the command syncs the original passive `statement.wire`, method-bound
+`request.wire`, `signed-request.cbor` and
 `intent.json` containing the runner version/source fingerprint, request ID, expiry,
 root-key and artifact hashes. The fingerprint covers the native submission,
 observation-reader, shared transport/record/argument sources and lockfile.

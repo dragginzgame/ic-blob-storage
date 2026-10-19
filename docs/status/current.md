@@ -4,7 +4,7 @@ Date: 2026-10-19
 
 ## Source and scope
 
-Local HEAD is committed candidate `91067b4a638395fca7745626a75b03fdc29e22e3`
+Local HEAD is committed candidate `7bf89ea6079b39383f34218bb29e806ec584bc64`
 (subject `0.36.0`); workspace metadata remains 0.35.0. Earlier qualification
 below records its original source, including release
 `583947545a3afde00c4be68dcc6bca1caec8daee`. Unrelated incoming work is preserved.
@@ -132,6 +132,25 @@ lock and new Wasm hashes are retained with those results. Full CI and native
 macOS are not rerun.
 Before-images, the old Wasm and failed/successful logs remain under
 `.tmp/review-validation/admission-wire0360/`. No release or Git delivery ran.
+
+## Storage codec and recovery repair
+
+The retained `20261019T113341Z-1111112-16-test.log` reports four storage
+failures. The manifest lost-acknowledgment test still sent a passive document
+to a method-bound service endpoint. Native attestation submission omitted its
+promised original statement copy, while the fault proxy inspected that old
+argument path instead of the signed method-bound request. The test now uses
+the canonical service encoder; submission syncs the unchanged passive statement
+beside its signed request before dispatch. Existing partial claims still refuse
+reuse, and pending/lost replies recover the exact receipt without resending.
+
+All three native submission journeys and seven manifest lifecycle cases pass
+against the existing installed-fixture Wasms; no canister source changed. Eight
+focused native cases, strict CLI/storage lint and actual Rust 1.91 native checks
+also pass. Manifest/lock selections remain unchanged. Before-images and logs,
+including the initial sandbox localhost refusal and successful permitted retry,
+remain under `.tmp/review-validation/storage-wire0360/`. Full CI, native macOS
+and deployed-provider qualification are not rerun. No release or Git delivery ran.
 
 ## Historical checkpoints
 

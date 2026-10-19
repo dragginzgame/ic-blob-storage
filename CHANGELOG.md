@@ -19,6 +19,10 @@
   and private controls with a separate bounded Wire value identity. Generated
   application artifacts use `.wire`; preserve original tools and bytes for old
   runs. IC-specified CBOR, provider transports and stored encodings are unchanged.
+- Preserve the original attestation statement beside the signed service request
+  before native submission, so lost/pending replies recover by exact receipt
+  inspection without resending. Use the canonical service frame in the manifest
+  lost-acknowledgment regression.
 - Use published Host FS for temporary fixtures and verified example publication,
   removing every direct `tempfile` dependency. Retain failed test fixtures and
   preserve explicit publication/cleanup failures without overwriting outputs.
