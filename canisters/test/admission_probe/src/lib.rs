@@ -92,14 +92,11 @@ fn inspect(request: Request) -> Result<Observation, Failure> {
     workflow::inspect(context(), request)
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
-fn blob_lookup_content(
-    input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse,
-    ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure,
-> {
-    workflow::discover(context(), input)
+#[ic_platform::cdk::query(manual_reply = true, hidden = true)]
+fn blob_lookup_content() {
+    let method = "blob_lookup_content";
+    let input = ops::decode::blob(method);
+    ops::reply_blob(method, workflow::discover(context(), input));
 }
 
 #[ic_platform::cdk::query(decode_with = "ops::decode::content")]
@@ -114,14 +111,11 @@ fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
     workflow::resources(context(), limit)
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
-fn blob_upload_capacity(
-    input: ic_blob_storage_contracts::dto::tenant::TenantScope,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse,
-    ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure,
-> {
-    workflow::admission_capacity(context(), input)
+#[ic_platform::cdk::query(manual_reply = true, hidden = true)]
+fn blob_upload_capacity() {
+    let method = "blob_upload_capacity";
+    let input = ops::decode::blob(method);
+    ops::reply_blob(method, workflow::admission_capacity(context(), input));
 }
 
 #[ic_platform::cdk::query(decode_with = "ops::decode::retained_descriptor")]
@@ -131,14 +125,11 @@ fn retained_content_descriptor(
     workflow::retained_content_descriptor(context(), input)
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode::blob", encode_with = "ops::encode_blob")]
-fn blob_reference_capacity(
-    input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
-) -> Result<
-    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse,
-    ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure,
-> {
-    workflow::reference_capacity(context(), input)
+#[ic_platform::cdk::query(manual_reply = true, hidden = true)]
+fn blob_reference_capacity() {
+    let method = "blob_reference_capacity";
+    let input = ops::decode::blob(method);
+    ops::reply_blob(method, workflow::reference_capacity(context(), input));
 }
 
 // This disposable probe has no stable schema. Both hooks reject so neither a

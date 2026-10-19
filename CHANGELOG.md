@@ -11,8 +11,9 @@
   31 owned methods and standalone install/post-upgrade inputs, adopting the
   reviewed work from [#90](https://github.com/dragginzgame/ic-blob-storage/pull/90).
   Preserve finite tenant bytes, provider transports and stored records. Cut
-  standalone, Client, CLI and test/browser callers together; require retirement
-  and reinstall across releases, with no old-service-packet fallback.
+  standalone, Client, CLI, service-facing probes and test/browser callers together;
+  reject foreign admission-query frames before policy. Require retirement and
+  reinstall across releases, with no old-service-packet fallback.
 - Select published IC Wire 0.4.5. Remove Blob's direct Ciborium dependency and
   codec; encode offline documents
   and private controls with a separate bounded Wire value identity. Generated

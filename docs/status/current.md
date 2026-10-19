@@ -4,8 +4,10 @@ Date: 2026-10-19
 
 ## Source and scope
 
-Local HEAD remains released 0.35.0 at
-`583947545a3afde00c4be68dcc6bca1caec8daee`, with unrelated pending work preserved.
+Local HEAD is committed candidate `91067b4a638395fca7745626a75b03fdc29e22e3`
+(subject `0.36.0`); workspace metadata remains 0.35.0. Earlier qualification
+below records its original source, including release
+`583947545a3afde00c4be68dcc6bca1caec8daee`. Unrelated incoming work is preserved.
 Remote main includes [#89](https://github.com/dragginzgame/ic-blob-storage/pull/89)
 at `cc99212df4a59f4e04976bf77ad1d04f371f355a` and
 [#85](https://github.com/dragginzgame/ic-blob-storage/pull/85) at
@@ -45,11 +47,13 @@ restore fences and retained obligations remain required.
 
 Blob's Ciborium implementation and direct dependency are removed. Ciborium still
 enters the deployed graph through IC Memory 0.48.2's persisted metadata, directly
-and through Storage 0.5.4. Memory/Storage encodings remain unchanged. IC-specified
+and through selected Storage 0.5.6. Memory/Storage encodings remain unchanged by
+the codec repair. IC-specified
 CBOR, native `serde_cbor` transport/certificate fixtures and external
-provider/management/Cashier Candid remain with their owners. Platform 0.1.16 owns
-supported platform contracts/runtime/SDK APIs. Incoming Build 0.19.0, Host 0.28.1,
-Metrics 0.14.4 and Testkit 0.54.1 selections are preserved. Host owns bounded
+provider/management/Cashier Candid remain with their owners. Platform owns
+supported platform contracts/runtime/SDK APIs. Incoming Platform 0.1.17,
+Build 0.20.0, Host 0.28.1, Metrics 0.14.5 and Testkit 0.54.1 selections are
+preserved. Host owns bounded
 Candid service inventories through Platform's parser; PocketIC explicitly enables
 its `candid` and `ic-interface` features.
 
@@ -71,11 +75,10 @@ documentation links pass. Manifest/lock hashes remain unchanged through these
 checks. Initial failed assertions, the missed fixture bound and lint failures are
 retained alongside their successful focused retries.
 
-The incoming all-feature package-verifier path is blocked: Build 0.19.0 exposes
-Host 0.27.6 `OutputLimits`/`ToolError`, while this checkout selects Host 0.28.1.
-The unchanged verifier caller cannot pass those distinct public types. Keep the
-qualified default CLI separate from this contributor-only feature failure; align
-the producer's published Host boundary before claiming a complete release gate.
+The earlier Build 0.19/Host 0.28 package-verifier mismatch is superseded by the
+incoming Build 0.20 selection. The maintainer's retained gate log reached admission
+after compiling/running all-feature native targets, including that binary. This
+admission repair does not change dependency selections or claim a complete gate.
 
 [#88](https://github.com/dragginzgame/ic-blob-storage/issues/88) retains corrected
 package-publication acceptance. [Canic #444](https://github.com/dragginzgame/canic/issues/444)
@@ -106,7 +109,29 @@ changed. Contracts' normal Wasm graph excludes both Host FS and `tempfile`.
 No registry package versions changed. The initial lint failure and successful
 retry, before-images, registry evidence and scoped logs remain under
 `.tmp/review-validation/host-temp0360/`. Native macOS and the complete gate are not
-rerun; the unrelated Build/Host package-verifier mismatch above remains.
+rerun. Earlier dependency failures retain their recorded source and graph.
+
+## Admission query codec repair
+
+The maintainer's retained log
+`.git/release-state/validation-failures/20261019T111132Z-375720-16-test.log`
+reports nine admission failures. The three discovery/upload-capacity/reference-
+capacity probe endpoints still decoded/replied with the passive document identity,
+while clients used method-bound service frames. Their `Identity` traps prevented
+policy and inventory/refusal handling from running. They now use exact method/
+direction frames, manual replies and pre-copy byte admission; private fixture
+Candid commands and all policy/accounting semantics remain unchanged.
+
+The new installed regression reproduces the failure against the preserved old
+Wasm and passes after rebuilding the probe. All 30 admission cases pass on that
+initial graph, including the nine reported failures. Incoming Platform 0.1.17
+arrived during the run and is preserved. A fresh probe on that selection also
+passes all 30 admission cases, including the 704-object cleanup workload. Strict
+probe/admission lint and actual Rust 1.91 native/Wasm checks pass. The manifest,
+lock and new Wasm hashes are retained with those results. Full CI and native
+macOS are not rerun.
+Before-images, the old Wasm and failed/successful logs remain under
+`.tmp/review-validation/admission-wire0360/`. No release or Git delivery ran.
 
 ## Historical checkpoints
 

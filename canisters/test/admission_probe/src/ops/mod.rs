@@ -266,7 +266,10 @@ pub(crate) fn inspect(context: UploadContext, input: Request) -> Result<Observat
     })
 }
 
-/// Encode the current Blob interface; a codec failure traps the endpoint transaction.
-pub(crate) fn encode_blob<T: serde::Serialize>(value: T) -> Vec<u8> {
-    ic_blob_storage_contracts::document::encode(value).expect("invalid Blob probe reply")
+/// Reply under the exact service method and response direction, or trap.
+pub(crate) fn reply_blob<T: serde::Serialize>(method: &str, value: T) {
+    let bytes = ic_blob_storage_contracts::wire::encode_response(method, value)
+        .expect("invalid Blob probe reply");
+    ic_platform::ic0::msg_reply_data_append(&bytes);
+    ic_platform::ic0::msg_reply();
 }

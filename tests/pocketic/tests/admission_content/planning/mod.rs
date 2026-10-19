@@ -34,6 +34,72 @@ fn capacity(
 }
 
 #[test]
+fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observations() {
+    use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
+    use ic_blob_storage_contracts::{document, wire};
+
+    let f = Fixture::new();
+    f.enroll();
+    let scope = scope(&f);
+    let root = [1; 32];
+    let requests = [
+        (
+            "blob_lookup_content",
+            wire::encode_request(
+                "blob_lookup_content",
+                UploadDiscoveryRequest { scope, root },
+            )
+            .unwrap(),
+        ),
+        (
+            "blob_upload_capacity",
+            wire::encode_request("blob_upload_capacity", scope).unwrap(),
+        ),
+        (
+            "blob_reference_capacity",
+            wire::encode_request(
+                "blob_reference_capacity",
+                ReferenceCapacityRequest { scope, root },
+            )
+            .unwrap(),
+        ),
+    ];
+    for (method, request) in requests {
+        let before = f
+            .harness
+            .pic
+            .query_call(f.service, f.project, method, request.clone())
+            .expect("current method-bound request succeeds");
+        let mut trailing = request.clone();
+        trailing.push(0);
+        for bytes in [
+            document::encode(scope).unwrap(),
+            wire::encode_request("blob_configuration", ()).unwrap(),
+            wire::encode_response(method, ()).unwrap(),
+            ic_platform::candid::contract::encode_one(scope).unwrap(),
+            vec![0xf6],
+            request[..request.len() - 1].to_vec(),
+            trailing,
+            vec![0; 4097],
+        ] {
+            let error = f
+                .harness
+                .pic
+                .query_call(f.service, f.project, method, bytes)
+                .unwrap_err();
+            assert_eq!(error.reject_code, RejectCode::CanisterError);
+        }
+        assert_eq!(
+            f.harness
+                .pic
+                .query_call(f.service, f.project, method, request)
+                .unwrap(),
+            before
+        );
+    }
+}
+
+#[test]
 fn capacity_queries_enforce_caller_scope_and_input_bound() {
     let f = Fixture::new();
     let input = scope(&f);
