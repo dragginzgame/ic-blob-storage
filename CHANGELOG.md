@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.1]
+
+- Preserve provider Candid registration when consumers mount the shared endpoint
+  catalogue before exporting their service. Dispatch through the exact macro path
+  instead of a deferred imported alias; method signatures and codecs are unchanged
+  ([#88](https://github.com/dragginzgame/ic-blob-storage/issues/88)).
+
 ## [0.35.0] - 2026-10-18
 
 - **Breaking client imports:** use the published `ic-blob-storage-client` role
