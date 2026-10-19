@@ -39,7 +39,8 @@ pub fn validate_request(input: UploadAdmissionRequest) -> Result<(), UploadAdmis
     .map(|_| ())
     .map_err(|_| UploadAdmissionReplyError::Invalid)
 }
-fn decode<T: for<'de> Deserialize<'de>>(
+fn decode<T: serde::Serialize + for<'de> Deserialize<'de>>(
+    method: &str,
     input: UploadAdmissionRequest,
     bytes: &[u8],
     max: NonZeroUsize,
@@ -49,7 +50,8 @@ fn decode<T: for<'de> Deserialize<'de>>(
         return Err(UploadAdmissionReplyError::Limit);
     }
     let result: Result<T, UploadAdmissionFailure> =
-        crate::wire::decode(bytes, max.get()).map_err(|_| UploadAdmissionReplyError::Invalid)?;
+        crate::wire::decode_response(method, bytes, max.get())
+            .map_err(|_| UploadAdmissionReplyError::Invalid)?;
     result.map_err(UploadAdmissionReplyError::Remote)
 }
 fn bound(
@@ -69,7 +71,7 @@ pub fn inspection(
     bytes: &[u8],
     max: NonZeroUsize,
 ) -> Result<UploadAdmissionResponse, UploadAdmissionReplyError> {
-    bound(input, decode(input, bytes, max)?)
+    bound(input, decode("blob_upload_admission", input, bytes, max)?)
 }
 /// Decode a reservation acknowledgment; historical replay does not renew permission.
 /// # Errors
@@ -79,7 +81,7 @@ pub fn mutation(
     bytes: &[u8],
     max: NonZeroUsize,
 ) -> Result<UploadAdmissionMutation, UploadAdmissionReplyError> {
-    let result: UploadAdmissionMutation = decode(input, bytes, max)?;
+    let result: UploadAdmissionMutation = decode("blob_admit_upload", input, bytes, max)?;
     bound(input, result.admission)?;
     Ok(result)
 }
@@ -94,7 +96,7 @@ pub fn revocation(
     bytes: &[u8],
     max: NonZeroUsize,
 ) -> Result<UploadRevocationResponse, UploadAdmissionReplyError> {
-    let result: UploadRevocationResponse = decode(input, bytes, max)?;
+    let result: UploadRevocationResponse = decode("blob_revoke_upload", input, bytes, max)?;
     bound(input, result.admission)?;
     if !result.admission.revoked {
         return Err(UploadAdmissionReplyError::Invalid);

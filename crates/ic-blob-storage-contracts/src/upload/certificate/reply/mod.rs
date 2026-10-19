@@ -34,7 +34,7 @@ pub fn assessment_request(
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
     let root = ProviderRootHash::try_from(permission.upload.root.as_slice())
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
-    crate::wire::encode(root.to_string())
+    crate::wire::encode_request("blob_upload_certificate_assessment", root.to_string())
         .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)
 }
 
@@ -53,7 +53,7 @@ pub fn assessment(
         return Err(UploadCertificateAssessmentReplyError::Limit);
     }
     let response: Result<UploadCertificateAssessmentResponse, UploadExposureFailure> =
-        crate::wire::decode(bytes, maximum.get())
+        crate::wire::decode_response("blob_upload_certificate_assessment", bytes, maximum.get())
             .map_err(|_| UploadCertificateAssessmentReplyError::Invalid)?;
     let response = response.map_err(UploadCertificateAssessmentReplyError::Remote)?;
     if response.permission != permission {

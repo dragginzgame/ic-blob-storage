@@ -44,7 +44,11 @@ pub(super) async fn run(options: &Options, request: Request) -> Result<Value, Fa
         options,
         request.scope.service,
         FUNDING_PREPARATION_METHOD,
-        ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?,
+        ic_blob_storage_contracts::wire::encode_request(
+            "blob_funding_preparation_assessment",
+            request,
+        )
+        .map_err(|_| Failure::Arguments)?,
     )
     .await?;
     let response = decode(request, &bytes)?;

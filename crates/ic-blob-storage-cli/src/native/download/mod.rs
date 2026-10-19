@@ -95,8 +95,9 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     let identity = identity(&options.identity, options.actor)?;
     let run = Run::create(&input.directory)?;
     let argument =
-        ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?;
-    run.bytes("request.cbor", &argument)?;
+        ic_blob_storage_contracts::wire::encode_request("blob_download_descriptor", request)
+            .map_err(|_| Failure::Arguments)?;
+    run.bytes("request.wire", &argument)?;
     run.json("plan.json", &json!({"schema":1,"operation":"tenant_download",
         "network":options.network,"service_url":options.url.as_str(),"actor":options.actor.to_text(),
         "service":input.service.to_text(),"namespace":input.namespace.to_string(),
@@ -132,7 +133,7 @@ async fn capture(
     if bytes.len() > 4096 {
         return Err(Failure::ReplyTooLarge);
     }
-    run.bytes("service-response.cbor", &bytes)?;
+    run.bytes("service-response.wire", &bytes)?;
     let descriptor = decode(input, request, scope, &bytes)?;
     let root = ProviderRootHash::try_from(request.root.as_slice()).expect("fixed root");
     let url = input

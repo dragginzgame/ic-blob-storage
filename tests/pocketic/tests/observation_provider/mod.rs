@@ -43,7 +43,7 @@ pub(crate) fn serve(listener: &TcpListener, path: &Path, expected: &str, body: &
     for file in [
         "plan.json",
         "permission.cbor",
-        "service-response.cbor",
+        "service-response.wire",
         "download-request.json",
     ] {
         assert!(

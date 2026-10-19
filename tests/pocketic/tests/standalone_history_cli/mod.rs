@@ -188,7 +188,7 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
     assert_eq!(run(&wrong, 3)["error"], "identity_binding");
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     live(&mut f, &mut args);

@@ -49,10 +49,10 @@ const USAGE: &str = concat!(
     "blob-storage account-link-inputs --cashier PRINCIPAL --caller PRINCIPAL --owner PRINCIPAL --payer PRINCIPAL --daily-limit DECIMAL --expiry DECIMAL --run-dir NEW_DIRECTORY\n",
     "account-link-inputs is offline. It encodes explicit positive raw provider terms with an explicit payer/expiry, never selects units, signs, links or funds an account. Existing/partial output refuses; generated input is not an effect journal, financial cap proof or retry permit.\n",
     "blob-storage installation-check --configuration CONFIGURATION_JSON --service PRINCIPAL --project PROJECT --verifier PRINCIPAL --release HOST_RELEASE --run-dir NEW_DIRECTORY\n",
-    "installation-check is offline. It reads a strict JSON configuration proposal and validates the complete proposed installation, preserving configuration.json and encoded configuration.cbor/installation.cbor with hashes and a passive summary. It does not authenticate platform/release identity, grant memory, deploy, provision, fund or qualify provider facts. Existing/partial output refuses.\n",
-    "blob-storage upload-inputs --installation INSTALLATION_CBOR --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
-    "Offline preparation checks the complete installation candidate against the original service/namespace/project/trusted uploader and installed resource bounds. It saves installation.cbor, permission.cbor, manifest.cbor, first-reference requests, certificate-binding.json and a root-verified body.bin snapshot. No authentication, actual installed-state/provisioning proof, signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
-    "blob-storage publish-inputs --inventory JSON --root DIRECTORY --installation INSTALLATION_CBOR --max-bytes DECIMAL --max-total-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
+    "installation-check is offline. It reads a strict JSON configuration proposal and validates the complete proposed installation, preserving configuration.json and encoded configuration.cbor/installation.wire with hashes and a passive summary. It does not authenticate platform/release identity, grant memory, deploy, provision, fund or qualify provider facts. Existing/partial output refuses.\n",
+    "blob-storage upload-inputs --installation INSTALLATION_WIRE --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
+    "Offline preparation checks the complete installation candidate against the original service/namespace/project/trusted uploader and installed resource bounds. It saves installation.wire, permission.cbor, manifest.cbor, first-reference requests, certificate-binding.json and a root-verified body.bin snapshot. No authentication, actual installed-state/provisioning proof, signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
+    "blob-storage publish-inputs --inventory JSON --root DIRECTORY --installation INSTALLATION_WIRE --max-bytes DECIMAL --max-total-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline batch preparation verifies frozen input hashes, unique identities, one tenant/provider scope and aggregate fresh-installation capacity before serial root-verified snapshots. Final summary appears only on complete success; failures retain partial evidence and refuse overwrite. No remaining-live-capacity proof, allocation, certificate, network, publication or retry authority.\n",
     "blob-storage publish-map --network ic|local --url URL --identity TENANT_PEM --actor TENANT --operator-identity OPERATOR_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --gateway ORIGIN --max-bytes DECIMAL --max-total-bytes DECIMAL --max-queries DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "blob-storage publish-file-status accepts the same scope/input flags plus --file-index ZERO_BASED_DECIMAL and --max-queries 4. It checks installed configuration, enrollment, the selected verifier digest and exact live first reference. Require file_live:true before advancing a serial publisher; no whole-batch map, upload retry or publication lease is produced. The complete frozen batch is reverified before queries.\n",
@@ -80,7 +80,7 @@ const USAGE: &str = concat!(
     "blob-storage inspect-account --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --kind balance|relationship [--root-key DER]\n",
     "inspect-account submits one scoped service read update, then waits for that exact IC request within thirty seconds. It reports one provider balance or relationship, including absence/errors; no payment, gateway change, credit inference, automatic refresh or redispatch. A lost result remains unobserved.\n",
     "blob-storage submit-reference --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CBOR --run-dir NEW_DIRECTORY [--root-key DER]\n",
-    "submit-reference validates one exact ReferenceCommand, claims a new private directory and saves request.cbor, the signed update and intent before one dispatch. Pending or uncertain results require reference-receipt inspection with saved request.cbor; no polling, retry or identity allocation. A recorded inner failure is not a successful retain/release. Existing or partial runs refuse.\n",
+    "submit-reference validates one exact ReferenceCommand, claims a new private directory and saves request.wire, reference.cbor, the signed update and intent before one dispatch. Pending or uncertain results require reference-receipt inspection with saved reference.cbor; no polling, retry or identity allocation. A recorded inner failure is not a successful retain/release. Existing or partial runs refuse.\n",
     "blob-storage reference-receipt|reference-status --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request CBOR [--root-key DER]\n",
     "reference-receipt inspects one saved CBOR ReferenceCommand; original success/failure is historical, with no fence or liveness observation. reference-status reads one ReferenceStatusRequest and returns current local liveness and fence. Each signs one tenant query; no mutation, provider call or retry authority. Canister tenants use ReplicatedReferenceClient.\n",
     "blob-storage funding-outcome --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
@@ -342,7 +342,8 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
                 options,
                 request.scope.service,
                 ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD,
-                ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?,
+                ic_blob_storage_contracts::wire::encode_request("blob_funding_history", request)
+                    .map_err(|_| Failure::Arguments)?,
             )
             .await?;
             history::output(
@@ -372,8 +373,11 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
                 options,
                 verification.permission.upload.service,
                 ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
-                ic_blob_storage_contracts::wire::encode(verification.permission)
-                    .map_err(|_| Failure::Arguments)?,
+                ic_blob_storage_contracts::wire::encode_request(
+                    "blob_upload_manifest",
+                    verification.permission,
+                )
+                .map_err(|_| Failure::Arguments)?,
             )
             .await?;
             verification.finish(
@@ -388,7 +392,8 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
                 options,
                 scope.service,
                 LOCAL_STATUS_METHOD,
-                ic_blob_storage_contracts::wire::encode(scope).map_err(|_| Failure::Arguments)?,
+                ic_blob_storage_contracts::wire::encode_request("blob_local_status", scope)
+                    .map_err(|_| Failure::Arguments)?,
             )
             .await?;
             let status = reply::decode(&response, *scope)?;

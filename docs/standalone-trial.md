@@ -346,7 +346,7 @@ bytes in `installation.candid`, with project and verifier alongside the configur
 generated carrier and rejects a proposed service that differs from the host;
 independent DID decoding passed on that graph. `configuration.candid` alone was
 not init. Current 0.32 preparation follows [the CBOR protocol](service-wire.md),
-using a strict JSON proposal and complete `installation.cbor` carrier.
+using a strict JSON proposal and complete `installation.wire` carrier.
 The earlier review's carriers and financial values remain historical syntax
 evidence, without live trial authority.
 

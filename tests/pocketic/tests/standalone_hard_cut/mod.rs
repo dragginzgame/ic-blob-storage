@@ -9,8 +9,16 @@ use std::path::PathBuf;
 // Frozen producer for retired installation contracts, used only to install their
 // pinned test images. Production accepts the current DTO exclusively.
 pub(super) fn frozen_installation(f: &Fixture) -> Vec<u8> {
-    let mut args =
-        ic_platform::candid_parser::IDLArgs::from_bytes(&installation(&f.config)).unwrap();
+    let input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
+        "blob_install",
+        &installation(&f.config),
+        16384,
+    )
+    .unwrap();
+    let mut args = ic_platform::candid_parser::IDLArgs::from_bytes(
+        &ic_platform::candid::contract::encode_one(input).unwrap(),
+    )
+    .unwrap();
     let ic_platform::candid_parser::IDLValue::Record(fields) = &mut args.args[0] else {
         panic!("installation record")
     };
@@ -43,7 +51,7 @@ fn raw_configuration(f: &Fixture) -> Vec<u8> {
             f.service,
             f.operator,
             "blob_configuration",
-            ic_blob_storage_contracts::wire::encode(()).unwrap(),
+            ic_platform::candid::contract::encode_args(()).unwrap(),
         )
         .unwrap()
 }
@@ -280,7 +288,7 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
         .upgrade_canister(
             f.service,
             target,
-            ic_blob_storage_contracts::wire::encode(()).unwrap(),
+            ic_blob_storage_contracts::document::encode(()).unwrap(),
             Some(f.controller),
         )
         .unwrap_err();
@@ -347,7 +355,7 @@ fn single_uploader_installation_upgrade_refuses_without_losing_owner_or_obligati
     let status = raw_status(&f);
     let before = f.harness.pic.get_stable_memory(f.service);
     let failure = f
-        .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap_err();
     assert_eq!(failure.reject_code, RejectCode::CanisterError);
     let after = f.harness.pic.get_stable_memory(f.service);

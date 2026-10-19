@@ -93,7 +93,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     };
     std::fs::write(
         report.join("request.cbor"),
-        ic_blob_storage_contracts::wire::encode(request).unwrap(),
+        ic_blob_storage_contracts::document::encode(request).unwrap(),
     )
     .unwrap();
     std::fs::write(temp.path().join("identity.pem"), PEM).unwrap();
@@ -115,8 +115,10 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     ] {
         if label == "restored" {
             f.harness.pic.stop_progress();
-            f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
-                .unwrap();
+            f.upgrade(
+                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
+            )
+            .unwrap();
             f.harness.pic.auto_progress();
         }
         let directory = report.join(label);

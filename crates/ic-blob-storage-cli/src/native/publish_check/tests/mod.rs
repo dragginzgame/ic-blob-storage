@@ -20,9 +20,12 @@ pub(in crate::native) fn frozen() -> tempfile::TempDir {
     fs::write(d.path().join("manifest.json"), &manifest).unwrap();
     fs::write(d.path().join("body.bin"), b"abc").unwrap();
     fs::write(
-        d.path().join("installation.cbor"),
-        ic_blob_storage_contracts::wire::encode(fixture::installation(&fixture::binding()))
-            .unwrap(),
+        d.path().join("installation.wire"),
+        ic_blob_storage_contracts::wire::encode_request(
+            "blob_install",
+            fixture::installation(&fixture::binding()),
+        )
+        .unwrap(),
     )
     .unwrap();
     fs::write(d.path().join("inventory.json"),json!({"schema":1,"files":[{"binding":"binding.json","binding_sha256":hash(&binding),"manifest":"manifest.json","manifest_sha256":hash(&manifest),"body":"body.bin","body_sha256":hash(b"abc")}]}).to_string()).unwrap();
@@ -33,7 +36,7 @@ pub(in crate::native) fn frozen() -> tempfile::TempDir {
         "--root",
         d.path().to_str().unwrap(),
         "--installation",
-        d.path().join("installation.cbor").to_str().unwrap(),
+        d.path().join("installation.wire").to_str().unwrap(),
         "--max-bytes",
         "10",
         "--max-total-bytes",
@@ -94,31 +97,37 @@ fn inspect(
                 let bytes = if method == ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD
                 {
                     assert_eq!(
-                        ic_blob_storage_contracts::wire::decode::<TenantScope>(
+                        ic_blob_storage_contracts::wire::decode_request::<TenantScope>(
+                            method,
                             &arg,
                             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES
                         )
                         .unwrap(),
                         scope
                     );
-                    ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(c))
-                        .unwrap()
+                    ic_blob_storage_contracts::wire::encode_response(
+                        "blob_upload_capacity",
+                        Ok::<_, UploadCapacityFailure>(c),
+                    )
+                    .unwrap()
                 } else {
-                    let request = ic_blob_storage_contracts::wire::decode(
+                    let request = ic_blob_storage_contracts::wire::decode_request(
+                        "blob_lookup_content",
                         &arg,
                         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
                     )
                     .unwrap();
-                    ic_blob_storage_contracts::wire::encode(Ok::<_, UploadDiscoveryFailure>(
-                        UploadDiscoveryResponse {
+                    ic_blob_storage_contracts::wire::encode_response(
+                        "blob_lookup_content",
+                        Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
                             request,
                             content: state.map(|state| UploadHistoryEntry {
                                 request: b.files[0].input.permission.upload,
                                 state,
                             }),
                             fenced: c.fenced,
-                        },
-                    ))
+                        }),
+                    )
                     .unwrap()
                 };
                 std::future::ready(Ok(bytes))
@@ -136,7 +145,7 @@ fn snapshots_and_usable_requests_are_reverified_before_identity_or_network() {
         "permission.cbor",
         "manifest.cbor",
         "certificate-binding.json",
-        "installation.cbor",
+        "installation.wire",
     ] {
         let d = frozen();
         let file = d.path().join("batch/file-0000").join(file);
@@ -243,8 +252,11 @@ fn byte_dimensions_report_exact_blockers_and_reject_inconsistent_minima() {
         }
         for bad_minimum in [1, 21] {
             c.remaining_bytes = bad_minimum;
-            let reply =
-                ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(c)).unwrap();
+            let reply = ic_blob_storage_contracts::wire::encode_response(
+                "blob_upload_capacity",
+                Ok::<_, UploadCapacityFailure>(c),
+            )
+            .unwrap();
             assert_eq!(
                 observation::capacity(scope, &reply),
                 Err(Failure::InvalidReply)
@@ -252,9 +264,11 @@ fn byte_dimensions_report_exact_blockers_and_reject_inconsistent_minima() {
         }
         let mut understated = capacity(scope);
         understated.remaining_bytes = 0;
-        let reply =
-            ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(understated))
-                .unwrap();
+        let reply = ic_blob_storage_contracts::wire::encode_response(
+            "blob_upload_capacity",
+            Ok::<_, UploadCapacityFailure>(understated),
+        )
+        .unwrap();
         assert_eq!(
             observation::capacity(scope, &reply),
             Err(Failure::InvalidReply)
@@ -323,9 +337,10 @@ fn wrong_reply_scope_remote_errors_and_oversize_refuse() {
     for (n, bytes, expected) in [
         (
             0,
-            ic_blob_storage_contracts::wire::encode(Err::<UploadCapacityResponse, _>(
-                UploadCapacityFailure::NotEnrolled,
-            ))
+            ic_blob_storage_contracts::wire::encode_response(
+                "blob_upload_capacity",
+                Err::<UploadCapacityResponse, _>(UploadCapacityFailure::NotEnrolled),
+            )
             .unwrap(),
             Failure::NotEnrolled,
         ),
@@ -334,7 +349,11 @@ fn wrong_reply_scope_remote_errors_and_oversize_refuse() {
             {
                 let mut c = capacity(scope);
                 c.scope.namespace -= 1;
-                ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(c)).unwrap()
+                ic_blob_storage_contracts::wire::encode_response(
+                    "blob_upload_capacity",
+                    Ok::<_, UploadCapacityFailure>(c),
+                )
+                .unwrap()
             },
             Failure::Binding,
         ),
@@ -349,7 +368,7 @@ fn wrong_reply_scope_remote_errors_and_oversize_refuse() {
         );
         assert!(
             d.path()
-                .join(format!("bad-{n}/query-0000-reply.cbor"))
+                .join(format!("bad-{n}/query-0000-reply.wire"))
                 .exists()
         );
     }
@@ -383,22 +402,25 @@ fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
             |method, argument| {
                 let reply = if method == ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD
                 {
-                    ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(
-                        capacity(scope),
-                    ))
+                    ic_blob_storage_contracts::wire::encode_response(
+                        "blob_upload_capacity",
+                        Ok::<_, UploadCapacityFailure>(capacity(scope)),
+                    )
                     .unwrap()
                 } else {
-                    ic_blob_storage_contracts::wire::encode(Ok::<_, UploadDiscoveryFailure>(
-                        UploadDiscoveryResponse {
-                            request: ic_blob_storage_contracts::wire::decode(
+                    ic_blob_storage_contracts::wire::encode_response(
+                        "blob_lookup_content",
+                        Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
+                            request: ic_blob_storage_contracts::wire::decode_request(
+                                method,
                                 &argument,
                                 ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
                             )
                             .unwrap(),
                             content: None,
                             fenced: false,
-                        },
-                    ))
+                        }),
+                    )
                     .unwrap()
                 };
                 std::future::ready(Ok(reply))
@@ -417,20 +439,19 @@ fn duplicate_roots_are_blocked_and_query_failures_retain_partial_evidence() {
     let failed = runtime.block_on(observation::inspect(scope, &b.files, &run, |_, _| {
         calls += 1;
         std::future::ready(if calls == 1 {
-            Ok(
-                ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(capacity(
-                    scope,
-                )))
-                .unwrap(),
+            Ok(ic_blob_storage_contracts::wire::encode_response(
+                "blob_upload_capacity",
+                Ok::<_, UploadCapacityFailure>(capacity(scope)),
             )
+            .unwrap())
         } else {
             Err(Failure::Transport)
         })
     }));
     assert_eq!(failed, Err(Failure::Transport));
-    assert!(d.path().join("partial/query-0000-reply.cbor").exists());
-    assert!(d.path().join("partial/query-0001-args.cbor").exists());
-    assert!(!d.path().join("partial/query-0001-reply.cbor").exists());
+    assert!(d.path().join("partial/query-0000-reply.wire").exists());
+    assert!(d.path().join("partial/query-0001-args.wire").exists());
+    assert!(!d.path().join("partial/query-0001-reply.wire").exists());
 }
 
 #[test]

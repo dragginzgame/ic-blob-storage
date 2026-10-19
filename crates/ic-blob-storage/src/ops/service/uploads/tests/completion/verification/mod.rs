@@ -88,8 +88,13 @@ fn verification_plan_decoder_checks_scope_declaration_and_budgets() {
                 max_header_bytes: 1024.try_into().unwrap(),
             },
     };
-    let encoded =
-        |p: &UploadVerificationPlan| wire::encode(Ok::<_, UploadAttestationFailure>(p)).unwrap();
+    let encoded = |p: &UploadVerificationPlan| {
+        ic_blob_storage_contracts::wire::encode_response(
+            "blob_verification_plan",
+            Ok::<_, UploadAttestationFailure>(p),
+        )
+        .unwrap()
+    };
     assert_eq!(
         reply::decode(authority(), plan.permission, &encoded(&plan), limits),
         Ok(plan.clone())
@@ -122,9 +127,10 @@ fn verification_plan_decoder_checks_scope_declaration_and_budgets() {
         reply::decode(authority(), plan.permission, b"DIDL", limits),
         Err(E::Invalid)
     );
-    let denied = wire::encode(Err::<UploadVerificationPlan, _>(
-        UploadAttestationFailure::Denied,
-    ))
+    let denied = ic_blob_storage_contracts::wire::encode_response(
+        "blob_verification_plan",
+        Err::<UploadVerificationPlan, _>(UploadAttestationFailure::Denied),
+    )
     .unwrap();
     assert_eq!(
         reply::decode(authority(), plan.permission, &denied, limits),

@@ -76,7 +76,7 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
             f.service,
             f.uploader,
             UPLOAD_MANIFEST_PREPARE_METHOD,
-            ic_blob_storage_contracts::wire::encode(&input).unwrap(),
+            ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
         .unwrap();
     assert_eq!(

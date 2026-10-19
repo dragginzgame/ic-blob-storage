@@ -117,11 +117,14 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     assert_eq!(result, Err(UploadAttestationFailure::Phase));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     for invalid in [Principal::anonymous(), Principal::management_canister()] {
-        let args = ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
-            configuration: f.config,
-            project: PROJECT.into(),
-            completion_verifier: invalid,
-        })
+        let args = ic_blob_storage_contracts::wire::encode_request(
+            "blob_install",
+            ServiceInstallationInput {
+                configuration: f.config,
+                project: PROJECT.into(),
+                completion_verifier: invalid,
+            },
+        )
         .unwrap();
         assert!(
             f.harness
@@ -131,7 +134,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
         );
         unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     }
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     verification_manifest(&f, &manifest);
     plan_refuses(&f, manifest.permission, true);

@@ -65,12 +65,12 @@ impl Recovery {
             verifier,
         )
         .map_err(|_| Failure::Arguments)?;
-        let argument = reply::inspection_request(authority, statement.permission).map_err(
-            |error| match error {
+        let argument =
+            reply::inspection_request("blob_upload_attestation", authority, statement.permission)
+                .map_err(|error| match error {
                 UploadAttestationReplyError::Invalid => Failure::Arguments,
                 _ => failure(error),
-            },
-        )?;
+            })?;
         if ![
             verifier,
             statement.permission.upload.tenant,

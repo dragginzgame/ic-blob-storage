@@ -89,7 +89,7 @@ fn standalone_download_authenticates_scope_bounds_ingress_and_requires_replicate
             f.service,
             f.tenant,
             DOWNLOAD_METHOD,
-            ic_blob_storage_contracts::wire::encode(input).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(query.reject_code, RejectCode::CanisterError);
@@ -140,7 +140,7 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
         .unwrap();
     suspended.unwrap();
     assert_eq!(f.download(f.tenant, input), Err(F::Inactive));
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(f.configuration(f.operator).unwrap().project, PROJECT);
@@ -161,11 +161,14 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
         "a\nb".into(),
         "é".repeat(129),
     ] {
-        let input = ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
-            configuration: f.config,
-            project,
-            completion_verifier: Fake::principal(90),
-        })
+        let input = ic_blob_storage_contracts::wire::encode_request(
+            "blob_install",
+            ServiceInstallationInput {
+                configuration: f.config,
+                project,
+                completion_verifier: Fake::principal(90),
+            },
+        )
         .unwrap();
         let error = f
             .harness
@@ -194,7 +197,7 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
         ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
     );
     let error = f
-        .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+        .upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &corrupted);
@@ -247,7 +250,7 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Unavailable)));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Fenced)));
@@ -269,14 +272,14 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
         .reinstall_canister(
             f.service,
             wasm(),
-            ic_blob_storage_contracts::wire::encode(installation).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", installation).unwrap(),
             Some(f.controller),
         )
         .unwrap();
     let installed = f.configuration(f.operator).unwrap();
     assert_eq!(installed.project, project);
     assert_eq!(installed.configuration, f.config);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(

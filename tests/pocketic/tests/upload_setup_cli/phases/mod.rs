@@ -23,7 +23,7 @@ pub(super) fn before_restore(c: &Client) {
     invalid.declaration.chunks[0][0] ^= 1;
     save(
         &c.report.join("invalid-manifest.cbor"),
-        &ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
+        &ic_blob_storage_contracts::document::encode(invalid).unwrap(),
     );
     let mut invalid_args = c.args("prepare-upload", Some("invalid-prepare"), true);
     change(
@@ -47,7 +47,7 @@ pub(super) fn before_restore(c: &Client) {
     changed.expires_at_ns -= 1;
     save(
         &c.report.join("changed-permission.cbor"),
-        &ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+        &ic_blob_storage_contracts::document::encode(changed).unwrap(),
     );
     let mut args = c.args("upload-permission", None, false);
     change(

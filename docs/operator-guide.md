@@ -34,7 +34,7 @@ Trusted ancestors and exclusive namespace custody remain the operator's duty.
 ## Current-instance recovery
 
 The current contract supports operator-only `blob_resume_current_instance()`
-with one CBOR unit/null argument (`f6`). Historical installations retain their
+with a `blob_resume_current_instance` Wire request containing unit. Historical installations retain their
 matching released lifecycle contracts; their records are not current instructions.
 Same-release upgrade restoration remains synchronous and fenced before deferred
 work. Invoke this endpoint as the installed operator on the current canister;
@@ -149,17 +149,17 @@ target/debug/blob-storage installation-check \
 The command accepts at most 16 KiB of strict JSON, rejecting unknown/duplicate
 fields, ambiguous options and trailing input. Complete semantic validation precedes
 creation of a new private directory containing the original `configuration.json`,
-encoded `configuration.cbor`, complete `installation.cbor` and `summary.json` with
+encoded `configuration.cbor`, complete `installation.wire` and `summary.json` with
 packet hashes. Existing or partial output is never replaced. Full-width namespace
 is reported as decimal text. `host_init_encoded` is true; authentication, platform
 identity, compiled release and effect facts remain false.
 
 The service and release are planned inputs. Deployment independently checks the
-actual canister and compiled artifact. Standalone accepts the complete CBOR
+actual canister and compiled artifact. Standalone accepts the complete method-bound Wire
 `ServiceInstallationInput { configuration, project, completion_verifier }`;
-`installation.cbor` is its init argument. `configuration.cbor` alone is insufficient.
-Use `ic_blob_storage_contracts::wire::decode::<ServiceInstallationInput>(&bytes,
-16_384)` to inspect the carrier with the shared codec before installation.
+`installation.wire` is its init argument. `configuration.cbor` alone is insufficient.
+Use `ic_blob_storage_contracts::wire::decode_request::<ServiceInstallationInput>(
+"blob_install", &bytes, 16_384)` to inspect the carrier with the shared codec before installation.
 
 Compare the decoded values and retained file hashes with the finalized plan. No
 identity credential is embedded. External consumer wrappers can import the same
@@ -538,12 +538,12 @@ operation journals and obligations; changing input format never authorizes repla
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  upload-inputs --installation reviewed-installation/installation.cbor \
+  upload-inputs --installation reviewed-installation/installation.wire \
   --binding binding.json --manifest manifest.json --body source.bin \
   --max-bytes 10485760 --run-dir new-upload-inputs
 ```
 
-Use complete `installation.cbor` from the reviewed `installation-check` output,
+Use complete `installation.wire` from the reviewed `installation-check` output,
 not its configuration-only file. The command decodes one bounded exact current
 `ServiceInstallationInput`, applies the shared candidate validator and requires
 the original service, local namespace and project to match. The exact upload
@@ -553,7 +553,7 @@ caller ceiling. This checks a proposed installation, without observing actual
 installed state, remaining capacity, tenant authority, release or provisioning.
 The host and authenticated service workflows still make those decisions.
 
-The fresh private directory retains exact `installation.cbor`, both JSON inputs, a verified `body.bin`,
+The fresh private directory retains exact `installation.wire`, both JSON inputs, a verified `body.bin`,
 `permission.cbor`, `manifest.cbor`, first-reference `download.cbor` and
 `reference-status.cbor`, browser `certificate-binding.json`, and a final `summary.json` with input/output
 hashes and the raw content digest. It opens a regular source file once, checks its
@@ -640,7 +640,7 @@ objects and bytes. Reopening frozen batches applies the same guard.
 
 ```sh
 blob-storage publish-inputs --inventory inventory.json --root frozen-inputs \
-  --installation reviewed-installation/installation.cbor \
+  --installation reviewed-installation/installation.wire \
   --max-bytes 10485760 --max-total-bytes 335544320 \
   --run-dir new-publication-inputs
 ```
@@ -654,7 +654,7 @@ and overlapping releases can consume additional capacity on an installed service
 Per-file maximum is at most 1 GiB; total maximum is at most 1 TiB.
 
 After preflight, a new private directory retains `inventory.json`, exact
-`installation.cbor` and `plan.json`. Serial `file-0000`, `file-0001`, … directories
+`installation.wire` and `plan.json`. Serial `file-0000`, `file-0001`, … directories
 contain the same verified body and request files as single-file preparation.
 Each raw body digest must also match the inventory before usable request files
 are written. Root/digest failure preserves that file's evidence and the batch's
@@ -1110,7 +1110,7 @@ bytes and 1 GiB declared content; permission input/reply is bounded to 4 KiB.
 Service configuration may impose smaller limits. Transport retains the common
 256 KiB HTTP ceiling, thirty-second deadline and identity/trust rules below.
 
-Each mutation claims a fresh private run, writes canonical `request.cbor`,
+Each mutation claims a fresh private run, writes canonical `request.wire`,
 `permission.cbor`, `signed-request.cbor` and `intent.json` before dispatch, then
 records `outcome.json`. `acknowledged`, typed `refused`, `pending` and `uncertain`
 remain distinct. Existing/partial runs refuse reuse; no polling or automatic retry.
@@ -1234,7 +1234,7 @@ metadata still owns the content root. Production serving and the consumer's
 certified media-map/asset publication need their own acceptance evidence.
 
 Both the descriptor wait and GET have thirty-second deadlines. The service
-transport has a 256 KiB response ceiling; request/reply CBOR is bounded to 4 KiB
+transport has a 256 KiB response ceiling; request/reply Wire is bounded to 4 KiB
 with decoding-work limits. `--max-bytes` is an explicit positive ceiling, at most
 1 GiB, and also bounds the independently declared body. No redirects, automatic
 retries, range response or content decompression are accepted. Local mode requires
@@ -1282,7 +1282,7 @@ means an observation was returned (even if fenced), 2 means invalid arguments,
 and 3 means a file, identity, transport, decoder, binding or service refusal. Errors
 are structured JSON codes; private key contents and remote diagnostics are omitted.
 The call has a 30-second deadline, a 256 KiB HTTP response ceiling and a 64 KiB
-CBOR reply bound with byte/nesting limits. It never falls back to an update.
+Wire reply bound with byte/traversal limits. It never falls back to an update.
 Run `make test-standalone` for the local signed HTTP subprocess evidence.
 
 ## Account inspection
@@ -1318,7 +1318,7 @@ refusals exit 3. No failure becomes a zero balance. Every successful output sets
 `retry_authorized: false`.
 
 The command has a thirty-second deadline, 256 KiB HTTP response ceiling and 4 KiB
-CBOR reply bound with byte/nesting limits and no unknown fields or trailing values. Waiting
+Wire reply bound with byte/traversal limits and no trailing values. Waiting
 may inspect the exact IC request ID; it never resubmits, automatically refreshes,
 funds or writes a journal. A timeout or failed certificate validation can follow
 execution of this read update: treat the result as unobserved, not proof the
@@ -1359,7 +1359,7 @@ ban future re-addition. Neither cancellation nor revocation queries the provider
 Sync attaches no provider cycles; normal IC execution costs remain separate.
 
 Before network dispatch, the client atomically claims a private directory and
-syncs `request.cbor`, `signed-request.cbor` and `intent.json`, binding the
+syncs `request.wire`, `signed-request.cbor` and `intent.json`, binding the
 complete scope/operator/decision, method, request ID, expiry and hashes of request,
 signature and trusted root. Existing or partial directories refuse before sending.
 These files are operator-owned recovery evidence; they are not an independent
@@ -1367,10 +1367,10 @@ freshness authority after copying/restoring. Keep signed artifacts private.
 
 The client submits once with a thirty-second deadline and does not poll, retry,
 allocate sync IDs or automatically inspect status. HTTP backpressure also refuses
-without resubmission. A verified, bounded CBOR acknowledgment is saved with the
+without resubmission. A verified, bounded Wire acknowledgment is saved with the
 original request; sync scope/positive sequence and revocation scope/gateway must
 match. Cancellation's unit reply acknowledges the saved exact request under its
-IC request ID. Native limits are 256 KiB HTTP and 4 KiB CBOR with byte/nesting
+IC request ID. Native limits are 256 KiB HTTP and 4 KiB Wire with byte/traversal
 bounds and no unknown fields or trailing values. Oversized replies remain uncertain without storing
 unbounded bytes. Bounded malformed replies remain retained.
 
@@ -1442,7 +1442,7 @@ credit, complete account activity or spendability.
 Exit 0 means a successfully observed assessment, including its blockers; typed
 refusals exit 3 and invalid arguments exit 2. JSON uses decimal strings for amounts
 and identities. The CLI checks exact echo, bounded decoding and consistency of
-local blockers, with a thirty-second deadline, 256 KiB HTTP and 4 KiB CBOR
+local blockers, with a thirty-second deadline, 256 KiB HTTP and 4 KiB Wire
 ceilings. Query signatures require the same explicit trust as status. No reservation,
 payment, provider query, automatic retry or restore-fence release occurs;
 preparation/dispatch/retry authority are always false. Never cache the report as
@@ -1519,7 +1519,7 @@ obligations. Physical deletion alone does not establish billing cessation.
 No Cashier or payer flags are needed for this local history query.
 
 Each command queries `blob_upload_history` once, accepting at most 64 inspected
-rows and 32 matching entries in 64 KiB of bounded CBOR. JSON preserves all original
+rows and 32 matching entries in 64 KiB of bounded Wire. JSON preserves all original
 upload/object/incarnation/first-reference identities, roots, byte lengths, local
 states, the independent restore fence and decimal-string `scanned` count.
 
@@ -1581,7 +1581,8 @@ explicit positive reference/operation IDs and exact retain/release action.
 Generate it with [`reference-inputs`](#generate-reference-inputs-offline) and use
 its `reference.cbor`, or encode the same maintained DTO in the application.
 The client validates its tenant and scope before signing, claims a new private
-directory and syncs `request.cbor`, `signed-request.cbor` and `intent.json`
+directory and syncs `request.wire`, passive `reference.cbor`,
+`signed-request.cbor` and `intent.json`
 before sending one `blob_apply_reference` update. The intent binds signer,
 target, network/trust, full operation, signed expiry/request ID and file hashes.
 There is no polling, automatic resend, ID allocation or provider call. Keep
@@ -1591,7 +1592,7 @@ Read `outcome.json` and the JSON output together: `recorded` means the service
 returned an exact receipt; `result.state` is either `success` or a stored
 transition `failure`. A recorded failure exits zero and does not mean retain/release
 succeeded. `pending` and `uncertain` require `reference-receipt` with the saved
-`reference-dispatch/request.cbor`; `refused` preserves the typed service refusal.
+`reference-dispatch/reference.cbor`; `refused` preserves the typed service refusal.
 If receipt inspection itself refuses (`reference_unknown`, `reference_unconfirmed`
 or another typed error), the original pending/uncertain outcome stays unresolved.
 Do not replace it with absence or assume non-execution. Standalone tests exercise
@@ -1670,7 +1671,7 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
 Submit `second-reference-inputs/reference.cbor` using
 [`submit-reference`](#submit-a-reference) and a fresh dispatch directory. Confirm
 `result.state: success`; after a lost/pending reply, inspect the exact dispatch's
-saved `request.cbor` with `reference-receipt` and inspect current liveness with
+saved `reference.cbor` with `reference-receipt` and inspect current liveness with
 `second-reference-inputs/reference-status.cbor`. Keep the uncertain artifacts;
 receipt success does not overwrite the transport outcome or authorize resend.
 Use `second-reference-inputs/download.cbor` for its verified download.
@@ -1802,7 +1803,7 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
 ```
 
 `permission.cbor` contains one binary CBOR `UploadAdmissionRequest` saved by
-the integrating application (for example, `ic_blob_storage_contracts::wire::encode(permission)`), not
+the integrating application (for example, `ic_blob_storage_contracts::document::encode(permission)`), not
 JSON or hexadecimal text. It is bounded to 4 KiB and binds the full original
 operation, uploader and expiry. The signer must be that uploader or the tenant;
 operator status supplies no override. The command queries `blob_upload_manifest`,
@@ -1845,7 +1846,7 @@ and checks the exact scope, permission, verifier and receipt chronology. JSON
 Conflicts retain both the expected digest/time and the accepted digest/time.
 All three observations exit 0, including when fenced; callers must inspect the
 outcome. Failures exit 3 and never become absence. IDs and times remain decimal
-strings. Limits are 30 seconds, 256 KiB HTTP and 4 KiB CBOR with bounded decoding.
+strings. Limits are 30 seconds, 256 KiB HTTP and 4 KiB Wire with bounded decoding.
 
 A matched receipt proves the service retained that exact trusted statement. It
 does not establish current availability, reference liveness or billing cessation.
@@ -1883,7 +1884,7 @@ suspended exposed uploads remain eligible for reconciliation.
 
 One GET is allowed, with no redirects, HTTP retries, credentials or automatic
 decompression. IC mode requires HTTPS origins; local mode accepts literal loopback
-origins only. Both query and GET have 30-second deadlines. Service CBOR is bounded
+origins only. Both query and GET have 30-second deadlines. Service Wire is bounded
 to 64 KiB, 1,024 leaves and 16 headers/4 KiB metadata. The explicit content budget is
 at most 1 GiB and is checked before fetching. Whole-body streaming checks the
 original root, metadata and exact length off-canister. HTTP metadata cannot replace
@@ -1892,7 +1893,7 @@ These request/byte limits are not a billing guarantee or a bound on transport ov
 
 The run directory must be new and its parent must exist. Intent is synced before
 the query and GET. Artifacts include `plan.json`, `permission.cbor`, the bounded
-`service-response.cbor`, `download-request.json`, HTTP status and download outcome.
+`service-response.wire`, `download-request.json`, HTTP status and download outcome.
 Only complete verification writes and syncs `statement.cbor`, followed by
 `summary.json` with its hash and observation time. The runner fingerprint covers its
 observation/transport/argument sources and lockfile; artifact hashes establish local
@@ -1928,7 +1929,7 @@ against someone who can rewrite the entire run. Keep the directory under the
 verifier's control, including during submission. No provider read occurs here.
 
 An exclusive `attestation/` directory claims the run. Before one signed update,
-the command syncs an exact `statement.cbor` copy, `signed-request.cbor` and
+the command syncs the method-bound `request.wire`, `signed-request.cbor` and
 `intent.json` containing the runner version/source fingerprint, request ID, expiry,
 root-key and artifact hashes. The fingerprint covers the native submission,
 observation-reader, shared transport/record/argument sources and lockfile.
@@ -1944,8 +1945,8 @@ Every existing claim, including an empty directory left by a killed process, ref
 resubmission with `submission_already_claimed`. Do not remove or copy the claim to
 retry. This is a local single-submission guard, not a distributed lock or global
 exactly-once guarantee. Recover with `upload-attestation` using the saved
-`attestation/statement.cbor` and independently configured verifier. If interruption
-preceded that copy, the original observation statement remains available for lookup.
+original observation `statement.cbor` and independently configured verifier.
+The dispatched `attestation/request.wire` is not a passive statement input.
 An absent receipt, expired ingress request or local error never authorizes another
 submission. No statement, digest or observation time is regenerated. Exit zero can
 mean `pending`; inspect the outcome before treating it as acceptance.

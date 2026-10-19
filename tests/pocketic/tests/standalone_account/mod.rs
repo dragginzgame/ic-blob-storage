@@ -221,7 +221,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
         &f.harness.pic.get_stable_memory(input.scope.cashier),
         &source_before,
     );
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     assert_eq!(
         inspect(&f, f.operator, input),
@@ -396,7 +396,7 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
         AccountObservation::Balance(_)
     ));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     assert_eq!(
         inspect(&f, f.operator, input),

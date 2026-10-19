@@ -63,6 +63,7 @@ fn outcome(request_id: &str, result: &Result<Option<ReferenceMutationResponse>, 
 
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let (request, argument) = references::command(
+        REFERENCE_APPLY_METHOD,
         input.service,
         input.namespace,
         &input.request,
@@ -75,7 +76,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             service: input.service,
             method: REFERENCE_APPLY_METHOD,
             argument: &argument,
-            argument_file: "request.cbor",
+            argument_file: "request.wire",
             directory: &input.directory,
             reply_limit: SMALL_REPLY_BYTES,
         },
@@ -98,6 +99,10 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             method: REFERENCE_APPLY_METHOD,
             request_sha256: ContentDigest::compute(&argument).to_string(),
         },
+    )?;
+    prepared.run().bytes(
+        "reference.cbor",
+        &ic_blob_storage_contracts::document::encode(request).map_err(|_| Failure::Arguments)?,
     )?;
     let (_, report) = prepared.dispatch(&agent).await.finish(
         |bytes| {

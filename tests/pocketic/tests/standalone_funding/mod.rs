@@ -99,7 +99,7 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
         .unwrap();
     assert_eq!(replicated, Ok(None));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(read(f.operator, request), Ok(None));
@@ -221,7 +221,7 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
         .unwrap();
     assert_eq!(replicated, Ok(expected.clone()));
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     expected.fenced = true;
     let restored = f.harness.pic.get_stable_memory(f.service);

@@ -56,6 +56,7 @@ impl Verification {
         url: &str,
     ) -> Result<Value, Failure> {
         let declaration = reply::inspection(
+            "blob_upload_manifest",
             self.permission,
             response,
             manifest_reply_limits(self.max_bytes),

@@ -22,7 +22,7 @@ fn permission() -> UploadAdmissionRequest {
 fn args(base: &Path, permission: UploadAdmissionRequest, action: &str) -> Vec<String> {
     std::fs::write(
         base.join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     vec![
@@ -51,7 +51,7 @@ fn exact_full_width_retain_and_expired_permission_release_need_no_network() {
         let result = crate::native::execute(&args).unwrap();
         let output = base.path().join("output");
         let bytes = std::fs::read(output.join("reference.cbor")).unwrap();
-        let command: ReferenceCommand = ic_blob_storage_contracts::wire::decode(
+        let command: ReferenceCommand = ic_blob_storage_contracts::document::decode(
             &bytes,
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -65,7 +65,7 @@ fn exact_full_width_retain_and_expired_permission_release_need_no_network() {
                 action
             }
         );
-        let status: ReferenceStatusRequest = ic_blob_storage_contracts::wire::decode(
+        let status: ReferenceStatusRequest = ic_blob_storage_contracts::document::decode(
             &std::fs::read(output.join("reference-status.cbor")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -77,7 +77,7 @@ fn exact_full_width_retain_and_expired_permission_release_need_no_network() {
                 reference: u128::MAX
             }
         );
-        let download: DownloadRequest = ic_blob_storage_contracts::wire::decode(
+        let download: DownloadRequest = ic_blob_storage_contracts::document::decode(
             &std::fs::read(output.join("download.cbor")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -136,13 +136,13 @@ fn malformed_or_invalid_permission_refuses_and_partial_runs_are_never_resumed() 
     let args = args(base.path(), permission(), "release");
     for bytes in [
         b"invalid".to_vec(),
-        ic_blob_storage_contracts::wire::encode((
+        ic_blob_storage_contracts::document::encode((
             permission(),
             ic_platform::candid::contract::Reserved,
         ))
         .unwrap(),
-        ic_blob_storage_contracts::wire::encode((permission(), ())).unwrap(),
-        ic_blob_storage_contracts::wire::encode(ReferenceCommand {
+        ic_blob_storage_contracts::document::encode((permission(), ())).unwrap(),
+        ic_blob_storage_contracts::document::encode(ReferenceCommand {
             upload: permission().upload,
             reference: 1,
             operation: 1,
@@ -158,7 +158,7 @@ fn malformed_or_invalid_permission_refuses_and_partial_runs_are_never_resumed() 
     invalid.upload.tenant = Principal::anonymous();
     std::fs::write(
         base.path().join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
+        ic_blob_storage_contracts::document::encode(invalid).unwrap(),
     )
     .unwrap();
     assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
@@ -166,7 +166,7 @@ fn malformed_or_invalid_permission_refuses_and_partial_runs_are_never_resumed() 
     assert_eq!(crate::native::execute(&args), Err(Failure::File));
     std::fs::write(
         base.path().join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(permission()).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission()).unwrap(),
     )
     .unwrap();
     std::fs::create_dir(base.path().join("output")).unwrap();

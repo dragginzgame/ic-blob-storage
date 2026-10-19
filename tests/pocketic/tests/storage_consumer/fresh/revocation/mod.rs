@@ -4,6 +4,7 @@ use blob_test_protocol::consumer::Revocation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 pub(super) fn withdraw(
     f: &Fixture,
@@ -12,7 +13,7 @@ pub(super) fn withdraw(
 ) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "revoke",
@@ -28,7 +29,7 @@ pub(super) fn withdraw(
 fn recover_withdrawal(f: &Fixture) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "recover_revocation",
@@ -53,7 +54,7 @@ fn revocation_traps_preserve_tombstone_and_recover_without_resending() {
                 f.tenant,
                 f.operator,
                 "revoke",
-                ic_blob_storage_contracts::wire::encode(Revocation {
+                ic_blob_storage_contracts::document::encode(Revocation {
                     asset: 1,
                     fault,
                     max_reply_bytes: 4096,

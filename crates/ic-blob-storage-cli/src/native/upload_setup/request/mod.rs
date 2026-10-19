@@ -44,8 +44,12 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
             .map_err(manifest_error)?;
     }
     let argument = match &payload {
-        Payload::Manifest(manifest) => ic_blob_storage_contracts::wire::encode(manifest),
-        Payload::Permission(permission) => ic_blob_storage_contracts::wire::encode(permission),
+        Payload::Manifest(manifest) => {
+            ic_blob_storage_contracts::wire::encode_request(input.kind.method(), manifest)
+        }
+        Payload::Permission(permission) => {
+            ic_blob_storage_contracts::wire::encode_request(input.kind.method(), permission)
+        }
     }
     .map_err(|_| Failure::Arguments)?;
     Ok(Request { payload, argument })

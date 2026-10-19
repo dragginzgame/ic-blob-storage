@@ -78,13 +78,14 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     assert_eq!(report["expected_host_release"], env!("CARGO_PKG_VERSION"));
     assert_eq!(report["configuration_validated"], true);
     assert_eq!(report["host_init_encoded"], true);
-    let installation = std::fs::read(output.join("installation.cbor")).unwrap();
-    assert_eq!(report["installation_file"], "installation.cbor");
+    let installation = std::fs::read(output.join("installation.wire")).unwrap();
+    assert_eq!(report["installation_file"], "installation.wire");
     assert_eq!(
         report["installation_sha256"],
         ContentDigest::compute(&installation).to_string()
     );
-    let encoded: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode(
+    let encoded: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
+        "blob_install",
         &installation,
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
@@ -125,7 +126,7 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     );
     assert_eq!(std::fs::read(output.join("summary.json")).unwrap(), summary);
     assert_eq!(
-        std::fs::read(output.join("installation.cbor")).unwrap(),
+        std::fs::read(output.join("installation.wire")).unwrap(),
         installation
     );
     assert_eq!(
@@ -145,7 +146,7 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
         b"partial"
     );
     assert!(!partial.path().join("output/summary.json").exists());
-    assert!(!partial.path().join("output/installation.cbor").exists());
+    assert!(!partial.path().join("output/installation.wire").exists());
 }
 
 #[test]

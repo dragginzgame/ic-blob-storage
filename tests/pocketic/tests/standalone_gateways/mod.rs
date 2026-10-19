@@ -80,7 +80,7 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
         !f.harness.pic.get_stable_memory(f.service).eq(&before),
         "revocation did not advance durable invalidation"
     );
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(call(f.operator, input), Err(Error::Fenced));

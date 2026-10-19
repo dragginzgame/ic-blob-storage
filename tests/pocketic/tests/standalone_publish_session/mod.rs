@@ -83,7 +83,7 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
     }
     let files = (0..2)
         .map(|index| {
-            ic_blob_storage_contracts::wire::decode(
+            ic_blob_storage_contracts::document::decode(
                 &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.cbor")))
                     .unwrap(),
                 ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,

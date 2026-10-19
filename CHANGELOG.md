@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.36.0]
+
+- **Breaking owned protocol:** use method- and direction-bound IC Wire for all
+  31 owned methods and standalone install/post-upgrade inputs. Remove service
+  CBOR dispatch without fallback; preserve finite tenant frames, provider
+  contracts, HTTP chunk transfers and persisted records.
+- Cut standalone, replicated Client, native CLI, storage probe and installed
+  callers together. Retain passive offline CBOR under `document`; save dispatched
+  packets as `.wire` and preserve exact signed envelopes. Reference submissions
+  retain `reference.cbor` separately for receipt inspection. Cross-release
+  transitions still require retirement and reinstall.
+
 ## [0.35.0] - 2026-10-18
 
 - **Breaking client imports:** use the published `ic-blob-storage-client` role

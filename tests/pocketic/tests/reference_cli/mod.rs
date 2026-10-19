@@ -18,12 +18,12 @@ pub(crate) fn native_requests(
     let status = directory.join("status.cbor");
     fs::write(
         &receipt,
-        ic_blob_storage_contracts::wire::encode(input).unwrap(),
+        ic_blob_storage_contracts::document::encode(input).unwrap(),
     )
     .unwrap();
     fs::write(
         &status,
-        ic_blob_storage_contracts::wire::encode(
+        ic_blob_storage_contracts::document::encode(
             ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest {
                 upload: input.upload,
                 reference: input.reference,

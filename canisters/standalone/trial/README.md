@@ -24,7 +24,7 @@ their original uploader separately.
 
 Preserve full-width integer literals using integer-preserving tooling.
 `installation-check` reads strict JSON and emits `configuration.cbor`, complete
-`installation.cbor` and their hashes in a new private run directory. Only the
+`installation.wire` and their hashes in a new private run directory. Only the
 complete installation packet is a current standalone init argument. The provider
 `service.did` describes the certificate endpoint; it contains no installation
 schema. Former Candid installation packets are not accepted by the current host.

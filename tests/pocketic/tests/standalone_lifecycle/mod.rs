@@ -128,8 +128,10 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
     );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     for _ in 0..2 {
-        f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
-            .unwrap();
+        f.upgrade(
+            ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
+        )
+        .unwrap();
         let before = f.harness.pic.get_stable_memory(f.service);
         let mut expected = installation.clone();
         expected.fenced = true;
@@ -203,7 +205,7 @@ fn current_instance_recovery_refuses_expired_platform_history_without_rotating_a
 fn current_instance_recovery_rejects_management_change_during_history_await() {
     use ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure;
     let f = Fixture::new();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let message = f
         .harness
@@ -212,7 +214,8 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
             f.service,
             f.operator,
             "blob_resume_current_instance",
-            ic_blob_storage_contracts::wire::encode(()).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request("blob_resume_current_instance", ())
+                .unwrap(),
         )
         .unwrap();
     f.harness.pic.tick();
@@ -221,7 +224,8 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
         .set_controllers(f.service, Some(f.controller), vec![f.controller])
         .unwrap();
     let reply: Result<(), CurrentInstanceRecoveryFailure> =
-        ic_blob_storage_contracts::wire::decode(
+        ic_blob_storage_contracts::wire::decode_response(
+            "blob_resume_current_instance",
             &f.harness.pic.await_call(message).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -307,7 +311,7 @@ fn active_current_instance_recovery_retains_released_physical_and_billing_obliga
     assert_eq!(before.uploads.physical_bytes, 1024);
     assert_eq!(before.uploads.liability_bytes, 1024);
     let admission = f.admission(permission);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     fences(
         &f.local_status(f.operator, f.operator_scope()).unwrap(),

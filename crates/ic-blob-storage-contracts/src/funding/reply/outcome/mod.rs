@@ -17,7 +17,8 @@ use std::num::NonZeroUsize;
 /// Rejects invalid scope, zero identities/amounts or encoding failure.
 pub fn inspection_request(input: FundingOutcomeRequest) -> Result<Vec<u8>, FundingReplyError> {
     check_outcome(input)?;
-    crate::wire::encode(input).map_err(|_| FundingReplyError::Invalid)
+    crate::wire::encode_request("blob_funding_outcome", input)
+        .map_err(|_| FundingReplyError::Invalid)
 }
 
 /// Decode a response from the independently authenticated selected service.
@@ -32,9 +33,12 @@ pub fn inspect(
     max: NonZeroUsize,
 ) -> Result<Option<FundingOutcomeResponse>, FundingReplyError> {
     check_outcome(input)?;
-    let observed =
-        decode::<Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure>>(bytes, max)?
-            .map_err(FundingReplyError::Outcome)?;
+    let observed = decode::<Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure>>(
+        "blob_funding_outcome",
+        bytes,
+        max,
+    )?
+    .map_err(FundingReplyError::Outcome)?;
     let Some(view) = observed else {
         return Ok(None);
     };

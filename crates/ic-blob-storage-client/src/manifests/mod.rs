@@ -153,6 +153,11 @@ impl ReplicatedUploadManifestClient {
                 UploadManifestClientError::Rejected,
             )
         })?;
-        Ok(reply::inspection(input, response.as_ref(), limits)?)
+        Ok(reply::inspection(
+            "blob_upload_manifest",
+            input,
+            response.as_ref(),
+            limits,
+        )?)
     }
 }

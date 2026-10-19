@@ -1,8 +1,4 @@
 //! Explicit standalone endpoint attributes and lifecycle ownership.
-#![expect(
-    clippy::needless_pass_by_value,
-    reason = "Endpoint macros own decoded inputs"
-)]
 use crate::ops;
 use crate::ops::Workflow as workflow;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
@@ -13,12 +9,14 @@ fn context() -> UploadContext {
         actor: ic_platform::cdk::api::msg_caller(),
     }
 }
-#[ic_platform::cdk::init(hidden = true, decode_with = "ops::decode_configuration")]
-fn init(input: ServiceInstallationInput) {
+#[ic_platform::cdk::init(hidden = true)]
+fn init() {
+    let input: ServiceInstallationInput = ops::decode_owned("blob_install");
     ops::install(&input);
 }
-#[ic_platform::cdk::post_upgrade(decode_with = "ops::decode")]
+#[ic_platform::cdk::post_upgrade]
 fn post_upgrade() {
+    let _: () = ops::decode_owned("blob_post_upgrade");
     ops::restore();
 }
 macro_rules! endpoint {
@@ -30,18 +28,26 @@ macro_rules! endpoint {
         #[ic_platform::cdk::update(hidden = true, decode_with = "ops::decode_tenant_update", encode_with = "ops::encode_tenant_update")]
         $($item)*
     };
-    (query, request, $($item:tt)*) => {
-        #[ic_platform::cdk::query(hidden = true, decode_with = "ops::decode", encode_with = "ops::encode")]
-        $($item)*
+    (query, request, fn $name:ident($($arg:ident : $input:ty)? $(,)?) -> $output:ty $body:block) => {
+        #[ic_platform::cdk::query(manual_reply = true, hidden = true)]
+        fn $name() {
+            endpoint!(@input stringify!($name); $($arg : $input)?);
+            let value: $output = $body;
+            ops::reply_owned(stringify!($name), value);
+        }
     };
-    (update, request, $($item:tt)*) => {
-        #[ic_platform::cdk::update(hidden = true, decode_with = "ops::decode", encode_with = "ops::encode")]
-        $($item)*
+    (update, $category:ident, async fn $name:ident($($arg:ident : $input:ty)? $(,)?) -> $output:ty $body:block) => {
+        #[ic_platform::cdk::update(manual_reply = true, hidden = true)]
+        async fn $name() {
+            endpoint!(@input stringify!($name); $($arg : $input)?);
+            let value: $output = (async $body).await;
+            ops::reply_owned(stringify!($name), value);
+        }
     };
-    (update, manifest, $($item:tt)*) => {
-        #[ic_platform::cdk::update(hidden = true, decode_with = "ops::decode_manifest", encode_with = "ops::encode")]
-        $($item)*
+    (@input $method:expr; $arg:ident : $input:ty) => {
+        let $arg: $input = ops::decode_owned($method);
     };
+    (@input $method:expr;) => { let _: () = ops::decode_owned($method); };
     (certificate, request, $wire_name:literal, $($item:tt)*) => {
         #[ic_platform::cdk::update(name = $wire_name, hidden = true, decode_with = "ops::decode_certificate")]
         #[ic_platform::candid::contract::candid_method(update, rename = $wire_name)]

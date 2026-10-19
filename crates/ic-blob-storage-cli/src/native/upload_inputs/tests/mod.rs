@@ -49,8 +49,9 @@ pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInp
 }
 fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
     std::fs::write(
-        base.join("installation.cbor"),
-        ic_blob_storage_contracts::wire::encode(installation(binding)).unwrap(),
+        base.join("installation.wire"),
+        ic_blob_storage_contracts::wire::encode_request("blob_install", installation(binding))
+            .unwrap(),
     )
     .unwrap();
     std::fs::write(
@@ -77,7 +78,7 @@ fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
         "--body".into(),
         base.join("body.bin").display().to_string(),
         "--installation".into(),
-        base.join("installation.cbor").display().to_string(),
+        base.join("installation.wire").display().to_string(),
     ]
 }
 
@@ -90,12 +91,12 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     let output = base.path().join("output");
     let permission_bytes = std::fs::read(output.join("permission.cbor")).unwrap();
     let preparation_bytes = std::fs::read(output.join("manifest.cbor")).unwrap();
-    let permission: UploadAdmissionRequest = ic_blob_storage_contracts::wire::decode(
+    let permission: UploadAdmissionRequest = ic_blob_storage_contracts::document::decode(
         &permission_bytes,
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
     .unwrap();
-    let preparation: UploadManifestRequest = ic_blob_storage_contracts::wire::decode(
+    let preparation: UploadManifestRequest = ic_blob_storage_contracts::document::decode(
         &preparation_bytes,
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
@@ -106,7 +107,7 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     assert_eq!(permission.expires_at_ns, u64::MAX);
     assert_ne!(permission.upload.tenant, permission.uploader);
     let status: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest =
-        ic_blob_storage_contracts::wire::decode(
+        ic_blob_storage_contracts::document::decode(
             &std::fs::read(output.join("reference-status.cbor")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -114,7 +115,7 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     assert_eq!(status.upload, permission.upload);
     assert_eq!(status.reference, permission.upload.first_reference);
     let download: ic_blob_storage_contracts::dto::download::DownloadRequest =
-        ic_blob_storage_contracts::wire::decode(
+        ic_blob_storage_contracts::document::decode(
             &std::fs::read(output.join("download.cbor")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -146,10 +147,10 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     );
     assert_eq!(report["certificate_binding_sha256"], digest(&browser_bytes));
     assert_eq!(report["body_verified"], true);
-    let init = std::fs::read(output.join("installation.cbor")).unwrap();
+    let init = std::fs::read(output.join("installation.wire")).unwrap();
     assert_eq!(
         init,
-        std::fs::read(base.path().join("installation.cbor")).unwrap()
+        std::fs::read(base.path().join("installation.wire")).unwrap()
     );
     assert_eq!(report["installation_sha256"], digest(&init));
     assert_eq!(report["installation_binding_checked"], true);
@@ -280,7 +281,7 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
             binding: std::fs::read(base.path().join("output/binding.json")).unwrap(),
             manifest: std::fs::read(base.path().join("output/manifest.json")).unwrap(),
             installation: crate::native::upload_inputs::installation::Installation::decode(
-                std::fs::read(base.path().join("output/installation.cbor")).unwrap(),
+                std::fs::read(base.path().join("output/installation.wire")).unwrap(),
                 NonZeroU64::new(10).unwrap(),
             )
             .unwrap(),

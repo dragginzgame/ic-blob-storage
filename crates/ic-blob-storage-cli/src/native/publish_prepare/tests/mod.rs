@@ -78,8 +78,11 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
             binding: serde_json::to_vec(&fixture::binding()).unwrap(),
             manifest: serde_json::to_vec(&fixture::manifest()).unwrap(),
             installation: crate::native::upload_inputs::installation::Installation::decode(
-                ic_blob_storage_contracts::wire::encode(fixture::installation(&fixture::binding()))
-                    .unwrap(),
+                ic_blob_storage_contracts::wire::encode_request(
+                    "blob_install",
+                    fixture::installation(&fixture::binding()),
+                )
+                .unwrap(),
                 10.try_into().unwrap(),
             )
             .unwrap(),

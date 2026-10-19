@@ -73,7 +73,7 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
     assert_eq!(run(&wrong, 3)["error"], "transport");
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let url = f

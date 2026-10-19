@@ -26,7 +26,7 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
     let run = Run::create(path).unwrap();
     run.json("intent.json", expected).unwrap();
     run.bytes("inventory.json", &batch.inventory).unwrap();
-    run.bytes("installation.cbor", &batch.installation.bytes)
+    run.bytes("installation.wire", &batch.installation.bytes)
         .unwrap();
     let installation = batch.installation();
     let host = HostConfigurationView {
@@ -39,8 +39,12 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
     let configuration = Run::create(&path.join("configuration")).unwrap();
     configuration
         .bytes(
-            "query-0000-reply.cbor",
-            &ic_blob_storage_contracts::wire::encode(Ok::<_, HostFailure>(host)).unwrap(),
+            "query-0000-reply.wire",
+            &ic_blob_storage_contracts::wire::encode_response(
+                "blob_configuration",
+                Ok::<_, HostFailure>(host),
+            )
+            .unwrap(),
         )
         .unwrap();
     run
@@ -228,10 +232,11 @@ fn source_history_refuses_changed_scope_content_roles_gateway_root_and_release()
             Err(Failure::Binding)
         ));
     }
-    let reply = source.join("configuration/query-0000-reply.cbor");
+    let reply = source.join("configuration/query-0000-reply.wire");
     let original = std::fs::read(&reply).unwrap();
     let mut host: Result<HostConfigurationView, HostFailure> =
-        ic_blob_storage_contracts::wire::decode(
+        ic_blob_storage_contracts::wire::decode_response(
+            "blob_configuration",
             &original,
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -239,7 +244,7 @@ fn source_history_refuses_changed_scope_content_roles_gateway_root_and_release()
     host.as_mut().unwrap().release = "different-release".into();
     std::fs::write(
         &reply,
-        ic_blob_storage_contracts::wire::encode(host).unwrap(),
+        ic_blob_storage_contracts::wire::encode_response("blob_configuration", host).unwrap(),
     )
     .unwrap();
     assert!(matches!(

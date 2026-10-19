@@ -76,7 +76,7 @@ fn failed_receipt(
     let path = directory.join("receipt.cbor");
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(ReferenceCommand {
+        ic_blob_storage_contracts::document::encode(ReferenceCommand {
             action: ReferenceAction::Release,
             ..input
         })
@@ -86,7 +86,7 @@ fn failed_receipt(
     assert_eq!(run(receipt, 3)["error"], "reference_conflict");
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(input).unwrap(),
+        ic_blob_storage_contracts::document::encode(input).unwrap(),
     )
     .unwrap();
     unchanged(f, &before);
@@ -118,7 +118,7 @@ fn failed_receipt(
     let path = directory.join("failed.cbor");
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(failed).unwrap(),
+        ic_blob_storage_contracts::document::encode(failed).unwrap(),
     )
     .unwrap();
     live(f, receipt, status);
@@ -225,7 +225,7 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
     unchanged(&f, &before);
     assert_eq!(
         std::fs::read(dir.path().join("receipt.cbor")).unwrap(),
-        ic_blob_storage_contracts::wire::encode(input).unwrap()
+        ic_blob_storage_contracts::document::encode(input).unwrap()
     );
     f.harness.pic.stop_live();
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {

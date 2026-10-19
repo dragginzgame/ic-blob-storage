@@ -129,7 +129,7 @@ pub fn decode_candidate(
     if bytes.len() > max_bytes.get() {
         return Err(ConfigurationInputError::Limit);
     }
-    let input = crate::wire::decode(bytes, max_bytes.get())
+    let input = crate::document::decode(bytes, max_bytes.get())
         .map_err(|_| ConfigurationInputError::Encoding)?;
     validate_candidate(actual_service, input)
 }

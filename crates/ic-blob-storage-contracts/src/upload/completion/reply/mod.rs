@@ -47,22 +47,29 @@ fn validate(
 /// # Errors
 /// Rejects invalid permissions and service/namespace mismatches before transport.
 pub fn inspection_request(
+    method: &str,
     authority: CompletionAuthority,
     permission: UploadAdmissionRequest,
 ) -> Result<Vec<u8>, UploadAttestationReplyError> {
+    if !matches!(method, "blob_upload_attestation" | "blob_verification_plan") {
+        return Err(UploadAttestationReplyError::Invalid);
+    }
     validate(authority, permission)?;
-    crate::wire::encode(permission).map_err(|_| UploadAttestationReplyError::Invalid)
+    crate::wire::encode_request(method, permission)
+        .map_err(|_| UploadAttestationReplyError::Invalid)
 }
 
-fn decode<T: for<'de> Deserialize<'de>>(
+fn decode<T: serde::Serialize + for<'de> Deserialize<'de>>(
+    method: &str,
     bytes: &[u8],
     maximum: NonZeroUsize,
 ) -> Result<T, UploadAttestationReplyError> {
     if bytes.len() > maximum.get() {
         return Err(UploadAttestationReplyError::Limit);
     }
-    let result: Result<T, UploadAttestationFailure> = crate::wire::decode(bytes, maximum.get())
-        .map_err(|_| UploadAttestationReplyError::Invalid)?;
+    let result: Result<T, UploadAttestationFailure> =
+        crate::wire::decode_response(method, bytes, maximum.get())
+            .map_err(|_| UploadAttestationReplyError::Invalid)?;
     result.map_err(UploadAttestationReplyError::Remote)
 }
 
@@ -94,7 +101,7 @@ pub fn inspection(
     maximum: NonZeroUsize,
 ) -> Result<UploadAttestationResponse, UploadAttestationReplyError> {
     validate(authority, permission)?;
-    let response: UploadAttestationResponse = decode(bytes, maximum)?;
+    let response: UploadAttestationResponse = decode("blob_upload_attestation", bytes, maximum)?;
     if response.permission != permission {
         return Err(UploadAttestationReplyError::Binding);
     }
@@ -115,7 +122,7 @@ pub fn mutation(
     maximum: NonZeroUsize,
 ) -> Result<UploadAttestationMutation, UploadAttestationReplyError> {
     validate(authority, statement.permission)?;
-    let response: UploadAttestationMutation = decode(bytes, maximum)?;
+    let response: UploadAttestationMutation = decode("blob_attest_upload", bytes, maximum)?;
     receipt(authority, statement.permission, &response.receipt)?;
     if response.receipt.request != *statement {
         return Err(UploadAttestationReplyError::Binding);

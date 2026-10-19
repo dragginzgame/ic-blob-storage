@@ -35,7 +35,11 @@ fn fixture() -> (CompletionAuthority, UploadAttestationReceipt) {
     (authority, receipt)
 }
 fn encoded<T: serde::Serialize>(value: T) -> Vec<u8> {
-    crate::wire::encode(Ok::<_, UploadAttestationFailure>(value)).unwrap()
+    crate::wire::encode_response(
+        "blob_upload_attestation",
+        Ok::<_, UploadAttestationFailure>(value),
+    )
+    .unwrap()
 }
 fn inspect(
     authority: CompletionAuthority,
@@ -55,12 +59,35 @@ fn historical_receipts_and_absence_preserve_exact_scope_times_and_fences() {
     let (authority, receipt) = fixture();
     let permission = receipt.request.permission;
     assert_eq!(
-        crate::wire::decode::<UploadAdmissionRequest>(
-            &inspection_request(authority, permission).unwrap(),
+        crate::wire::decode_request::<UploadAdmissionRequest>(
+            "blob_upload_attestation",
+            &inspection_request("blob_upload_attestation", authority, permission).unwrap(),
             crate::wire::MAX_MESSAGE_BYTES
         )
         .unwrap(),
         permission
+    );
+    let plan = inspection_request("blob_verification_plan", authority, permission).unwrap();
+    assert_eq!(
+        crate::wire::decode_request::<UploadAdmissionRequest>(
+            "blob_verification_plan",
+            &plan,
+            4096
+        )
+        .unwrap(),
+        permission
+    );
+    assert!(
+        crate::wire::decode_request::<UploadAdmissionRequest>(
+            "blob_upload_attestation",
+            &plan,
+            4096
+        )
+        .is_err()
+    );
+    assert_eq!(
+        inspection_request("blob_attest_upload", authority, permission),
+        Err(UploadAttestationReplyError::Invalid)
     );
     for fenced in [false, true] {
         for attestation in [
@@ -81,7 +108,7 @@ fn historical_receipts_and_absence_preserve_exact_scope_times_and_fences() {
             mutation(
                 authority,
                 &receipt.request,
-                &encoded(response),
+                &mutation_encoded(&response),
                 4096.try_into().unwrap()
             ),
             Ok(response)
@@ -101,16 +128,28 @@ fn receipt_binding_and_chronology_are_checked_even_for_restored_history() {
     };
     let mut wrong_scope = permission;
     wrong_scope.upload.namespace = 1;
-    assert_eq!(inspection_request(authority, wrong_scope), Err(Binding));
+    assert_eq!(
+        inspection_request("blob_upload_attestation", authority, wrong_scope),
+        Err(Binding)
+    );
     wrong_scope = permission;
     wrong_scope.upload.service = Principal::self_authenticating([9]);
-    assert_eq!(inspection_request(authority, wrong_scope), Err(Binding));
+    assert_eq!(
+        inspection_request("blob_upload_attestation", authority, wrong_scope),
+        Err(Binding)
+    );
     let mut invalid = permission;
     invalid.upload.object = 0;
-    assert_eq!(inspection_request(authority, invalid), Err(Invalid));
+    assert_eq!(
+        inspection_request("blob_upload_attestation", authority, invalid),
+        Err(Invalid)
+    );
     invalid = permission;
     invalid.uploader = Principal::anonymous();
-    assert_eq!(inspection_request(authority, invalid), Err(Invalid));
+    assert_eq!(
+        inspection_request("blob_upload_attestation", authority, invalid),
+        Err(Invalid)
+    );
     let mut wrong_echo = response;
     wrong_echo.permission.expires_at_ns += 1;
     assert_eq!(inspect(authority, permission, &wrong_echo), Err(Binding));
@@ -139,7 +178,7 @@ fn receipt_binding_and_chronology_are_checked_even_for_restored_history() {
             mutation(
                 authority,
                 &receipt.request,
-                &encoded(UploadAttestationMutation {
+                &mutation_encoded(&UploadAttestationMutation {
                     receipt: wrong,
                     changed: false
                 }),
@@ -165,7 +204,7 @@ fn receipt_binding_and_chronology_are_checked_even_for_restored_history() {
             mutation(
                 authority,
                 &receipt.request,
-                &encoded(UploadAttestationMutation {
+                &mutation_encoded(&UploadAttestationMutation {
                     receipt: other,
                     changed: false
                 }),
@@ -220,10 +259,22 @@ fn malformed_oversized_and_remote_refusals_never_become_absence() {
             crate::dto::upload::admission::UploadAdmissionFailure::Fenced,
         ),
     ] {
-        let bytes = crate::wire::encode(Err::<UploadAttestationResponse, _>(failure)).unwrap();
+        let bytes = crate::wire::encode_response(
+            "blob_upload_attestation",
+            Err::<UploadAttestationResponse, _>(failure),
+        )
+        .unwrap();
         assert_eq!(
             inspection(authority, permission, &bytes, 4096.try_into().unwrap()),
             Err(UploadAttestationReplyError::Remote(failure))
         );
     }
+}
+
+fn mutation_encoded(value: &UploadAttestationMutation) -> Vec<u8> {
+    crate::wire::encode_response(
+        "blob_attest_upload",
+        Ok::<_, UploadAttestationFailure>(value),
+    )
+    .unwrap()
 }

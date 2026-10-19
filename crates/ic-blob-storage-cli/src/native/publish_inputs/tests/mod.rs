@@ -77,8 +77,9 @@ impl Trial {
         )
         .unwrap();
         fs::write(
-            self.base.path().join("installation.cbor"),
-            ic_blob_storage_contracts::wire::encode(&self.installation).unwrap(),
+            self.base.path().join("installation.wire"),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", &self.installation)
+                .unwrap(),
         )
         .unwrap();
         vec![
@@ -94,7 +95,7 @@ impl Trial {
             "--installation".into(),
             self.base
                 .path()
-                .join("installation.cbor")
+                .join("installation.wire")
                 .display()
                 .to_string(),
             "--max-bytes".into(),
@@ -146,7 +147,7 @@ fn serial_snapshots_bind_the_inventory_and_survive_source_change_without_overwri
         let directory = trial.output().join(name);
         assert_eq!(fs::read(directory.join("body.bin")).unwrap(), b"abc");
         let permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest =
-            ic_blob_storage_contracts::wire::decode(
+            ic_blob_storage_contracts::document::decode(
                 &fs::read(directory.join("permission.cbor")).unwrap(),
                 ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
             )

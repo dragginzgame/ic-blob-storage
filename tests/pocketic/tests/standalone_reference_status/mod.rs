@@ -153,7 +153,7 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
         assert_eq!(failure.reject_code, RejectCode::CanisterError);
     }
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(

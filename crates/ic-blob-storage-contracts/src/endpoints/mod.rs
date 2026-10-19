@@ -13,8 +13,6 @@ pub enum MethodMode {
 /// Codec required by this method's external contract.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum MethodCodec {
-    /// Blob-owned exact CBOR value.
-    Cbor,
     /// Bounded, method- and direction-bound IC Wire contract.
     IcWire,
     /// Provider-defined Caffeine certificate contract.
@@ -38,11 +36,11 @@ macro_rules! method_spec {
         MethodSpec { name: crate::protocol::TENANT_UPDATE_METHOD, mode: MethodMode::Update, codec: MethodCodec::IcWire }
     };
     (query, $category:ident, fn $name:ident $($rest:tt)*) => {
-        MethodSpec { name: stringify!($name), mode: MethodMode::Query, codec: MethodCodec::Cbor }
+        MethodSpec { name: stringify!($name), mode: MethodMode::Query, codec: MethodCodec::IcWire }
     };
     (update, $category:ident, $($rest:tt)*) => { method_spec!(@update $($rest)*) };
     (@update async fn $name:ident $($rest:tt)*) => {
-        MethodSpec { name: stringify!($name), mode: MethodMode::Update, codec: MethodCodec::Cbor }
+        MethodSpec { name: stringify!($name), mode: MethodMode::Update, codec: MethodCodec::IcWire }
     };
     (certificate, $category:ident, $name:literal, $($rest:tt)*) => {
         MethodSpec { name: $name, mode: MethodMode::Update, codec: MethodCodec::Candid }

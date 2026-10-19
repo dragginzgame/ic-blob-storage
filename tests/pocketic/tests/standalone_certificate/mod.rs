@@ -133,7 +133,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         usage
     );
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     assert_eq!(
         inspect(&f, f.uploader, &root),
@@ -321,7 +321,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         usage
     );
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     assert_eq!(f.admission(manifest.permission), retained);
     let restored = f.harness.pic.get_stable_memory(f.service);

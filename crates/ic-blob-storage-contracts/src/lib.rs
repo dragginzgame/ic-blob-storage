@@ -3,6 +3,8 @@
 pub mod binding;
 pub mod configuration;
 pub mod decoding;
+/// Passive offline document encoding, separate from endpoint frames.
+pub mod document;
 pub mod download;
 pub mod dto;
 pub mod endpoints;

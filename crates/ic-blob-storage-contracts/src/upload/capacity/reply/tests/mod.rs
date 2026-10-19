@@ -30,7 +30,11 @@ fn response() -> UploadCapacityResponse {
 #[test]
 fn preserves_wide_headroom_suspension_and_fence_with_exact_input_ceiling() {
     let expected = response();
-    let bytes = crate::wire::encode(Ok::<_, UploadCapacityFailure>(expected)).unwrap();
+    let bytes = crate::wire::encode_response(
+        "blob_upload_capacity",
+        Ok::<_, UploadCapacityFailure>(expected),
+    )
+    .unwrap();
     assert_eq!(
         decode(
             expected.scope,
@@ -62,7 +66,11 @@ fn rejects_inconsistent_counters_and_bindings_without_hiding_remote_refusals() {
             3 => invalid.max_header_bytes = 0,
             _ => invalid.remaining_bytes -= 1,
         }
-        let bytes = crate::wire::encode(Ok::<_, UploadCapacityFailure>(invalid)).unwrap();
+        let bytes = crate::wire::encode_response(
+            "blob_upload_capacity",
+            Ok::<_, UploadCapacityFailure>(invalid),
+        )
+        .unwrap();
         assert_eq!(
             decode(expected.scope, &bytes, ceiling),
             Err(UploadCapacityReplyError::Invalid)
@@ -70,7 +78,11 @@ fn rejects_inconsistent_counters_and_bindings_without_hiding_remote_refusals() {
     }
     let mut changed = expected;
     changed.scope.namespace += 1;
-    let bytes = crate::wire::encode(Ok::<_, UploadCapacityFailure>(changed)).unwrap();
+    let bytes = crate::wire::encode_response(
+        "blob_upload_capacity",
+        Ok::<_, UploadCapacityFailure>(changed),
+    )
+    .unwrap();
     assert_eq!(
         decode(expected.scope, &bytes, ceiling),
         Err(UploadCapacityReplyError::Binding)
@@ -86,7 +98,11 @@ fn rejects_inconsistent_counters_and_bindings_without_hiding_remote_refusals() {
         UploadCapacityFailure::Invalid,
         UploadCapacityFailure::Internal,
     ] {
-        let bytes = crate::wire::encode(Err::<UploadCapacityResponse, _>(refusal)).unwrap();
+        let bytes = crate::wire::encode_response(
+            "blob_upload_capacity",
+            Err::<UploadCapacityResponse, _>(refusal),
+        )
+        .unwrap();
         assert_eq!(
             decode(expected.scope, &bytes, ceiling),
             Err(UploadCapacityReplyError::Remote(refusal))

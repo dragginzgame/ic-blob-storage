@@ -72,7 +72,7 @@ fn rejects_conflicts(
         }
         std::fs::write(
             saved,
-            ic_blob_storage_contracts::wire::encode(conflict).unwrap(),
+            ic_blob_storage_contracts::document::encode(conflict).unwrap(),
         )
         .unwrap();
         let observed = run(args, 0);
@@ -84,13 +84,13 @@ fn rejects_conflicts(
     changed.permission.expires_at_ns -= 1;
     std::fs::write(
         saved,
-        ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+        ic_blob_storage_contracts::document::encode(changed).unwrap(),
     )
     .unwrap();
     assert_eq!(run(args, 3)["error"], "attestation_refused");
     std::fs::write(
         saved,
-        ic_blob_storage_contracts::wire::encode(statement).unwrap(),
+        ic_blob_storage_contracts::document::encode(statement).unwrap(),
     )
     .unwrap();
     change(args, "--verifier", &f.other.to_text());
@@ -146,7 +146,7 @@ fn signed_attestation_recovery_preserves_lost_reply_conflicts_and_settled_restor
     let key = dir.path().join("identity.pem");
     let root = dir.path().join("root.der");
     let saved = dir.path().join("statement.cbor");
-    let original = ic_blob_storage_contracts::wire::encode(statement).unwrap();
+    let original = ic_blob_storage_contracts::document::encode(statement).unwrap();
     std::fs::write(&key, PEM).unwrap();
     std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(&saved, &original).unwrap();

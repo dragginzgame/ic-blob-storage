@@ -29,13 +29,13 @@ pub(super) fn prepare(c: &Client, body: &[u8]) {
     let source = c.temporary.path().join("source.bin");
     save(&source, body);
     save(
-        &c.report.join("installation.cbor"),
-        &ic_blob_storage_contracts::wire::encode(&c.installation).unwrap(),
+        &c.report.join("installation.wire"),
+        &ic_blob_storage_contracts::wire::encode_request("blob_install", &c.installation).unwrap(),
     );
     let args = vec![
         "upload-inputs".into(),
         "--installation".into(),
-        c.report.join("installation.cbor").display().to_string(),
+        c.report.join("installation.wire").display().to_string(),
         "--binding".into(),
         c.report.join("binding.json").display().to_string(),
         "--manifest".into(),
@@ -54,7 +54,7 @@ pub(super) fn prepare(c: &Client, body: &[u8]) {
     assert_eq!(result["body_verified"], true);
     assert_eq!(result["service_dispatched"], false);
     assert_eq!(result["provider_dispatched"], false);
-    let generated: UploadManifestRequest = ic_blob_storage_contracts::wire::decode(
+    let generated: UploadManifestRequest = ic_blob_storage_contracts::document::decode(
         &std::fs::read(c.report.join("inputs/manifest.cbor")).unwrap(),
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )

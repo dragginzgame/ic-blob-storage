@@ -89,7 +89,7 @@ impl NativeAccountCli {
             save(&self.report.join(format!("source-{index:02}.cbor")), &bytes);
             save(
                 &self.report.join(format!("request-{index:02}.cbor")),
-                &ic_blob_storage_contracts::wire::encode(AccountInspectionRequest {
+                &ic_blob_storage_contracts::document::encode(AccountInspectionRequest {
                     scope: self.scope,
                     kind,
                 })

@@ -73,7 +73,7 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     std::fs::write(&body, &original).unwrap();
@@ -123,19 +123,19 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     changed.expires_at_ns -= 1;
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+        ic_blob_storage_contracts::document::encode(changed).unwrap(),
     )
     .unwrap();
     assert_eq!(run(&args, 3)["error"], "manifest_refused");
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     rejects_wrong_root(&args, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     change(&mut args, "--url", &live(&mut f));

@@ -42,7 +42,7 @@ fn setup(directory: &Path) -> (Fixture, Vec<UploadAdmissionRequest>) {
     (f, permissions)
 }
 fn manifest(directory: &Path, index: usize) -> UploadManifestRequest {
-    ic_blob_storage_contracts::wire::decode(
+    ic_blob_storage_contracts::document::decode(
         &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.cbor"))).unwrap(),
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
@@ -202,7 +202,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
     );
     assert!(!directory.path().join("released/media-map.json").exists());
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = run(&args(&mut f, directory.path(), "restored"), 0);
     assert_eq!(restored["all_references_live"], false);

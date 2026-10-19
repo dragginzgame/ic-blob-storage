@@ -21,9 +21,12 @@ pub(super) struct ReferenceFiles {
 }
 impl ReferenceFiles {
     pub(super) fn new(upload: ReferenceUpload, reference: u128) -> Result<Self, Failure> {
-        let status = reply::status_request(ReferenceStatusRequest { upload, reference })
-            .map_err(|_| Failure::Arguments)?;
-        let download = ic_blob_storage_contracts::wire::encode(DownloadRequest {
+        let status = ic_blob_storage_contracts::document::encode(ReferenceStatusRequest {
+            upload,
+            reference,
+        })
+        .map_err(|_| Failure::Arguments)?;
+        let download = ic_blob_storage_contracts::document::encode(DownloadRequest {
             service: upload.service,
             tenant: upload.tenant,
             namespace: upload.namespace,
@@ -70,7 +73,9 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         operation,
         action,
     };
-    let command = reply::receipt_request(request).map_err(|_| Failure::Arguments)?;
+    reply::check_request(request).map_err(|_| Failure::Arguments)?;
+    let command =
+        ic_blob_storage_contracts::document::encode(request).map_err(|_| Failure::Arguments)?;
     let files = ReferenceFiles::new(permission.upload, reference)?;
     // Validation precedes the durable claim. Exact input is retained, never renewed.
     let run = Run::create(directory)?;

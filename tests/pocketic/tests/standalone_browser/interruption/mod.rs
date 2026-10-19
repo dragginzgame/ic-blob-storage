@@ -120,14 +120,15 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
     assert!(revoked.unwrap().admission.revoked);
     assert_eq!(trial.attest(0, "attestation")["outcome"], "accepted");
     let result: Result<UploadAttestationMutation, UploadAttestationFailure> =
-        ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(trial.report.join("observation/attestation/response.cbor")).unwrap(),
+        ic_blob_storage_contracts::wire::decode_response(
+            "blob_attest_upload",
+            &std::fs::read(trial.report.join("observation/attestation/response.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
     let receipt = result.unwrap().receipt;
     assert_eq!(
-        ic_blob_storage_contracts::wire::encode(receipt.request).unwrap(),
+        ic_blob_storage_contracts::document::encode(receipt.request).unwrap(),
         original
     );
     let outcome: serde_json::Value = serde_json::from_slice(

@@ -104,7 +104,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     expected.state = UploadState::Cancelled;
     expected.revoked = true;
     assert_eq!(f.upload_status(f.tenant, permission.upload), Ok(expected));
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert!(f.configuration(f.operator).unwrap().fenced);

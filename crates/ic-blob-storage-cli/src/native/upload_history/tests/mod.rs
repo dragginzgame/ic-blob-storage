@@ -96,7 +96,9 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
         next: Some(position()),
         fenced: true,
     };
-    let encoded = ic_blob_storage_contracts::wire::encode(Ok::<_, F>(&page)).unwrap();
+    let encoded =
+        ic_blob_storage_contracts::wire::encode_response("blob_upload_history", Ok::<_, F>(&page))
+            .unwrap();
     let value = output(&options, input, &encoded).unwrap();
     assert_eq!(value["entries"], json!([]));
     assert_eq!(value["scanned"], "64");
@@ -122,7 +124,8 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
     let value = output(
         &options,
         input,
-        &ic_blob_storage_contracts::wire::encode(Ok::<_, F>(page)).unwrap(),
+        &ic_blob_storage_contracts::wire::encode_response("blob_upload_history", Ok::<_, F>(page))
+            .unwrap(),
     )
     .unwrap();
     assert_eq!(value["entries"][0]["state"], "exposure_possible");
@@ -137,7 +140,8 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
         output(
             &options,
             input,
-            &ic_blob_storage_contracts::wire::encode(denied).unwrap()
+            &ic_blob_storage_contracts::wire::encode_response("blob_upload_history", denied)
+                .unwrap()
         ),
         Err(Failure::Denied)
     );

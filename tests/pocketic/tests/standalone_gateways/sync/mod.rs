@@ -155,7 +155,7 @@ fn standalone_restore_preserves_failed_sync_and_blocks_refresh_and_cancellation(
     assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::Rejected(4)));
     let pending = f.local_status(f.operator, scope).unwrap().gateways;
     assert_eq!(pending.pending_sequence, Some(1));
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::Fenced));

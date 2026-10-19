@@ -15,8 +15,12 @@ pub(in crate::native) struct Installation {
 }
 impl Installation {
     pub fn decode(bytes: Vec<u8>, maximum: NonZeroU64) -> Result<Rc<Self>, Failure> {
-        let input: ServiceInstallationInput =
-            exact_wire::decode(&bytes, exact_wire::INSTALLATION_BYTES)?;
+        let input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
+            "blob_install",
+            &bytes,
+            exact_wire::INSTALLATION_BYTES,
+        )
+        .map_err(|_| Failure::Arguments)?;
         // Offline model validation only. Each file must independently bind the
         // proposed service below; this supplies no authenticated platform identity.
         ValidatedInstallationInput::new(

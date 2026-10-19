@@ -8,6 +8,7 @@ use ic_blob_storage_contracts::dto::funding::FundingPhase;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
@@ -45,7 +46,7 @@ fn history(
 ) -> Result<FundingHistoryPage, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             client,
             f.controller,
             "fixture_funding_history",
@@ -64,7 +65,7 @@ fn outcome(
 ) -> Result<Option<FundingOutcomeResponse>, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             client,
             f.controller,
             "fixture_funding_outcome",
@@ -210,7 +211,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
         let denied: Result<FundingHistoryPage, ConsumerFailure> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 client,
                 f.other,
                 "fixture_funding_history",
@@ -222,7 +223,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
         let query: Result<FundingHistoryPage, ConsumerFailure> = f
             .harness
             .pic
-            .query_blob_as(
+            .query_control_as(
                 client,
                 f.controller,
                 "fixture_query_funding",

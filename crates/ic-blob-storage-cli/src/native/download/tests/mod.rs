@@ -11,10 +11,10 @@ fn input() -> (tempfile::TempDir, Input, DownloadRequest) {
         incarnation: u128::MAX,
         reference: u128::MAX,
     };
-    let path = temp.path().join("request.cbor");
+    let path = temp.path().join("request.wire");
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(request).unwrap(),
+        ic_blob_storage_contracts::document::encode(request).unwrap(),
     )
     .unwrap();
     let input = Input {
@@ -34,8 +34,11 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
     let (_, scope) = open(&input, request.tenant).unwrap();
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode((request, ic_platform::candid::contract::Reserved))
-            .unwrap(),
+        ic_blob_storage_contracts::document::encode((
+            request,
+            ic_platform::candid::contract::Reserved,
+        ))
+        .unwrap(),
     )
     .unwrap();
     assert!(matches!(
@@ -44,7 +47,7 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
     ));
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode(request).unwrap(),
+        ic_blob_storage_contracts::document::encode(request).unwrap(),
     )
     .unwrap();
     assert_eq!(
@@ -61,8 +64,10 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
             value: "3".into(),
         }],
     };
-    let encode =
-        |r: &DownloadResponse| ic_blob_storage_contracts::wire::encode(Ok::<_, E>(r)).unwrap();
+    let encode = |r: &DownloadResponse| {
+        ic_blob_storage_contracts::wire::encode_response("blob_download_descriptor", Ok::<_, E>(r))
+            .unwrap()
+    };
     assert_eq!(
         decode(&input, request, &scope, &encode(&response)).unwrap(),
         response
@@ -90,8 +95,11 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
             &input,
             request,
             &scope,
-            &ic_blob_storage_contracts::wire::encode(Err::<DownloadResponse, _>(E::Fenced))
-                .unwrap()
+            &ic_blob_storage_contracts::wire::encode_response(
+                "blob_download_descriptor",
+                Err::<DownloadResponse, _>(E::Fenced)
+            )
+            .unwrap()
         ),
         Err(Failure::DownloadRefused(E::Fenced))
     ));
@@ -139,7 +147,7 @@ fn tenant_download_arguments_require_explicit_origin_project_budget_and_request(
         "--namespace",
         "1",
         "--request",
-        "request.cbor",
+        "request.wire",
         "--project",
         "project",
         "--gateway",

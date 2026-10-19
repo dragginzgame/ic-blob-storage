@@ -108,12 +108,12 @@ fn record_trial(f: &Fixture, installation: &[u8], view: &HostConfigurationView) 
     for (name, bytes) in [
         (
             "configuration.cbor",
-            ic_blob_storage_contracts::wire::encode(f.config).unwrap(),
+            ic_blob_storage_contracts::document::encode(f.config).unwrap(),
         ),
-        ("installation.cbor", installation.to_vec()),
+        ("installation.wire", installation.to_vec()),
         (
             "readback.cbor",
-            ic_blob_storage_contracts::wire::encode(view).unwrap(),
+            ic_blob_storage_contracts::document::encode(view).unwrap(),
         ),
         (
             "summary.json",
@@ -159,7 +159,7 @@ fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) ->
     ]
     .map(str::to_owned);
     let report = run(&args, 0);
-    let bytes = std::fs::read(output.join("installation.cbor")).unwrap();
+    let bytes = std::fs::read(output.join("installation.wire")).unwrap();
     assert_eq!(report["host_init_encoded"], true);
     assert_eq!(report["platform_identity_checked"], false);
     assert_eq!(report["installation_dispatched"], false);

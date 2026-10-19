@@ -99,12 +99,13 @@ pub(super) fn validate_attempt(
 ) -> Result<(), Failure> {
     let prefix = name(kind);
     let packet = |name: &str, maximum| read_at(origin, &format!("{prefix}/{name}"), maximum);
-    let (permission, manifest) = selected.setup_requests();
+    let (permission, _) = selected.setup_requests();
     let request = if kind == upload_setup::Kind::Admit {
-        permission
+        ic_blob_storage_contracts::wire::encode_request(kind.method(), selected.permission)
     } else {
-        manifest
-    };
+        ic_blob_storage_contracts::wire::encode_request(kind.method(), selected.request())
+    }
+    .map_err(|_| Failure::Arguments)?;
     let signed = packet("signed-request.cbor", 128 * 1024)?;
     let actor = if kind == upload_setup::Kind::Admit {
         options.actor
@@ -117,12 +118,12 @@ pub(super) fn validate_attempt(
         actor,
         selected.permission.upload.service,
         kind.method(),
-        request,
+        &request,
         root,
     )?;
-    let packets_match = packet("request.cbor", 65536)? == request
+    let packets_match = packet("request.wire", 65536)? == request
         && packet("permission.cbor", 4096)? == permission
-        && intent["request_sha256"] == ContentDigest::compute(request).to_string();
+        && intent["request_sha256"] == ContentDigest::compute(&request).to_string();
     let role_and_scope_match = intent["actor"] == actor.to_text()
         && intent["service"] == selected.permission.upload.service.to_text()
         && intent["namespace"] == selected.permission.upload.namespace.to_string()

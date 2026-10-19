@@ -23,7 +23,7 @@ fn args(f: &Fixture, dir: &std::path::Path, permission: UploadAdmissionRequest) 
     std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     [
@@ -60,13 +60,13 @@ fn rejects_changed_permission_and_trust(
     changed.expires_at_ns -= 1;
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+        ic_blob_storage_contracts::document::encode(changed).unwrap(),
     )
     .unwrap();
     assert_eq!(run(args, 3)["error"], "binding");
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     let root = dir.join("root.der");
@@ -143,7 +143,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
     f.harness.pic.stop_live();
     let revoked = f.admission(permission);
     assert!(revoked.revoked);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     live(&mut f, &mut args);

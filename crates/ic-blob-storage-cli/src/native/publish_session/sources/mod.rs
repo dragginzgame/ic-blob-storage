@@ -111,7 +111,7 @@ fn history_binding(
     if original != *expected
         || packet(&source.join("inventory.json"), batch.inventory.len() as u64)? != batch.inventory
         || packet(
-            &source.join("installation.cbor"),
+            &source.join("installation.wire"),
             batch.installation.bytes.len() as u64,
         )? != batch.installation.bytes
     {
@@ -121,7 +121,7 @@ fn history_binding(
     let host = publish_map::decode_configuration(
         batch,
         &packet(
-            &configuration.join("query-0000-reply.cbor"),
+            &configuration.join("query-0000-reply.wire"),
             exact_wire::INSTALLATION_BYTES as u64,
         )?,
     )?;

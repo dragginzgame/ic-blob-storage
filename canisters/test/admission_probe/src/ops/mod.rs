@@ -268,5 +268,5 @@ pub(crate) fn inspect(context: UploadContext, input: Request) -> Result<Observat
 
 /// Encode the current Blob interface; a codec failure traps the endpoint transaction.
 pub(crate) fn encode_blob<T: serde::Serialize>(value: T) -> Vec<u8> {
-    ic_blob_storage_contracts::wire::encode(value).expect("invalid Blob probe reply")
+    ic_blob_storage_contracts::document::encode(value).expect("invalid Blob probe reply")
 }

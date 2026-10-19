@@ -20,7 +20,7 @@ pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<V
     )?;
     let run = Run::create(&input.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.cbor", &batch.installation.bytes)?;
+    run.bytes("installation.wire", &batch.installation.bytes)?;
     run.json("intent.json", &json!({"schema":1,"operation":"publish_prepare_batch",
         "network":options.network,"url":options.url.as_str(),"tenant":options.actor.to_text(),
         "uploader":selected.permission.uploader.to_text(),"service":input.service.to_text(),

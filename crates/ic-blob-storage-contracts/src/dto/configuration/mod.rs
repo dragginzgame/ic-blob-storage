@@ -6,10 +6,10 @@ use ic_platform::candid::contract::serde::Deserialize;
 /// Complete installation input shared by host adapters and offline preparation.
 /// Passive data only: hosts authenticate installation, validate their actual
 /// identity and compiled release, and explicitly own allocation and lifecycle.
-/// Decode the complete installation as bounded CBOR, including when nested in an
-/// application input. Unknown/duplicate authority fields and trailing values
-/// must refuse before any installation writes. The adapter owns authentication
-/// and supplies its installation byte ceiling; the shared codec bounds nesting.
+/// Decode the complete installation as bounded Wire, including when nested in an
+/// application input. The method/direction, frozen positional schema and complete
+/// consumption must be checked before writes. The adapter owns authentication
+/// and its byte ceiling; Wire also bounds allocation, nodes and depth.
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 #[serde(deny_unknown_fields)]

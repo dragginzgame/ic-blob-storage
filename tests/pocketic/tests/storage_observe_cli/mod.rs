@@ -122,7 +122,7 @@ fn receipt(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestati
 fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String], reply: proxy::Reply) {
     let saved = std::fs::read(path.join("statement.cbor")).unwrap();
     let statement: UploadAttestationRequest =
-        ic_blob_storage_contracts::wire::decode(&saved, 4096).unwrap();
+        ic_blob_storage_contracts::document::decode(&saved, 4096).unwrap();
     assert_eq!(
         statement.content_digest,
         *ContentDigest::compute(&[5; 10]).as_bytes()
@@ -229,7 +229,7 @@ fn reject_damaged_runs(path: &Path, args: &[String]) {
         "summary.json",
         "statement.cbor",
         "permission.cbor",
-        "service-response.cbor",
+        "service-response.wire",
         "download-request.json",
         "download-outcome.json",
         "http-response.json",
@@ -339,7 +339,7 @@ fn journey(reply: proxy::Reply) {
     std::fs::write(dir.join("root.der"), f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(
         dir.join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(admission_input(permission)).unwrap(),
+        ic_blob_storage_contracts::document::encode(admission_input(permission)).unwrap(),
     )
     .unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();

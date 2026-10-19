@@ -34,10 +34,10 @@ where
     Q: FnOnce(Vec<u8>) -> F,
     F: Future<Output = Result<Vec<u8>, Failure>>,
 {
-    run.bytes(&format!("{label}-args.cbor"), &args)?;
+    run.bytes(&format!("{label}-args.wire"), &args)?;
     run.json(&format!("{label}-intent.json"), intent)?;
     let bytes = query(args).await?;
-    run.bytes(&format!("{label}-reply.cbor"), &bytes)?;
+    run.bytes(&format!("{label}-reply.wire"), &bytes)?;
     Ok(bytes)
 }
 

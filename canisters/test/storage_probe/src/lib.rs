@@ -4,6 +4,19 @@
     clippy::large_types_passed_by_value,
     reason = "Candid endpoints own decoded inputs; the macro duplicates function-level expectations"
 )]
+macro_rules! owned_endpoint {
+    ($mode:ident; $(async)? fn $name:ident($($arg:ident : $input:ty)? $(,)?) -> $output:ty $body:block) => {
+        #[ic_platform::cdk::$mode(manual_reply = true, hidden = true)]
+        async fn $name() {
+            owned_endpoint!(@input stringify!($name); $($arg : $input)?);
+            let value: $output = (async $body).await;
+            ops::reply_owned(stringify!($name),value);
+        }
+    };
+    (@input $method:expr; $arg:ident : $input:ty) => {let $arg: $input=ops::decode_owned($method);};
+    (@input $method:expr;) => {let _:()=ops::decode_owned($method);};
+}
+
 mod ops;
 mod workflow;
 use blob_test_protocol::{
@@ -67,11 +80,13 @@ fn restoration_resources()
 -> Result<blob_test_protocol::storage::resources::RestorationResources, Failure> {
     workflow::restoration_resources(context())
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { update;
+
 fn blob_admit_upload(
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     workflow::admit(context(), input, None)
+}
 }
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
 fn admit_with_write_trap(
@@ -85,20 +100,21 @@ fn admit_with_growth(
 ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
     workflow::admit_with_growth(context(), input)
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_upload_admission(
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionResponse, UploadAdmissionFailure> {
     workflow::uploads::admission(context(), input)
 }
-#[ic_platform::cdk::update(
-    decode_with = "ops::decode_manifest_blob",
-    encode_with = "ops::encode_blob"
-)]
+}
+owned_endpoint! { update;
+
 fn blob_prepare_upload(
     input: UploadManifestRequest,
 ) -> Result<UploadManifestMutation, UploadManifestFailure> {
     workflow::prepare(context(), &input, None)
+}
 }
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
 fn prepare_with_write_trap(
@@ -106,11 +122,13 @@ fn prepare_with_write_trap(
 ) -> Result<UploadManifestMutation, UploadManifestFailure> {
     workflow::prepare(context(), &input.preparation, Some(input.fault))
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_upload_manifest(
     input: UploadAdmissionRequest,
 ) -> Result<UploadManifestResponse, UploadManifestFailure> {
     workflow::uploads::manifest(context(), input)
+}
 }
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
 fn expose(
@@ -152,7 +170,8 @@ fn caffeine_upload_certificate(
 ) -> ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse {
     workflow::certificate(context(), &root)
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { update;
+
 fn blob_revoke_upload(
     input: UploadAdmissionRequest,
 ) -> Result<
@@ -160,6 +179,7 @@ fn blob_revoke_upload(
     UploadAdmissionFailure,
 > {
     workflow::revoke(context(), input, None)
+}
 }
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
 fn revoke_with_usage_write_trap(
@@ -204,9 +224,11 @@ fn fixture_update_tenant_with_write_trap(
 fn blob_tenant(scope: TenantScope) -> Result<TenantEnrollmentResponse, TenantFailure> {
     workflow::tenant(context(), scope)
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_local_status(input: OperatorScope) -> Result<LocalServiceStatus, LocalStatusFailure> {
     workflow::local_status(context(), input)
+}
 }
 #[ic_platform::cdk::query]
 fn status() -> Result<Status, Failure> {
@@ -217,7 +239,8 @@ fn status() -> Result<Status, Failure> {
 fn fixture_provider_fact(input: blob_test_protocol::storage::FactInput) -> Result<bool, Failure> {
     workflow::fact(context(), input)
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { update;
+
 fn blob_apply_reference(
     input: ic_blob_storage_contracts::dto::reference::ReferenceCommand,
 ) -> Result<
@@ -225,6 +248,7 @@ fn blob_apply_reference(
     ic_blob_storage_contracts::dto::reference::ReferenceFailure,
 > {
     workflow::references::apply(context(), input, None)
+}
 }
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
 fn fixture_apply_reference_with_write_trap(
@@ -235,7 +259,8 @@ fn fixture_apply_reference_with_write_trap(
 > {
     workflow::references::apply(context(), input.request, Some(input.fault))
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_reference_receipt(
     input: ic_blob_storage_contracts::dto::reference::ReferenceCommand,
 ) -> Result<
@@ -244,7 +269,9 @@ fn blob_reference_receipt(
 > {
     workflow::references::receipt(context(), input)
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+}
+owned_endpoint! { query;
+
 fn blob_reference_status(
     input: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest,
 ) -> Result<
@@ -253,8 +280,10 @@ fn blob_reference_status(
 > {
     workflow::reference_status(context(), input)
 }
+}
 
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_lookup_content(
     input: ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest,
 ) -> Result<
@@ -262,6 +291,7 @@ fn blob_lookup_content(
     ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure,
 > {
     workflow::discover(context(), input)
+}
 }
 
 #[ic_platform::cdk::query(decode_with = "ops::decode")]
@@ -276,7 +306,8 @@ fn retained_content_descriptor(
 ) -> Result<Option<blob_test_protocol::admission::input::RetainedDescriptor>, Failure> {
     workflow::retained(context(), input)
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_upload_history(
     input: ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest,
 ) -> Result<
@@ -285,8 +316,10 @@ fn blob_upload_history(
 > {
     workflow::scan(context(), input)
 }
+}
 
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_upload_capacity(
     input: ic_blob_storage_contracts::dto::tenant::TenantScope,
 ) -> Result<
@@ -295,7 +328,9 @@ fn blob_upload_capacity(
 > {
     workflow::admission_capacity(context(), input)
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+}
+owned_endpoint! { query;
+
 fn blob_reference_capacity(
     input: ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest,
 ) -> Result<
@@ -303,6 +338,7 @@ fn blob_reference_capacity(
     ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure,
 > {
     workflow::reference_capacity(context(), input)
+}
 }
 #[ic_platform::cdk::query(decode_with = "ops::decode")]
 fn observe_roots(
@@ -333,7 +369,8 @@ fn funding_request(
     workflow::funding_request(context(), input)
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_funding_history(
     input: ic_blob_storage_contracts::dto::funding::FundingHistoryRequest,
 ) -> Result<
@@ -341,6 +378,7 @@ fn blob_funding_history(
     ic_blob_storage_contracts::dto::funding::FundingHistoryFailure,
 > {
     workflow::funding_history(context(), input)
+}
 }
 
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
@@ -378,7 +416,8 @@ fn fixture_measure_funding_credit(
     workflow::funding::measure_credit(context(), input)
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_funding_outcome(
     input: ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest,
 ) -> Result<
@@ -386,6 +425,7 @@ fn blob_funding_outcome(
     ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure,
 > {
     workflow::funding_outcome(context(), input)
+}
 }
 
 #[ic_platform::cdk::query(decode_with = "ops::decode")]
@@ -464,7 +504,8 @@ fn read_sessions() -> Result<
     ops::read::sessions::inspect(context())
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { update;
+
 fn blob_download_descriptor(
     input: ic_blob_storage_contracts::dto::download::DownloadRequest,
 ) -> Result<
@@ -472,6 +513,7 @@ fn blob_download_descriptor(
     ic_blob_storage_contracts::dto::download::DownloadFailure,
 > {
     workflow::reads::download::describe(context(), input)
+}
 }
 
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
@@ -552,7 +594,8 @@ async fn fixture_nonreplicated_reference_mutation(
     workflow::references::mutate(context(), &input).await
 }
 
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_upload_status(
     input: ic_blob_storage_contracts::dto::reference::ReferenceUpload,
 ) -> Result<
@@ -561,8 +604,10 @@ fn blob_upload_status(
 > {
     workflow::uploads::inspect(context(), input)
 }
+}
 
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { update;
+
 fn blob_revoke_gateway(
     input: ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest,
 ) -> Result<
@@ -570,6 +615,7 @@ fn blob_revoke_gateway(
     ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure,
 > {
     workflow::gateways::revoke(context(), input, false)
+}
 }
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
 fn fixture_revoke_gateway(
@@ -581,7 +627,8 @@ fn fixture_revoke_gateway(
     workflow::gateways::revoke(context(), input.request, input.fault)
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { update;
+
 async fn blob_sync_gateways(
     input: ic_blob_storage_contracts::dto::operator::OperatorScope,
 ) -> Result<
@@ -590,11 +637,14 @@ async fn blob_sync_gateways(
 > {
     workflow::gateways::refresh(context(), input).await
 }
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+}
+owned_endpoint! { update;
+
 fn blob_cancel_gateway_sync(
     input: ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation,
 ) -> Result<(), ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure> {
     workflow::gateways::cancel_observed(context(), input, false)
+}
 }
 
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
@@ -623,7 +673,8 @@ async fn fixture_nonreplicated_reference_status(
     workflow::references::status(context(), &input).await
 }
 
-#[ic_platform::cdk::update(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { update;
+
 fn blob_attest_upload(
     input: ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest,
 ) -> Result<
@@ -631,6 +682,7 @@ fn blob_attest_upload(
     ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     workflow::attest(context(), &input, None)
+}
 }
 #[ic_platform::cdk::update(decode_with = "ops::decode")]
 fn attest_with_write_trap(
@@ -642,7 +694,8 @@ fn attest_with_write_trap(
 > {
     workflow::attest(context(), &input, Some(fault))
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+owned_endpoint! { query;
+
 fn blob_upload_attestation(
     input: UploadAdmissionRequest,
 ) -> Result<
@@ -651,7 +704,9 @@ fn blob_upload_attestation(
 > {
     workflow::attestation(context(), input)
 }
-#[ic_platform::cdk::query(decode_with = "ops::decode_blob", encode_with = "ops::encode_blob")]
+}
+owned_endpoint! { query;
+
 fn blob_verification_plan(
     input: UploadAdmissionRequest,
 ) -> Result<
@@ -659,4 +714,5 @@ fn blob_verification_plan(
     ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
 > {
     workflow::verification_plan(context(), input)
+}
 }

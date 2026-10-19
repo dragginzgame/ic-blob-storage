@@ -122,7 +122,7 @@ fn plan(
                 service: fixture.service,
                 actor,
                 method,
-                argument_file: "request.cbor",
+                argument_file: "request.wire",
             },
             reply,
         )

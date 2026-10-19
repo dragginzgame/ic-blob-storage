@@ -52,23 +52,28 @@ fn capacity(s: &Selection) -> UploadCapacityResponse {
     }
 }
 fn capacity_reply(value: UploadCapacityResponse) -> Vec<u8> {
-    wire::encode(Ok::<_, UploadCapacityFailure>(value)).unwrap()
+    ic_blob_storage_contracts::wire::encode_response(
+        "blob_upload_capacity",
+        Ok::<_, UploadCapacityFailure>(value),
+    )
+    .unwrap()
 }
 fn reference_reply(
     s: &Selection,
     inventory: &Inventory,
     headroom: Option<ReferenceHeadroom>,
 ) -> Vec<u8> {
-    wire::encode(Ok::<_, ReferenceCapacityFailure>(
-        ReferenceCapacityResponse {
+    ic_blob_storage_contracts::wire::encode_response(
+        "blob_reference_capacity",
+        Ok::<_, ReferenceCapacityFailure>(ReferenceCapacityResponse {
             request: ReferenceCapacityRequest {
                 scope: s.scope,
                 root: *inventory.blobs[0].root.as_bytes(),
             },
             headroom,
             fenced: false,
-        },
-    ))
+        }),
+    )
     .unwrap()
 }
 
@@ -103,9 +108,11 @@ fn reference_observation_rejects_wrong_echoes_and_keeps_later_restore_fences() {
                 &inventory,
                 Some(content(&s, &inventory, UploadContentState::Live)),
             ),
-            "blob_reference_capacity" => {
-                Ok(wire::encode(Ok::<_, ReferenceCapacityFailure>(response)).unwrap())
-            }
+            "blob_reference_capacity" => Ok(ic_blob_storage_contracts::wire::encode_response(
+                "blob_reference_capacity",
+                Ok::<_, ReferenceCapacityFailure>(response),
+            )
+            .unwrap()),
             _ => panic!("unexpected query"),
         });
         if response.fenced {
@@ -158,14 +165,17 @@ fn discovery_reply(
     inventory: &Inventory,
     content: Option<UploadHistoryEntry>,
 ) -> Result<Vec<u8>, Failure> {
-    wire::encode(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
-        request: UploadDiscoveryRequest {
-            scope: s.scope,
-            root: *inventory.blobs[0].root.as_bytes(),
-        },
-        content,
-        fenced: false,
-    }))
+    ic_blob_storage_contracts::wire::encode_response(
+        "blob_lookup_content",
+        Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
+            request: UploadDiscoveryRequest {
+                scope: s.scope,
+                root: *inventory.blobs[0].root.as_bytes(),
+            },
+            content,
+            fenced: false,
+        }),
+    )
     .map_err(|_| Failure::InvalidReply)
 }
 
@@ -334,9 +344,10 @@ fn rejects_wrong_scope_wrong_content_and_malformed_or_denied_replies() {
         decode_capacity(s.scope, &[0; 10]),
         Err(Failure::InvalidReply)
     ));
-    let denied = wire::encode(Err::<UploadCapacityResponse, _>(
-        UploadCapacityFailure::Denied,
-    ))
+    let denied = ic_blob_storage_contracts::wire::encode_response(
+        "blob_upload_capacity",
+        Err::<UploadCapacityResponse, _>(UploadCapacityFailure::Denied),
+    )
     .unwrap();
     assert_eq!(decode_capacity(s.scope, &denied), Err(Failure::Denied));
 }
@@ -444,11 +455,19 @@ fn batch_size_does_not_require_every_new_upload_to_fit_concurrently() {
         if method == "blob_upload_capacity" {
             Ok(capacity_reply(capacity(&s)))
         } else {
-            wire::encode(Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
-                request: wire::decode(&args, 4096).unwrap(),
-                content: None,
-                fenced: false,
-            }))
+            ic_blob_storage_contracts::wire::encode_response(
+                "blob_lookup_content",
+                Ok::<_, UploadDiscoveryFailure>(UploadDiscoveryResponse {
+                    request: ic_blob_storage_contracts::wire::decode_request(
+                        "blob_lookup_content",
+                        &args,
+                        4096,
+                    )
+                    .unwrap(),
+                    content: None,
+                    fenced: false,
+                }),
+            )
             .map_err(|_| Failure::InvalidReply)
         }
     })
@@ -519,9 +538,11 @@ fn discovery_rejects_wrong_echoes_even_for_absence_and_keeps_a_later_fence() {
     for response in [wrong_root, wrong_tenant, fenced] {
         let observed = inspect(&s, &inventory, |method, _| match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-            "blob_lookup_content" => {
-                Ok(wire::encode(Ok::<_, UploadDiscoveryFailure>(response)).unwrap())
-            }
+            "blob_lookup_content" => Ok(ic_blob_storage_contracts::wire::encode_response(
+                "blob_lookup_content",
+                Ok::<_, UploadDiscoveryFailure>(response),
+            )
+            .unwrap()),
             _ => panic!("unexpected query"),
         });
         if response.fenced {
@@ -583,9 +604,11 @@ fn discovery_rejects_zero_independent_identities_and_remote_refusals() {
     ] {
         let result = inspect(&s, &inventory, |method, _| match method {
             "blob_upload_capacity" => Ok(capacity_reply(capacity(&s))),
-            "blob_lookup_content" => {
-                Ok(wire::encode(Err::<UploadDiscoveryResponse, _>(remote)).unwrap())
-            }
+            "blob_lookup_content" => Ok(ic_blob_storage_contracts::wire::encode_response(
+                "blob_lookup_content",
+                Err::<UploadDiscoveryResponse, _>(remote),
+            )
+            .unwrap()),
             _ => panic!("unexpected query"),
         });
         assert_eq!(result, Err(expected));

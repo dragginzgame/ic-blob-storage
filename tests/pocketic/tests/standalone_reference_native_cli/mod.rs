@@ -43,8 +43,9 @@ fn submission(receipt: &[String], directory: &Path) -> Vec<String> {
 }
 fn response(directory: &Path, failure: ReferenceFailure) {
     let value: Result<ReferenceMutationResponse, ReferenceFailure> =
-        ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(directory.join("response.cbor")).unwrap(),
+        ic_blob_storage_contracts::wire::decode_response(
+            "blob_apply_reference",
+            &std::fs::read(directory.join("response.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
@@ -65,7 +66,7 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
             service: f.service,
             actor: f.tenant,
             method: "blob_apply_reference",
-            argument_file: "request.cbor",
+            argument_file: "request.wire",
         },
         reply,
     );
@@ -102,7 +103,7 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
     change_native(
         &mut recover,
         "--request",
-        directory.join("request.cbor").to_str().unwrap(),
+        directory.join("reference.cbor").to_str().unwrap(),
     );
     let lookup = run(&recover, 3);
     assert_eq!(lookup["error"], "reference_unknown");
@@ -162,7 +163,7 @@ fn restored(
     mut current: ReferenceCommand,
 ) -> ReferenceCommand {
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let url = live(f);
@@ -173,7 +174,7 @@ fn restored(
     current.operation -= 1;
     std::fs::write(
         directory.join("receipt.cbor"),
-        ic_blob_storage_contracts::wire::encode(current).unwrap(),
+        ic_blob_storage_contracts::document::encode(current).unwrap(),
     )
     .unwrap();
     phase_submission(
@@ -293,7 +294,7 @@ fn journey(reply: Reply, label: &str) {
     current.operation -= 1;
     std::fs::write(
         dir.path().join("receipt.cbor"),
-        ic_blob_storage_contracts::wire::encode(current).unwrap(),
+        ic_blob_storage_contracts::document::encode(current).unwrap(),
     )
     .unwrap();
     phase_submission(
@@ -308,7 +309,7 @@ fn journey(reply: Reply, label: &str) {
     current.action = ReferenceAction::Release;
     std::fs::write(
         dir.path().join("receipt.cbor"),
-        ic_blob_storage_contracts::wire::encode(current).unwrap(),
+        ic_blob_storage_contracts::document::encode(current).unwrap(),
     )
     .unwrap();
     phase_submission(
@@ -331,7 +332,7 @@ fn journey(reply: Reply, label: &str) {
     );
     assert_eq!(
         std::fs::read(dir.path().join("receipt.cbor")).unwrap(),
-        ic_blob_storage_contracts::wire::encode(current).unwrap()
+        ic_blob_storage_contracts::document::encode(current).unwrap()
     );
     save(
         &report,

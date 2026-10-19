@@ -1,84 +1,114 @@
-//! Explicit per-method service codec owners.
-//!
-//! Tenant methods use bounded, method-bound IC Wire contracts. Other owned
-//! methods use bounded CBOR; replacing them requires a coordinated protocol cut.
-//! Provider contracts and stable records have separate encoding owners.
+//! One method- and direction-bound Wire frame per owned service call.
+//! Native Serde field/variant order is the frozen Blob schema. Provider codecs,
+//! passive offline documents and persistent records have independent owners.
 pub(crate) mod decimal;
-/// Bounded IC Wire tenant contracts; provider contracts remain separate.
+/// Existing finite tenant contracts retain their exact identities and bytes.
 pub mod tenant;
+pub use ic_wire::Error;
+use ic_wire::{Limits, native};
 use serde::{Serialize, de::DeserializeOwned};
-use std::io::{self, Write};
 
-/// Absolute codec ceiling; each receiving boundary supplies its own narrower limit.
+/// Absolute frame ceiling; receiving owners may impose a narrower bound.
 pub const MAX_MESSAGE_BYTES: usize = 4 * 1024 * 1024;
-/// Maximum CBOR nesting accepted before entering application code.
+/// Native traversal ceiling, independent of the initial platform argument buffer.
 pub const MAX_DEPTH: usize = 32;
 
-/// Encoding or admission failure; never evidence that an earlier effect did not occur.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, thiserror::Error)]
-pub enum Error {
-    /// Encoded bytes exceed the selected ceiling.
-    #[error("Blob CBOR byte limit exceeded")]
-    Limit,
-    /// Malformed, excessive nesting, wrong shape or unknown/duplicate fields.
-    #[error("invalid Blob CBOR value")]
-    Invalid,
-    /// Another value or bytes follow the expected value.
-    #[error("trailing Blob CBOR input")]
-    Trailing,
-}
-
-struct BoundedOutput {
-    bytes: Vec<u8>,
-    exceeded: bool,
-}
-impl Write for BoundedOutput {
-    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
-        if bytes.len() > MAX_MESSAGE_BYTES.saturating_sub(self.bytes.len()) {
-            self.exceeded = true;
-            return Err(io::Error::other("Blob CBOR output limit"));
-        }
-        self.bytes.extend_from_slice(bytes);
-        Ok(bytes.len())
-    }
-    fn flush(&mut self) -> io::Result<()> {
-        Ok(())
-    }
-}
-
-/// Encode one value with bounded output; integers retain their full 128-bit width.
+/// Consumer-assigned stable identity. Unknown and provider method names refuse.
 /// # Errors
-/// Refuses unsupported serialization and oversized output without returning partial bytes.
-pub fn encode<T: Serialize>(value: T) -> Result<Vec<u8>, Error> {
-    let mut output = BoundedOutput {
-        bytes: Vec::new(),
-        exceeded: false,
-    };
-    if ciborium::ser::into_writer(&value, &mut output).is_err() {
-        return Err(if output.exceeded {
-            Error::Limit
-        } else {
-            Error::Invalid
-        });
-    }
-    Ok(output.bytes)
+/// Returns an identity error for methods outside the owned Wire surface.
+pub fn identity(method: &str) -> Result<u64, Error> {
+    Ok(match method {
+        "blob_tenant" => 0x424c_4f42_3332_0001,
+        "blob_update_tenant" => 0x424c_4f42_3332_0002,
+        "blob_resume_current_instance" => 0x424c_4f42_0036_0001,
+        "blob_configuration" => 0x424c_4f42_0036_0002,
+        "blob_local_status" => 0x424c_4f42_0036_0003,
+        "blob_admit_upload" => 0x424c_4f42_0036_0004,
+        "blob_upload_admission" => 0x424c_4f42_0036_0005,
+        "blob_upload_status" => 0x424c_4f42_0036_0006,
+        "blob_revoke_upload" => 0x424c_4f42_0036_0007,
+        "blob_prepare_upload" => 0x424c_4f42_0036_0008,
+        "blob_upload_certificate_assessment" => 0x424c_4f42_0036_0009,
+        "blob_upload_manifest" => 0x424c_4f42_0036_000a,
+        "blob_apply_reference" => 0x424c_4f42_0036_000b,
+        "blob_reference_receipt" => 0x424c_4f42_0036_000c,
+        "blob_upload_history" => 0x424c_4f42_0036_000d,
+        "blob_funding_history" => 0x424c_4f42_0036_000e,
+        "blob_funding_outcome" => 0x424c_4f42_0036_000f,
+        "blob_funding_preparation_assessment" => 0x424c_4f42_0036_0010,
+        "blob_revoke_gateway" => 0x424c_4f42_0036_0011,
+        "blob_sync_gateways" => 0x424c_4f42_0036_0012,
+        "blob_cancel_gateway_sync" => 0x424c_4f42_0036_0013,
+        "blob_upload_capacity" => 0x424c_4f42_0036_0014,
+        "blob_reference_capacity" => 0x424c_4f42_0036_0015,
+        "blob_lookup_content" => 0x424c_4f42_0036_0016,
+        "blob_download_descriptor" => 0x424c_4f42_0036_0017,
+        "blob_reference_status" => 0x424c_4f42_0036_0018,
+        "blob_inspect_account" => 0x424c_4f42_0036_0019,
+        "blob_attest_upload" => 0x424c_4f42_0036_001a,
+        "blob_upload_attestation" => 0x424c_4f42_0036_001b,
+        "blob_verification_manifest" => 0x424c_4f42_0036_001c,
+        "blob_verification_plan" => 0x424c_4f42_0036_001d,
+        "blob_install" => 0x424c_4f42_0036_ff01,
+        "blob_post_upgrade" => 0x424c_4f42_0036_ff02,
+        _ => return Err(Error::Identity),
+    })
 }
-
-/// Decode one complete value after byte admission, with bounded nesting.
-/// Unknown/duplicate DTO fields refuse; trailing data is never silently skipped.
+/// Complete request ceiling, including the eleven-byte Wire header.
 /// # Errors
-/// Refuses size, nesting, shape and trailing input before returning a value.
-pub fn decode<T: DeserializeOwned>(bytes: &[u8], max: usize) -> Result<T, Error> {
-    if bytes.len() > max.min(MAX_MESSAGE_BYTES) {
-        return Err(Error::Limit);
+/// Refuses names outside this contract.
+pub fn request_limit(method: &str) -> Result<usize, Error> {
+    identity(method)?;
+    Ok(match method {
+        "blob_tenant" | "blob_update_tenant" => 512,
+        "blob_prepare_upload" => 128 * 1024,
+        "blob_install" => 16 * 1024,
+        _ => 4096,
+    })
+}
+fn limits(bytes: usize) -> Limits {
+    Limits {
+        bytes,
+        allocation: 64 * 1024 * 1024,
+        nodes: 262_144,
+        depth: MAX_DEPTH,
     }
-    let mut remaining = bytes;
-    let value = ciborium::de::from_reader_with_recursion_limit(&mut remaining, MAX_DEPTH)
-        .map_err(|_| Error::Invalid)?;
-    if !remaining.is_empty() {
-        return Err(Error::Trailing);
-    }
-    Ok(value)
+}
+/// Encode one owned native request. Tenant callers use the finite tenant module.
+/// # Errors
+/// Refuses unknown identities and values outside encoding/traversal allowances.
+pub fn encode_request<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, Error> {
+    native::encode_request(identity(method)?, &value, limits(request_limit(method)?))
+}
+/// Admit and decode a complete request under the selected endpoint identity.
+/// # Errors
+/// Refuses mismatched identities/directions, noncanonical or over-budget input.
+pub fn decode_request<T: Serialize + DeserializeOwned>(
+    method: &str,
+    bytes: &[u8],
+    max: usize,
+) -> Result<T, Error> {
+    native::decode_request(
+        identity(method)?,
+        bytes,
+        limits(max.min(request_limit(method)?)),
+    )
+}
+/// Encode one complete response; encoding failure must trap after local effects.
+/// # Errors
+/// Refuses unknown identities and values outside encoding/traversal allowances.
+pub fn encode_response<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, Error> {
+    native::encode_response(identity(method)?, &value, limits(MAX_MESSAGE_BYTES))
+}
+/// Decode an independently authenticated reply under the exact original method.
+/// # Errors
+/// Refuses mismatched identities/directions, noncanonical or over-budget input.
+pub fn decode_response<T: Serialize + DeserializeOwned>(
+    method: &str,
+    bytes: &[u8],
+    max: usize,
+) -> Result<T, Error> {
+    native::decode_response(identity(method)?, bytes, limits(max.min(MAX_MESSAGE_BYTES)))
 }
 
 #[cfg(test)]

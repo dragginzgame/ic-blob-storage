@@ -1,6 +1,7 @@
 //! Actual late uploader acknowledgment cannot undo either application's cancellation.
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 #[test]
 #[expect(
     clippy::too_many_lines,
@@ -18,7 +19,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let saved: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 f.uploader,
                 f.operator,
                 "save_manifest",
@@ -40,7 +41,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                 f.uploader,
                 f.operator,
                 "dispatch_manifest",
-                wire::encode(dispatch).unwrap(),
+                ic_blob_storage_contracts::document::encode(dispatch).unwrap(),
             )
             .unwrap();
         let mut held = false;
@@ -49,7 +50,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             let waiting: Result<bool, ConsumerFailure> = f
                 .harness
                 .pic
-                .query_blob_as(
+                .query_control_as(
                     f.uploader,
                     f.operator,
                     "waiting",
@@ -71,7 +72,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let withdrawn: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 f.uploader,
                 f.operator,
                 "cancel_manifest",
@@ -90,7 +91,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let resumed: Result<(), ConsumerFailure> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 f.uploader,
                 f.operator,
                 "resume",
@@ -99,18 +100,19 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             )
             .unwrap();
         resumed.unwrap();
-        let late: Result<ManifestIntentView, ConsumerFailure> = wire::decode(
-            &f.harness.pic.await_call(call).unwrap(),
-            REPLY_LIMITS.reply_bytes,
-        )
-        .unwrap();
+        let late: Result<ManifestIntentView, ConsumerFailure> =
+            ic_blob_storage_contracts::document::decode(
+                &f.harness.pic.await_call(call).unwrap(),
+                REPLY_LIMITS.reply_bytes,
+            )
+            .unwrap();
         let late = late.unwrap();
         assert!(late.cancelled);
         assert_eq!(late.result, Some(Ok(intent.request.declaration.clone())));
         let retry: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 f.uploader,
                 f.operator,
                 "dispatch_manifest",
@@ -125,7 +127,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let saved: Result<ManifestIntentView, ConsumerFailure> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 f.uploader,
                 f.operator,
                 "save_manifest",

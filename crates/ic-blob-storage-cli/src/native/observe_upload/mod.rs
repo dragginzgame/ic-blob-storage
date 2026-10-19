@@ -74,13 +74,19 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         options.actor,
     )
     .map_err(|_| Failure::Arguments)?;
-    let argument = inspection_request(authority, permission).map_err(|e| match e {
-        UploadAttestationReplyError::Invalid => Failure::Arguments,
-        other => error(other),
-    })?;
+    let argument = inspection_request("blob_verification_plan", authority, permission).map_err(
+        |e| match e {
+            UploadAttestationReplyError::Invalid => Failure::Arguments,
+            other => error(other),
+        },
+    )?;
     let identity = identity(&options.identity, options.actor)?;
     let run = Run::create(&input.directory)?;
-    run.bytes("permission.cbor", &argument)?;
+    run.bytes(
+        "permission.cbor",
+        &ic_blob_storage_contracts::document::encode(permission).map_err(|_| Failure::File)?,
+    )?;
+    run.bytes("request.wire", &argument)?;
     run.json(
         "plan.json",
         &record::ObservationPlanRecord {
@@ -139,7 +145,7 @@ async fn capture(
     if bytes.len() > 64 * 1024 {
         return Err(Failure::ReplyLimit);
     }
-    run.bytes("service-response.cbor", &bytes)?;
+    run.bytes("service-response.wire", &bytes)?;
     let plan = verification::reply::decode(
         authority,
         permission,
@@ -176,7 +182,8 @@ async fn capture(
         content_digest: *digest.as_bytes(),
         observed_at_ns,
     };
-    let encoded = ic_blob_storage_contracts::wire::encode(statement).map_err(|_| Failure::File)?;
+    let encoded =
+        ic_blob_storage_contracts::document::encode(statement).map_err(|_| Failure::File)?;
     run.bytes("statement.cbor", &encoded)?;
     let report = record::ObservationSummaryRecord {
         schema: 1,

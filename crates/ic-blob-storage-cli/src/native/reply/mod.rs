@@ -7,14 +7,16 @@ use ic_platform::Principal;
 use serde_json::{Value, json};
 
 /// Shared bounded small replies; command owners retain error and binding policy.
-pub(super) fn decode_small<T: for<'de> serde::Deserialize<'de>>(
+pub(super) fn decode_small<T: serde::Serialize + for<'de> serde::Deserialize<'de>>(
+    method: &str,
     bytes: &[u8],
     too_large: Failure,
 ) -> Result<T, Failure> {
     if bytes.len() > 4096 {
         return Err(too_large);
     }
-    ic_blob_storage_contracts::wire::decode(bytes, 4096).map_err(|_| Failure::InvalidReply)
+    ic_blob_storage_contracts::wire::decode_response(method, bytes, 4096)
+        .map_err(|_| Failure::InvalidReply)
 }
 
 pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceStatus, Failure> {
@@ -22,7 +24,7 @@ pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceS
         return Err(Failure::ReplyTooLarge);
     }
     let response: Result<LocalServiceStatus, LocalStatusFailure> =
-        ic_blob_storage_contracts::wire::decode(bytes, 64 * 1024)
+        ic_blob_storage_contracts::wire::decode_response("blob_local_status", bytes, 64 * 1024)
             .map_err(|_| Failure::InvalidReply)?;
     let status = response.map_err(|error| match error {
         LocalStatusFailure::Binding => Failure::Binding,

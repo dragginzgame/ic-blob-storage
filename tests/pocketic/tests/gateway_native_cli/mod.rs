@@ -116,7 +116,7 @@ impl GatewayCli {
                 service: self.scope.service,
                 actor: signer(),
                 method,
-                argument_file: "request.cbor",
+                argument_file: "request.wire",
             },
             reply,
         );

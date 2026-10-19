@@ -47,7 +47,11 @@ fn setup() -> (
     (request, scope, response, limits)
 }
 fn encode(response: DownloadResponse) -> Vec<u8> {
-    crate::wire::encode(Ok::<_, DownloadFailure>(response)).unwrap()
+    crate::wire::encode_response(
+        "blob_download_descriptor",
+        Ok::<_, DownloadFailure>(response),
+    )
+    .unwrap()
 }
 #[test]
 fn descriptor_reply_requires_every_original_identity_and_preserves_metadata() {
@@ -88,7 +92,7 @@ fn descriptor_reply_bounds_decoding_and_rejects_inconsistent_hash_metadata() {
     for bytes in [
         &b"invalid"[..],
         &encoded[..encoded.len() - 1],
-        &crate::wire::encode("wrong type").unwrap(),
+        &crate::wire::encode_response("blob_download_descriptor", "wrong type").unwrap(),
     ] {
         assert_eq!(
             decode(request, &scope, bytes, limits),
@@ -138,7 +142,11 @@ fn descriptor_reply_bounds_decoding_and_rejects_inconsistent_hash_metadata() {
         ),
         Err(DownloadReplyError::Limit)
     );
-    let refusal = crate::wire::encode(Err::<DownloadResponse, _>(DownloadFailure::Fenced)).unwrap();
+    let refusal = crate::wire::encode_response(
+        "blob_download_descriptor",
+        Err::<DownloadResponse, _>(DownloadFailure::Fenced),
+    )
+    .unwrap();
     assert_eq!(
         decode(request, &scope, &refusal, limits),
         Err(DownloadReplyError::Remote(DownloadFailure::Fenced))

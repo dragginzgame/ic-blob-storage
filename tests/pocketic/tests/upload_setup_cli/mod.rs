@@ -199,7 +199,7 @@ impl Client {
                 service: self.permission.permission.upload.service,
                 actor: actual,
                 method,
-                argument_file: "request.cbor",
+                argument_file: "request.wire",
             },
             reply,
         );

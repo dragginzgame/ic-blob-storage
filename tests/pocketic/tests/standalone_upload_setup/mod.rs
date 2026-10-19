@@ -58,7 +58,7 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
     };
     crate::upload_setup_cli::cancelled_totals(&f.harness.pic, scope, f.operator);
     f.harness.pic.stop_progress();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     f.harness.pic.auto_progress();
     let before = f.harness.pic.get_stable_memory(f.service);

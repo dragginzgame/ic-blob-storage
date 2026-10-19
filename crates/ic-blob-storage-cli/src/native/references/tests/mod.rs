@@ -48,16 +48,16 @@ fn arguments(kind: &str, path: &std::path::Path) -> Vec<String> {
 #[test]
 fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
     let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("request.cbor");
+    let path = dir.path().join("request.wire");
     let c = command();
     for (kind, encoded) in [
         (
             "reference-receipt",
-            ic_blob_storage_contracts::wire::encode(c).unwrap(),
+            ic_blob_storage_contracts::document::encode(c).unwrap(),
         ),
         (
             "reference-status",
-            ic_blob_storage_contracts::wire::encode(ReferenceStatusRequest {
+            ic_blob_storage_contracts::document::encode(ReferenceStatusRequest {
                 upload: c.upload,
                 reference: c.reference,
             })
@@ -70,7 +70,17 @@ fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
             panic!("wrong command")
         };
         let inspection = open(&input, c.upload.tenant).unwrap();
-        assert_eq!(inspection.argument, encoded);
+        assert_eq!(
+            inspection.argument,
+            match inspection.request {
+                Request::Receipt(value) =>
+                    ic_blob_storage_contracts::wire::encode_request(REFERENCE_RECEIPT_METHOD, value)
+                        .unwrap(),
+                Request::Status(value) =>
+                    ic_blob_storage_contracts::wire::encode_request(REFERENCE_STATUS_METHOD, value)
+                        .unwrap(),
+            }
+        );
         assert!(matches!(
             open(&input, c.upload.service),
             Err(Failure::Denied)
@@ -99,7 +109,8 @@ fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
     }
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(ReferenceCommand { reference: 0, ..c }).unwrap(),
+        ic_blob_storage_contracts::document::encode(ReferenceCommand { reference: 0, ..c })
+            .unwrap(),
     )
     .unwrap();
     assert_eq!(
@@ -122,8 +133,11 @@ fn historical_success_failure_and_absence_never_observe_current_liveness_or_fenc
         Err(ReferenceTransitionFailure::Released),
     ] {
         let lookup = ReferenceReceiptLookup::Found(ReferenceReceiptResponse { request: c, result });
-        let bytes =
-            ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(lookup)).unwrap();
+        let bytes = ic_blob_storage_contracts::wire::encode_response(
+            REFERENCE_RECEIPT_METHOD,
+            Ok::<_, ReferenceFailure>(lookup),
+        )
+        .unwrap();
         let value = output(&Request::Receipt(c), &bytes, &options).unwrap();
         assert_eq!(value["outcome"], "found");
         assert_eq!(value["upload"]["object"], c.upload.object.to_string());
@@ -141,9 +155,10 @@ fn historical_success_failure_and_absence_never_observe_current_liveness_or_fenc
             );
         }
     }
-    let absent = ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
-        ReferenceReceiptLookup::Absent,
-    ))
+    let absent = ic_blob_storage_contracts::wire::encode_response(
+        REFERENCE_RECEIPT_METHOD,
+        Ok::<_, ReferenceFailure>(ReferenceReceiptLookup::Absent),
+    )
     .unwrap();
     let value = output(&Request::Receipt(c), &absent, &options).unwrap();
     assert_eq!(value["outcome"], "absent");
@@ -153,7 +168,8 @@ fn historical_success_failure_and_absence_never_observe_current_liveness_or_fenc
     assert_eq!(
         output(
             &Request::Receipt(c),
-            &ic_blob_storage_contracts::wire::encode(refused).unwrap(),
+            &ic_blob_storage_contracts::wire::encode_response(REFERENCE_RECEIPT_METHOD, refused)
+                .unwrap(),
             &options
         ),
         Err(Failure::ReferenceRefused(ReferenceFailure::Conflict))
@@ -173,13 +189,14 @@ fn current_liveness_and_restore_fence_are_independent_bounded_observations() {
     ))
     .unwrap();
     for (live, fenced) in [(true, false), (true, true), (false, true)] {
-        let bytes = ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
-            ReferenceStatusResponse {
+        let bytes = ic_blob_storage_contracts::wire::encode_response(
+            REFERENCE_STATUS_METHOD,
+            Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
                 request,
                 live,
                 fenced,
-            },
-        ))
+            }),
+        )
         .unwrap();
         let value = output(&Request::Status(request), &bytes, &options).unwrap();
         assert_eq!(value["live"], live);
@@ -188,16 +205,17 @@ fn current_liveness_and_restore_fence_are_independent_bounded_observations() {
         assert_eq!(value["retry_authorized"], false);
         assert!(value.get("operation").is_none());
     }
-    let bytes = ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
-        ReferenceStatusResponse {
+    let bytes = ic_blob_storage_contracts::wire::encode_response(
+        REFERENCE_STATUS_METHOD,
+        Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
             request: ReferenceStatusRequest {
                 reference: 1,
                 ..request
             },
             live: true,
             fenced: false,
-        },
-    ))
+        }),
+    )
     .unwrap();
     assert_eq!(
         output(&Request::Status(request), &bytes, &options),
