@@ -26,14 +26,14 @@ finish_fixture() {
     exit "$status"
 }
 trap finish_fixture EXIT
-mkdir -p "$fixture/contracts/src" "$fixture/service/src"
+mkdir -p "$fixture/contracts/src" "$fixture/client/src" "$fixture/service/src"
 cd "$fixture"
 git init -q
 export CARGO_TARGET_DIR="$fixture/target"
 cat > Cargo.toml <<'TOML'
 [workspace]
 resolver = "3"
-members = ["contracts", "service"]
+members = ["contracts", "client", "service"]
 [workspace.package]
 version = "0.17.2"
 TOML
@@ -45,6 +45,15 @@ edition = "2024"
 [dependencies]
 cfg-if = "=$fixture_dependency_version"
 TOML
+cat > client/Cargo.toml <<'TOML'
+[package]
+name = "ic-blob-storage-client"
+version.workspace = true
+edition = "2024"
+[dependencies]
+ic-blob-storage-contracts = { path = "../contracts", version = "0.17.2" }
+TOML
+printf 'pub fn observed() -> u32 { 7 }\n' > client/src/lib.rs
 cat > service/Cargo.toml <<'TOML'
 [package]
 name = "ic-blob-storage"
@@ -90,7 +99,7 @@ for failure in path source version member metadata-exit metadata-signal archive 
     case_root="$fixture/refusal-$failure with spaces π"
     mkdir -p "$case_root/bin"
     cp Cargo.toml Cargo.lock "$case_root/"
-    cp -R contracts service "$case_root/"
+    cp -R contracts client service "$case_root/"
     cat > "$case_root/bin/cargo" <<'CARGO'
 #!/usr/bin/env bash
 set -euo pipefail

@@ -158,9 +158,9 @@ receipt, exact parent and annotated tag checks:
 make publish
 ```
 
-The default calls standard Cargo for contracts first, then core, under one release
-lock. Cargo owns uploading and waiting for index visibility. A failed contracts
-publication stops before core. Retry the same command after investigating any
+The default calls standard Cargo for Contracts first, then Client, then Core, under one release
+lock. Cargo owns uploading and waiting for index visibility. A failed package
+publication stops before later packages. Retry the same command after investigating any
 failure: an exact version already on crates.io is skipped only after its archive
 checksum and Git source match the selected release. Failed readback, yanked rows,
 malformed responses or a different source refuse instead of authorizing an upload.
@@ -178,23 +178,23 @@ Archive reads identify Blob's version and repository. Both transport owners
 disable implicit curl configuration.
 A 403 remains an inconclusive fatal response; it never authorizes uploading.
 
-`PUBLISH_PACKAGE=ic-blob-storage-contracts` or `PUBLISH_PACKAGE=ic-blob-storage`
+`PUBLISH_PACKAGE=ic-blob-storage-contracts`, `ic-blob-storage-client` or `ic-blob-storage`
 selects one package when needed; it is optional. `make publish-dry-run` never
 uploads and still runs Cargo verification for already-published packages. Before
-contracts is published, the default dry-run verifies contracts then refuses core
+contracts is published, the default dry-run verifies Contracts then refuses Client
 with dependency guidance: a dry-run cannot make that registry dependency exist.
-Use `make package` for paired local payload verification, or select contracts for
+Use `make package` for coordinated local payload verification, or select contracts for
 its individual dry-run. Publishing neither deploys nor qualifies the service.
 Older completed releases need no runner plan for this separate publication check.
 
 `make package` builds the opt-in native `blob-package-verify` contributor helper,
-then qualifies both exact `.crate` payloads through IC Build. The helper's
+then qualifies all three exact `.crate` payloads through IC Build. The helper's
 `package-verification` feature is disabled for ordinary CLI builds; public
 libraries/contracts and production Wasm have no IC Build dependency. Run
 `make package-verifier` to prepare only that executable. An explicit
 `BLOB_PACKAGE_VERIFIER` must name an existing absolute executable.
 
-Blob selects the two package identities, contracts-only temporary registry patch,
+Blob selects the three package identities, contracts-only temporary registry patch,
 archive location and fresh retained evidence directory. IC Build owns packaging,
 exact extracted graph admission, frozen external selections, isolated compilation,
 all-target/Rustdoc tests and final integrity checks. Each source/metadata/archive

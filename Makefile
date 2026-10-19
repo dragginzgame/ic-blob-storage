@@ -172,20 +172,21 @@ evidence-check:
 	bash scripts/ci/verify-evidence-checksums.sh docs/evidence/caffeine-probes/local/SHA256SUMS docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:
-	+RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p ic-blob-storage-canister --all-features --no-deps
+	+RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-client -p ic-blob-storage-contracts -p ic-blob-storage-canister --all-features --no-deps
 
 test:
 	+$(MAKE) --no-print-directory test-native
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
+	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-client -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
 msrv-check:
 	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 --version
 	RUSTUP_AUTO_INSTALL=0 rustc +1.91.0 --version
 	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage-contracts --lib
 	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage --lib
+	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage-client --lib
 	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --workspace --all-targets --all-features
 	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --target wasm32-unknown-unknown -p ic-blob-storage-contracts --lib
 	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --target wasm32-unknown-unknown --workspace --exclude ic-blob-storage-cli --exclude ic-blob-storage-pocketic-tests --exclude blob-test-protocol --lib --all-features

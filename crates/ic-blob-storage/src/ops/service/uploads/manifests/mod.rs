@@ -1,5 +1,4 @@
 //! Actual uploader authority, bounded declaration conversion and immutable recovery.
-pub mod client;
 use super::{StableUploads, UploadStoreError, admission, key};
 use crate::model::lifecycle::LifecycleChange;
 use crate::model::service::upload::UploadAdmissionError;

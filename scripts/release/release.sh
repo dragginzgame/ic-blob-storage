@@ -154,10 +154,10 @@ publish() {
     printf '%s\n' "$$" > "$PUBLICATION_STATE_ROOT/lock/owner"
     trap 'rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"' EXIT
     tag_check
-    local packages=(ic-blob-storage-contracts ic-blob-storage)
+    local packages=(ic-blob-storage-contracts ic-blob-storage-client ic-blob-storage)
     case "${PUBLISH_PACKAGE:-}" in
         '') ;;
-        ic-blob-storage-contracts|ic-blob-storage) packages=("$PUBLISH_PACKAGE") ;;
+        ic-blob-storage-contracts|ic-blob-storage-client|ic-blob-storage) packages=("$PUBLISH_PACKAGE") ;;
         *) fail 'unknown publication package' ;;
     esac
     local current head package checksum run registry_user_agent
@@ -185,10 +185,10 @@ publish() {
                 continue
             fi
         fi
-        if [[ "${1:-}" == --dry-run && "$package" == ic-blob-storage ]]; then
-            # A contracts dry-run does not put that dependency into crates.io.
-            checksum="$(publication_checksum "$run/contracts-dependency-observation" ic-blob-storage-contracts "$current")" || fail 'contracts dependency readback refused'
-            [[ "$checksum" != missing ]] || fail 'core dry-run requires this contracts version on crates.io; run make package for paired local payload verification'
+        if [[ "${1:-}" == --dry-run && "$package" != ic-blob-storage-contracts ]]; then
+            # Both runtime libraries need their exact Contracts version indexed.
+            checksum="$(publication_checksum "$run/$package-contracts-dependency-observation" ic-blob-storage-contracts "$current")" || fail 'contracts dependency readback refused'
+            [[ "$checksum" != missing ]] || fail 'runtime-library dry-run requires this contracts version on crates.io; run make package for coordinated local payload verification'
         fi
         cargo publish --locked --registry crates-io -p "$package" ${1:+"$1"}
     done

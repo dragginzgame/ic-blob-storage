@@ -1,5 +1,5 @@
 //! One explicit replicated admission or inspection; no retry or provider effects.
-use crate::ops::service::client;
+use crate::transport as client;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;

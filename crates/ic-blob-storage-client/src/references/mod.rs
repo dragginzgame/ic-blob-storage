@@ -1,5 +1,5 @@
 //! Explicit single-call mutation and receipt inspection; no automatic retry.
-use crate::ops::service::client;
+use crate::transport as client;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;

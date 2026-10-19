@@ -1,6 +1,6 @@
 //! Actual replicated transport using the shared tenant client.
 use blob_test_protocol::consumer::Failure;
-use ic_blob_storage::ops::service::uploads::tenants::client::ReplicatedTenantClient;
+use ic_blob_storage_client::tenants::ReplicatedTenantClient;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;

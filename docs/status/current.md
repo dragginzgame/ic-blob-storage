@@ -1,223 +1,140 @@
 # Current status
 
-Date: 2026-10-18
+Date: 2026-10-19
 
-## Source and scope
+## Delivered source and ownership
 
-The delivered baseline is released 0.34.0 at
-`926e91fe6fe98bb1caba6a3a343b5f940b4db714`; workspace versions are 0.34.0.
-That release includes the provider decoder move, Platform 0.1.11, Shared's
-reduced test roots and development Rust 1.99.1. Earlier receipts retain their
-original sources and graphs; they are not fresh results for this release.
-This maintenance continuation changes documentation only. It does not change
-dependencies, package versions, release metadata or provider state.
-
-The [archived handoff](handoff-2026-10-18.md) preserves all earlier source-bound
-results, failed attempts and consumer prerequisites. Its pending-release and
-“next work” statements belong to their recorded batches. Original evidence stays
-with its owner; archived release labels never qualify current bytes.
-
-## Ownership boundary
+Default branch is released **0.35.0**, commit
+`583947545a3afde00c4be68dcc6bca1caec8daee`. Contracts, Client and Core 0.35.0
+are published, unyanked and checksum/VCS-verified against that commit. Workspace
+versions remain 0.35.0. Compatible catalogue repair notes target 0.35.1; no release
+or dependency update is part of this handoff refresh.
 
 Blob owns tenant policy, data/references, quotas, provider economics, retained
-obligations and recovery; Contracts owns passive DTOs, method catalog, application
-codecs and verification. Standalone owns explicit endpoints, authentication,
-lifecycle and memory custody. Native CLI owns Blob operations and their evidence.
-Linking the core never mounts endpoints or lifecycle hooks. Consumer frameworks
-own their wrappers and installed integration qualification in their own repos.
+obligations and recovery. Contracts owns passive DTOs, method catalogue,
+application codecs and verification. Client owns explicit replicated calls;
+caller intent and recovery policy remain consumer-owned. Standalone owns its
+explicit endpoints, authentication, lifecycle and memory custody. Linking Core
+never mounts endpoints or lifecycle hooks. Consumer frameworks own their wrappers
+and installed integration qualification in their repositories.
 
-Memory 0.48.2 owns allocation/backing governance; Storage 0.5.3 owns collections
-and codecs. The delivered lock selects Platform 0.1.11 for supported principal,
-Candid/native Agent/certificate, entrypoint and call/system APIs. No direct
-Candid/CDK exceptions remain; runtime implementation retains its upstream owner.
-Wire 0.4.1 owns the two tenant method frames. Other 29 owned methods and standalone
-lifecycle inputs still use bounded CBOR. Provider/management Candid and persisted
-record encodings retain their separate contracts. No storage or wire migration
-was part of that release's cleanup.
+The released lock selects Platform 0.1.15, Memory 0.48.2, Storage 0.5.4,
+Wire 0.4.4, Host 0.27.6, Build 0.18.0 and Testkit 0.54.1. Shared Tooling remains
+0.24.0, reviewed revision `cab12cd3dfa4fdb34846b25397f0d72881bb9ae0`, with 131
+selected payloads. Platform owns supported Candid/CDK APIs; no direct exceptions
+remain. Memory owns allocation/backing governance; Storage owns collections and
+record codecs. Wire owns the two tenant frames; the other 29 owned methods and
+standalone lifecycle inputs retain bounded CBOR. Provider/management Candid and
+persisted encodings remain separate contracts. Wire owner updates are pending;
+this refresh adopts none of them.
 
-## Delivered dependency and tooling adoption
+## Completed producer work
 
-- Published Platform 0.1.8 owns configured/staged decoding and supported
-  record/service generator paths. Core, Contracts, protocol support and CLI drop
-  direct Candid. Native Agent/certificate/parsing imports use the supported
-  published APIs. Dynamic native fixture serializers and Agent response enums now
-  use Platform too; native direct Candid and all direct Agent declarations are
-  removed. CDK macros/runtime retain documented
-  exceptions and owning issues in
-  [the dependency guide](../dependencies.md#ic-platform-boundary).
-  Management-history DTOs now route through Platform's exact upstream identities;
-  the direct dependency and exception are removed. The
-  [0.1.8 receipt](../evidence/platform0180331.md) records its original published
-  selection and recovery/graph checks; new snapshot/status DTOs add no Blob
-  execution path. The
-  [0.1.7 receipt](../evidence/platform0170331.md) retains its native fixture and
-  signed-update qualification against its original graph. The
-  [0.1.6 receipt](../evidence/platform0160331.md) retains its published API and
-  installed recovery checks against its original graph. The
-  [0.1.5 receipt](../evidence/platform0150331.md) retains its earlier native/MSRV,
-  vector/example and thirteen installed-case evidence against its original graph.
-- Shared Tooling 0.24.0 at `cab12cd3dfa4fdb34846b25397f0d72881bb9ae0` now has
-  131 selected payloads after the delivered test-root retirement
-  (137 in released 0.33.1), including the direct-boundary checker. Role
-  labels, grouped formatting and prepared/selected-commit release checks agree.
-  Common Cargo setup omits the unused extractor executable.
-  [The adoption receipt](../evidence/shared0240331.md) records the initial snapshot
-  qualification; [Platform adoption](../evidence/platform0331.md) records adding
-  the checker. That audit retained Host 0.27.2, Build 0.17.1 and Testkit 0.53.0.
-- Delivered Testkit 0.54.0 uses Platform decoder limits and
-  typed causes; the retired decoder
-  dependency and its allowance are removed. All existing reply budgets remain.
-  Incoming Host 0.27.3, Build 0.17.3 and Wire 0.4.1 selections are preserved.
-  Published Testkit source is `ff88087d6757121ac92e0dec4705ecaccfd8ebed`; its archive checksum is
-  verified against the lock. Native all-target/all-feature checks and strict lint,
-  Rust 1.91 checks, three installed account/gateway cases, fresh standalone/peer
-  Wasms and boundary/format/tool checks pass. Native macOS/full CI are not rerun.
-  Raw before-images and checks remain under `.tmp/review-validation/testkit0540331/`.
-- [The fourth ownership audit](../reports/audits/2026/10/18/architectural-sediment/04/report.md)
-  finishes the substrate declaration guard and runtime-free Storage exclusion.
-  It routes trial preparation to the maintained strict-JSON-to-CBOR command and
-  separates historical trial state from current host instructions. Source,
-  before-images, fixture regressions and focused checks remain under
-  `.tmp/review-validation/sediment0331-04/`.
+[#87](https://github.com/dragginzgame/ic-blob-storage/issues/87#issuecomment-6263167596)
+is closed for 0.35 producer delivery and acceptance. Its exact-source
+[CI matrix](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39160412347)
+passes Linux, both native macOS hosts and Rust 1.91 MSRV. Testkit 0.54.1 now
+admits locally. An untouched Git-archive snapshot of the release rebuilds
+consumer/storage Wasms and passes all thirty client cases (19/4/2/5), using
+original lock SHA-256
+`cf267a7da81080fd5d3c385f74e05ffbbbf399610349c7f4efe29330d746ac9e`.
+Raw source/archive/registry receipts and successful and failed attempts remain
+under `.tmp/review-validation/issues0351/`, separate from the pending patch.
 
-## Current checks and next work
+[#86](https://github.com/dragginzgame/ic-blob-storage/pull/86) is closed as
+incorporated in 0.35.0: all 26 private consumer controls use bounded CBOR, current
+Rust/browser callers agree, and the client extraction supersedes its old Core
+imports. Public DTO traits and persisted consumer records were preserved.
 
-The full open backlog and PR discussions were reviewed against default main
-0.34.0. [The 0.33.1 tooling matrix](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39126998913)
-now passes Linux, Apple Silicon, Intel macOS and MSRV. That completes the
-previously unfinished delivered-source acceptance for
-[#82 — Review the unused core dependency in the gateway-source fixture](https://github.com/dragginzgame/ic-blob-storage/issues/82).
-That issue is closed. The delivered Memory identity/release guidance in
-[#77 — Align exposed Memory types with 0.41 and classify the public hard cut](https://github.com/dragginzgame/ic-blob-storage/issues/77)
-and producer/standalone workflow ownership in
-[#72 — Own shared host continuity and certificate workflows used by Canic and standalone](https://github.com/dragginzgame/ic-blob-storage/issues/72)
-are also complete and closed; Canic's newer graph/managed acceptance remains
-with its linked owners below, rather than keeping completed Blob work open.
+Earlier producer issues [#72](https://github.com/dragginzgame/ic-blob-storage/issues/72),
+[#77](https://github.com/dragginzgame/ic-blob-storage/issues/77),
+[#81](https://github.com/dragginzgame/ic-blob-storage/issues/81) and
+[#82](https://github.com/dragginzgame/ic-blob-storage/issues/82) are closed with
+their delivered-source evidence. Development Rust is 1.99.1; MSRV remains 1.91.
+Generic installer/runner matrices from
+[#83](https://github.com/dragginzgame/ic-blob-storage/pull/83) are incorporated;
+Blob retains its real snapshot, tool admission, hook, publication and recovery
+checks. PRs #73, #78 and #80 were closed as incorporated, and #79 as superseded.
 
-The [0.34.0 tooling workflow](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39138592222)
-passes Linux and MSRV at inspection; Apple Silicon and Intel macOS remain in
-progress. Its [published-example workflow](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39138592220)
-passes all three hosts. These observations do not declare the unfinished matrix
-green. Native compiler acceptance remains with #81 below.
+## Pending catalogue repair
 
-The released 0.34.0 provider codec consolidation moves chunk-reply decoding and
-its status/error types from Core's public `ops::caffeine::upload` module to
-`ic_blob_storage_contracts::provider::upload`, with no compatibility re-export.
-The decoder and its tests are byte-identical; limits, JSON refusals and provider
-authority semantics are unchanged. Core drops direct `serde_json`; the CLI drops
-unused development Testkit while retaining its required JSON dependencies.
-The lockfile changes only those two edges. Core, Contracts and CLI tests pass;
-three CLI loopback fixtures initially failed sandbox socket admission and pass
-outside that restriction. Strict scoped Clippy, native Rust 1.91 checks for all
-three packages, Rust 1.91 Wasm checks for Core/Contracts/standalone, formatting,
-dependency boundaries/pins and documentation links pass. The CLI's inspected
-all-feature/all-target normal/build/dev graph no longer includes Testkit.
-Logs and starting files remain under
-`.tmp/review-validation/dependency-consolidation0340/`. Full CI, native macOS and
-installed-IC qualification were not run in that local relocation pass; hosted
-release checks are separately bounded above.
+[#88](https://github.com/dragginzgame/ic-blob-storage/issues/88) and
+[PR #89](https://github.com/dragginzgame/ic-blob-storage/pull/89) repair catalogue
+macro registration before a following Candid service export. The released
+compiler regression produces an empty service; exact-path dispatch registers the
+provider method before export. Standalone can then export after mounting instead
+of exporting inside its certificate emitter. Names, signatures, codecs, authority,
+lifecycle and storage remain unchanged.
 
-[The fifth ownership audit](../reports/audits/2026/10/18/architectural-sediment/05/report.md)
-corrects CLI/browser format guidance left by the JSON/CBOR cut and removes a
-doctest that only asserted an old model path was absent. Three actual offline
-installation cases and the four remaining boundary doctests pass. It preserves
-the current graph, all runtime implementations, independent vectors and recovery
-journals; no further production deletion was justified. Before-images and scoped
-checks remain under `.tmp/review-validation/sediment0332-05/`.
+Focused Linux evidence passes the compiler regression, strict scoped Clippy,
+Rust 1.91 regression and extraction-feature Wasm checks, actual native provider
+DID export, fresh production standalone Wasm, exact catalogue/export parity and
+two installed certificate/authority/recovery cases. Initial failures remain
+retained. These checks qualify the patch source and original released lock, not
+later incoming lock edits, native macOS for the patch or installed Canic.
+Keep #88 open until default-branch integration and corrected publication. Hosted
+results must be checked against the final PR head before integration.
 
-Published Platform 0.1.11 finishes the runtime boundary: its exact upstream
-cycle/counter helpers replace the last direct CDK imports in core and five probes.
-All direct Candid/CDK declarations and exceptions are removed, including the root
-catalog. The policy rejects their reintroduction and direct internal macro access.
-[The adoption receipt](../evidence/platform01110332.md) records published identities
-and focused qualification; [0.1.10](../evidence/platform01100332.md) retains its
-earlier macro migration evidence and now-resolved helper gaps. Existing Wire/CBOR,
-provider Candid, runtime/executor identities, storage and memory are unchanged.
-The 0.1.11 graph passes strict lint, native/Wasm Rust 1.91 checks, seven fresh
-Wasms, 348 core tests, five installed funding/counter/lifecycle cases and separate
-provider DID/export parity. The hook's dependency-sorting fixture now selects
-remaining catalog entries; sorting, rollback and lock preservation pass.
+## Consumer adoption and remaining owners
 
-Released 0.34.0 adapts [PR #83 — Keep generic installer and
-release-runner regressions at Shared](https://github.com/dragginzgame/ic-blob-storage/pull/83)
-to the unchanged Shared 0.24 revision. Canonical export retires five generic test
-roots and their unused cache-key companion; Blob retains actual tool admission,
-Make/Testkit forwarding, hooks, evidence and release/publication recovery checks.
-All retained focused regressions pass. PR #83 is closed as already incorporated:
-its older branch has no unique change left to merge, and its original hosted
-matrix passes. Current 0.34.0 native acceptance remains separately bounded above.
-PRs #73, #78 and #80 were already incorporated; the old Testkit 0.51 draft #79
-was superseded.
+[Canic draft #603](https://github.com/dragginzgame/canic/pull/603), stacked on
+#591, retains Blob/Contracts 0.34 and Platform 0.1.13. At `3108ebcac`, its
+previous derive-order blocker is fixed. Preflight/security pass, but the exact
+[CI run](https://github.com/dragginzgame/canic/actions/runs/39148766791) still
+fails fifteen Canic Core Memory API callers in checks/MSRV/Apple Silicon. Intel
+macOS stops during Testkit setup with exit 28; that log does not establish its
+underlying cause. Ordinary, PocketIC and release-build jobs are skipped.
+Earlier 48 macro cases, native/Wasm/MSRV expansion and two byte-contract proofs
+used explicit framework substitutes. They do not qualify dedicated/embedded
+managed installation or retained-data restoration. Coordinate existing framework
+Memory work with #595, consume the published #88 repair, then run those actual
+journeys. [Canic #444](https://github.com/dragginzgame/canic/issues/444) owns this
+acceptance; normal sibling checkouts are not part of the contribution.
 
-[#81 — Qualify Rust 1.99.1 as the development compiler](https://github.com/dragginzgame/ic-blob-storage/issues/81)
-is delivered in 0.34.0, including the frozen-example CI override. MSRV remains
-1.91; that compiler-only change alters no package/dependency version or lock.
-New compiler-bound
-formatter/Testkit tool receipts are prepared. Native production-package checks
-and strict lint, 348 core plus 118 Contracts unit cases, fresh standalone/peer
-Wasms and three installed account/rollback/lifecycle cases pass on Linux.
-Formatting, boundary/pin/snapshot/tool checks and the substitute-Cargo example
-adapter pass. Keep #81 open until the exact 0.34.0 native macOS jobs above pass;
-earlier 0.33.1 used the previous development compiler and cannot qualify this change.
-Before-images, canonical export records, CI observations, failed prerequisites
-and successful checks remain under `.tmp/review-validation/issues0332/`.
+[IC Crates draft #11](https://github.com/dragginzgame/ic-crates/pull/11) and
+[its adoption issue #12](https://github.com/dragginzgame/ic-crates/issues/12)
+replace two registry Core client imports with Client. The 0.35 publication
+prerequisite is satisfied; its refreshed lock resolves the real published
+Client/Contracts family without source overrides. Existing PR #7 owns its Canic/database/Memory/Timers convergence.
+The draft's current hosted native jobs stop during cold-cache tool setup before
+application compilation; [#9](https://github.com/dragginzgame/ic-crates/issues/9)
+owns that ordering problem. The refreshed locked native check reaches the same three
+registry Memory mismatches as baseline. Keep the draft separate from framework
+work and qualify actual managed artifacts/recovery after convergence. The actual
+lock/check state belongs to that draft's current handoff, not a source override.
 
-[The issue-maintenance receipt](../evidence/issues0331.md) retains #82's original
-fixture-removal evidence. The fix is delivered in 0.33.1, whose exact tooling
-workflow is now complete as recorded above. Its source-bound receipt retains
-the original pending status; that historical observation is not rewritten. Public DTO
-Candid removal remains the separate coordinated hard cut in
-[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+[#76](https://github.com/dragginzgame/ic-blob-storage/issues/76#issuecomment-6263150182)
+awaits a published Host retained-write completion helper. Producer PR #172 is
+merged, but the inspected registry FS/Process release is still 0.27.6 and lacks
+the helper. Retain partial-evidence persistence until the published replacement
+is available; do not reconstruct it locally or change staging guarantees.
 
-For #84, current private probes and their callers still expose application DTOs
-through Candid. Migrate those consumers to canonical Wire/CBOR before removing
-public traits, and retain provider/management Candid and frozen-image refusal
-proofs. The Canic draft below owns its separate codec adoption. This is a new
-coordinated public cut after released 0.34.0, not a compatible declaration cleanup.
+[#84](https://github.com/dragginzgame/ic-blob-storage/issues/84) remains the
+coordinated public/persisted DTO Candid cut. Current journal consumers still
+require those traits. Keep the allocation-instrumented private probe until a
+Memory observation/fault API preserves attribution; related
+[Memory #101](https://github.com/dragginzgame/ic-memory/issues/101) is not proof of
+that API. Do not reset uncertainty, funding history, restore fences or retained
+obligations to simplify adoption. Provider qualification, GC, billing, verifier
+and application acceptance retain their own issues and effect authorization.
+The [probe ledger](../evidence/caffeine-probes/README.md) governs provider evidence.
 
-[#76 — Adopt Host retained-record write completion after publication](https://github.com/dragginzgame/ic-blob-storage/issues/76)
-still awaits a published completion API. Host's original PR #132 was consolidated
-into [Host PR #172 — Integrate remaining artifact, filesystem and process contributions](https://github.com/dragginzgame/ic-host-tooling/pull/172),
-which remains open. Delivered Host FS 0.27.4 supplies retained creation/publication
-but not the proposed complete retained write. Keep Blob's bounded producer and
-file/directory synchronization until that API is available; an atomic writer's
-failure cleanup would discard required partial probe evidence.
+## Evidence and validation limits
 
-The Platform 0.1.8 receipt records focused native and installed recovery checks,
-fresh standalone Wasm, native/MSRV/lint/boundary checks and unchanged upstream
-feature/dependency selections. Earlier Platform and ownership-audit results retain
-their original graphs. Full CI, package publication, native macOS, browser journeys,
-live provider behavior and installed Canic acceptance have not been requalified by this batch.
-The canonical direct checker observes aliases, normal/build/dev/target-specific
-and disabled optional declarations. Contracts/CLI normal graphs reject runtime
-owners, including Storage. Automatic standalone/transitive test-tool deployment
-exclusions and binding inspected source/lock/features to deployed bytes remain
-missing; role labels and direct checks do not supply that admission.
+The [archived handoff](handoff-2026-10-18.md) and
+[pre-refresh released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/583947545a3afde00c4be68dcc6bca1caec8daee/docs/status/current.md)
+retain earlier source-bound checks, failed attempts and historical prerequisites.
+They are evidence, not current instructions to repeat delivered work. Existing
+receipts remain at their owners, including
+[Shared adoption](../evidence/shared0240331.md),
+[Platform runtime adoption](../evidence/platform01110332.md),
+[fixture ownership](../evidence/release-fixture-ownership.md) and
+[Canic follow-up](../evidence/canic-dispatch0331.md).
 
-The approved Canic follow-up is now [draft PR #603 — Adopt Blob shared dispatch
-and canonical endpoint codecs](https://github.com/dragginzgame/canic/pull/603),
-stacked on its protocol-neutral entrypoint contribution #591. The isolated
-contribution removes Canic's duplicate workflow, provider access adapters and
-continuity checkpoint, retaining host endpoint/lifecycle/memory ownership. All
-three maintained lockfiles now resolve published Blob/Contracts 0.33.0, Memory
-0.48.2 and Storage 0.5.3. The normal dirty Canic checkout remains untouched.
-
-All 48 actual macro tests and strict macro lint pass. Endpoint expansions compile
-against published Blob natively and for Wasm, including Rust 1.91 Wasm. Two
-installation byte-contract cases pass with the actual Canic decoder/limits in an
-isolated fixture. Framework substitutes limit those checks to compilation and
-byte contracts. Full adapter checking reaches Canic Core and then fails on 15
-Memory caller errors; actual dedicated/embedded managed installation and retained
-data restoration remain unqualified. Finish that existing Memory adoption before
-landing the draft. The [follow-up receipt](../evidence/canic-dispatch0331.md)
-records exact source identities, successful checks and failed attempts. Earlier
-[implementation evidence](../reports/audits/2026/10/18/architectural-sediment/03/report.md)
-retains its original unpublished dependency and publication-blocker status.
-
-Retain the allocation-instrumented private probe until Memory provides an
-allocation-level observation/fault hook that preserves attribution. Existing
-[Memory #101](https://github.com/dragginzgame/ic-memory/issues/101) is related owner
-work, not proof of that API. Do not replace exact journal recovery, uncertain
-funding records or restore fences with reset/retry shortcuts. Provider acceptance,
-retirement and continuing-billing obligations remain governed by their service
-contracts and the [probe ledger](../evidence/caffeine-probes/README.md).
+Direct dependency checks cover aliases, kinds, targets and disabled optional
+declarations. Role labels and runtime-free library checks do not enforce general
+standalone/transitive test-tool deployment exclusions or bind inspected features
+and lock selections to deployed bytes. That admission remains missing.
+This documentation refresh changes no code, package/version selection, deployed
+service, provider effect or consumer acceptance. Its checks are links, snapshot,
+formatting and diff consistency; code evidence above retains its original inputs.

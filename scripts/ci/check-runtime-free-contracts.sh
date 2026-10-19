@@ -9,3 +9,11 @@ if rg '^(ic-blob-storage |ic-cdk|ic-memory |ic-storage |ic-stable-structures )' 
     exit 1
 fi
 echo 'Contracts and native CLI normal graphs are runtime-free across targets'
+
+# Replicated callers need Platform execution, but never the installed service or stores.
+cargo tree --offline --locked --target all --edges normal --prefix none --format '{p}' \
+    -p ic-blob-storage-client > "$contract_graph"
+if rg '^(ic-blob-storage |ic-memory |ic-storage |ic-stable-structures )' "$contract_graph"; then
+    echo 'Blob client depends on a service storage owner' >&2; exit 1
+fi
+echo 'Blob client normal graph excludes service storage across targets'

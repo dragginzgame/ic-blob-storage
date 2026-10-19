@@ -36,6 +36,10 @@ demonstrated, but application integration, provider guarantees, deletion,
 billing and production recovery are still being qualified. This is not yet a
 finished production service.
 
+Remote canister callers can use `ic-blob-storage-client` without linking the
+installed service implementation. Contracts owns codecs; Core owns service state.
+The pending client-package cut is documented in [dependencies](docs/dependencies.md#replicated-clients-and-service-storage).
+
 ## What it does
 
 | What you need | What `ic-blob-storage` does |
@@ -191,7 +195,7 @@ The test targets use local canisters and do not deploy a live service.
 ## Repository layout
 
 The standalone host and external consumers use the same service workflows and tenant rules.
-The root is a virtual Cargo workspace. All 12 maintained Rust packages share
+The root is a virtual Cargo workspace. All 13 maintained Rust packages share
 one virtual root, lockfile and catalog. Libraries and CLI stay in `crates/`,
 canisters in `canisters/`, and packaged test support in `tests/pocketic/` and
 `tests/protocol/`; browser tests and frozen inputs stay under `tests/`. Package and Wasm names retain their existing identities.
@@ -199,6 +203,7 @@ canisters in `canisters/`, and packaged test support in `tests/pocketic/` and
 | Location | Responsibility |
 | --- | --- |
 | [Contracts](crates/ic-blob-storage-contracts/README.md) | Runtime-free DTOs, identities, method names, bounded codecs and content verification |
+| [Replicated clients](crates/ic-blob-storage-client/README.md) | Explicit remote calls without service storage; caller-owned intent and recovery |
 | [Rust core](crates/ic-blob-storage) | Service policy, durable state, accounting and workflows; depends downward on contracts |
 | [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
 | [Native CLI](crates/ic-blob-storage-cli) | Offline snapshots and batch inputs, signed setup/inspection, tenant references, verified downloads and verifier tooling |

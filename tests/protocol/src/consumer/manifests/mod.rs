@@ -4,9 +4,11 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
+use serde::Serialize;
 /// Exact locally assigned identity and immutable declaration intent.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
 #[candid_path("ic_platform::candid::contract")]
+#[serde(deny_unknown_fields)]
 pub struct ManifestIntent {
     /// Explicit lifetime journal identity; never allocated by the fixture.
     pub id: u128,
@@ -14,8 +16,8 @@ pub struct ManifestIntent {
     pub request: UploadManifestRequest,
 }
 /// Read-only retained intent and dispatch result.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ManifestIntentView {
     /// Immutable original request.
     pub intent: ManifestIntent,
@@ -27,8 +29,8 @@ pub struct ManifestIntentView {
     pub result: Option<Result<UploadManifestDeclaration, UploadManifestFailure>>,
 }
 /// Scheduling controls do not change saved intent.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ManifestDispatch {
     /// Previously saved local intent.
     pub id: u128,
@@ -40,8 +42,7 @@ pub struct ManifestDispatch {
     pub hold: bool,
 }
 /// Fixture-only IC transaction interruption.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ManifestFault {
     /// No interruption.
     None,

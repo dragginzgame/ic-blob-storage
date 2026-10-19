@@ -1,6 +1,6 @@
 //! Authenticated fixture observer using the shared passive client; no extra journal.
 use blob_test_protocol::consumer::Failure;
-use ic_blob_storage::ops::service::funding::client::ReplicatedFundingClient;
+use ic_blob_storage_client::funding::ReplicatedFundingClient;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;

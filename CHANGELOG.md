@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.35.0] - 2026-10-18
+
+- **Breaking client imports:** use the published `ic-blob-storage-client` role
+  modules for replicated calls instead of Core's `ops::service::*::client`
+  modules. The client package consumes Contracts and Platform without service
+  Memory/Storage dependencies. Call authority, exact codecs, bounds and recovery
+  responsibilities retain their existing contracts.
+
+- Move all private consumer-probe controls and their Rust/Chromium callers to
+  bounded canonical CBOR, preserving service codecs, authority, saved intents,
+  cancellation and recovery. Remove transient fixture Candid traits and the old
+  ingress decoder; retain stored-record traits. The public DTO cut remains
+  [#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+
 ## [0.34.0] - 2026-10-18
 
 - **Breaking provider decoder API:** import chunk-reply decoding and its status/error

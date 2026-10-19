@@ -4,7 +4,6 @@ use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::update_candid_args;
 mod admission;
 mod manifests;
 mod revocation;
@@ -42,16 +41,17 @@ fn fresh_input(f: &Fixture) -> (Run, Permission, PreparationInput) {
 }
 fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let (input, permission, manifest) = fresh_input(f);
-    let view: Result<AssetView, ConsumerFailure> = update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "prepare",
-        (&input.registration,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let view: Result<AssetView, ConsumerFailure> = f
+        .harness
+        .pic
+        .update_blob_as(
+            f.tenant,
+            f.operator,
+            "prepare",
+            &input.registration,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
     assert_eq!(view.unwrap().upload_state, None);
     (input, permission, manifest)
 }
@@ -190,7 +190,7 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
             f.tenant,
             f.operator,
             "register",
-            ic_platform::candid::contract::encode_one(&input).unwrap(),
+            ic_blob_storage_contracts::wire::encode(&input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -261,14 +261,14 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
     assert!(!known.published);
 }
 fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
-    update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "admit",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_blob_as(
+            f.tenant,
+            f.operator,
+            "admit",
+            input,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap()
 }

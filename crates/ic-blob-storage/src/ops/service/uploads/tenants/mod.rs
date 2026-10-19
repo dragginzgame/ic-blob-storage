@@ -1,5 +1,4 @@
 //! Enrollment authority, conversion and named endpoint contract over the shared owner.
-pub mod client;
 use super::{StableUploads, UploadStoreError};
 use crate::ops::service::tenant::TenantStoreError;
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;

@@ -1,4 +1,5 @@
 //! Explicit bounded stable storage and platform calls for the application substitute.
+pub(crate) mod controls;
 pub(crate) mod funding;
 pub(crate) mod manifests;
 pub(crate) mod tenants;
@@ -14,9 +15,9 @@ use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
-use ic_blob_storage::ops::service::reads::download::client::ReplicatedDownloadClient;
-use ic_blob_storage::ops::service::references::client::ReplicatedReferenceClient;
-use ic_blob_storage::ops::service::uploads::admission::client::UploadAdmissionClientError;
+use ic_blob_storage_client::admission::UploadAdmissionClientError;
+use ic_blob_storage_client::download::ReplicatedDownloadClient;
+use ic_blob_storage_client::references::ReplicatedReferenceClient;
 use ic_blob_storage_contracts::download::reply::DownloadReplyLimits;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
@@ -25,9 +26,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
 use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::decoder::DecoderConfig;
-use serde::Deserialize;
 use std::cell::{Cell, RefCell};
 const KEY: &str = "fixture.consumer.v1";
 const MAX: usize = 16_384;
@@ -50,15 +49,6 @@ fn config() -> DecoderConfig {
         .set_max_header_len(MAX)
         .set_full_error_message(false);
     config
-}
-#[expect(
-    clippy::needless_pass_by_value,
-    reason = "CDK supplies owned bounded ingress"
-)]
-pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
-    assert!(bytes.len() <= 4096, "consumer ingress bound");
-    ic_platform::candid::decoder::decode_one_with_config(&bytes, &config())
-        .expect("consumer ingress")
 }
 pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
     let request = MemoryRequest::new("fixture", KEY).unwrap();
@@ -246,8 +236,8 @@ pub(crate) async fn hold() -> Result<(), Failure> {
 
 fn admission_client(
     permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
-) -> ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient {
-    ic_blob_storage::ops::service::uploads::admission::client::ReplicatedUploadAdmissionClient::new(
+) -> ic_blob_storage_client::admission::ReplicatedUploadAdmissionClient {
+    ic_blob_storage_client::admission::ReplicatedUploadAdmissionClient::new(
         ic_platform::cdk::api::canister_self(),
         permission.upload.service,
         30.try_into().unwrap(),

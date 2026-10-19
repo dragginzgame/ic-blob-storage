@@ -76,9 +76,10 @@ edition = "2024"
 publish = ["crates-io"]
 
 [workspace.dependencies]
+ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.1.0" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.1.0" }
 TOML
-    for package in ic-blob-storage ic-blob-storage-contracts; do
+    for package in ic-blob-storage ic-blob-storage-client ic-blob-storage-contracts; do
         mkdir -p "crates/$package"
         printf '[package]\nname = "%s"\nversion.workspace = true\n' "$package" > "crates/$package/Cargo.toml"
     done
@@ -92,6 +93,11 @@ dependencies = [
  "ic-blob-storage-contracts 0.1.0",
  "external 0.1.0",
 ]
+
+[[package]]
+name = "ic-blob-storage-client"
+version = "0.1.0"
+dependencies = ["ic-blob-storage-contracts 0.1.0"]
 
 [[package]]
 name = "ic-blob-storage-contracts"
@@ -282,8 +288,9 @@ case "$*" in
         [[ "${TEST_METADATA_FAIL:-0}" != 1 ]] || exit 1
         current="$(yq -p toml -o json '.workspace.package.version' Cargo.toml | jq -er .)"
         [[ "$(yq -p toml '.workspace.dependencies.ic-blob-storage-contracts.version' Cargo.toml)" == "$current" ]] || exit 1
+        [[ "$(yq -p toml '.workspace.dependencies.ic-blob-storage-client.version' Cargo.toml)" == "$current" ]] || exit 1
         ! rg -q '^foreign-package' Cargo.toml || exit 1
-        printf '{"workspace_members":["local","contracts"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage/Cargo.toml"},{"id":"contracts","name":"ic-blob-storage-contracts","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage-contracts/Cargo.toml"}]}\n' "$current" "$PWD" "$current" "$PWD" ;;
+        printf '{"workspace_members":["local","client","contracts"],"packages":[{"id":"local","name":"ic-blob-storage","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage/Cargo.toml"},{"id":"client","name":"ic-blob-storage-client","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage-client/Cargo.toml"},{"id":"contracts","name":"ic-blob-storage-contracts","version":"%s","source":null,"manifest_path":"%s/crates/ic-blob-storage-contracts/Cargo.toml"}]}\n' "$current" "$PWD" "$current" "$PWD" "$current" "$PWD" ;;
     locate-project*) printf '%s/Cargo.toml\n' "$PWD" ;;
     'sort --version') [[ "${TEST_SORT_FAIL:-0}" != 1 ]] || exit 1; echo "cargo-sort ${TEST_SORT_VERSION:-2.1.4}" ;;
     'fmt --version') echo rustfmt; [[ "${TEST_FMT_FAIL:-0}" != 1 ]] ;;
@@ -293,7 +300,7 @@ case "$*" in
     'fmt --all -- --check') ;;
     'fetch --locked') echo fetch >> "$TEST_EFFECTS"; [[ "${TEST_FETCH_FAIL:-0}" != 1 ]] || exit 1; touch target/mock-cargo-cache ;;
     'check --offline --locked --workspace --all-targets --all-features') [[ -f target/mock-cargo-cache ]] || exit 1; echo check >> "$TEST_EFFECTS" ;;
-     'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage-contracts'|'publish --locked --registry crates-io -p ic-blob-storage-contracts --dry-run')
+     'publish --locked --registry crates-io -p ic-blob-storage-client'|'publish --locked --registry crates-io -p ic-blob-storage-client --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage-contracts'|'publish --locked --registry crates-io -p ic-blob-storage-contracts --dry-run')
         package="$6"
         echo "publish:$package" >> "$TEST_EFFECTS"
         [[ "${TEST_PUBLISH_FAIL:-}" != "$package" ]] || exit 1
@@ -348,7 +355,7 @@ case "$url" in
     https://crates.io/api/v1/crates/*)
         suffix="${url#https://crates.io/api/v1/crates/}"
         package="${suffix%/*}"; current="${suffix##*/}"
-        if [[ "${TEST_DEPENDENCY_FAILURE:-0}" == 1 && "$output" == */contracts-dependency-observation/response.json ]]; then
+        if [[ "${TEST_DEPENDENCY_FAILURE:-0}" == 1 && "$output" == *contracts-dependency-observation/response.json ]]; then
             echo '{' > "$output"; printf 200
         elif [[ "${TEST_REGISTRY_FAILURE:-}" == http ]]; then
             echo '{}' > "$output"; printf 503
@@ -733,7 +740,7 @@ test_publish() {
     if [[ "$1" == dry-run ]]; then "$TEST_REAL_MAKE" --no-print-directory publish-dry-run;
     else "$TEST_REAL_MAKE" --no-print-directory publish; fi
     if [[ "${2:-}" == '' ]]; then
-        [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage' ]] || exit 1
+        [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1
     else [[ "$(cat "$TEST_EFFECTS")" == "publish:$2" ]] || exit 1; fi
     assert_cache_retained
 }
@@ -741,6 +748,8 @@ test_publication_retry() {
     prepare_tagged_release
     case "$1" in
         contracts-failure) export TEST_PUBLISH_FAIL=ic-blob-storage-contracts ;;
+        client-failure) export TEST_PUBLISH_FAIL=ic-blob-storage-client ;;
+        client-lost-reply) export TEST_PUBLISH_LOST_REPLY=ic-blob-storage-client ;;
         core-failure) export TEST_PUBLISH_FAIL=ic-blob-storage ;;
         contracts-lost-reply) export TEST_PUBLISH_LOST_REPLY=ic-blob-storage-contracts ;;
         core-lost-reply) export TEST_PUBLISH_LOST_REPLY=ic-blob-storage ;;
@@ -748,14 +757,18 @@ test_publication_retry() {
     expect_failure "$TEST_REAL_MAKE" --no-print-directory publish
     if [[ "$1" == contracts-* ]]; then
         [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage-contracts ]] || exit 1
+    elif [[ "$1" == client-* ]]; then
+        [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client' ]] || exit 1
     else
-        [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage' ]] || exit 1
+        [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1
     fi
     unset TEST_PUBLISH_FAIL TEST_PUBLISH_LOST_REPLY
     : > "$TEST_EFFECTS"
     "$TEST_REAL_MAKE" --no-print-directory publish
     case "$1" in
-        contracts-failure) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage' ]] || exit 1 ;;
+        contracts-failure) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1 ;;
+        contracts-lost-reply) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1 ;;
+        client-failure) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1 ;;
         core-lost-reply) [[ ! -s "$TEST_EFFECTS" ]] || exit 1 ;;
         *) [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage ]] || exit 1 ;;
     esac
@@ -818,7 +831,7 @@ test_dependency_readback_refusal() {
     expect_failure "$TEST_REAL_MAKE" --no-print-directory publish-dry-run
     [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage-contracts ]] || exit 1
     local observation
-    observation="$(awk '/^Publication readback retained: / { print substr($0, 32) }' target/rejection.log)/contracts-dependency-observation"
+    observation="$(awk '/^Publication readback retained: / { print substr($0, 32) }' target/rejection.log)/ic-blob-storage-client-contracts-dependency-observation"
     [[ "$(cat "$observation/http-status")" == 200 && "$(cat "$observation/response.json")" == '{' ]] || exit 1
     assert_cache_retained
 }
@@ -1071,12 +1084,14 @@ run_case publish test_publish normal
 run_case publish-dry-run test_publish dry-run
 run_case publish-contracts test_publish normal ic-blob-storage-contracts
 run_case publish-contracts-dry-run test_publish dry-run ic-blob-storage-contracts
+run_case publish-client test_publish normal ic-blob-storage-client
+run_case publish-client-dry-run test_publish dry-run ic-blob-storage-client
 run_case publish-core test_publish normal ic-blob-storage
 run_case publish-core-dry-run test_publish dry-run ic-blob-storage
 run_case publish-invalid-selection test_invalid_publish_selection
 run_case publish-unindexed-dry-run test_unpublished_dry_run
 run_case publish-dependency-readback-refusal test_dependency_readback_refusal
-for shape in contracts-failure core-failure contracts-lost-reply core-lost-reply; do
+for shape in contracts-failure client-failure core-failure contracts-lost-reply client-lost-reply core-lost-reply; do
     run_case "publication-retry-$shape" test_publication_retry "$shape"
 done
 for shape in transport transport-404 http forbidden malformed oversized multiple missing-fields checksum foreign version source dirty path yanked nonboolean old-curl; do

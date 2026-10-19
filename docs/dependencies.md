@@ -7,7 +7,7 @@
 ## Current dependency owners
 
 The root [Cargo catalog](../Cargo.toml) owns all direct dependency requirements;
-all twelve members inherit package versions and dependencies. The root
+all thirteen members inherit package versions and dependencies. The root
 [lockfile](../Cargo.lock) owns this checkout's selected graph. Member manifests
 select features and targets. Registry consumers resolve their own compatible
 lockfiles; local qualification does not cover every future resolution.
@@ -15,15 +15,16 @@ lockfiles; local qualification does not cover every future resolution.
 | Owner | Locked selection | Responsibility |
 | --- | --- | --- |
 | Blob core | Workspace version | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
+| Blob client | Workspace version | Explicit replicated role clients; no service storage, endpoints or lifecycle |
 | Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
 | IC Memory | 0.48.2 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
 | IC Storage | 0.5.3 | Governed stable collections and codec traits; the stable-structures dependency stays upstream |
-| IC Platform | 0.1.11 | Entrypoint/export macros, supported CDK calls/system APIs, Principal, external Candid encoding/decoding, management DTOs and native Agent/parser/certificate identities |
+| IC Platform | 0.1.13 | Entrypoint/export macros, supported CDK calls/system APIs, Principal, external Candid encoding/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Wire | 0.4.1 | Bounded method/direction framing for the two tenant contracts |
-| IC Metrics | 0.14.1 | Private probe measurement arithmetic; not a public Blob API |
-| IC Testkit | 0.54.0 | PocketIC client/server selection and managed lifetime; bounded Candid decoding uses Platform |
-| IC Host artifacts/fs/process/tools | 0.27.4 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
-| IC Build | 0.17.3 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
+| IC Metrics | 0.14.4 | Private probe measurement arithmetic; not a public Blob API |
+| IC Testkit | 0.54.1 | PocketIC client/server selection and managed lifetime; bounded Candid decoding uses Platform |
+| IC Host artifacts/fs/process/tools | 0.27.6 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Build | 0.18.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 | Testkit-selected local IC execution; no separate Blob server catalog |
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
@@ -80,6 +81,23 @@ Platform owns supported independent decoding, including Testkit 0.54 simulator
 call limits and typed decoder failures. The retired Testkit decoder package is
 forbidden by the direct-boundary policy; neither tool owns production provider
 transport or its authority.
+
+All 26 private consumer-probe controls use the same bounded CBOR codec as other
+Blob-owned CBOR boundaries, with a 4 KiB ingress ceiling and exact whole-value
+decoding. Their command/status envelopes belong to test protocol support, not
+the public service catalog. The Rust callers and the opaque packets supplied to
+Chromium use that codec; JavaScript defines no duplicate fixture schemas.
+They forward actual tenant operations through the unchanged method-bound Wire
+client; funding, manifest and asset operations retain their canonical service
+CBOR clients. Transient scheduling/reply types no longer derive CandidType.
+Lifecycle arguments and the stored consumer record still use Candid. Other
+current probes and public application DTO consumers need the coordinated cut in
+[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+No persisted journal, provider contract or production installation byte changes.
+For example, `ManifestIntent` retains CandidType because the consumer's
+`ManifestIntentRecord` stores it inside the Candid-encoded `ConsumerRecord`.
+Public trait removal must account for these actual stored DTO consumers as well
+as endpoint callers; moving incoming controls alone cannot retire that coupling.
 
 The reviewed [Shared snapshot](../.shared-tooling.snapshot) is 0.24.0 at
 `cab12cd3dfa4fdb34846b25397f0d72881bb9ae0` (131 selected payloads, including the dependency-boundary checker). It owns common Make,
@@ -229,7 +247,7 @@ For ordinary development from the repository root:
 3. Run `make deps` to fetch the exact locked Rust dependencies.
 4. Run `make install-hooks` once per clone (also after updating
    developer setup). The reviewed hook uses `make fmt`; CI and release validation
-   independently use `make fmt-check`. Both use grouped catalog sorting across all twelve manifests and format
+   independently use `make fmt-check`. Both use grouped catalog sorting across all thirteen manifests and format
    Rust, without fetching dependencies, compiling or cleaning artifacts.
 5. Run `make test-native` for native development checks, or
    `make test-native-host` for CLI/examples, actual PocketIC installation and
@@ -546,3 +564,20 @@ at the printed paths and is uploaded by the hosted collectors. Successful fixtur
 cleanup removes only its own disposable inputs. See
 [development governance](governance/development.md) for command authority and the
 [release guide](releasing.md) for maintainer validation, delivery and publication.
+
+## Replicated clients and service storage
+
+The `ic-blob-storage-client` package owns the existing role-specific replicated
+calls and their common one-call mechanics. Its normal graph includes Contracts
+and Platform execution, but excludes Core, Memory, Storage and stable structures;
+`make contracts-boundary-check` enforces that distinction across targets.
+Contracts and the native CLI retain their separate runtime-free checks.
+
+Use `ic_blob_storage_client::{admission,download,funding,manifests,references,status,tenants}`
+for remote calls. The old Core client paths are removed in the pending 0.35.0
+public cut. Core owns installed service state and workflows; consumers retain
+intent, retry decisions, application publication and uncertain-outcome recovery.
+The client package installs no endpoints, lifecycle hooks, stores or timers.
+Publishing proceeds Contracts, Client, Core. The client shares the workspace's
+current version during development; only maintainer release preparation advances
+that version. It is not yet an available registry dependency before publication.

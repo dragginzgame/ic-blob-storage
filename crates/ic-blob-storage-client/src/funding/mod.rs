@@ -1,5 +1,5 @@
 //! Explicit replicated funding inspection; no attached cycles or mutation methods.
-use crate::ops::service::client;
+use crate::transport as client;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
