@@ -1,14 +1,10 @@
 //! Qualify catalogue expansion before a consumer exports its Candid service.
 
-#[allow(
-    unused_imports,
-    reason = "the catalogue imports types for raw methods too"
-)]
 mod endpoints {
     macro_rules! endpoint {
         (certificate, request, $wire:literal, async fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $reply:ty $body:block) => {
             #[ic_platform::candid::contract::candid_method(update, rename = $wire)]
-            #[allow(dead_code, reason = "declaration-only host fixture")]
+            #[expect(dead_code, reason = "declaration-only host fixture")]
             fn $name($($arg: $ty),*) -> $reply {
                 $(let _ = $arg;)*
                 panic!("declaration-only host fixture")
