@@ -138,7 +138,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
         .unwrap();
     suspended.unwrap();
     assert_eq!(f.reference_capacity(f.tenant, request), Ok(expected));
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(

@@ -1,10 +1,10 @@
-//! Exact bounded CBOR packets shared by native inputs and service replies.
+//! Exact bounded passive Wire values for offline native inputs.
 use super::Failure;
 pub(super) const INSTALLATION_BYTES: usize = 16 * 1024;
 /// Callers retain their command-specific byte ceilings; extra values always refuse.
-pub(super) fn decode<T: serde::de::DeserializeOwned>(
+pub(super) fn decode<T: serde::Serialize + serde::de::DeserializeOwned>(
     bytes: &[u8],
     max: usize,
 ) -> Result<T, Failure> {
-    ic_blob_storage_contracts::wire::decode(bytes, max).map_err(|_| Failure::Arguments)
+    ic_blob_storage_contracts::document::decode(bytes, max).map_err(|_| Failure::Arguments)
 }

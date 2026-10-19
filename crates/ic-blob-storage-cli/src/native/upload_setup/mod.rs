@@ -183,6 +183,7 @@ fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<SetupObse
         }
         Kind::Manifest => SetupObservation::Manifest {
             response: manifest_reply::inspection(
+                "blob_upload_manifest",
                 saved.payload.permission(),
                 bytes,
                 manifest_reply_limits(

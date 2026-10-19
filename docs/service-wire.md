@@ -1,122 +1,130 @@
 # Blob-owned service protocol
 
-The implemented surface uses IC Wire for tenant inspection/update and bounded
-CBOR for the other 29 owned methods and standalone lifecycle inputs. The catalog
-and endpoint emitters agree on this mixed surface. Completing Wire conversion
-would be a coordinated protocol change, not deletion of an unused CBOR codec.
-The root manifest selects published IC Wire 0.4; the lockfile owns its exact
-selection. Initial candidate-source results remain
-[historical evidence](evidence/icwire0320.md), not current registry qualification.
-
-Each endpoint accepts one declared codec with no detection or fallback. Former
-Candid requests refuse at owned methods, and CBOR tenant frames refuse too.
+All 31 owned methods use one IC Wire request/response contract. Standalone
+installation and same-release post-upgrade inputs also use method-bound Wire.
+This is the pending 0.36.0 hard cut: old CBOR and Candid service packets reject,
+with no detection, fallback or compatibility lane. The root manifest selects
+published Wire 0.4; Cargo.lock retains the exact 0.4.4 selection. Wire itself
+owns no Blob DTO, endpoint, platform dependency or provider transport.
 
 ## Boundaries and ownership
 
 | Boundary | Encoding |
 | --- | --- |
-| `blob_tenant` and `blob_update_tenant` request/reply | Bounded IC Wire, method- and direction-bound Postcard frame |
-| Other 29 `blob_*` methods | One complete CBOR value |
-| Standalone initialization | One CBOR `ServiceInstallationInput` record |
-| Same-release standalone post-upgrade input | CBOR unit/null (`f6`), with no replacement configuration |
-| `_immutableObjectStorageCreateCertificate` request/reply | Existing provider-defined Candid contract |
-| Outgoing Cashier/provider and IC management calls | Existing external Candid contracts |
-| Existing stable records and accounting journals | Existing persisted encoding; this cut adds no migration |
+| All owned service requests and replies | Canonical Postcard in a method- and direction-bound IC Wire frame |
+| Standalone initialization | Request frame for `blob_install`, containing `ServiceInstallationInput` |
+| Same-release post-upgrade input | Request frame for `blob_post_upgrade`, containing unit; no replacement configuration |
+| Provider certificate, outgoing Cashier/provider and IC management | Their existing external Candid contracts |
+| Caffeine HTTP upload/download and 1 MiB chunks | Existing provider contract; bodies never pass through the Blob RPC codec |
+| Offline permissions, declarations, reference commands and statements | Bounded Wire value documents with identity `0x424c4f420036ff10`; never service-method frames |
+| Private consumer-probe controls | Private Wire value protocol using `document`; explicit control callers |
+| Signed IC transport envelope | IC transport CBOR, containing the exact application frame |
+| Stable records and accounting journals | Existing persisted encoding; no migration |
 
-`wire::tenant::{Inspect, Update}` own the two IC Wire contracts. Their derived
-bounded projections retain explicit field/variant IDs and `Bytes<29>` principals.
-Each direction admits at most 512 bytes, 1024 bytes of value heap plus codec
-scratch, 32 nodes and depth 8; the actual schema maximum can be tighter. These
-codec allowances do not retroactively bound the CDK's initial transport buffer.
-Adapters convert admitted values into the existing native DTOs, then run unchanged
-scope, actor, tenant and compare-and-set policy. A valid frame grants no authority.
+`endpoints::SERVICE_METHODS` supplies method names, modes and codecs from the
+same catalog that mounts endpoints. Linking Core, Contracts or Client exports
+no endpoints or lifecycle hooks. `service.did` describes only the provider
+certificate method. Default Wasm omits its optional extraction machinery.
 
-IC Wire's `IW` header binds an exact u64 method identity and direction (request 0,
-response 1) before canonical Postcard decoding. Wrong method/direction, nonminimal
-values, trailing bytes, invalid variants and excessive principal lengths refuse.
-Retain original encoded requests for recovery; do not regenerate uncertain effects.
-Response encoding failure traps at the host boundary, preserving synchronous IC
-rollback without promising rollback of effects committed before an external await.
-The two public Method types can use IC Wire's typed buffers and metadata directly.
+## Schema and admission
 
-`ic_blob_storage_contracts::wire::{encode, decode}` remains the codec owner for unconverted methods, using the
-already selected Ciborium implementation. `endpoints::SERVICE_METHODS` exposes
-method name, query/update mode and required codec from the same catalog used to
-mount endpoints. Linking either library claims no endpoint or lifecycle ownership.
-`service.did` now describes only the provider certificate method, not the whole
-Blob application interface. Default production Wasm omits Candid extraction;
-`provider-candid-export` enables extraction of that provider subset for tooling.
+The eleven-byte Wire header binds the literal u64 identity and direction
+(request 0, response 1) before decoding. The explicit identity table in
+[the codec owner](../crates/ic-blob-storage-contracts/src/wire/mod.rs) is frozen;
+identities are not computed from Rust names or catalog positions. Unknown and
+provider method names refuse.
 
-## Remaining CBOR representation and admission
+The two existing tenant contracts retain their finite derived schemas, explicit
+field/variant IDs, `Bytes<29>` principals and exact original frames. Each direction
+allows 512 encoded bytes, 1024 value-allocation bytes plus codec scratch, 32 nodes
+and depth 8. Native tenant DTOs are projections through `wire::tenant`; the generic
+native helpers do not replace those projections.
 
-This section describes only the remaining CBOR methods and lifecycle inputs.
-The IC method name and signed transport envelope remain unchanged. The application
-argument contains the CBOR value directly, without an outer Candid `blob` or
-one-element argument tuple. No-argument methods receive unit/null. Responses are
-also direct values, including Serde's externally tagged `Result` and enum layouts.
+The other 29 methods and lifecycle packets use Wire's existing native Serde API.
+Their declared field order and variant order are the frozen positional schema.
+Reordering or changing a DTO is a protocol change, even if the Rust names remain.
+There are no named-field extensions, unknown-field skipping or optional old-schema
+projection. Structs and equivalent tuple projections can have identical bytes;
+Serde `deny_unknown_fields` does not add named-field checks to Postcard.
+Full-width u128/u64 values, principal bytes, ordered leaves and exact header strings
+round-trip. Arbitrary-width provider integers retain their canonical decimal-text
+serializer; roots, content hashing and provider certificate bytes are unchanged.
 
-Records use text field names; arrays and vectors preserve order. Principals use
-Serde's binary principal representation, with platform identity and service
-binding checked separately. Fixed-width integers retain their complete range;
-128-bit values beyond CBOR's native 64-bit range use standard bignum tags.
-Provider account-report `Int`/`Nat` fields use canonical decimal text, preserving
-arbitrary width and sign. Alternate spellings such as a leading plus, leading
-zeroes or negative zero reject. Hash algorithms and provider certificate bytes
-are unchanged. This format does not promise canonical encoding of every accepted
-CBOR value; save original signed bytes and operation identity for recovery.
+Native requests admit 4 KiB ordinarily, 128 KiB for `blob_prepare_upload`, and
+16 KiB for `blob_install`, including the Wire header. Each native traversal admits
+at most 64 MiB of allocation charge, 262,144 nodes and depth 32. Responses admit
+at most 4 MiB; clients apply their existing narrower reply and transport limits.
+These are codec ceilings, separate from domain counts, quotas and liabilities.
+The standalone raw adapter checks platform argument size before copying native
+request bytes. The existing finite tenant adapter's CDK transport buffer remains
+separate from finite value admission.
 
-The standalone CBOR adapter admits at most 4 KiB for ordinary inputs, 16 KiB for
-installation and 128 KiB for manifest preparation. Byte admission precedes typed
-decoding. The codec bounds collection nesting to 32 and refuses trailing input;
-DTO deserializers refuse unknown and duplicate fields. Output is capped at 4 MiB;
-clients retain their narrower reply and transport bounds. Domain limits on
-headers, leaves, histories, reservations and liabilities still apply independently.
-Candid work/type/skipping quotas do not describe CBOR resource admission. Encoded
-sizes change: measure the actual CBOR packet against its boundary rather than
-reusing a former Candid size estimate.
-
-A decoding failure occurs before workflow effects. A missing, rejected or unusable
-reply can still follow a committed update or an external effect. Keep the exact
-original intent and reconcile its receipt; codec changes authorize no retry.
+Wrong method/direction, noncanonical values, truncation, trailing bytes and
+exhausted resource budgets refuse before workflow effects. Response encoding
+failure traps, preserving synchronous rollback without promising rollback of
+external effects committed before an await. A valid frame grants no authority:
+actual actor/service capture, tenant policy, bindings and continuity checks remain.
 
 ## Native preparation and browser handoff
 
-`blob-storage installation-check --configuration proposal.json ...` accepts a
-strict JSON configuration proposal. Use integer-preserving tooling for u128
-numeric literals. It retains that proposal as `configuration.json`, validates all
-bindings and limits, then emits `configuration.cbor`, `installation.cbor` and a
-summary with proposal and packet hashes. It does not deploy, allocate memory or contact a provider.
+`installation-check` accepts the strict JSON proposal, validates it offline, and
+emits passive `configuration.wire`, complete `installation.wire` and hashes.
+Only `installation.wire` is the standalone init argument. Offline upload/reference
+preparation retains passive `.wire` documents. Native dispatch encodes the selected
+method after validating those documents; a document is never sent directly to an
+owned endpoint. Browser fixtures receive Wire bytes for direct service calls and
+retain passive permission bytes for the independent certificate-intent binding.
 
-Other service input/output packets now use `.cbor`: permissions, manifests,
-reference commands, verification statements, queries and replies. Browser
-publication tools carry these permission packets as bound opaque bytes; Caffeine's
-certificate request and certified response remain their mandated Candid shapes.
-Do not relabel an old `.candid` file or regenerate an uncertain signed operation
-in a new codec. Retain old run directories and use their matching released tools
-for inspection/disposition. Old records do not become current dispatch authority.
+Dispatched application packets use `request.wire`, `response.wire`,
+`service-response.wire` and query-specific `-args.wire`/`-reply.wire` files.
+`signed-request.cbor` remains the actual IC envelope. Reference submission also
+retains passive `reference.wire` for receipt inspection: an apply frame cannot be
+relabelled as a receipt request. Observations retain passive `permission.wire`
+and `statement.wire` alongside the verification `request.wire`; attestation
+dispatch creates its own method-bound `request.wire`. Save original signed bytes for uncertain updates;
+never regenerate or redispatch them as codec recovery. Old run directories retain
+their original tools and disposition; their packets are not current authority.
 
-## Host and Canic adoption
+## Host and consumer adoption
 
-Mount owned methods with both custom decoding and custom reply encoding. For
-IC CDK adapters, set `decode_with` and `encode_with`, and hide owned methods from
-Candid service generation. Use each converted method's IC Wire limits, retain the
-remaining standalone CBOR ordinary/manifest limits, and
-preserve actual caller/canister capture, auth predicates, method mode, pre-await
-intent and post-await continuity checks. The shared declaration callback's
-`tenant_inspection` and `tenant_update` categories select the exact IC Wire methods;
-`certificate` remains a separate Candid emitter. Export its schema in
-the same expansion pass as its registration; an earlier export can miss it.
+The standalone host and storage probe mount raw native methods with exact method
+selection and manual Wire replies. Tenant emitters keep their finite custom
+codecs. Provider registration and Candid export remain in one separate expansion.
+Replicated Client, native CLI and installed-test callers use matching method-bound
+request and reply codecs. No wrapper may fall back to CBOR when Wire rejects.
 
-Controlled tenant callers encode the selected IC Wire method and decode that
-same method's response after authenticating the service. The core replicated
-tenant client already does this. Other clients still use their current CBOR owner
-until converted; the catalog records this explicitly. Never send a response or
-another method's request as a tenant command. Canic owns its wrapper macros,
-initialization, metadata/export checks and dedicated/embedded integration tests
-in its own repository. It must coordinate its endpoint adapters and callers on
-this release before claiming integration; Blob's local tests do not qualify Canic.
+Consumer frameworks own their wrappers, installation/lifecycle and integration
+qualification in their own repositories. Canic must adopt these native emitters
+and callers before claiming this release. Blob's local substitutes do not qualify
+Canic or the deployed provider. Public DTO Candid traits retained by existing
+record/external contracts remain separate work under
+[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
 
 Cross-release transitions remain retirement and reinstall only. Resolve provider
-objects, uncertain effects, balances and continuing billing under the existing
-[retirement contract](retiring-installations.md) before reset. Same-contract backup,
-restore fences, exact retry identity and receipt inspection remain required.
+objects, uncertain effects, balances and continuing billing under
+[the retirement contract](retiring-installations.md) before reset. Same-release
+backup, restore fences, exact retry identity and receipt inspection remain required.
+
+## Passive values and saved artifacts
+
+`document::encode` and `document::decode` use published Wire's native codec with
+a separate document identity (`0x424c4f420036ff10`, request-direction envelope).
+The expected DTO is selected by the CLI command or private control boundary;
+this is not a service-method identity or a claim of per-method control binding.
+Native values carry no Rust type or field names; byte-identical schemas are
+indistinguishable. A unit field contributes no payload bytes. Treat documents as
+caller-selected input data and validate their bindings, never as authority.
+Document frames and service frames cannot be substituted for one another. The
+caller byte ceiling is capped at 4 MiB, traversal depth at 32, nodes at 262,144
+and allocation admission at 64 MiB. Full-width integers and principals retain
+their values; field/variant order belongs to the frozen native schema.
+
+New offline permission, manifest, configuration, reference, download and
+attestation documents use `.wire`. Browser fixtures carry those exact opaque
+values from the Rust owner; they define no second codec. There is no Ciborium
+implementation or direct dependency in Blob. IC Memory still uses Ciborium for
+its own persisted metadata, and IC transport/certificate CBOR remains external.
+Never rewrite old saved directories into this format or replay old uncertain
+effects. Preserve their original release/tools for reconciliation and retire
+installations before the cross-release reinstall. Persistent records and
+journals are not changed by this application-protocol cut.

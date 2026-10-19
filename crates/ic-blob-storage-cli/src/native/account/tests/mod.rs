@@ -46,7 +46,8 @@ fn arguments(request: AccountInspectionRequest) -> Vec<String> {
     .collect()
 }
 fn encoded(response: &AccountInspectionResponse) -> Vec<u8> {
-    ic_blob_storage_contracts::wire::encode(Ok::<_, E>(response)).unwrap()
+    ic_blob_storage_contracts::wire::encode_response("blob_inspect_account", Ok::<_, E>(response))
+        .unwrap()
 }
 fn relationship(request: AccountInspectionRequest) -> AccountRelationshipView {
     AccountRelationshipView {
@@ -201,9 +202,10 @@ fn provider_absence_and_errors_remain_reports_while_service_refusals_remain_fail
         assert_eq!(
             decode(
                 request(Kind::Balance),
-                &ic_blob_storage_contracts::wire::encode(Err::<AccountInspectionResponse, _>(
-                    error
-                ))
+                &ic_blob_storage_contracts::wire::encode_response(
+                    "blob_inspect_account",
+                    Err::<AccountInspectionResponse, _>(error)
+                )
                 .unwrap()
             ),
             Err(Failure::AccountRefused(error))

@@ -10,7 +10,7 @@ pub enum UploadCapacityReplyError {
     /// Encoded response exceeds the caller's complete-input ceiling.
     #[error("capacity reply exceeds limit")]
     Limit,
-    /// Malformed CBOR, zero limits/generation or contradictory byte dimensions.
+    /// Malformed Wire, zero limits/generation or contradictory byte dimensions.
     #[error("invalid capacity reply")]
     Invalid,
     /// Echoed service, namespace or tenant differs from the request.
@@ -35,7 +35,8 @@ pub fn decode(
         return Err(E::Limit);
     }
     let response: Result<UploadCapacityResponse, UploadCapacityFailure> =
-        crate::wire::decode(bytes, max_reply_bytes.get()).map_err(|_| E::Invalid)?;
+        crate::wire::decode_response("blob_upload_capacity", bytes, max_reply_bytes.get())
+            .map_err(|_| E::Invalid)?;
     let response = response.map_err(E::Remote)?;
     if response.scope != scope {
         return Err(E::Binding);

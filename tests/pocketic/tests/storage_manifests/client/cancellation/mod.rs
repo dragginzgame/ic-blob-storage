@@ -1,9 +1,10 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 fn cancel(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.operator,
             "cancel_manifest",
@@ -23,7 +24,7 @@ fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and
         let denied: Result<ManifestIntentView, C> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 f.uploader,
                 f.other,
                 "cancel_manifest",

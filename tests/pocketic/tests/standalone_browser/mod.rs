@@ -87,7 +87,7 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
     assert!(
         !trial
             .report
-            .join("untrusted-observation/statement.cbor")
+            .join("untrusted-observation/statement.wire")
             .exists()
     );
     assert_eq!(
@@ -99,7 +99,7 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
     assert!(
         !trial
             .report
-            .join("refused-observation/statement.cbor")
+            .join("refused-observation/statement.wire")
             .exists()
     );
     let observation = trial.observe(&input, &uploaded.gateway, 0);
@@ -166,7 +166,7 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
         "content_mismatch"
     );
     for path in [
-        "observation/statement.cbor",
+        "observation/statement.wire",
         "observation/summary.json",
         "observation/attestation",
     ] {

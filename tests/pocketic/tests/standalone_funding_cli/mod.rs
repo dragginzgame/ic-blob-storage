@@ -1,6 +1,7 @@
 //! Signed passive absence never invents a restore-fence observation.
 use super::*;
 use crate::authenticated_cli::{PEM, arguments, run};
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
@@ -28,7 +29,7 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
             Some(f.controller),
         )
         .unwrap();
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let key = dir.path().join("key.pem");
     let root = dir.path().join("root.der");
     std::fs::write(&key, PEM).unwrap();
@@ -73,7 +74,7 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
     assert_eq!(run(&wrong, 3)["error"], "transport");
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let url = f

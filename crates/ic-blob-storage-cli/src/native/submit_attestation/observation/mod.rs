@@ -15,7 +15,6 @@ use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::provider::download::request_target;
-use ic_blob_storage_contracts::upload::completion::reply::inspection_request;
 use ic_blob_storage_contracts::upload::completion::verification;
 use serde::de::DeserializeOwned;
 use std::{collections::BTreeMap, path::Path};
@@ -88,7 +87,7 @@ impl Observation {
             outcome: artifacts.json("download-outcome.json")?,
             response: artifacts.json("http-response.json")?,
         };
-        let statement = artifacts.bytes("statement.cbor", 4096)?;
+        let statement = artifacts.bytes("statement.wire", 4096)?;
         let recovery = Recovery::decode(
             input.service,
             input.namespace,
@@ -96,22 +95,32 @@ impl Observation {
             options.actor,
             &statement,
         )?;
-        // The maintained observer always writes canonical Candid.
+        // The retained statement and permission are canonical passive documents.
         require(
-            ic_blob_storage_contracts::wire::encode(recovery.statement)
+            ic_blob_storage_contracts::document::encode(recovery.statement)
                 .map_err(|_| Failure::Observation)?
                 == statement,
         )?;
         let authority = recovery.authority;
         let permission = recovery.statement.permission;
-        let encoded_permission = artifacts.bytes("permission.cbor", 4096)?;
+        let encoded_permission = artifacts.bytes("permission.wire", 4096)?;
         require(
-            inspection_request(authority, permission).map_err(|_| Failure::Observation)?
+            ic_blob_storage_contracts::document::encode(permission)
+                .map_err(|_| Failure::Observation)?
                 == encoded_permission,
+        )?;
+        require(
+            ic_blob_storage_contracts::upload::completion::reply::inspection_request(
+                "blob_verification_plan",
+                authority,
+                permission,
+            )
+            .map_err(|_| Failure::Observation)?
+                == artifacts.bytes("request.wire", 4096)?,
         )?;
         let maximum = time(&records.plan.max_content_bytes)?;
         require(maximum > 0 && maximum <= 1024 * 1024 * 1024)?;
-        let service_response = artifacts.bytes("service-response.cbor", 64 * 1024)?;
+        let service_response = artifacts.bytes("service-response.wire", 64 * 1024)?;
         let verified = verification::reply::decode(
             authority,
             permission,

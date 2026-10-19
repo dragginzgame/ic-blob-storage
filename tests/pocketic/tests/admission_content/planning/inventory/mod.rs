@@ -1,5 +1,6 @@
 //! Exercise the actual query-only executable against the existing service owner.
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 use serde_json::{Value, json};
 use std::{fs, path::Path, process::Command as Process};
 
@@ -52,7 +53,7 @@ fn inspect(f: &Fixture, tenant: Principal, input: &Path, exit_code: i32) -> Valu
 fn inventory_cli_distinguishes_absence_pending_live_reuse_and_retired_roots() {
     let f = Fixture::new();
     f.enroll();
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let input = dir.path().join("inventory.json");
     write_inventory(&input, true);
     let absent = inspect(&f, f.project, &input, 0);
@@ -140,7 +141,7 @@ fn inventory_cli_distinguishes_absence_pending_live_reuse_and_retired_roots() {
 #[test]
 fn inventory_cli_rejects_invalid_reports_and_denied_queries_without_partial_results() {
     let f = Fixture::new();
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let input = dir.path().join("inventory.json");
     write_inventory(&input, false);
     let denied = inspect(&f, f.project, &input, 3);

@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.36.0]
+
+- Preserve provider Candid registration when consumers mount the shared endpoint
+  catalogue before exporting their service. Dispatch through the exact macro path
+  instead of a deferred imported alias; method signatures and codecs are unchanged
+  ([#88](https://github.com/dragginzgame/ic-blob-storage/issues/88)).
+
+- **Breaking owned protocol:** use method- and direction-bound IC Wire for all
+  31 owned methods and standalone install/post-upgrade inputs, adopting the
+  reviewed work from [#90](https://github.com/dragginzgame/ic-blob-storage/pull/90).
+  Preserve finite tenant bytes, provider transports and stored records. Cut
+  standalone, Client, CLI and test/browser callers together; require retirement
+  and reinstall across releases, with no old-service-packet fallback.
+- Select published IC Wire 0.4.5. Remove Blob's direct Ciborium dependency and
+  codec; encode offline documents
+  and private controls with a separate bounded Wire value identity. Generated
+  application artifacts use `.wire`; preserve original tools and bytes for old
+  runs. IC-specified CBOR, provider transports and stored encodings are unchanged.
+- Use published Host FS for temporary fixtures and verified example publication,
+  removing every direct `tempfile` dependency. Retain failed test fixtures and
+  preserve explicit publication/cleanup failures without overwriting outputs.
+
 ## [0.35.0] - 2026-10-18
 
 - **Breaking client imports:** use the published `ic-blob-storage-client` role

@@ -36,8 +36,12 @@ fn outcome_request_validates_original_intent_without_defaulting_target() {
         };
         let encoded = outcome::inspection_request(input).unwrap();
         assert_eq!(
-            crate::wire::decode::<FundingOutcomeRequest>(&encoded, crate::wire::MAX_MESSAGE_BYTES)
-                .unwrap(),
+            crate::wire::decode_request::<FundingOutcomeRequest>(
+                "blob_funding_outcome",
+                &encoded,
+                crate::wire::MAX_MESSAGE_BYTES
+            )
+            .unwrap(),
             input
         );
     }
@@ -101,7 +105,7 @@ fn page() -> FundingHistoryPage {
     }
 }
 fn bytes<T: serde::Serialize>(value: T) -> Vec<u8> {
-    crate::wire::encode(value).unwrap()
+    crate::wire::encode_response("blob_funding_history", value).unwrap()
 }
 fn history_bytes(page: FundingHistoryPage) -> Vec<u8> {
     bytes(Ok::<_, FundingHistoryFailure>(page))
@@ -281,7 +285,7 @@ fn decoder_keeps_refusal_absence_and_invalid_inputs_distinct() {
     assert_eq!(
         outcome::inspect(
             request,
-            &bytes(Ok::<Option<FundingOutcomeResponse>, FundingOutcomeFailure>(
+            &outcome_bytes(Ok::<Option<FundingOutcomeResponse>, FundingOutcomeFailure>(
                 None
             )),
             limits().bytes
@@ -291,7 +295,7 @@ fn decoder_keeps_refusal_absence_and_invalid_inputs_distinct() {
     assert_eq!(
         outcome::inspect(
             request,
-            &bytes(Err::<Option<FundingOutcomeResponse>, _>(
+            &outcome_bytes(Err::<Option<FundingOutcomeResponse>, _>(
                 FundingOutcomeFailure::Conflict
             )),
             limits().bytes
@@ -347,7 +351,7 @@ fn decode_outcome(
 ) -> Result<Option<FundingOutcomeResponse>, FundingReplyError> {
     outcome::inspect(
         request(),
-        &bytes(Ok::<_, FundingOutcomeFailure>(Some(view))),
+        &outcome_bytes(Ok::<_, FundingOutcomeFailure>(Some(view))),
         limits().bytes,
     )
 }
@@ -455,7 +459,7 @@ fn check_callback(mut view: FundingOutcomeResponse) {
     assert_eq!(
         outcome::inspect(
             request(),
-            &bytes(Ok::<_, FundingOutcomeFailure>(Some(view))),
+            &outcome_bytes(Ok::<_, FundingOutcomeFailure>(Some(view))),
             NonZeroUsize::MIN
         ),
         Err(FundingReplyError::Limit)
@@ -528,4 +532,8 @@ fn renewed_allocation_requires_exact_confirmed_credit_and_cannot_exceed_acceptan
     ] {
         assert_eq!(decode_outcome(&changed), Err(FundingReplyError::Invalid));
     }
+}
+
+fn outcome_bytes<T: serde::Serialize>(value: T) -> Vec<u8> {
+    crate::wire::encode_response("blob_funding_outcome", value).unwrap()
 }

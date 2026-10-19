@@ -50,7 +50,7 @@ impl PreparedBatch {
     ) -> Result<Self, Failure> {
         let root = paths::Root::new(directory)?;
         let inventory_bytes = root.read("inventory.json", INVENTORY_BYTES)?;
-        let installation = root.read("installation.cbor", exact_wire::INSTALLATION_BYTES as u64)?;
+        let installation = root.read("installation.wire", exact_wire::INSTALLATION_BYTES as u64)?;
         let summary: Value = serde_json::from_slice(&root.read("summary.json", 8 * 1024 * 1024)?)
             .map_err(|_| Failure::Arguments)?;
         if summary["schema"] != 1
@@ -74,10 +74,10 @@ impl PreparedBatch {
             input.verify_body(&entry.body_sha256)?;
             let load = |name: &str, maximum| root.read(&format!("file-{index:04}/{name}"), maximum);
             input.check_requests(
-                &load("permission.cbor", 4096)?,
-                &load("manifest.cbor", 65536)?,
+                &load("permission.wire", 4096)?,
+                &load("manifest.wire", 65536)?,
                 &load("certificate-binding.json", 65536)?,
-                &load("installation.cbor", exact_wire::INSTALLATION_BYTES as u64)?,
+                &load("installation.wire", exact_wire::INSTALLATION_BYTES as u64)?,
             )?;
         }
         Ok(Self {
@@ -166,7 +166,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let (prepared, capacity) = preflight(&inventory, &root, &installation, total_maximum)?;
     let run = Run::create(directory)?;
     run.bytes("inventory.json", &inventory_bytes)?;
-    run.bytes("installation.cbor", &installation.bytes)?;
+    run.bytes("installation.wire", &installation.bytes)?;
     run.json("plan.json", &capacity.summary())?;
     let mut results = Vec::with_capacity(prepared.len());
     for (index, (input, entry)) in prepared.into_iter().zip(&inventory.files).enumerate() {

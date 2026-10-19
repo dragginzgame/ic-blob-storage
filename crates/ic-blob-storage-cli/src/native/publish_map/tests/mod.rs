@@ -58,21 +58,19 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
             &run,
             |method, args| {
                 let value = match method {
-                    "blob_configuration" => {
-                        ic_blob_storage_contracts::wire::encode(Ok::<_, HostFailure>(&host))
-                            .unwrap()
-                    }
-                    UPLOAD_CAPACITY_METHOD => {
-                        ic_blob_storage_contracts::wire::encode(Ok::<_, UploadCapacityFailure>(
-                            fixture::capacity(scope),
-                        ))
-                        .unwrap()
-                    }
-                    UPLOAD_ATTESTATION_METHOD => ic_blob_storage_contracts::wire::encode(Ok::<
-                        _,
-                        UploadAttestationFailure,
-                    >(
-                        UploadAttestationResponse {
+                    "blob_configuration" => ic_blob_storage_contracts::wire::encode_response(
+                        "blob_configuration",
+                        Ok::<_, HostFailure>(&host),
+                    )
+                    .unwrap(),
+                    UPLOAD_CAPACITY_METHOD => ic_blob_storage_contracts::wire::encode_response(
+                        "blob_upload_capacity",
+                        Ok::<_, UploadCapacityFailure>(fixture::capacity(scope)),
+                    )
+                    .unwrap(),
+                    UPLOAD_ATTESTATION_METHOD => ic_blob_storage_contracts::wire::encode_response(
+                        "blob_upload_attestation",
+                        Ok::<_, UploadAttestationFailure>(UploadAttestationResponse {
                             permission,
                             fenced: false,
                             attestation: UploadAttestationLookup::Found(UploadAttestationReceipt {
@@ -84,25 +82,27 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
                                 verifier: input.completion_verifier,
                                 accepted_at_ns: 11,
                             }),
-                        },
-                    ))
+                        }),
+                    )
                     .unwrap(),
                     REFERENCE_STATUS_METHOD => {
                         if matches!(replies, Replies::Transport) {
                             return std::future::ready(Err(Failure::Transport));
                         }
-                        let request = ic_blob_storage_contracts::wire::decode(
+                        let request = ic_blob_storage_contracts::wire::decode_request(
+                            REFERENCE_STATUS_METHOD,
                             &args,
                             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
                         )
                         .unwrap();
-                        ic_blob_storage_contracts::wire::encode(Ok::<_, ReferenceFailure>(
-                            ReferenceStatusResponse {
+                        ic_blob_storage_contracts::wire::encode_response(
+                            "blob_reference_status",
+                            Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
                                 request,
                                 live: !matches!(replies, Replies::Inactive),
                                 fenced: false,
-                            },
-                        ))
+                            }),
+                        )
                         .unwrap()
                     }
                     _ => panic!("unexpected query method"),

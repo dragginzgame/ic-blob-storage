@@ -196,7 +196,7 @@ fn byte_bounds_malformed_encoding_and_remote_refusals_remain_distinct() {
     for malformed in [
         Vec::new(),
         b"DIDL".to_vec(),
-        crate::wire::encode(1u8).unwrap(),
+        crate::document::encode(1u8).unwrap(),
     ] {
         assert_eq!(
             inspection(scope(), &malformed, max()),

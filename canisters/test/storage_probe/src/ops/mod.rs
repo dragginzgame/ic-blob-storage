@@ -495,19 +495,6 @@ pub(crate) fn status(context: UploadContext) -> Result<Status, Failure> {
     })
 }
 
-/// Production-facing probe methods use the exact current service codec.
-pub(crate) fn decode_blob<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
-    ic_blob_storage_contracts::wire::decode(&bytes, 4096).expect("Blob CBOR probe input")
-}
-pub(crate) fn encode_blob<T: serde::Serialize>(value: T) -> Vec<u8> {
-    ic_blob_storage_contracts::wire::encode(value).expect("Blob CBOR probe reply")
-}
-
-pub(crate) fn decode_manifest_blob<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
-    ic_blob_storage_contracts::wire::decode(&bytes, 131_072)
-        .expect("Blob CBOR manifest probe input")
-}
-
 /// Endpoint-owned trap on invalid method-bound tenant ingress.
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
 pub(crate) fn decode_tenant_inspection(
@@ -543,4 +530,23 @@ pub(crate) fn encode_tenant_update(
 ) -> Vec<u8> {
     ic_blob_storage_contracts::wire::tenant::update_response(value)
         .expect("tenant update response encoding")
+}
+
+/// Admit method identity, frame size and traversal before workflow effects.
+pub(crate) fn decode_owned<T: serde::Serialize + serde::de::DeserializeOwned>(method: &str) -> T {
+    let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
+    assert!(
+        ic_platform::ic0::msg_arg_data_size() <= limit,
+        "request limit"
+    );
+    let bytes = ic_platform::cdk::api::msg_arg_data();
+    ic_blob_storage_contracts::wire::decode_request(method, &bytes, limit)
+        .expect("invalid owned Wire ingress")
+}
+/// Trap before reply delivery if encoding fails after a local mutation.
+pub(crate) fn reply_owned<T: serde::Serialize>(method: &str, value: T) {
+    let bytes = ic_blob_storage_contracts::wire::encode_response(method, value)
+        .expect("owned Wire reply encoding");
+    ic_platform::ic0::msg_reply_data_append(&bytes);
+    ic_platform::ic0::msg_reply();
 }

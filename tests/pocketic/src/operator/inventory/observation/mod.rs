@@ -55,7 +55,7 @@ fn inspect(
         selection.scope,
         &query(
             "blob_upload_capacity",
-            wire::encode(selection.scope).expect("capacity scope"),
+            wire::encode_request("blob_upload_capacity", selection.scope).expect("capacity scope"),
         )?,
     )?;
     let mut blockers = Vec::new();
@@ -158,25 +158,27 @@ fn existing(
                 scope: selection.scope,
                 root: content.request.root,
             };
-            let response: ReferenceCapacityResponse =
-                wire::decode::<Result<_, ReferenceCapacityFailure>>(
-                    &query(
-                        "blob_reference_capacity",
-                        wire::encode(lookup).expect("content scope"),
-                    )?,
-                    4096,
-                )
-                .map_err(|error| match error {
-                    wire::Error::Limit => Failure::ReplyTooLarge,
-                    wire::Error::Invalid | wire::Error::Trailing => Failure::InvalidReply,
-                })?
-                .map_err(|error| match error {
-                    ReferenceCapacityFailure::Binding => Failure::Binding,
-                    ReferenceCapacityFailure::Denied => Failure::Denied,
-                    ReferenceCapacityFailure::Invalid | ReferenceCapacityFailure::Internal => {
-                        Failure::InvalidReply
-                    }
-                })?;
+            let response: ReferenceCapacityResponse = wire::decode_response::<
+                Result<_, ReferenceCapacityFailure>,
+            >(
+                "blob_reference_capacity",
+                &query(
+                    "blob_reference_capacity",
+                    wire::encode_request("blob_reference_capacity", lookup).expect("content scope"),
+                )?,
+                4096,
+            )
+            .map_err(|error| match error {
+                wire::Error::Limit => Failure::ReplyTooLarge,
+                _ => Failure::InvalidReply,
+            })?
+            .map_err(|error| match error {
+                ReferenceCapacityFailure::Binding => Failure::Binding,
+                ReferenceCapacityFailure::Denied => Failure::Denied,
+                ReferenceCapacityFailure::Invalid | ReferenceCapacityFailure::Internal => {
+                    Failure::InvalidReply
+                }
+            })?;
             if response.request != lookup {
                 return Err(Failure::Binding);
             }
@@ -221,7 +223,7 @@ fn discover(
     };
     let bytes = query(
         "blob_lookup_content",
-        wire::encode(request).expect("content scope"),
+        wire::encode_request("blob_lookup_content", request).expect("content scope"),
     )?;
     let response = decode(
         request,

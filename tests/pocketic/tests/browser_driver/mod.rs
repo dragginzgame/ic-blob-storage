@@ -1,4 +1,5 @@
 //! Shared bounded control channel and process ownership for opt-in Chromium cases.
+use ic_host_fs::testing::FixtureDirectory;
 use ic_host_process::child::OwnedChild;
 use std::{
     io::{BufReader, Write},
@@ -19,18 +20,24 @@ pub(crate) struct BrowserDriver {
     child: OwnedChild,
     stdin: Option<ChildStdin>,
     reader: Option<BufReader<ChildStdout>>,
-    _config: tempfile::NamedTempFile,
+    _config: FixtureDirectory,
 }
 impl BrowserDriver {
     pub(crate) fn start(config: &serde_json::Value, script: &str) -> Self {
-        let saved = tempfile::NamedTempFile::new().unwrap();
-        std::fs::write(saved.path(), serde_json::to_vec(config).unwrap()).unwrap();
+        let saved = FixtureDirectory::new(&std::env::temp_dir(), "blob-browser").unwrap();
+        let config_path = ic_host_fs::scratch::create_private_bytes(
+            saved.path(),
+            "config",
+            &serde_json::to_vec(config).unwrap(),
+            128,
+        )
+        .unwrap();
         let repo = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
         let node = std::env::var_os("BLOB_BROWSER_NODE").unwrap_or_else(|| "node".into());
         let mut command = Command::new(node);
         command
             .arg(repo.join("tests/browser").join(script))
-            .arg(saved.path())
+            .arg(config_path)
             .current_dir(&repo)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())

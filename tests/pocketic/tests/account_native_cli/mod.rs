@@ -3,6 +3,7 @@ use crate::authenticated_cli::{PEM, arguments, run};
 use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
 use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::{Value, json};
@@ -22,11 +23,11 @@ pub(super) struct NativeAccountCli {
     trusted: Vec<u8>,
     sequence: Cell<u32>,
     report: PathBuf,
-    _temporary: tempfile::TempDir,
+    _temporary: FixtureDirectory,
 }
 impl NativeAccountCli {
     pub fn new(scope: OperatorScope, url: &str, trusted: Vec<u8>, label: &str) -> Self {
-        let temporary = tempfile::tempdir().unwrap();
+        let temporary = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let key = temporary.path().join("identity.pem");
         let root = temporary.path().join("root.der");
         std::fs::write(&key, PEM).unwrap();
@@ -88,8 +89,8 @@ impl NativeAccountCli {
         for (index, (kind, bytes, expected)) in cases(self.scope).into_iter().enumerate() {
             save(&self.report.join(format!("source-{index:02}.cbor")), &bytes);
             save(
-                &self.report.join(format!("request-{index:02}.cbor")),
-                &ic_blob_storage_contracts::wire::encode(AccountInspectionRequest {
+                &self.report.join(format!("request-{index:02}.wire")),
+                &ic_blob_storage_contracts::document::encode(AccountInspectionRequest {
                     scope: self.scope,
                     kind,
                 })

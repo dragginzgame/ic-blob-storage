@@ -3,6 +3,7 @@ use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
@@ -18,12 +19,12 @@ fn live(f: &mut Fixture, args: &mut [String]) {
 fn args(f: &Fixture, dir: &std::path::Path, permission: UploadAdmissionRequest) -> Vec<String> {
     let key = dir.join("identity.pem");
     let root = dir.join("root.der");
-    let saved = dir.join("permission.cbor");
+    let saved = dir.join("permission.wire");
     std::fs::write(&key, PEM).unwrap();
     std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     [
@@ -55,18 +56,18 @@ fn rejects_changed_permission_and_trust(
     dir: &std::path::Path,
     permission: UploadAdmissionRequest,
 ) {
-    let saved = dir.join("permission.cbor");
+    let saved = dir.join("permission.wire");
     let mut changed = permission;
     changed.expires_at_ns -= 1;
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(changed).unwrap(),
+        ic_blob_storage_contracts::document::encode(changed).unwrap(),
     )
     .unwrap();
     assert_eq!(run(args, 3)["error"], "binding");
     std::fs::write(
         &saved,
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     let root = dir.join("root.der");
@@ -104,7 +105,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
         )
         .unwrap()
         .unwrap();
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let mut args = args(&f, dir.path(), permission);
     live(&mut f, &mut args);
     assert_eq!(run(&args, 3)["error"], "unprepared");
@@ -143,7 +144,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
     f.harness.pic.stop_live();
     let revoked = f.admission(permission);
     assert!(revoked.revoked);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     live(&mut f, &mut args);

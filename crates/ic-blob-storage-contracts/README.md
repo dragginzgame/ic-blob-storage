@@ -13,8 +13,7 @@ Use `ic_blob_storage_contracts::{dto, identity, protocol}` for wire/client data.
 Use `ic_blob_storage` for service workflows, policy and durable owners. Both library
 packages inherit one workspace version. The 0.18.0 extraction removes the
 former service Rust paths without compatibility reexports; that extraction preserved
-wire/hash identities. The current service uses bounded IC Wire for tenant methods
-and CBOR for its other owned methods; see [the protocol](../../docs/service-wire.md).
+wire/hash identities. The current service uses bounded IC Wire for all owned methods and standalone lifecycle; see [the protocol](../../docs/service-wire.md).
 Provider Candid and hashes remain. Cross-release transitions remain reinstall-only.
 
 ```sh
@@ -35,18 +34,18 @@ exact wire name. Keep lifecycle, installation, memory allocation and post-await
 continuity in the host. See the standalone API module for a complete expansion.
 Linking this runtime-free crate alone exports no endpoint or lifecycle hook.
 
-Use the exact IC Wire tenant contracts for their two categories and bounded CBOR
-for unconverted ordinary/manifest declarations. Both request and reply codecs
+Use the exact finite IC Wire tenant contracts for their two categories and the
+method-bound native Wire helpers for ordinary/manifest declarations. Both request and reply codecs
 must agree with the method catalog.
-The certificate category remains Candid. Keep provider Candid registration and
-schema export in the same emitter expansion pass. `endpoints::SERVICE_METHODS`
+The certificate category remains Candid. Mount the endpoint catalogue before exporting the provider Candid service. `endpoints::SERVICE_METHODS`
 provides the complete method/mode/codec inventory from the same catalog; compare
 that inventory with actual Wasm exports and compare only the provider subset
 with generated Candid. Native compilation alone is insufficient.
 
-Tenant inspection/update use published IC Wire. Their
+All owned methods use published IC Wire; passive offline Wire values have their separate
+`document` owner. The tenant methods'
 bounded projections use explicit field/variant identities, method/direction-bound
 frames and finite resource limits while native DTO/policy and persisted schemas
 retain their existing owners. See [the adoption state](../../docs/service-wire.md).
 The registry requirement targets 0.4. Candidate-source evidence retains its
-original scope; it does not qualify later dependencies or other methods.
+original scope; it does not qualify later dependencies.

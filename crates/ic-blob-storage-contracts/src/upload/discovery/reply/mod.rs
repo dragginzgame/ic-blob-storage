@@ -11,7 +11,7 @@ pub enum UploadDiscoveryReplyError {
     /// Encoded response exceeds the caller's complete-input ceiling.
     #[error("discovery reply exceeds limit")]
     Limit,
-    /// Malformed or over-budget CBOR.
+    /// Malformed or over-budget Wire.
     #[error("invalid discovery reply")]
     Invalid,
     /// Echoed request or original content scope/root differs from the lookup.
@@ -40,7 +40,8 @@ pub fn decode(
         return Err(E::Limit);
     }
     let response: Result<UploadDiscoveryResponse, UploadDiscoveryFailure> =
-        crate::wire::decode(bytes, max_reply_bytes.get()).map_err(|_| E::Invalid)?;
+        crate::wire::decode_response("blob_lookup_content", bytes, max_reply_bytes.get())
+            .map_err(|_| E::Invalid)?;
     let response = response.map_err(E::Remote)?;
     if response.request != request {
         return Err(E::Binding);

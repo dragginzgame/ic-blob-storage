@@ -104,7 +104,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         observation["content_digest"],
         ContentDigest::compute(&[42; 1024]).to_string()
     );
-    let original = std::fs::read(trial.report.join("observation/statement.cbor")).unwrap();
+    let original = std::fs::read(trial.report.join("observation/statement.wire")).unwrap();
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = trial
         .f
         .harness
@@ -120,14 +120,15 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
     assert!(revoked.unwrap().admission.revoked);
     assert_eq!(trial.attest(0, "attestation")["outcome"], "accepted");
     let result: Result<UploadAttestationMutation, UploadAttestationFailure> =
-        ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(trial.report.join("observation/attestation/response.cbor")).unwrap(),
+        ic_blob_storage_contracts::wire::decode_response(
+            "blob_attest_upload",
+            &std::fs::read(trial.report.join("observation/attestation/response.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
     let receipt = result.unwrap().receipt;
     assert_eq!(
-        ic_blob_storage_contracts::wire::encode(receipt.request).unwrap(),
+        ic_blob_storage_contracts::document::encode(receipt.request).unwrap(),
         original
     );
     let outcome: serde_json::Value = serde_json::from_slice(
@@ -141,7 +142,7 @@ fn chromium_standalone_trial_withdrawal_and_late_completion_preserve_release() {
         "submission_already_claimed"
     );
     assert_eq!(
-        std::fs::read(trial.report.join("observation/statement.cbor")).unwrap(),
+        std::fs::read(trial.report.join("observation/statement.wire")).unwrap(),
         original
     );
     let lookup: Result<UploadAttestationResponse, UploadAttestationFailure> = trial

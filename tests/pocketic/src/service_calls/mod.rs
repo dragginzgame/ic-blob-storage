@@ -4,7 +4,7 @@ pub trait ServiceCallExt {
     /// Execute one raw read-only call and decode its exact bounded reply.
     /// # Errors
     /// Preserves request encoding, platform rejection and reply decoding failures.
-    fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn query_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: ic_platform::Principal,
         caller: ic_platform::Principal,
@@ -15,7 +15,7 @@ pub trait ServiceCallExt {
     /// Execute one replicated call without retry and decode its bounded reply.
     /// # Errors
     /// Preserves failures without treating an unusable reply as absence of effects.
-    fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn update_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: ic_platform::Principal,
         caller: ic_platform::Principal,
@@ -35,7 +35,7 @@ pub enum ServiceCallError {
     Decoding(ic_blob_storage_contracts::wire::Error),
 }
 impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
-    fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn query_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: ic_platform::Principal,
         caller: ic_platform::Principal,
@@ -49,7 +49,7 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
             .map_err(ServiceCallError::Rejected)?;
         decode_reply(method, &reply, max_reply_bytes).map_err(ServiceCallError::Decoding)
     }
-    fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn update_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: ic_platform::Principal,
         caller: ic_platform::Principal,
@@ -76,25 +76,36 @@ impl std::fmt::Display for ServiceCallError {
 }
 impl std::error::Error for ServiceCallError {}
 
-// Test-only native DTO projection for this generic fixture interface. CBOR here
+// Test-only native DTO projection for this generic fixture interface. The Wire document here
 // is an in-process Serde bridge, never a tenant endpoint fallback or wire packet.
 fn encode_argument<A: serde::Serialize>(
     method: &str,
     argument: A,
 ) -> Result<Vec<u8>, ic_blob_storage_contracts::wire::Error> {
     use ic_blob_storage_contracts::{protocol, wire};
-    let bytes = wire::encode(argument)?;
+    if !matches!(
+        method,
+        protocol::TENANT_INSPECTION_METHOD | protocol::TENANT_UPDATE_METHOD
+    ) {
+        return wire::encode_request(method, argument);
+    }
+    let bytes = ic_blob_storage_contracts::document::encode(argument)
+        .map_err(|_| wire::Error::Malformed)?;
     match method {
-        protocol::TENANT_INSPECTION_METHOD => {
-            wire::tenant::inspection_request(wire::decode(&bytes, 4096)?)
-                .map_err(|_| wire::Error::Invalid)
-        }
-        protocol::TENANT_UPDATE_METHOD => wire::tenant::update_request(wire::decode(&bytes, 4096)?)
-            .map_err(|_| wire::Error::Invalid),
+        protocol::TENANT_INSPECTION_METHOD => wire::tenant::inspection_request(
+            ic_blob_storage_contracts::document::decode(&bytes, 4096)
+                .map_err(|_| wire::Error::Malformed)?,
+        )
+        .map_err(|_| wire::Error::Malformed),
+        protocol::TENANT_UPDATE_METHOD => wire::tenant::update_request(
+            ic_blob_storage_contracts::document::decode(&bytes, 4096)
+                .map_err(|_| wire::Error::Malformed)?,
+        )
+        .map_err(|_| wire::Error::Malformed),
         _ => Ok(bytes),
     }
 }
-fn decode_reply<R: serde::de::DeserializeOwned>(
+fn decode_reply<R: serde::Serialize + serde::de::DeserializeOwned>(
     method: &str,
     bytes: &[u8],
     max: usize,
@@ -106,8 +117,12 @@ fn decode_reply<R: serde::de::DeserializeOwned>(
     let value = match method {
         protocol::TENANT_INSPECTION_METHOD => wire::tenant::decode_inspection_response(bytes),
         protocol::TENANT_UPDATE_METHOD => wire::tenant::decode_update_response(bytes),
-        _ => return wire::decode(bytes, max),
+        _ => return wire::decode_response(method, bytes, max),
     }
-    .map_err(|_| wire::Error::Invalid)?;
-    wire::decode(&wire::encode(value)?, wire::MAX_MESSAGE_BYTES)
+    .map_err(|_| wire::Error::Malformed)?;
+    ic_blob_storage_contracts::document::decode(
+        &ic_blob_storage_contracts::document::encode(value).map_err(|_| wire::Error::Malformed)?,
+        wire::MAX_MESSAGE_BYTES,
+    )
+    .map_err(|_| wire::Error::Malformed)
 }

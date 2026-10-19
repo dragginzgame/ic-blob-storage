@@ -100,7 +100,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     )?;
     let run = Run::create(&limits.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.cbor", &batch.installation.bytes)?;
+    run.bytes("installation.wire", &batch.installation.bytes)?;
     run.json("intent.json", &json!({"schema":1,"operation":input.selection.operation(),
         "file_index":match input.selection { Selection::Batch => None, Selection::File(index) => Some(index) },
         "service":scope.service.to_text(),"namespace":scope.namespace.to_string(),"tenant":scope.tenant.to_text(),
@@ -173,7 +173,8 @@ where
             run,
             1,
             UPLOAD_CAPACITY_METHOD,
-            ic_blob_storage_contracts::wire::encode(scope).map_err(|_| Failure::Arguments)?,
+            ic_blob_storage_contracts::wire::encode_request(UPLOAD_CAPACITY_METHOD, scope)
+                .map_err(|_| Failure::Arguments)?,
             &mut query,
         )
         .await?,
@@ -239,7 +240,8 @@ where
         run,
         0,
         "blob_configuration",
-        ic_blob_storage_contracts::wire::encode(()).map_err(|_| Failure::Arguments)?,
+        ic_blob_storage_contracts::wire::encode_request("blob_configuration", ())
+            .map_err(|_| Failure::Arguments)?,
         query,
     )
     .await?;
@@ -256,8 +258,12 @@ pub(in crate::native) fn decode_configuration(
         return Err(Failure::ReplyLimit);
     }
     let host: Result<HostConfigurationView, HostFailure> =
-        exact_wire::decode(bytes, exact_wire::INSTALLATION_BYTES)
-            .map_err(|_| Failure::InvalidReply)?;
+        ic_blob_storage_contracts::wire::decode_response(
+            "blob_configuration",
+            bytes,
+            exact_wire::INSTALLATION_BYTES,
+        )
+        .map_err(|_| Failure::InvalidReply)?;
     let host = host.map_err(|_| Failure::Denied)?;
     if host.configuration != installation.configuration
         || host.project != installation.project
@@ -281,8 +287,9 @@ where
     Q: FnMut(&'static str, Vec<u8>) -> F,
     F: Future<Output = Result<Vec<u8>, Failure>>,
 {
-    let args = completion_reply::inspection_request(authority, file.permission)
-        .map_err(super::attestation::failure)?;
+    let args =
+        completion_reply::inspection_request("blob_upload_attestation", authority, file.permission)
+            .map_err(super::attestation::failure)?;
     let bytes =
         super::query::observe(run, 2 * index + 2, UPLOAD_ATTESTATION_METHOD, args, query).await?;
     let confirmation = match completion_reply::inspection(

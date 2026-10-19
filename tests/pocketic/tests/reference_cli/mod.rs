@@ -14,16 +14,16 @@ pub(crate) fn native_requests(
     let root = directory.join("root.der");
     fs::write(&key, crate::authenticated_cli::PEM).unwrap();
     fs::write(&root, pic.root_key().unwrap()).unwrap();
-    let receipt = directory.join("receipt.cbor");
-    let status = directory.join("status.cbor");
+    let receipt = directory.join("receipt.wire");
+    let status = directory.join("status.wire");
     fs::write(
         &receipt,
-        ic_blob_storage_contracts::wire::encode(input).unwrap(),
+        ic_blob_storage_contracts::document::encode(input).unwrap(),
     )
     .unwrap();
     fs::write(
         &status,
-        ic_blob_storage_contracts::wire::encode(
+        ic_blob_storage_contracts::document::encode(
             ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest {
                 upload: input.upload,
                 reference: input.reference,

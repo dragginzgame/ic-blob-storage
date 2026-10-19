@@ -1,5 +1,6 @@
 //! Transport backpressure never causes automatic native query or update resubmission.
 use super::{Failure, change, execute, options};
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use std::io;
 use std::io::Read;
@@ -110,7 +111,7 @@ fn server(status: u16) -> (String, mpsc::Sender<()>, thread::JoinHandle<Vec<Stri
 
 #[test]
 fn backpressure_returns_failure_after_one_request_for_both_native_call_kinds() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let key = directory.path().join("identity.pem");
     let root = directory.path().join("root.der");
     std::fs::write(&key,"-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEICoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq\n-----END PRIVATE KEY-----\n").unwrap();

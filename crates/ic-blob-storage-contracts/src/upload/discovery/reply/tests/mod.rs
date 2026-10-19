@@ -49,11 +49,19 @@ fn preserves_absence_every_lifecycle_and_restore_fence() {
         UploadContentState::Settled,
     ] {
         expected.content.as_mut().unwrap().state = state;
-        let bytes = crate::wire::encode(Ok::<_, UploadDiscoveryFailure>(expected)).unwrap();
+        let bytes = crate::wire::encode_response(
+            "blob_lookup_content",
+            Ok::<_, UploadDiscoveryFailure>(expected),
+        )
+        .unwrap();
         assert_eq!(decode(expected.request, &bytes, ceiling), Ok(expected));
     }
     expected.content = None;
-    let bytes = crate::wire::encode(Ok::<_, UploadDiscoveryFailure>(expected)).unwrap();
+    let bytes = crate::wire::encode_response(
+        "blob_lookup_content",
+        Ok::<_, UploadDiscoveryFailure>(expected),
+    )
+    .unwrap();
     assert_eq!(
         decode(
             expected.request,
@@ -96,7 +104,11 @@ fn rejects_changed_original_bindings_and_zero_identities() {
             7 => original.first_reference = 0,
             _ => original.bytes = 0,
         }
-        let bytes = crate::wire::encode(Ok::<_, UploadDiscoveryFailure>(invalid)).unwrap();
+        let bytes = crate::wire::encode_response(
+            "blob_lookup_content",
+            Ok::<_, UploadDiscoveryFailure>(invalid),
+        )
+        .unwrap();
         let error = if field < 4 {
             UploadDiscoveryReplyError::Binding
         } else {
@@ -114,7 +126,11 @@ fn rejects_changed_original_bindings_and_zero_identities() {
         UploadDiscoveryFailure::Invalid,
         UploadDiscoveryFailure::Internal,
     ] {
-        let bytes = crate::wire::encode(Err::<UploadDiscoveryResponse, _>(refusal)).unwrap();
+        let bytes = crate::wire::encode_response(
+            "blob_lookup_content",
+            Err::<UploadDiscoveryResponse, _>(refusal),
+        )
+        .unwrap();
         assert_eq!(
             decode(expected.request, &bytes, ceiling),
             Err(UploadDiscoveryReplyError::Remote(refusal))

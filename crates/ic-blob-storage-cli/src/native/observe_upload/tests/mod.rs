@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 #[test]
 fn observation_arguments_require_origin_budget_and_new_directory() {
     use super::super::arguments::{Command, Options};
@@ -18,7 +19,7 @@ fn observation_arguments_require_origin_budget_and_new_directory() {
         "--namespace",
         "1",
         "--permission",
-        "permission.cbor",
+        "permission.wire",
         "--gateway",
         "https://gateway.example",
         "--max-bytes",
@@ -48,14 +49,14 @@ fn observation_arguments_require_origin_budget_and_new_directory() {
 }
 #[test]
 fn observation_artifacts_are_no_clobber_and_partial_runs_stay_visible() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = directory.path().join("run");
     let run = Run::create(&path).unwrap();
-    run.bytes("statement.cbor", b"original").unwrap();
-    assert_eq!(run.bytes("statement.cbor", b"changed"), Err(Failure::File));
+    run.bytes("statement.wire", b"original").unwrap();
+    assert_eq!(run.bytes("statement.wire", b"changed"), Err(Failure::File));
     assert!(matches!(Run::create(&path), Err(Failure::ExistingRun)));
     assert_eq!(
-        std::fs::read(path.join("statement.cbor")).unwrap(),
+        std::fs::read(path.join("statement.wire")).unwrap(),
         b"original"
     );
     assert!(!path.join("summary.json").exists());

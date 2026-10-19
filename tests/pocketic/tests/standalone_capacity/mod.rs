@@ -209,7 +209,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
         cancelled.remaining_bytes,
         initial.remaining_bytes - u128::from(other_permission.upload.bytes)
     );
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(

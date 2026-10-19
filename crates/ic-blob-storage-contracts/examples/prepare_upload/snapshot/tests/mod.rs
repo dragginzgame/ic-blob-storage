@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 use std::fs;
 
 fn input(base: &Path, sources: &[&str]) -> PathBuf {
@@ -31,8 +32,8 @@ fn input(base: &Path, sources: &[&str]) -> PathBuf {
 
 #[test]
 fn saved_bytes_match_independent_root_and_survive_source_replacement() {
-    let source = tempfile::tempdir().unwrap();
-    let destination = tempfile::tempdir().unwrap();
+    let source = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    let destination = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     fs::write(source.path().join("body"), b"abc").unwrap();
     let input = input(source.path(), &["body", "body"]);
     let saved = run(&input, destination.path()).unwrap();
@@ -72,8 +73,8 @@ fn saved_bytes_match_independent_root_and_survive_source_replacement() {
 
 #[test]
 fn failure_after_a_saved_body_removes_only_this_attempt() {
-    let source = tempfile::tempdir().unwrap();
-    let destination = tempfile::tempdir().unwrap();
+    let source = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    let destination = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     fs::write(source.path().join("body"), b"abc").unwrap();
     let valid = run(&input(source.path(), &["body"]), destination.path()).unwrap();
     fs::write(destination.path().join("unrelated"), b"keep").unwrap();

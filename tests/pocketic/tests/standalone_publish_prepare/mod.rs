@@ -8,11 +8,12 @@ use crate::{
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use serde_json::{Value, json};
 use std::path::Path;
 
 pub(super) enum Directory {
-    Temporary(tempfile::TempDir),
+    Temporary(FixtureDirectory),
     Retained(std::path::PathBuf),
 }
 impl Directory {
@@ -20,15 +21,9 @@ impl Directory {
         if let Some(root) = std::env::var_os("BLOB_PUBLICATION_REPORT") {
             let root = std::path::PathBuf::from(root);
             std::fs::create_dir_all(&root).unwrap();
-            Self::Retained(
-                tempfile::Builder::new()
-                    .prefix(label)
-                    .tempdir_in(root)
-                    .unwrap()
-                    .keep(),
-            )
+            Self::Retained(ic_host_fs::testing::create_fixture_directory(&root, label).unwrap())
         } else {
-            Self::Temporary(tempfile::tempdir().unwrap())
+            Self::Temporary(FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap())
         }
     }
     pub(super) fn path(&self) -> &Path {
@@ -122,7 +117,7 @@ fn plan(
                 service: fixture.service,
                 actor,
                 method,
-                argument_file: "request.cbor",
+                argument_file: "request.wire",
             },
             reply,
         )

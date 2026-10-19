@@ -241,7 +241,8 @@ impl Fixture {
                 config.reads.tenant_bytes = total_bytes;
             }
         }
-        let mut input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode(
+        let mut input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
+            "blob_install",
             &installation(&config),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -251,7 +252,7 @@ impl Fixture {
         harness.pic.install_canister(
             service,
             wasm(),
-            ic_blob_storage_contracts::wire::encode(input).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", input).unwrap(),
             Some(controller),
         );
         Self {
@@ -549,7 +550,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     assert_eq!(f.configuration(f.operator).unwrap(), installed);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
     install_code::settle_install_code_debt(&f.harness.pic);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     // The memory runtime commits its allocation ledger during bootstrap.
     // Service observations must survive; fenced calls must not write afterward.
@@ -648,7 +649,9 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     );
     assert_eq!(
         target
-            .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+            .upgrade(
+                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap()
+            )
             .unwrap_err()
             .reject_code,
         RejectCode::CanisterError
@@ -664,7 +667,9 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     );
     assert_eq!(
         target
-            .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+            .upgrade(
+                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap()
+            )
             .unwrap_err()
             .reject_code,
         RejectCode::CanisterError
@@ -694,7 +699,9 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     );
     assert_eq!(
         original
-            .upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+            .upgrade(
+                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap()
+            )
             .unwrap_err()
             .reject_code,
         RejectCode::CanisterError
@@ -707,10 +714,13 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
 
 const PROJECT: &str = "standalone fixture project/β?&=";
 fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
-    ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
-        configuration: *configuration,
-        project: PROJECT.into(),
-        completion_verifier: Fake::principal(90),
-    })
+    ic_blob_storage_contracts::wire::encode_request(
+        "blob_install",
+        ServiceInstallationInput {
+            configuration: *configuration,
+            project: PROJECT.into(),
+            completion_verifier: Fake::principal(90),
+        },
+    )
     .unwrap()
 }

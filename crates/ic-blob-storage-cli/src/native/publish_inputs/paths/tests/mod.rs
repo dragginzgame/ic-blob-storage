@@ -1,7 +1,8 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 #[test]
 fn admitted_root_survives_namespace_replacement_for_metadata_and_body_reads() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let original = base.path().join("input");
     std::fs::create_dir(&original).unwrap();
     std::fs::write(original.join("body"), b"original").unwrap();

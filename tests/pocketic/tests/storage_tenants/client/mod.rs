@@ -2,7 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, TenantDispatch};
-use ic_blob_storage_contracts::wire;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
@@ -40,7 +40,7 @@ fn fixture(operator_client: bool) -> (Fixture, Principal) {
 fn saved(f: &Fixture, client: Principal) -> Option<TenantUpdateRequest> {
     f.harness
         .pic
-        .query_blob_as::<Result<Option<TenantUpdateRequest>, ConsumerFailure>, _>(
+        .query_control_as::<Result<Option<TenantUpdateRequest>, ConsumerFailure>, _>(
             client,
             f.controller,
             "fixture_tenant_command",
@@ -53,7 +53,7 @@ fn saved(f: &Fixture, client: Principal) -> Option<TenantUpdateRequest> {
 fn inspect(f: &Fixture, client: Principal) -> TenantEnrollmentResponse {
     f.harness
         .pic
-        .update_blob_as::<Result<TenantEnrollmentResponse, ConsumerFailure>, _>(
+        .update_control_as::<Result<TenantEnrollmentResponse, ConsumerFailure>, _>(
             client,
             f.controller,
             "fixture_inspect_tenant",
@@ -70,7 +70,7 @@ fn dispatch(
 ) -> Result<TenantEnrollmentResponse, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             client,
             f.controller,
             "fixture_update_tenant",
@@ -82,13 +82,6 @@ fn dispatch(
 
 #[test]
 fn tenant_control_ingress_refuses_unusable_packets_before_writes() {
-    #[derive(serde::Serialize)]
-    struct UnexpectedControl {
-        #[serde(flatten)]
-        dispatch: TenantDispatch,
-        unexpected: bool,
-    }
-
     let (f, client) = fixture(true);
     let input = TenantDispatch {
         command: TenantUpdateRequest {
@@ -99,14 +92,10 @@ fn tenant_control_ingress_refuses_unusable_packets_before_writes() {
         max_reply_bytes: 4096,
         trap_after_reply: false,
     };
-    let valid = wire::encode(input).unwrap();
+    let valid = ic_blob_storage_contracts::document::encode(input).unwrap();
     let mut trailing = valid.clone();
     trailing.push(0);
-    let unknown = wire::encode(UnexpectedControl {
-        dispatch: input,
-        unexpected: true,
-    })
-    .unwrap();
+    let unknown = ic_blob_storage_contracts::document::encode((input, true)).unwrap();
     let consumer_before = f.harness.pic.get_stable_memory(client);
     let service_before = f.harness.pic.get_stable_memory(f.service);
     for packet in [
@@ -152,7 +141,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
         let denied: Result<TenantEnrollmentResponse, ConsumerFailure> = f
             .harness
             .pic
-            .update_blob_as(
+            .update_control_as(
                 client,
                 f.other,
                 "fixture_update_tenant",
@@ -170,7 +159,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
                     client,
                     f.controller,
                     "fixture_update_tenant",
-                    wire::encode(input).unwrap(),
+                    ic_blob_storage_contracts::document::encode(input).unwrap(),
                 )
                 .unwrap_err();
             assert_eq!(failure.reject_code, RejectCode::CanisterError);
@@ -256,7 +245,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
     let query: Result<TenantEnrollmentResponse, ConsumerFailure> = f
         .harness
         .pic
-        .query_blob_as(
+        .query_control_as(
             client,
             f.controller,
             "fixture_query_tenant",
@@ -288,7 +277,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
     let foreign: Result<TenantEnrollmentResponse, ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             client,
             f.controller,
             "fixture_inspect_tenant",

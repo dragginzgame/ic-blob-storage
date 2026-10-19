@@ -1,4 +1,4 @@
-//! Provider Candid budgets and current Wire/CBOR admission at actual dispatch boundaries.
+//! Provider Candid budgets and current Wire admission at actual dispatch boundaries.
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
@@ -73,28 +73,21 @@ fn limits(max_bytes: usize) -> DecoderConfig {
     config
 }
 
-#[derive(serde::Serialize)]
-struct ForeignInstallation<'a> {
-    #[serde(flatten)]
-    installation: &'a ServiceInstallationInput,
-    retired_authority: bool,
-}
-
 #[test]
-fn standalone_cbor_installation_refusals_preserve_the_existing_owner() {
+fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
     let f = Fixture::new();
     let enrollment = f.enroll(f.operator).unwrap();
     let configuration = f.configuration(f.operator).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let input: ServiceInstallationInput =
-        ic_blob_storage_contracts::wire::decode(&installation(&f.config), 16384).unwrap();
+    let input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
+        "blob_install",
+        &installation(&f.config),
+        16384,
+    )
+    .unwrap();
     for bytes in [
         ic_platform::candid::contract::encode_one(&input).unwrap(),
-        ic_blob_storage_contracts::wire::encode(ForeignInstallation {
-            installation: &input,
-            retired_authority: true,
-        })
-        .unwrap(),
+        ic_blob_storage_contracts::wire::encode_request("blob_install", (&input, true)).unwrap(),
         vec![0; 16385],
     ] {
         assert!(
@@ -110,7 +103,7 @@ fn standalone_cbor_installation_refusals_preserve_the_existing_owner() {
 }
 
 #[test]
-fn standalone_byte_bounded_cbor_manifest_reaches_policy_and_refusals_preserve_upload() {
+fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_upload() {
     let f = Fixture::new();
     f.enroll(f.operator).unwrap();
     let mut manifest = f.small_manifest();
@@ -135,7 +128,8 @@ fn standalone_byte_bounded_cbor_manifest_reaches_policy_and_refusals_preserve_up
         };
         4096
     ];
-    let bytes = ic_blob_storage_contracts::wire::encode(&manifest).unwrap();
+    let bytes =
+        ic_blob_storage_contracts::wire::encode_request("blob_prepare_upload", &manifest).unwrap();
     assert!(bytes.len() <= 131_072);
     let reply = f
         .harness
@@ -143,9 +137,9 @@ fn standalone_byte_bounded_cbor_manifest_reaches_policy_and_refusals_preserve_up
         .update_call(f.service, f.uploader, "blob_prepare_upload", bytes)
         .unwrap();
     assert_eq!(
-        ic_blob_storage_contracts::wire::decode::<
+        ic_blob_storage_contracts::wire::decode_response::<
             Result<UploadManifestMutation, UploadManifestFailure>,
-        >(&reply, 4096)
+        >("blob_prepare_upload", &reply, 4096)
         .unwrap(),
         Err(UploadManifestFailure::Limit)
     );
@@ -182,7 +176,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
     for bytes in [
         query.clone(),
         wire::inspection_response(Err(TenantFailure::Denied)).unwrap(),
-        ic_blob_storage_contracts::wire::encode(command).unwrap(),
+        ic_blob_storage_contracts::document::encode(command).unwrap(),
         ic_platform::candid::contract::encode_one(command).unwrap(),
         trailing,
         vec![0; 513],
@@ -212,7 +206,9 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         .pic
         .query_call(f.service, f.tenant, "blob_tenant", query)
         .unwrap();
-    let inspected = wire::decode_inspection_response(&bytes).unwrap().unwrap();
+    let inspected = ic_blob_storage_contracts::wire::tenant::decode_inspection_response(&bytes)
+        .unwrap()
+        .unwrap();
     assert_eq!(inspected.enrollment, None);
     let denied = f
         .harness
@@ -225,7 +221,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         )
         .unwrap();
     assert_eq!(
-        wire::decode_update_response(&denied).unwrap(),
+        ic_blob_storage_contracts::wire::tenant::decode_update_response(&denied).unwrap(),
         Err(TenantFailure::Denied)
     );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
@@ -239,7 +235,9 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
             wire::update_request(command).unwrap(),
         )
         .unwrap();
-    let accepted = wire::decode_update_response(&accepted).unwrap().unwrap();
+    let accepted = ic_blob_storage_contracts::wire::tenant::decode_update_response(&accepted)
+        .unwrap()
+        .unwrap();
     assert_eq!(accepted.scope, f.scope());
     assert_eq!(
         accepted.enrollment,
@@ -260,7 +258,43 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         )
         .unwrap();
     assert_eq!(
-        wire::decode_update_response(&conflict).unwrap(),
+        ic_blob_storage_contracts::wire::tenant::decode_update_response(&conflict).unwrap(),
         Err(TenantFailure::Conflict)
     );
+}
+
+#[test]
+fn every_owned_method_refuses_old_wrong_identity_and_response_packets_without_state_change() {
+    use ic_blob_storage_contracts::endpoints::{MethodCodec, MethodMode, SERVICE_METHODS};
+    use ic_blob_storage_contracts::wire;
+    let f = Fixture::new();
+    f.enroll(f.operator).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service);
+    for method in SERVICE_METHODS
+        .iter()
+        .filter(|m| m.codec == MethodCodec::IcWire)
+    {
+        let foreign = wire::encode_request("blob_install", ()).unwrap();
+        let response = wire::encode_response(method.name, ()).unwrap();
+        for bytes in [
+            ic_blob_storage_contracts::document::encode(()).unwrap(),
+            foreign,
+            response,
+        ] {
+            let result = match method.mode {
+                MethodMode::Query => {
+                    f.harness
+                        .pic
+                        .query_call(f.service, f.operator, method.name, bytes)
+                }
+                MethodMode::Update => {
+                    f.harness
+                        .pic
+                        .update_call(f.service, f.operator, method.name, bytes)
+                }
+            };
+            assert!(result.is_err(), "{} accepted a foreign packet", method.name);
+        }
+    }
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
 }

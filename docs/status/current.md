@@ -1,41 +1,120 @@
 # Current status
 
-Date: 2026-10-18
+Date: 2026-10-19
 
 ## Source and scope
 
-HEAD is released 0.34.0 at `926e91fe6fe98bb1caba6a3a343b5f940b4db714`.
-Workspace package versions remain 0.34.0; pending notes are 0.35.0 because the
-replicated clients move out of Core's public modules into their own package.
-The working tree includes the previously prepared private-control CBOR migration
-from PR #86. Incoming IC Build 0.18 and the updated lock selections are preserved;
-source-bound checks below distinguish the isolated baseline from this combined
-graph. No Blob commit, release, publication or deployment ran in this pass.
+Local HEAD remains released 0.35.0 at
+`583947545a3afde00c4be68dcc6bca1caec8daee`, with unrelated pending work preserved.
+Remote main includes [#89](https://github.com/dragginzgame/ic-blob-storage/pull/89)
+at `cc99212df4a59f4e04976bf77ad1d04f371f355a` and
+[#85](https://github.com/dragginzgame/ic-blob-storage/pull/85) at
+`628d17697171a80530fbcc894d95eac06b9a387f`; both passed their four CI lanes.
+The local catalogue repair is preserved. The current adoption does not commit,
+push, merge, release, publish, deploy or perform paid provider effects.
 
-The [archived handoff](handoff-2026-10-18.md) preserves all earlier source-bound
-results, failed attempts and consumer prerequisites. Its pending-release and
-“next work” statements belong to their recorded batches. Original evidence stays
-with its owner; archived release labels never qualify current bytes.
+Workspace package versions remain 0.35.0. Pending notes are **0.36.0** for the
+approved owned-protocol hard cut, reusing the implementation from
+[#90](https://github.com/dragginzgame/ic-blob-storage/pull/90) at
+`296729844176255433a9c8657cd960b30a93df73`. Its prior Linux/macOS/MSRV CI is
+source-bound evidence for that PR, not qualification of this extended document
+cut or the current dependency graph. No sibling source override is used.
 
-## Ownership boundary
+## Ownership and codec cut
 
 Blob owns tenant policy, data/references, quotas, provider economics, retained
-obligations and recovery; Contracts owns passive DTOs, method catalog, application
-codecs and verification. The client package owns explicit replicated calls without
-service storage; caller intent and recovery policy remain consumer-owned.
-Standalone owns explicit endpoints, authentication,
-lifecycle and memory custody. Native CLI owns Blob operations and their evidence.
-Linking the core never mounts endpoints or lifecycle hooks. Consumer frameworks
+obligations and recovery. Contracts owns DTOs, method catalogue, application
+codecs and reply verification; Client owns explicit replicated calls without
+service storage. Standalone owns authentication, endpoints, lifecycle and memory
+custody; the CLI owns Blob operations and retained evidence. Consumer frameworks
 own their wrappers and installed integration qualification in their own repos.
 
-Memory 0.48.2 owns allocation/backing governance; Storage 0.5.3 owns collections
-and codecs. The pending lock selects Platform 0.1.13 for supported principal,
-Candid/native Agent/certificate, entrypoint and call/system APIs. No direct
-Candid/CDK exceptions remain; runtime implementation retains its upstream owner.
-Wire 0.4.1 owns the two tenant method frames. Other 29 owned methods and standalone
-lifecycle inputs still use bounded CBOR. Provider/management Candid and persisted
-record encodings retain their separate contracts. No storage or wire migration
-is part of the pending cleanup.
+Published IC Wire **0.4.5** is selected and its packaged source inspected. The
+registry sparse index and cached archive agree on SHA-256
+`27c2e310a91659933843cac278f17e1f0dd57dde53cd160133c6b6fc3215c822`.
+All 31 owned methods and standalone install/post-upgrade inputs use method- and
+direction-bound Wire; finite tenant bytes are preserved. CLI, replicated Client,
+probe and browser callers move together. The separate bounded `document` value
+identity serves offline files and private controls; it is not a per-control-method
+identity or an embedded Rust type tag. See [the protocol contract](../service-wire.md).
+
+New application artifacts use `.wire`. Old saved runs keep their original bytes
+and tools for reconciliation; never rewrite or replay them. Cross-release service
+replacement remains retirement/reinstall only. Same-release retry, backup,
+restore fences and retained obligations remain required.
+
+Blob's Ciborium implementation and direct dependency are removed. Ciborium still
+enters the deployed graph through IC Memory 0.48.2's persisted metadata, directly
+and through Storage 0.5.4. Memory/Storage encodings remain unchanged. IC-specified
+CBOR, native `serde_cbor` transport/certificate fixtures and external
+provider/management/Cashier Candid remain with their owners. Platform 0.1.16 owns
+supported platform contracts/runtime/SDK APIs. Incoming Build 0.19.0, Host 0.28.1,
+Metrics 0.14.4 and Testkit 0.54.1 selections are preserved. Host owns bounded
+Candid service inventories through Platform's parser; PocketIC explicitly enables
+its `candid` and `ic-interface` features.
+
+## Current qualification and remaining boundaries
+
+Before-images, published-index evidence, the approved proposal, failures and
+focused retry logs remain under `.tmp/review-validation/wire045-adoption/`.
+Contracts' 122 unit cases, the CLI's 121 cases, fresh affected Wasms and admitted
+Testkit/PocketIC 16.1.0 pass. Current installed qualification covers 23 standalone
+installation/ingress/preparation/reference/verification/download cases and all
+30 consumer/tenant/funding/manifest client cases. The offline 1 MiB real-SDK/native
+handoff passes repeat/corrupt-source refusal with zero network requests.
+The real Chromium case passes ten permission/control scenarios, including reload,
+competing tabs, cancellation and lost responses. Strict scoped Clippy, actual
+Rust 1.91 native/Wasm checks, 68 Core upload cases, 12 inventory cases and the
+provider service-export regression pass. Dependency boundaries/pins, runtime-free
+Contracts/CLI and storage-free Client graph checks, formatting and local
+documentation links pass. Manifest/lock hashes remain unchanged through these
+checks. Initial failed assertions, the missed fixture bound and lint failures are
+retained alongside their successful focused retries.
+
+The incoming all-feature package-verifier path is blocked: Build 0.19.0 exposes
+Host 0.27.6 `OutputLimits`/`ToolError`, while this checkout selects Host 0.28.1.
+The unchanged verifier caller cannot pass those distinct public types. Keep the
+qualified default CLI separate from this contributor-only feature failure; align
+the producer's published Host boundary before claiming a complete release gate.
+
+[#88](https://github.com/dragginzgame/ic-blob-storage/issues/88) retains corrected
+package-publication acceptance. [Canic #444](https://github.com/dragginzgame/canic/issues/444)
+and [IC Crates #12](https://github.com/dragginzgame/ic-crates/issues/12) own their
+published-library/runtime/managed integration acceptance. Public DTO/persisted
+Candid trait removal remains [#84](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+Local PocketIC substitutes do not qualify deployed provider behavior or installed
+Canic. Native macOS and complete CI are not rerun for this pending extension.
+
+## Temporary filesystem ownership
+
+The next local cleanup uses published Host FS 0.28.1 without a version upgrade or
+sibling override. Its archive matches the official registry checksum
+`8769f841440afae535163474cbcce6e06c33be3e15799082b85083e3b8adab1b`.
+All direct `tempfile` declarations and maintained source uses are removed across
+the fourteen manifests. Testkit and PocketIC still own the transitive package.
+Host owns private fixture directories/files and same-descriptor, create-only
+publication in the examples. Failed test fixtures remain available during panic;
+retained report directories stay caller-owned. Complete snapshot publication is
+still not a crash-durable multi-file transaction. Verified output completion
+failures retain Host's before/after-publication and cleanup evidence.
+
+The cleanup passes 173 native cases, 12 installed cases (including ten Chromium
+scenarios), strict affected Clippy, actual Rust 1.91 native/Wasm checks and the
+dependency/format/documentation guards. Installed cases reuse the previously
+qualified Wasms: only native fixtures/examples and development dependencies
+changed. Contracts' normal Wasm graph excludes both Host FS and `tempfile`.
+No registry package versions changed. The initial lint failure and successful
+retry, before-images, registry evidence and scoped logs remain under
+`.tmp/review-validation/host-temp0360/`. Native macOS and the complete gate are not
+rerun; the unrelated Build/Host package-verifier mismatch above remains.
+
+## Historical checkpoints
+
+The following checkpoints retain their original source, graph and limitations;
+references to pending versions, former codecs, missing tools or upstream releases
+are historical statements, superseded by the current scope above. The
+[archived handoff](handoff-2026-10-18.md) retains earlier source-bound evidence.
+Original inputs and failures remain with their recorded owners.
 
 ## Delivered dependency and tooling adoption
 
@@ -297,3 +376,40 @@ owns the managed dispatch/codec checklist for draft #603;
 published-client/lock/runtime adoption. Existing application acceptance and #84's
 deferred public DTO trait cut retain their separate owners. No new upstream
 Testkit defect is asserted for the missing local prepared tool.
+
+
+## Current issue qualification — 2026-10-19
+
+The #88 compiler regression fails on released 0.35 with an empty Candid service
+and passes with the exact-path catalogue repair from PR #89. The pending fix
+also passes strict scoped Clippy, actual Rust 1.91 regression/extraction-feature
+Wasm checks, native provider DID export, fresh production standalone Wasm and
+complete catalogue/export parity. Two installed standalone certificate cases
+preserve authority, quotas, one-shot issuance, uncertainty and restoration.
+The initial failure and unfulfilled lint-expectation attempt remain separately
+retained. The local follow-up removes an unused lint allowance from the PR's
+fixture and uses an expected diagnostic for its declaration-only function.
+#88 remains open through default-branch integration and corrected publication;
+these Linux/standalone results do not qualify installed Canic or native macOS
+for the pending patch. Package versions, manifests and lockfile are unchanged.
+
+[#87 is closed](https://github.com/dragginzgame/ic-blob-storage/issues/87#issuecomment-6263167596)
+for producer delivery and acceptance. All three authenticated 0.35 archives name
+release `583947545a3afde00c4be68dcc6bca1caec8daee`; its exact-source native
+[CI matrix](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39160412347)
+passes Linux, both native macOS hosts and MSRV. The normal Testkit 0.54.1 tool
+now admits. An untouched Git-archive snapshot of that release, with original
+lock SHA-256 `cf267a7da81080fd5d3c385f74e05ffbbbf399610349c7f4efe29330d746ac9e`,
+rebuilds consumer/storage Wasms and passes all thirty client cases (19/4/2/5).
+This is separate from the dirty catalogue patch. Canic #444 and IC Crates #12
+are updated with publication availability and retain their own runtime/managed
+acceptance; #88 is their newly explicit catalogue prerequisite.
+
+[#76](https://github.com/dragginzgame/ic-blob-storage/issues/76#issuecomment-6263150182)
+still awaits a published Host completion API. Producer PR #172 is now merged,
+but registry Host FS/Process still end at 0.27.6 and the selected FS archive has
+no retained-write completion helper. Keep existing partial-evidence persistence
+until a published replacement is available. The later public DTO/owned-wire
+cut remains #84; provider, GC, billing, verifier and application acceptance
+retain their existing issues and effect authorization. No broad local gate,
+release, deployment, paid provider action or Blob Git operation ran here.

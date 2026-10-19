@@ -70,12 +70,16 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             &tenant,
             f.service,
             "blob_admit_upload",
-            ic_blob_storage_contracts::wire::encode(manifest.permission).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request(
+                "blob_admit_upload",
+                manifest.permission,
+            )
+            .unwrap(),
         )
         .unwrap();
-        ic_blob_storage_contracts::wire::decode::<
+        ic_blob_storage_contracts::wire::decode_response::<
             Result<UploadAdmissionMutation, UploadAdmissionFailure>,
-        >(&admission, 4096)
+        >("blob_admit_upload", &admission, 4096)
         .unwrap()
         .unwrap();
         let prepared = update(
@@ -83,12 +87,13 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             uploader,
             f.service,
             "blob_prepare_upload",
-            ic_blob_storage_contracts::wire::encode(manifest).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request("blob_prepare_upload", manifest)
+                .unwrap(),
         )
         .unwrap();
-        ic_blob_storage_contracts::wire::decode::<
+        ic_blob_storage_contracts::wire::decode_response::<
             Result<UploadManifestMutation, UploadManifestFailure>,
-        >(&prepared, 4096)
+        >("blob_prepare_upload", &prepared, 4096)
         .unwrap()
         .unwrap();
     }
@@ -109,13 +114,17 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             uploader,
             f.service,
             "blob_admit_upload",
-            ic_blob_storage_contracts::wire::encode(manifests[index].permission).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request(
+                "blob_admit_upload",
+                manifests[index].permission,
+            )
+            .unwrap(),
         )
         .unwrap();
         assert_eq!(
-            ic_blob_storage_contracts::wire::decode::<
+            ic_blob_storage_contracts::wire::decode_response::<
                 Result<UploadAdmissionMutation, UploadAdmissionFailure>,
-            >(&denied, 4096)
+            >("blob_admit_upload", &denied, 4096)
             .unwrap(),
             Err(UploadAdmissionFailure::Denied)
         );
@@ -153,7 +162,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             UploadState::ExposurePossible
         );
     }
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     for manifest in &manifests {
         assert_eq!(

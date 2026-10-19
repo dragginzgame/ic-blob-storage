@@ -7,6 +7,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::completion::*;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
@@ -44,7 +45,7 @@ fn arguments(f: &Fixture, url: &str, directory: &Path, gateway: &str) -> Vec<Str
         "--namespace",
         "1",
         "--permission",
-        directory.join("permission.cbor").to_str().unwrap(),
+        directory.join("permission.wire").to_str().unwrap(),
         "--gateway",
         gateway,
         "--max-bytes",
@@ -94,7 +95,7 @@ fn interrupted(args: &[String], directory: &Path) {
     );
     drop(stream);
     drop(listener);
-    assert!(!path.join("statement.cbor").exists());
+    assert!(!path.join("statement.wire").exists());
     assert!(!path.join("summary.json").exists());
     let mut submit = shared_arguments("submit-attestation", &args);
     submit.extend(["--run-dir".into(), path.to_str().unwrap().into()]);
@@ -120,9 +121,9 @@ fn receipt(f: &Fixture, statement: &UploadAttestationRequest) -> UploadAttestati
         .unwrap()
 }
 fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String], reply: proxy::Reply) {
-    let saved = std::fs::read(path.join("statement.cbor")).unwrap();
+    let saved = std::fs::read(path.join("statement.wire")).unwrap();
     let statement: UploadAttestationRequest =
-        ic_blob_storage_contracts::wire::decode(&saved, 4096).unwrap();
+        ic_blob_storage_contracts::document::decode(&saved, 4096).unwrap();
     assert_eq!(
         statement.content_digest,
         *ContentDigest::compute(&[5; 10]).as_bytes()
@@ -159,15 +160,15 @@ fn attest_and_recover(f: &mut Fixture, path: &Path, args: &[String], reply: prox
         "--verifier".into(),
         f.operator.to_text(),
         "--statement".into(),
-        path.join("attestation/statement.cbor")
+        path.join("attestation/statement.wire")
             .to_str()
             .unwrap()
             .into(),
     ]);
     assert_eq!(run(&recovery, 0)["outcome"], "matched");
-    assert_eq!(std::fs::read(path.join("statement.cbor")).unwrap(), saved);
+    assert_eq!(std::fs::read(path.join("statement.wire")).unwrap(), saved);
     assert_eq!(
-        std::fs::read(path.join("attestation/statement.cbor")).unwrap(),
+        std::fs::read(path.join("attestation/statement.wire")).unwrap(),
         saved
     );
     let outcome: serde_json::Value =
@@ -227,9 +228,9 @@ fn reject_damaged_runs(path: &Path, args: &[String]) {
     for name in [
         "plan.json",
         "summary.json",
-        "statement.cbor",
-        "permission.cbor",
-        "service-response.cbor",
+        "statement.wire",
+        "permission.wire",
+        "service-response.wire",
         "download-request.json",
         "download-outcome.json",
         "http-response.json",
@@ -333,13 +334,13 @@ fn journey(reply: proxy::Reply) {
     let (permission, manifest) = f.permission(u128::MAX, 5);
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&manifest).unwrap();
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let dir = directory.path();
     std::fs::write(dir.join("identity.pem"), PEM).unwrap();
     std::fs::write(dir.join("root.der"), f.harness.pic.root_key().unwrap()).unwrap();
     std::fs::write(
-        dir.join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(admission_input(permission)).unwrap(),
+        dir.join("permission.wire"),
+        ic_blob_storage_contracts::document::encode(admission_input(permission)).unwrap(),
     )
     .unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -360,7 +361,7 @@ fn journey(reply: proxy::Reply) {
             service: f.service,
             actor: f.operator,
             method: "blob_attest_upload",
-            argument_file: "statement.cbor",
+            argument_file: "statement.wire",
         },
         reply,
     );

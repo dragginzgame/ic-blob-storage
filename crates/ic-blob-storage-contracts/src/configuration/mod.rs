@@ -80,10 +80,10 @@ pub enum ConfigurationScalar {
 /// Candidate rejection before any store is installed or opened.
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
 pub enum ConfigurationInputError {
-    /// Encoded CBOR exceeds the caller's buffering budget.
+    /// Encoded Wire document exceeds the caller's buffering budget.
     #[error("configuration input exceeds byte limit")]
     Limit,
-    /// Invalid CBOR, unsupported numeric width or exceeded nesting limit.
+    /// Invalid Wire document or exceeded decoding limit.
     #[error("invalid configuration encoding")]
     Encoding,
     /// The candidate names another service, not the host's actual canister.
@@ -120,7 +120,7 @@ pub enum ConfigurationInputError {
 /// `actual_service` must come from the platform, never from the candidate itself.
 /// This is not a reconfiguration endpoint, persisted schema or authority to deploy.
 /// # Errors
-/// Rejects oversized/malformed CBOR, service mismatch or invalid configuration.
+/// Rejects oversized/malformed Wire documents, service mismatch or invalid configuration.
 pub fn decode_candidate(
     actual_service: Principal,
     bytes: &[u8],
@@ -129,7 +129,7 @@ pub fn decode_candidate(
     if bytes.len() > max_bytes.get() {
         return Err(ConfigurationInputError::Limit);
     }
-    let input = crate::wire::decode(bytes, max_bytes.get())
+    let input = crate::document::decode(bytes, max_bytes.get())
         .map_err(|_| ConfigurationInputError::Encoding)?;
     validate_candidate(actual_service, input)
 }

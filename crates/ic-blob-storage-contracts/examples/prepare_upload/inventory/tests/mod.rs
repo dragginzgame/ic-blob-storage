@@ -1,6 +1,7 @@
 use super::*;
 use crate::Header;
 use crate::UploadMetadataError;
+use ic_host_fs::testing::FixtureDirectory;
 use std::fs;
 
 const INPUT: &[u8] = br#"{"limits":{"files":1,"file_bytes":3,"file_chunks":1,"total_bytes":3,"total_chunks":1},"files":[]}"#;
@@ -37,8 +38,8 @@ fn inventory_collection_preserves_json_bounds_and_stream_failures() {
 #[cfg(unix)]
 #[test]
 fn inventory_file_symlink_keeps_the_callers_directory_as_source_base() {
-    let dir = tempfile::tempdir().unwrap();
-    let alias = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    let alias = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     fs::write(dir.path().join("inventory.json"), INPUT).unwrap();
     let path = alias.path().join("inventory.json");
     std::os::unix::fs::symlink(dir.path().join("inventory.json"), &path).unwrap();
@@ -81,7 +82,7 @@ fn entry(asset: &str, path: &str) -> InventoryFile {
 
 #[test]
 fn duplicates_share_a_blob_but_preserve_asset_mappings_and_source_work() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     fs::write(dir.path().join("a"), b"abc").unwrap();
     fs::write(dir.path().join("b"), b"abc").unwrap();
     let first = entry("image-a", "a");
@@ -124,7 +125,7 @@ fn duplicates_share_a_blob_but_preserve_asset_mappings_and_source_work() {
 
 #[test]
 fn entire_inventory_is_validated_before_opening_any_source() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     // Neither source exists. A later declaration/budget error must take precedence.
     let mut inventory = Inventory {
         limits: limits(),
@@ -177,7 +178,7 @@ fn entire_inventory_is_validated_before_opening_any_source() {
 
 #[test]
 fn duplicate_asset_ids_unsafe_paths_and_nonregular_sources_reject() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let inventory = Inventory {
         limits: limits(),
         files: vec![entry("same", "a"), entry("same", "b")],
@@ -220,7 +221,7 @@ fn duplicate_asset_ids_unsafe_paths_and_nonregular_sources_reject() {
 #[test]
 fn symlinks_in_leaf_or_parent_components_are_rejected() {
     use std::os::unix::fs::symlink;
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     fs::create_dir(dir.path().join("real")).unwrap();
     fs::write(dir.path().join("real/file"), b"abc").unwrap();
     symlink("real/file", dir.path().join("leaf")).unwrap();
@@ -239,7 +240,7 @@ fn symlinks_in_leaf_or_parent_components_are_rejected() {
 
 #[test]
 fn file_boundary_bounds_json_and_rejects_ambiguous_input() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let input = dir.path().join("inventory.json");
     fs::write(&input, vec![b' '; INVENTORY_BYTES + 1]).unwrap();
     assert!(matches!(run(&input), Err(InventoryError::EncodedLimit)));

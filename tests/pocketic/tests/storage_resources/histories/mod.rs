@@ -263,7 +263,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         max_tenant_read_sessions: (workload.reads / workload.tenants).max(1),
     })
     .unwrap();
-    retain_bytes(directory, "installation.cbor", &installation);
+    retain_bytes(directory, "installation.wire", &installation);
     harness.pic.install_canister(
         service,
         Fixture::wasm(),

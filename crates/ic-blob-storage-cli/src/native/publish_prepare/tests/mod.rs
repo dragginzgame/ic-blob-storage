@@ -1,5 +1,6 @@
 use super::*;
 use crate::native::{arguments::Command, execute, upload_inputs::tests as fixture};
+use ic_host_fs::testing::FixtureDirectory;
 use std::fs;
 
 fn arguments(directory: &std::path::Path) -> Vec<String> {
@@ -37,7 +38,7 @@ fn arguments(directory: &std::path::Path) -> Vec<String> {
 }
 #[test]
 fn indexed_prepare_requires_canonical_index_explicit_roles_and_original_recovery_journal() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let args = arguments(directory.path());
     assert!(Options::parse(&args).is_ok());
     for value in ["00", "-1", "4096"] {
@@ -55,7 +56,7 @@ fn indexed_prepare_requires_canonical_index_explicit_roles_and_original_recovery
 
 #[test]
 fn batch_prepare_requires_all_file_selection_without_recovery_or_index_flags() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let mut args = arguments(directory.path());
     args[0] = "publish-prepare-batch".into();
     let index = args.iter().position(|a| a == "--file-index").unwrap();
@@ -72,14 +73,17 @@ fn batch_prepare_requires_all_file_selection_without_recovery_or_index_flags() {
 }
 #[test]
 fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let selected = crate::native::upload_inputs::PreparedInput::load(
         crate::native::upload_inputs::InputFiles {
             binding: serde_json::to_vec(&fixture::binding()).unwrap(),
             manifest: serde_json::to_vec(&fixture::manifest()).unwrap(),
             installation: crate::native::upload_inputs::installation::Installation::decode(
-                ic_blob_storage_contracts::wire::encode(fixture::installation(&fixture::binding()))
-                    .unwrap(),
+                ic_blob_storage_contracts::wire::encode_request(
+                    "blob_install",
+                    fixture::installation(&fixture::binding()),
+                )
+                .unwrap(),
                 10.try_into().unwrap(),
             )
             .unwrap(),
@@ -90,21 +94,21 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
     let expected = json!({"operation":"publish_prepare","file_index":0});
     let (permission, manifest) = selected.setup_requests();
     fs::write(directory.path().join("intent.json"), expected.to_string()).unwrap();
-    fs::write(directory.path().join("permission.cbor"), permission).unwrap();
-    fs::write(directory.path().join("manifest.cbor"), manifest).unwrap();
+    fs::write(directory.path().join("permission.wire"), permission).unwrap();
+    fs::write(directory.path().join("manifest.wire"), manifest).unwrap();
     journal::validate(directory.path(), &expected, &selected).unwrap();
     let changed = json!({"operation":"publish_prepare","file_index":1});
     assert_eq!(
         journal::validate(directory.path(), &changed, &selected),
         Err(Failure::Binding)
     );
-    fs::write(directory.path().join("manifest.cbor"), b"changed").unwrap();
+    fs::write(directory.path().join("manifest.wire"), b"changed").unwrap();
     assert_eq!(
         journal::validate(directory.path(), &expected, &selected),
         Err(Failure::Binding)
     );
-    fs::write(directory.path().join("manifest.cbor"), manifest).unwrap();
-    fs::write(directory.path().join("permission.cbor"), b"changed").unwrap();
+    fs::write(directory.path().join("manifest.wire"), manifest).unwrap();
+    fs::write(directory.path().join("permission.wire"), b"changed").unwrap();
     assert_eq!(
         journal::validate(directory.path(), &expected, &selected),
         Err(Failure::Binding)
@@ -112,7 +116,7 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
 }
 #[test]
 fn partial_attempt_is_claimed_and_symlink_claim_is_refused() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     assert!(!journal::claimed(directory.path(), upload_setup::Kind::Prepare).unwrap());
     fs::create_dir(directory.path().join("preparation")).unwrap();
     assert!(journal::claimed(directory.path(), upload_setup::Kind::Prepare).unwrap());

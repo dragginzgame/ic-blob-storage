@@ -108,7 +108,7 @@ async function nativeSelection(options, bootstrap, hostBundle, workerBundle) {
     nativeReady(ready, intent);
     require(ready.max_steps === intent.max_steps &&
       digest(await boundedFile(join(session, 'inventory.json'), 2 * 1024 * 1024)) === intent.inventory_sha256 &&
-      digest(await boundedFile(join(session, 'installation.cbor'), 16384)) === intent.installation_sha256,
+      digest(await boundedFile(join(session, 'installation.wire'), 16384)) === intent.installation_sha256,
     'native-session');
     return { binding: { session, intent_sha256: digest(bytes) }, intent };
   } catch { throw new LauncherRefusal('native-session'); }

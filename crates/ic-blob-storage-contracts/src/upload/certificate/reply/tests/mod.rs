@@ -2,7 +2,9 @@ use crate::dto::reference::ReferenceUpload;
 use crate::dto::upload::admission::UploadAdmissionFailure as A;
 use crate::dto::upload::exposure::UploadExposureBlocker as B;
 use crate::upload::certificate::reply::*;
-use crate::wire::encode;
+fn encode<T: serde::Serialize>(value: T) -> Result<Vec<u8>, crate::wire::Error> {
+    crate::wire::encode_response("blob_upload_certificate_assessment", value)
+}
 use ic_platform::Principal;
 
 fn permission() -> UploadAdmissionRequest {
@@ -27,7 +29,12 @@ fn permission() -> UploadAdmissionRequest {
 fn assessment_validates_the_full_permission_before_root_lookup_and_after_reply() {
     let permission = permission();
     let argument = assessment_request(permission).unwrap();
-    let root: String = crate::wire::decode(&argument, crate::wire::MAX_MESSAGE_BYTES).unwrap();
+    let root: String = crate::wire::decode_request(
+        "blob_upload_certificate_assessment",
+        &argument,
+        crate::wire::MAX_MESSAGE_BYTES,
+    )
+    .unwrap();
     assert_eq!(root, format!("sha256:{}", "06".repeat(32)));
     let response = UploadCertificateAssessmentResponse {
         permission,

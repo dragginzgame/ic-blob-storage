@@ -1,6 +1,7 @@
 use super::*;
 use crate::CaffeineHashError;
 use crate::tests::verifier;
+use ic_host_fs::testing::FixtureDirectory;
 use std::fs;
 use std::path::PathBuf;
 
@@ -46,7 +47,7 @@ fn contents(directory: &Path) -> Vec<PathBuf> {
 
 #[test]
 fn publishes_exact_bytes_only_after_successful_eof_and_removes_staging_area() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let output = dir.path().join("verified.bin");
     let body = ObservedBody {
         bytes: b"abc",
@@ -70,7 +71,7 @@ fn publishes_exact_bytes_only_after_successful_eof_and_removes_staging_area() {
 
 #[test]
 fn bad_or_incomplete_bodies_never_publish_and_normal_errors_remove_temporary_bytes() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let output = dir.path().join("verified.bin");
     for (bytes, fail_at_end) in [
         (b"abd".as_slice(), false),
@@ -113,7 +114,7 @@ fn bad_or_incomplete_bodies_never_publish_and_normal_errors_remove_temporary_byt
 
 #[test]
 fn existing_and_concurrently_created_destinations_are_preserved() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let output = dir.path().join("verified.bin");
     let body = ObservedBody {
         bytes: b"abc",
@@ -122,11 +123,11 @@ fn existing_and_concurrently_created_destinations_are_preserved() {
         racing_output: Some(b"other writer"),
     };
     assert!(
-        matches!(save_verified(body, verifier(), &output), Err(OutputError::Publish(error)) if error.kind() == io::ErrorKind::AlreadyExists)
+        matches!(save_verified(body, verifier(), &output), Err(OutputError::Publication(NamedWriteError::BeforePublication { source, .. })) if source.kind() == io::ErrorKind::AlreadyExists)
     );
     for _ in 0..2 {
         assert!(
-            matches!(save_verified(&b"abc"[..], verifier(), &output), Err(OutputError::Publish(error)) if error.kind() == io::ErrorKind::AlreadyExists)
+            matches!(save_verified(&b"abc"[..], verifier(), &output), Err(OutputError::Publication(NamedWriteError::BeforePublication { source, .. })) if source.kind() == io::ErrorKind::AlreadyExists)
         );
         assert_eq!(fs::read(&output).unwrap(), b"other writer");
         assert_eq!(contents(dir.path()), std::slice::from_ref(&output));
@@ -137,7 +138,7 @@ fn existing_and_concurrently_created_destinations_are_preserved() {
 #[test]
 fn existing_and_dangling_symlinks_are_not_followed_or_replaced() {
     use std::os::unix::fs::symlink;
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let output = dir.path().join("verified.bin");
     let target = dir.path().join("target.bin");
     symlink(&target, &output).unwrap();
@@ -146,7 +147,7 @@ fn existing_and_dangling_symlinks_are_not_followed_or_replaced() {
             fs::write(&target, b"protected").unwrap();
         }
         assert!(
-            matches!(save_verified(&b"abc"[..], verifier(), &output), Err(OutputError::Publish(error)) if error.kind() == io::ErrorKind::AlreadyExists)
+            matches!(save_verified(&b"abc"[..], verifier(), &output), Err(OutputError::Publication(NamedWriteError::BeforePublication { source, .. })) if source.kind() == io::ErrorKind::AlreadyExists)
         );
         assert_eq!(fs::read_link(&output).unwrap(), target);
         if exists {
@@ -165,7 +166,7 @@ fn invalid_destination_rejects_before_reading_the_body() {
             panic!("invalid destination must reject first")
         }
     }
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     assert!(matches!(
         save_verified(Unread, verifier(), Path::new("..")),
         Err(OutputError::InvalidDestination)

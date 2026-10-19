@@ -1,5 +1,6 @@
 use super::*;
 use crate::native::arguments::Command;
+use ic_host_fs::testing::FixtureDirectory;
 
 fn arguments() -> Vec<String> {
     let p = Principal::self_authenticating([1]).to_text();
@@ -46,14 +47,14 @@ fn submission_requires_explicit_actor_scope_and_observation_directory() {
 }
 #[test]
 fn statement_alone_or_failure_marker_never_authorizes_submission() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let options = Options::parse(&arguments()).unwrap();
     let Command::SubmitAttestation(mut input) = Options::parse(&arguments()).unwrap().command
     else {
         panic!("submit command")
     };
     input.directory = dir.path().into();
-    std::fs::write(dir.path().join("statement.cbor"), b"not an observation").unwrap();
+    std::fs::write(dir.path().join("statement.wire"), b"not an observation").unwrap();
     assert!(matches!(
         observation::Observation::open(&options, &input),
         Err(Failure::Observation)

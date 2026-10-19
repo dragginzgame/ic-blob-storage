@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 mod installation;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
@@ -49,8 +50,9 @@ pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInp
 }
 fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
     std::fs::write(
-        base.join("installation.cbor"),
-        ic_blob_storage_contracts::wire::encode(installation(binding)).unwrap(),
+        base.join("installation.wire"),
+        ic_blob_storage_contracts::wire::encode_request("blob_install", installation(binding))
+            .unwrap(),
     )
     .unwrap();
     std::fs::write(
@@ -77,25 +79,25 @@ fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {
         "--body".into(),
         base.join("body.bin").display().to_string(),
         "--installation".into(),
-        base.join("installation.cbor").display().to_string(),
+        base.join("installation.wire").display().to_string(),
     ]
 }
 
 #[test]
 fn offline_command_emits_exact_full_width_service_requests_without_network_configuration() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let args = arguments(base.path(), &binding(), &manifest());
     // Exercise the actual CLI dispatch without a signer, URL or runtime.
     let report = crate::native::execute(&args).unwrap();
     let output = base.path().join("output");
-    let permission_bytes = std::fs::read(output.join("permission.cbor")).unwrap();
-    let preparation_bytes = std::fs::read(output.join("manifest.cbor")).unwrap();
-    let permission: UploadAdmissionRequest = ic_blob_storage_contracts::wire::decode(
+    let permission_bytes = std::fs::read(output.join("permission.wire")).unwrap();
+    let preparation_bytes = std::fs::read(output.join("manifest.wire")).unwrap();
+    let permission: UploadAdmissionRequest = ic_blob_storage_contracts::document::decode(
         &permission_bytes,
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
     .unwrap();
-    let preparation: UploadManifestRequest = ic_blob_storage_contracts::wire::decode(
+    let preparation: UploadManifestRequest = ic_blob_storage_contracts::document::decode(
         &preparation_bytes,
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
@@ -106,16 +108,16 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     assert_eq!(permission.expires_at_ns, u64::MAX);
     assert_ne!(permission.upload.tenant, permission.uploader);
     let status: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest =
-        ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(output.join("reference-status.cbor")).unwrap(),
+        ic_blob_storage_contracts::document::decode(
+            &std::fs::read(output.join("reference-status.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
     assert_eq!(status.upload, permission.upload);
     assert_eq!(status.reference, permission.upload.first_reference);
     let download: ic_blob_storage_contracts::dto::download::DownloadRequest =
-        ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(output.join("download.cbor")).unwrap(),
+        ic_blob_storage_contracts::document::decode(
+            &std::fs::read(output.join("download.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
@@ -146,10 +148,10 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
     );
     assert_eq!(report["certificate_binding_sha256"], digest(&browser_bytes));
     assert_eq!(report["body_verified"], true);
-    let init = std::fs::read(output.join("installation.cbor")).unwrap();
+    let init = std::fs::read(output.join("installation.wire")).unwrap();
     assert_eq!(
         init,
-        std::fs::read(base.path().join("installation.cbor")).unwrap()
+        std::fs::read(base.path().join("installation.wire")).unwrap()
     );
     assert_eq!(report["installation_sha256"], digest(&init));
     assert_eq!(report["installation_binding_checked"], true);
@@ -167,11 +169,11 @@ fn offline_command_emits_exact_full_width_service_requests_without_network_confi
         Err(Failure::ExistingRun)
     ));
     assert_eq!(
-        std::fs::read(output.join("permission.cbor")).unwrap(),
+        std::fs::read(output.join("permission.wire")).unwrap(),
         permission_bytes
     );
     assert_eq!(
-        std::fs::read(output.join("manifest.cbor")).unwrap(),
+        std::fs::read(output.join("manifest.wire")).unwrap(),
         preparation_bytes
     );
 }
@@ -194,7 +196,7 @@ fn changed_root_length_leaves_or_metadata_refuse_before_output_claim() {
         ("tree_type", json!("other")),
     ];
     for (field, value) in cases {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut changed = manifest();
         changed[field] = value;
         let args = arguments(base.path(), &binding(), &changed);
@@ -204,7 +206,7 @@ fn changed_root_length_leaves_or_metadata_refuse_before_output_claim() {
         ));
         assert!(!base.path().join("output").exists());
     }
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let mut args = arguments(base.path(), &binding(), &manifest());
     args[6] = "2".into();
     assert!(matches!(
@@ -240,7 +242,7 @@ fn binding_requires_canonical_strings_exact_format_and_valid_authority_principal
         ("bucket", json!("a".repeat(257))),
         ("bucket", json!("\u{feff}bucket")),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut changed = binding();
         changed[field] = value;
         let args = arguments(base.path(), &changed, &manifest());
@@ -250,7 +252,7 @@ fn binding_requires_canonical_strings_exact_format_and_valid_authority_principal
         ));
         assert!(!base.path().join("output").exists());
     }
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let mut missing = binding();
     missing.as_object_mut().unwrap().remove("format");
     assert_eq!(
@@ -271,7 +273,7 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
         json!({"cache_control":""}),
         json!({"cache_control":"β".repeat(2048)}),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut binding = binding();
         binding["preparation"] = preparation.clone();
         let args = arguments(base.path(), &binding, &manifest());
@@ -280,7 +282,7 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
             binding: std::fs::read(base.path().join("output/binding.json")).unwrap(),
             manifest: std::fs::read(base.path().join("output/manifest.json")).unwrap(),
             installation: crate::native::upload_inputs::installation::Installation::decode(
-                std::fs::read(base.path().join("output/installation.cbor")).unwrap(),
+                std::fs::read(base.path().join("output/installation.wire")).unwrap(),
                 NonZeroU64::new(10).unwrap(),
             )
             .unwrap(),
@@ -310,7 +312,7 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
         json!({"cache_control":"β".repeat(2049)}),
         json!({"inferred_type":"text/plain"}),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut binding = binding();
         binding["preparation"] = preparation;
         assert_eq!(
@@ -323,7 +325,7 @@ fn preparation_hints_preserve_omission_empty_values_and_utf8_byte_bounds() {
 
 #[test]
 fn namespace_byte_bounds_preserve_header_compatible_project_and_utf8_bucket() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let mut input = binding();
     input["project"] = json!("é".repeat(128));
     input["bucket"] = json!("β".repeat(128));
@@ -336,7 +338,7 @@ fn namespace_byte_bounds_preserve_header_compatible_project_and_utf8_bucket() {
     assert_eq!(browser["project"], input["project"]);
     assert_eq!(browser["bucket"], input["bucket"]);
     for field in ["project", "bucket"] {
-        let rejected = tempfile::tempdir().unwrap();
+        let rejected = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut oversized = input.clone();
         oversized[field] = json!("é".repeat(129));
         let args = arguments(rejected.path(), &oversized, &manifest());
@@ -347,7 +349,7 @@ fn namespace_byte_bounds_preserve_header_compatible_project_and_utf8_bucket() {
 
 #[test]
 fn bounded_regular_inputs_and_exact_options_refuse_without_creating_a_run() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let args = arguments(base.path(), &binding(), &manifest());
     for extra in [
         vec!["--unknown".into(), "value".into()],
@@ -376,7 +378,7 @@ fn bounded_regular_inputs_and_exact_options_refuse_without_creating_a_run() {
 
 #[test]
 fn corrupt_source_leaves_only_private_partial_evidence_and_no_request_files() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let args = arguments(base.path(), &binding(), &manifest());
     std::fs::write(base.path().join("body.bin"), b"abd").unwrap();
     assert!(matches!(
@@ -391,10 +393,10 @@ fn corrupt_source_leaves_only_private_partial_evidence_and_no_request_files() {
     for name in [
         "body.bin",
         "summary.json",
-        "permission.cbor",
-        "manifest.cbor",
-        "download.cbor",
-        "reference-status.cbor",
+        "permission.wire",
+        "manifest.wire",
+        "download.wire",
+        "reference-status.wire",
         "certificate-binding.json",
     ] {
         assert!(!output.join(name).exists());

@@ -19,7 +19,7 @@ fn decode(
     bytes: &[u8],
 ) -> Result<AccountInspectionResponse, Failure> {
     let reply: Result<AccountInspectionResponse, E> =
-        super::reply::decode_small(bytes, Failure::ReplyTooLarge)?;
+        super::reply::decode_small("blob_inspect_account", bytes, Failure::ReplyTooLarge)?;
     let response = reply.map_err(Failure::AccountRefused)?;
     if response.request != request {
         return Err(Failure::Binding);
@@ -55,8 +55,8 @@ pub(super) async fn run(
     request: AccountInspectionRequest,
 ) -> Result<Value, Failure> {
     let agent = agent(options)?;
-    let argument =
-        ic_blob_storage_contracts::wire::encode(request).map_err(|_| Failure::Arguments)?;
+    let argument = ic_blob_storage_contracts::wire::encode_request("blob_inspect_account", request)
+        .map_err(|_| Failure::Arguments)?;
     let bytes = super::inspection_update(
         &agent,
         request.scope.service,

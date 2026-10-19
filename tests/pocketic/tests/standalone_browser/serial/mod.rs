@@ -105,7 +105,7 @@ impl Serial {
             !self
                 .trial
                 .report
-                .join("observation-0/statement.cbor")
+                .join("observation-0/statement.wire")
                 .exists()
         );
         let map = self.status_using(control, None, gateway, "blocked-map");
@@ -321,11 +321,11 @@ impl Serial {
         );
         let files = (0..2)
             .map(|index| {
-                ic_blob_storage_contracts::wire::decode(
+                ic_blob_storage_contracts::document::decode(
                     &std::fs::read(
                         trial
                             .report
-                            .join(format!("batch/file-{index:04}/manifest.cbor")),
+                            .join(format!("batch/file-{index:04}/manifest.wire")),
                     )
                     .unwrap(),
                     ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
@@ -420,7 +420,7 @@ impl Serial {
             "--permission".into(),
             self.trial
                 .report
-                .join(format!("batch/file-{index:04}/permission.cbor"))
+                .join(format!("batch/file-{index:04}/permission.wire"))
                 .display()
                 .to_string(),
             "--gateway".into(),
@@ -591,7 +591,7 @@ impl Serial {
             !self
                 .trial
                 .report
-                .join("foreign-observation/verification-0000/attestation-query.cbor")
+                .join("foreign-observation/verification-0000/attestation-query.wire")
                 .exists()
         );
     }
@@ -605,22 +605,23 @@ impl Serial {
         for name in [
             "plan.json",
             "summary.json",
-            "permission.cbor",
-            "service-response.cbor",
+            "permission.wire",
+            "request.wire",
+            "service-response.wire",
             "download-request.json",
             "download-outcome.json",
             "http-response.json",
-            "statement.cbor",
+            "statement.wire",
         ] {
             std::fs::copy(source.join(name), copy.join(name)).unwrap();
         }
         // Same upload, verified digest and current live reference, but a distinct
         // observation time: content equality cannot reconcile another statement.
         let mut statement: ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest =
-            ic_blob_storage_contracts::wire::decode(&std::fs::read(copy.join("statement.cbor")).unwrap(), ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES).unwrap();
+            ic_blob_storage_contracts::document::decode(&std::fs::read(copy.join("statement.wire")).unwrap(), ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES).unwrap();
         statement.observed_at_ns += 1;
-        let encoded = ic_blob_storage_contracts::wire::encode(statement).unwrap();
-        std::fs::write(copy.join("statement.cbor"), &encoded).unwrap();
+        let encoded = ic_blob_storage_contracts::document::encode(statement).unwrap();
+        std::fs::write(copy.join("statement.wire"), &encoded).unwrap();
         let mut summary: Value =
             serde_json::from_slice(&std::fs::read(copy.join("summary.json")).unwrap()).unwrap();
         summary["observed_at_ns"] = json!(statement.observed_at_ns.to_string());
@@ -746,10 +747,10 @@ impl Serial {
         panic!("driver must finish within the two selected session budgets");
     }
     fn reference(&self, command: ReferenceCommand, label: &str) -> ReferenceMutationResponse {
-        let request = self.trial.report.join(format!("{label}.cbor"));
+        let request = self.trial.report.join(format!("{label}.wire"));
         std::fs::write(
             &request,
-            ic_blob_storage_contracts::wire::encode(command).unwrap(),
+            ic_blob_storage_contracts::document::encode(command).unwrap(),
         )
         .unwrap();
         let mut args = self
@@ -764,8 +765,9 @@ impl Serial {
         let report = self.trial.invoke(label, &args, 0);
         assert_eq!(report["outcome"], "recorded");
         let response: Result<ReferenceMutationResponse, crate::ReferenceFailure> =
-            ic_blob_storage_contracts::wire::decode(
-                &std::fs::read(self.trial.report.join(label).join("response.cbor")).unwrap(),
+            ic_blob_storage_contracts::wire::decode_response(
+                "blob_apply_reference",
+                &std::fs::read(self.trial.report.join(label).join("response.wire")).unwrap(),
                 ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
             )
             .unwrap();
@@ -882,7 +884,7 @@ impl Serial {
             "--request".into(),
             self.trial
                 .report
-                .join("shared-retain.cbor")
+                .join("shared-retain.wire")
                 .display()
                 .to_string(),
         ]);

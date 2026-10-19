@@ -1,6 +1,7 @@
 //! Signed local reservation/preparation/cancellation journey for the standalone host.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 mod inputs;
 mod phases;
 use crate::{
@@ -19,7 +20,7 @@ use std::{
 pub(crate) struct Client {
     base: Vec<String>,
     report: PathBuf,
-    temporary: tempfile::TempDir,
+    temporary: FixtureDirectory,
     count: Cell<u32>,
     permission: UploadManifestRequest,
     installation: ServiceInstallationInput,
@@ -76,7 +77,7 @@ impl Client {
         label: &str,
         installation: ServiceInstallationInput,
     ) -> Self {
-        let temporary = tempfile::tempdir().unwrap();
+        let temporary = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let report = std::env::var_os("BLOB_UPLOAD_SETUP_REPORT").map_or_else(
             || temporary.path().join(label),
             |p| PathBuf::from(p).join(label),
@@ -147,9 +148,9 @@ impl Client {
             self.report
                 .join("inputs")
                 .join(if command == "prepare-upload" {
-                    "manifest.cbor"
+                    "manifest.wire"
                 } else {
-                    "permission.cbor"
+                    "permission.wire"
                 })
                 .to_str()
                 .unwrap()
@@ -199,7 +200,7 @@ impl Client {
                 service: self.permission.permission.upload.service,
                 actor: actual,
                 method,
-                argument_file: "request.cbor",
+                argument_file: "request.wire",
             },
             reply,
         );
@@ -236,7 +237,7 @@ impl Client {
         change(
             &mut recovery,
             "--request",
-            directory.join("permission.cbor").to_str().unwrap(),
+            directory.join("permission.wire").to_str().unwrap(),
         );
         let observed = self.call(&recovery, 0);
         assert_eq!(observed["retry_authorized"], false);

@@ -11,6 +11,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
@@ -73,10 +74,10 @@ fn failed_receipt(
     status: &mut [String],
 ) -> Vec<String> {
     let before = f.harness.pic.get_stable_memory(f.service);
-    let path = directory.join("receipt.cbor");
+    let path = directory.join("receipt.wire");
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(ReferenceCommand {
+        ic_blob_storage_contracts::document::encode(ReferenceCommand {
             action: ReferenceAction::Release,
             ..input
         })
@@ -86,7 +87,7 @@ fn failed_receipt(
     assert_eq!(run(receipt, 3)["error"], "reference_conflict");
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(input).unwrap(),
+        ic_blob_storage_contracts::document::encode(input).unwrap(),
     )
     .unwrap();
     unchanged(f, &before);
@@ -115,10 +116,10 @@ fn failed_receipt(
     for fact in [ProviderFact::Deleted, ProviderFact::Settled] {
         f.fact(permission.request, fact).unwrap();
     }
-    let path = directory.join("failed.cbor");
+    let path = directory.join("failed.wire");
     std::fs::write(
         &path,
-        ic_blob_storage_contracts::wire::encode(failed).unwrap(),
+        ic_blob_storage_contracts::document::encode(failed).unwrap(),
     )
     .unwrap();
     live(f, receipt, status);
@@ -157,7 +158,7 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
         operation: u128::MAX,
         action: ReferenceAction::Retain,
     };
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let (mut receipt, mut status) =
         native_requests(&f.harness.pic, input, dir.path(), "http://127.0.0.1:1");
     live(&mut f, &mut receipt, &mut status);
@@ -224,8 +225,8 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
     );
     unchanged(&f, &before);
     assert_eq!(
-        std::fs::read(dir.path().join("receipt.cbor")).unwrap(),
-        ic_blob_storage_contracts::wire::encode(input).unwrap()
+        std::fs::read(dir.path().join("receipt.wire")).unwrap(),
+        ic_blob_storage_contracts::document::encode(input).unwrap()
     );
     f.harness.pic.stop_live();
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {

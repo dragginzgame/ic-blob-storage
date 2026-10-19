@@ -5,6 +5,7 @@ use blob_test_protocol::storage::{
     funding::{CreditCommand, Intent, Phase as FundingPhase},
     resources::{FundingCreditResources, FundingPopulationIntent, HistoryPopulationBatch},
 };
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::candid::decoder;
 use ic_testkit::pic::update_candid_args;
 
@@ -44,7 +45,7 @@ fn measured(
         &serde_json::json!({"result":format!("{reply:?}")}),
     );
     let reply = reply.unwrap();
-    retain_bytes(directory, &format!("{name}-reply.cbor"), &reply);
+    retain_bytes(directory, &format!("{name}-reply.wire"), &reply);
     let observation: FundingCreditResources =
         decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap();
     retain(
@@ -62,7 +63,7 @@ fn measured(
 #[test]
 fn credit_measurements_have_independent_exact_read_windows() {
     let f = Fixture::new();
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let batch = HistoryPopulationBatch {
         funding_start: 0,
         read_start: 0,
@@ -159,7 +160,7 @@ fn profile(directory: &Path, count: u32) {
         max_tenant_read_sessions: 1,
     })
     .unwrap();
-    retain_bytes(directory, "installation.cbor", &installation);
+    retain_bytes(directory, "installation.wire", &installation);
     harness.pic.install_canister(
         service,
         Fixture::wasm(),
@@ -211,7 +212,7 @@ fn profile(directory: &Path, count: u32) {
             }),
         );
         let reply = reply.unwrap();
-        retain_bytes(directory, &format!("population-{start}-reply.cbor"), &reply);
+        retain_bytes(directory, &format!("population-{start}-reply.wire"), &reply);
         assert_eq!(
             decoder::decode_one_with_config::<Result<(), Failure>>(
                 &reply,

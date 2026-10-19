@@ -143,7 +143,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     }
     let run = Run::create(&input.prepare.directory)?;
     run.bytes("inventory.json", &batch.inventory)?;
-    run.bytes("installation.cbor", &batch.installation.bytes)?;
+    run.bytes("installation.wire", &batch.installation.bytes)?;
     run.bytes("intent.json", &intent_bytes)?;
     if let Some(source) = &input.source_session {
         sources.record(&run, source)?;

@@ -1,6 +1,7 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod credits;
@@ -41,8 +42,8 @@ pub(super) fn retain_bytes(directory: &Path, name: &str, bytes: &[u8]) {
 
 #[test]
 fn retained_resource_artifacts_preserve_exact_bytes_and_refuse_replacement() {
-    let directory = tempfile::tempdir().unwrap();
-    retain_bytes(directory.path(), "request.cbor", b"original request");
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    retain_bytes(directory.path(), "request.wire", b"original request");
     retain(
         directory.path(),
         "report.json",
@@ -54,12 +55,12 @@ fn retained_resource_artifacts_preserve_exact_bytes_and_refuse_replacement() {
     );
     assert!(
         std::panic::catch_unwind(|| {
-            retain_bytes(directory.path(), "request.cbor", b"replacement");
+            retain_bytes(directory.path(), "request.wire", b"replacement");
         })
         .is_err()
     );
     assert_eq!(
-        std::fs::read(directory.path().join("request.cbor")).unwrap(),
+        std::fs::read(directory.path().join("request.wire")).unwrap(),
         b"original request"
     );
 }
@@ -101,7 +102,7 @@ fn wide_instruction_totals_survive_candid_and_retained_json() {
     let encoded = ic_platform::candid::contract::encode_one(rows.as_slice()).unwrap();
     let decoded: Vec<RestorationMemoryReads> =
         decoder::decode_one_with_config(&encoded, &decoder::DecoderConfig::new()).unwrap();
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     retain(
         directory.path(),
         "wide-reads.json",

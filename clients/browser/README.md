@@ -77,7 +77,7 @@ For native-prepared inputs, load `certificate-binding.json` from
 as `binding` above. It derives the existing key/service/tenant/uploader/operation/
 root fields and opaque permission bytes from one validated Rust permission, after
 complete body verification. Native preparation requires complete reviewed
-`installation.cbor`, checks the proposed service/namespace/project/trusted uploader
+`installation.wire`, checks the proposed service/namespace/project/trusted uploader
 and resource bounds, and retains those exact bytes/hash. Actual installed state
 and provider provisioning remain separate checks.
 `operation` is the original upload ID. The application
@@ -650,7 +650,7 @@ tenant or uploader authority. The receiving transport must bound buffering too.
 The consumer Chromium fixture passes that actual browser output through signed admission
 to the existing consumer canister, which retains asset intent and admits as the
 tenant. The browser then signs uploader preparation directly to the service before
-certificate issuance. Rust supplies/validates opaque service CBOR and separate
+certificate issuance. Rust supplies/validates opaque service Wire and separate
 Candid fixture controls using maintained types;
 the fixture does not duplicate those schemas in JavaScript. This consumer handshake
 is not a production consumer API, and never sends file bytes to the service.
@@ -671,7 +671,7 @@ read-state route. Redirects and automatic update fallback are refused.
 `binding` contains `service`, `tenant`, `uploader`, `operation`, `root`, `project`,
 `bucket`, `permission`
 and `key`. Operation is a canonical decimal u128 **string**; root is `sha256:`
-followed by 64 lowercase hex characters. Permission is the full original permission's CBOR bytes as a
+followed by 64 lowercase hex characters. Permission is the full original permission's Wire document bytes as a
 byte array, retained opaquely without reconstructing the Rust contract in JS.
 Key is `${service}:${tenant}:${operation}`. The caller must obtain these fields
 from the admitted permission. Local binding checks do not grant tenant authority;

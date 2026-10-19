@@ -18,7 +18,7 @@ pub enum ReferenceReplyError {
     /// Complete encoded response exceeds the configured application limit.
     #[error("reference reply exceeds limit")]
     Limit,
-    /// Malformed request or CBOR response.
+    /// Malformed request or Wire response.
     #[error("invalid reference reply")]
     Invalid,
     /// Authenticated service refused the request.
@@ -45,7 +45,8 @@ pub fn check_request(request: ReferenceCommand) -> Result<(), ReferenceReplyErro
 /// Rejects invalid identities/declarations or encoding failure.
 pub fn receipt_request(request: ReferenceCommand) -> Result<Vec<u8>, ReferenceReplyError> {
     check_request(request)?;
-    crate::wire::encode(request).map_err(|_| ReferenceReplyError::Invalid)
+    crate::wire::encode_request("blob_reference_receipt", request)
+        .map_err(|_| ReferenceReplyError::Invalid)
 }
 /// Decode a reply from an independently authenticated service. Absence, original
 /// success, original failure and lookup refusal remain distinct. Neither absence
@@ -58,7 +59,7 @@ pub fn decode(
     max_reply_bytes: NonZeroUsize,
 ) -> Result<ReferenceReceiptLookup, ReferenceReplyError> {
     check_request(request)?;
-    let response = bounded(bytes, max_reply_bytes)?;
+    let response = bounded("blob_reference_receipt", bytes, max_reply_bytes)?;
     if matches!(response, ReferenceReceiptLookup::Found(r) if r.request != request) {
         return Err(ReferenceReplyError::Binding);
     }
@@ -76,7 +77,8 @@ pub fn decode_mutation(
     max_reply_bytes: NonZeroUsize,
 ) -> Result<ReferenceMutationResponse, ReferenceReplyError> {
     check_request(request)?;
-    let response: ReferenceMutationResponse = bounded(bytes, max_reply_bytes)?;
+    let response: ReferenceMutationResponse =
+        bounded("blob_apply_reference", bytes, max_reply_bytes)?;
     if response.receipt.request != request {
         return Err(ReferenceReplyError::Binding);
     }
@@ -103,7 +105,8 @@ pub fn check_status_request(request: ReferenceStatusRequest) -> Result<(), Refer
 /// Rejects invalid identities/declarations or encoding failure.
 pub fn status_request(request: ReferenceStatusRequest) -> Result<Vec<u8>, ReferenceReplyError> {
     check_status_request(request)?;
-    crate::wire::encode(request).map_err(|_| ReferenceReplyError::Invalid)
+    crate::wire::encode_request("blob_reference_status", request)
+        .map_err(|_| ReferenceReplyError::Invalid)
 }
 
 /// Decode exact current liveness after independent service authentication.
@@ -116,22 +119,25 @@ pub fn decode_status(
     max_reply_bytes: NonZeroUsize,
 ) -> Result<ReferenceStatusResponse, ReferenceReplyError> {
     check_status_request(request)?;
-    let response: ReferenceStatusResponse = bounded(bytes, max_reply_bytes)?;
+    let response: ReferenceStatusResponse =
+        bounded("blob_reference_status", bytes, max_reply_bytes)?;
     if response.request != request {
         return Err(ReferenceReplyError::Binding);
     }
     Ok(response)
 }
 
-fn bounded<T: for<'de> Deserialize<'de>>(
+fn bounded<T: serde::Serialize + for<'de> Deserialize<'de>>(
+    method: &str,
     bytes: &[u8],
     max_reply_bytes: NonZeroUsize,
 ) -> Result<T, ReferenceReplyError> {
     if bytes.len() > max_reply_bytes.get() {
         return Err(ReferenceReplyError::Limit);
     }
-    let response: Result<T, ReferenceFailure> = crate::wire::decode(bytes, max_reply_bytes.get())
-        .map_err(|_| ReferenceReplyError::Invalid)?;
+    let response: Result<T, ReferenceFailure> =
+        crate::wire::decode_response(method, bytes, max_reply_bytes.get())
+            .map_err(|_| ReferenceReplyError::Invalid)?;
     response.map_err(ReferenceReplyError::Remote)
 }
 #[cfg(test)]

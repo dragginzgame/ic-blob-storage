@@ -43,19 +43,23 @@ impl Input {
     }
     fn argument(&self) -> Result<Vec<u8>, Failure> {
         match self.action {
-            Action::Sync => ic_blob_storage_contracts::wire::encode(self.scope),
-            Action::Cancel(sequence) => {
-                ic_blob_storage_contracts::wire::encode(GatewaySyncCancellation {
+            Action::Sync => {
+                ic_blob_storage_contracts::wire::encode_request(self.method(), self.scope)
+            }
+            Action::Cancel(sequence) => ic_blob_storage_contracts::wire::encode_request(
+                self.method(),
+                GatewaySyncCancellation {
                     scope: self.scope,
                     sequence,
-                })
-            }
-            Action::Revoke(gateway) => {
-                ic_blob_storage_contracts::wire::encode(GatewayRevocationRequest {
+                },
+            ),
+            Action::Revoke(gateway) => ic_blob_storage_contracts::wire::encode_request(
+                self.method(),
+                GatewayRevocationRequest {
                     scope: self.scope,
                     gateway,
-                })
-            }
+                },
+            ),
         }
         .map_err(|_| Failure::Arguments)
     }
@@ -89,7 +93,7 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
             service: input.scope.service,
             method: input.method(),
             argument: &argument,
-            argument_file: "request.cbor",
+            argument_file: "request.wire",
             directory: &input.directory,
             reply_limit: SMALL_REPLY_BYTES,
         },
@@ -111,7 +115,7 @@ fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
     match input.action {
         Action::Sync => {
             let reply: Result<GatewaySyncResponse, SyncError> =
-                super::reply::decode_small(bytes, Failure::ReplyLimit)?;
+                super::reply::decode_small("blob_sync_gateways", bytes, Failure::ReplyLimit)?;
             let reply = reply.map_err(Failure::GatewaySyncRefused)?;
             if reply.scope != input.scope {
                 return Err(Failure::Binding);
@@ -123,13 +127,13 @@ fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
         }
         Action::Cancel(sequence) => {
             let reply: Result<(), SyncError> =
-                super::reply::decode_small(bytes, Failure::ReplyLimit)?;
+                super::reply::decode_small("blob_cancel_gateway_sync", bytes, Failure::ReplyLimit)?;
             reply.map_err(Failure::GatewaySyncRefused)?;
             Ok(json!({"sequence":sequence.to_string()}))
         }
         Action::Revoke(gateway) => {
             let reply: Result<GatewayRevocationResponse, RevokeError> =
-                super::reply::decode_small(bytes, Failure::ReplyLimit)?;
+                super::reply::decode_small("blob_revoke_gateway", bytes, Failure::ReplyLimit)?;
             let reply = reply.map_err(Failure::GatewayRevocationRefused)?;
             if reply.request
                 != (GatewayRevocationRequest {

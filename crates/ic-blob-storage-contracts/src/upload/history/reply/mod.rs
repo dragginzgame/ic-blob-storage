@@ -87,7 +87,8 @@ fn check(input: UploadHistoryRequest) -> Result<(), UploadHistoryReplyError> {
 /// Rejects malformed identities and a foreign or malformed saved cursor.
 pub fn request(input: UploadHistoryRequest) -> Result<Vec<u8>, UploadHistoryReplyError> {
     check(input)?;
-    crate::wire::encode(input).map_err(|_| UploadHistoryReplyError::Invalid)
+    crate::wire::encode_request("blob_upload_history", input)
+        .map_err(|_| UploadHistoryReplyError::Invalid)
 }
 fn position(c: UploadHistoryCursor) -> (Principal, u128) {
     (c.after_tenant, c.after_request)
@@ -124,7 +125,7 @@ pub fn page(
         return Err(UploadHistoryReplyError::Limit);
     }
     let page: Result<UploadHistoryPage, UploadHistoryFailure> =
-        crate::wire::decode(bytes, limits.bytes.get())
+        crate::wire::decode_response("blob_upload_history", bytes, limits.bytes.get())
             .map_err(|_| UploadHistoryReplyError::Invalid)?;
     let page = page.map_err(UploadHistoryReplyError::Remote)?;
     if page.request != input {

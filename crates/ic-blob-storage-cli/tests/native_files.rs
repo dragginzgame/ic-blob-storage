@@ -1,5 +1,6 @@
 //! Subprocess evidence for rejecting a blocking input before transport setup.
 #![cfg(unix)]
+use ic_host_fs::testing::FixtureDirectory;
 use std::{
     process::{Command, Stdio},
     time::{Duration, Instant},
@@ -7,7 +8,7 @@ use std::{
 
 #[test]
 fn fifo_cursor_without_a_writer_returns_typed_file_refusal_promptly() {
-    let root = tempfile::tempdir().unwrap();
+    let root = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let cursor = root.path().join("cursor");
     assert!(
         Command::new("mkfifo")

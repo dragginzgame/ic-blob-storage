@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::json;
 
@@ -20,22 +21,22 @@ fn agent() -> (Agent, Principal) {
 #[test]
 fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() {
     let (agent, actor) = agent();
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let directory = base.path().join("attempt");
     let service = Principal::self_authenticating([7]);
-    let argument = ic_blob_storage_contracts::wire::encode(42u64).unwrap();
+    let argument = ic_blob_storage_contracts::document::encode(42u64).unwrap();
     let input = || UpdateInput {
         service,
         method: "test_update",
         argument: &argument,
-        argument_file: "request.cbor",
+        argument_file: "request.wire",
         directory: &directory,
         reply_limit: SMALL_REPLY_BYTES,
     };
     let prepared = PreparedUpdate::claim(&agent, input(), || json!({"operation":"test"})).unwrap();
     let packet = std::fs::read(directory.join("signed-request.cbor")).unwrap();
     assert_eq!(
-        std::fs::read(directory.join("request.cbor")).unwrap(),
+        std::fs::read(directory.join("request.wire")).unwrap(),
         argument
     );
     ic_platform::agent::signed_update_inspect(
@@ -103,7 +104,7 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
 fn historical_reader_accepts_expired_correspondence_and_refuses_corrupt_claims() {
     let (agent, actor) = agent();
     let service = Principal::self_authenticating([7]);
-    let argument = ic_blob_storage_contracts::wire::encode(42u64).unwrap();
+    let argument = ic_blob_storage_contracts::document::encode(42u64).unwrap();
     let signed = agent
         .update(&service, "test_update")
         .with_arg(argument.clone())
@@ -176,13 +177,13 @@ impl Serialize for FailedIntent {
 #[test]
 fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
     let (agent, _) = agent();
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let directory = base.path().join("attempt");
     let input = || UpdateInput {
         service: Principal::self_authenticating([7]),
         method: "test_update",
         argument: b"request",
-        argument_file: "request.cbor",
+        argument_file: "request.wire",
         directory: &directory,
         reply_limit: SMALL_REPLY_BYTES,
     };
@@ -191,7 +192,7 @@ fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
         Err(Failure::File)
     ));
     assert_eq!(
-        std::fs::read(directory.join("request.cbor")).unwrap(),
+        std::fs::read(directory.join("request.wire")).unwrap(),
         b"request"
     );
     assert!(directory.join("signed-request.cbor").is_file());
@@ -204,7 +205,7 @@ fn failed_intent_retains_packets_and_permanent_claim_without_dispatch() {
 
 #[test]
 fn completion_retains_present_pending_and_failed_observations_before_returning() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     for (name, response, expected, failure) in [
         ("present", Ok(Some(vec![7])), Some(7), None),
         ("pending", Ok(None), None, None),
@@ -258,7 +259,7 @@ fn completion_retains_present_pending_and_failed_observations_before_returning()
 
 #[test]
 fn completion_write_failure_preserves_existing_evidence_and_precedes_remote_failure() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = base.path().join("occupied-outcome");
     let run = Run::create(&path).unwrap();
     run.bytes("outcome.json", b"original evidence").unwrap();

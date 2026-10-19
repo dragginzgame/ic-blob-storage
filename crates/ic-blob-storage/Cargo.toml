@@ -24,7 +24,6 @@ thiserror.workspace = true
 [dev-dependencies]
 hex.workspace = true
 ic-memory = { workspace = true, features = ["test-support"] }
-tempfile.workspace = true
 
 [lints]
 workspace = true

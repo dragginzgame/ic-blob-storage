@@ -38,8 +38,13 @@ struct Inspection {
 fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
     let request: ReferenceStatusRequest = match input.kind {
         Kind::Receipt => {
-            let (request, argument) =
-                command(input.service, input.namespace, &input.request, actor)?;
+            let (request, argument) = command(
+                REFERENCE_RECEIPT_METHOD,
+                input.service,
+                input.namespace,
+                &input.request,
+                actor,
+            )?;
             return Ok(Inspection {
                 request: Request::Receipt(request),
                 argument,
@@ -61,13 +66,16 @@ fn open(input: &Input, actor: Principal) -> Result<Inspection, Failure> {
     })
 }
 pub(super) fn command(
+    method: &str,
     service: Principal,
     namespace: u128,
     path: &Path,
     actor: Principal,
 ) -> Result<(ReferenceCommand, Vec<u8>), Failure> {
     let request: ReferenceCommand = crate::native::exact_wire::decode(&read(path, 4096)?, 4096)?;
-    let argument = reply::receipt_request(request).map_err(|_| Failure::Arguments)?;
+    reply::check_request(request).map_err(|_| Failure::Arguments)?;
+    let argument = ic_blob_storage_contracts::wire::encode_request(method, request)
+        .map_err(|_| Failure::Arguments)?;
     if request.upload.service != service || request.upload.namespace != namespace {
         return Err(Failure::Binding);
     }

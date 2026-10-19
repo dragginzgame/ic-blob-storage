@@ -12,7 +12,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
-use ic_blob_storage_contracts::wire;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
@@ -72,7 +72,7 @@ fn input(f: &Fixture, id: u8) -> Run {
 fn register(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "register",
@@ -84,19 +84,19 @@ fn register(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
 fn asset(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .query_blob_as(f.tenant, f.operator, "asset", id, REPLY_LIMITS.reply_bytes)
+        .query_control_as(f.tenant, f.operator, "asset", id, REPLY_LIMITS.reply_bytes)
         .unwrap()
 }
 fn cancel(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(f.tenant, f.operator, "cancel", id, REPLY_LIMITS.reply_bytes)
+        .update_control_as(f.tenant, f.operator, "cancel", id, REPLY_LIMITS.reply_bytes)
         .unwrap()
 }
 fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "release",
@@ -111,7 +111,7 @@ fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
 fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "recover",
@@ -123,7 +123,7 @@ fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFa
 fn use_asset(f: &Fixture, attach: bool) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "use_asset",
@@ -148,28 +148,19 @@ fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
 }
 #[test]
 fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
-    #[derive(serde::Serialize)]
-    struct UnexpectedRun<'a> {
-        #[serde(flatten)]
-        run: &'a Run,
-        unexpected: bool,
-    }
     let f = fixture();
     let input = input(&f, 1);
-    let original = wire::encode(&input).unwrap();
+    let original = ic_blob_storage_contracts::document::encode(&input).unwrap();
     let mut truncated = original.clone();
     truncated.pop();
     let mut trailing = original.clone();
     trailing.push(0);
-    let unknown = wire::encode(UnexpectedRun {
-        run: &input,
-        unexpected: true,
-    })
-    .unwrap();
+    let unknown = ic_blob_storage_contracts::document::encode((&input, true)).unwrap();
     let consumer_before = f.harness.pic.get_stable_memory(f.tenant);
     let service_before = f.harness.pic.get_stable_memory(f.service);
     for (method, bytes) in [
         ("register", Vec::new()),
+        ("resume", vec![0xf6]),
         ("register", truncated),
         ("register", trailing),
         ("register", vec![0; 4097]),
@@ -203,7 +194,7 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
             f.tenant,
             f.operator,
             "register",
-            ic_blob_storage_contracts::wire::encode(&input).unwrap(),
+            ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
         .unwrap();
     let mut held = false;
@@ -212,7 +203,7 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
         let waiting: Result<bool, ConsumerFailure> = f
             .harness
             .pic
-            .query_blob_as(
+            .query_control_as(
                 f.tenant,
                 f.operator,
                 "waiting",
@@ -239,10 +230,10 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
     let resumed: Result<(), ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(f.tenant, f.operator, "resume", (), REPLY_LIMITS.reply_bytes)
+        .update_control_as(f.tenant, f.operator, "resume", (), REPLY_LIMITS.reply_bytes)
         .unwrap();
     resumed.unwrap();
-    let result: Result<AssetView, ConsumerFailure> = wire::decode(
+    let result: Result<AssetView, ConsumerFailure> = ic_blob_storage_contracts::document::decode(
         &f.harness.pic.await_call(call).unwrap(),
         REPLY_LIMITS.reply_bytes,
     )
@@ -274,7 +265,7 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
                 f.tenant,
                 f.operator,
                 "register",
-                ic_blob_storage_contracts::wire::encode(&input).unwrap(),
+                ic_blob_storage_contracts::document::encode(&input).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -328,7 +319,7 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
             f.tenant,
             f.operator,
             "release",
-            ic_blob_storage_contracts::wire::encode(Release {
+            ic_blob_storage_contracts::document::encode(Release {
                 asset: 1,
                 fault: Fault::AfterRelease,
             })
@@ -385,7 +376,7 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
     let denied: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.other,
             "register",
@@ -418,7 +409,7 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
             f.tenant,
             f.operator,
             "register",
-            ic_blob_storage_contracts::wire::encode(&input).unwrap(),
+            ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);

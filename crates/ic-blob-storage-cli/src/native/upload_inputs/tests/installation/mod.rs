@@ -1,5 +1,6 @@
 //! Mismatched or malformed installation candidates produce no usable upload files.
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 
 #[test]
 fn one_installation_prepares_exact_permissions_for_two_distinct_uploaders() {
@@ -8,19 +9,19 @@ fn one_installation_prepares_exact_permissions_for_two_distinct_uploaders() {
         Principal::self_authenticating([3]),
         Principal::self_authenticating([9]),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut input = binding();
         input["uploader"] = json!(uploader.to_text());
         let args = arguments(base.path(), &input, &manifest());
         crate::native::execute(&args).unwrap();
         let output = base.path().join("output");
-        let permission: UploadAdmissionRequest = ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(output.join("permission.cbor")).unwrap(),
+        let permission: UploadAdmissionRequest = ic_blob_storage_contracts::document::decode(
+            &std::fs::read(output.join("permission.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
         assert_eq!(permission.uploader, uploader);
-        let installation = std::fs::read(output.join("installation.cbor")).unwrap();
+        let installation = std::fs::read(output.join("installation.wire")).unwrap();
         if let Some(original) = &retained_installation {
             assert_eq!(&installation, original);
         } else {
@@ -41,14 +42,14 @@ fn different_installation_bindings_and_invalid_models_refuse_before_output() {
         |input| input.configuration.funding.reserve = input.configuration.funding.allocated + 1,
     ];
     for change in setters {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let input = binding();
         let args = arguments(base.path(), &input, &manifest());
         let mut candidate = installation(&input);
         change(&mut candidate);
         std::fs::write(
-            base.path().join("installation.cbor"),
-            ic_blob_storage_contracts::wire::encode(candidate).unwrap(),
+            base.path().join("installation.wire"),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", candidate).unwrap(),
         )
         .unwrap();
         assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
@@ -59,9 +60,12 @@ fn different_installation_bindings_and_invalid_models_refuse_before_output() {
 #[test]
 fn exact_candidate_decoding_and_file_bounds_refuse_before_output() {
     let candidate = installation(&binding());
-    let mut trailing = ic_blob_storage_contracts::wire::encode(&candidate).unwrap();
+    let mut trailing =
+        ic_blob_storage_contracts::wire::encode_request("blob_install", &candidate).unwrap();
     trailing.push(0);
-    let extended = ic_blob_storage_contracts::wire::encode((candidate.clone(), true)).unwrap();
+    let extended =
+        ic_blob_storage_contracts::wire::encode_request("blob_install", (candidate.clone(), true))
+            .unwrap();
     for (bytes, expected) in [
         (b"not candid".to_vec(), Failure::Arguments),
         (vec![], Failure::File),
@@ -70,19 +74,20 @@ fn exact_candidate_decoding_and_file_bounds_refuse_before_output() {
             Failure::File,
         ),
         (
-            ic_blob_storage_contracts::wire::encode((&candidate, ())).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", (&candidate, false))
+                .unwrap(),
             Failure::Arguments,
         ),
         (extended, Failure::Arguments),
         (trailing, Failure::Arguments),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let args = arguments(base.path(), &binding(), &manifest());
-        std::fs::write(base.path().join("installation.cbor"), bytes).unwrap();
+        std::fs::write(base.path().join("installation.wire"), bytes).unwrap();
         assert_eq!(crate::native::execute(&args), Err(expected));
         assert!(!base.path().join("output").exists());
     }
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let mut args = arguments(base.path(), &binding(), &manifest());
     let index = args
         .iter()
@@ -101,13 +106,13 @@ fn valid_installed_object_and_header_bounds_constrain_preparation() {
         |input| input.configuration.resources.max_header_bytes = 32,
     ];
     for change in setters {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let args = arguments(base.path(), &binding(), &manifest());
         let mut candidate = installation(&binding());
         change(&mut candidate);
         std::fs::write(
-            base.path().join("installation.cbor"),
-            ic_blob_storage_contracts::wire::encode(candidate).unwrap(),
+            base.path().join("installation.wire"),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", candidate).unwrap(),
         )
         .unwrap();
         assert_eq!(

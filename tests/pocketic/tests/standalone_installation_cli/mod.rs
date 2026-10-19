@@ -5,6 +5,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::endpoints::{MethodCodec, MethodMode, SERVICE_METHODS};
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use std::path::Path;
 
 #[test]
@@ -107,13 +108,13 @@ fn record_trial(f: &Fixture, installation: &[u8], view: &HostConfigurationView) 
     std::fs::create_dir(path).unwrap();
     for (name, bytes) in [
         (
-            "configuration.cbor",
-            ic_blob_storage_contracts::wire::encode(f.config).unwrap(),
+            "configuration.wire",
+            ic_blob_storage_contracts::document::encode(f.config).unwrap(),
         ),
-        ("installation.cbor", installation.to_vec()),
+        ("installation.wire", installation.to_vec()),
         (
-            "readback.cbor",
-            ic_blob_storage_contracts::wire::encode(view).unwrap(),
+            "readback.wire",
+            ic_blob_storage_contracts::document::encode(view).unwrap(),
         ),
         (
             "summary.json",
@@ -139,7 +140,7 @@ fn record_trial(f: &Fixture, installation: &[u8], view: &HostConfigurationView) 
 }
 
 fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) -> Vec<u8> {
-    let source = directory.join("input.cbor");
+    let source = directory.join("input.json");
     let output = directory.join("output");
     std::fs::write(&source, serde_json::to_vec(&f.config).unwrap()).unwrap();
     let args = [
@@ -159,7 +160,7 @@ fn carrier(f: &Fixture, directory: &Path, project: &str, verifier: Principal) ->
     ]
     .map(str::to_owned);
     let report = run(&args, 0);
-    let bytes = std::fs::read(output.join("installation.cbor")).unwrap();
+    let bytes = std::fs::read(output.join("installation.wire")).unwrap();
     assert_eq!(report["host_init_encoded"], true);
     assert_eq!(report["platform_identity_checked"], false);
     assert_eq!(report["installation_dispatched"], false);
@@ -182,7 +183,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     }
     let stable = f.harness.pic.get_stable_memory(f.service);
     f.config = trial_configuration(&f);
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let verifier = Fake::principal(92);
     f.uploader = Fake::principal(91);
     // The checker can only validate the proposed identity. The installed host
@@ -202,7 +203,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     unchanged(&f.harness.pic.get_stable_memory(f.service), &stable);
 
     f.config.service = f.service;
-    let correct = tempfile::tempdir().unwrap();
+    let correct = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let bytes = carrier(&f, correct.path(), "standalone-trial", verifier);
     install_code::settle_install_code_debt(&f.harness.pic);
     // Only this empty local fixture is reinstalled: no provider objects, effects

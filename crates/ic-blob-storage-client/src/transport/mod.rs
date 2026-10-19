@@ -20,8 +20,8 @@ pub(super) async fn call<A: serde::Serialize>(
     timeout: NonZeroU32,
     argument: A,
 ) -> Result<Response, ClientCallError> {
-    let bytes =
-        ic_blob_storage_contracts::wire::encode(argument).map_err(|_| ClientCallError::Encoding)?;
+    let bytes = ic_blob_storage_contracts::wire::encode_request(method, argument)
+        .map_err(|_| ClientCallError::Encoding)?;
     call_raw(service, method, timeout, &bytes).await
 }
 /// Send the caller's already encoded method-bound request once, without retry.

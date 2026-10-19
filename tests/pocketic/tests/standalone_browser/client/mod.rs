@@ -12,6 +12,7 @@ use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLim
 use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use std::{
     num::{NonZeroU64, NonZeroUsize},
@@ -36,7 +37,7 @@ pub(super) struct Trial {
     pub f: Fixture,
     pub url: String,
     pub report: PathBuf,
-    _temporary: tempfile::TempDir,
+    _temporary: FixtureDirectory,
 }
 fn limits() -> CaffeineManifestLimits {
     CaffeineManifestLimits {
@@ -72,7 +73,7 @@ impl Trial {
         );
         f.tenant = principal(43);
         f.enroll(f.operator).unwrap();
-        let temporary = tempfile::tempdir().unwrap();
+        let temporary = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let report = std::env::var_os("BLOB_STANDALONE_BROWSER_REPORT")
             .map_or_else(|| temporary.path().to_path_buf(), PathBuf::from)
             .join(label);
@@ -168,17 +169,17 @@ impl Trial {
             completion_verifier: host.completion_verifier,
         };
         std::fs::write(
-            self.report.join("installation.cbor"),
-            ic_blob_storage_contracts::wire::encode(carrier).unwrap(),
+            self.report.join("installation.wire"),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", carrier).unwrap(),
         )
         .unwrap();
         self.freeze();
         assert_eq!(
-            std::fs::read(self.report.join("inputs/installation.cbor")).unwrap(),
-            std::fs::read(self.report.join("installation.cbor")).unwrap()
+            std::fs::read(self.report.join("inputs/installation.wire")).unwrap(),
+            std::fs::read(self.report.join("installation.wire")).unwrap()
         );
-        let generated = ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(self.report.join("inputs/file-0000/manifest.cbor")).unwrap(),
+        let generated = ic_blob_storage_contracts::document::decode(
+            &std::fs::read(self.report.join("inputs/file-0000/manifest.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
@@ -206,7 +207,7 @@ impl Trial {
             "--root",
             self.report.to_str().unwrap(),
             "--installation",
-            self.report.join("installation.cbor").to_str().unwrap(),
+            self.report.join("installation.wire").to_str().unwrap(),
             "--max-bytes",
             "1024",
             "--max-total-bytes",
@@ -306,7 +307,7 @@ impl Trial {
         args.extend([
             "--permission".into(),
             self.report
-                .join("inputs/file-0000/permission.cbor")
+                .join("inputs/file-0000/permission.wire")
                 .display()
                 .to_string(),
             "--gateway".into(),
@@ -349,10 +350,10 @@ impl Trial {
             incarnation: u.incarnation,
             reference,
         };
-        let file = self.report.join(format!("{label}.cbor"));
+        let file = self.report.join(format!("{label}.wire"));
         std::fs::write(
             &file,
-            ic_blob_storage_contracts::wire::encode(request).unwrap(),
+            ic_blob_storage_contracts::document::encode(request).unwrap(),
         )
         .unwrap();
         let mut args = self.args("download", "tenant.pem", self.f.tenant);
@@ -382,8 +383,8 @@ impl Trial {
             action: ReferenceAction::Release,
         };
         std::fs::write(
-            self.report.join("release-intent.cbor"),
-            ic_blob_storage_contracts::wire::encode(command).unwrap(),
+            self.report.join("release-intent.wire"),
+            ic_blob_storage_contracts::document::encode(command).unwrap(),
         )
         .unwrap();
         let result: Result<ReferenceMutationResponse, ReferenceFailure> = self

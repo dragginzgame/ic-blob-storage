@@ -32,7 +32,7 @@ pub enum DownloadReplyError {
     /// Encoded bytes, declared content or metadata exceed trusted limits.
     #[error("descriptor exceeds limit")]
     Limit,
-    /// Malformed CBOR, invalid identity or inconsistent metadata.
+    /// Malformed Wire, invalid identity or inconsistent metadata.
     #[error("invalid descriptor reply")]
     Invalid,
     /// Typed refusal by the authenticated service.
@@ -75,9 +75,12 @@ pub fn decode(
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(DownloadReplyError::Limit);
     }
-    let response: Result<DownloadResponse, DownloadFailure> =
-        crate::wire::decode(bytes, limits.max_reply_bytes.get())
-            .map_err(|_| DownloadReplyError::Invalid)?;
+    let response: Result<DownloadResponse, DownloadFailure> = crate::wire::decode_response(
+        "blob_download_descriptor",
+        bytes,
+        limits.max_reply_bytes.get(),
+    )
+    .map_err(|_| DownloadReplyError::Invalid)?;
     let response = response.map_err(DownloadReplyError::Remote)?;
     if response.request != request
         || response.owner != scope.owner()

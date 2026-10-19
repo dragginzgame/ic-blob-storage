@@ -20,13 +20,17 @@ pub fn decode(
     bytes: &[u8],
     limits: UploadManifestReplyLimits,
 ) -> Result<UploadVerificationPlan, UploadAttestationReplyError> {
-    inspection_request(authority, permission)?;
+    inspection_request("blob_verification_plan", authority, permission)?;
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(UploadAttestationReplyError::Limit);
     }
     let response: Result<UploadVerificationPlan, UploadAttestationFailure> =
-        crate::wire::decode(bytes, limits.max_reply_bytes.get())
-            .map_err(|_| UploadAttestationReplyError::Invalid)?;
+        crate::wire::decode_response(
+            "blob_verification_plan",
+            bytes,
+            limits.max_reply_bytes.get(),
+        )
+        .map_err(|_| UploadAttestationReplyError::Invalid)?;
     let response = response.map_err(UploadAttestationReplyError::Remote)?;
     if response.permission != permission
         || response.verifier != authority.verifier()

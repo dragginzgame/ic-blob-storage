@@ -1,16 +1,17 @@
 use super::*;
 use crate::native::{execute, upload_inputs::tests as fixture};
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
+use ic_host_fs::testing::FixtureDirectory;
 use std::fs;
 
 struct Trial {
-    base: tempfile::TempDir,
+    base: FixtureDirectory,
     inventory: Value,
     installation: ServiceInstallationInput,
 }
 impl Trial {
     fn new() -> Self {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut files = Vec::new();
         for index in 0..2 {
             let mut binding = fixture::binding();
@@ -77,8 +78,9 @@ impl Trial {
         )
         .unwrap();
         fs::write(
-            self.base.path().join("installation.cbor"),
-            ic_blob_storage_contracts::wire::encode(&self.installation).unwrap(),
+            self.base.path().join("installation.wire"),
+            ic_blob_storage_contracts::wire::encode_request("blob_install", &self.installation)
+                .unwrap(),
         )
         .unwrap();
         vec![
@@ -94,7 +96,7 @@ impl Trial {
             "--installation".into(),
             self.base
                 .path()
-                .join("installation.cbor")
+                .join("installation.wire")
                 .display()
                 .to_string(),
             "--max-bytes".into(),
@@ -146,8 +148,8 @@ fn serial_snapshots_bind_the_inventory_and_survive_source_change_without_overwri
         let directory = trial.output().join(name);
         assert_eq!(fs::read(directory.join("body.bin")).unwrap(), b"abc");
         let permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest =
-            ic_blob_storage_contracts::wire::decode(
-                &fs::read(directory.join("permission.cbor")).unwrap(),
+            ic_blob_storage_contracts::document::decode(
+                &fs::read(directory.join("permission.wire")).unwrap(),
                 ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
             )
             .unwrap();
@@ -263,12 +265,12 @@ fn corrupt_later_body_retains_completed_inputs_and_failure_without_a_batch_succe
         fs::read(trial.output().join("file-0000/body.bin")).unwrap(),
         b"abc"
     );
-    assert!(trial.output().join("file-0000/permission.cbor").is_file());
+    assert!(trial.output().join("file-0000/permission.wire").is_file());
     assert_eq!(
         fs::read(trial.output().join("file-0001/body.part")).unwrap(),
         b"abd"
     );
-    assert!(!trial.output().join("file-0001/permission.cbor").exists());
+    assert!(!trial.output().join("file-0001/permission.wire").exists());
     assert!(!trial.output().join("summary.json").exists());
     let failure: Value =
         serde_json::from_slice(&fs::read(trial.output().join("failure.json")).unwrap()).unwrap();
@@ -286,7 +288,7 @@ fn inventory_raw_digest_must_match_verified_body_before_usable_requests() {
         fs::read(trial.output().join("file-0000/body.bin")).unwrap(),
         b"abc"
     );
-    assert!(!trial.output().join("file-0000/permission.cbor").exists());
+    assert!(!trial.output().join("file-0000/permission.wire").exists());
     assert!(!trial.output().join("summary.json").exists());
 }
 

@@ -45,7 +45,11 @@ fn response() -> Response {
     }
 }
 fn bytes(value: &Response) -> Vec<u8> {
-    ic_blob_storage_contracts::wire::encode(Ok::<_, E>(value)).unwrap()
+    ic_blob_storage_contracts::wire::encode_response(
+        "blob_funding_preparation_assessment",
+        Ok::<_, E>(value),
+    )
+    .unwrap()
 }
 fn arguments() -> Vec<String> {
     let r = request();
@@ -124,7 +128,11 @@ fn decoder_preserves_contract_refusal_codes() {
         assert_eq!(
             decode(
                 request(),
-                &ic_blob_storage_contracts::wire::encode(Err::<Response, _>(error)).unwrap()
+                &ic_blob_storage_contracts::wire::encode_response(
+                    "blob_funding_preparation_assessment",
+                    Err::<Response, _>(error)
+                )
+                .unwrap()
             ),
             Err(Failure::FundingAssessmentRefused(error)),
         );

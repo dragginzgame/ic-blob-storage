@@ -134,8 +134,8 @@ pub(in crate::native) async fn run_selected(
         )?;
     }
     let (permission, manifest) = selected.setup_requests();
-    run.bytes("permission.cbor", permission)?;
-    run.bytes("manifest.cbor", manifest)?;
+    run.bytes("permission.wire", permission)?;
+    run.bytes("manifest.wire", manifest)?;
     let context = progress::Context {
         options,
         tenant,

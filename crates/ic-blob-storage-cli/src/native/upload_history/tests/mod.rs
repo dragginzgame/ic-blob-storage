@@ -3,6 +3,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
+use ic_host_fs::testing::FixtureDirectory;
 
 fn input() -> Input {
     Input {
@@ -47,7 +48,7 @@ fn arguments() -> Vec<String> {
 
 #[test]
 fn saved_continuation_round_trips_and_foreign_or_malformed_scope_rejects_before_transport() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = dir.path().join("cursor.json");
     let cursor = cursor::output(position());
     std::fs::write(&path, cursor.to_string()).unwrap();
@@ -96,7 +97,9 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
         next: Some(position()),
         fenced: true,
     };
-    let encoded = ic_blob_storage_contracts::wire::encode(Ok::<_, F>(&page)).unwrap();
+    let encoded =
+        ic_blob_storage_contracts::wire::encode_response("blob_upload_history", Ok::<_, F>(&page))
+            .unwrap();
     let value = output(&options, input, &encoded).unwrap();
     assert_eq!(value["entries"], json!([]));
     assert_eq!(value["scanned"], "64");
@@ -122,7 +125,8 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
     let value = output(
         &options,
         input,
-        &ic_blob_storage_contracts::wire::encode(Ok::<_, F>(page)).unwrap(),
+        &ic_blob_storage_contracts::wire::encode_response("blob_upload_history", Ok::<_, F>(page))
+            .unwrap(),
     )
     .unwrap();
     assert_eq!(value["entries"][0]["state"], "exposure_possible");
@@ -137,7 +141,8 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
         output(
             &options,
             input,
-            &ic_blob_storage_contracts::wire::encode(denied).unwrap()
+            &ic_blob_storage_contracts::wire::encode_response("blob_upload_history", denied)
+                .unwrap()
         ),
         Err(Failure::Denied)
     );

@@ -4,7 +4,9 @@ use crate::dto::reference::ReferenceReceiptResponse;
 use crate::dto::reference::ReferenceTransitionFailure;
 use crate::dto::reference::ReferenceUpload;
 use crate::reference::reply::*;
-use crate::wire::encode;
+fn encode<T: serde::Serialize>(value: T) -> Result<Vec<u8>, crate::wire::Error> {
+    crate::wire::encode_response("blob_reference_receipt", value)
+}
 use ic_platform::Principal;
 fn request() -> ReferenceCommand {
     ReferenceCommand {
@@ -31,7 +33,8 @@ fn encoded(value: Result<ReferenceReceiptLookup, ReferenceFailure>) -> Vec<u8> {
 fn passive_request_encoders_preserve_independent_identities_and_validate_inputs() {
     let r = request();
     assert_eq!(
-        crate::wire::decode::<ReferenceCommand>(
+        crate::wire::decode_request::<ReferenceCommand>(
+            "blob_reference_receipt",
             &receipt_request(r).unwrap(),
             crate::wire::MAX_MESSAGE_BYTES
         )
@@ -43,7 +46,8 @@ fn passive_request_encoders_preserve_independent_identities_and_validate_inputs(
         reference: r.reference,
     };
     assert_eq!(
-        crate::wire::decode::<ReferenceStatusRequest>(
+        crate::wire::decode_request::<ReferenceStatusRequest>(
+            "blob_reference_status",
             &status_request(s).unwrap(),
             crate::wire::MAX_MESSAGE_BYTES
         )
@@ -232,7 +236,11 @@ fn mutation_reply_keeps_inner_failure_distinct_and_rejects_foreign_or_incomplete
                 replayed,
                 receipt: ReferenceReceiptResponse { request, result },
             };
-            let bytes = encode(Ok::<_, ReferenceFailure>(response)).unwrap();
+            let bytes = crate::wire::encode_response(
+                "blob_apply_reference",
+                Ok::<_, ReferenceFailure>(response),
+            )
+            .unwrap();
             assert_eq!(decode_mutation(request, &bytes, max), Ok(response));
             assert_eq!(
                 decode_mutation(request, &bytes, 1.try_into().unwrap()),
@@ -254,13 +262,17 @@ fn mutation_reply_keeps_inner_failure_distinct_and_rejects_foreign_or_incomplete
     let refusal: Result<ReferenceMutationResponse, ReferenceFailure> =
         Err(ReferenceFailure::Capacity);
     assert_eq!(
-        decode_mutation(request, &encode(refusal).unwrap(), max),
+        decode_mutation(
+            request,
+            &crate::wire::encode_response("blob_apply_reference", refusal).unwrap(),
+            max
+        ),
         Err(ReferenceReplyError::Remote(ReferenceFailure::Capacity))
     );
     for bytes in [
         b"not candid".to_vec(),
         encoded(Ok(ReferenceReceiptLookup::Absent)),
-        encode(17_u64).unwrap(),
+        crate::wire::encode_response("blob_apply_reference", 17_u64).unwrap(),
     ] {
         assert_eq!(
             decode_mutation(request, &bytes, max),
@@ -270,6 +282,10 @@ fn mutation_reply_keeps_inner_failure_distinct_and_rejects_foreign_or_incomplete
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One full original binding is checked through every refusal"
+)]
 fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_failures() {
     let command = request();
     let request = ReferenceStatusRequest {
@@ -283,7 +299,11 @@ fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_fai
             live,
             fenced,
         };
-        let bytes = encode(Ok::<_, ReferenceFailure>(response)).unwrap();
+        let bytes = crate::wire::encode_response(
+            "blob_reference_status",
+            Ok::<_, ReferenceFailure>(response),
+        )
+        .unwrap();
         assert_eq!(decode_status(request, &bytes, limit), Ok(response));
         assert_eq!(
             decode_status(request, &bytes, NonZeroUsize::MIN),
@@ -346,11 +366,14 @@ fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_fai
         altered.push(ReferenceStatusRequest { upload, ..request });
     }
     for changed in altered {
-        let bytes = encode(Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
-            request: changed,
-            live: true,
-            fenced: false,
-        }))
+        let bytes = crate::wire::encode_response(
+            "blob_reference_status",
+            Ok::<_, ReferenceFailure>(ReferenceStatusResponse {
+                request: changed,
+                live: true,
+                fenced: false,
+            }),
+        )
         .unwrap();
         assert_eq!(
             decode_status(request, &bytes, limit),
@@ -361,7 +384,11 @@ fn reference_status_reply_preserves_fences_and_rejects_binding_size_and_wire_fai
         decode_status(request, b"DIDL", limit),
         Err(ReferenceReplyError::Invalid)
     );
-    let denied = encode(Err::<ReferenceStatusResponse, _>(ReferenceFailure::Denied)).unwrap();
+    let denied = crate::wire::encode_response(
+        "blob_reference_status",
+        Err::<ReferenceStatusResponse, _>(ReferenceFailure::Denied),
+    )
+    .unwrap();
     assert_eq!(
         decode_status(request, &denied, limit),
         Err(ReferenceReplyError::Remote(ReferenceFailure::Denied))

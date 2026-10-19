@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 use serde_json::{Value, json};
 
 pub(in crate::operator::inventory) fn encoded() -> Value {
@@ -33,7 +34,7 @@ fn accepts_prepared_inventory_and_preserves_duplicate_asset_demand() {
 
 #[test]
 fn loads_bounded_regular_inventory_files_with_existing_refusals() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = directory.path().join("inventory.json");
     let mut bytes = serde_json::to_vec(&encoded()).unwrap();
     bytes.resize(usize::try_from(MAX_BYTES).unwrap(), b' ');

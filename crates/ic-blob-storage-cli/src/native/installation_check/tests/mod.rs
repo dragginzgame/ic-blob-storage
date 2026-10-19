@@ -1,5 +1,6 @@
 use super::*;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
 
 fn fixture() -> Vec<u8> {
@@ -53,7 +54,7 @@ fn replace(arguments: &mut [String], flag: &str, value: &str) {
 
 #[test]
 fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let original = fixture();
     let arguments = args(base.path(), &original);
     let report = crate::native::execute(&arguments).unwrap();
@@ -64,7 +65,7 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     );
     assert_eq!(
         report["configuration_sha256"],
-        ContentDigest::compute(&std::fs::read(output.join("configuration.cbor")).unwrap())
+        ContentDigest::compute(&std::fs::read(output.join("configuration.wire")).unwrap())
             .to_string()
     );
     assert_eq!(
@@ -78,13 +79,14 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     assert_eq!(report["expected_host_release"], env!("CARGO_PKG_VERSION"));
     assert_eq!(report["configuration_validated"], true);
     assert_eq!(report["host_init_encoded"], true);
-    let installation = std::fs::read(output.join("installation.cbor")).unwrap();
-    assert_eq!(report["installation_file"], "installation.cbor");
+    let installation = std::fs::read(output.join("installation.wire")).unwrap();
+    assert_eq!(report["installation_file"], "installation.wire");
     assert_eq!(
         report["installation_sha256"],
         ContentDigest::compute(&installation).to_string()
     );
-    let encoded: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode(
+    let encoded: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
+        "blob_install",
         &installation,
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
@@ -125,27 +127,27 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     );
     assert_eq!(std::fs::read(output.join("summary.json")).unwrap(), summary);
     assert_eq!(
-        std::fs::read(output.join("installation.cbor")).unwrap(),
+        std::fs::read(output.join("installation.wire")).unwrap(),
         installation
     );
     assert_eq!(
         std::fs::read(output.join("configuration.json")).unwrap(),
         original
     );
-    let partial = tempfile::tempdir().unwrap();
+    let partial = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let arguments = args(partial.path(), &original);
     std::fs::create_dir(partial.path().join("output")).unwrap();
-    std::fs::write(partial.path().join("output/configuration.cbor"), b"partial").unwrap();
+    std::fs::write(partial.path().join("output/configuration.wire"), b"partial").unwrap();
     assert_eq!(
         crate::native::execute(&arguments),
         Err(Failure::ExistingRun)
     );
     assert_eq!(
-        std::fs::read(partial.path().join("output/configuration.cbor")).unwrap(),
+        std::fs::read(partial.path().join("output/configuration.wire")).unwrap(),
         b"partial"
     );
     assert!(!partial.path().join("output/summary.json").exists());
-    assert!(!partial.path().join("output/installation.cbor").exists());
+    assert!(!partial.path().join("output/installation.wire").exists());
 }
 
 #[test]
@@ -160,7 +162,7 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
         |input| input.reads.tenant_sessions = input.reads.sessions + 1,
     ];
     for change in setters {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut input = original;
         change(&mut input);
         let arguments = args(base.path(), &serde_json::to_vec(&input).unwrap());
@@ -180,7 +182,7 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
         ("--release", " trailing "),
         ("--release", "line\nbreak"),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut arguments = args(base.path(), &fixture());
         replace(&mut arguments, flag, value);
         assert_eq!(crate::native::execute(&arguments), Err(Failure::Arguments));
@@ -203,7 +205,7 @@ fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
         ),
         (trailing, Failure::Arguments),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let arguments = args(base.path(), &bytes);
         assert_eq!(crate::native::execute(&arguments), Err(expected));
         assert!(!base.path().join("output").exists());
@@ -215,7 +217,7 @@ fn bounded_exact_input_refuses_malformed_extra_or_ambiguous_arguments() {
         "unpaired",
         "removed_uploader",
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut arguments = args(base.path(), &fixture());
         match mode {
             "missing" => {

@@ -3,6 +3,7 @@ use super::*;
 use crate::authenticated_cli::{PEM, run};
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
@@ -160,7 +161,7 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
         )
         .unwrap();
     let permission = populate(&f);
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let saved = dir.path().join("cursor.json");
     let mut args = arguments(&f, dir.path());
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -188,7 +189,7 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
     assert_eq!(run(&wrong, 3)["error"], "identity_binding");
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     live(&mut f, &mut args);

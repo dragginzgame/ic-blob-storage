@@ -89,7 +89,7 @@ fn method_direction_and_previous_encodings_never_become_current_authority() {
     assert!(decode_inspection_response(&request).is_err());
     assert!(decode_update_response(&response).is_err());
     for old in [
-        crate::wire::encode(scope).unwrap(),
+        crate::document::encode(scope).unwrap(),
         ic_platform::candid::contract::encode_one(scope).unwrap(),
     ] {
         assert!(decode_inspection_request(&old).is_err());

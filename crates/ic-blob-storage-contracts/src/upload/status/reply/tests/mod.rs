@@ -1,6 +1,8 @@
 use crate::dto::upload::UploadState;
 use crate::upload::status::reply::*;
-use crate::wire::encode;
+fn encode<T: serde::Serialize>(value: T) -> Result<Vec<u8>, crate::wire::Error> {
+    crate::wire::encode_response("blob_upload_status", value)
+}
 use ic_platform::Principal;
 fn upload() -> ReferenceUpload {
     ReferenceUpload {

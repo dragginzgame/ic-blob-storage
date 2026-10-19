@@ -9,7 +9,6 @@ use ic_blob_storage_contracts::dto::upload::manifest::*;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError as E;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
-use ic_blob_storage_contracts::wire;
 use std::num::NonZeroUsize;
 
 pub(super) fn input() -> UploadManifestRequest {
@@ -60,7 +59,11 @@ fn observation(input: &UploadManifestRequest) -> UploadManifestResponse {
     }
 }
 fn encoded(response: UploadManifestResponse) -> Vec<u8> {
-    wire::encode(Ok::<_, UploadManifestFailure>(response)).unwrap()
+    ic_blob_storage_contracts::wire::encode_response(
+        "blob_upload_manifest",
+        Ok::<_, UploadManifestFailure>(response),
+    )
+    .unwrap()
 }
 #[test]
 fn manifest_boundary_preserves_original_declaration_and_exact_permission_through_retirement_and_restore()
@@ -193,11 +196,12 @@ fn manifest_reply_bounds_identity_consistency_and_explicit_preparation() {
     let response = observation(&input);
     let bytes = encoded(response.clone());
     assert_eq!(
-        reply::inspection(input.permission, &bytes, limits()),
+        reply::inspection("blob_upload_manifest", input.permission, &bytes, limits()),
         Ok(response.clone())
     );
     assert_eq!(
         reply::inspection(
+            "blob_upload_manifest",
             input.permission,
             &bytes,
             UploadManifestReplyLimits {
@@ -208,38 +212,68 @@ fn manifest_reply_bounds_identity_consistency_and_explicit_preparation() {
         Err(E::Limit)
     );
     assert_eq!(
-        reply::inspection(input.permission, b"bad", limits()),
+        reply::inspection("blob_upload_manifest", input.permission, b"bad", limits()),
         Err(E::Invalid)
     );
     let mut changed = response.clone();
     changed.permission.expires_at_ns += 1;
     assert_eq!(
-        reply::inspection(input.permission, &encoded(changed), limits()),
+        reply::inspection(
+            "blob_upload_manifest",
+            input.permission,
+            &encoded(changed),
+            limits()
+        ),
         Err(E::Binding)
     );
     let mut wrong = input.clone();
     wrong.declaration.chunks[0][0] ^= 1;
     assert_eq!(
-        reply::inspection(input.permission, &encoded(observation(&wrong)), limits()),
+        reply::inspection(
+            "blob_upload_manifest",
+            input.permission,
+            &encoded(observation(&wrong)),
+            limits()
+        ),
         Err(E::Invalid)
     );
     wrong = input.clone();
     wrong.declaration.headers[0].value = "11".into();
     assert_eq!(
-        reply::inspection(input.permission, &encoded(observation(&wrong)), limits()),
+        reply::inspection(
+            "blob_upload_manifest",
+            input.permission,
+            &encoded(observation(&wrong)),
+            limits()
+        ),
         Err(E::Invalid)
     );
     wrong = input.clone();
     wrong.declaration.chunks.resize(5, [0; 32]);
     assert_eq!(
-        reply::inspection(input.permission, &encoded(observation(&wrong)), limits()),
+        reply::inspection(
+            "blob_upload_manifest",
+            input.permission,
+            &encoded(observation(&wrong)),
+            limits()
+        ),
         Err(E::Limit)
     );
+}
+
+#[test]
+fn manifest_mutation_reply_requires_preparation_and_normalizes_headers() {
+    let input = input();
+    let response = observation(&input);
     let mutation = UploadManifestMutation {
         observation: response,
         changed: true,
     };
-    let bytes = wire::encode(Ok::<_, UploadManifestFailure>(mutation.clone())).unwrap();
+    let bytes = ic_blob_storage_contracts::wire::encode_response(
+        "blob_prepare_upload",
+        Ok::<_, UploadManifestFailure>(mutation.clone()),
+    )
+    .unwrap();
     let mut equivalent = input.clone();
     equivalent.declaration.headers.reverse();
     assert_eq!(reply::mutation(&equivalent, &bytes, limits()), Ok(mutation));
@@ -248,21 +282,30 @@ fn manifest_reply_bounds_identity_consistency_and_explicit_preparation() {
         manifest: UploadManifestInspection::Unprepared,
     };
     assert_eq!(
-        reply::inspection(input.permission, &encoded(absent.clone()), limits()),
+        reply::inspection(
+            "blob_upload_manifest",
+            input.permission,
+            &encoded(absent.clone()),
+            limits()
+        ),
         Ok(absent.clone())
     );
-    let bytes = wire::encode(Ok::<_, UploadManifestFailure>(UploadManifestMutation {
-        observation: absent,
-        changed: false,
-    }))
+    let bytes = ic_blob_storage_contracts::wire::encode_response(
+        "blob_prepare_upload",
+        Ok::<_, UploadManifestFailure>(UploadManifestMutation {
+            observation: absent,
+            changed: false,
+        }),
+    )
     .unwrap();
     assert_eq!(reply::mutation(&input, &bytes, limits()), Err(E::Invalid));
-    let bytes = wire::encode(Err::<UploadManifestResponse, _>(
-        UploadManifestFailure::Revoked,
-    ))
+    let bytes = ic_blob_storage_contracts::wire::encode_response(
+        "blob_upload_manifest",
+        Err::<UploadManifestResponse, _>(UploadManifestFailure::Revoked),
+    )
     .unwrap();
     assert_eq!(
-        reply::inspection(input.permission, &bytes, limits()),
+        reply::inspection("blob_upload_manifest", input.permission, &bytes, limits()),
         Err(E::Remote(UploadManifestFailure::Revoked))
     );
 }
@@ -279,13 +322,16 @@ fn manifest_reply_rejects_incompatible_prepared_payload_instead_of_reporting_abs
         manifest: MalformedInspection,
     }
     let input = input();
-    let bytes = wire::encode(Ok::<_, UploadManifestFailure>(MalformedResponse {
-        permission: input.permission,
-        manifest: MalformedInspection::Prepared(1),
-    }))
+    let bytes = ic_blob_storage_contracts::wire::encode_response(
+        "blob_upload_manifest",
+        Ok::<_, UploadManifestFailure>(MalformedResponse {
+            permission: input.permission,
+            manifest: MalformedInspection::Prepared(1),
+        }),
+    )
     .unwrap();
     assert_eq!(
-        reply::inspection(input.permission, &bytes, limits()),
+        reply::inspection("blob_upload_manifest", input.permission, &bytes, limits()),
         Err(E::Invalid)
     );
 }

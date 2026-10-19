@@ -1,6 +1,7 @@
 //! Actual signed HTTP ingress and certificate recovery against local `PocketIC` only.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 mod browser;
 mod proof;
 use super::*;
@@ -145,12 +146,15 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
     let signed = h.sign(&expected);
     // Retain the transport envelope/request ID before dispatch. This is not a
     // production consumer journal or a claim about provider receipt retention.
-    let saved = tempfile::NamedTempFile::new().unwrap();
-    std::fs::write(saved.path(), serde_json::to_vec(&signed).unwrap()).unwrap();
+    let saved_directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-file").unwrap();
+    let saved =
+        ic_host_fs::scratch::create_private_bytes(saved_directory.path(), "input", b"", 128)
+            .unwrap();
+    std::fs::write(saved.as_path(), serde_json::to_vec(&signed).unwrap()).unwrap();
     let _lost_reply = h.runtime.block_on(submit(&h.url, &signed));
     let before = h.fixture.harness.pic.get_stable_memory(h.fixture.service);
     let restored: SignedUpdate =
-        serde_json::from_slice(&std::fs::read(saved.path()).unwrap()).unwrap();
+        serde_json::from_slice(&std::fs::read(saved.as_path()).unwrap()).unwrap();
     let (status, cert) = h
         .runtime
         .block_on(

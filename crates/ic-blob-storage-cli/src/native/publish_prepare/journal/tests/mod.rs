@@ -1,9 +1,10 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 use std::os::unix::fs::symlink;
 
 #[test]
 fn confined_claim_reads_keep_limits_missing_errors_and_reject_links_without_writes() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let root = base.path();
     std::fs::create_dir(root.join("admission")).unwrap();
     std::fs::write(root.join("admission/request"), b"original").unwrap();

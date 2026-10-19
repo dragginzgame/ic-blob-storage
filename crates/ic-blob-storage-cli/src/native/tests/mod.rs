@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 mod http;
 use ic_blob_storage_contracts::dto::operator::*;
 
@@ -114,7 +115,7 @@ fn parsed_command_requires_its_identity_role_and_refuses_the_other_flag() {
     );
     actor_args.extend([
         "--request".into(),
-        "request.cbor".into(),
+        "request.wire".into(),
         "--root-key".into(),
         "root.der".into(),
     ]);
@@ -185,7 +186,11 @@ fn status() -> LocalServiceStatus {
     }
 }
 fn encoded(s: &LocalServiceStatus) -> Vec<u8> {
-    ic_blob_storage_contracts::wire::encode(Ok::<_, LocalStatusFailure>(s)).unwrap()
+    ic_blob_storage_contracts::wire::encode_response(
+        "blob_local_status",
+        Ok::<_, LocalStatusFailure>(s),
+    )
+    .unwrap()
 }
 
 #[test]
@@ -222,8 +227,11 @@ fn bounded_decode_checks_scope_and_json_preserves_full_width_and_fences() {
     ] {
         assert_eq!(
             reply::decode(
-                &ic_blob_storage_contracts::wire::encode(Err::<LocalServiceStatus, _>(error))
-                    .unwrap(),
+                &ic_blob_storage_contracts::wire::encode_response(
+                    "blob_local_status",
+                    Err::<LocalServiceStatus, _>(error)
+                )
+                .unwrap(),
                 status.scope
             ),
             Err(failure)
@@ -247,29 +255,37 @@ fn bounded_decode_checks_scope_and_json_preserves_full_width_and_fences() {
 
 #[test]
 fn identity_and_root_files_are_bounded_without_private_diagnostics() {
-    let file = tempfile::NamedTempFile::new().unwrap();
+    let file_directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-file").unwrap();
+    let file = ic_host_fs::scratch::create_private_bytes(file_directory.path(), "input", b"", 128)
+        .unwrap();
     for bytes in [vec![], vec![0; 16385]] {
-        std::fs::write(file.path(), bytes).unwrap();
-        assert!(matches!(identity(file.path(), actor()), Err(Failure::File)));
+        std::fs::write(file.as_path(), bytes).unwrap();
+        assert!(matches!(
+            identity(file.as_path(), actor()),
+            Err(Failure::File)
+        ));
     }
-    std::fs::write(file.path(), "not a PEM").unwrap();
+    std::fs::write(file.as_path(), "not a PEM").unwrap();
     assert!(matches!(
-        identity(file.path(), actor()),
+        identity(file.as_path(), actor()),
         Err(Failure::Identity)
     ));
-    assert_eq!(read(file.path(), 2), Err(Failure::File));
-    std::fs::write(file.path(), b"ok").unwrap();
-    assert_eq!(read(file.path(), 0), Err(Failure::File));
-    assert_eq!(read(file.path(), 1), Err(Failure::File));
-    assert_eq!(read(file.path(), 2), Ok(b"ok".to_vec()));
-    assert_eq!(read(file.path(), u64::MAX), Ok(b"ok".to_vec()));
-    assert_eq!(read(file.path().parent().unwrap(), 2), Err(Failure::File));
+    assert_eq!(read(file.as_path(), 2), Err(Failure::File));
+    std::fs::write(file.as_path(), b"ok").unwrap();
+    assert_eq!(read(file.as_path(), 0), Err(Failure::File));
+    assert_eq!(read(file.as_path(), 1), Err(Failure::File));
+    assert_eq!(read(file.as_path(), 2), Ok(b"ok".to_vec()));
+    assert_eq!(read(file.as_path(), u64::MAX), Ok(b"ok".to_vec()));
+    assert_eq!(
+        read(file.as_path().parent().unwrap(), 2),
+        Err(Failure::File)
+    );
 }
 
 #[cfg(unix)]
 #[test]
 fn bounded_reader_preserves_native_link_following_without_following_special_files() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let target = directory.path().join("target");
     let link = directory.path().join("selected-link");
     std::fs::write(&target, b"ok").unwrap();
@@ -303,8 +319,11 @@ fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
     value.funding.renewal_ceiling = 2000;
     value.funding.available_allocation = 700;
     value.funding.transport_accepted = 300;
-    let encoded =
-        ic_blob_storage_contracts::wire::encode(Ok::<_, LocalStatusFailure>(&value)).unwrap();
+    let encoded = ic_blob_storage_contracts::wire::encode_response(
+        "blob_local_status",
+        Ok::<_, LocalStatusFailure>(&value),
+    )
+    .unwrap();
     assert_eq!(reply::decode(&encoded, value.scope), Ok(value.clone()));
     for changed in [
         LocalFundingStatus {
@@ -357,8 +376,11 @@ fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
             funding: changed,
             ..value.clone()
         };
-        let encoded =
-            ic_blob_storage_contracts::wire::encode(Ok::<_, LocalStatusFailure>(altered)).unwrap();
+        let encoded = ic_blob_storage_contracts::wire::encode_response(
+            "blob_local_status",
+            Ok::<_, LocalStatusFailure>(altered),
+        )
+        .unwrap();
         assert_eq!(
             reply::decode(&encoded, value.scope),
             Err(Failure::InvalidReply)

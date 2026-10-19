@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
 
 fn permission() -> UploadAdmissionRequest {
@@ -21,14 +22,14 @@ fn permission() -> UploadAdmissionRequest {
 }
 fn args(base: &Path, permission: UploadAdmissionRequest, action: &str) -> Vec<String> {
     std::fs::write(
-        base.join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        base.join("permission.wire"),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     vec![
         "reference-inputs".into(),
         "--permission".into(),
-        base.join("permission.cbor").display().to_string(),
+        base.join("permission.wire").display().to_string(),
         "--action".into(),
         action.into(),
         "--reference".into(),
@@ -45,13 +46,13 @@ fn exact_full_width_retain_and_expired_permission_release_need_no_network() {
         ("retain", ReferenceAction::Retain),
         ("release", ReferenceAction::Release),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let permission = permission();
         let args = args(base.path(), permission, name);
         let result = crate::native::execute(&args).unwrap();
         let output = base.path().join("output");
-        let bytes = std::fs::read(output.join("reference.cbor")).unwrap();
-        let command: ReferenceCommand = ic_blob_storage_contracts::wire::decode(
+        let bytes = std::fs::read(output.join("reference.wire")).unwrap();
+        let command: ReferenceCommand = ic_blob_storage_contracts::document::decode(
             &bytes,
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
@@ -65,8 +66,8 @@ fn exact_full_width_retain_and_expired_permission_release_need_no_network() {
                 action
             }
         );
-        let status: ReferenceStatusRequest = ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(output.join("reference-status.cbor")).unwrap(),
+        let status: ReferenceStatusRequest = ic_blob_storage_contracts::document::decode(
+            &std::fs::read(output.join("reference-status.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
@@ -77,8 +78,8 @@ fn exact_full_width_retain_and_expired_permission_release_need_no_network() {
                 reference: u128::MAX
             }
         );
-        let download: DownloadRequest = ic_blob_storage_contracts::wire::decode(
-            &std::fs::read(output.join("download.cbor")).unwrap(),
+        let download: DownloadRequest = ic_blob_storage_contracts::document::decode(
+            &std::fs::read(output.join("download.wire")).unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
@@ -95,11 +96,11 @@ fn exact_full_width_retain_and_expired_permission_release_need_no_network() {
         assert_eq!(result["service_dispatched"], false);
         assert_eq!(result["retry_authorized"], false);
         assert_eq!(
-            std::fs::read(output.join("permission.cbor")).unwrap(),
-            std::fs::read(base.path().join("permission.cbor")).unwrap()
+            std::fs::read(output.join("permission.wire")).unwrap(),
+            std::fs::read(base.path().join("permission.wire")).unwrap()
         );
         assert_eq!(crate::native::execute(&args), Err(Failure::ExistingRun));
-        assert_eq!(std::fs::read(output.join("reference.cbor")).unwrap(), bytes);
+        assert_eq!(std::fs::read(output.join("reference.wire")).unwrap(), bytes);
     }
 }
 #[test]
@@ -112,7 +113,7 @@ fn ambiguous_identities_and_options_refuse_before_claim() {
         (8, "0"),
         (8, "340282366920938463463374607431768211456"),
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut args = args(base.path(), permission(), "release");
         args[index] = value.into();
         assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
@@ -123,7 +124,7 @@ fn ambiguous_identities_and_options_refuse_before_claim() {
         vec!["--unknown".into(), "x".into()],
         vec!["--incomplete".into()],
     ] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut args = args(base.path(), permission(), "release");
         args.extend(extra);
         assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
@@ -132,41 +133,32 @@ fn ambiguous_identities_and_options_refuse_before_claim() {
 }
 #[test]
 fn malformed_or_invalid_permission_refuses_and_partial_runs_are_never_resumed() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let args = args(base.path(), permission(), "release");
     for bytes in [
         b"invalid".to_vec(),
-        ic_blob_storage_contracts::wire::encode((
-            permission(),
-            ic_platform::candid::contract::Reserved,
-        ))
-        .unwrap(),
-        ic_blob_storage_contracts::wire::encode((permission(), ())).unwrap(),
-        ic_blob_storage_contracts::wire::encode(ReferenceCommand {
-            upload: permission().upload,
-            reference: 1,
-            operation: 1,
-            action: ReferenceAction::Release,
-        })
-        .unwrap(),
+        ic_blob_storage_contracts::document::encode((permission(), true)).unwrap(),
+        ic_blob_storage_contracts::wire::encode_request("blob_admit_upload", permission()).unwrap(),
+        ic_blob_storage_contracts::wire::encode_response("blob_admit_upload", permission())
+            .unwrap(),
     ] {
-        std::fs::write(base.path().join("permission.cbor"), bytes).unwrap();
+        std::fs::write(base.path().join("permission.wire"), bytes).unwrap();
         assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
         assert!(!base.path().join("output").exists());
     }
     let mut invalid = permission();
     invalid.upload.tenant = Principal::anonymous();
     std::fs::write(
-        base.path().join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
+        base.path().join("permission.wire"),
+        ic_blob_storage_contracts::document::encode(invalid).unwrap(),
     )
     .unwrap();
     assert_eq!(crate::native::execute(&args), Err(Failure::Arguments));
-    std::fs::write(base.path().join("permission.cbor"), vec![0; 4097]).unwrap();
+    std::fs::write(base.path().join("permission.wire"), vec![0; 4097]).unwrap();
     assert_eq!(crate::native::execute(&args), Err(Failure::File));
     std::fs::write(
-        base.path().join("permission.cbor"),
-        ic_blob_storage_contracts::wire::encode(permission()).unwrap(),
+        base.path().join("permission.wire"),
+        ic_blob_storage_contracts::document::encode(permission()).unwrap(),
     )
     .unwrap();
     std::fs::create_dir(base.path().join("output")).unwrap();

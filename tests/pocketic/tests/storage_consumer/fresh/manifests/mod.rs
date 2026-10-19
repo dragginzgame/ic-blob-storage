@@ -3,7 +3,7 @@ use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::manifests::{
     ManifestDispatch, ManifestFault, ManifestIntent, ManifestIntentView,
 };
-use ic_blob_storage_contracts::wire;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 mod cancellation;
 fn uploader_fixture() -> Fixture {
     let mut f = fixture();
@@ -30,7 +30,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let saved: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.operator,
             "save_manifest",
@@ -43,7 +43,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let wrong: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "save_manifest",
@@ -55,7 +55,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let sent: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.operator,
             "dispatch_manifest",
@@ -73,7 +73,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let recovered: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.operator,
             "recover_manifest",

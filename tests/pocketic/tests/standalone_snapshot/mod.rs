@@ -56,7 +56,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     .unwrap()
     .unwrap();
     assert!(f.admission(permission).revoked);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
 

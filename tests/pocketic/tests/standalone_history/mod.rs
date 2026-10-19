@@ -124,7 +124,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     assert_eq!(page.request, active);
     assert_eq!(page.entries, []);
     assert_eq!(page.scanned, 1);
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     expected.fenced = true;
     let restored = f.harness.pic.get_stable_memory(f.service);

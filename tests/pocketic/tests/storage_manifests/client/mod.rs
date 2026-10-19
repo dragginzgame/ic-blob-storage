@@ -1,7 +1,7 @@
 //! The uploader is a distinct canister, separate from the admitted tenant.
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_blob_storage_contracts::wire;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 mod cancellation;
 use blob_test_protocol::consumer::{
     Failure as C,
@@ -31,7 +31,7 @@ fn fixture() -> Fixture {
 fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.operator,
             "save_manifest",
@@ -43,7 +43,7 @@ fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
 fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .query_blob_as(
+        .query_control_as(
             f.uploader,
             f.operator,
             "manifest_intent",
@@ -55,7 +55,7 @@ fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
 fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.operator,
             "dispatch_manifest",
@@ -67,7 +67,7 @@ fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, 
 fn recover(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.operator,
             "recover_manifest",
@@ -112,7 +112,7 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
                     f.uploader,
                     f.operator,
                     "dispatch_manifest",
-                    wire::encode(ManifestDispatch {
+                    ic_blob_storage_contracts::document::encode(ManifestDispatch {
                         fault: ManifestFault::AfterPreparation,
                         ..run(1)
                     })
@@ -172,7 +172,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
             f.uploader,
             f.operator,
             "dispatch_manifest",
-            wire::encode(ManifestDispatch {
+            ic_blob_storage_contracts::document::encode(ManifestDispatch {
                 fault: ManifestFault::BeforeDispatch,
                 ..run(1)
             })
@@ -184,7 +184,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
     let queried: Result<UploadManifestResponse, C> = f
         .harness
         .pic
-        .query_blob_as(
+        .query_control_as(
             f.uploader,
             f.operator,
             "query_manifest",
@@ -196,7 +196,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
     let denied: Result<ManifestIntentView, C> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.uploader,
             f.other,
             "dispatch_manifest",

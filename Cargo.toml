@@ -28,19 +28,18 @@ publish = ["crates-io"]
 
 [workspace.dependencies]
 # Production dependencies
-ciborium = "0.2.2"
 hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.35.0" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.35.0" }
-ic-build = "0.18"
-ic-host-artifacts = "0.27"
-ic-host-fs = "0.27"
-ic-host-process = "0.27"
+ic-build = "0.20"
+ic-host-artifacts = "0.28"
+ic-host-fs = "0.28"
+ic-host-process = "0.28"
 ic-memory = "0.48"
 ic-platform = { version = "0.1.11", default-features = false }
 ic-storage = "0.5.2"
-ic-wire = "0.4"
+ic-wire = "0.4.5"
 libc = "0.2.190"
 percent-encoding = "2.3.2"
 reqwest = { version = "0.13.5", default-features = false }
@@ -57,10 +56,9 @@ url = "2.5.8"
 # Tests and tooling only
 blob-test-protocol = { path = "tests/protocol" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
-ic-host-tools = "0.27"
+ic-host-tools = "0.28"
 ic-metrics = "0.14"
 ic-testkit = "0.54"
-tempfile = "3.27.0"
 
 [workspace.lints.rust]
 missing_docs = "deny"

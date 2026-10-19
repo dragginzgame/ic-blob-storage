@@ -49,7 +49,8 @@ pub fn decode(
         return Err(UploadStatusReplyError::Limit);
     }
     let response: Result<UploadStatusResponse, UploadStatusFailure> =
-        crate::wire::decode(bytes, max.get()).map_err(|_| UploadStatusReplyError::Invalid)?;
+        crate::wire::decode_response("blob_upload_status", bytes, max.get())
+            .map_err(|_| UploadStatusReplyError::Invalid)?;
     let response = response.map_err(UploadStatusReplyError::Remote)?;
     if response.upload != upload {
         return Err(UploadStatusReplyError::Binding);

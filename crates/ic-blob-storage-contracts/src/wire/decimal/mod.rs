@@ -1,4 +1,4 @@
-//! Canonical lossless decimal text for provider integers wider than CBOR u128.
+//! Canonical lossless decimal text for provider integers wider than native u128.
 use serde::{Deserialize, Deserializer, Serializer, de::Error};
 use std::{fmt::Display, str::FromStr};
 

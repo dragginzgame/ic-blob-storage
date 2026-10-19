@@ -4,6 +4,7 @@ use crate::{
     authenticated_cli::{PEM, arguments, run},
 };
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
 use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::{Value, json};
@@ -15,11 +16,11 @@ pub(super) struct AssessmentCli {
     report: PathBuf,
     sequence: Cell<u32>,
     baseline: Value,
-    _temporary: tempfile::TempDir,
+    _temporary: FixtureDirectory,
 }
 impl AssessmentCli {
     pub fn new(scope: OperatorScope, url: &str, trusted: &[u8], label: &str) -> Self {
-        let temporary = tempfile::tempdir().unwrap();
+        let temporary = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let key = temporary.path().join("identity.pem");
         let root = temporary.path().join("root.der");
         std::fs::write(&key, PEM).unwrap();

@@ -1,6 +1,7 @@
 //! Paid outcomes are explicit fixture substitutes; CLI uses genuine signed queries.
 use super::*;
 use crate::authenticated_cli::{PEM, arguments, run};
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
@@ -106,7 +107,7 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
     };
     f.funding(f.operator, uncertain, Action::Prepare).unwrap();
     f.funding(f.operator, uncertain, Action::Attempt).unwrap();
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let key = dir.path().join("key.pem");
     let root = dir.path().join("root.der");
     let cursor = dir.path().join("cursor.json");

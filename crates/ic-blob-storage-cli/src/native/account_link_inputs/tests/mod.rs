@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 
 fn args(base: &Path) -> Vec<String> {
     [
@@ -23,7 +24,7 @@ fn args(base: &Path) -> Vec<String> {
 }
 #[test]
 fn offline_account_link_preserves_exact_request_and_rejects_repeat_or_partial_output() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let arguments = args(base.path());
     let result = crate::native::execute(&arguments).unwrap();
     let directory = base.path().join("output");
@@ -59,7 +60,7 @@ fn offline_account_link_preserves_exact_request_and_rejects_repeat_or_partial_ou
         std::fs::read(directory.join("summary.json")).unwrap(),
         summary
     );
-    let partial = tempfile::tempdir().unwrap();
+    let partial = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     std::fs::create_dir(partial.path().join("output")).unwrap();
     std::fs::write(
         partial.path().join("output/account-link.candid"),
@@ -96,7 +97,7 @@ fn sentinel_missing_ambiguous_or_unusable_inputs_refuse_before_output() {
         ("--payer", vec!["2vxsx-fae", "aaaaa-aa"]),
     ] {
         for value in values {
-            let base = tempfile::tempdir().unwrap();
+            let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
             let mut arguments = args(base.path());
             let position = arguments.iter().position(|arg| arg == key).unwrap();
             arguments[position + 1] = value.into();
@@ -105,7 +106,7 @@ fn sentinel_missing_ambiguous_or_unusable_inputs_refuse_before_output() {
         }
     }
     for mode in ["missing", "duplicate", "unknown", "unpaired"] {
-        let base = tempfile::tempdir().unwrap();
+        let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let mut arguments = args(base.path());
         match mode {
             "missing" => {

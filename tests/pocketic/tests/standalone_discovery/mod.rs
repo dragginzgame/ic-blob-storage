@@ -160,7 +160,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
         .unwrap();
     suspended.unwrap();
     assert_eq!(f.discovery(f.tenant, request), Ok(expected));
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(

@@ -75,7 +75,7 @@ fn config(bytes: &[u8], maximum: usize, work: usize) -> DecoderConfig {
 }
 
 /// Decode the bounded current Blob interface; other fixture commands retain Candid.
-pub(crate) fn blob<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
-    ic_blob_storage_contracts::wire::decode(&bytes, SMALL_BYTES)
+pub(crate) fn blob<T: serde::Serialize + serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
+    ic_blob_storage_contracts::document::decode(&bytes, SMALL_BYTES)
         .expect("invalid or over-budget Blob probe input")
 }

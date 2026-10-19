@@ -5,7 +5,7 @@ references, tenant administration, funding observations and download descriptors
 
 Import the role module, for example
 `ic_blob_storage_client::admission::ReplicatedUploadAdmissionClient`.
-Contracts owns exact Wire/CBOR codecs and reply validation; Platform supplies IC
+Contracts owns exact method-bound Wire codecs and reply validation; Platform supplies IC
 calls. This package does not depend on the service, Memory or Storage.
 
 The actual executing actor must match the selected binding. Persist exact intent

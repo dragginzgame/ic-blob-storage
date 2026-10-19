@@ -37,7 +37,7 @@ pub enum FundingReplyError {
 /// Independent byte and entry limits. These do not change the service's page size.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct FundingHistoryReplyLimits {
-    /// Applied before CBOR decoding; transport must separately bound buffering.
+    /// Applied before Wire decoding; transport must separately bound buffering.
     pub bytes: NonZeroUsize,
     /// Maximum entries accepted after bounded decoding.
     pub entries: NonZeroUsize,
@@ -80,14 +80,15 @@ pub fn check_outcome(input: FundingOutcomeRequest) -> Result<(), FundingReplyErr
     }
     Ok(())
 }
-fn decode<T: for<'de> Deserialize<'de>>(
+fn decode<T: serde::Serialize + for<'de> Deserialize<'de>>(
+    method: &str,
     bytes: &[u8],
     max: NonZeroUsize,
 ) -> Result<T, FundingReplyError> {
     if bytes.len() > max.get() {
         return Err(FundingReplyError::Limit);
     }
-    crate::wire::decode(bytes, max.get()).map_err(|_| FundingReplyError::Invalid)
+    crate::wire::decode_response(method, bytes, max.get()).map_err(|_| FundingReplyError::Invalid)
 }
 fn transfer(offered: u128, phase: FundingPhase) -> Result<FundingTransfer, FundingReplyError> {
     let offered = NonZeroU128::new(offered).ok_or(FundingReplyError::Invalid)?;
@@ -112,8 +113,12 @@ pub fn history(
     limits: FundingHistoryReplyLimits,
 ) -> Result<FundingHistoryPage, FundingReplyError> {
     check_history(input)?;
-    let page = decode::<Result<FundingHistoryPage, FundingHistoryFailure>>(bytes, limits.bytes)?
-        .map_err(FundingReplyError::History)?;
+    let page = decode::<Result<FundingHistoryPage, FundingHistoryFailure>>(
+        "blob_funding_history",
+        bytes,
+        limits.bytes,
+    )?
+    .map_err(FundingReplyError::History)?;
     if page.request != input {
         return Err(FundingReplyError::Binding);
     }

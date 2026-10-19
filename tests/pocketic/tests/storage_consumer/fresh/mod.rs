@@ -3,6 +3,7 @@ use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod admission;
 mod manifests;
@@ -44,7 +45,7 @@ fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let view: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "prepare",
@@ -190,7 +191,7 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
             f.tenant,
             f.operator,
             "register",
-            ic_blob_storage_contracts::wire::encode(&input).unwrap(),
+            ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -263,7 +264,7 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
 fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_blob_as(
+        .update_control_as(
             f.tenant,
             f.operator,
             "admit",

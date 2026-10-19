@@ -1,6 +1,7 @@
 use super::*;
 use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
+use ic_host_fs::testing::FixtureDirectory;
 const ROOT: &str = "sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad8aebaf74dfd";
 fn declaration() -> UploadManifestDeclaration {
     let bytes = br#"{"tree_type":"DSBMTWH","chunk_hashes":["sha256:b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7"],"tree":{"hash":"sha256:0e9afaf413b048e40834d5b0e737d80fbf304af2045c7564d96ad8aebaf74dfd"},"headers":["Content-Length: 3","Content-Type: text/plain"]}"#;
@@ -24,7 +25,7 @@ fn declaration() -> UploadManifestDeclaration {
 
 #[test]
 fn source_changes_after_open_cannot_produce_verified_partial_or_excess_bytes() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = base.path().join("body");
     for changed in [b"abd".as_slice(), b"ab", b"abcd"] {
         std::fs::write(&path, b"abc").unwrap();
@@ -47,7 +48,7 @@ fn source_changes_after_open_cannot_produce_verified_partial_or_excess_bytes() {
 #[cfg(unix)]
 #[test]
 fn replacing_source_path_does_not_change_the_selected_handle_or_snapshot_bytes() {
-    let base = tempfile::tempdir().unwrap();
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = base.path().join("body");
     std::fs::write(&path, b"abc").unwrap();
     let body = LocalBody::open(&path, 3).unwrap();

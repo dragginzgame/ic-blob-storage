@@ -1,4 +1,5 @@
 use super::*;
+use ic_host_fs::testing::FixtureDirectory;
 use std::{
     io::{Read, Write},
     net::TcpListener,
@@ -6,7 +7,7 @@ use std::{
 
 #[test]
 fn shared_artifact_reads_keep_record_limits_and_raw_hashes() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = directory.path().join("selected");
     std::fs::write(&path, b"abc").unwrap();
     assert_eq!(
@@ -28,7 +29,7 @@ fn shared_artifact_reads_keep_record_limits_and_raw_hashes() {
 #[cfg(unix)]
 #[test]
 fn probe_records_reject_links_and_special_files_with_existing_codes() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let target = directory.path().join("target");
     std::fs::write(&target, b"ok").unwrap();
     std::os::unix::fs::symlink(&target, directory.path().join("link")).unwrap();
@@ -57,7 +58,7 @@ fn probe_records_reject_links_and_special_files_with_existing_codes() {
 
 #[test]
 fn immutable_records_detect_tampering_and_incomplete_runs() {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let p = dir.path();
     record::json(p, "plan.json", &plan().unwrap()).unwrap();
     assert_eq!(record::verify(p).unwrap()["outcome"], "incomplete");
@@ -164,7 +165,7 @@ fn public_http_capture_records_intent_before_dispatch_and_retains_failed_bounded
         (302, 0, "http_status"),
         (200, MAX_BODY + 1, "body_limit"),
     ] {
-        let dir = tempfile::tempdir().unwrap();
+        let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         record::json(dir.path(), "plan.json", &plan().unwrap()).unwrap();
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let url = format!("http://{}/", listener.local_addr().unwrap());

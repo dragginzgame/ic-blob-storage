@@ -37,8 +37,12 @@ pub fn inspect(
     if bytes.len() > max_bytes.get() {
         return Err(FundingAssessmentReplyError::Limit);
     }
-    let response: Result<Response, E> = crate::wire::decode(bytes, max_bytes.get())
-        .map_err(|_| FundingAssessmentReplyError::Invalid)?;
+    let response: Result<Response, E> = crate::wire::decode_response(
+        "blob_funding_preparation_assessment",
+        bytes,
+        max_bytes.get(),
+    )
+    .map_err(|_| FundingAssessmentReplyError::Invalid)?;
     let response = response.map_err(FundingAssessmentReplyError::Remote)?;
     if response.request != request {
         return Err(FundingAssessmentReplyError::Binding);

@@ -1,9 +1,10 @@
 use super::*;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
+use ic_host_fs::testing::FixtureDirectory;
 
-fn saved(kind: Kind) -> (tempfile::TempDir, Input, UploadAdmissionRequest) {
-    let temp = tempfile::tempdir().unwrap();
+fn saved(kind: Kind) -> (FixtureDirectory, Input, UploadAdmissionRequest) {
+    let temp = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let permission = UploadAdmissionRequest {
         upload: ReferenceUpload {
             service: Principal::self_authenticating([1]),
@@ -23,12 +24,12 @@ fn saved(kind: Kind) -> (tempfile::TempDir, Input, UploadAdmissionRequest) {
         kind,
         service: permission.upload.service,
         namespace: permission.upload.namespace,
-        request: temp.path().join("permission.cbor"),
+        request: temp.path().join("permission.wire"),
         directory: Some(temp.path().join("run")),
     };
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     (temp, input, permission)
@@ -39,7 +40,7 @@ fn exact_roles_scope_and_invalid_ids_refuse_before_artifact_claim() {
     assert!(request::load(&input, p.upload.tenant).is_ok());
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode((p, ic_platform::candid::contract::Reserved))
+        ic_blob_storage_contracts::document::encode((p, ic_platform::candid::contract::Reserved))
             .unwrap(),
     )
     .unwrap();
@@ -49,7 +50,7 @@ fn exact_roles_scope_and_invalid_ids_refuse_before_artifact_claim() {
     ));
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode(p).unwrap(),
+        ic_blob_storage_contracts::document::encode(p).unwrap(),
     )
     .unwrap();
     assert!(matches!(
@@ -68,7 +69,7 @@ fn exact_roles_scope_and_invalid_ids_refuse_before_artifact_claim() {
     invalid.upload.first_reference = 0;
     std::fs::write(
         &input.request,
-        ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
+        ic_blob_storage_contracts::document::encode(invalid).unwrap(),
     )
     .unwrap();
     assert!(matches!(
@@ -90,7 +91,8 @@ fn original_permission_echo_and_typed_refusal_are_required_for_acknowledgment() 
         replayed: false,
     };
     let encode = |r: &UploadAdmissionMutation| {
-        ic_blob_storage_contracts::wire::encode(Ok::<_, A>(r)).unwrap()
+        ic_blob_storage_contracts::wire::encode_response("blob_admit_upload", Ok::<_, A>(r))
+            .unwrap()
     };
     assert_eq!(
         observation(&input, &saved, &encode(&reply)).unwrap().json()["replayed"],
@@ -105,8 +107,11 @@ fn original_permission_echo_and_typed_refusal_are_required_for_acknowledgment() 
         observation(
             &input,
             &saved,
-            &ic_blob_storage_contracts::wire::encode(Err::<UploadAdmissionMutation, _>(A::Fenced))
-                .unwrap()
+            &ic_blob_storage_contracts::wire::encode_response(
+                "blob_admit_upload",
+                Err::<UploadAdmissionMutation, _>(A::Fenced)
+            )
+            .unwrap()
         ),
         Err(Failure::UploadAdmissionRefused(A::Fenced))
     ));

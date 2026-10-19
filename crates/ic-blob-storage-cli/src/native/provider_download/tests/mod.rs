@@ -6,6 +6,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
 use std::{io::Write, net::TcpListener, time::Instant};
 
@@ -116,7 +117,7 @@ fn run_case(
         listener.local_addr().unwrap()
     ))
     .unwrap();
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let path = directory.path().join("run");
     let run = Run::create(&path).unwrap();
     let runtime = tokio::runtime::Builder::new_current_thread()
@@ -167,7 +168,7 @@ fn run_case(
             "failed"
         }
     );
-    assert!(!path.join("statement.cbor").exists());
+    assert!(!path.join("statement.wire").exists());
     serde_json::from_slice(&std::fs::read(path.join("http-response-headers.json")).unwrap())
         .unwrap()
 }

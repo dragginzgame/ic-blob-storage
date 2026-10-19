@@ -247,6 +247,9 @@ impl PreparedInput {
     pub fn setup_requests(&self) -> (&[u8], &[u8]) {
         (&self.admission, &self.preparation)
     }
+    pub fn request(&self) -> &UploadManifestRequest {
+        &self.request
+    }
     pub fn declaration(
         &self,
     ) -> &ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration {
@@ -331,11 +334,11 @@ impl PreparedInput {
             permission,
             declaration,
         };
-        let admission =
-            ic_blob_storage_contracts::wire::encode(permission).map_err(|_| Failure::Arguments)?;
+        let admission = ic_blob_storage_contracts::document::encode(permission)
+            .map_err(|_| Failure::Arguments)?;
         let references = ReferenceFiles::new(permission.upload, permission.upload.first_reference)?;
-        let preparation =
-            ic_blob_storage_contracts::wire::encode(&request).map_err(|_| Failure::Arguments)?;
+        let preparation = ic_blob_storage_contracts::document::encode(&request)
+            .map_err(|_| Failure::Arguments)?;
         if admission.len() > 4096 || preparation.len() > 65536 {
             return Err(Failure::ReplyLimit);
         }
@@ -383,7 +386,7 @@ impl PreparedInput {
         let run = Run::create(directory)?;
         run.bytes("binding.json", &files.binding)?;
         run.bytes("manifest.json", &files.manifest)?;
-        run.bytes("installation.cbor", &files.installation.bytes)?;
+        run.bytes("installation.wire", &files.installation.bytes)?;
         let hashes = snapshot(
             source,
             &request,
@@ -401,13 +404,13 @@ impl PreparedInput {
             )?;
             return Err(Failure::Content);
         }
-        run.bytes("permission.cbor", &admission)?;
-        run.bytes("manifest.cbor", &preparation)?;
+        run.bytes("permission.wire", &admission)?;
+        run.bytes("manifest.wire", &preparation)?;
         references.save(&run)?;
         run.bytes("certificate-binding.json", &browser)?;
         let result = json!({
             "schema": 1, "observation": "local_upload_inputs",
-            "installation_file": "installation.cbor",
+            "installation_file": "installation.wire",
             "installation_sha256": digest(&files.installation.bytes),
             "installation_binding_checked": true,
             "installed_state_observed": false, "namespace_provisioned": false,
@@ -415,7 +418,7 @@ impl PreparedInput {
             "permission_sha256": digest(&admission), "preparation_sha256": digest(&preparation),
             "root": binding.root, "bytes": binding.bytes,
             "chunks": request.declaration.chunks.len(),
-            "permission_file": "permission.cbor", "preparation_file": "manifest.cbor",
+            "permission_file": "permission.wire", "preparation_file": "manifest.wire",
             "first_reference": references.summary(),
             "certificate_binding_file": "certificate-binding.json",
             "project": binding.project, "bucket": binding.bucket,

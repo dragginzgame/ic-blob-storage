@@ -9,8 +9,7 @@ Build with `make build-standalone`; run its local lifecycle cases with
 `target/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm`.
 These commands do not deploy or contact Caffeine.
 
-Tenant inspection/update use bounded IC Wire; the remaining owned methods and
-installation use bounded CBOR. See [the protocol](../../docs/service-wire.md)
+All owned methods and standalone lifecycle inputs use bounded IC Wire. See [the protocol](../../docs/service-wire.md)
 for the exact per-method contract; no codec detection or fallback is provided.
 The [provider Candid contract](service.did) describes only
 `_immutableObjectStorageCreateCertificate` and is generated from its declaration:
@@ -32,9 +31,10 @@ Installation takes one explicit
 `ServiceInstallationInput { configuration, project, completion_verifier }`
 from `ic_blob_storage_contracts::dto::configuration`. The offline
 [`installation-check`](../../docs/operator-guide.md#check-installation-inputs-offline)
-command produces its complete binary CBOR and hash; no manual wrapper is needed.
-Initialization accepts only the exact current record; removed authority fields
-and extra init arguments refuse without allocating or replacing an owner.
+command produces its complete method-bound `installation.wire` packet and hash; no manual wrapper is needed.
+Initialization accepts the frozen positional schema in a `blob_install` request
+frame. Wrong identities, malformed values and trailing bytes refuse before owner
+allocation; named-field extension or unknown-field skipping is not supported.
 `configuration` is the shared `ServiceConfigurationInput`, including the actual
 service principal, operator, payer, namespace and all resource/billing bounds.
 `project` is the explicit Caffeine project mapped to that namespace. It is immutable
@@ -60,7 +60,7 @@ unprepared, expired, revoked or restored work refuse. Inspection changes no stat
 and never reserves a later issuance attempt.
 
 The native [`blob-storage certificate-assessment`](../../docs/operator-guide.md#certificate-assessment) command signs
-this query as the original uploader and binds the reply to a saved binary CBOR
+this query as the original uploader and binds the reply to a saved binary Wire document
 permission. It reports all missing prerequisites and distinct refusal codes without
 calling the certificate update or a provider. An empty blocker list remains only
 an observation; issuance always rechecks current authority.
@@ -338,11 +338,11 @@ allocation policy, ingress authentication and lifecycle calls stay local to this
 host. The host explicitly composes the requests before bootstrap.
 The shared library chooses no physical IDs and registers nothing on linkage.
 Tenant IC Wire methods use their 512-byte per-direction allowance and finite
-schema bounds. Remaining CBOR ingress admits 16 KiB for installation, 4 KiB for
+schema bounds. Native Wire ingress admits 16 KiB for installation, 4 KiB for
 fixed commands and 128 KiB for manifests, with shared semantic limits afterward.
-The CDK first copies the separately platform-bounded ingress buffer.
+The native adapter admits the platform argument size before copying request bytes.
 
-Same-release upgrade takes one CBOR unit/null value (`f6`). It loads the saved
+Same-release upgrade takes a `blob_post_upgrade` Wire request containing unit. It loads the saved
 configuration, checks service and package-release identity, validates every owner
 and leaves mutations fenced. It never repairs missing state or accepts replacement
 configuration. The ic-memory runtime commits allocation-ledger metadata during

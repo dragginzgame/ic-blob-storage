@@ -48,7 +48,7 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     assert_eq!(f.harness.pic.get_stable_memory(scope.cashier), source);
     f.harness.pic.stop_progress();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);
     f.harness.pic.auto_progress();

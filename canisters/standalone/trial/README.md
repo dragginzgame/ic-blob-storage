@@ -23,8 +23,8 @@ their original uploader separately.
 | Gateway reply entries / unique principals | Two / one; drift refuses and needs explicit review |
 
 Preserve full-width integer literals using integer-preserving tooling.
-`installation-check` reads strict JSON and emits `configuration.cbor`, complete
-`installation.cbor` and their hashes in a new private run directory. Only the
+`installation-check` reads strict JSON and emits `configuration.wire`, complete
+`installation.wire` and their hashes in a new private run directory. Only the
 complete installation packet is a current standalone init argument. The provider
 `service.did` describes the certificate endpoint; it contains no installation
 schema. Former Candid installation packets are not accepted by the current host.
@@ -43,13 +43,13 @@ owns those steps and their effect authorization.
 | Source and release | Exact reviewed commit, source archive, Cargo/lock/toolchain and receipt; receipt hashes bind release files, not the Wasm |
 | Standalone Wasm | Frozen default build and SHA-256; observed compiled release must match the selected release |
 | Native CLI and provider DID | Frozen hashes; declared and host-exported provider Candid contracts must agree; check the complete Wasm method surface against the shared catalog |
-| Configuration and init | Exact validated CBOR carrier and hash for the actual created service principal; all local stand-in inputs remain local-only |
+| Configuration and init | Exact validated method-bound Wire init frame and hash for the actual created service principal; all local stand-in inputs remain local-only |
 | Installed readback | Explicit operator inspects service, payer, namespace, project, verifier, resource envelope, release and fence before tenant admission |
 
 The maintained `standalone_installation_cli` PocketIC cases consume this JSON
 template through the actual CLI, install the complete carrier and check readback,
 wrong-service refusal and authority boundaries. `BLOB_TRIAL_INSTALLATION_REPORT`
-selects a **new directory** for retained CBOR init/readback and a summary. This is
+selects a **new directory** for retained Wire init frames and readback and a summary. This is
 local installed evidence, not deployed-provider qualification or live authority.
 No mutable `target/` path or package version alone identifies reviewed bytes.
 Cross-release replacement requires the

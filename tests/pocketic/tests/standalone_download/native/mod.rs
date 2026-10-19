@@ -7,6 +7,7 @@ use crate::{
 };
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use std::{
     net::TcpListener,
@@ -38,7 +39,7 @@ fn arguments(
         "--namespace",
         &f.config.namespace.to_string(),
         "--request",
-        report.join("request.cbor").to_str().unwrap(),
+        report.join("request.wire").to_str().unwrap(),
         "--project",
         PROJECT,
         "--gateway",
@@ -55,7 +56,7 @@ fn arguments(
 
 #[test]
 fn standalone_native_download_refuses_unconfirmed_and_restored_references_without_provider_get() {
-    let temp = tempfile::tempdir().unwrap();
+    let temp = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let report = std::env::var_os("BLOB_TENANT_DOWNLOAD_REPORT").map_or_else(
         || temp.path().join("standalone"),
         |p| PathBuf::from(p).join("standalone"),
@@ -92,8 +93,8 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
         reference: upload.first_reference,
     };
     std::fs::write(
-        report.join("request.cbor"),
-        ic_blob_storage_contracts::wire::encode(request).unwrap(),
+        report.join("request.wire"),
+        ic_blob_storage_contracts::document::encode(request).unwrap(),
     )
     .unwrap();
     std::fs::write(temp.path().join("identity.pem"), PEM).unwrap();
@@ -115,8 +116,10 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     ] {
         if label == "restored" {
             f.harness.pic.stop_progress();
-            f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
-                .unwrap();
+            f.upgrade(
+                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
+            )
+            .unwrap();
             f.harness.pic.auto_progress();
         }
         let directory = report.join(label);

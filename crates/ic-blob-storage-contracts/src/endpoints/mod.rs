@@ -13,8 +13,6 @@ pub enum MethodMode {
 /// Codec required by this method's external contract.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum MethodCodec {
-    /// Blob-owned exact CBOR value.
-    Cbor,
     /// Bounded, method- and direction-bound IC Wire contract.
     IcWire,
     /// Provider-defined Caffeine certificate contract.
@@ -38,11 +36,11 @@ macro_rules! method_spec {
         MethodSpec { name: crate::protocol::TENANT_UPDATE_METHOD, mode: MethodMode::Update, codec: MethodCodec::IcWire }
     };
     (query, $category:ident, fn $name:ident $($rest:tt)*) => {
-        MethodSpec { name: stringify!($name), mode: MethodMode::Query, codec: MethodCodec::Cbor }
+        MethodSpec { name: stringify!($name), mode: MethodMode::Query, codec: MethodCodec::IcWire }
     };
     (update, $category:ident, $($rest:tt)*) => { method_spec!(@update $($rest)*) };
     (@update async fn $name:ident $($rest:tt)*) => {
-        MethodSpec { name: stringify!($name), mode: MethodMode::Update, codec: MethodCodec::Cbor }
+        MethodSpec { name: stringify!($name), mode: MethodMode::Update, codec: MethodCodec::IcWire }
     };
     (certificate, $category:ident, $name:literal, $($rest:tt)*) => {
         MethodSpec { name: $name, mode: MethodMode::Update, codec: MethodCodec::Candid }
@@ -53,7 +51,7 @@ macro_rules! method_specs {
 }
 /// Complete callable service surface; linking this value exports no endpoint.
 pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
-    dispatch = method_specs,
+    dispatch = [method_specs],
     emit = unused,
     workflow = unused,
     context = unused,
@@ -105,9 +103,8 @@ macro_rules! mount_service_endpoints {
             },
         };
         pub(super) use $contracts::upload::binding::UploadContext;
-        use $crate::__emit_blob_service;
         $crate::__blob_service_catalog!(
-            dispatch = __emit_blob_service,
+            dispatch = [$crate::__emit_blob_service],
             emit = $emit,
             workflow = $workflow,
             context = $context,
@@ -126,9 +123,9 @@ macro_rules! __emit_blob_service {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __blob_service_catalog {
-    (dispatch = $dispatch:ident, emit = $emit:ident, workflow = $workflow:ident, context = $context:ident,
+    (dispatch = [$($dispatch:tt)*], emit = $emit:ident, workflow = $workflow:ident, context = $context:ident,
      contracts = $contracts:ident, clock = $clock:path, caller = $caller:path, trap = $trap:path $(,)?) => {
-        $dispatch! { $emit;
+        $($dispatch)*! { $emit;
             [update, request,
             async fn blob_resume_current_instance()
             -> Result<(), $contracts::dto::recovery::CurrentInstanceRecoveryFailure> {

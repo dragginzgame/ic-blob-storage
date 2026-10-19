@@ -17,7 +17,7 @@ use thiserror::Error;
 /// Encoded response and declaration budgets, separate from platform ingress/buffer limits.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct UploadManifestReplyLimits {
-    /// Complete encoded CBOR reply bound, checked before decoding.
+    /// Complete encoded Wire reply bound, checked before decoding.
     pub max_reply_bytes: NonZeroUsize,
     /// Content length, leaf count and original metadata bounds before conversion.
     pub declaration: CaffeineManifestLimits,
@@ -38,7 +38,8 @@ pub enum UploadManifestReplyError {
     #[error("manifest refused: {0:?}")]
     Remote(UploadManifestFailure),
 }
-fn decode<T: for<'de> Deserialize<'de>>(
+fn decode<T: serde::Serialize + for<'de> Deserialize<'de>>(
+    method: &str,
     input: UploadAdmissionRequest,
     bytes: &[u8],
     limits: UploadManifestReplyLimits,
@@ -49,7 +50,7 @@ fn decode<T: for<'de> Deserialize<'de>>(
         return Err(UploadManifestReplyError::Limit);
     }
     let result: Result<T, UploadManifestFailure> =
-        crate::wire::decode(bytes, limits.max_reply_bytes.get())
+        crate::wire::decode_response(method, bytes, limits.max_reply_bytes.get())
             .map_err(|_| UploadManifestReplyError::Invalid)?;
     result.map_err(UploadManifestReplyError::Remote)
 }
@@ -109,11 +110,18 @@ fn bound(
 /// # Errors
 /// Refuses malformed, oversized, changed-permission or inconsistent declarations.
 pub fn inspection(
+    method: &str,
     input: UploadAdmissionRequest,
     bytes: &[u8],
     limits: UploadManifestReplyLimits,
 ) -> Result<UploadManifestResponse, UploadManifestReplyError> {
-    let response = decode(input, bytes, limits)?;
+    if !matches!(
+        method,
+        "blob_upload_manifest" | "blob_verification_manifest"
+    ) {
+        return Err(UploadManifestReplyError::Invalid);
+    }
+    let response = decode(method, input, bytes, limits)?;
     bound(input, &response, limits)?;
     Ok(response)
 }
@@ -126,7 +134,8 @@ pub fn mutation(
     bytes: &[u8],
     limits: UploadManifestReplyLimits,
 ) -> Result<UploadManifestMutation, UploadManifestReplyError> {
-    let response: UploadManifestMutation = decode(input.permission, bytes, limits)?;
+    let response: UploadManifestMutation =
+        decode("blob_prepare_upload", input.permission, bytes, limits)?;
     bound(input.permission, &response.observation, limits)?;
     validate_declaration(input.permission, &input.declaration, limits.declaration)?;
     let UploadManifestInspection::Prepared(retained) = &response.observation.manifest else {

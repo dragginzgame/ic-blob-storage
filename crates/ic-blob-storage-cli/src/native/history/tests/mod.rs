@@ -1,6 +1,7 @@
 use super::*;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryEntry;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
+use ic_host_fs::testing::FixtureDirectory;
 
 fn scope() -> OperatorScope {
     OperatorScope {
@@ -13,7 +14,11 @@ fn scope() -> OperatorScope {
 fn render(page: &FundingHistoryPage) -> Result<Value, Failure> {
     output(
         page.request,
-        &ic_blob_storage_contracts::wire::encode(Ok::<_, FundingHistoryFailure>(page)).unwrap(),
+        &ic_blob_storage_contracts::wire::encode_response(
+            "blob_funding_history",
+            Ok::<_, FundingHistoryFailure>(page),
+        )
+        .unwrap(),
         Principal::self_authenticating([4]),
         "local",
         "http://127.0.0.1",
@@ -67,9 +72,14 @@ fn history_json_preserves_phases_wide_amounts_and_scoped_continuation() {
         value["entries"][3]["phase"]["refunded"],
         (u128::MAX - 1).to_string()
     );
-    let file = tempfile::NamedTempFile::new().unwrap();
-    std::fs::write(file.path(), value["next"].to_string()).unwrap();
-    assert_eq!(request(scope, Some(file.path())).unwrap().cursor, page.next);
+    let file_directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-file").unwrap();
+    let file = ic_host_fs::scratch::create_private_bytes(file_directory.path(), "input", b"", 128)
+        .unwrap();
+    std::fs::write(file.as_path(), value["next"].to_string()).unwrap();
+    assert_eq!(
+        request(scope, Some(file.as_path())).unwrap().cursor,
+        page.next
+    );
     for changed in [
         OperatorScope {
             namespace: 1,
@@ -89,7 +99,7 @@ fn history_json_preserves_phases_wide_amounts_and_scoped_continuation() {
         },
     ] {
         assert_eq!(
-            request(changed, Some(file.path())),
+            request(changed, Some(file.as_path())),
             Err(Failure::CursorScope)
         );
     }
@@ -122,10 +132,11 @@ fn history_reuses_strict_decoder_and_never_turns_errors_into_empty_pages() {
         (FundingHistoryFailure::Invalid, Failure::ServiceInvalid),
     ] {
         assert_eq!(
-            run(
-                &ic_blob_storage_contracts::wire::encode(Err::<FundingHistoryPage, _>(error))
-                    .unwrap()
-            ),
+            run(&ic_blob_storage_contracts::wire::encode_response(
+                "blob_funding_history",
+                Err::<FundingHistoryPage, _>(error)
+            )
+            .unwrap()),
             Err(expected)
         );
     }
@@ -144,13 +155,16 @@ fn history_reuses_strict_decoder_and_never_turns_errors_into_empty_pages() {
         fenced: false,
     };
     assert_eq!(
-        run(
-            &ic_blob_storage_contracts::wire::encode(Ok::<_, FundingHistoryFailure>(forged))
-                .unwrap()
-        ),
+        run(&ic_blob_storage_contracts::wire::encode_response(
+            "blob_funding_history",
+            Ok::<_, FundingHistoryFailure>(forged)
+        )
+        .unwrap()),
         Err(Failure::Binding)
     );
-    let file = tempfile::NamedTempFile::new().unwrap();
+    let file_directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-file").unwrap();
+    let file = ic_host_fs::scratch::create_private_bytes(file_directory.path(), "input", b"", 128)
+        .unwrap();
     for cursor in [
         json!(null),
         json!({"scope":scope_json(scope()),"before_operation":"01"}),
@@ -158,9 +172,12 @@ fn history_reuses_strict_decoder_and_never_turns_errors_into_empty_pages() {
         json!({"scope":scope_json(scope()),"before_operation":"0"}),
         json!({"scope":scope_json(scope()),"before_operation":"1","extra":true}),
     ] {
-        std::fs::write(file.path(), cursor.to_string()).unwrap();
-        assert_eq!(request(scope(), Some(file.path())), Err(Failure::Arguments));
+        std::fs::write(file.as_path(), cursor.to_string()).unwrap();
+        assert_eq!(
+            request(scope(), Some(file.as_path())),
+            Err(Failure::Arguments)
+        );
     }
-    std::fs::write(file.path(), vec![b' '; 2049]).unwrap();
-    assert_eq!(request(scope(), Some(file.path())), Err(Failure::File));
+    std::fs::write(file.as_path(), vec![b' '; 2049]).unwrap();
+    assert_eq!(request(scope(), Some(file.as_path())), Err(Failure::File));
 }

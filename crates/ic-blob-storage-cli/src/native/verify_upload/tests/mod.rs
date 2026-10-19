@@ -7,13 +7,14 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_host_fs::testing::FixtureDirectory;
 
 fn fixture() -> (
-    tempfile::TempDir,
+    FixtureDirectory,
     UploadAdmissionRequest,
     UploadManifestResponse,
 ) {
-    let dir = tempfile::tempdir().unwrap();
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let headers = [CaffeineHeader {
         name: "Content-Length",
         value: "3",
@@ -65,7 +66,7 @@ fn fixture() -> (
     };
     std::fs::write(
         dir.path().join("permission"),
-        ic_blob_storage_contracts::wire::encode(permission).unwrap(),
+        ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     std::fs::write(dir.path().join("body"), b"abc").unwrap();
@@ -82,7 +83,11 @@ fn open(dir: &Path, p: UploadAdmissionRequest) -> Result<Verification, Failure> 
     )
 }
 fn reply(value: UploadManifestResponse) -> Vec<u8> {
-    ic_blob_storage_contracts::wire::encode(Ok::<_, UploadManifestFailure>(value)).unwrap()
+    ic_blob_storage_contracts::wire::encode_response(
+        "blob_upload_manifest",
+        Ok::<_, UploadManifestFailure>(value),
+    )
+    .unwrap()
 }
 #[test]
 fn verified_local_bytes_preserve_exact_identity_without_completion_authority() {
@@ -165,7 +170,7 @@ fn permission_scope_actor_and_resource_bounds_reject_before_query() {
         mutate(&mut invalid);
         std::fs::write(
             dir.path().join("permission"),
-            ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
+            ic_blob_storage_contracts::document::encode(invalid).unwrap(),
         )
         .unwrap();
         assert_eq!(

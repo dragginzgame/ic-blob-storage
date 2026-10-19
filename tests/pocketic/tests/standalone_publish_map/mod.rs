@@ -12,6 +12,7 @@ use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutatio
 use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;
@@ -42,8 +43,8 @@ fn setup(directory: &Path) -> (Fixture, Vec<UploadAdmissionRequest>) {
     (f, permissions)
 }
 fn manifest(directory: &Path, index: usize) -> UploadManifestRequest {
-    ic_blob_storage_contracts::wire::decode(
-        &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.cbor"))).unwrap(),
+    ic_blob_storage_contracts::document::decode(
+        &std::fs::read(directory.join(format!("batch/file-{index:04}/manifest.wire"))).unwrap(),
         ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
     )
     .unwrap()
@@ -147,7 +148,7 @@ fn read_map(directory: &Path, label: &str) -> Value {
 }
 #[test]
 fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_state() {
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let (mut f, permissions) = setup(directory.path());
     confirm(&f, &manifest(directory.path(), 0));
     let mut file_args = args(&mut f, directory.path(), "first-file");
@@ -202,7 +203,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
     );
     assert!(!directory.path().join("released/media-map.json").exists());
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = run(&args(&mut f, directory.path(), "restored"), 0);
     assert_eq!(restored["all_references_live"], false);
@@ -212,7 +213,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
 #[test]
 fn standalone_publish_map_refuses_bad_frozen_bytes_budget_and_operator_before_claiming_output() {
     use crate::{account_native_cli::OUTSIDER_PEM, reference_cli::change_native};
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let (mut f, _) = setup(directory.path());
     let mut input = args(&mut f, directory.path(), "refused");
     input[0] = "publish-file-status".into();

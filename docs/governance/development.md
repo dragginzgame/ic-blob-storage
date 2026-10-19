@@ -48,7 +48,7 @@ versions. Fetch failure stops before validation or release-file mutation. Rust
 compilation/tests then use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
 The shared logger owns stage dispatch and prepared-input checkpoints. Blob's
-`CI_INPUTS` declares the root and all twelve member manifests, Cargo.lock,
+`CI_INPUTS` declares the root and all thirteen member manifests, Cargo.lock,
 compiler/tool pins, snapshot/Make inputs and browser selectors. Both `ci` and
 `release-verify` pass them through `--input`; nested gates in this checkout keep
 the same baseline. Changed, deleted or unreadable inputs stop subsequent stages

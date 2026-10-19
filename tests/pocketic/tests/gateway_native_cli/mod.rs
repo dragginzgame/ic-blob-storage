@@ -6,6 +6,7 @@ use crate::{
 };
 use blob_test_protocol::SourceMode;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
 use ic_platform::agent::{BasicIdentity, Identity};
 use serde_json::{Value, json};
@@ -20,7 +21,7 @@ pub(super) struct GatewayCli {
     report: PathBuf,
     sequence: Cell<u32>,
     baseline: Value,
-    _temporary: tempfile::TempDir,
+    _temporary: FixtureDirectory,
 }
 impl GatewayCli {
     pub fn new(
@@ -30,7 +31,7 @@ impl GatewayCli {
         trusted: &[u8],
         label: &str,
     ) -> Self {
-        let temporary = tempfile::tempdir().unwrap();
+        let temporary = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let key = temporary.path().join("identity.pem");
         let root = temporary.path().join("root.der");
         std::fs::write(&key, PEM).unwrap();
@@ -116,7 +117,7 @@ impl GatewayCli {
                 service: self.scope.service,
                 actor: signer(),
                 method,
-                argument_file: "request.cbor",
+                argument_file: "request.wire",
             },
             reply,
         );

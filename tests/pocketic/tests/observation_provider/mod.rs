@@ -42,8 +42,8 @@ pub(crate) fn serve(listener: &TcpListener, path: &Path, expected: &str, body: &
     assert!(!request.to_ascii_lowercase().contains("authorization:"));
     for file in [
         "plan.json",
-        "permission.cbor",
-        "service-response.cbor",
+        "permission.wire",
+        "service-response.wire",
         "download-request.json",
     ] {
         assert!(
@@ -51,7 +51,7 @@ pub(crate) fn serve(listener: &TcpListener, path: &Path, expected: &str, body: &
             "intent/declaration must precede source GET"
         );
     }
-    assert!(!path.join("statement.cbor").exists());
+    assert!(!path.join("statement.wire").exists());
     // Preserve the exact observed request beside the maintained client evidence.
     std::fs::write(path.join("fixture-http-request.txt"), request).unwrap();
     let header = format!(

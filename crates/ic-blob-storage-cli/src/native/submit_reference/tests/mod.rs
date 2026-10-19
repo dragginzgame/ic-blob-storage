@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
 use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
+use ic_host_fs::testing::FixtureDirectory;
 
 fn request() -> ReferenceCommand {
     ReferenceCommand {
@@ -52,8 +53,8 @@ fn arguments(path: &std::path::Path, directory: &std::path::Path) -> Vec<String>
 
 #[test]
 fn invalid_or_foreign_intent_refuses_before_signing_and_claiming() {
-    let dir = tempfile::tempdir().unwrap();
-    let file = dir.path().join("request.cbor");
+    let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    let file = dir.path().join("request.wire");
     let run = dir.path().join("dispatch");
     let args = arguments(&file, &run);
     for (input, failure) in [
@@ -87,7 +88,7 @@ fn invalid_or_foreign_intent_refuses_before_signing_and_claiming() {
     ] {
         std::fs::write(
             &file,
-            ic_blob_storage_contracts::wire::encode(input).unwrap(),
+            ic_blob_storage_contracts::document::encode(input).unwrap(),
         )
         .unwrap();
         assert_eq!(crate::native::execute(&args), Err(failure));

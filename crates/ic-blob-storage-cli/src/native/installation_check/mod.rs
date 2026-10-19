@@ -40,12 +40,13 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         completion_verifier: verifier,
     };
     let configuration_bytes =
-        ic_blob_storage_contracts::wire::encode(configuration).map_err(|_| Failure::File)?;
-    let installation = ic_blob_storage_contracts::wire::encode(input).map_err(|_| Failure::File)?;
+        ic_blob_storage_contracts::document::encode(configuration).map_err(|_| Failure::File)?;
+    let installation = ic_blob_storage_contracts::wire::encode_request("blob_install", input)
+        .map_err(|_| Failure::File)?;
     let report = json!({"schema":1,"observation":"local_installation_check",
-        "configuration_validated":true,"configuration_file":"configuration.cbor",
+        "configuration_validated":true,"configuration_file":"configuration.wire",
         "proposal_file":"configuration.json","proposal_sha256":ContentDigest::compute(&bytes).to_string(),"configuration_sha256":ContentDigest::compute(&configuration_bytes).to_string(),
-        "installation_file":"installation.cbor",
+        "installation_file":"installation.wire",
         "installation_sha256":ContentDigest::compute(&installation).to_string(),
         "service":service.to_text(),"operator":configuration.operator.to_text(),
         "payment_account":configuration.payment_account.to_text(),
@@ -59,8 +60,8 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         "operational_recovery_qualified":false,"retry_authorized":false});
     let output = Run::create(directory)?;
     output.bytes("configuration.json", &bytes)?;
-    output.bytes("configuration.cbor", &configuration_bytes)?;
-    output.bytes("installation.cbor", &installation)?;
+    output.bytes("configuration.wire", &configuration_bytes)?;
+    output.bytes("installation.wire", &installation)?;
     output.json("summary.json", &report)?;
     Ok(report)
 }

@@ -1,6 +1,7 @@
 //! Actual signed query subprocess; no simulated caller and no provider effects.
 use super::*;
 use crate::authenticated_cli::{PEM, arguments, run};
+use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
@@ -24,14 +25,17 @@ fn funding_history(args: &[String], fenced: bool) {
     assert_eq!(page["entries"], serde_json::json!([]));
     assert_eq!(page["next"], Value::Null);
     assert_eq!(page["fenced"], fenced);
-    let cursor = tempfile::NamedTempFile::new().unwrap();
+    let cursor_directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-file").unwrap();
+    let cursor =
+        ic_host_fs::scratch::create_private_bytes(cursor_directory.path(), "input", b"", 128)
+            .unwrap();
     let mut value =
         serde_json::json!({"scope":page["scope"],"before_operation":u128::MAX.to_string()});
-    std::fs::write(cursor.path(), value.to_string()).unwrap();
-    history.extend(["--cursor".into(), cursor.path().to_str().unwrap().into()]);
+    std::fs::write(cursor.as_path(), value.to_string()).unwrap();
+    history.extend(["--cursor".into(), cursor.as_path().to_str().unwrap().into()]);
     assert_eq!(run(&history, 0)["cursor"], value);
     value["scope"]["namespace"] = "1".into();
-    std::fs::write(cursor.path(), value.to_string()).unwrap();
+    std::fs::write(cursor.as_path(), value.to_string()).unwrap();
     assert_eq!(run(&history, 3)["error"], "cursor_scope");
 }
 
@@ -54,7 +58,7 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
             Some(f.controller),
         )
         .unwrap();
-    let directory = tempfile::tempdir().unwrap();
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let key = directory.path().join("identity.pem");
     let root = directory.path().join("root.der");
     std::fs::write(&key, PEM).unwrap();
@@ -95,7 +99,7 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     std::fs::write(&root, root_bytes).unwrap();
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let mut args = args;

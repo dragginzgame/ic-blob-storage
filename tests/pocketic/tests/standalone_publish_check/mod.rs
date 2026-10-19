@@ -9,6 +9,7 @@ use crate::{
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
+use ic_host_fs::testing::FixtureDirectory;
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -69,12 +70,15 @@ pub(super) fn freeze_bodies(
     assert_eq!(bodies.len(), cache_controls.len());
     let host = fixture.configuration(fixture.operator).unwrap();
     std::fs::write(
-        directory.join("installation.cbor"),
-        ic_blob_storage_contracts::wire::encode(ServiceInstallationInput {
-            configuration: host.configuration,
-            project: host.project.clone(),
-            completion_verifier: host.completion_verifier,
-        })
+        directory.join("installation.wire"),
+        ic_blob_storage_contracts::wire::encode_request(
+            "blob_install",
+            ServiceInstallationInput {
+                configuration: host.configuration,
+                project: host.project.clone(),
+                completion_verifier: host.completion_verifier,
+            },
+        )
         .unwrap(),
     )
     .unwrap();
@@ -125,7 +129,7 @@ pub(super) fn freeze_bodies(
         "--root",
         directory.to_str().unwrap(),
         "--installation",
-        directory.join("installation.cbor").to_str().unwrap(),
+        directory.join("installation.wire").to_str().unwrap(),
         "--max-bytes",
         &maximum,
         "--max-total-bytes",
@@ -176,7 +180,7 @@ fn args(f: &Fixture, d: &Path, url: &str, label: &str) -> Vec<String> {
 fn standalone_batch_check_observes_absence_original_reservation_and_same_release_restore_without_mutation()
  {
     let mut f = setup();
-    let d = tempfile::tempdir().unwrap();
+    let d = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let p = freeze(&f, d.path());
     let url = f
         .harness
@@ -213,7 +217,7 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
     let repeated = run(&args(&f, d.path(), &url, "pending"), 3);
     assert_eq!(repeated["error"], "new_run_required");
     f.harness.pic.stop_progress();
-    f.upgrade(ic_blob_storage_contracts::wire::encode(()).unwrap())
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     f.harness.pic.auto_progress();
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -232,7 +236,7 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
 #[test]
 fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellation() {
     let mut f = setup();
-    let d = tempfile::tempdir().unwrap();
+    let d = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let mut p = freeze(&f, d.path());
     p.upload.root = [77; 32];
     p.upload.upload = 99;

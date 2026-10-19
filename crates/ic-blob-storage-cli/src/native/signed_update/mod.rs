@@ -144,7 +144,7 @@ impl PreparedUpdate {
                 if bytes.len() > self.reply_limit {
                     return Err(Failure::ReplyLimit);
                 }
-                self.run.bytes("response.cbor", &bytes)?;
+                self.run.bytes("response.wire", &bytes)?;
                 Ok(Some(bytes))
             }
         });

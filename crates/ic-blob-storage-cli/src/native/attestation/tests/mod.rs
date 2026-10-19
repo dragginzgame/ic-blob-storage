@@ -2,6 +2,7 @@ use super::*;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::completion::*;
+use ic_host_fs::testing::FixtureDirectory;
 
 fn statement() -> UploadAttestationRequest {
     UploadAttestationRequest {
@@ -39,13 +40,14 @@ fn open(path: &Path, statement: &UploadAttestationRequest) -> Result<Recovery, F
 fn output(recovery: &Recovery, attestation: &UploadAttestationLookup, fenced: bool) -> Value {
     let inspection = recovery
         .inspect(
-            &ic_blob_storage_contracts::wire::encode(Ok::<_, UploadAttestationFailure>(
-                UploadAttestationResponse {
+            &ic_blob_storage_contracts::wire::encode_response(
+                "blob_upload_attestation",
+                Ok::<_, UploadAttestationFailure>(UploadAttestationResponse {
                     permission: recovery.statement.permission,
                     attestation: *attestation,
                     fenced,
-                },
-            ))
+                }),
+            )
             .unwrap(),
             verifier(),
             "local",
@@ -62,11 +64,13 @@ fn output(recovery: &Recovery, attestation: &UploadAttestationLookup, fenced: bo
 
 #[test]
 fn saved_statement_recovery_distinguishes_absence_match_and_conflict_without_retry() {
-    let file = tempfile::NamedTempFile::new().unwrap();
+    let file_directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-file").unwrap();
+    let file = ic_host_fs::scratch::create_private_bytes(file_directory.path(), "input", b"", 128)
+        .unwrap();
     let statement = statement();
-    let original = ic_blob_storage_contracts::wire::encode(statement).unwrap();
-    std::fs::write(file.path(), &original).unwrap();
-    let recovery = open(file.path(), &statement).unwrap();
+    let original = ic_blob_storage_contracts::document::encode(statement).unwrap();
+    std::fs::write(file.as_path(), &original).unwrap();
+    let recovery = open(file.as_path(), &statement).unwrap();
     // Inspection depends only on retained exact intent, not the original content file.
     let receipt = UploadAttestationReceipt {
         request: statement,
@@ -104,22 +108,24 @@ fn saved_statement_recovery_distinguishes_absence_match_and_conflict_without_ret
             );
         }
     }
-    assert_eq!(std::fs::read(file.path()).unwrap(), original);
+    assert_eq!(std::fs::read(file.as_path()).unwrap(), original);
 }
 
 #[test]
 fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
-    let file = tempfile::NamedTempFile::new().unwrap();
+    let file_directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-file").unwrap();
+    let file = ic_host_fs::scratch::create_private_bytes(file_directory.path(), "input", b"", 128)
+        .unwrap();
     let s = statement();
     std::fs::write(
-        file.path(),
-        ic_blob_storage_contracts::wire::encode(s).unwrap(),
+        file.as_path(),
+        ic_blob_storage_contracts::document::encode(s).unwrap(),
     )
     .unwrap();
     let mut other_scope = s;
     other_scope.permission.upload.namespace = 1;
     assert!(matches!(
-        open(file.path(), &other_scope),
+        open(file.as_path(), &other_scope),
         Err(Failure::Binding)
     ));
     assert!(matches!(
@@ -128,7 +134,7 @@ fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
             u128::MAX,
             verifier(),
             Principal::self_authenticating([8]),
-            file.path()
+            file.as_path()
         ),
         Err(Failure::Denied)
     ));
@@ -143,7 +149,7 @@ fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
                 u128::MAX,
                 verifier(),
                 actor,
-                file.path()
+                file.as_path()
             )
             .is_ok()
         );
@@ -151,17 +157,17 @@ fn invalid_saved_intent_scope_actor_and_input_limits_refuse_before_transport() {
     let mut invalid = s;
     invalid.permission.upload.upload = 0;
     for bytes in [
-        ic_blob_storage_contracts::wire::encode(invalid).unwrap(),
+        ic_blob_storage_contracts::document::encode(invalid).unwrap(),
         b"DIDL".to_vec(),
-        ic_blob_storage_contracts::wire::encode((s, 1_u8)).unwrap(),
-        ic_blob_storage_contracts::wire::encode((s, ic_platform::candid::contract::Reserved))
+        ic_blob_storage_contracts::document::encode((s, 1_u8)).unwrap(),
+        ic_blob_storage_contracts::document::encode((s, ic_platform::candid::contract::Reserved))
             .unwrap(),
     ] {
-        std::fs::write(file.path(), bytes).unwrap();
-        assert!(matches!(open(file.path(), &s), Err(Failure::Arguments)));
+        std::fs::write(file.as_path(), bytes).unwrap();
+        assert!(matches!(open(file.as_path(), &s), Err(Failure::Arguments)));
     }
-    std::fs::write(file.path(), vec![0; 4097]).unwrap();
-    assert!(matches!(open(file.path(), &s), Err(Failure::File)));
+    std::fs::write(file.as_path(), vec![0; 4097]).unwrap();
+    assert!(matches!(open(file.as_path(), &s), Err(Failure::File)));
 }
 
 #[test]
@@ -183,7 +189,7 @@ fn command_requires_saved_statement_and_explicit_expected_verifier() {
         "--namespace",
         &u128::MAX.to_string(),
         "--statement",
-        "statement.cbor",
+        "statement.wire",
         "--verifier",
         &verifier().to_text(),
     ]
