@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.36.1]
+
+- Use Host's bounded socket acceptance for provider-download and installed
+  observation fixtures. Preserve request assertions, custom responses and
+  intent-before-dispatch evidence while selecting blocking accepted sockets
+  consistently on Linux and macOS.
+
 ## [0.36.0] - 2026-10-19
 
 - Preserve provider Candid registration when consumers mount the shared endpoint
