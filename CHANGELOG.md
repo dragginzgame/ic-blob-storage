@@ -11,6 +11,10 @@
   packets as `.wire` and preserve exact signed envelopes. Reference submissions
   retain `reference.cbor` separately for receipt inspection. Cross-release
   transitions still require retirement and reinstall.
+- Preserve provider Candid registration when consumers mount the shared endpoint
+  catalogue before exporting their service. Dispatch through the exact macro path
+  instead of a deferred imported alias; method signatures and codecs are unchanged
+  ([#88](https://github.com/dragginzgame/ic-blob-storage/issues/88)).
 
 ## [0.35.0] - 2026-10-18
 

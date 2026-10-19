@@ -52,20 +52,6 @@ macro_rules! endpoint {
         #[ic_platform::cdk::update(name = $wire_name, hidden = true, decode_with = "ops::decode_certificate")]
         #[ic_platform::candid::contract::candid_method(update, rename = $wire_name)]
         $($item)*
-
-        // Keep provider registration and schema export in the same expansion pass.
-        #[cfg(all(target_arch = "wasm32", feature = "provider-candid-export"))]
-        ic_platform::cdk::export_candid!();
-
-        #[cfg(not(target_arch = "wasm32"))]
-        ic_platform::candid::contract::export_service!(ic_platform::candid::contract);
-
-        #[cfg(any(not(target_arch = "wasm32"), feature = "provider-candid-export"))]
-        pub(crate) fn interface() -> String {
-            __export_service()
-        }
-
-
     };
 }
 ic_blob_storage_contracts::mount_service_endpoints!(
@@ -77,3 +63,15 @@ ic_blob_storage_contracts::mount_service_endpoints!(
     caller = ic_platform::cdk::api::msg_caller,
     trap = ic_platform::cdk::api::trap,
 );
+
+// The catalogue registers its provider method before this export is expanded.
+#[cfg(all(target_arch = "wasm32", feature = "provider-candid-export"))]
+ic_platform::cdk::export_candid!();
+
+#[cfg(not(target_arch = "wasm32"))]
+ic_platform::candid::contract::export_service!(ic_platform::candid::contract);
+
+#[cfg(any(not(target_arch = "wasm32"), feature = "provider-candid-export"))]
+pub(crate) fn interface() -> String {
+    __export_service()
+}

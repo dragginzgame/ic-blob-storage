@@ -66,3 +66,7 @@ Public DTO Candid traits used by record/external contracts remain separate work 
 not claim those traits or external transports have disappeared. Required hosted
 checks and maintainer review precede integration. Release, retirement disposition,
 package publication and deployment remain separately authorized operations.
+
+Upstream catalogue/export ordering repair (#89) and delivery handoff (#85) are
+incorporated from `628d176`; the next batch extends contract qualification and
+application DTO separation. Prior delivery evidence remains in Git history.

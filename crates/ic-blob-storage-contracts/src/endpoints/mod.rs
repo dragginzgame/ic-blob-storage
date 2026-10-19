@@ -51,7 +51,7 @@ macro_rules! method_specs {
 }
 /// Complete callable service surface; linking this value exports no endpoint.
 pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
-    dispatch = method_specs,
+    dispatch = [method_specs],
     emit = unused,
     workflow = unused,
     context = unused,
@@ -103,9 +103,8 @@ macro_rules! mount_service_endpoints {
             },
         };
         pub(super) use $contracts::upload::binding::UploadContext;
-        use $crate::__emit_blob_service;
         $crate::__blob_service_catalog!(
-            dispatch = __emit_blob_service,
+            dispatch = [$crate::__emit_blob_service],
             emit = $emit,
             workflow = $workflow,
             context = $context,
@@ -124,9 +123,9 @@ macro_rules! __emit_blob_service {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __blob_service_catalog {
-    (dispatch = $dispatch:ident, emit = $emit:ident, workflow = $workflow:ident, context = $context:ident,
+    (dispatch = [$($dispatch:tt)*], emit = $emit:ident, workflow = $workflow:ident, context = $context:ident,
      contracts = $contracts:ident, clock = $clock:path, caller = $caller:path, trap = $trap:path $(,)?) => {
-        $dispatch! { $emit;
+        $($dispatch)*! { $emit;
             [update, request,
             async fn blob_resume_current_instance()
             -> Result<(), $contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
