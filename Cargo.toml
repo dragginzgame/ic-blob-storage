@@ -58,7 +58,7 @@ blob-test-protocol = { path = "tests/protocol" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
 ic-host-tools = "0.29"
 ic-metrics = "0.14"
-ic-testkit = "0.54"
+ic-testkit = "0.55"
 
 [workspace.lints.rust]
 missing_docs = "deny"

@@ -52,8 +52,6 @@ macro_rules! endpoint {
         #[ic_platform::cdk::update(name = $wire_name, hidden = true, decode_with = "ops::decode_certificate")]
         #[ic_platform::candid::contract::candid_method(update, rename = $wire_name)]
         $($item)*
-
-
     };
 }
 ic_blob_storage_contracts::mount_service_endpoints!(
