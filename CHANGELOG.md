@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.36.0]
+## [0.36.0] - 2026-10-19
 
 - Preserve provider Candid registration when consumers mount the shared endpoint
   catalogue before exporting their service. Dispatch through the exact macro path
