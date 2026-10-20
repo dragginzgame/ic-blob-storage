@@ -2,6 +2,10 @@
 
 ## [0.39.0] - Unreleased
 
+- Repair the local tool-command fixture for the release-editor setup/check step.
+  Verify complete aggregate ordering and fail-before-build behavior under parallel
+  Make, including release-editor refusal.
+
 - **Breaking reference-model API:** require non-default `test-support` for the
   transient heap catalog, lifecycle, receipt and root owners and their read-policy
   adapters. Production uses the durable installed service owner; shared domain

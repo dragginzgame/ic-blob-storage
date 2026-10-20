@@ -2,6 +2,27 @@
 
 Date: 2026-10-20
 
+## Shared-tooling test fixture repair
+
+The retained `20261020T180653Z-2335439-7-shared-tooling-tests.log` stops in Blob's
+local Testkit command fixture. Its installer substitute accepted only Testkit,
+while the real aggregate now also installs/checks the IC Build release editor.
+The retained fixture's `install-tools.log` confirms rejection of that final step.
+The failure reproduces independently before the fix; production setup is unchanged.
+
+The substitute now admits both exact package/bin/profile selections. Aggregate
+assertions include the editor after Testkit and verify editor setup/check failure
+stops both tool preparation and native-host validation before compilation under
+parallel Make. Existing server selection, original-lock preservation and failure
+propagation checks remain. This is consumer fixture drift, not a shared snapshot
+or installed tool failure; no sibling edits or dependency changes are needed.
+
+The focused fixture, complete `make shared-tooling-tests`, Bash syntax and
+ShellCheck pass. Formatting, snapshot and documentation links pass. Evidence and
+before-images remain in `.tmp/review-validation/testkit-release-editor-fixture/`;
+the original failed fixtures/logs are retained. Full CI/release validation remains
+unrun. No staging, commit, version, release, installation or publication effects ran.
+
 ## Pending 0.39.0: CLI dispatch and reference-owner boundary
 
 Separated parsed CLI commands from connection/signer options. One exhaustive

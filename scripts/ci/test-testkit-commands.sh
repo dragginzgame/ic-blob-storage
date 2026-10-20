@@ -48,10 +48,14 @@ if [[ $# == 4 || ( $# == 5 && ( "$5" == --check || "$5" == --preflight ) ) ]]; t
 fi
 [[ $# == 10 || ( $# == 11 && "${11}" == --check ) ]] || exit 1
 [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --package &&
-   "$4" == ic-testkit && "$5" == --lockfile && "$6" == Cargo.lock &&
-   "$7" == --bin && "$8" == ic-testkit-server && "$9" == --profile && "${10}" == release ]] || exit 1
-[[ "${TESTKIT_FAIL:-}" != install ]] || exit 23
-printf '%s\n' "$TESTKIT_FIXTURE_ROOT/testkit-cli"
+   "$5" == --lockfile && "$6" == Cargo.lock && "$7" == --bin && "$9" == --profile ]] || exit 1
+case "$4:$8:${10}" in
+    ic-testkit:ic-testkit-server:release) failure=install; binary=testkit-cli ;;
+    ic-build:ic-build-release-metadata:debug) failure=release-editor; binary=release-editor ;;
+    *) exit 1 ;;
+esac
+[[ "${TESTKIT_FAIL:-}" != "$failure" ]] || exit 23
+printf '%s\n' "$TESTKIT_FIXTURE_ROOT/$binary"
 INSTALL
 cat > "$consumer/testkit-cli" <<'CLI'
 #!/usr/bin/env bash
@@ -150,20 +154,21 @@ for target in install-tools tools-check; do
         offset=1
         [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]] || exit 1
     fi
-    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((5 + offset)) ]] || exit 1
+    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((6 + offset)) ]] || exit 1
     [[ "$(sed -n "$((offset + 1))p" "$TESTKIT_COMMAND_LOG")" == common-host ]] || exit 1
     [[ "$(sed -n "$((offset + 2))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]] || exit 1
     [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == common-ic ]] || exit 1
     [[ "$(sed -n "$((offset + 4))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]] || exit 1
-    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]] || exit 1
+    [[ "$(sed -n "$((offset + 5))p" "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]] || exit 1
+    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-build> <--lockfile> <Cargo.lock> <--bin> <ic-build-release-metadata> <--profile> <debug>'* ]] || exit 1
     if [[ "$action" == check ]]; then
-        [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 2 ]] || exit 1
+        [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 3 ]] || exit 1
     elif grep -F '<--check>' "$TESTKIT_COMMAND_LOG" >/dev/null; then exit 1; fi
     cp "$TESTKIT_COMMAND_LOG" "$fixture/ordered-expected"
     admitted_targets=("$target")
     [[ "$target" != tools-check ]] || admitted_targets[1]=test-native-host
     count=0
-    failures=(common-host common-rust common-ic install "$action")
+    failures=(common-host common-rust common-ic install "$action" release-editor)
     [[ "$target" != install-tools ]] || failures=(preflight-rust "${failures[@]}")
     for failure in "${failures[@]}"; do
         count=$((count + 1))
@@ -182,5 +187,5 @@ done
 # interrupted builds and retained generations. This fixture owns Blob's adapter
 # forwarding, server handoff and ordered refusal; explicit real setup qualifies
 # their composition without maintaining another Cargo installation substitute.
-echo 'Locked Testkit forwarding, admitted server handoff and failure propagation passed (substitute tools)'
+echo 'Locked Testkit/release-editor forwarding, admitted server handoff and ordered failure propagation passed (substitute tools)'
 fixture_complete=true
