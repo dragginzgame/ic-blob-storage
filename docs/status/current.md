@@ -2,9 +2,112 @@
 
 Date: 2026-10-20
 
+## Testkit 0.60: temporary Platform alias removed
+
+Published Testkit 0.60 uses Platform ^0.5; its archive matches registry checksum
+`909756857ae5903825f5faa97d9d08b5745880e9eeac299070b0a11474e7e1a5`
+and VCS `65c99c9`. The incoming manifest/lock selection is preserved. Removed
+`ic-platform-testkit` from the root catalog and native test package; fixture
+limits and historical helpers now use ordinary Platform directly. All five
+budgets remain unchanged, and Testkit's bounded call-helper source is identical
+to 0.59. Platform 0.4.1 is the only removed resolved package; no package was added
+by this cleanup. The workspace boundary now rejects that family across features,
+targets and normal/build/dev edges, matching the deployment exclusion.
+The old prepared compatibility issue is superseded and must not be published.
+
+Passes: full workspace/all-targets/all-features check and strict Clippy, 25 native
+fixture tests, actual Rust 1.91 native test-target checks, frozen Wire vectors,
+formatting, pins/boundaries, snapshot and documentation links. Explicit Testkit
+0.60 setup/offline admission passes with PocketIC 16.1.0. Fresh standalone and
+authority-probe release Wasm pass actual Candid query/update upload isolation and
+three standalone certificate cases (plus the local pipe-output helper).
+Incoming Host 0.32, Build 0.24, Memory 0.49.3 and Wire 0.5.2 selections are preserved;
+these focused checks do not claim their complete upstream/release qualification.
+Full CI, optimized Wasm, macOS, installed Canic and live-provider qualification
+remain unrun. No staging, commit, package-version, release or publication effects
+ran. Before-images, archive admission, lock/graph comparison and checks remain in
+`.tmp/review-validation/testkit060-no-alias/`.
+
+## IC Platform 0.5.0 adoption
+
+Completed the incoming published Platform 0.5.0 selection for pending 0.39.0.
+The archive matches the official sparse-index checksum and VCS `b840423`.
+No sibling override or unpublished 0.5.1 source is selected. Shared Tooling's
+remote HEAD still matches adopted 0.25.8 / `0a2d2ee`; the sibling's uncommitted
+release work is not consumer input. Its 131-file snapshot verifies unchanged.
+Preserve the incoming shared release/Clippy/Unreleased changes below.
+
+Core and replicated client now select Platform's macro-free `runtime`; endpoint
+owners retain `cdk`. All three call sites use explicit bounded wait policy with
+the same timeout, payload, cycles and no-retry policy. Retired no-op `hidden`
+options are removed from adapters and local endpoint emitters. Native standalone
+service export and Contracts tests explicitly select `candid-service`; deployed
+entrypoints retain their explicit codecs and exact callable surface. External
+management types still enable Candid's printer transitively, so this is neither
+a printer-free nor Candid-free deployment claim. Wire/stored schemas are unchanged.
+
+The initial adoption needed Testkit 0.59's native Platform 0.4 decoder identity;
+that checkpoint and the unposted report remain in the original evidence below.
+Published Testkit 0.60 now removes that blocker: native helpers use Platform 0.5
+without an alias or budget conversion. The prepared report is superseded and
+needs no publication. Current follow-up qualification is recorded above.
+
+Passes: workspace/all-targets/all-features check and strict Clippy; focused core,
+Contracts and standalone unit tests; Contracts integration/examples including
+native service export and frozen Wire vectors; release standalone/all-probe Wasm;
+actual Rust 1.91 native/Wasm checks; strict public Rustdoc; formatting, dependency
+pins/boundaries, deployment exclusions and documentation links. Twenty-two
+installed PocketIC cases pass: exact deployment surface, ingress, certificates,
+lifecycle/recovery, downloads, upload/restore and replicated gateway callbacks.
+These use PocketIC 16.1.0 and the captured production Wasm with local substitutes;
+full CI, optimized-Wasm matrix, native macOS, installed Canic and live provider
+qualification remain unclaimed. No package version, staging, commit, release,
+push, publication or deployment effects ran. Before-images, graph/feature trees,
+checksums, registry evidence and logs remain under
+`.tmp/review-validation/platform050/`. The existing dependency edits are preserved.
+
+## Shared Tooling 0.25.8
+
+Adopted the reviewed Shared Tooling 0.25.8 source
+`0a2d2ee3b5e0ae77755c2915ac28836d4d5ba359`, matching the official remote HEAD.
+The canonical exporter refreshed 131 files and retired the three old Perl
+manifest/lock renderer and renderer-test copies. No sibling source was edited.
+The snapshot owns common formatting defaults and the new preparation transaction;
+Blob retains source/receipt admission, rollback and its release policy.
+
+CI now prepares dependencies and runs the unchanged workspace/all-targets/all-
+features Clippy gate before later validation or expensive builds/tests/package
+work. Publication runs the same gate after source/tag admission and before
+archive or registry effects. Sequential dispatch preserves the order under
+parallel Make. The hosted archive lane also lints before archive qualification.
+Numbered `- Unreleased` headings are accepted and finalized with the saved UTC
+date; duplicate candidates and already-dated preparation still refuse.
+
+IC Build 0.23.0's published `ic-build-release-metadata` CLI is selected from
+Cargo.lock. `install-release-editor`/`release-editor-check` join the existing
+explicit tool setup and offline checks. Release preparation captures the admitted
+absolute path automatically and supplies an 8 MiB per-document allowance. Common
+Rust tools and Testkit 0.59 were explicitly refreshed for the new build policy;
+the compiler, dependency selections and PocketIC 16.1.0 version stay unchanged.
+No release, registry publication, staging, commit, push or deployment ran.
+
+Qualification passes the actual full-workspace Clippy gate, offline tool/editor
+admission, focused release-adapter cases (including lint refusal under parallel
+Make, `Unreleased` finalization, rollback and saved-source recovery), formatter/
+hook preservation, metadata/Make/fixture-completion tests, dependency boundaries
+and deployment exclusions. ShellCheck and workflow lint pass. Full release CI,
+native macOS and deployed service/provider qualification were not run in this
+source/tooling-only adoption.
+
+Before-images, exporter previews (including the initial obsolete-entrypoint
+refusal), setup/admission evidence, lint and focused fixture results remain under
+`.tmp/review-validation/shared0258/`. Earlier release evidence below retains its
+original source/graph limits. The incoming Cargo.lock edits are preserved.
+
 ## Pending 0.39.0 borrowed Wire contract API
 
-HEAD is released 0.38.0, `837310221129550a925ba057f0a76b3df2329075`.
+HEAD is implementation commit `bc50825` for pending 0.39.0; the latest finalized
+release remains 0.38.0 at `837310221129550a925ba057f0a76b3df2329075`.
 Package versions remain 0.38.0. This task uses already-published and already-
 locked **IC Wire 0.5.0**; no dependency/version bump or sibling override is needed.
 The public finite tenant projection lifetime/reference-conversion change is a

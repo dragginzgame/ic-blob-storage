@@ -9,7 +9,7 @@ macro_rules! owned_endpoint {
         mod $name {
             use super::*;
             fn admit() -> Result<(), String> { ops::admit_owned(stringify!($name)) }
-            #[ic_platform::cdk::$mode(manual_reply = true, hidden = true, guard = "admit", decode_with = "std::convert::identity")]
+            #[ic_platform::cdk::$mode(manual_reply = true, guard = "admit", decode_with = "std::convert::identity")]
             async fn $name(bytes: Vec<u8>) {
                 owned_endpoint!(@input stringify!($name), &bytes; $($arg : $input)?);
                 drop(bytes);

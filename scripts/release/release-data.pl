@@ -51,7 +51,7 @@ sub changelog {
     parts($previous);
     $date =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/ or die "invalid release date\n";
     my $text = read_file('CHANGELOG.md');
-    my @sections = $text =~ /^## \[([^\]]+)\](?: - [0-9]{4}-[0-9]{2}-[0-9]{2})?$/mg;
+    my @sections = $text =~ /^## \[([^\]]+)\](?: - (?:Unreleased|[0-9]{4}-[0-9]{2}-[0-9]{2}))?$/mg;
     my %seen;
     for my $section (@sections) {
         die "duplicate changelog section: $section\n" if $seen{$section}++;

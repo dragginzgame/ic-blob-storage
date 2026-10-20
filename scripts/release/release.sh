@@ -78,7 +78,10 @@ prepare() {
               rm -f docs/release.json
           fi
           echo "Failed preparation restored; inputs retained: $RELEASE_BACKUP_DIR" >&2' EXIT
-    bash scripts/ci/cargo-release-metadata.sh prepare ic-blob-storage
+    local editor
+    editor="$(make --no-print-directory --silent release-editor-check)" || fail 'prepare the selected IC Build release editor with make install-release-editor'
+    CARGO_RELEASE_METADATA_EDITOR="$editor" CARGO_RELEASE_METADATA_MAX_BYTES=8388608 \
+        bash scripts/ci/cargo-release-metadata.sh prepare ic-blob-storage
     make --no-print-directory fmt-check
     perl "$DATA" receipt "$RELEASE_SOURCE" "$RELEASE_DATE"
     perl "$DATA" verify
@@ -160,6 +163,10 @@ publish() {
         ic-blob-storage-contracts|ic-blob-storage-client|ic-blob-storage) packages=("$PUBLISH_PACKAGE") ;;
         *) fail 'unknown publication package' ;;
     esac
+    # Use the same full lint gate as release validation before archive builds or
+    # new registry effects. Keep dependency preparation ahead of offline lint.
+    make --no-print-directory deps
+    make --no-print-directory clippy
     local current head package checksum run registry_user_agent
     current="$(version)" || fail 'cannot read publication version'
     registry_user_agent="ic-blob-storage-release/$current (+https://github.com/dragginzgame/ic-blob-storage)"

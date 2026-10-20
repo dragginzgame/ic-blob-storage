@@ -12,12 +12,11 @@ all thirteen members inherit package versions and dependencies. The root
 select features and targets. Registry consumers resolve their own compatible
 lockfiles; local qualification does not cover every future resolution.
 
-The table records the locally qualified graph. Published Platform 0.4.0 is the
-application/runtime boundary. Testkit 0.59 now uses that same boundary,
-without a native old-family alias. See
-the [current handoff](status/current.md) for qualification scope and gaps. Incoming
-Host 0.31/Build 0.22.1 edits are preserved; the focused Wire adoption check does
-not extend the earlier Host 0.30 installed qualification to that new graph.
+The table retains source-bound qualification checkpoints. Published Platform
+0.5.0 is the application/runtime boundary. Published Testkit 0.60 uses the same
+decoder-limit identity, so no native old-family alias is needed. Platform 0.4 is
+excluded from the workspace and deployment. See the [current handoff](status/current.md) for
+this adoption's checks and earlier dependency qualification limits.
 
 | Owner | Last qualified selection | Responsibility |
 | --- | --- | --- |
@@ -26,10 +25,10 @@ not extend the earlier Host 0.30 installed qualification to that new graph.
 | Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
 | IC Memory | 0.49.1 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
 | IC Storage | 0.5.8; 0.5.7 minimum | Governed stable collections and codec traits; the stable-structures dependency stays upstream; the minimum excludes Memory 0.48 adapters |
-| IC Platform | 0.4.0 | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
+| IC Platform | 0.5.0 | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Wire | 0.5.0 | Bounded method/direction framing for owned service contracts and separate passive document encoding |
 | IC Metrics | 0.14.7 | Private probe measurement arithmetic; not a public Blob API |
-| IC Testkit | 0.59.0 | PocketIC client/server selection and managed lifetime; bounded Candid decoding and client exports use Platform 0.4 directly |
+| IC Testkit | 0.60.0 | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform 0.5 directly |
 | IC Host artifacts/fs/process/tools | 0.30.1 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Build | 0.22.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
 | PocketIC | 16.1.0 transitive | Testkit-selected local IC execution through Platform; no separate Blob dependency or server catalog |
@@ -102,7 +101,7 @@ service inventory. Host interprets the bounded Wasm function exports through
 `ic-interface` without its optional Candid parser. Direct Candid/CDK declarations
 remain forbidden by the boundary policy.
 
-Platform 0.4.0 owns non-cryptographic runtime adapters, using the original
+Platform 0.5.0 owns non-cryptographic runtime adapters, using the original
 executor 2.0.0 and IC0 1.2.0 identities. Callable entrypoints select codecs
 explicitly. Blob's method emitters bind pre-copy admission to the declared
 method, not inspect-message-only APIs. Provider Candid replies remain explicit;
@@ -133,30 +132,35 @@ Platform 0.4 removes runtime Candid convenience methods. Calls now provide
 separately encoded bytes, including explicit Candid unit arguments; existing
 reply decoders and transport/codec failure mappings remain at their owners.
 
-Published Testkit 0.59 supplies Platform 0.4's original `DecodeLimits` and
-`DecodeError`. Native fixture policy and historical-image helpers now use the
-ordinary `ic-platform` declaration directly. The temporary native alias and
-last resolved Platform 0.2 package are removed without budget conversion,
-copied decoding or an alternate transport. All five reply budgets remain exact.
-This completes Blob's local limit-identity adoption for
-[Testkit #133 — Align public decoder-limit identities with published Platform 0.2](https://github.com/dragginzgame/ic-testkit/issues/133);
-upstream delivery and default-branch integration remain separate observations.
-Incoming Host 0.31/Build 0.22.1 selections are preserved; Build still selects its
-own Host 0.30 family. Removing the Platform alias does not qualify the package
-verifier or consolidate those distinct Host versions.
+Published Testkit 0.60 shares Platform 0.5's original `DecodeLimits` and
+`DecodeError`. Native fixture policy and historical-image helpers use the ordinary
+`ic-platform` dependency directly. The temporary native alias and resolved
+Platform 0.4 package are removed, preserving all five reply budgets without
+conversion, copied decoding or alternate transport. The earlier prepared
+compatibility report no longer needs publication.
+
+Core and replicated client select `runtime`, retaining their existing CDK API
+paths and shared executor identity without requesting the entrypoint generator.
+Canister adapters select `cdk`. Explicit `WaitPolicy::Bounded` preserves all
+three callers' original timeout values, raw arguments, cycles and retry policy.
+Standalone service declarations select `candid-service` only on native targets;
+Contracts selects it only for native tests. Deployed entrypoints retain explicit
+Wire/provider codec hooks and no longer carry the retired no-op `hidden` option.
+Upstream Candid printer dependencies can still be enabled transitively; these
+feature choices do not claim a Candid-free deployment.
 
 The old Platform 0.1 alias and optional Wasm extraction feature stay removed.
 The native standalone `export_candid` example still exports the same provider
 contract; Host's callable export inspection requires no Candid extraction pointer.
 The resolved graph selects neither Platform 0.1 nor full CDK. No bounded Host
 inventory implementation is copied into Blob. `make contracts-boundary-check`
-rejects retired Platform 0.1/0.2/0.3 and full CDK across workspace features and targets,
+rejects retired Platform 0.1/0.2/0.3/0.4 and full CDK across workspace features and targets,
 including normal/build/dev edges. Its separate production normal/build Wasm
-check additionally rejects Platform 0.2/0.3, Host, Build, Testkit, PocketIC,
+check additionally rejects Platform 0.1/0.2/0.3/0.4, Host, Build, Testkit, PocketIC,
 Agent and the parser. Candid remains through required provider/management
 contracts and persisted schemas; this is not a Candid-free deployment claim.
 
-Testkit 0.59 forwards Platform 0.4's original `CanisterInstallMode` and
+Testkit 0.60 forwards Platform 0.5's original `CanisterInstallMode` and
 `common::rest::RawMessageId`. Six test modules use those exports for skipped-hook
 upgrades and pending-call recovery; the temporary direct PocketIC declaration
 and boundary exception are removed. Its management DTOs retain PocketIC's own

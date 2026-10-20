@@ -2,6 +2,24 @@
 
 ## [0.39.0] - Unreleased
 
+- **Breaking Platform family:** adopt published IC Platform 0.5.0; hosts must
+  align their public Platform types. Preserve bounded call timeouts with its
+  explicit wait policy and remove retired no-op entrypoint options. Endpoint
+  identities, codecs, lifecycle and recovery behavior remain unchanged.
+- Select Platform's macro-free runtime for the core and replicated client.
+  Restrict service-declaration generation to native export/tests. Use published
+  Testkit 0.60's Platform 0.5 decoder types directly, remove the temporary native
+  alias, and exclude Platform 0.4 from the workspace as well as deployment.
+
+- Adopt Shared Tooling 0.25.8. Run the existing workspace Clippy gate after
+  dependency preparation and before expensive release validation or publication
+  work, preserving failure ordering under parallel Make.
+- Accept numbered `- Unreleased` notes in release preflight and finalize them
+  with the saved UTC release date. Keep duplicate/refusal and recovery checks.
+- Delegate release manifest/lock rendering to the lock-selected published IC Build
+  editor. Add explicit setup/offline admission and retire the old Perl renderers;
+  use Shared’s grouped formatting defaults.
+
 - Import Serde directly in the five application Wire reply decoders, removing
   their incidental Candid namespace coupling without changing codecs or bounds.
 

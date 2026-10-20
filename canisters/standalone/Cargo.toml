@@ -9,6 +9,9 @@ publish = false
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ic-platform = { workspace = true, features = ["candid-service"] }
+
 [dependencies]
 ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true

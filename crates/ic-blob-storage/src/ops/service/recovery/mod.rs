@@ -5,7 +5,7 @@ use crate::{
 };
 use ic_platform::Principal;
 
-use ic_platform::cdk::call::Call;
+use ic_platform::cdk::call::{Call, WaitPolicy};
 use ic_platform::management_canister_types::{
     CanisterInfoArgs, CanisterInfoResult, ChangeDetails, CodeDeploymentMode,
 };
@@ -144,7 +144,9 @@ pub async fn prove_current_instance(
     let service = ic_platform::cdk::api::canister_self();
     let request_version = ic_platform::ic0::canister_version();
     let reply = Call::bounded_wait(Principal::management_canister(), "canister_info")
-        .change_timeout(30)
+        .with_wait_policy(WaitPolicy::Bounded {
+            timeout_seconds: 30,
+        })
         .take_raw_args(
             ic_platform::candid::contract::encode_one(CanisterInfoArgs {
                 canister_id: service.into(),

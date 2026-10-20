@@ -3,13 +3,12 @@ SHELL := /bin/bash
 
 # Keep all builds in this repository, including calls from another workspace.
 export CARGO_TARGET_DIR := $(CURDIR)/target
-LOCAL_TOOL_INSTALL_TARGETS := install-ic-tools install-testkit
-LOCAL_TOOL_CHECK_TARGETS := ic-tools-check testkit-check
+LOCAL_TOOL_INSTALL_TARGETS := install-ic-tools install-testkit install-release-editor
+LOCAL_TOOL_CHECK_TARGETS := ic-tools-check testkit-check release-editor-check
+RELEASE_EDITOR_ARGS := --consumer "$(CURDIR)" --package ic-build --lockfile Cargo.lock --bin ic-build-release-metadata --profile debug
 override SHARED_TOOLING_ROOT := $(CURDIR)
 override RELEASE_DELIVERY_POLICY := ci/release-delivery-policy.txt
 export PATH := $(CURDIR)/.tools/ic/bin:$(PATH)
-FORMAT_WRITE_COMMAND = bash -ec '"$$1" sort --workspace --grouped; "$$1" fmt --all' -- "$(FORMAT_CARGO)"
-FORMAT_CHECK_COMMAND = bash -ec '"$$1" sort --workspace --grouped --check; "$$1" fmt --all -- --check' -- "$(FORMAT_CARGO)"
 include make/consumer.mk
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
@@ -30,7 +29,7 @@ export RELEASE_DELIVERY ?= direct
 export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check tools-check dependency-pins-check platform-boundary-check documentation-links-check shared-tooling-tests deps contracts-boundary-check shell-check release-check hooks-check fmt-check check clippy probe-check docs-check test test-wasm-opt wasm-check package
+CI_TARGETS := shared-tooling-check tools-check dependency-pins-check deps clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
 CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-dependency-boundaries.json \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
@@ -45,6 +44,7 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 .PHONY: test-hard-cut test-native-host test-wasm-opt msrv-check tasks
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 .PHONY: install-testkit testkit-check
+.PHONY: install-release-editor release-editor-check
 
 help:
 	@echo "release-tools-check          Check ShellCheck, pinned cargo-sort and rustfmt without building"
@@ -53,6 +53,7 @@ help:
 	@echo "tasks                        Show the shared maintenance task catalog"
 	@echo "browser-tools-check          Offline exact browser Node/npm and manifest/lock checks"
 	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
+	@echo "install-release-editor / release-editor-check  Prepare or admit the locked IC Build editor"
 	@echo "install-host-tools / host-tools-check   Pinned repo-local jq/yq/rg/cloc setup / verification"
 	@echo "install-ic-tools / ic-tools-check       Pinned repo-local IC setup / verification"
 	@echo "install-rust-tools / rust-tools-check   Pinned shared Cargo tools setup / verification"
@@ -108,6 +109,12 @@ install-testkit:
 testkit-check:
 	+bash scripts/dev/testkit-server.sh check
 
+install-release-editor:
+	+bash scripts/dev/install-rust-tools.sh $(RELEASE_EDITOR_ARGS)
+
+release-editor-check:
+	+@bash scripts/dev/install-rust-tools.sh $(RELEASE_EDITOR_ARGS) --check
+
 # Shared owns generic formatter, digest, installer and release-runner matrices.
 # Blob retains actual Make/hook/tool admission and archive/retention callers below.
 shared-tooling-tests:
@@ -117,7 +124,6 @@ shared-tooling-tests:
 	+bash scripts/ci/test-evidence-archive.sh
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
-	+perl scripts/ci/test-local-lock-versions.pl
 	+bash scripts/ci/test-cargo-metadata.sh
 	+bash scripts/ci/test-crates-io-version.sh
 	+bash scripts/ci/test-npm-pins.sh
@@ -141,7 +147,7 @@ dependency-pins-check:
 		bash scripts/ci/check-dependency-pins.sh --cargo-inheritance \
 			--npm-root tests/browser --node-version "$$node_version" --npm-version "$$npm_version"
 
-release-tools-check: format-tools-check
+release-tools-check: format-tools-check release-editor-check
 	@command -v "$(SHELLCHECK)" >/dev/null 2>&1 && "$(SHELLCHECK)" --version >/dev/null 2>&1 || { echo "Prepare ShellCheck: sudo apt-get install shellcheck (Debian/Ubuntu) or brew install shellcheck (macOS)." >&2; echo "Select an existing executable with SHELLCHECK=/absolute/path/to/shellcheck." >&2; exit 1; }
 
 hooks-check:
@@ -369,13 +375,13 @@ release-version:
 	@$(RELEASE) version
 
 release-preflight:
-	@$(RELEASE) preflight
+	+@$(RELEASE) preflight
 
 release-prepare-version:
-	@$(RELEASE) prepare
+	+@$(RELEASE) prepare
 
 release-prepared-check:
-	@$(RELEASE) prepared-check
+	+@$(RELEASE) prepared-check
 
 release-files:
 	@$(RELEASE) files
@@ -393,7 +399,7 @@ release-tag-check:
 	$(RELEASE) tag-check
 
 publish:
-	$(RELEASE) publish
+	+$(RELEASE) publish
 
 publish-dry-run:
-	$(RELEASE) publish --dry-run
+	+$(RELEASE) publish --dry-run

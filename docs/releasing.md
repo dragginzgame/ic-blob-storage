@@ -25,13 +25,17 @@ admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canoni
 committed source; include every directly used helper as an entrypoint. Never patch
 vendored bytes or use mutable sibling tools. See
 [Shared snapshot adoption](consuming-snapshots.md) and
-[the latest qualified adoption](evidence/shared023-host0270321.md).
+[the current adoption](status/current.md#shared-tooling-0258).
 
 Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
-binary. Release preparation uses Shared’s literal manifest renderer; no separate
-Cargo-edit installation is required. `make release-tools-check` verifies
-ShellCheck and the reviewed Cargo sort/rustfmt
-without compilation. Both `fmt` and `fmt-check` use that same offline owner.
+binary. Release preparation uses the published IC Build editor selected from
+Cargo.lock.
+`make install-release-editor` prepares it explicitly; `make release-editor-check`
+admits its absolute executable offline. Both are included in the complete tool
+setup/checks. The adapter selects the editor automatically and supplies an 8 MiB
+per-document input allowance; no manual environment export is needed.
+`make release-tools-check` admits that editor, ShellCheck and the reviewed
+Cargo sort/rustfmt without compilation. Both `fmt` and `fmt-check` use that same offline owner.
 `make install-hooks` activates the reviewed hook; hook and formatting qualification
 remain independent checks. Commands and package/version effects follow
 [development governance](governance/development.md); release targets are
@@ -60,7 +64,9 @@ commit and annotated tag, then atomically pushes exactly that branch and tag.
 `--no-follow-tags` prevents configuration from adding other annotated tags.
 The runner rechecks the saved destination after validation and before push,
 and dispatches to the captured URL with an explicit option terminator.
-Publication, deployment and cleanup are separate.
+Publication, deployment and cleanup are separate. The publication adapter also prepares
+locked dependencies and runs the same Clippy gate after release/tag admission,
+before creating publication archives or contacting the registry.
 After confirmed delivery or completed resume, the runner refreshes the matching
 configured upstream tracking ref from exact remote observation. It preserves
 unrelated, newer, divergent, symbolic or concurrently changed refs; a local
@@ -72,19 +78,24 @@ remove those modes before retrying. The isolated admission recipe loads no
 consumer Makefile and preserves legitimate release variables and parallel settings.
 
 The complete gate is `make release-verify` (also `make ci` / `make validate`). It
-verifies the shared snapshot, local executables and dependency declarations,
-checks local documentation links and shared digest/installer fixtures,
-fetches the selected lock with `make deps`, then
-runs shell/helper checks, hook regressions, manifest/Rust formatting, compilation,
-Clippy, retained-probe checks, docs, native/PocketIC tests, Wasm and packaging.
+verifies the shared snapshot, local executables and dependency declarations, then
+fetches the selected lock with `make deps` and runs the existing full-workspace
+Clippy gate before other validation stages. Failure stops later compilation,
+tests and packaging, including under parallel Make. The remaining gate retains
+dependency boundaries, documentation links, shared fixtures, shell/helper checks,
+hook regressions, formatting, compilation, probe/docs checks, native/PocketIC
+tests, Wasm and packaging.
 Prerequisite or fetch failure stops before compilation or version mutation. Offline
 checks never select newer dependencies. The reviewed `scripts/ci/cargo-release-metadata.sh` owns coordinated Cargo
-version/lock/changelog preparation with literal manifest rendering.
+version/lock/changelog preparation through the selected IC Build editor.
 Blob keeps source admission, its four-file rollback and receipt generation.
 The helper checks the complete inherited member/lock roster with locked offline
 Cargo metadata; external lock selections stay fixed. A later formatter or receipt
 failure still restores the original manifest, lock, changelog and prior receipt.
 Prepared metadata must pass formatting before its receipt is written or staged.
+Numbered `## [X.Y.Z] - Unreleased` notes are accepted at preflight and finalized
+with the saved UTC release date during preparation. Duplicate or competing
+candidates still refuse; published history and exact-date recovery stay unchanged.
 
 The release gate uses the reviewed validation logger around the same `ci` target.
 Failed attempts retain unique raw logs under Git's

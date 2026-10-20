@@ -13,7 +13,6 @@ use blob_test_protocol::consumer::{AssetView, Failure, Recovery, Release, Run, U
 use ic_platform::principal::ExternalPrincipal;
 
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -29,7 +28,6 @@ async fn fixture_funding_history(
 }
 #[ic_platform::cdk::query(
     composite = true,
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -44,7 +42,6 @@ async fn fixture_query_funding(
     .await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -56,7 +53,6 @@ async fn fixture_funding_outcome(
 }
 
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -66,7 +62,6 @@ async fn fixture_update_tenant(
     workflow::tenants::update(ic_platform::cdk::api::msg_caller(), input).await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -77,7 +72,6 @@ async fn fixture_inspect_tenant(
 }
 #[ic_platform::cdk::query(
     composite = true,
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -87,7 +81,6 @@ async fn fixture_query_tenant(
     workflow::tenants::inspect(ic_platform::cdk::api::msg_caller(), scope).await
 }
 #[ic_platform::cdk::query(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -96,7 +89,6 @@ fn fixture_tenant_command()
     workflow::tenants::saved(ic_platform::cdk::api::msg_caller())
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -104,7 +96,6 @@ fn save_manifest(input: Box<ManifestIntent>) -> Result<ManifestIntentView, Failu
     workflow::manifests::save(ic_platform::cdk::api::msg_caller(), &input)
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -112,7 +103,6 @@ async fn dispatch_manifest(input: ManifestDispatch) -> Result<ManifestIntentView
     workflow::manifests::dispatch(ic_platform::cdk::api::msg_caller(), input).await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -120,7 +110,6 @@ async fn recover_manifest(id: u128) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::recover(ic_platform::cdk::api::msg_caller(), id).await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -128,7 +117,6 @@ fn cancel_manifest(id: u128) -> Result<ManifestIntentView, Failure> {
     workflow::manifests::cancel(ic_platform::cdk::api::msg_caller(), id)
 }
 #[ic_platform::cdk::query(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -137,7 +125,6 @@ fn manifest_intent(id: u128) -> Result<ManifestIntentView, Failure> {
 }
 #[ic_platform::cdk::query(
     composite = true,
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -155,7 +142,6 @@ fn post_upgrade() {
     ops::initialize(None);
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -163,7 +149,6 @@ async fn register(input: Box<Run>) -> Result<AssetView, Failure> {
     workflow::register(ic_platform::cdk::api::msg_caller(), &input).await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -175,7 +160,6 @@ fn cancel(asset: u128) -> Result<AssetView, Failure> {
     })
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -188,7 +172,6 @@ async fn release(input: Release) -> Result<AssetView, Failure> {
     .await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -201,7 +184,6 @@ async fn recover(input: Recovery) -> Result<AssetView, Failure> {
     .await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -213,7 +195,6 @@ fn use_asset(input: Use) -> Result<AssetView, Failure> {
     })
 }
 #[ic_platform::cdk::query(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -221,7 +202,6 @@ fn asset(asset: u128) -> Result<AssetView, Failure> {
     ops::view(ic_platform::cdk::api::msg_caller(), asset)
 }
 #[ic_platform::cdk::query(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -229,7 +209,6 @@ fn waiting() -> Result<bool, Failure> {
     ops::waiting(ic_platform::cdk::api::msg_caller())
 }
 #[ic_platform::cdk::query(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -237,7 +216,6 @@ fn fenced() -> Result<bool, Failure> {
     ops::read(ic_platform::cdk::api::msg_caller(), |r| Ok(r.fenced))
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -247,7 +225,6 @@ fn resume() -> Result<(), Failure> {
 
 // Save intent without dispatch; admit also persists intent before its first call.
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -255,7 +232,6 @@ fn prepare(input: Box<blob_test_protocol::consumer::Registration>) -> Result<Ass
     workflow::prepare(ic_platform::cdk::api::msg_caller(), &input)
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -264,7 +240,6 @@ async fn admit(input: Box<Run>) -> Result<AssetView, Failure> {
 }
 
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
@@ -272,7 +247,6 @@ async fn revoke(input: blob_test_protocol::consumer::Revocation) -> Result<Asset
     workflow::revoke(ic_platform::cdk::api::msg_caller(), input).await
 }
 #[ic_platform::cdk::update(
-    hidden = true,
     decode_with = "ops::controls::decode",
     encode_with = "ops::controls::encode"
 )]
