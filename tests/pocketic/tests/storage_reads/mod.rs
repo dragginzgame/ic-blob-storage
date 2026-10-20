@@ -1,7 +1,6 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::query_candid_args;
 mod download;
 use blob_test_protocol::{
     admission::{
@@ -38,8 +37,8 @@ impl Fixture {
     ) -> Result<Option<UploadHistoryEntry>, DiscoveryFailure> {
         let request = UploadDiscoveryRequest {
             scope: TenantScope {
-                service: input.service,
-                tenant: input.tenant,
+                service: input.service.into(),
+                tenant: input.tenant.into(),
                 namespace: input.namespace,
             },
             root: input.root,
@@ -66,32 +65,34 @@ impl Fixture {
         actor: Principal,
         input: ContentLookup,
     ) -> Result<Option<ContentDescriptor>, Failure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "content_descriptor",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as(
+                self.service,
+                actor,
+                "content_descriptor",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn retained(
         &self,
         actor: Principal,
         input: RetainedDescriptorInput,
     ) -> Result<Option<RetainedDescriptor>, Failure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "retained_content_descriptor",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as(
+                self.service,
+                actor,
+                "retained_content_descriptor",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn scan(&self, actor: Principal, input: ScanInput) -> Result<Page, HistoryFailure> {
         self.harness
@@ -215,9 +216,9 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
     f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     f.admit(f.tenant, f.permission(u128::MAX, 2).0).unwrap();
     let query = ScanInput {
-        service: f.service,
+        service: f.service.into(),
         namespace: 1,
-        scope: Scope::Tenant(f.tenant),
+        scope: Scope::Tenant(f.tenant.into()),
         filter: Filter::DeletionPending,
         cursor: None,
     };
@@ -227,7 +228,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
     let cursor = first.next.unwrap();
     for changed in [
         Cursor {
-            service: f.other,
+            service: f.other.into(),
             ..cursor
         },
         Cursor {
@@ -243,7 +244,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
             ..cursor
         },
         Cursor {
-            after_tenant: f.other,
+            after_tenant: f.other.into(),
             ..cursor
         },
     ] {
@@ -306,7 +307,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
         .scan(
             f.other,
             ScanInput {
-                scope: Scope::Tenant(f.other),
+                scope: Scope::Tenant(f.other.into()),
                 ..query
             },
         )
@@ -351,7 +352,7 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
     f.enroll(None, true).unwrap();
     let (permission, preparation) = f.permission(u128::MAX, 1);
     let query = ScanInput {
-        service: f.service,
+        service: f.service.into(),
         namespace: 1,
         scope: Scope::Service,
         filter: Filter::Outstanding,

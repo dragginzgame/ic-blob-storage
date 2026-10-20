@@ -1,13 +1,13 @@
 //! Operation-specific fixture inputs keep unrelated command types off the wire.
+use ic_platform::principal::ExternalPrincipal;
 
 use super::{ContentLookup, Enrollment, Request};
 use crate::journey::JourneyManifest;
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Exact consumer reference to inspect, never an allocation or retain request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct RetainedDescriptorInput {
     /// Explicit service, tenant, namespace and provider root.
@@ -21,7 +21,7 @@ pub struct RetainedDescriptorInput {
 }
 
 /// Passive reference-qualified observation, not a publication permission.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct RetainedDescriptor {
     /// Checked reference identity, observed atomically with the descriptor.
@@ -35,7 +35,7 @@ pub struct RetainedDescriptor {
 #[candid_path("ic_platform::candid::contract")]
 pub struct EnrollmentInput {
     /// Tenant whose admission state changes.
-    pub tenant: Principal,
+    pub tenant: ExternalPrincipal,
     /// Exact prior enrollment observation.
     pub expected: Option<Enrollment>,
     /// Desired admission state.
@@ -43,7 +43,7 @@ pub struct EnrollmentInput {
 }
 
 /// Uploader's bounded manifest for an existing permission.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct PreparationInput {
     /// Exact admitted operation.

@@ -33,7 +33,7 @@ fn dispatch(command: Command) -> Result<Outcome, Failure> {
 )]
 fn enroll(input: EnrollmentInput) -> Result<Outcome, Failure> {
     dispatch(Command::Enroll {
-        tenant: input.tenant,
+        tenant: input.tenant.into(),
         expected: input.expected,
         active: input.active,
     })

@@ -1,8 +1,8 @@
 //! Read-only diagnostics for the local fixture, not a production service API.
+use ic_platform::principal::ExternalPrincipal;
 pub mod conversion;
 
 use crate::authority::{ArchiveCatalog, ArchivePhase, ArchivedReadView};
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +43,7 @@ pub struct PhaseCountView {
 #[candid_path("ic_platform::candid::contract")]
 pub struct OperatorStatusView {
     /// Actual service binding.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Bound provider namespace.
     pub namespace: u128,
     /// Permanent restoration fence, if set.
@@ -63,11 +63,11 @@ pub struct OperatorStatusView {
     /// Funding journal observation; absent means unknown.
     pub funding_activity: Option<FundingActivityView>,
     /// Retained current gateway principals; a pending sync does not replace them.
-    pub gateways: Vec<Principal>,
+    pub gateways: Vec<ExternalPrincipal>,
     /// Exact pending list sequence, without a reusable token.
     pub pending_sync: Option<u64>,
     /// Controlled local list source, not a deployed Cashier binding.
-    pub sync_source: Principal,
+    pub sync_source: ExternalPrincipal,
     /// Last allocated sync sequence, including failed attempts.
     pub last_sync: u64,
     /// Operator-edit revision; absent means exhausted and permanently blocked.

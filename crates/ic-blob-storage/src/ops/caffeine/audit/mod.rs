@@ -127,7 +127,7 @@ pub fn decode_audit_log_reply(
     match reply {
         Err(error) => Ok(AuditLogReply::ProviderFailure(match error {
             wire::AuditLogError::NotAuthorized(principal) => {
-                AuditLogProviderError::NotAuthorized(principal)
+                AuditLogProviderError::NotAuthorized(principal.into())
             }
             wire::AuditLogError::InvalidRequest(_) => AuditLogProviderError::InvalidRequest,
             wire::AuditLogError::InternalError(_) => AuditLogProviderError::InternalError,
@@ -149,7 +149,7 @@ pub fn decode_audit_log_reply(
                 continuation: reply
                     .continuation_token
                     .map(|cursor| AuditLogContinuationView {
-                        account: cursor.account,
+                        account: cursor.account.map(Into::into),
                         sequence: cursor.sequence,
                     }),
             }))
@@ -181,7 +181,7 @@ pub enum AuditLogReplyError {
 mod wire {
     use super::CandidType;
     use super::Deserialize;
-    use super::Principal;
+    use ic_platform::candid::contract::Principal;
 
     pub(super) type AuditLogDownloadResult = Result<AuditLogDownloadResponse, AuditLogError>;
 

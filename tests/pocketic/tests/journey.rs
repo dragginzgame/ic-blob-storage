@@ -12,8 +12,8 @@ use blob_test_protocol::journey::{
     JourneyCertificate, JourneyFailure, JourneyManifest, JourneyProgress, JourneyReservation,
     JourneyUpload, JourneyUsage, JourneyVerification,
 };
-use ic_platform::Principal;
 use ic_platform::candid::decoder;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,

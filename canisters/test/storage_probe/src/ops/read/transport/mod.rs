@@ -14,7 +14,10 @@ impl ReadChunkTransport for LocalChunk {
         let root = request.chunk.target.root;
         let index = request.chunk.index;
         let response = Call::bounded_wait(source, "fixture_chunk")
-            .with_args(&(root.as_bytes().to_vec(), index))
+            .take_raw_args(
+                ic_platform::candid::contract::encode_args((root.as_bytes().to_vec(), index))
+                    .expect("fixture chunk arguments"),
+            )
             .await
             .map_err(|_| Failure::Transport)?;
         // Bounds application decoding, not the platform/CDK's initial buffer.

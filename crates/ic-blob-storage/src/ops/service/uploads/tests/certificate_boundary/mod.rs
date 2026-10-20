@@ -6,7 +6,7 @@ use exposure_boundary::{evidence, prepared};
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
-use ic_platform::candid::decoder;
+use ic_blob_storage_contracts::wire;
 #[derive(
     ic_platform::candid::contract::CandidType, ic_platform::candid::contract::serde::Deserialize,
 )]
@@ -35,9 +35,9 @@ fn certificate_root_resolves_exact_original_permission_and_commits_before_plain_
         UploadState::ExposurePossible
     );
     // Decode independently as the reviewed provider record, without a Result envelope.
-    let decoded: ProviderReply = decoder::decode_one_with_config(
+    let decoded: ProviderReply = ic_platform::candid::decoder::decode_one_with_config(
         &ic_platform::candid::contract::encode_one(&reply).unwrap(),
-        &decoder::DecoderConfig::new(),
+        &ic_platform::candid::decoder::DecoderConfig::new(),
     )
     .unwrap();
     assert_eq!(decoded.method, "upload");
@@ -160,9 +160,10 @@ fn certificate_assessment_reports_exact_permission_and_all_missing_facts_without
         ]
     );
     assert_eq!(
-        decoder::decode_one_with_config::<UploadCertificateAssessmentResponse>(
-            &ic_platform::candid::contract::encode_one(&result).unwrap(),
-            &decoder::DecoderConfig::new()
+        wire::decode_response::<UploadCertificateAssessmentResponse>(
+            "blob_upload_certificate_assessment",
+            &wire::encode_response("blob_upload_certificate_assessment", &result).unwrap(),
+            wire::MAX_MESSAGE_BYTES
         )
         .unwrap(),
         result

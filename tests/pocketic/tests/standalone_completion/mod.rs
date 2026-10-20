@@ -65,7 +65,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
     let verifier = Fake::principal(90);
     assert_eq!(
         f.configuration(f.operator).unwrap().completion_verifier,
-        verifier
+        verifier.into()
     );
     f.enroll(f.operator).unwrap();
     let manifest = f.manifest();
@@ -122,7 +122,7 @@ fn standalone_completion_requires_installed_verifier_exposure_and_active_owner()
             ServiceInstallationInput {
                 configuration: f.config,
                 project: PROJECT.into(),
-                completion_verifier: invalid,
+                completion_verifier: invalid.into(),
             },
         )
         .unwrap();

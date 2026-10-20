@@ -58,7 +58,14 @@ pub(in crate::native) fn inspect<R: DeserializeOwned>(
         .ingress_expiry_ns
         .parse()
         .map_err(|_| Failure::Binding)?;
-    ic_platform::agent::signed_update_inspect(actor, service, method, argument, expiry, signed)
-        .map_err(|_| Failure::Binding)?;
+    ic_platform::agent::signed_update_inspect(
+        actor.into(),
+        service.into(),
+        method,
+        argument,
+        expiry,
+        signed,
+    )
+    .map_err(|_| Failure::Binding)?;
     Ok(intent.operation)
 }

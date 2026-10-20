@@ -222,10 +222,10 @@ fn inconsistent_counters_or_missing_claims_are_rejected_without_repair() {
         store.admit(context(4), permission(1), 1).unwrap();
         match damage {
             0 => {
-                store.usage.insert(p(4), UploadUsageRecord::empty());
+                store.usage.insert(p(4).into(), UploadUsageRecord::empty());
             }
             1 => {
-                store.usage.remove(&p(4));
+                store.usage.remove(&p(4).into());
             }
             _ => {
                 store.permissions.remove(&key(permission(1).request));

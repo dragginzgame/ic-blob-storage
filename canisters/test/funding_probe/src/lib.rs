@@ -8,15 +8,15 @@ use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingFailure, FundingObservation, FundingOperatorStatusView,
     FundingReceiptRecord, FundingRequest, FundingUpgradeArgs,
 };
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal;
 
 #[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_candid::decode_args")]
 fn init(
-    peer: Principal,
-    driver: Principal,
+    peer: ExternalPrincipal,
+    driver: ExternalPrincipal,
     budget: blob_test_protocol::funding::budget::FundingBudgetInput,
 ) {
-    ops::initialize(peer, driver, budget);
+    ops::initialize(peer.into(), driver.into(), budget);
 }
 
 #[ic_platform::cdk::post_upgrade(decode_with = "blob_test_protocol::fixture_candid::decode_one")]

@@ -1,4 +1,5 @@
 //! Persisted experiment schema and bounded journal invariants, not a service model.
+use ic_platform::principal::ExternalPrincipal;
 
 pub(crate) mod budget;
 
@@ -25,11 +26,11 @@ pub(crate) struct FundingIdentityView {
 #[derive(CandidType, Deserialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct FundingJournalRecord {
-    service: Principal,
+    service: ExternalPrincipal,
     release: [u8; 32],
     fenced: bool,
-    peer: Principal,
-    driver: Principal,
+    peer: ExternalPrincipal,
+    driver: ExternalPrincipal,
     attempts: Vec<FundingAttemptRecord>,
     receipts: Vec<FundingReceiptRecord>,
     budget: budget::FundingBudgetRecord,
@@ -45,7 +46,7 @@ impl FundingJournalRecord {
         blob_test_protocol::funding::lookup::FundingLookupFailure,
     > {
         use blob_test_protocol::funding::lookup::FundingLookupFailure;
-        if caller != self.driver {
+        if caller != self.driver.into() {
             return Err(FundingLookupFailure::Denied);
         }
         if query.service != self.service || query.peer != self.peer {
@@ -73,10 +74,10 @@ impl FundingJournalRecord {
     ) -> Result<FundingIdentityView, blob_test_protocol::funding::preview::FundingPreviewFailure>
     {
         use blob_test_protocol::funding::preview::FundingPreviewFailure;
-        if caller != self.driver {
+        if caller != self.driver.into() {
             return Err(FundingPreviewFailure::Denied);
         }
-        if service != self.service || peer != self.peer {
+        if service != self.service.into() || peer != Principal::from_slice(self.peer.as_slice()) {
             return Err(FundingPreviewFailure::Binding);
         }
         Ok(FundingIdentityView {
@@ -86,7 +87,7 @@ impl FundingJournalRecord {
     }
 
     pub(crate) const fn peer(&self) -> Principal {
-        self.peer
+        Principal::from_slice(self.peer.as_slice())
     }
 
     pub(crate) const fn fenced(&self) -> bool {
@@ -108,11 +109,11 @@ impl FundingJournalRecord {
         budget: budget::FundingBudgetRecord,
     ) -> Self {
         let record = Self {
-            service,
+            service: service.into(),
             release: release_binding(),
             fenced: false,
-            peer,
-            driver,
+            peer: peer.into(),
+            driver: driver.into(),
             attempts: Vec::new(),
             receipts: Vec::new(),
             budget,
@@ -124,11 +125,11 @@ impl FundingJournalRecord {
     }
 
     pub(crate) fn validate(&self, service: Principal) -> Result<(), JournalFailure> {
-        if self.service != service
-            || self.peer == service
+        if self.service != service.into()
+            || self.peer == service.into()
             || ![self.service, self.peer, self.driver]
                 .into_iter()
-                .all(valid_principal)
+                .all(|value| valid_principal(value.into()))
         {
             return Err(JournalFailure::Binding);
         }
@@ -179,7 +180,7 @@ impl FundingJournalRecord {
         caller: Principal,
         request: FundingRequest,
     ) -> Result<Principal, FundingFailure> {
-        if caller != self.driver {
+        if caller != self.driver.into() {
             return Err(FundingFailure::Denied);
         }
         if self.fenced {
@@ -209,7 +210,7 @@ impl FundingJournalRecord {
             request,
             observation: None,
         });
-        Ok(self.peer)
+        Ok(Principal::from_slice(self.peer.as_slice()))
     }
 
     pub(crate) fn complete(&mut self, request: FundingRequest, observation: FundingObservation) {
@@ -225,11 +226,11 @@ impl FundingJournalRecord {
     }
 
     pub(crate) fn attempts(&self, caller: Principal) -> Option<Vec<FundingAttemptRecord>> {
-        (caller == self.driver).then(|| self.attempts.clone())
+        (caller == self.driver.into()).then(|| self.attempts.clone())
     }
 
     pub(crate) fn receipts(&self, caller: Principal) -> Option<Vec<FundingReceiptRecord>> {
-        (caller == self.driver).then(|| self.receipts.clone())
+        (caller == self.driver.into()).then(|| self.receipts.clone())
     }
 
     pub(crate) fn check_receive(
@@ -238,7 +239,11 @@ impl FundingJournalRecord {
         request: FundingRequest,
         available: u128,
     ) {
-        assert_eq!(caller, self.peer, "configured peer only");
+        assert_eq!(
+            caller,
+            Principal::from_slice(self.peer.as_slice()),
+            "configured peer only"
+        );
         assert!(!self.fenced, "restored receiver is inspection-only");
         assert!(valid_request(request), "bounded receiving intent");
         assert_eq!(available, request.offered, "exact attachment");

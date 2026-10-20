@@ -160,7 +160,7 @@ impl<M: Memory> ServiceInstallation<M> {
             ServiceInstallationCandidate {
                 configuration: configuration::input(&record),
                 project: &record.project,
-                completion_verifier: record.completion_verifier,
+                completion_verifier: record.completion_verifier.into(),
                 release,
                 platform_installation_version: record.platform_installation_version,
             },
@@ -291,7 +291,7 @@ impl<M: Memory> ServiceInstallation<M> {
         proof: super::recovery::CurrentInstanceProof,
     ) -> Result<(), super::recovery::CurrentInstanceRecoveryError> {
         proof.check(
-            self.configuration.service,
+            self.configuration.service.into(),
             self.configuration.platform_installation_version,
         )?;
         self.stores.set_recovery_fence(false);

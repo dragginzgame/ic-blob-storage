@@ -15,14 +15,12 @@ use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkManife
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
 use ic_blob_storage_contracts::upload::metadata::validate_upload_metadata;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 #[cfg(test)]
 mod tests;
 
-#[derive(Clone, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, serde::Serialize, Deserialize)]
 pub(crate) struct ManifestIntentRecord {
     intent: ManifestIntent,
     cancelled: bool,

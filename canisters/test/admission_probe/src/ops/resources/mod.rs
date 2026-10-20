@@ -32,7 +32,7 @@ pub(crate) fn record(context: UploadContext, before_work: u64) {
         }
         profiles.push_back(ExecutionProfile {
             sequence,
-            caller: context.actor,
+            caller: context.actor.into(),
             before_decode,
             after_header,
             after_value,

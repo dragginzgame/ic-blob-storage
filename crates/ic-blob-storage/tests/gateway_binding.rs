@@ -67,8 +67,13 @@ fn revoked_gateway_stays_denied_after_a_stale_sync_reply() {
         skipping_quota: NonZeroUsize::new(1000).expect("skip bound"),
         max_type_entries: NonZeroUsize::new(32).expect("type bound"),
     };
-    let old_reply =
-        ic_platform::candid::contract::encode_one(vec![p(3)]).expect("old gateway list");
+    let old_reply = ic_platform::candid::contract::encode_one(
+        vec![p(3)]
+            .into_iter()
+            .map(ic_platform::principal::ExternalPrincipal::from)
+            .collect::<Vec<_>>(),
+    )
+    .expect("old gateway list");
     assert!(registry.remove(p(3)));
     assert_eq!(
         apply_gateway_sync_reply(&mut registry, old, scope, &old_reply, limits),
@@ -80,8 +85,13 @@ fn revoked_gateway_stays_denied_after_a_stale_sync_reply() {
     );
     // A new explicit sync is a new authority decision, not a delayed old reply.
     let fresh = registry.begin_sync().expect("new authorized sync");
-    let new_reply =
-        ic_platform::candid::contract::encode_one(vec![p(5)]).expect("new gateway list");
+    let new_reply = ic_platform::candid::contract::encode_one(
+        vec![p(5)]
+            .into_iter()
+            .map(ic_platform::principal::ExternalPrincipal::from)
+            .collect::<Vec<_>>(),
+    )
+    .expect("new gateway list");
     apply_gateway_sync_reply(&mut registry, fresh, scope, &new_reply, limits)
         .expect("replace gateway from decoded reply");
     assert_eq!(

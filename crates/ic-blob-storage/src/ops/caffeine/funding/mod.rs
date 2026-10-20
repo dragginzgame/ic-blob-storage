@@ -80,7 +80,7 @@ pub fn decode_top_up_reply(
         }
         Err(error) => Ok(TopUpReply::ProviderFailure(match error {
             wire::AccountTopUpError::NotAuthorized(principal) => {
-                TopUpProviderError::NotAuthorized(principal)
+                TopUpProviderError::NotAuthorized(principal.into())
             }
             wire::AccountTopUpError::AccountBalanceOverflow => {
                 TopUpProviderError::AccountBalanceOverflow
@@ -111,7 +111,7 @@ mod wire {
     use super::super::wire::AccountCycleBalances;
     use super::CandidType;
     use super::Deserialize;
-    use super::Principal;
+    use ic_platform::candid::contract::Principal;
 
     pub(super) type AccountTopUpResult = Result<AccountTopUpResponse, AccountTopUpError>;
 

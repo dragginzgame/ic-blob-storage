@@ -168,7 +168,7 @@ fn read_session_byte_limits_are_independent_and_codec_restore_preserves_fenced_o
         Err(ReadSessionError::Binding)
     ));
     let mut store = StableReadSessions::open(cloned(&m), config(), limits).unwrap();
-    store.tenants.remove(&p(4));
+    store.tenants.remove(&p(4).into());
     assert_eq!(store.sessions.len(), 2);
     drop(store);
     assert!(matches!(

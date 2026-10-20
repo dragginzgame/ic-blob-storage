@@ -19,7 +19,7 @@ pub(super) fn authority(status: &OperatorStatusView) -> Value {
         "billing":billing(&status.billing),
         "available_funding_cycles":amount(status.available_funding_cycles),
         "funding_activity":status.funding_activity,
-        "gateways":status.gateways.iter().map(ic_platform::Principal::to_text).collect::<Vec<_>>(),
+        "gateways":status.gateways.iter().map(ic_platform::principal::ExternalPrincipal::to_text).collect::<Vec<_>>(),
         "pending_sync":status.pending_sync.map(|v| v.to_string()),
         "sync_source":status.sync_source.to_text(),
         "last_sync":status.last_sync.to_string(),

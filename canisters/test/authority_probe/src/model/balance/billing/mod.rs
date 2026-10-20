@@ -55,7 +55,7 @@ impl BalanceJournalRecord {
             let Some(current) = self.configured else {
                 return false;
             };
-            let binding = value.scope.valid(current.service, current.namespace)
+            let binding = value.scope.valid(current.service.into(), current.namespace)
                 && value.revision > 0
                 && value.revision <= self.revision;
             let coherent = (value.revision != self.revision || value.scope == current)

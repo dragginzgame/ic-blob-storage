@@ -1,0 +1,113 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "fenced": false,
+        "headroom": null,
+        "request": {
+          "root": [
+            60,
+            169,
+            133,
+            85,
+            160,
+            134,
+            123,
+            115,
+            245,
+            74,
+            100,
+            232,
+            13,
+            192,
+            204,
+            101,
+            212,
+            145,
+            14,
+            79,
+            96,
+            165,
+            14,
+            39,
+            78,
+            180,
+            165,
+            249,
+            2,
+            208,
+            59,
+            20
+          ],
+          "scope": {
+            "namespace": 1076788625,
+            "service": "tupdf-2xll4-sviai",
+            "tenant": "6on6g-pghnr-2iaai"
+          }
+        }
+      }
+    },
+    "hex": "495715003600424f4c42010005eb5f25540191fbb9810405c76c7480013ca98555a0867b73f54a64e80dc0cc65d4910e4f60a50e274eb4a5f902d03b140000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "fenced": true,
+        "headroom": {
+          "fresh_retains": 266199834,
+          "reference_slots": 3351889615,
+          "release_reserved_receipts": 2598629718,
+          "unreserved_receipts": 3966007968
+        },
+        "request": {
+          "root": [
+            59,
+            228,
+            136,
+            173,
+            118,
+            60,
+            19,
+            20,
+            30,
+            144,
+            99,
+            222,
+            224,
+            226,
+            114,
+            120,
+            4,
+            128,
+            126,
+            157,
+            190,
+            180,
+            13,
+            176,
+            9,
+            49,
+            78,
+            157,
+            212,
+            82,
+            99,
+            239
+          ],
+          "scope": {
+            "namespace": 4197949877,
+            "service": "p3kca-i3na2-pqkai",
+            "tenant": "spqxo-qz4ur-qhwai"
+          }
+        }
+      }
+    },
+    "hex": "495715003600424f4c420100056d069f0501b5c3ded10f053ca4607b013be488ad763c13141e9063dee0e2727804807e9dbeb40db009314e9dd45263ef01cf8da7be0ca0f591e30ed6e28fd7099ac6f77e01"
+  },
+  {
+    "input": {
+      "Err": "Denied"
+    },
+    "hex": "495715003600424f4c42010101"
+  }
+]

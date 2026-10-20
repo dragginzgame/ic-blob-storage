@@ -1,6 +1,6 @@
 //! Controlled balance observations, not a production account or Cashier API.
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
+use ic_platform::principal::ExternalPrincipal;
 use serde::{Deserialize, Serialize};
 
 /// Independent local receiver shape for the maintained balance request encoder.
@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[candid_path("ic_platform::candid::contract")]
 pub struct BalanceSourceRequest {
     /// Account selected by the sender's request, checked by the controlled source.
-    pub account: Principal,
+    pub account: ExternalPrincipal,
 }
 
 /// Independent receiver shape for a local Cashier relationship-query experiment.
@@ -17,7 +17,7 @@ pub struct BalanceSourceRequest {
 #[candid_path("ic_platform::candid::contract")]
 pub struct RelationshipSourceRequest {
     /// Usage owner selected by the encoded request, not the expected payer.
-    pub canister: Principal,
+    pub canister: ExternalPrincipal,
 }
 
 /// Explicit local observation binding; no default project/account is inferred.
@@ -25,13 +25,13 @@ pub struct RelationshipSourceRequest {
 #[candid_path("ic_platform::candid::contract")]
 pub struct BalanceScope {
     /// Authority fixture answering status.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Namespace owned by that authority fixture.
     pub namespace: u128,
     /// Controlled local source, never an implicitly selected Cashier.
-    pub source: Principal,
+    pub source: ExternalPrincipal,
     /// Account expected inside the independent Candid reply bytes.
-    pub account: Principal,
+    pub account: ExternalPrincipal,
 }
 
 /// Exact local read admission. Reusing a consumed sequence cannot dispatch again.
@@ -161,7 +161,7 @@ pub struct BalanceStatusView {
 #[candid_path("ic_platform::candid::contract")]
 pub struct BalanceSourceConfig {
     /// Account the incoming request must explicitly name.
-    pub account: Principal,
+    pub account: ExternalPrincipal,
     /// Independent Candid fixture bytes; up to 4,097 for the oversize case.
     pub bytes: Vec<u8>,
     /// Reject instead of returning the bytes.
@@ -179,5 +179,5 @@ pub struct BalanceSourceView {
     /// Lifetime received calls, bounded to 64.
     pub requests: u64,
     /// Exact held account request, if any.
-    pub pending: Option<Principal>,
+    pub pending: Option<ExternalPrincipal>,
 }

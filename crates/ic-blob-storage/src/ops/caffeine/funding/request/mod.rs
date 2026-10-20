@@ -37,7 +37,7 @@ impl CashierTopUpRequest {
         }
         let arguments =
             ic_platform::candid::contract::encode_args((Some(wire::AccountTopUpRequest {
-                account: Some(account),
+                account: Some(account.into()),
                 target_balance: target_balance.map(|v| Nat::from(v.get())),
             }),))
             .map_err(|_| TopUpRequestError::Encoding)?;
@@ -93,7 +93,7 @@ pub enum TopUpRequestError {
 mod wire {
     use super::CandidType;
     use super::Nat;
-    use super::Principal;
+    use ic_platform::candid::contract::Principal;
     #[derive(CandidType)]
     #[candid_path("ic_platform::candid::contract")]
     pub(super) struct AccountTopUpRequest {

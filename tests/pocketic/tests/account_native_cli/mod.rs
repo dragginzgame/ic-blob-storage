@@ -4,8 +4,8 @@ use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_host_fs::testing::FixtureDirectory;
-use ic_platform::Principal;
 use ic_platform::agent::{BasicIdentity, Identity};
+use ic_platform::principal::ExternalPrincipal as Principal;
 use serde_json::{Value, json};
 use std::{cell::Cell, path::PathBuf};
 
@@ -122,7 +122,7 @@ impl NativeAccountCli {
         }
     }
     pub fn refusals(&self, configure: impl Fn(Kind, Vec<u8>)) {
-        configure(Kind::Balance, balance(self.scope.payment_account));
+        configure(Kind::Balance, balance(self.scope.payment_account.into()));
         let args = self.arguments(Kind::Balance);
         let other = BasicIdentity::from_raw_key(&[43; 32]);
         let principal = other.sender().unwrap().to_text();
@@ -187,7 +187,7 @@ fn cases(scope: OperatorScope) -> Vec<(Kind, Vec<u8>, Value)> {
     vec![
         (
             Kind::Balance,
-            balance(scope.payment_account),
+            balance(scope.payment_account.into()),
             json!({"kind":"reported_balance","total":u128::MAX.to_string(),"prepaid":"2","promotional":"3","ledger":"4"}),
         ),
         (

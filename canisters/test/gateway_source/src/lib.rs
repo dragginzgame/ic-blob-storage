@@ -9,11 +9,11 @@ use std::marker::PhantomData;
 
 use blob_test_protocol::journey::readback::{ReadSourceConfig, ReadSourceObservation};
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal;
 
 #[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_candid::decode_args")]
-fn init(service: Principal, gateway: Principal, driver: Principal) {
-    workflow::initialize(service, gateway, driver);
+fn init(service: ExternalPrincipal, gateway: ExternalPrincipal, driver: ExternalPrincipal) {
+    workflow::initialize(service.into(), gateway.into(), driver.into());
 }
 
 #[ic_platform::cdk::pre_upgrade]
@@ -105,7 +105,7 @@ async fn fixture_chunk(root: Vec<u8>, index: u64) -> PhantomData<Vec<u8>> {
 )]
 async fn fixture_gateways(
     input: blob_test_protocol::GatewaySyncRequest,
-) -> PhantomData<Vec<Principal>> {
+) -> PhantomData<Vec<ExternalPrincipal>> {
     workflow::reply(ic_platform::cdk::api::msg_caller(), input).await;
     PhantomData
 }
@@ -146,7 +146,7 @@ fn balance_observation() -> Option<blob_test_protocol::balance::BalanceSourceVie
 async fn fixture_balance(
     input: blob_test_protocol::balance::BalanceSourceRequest,
 ) -> PhantomData<()> {
-    workflow::balance_reply(ic_platform::cdk::api::msg_caller(), input.account).await;
+    workflow::balance_reply(ic_platform::cdk::api::msg_caller(), input.account.into()).await;
     PhantomData
 }
 
@@ -158,7 +158,7 @@ async fn fixture_balance(
 fn account_balance_get_v1(
     input: blob_test_protocol::balance::BalanceSourceRequest,
 ) -> PhantomData<()> {
-    workflow::inspect_relationship(ic_platform::cdk::api::msg_caller(), input.account);
+    workflow::inspect_relationship(ic_platform::cdk::api::msg_caller(), input.account.into());
     PhantomData
 }
 
@@ -170,7 +170,7 @@ fn account_balance_get_v1(
 fn payment_account_canister_get_v1(
     input: blob_test_protocol::balance::RelationshipSourceRequest,
 ) -> PhantomData<()> {
-    workflow::inspect_relationship(ic_platform::cdk::api::msg_caller(), input.canister);
+    workflow::inspect_relationship(ic_platform::cdk::api::msg_caller(), input.canister.into());
     PhantomData
 }
 
@@ -179,7 +179,7 @@ fn payment_account_canister_get_v1(
     manual_reply = true,
     decode_with = "blob_test_protocol::fixture_candid::ignore_arguments"
 )]
-async fn fixture_gateway_query() -> PhantomData<Vec<Principal>> {
+async fn fixture_gateway_query() -> PhantomData<Vec<ExternalPrincipal>> {
     workflow::gateway_query(ic_platform::cdk::api::msg_caller()).await;
     PhantomData
 }
@@ -189,7 +189,7 @@ async fn fixture_gateway_query() -> PhantomData<Vec<Principal>> {
     manual_reply = true,
     decode_with = "blob_test_protocol::fixture_candid::ignore_arguments"
 )]
-fn storage_gateway_list_v1() -> PhantomData<Vec<Principal>> {
+fn storage_gateway_list_v1() -> PhantomData<Vec<ExternalPrincipal>> {
     workflow::inspect_gateways(ic_platform::cdk::api::msg_caller());
     PhantomData
 }

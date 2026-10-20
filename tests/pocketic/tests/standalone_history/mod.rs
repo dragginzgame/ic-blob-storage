@@ -31,9 +31,9 @@ impl Fixture {
     }
     fn history_request(&self) -> UploadHistoryRequest {
         UploadHistoryRequest {
-            service: self.service,
+            service: self.service.into(),
             namespace: self.config.namespace,
-            scope: UploadHistoryScope::Tenant(self.tenant),
+            scope: UploadHistoryScope::Tenant(self.tenant.into()),
             filter: UploadHistoryFilter::All,
             cursor: None,
         }
@@ -162,7 +162,7 @@ fn standalone_history_rejects_scope_and_cursor_errors_even_without_records() {
             ..request
         },
         UploadHistoryRequest {
-            service: f.operator,
+            service: f.operator.into(),
             ..request
         },
     ] {
@@ -182,11 +182,11 @@ fn standalone_history_rejects_scope_and_cursor_errors_even_without_records() {
         Err(UploadHistoryFailure::Invalid)
     );
     let cursor = UploadHistoryCursor {
-        service: f.service,
+        service: f.service.into(),
         namespace: request.namespace,
         scope: request.scope,
         filter: request.filter,
-        after_tenant: f.tenant,
+        after_tenant: f.tenant.into(),
         after_request: 0,
     };
     assert_eq!(
@@ -205,7 +205,7 @@ fn standalone_history_rejects_scope_and_cursor_errors_even_without_records() {
             UploadHistoryRequest {
                 cursor: Some(UploadHistoryCursor {
                     after_request: u128::MAX,
-                    after_tenant: f.operator,
+                    after_tenant: f.operator.into(),
                     ..cursor
                 }),
                 ..request

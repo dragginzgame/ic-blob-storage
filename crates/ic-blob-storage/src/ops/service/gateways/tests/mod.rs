@@ -105,7 +105,14 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
         })
         .collect();
     let attempt = crate::workflow::gateways::begin_sync(&mut store, context(), scope()).unwrap();
-    let bytes = ic_platform::candid::contract::encode_one(&principals).unwrap();
+    let bytes = ic_platform::candid::contract::encode_one(
+        principals
+            .iter()
+            .copied()
+            .map(ic_platform::principal::ExternalPrincipal::from)
+            .collect::<Vec<_>>(),
+    )
+    .unwrap();
     crate::workflow::gateways::complete_sync(
         &mut store,
         context(),

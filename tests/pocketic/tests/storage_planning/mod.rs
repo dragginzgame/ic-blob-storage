@@ -15,13 +15,12 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::query_candid_args;
 
 impl Fixture {
     fn capacity_input(&self) -> TenantScope {
         TenantScope {
-            service: self.service,
-            tenant: self.tenant,
+            service: self.service.into(),
+            tenant: self.tenant.into(),
             namespace: 1,
         }
     }
@@ -48,8 +47,8 @@ impl Fixture {
     ) -> Result<Option<ReferenceHeadroom>, ReferenceCapacityFailure> {
         let request = ReferenceCapacityRequest {
             scope: TenantScope {
-                service: input.service,
-                tenant: input.tenant,
+                service: input.service.into(),
+                tenant: input.tenant.into(),
                 namespace: input.namespace,
             },
             root: input.root,
@@ -76,16 +75,17 @@ impl Fixture {
         actor: Principal,
         input: &RootBatchInput,
     ) -> Result<Vec<RootObservation>, Failure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "observe_roots",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as(
+                self.service,
+                actor,
+                "observe_roots",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
 }
 
@@ -209,7 +209,7 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
     );
     for changed in [
         TenantScope {
-            service: f.other,
+            service: f.other.into(),
             ..scope
         },
         TenantScope {
@@ -263,7 +263,7 @@ fn operator_root_batches_are_bounded_authorized_and_preserved_after_upgrade() {
     f.admit(f.tenant, cancelled).unwrap();
     f.revoke(cancelled).unwrap();
     let query = RootBatchInput {
-        service: f.service,
+        service: f.service.into(),
         namespace: 1,
         roots: vec![
             permission.request.root.to_vec(),
@@ -294,7 +294,7 @@ fn operator_root_batches_are_bounded_authorized_and_preserved_after_upgrade() {
     }
     for changed in [
         RootBatchInput {
-            service: f.other,
+            service: f.other.into(),
             ..empty.clone()
         },
         RootBatchInput {

@@ -38,19 +38,25 @@ fn standalone_signed_gateway_decisions_preserve_uncertainty_and_occupied_restore
         .to_string();
     let cli = GatewayCli::new(scope, Fake::principal(9), url, &root, "standalone");
     let before = f.harness.pic.get_stable_memory(f.service);
-    let source = f.harness.pic.get_stable_memory(scope.cashier);
+    let source = f.harness.pic.get_stable_memory(scope.cashier.into());
     cli.refusals();
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert_eq!(f.harness.pic.get_stable_memory(scope.cashier), source);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        source
+    );
     let pending = cli.decisions(|mode| sync::mode(&f, mode));
     f.harness.pic.stop_progress();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let source = f.harness.pic.get_stable_memory(scope.cashier);
+    let source = f.harness.pic.get_stable_memory(scope.cashier.into());
     f.harness.pic.auto_progress();
     cli.fenced(&pending);
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert_eq!(f.harness.pic.get_stable_memory(scope.cashier), source);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        source
+    );
     f.harness.pic.stop_live();
 }

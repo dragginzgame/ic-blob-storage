@@ -1,6 +1,5 @@
 //! Actual local IC dispatch; credit evidence is a labelled synthetic host input.
 use super::*;
-use ic_platform::candid::decoder;
 mod renewal;
 use blob_test_protocol::storage::funding::CreditCommand;
 
@@ -36,7 +35,8 @@ impl Fixture {
         actor: Principal,
         input: CreditCommand,
     ) -> Result<Option<bool>, Failure> {
-        let request = ic_platform::candid::contract::encode_one(input).unwrap();
+        let request =
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap();
         retain_packet("credit-request", &request);
         let reply = self
             .harness
@@ -49,7 +49,8 @@ impl Fixture {
             )
             .unwrap();
         retain_packet("credit-reply", &reply);
-        decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap()
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
+            .unwrap()
     }
 }
 fn retain(f: &Fixture, name: &str) {
@@ -147,7 +148,7 @@ fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
     let before = f.harness.pic.get_stable_memory(f.service);
-    let input = ic_platform::candid::contract::encode_one(CreditCommand {
+    let input = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(CreditCommand {
         fault: Some(WriteFault::FundingAccounting),
         ..credit(first, 300, 1)
     })

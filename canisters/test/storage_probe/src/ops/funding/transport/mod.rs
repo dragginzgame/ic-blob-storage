@@ -96,7 +96,9 @@ pub(super) fn outcome(status: CashierTopUpStatus) -> FundingOutcome {
         }
         CashierTopUpStatus::Replied(Ok(TopUpReply::ProviderFailure(error))) => {
             FundingOutcome::ProviderError(match error {
-                TopUpProviderError::NotAuthorized(p) => FundingProviderErrorView::NotAuthorized(p),
+                TopUpProviderError::NotAuthorized(p) => {
+                    FundingProviderErrorView::NotAuthorized(p.into())
+                }
                 TopUpProviderError::AccountBalanceOverflow => {
                     FundingProviderErrorView::AccountBalanceOverflow
                 }

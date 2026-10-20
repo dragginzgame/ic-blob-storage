@@ -5,8 +5,8 @@ use crate::{
 };
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_host_fs::testing::FixtureDirectory;
-use ic_platform::Principal;
 use ic_platform::agent::{BasicIdentity, Identity};
+use ic_platform::principal::ExternalPrincipal as Principal;
 use serde_json::{Value, json};
 use std::{cell::Cell, collections::BTreeSet, path::PathBuf};
 

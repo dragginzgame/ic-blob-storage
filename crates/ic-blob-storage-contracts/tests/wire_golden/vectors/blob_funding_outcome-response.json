@@ -1,0 +1,37 @@
+[
+  {
+    "input": {
+      "Ok": null
+    },
+    "hex": "49570f003600424f4c42010000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "fenced": true,
+        "phase": "Prepared",
+        "reconciliation": "NoTransfer",
+        "renewed_allocation": 3573601464,
+        "request": {
+          "offered": 2875854468,
+          "operation": 3602556532,
+          "scope": {
+            "cashier": "jdesp-lkwvj-c4sai",
+            "namespace": 3007636754,
+            "payment_account": "jqasi-vy4wz-rwoai",
+            "service": "cq7ek-3pwpm-s4gai"
+          },
+          "target_balance": 1570150439
+        },
+        "response": "ReplyTooLarge"
+      }
+    },
+    "hex": "49570f003600424f4c4201000105f67b25c30192ca939a0b0556aa45c901051cb6636701f4cceab50d849da8db0a01a7b0daec0500010801b8a983a80d01"
+  },
+  {
+    "input": {
+      "Err": "Denied"
+    },
+    "hex": "49570f003600424f4c42010101"
+  }
+]

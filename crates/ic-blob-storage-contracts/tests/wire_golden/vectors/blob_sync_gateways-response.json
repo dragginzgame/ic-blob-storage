@@ -1,0 +1,36 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "scope": {
+          "cashier": "wmnfy-b37zy-i6yai",
+          "namespace": 2416293537,
+          "payment_account": "vjqh5-fmxh2-qruai",
+          "service": "imzfj-yrs4u-no6ai"
+        },
+        "sequence": 1232329978
+      }
+    },
+    "hex": "495712003600424f4c4201000532e51aef01a1ed968009057fce11ec0105973ea11a01fab9cfcb04"
+  },
+  {
+    "input": {
+      "Ok": {
+        "scope": {
+          "cashier": "fbhzy-nvu7j-2vkai",
+          "namespace": 1987738226,
+          "payment_account": "4hcmi-dznll-f5sai",
+          "service": "fwq57-uub7d-5ysai"
+        },
+        "sequence": 431696288
+      }
+    },
+    "hex": "495712003600424f4c4201000581f8fb8901f2f4e9b30705b4fa755501052d5acbd901a0d3eccd01"
+  },
+  {
+    "input": {
+      "Err": "ReplyTooLarge"
+    },
+    "hex": "495712003600424f4c42010107"
+  }
+]

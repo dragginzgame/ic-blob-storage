@@ -10,7 +10,6 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(principals).unwrap()
 }
@@ -49,7 +48,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_cancel_gateway_sync",
-                ic_platform::candid::contract::encode_one(request).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(request).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -57,12 +56,12 @@ impl Fixture {
     fn revocation(&self, gateway: Principal) -> GatewayRevocationRequest {
         GatewayRevocationRequest {
             scope: OperatorScope {
-                service: self.service,
+                service: self.service.into(),
                 namespace: 1,
-                cashier: self.operator,
-                payment_account: self.service,
+                cashier: self.operator.into(),
+                payment_account: self.service.into(),
             },
-            gateway,
+            gateway: gateway.into(),
         }
     }
     fn revoke_gateway(
@@ -93,46 +92,48 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_revoke_gateway",
-                ic_platform::candid::contract::encode_one(input).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
             )
             .unwrap_err();
         assert_eq!(error.reject_code, RejectCode::CanisterError);
     }
     fn gateway_scope(&self) -> Scope {
         Scope {
-            service: self.service,
-            cashier: self.operator,
+            service: self.service.into(),
+            cashier: self.operator.into(),
             namespace: 1,
         }
     }
     fn gateways(&self, actor: Principal, action: Action) -> Result<Outcome, Failure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "fixture_gateways",
-            (Command {
-                scope: self.gateway_scope(),
-                action,
-                fault: false,
-            },),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .update_control_as(
+                self.service,
+                actor,
+                "fixture_gateways",
+                (Command {
+                    scope: self.gateway_scope(),
+                    action,
+                    fault: false,
+                },),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn gateway_view(&self) -> View {
-        query_candid_args::<(Result<View, Failure>,), _>(
-            &self.harness.pic,
-            self.service,
-            self.operator,
-            "gateway_registry",
-            (self.gateway_scope(),),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as::<(Result<View, Failure>,), _>(
+                self.service,
+                self.operator,
+                "gateway_registry",
+                (self.gateway_scope(),),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
+            .unwrap()
     }
     fn gateway_begin(&self) -> u64 {
         let Outcome::Begun(token) = self.gateways(self.operator, Action::Begin).unwrap() else {
@@ -148,7 +149,7 @@ impl Fixture {
                 self.service,
                 self.operator,
                 "fixture_gateways",
-                ic_platform::candid::contract::encode_one(Command {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(Command {
                     scope: self.gateway_scope(),
                     action,
                     fault: true,
@@ -160,10 +161,14 @@ impl Fixture {
     }
 }
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One durable-sync scenario preserves stale-token and failed-reply ordering"
+)]
 fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pending() {
     let f = Fixture::new();
     let source = f.gateway_scope();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let old = f.gateway_begin();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(
@@ -183,7 +188,7 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
             Action::Apply {
                 token: old,
                 source: Scope {
-                    cashier: f.tenant,
+                    cashier: f.tenant.into(),
                     ..source
                 },
                 reply: gateway_reply(&[f.tenant])
@@ -230,10 +235,16 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
         },
     )
     .unwrap();
-    assert_eq!(f.gateway_view().members, vec![f.other, f.tenant]);
+    assert_eq!(
+        f.gateway_view().members,
+        vec![
+            ic_platform::Principal::from(f.other),
+            ic_platform::Principal::from(f.tenant)
+        ]
+    );
     let pending = f.gateway_begin();
     assert_eq!(
-        f.gateways(f.operator, Action::Add(f.other)),
+        f.gateways(f.operator, Action::Add(f.other.into())),
         Ok(Outcome::Changed(false))
     );
     assert_eq!(
@@ -265,7 +276,7 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
 #[test]
 fn gateway_writes_roll_back_membership_and_pending_identity_together() {
     let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let before = f.gateway_view();
     f.gateway_trap(Action::Begin);
     assert_eq!(f.gateway_view(), before);
@@ -291,14 +302,14 @@ fn gateway_writes_roll_back_membership_and_pending_identity_together() {
     )
     .unwrap();
     let after = f.gateway_view();
-    assert_eq!(after.members, vec![f.tenant]);
+    assert_eq!(after.members, vec![ic_platform::Principal::from(f.tenant)]);
     assert_eq!(after.pending_sequence, None);
     assert_eq!(after.last_sequence, 1);
 }
 #[test]
 fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_sync() {
     let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let token = f.gateway_begin();
     let before = f.gateway_view();
     let bytes = f.harness.pic.get_stable_memory(f.service);
@@ -307,25 +318,27 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             f.revoke_gateway(actor, f.other),
             Err(GatewayRevocationFailure::Denied)
         );
-        let view: Result<View, Failure> = query_candid_args(
-            &f.harness.pic,
-            f.service,
-            actor,
-            "gateway_registry",
-            (f.gateway_scope(),),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let view: Result<View, Failure> = f
+            .harness
+            .pic
+            .query_control_as(
+                f.service,
+                actor,
+                "gateway_registry",
+                (f.gateway_scope(),),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         assert_eq!(view, Err(Failure::Denied));
     }
     for scope in [
         Scope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..f.gateway_scope()
         },
         Scope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..f.gateway_scope()
         },
         Scope {
@@ -333,16 +346,18 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             ..f.gateway_scope()
         },
     ] {
-        let view: Result<View, Failure> = query_candid_args(
-            &f.harness.pic,
-            f.service,
-            f.operator,
-            "gateway_registry",
-            (scope,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let view: Result<View, Failure> = f
+            .harness
+            .pic
+            .query_control_as(
+                f.service,
+                f.operator,
+                "gateway_registry",
+                (scope,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         assert_eq!(view, Err(Failure::Binding));
     }
     assert_eq!(f.harness.pic.get_stable_memory(f.service), bytes);
@@ -386,7 +401,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
 #[test]
 fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_revocation() {
     let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let token = f.gateway_begin();
     let source = f.gateway_scope();
     let before = f.gateway_view();
@@ -434,7 +449,7 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
             Action::Apply {
                 token,
                 source: Scope {
-                    cashier: f.tenant,
+                    cashier: f.tenant.into(),
                     ..source
                 },
                 reply: vec![0; 2049]
@@ -451,7 +466,10 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
         },
     )
     .unwrap();
-    assert_eq!(f.gateway_view().members, vec![f.tenant]);
+    assert_eq!(
+        f.gateway_view().members,
+        vec![ic_platform::Principal::from(f.tenant)]
+    );
     let old = f.gateway_begin();
     f.revoke_gateway(f.operator, f.tenant).unwrap();
     let current = f.gateway_begin();

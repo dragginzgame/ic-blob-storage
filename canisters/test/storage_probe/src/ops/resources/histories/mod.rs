@@ -93,7 +93,7 @@ pub(crate) fn populate(
         }
         for input in batch.reads {
             let tenant = UploadContext {
-                actor: input.target.content.tenant,
+                actor: input.target.content.tenant.into(),
                 ..context
             };
             let (scope, target) = read::authority::parse(tenant, input).unwrap();
@@ -141,8 +141,8 @@ pub(crate) fn inspect(
                         callback_fault: None,
                         target: blob_test_protocol::admission::input::RetainedDescriptorInput {
                             content: blob_test_protocol::admission::ContentLookup {
-                                service: object.service(),
-                                tenant: object.tenant(),
+                                service: object.service().into(),
+                                tenant: object.tenant().into(),
                                 namespace: identity.namespace.get(),
                                 root: *target.root.as_bytes(),
                             },

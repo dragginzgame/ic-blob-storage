@@ -174,7 +174,7 @@ impl<M: Memory> StableUploads<M> {
             .get(root.as_bytes())
             .ok_or(UploadStoreError::InvalidRecord)?;
         let Some(UploadStoreRecord::Permission(record)) =
-            self.permissions.get(&(object.tenant(), id))
+            self.permissions.get(&(object.tenant().into(), id))
         else {
             return Err(UploadStoreError::InvalidRecord);
         };
@@ -304,13 +304,14 @@ impl<M: Memory> StableUploads<M> {
             }
         }
         let (initial, end) = match scope {
-            UploadScanScope::Tenant { tenant, .. } => {
-                (Included((tenant, 1)), Included((tenant, u128::MAX)))
-            }
+            UploadScanScope::Tenant { tenant, .. } => (
+                Included((tenant.into(), 1)),
+                Included((tenant.into(), u128::MAX)),
+            ),
             UploadScanScope::Service { .. } => (Excluded(metadata()), Unbounded),
         };
         let start = cursor.map_or(initial, |c| {
-            Excluded((c.after_tenant, c.after_request.get().get()))
+            Excluded((c.after_tenant.into(), c.after_request.get().get()))
         });
         let mut rows = self.permissions.range((start, end)).peekable();
         let mut page = UploadScanPage {
@@ -343,7 +344,7 @@ impl<M: Memory> StableUploads<M> {
                 service: execution.service,
                 scope,
                 filter,
-                after_tenant: tenant,
+                after_tenant: tenant.into(),
                 after_request: id,
             });
         }

@@ -3,6 +3,7 @@ use blob_test_protocol::authority::{ArchiveCatalog, ArchivePhase};
 use blob_test_protocol::journey::JourneyVerification;
 use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
+use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
 // Bind even terminal-only archives to the workspace release and dependency
@@ -19,13 +20,13 @@ pub(crate) fn release_binding() -> [u8; 32] {
 pub(crate) struct AuthorityArchiveRecord {
     pub release: [u8; 32],
     pub fenced: bool,
-    pub service: Principal,
-    pub operator: Principal,
-    pub tenants: [Principal; 2],
+    pub service: ExternalPrincipal,
+    pub operator: ExternalPrincipal,
+    pub tenants: [ExternalPrincipal; 2],
     pub namespace: u128,
-    pub initial_gateway: Principal,
-    pub sync_source: Principal,
-    pub gateways: Vec<Principal>,
+    pub initial_gateway: ExternalPrincipal,
+    pub sync_source: ExternalPrincipal,
+    pub gateways: Vec<ExternalPrincipal>,
     pub last_sync: u64,
     pub pending_sync: Option<u64>,
     pub sync_control: super::sync::SyncControlRecord,
@@ -41,7 +42,7 @@ pub(crate) struct AuthorityArchiveRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ObjectRecord {
     pub catalog: ArchiveCatalog,
-    pub tenant: Principal,
+    pub tenant: ExternalPrincipal,
     pub id: u8,
     pub root: [u8; 32],
     pub bytes: u64,
@@ -71,10 +72,10 @@ pub(crate) struct ContentRecord {
 pub(crate) struct ReadRecord {
     pub token: u64,
     pub valid: bool,
-    pub tenant: Principal,
+    pub tenant: ExternalPrincipal,
     pub root: [u8; 32],
     pub index: u64,
-    pub gateway: Principal,
+    pub gateway: ExternalPrincipal,
 }
 
 impl AuthorityArchiveRecord {
@@ -102,8 +103,8 @@ impl AuthorityArchiveRecord {
         if read.token == 0 || read.token != self.last_read {
             return false;
         }
-        if read.gateway == Principal::anonymous()
-            || read.gateway == Principal::management_canister()
+        if read.gateway == Principal::anonymous().into()
+            || read.gateway == Principal::management_canister().into()
         {
             return false;
         }
@@ -131,7 +132,7 @@ impl AuthorityArchiveRecord {
     pub fn bounded(&self) -> bool {
         let content_limits = super::content::manifest_limits();
         self.release == release_binding()
-            && self.balance.valid(self.service, self.namespace)
+            && self.balance.valid(self.service.into(), self.namespace)
             && self.objects.len() <= 14
             && self.gateways.len() <= 1
             && self.objects.iter().all(|object| {

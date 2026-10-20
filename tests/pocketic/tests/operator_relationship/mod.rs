@@ -43,10 +43,10 @@ impl Fixture {
         payment_account: Principal,
     ) -> CashierQueryRequest {
         CashierQueryRequest::new(
-            self.gateway,
+            self.gateway.into(),
             CashierQuery::PaymentRelationship(PaymentRelationshipBinding {
-                paid_canister,
-                payment_account,
+                paid_canister: paid_canister.into(),
+                payment_account: payment_account.into(),
             }),
         )
         .unwrap()
@@ -79,7 +79,7 @@ impl Fixture {
             .harness
             .pic
             .query_call(
-                request.cashier(),
+                request.cashier().into(),
                 self.driver,
                 request.method_name(),
                 request.arguments().to_vec(),
@@ -107,8 +107,8 @@ fn relationship_query_preserves_exact_fields_absence_and_provider_failures_witho
     assert_eq!(
         report.binding(),
         PaymentRelationshipBinding {
-            paid_canister: owner(),
-            payment_account: payer()
+            paid_canister: owner().into(),
+            payment_account: payer().into()
         }
     );
     assert_eq!(
@@ -127,13 +127,13 @@ fn relationship_query_preserves_exact_fields_absence_and_provider_failures_witho
         (
             "not-found",
             PaymentRelationshipReply::ProviderFailure(
-                PaymentRelationshipProviderError::RelationshipNotFound(owner()),
+                PaymentRelationshipProviderError::RelationshipNotFound(owner().into()),
             ),
         ),
         (
             "denied",
             PaymentRelationshipReply::ProviderFailure(
-                PaymentRelationshipProviderError::NotAuthorized(payer()),
+                PaymentRelationshipProviderError::NotAuthorized(payer().into()),
             ),
         ),
         (
@@ -155,8 +155,8 @@ fn relationship_query_preserves_exact_fields_absence_and_provider_failures_witho
     assert_eq!(
         request.query(),
         CashierQuery::PaymentRelationship(PaymentRelationshipBinding {
-            paid_canister: owner(),
-            payment_account: payer()
+            paid_canister: owner().into(),
+            payment_account: payer().into()
         })
     );
 }
@@ -272,7 +272,7 @@ fn old_stable_bytes_do_not_replace_live_inspection_and_restoration_fences_querie
     assert_eq!(
         f.inspect_relationship(&request),
         Ok(PaymentRelationshipReply::ProviderFailure(
-            PaymentRelationshipProviderError::NotAuthorized(payer())
+            PaymentRelationshipProviderError::NotAuthorized(payer().into())
         ))
     );
     f.upgrade_fixture(f.gateway, true);

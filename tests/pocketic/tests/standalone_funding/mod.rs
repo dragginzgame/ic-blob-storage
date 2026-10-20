@@ -17,7 +17,7 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
     let f = Fixture::new();
     let scope = OperatorScope {
-        service: f.service,
+        service: f.service.into(),
         cashier: f.config.billing.cashier,
         payment_account: f.config.payment_account,
         namespace: f.config.namespace,
@@ -49,15 +49,15 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
     }
     for changed in [
         OperatorScope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..scope
         },
         OperatorScope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..scope
         },
         OperatorScope {
-            payment_account: f.tenant,
+            payment_account: f.tenant.into(),
             ..scope
         },
         OperatorScope {
@@ -119,7 +119,7 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
 fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore() {
     let f = Fixture::new();
     let scope = OperatorScope {
-        service: f.service,
+        service: f.service.into(),
         namespace: f.config.namespace,
         cashier: f.config.billing.cashier,
         payment_account: f.config.payment_account,
@@ -148,7 +148,7 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
     }
     for changed in [
         OperatorScope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..scope
         },
         OperatorScope {
@@ -156,11 +156,11 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
             ..scope
         },
         OperatorScope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..scope
         },
         OperatorScope {
-            payment_account: f.tenant,
+            payment_account: f.tenant.into(),
             ..scope
         },
     ] {

@@ -9,7 +9,7 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     pub(super) fn operator_scope(&self) -> OperatorScope {
         OperatorScope {
-            service: self.service,
+            service: self.service.into(),
             namespace: self.config.namespace,
             cashier: self.config.billing.cashier,
             payment_account: self.config.payment_account,
@@ -49,7 +49,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     }
     for changed in [
         OperatorScope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..scope
         },
         OperatorScope {
@@ -57,11 +57,11 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
             ..scope
         },
         OperatorScope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..scope
         },
         OperatorScope {
-            payment_account: f.operator,
+            payment_account: f.operator.into(),
             ..scope
         },
     ] {

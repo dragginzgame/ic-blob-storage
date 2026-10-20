@@ -1,7 +1,7 @@
 //! Inspection of the local source journal; never provider reconciliation evidence.
 use crate::{SourceMode, journey::readback::ReadSourceConfig};
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
+use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
 /// Local service call whose intent was committed before dispatch.
@@ -34,11 +34,11 @@ pub struct SourceRecoveryView {
     /// Restoration blocks all operational endpoints, with no reset control.
     pub fenced: bool,
     /// Service targeted by every recorded action.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Gateway currently advertised by the fixture.
-    pub gateway: Principal,
+    pub gateway: ExternalPrincipal,
     /// Explicit inspection/control authority, independent of controllers.
-    pub driver: Principal,
+    pub driver: ExternalPrincipal,
     /// Retained gateway-list response mode.
     pub mode: SourceMode,
     /// Captured list reply waiting across IC rounds, including its exact identity.
@@ -60,7 +60,7 @@ pub struct SourceHeldSyncView {
     /// Source request counter assigned before waiting.
     pub sequence: u64,
     /// Gateway captured when the list request arrived.
-    pub gateway: Principal,
+    pub gateway: ExternalPrincipal,
     /// Whether the driver released the wait.
     pub ready: bool,
 }

@@ -11,8 +11,8 @@ mod revocation;
 fn fresh_input(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let (permission, manifest) = f.permission(1, 1);
     let upload = ReferenceUpload {
-        service: f.service,
-        tenant: f.tenant,
+        service: f.service.into(),
+        tenant: f.tenant.into(),
         namespace: 1,
         upload: 1,
         object: 1,
@@ -28,7 +28,7 @@ fn fresh_input(f: &Fixture) -> (Run, Permission, PreparationInput) {
             source: RegistrationSource::Fresh(
                 ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest {
                     upload,
-                    uploader: permission.uploader,
+                    uploader: permission.uploader.into(),
                     expires_at_ns: permission.expires_at_ns,
                 },
             ),

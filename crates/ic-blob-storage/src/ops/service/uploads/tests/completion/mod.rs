@@ -144,7 +144,7 @@ fn restoration_rejects_attestation_observed_before_its_original_admission() {
     store.confirmed.insert(
         key(model.request),
         ConfirmedLifecycleRecord::new(CompletionRecord::Attested(AttestationRecord {
-            verifier: p(9),
+            verifier: p(9).into(),
             content_digest: statement.content_digest,
             observed_at_ns: 0,
             accepted_at_ns: 5,

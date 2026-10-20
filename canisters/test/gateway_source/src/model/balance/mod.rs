@@ -1,6 +1,7 @@
 //! Independent raw-byte source, bounded to one pending reply and 64 lifetime reads.
 use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
+use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
 #[derive(CandidType, Deserialize)]
@@ -15,7 +16,7 @@ pub(crate) struct BalanceSourceRecord {
 #[derive(Clone, CandidType, Deserialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReplyRecord {
-    pub account: Principal,
+    pub account: ExternalPrincipal,
     pub bytes: Vec<u8>,
     pub reject: bool,
     pub hold: bool,
@@ -26,7 +27,7 @@ impl BalanceSourceRecord {
     /// A held/rejected/busy source cannot be bypassed through the query path.
     pub fn inspection_reply(&self, account: Principal) -> Option<Vec<u8>> {
         let config = self.config.as_ref()?;
-        if self.pending || config.hold || config.reject || config.account != account {
+        if self.pending || config.hold || config.reject || config.account != account.into() {
             return None;
         }
         Some(config.bytes.clone())
@@ -43,8 +44,8 @@ impl BalanceSourceRecord {
     pub fn configure(&mut self, input: ReplyRecord) -> bool {
         if self.pending
             || input.bytes.len() > 4097
-            || input.account == Principal::anonymous()
-            || input.account == Principal::management_canister()
+            || input.account == Principal::anonymous().into()
+            || input.account == Principal::management_canister().into()
         {
             return false;
         }
@@ -53,7 +54,7 @@ impl BalanceSourceRecord {
     }
     pub fn begin(&mut self, account: Principal) -> Option<ReplyRecord> {
         let config = self.config.as_ref()?;
-        if self.pending || self.requests == 64 || config.account != account {
+        if self.pending || self.requests == 64 || config.account != account.into() {
             return None;
         }
         self.requests += 1;
@@ -78,8 +79,8 @@ impl BalanceSourceRecord {
             && (!self.ready || self.pending)
             && self.config.as_ref().is_none_or(|c| {
                 c.bytes.len() <= 4097
-                    && c.account != Principal::anonymous()
-                    && c.account != Principal::management_canister()
+                    && c.account != Principal::anonymous().into()
+                    && c.account != Principal::management_canister().into()
             })
     }
 }

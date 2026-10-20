@@ -1,6 +1,6 @@
 //! Local HTTP fault transport around real `PocketIC`; no provider protocol substitute here.
 use ic_blob_storage_contracts::identity::ContentDigest;
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use std::io::Write;
 use std::net::TcpListener;
 use std::sync::{

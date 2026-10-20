@@ -1,6 +1,6 @@
 //! Native client subprocess with fixed test credentials and explicit local trust.
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use serde_json::Value;
 use std::path::Path;
 use std::process::Command;

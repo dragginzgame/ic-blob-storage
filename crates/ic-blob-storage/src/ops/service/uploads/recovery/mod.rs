@@ -190,7 +190,7 @@ impl<M: Memory> StableUploads<M> {
                 .map(|(tenant, total)| (tenant, total.usage)),
         );
         for (tenant, expected) in totals {
-            if self.usage.get(&tenant) != Some(expected) {
+            if self.usage.get(&tenant.into()) != Some(expected) {
                 return Err(UploadStoreError::InvalidRecord);
             }
             let view = expected.view().ok_or(UploadStoreError::InvalidRecord)?;
@@ -260,7 +260,10 @@ impl<M: Memory> StableUploads<M> {
         for entry in self.receipts.range((owner, 0)..=(owner, u128::MAX)) {
             let receipt = entry.value();
             if entry.key().1 == 0
-                || !receipt.valid(owner.0, self.reference_state(owner, receipt.reference())?)
+                || !receipt.valid(
+                    owner.0.into(),
+                    self.reference_state(owner, receipt.reference())?,
+                )
             {
                 return Err(UploadStoreError::InvalidRecord);
             }

@@ -15,7 +15,10 @@ pub(super) async fn with_agent(
 ) -> Result<Vec<u8>, Failure> {
     tokio::time::timeout(
         Duration::from_secs(30),
-        agent.query(&service, method).with_arg(argument).call(),
+        agent
+            .query(&service.into(), method)
+            .with_arg(argument)
+            .call(),
     )
     .await
     .map_err(|_| Failure::Timeout)?

@@ -1,4 +1,5 @@
 //! Bounded v1 journal schemas and transitions; no storage or transport effects.
+use ic_platform::principal::ExternalPrincipal;
 pub(crate) mod response;
 use super::credit::{FundingCreditConfirmation, FundingCreditError, FundingCreditReceipt};
 use super::renewal::{FundingBudgetRenewal, FundingRenewalError};
@@ -12,7 +13,6 @@ use crate::model::billing::allocation::FundingAllocationView;
 use crate::model::billing::allocation::record::FundingAllocationRecord;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 use response::FundingResponseRecord;
@@ -44,9 +44,9 @@ enum FundingMethodRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct FundingIntentRecord {
     version: u8,
-    service: Principal,
-    cashier: Principal,
-    account: Principal,
+    service: ExternalPrincipal,
+    cashier: ExternalPrincipal,
+    account: ExternalPrincipal,
     namespace: u128,
     operation: u128,
     offered: u128,
@@ -61,9 +61,9 @@ impl FundingIntentRecord {
     pub(crate) fn new(input: FundingIntent) -> Self {
         Self {
             version: 1,
-            service: input.service,
-            cashier: input.cashier,
-            account: input.account,
+            service: input.service.into(),
+            cashier: input.cashier.into(),
+            account: input.account.into(),
             namespace: input.namespace.get(),
             operation: input.operation.get(),
             offered: input.offered.get(),
@@ -80,9 +80,9 @@ impl FundingIntentRecord {
             return None;
         }
         let intent = FundingIntent {
-            service: self.service,
-            cashier: self.cashier,
-            account: self.account,
+            service: self.service.into(),
+            cashier: self.cashier.into(),
+            account: self.account.into(),
             namespace: NonZeroU128::new(self.namespace)?,
             operation: NonZeroU128::new(self.operation)?,
             offered: NonZeroU128::new(self.offered)?,
@@ -241,10 +241,10 @@ impl FundingIntentRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct FundingJournalRecord {
     version: u8,
-    service: Principal,
-    operator: Principal,
-    cashier: Principal,
-    account: Principal,
+    service: ExternalPrincipal,
+    operator: ExternalPrincipal,
+    cashier: ExternalPrincipal,
+    account: ExternalPrincipal,
     namespace: u128,
     allocation: FundingAllocationRecord,
     count: u64,
@@ -255,10 +255,10 @@ impl FundingJournalRecord {
         let bindings = config.bindings();
         Self {
             version: 1,
-            service: bindings.service,
-            operator: bindings.operator,
-            cashier: config.billing().cashier(),
-            account: bindings.payment_account,
+            service: bindings.service.into(),
+            operator: bindings.operator.into(),
+            cashier: config.billing().cashier().into(),
+            account: bindings.payment_account.into(),
             namespace: bindings.namespace.get(),
             allocation: FundingAllocationRecord::new(allocation),
             count: 0,
@@ -280,9 +280,9 @@ impl FundingJournalRecord {
             && self.allocation.matches(allocation)
     }
     pub(crate) fn scope_matches(self, input: FundingIntent) -> bool {
-        input.service == self.service
-            && input.cashier == self.cashier
-            && input.account == self.account
+        input.service == self.service.into()
+            && input.cashier == self.cashier.into()
+            && input.account == self.account.into()
             && input.namespace.get() == self.namespace
     }
     pub(crate) const fn count(self) -> u64 {

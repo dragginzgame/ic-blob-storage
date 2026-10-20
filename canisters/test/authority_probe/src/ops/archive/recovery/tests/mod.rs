@@ -16,7 +16,7 @@ fn contradictory_bindings_accounting_receipts_and_history_reject() {
         |r| r.namespace = 2,
         |r| r.sync_source = r.initial_gateway,
         |r| r.gateways.push(r.initial_gateway),
-        |r| r.gateways[0] = Principal::anonymous(),
+        |r| r.gateways[0] = Principal::anonymous().into(),
         |r| r.objects[0].tenant = r.tenants[1],
         |r| r.objects[0].id = 2,
         |r| r.objects[0].logical = 0,

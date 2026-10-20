@@ -37,7 +37,13 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
     )
     .unwrap();
     let before = memory.borrow().clone();
-    let good = ic_platform::candid::contract::encode_one(vec![p(4), p(5), p(4)]).unwrap();
+    let good = ic_platform::candid::contract::encode_one(
+        vec![p(4), p(5), p(4)]
+            .into_iter()
+            .map(ic_platform::principal::ExternalPrincipal::from)
+            .collect::<Vec<_>>(),
+    )
+    .unwrap();
     for (bytes, bounded, error) in [
         (vec![], limits(), GatewayReplyError::InvalidReply),
         (
@@ -57,12 +63,21 @@ fn durable_gateway_query_uses_canonical_request_and_commits_only_a_valid_bounded
             GatewayReplyError::InvalidReply,
         ),
         (
-            ic_platform::candid::contract::encode_one(Vec::<Principal>::new()).unwrap(),
+            ic_platform::candid::contract::encode_one(Vec::<
+                ic_platform::principal::ExternalPrincipal,
+            >::new())
+            .unwrap(),
             limits(),
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(GatewayListError::Empty)),
         ),
         (
-            ic_platform::candid::contract::encode_one(vec![p(4); 9]).unwrap(),
+            ic_platform::candid::contract::encode_one(
+                vec![p(4); 9]
+                    .into_iter()
+                    .map(ic_platform::principal::ExternalPrincipal::from)
+                    .collect::<Vec<_>>(),
+            )
+            .unwrap(),
             limits(),
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(
                 GatewayListError::TooManyEntries {

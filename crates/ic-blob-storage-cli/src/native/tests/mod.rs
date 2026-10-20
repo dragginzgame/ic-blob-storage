@@ -1,5 +1,6 @@
 use super::*;
 use ic_host_fs::testing::FixtureDirectory;
+pub(in crate::native) mod historical_configuration;
 mod http;
 use ic_blob_storage_contracts::dto::operator::*;
 

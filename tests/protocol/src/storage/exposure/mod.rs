@@ -2,11 +2,9 @@
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 /// Scenario selected by the local test host, not evidence from Caffeine.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ExposureScenario {
     /// Every provider/recovery/durability fact is unknown.
     Unknown,
@@ -18,8 +16,7 @@ pub enum ExposureScenario {
     ForeignSubstitute,
 }
 /// Private exposure control, also used for operator-only certificate test setup.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ExposureInput {
     /// Exact original permission.
     pub permission: UploadAdmissionRequest,
@@ -31,8 +28,7 @@ pub struct ExposureInput {
     pub trap_after: bool,
 }
 /// Simulated exposure or missing prerequisites; never a provider certificate.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ExposureOutcome {
     /// No mutation took place.
     Blocked(Vec<UploadExposureBlocker>),

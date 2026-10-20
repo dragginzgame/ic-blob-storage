@@ -2,14 +2,12 @@
 use crate::dto::funding::outcome::FundingReportedBalance;
 use crate::dto::operator::OperatorScope;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::Int;
 use ic_platform::candid::contract::Nat;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Explicit observation kind; account and owner come from the installed scope.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum AccountInspectionKind {
     /// Reported payer balances.
@@ -18,8 +16,7 @@ pub enum AccountInspectionKind {
     PaymentRelationship,
 }
 /// Operator-selected read, never arbitrary provider arguments.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AccountInspectionRequest {
     /// Exact installed scope checked before dispatch and again after the await.
@@ -28,8 +25,7 @@ pub struct AccountInspectionRequest {
     pub kind: AccountInspectionKind,
 }
 /// Provider relationship figures retained without arithmetic or sentinel interpretation.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AccountRelationshipView {
     /// Exact paid canister, checked against the service.
@@ -58,8 +54,7 @@ pub struct AccountRelationshipView {
     pub bandwidth_baseline_ts_ns: u64,
 }
 /// Account reports and structured provider errors remain distinct from transport failure.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum AccountObservation {
     /// Independently reported balance components, not proof of payment credit.
@@ -80,8 +75,7 @@ pub enum AccountObservation {
     ProviderInternalError,
 }
 /// Reply bound to this exact invocation; not persisted or usable as a funding permit.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AccountInspectionResponse {
     /// Exact request, including installed scope and selected observation kind.
@@ -90,8 +84,7 @@ pub struct AccountInspectionResponse {
     pub observation: AccountObservation,
 }
 /// Refusal or unusable observation; none supplies fallback account data.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum AccountInspectionFailure {
     /// Invalid positive bounds or principal.

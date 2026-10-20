@@ -1,6 +1,5 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod certificate;
 mod snapshot;
 use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
@@ -19,44 +18,47 @@ fn input(f: &Fixture, permission: Permission) -> ExposureInput {
     }
 }
 fn expose(f: &Fixture, actor: Principal, input: ExposureInput) -> Result<ExposureOutcome, E> {
-    update_candid_args(
-        &f.harness.pic,
-        f.service,
-        actor,
-        "expose",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_control_as(
+            f.service,
+            actor,
+            "expose",
+            (input,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
 }
 fn preview(f: &Fixture, input: ExposureInput) -> Result<Vec<B>, E> {
-    query_candid_args(
-        &f.harness.pic,
-        f.service,
-        f.uploader,
-        "exposure_preview",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .query_control_as(
+            f.service,
+            f.uploader,
+            "exposure_preview",
+            (input,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
 }
 fn inspect(
     f: &Fixture,
     actor: Principal,
     input: ExposureInput,
 ) -> Result<UploadAdmissionResponse, E> {
-    query_candid_args(
-        &f.harness.pic,
-        f.service,
-        actor,
-        "exposure_status",
-        (input.permission,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .query_control_as(
+            f.service,
+            actor,
+            "exposure_status",
+            (input.permission,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
 }
 #[test]
 fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_authority() {
@@ -152,7 +154,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
                 f.service,
                 f.uploader,
                 "expose",
-                ic_platform::candid::contract::encode_one(fault).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(fault).unwrap(),
             )
             .unwrap_err();
         assert_eq!(rejection.reject_code, RejectCode::CanisterError);
@@ -170,7 +172,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
             f.service,
             f.uploader,
             "expose",
-            ic_platform::candid::contract::encode_one(yes).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(yes).unwrap(),
         )
         .unwrap();
     let original = inspect(&f, f.uploader, yes).unwrap();

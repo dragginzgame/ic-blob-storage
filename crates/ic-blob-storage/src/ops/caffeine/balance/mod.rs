@@ -65,7 +65,7 @@ pub fn decode_balance_reply(
         decode_one_with_config(bytes, &config).map_err(|_| BalanceReplyError::InvalidReply)?;
     match reply {
         Ok(reply) => {
-            if reply.account != expected_account {
+            if reply.account != expected_account.into() {
                 return Err(BalanceReplyError::AccountMismatch);
             }
             let amounts = reply.account_cycle_balances;
@@ -76,7 +76,7 @@ pub fn decode_balance_reply(
                 ledger: &amounts.cycles_ledger,
             })?;
             Ok(BalanceReply::ReportedBalance {
-                account: reply.account,
+                account: reply.account.into(),
                 balance,
             })
         }
@@ -108,8 +108,8 @@ pub enum BalanceReplyError {
 }
 
 mod wire {
-    use ic_platform::Principal;
     use ic_platform::candid::contract::CandidType;
+    use ic_platform::candid::contract::Principal;
     use serde::Deserialize;
 
     use super::super::wire::AccountCycleBalances;
@@ -260,7 +260,7 @@ mod tests {
                     BalanceField::Ledger => balance.cycles_ledger = invalid.clone(),
                 }
                 let reply: wire::AccountBalanceGetResult = Ok(wire::AccountBalanceGetResponse {
-                    account: account(),
+                    account: account().into(),
                     account_cycle_balances: balance,
                 });
                 let bytes = ic_platform::candid::contract::encode_one(reply).expect("wire balance");

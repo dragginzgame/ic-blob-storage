@@ -27,8 +27,8 @@ impl Selection {
         }
         Ok(Self {
             request: FundingPreviewRequest {
-                service: target.transport.canister,
-                peer,
+                service: target.transport.canister.into(),
+                peer: peer.into(),
                 id,
                 requested_cycles,
                 revision,

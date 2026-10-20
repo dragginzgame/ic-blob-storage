@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::principal::ExternalPrincipal;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
@@ -14,7 +15,7 @@ use std::num::NonZeroU128;
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct RootObjectKeyRecord {
     version: u8,
-    tenant: Principal,
+    tenant: ExternalPrincipal,
     namespace: u128,
     object: u128,
     incarnation: u128,
@@ -25,7 +26,7 @@ impl RootObjectKeyRecord {
         let identity = binding.identity();
         Self {
             version: 1,
-            tenant: binding.tenant(),
+            tenant: binding.tenant().into(),
             namespace: identity.namespace.get(),
             object: identity.object.get(),
             incarnation: identity.incarnation.get(),
@@ -38,7 +39,7 @@ impl RootObjectKeyRecord {
         }
         ObjectBinding::new(
             service,
-            self.tenant,
+            self.tenant.into(),
             ObjectIdentity {
                 namespace: NonZeroU128::new(self.namespace)?,
                 object: NonZeroU128::new(self.object)?,
@@ -53,7 +54,7 @@ impl RootObjectKeyRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct RootStoreMetadataRecord {
     version: u8,
-    service: Principal,
+    service: ExternalPrincipal,
     namespace: u128,
     max_roots: u64,
 }
@@ -62,7 +63,7 @@ impl RootStoreMetadataRecord {
     pub(crate) fn new(config: &ServiceConfiguration) -> Self {
         Self {
             version: 1,
-            service: config.bindings().service,
+            service: config.bindings().service.into(),
             namespace: config.bindings().namespace.get(),
             max_roots: config.limits().catalog.max_objects.get() as u64,
         }

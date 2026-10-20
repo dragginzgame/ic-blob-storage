@@ -79,7 +79,7 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
     }
     for scope in [
         TenantScope {
-            service: f.other,
+            service: f.other.into(),
             ..scope
         },
         TenantScope {
@@ -101,7 +101,10 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
         );
     }
     for tenant in [Principal::anonymous(), Principal::management_canister()] {
-        let scope = TenantScope { tenant, ..scope };
+        let scope = TenantScope {
+            tenant: tenant.into(),
+            ..scope
+        };
         assert_eq!(
             f.update_enrollment(f.operator, TenantUpdateRequest { scope, ..input }),
             Err(TenantFailure::Invalid)
@@ -183,7 +186,7 @@ fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity
     assert_eq!(f.status(), obligations);
 
     let second = TenantScope {
-        tenant: f.other,
+        tenant: f.other.into(),
         ..scope
     };
     f.update_enrollment(
@@ -196,7 +199,7 @@ fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity
     )
     .unwrap();
     let third = TenantScope {
-        tenant: f.uploader,
+        tenant: f.uploader.into(),
         ..scope
     };
     assert_eq!(
@@ -235,11 +238,13 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
                 f.service,
                 f.operator,
                 "fixture_update_tenant_with_write_trap",
-                ic_platform::candid::contract::encode_one(TenantUpdateRequest {
-                    scope,
-                    expected,
-                    active,
-                })
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                    TenantUpdateRequest {
+                        scope,
+                        expected,
+                        active,
+                    },
+                )
                 .unwrap(),
             )
             .unwrap_err();

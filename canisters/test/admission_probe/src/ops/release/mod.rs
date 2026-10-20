@@ -72,7 +72,7 @@ pub(crate) fn execute(
         LifecycleCommand::Reference { .. } => unreachable!("reference handled above"),
     };
     let object = request(input)?;
-    if input.service != context.service {
+    if input.service != context.service.into() {
         return Err(Failure::WrongService);
     }
     // Resolve exact retained operation before applying a host fact; malformed fixture
@@ -81,7 +81,7 @@ pub(crate) fn execute(
         owner
             .lookup(
                 UploadContext {
-                    actor: input.tenant,
+                    actor: input.tenant.into(),
                     ..context
                 },
                 object,

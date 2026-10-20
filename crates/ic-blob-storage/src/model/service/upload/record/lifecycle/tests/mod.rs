@@ -11,7 +11,7 @@ fn bounded_codecs_preserve_maximum_receipt_identity_and_typed_outcomes() {
     ] {
         let record = ReferenceReceiptRecord {
             version: 1,
-            actor: Principal::from_slice(&[1; 29]),
+            actor: Principal::from_slice(&[1; 29]).into(),
             reference: u128::MAX,
             retain: true,
             result,
@@ -28,7 +28,7 @@ fn bounded_codecs_preserve_maximum_receipt_identity_and_typed_outcomes() {
         active: u64::MAX,
         receipts: u64::MAX,
         completion: CompletionRecord::Attested(AttestationRecord {
-            verifier: Principal::from_slice(&[255; 29]),
+            verifier: Principal::from_slice(&[255; 29]).into(),
             content_digest: [255; 32],
             observed_at_ns: u64::MAX,
             accepted_at_ns: u64::MAX,

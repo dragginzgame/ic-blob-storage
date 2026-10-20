@@ -46,7 +46,7 @@ pub(super) fn retained() -> Option<AuthorityArchiveRecord> {
 
 pub(super) fn inspection_allowed(service: Principal, actor: Principal) -> bool {
     RESTORED.with_borrow(|record| match record {
-        Some(record) => record.service == service && record.operator == actor,
+        Some(record) => record.service == service.into() && record.operator == actor.into(),
         None => ops::read(|state| state.catalog.service() == service && state.operator == actor),
     })
 }
@@ -70,7 +70,7 @@ pub(crate) fn prepare() {
 pub(crate) fn restore(service: Principal) {
     super::storage::open();
     let mut record = super::storage::load();
-    assert_eq!(record.service, service, "same service required");
+    assert_eq!(record.service, service.into(), "same service required");
     validate(&record).expect("complete same-release authority journal");
     record.fenced = true;
     super::storage::save(&record);
@@ -84,18 +84,18 @@ fn validate(record: &AuthorityArchiveRecord) -> Option<()> {
     }
     let [first, second] = record.tenants;
     let mut copy = ops::fresh(
-        record.service,
-        first,
-        second,
-        record.initial_gateway,
-        record.operator,
+        record.service.into(),
+        first.into(),
+        second.into(),
+        record.initial_gateway.into(),
+        record.operator.into(),
     );
     let mut membership = GatewayMembership::new(GatewayListLimits {
         max_entries: ops::bound(1),
         max_unique: ops::bound(1),
     });
     for gateway in &record.gateways {
-        membership.add(*gateway).ok()?;
+        membership.add((*gateway).into()).ok()?;
     }
     if record
         .pending_sync
@@ -125,10 +125,14 @@ fn samples(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
             .objects
             .iter()
             .find(|o| o.catalog == sample.catalog && o.root == sample.root)?;
-        let reference = ops::reference(sample.id, record.service, sample.tenant)?;
+        let reference = ops::reference(sample.id, record.service.into(), sample.tenant.into())?;
         if retained.phase != ArchivePhase::Live {
             copy.catalog
-                .apply_reference(reference.root, sample.tenant, release(reference.reference))
+                .apply_reference(
+                    reference.root,
+                    sample.tenant.into(),
+                    release(reference.reference),
+                )
                 .ok()?;
         }
         if matches!(
@@ -179,8 +183,8 @@ fn journey(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
             return None;
         }
         let request = ops::journey::request(
-            record.service,
-            entry.tenant,
+            record.service.into(),
+            entry.tenant.into(),
             JourneyUpload {
                 id: entry.id,
                 root: entry.root,

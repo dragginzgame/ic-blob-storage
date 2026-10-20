@@ -3,6 +3,7 @@
 //! This component does not persist uploads, references or provider obligations.
 //! Hosts own memory grants and lifecycle. Reopening is always inspection-only;
 //! it cannot establish freshness after an older backup or qualify service recovery.
+use ic_platform::principal::ExternalPrincipal;
 
 use crate::model::service::tenant::record::TenantEnrollmentRecord;
 use crate::model::service::tenant::record::TenantStoreMetadataRecord;
@@ -25,7 +26,7 @@ use thiserror::Error;
 /// IC message transaction. Storage traps must propagate, never be caught and
 /// converted into successful updates. Memory must have one live owning handle.
 pub struct StableTenantEnrollments<M: Memory> {
-    entries: StableBTreeMap<Principal, TenantStoreRecord, M>,
+    entries: StableBTreeMap<ExternalPrincipal, TenantStoreRecord, M>,
     config: ServiceConfiguration,
     fenced: bool,
 }
@@ -53,7 +54,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
         }
         let mut entries = StableBTreeMap::new(memory);
         entries.insert(
-            Principal::management_canister(),
+            Principal::management_canister().into(),
             TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config)),
         );
         Ok(Self {
@@ -85,7 +86,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
         // `init` can overwrite unrecognized memory; restoration must use `load`.
         let entries = StableBTreeMap::load(memory);
         let expected = TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config));
-        if entries.get(&Principal::management_canister()) != Some(expected) {
+        if entries.get(&ExternalPrincipal::management_canister()) != Some(expected) {
             return Err(TenantStoreError::Binding);
         }
         if entries.len() - 1 > config.limits().max_tenants.get() as u64 {
@@ -99,8 +100,8 @@ impl<M: Memory> StableTenantEnrollments<M> {
         // Bounded by the configured lifetime tenant count. Restore validates every
         // enrollment before exposing even inspection, without copying the map.
         for entry in &store.entries {
-            if *entry.key() != Principal::management_canister() {
-                enrollment(*entry.key(), entry.value())?;
+            if *entry.key() != Principal::management_canister().into() {
+                enrollment((*entry.key()).into(), entry.value())?;
             }
         }
         Ok(store)
@@ -152,7 +153,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
             self.entries.len() - 1 < self.config.limits().max_tenants.get() as u64,
         )?;
         self.entries.insert(
-            update.tenant,
+            update.tenant.into(),
             TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(next)),
         );
         Ok(next)
@@ -170,7 +171,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
             return Ok(None);
         }
         self.entries
-            .get(&tenant)
+            .get(&tenant.into())
             .map(|record| enrollment(tenant, record))
             .transpose()
     }

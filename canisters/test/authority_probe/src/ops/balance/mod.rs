@@ -31,22 +31,27 @@ pub(crate) fn authorize(service: Principal, actor: Principal) -> Result<(), Fail
 
 pub(crate) fn configure(scope: BalanceScope) -> Result<(), Failure> {
     super::mutate(|state| {
-        if scope.service != state.catalog.service()
+        if scope.service != state.catalog.service().into()
             || scope.namespace != state.registry.scope().namespace().get()
         {
             return Err(Failure::Binding);
         }
-        let record = ScopeRecord::new(scope.service, scope.namespace, scope.source, scope.account)?;
+        let record = ScopeRecord::new(
+            scope.service.into(),
+            scope.namespace,
+            scope.source.into(),
+            scope.account.into(),
+        )?;
         state.balance.configure(record)
     })
 }
 
 fn expected_scope(input: BalanceRefreshRequest) -> Result<ScopeRecord, Failure> {
     ScopeRecord::new(
-        input.scope.service,
+        input.scope.service.into(),
         input.scope.namespace,
-        input.scope.source,
-        input.scope.account,
+        input.scope.source.into(),
+        input.scope.account.into(),
     )
 }
 
@@ -73,9 +78,9 @@ pub(crate) fn begin(input: BalanceRefreshRequest) -> Result<(usize, ScopeRecord)
 
 pub(crate) async fn fetch(scope: ScopeRecord) -> Result<BalanceResponse, Failure> {
     let request = CashierQueryRequest::new(
-        scope.source,
+        scope.source.into(),
         CashierQuery::Balance {
-            account: scope.account,
+            account: scope.account.into(),
         },
     )
     .map_err(|error| match error {
@@ -106,7 +111,7 @@ pub(crate) fn complete(
         return Err(Failure::Fenced);
     }
     super::mutate(|state| {
-        let decoded = response.and_then(|response| decode(&response, scope.source));
+        let decoded = response.and_then(|response| decode(&response, scope.source.into()));
         state
             .balance
             .complete(id, scope, decoded, ic_platform::cdk::api::time())
@@ -208,10 +213,10 @@ pub(crate) fn configure_limits(
     )
     .map_err(|_| Failure::InvalidLimits)?;
     let scope = ScopeRecord::new(
-        input.scope.service,
+        input.scope.service.into(),
         input.scope.namespace,
-        input.scope.source,
-        input.scope.account,
+        input.scope.source.into(),
+        input.scope.account.into(),
     )?;
     super::mutate(|state| {
         state

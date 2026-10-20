@@ -1,11 +1,9 @@
 //! Exact current local reference state, distinct from historical operation receipts.
 use crate::dto::reference::ReferenceUpload;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Tenant-owned lookup, with no mutation operation or action to replay.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceStatusRequest {
     /// Complete original upload binding, including independent object/first-reference IDs.
@@ -14,8 +12,7 @@ pub struct ReferenceStatusRequest {
     pub reference: u128,
 }
 /// One synchronous retained-state observation, never a serving or mutation lease.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceStatusResponse {
     /// Full request echoed for correlation.

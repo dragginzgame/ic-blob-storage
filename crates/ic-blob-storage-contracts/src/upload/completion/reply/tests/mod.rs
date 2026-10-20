@@ -224,15 +224,7 @@ fn malformed_oversized_and_remote_refusals_never_become_absence() {
         (vec![0; 4097], UploadAttestationReplyError::Limit),
         (encoded(42_u64), UploadAttestationReplyError::Invalid),
         (
-            ic_platform::candid::contract::encode_args((
-                Ok::<_, UploadAttestationFailure>(UploadAttestationResponse {
-                    permission,
-                    attestation: UploadAttestationLookup::Absent,
-                    fenced: false,
-                }),
-                1_u64,
-            ))
-            .unwrap(),
+            ic_platform::candid::contract::encode_args((42_u64, 1_u64)).unwrap(),
             UploadAttestationReplyError::Invalid,
         ),
     ] {

@@ -1,0 +1,39 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "enrollment": null,
+        "fenced": false,
+        "scope": {
+          "namespace": 466295257,
+          "service": "22eje-wjgnc-gpgai",
+          "tenant": "cgykh-244wz-gfoai"
+        }
+      }
+    },
+    "hex": "495702003233424f4c4201000526688cf301d9b3acde01059cb64c57010000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "enrollment": {
+          "active": true,
+          "generation": 522704699
+        },
+        "fenced": true,
+        "scope": {
+          "namespace": 1965550384,
+          "service": "653i7-luibo-r4aai",
+          "tenant": "vjbse-phpd5-j5mai"
+        }
+      }
+    },
+    "hex": "495702003233424f4c42010005880ba3c001b0d69fa90705ef1f53d60101bbae9ff9010101"
+  },
+  {
+    "input": {
+      "Err": "Binding"
+    },
+    "hex": "495702003233424f4c42010101"
+  }
+]

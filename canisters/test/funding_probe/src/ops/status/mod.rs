@@ -103,8 +103,8 @@ pub(crate) fn view(
     diagnosis: &OperatorDiagnosis,
 ) -> FundingOperatorStatusView {
     FundingOperatorStatusView {
-        service,
-        peer: snapshot.peer,
+        service: service.into(),
+        peer: snapshot.peer.into(),
         fenced: snapshot.fenced,
         provider_qualified: false,
         billing_configured: false,

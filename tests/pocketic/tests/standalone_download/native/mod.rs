@@ -84,8 +84,8 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     f.prepare(f.uploader, &permission).unwrap();
     let upload = permission.permission.upload;
     let request = DownloadRequest {
-        service: f.service,
-        tenant: f.tenant,
+        service: f.service.into(),
+        tenant: f.tenant.into(),
         namespace: upload.namespace,
         root: upload.root,
         object: upload.object,

@@ -14,7 +14,7 @@ mod sync_request;
 use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
 };
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::pic::update_candid_args;
 use ic_testkit::{Fake, pocket_ic::CreateCanisterParams};
 use serde_json::Value;

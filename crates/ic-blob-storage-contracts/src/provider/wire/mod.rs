@@ -1,7 +1,7 @@
 //! Private maintained account-link Candid shape.
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::Int;
+use ic_platform::candid::contract::Principal;
 #[derive(CandidType)]
 #[candid_path("ic_platform::candid::contract")]
 pub(super) struct PaymentAccountCanisterAddRequest {

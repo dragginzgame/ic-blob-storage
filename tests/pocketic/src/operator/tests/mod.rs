@@ -48,10 +48,10 @@ fn query_results_preserve_blockers_and_the_original_target_on_failure() {
             transport: QueryTarget {
                 server: "127.0.0.1:1".parse().unwrap(),
                 instance: 7,
-                canister: ic_testkit::Fake::principal(1),
-                caller: ic_testkit::Fake::principal(2),
+                canister: ic_testkit::Fake::principal(1).into(),
+                caller: ic_testkit::Fake::principal(2).into(),
             },
-            binding: Binding::Funding(ic_testkit::Fake::principal(3)),
+            binding: Binding::Funding(ic_testkit::Fake::principal(3).into()),
         };
         let original_target = ops::target_json(&target);
         let expected_report = outcome.as_ref().ok().map(|report| report.value.clone());

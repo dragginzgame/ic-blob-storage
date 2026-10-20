@@ -2,9 +2,9 @@
 
 All 31 owned methods use one IC Wire request/response contract. Standalone
 installation and same-release post-upgrade inputs also use method-bound Wire.
-This is the pending 0.36.0 hard cut: old CBOR and Candid service packets reject,
+The 0.36.0 hard cut rejects old CBOR and Candid service packets,
 with no detection, fallback or compatibility lane. The root manifest selects
-published Wire 0.4; Cargo.lock retains the exact 0.4.4 selection. Wire itself
+published Wire 0.5.0 or later in that family; Cargo.lock retains the exact selection. Wire itself
 owns no Blob DTO, endpoint, platform dependency or provider transport.
 
 ## Boundaries and ownership
@@ -17,14 +17,15 @@ owns no Blob DTO, endpoint, platform dependency or provider transport.
 | Provider certificate, outgoing Cashier/provider and IC management | Their existing external Candid contracts |
 | Caffeine HTTP upload/download and 1 MiB chunks | Existing provider contract; bodies never pass through the Blob RPC codec |
 | Offline permissions, declarations, reference commands and statements | Bounded Wire value documents with identity `0x424c4f420036ff10`; never service-method frames |
-| Private consumer-probe controls | Private Wire value protocol using `document`; explicit control callers |
+| Private consumer/storage-probe controls | Private Wire values using `document`; storage controls retain argument/reply tuple envelopes |
 | Signed IC transport envelope | IC transport CBOR, containing the exact application frame |
 | Stable records and accounting journals | Existing persisted encoding; no migration |
 
 `endpoints::SERVICE_METHODS` supplies method names, modes and codecs from the
 same catalog that mounts endpoints. Linking Core, Contracts or Client exports
 no endpoints or lifecycle hooks. `service.did` describes only the provider
-certificate method. Default Wasm omits its optional extraction machinery.
+certificate method. Wasm omits extraction machinery; the native exporter owns
+provider schema generation.
 
 ## Schema and admission
 
@@ -39,6 +40,13 @@ field/variant IDs, `Bytes<29>` principals and exact original frames. Each direct
 allows 512 encoded bytes, 1024 value-allocation bytes plus codec scratch, 32 nodes
 and depth 8. Native tenant DTOs are projections through `wire::tenant`; the generic
 native helpers do not replace those projections.
+
+Wire 0.5 separates finite schema/serialization from deserialization. The concrete
+owned tenant types supply their own decode traits; generic native service and
+document helpers explicitly require `DeserializeOwned`. This intentionally lets
+endpoint adapters release input frames before awaiting work. The new borrowed
+bounded API is optional: using it would require a real consumer lifetime boundary,
+not another parallel DTO registry. Wire 0.5 preserves the existing contract bytes.
 
 The other 29 methods and lifecycle packets use Wire's existing native Serde API.
 Their declared field order and variant order are the frozen positional schema.
@@ -96,9 +104,10 @@ request and reply codecs. No wrapper may fall back to CBOR when Wire rejects.
 Consumer frameworks own their wrappers, installation/lifecycle and integration
 qualification in their own repositories. Canic must adopt these native emitters
 and callers before claiming this release. Blob's local substitutes do not qualify
-Canic or the deployed provider. Public DTO Candid traits retained by existing
-record/external contracts remain separate work under
-[#84 — Remove application DTO Candid coupling after migrating current probes](https://github.com/dragginzgame/ic-blob-storage/issues/84).
+Canic or the deployed provider. The 0.38 application trait cut removes public
+application DTO Candid implementations without changing Wire bytes. External
+provider types retain Candid; historical inputs and persisted private probe
+records use frozen local schemas. Production stable records remain unchanged.
 
 Cross-release transitions remain retirement and reinstall only. Resolve provider
 objects, uncertain effects, balances and continuing billing under
@@ -122,9 +131,14 @@ their values; field/variant order belongs to the frozen native schema.
 New offline permission, manifest, configuration, reference, download and
 attestation documents use `.wire`. Browser fixtures carry those exact opaque
 values from the Rust owner; they define no second codec. There is no Ciborium
-implementation or direct dependency in Blob. IC Memory still uses Ciborium for
-its own persisted metadata, and IC transport/certificate CBOR remains external.
+implementation or direct dependency in Blob. IC Memory owns its persisted
+metadata codec, and IC transport/certificate CBOR remains external.
 Never rewrite old saved directories into this format or replay old uncertain
 effects. Preserve their original release/tools for reconciliation and retire
 installations before the cross-release reinstall. Persistent records and
 journals are not changed by this application-protocol cut.
+
+Platform 0.4 owns the application Principal without Candid traits. Its binary
+Serde representation preserves the literal Wire vectors. External Candid,
+Agent/PocketIC and persisted-record principals retain Platform's explicit
+`ExternalPrincipal`; those conversions do not introduce alternate endpoint codecs.

@@ -147,7 +147,7 @@ fn standalone_upload_status_rejects_foreign_malformed_and_changed_original_bindi
     }
     for changed in [
         ReferenceUpload {
-            service: f.operator,
+            service: f.operator.into(),
             ..upload
         },
         ReferenceUpload {

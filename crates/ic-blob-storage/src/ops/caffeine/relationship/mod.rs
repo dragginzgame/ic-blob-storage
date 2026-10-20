@@ -169,10 +169,10 @@ pub fn decode_payment_relationship_reply(
         Ok(wire::GetResponse {
             relationship: Some(value),
         }) => {
-            if value.paid_canister != expected.paid_canister {
+            if value.paid_canister != expected.paid_canister.into() {
                 return Err(PaymentRelationshipReplyError::PaidCanisterMismatch);
             }
-            if value.payment_account != expected.payment_account {
+            if value.payment_account != expected.payment_account.into() {
                 return Err(PaymentRelationshipReplyError::PaymentAccountMismatch);
             }
             Ok(PaymentRelationshipReply::ReportedRelationship(
@@ -191,10 +191,10 @@ pub fn decode_payment_relationship_reply(
         }
         Err(value) => Ok(PaymentRelationshipReply::ProviderFailure(match value {
             wire::GetError::RelationshipNotFound(value) => {
-                PaymentRelationshipProviderError::RelationshipNotFound(value)
+                PaymentRelationshipProviderError::RelationshipNotFound(value.into())
             }
             wire::GetError::NotAuthorized(value) => {
-                PaymentRelationshipProviderError::NotAuthorized(value)
+                PaymentRelationshipProviderError::NotAuthorized(value.into())
             }
             wire::GetError::InvalidRequest(_) => PaymentRelationshipProviderError::InvalidRequest,
             wire::GetError::InternalError(_) => PaymentRelationshipProviderError::InternalError,
@@ -207,10 +207,10 @@ fn valid_principal(value: Principal) -> bool {
 }
 
 mod wire {
-    use ic_platform::Principal;
     use ic_platform::candid::contract::CandidType;
     use ic_platform::candid::contract::Int;
     use ic_platform::candid::contract::Nat;
+    use ic_platform::candid::contract::Principal;
     use serde::Deserialize;
 
     pub(super) type GetResult = Result<GetResponse, GetError>;

@@ -7,17 +7,9 @@ use std::{
 };
 
 pub(crate) fn incoming(listener: &TcpListener) -> (TcpStream, String) {
-    listener.set_nonblocking(true).unwrap();
     let deadline = Instant::now() + Duration::from_secs(15);
-    let mut stream = loop {
-        match listener.accept() {
-            Ok((stream, _)) => break stream,
-            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock && Instant::now() < deadline => {
-                std::thread::sleep(Duration::from_millis(5));
-            }
-            other => panic!("expected one local byte request: {other:?}"),
-        }
-    };
+    let (mut stream, _) = ic_host_process::testing::net::accept_tcp_until(listener, deadline)
+        .expect("expected one local byte request");
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .unwrap();

@@ -12,8 +12,8 @@ use blob_test_protocol::admission::{
     Command, Enrollment, Failure, Installation, ManifestState, Observation, Outcome, Permission,
     Phase, Request, Workload,
 };
-use ic_platform::Principal;
 use ic_platform::candid::decoder;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::pic::query_candid_args;
 use ic_testkit::{
     Fake,
@@ -96,7 +96,7 @@ impl Fixture {
 
     fn enrollment(&self, expected: Option<Enrollment>, active: bool) -> Command {
         Command::Enroll {
-            tenant: self.project,
+            tenant: self.project.into(),
             expected,
             active,
         }

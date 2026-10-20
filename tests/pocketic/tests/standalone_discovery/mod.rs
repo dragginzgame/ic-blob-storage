@@ -55,7 +55,7 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
     }
     for scope in [
         TenantScope {
-            service: f.operator,
+            service: f.operator.into(),
             ..request.scope
         },
         TenantScope {

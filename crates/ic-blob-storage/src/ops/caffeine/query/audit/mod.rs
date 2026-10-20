@@ -57,11 +57,11 @@ pub(super) fn encode(input: AuditLogQuery) -> Result<Vec<u8>, CashierQueryError>
         return Err(CashierQueryError::AuditCursorAccountMismatch);
     }
     ic_platform::candid::contract::encode_args((wire::AuditLogDownloadRequest {
-        account: Some(input.account),
+        account: Some(input.account.into()),
         max_entries: Some(input.max_entries.get()),
         event_type: input.event_type.map(wire::AuditEventType::from),
         continuation_token: input.continuation.map(|c| wire::AuditLogContinuationToken {
-            account: c.account,
+            account: c.account.map(Into::into),
             sequence: c.sequence,
         }),
     },))
@@ -71,7 +71,7 @@ pub(super) fn encode(input: AuditLogQuery) -> Result<Vec<u8>, CashierQueryError>
 mod wire {
     use super::AuditLogEvent;
     use super::CandidType;
-    use super::Principal;
+    use ic_platform::candid::contract::Principal;
 
     #[derive(CandidType)]
     #[candid_path("ic_platform::candid::contract")]

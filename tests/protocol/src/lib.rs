@@ -1,7 +1,7 @@
 //! Private fixture controls shared by local test canisters and the host harness.
 //! These are not a production service API or an independently defined provider contract.
+use ic_platform::principal::ExternalPrincipal;
 
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -39,7 +39,7 @@ pub enum SourceMode {
     /// Revoke the old gateway before returning its stale membership list.
     Revoke,
     /// Revoke, complete a new sync, then return the original stale list.
-    Replace(Principal),
+    Replace(ExternalPrincipal),
 }
 
 /// Typed outcomes of the test-only sync orchestration.
@@ -71,11 +71,11 @@ pub enum SyncFailure {
 #[candid_path("ic_platform::candid::contract")]
 pub struct GatewaySyncRequest {
     /// Authority fixture owning membership.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Exact fixture namespace.
     pub namespace: u128,
     /// Controlled source of the gateway list.
-    pub source: Principal,
+    pub source: ExternalPrincipal,
     /// Expected operator-edit revision, including no-op revocations.
     pub revision: u64,
     /// Expected next lifetime sync sequence.

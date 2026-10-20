@@ -1,0 +1,30 @@
+[
+  {
+    "input": {
+      "offered": 1251314384,
+      "operation": 2597084784,
+      "scope": {
+        "cashier": "ogqyn-eh3he-ld2ai",
+        "namespace": 2451395130,
+        "payment_account": "nmfyb-2u2cu-sacai",
+        "service": "jtluj-jbgvz-z3yai"
+      },
+      "target_balance": null
+    },
+    "hex": "49570f003600424f4c42000526ae73bc01baa4f5900905fb39163d01059a15240101f0bcb1d609d095d6d40400"
+  },
+  {
+    "input": {
+      "offered": 3435383508,
+      "operation": 253389789,
+      "scope": {
+        "cashier": "3kbv4-o6m3h-qwsai",
+        "namespace": 1804868195,
+        "payment_account": "jrpgk-q4ivh-sg6ai",
+        "service": "nsu7e-bovgz-ls2ai"
+      },
+      "target_balance": 397148831
+    },
+    "hex": "49570f003600424f4c420005d536572d01e3b4d0dc0605ccd9e169010588a9e46f01ddd7e978d4958fe60c019f85b0bd01"
+  }
+]

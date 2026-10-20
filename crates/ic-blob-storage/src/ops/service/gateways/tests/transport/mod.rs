@@ -48,7 +48,13 @@ impl CashierQueryTransport for Reply {
         )
         .unwrap();
         self.calls.set(self.calls.get() + 1);
-        let bytes = ic_platform::candid::contract::encode_one(vec![p(4)]).unwrap();
+        let bytes = ic_platform::candid::contract::encode_one(
+            vec![p(4)]
+                .into_iter()
+                .map(ic_platform::principal::ExternalPrincipal::from)
+                .collect::<Vec<_>>(),
+        )
+        .unwrap();
         assert!(bytes.len() <= max_bytes.get());
         std::future::ready(Ok(CashierQueryResponse {
             cashier: self.cashier,

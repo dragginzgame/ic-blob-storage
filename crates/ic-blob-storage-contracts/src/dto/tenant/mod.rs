@@ -1,11 +1,9 @@
 //! Explicit tenant enrollment scope and compare-and-set commands.
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Exact service namespace and tenant; supplied identity alone grants no authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantScope {
     /// Intended running storage service.
@@ -17,8 +15,7 @@ pub struct TenantScope {
 }
 
 /// Passive current enrollment, also used as an exact update precondition.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantEnrollment {
     /// Positive local activation generation; not a restore-safe allocation authority.
@@ -28,8 +25,7 @@ pub struct TenantEnrollment {
 }
 
 /// Operator-authorized compare-and-set; inspect after a lost reply before deciding again.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantUpdateRequest {
     /// Exact destination and tenant.
@@ -41,8 +37,7 @@ pub struct TenantUpdateRequest {
 }
 
 /// Correlated observation, not a durable operation receipt or upload permission.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantEnrollmentResponse {
     /// Original requested service, namespace and tenant.
@@ -54,8 +49,7 @@ pub struct TenantEnrollmentResponse {
 }
 
 /// Typed refusal without granting authority or erasing tenant history.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum TenantFailure {
     /// Wrong running service or installed namespace.

@@ -1,7 +1,7 @@
 //! IC transaction rollback and same-release inspection of the durable upload owner.
 #![cfg(not(target_family = "wasm"))]
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt as _;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod authenticated_cli;
 mod browser_driver;
 mod install_code;
@@ -35,7 +35,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, RejectCode},
@@ -70,10 +70,10 @@ impl Fixture {
         self.harness
             .pic
             .query_blob_as::<Result<_, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>, _>(self.service, self.operator, ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD, ic_blob_storage_contracts::dto::operator::OperatorScope {
-                    service: self.service,
+                    service: self.service.into(),
                     namespace: 1,
-                    cashier: self.operator,
-                    payment_account: self.service,
+                    cashier: self.operator.into(),
+                    payment_account: self.service.into(),
                 }, REPLY_LIMITS.reply_bytes)
             .unwrap()
             .unwrap()
@@ -238,25 +238,27 @@ impl Fixture {
             ExposureInput, ExposureOutcome, ExposureScenario,
         };
         use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
-        let result: Result<ExposureOutcome, E> = update_candid_args(
-            &self.harness.pic,
-            self.service,
-            self.uploader,
-            "expose",
-            (ExposureInput {
-                permission: admission_input(Permission {
-                    request: input,
-                    uploader: self.uploader,
-                    expires_at_ns: u64::MAX,
-                }),
-                scenario: ExposureScenario::QualifiedSubstitute,
-                trap_write: false,
-                trap_after: false,
-            },),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<ExposureOutcome, E> = self
+            .harness
+            .pic
+            .update_control_as(
+                self.service,
+                self.uploader,
+                "expose",
+                (ExposureInput {
+                    permission: admission_input(Permission {
+                        request: input,
+                        uploader: self.uploader,
+                        expires_at_ns: u64::MAX,
+                    }),
+                    scenario: ExposureScenario::QualifiedSubstitute,
+                    trap_write: false,
+                    trap_after: false,
+                },),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         result
             .map(|r| {
                 assert!(matches!(r, ExposureOutcome::Exposed(_)));
@@ -287,35 +289,38 @@ impl Fixture {
         result.map(|r| r.changed).map_err(admission_failure)
     }
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "lookup",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as(
+                self.service,
+                actor,
+                "lookup",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn status(&self) -> Status {
-        let result: Result<Status, Failure> = query_candid_args(
-            &self.harness.pic,
-            self.service,
-            self.operator,
-            "status",
-            (),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<Status, Failure> = self
+            .harness
+            .pic
+            .query_control_as(
+                self.service,
+                self.operator,
+                "status",
+                (),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         result.unwrap()
     }
     fn tenant_scope(&self) -> TenantScope {
         TenantScope {
-            service: self.service,
+            service: self.service.into(),
             namespace: 1,
-            tenant: self.tenant,
+            tenant: self.tenant.into(),
         }
     }
     fn enroll(
@@ -390,7 +395,7 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
                 f.service,
                 f.tenant,
                 "admit_with_write_trap",
-                ic_platform::candid::contract::encode_one(FaultAdmission {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(FaultAdmission {
                     permission: admission_input(attempted),
                     fault,
                 })
@@ -444,10 +449,12 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
                 f.service,
                 f.uploader,
                 "prepare_with_write_trap",
-                ic_platform::candid::contract::encode_one(FaultPreparation {
-                    preparation: f.preparation_input(&preparation),
-                    fault,
-                })
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                    FaultPreparation {
+                        preparation: f.preparation_input(&preparation),
+                        fault,
+                    },
+                )
                 .unwrap(),
             )
             .unwrap_err();
@@ -564,7 +571,10 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             f.service,
             f.tenant,
             "revoke_with_usage_write_trap",
-            ic_platform::candid::contract::encode_one(admission_input(permission)).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(admission_input(
+                permission,
+            ))
+            .unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);
@@ -605,8 +615,8 @@ fn admission_input(
 ) -> ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest {
     ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest {
         upload: ic_blob_storage_contracts::dto::reference::ReferenceUpload {
-            service: input.request.service,
-            tenant: input.request.tenant,
+            service: input.request.service.into(),
+            tenant: input.request.tenant.into(),
             namespace: input.request.namespace,
             upload: input.request.id,
             object: input.request.id,
@@ -615,7 +625,7 @@ fn admission_input(
             root: input.request.root,
             bytes: input.request.bytes,
         },
-        uploader: input.uploader,
+        uploader: input.uploader.into(),
         expires_at_ns: input.expires_at_ns,
     }
 }

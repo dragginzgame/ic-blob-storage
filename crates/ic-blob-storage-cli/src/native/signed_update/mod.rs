@@ -86,7 +86,7 @@ impl PreparedUpdate {
         intent: impl FnOnce() -> R,
     ) -> Result<Self, Failure> {
         let signed = agent
-            .update(&input.service, input.method)
+            .update(&input.service.into(), input.method)
             .with_arg(input.argument.to_vec())
             .expire_after(Duration::from_secs(INGRESS_SECONDS))
             .sign()
@@ -133,7 +133,10 @@ impl PreparedUpdate {
         let request_id = self.signed.request_id.to_string();
         let response = tokio::time::timeout(
             Duration::from_secs(u64::from(DEADLINE_SECONDS)),
-            agent.update_signed(self.service, self.signed.signed_update),
+            agent.update_signed(
+                ic_platform::principal::ExternalPrincipal::from(self.service),
+                self.signed.signed_update,
+            ),
         )
         .await
         .map_err(|_| Failure::Timeout)

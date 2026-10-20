@@ -303,7 +303,7 @@ impl Trial {
             .configuration(self.f.operator)
             .unwrap()
             .completion_verifier;
-        let mut args = self.args("observe-upload", "verifier.pem", verifier);
+        let mut args = self.args("observe-upload", "verifier.pem", verifier.into());
         args.extend([
             "--permission".into(),
             self.report
@@ -325,7 +325,7 @@ impl Trial {
             .configuration(self.f.operator)
             .unwrap()
             .completion_verifier;
-        let mut args = self.args("submit-attestation", "verifier.pem", verifier);
+        let mut args = self.args("submit-attestation", "verifier.pem", verifier.into());
         args.extend([
             "--run-dir".into(),
             self.report.join("observation").display().to_string(),

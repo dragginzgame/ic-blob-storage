@@ -11,6 +11,7 @@ use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
@@ -69,10 +70,10 @@ impl ReadUsageRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReadJournalRecord {
     version: u8,
-    service: Principal,
-    operator: Principal,
-    cashier: Principal,
-    payer: Principal,
+    service: ExternalPrincipal,
+    operator: ExternalPrincipal,
+    cashier: ExternalPrincipal,
+    payer: ExternalPrincipal,
     namespace: u128,
     limits: ReadSessionLimits,
     last: u64,
@@ -83,10 +84,10 @@ impl ReadJournalRecord {
         let b = config.bindings();
         Self {
             version: 1,
-            service: b.service,
-            operator: b.operator,
-            cashier: config.billing().cashier(),
-            payer: b.payment_account,
+            service: b.service.into(),
+            operator: b.operator.into(),
+            cashier: config.billing().cashier().into(),
+            payer: b.payment_account.into(),
             namespace: b.namespace.get(),
             limits,
             last: 0,
@@ -137,15 +138,15 @@ impl ReadJournalRecord {
 pub(crate) struct ReadSessionRecord {
     version: u8,
     sequence: u64,
-    service: Principal,
-    tenant: Principal,
-    cashier: Principal,
+    service: ExternalPrincipal,
+    tenant: ExternalPrincipal,
+    cashier: ExternalPrincipal,
     namespace: u128,
     object: u128,
     incarnation: u128,
     reference: u128,
     root: [u8; 32],
-    gateway: Principal,
+    gateway: ExternalPrincipal,
     index: u64,
     gateway_generation: u64,
     tenant_generation: u64,
@@ -158,15 +159,15 @@ impl ReadSessionRecord {
         Self {
             version: 1,
             sequence,
-            service: object.service(),
-            tenant: object.tenant(),
-            cashier: intent.scope.cashier(),
+            service: object.service().into(),
+            tenant: object.tenant().into(),
+            cashier: intent.scope.cashier().into(),
             namespace: id.namespace.get(),
             object: id.object.get(),
             incarnation: id.incarnation.get(),
             reference: target.reference.reference().get().get(),
             root: *target.root.as_bytes(),
-            gateway: target.gateway,
+            gateway: target.gateway.into(),
             index: intent.chunk.index,
             gateway_generation: intent.gateway_generation,
             tenant_generation: intent.tenant_generation.get(),
@@ -175,15 +176,15 @@ impl ReadSessionRecord {
     pub(crate) fn ticket(&self) -> Option<ReadSessionTicket> {
         if self.version != 1
             || self.sequence == 0
-            || self.gateway == Principal::anonymous()
-            || self.gateway == Principal::management_canister()
+            || self.gateway == Principal::anonymous().into()
+            || self.gateway == Principal::management_canister().into()
         {
             return None;
         }
         let namespace = NonZeroU128::new(self.namespace)?;
         let object = ObjectBinding::new(
-            self.service,
-            self.tenant,
+            self.service.into(),
+            self.tenant.into(),
             ObjectIdentity {
                 namespace,
                 object: NonZeroU128::new(self.object)?,
@@ -195,10 +196,11 @@ impl ReadSessionRecord {
             sequence: self.sequence,
             intent: ReadSessionIntent {
                 context: UploadContext {
-                    service: self.service,
-                    actor: self.tenant,
+                    service: self.service.into(),
+                    actor: self.tenant.into(),
                 },
-                scope: GatewayScope::new(self.service, namespace, self.cashier).ok()?,
+                scope: GatewayScope::new(self.service.into(), namespace, self.cashier.into())
+                    .ok()?,
                 chunk: ReadChunkTarget {
                     target: ReadTarget {
                         root: ProviderRootHash::try_from(self.root.as_slice()).ok()?,
@@ -206,7 +208,7 @@ impl ReadSessionRecord {
                             object,
                             ReferenceId::new(NonZeroU128::new(self.reference)?),
                         ),
-                        gateway: self.gateway,
+                        gateway: self.gateway.into(),
                     },
                     index: self.index,
                 },
@@ -236,10 +238,10 @@ mod tests {
         let principal = Principal::from_slice(&[1; 29]);
         let mut record = ReadJournalRecord {
             version: 1,
-            service: principal,
-            operator: principal,
-            cashier: principal,
-            payer: principal,
+            service: principal.into(),
+            operator: principal.into(),
+            cashier: principal.into(),
+            payer: principal.into(),
             namespace: u128::MAX,
             limits: ReadSessionLimits::new(
                 2.try_into().unwrap(),

@@ -10,8 +10,8 @@ use blob_test_protocol::admission::release::LifecycleCommand;
 
 fn scope(f: &Fixture) -> TenantScope {
     TenantScope {
-        service: f.service,
-        tenant: f.project,
+        service: f.service.into(),
+        tenant: f.project.into(),
         namespace: 1,
     }
 }
@@ -76,7 +76,7 @@ fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observa
             document::encode(scope).unwrap(),
             wire::encode_request("blob_configuration", ()).unwrap(),
             wire::encode_response(method, ()).unwrap(),
-            ic_platform::candid::contract::encode_one(scope).unwrap(),
+            ic_blob_storage_pocketic_tests::historical::encode(scope).unwrap(),
             vec![0xf6],
             request[..request.len() - 1].to_vec(),
             trailing,
@@ -134,7 +134,7 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
             &f,
             f.other,
             TenantScope {
-                tenant: f.other,
+                tenant: f.other.into(),
                 ..input
             }
         ),
@@ -145,7 +145,7 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
             &f,
             f.project,
             TenantScope {
-                service: f.other,
+                service: f.other.into(),
                 ..input
             }
         ),

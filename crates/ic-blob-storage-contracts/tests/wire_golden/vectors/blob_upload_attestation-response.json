@@ -1,0 +1,214 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "attestation": "Absent",
+        "fenced": false,
+        "permission": {
+          "expires_at_ns": 4023435061,
+          "upload": {
+            "bytes": 3059497751,
+            "first_reference": 1463597938,
+            "incarnation": 1968691519,
+            "namespace": 552368874,
+            "object": 1259577902,
+            "root": [
+              201,
+              148,
+              74,
+              175,
+              105,
+              36,
+              176,
+              179,
+              111,
+              52,
+              212,
+              106,
+              199,
+              91,
+              176,
+              42,
+              214,
+              11,
+              122,
+              129,
+              246,
+              200,
+              120,
+              191,
+              22,
+              35,
+              235,
+              14,
+              122,
+              19,
+              159,
+              247
+            ],
+            "service": "kkmf6-mx7my-tuuai",
+            "tenant": "2orb3-6ugwd-65kai",
+            "upload": 2172687387
+          },
+          "uploader": "4dmal-xufum-ereai"
+        }
+      }
+    },
+    "hex": "49571b003600424f4c42010005ff66274a010586b0fdd501eaf5b187029ba8828c08aec4ced804bfb2dfaa07f2f6f2b905c9944aaf6924b0b36f34d46ac75bb02ad60b7a81f6c878bf1623eb0e7a139ff797f6f0b20b0585a3091201b5fec2fe0e0000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "attestation": {
+          "Found": {
+            "accepted_at_ns": 1690164575,
+            "request": {
+              "content_digest": [
+                228,
+                211,
+                203,
+                36,
+                49,
+                116,
+                42,
+                85,
+                232,
+                42,
+                209,
+                59,
+                128,
+                46,
+                158,
+                189,
+                176,
+                98,
+                206,
+                197,
+                49,
+                46,
+                74,
+                215,
+                207,
+                121,
+                189,
+                40,
+                192,
+                51,
+                248,
+                16
+              ],
+              "observed_at_ns": 2904518891,
+              "permission": {
+                "expires_at_ns": 3045940452,
+                "upload": {
+                  "bytes": 956575328,
+                  "first_reference": 1953619368,
+                  "incarnation": 1483146162,
+                  "namespace": 714106887,
+                  "object": 2977127452,
+                  "root": [
+                    134,
+                    27,
+                    210,
+                    98,
+                    235,
+                    124,
+                    29,
+                    124,
+                    44,
+                    56,
+                    62,
+                    166,
+                    41,
+                    3,
+                    228,
+                    114,
+                    158,
+                    163,
+                    117,
+                    123,
+                    238,
+                    228,
+                    242,
+                    220,
+                    212,
+                    78,
+                    28,
+                    133,
+                    151,
+                    141,
+                    95,
+                    119
+                  ],
+                  "service": "rbx23-wn7dh-g54ai",
+                  "tenant": "bjkuj-55ab6-5poai",
+                  "upload": 347297524
+                },
+                "uploader": "akjta-og4sl-532ai"
+              }
+            },
+            "verifier": "4nyv5-dmp2y-wxkai"
+          }
+        },
+        "fenced": true,
+        "permission": {
+          "expires_at_ns": 2855916278,
+          "upload": {
+            "bytes": 3466063463,
+            "first_reference": 1626668855,
+            "incarnation": 3061249422,
+            "namespace": 2186724291,
+            "object": 2515162389,
+            "root": [
+              141,
+              154,
+              9,
+              134,
+              33,
+              191,
+              68,
+              176,
+              236,
+              210,
+              229,
+              247,
+              77,
+              231,
+              65,
+              184,
+              243,
+              7,
+              148,
+              127,
+              109,
+              128,
+              31,
+              247,
+              202,
+              80,
+              199,
+              4,
+              23,
+              219,
+              207,
+              118
+            ],
+            "service": "jkjw6-es2en-hvuai",
+            "tenant": "dknzt-azink-fqwai",
+            "upload": 623627652
+          },
+          "uploader": "vzwcj-wuv6f-dm6ai"
+        }
+      }
+    },
+    "hex": "49571b003600424f4c420100055a234f5a0105286a8b0b01c387db9208849bafa90295aaa9af098eebdbb30bb7fed387068d9a098621bf44b0ecd2e5f74de741b8f307947f6d801ff7ca50c70417dbcf76e7dcdff40c0595f146cf01f6a5e7d10a0105bf19cdde0105a00fbaf70187d0c1d402f4adcda5019cb8cd8b0bb2879cc305a8bbc7a307861bd262eb7c1d7c2c383ea62903e4729ea3757beee4f2dcd44e1c85978d5f77e0dc90c80305dc92fbbd01e4b9b5ac0be4d3cb2431742a55e82ad13b802e9ebdb062cec5312e4ad7cf79bd28c033f810ebe1fde80a058fd62d7501dfbaf7a50601"
+  },
+  {
+    "input": {
+      "Err": {
+        "Permission": "Internal"
+      }
+    },
+    "hex": "49571b003600424f4c4201010009"
+  }
+]

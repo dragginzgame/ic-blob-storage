@@ -6,8 +6,6 @@ use blob_test_protocol::storage::{
     resources::{FundingCreditResources, FundingPopulationIntent, HistoryPopulationBatch},
 };
 use ic_host_fs::testing::FixtureDirectory;
-use ic_platform::candid::decoder;
-use ic_testkit::pic::update_candid_args;
 
 fn digest(operation: u128) -> [u8; 32] {
     use sha2::{Digest, Sha256};
@@ -16,9 +14,9 @@ fn digest(operation: u128) -> [u8; 32] {
 
 fn intent(f: &Fixture, operation: u128) -> Intent {
     Intent {
-        service: f.service,
-        cashier: f.operator,
-        account: f.service,
+        service: f.service.into(),
+        cashier: f.operator.into(),
+        account: f.service.into(),
         namespace: 1,
         operation,
         offered: 1,
@@ -33,8 +31,8 @@ fn measured(
     actor: Principal,
     input: CreditCommand,
 ) -> FundingCreditResources {
-    let packet = ic_platform::candid::contract::encode_one(input).unwrap();
-    retain_bytes(directory, &format!("{name}-request.candid"), &packet);
+    let packet = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap();
+    retain_bytes(directory, &format!("{name}-request.wire"), &packet);
     let reply =
         f.harness
             .pic
@@ -47,7 +45,8 @@ fn measured(
     let reply = reply.unwrap();
     retain_bytes(directory, &format!("{name}-reply.wire"), &reply);
     let observation: FundingCreditResources =
-        decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new()).unwrap();
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
+            .unwrap();
     retain(
         directory,
         &format!("{name}-metrics.json"),
@@ -74,17 +73,18 @@ fn credit_measurements_have_independent_exact_read_windows() {
             credit_digest: None,
         }],
     };
-    update_candid_args::<(Result<(), Failure>,), _>(
-        &f.harness.pic,
-        f.service,
-        f.operator,
-        "populate_histories",
-        (batch,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
-    .unwrap();
+    f.harness
+        .pic
+        .update_control_as::<(Result<(), Failure>,), _>(
+            f.service,
+            f.operator,
+            "populate_histories",
+            (batch,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+        .unwrap();
     let command = CreditCommand {
         intent: intent(&f, 1),
         accepted: 1,
@@ -193,11 +193,12 @@ fn profile(directory: &Path, count: u32) {
                 })
                 .collect(),
         };
-        let packet = ic_platform::candid::contract::encode_one(batch).unwrap();
+        let packet =
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(batch).unwrap();
         assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
         retain_bytes(
             directory,
-            &format!("population-{start}-request.candid"),
+            &format!("population-{start}-request.wire"),
             &packet,
         );
         let reply = f
@@ -214,9 +215,9 @@ fn profile(directory: &Path, count: u32) {
         let reply = reply.unwrap();
         retain_bytes(directory, &format!("population-{start}-reply.wire"), &reply);
         assert_eq!(
-            decoder::decode_one_with_config::<Result<(), Failure>>(
+            ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<Result<(), Failure>>(
                 &reply,
-                &decoder::DecoderConfig::new()
+                4 * 1024 * 1024
             )
             .unwrap(),
             Ok(())

@@ -47,5 +47,15 @@ All owned methods use published IC Wire; passive offline Wire values have their 
 bounded projections use explicit field/variant identities, method/direction-bound
 frames and finite resource limits while native DTO/policy and persisted schemas
 retain their existing owners. See [the adoption state](../../docs/service-wire.md).
-The registry requirement targets 0.4. Candidate-source evidence retains its
-original scope; it does not qualify later dependencies.
+The registry requirement targets Wire 0.5. Literal vectors in
+[`tests/wire_golden`](tests/wire_golden/README.md) freeze all owned method and
+lifecycle contracts independently of round trips. Nested DTOs are exercised
+through these boundary values and focused unit tests rather than a separate
+exhaustive DTO registry. Application-only DTOs no
+longer implement `CandidType`; the external provider certificate retains it.
+Frozen historical test schemas and stable record codecs have their own owners.
+
+Application DTO principals use Platform 0.4's owned `ic_platform::Principal`.
+Provider Candid projections use `ic_platform::principal::ExternalPrincipal`;
+convert with `.into()` when crossing that boundary. Binary Wire bytes remain
+unchanged; the public Rust type identity requires aligned host dependencies.

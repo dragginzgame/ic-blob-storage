@@ -23,7 +23,7 @@ pub(super) fn encode(command: Command) -> (&'static str, Vec<u8>) {
         } => input(
             "enroll",
             EnrollmentInput {
-                tenant,
+                tenant: tenant.into(),
                 expected,
                 active,
             },

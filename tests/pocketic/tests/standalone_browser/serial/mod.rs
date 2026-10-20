@@ -414,7 +414,9 @@ impl Serial {
             .configuration(self.trial.f.operator)
             .unwrap()
             .completion_verifier;
-        let mut args = self.trial.args("observe-upload", "verifier.pem", verifier);
+        let mut args = self
+            .trial
+            .args("observe-upload", "verifier.pem", verifier.into());
         let label = format!("observation-{index}");
         args.extend([
             "--permission".into(),
@@ -441,7 +443,7 @@ impl Serial {
             .completion_verifier;
         let mut args = self
             .trial
-            .args("submit-attestation", "verifier.pem", verifier);
+            .args("submit-attestation", "verifier.pem", verifier.into());
         args.extend([
             "--run-dir".into(),
             self.trial

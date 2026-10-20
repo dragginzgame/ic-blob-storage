@@ -10,7 +10,7 @@ use blob_test_protocol::consumer::manifests::{
     ManifestDispatch, ManifestIntent, ManifestIntentView,
 };
 use blob_test_protocol::consumer::{AssetView, Failure, Recovery, Release, Run, Use};
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal;
 
 #[ic_platform::cdk::update(
     hidden = true,
@@ -147,8 +147,8 @@ async fn query_manifest(
     workflow::manifests::inspect(ic_platform::cdk::api::msg_caller(), id).await
 }
 #[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_candid::decode_args")]
-fn init(operator: Principal, service: Principal) {
-    ops::initialize(Some((operator, service)));
+fn init(operator: ExternalPrincipal, service: ExternalPrincipal) {
+    ops::initialize(Some((operator.into(), service.into())));
 }
 #[ic_platform::cdk::post_upgrade]
 fn post_upgrade() {

@@ -139,7 +139,7 @@ fn an_explicit_self_payer_is_supported_without_an_absence_fallback() {
         .relationship
         .as_mut()
         .expect("present")
-        .payment_account = binding().paid_canister;
+        .payment_account = binding().paid_canister.into();
     let expected = PaymentRelationshipBinding {
         payment_account: binding().paid_canister,
         ..binding()

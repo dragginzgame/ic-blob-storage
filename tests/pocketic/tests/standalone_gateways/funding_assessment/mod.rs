@@ -32,7 +32,7 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
     let scope = f.operator_scope();
     f.harness
         .pic
-        .stop_canister(scope.cashier, Some(f.controller))
+        .stop_canister(scope.cashier.into(), Some(f.controller))
         .unwrap();
     let root = f.harness.pic.root_key().unwrap();
     let url = f
@@ -41,12 +41,15 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
         .to_string();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let source = f.harness.pic.get_stable_memory(scope.cashier);
+    let source = f.harness.pic.get_stable_memory(scope.cashier.into());
     let cli = AssessmentCli::new(scope, &url, &root, "standalone");
     cli.inspect(false);
     cli.refusals();
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert_eq!(f.harness.pic.get_stable_memory(scope.cashier), source);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        source
+    );
     f.harness.pic.stop_progress();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
@@ -55,6 +58,9 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
     cli.inspect(true);
     cli.refusals();
     assert_eq!(f.harness.pic.get_stable_memory(f.service), restored);
-    assert_eq!(f.harness.pic.get_stable_memory(scope.cashier), source);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        source
+    );
     f.harness.pic.stop_live();
 }

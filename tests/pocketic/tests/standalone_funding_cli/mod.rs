@@ -19,7 +19,7 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
             .with_application_subnet(),
     ));
     f.operator = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
-    f.config.operator = f.operator;
+    f.config.operator = f.operator.into();
     f.harness
         .pic
         .reinstall_canister(

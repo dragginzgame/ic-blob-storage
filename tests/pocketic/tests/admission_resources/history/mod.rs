@@ -20,7 +20,7 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
         f.call(
             f.operator,
             Command::Enroll {
-                tenant: f.other,
+                tenant: f.other.into(),
                 expected: None,
                 active: true
             }
@@ -97,7 +97,7 @@ fn resource_history_saturation_keeps_retries_cleanup_and_other_tenant_available(
         f.call(
             f.operator,
             Command::Enroll {
-                tenant: f.other,
+                tenant: f.other.into(),
                 expected: None,
                 active: true,
             }

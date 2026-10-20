@@ -351,12 +351,12 @@ fn missing_or_orphaned_reference_receipt_and_lifecycle_rows_reject_restore() {
             }
             3 => {
                 store.references.insert(
-                    ((p(4), 99), 1),
+                    ((p(4).into(), 99), 1),
                     ReferenceRecord::new(ReferenceState::Active),
                 );
             }
             _ => {
-                store.usage.insert(p(4), UploadUsageRecord::empty());
+                store.usage.insert(p(4).into(), UploadUsageRecord::empty());
             }
         }
         drop(store);

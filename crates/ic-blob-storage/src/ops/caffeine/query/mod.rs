@@ -57,7 +57,9 @@ impl CashierQueryRequest {
         let arguments = match query {
             CashierQuery::Balance { account } => {
                 validate(account, CashierQueryPrincipal::BalanceAccount)?;
-                ic_platform::candid::contract::encode_args((wire::AccountGetRequest { account },))
+                ic_platform::candid::contract::encode_args((wire::AccountGetRequest {
+                    account: account.into(),
+                },))
             }
             CashierQuery::PaymentRelationship(binding) => {
                 validate(binding.paid_canister, CashierQueryPrincipal::PaidCanister)?;
@@ -67,7 +69,7 @@ impl CashierQueryRequest {
                 )?;
                 ic_platform::candid::contract::encode_args((
                     wire::PaymentAccountCanisterGetRequest {
-                        canister: binding.paid_canister,
+                        canister: binding.paid_canister.into(),
                     },
                 ))
             }
@@ -152,8 +154,8 @@ fn validate(value: Principal, field: CashierQueryPrincipal) -> Result<(), Cashie
 }
 
 mod wire {
-    use ic_platform::Principal;
     use ic_platform::candid::contract::CandidType;
+    use ic_platform::candid::contract::Principal;
 
     #[derive(CandidType)]
     #[candid_path("ic_platform::candid::contract")]

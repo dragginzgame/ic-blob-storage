@@ -1,21 +1,21 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::read::{DownloadClientInput, DownloadProbeFailure};
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 fn fetch(
     f: &Fixture,
     input: DownloadClientInput,
 ) -> Result<DownloadResponse, DownloadProbeFailure> {
-    update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "fixture_fetch_descriptor",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_control_as(
+            f.tenant,
+            f.operator,
+            "fixture_fetch_descriptor",
+            (input,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
 }
 fn consumer() -> Fixture {
     let mut f = Fixture::new();
@@ -30,6 +30,10 @@ fn consumer() -> Fixture {
     f
 }
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One installed descriptor, caller and recovery-boundary scenario"
+)]
 fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() {
     let f = consumer();
     let client = f.tenant;
@@ -38,22 +42,22 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
     f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let selection = DownloadClientInput {
         request: wire(input),
-        tenant: client,
+        tenant: client.into(),
         project: "fixture project/β?&=".into(),
         max_reply_bytes: 4096,
     };
     let before = f.harness.pic.get_stable_memory(f.service);
     let response = fetch(&f, selection.clone()).unwrap();
-    assert_eq!(response.request.tenant, client);
+    assert_eq!(response.request.tenant, client.into());
     assert_eq!(response.request, selection.request);
-    assert_eq!(response.owner, f.service);
+    assert_eq!(response.owner, f.service.into());
     assert_eq!(response.bytes, 10);
     assert_eq!(f.download(f.operator, input), Err(DownloadFailure::Denied));
     assert_eq!(
         fetch(
             &f,
             DownloadClientInput {
-                tenant: f.operator,
+                tenant: f.operator.into(),
                 ..selection.clone()
             }
         ),
@@ -79,27 +83,31 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
         ),
         Err(DownloadProbeFailure::Limit)
     );
-    let denied: Result<DownloadResponse, DownloadProbeFailure> = update_candid_args(
-        &f.harness.pic,
-        client,
-        f.other,
-        "fixture_fetch_descriptor",
-        (selection.clone(),),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let denied: Result<DownloadResponse, DownloadProbeFailure> = f
+        .harness
+        .pic
+        .update_control_as(
+            client,
+            f.other,
+            "fixture_fetch_descriptor",
+            (selection.clone(),),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(denied, Err(DownloadProbeFailure::Denied));
-    let query: Result<DownloadResponse, DownloadProbeFailure> = query_candid_args(
-        &f.harness.pic,
-        client,
-        f.operator,
-        "fixture_nonreplicated_descriptor",
-        (selection.clone(),),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let query: Result<DownloadResponse, DownloadProbeFailure> = f
+        .harness
+        .pic
+        .query_control_as(
+            client,
+            f.operator,
+            "fixture_nonreplicated_descriptor",
+            (selection.clone(),),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(query, Err(DownloadProbeFailure::Execution));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     f.enroll(Some(f.tenant().unwrap()), false).unwrap();

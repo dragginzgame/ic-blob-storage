@@ -81,7 +81,7 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
     for (upload, failure) in [
         (
             ReferenceUpload {
-                service: f.operator,
+                service: f.operator.into(),
                 ..input.upload
             },
             ReferenceFailure::Binding,

@@ -114,7 +114,7 @@ fn descriptors_keep_maximum_metadata_at_lifetime_capacity() {
     f.call(
         f.operator,
         Command::Enroll {
-            tenant: f.other,
+            tenant: f.other.into(),
             expected: None,
             active: true,
         },

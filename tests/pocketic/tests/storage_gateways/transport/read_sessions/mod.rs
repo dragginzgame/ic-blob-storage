@@ -1,6 +1,5 @@
 //! Real local chunks validate durable sessions, verification and callback authority.
 use crate::support::REPLY_LIMITS;
-use ic_platform::candid::decoder;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod resources;
 use super::*;
@@ -80,15 +79,15 @@ impl Fixture {
         self.expose(permission.request).unwrap();
         self.fact(permission.request, ProviderFact::Uploaded)
             .unwrap();
-        self.gateways(self.operator, Action::Add(self.operator))
+        self.gateways(self.operator, Action::Add(self.operator.into()))
             .unwrap();
         self.chunk_mode(ReadSourceMode::Valid, false);
         ReadSessionInput {
             index: 0,
             admit_fault: None,
             callback_fault: None,
-            cashier: self.operator,
-            gateway: self.operator,
+            cashier: self.operator.into(),
+            gateway: self.operator.into(),
             target: RetainedDescriptorInput {
                 content: ContentLookup {
                     service: self.service,
@@ -103,38 +102,38 @@ impl Fixture {
         }
     }
     fn read_chunk(&self, actor: Principal, input: ReadSessionInput) -> Result<(), Failure> {
-        update_candid_args::<(Result<JourneyReadChunk, Failure>,), _>(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "fixture_read_chunk",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
-        .map(|chunk| {
-            assert_eq!(
-                chunk,
-                JourneyReadChunk {
-                    index: input.index,
-                    offset: 0,
-                    bytes: vec![1; 10]
-                }
-            );
-        })
+        self.harness
+            .pic
+            .update_control_as::<(Result<JourneyReadChunk, Failure>,), _>(
+                self.service,
+                actor,
+                "fixture_read_chunk",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
+            .map(|chunk| {
+                assert_eq!(
+                    chunk,
+                    JourneyReadChunk {
+                        index: input.index,
+                        offset: 0,
+                        bytes: vec![1; 10]
+                    }
+                );
+            })
     }
     fn session_view(&self) -> blob_test_protocol::storage::gateways::ReadSessionsView {
-        query_candid_args::<
+        self.harness.pic.query_control_as::<
             (Result<blob_test_protocol::storage::gateways::ReadSessionsView, Failure>,),
             _,
         >(
-            &self.harness.pic,
             self.service,
             self.operator,
             "read_sessions",
             (),
-            REPLY_LIMITS,
+            REPLY_LIMITS.reply_bytes,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -193,7 +192,7 @@ fn held_read_authority_rejects_remove_readd_and_tenant_reactivation() {
                 f.service,
                 f.tenant,
                 "fixture_read_chunk",
-                ic_platform::candid::contract::encode_one(input).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
             )
             .unwrap();
         f.wait_chunk();
@@ -212,14 +211,16 @@ fn held_read_authority_rejects_remove_readd_and_tenant_reactivation() {
             assert_eq!(after.uploads, accounting.uploads);
             assert_eq!(after.funding, accounting.funding);
             assert_eq!(after.reads, accounting.reads);
-            f.gateways(f.operator, Action::Add(f.operator)).unwrap();
+            f.gateways(f.operator, Action::Add(f.operator.into()))
+                .unwrap();
         }
         f.resume_chunk();
-        let result: Result<JourneyReadChunk, Failure> = decoder::decode_one_with_config(
-            &f.harness.pic.await_call(call).unwrap(),
-            &decoder::DecoderConfig::new(),
-        )
-        .unwrap();
+        let result: Result<JourneyReadChunk, Failure> =
+            ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+                &f.harness.pic.await_call(call).unwrap(),
+                4 * 1024 * 1024,
+            )
+            .unwrap();
         assert_eq!(result.map(|_| ()), Err(Failure::Conflict));
         f.chunk_mode(ReadSourceMode::Valid, false);
         assert_eq!(f.read_chunk(f.tenant, input), Ok(()));
@@ -245,7 +246,7 @@ fn held_read_authority_rejects_exact_reference_release_despite_another_live_refe
             f.service,
             f.tenant,
             "fixture_read_chunk",
-            ic_platform::candid::contract::encode_one(input).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
         )
         .unwrap();
     f.wait_chunk();
@@ -257,11 +258,12 @@ fn held_read_authority_rejects_exact_reference_release_despite_another_live_refe
     })
     .unwrap();
     f.resume_chunk();
-    let result: Result<JourneyReadChunk, Failure> = decoder::decode_one_with_config(
-        &f.harness.pic.await_call(call).unwrap(),
-        &decoder::DecoderConfig::new(),
-    )
-    .unwrap();
+    let result: Result<JourneyReadChunk, Failure> =
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+            &f.harness.pic.await_call(call).unwrap(),
+            4 * 1024 * 1024,
+        )
+        .unwrap();
     assert_eq!(result.map(|_| ()), Err(Failure::Unknown));
     f.chunk_mode(ReadSourceMode::Valid, false);
     let mut other = input;
@@ -281,7 +283,7 @@ fn gateway_write_rollback_preserves_read_authority_but_same_list_sync_invalidate
                 f.service,
                 f.tenant,
                 "fixture_read_chunk",
-                ic_platform::candid::contract::encode_one(input).unwrap(),
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
             )
             .unwrap();
         f.wait_chunk();
@@ -300,11 +302,12 @@ fn gateway_write_rollback_preserves_read_authority_but_same_list_sync_invalidate
             f.revoke_gateway_trap(f.operator);
         }
         f.resume_chunk();
-        let result: Result<JourneyReadChunk, Failure> = decoder::decode_one_with_config(
-            &f.harness.pic.await_call(call).unwrap(),
-            &decoder::DecoderConfig::new(),
-        )
-        .unwrap();
+        let result: Result<JourneyReadChunk, Failure> =
+            ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+                &f.harness.pic.await_call(call).unwrap(),
+                4 * 1024 * 1024,
+            )
+            .unwrap();
         assert_eq!(
             result.map(|_| ()),
             if commit {
@@ -334,10 +337,12 @@ fn interrupted_read_admission_rolls_back_all_counters_and_sends_nothing() {
                 f.service,
                 f.tenant,
                 "fixture_read_chunk",
-                ic_platform::candid::contract::encode_one(ReadSessionInput {
-                    admit_fault: Some(fault),
-                    ..input
-                })
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                    ReadSessionInput {
+                        admit_fault: Some(fault),
+                        ..input
+                    },
+                )
                 .unwrap(),
             )
             .unwrap_err();
@@ -365,7 +370,7 @@ fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
             f.service,
             f.tenant,
             "fixture_read_chunk",
-            ic_platform::candid::contract::encode_one(ReadSessionInput {
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(ReadSessionInput {
                 callback_fault: Some(WriteFault::ReadJournal),
                 ..input
             })

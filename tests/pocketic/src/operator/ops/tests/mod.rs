@@ -11,10 +11,10 @@ fn target() -> Target {
         transport: crate::operator::model::QueryTarget {
             server: "127.0.0.1:1".parse().unwrap(),
             instance: 0,
-            canister: Fake::principal(1),
+            canister: Fake::principal(1).into(),
             caller: Principal::anonymous(),
         },
-        binding: Binding::Funding(Fake::principal(2)),
+        binding: Binding::Funding(Fake::principal(2).into()),
     }
 }
 

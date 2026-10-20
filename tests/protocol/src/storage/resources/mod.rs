@@ -1,17 +1,17 @@
 //! Passive controls and observations for opt-in local resource measurements.
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::principal::ExternalPrincipal;
 
 /// Existing complete ingress byte ceiling of the private storage fixture.
 pub const STORAGE_PROBE_INPUT_BYTES: usize = 4096;
 
 /// The fixture's single current installation contract, also used on same-release reopen.
-#[derive(Clone, Copy, Debug, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Deserialize, serde::Serialize, CandidType)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct StorageProbeInstallation {
     /// Explicit fixture operator.
-    pub operator: Principal,
+    pub operator: ExternalPrincipal,
     /// Lifetime operation ceiling, in 1..=10,000; ordinary tests use two.
     pub max_objects: u32,
     /// Explicit tenant ceiling in 1..=32; ordinary tests use two.
@@ -27,8 +27,7 @@ pub struct StorageProbeInstallation {
 }
 
 /// One bounded population step, never a provider request or replay instruction.
-#[derive(Clone, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Deserialize, serde::Serialize)]
 pub struct PopulationBatch {
     /// Expected lifetime permission count before this step.
     pub start: u32,
@@ -37,8 +36,7 @@ pub struct PopulationBatch {
 }
 
 /// Explicit local funding fact, never provider evidence or a dispatch instruction.
-#[derive(Clone, Copy, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Deserialize, serde::Serialize)]
 pub struct FundingPopulationIntent {
     /// Exact operator/account-bound identity for the maintained funding journal.
     pub intent: super::funding::Intent,
@@ -49,8 +47,7 @@ pub struct FundingPopulationIntent {
 }
 
 /// At most sixteen local funding/read admissions in one atomic fixture update.
-#[derive(Clone, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Deserialize, serde::Serialize)]
 pub struct HistoryPopulationBatch {
     /// Expected retained funding count before this message.
     pub funding_start: u64,
@@ -63,8 +60,7 @@ pub struct HistoryPopulationBatch {
 }
 
 /// Bounded operator traversal of exact occupied read targets, including while fenced.
-#[derive(Clone, Copy, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Deserialize, serde::Serialize)]
 pub struct RestorationReadPage {
     /// Exclude this sequence from the next page.
     pub after: u64,
@@ -73,8 +69,7 @@ pub struct RestorationReadPage {
 }
 
 /// Passive retained read observation; cannot authorize dispatch or completion.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct RestorationRead {
     /// Exact durable identity, not an allocation or freshness proof.
     pub sequence: u64,
@@ -83,8 +78,7 @@ pub struct RestorationRead {
 }
 
 /// Counters retained in heap for the most recent initialization only.
-#[derive(Clone, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Deserialize, serde::Serialize)]
 pub struct RestorationResources {
     /// Whether this execution opened existing stores.
     pub restored: bool,
@@ -101,8 +95,7 @@ pub struct RestorationResources {
 }
 
 /// Read-only observations of one fixture memory; not persisted accounting.
-#[derive(Clone, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Deserialize, serde::Serialize)]
 pub struct RestorationMemoryReads {
     /// Existing host grant key, never a second store identifier.
     pub memory: String,
@@ -123,8 +116,7 @@ pub struct RestorationMemoryReads {
 }
 
 /// Private local measurements around the maintained host confirmation workflow.
-#[derive(Clone, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Deserialize, serde::Serialize)]
 pub struct FundingCreditResources {
     /// Exact workflow result, including refused authority and recovery fences.
     pub result: Result<Option<bool>, super::Failure>,

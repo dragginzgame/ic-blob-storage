@@ -59,9 +59,9 @@ impl AccountLinkRequest {
         let arguments =
             ic_platform::candid::contract::encode_args((wire::PaymentAccountCanisterAddRequest {
                 spending_limit_per_day: Int::from(terms.daily_limit.get()),
-                paid_canister: binding.paid_canister,
+                paid_canister: binding.paid_canister.into(),
                 expiration_timestamp: Some(terms.expiration_timestamp.get()),
-                payment_account: Some(binding.payment_account),
+                payment_account: Some(binding.payment_account.into()),
             },))
             .map_err(|_| AccountLinkError::Encoding)?;
         Ok(Self {

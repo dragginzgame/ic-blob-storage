@@ -75,17 +75,9 @@ fn plan(bytes: &[u8]) -> UploadVerificationPlan {
     }
 }
 fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) -> std::io::Result<()> {
-    listener.set_nonblocking(true).unwrap();
     let deadline = Instant::now() + Duration::from_secs(5);
-    let mut stream = loop {
-        match listener.accept() {
-            Ok((stream, _)) => break stream,
-            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock && Instant::now() < deadline => {
-                std::thread::sleep(Duration::from_millis(5));
-            }
-            other => panic!("expected local HTTP request: {other:?}"),
-        }
-    };
+    let (mut stream, _) = ic_host_process::testing::net::accept_tcp_until(listener, deadline)
+        .expect("expected local HTTP request");
     stream
         .set_write_timeout(Some(Duration::from_secs(5)))
         .unwrap();

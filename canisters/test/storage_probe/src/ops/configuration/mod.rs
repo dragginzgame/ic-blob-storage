@@ -32,7 +32,7 @@ pub(super) fn configuration(
         service,
         ServiceConfigurationInput {
             service,
-            operator,
+            operator: operator.into(),
             payment_account: service,
             namespace: 1,
             resources: ServiceResourceInput {
@@ -53,7 +53,7 @@ pub(super) fn configuration(
                 max_tenant_active: objects,
             },
             billing: ServiceBillingInput {
-                cashier: operator,
+                cashier: operator.into(),
                 reserve: 1,
                 minimum_balance: 10,
                 target_balance: 100,

@@ -32,8 +32,14 @@ fn limits() -> CaffeineReplyLimits {
 #[test]
 fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() {
     let f = Fixture::new();
-    let request = CashierQueryRequest::new(f.gateway, CashierQuery::StorageGateways).unwrap();
-    let scope = GatewayScope::new(f.authority, NonZeroU128::new(1).unwrap(), f.gateway).unwrap();
+    let request =
+        CashierQueryRequest::new(f.gateway.into(), CashierQuery::StorageGateways).unwrap();
+    let scope = GatewayScope::new(
+        f.authority.into(),
+        NonZeroU128::new(1).unwrap(),
+        f.gateway.into(),
+    )
+    .unwrap();
     let mut registry = GatewayRegistry::new(
         scope,
         GatewayMembership::new(GatewayListLimits {
@@ -47,7 +53,7 @@ fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() 
         .harness
         .pic
         .query_call(
-            request.cashier(),
+            request.cashier().into(),
             f.driver,
             request.method_name(),
             request.arguments().to_vec(),
@@ -56,7 +62,10 @@ fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() 
     request
         .apply_gateway_sync_reply(&mut registry, token, scope, &bytes, limits())
         .unwrap();
-    assert_eq!(registry.gateways().principals(), &[f.gateway]);
+    assert_eq!(
+        registry.gateways().principals(),
+        &[ic_platform::Principal::from(f.gateway)]
+    );
     assert_eq!(registry.sync_view().pending_sequence, None);
     let completed = registry.clone();
     assert_eq!(
@@ -65,7 +74,7 @@ fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() 
     );
     assert_eq!(registry, completed);
     let token = registry.begin_sync().unwrap();
-    registry.remove(f.gateway);
+    registry.remove(f.gateway.into());
     let revoked = registry.clone();
     assert_eq!(
         request.apply_gateway_sync_reply(&mut registry, token, scope, &bytes, limits()),
@@ -81,10 +90,11 @@ fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() 
 #[test]
 fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_sources() {
     let f = Fixture::with_source_operator(true);
-    let request = CashierQueryRequest::new(f.gateway, CashierQuery::StorageGateways).unwrap();
+    let request =
+        CashierQueryRequest::new(f.gateway.into(), CashierQuery::StorageGateways).unwrap();
     let query = |caller| {
         f.harness.pic.query_call(
-            request.cashier(),
+            request.cashier().into(),
             caller,
             request.method_name(),
             request.arguments().to_vec(),
@@ -149,8 +159,14 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
 #[test]
 fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
     let f = Fixture::new();
-    let request = CashierQueryRequest::new(f.gateway, CashierQuery::StorageGateways).unwrap();
-    let scope = GatewayScope::new(f.authority, NonZeroU128::new(1).unwrap(), f.gateway).unwrap();
+    let request =
+        CashierQueryRequest::new(f.gateway.into(), CashierQuery::StorageGateways).unwrap();
+    let scope = GatewayScope::new(
+        f.authority.into(),
+        NonZeroU128::new(1).unwrap(),
+        f.gateway.into(),
+    )
+    .unwrap();
     let mut registry = GatewayRegistry::new(
         scope,
         GatewayMembership::new(GatewayListLimits {
@@ -184,7 +200,7 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
             .harness
             .pic
             .query_call(
-                request.cashier(),
+                request.cashier().into(),
                 f.driver,
                 request.method_name(),
                 request.arguments().to_vec(),

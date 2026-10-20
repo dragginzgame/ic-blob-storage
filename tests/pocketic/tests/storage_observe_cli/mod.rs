@@ -379,7 +379,7 @@ fn journey(reply: proxy::Reply) {
     change(&mut args, "--url", &proxy.url);
     change(&mut args, "--run-dir", observed.to_str().unwrap());
     let scope = ic_blob_storage_contracts::download::scope::CaffeineDownloadScope::new(
-        f.service,
+        f.service.into(),
         1.try_into().unwrap(),
         "fixture project/β?&=",
     )

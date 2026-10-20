@@ -51,7 +51,7 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
     );
     assert!(original.revoked);
     let scope = ic_blob_storage_contracts::dto::operator::OperatorScope {
-        service: f.service,
+        service: f.service.into(),
         namespace: f.config.namespace,
         cashier: f.config.billing.cashier,
         payment_account: f.config.payment_account,

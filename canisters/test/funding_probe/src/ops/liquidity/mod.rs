@@ -15,7 +15,9 @@ pub(crate) struct PreparedFundingCall {
 
 pub(crate) fn prepare(peer: Principal, request: FundingRequest) -> PreparedFundingCall {
     let budget = read(crate::model::FundingJournalRecord::budget);
-    let call = Call::unbounded_wait(peer, "receive").with_arg(request);
+    let call = Call::unbounded_wait(peer, "receive").take_raw_args(
+        ic_platform::candid::contract::encode_one(request).expect("fixture call arguments"),
+    );
     let call_cost = call.get_cost(); // No attachment yet: avoid counting it twice.
     let call = call.with_cycles(request.offered);
     let liquidity = FundingLiquidity {

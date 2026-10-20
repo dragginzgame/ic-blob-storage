@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.38.0]
+
+- **Breaking Principal identity:** adopt published IC Platform 0.4.0's owned
+  application Principal and runtime. Hosts must align their Platform family
+  and convert original Agent/PocketIC or external Candid principals explicitly
+  at those boundaries. Application Wire bytes and existing persisted schemas
+  remain unchanged; this does not add cross-release migration support.
+- Encode required external Candid calls through Platform's separate codec API,
+  replacing its removed runtime conveniences. Preserve explicit unit arguments,
+  reply limits, transport failures, callbacks and recovery fences. Older Platform
+  families remain excluded from the workspace and deployment.
+
+- **Breaking application DTO boundary:** remove application-only `CandidType`
+  implementations. Owned endpoints and saved documents keep their exact Wire
+  bytes; external provider Candid and production record codecs remain unchanged.
+  Hosts must stop requiring Candid traits from application DTOs. Frozen historical
+  inputs and consumer-probe records keep their schemas at their private owners.
+- Freeze the owned method/lifecycle Wire contracts with literal vectors verified
+  against 0.37 before trait removal. Keep one typed registration per method;
+  omit the redundant per-DTO registry. Move private
+  storage controls to bounded Wire tuples without adding a service fallback.
+- Use published Testkit 0.59's Platform 0.4 decoder limits directly. Remove the
+  temporary native Platform alias and the last resolved Platform 0.2 package,
+  preserving all five reply budgets and the original bounded-call failures.
+- Qualify published IC Wire 0.5.0's bounded-contract API. Generic decoding keeps
+  explicit owned-deserialization bounds; method/lifecycle frames and passive
+  documents keep their existing bytes. No endpoint or saved-format cut is needed.
+- Require Storage 0.5.7 or later so consumers cannot select its older Memory 0.48
+  adapters beside Blob's public Memory 0.49 types.
+- Delegate retained probe-write completion and bounded fixture socket acceptance
+  to published Host helpers. Preserve partial evidence, refusal codes, deadlines,
+  request assertions and non-Unix write behavior.
+
 ## [0.37.0] - 2026-10-19
 
 - **Breaking shared-memory boundary:** select IC Memory 0.49 and matching

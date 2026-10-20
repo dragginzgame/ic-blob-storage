@@ -1,8 +1,8 @@
 //! Bounded local response schema, distinct from the provider's wire contract.
 use super::FundingPhaseRecord;
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::principal::ExternalPrincipal;
 
 /// Fixed-size diagnostic facts. No text, wire buffers or inferred credit is stored.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -19,7 +19,7 @@ pub(crate) enum FundingResponseRecord {
         promotional: u128,
         ledger: u128,
     },
-    NotAuthorized(Principal),
+    NotAuthorized(ExternalPrincipal),
     AccountBalanceOverflow,
     InternalError,
     TopUpWithoutCycles,
@@ -54,6 +54,7 @@ mod tests {
     use crate::model::billing::journal::FundingIntent;
     use crate::model::billing::journal::FundingIntentError;
     use crate::model::billing::journal::record::FundingIntentRecord;
+    use ic_platform::Principal;
     use std::num::NonZeroU128;
 
     #[test]

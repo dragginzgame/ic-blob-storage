@@ -21,8 +21,8 @@ fn query(
 ) -> Result<Option<UploadHistoryEntry>, DiscoveryFailure> {
     let request = UploadDiscoveryRequest {
         scope: TenantScope {
-            service: input.service,
-            tenant: input.tenant,
+            service: input.service.into(),
+            tenant: input.tenant.into(),
             namespace: input.namespace,
         },
         root: input.root,
@@ -168,8 +168,8 @@ fn content_discovery_keeps_cancelled_history_after_stop_start() {
 
 fn identity(request: Request) -> ReferenceUpload {
     ReferenceUpload {
-        service: request.service,
-        tenant: request.tenant,
+        service: request.service.into(),
+        tenant: request.tenant.into(),
         namespace: request.namespace,
         upload: request.id,
         object: request.id,

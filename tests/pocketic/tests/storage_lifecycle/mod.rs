@@ -5,7 +5,6 @@ use ic_blob_storage_contracts::dto::reference::*;
 use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::update_candid_args;
 mod receipts;
 mod status;
 use blob_test_protocol::{
@@ -22,20 +21,21 @@ impl Fixture {
         permission
     }
     pub(super) fn fact(&self, request: Request, fact: ProviderFact) -> Result<bool, Failure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.service,
-            self.operator,
-            "fixture_provider_fact",
-            (FactInput {
-                request,
-                fact,
-                fault: None,
-            },),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .update_control_as(
+                self.service,
+                self.operator,
+                "fixture_provider_fact",
+                (FactInput {
+                    request,
+                    fact,
+                    fault: None,
+                },),
+                REPLY_LIMITS.reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     pub(super) fn reference(
         &self,
@@ -116,20 +116,22 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
     let permission = f.exposed();
     let before = f.status();
     for actor in [f.tenant, f.uploader, f.controller] {
-        let result: Result<bool, Failure> = update_candid_args(
-            &f.harness.pic,
-            f.service,
-            actor,
-            "fixture_provider_fact",
-            (FactInput {
-                request: permission.request,
-                fact: ProviderFact::Uploaded,
-                fault: None,
-            },),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<bool, Failure> = f
+            .harness
+            .pic
+            .update_control_as(
+                f.service,
+                actor,
+                "fixture_provider_fact",
+                (FactInput {
+                    request: permission.request,
+                    fact: ProviderFact::Uploaded,
+                    fault: None,
+                },),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         assert_eq!(result, Err(Failure::Denied));
     }
     for fault in [
@@ -144,7 +146,7 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
                 f.service,
                 f.operator,
                 "fixture_provider_fact",
-                ic_platform::candid::contract::encode_one(FactInput {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(FactInput {
                     request: permission.request,
                     fact: ProviderFact::Uploaded,
                     fault: Some(fault),
@@ -197,10 +199,12 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 f.service,
                 f.tenant,
                 "fixture_apply_reference_with_write_trap",
-                ic_platform::candid::contract::encode_one(ReferenceFaultInput {
-                    request: receipt_request(retain),
-                    fault,
-                })
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                    ReferenceFaultInput {
+                        request: receipt_request(retain),
+                        fault,
+                    },
+                )
                 .unwrap(),
             )
             .unwrap_err();
@@ -232,10 +236,12 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
             f.service,
             f.tenant,
             "fixture_apply_reference_with_write_trap",
-            ic_platform::candid::contract::encode_one(ReferenceFaultInput {
-                request: receipt_request(release),
-                fault: WriteFault::Usage,
-            })
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                ReferenceFaultInput {
+                    request: receipt_request(release),
+                    fault: WriteFault::Usage,
+                },
+            )
             .unwrap(),
         )
         .unwrap_err();
@@ -272,7 +278,7 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 f.service,
                 f.operator,
                 "fixture_provider_fact",
-                ic_platform::candid::contract::encode_one(FactInput {
+                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(FactInput {
                     request: permission.request,
                     fact,
                     fault: Some(WriteFault::Usage),
@@ -367,8 +373,8 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
 fn receipt_request(input: ReferenceInput) -> ReferenceCommand {
     ReferenceCommand {
         upload: ReferenceUpload {
-            service: input.object.service,
-            tenant: input.object.tenant,
+            service: input.object.service.into(),
+            tenant: input.object.tenant.into(),
             namespace: input.object.namespace,
             upload: input.object.id,
             object: input.object.id,

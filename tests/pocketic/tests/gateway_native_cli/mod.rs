@@ -7,8 +7,8 @@ use crate::{
 use blob_test_protocol::SourceMode;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_host_fs::testing::FixtureDirectory;
-use ic_platform::Principal;
 use ic_platform::agent::{BasicIdentity, Identity};
+use ic_platform::principal::ExternalPrincipal as Principal;
 use serde_json::{Value, json};
 use std::{cell::Cell, path::PathBuf};
 
@@ -114,7 +114,7 @@ impl GatewayCli {
             self.backend.clone(),
             self.report.join(label),
             Dispatch {
-                service: self.scope.service,
+                service: self.scope.service.into(),
                 actor: signer(),
                 method,
                 argument_file: "request.wire",

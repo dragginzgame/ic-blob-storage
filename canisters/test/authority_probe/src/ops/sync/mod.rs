@@ -33,9 +33,9 @@ pub(crate) fn authorize(service: Principal, actor: Principal) -> Result<(), Sync
 
 fn expected(input: GatewaySyncRequest) -> Result<GatewayScope, SyncFailure> {
     GatewayScope::new(
-        input.service,
+        input.service.into(),
         NonZeroU128::new(input.namespace).ok_or(SyncFailure::Binding)?,
-        input.source,
+        input.source.into(),
     )
     .map_err(|_| SyncFailure::Binding)
 }
@@ -47,9 +47,9 @@ pub(crate) fn preview(
 ) -> Result<(), SyncFailure> {
     let record = super::archive::current(service, actor).ok_or(SyncFailure::Denied)?;
     let scope = GatewayScope::new(
-        record.service,
+        record.service.into(),
         super::number(record.namespace),
-        record.sync_source,
+        record.sync_source.into(),
     )
     .map_err(|_| SyncFailure::Binding)?;
     record.sync_control.check(
@@ -96,7 +96,9 @@ pub(crate) async fn fetch(
     // It is not the provider's empty-argument query. Retain the selected provider
     // request for target/method validation when handling the resulting list.
     let response = Call::bounded_wait(request.cashier(), "fixture_gateways")
-        .with_arg(input)
+        .take_raw_args(
+            ic_platform::candid::contract::encode_one(input).expect("fixture call arguments"),
+        )
         .await
         .map_err(|_| SyncFailure::Transport)?;
     Ok(GatewaySyncResponse {

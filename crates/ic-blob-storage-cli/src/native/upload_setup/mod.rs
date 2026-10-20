@@ -210,7 +210,7 @@ pub(super) async fn with_agent(
     agent: &Agent,
 ) -> Result<SetupOutcome, Failure> {
     let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
-    let saved = request::load(input, actor)?;
+    let saved = request::load(input, actor.into())?;
     execute(options, input, &saved, agent).await
 }
 
@@ -250,7 +250,10 @@ pub(super) async fn inspect_recorded(
     if input.kind.mutation() {
         return Err(Failure::Arguments);
     }
-    let saved = request::load(input, agent.get_principal().map_err(|_| Failure::Identity)?)?;
+    let saved = request::load(
+        input,
+        agent.get_principal().map_err(|_| Failure::Identity)?.into(),
+    )?;
     let intent = json!({"method":input.kind.method(),
         "argument_sha256":crate::native::upload_inputs::digest(&saved.argument),"updates":0});
     let bytes = query::recorded(run, label, saved.argument.clone(), &intent, |args| {

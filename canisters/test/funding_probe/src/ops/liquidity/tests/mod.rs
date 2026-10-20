@@ -5,8 +5,8 @@ use blob_test_protocol::funding::{FundingReplyMode, preview::FundingPreviewReque
 fn preview_payload_bounds_every_valid_local_reply_control() {
     for offered in [1, 127, 128, 16_383, 16_384, 10_000_000_000_000, u128::MAX] {
         let request = preview_request(FundingPreviewRequest {
-            service: Principal::from_slice(&[1]),
-            peer: Principal::from_slice(&[2]),
+            service: Principal::from_slice(&[1]).into(),
+            peer: Principal::from_slice(&[2]).into(),
             id: u64::MAX,
             requested_cycles: offered,
             revision: 0,

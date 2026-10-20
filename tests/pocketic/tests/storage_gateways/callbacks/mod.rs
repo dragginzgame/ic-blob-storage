@@ -8,23 +8,23 @@ use blob_test_protocol::{
         gateways::{RootView, RootsInput},
     },
 };
-use ic_testkit::pic::query_candid_args;
 impl Fixture {
     fn gateway_roots(
         &self,
         actor: Principal,
         input: &RootsInput,
     ) -> Result<Vec<RootView>, Failure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "fixture_gateway_roots",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as(
+                self.service,
+                actor,
+                "fixture_gateway_roots",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn gateway_phase(&self, root: [u8; 32], state: ContentState) {
         let before = self.harness.pic.get_stable_memory(self.service);
@@ -44,7 +44,7 @@ impl Fixture {
 #[test]
 fn gateway_root_reads_check_scope_and_caller_even_without_known_roots() {
     let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     for roots in [vec![], vec![vec![9; 32]], vec![vec![]]] {
         let input = RootsInput {
@@ -64,11 +64,11 @@ fn gateway_root_reads_check_scope_and_caller_even_without_known_roots() {
     }
     for scope in [
         Scope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..f.gateway_scope()
         },
         Scope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..f.gateway_scope()
         },
         Scope {
@@ -104,7 +104,7 @@ fn gateway_root_reads_check_scope_and_caller_even_without_known_roots() {
 #[test]
 fn gateway_root_reads_preserve_uncertainty_and_every_cleanup_phase() {
     let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     f.enroll(None, true).unwrap();
     let (permission, preparation) = f.permission(1, 1);
     let root = permission.request.root;
@@ -161,7 +161,7 @@ fn gateway_root_reads_preserve_uncertainty_and_every_cleanup_phase() {
 #[test]
 fn gateway_root_reads_use_current_membership_and_refuse_restored_instances() {
     let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let input = RootsInput {
         scope: f.gateway_scope(),
         roots: vec![],
@@ -169,7 +169,7 @@ fn gateway_root_reads_use_current_membership_and_refuse_restored_instances() {
     assert_eq!(f.gateway_roots(f.other, &input), Ok(vec![]));
     f.revoke_gateway(f.operator, f.other).unwrap();
     assert_eq!(f.gateway_roots(f.other, &input), Err(Failure::Denied));
-    f.gateways(f.operator, Action::Add(f.other)).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     assert_eq!(f.gateway_roots(f.other, &input), Ok(vec![]));
     let token = f.gateway_begin();
     f.gateways(
@@ -193,5 +193,8 @@ fn gateway_root_reads_use_current_membership_and_refuse_restored_instances() {
         )
         .unwrap();
     assert_eq!(f.gateway_roots(f.uploader, &input), Err(Failure::Fenced));
-    assert_eq!(f.gateway_view().members, vec![f.uploader]);
+    assert_eq!(
+        f.gateway_view().members,
+        vec![ic_platform::Principal::from(f.uploader)]
+    );
 }

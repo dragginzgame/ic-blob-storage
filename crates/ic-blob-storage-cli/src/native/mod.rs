@@ -249,7 +249,7 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
     } else {
         Box::new(BasicIdentity::from_pem(&bytes).map_err(|_| Failure::Identity)?)
     };
-    if identity.sender().map_err(|_| Failure::Identity)? != expected {
+    if identity.sender().map_err(|_| Failure::Identity)? != expected.into() {
         return Err(Failure::IdentityBinding);
     }
     Ok(identity)
@@ -472,7 +472,7 @@ async fn inspection_update(
     tokio::time::timeout(
         Duration::from_secs(30),
         agent
-            .update(&service, method)
+            .update(&service.into(), method)
             .with_arg(argument)
             .call_and_wait(),
     )

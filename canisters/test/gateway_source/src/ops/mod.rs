@@ -126,13 +126,13 @@ pub(crate) fn receive() -> (Principal, Principal, SourceMode) {
             .requests
             .checked_add(1)
             .expect("fixture request bound");
-        (state.service, state.gateway, state.mode)
+        (state.service.into(), state.gateway.into(), state.mode)
     })
 }
 
 pub(crate) fn replace(gateway: Principal) {
     mutate(|state| {
-        state.gateway = gateway;
+        state.gateway = gateway.into();
         state.mode = SourceMode::Valid;
     });
 }
@@ -162,24 +162,28 @@ pub(crate) async fn sync(
     input: blob_test_protocol::GatewaySyncRequest,
 ) -> Result<(), SyncFailure> {
     let id = mutate(|state| state.begin_effect(ActionRecord::Sync));
-    let result: Result<(), SyncFailure> = Call::bounded_wait(service, "sync_gateway")
-        .with_arg(input)
+    let response = Call::bounded_wait(service, "sync_gateway")
+        .take_raw_args(
+            ic_platform::candid::contract::encode_one(input).expect("fixture call arguments"),
+        )
         .await
-        .expect("local probe sync transport")
-        .candid()
-        .expect("typed probe reply");
+        .expect("local probe sync transport");
+    let result: Result<(), SyncFailure> =
+        ic_platform::candid::decoder::decode_one(response.as_ref()).expect("typed probe reply");
     mutate(|state| state.finish_effect(id, result.is_ok()));
     result
 }
 
 pub(crate) async fn revoke(service: Principal) {
     let id = mutate(|state| state.begin_effect(ActionRecord::Revoke));
-    let revoked: bool = Call::bounded_wait(service, "revoke_gateway")
-        .with_args(&())
+    let response = Call::bounded_wait(service, "revoke_gateway")
+        .take_raw_args(
+            ic_platform::candid::contract::encode_args(()).expect("fixture scheduling arguments"),
+        )
         .await
-        .expect("local revoke transport")
-        .candid()
-        .expect("revoke reply");
+        .expect("local revoke transport");
+    let revoked: bool =
+        ic_platform::candid::decoder::decode_one(response.as_ref()).expect("revoke reply");
     mutate(|state| state.finish_effect(id, revoked));
     assert!(revoked, "source is the explicit fixture operator");
 }
@@ -191,10 +195,12 @@ pub(crate) async fn confirm_deletion(service: Principal, roots: Vec<Vec<u8>>) ->
         .collect();
     let id = mutate(|state| state.begin_effect(ActionRecord::Delete(retained)));
     let result = match Call::unbounded_wait(service, "_immutableObjectStorageConfirmBlobDeletion")
-        .with_arg(roots)
+        .take_raw_args(
+            ic_platform::candid::contract::encode_one(roots).expect("fixture call arguments"),
+        )
         .await
     {
-        Ok(reply) => reply.candid::<()>().map_err(|_| 0),
+        Ok(reply) => ic_platform::candid::decoder::decode_one::<()>(reply.as_ref()).map_err(|_| 0),
         Err(CallFailed::CallRejected(error)) => Err(error.raw_reject_code()),
         Err(CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_)) => {
             Err(0)
@@ -206,11 +212,19 @@ pub(crate) async fn confirm_deletion(service: Principal, roots: Vec<Vec<u8>>) ->
 
 pub(crate) fn reply_list(gateway: Principal) {
     reply(
-        ic_platform::candid::contract::encode_one(vec![gateway]).expect("fixture principal list"),
+        ic_platform::candid::contract::encode_one(vec![
+            ic_platform::principal::ExternalPrincipal::from(gateway),
+        ])
+        .expect("fixture principal list"),
     );
 }
 pub(crate) fn reply_empty() {
-    reply(ic_platform::candid::contract::encode_one(Vec::<Principal>::new()).expect("empty list"));
+    reply(
+        ic_platform::candid::contract::encode_one(
+            Vec::<ic_platform::principal::ExternalPrincipal>::new(),
+        )
+        .expect("empty list"),
+    );
 }
 pub(crate) fn reply(bytes: Vec<u8>) {
     ic_platform::cdk::api::msg_reply(bytes);

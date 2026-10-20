@@ -1,6 +1,140 @@
 # Current status
 
-Date: 2026-10-19
+Date: 2026-10-20
+
+## Pending 0.38.0 application boundary and published-owner adoption
+
+HEAD is released source `3c02d95` (0.37.0); package versions remain 0.37.0.
+The pending **0.38.0** contains the application DTO Candid-trait removal and
+Platform's new public Principal identity. Hosts must align Platform dependencies
+and explicitly convert external principals. No commit, push, release or
+publication ran. Incoming Host 0.30.1, certificate roots, wasmparser 0.262 and
+Storage 0.5.8 selections are preserved. The Platform qualification selected public
+Memory 0.49.1, Storage 0.5.8 (minimum 0.5.7), Platform 0.4.0, Wire 0.5.0,
+Testkit 0.57.0 and Build 0.22.0.
+
+The official registry and downloaded package checksum establish Platform 0.4.0
+as the selected published release; no sibling patch/source override is used.
+The incoming 0.3 Principal migration is completed against 0.4. Application DTOs,
+core policy and runtime APIs use owned Principal. Required Candid DTOs,
+persisted records/stable keys and native Agent/PocketIC boundaries retain
+Platform's original ExternalPrincipal with explicit conversions. Platform 0.4's
+removed Candid call conveniences are replaced by its separate encoders and the
+original selected decoders. No codec budgets, reply arity, accounting, storage
+schema, allocation owner or lifecycle/recovery authority changes.
+
+Published Testkit 0.59 is now selected and uses Platform 0.4's original decoder
+limits/errors. Its official archive matches the index checksum. The temporary
+native `ic-platform-testkit` alias is removed from both manifests; fixture
+policy and historical-image helpers use `ic_platform::candid::DecodeLimits`
+directly with all five budgets unchanged. Cargo prunes Platform 0.2.2 and
+changes no other package/version selection. No limit bridge, copied decoder or
+new transport is introduced. Workspace feature/target checks now reject all
+older Platform 0.1/0.2/0.3 families, not only deployment selections.
+Upstream coordination remains
+[Testkit #133 — Align public decoder-limit identities with published Platform 0.2](https://github.com/dragginzgame/ic-testkit/issues/133),
+including the [earlier approved Platform 0.4 follow-up](https://github.com/dragginzgame/ic-testkit/issues/133#issuecomment-6287448994).
+No sibling source edit or duplicate issue is needed. Focused Testkit 0.59
+qualification passes all affected targets/features, strict Clippy, actual Rust
+1.91 native checking and 25 native library cases. Explicit tool setup and
+offline admission pass for PocketIC 16.1.0. Fresh authority/default-standalone
+Wasms pass actual query/update authority calls, three certificate cases and both
+pinned historical upgrade-refusal proofs, exercising the updated historical
+helpers. No packet, reply-arity or recovery assertion was weakened. The initial
+unprepared-tool refusal, before-images, official index/checksum, graph checks
+and successful qualification remain under
+`.tmp/review-validation/remove-testkit-alias0380/`. Earlier broader native,
+installed and browser results below retain their original Testkit 0.57 graph;
+this focused pass does not qualify native macOS, installed Canic or the separate
+Host/package-verifier update.
+
+Earlier pending cleanup is preserved: application DTOs use Serde/Wire, private
+storage controls use bounded Wire tuples, historical inputs/consumer records
+stay at their private owners, and probe writes/socket fixtures use published
+Host helpers. The 31 owned methods, lifecycle frames, saved `.wire` documents,
+provider Candid and production record codecs retain their contracts. All 64
+retained fixture files (159 method/lifecycle cases) are byte-identical to the
+start of this adoption; the redundant per-DTO registry stays removed. This
+retains useful work from [PR #91](https://github.com/dragginzgame/ic-blob-storage/pull/91)
+and [PR #92](https://github.com/dragginzgame/ic-blob-storage/pull/92) without their
+stale codec, dependency or no-argument-call reversals. Remote heads are unchanged.
+
+Current Linux evidence passes 122 Contracts unit cases, service export and
+literal Wire vectors; 343 core cases plus both memory-composition tests; four
+replicated-client cases; and 121 native CLI cases. Strict affected Clippy and
+actual Rust 1.91 native/Wasm checks pass. Fresh six-probe Wasms and a separately
+built default standalone pass all 127 storage cases, three gateway scheduling
+cases, 19 funding/callback cases, six admission-planning cases, standalone
+surface/ingress/certificate/account checks and four lifecycle/history cases.
+The actual snapshot rollback remains fenced. An explicit retained Platform 0.2
+standalone upgrade reads existing enrollment/manifest records, preserves exact
+obligations and refuses mutation behind the restore fence; this is a local
+same-schema compatibility proof, not cross-release production migration support.
+Two private pre-trait consumer record proofs and both pinned historical
+standalone upgrade-refusal proofs pass. Chromium's standalone upload,
+verification, download and release journey and browser control cases pass.
+
+Formatting, dependency pins/inheritance, canonical direct-package boundaries,
+resolved deployment exclusions, documentation links and strict public Rustdoc
+checks pass. The default deployment contains Platform 0.4.0, Candid 0.10.38,
+executor 2.0.0 and IC0 1.2.0; required Candid remains. It excludes full CDK,
+older Platform families, Agent, parser, Host, Build, Testkit and PocketIC.
+That Platform checkpoint selected Platform 0.4.0 and Testkit 0.57.0; the
+Testkit 0.59 alias-removal qualification above supersedes its native limit boundary.
+
+Focused evidence, before-images, published indexes/checksums, failed compile/
+lint attempts, old/new artifact hashes and successful retries remain under
+`.tmp/review-validation/platform0300380/`. Three initial native HTTP cases were
+blocked by sandbox socket permissions and pass outside the sandbox. Earlier
+trim evidence stays separately bound to its original Platform 0.2 graph under
+`.tmp/review-validation/trim-dto0380/`; it is not reused as 0.4 qualification.
+
+Keep [#76](https://github.com/dragginzgame/ic-blob-storage/issues/76),
+[#84](https://github.com/dragginzgame/ic-blob-storage/issues/84) and
+[#93](https://github.com/dragginzgame/ic-blob-storage/issues/93) open until default-
+branch integration. Canic's wrapper and installed acceptance stay with
+[Canic #444](https://github.com/dragginzgame/canic/issues/444) and its existing
+PR; no framework dependency or sibling edit is introduced. Full CI, native
+macOS, installed Canic, optimized-Wasm matrix and deployed-provider qualification
+remain unclaimed. Earlier read-only Canic source `4caeec25` selected Blob 0.37,
+Memory 0.49 and Storage 0.5.7; this does not qualify 0.38/Platform 0.4 adoption.
+IC Crates source `1e1f4f6c` still pins Blob 0.25 and retains Candid callers;
+its existing adoption work owns that upgrade, not a fallback in current DTOs.
+Cross-release services still require safe retirement and reinstall.
+
+## Wire 0.5 adoption verification
+
+The subsequent Wire request was checked against the official registry and
+published archive: latest is still 0.5.0, already selected by the incoming graph.
+The declared minimum is now explicitly 0.5.0; Cargo.lock and all package/version
+selections are unchanged. Published archive checksum matches
+`bdfc9e7a6686d78854a2a06f408492313ce10c985a17976e7395fc6cef776479`.
+The 0.5 `Wire` trait no longer implies owned deserialization; Blob already uses
+explicit owned bounds in generic helpers and concrete finite tenant decoders.
+No source adapter, protocol fallback, parallel DTO, stored format or endpoint
+change is needed. Borrowed contracts remain optional and are not enabled merely
+to mirror the upstream API. Provider blob bodies bypass Blob RPC, so upstream
+borrowed 1 MiB measurements do not establish a local performance improvement.
+
+The 122 Contracts unit cases, service export, all 159 frozen method/lifecycle
+vectors, and actual Rust 1.91 Contracts native/test and Wasm compilation pass.
+Before-images, official index/checksum, resolved Wire dependency and focused logs
+are retained under `.tmp/review-validation/wire-adoption0380/`. Earlier installed
+Platform/Wire qualification above is source-bound evidence; this documentation/
+minimum clarification introduces no runtime change or new installed-run claim.
+Incoming Host 0.31 declarations/locked 0.31.1 and Build 0.22.1 were already
+present at the start of this Wire pass and are preserved, including the separate
+transitive Host 0.30.1 selection. The earlier full native/installed results bind
+the preceding graph; Wire's focused Contracts checks do not qualify the incoming
+Host/package-verifier boundary. That adoption remains separate work.
+Formatting, dependency pins/boundaries, deployment exclusions and documentation
+links pass on this pass's selected graph.
+
+## Earlier source-bound checkpoints
+
+The following sections retain their original source, dependency graph and
+limitations. Earlier pending versions, dependency blockers and former codec
+descriptions are historical evidence superseded by the current scope above.
 
 ## Delivered source and ownership
 

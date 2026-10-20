@@ -128,6 +128,9 @@ impl CurrentInstanceProof {
 /// # Errors
 /// Rejects nonreplicated execution, missing anchors, failed/invalid platform replies
 /// and unqualified continuity. Does not clear a fence or mutate any journal.
+/// # Panics
+/// Panics if the fixed management request cannot be Candid encoded, preserving
+/// the call builder's original encoding-failure behavior.
 pub async fn prove_current_instance(
     installation_version: u64,
 ) -> Result<CurrentInstanceProof, CurrentInstanceRecoveryError> {
@@ -142,10 +145,13 @@ pub async fn prove_current_instance(
     let request_version = ic_platform::ic0::canister_version();
     let reply = Call::bounded_wait(Principal::management_canister(), "canister_info")
         .change_timeout(30)
-        .with_arg(CanisterInfoArgs {
-            canister_id: service,
-            num_requested_changes: Some(20),
-        })
+        .take_raw_args(
+            ic_platform::candid::contract::encode_one(CanisterInfoArgs {
+                canister_id: service.into(),
+                num_requested_changes: Some(20),
+            })
+            .expect("bounded canister history arguments"),
+        )
         .await
         .map_err(|_| Error::Platform)?;
     let bytes = reply.into_bytes();

@@ -9,12 +9,10 @@ use crate::{
     admission::{Permission, Phase, Request},
     journey::JourneyUsage,
 };
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 
 /// Test-only stable write boundary; no production fault control is exported.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum WriteFault {
     /// Trap after all credit/renewal writes, proving rollback includes the receipt index.
     FundingCommit,
@@ -50,8 +48,7 @@ pub enum WriteFault {
     ReadJournal,
 }
 /// One admission that must trap at the selected stable write.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FaultAdmission {
     /// Exact permission, without caller or clock override.
     pub permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
@@ -59,8 +56,7 @@ pub struct FaultAdmission {
     pub fault: WriteFault,
 }
 /// One local admission followed by explicit backing growth, with a refusal substitute.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct GrowthAdmission {
     /// Exact permission used for the storage-only retry.
     pub permission: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
@@ -68,8 +64,7 @@ pub struct GrowthAdmission {
     pub refuse: bool,
 }
 /// One manifest binding that must trap at the selected stable write.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FaultPreparation {
     /// Exact declaration to prepare.
     pub preparation: ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest,
@@ -77,8 +72,7 @@ pub struct FaultPreparation {
     pub fault: WriteFault,
 }
 /// Typed boundary rejection for a fixture store operation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Failure {
     /// Returned bytes differ from the admitted leaf hash or exact length.
     ContentMismatch,
@@ -112,8 +106,7 @@ pub enum Failure {
     CursorScope,
 }
 /// Exact retained permission, without provider or completion authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Observation {
     /// Original immutable permission.
     pub permission: Permission,
@@ -127,8 +120,7 @@ pub struct Observation {
     pub phase: Phase,
 }
 /// Operator-only observations; no restore authority is implied.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Status {
     /// Lifetime permissions and root claims retained.
     pub operations: u64,
@@ -143,8 +135,7 @@ pub struct Status {
 }
 
 /// Labelled local provider-fact substitute; never a deployed provider callback.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ProviderFact {
     /// Exact upload completion substitute.
     Uploaded,
@@ -154,8 +145,7 @@ pub enum ProviderFact {
     Settled,
 }
 /// Operator-only fact injection, used to exercise the shared transaction.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FactInput {
     /// Complete original upload identity.
     pub request: Request,

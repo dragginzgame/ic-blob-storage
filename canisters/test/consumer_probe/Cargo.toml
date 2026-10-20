@@ -16,6 +16,7 @@ ic-blob-storage-client.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-platform = { workspace = true, features = ["candid", "cdk"] }
 serde.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true

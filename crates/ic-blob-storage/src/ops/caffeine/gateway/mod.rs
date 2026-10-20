@@ -40,8 +40,12 @@ pub fn apply_gateway_sync_reply(
         return Err(GatewayReplyError::ReplyTooLarge);
     }
     let config = limits.config();
-    let principals: Vec<Principal> =
+    let principals: Vec<ic_platform::principal::ExternalPrincipal> =
         decode_one_with_config(bytes, &config).map_err(|_| GatewayReplyError::InvalidReply)?;
+    let principals = principals
+        .into_iter()
+        .map(Into::into)
+        .collect::<Vec<Principal>>();
     registry.apply_sync(token, response_scope, &principals)?;
     Ok(())
 }
@@ -127,10 +131,18 @@ mod tests {
         let scope = registry.scope();
         let token = registry.begin_sync().expect("sync");
         let before = registry.clone();
-        let good = ic_platform::candid::contract::encode_one(vec![p(5), p(4), p(5)])
-            .expect("gateway list");
+        let good = ic_platform::candid::contract::encode_one(
+            vec![p(5), p(4), p(5)]
+                .into_iter()
+                .map(ic_platform::principal::ExternalPrincipal::from)
+                .collect::<Vec<_>>(),
+        )
+        .expect("gateway list");
         let extra = ic_platform::candid::contract::encode_args((
-            vec![p(5)],
+            vec![p(5)]
+                .into_iter()
+                .map(ic_platform::principal::ExternalPrincipal::from)
+                .collect::<Vec<_>>(),
             vec![vec!["extra".repeat(20)]],
         ))
         .expect("extra argument");
@@ -248,8 +260,13 @@ mod tests {
                 },
             ),
         ] {
-            let bytes =
-                ic_platform::candid::contract::encode_one(principals).expect("gateway list");
+            let bytes = ic_platform::candid::contract::encode_one(
+                principals
+                    .into_iter()
+                    .map(ic_platform::principal::ExternalPrincipal::from)
+                    .collect::<Vec<_>>(),
+            )
+            .expect("gateway list");
             assert_eq!(
                 apply_gateway_sync_reply(&mut registry, token, scope, &bytes, limits()),
                 Err(GatewayReplyError::Sync(GatewaySyncError::InvalidList(

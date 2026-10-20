@@ -1,0 +1,209 @@
+[
+  {
+    "input": {
+      "Ok": {
+        "changed": false,
+        "observation": {
+          "manifest": "Unprepared",
+          "permission": {
+            "expires_at_ns": 2032048944,
+            "upload": {
+              "bytes": 1829982250,
+              "first_reference": 2776550790,
+              "incarnation": 4038734894,
+              "namespace": 3371491149,
+              "object": 132635197,
+              "root": [
+                38,
+                244,
+                229,
+                185,
+                88,
+                249,
+                3,
+                243,
+                194,
+                35,
+                47,
+                217,
+                8,
+                33,
+                111,
+                78,
+                34,
+                153,
+                31,
+                193,
+                206,
+                79,
+                200,
+                156,
+                173,
+                102,
+                143,
+                164,
+                176,
+                113,
+                71,
+                176
+              ],
+              "service": "5wegp-rqann-qkmai",
+              "tenant": "53rq5-7jfn3-mdsai",
+              "upload": 1127883452
+            },
+            "uploader": "e2koo-dky2p-vtsai"
+          }
+        }
+      }
+    },
+    "hex": "495708003600424f4c42010005006b60a60105256ed83901cdbed3c70cbcc5e89904bdb49f3faee8e8850f869bfbab0a26f4e5b958f903f3c2232fd908216f4e22991fc1ce4fc89cad668fa4b07147b0aaa0cde8060558d3eb3901b0b6fac8070000"
+  },
+  {
+    "input": {
+      "Ok": {
+        "changed": true,
+        "observation": {
+          "manifest": {
+            "Prepared": {
+              "chunks": [
+                [
+                  2,
+                  209,
+                  139,
+                  236,
+                  215,
+                  58,
+                  175,
+                  149,
+                  204,
+                  231,
+                  54,
+                  113,
+                  205,
+                  113,
+                  58,
+                  41,
+                  169,
+                  193,
+                  164,
+                  165,
+                  86,
+                  48,
+                  147,
+                  191,
+                  136,
+                  10,
+                  26,
+                  100,
+                  122,
+                  192,
+                  97,
+                  231
+                ],
+                [
+                  205,
+                  71,
+                  99,
+                  140,
+                  96,
+                  95,
+                  1,
+                  110,
+                  111,
+                  11,
+                  225,
+                  179,
+                  105,
+                  192,
+                  13,
+                  50,
+                  59,
+                  1,
+                  225,
+                  244,
+                  52,
+                  142,
+                  7,
+                  35,
+                  206,
+                  206,
+                  24,
+                  46,
+                  28,
+                  162,
+                  95,
+                  161
+                ]
+              ],
+              "headers": [
+                {
+                  "name": "fixture-Result<UploadManifestMutation,UploadManifestFailure>.observation.manifest.0.headers0.name",
+                  "value": "fixture-Result<UploadManifestMutation,UploadManifestFailure>.observation.manifest.0.headers0.value"
+                },
+                {
+                  "name": "fixture-Result<UploadManifestMutation,UploadManifestFailure>.observation.manifest.0.headers1.name",
+                  "value": "fixture-Result<UploadManifestMutation,UploadManifestFailure>.observation.manifest.0.headers1.value"
+                }
+              ]
+            }
+          },
+          "permission": {
+            "expires_at_ns": 4285488125,
+            "upload": {
+              "bytes": 310950403,
+              "first_reference": 2509494429,
+              "incarnation": 489763781,
+              "namespace": 3138815765,
+              "object": 2815102348,
+              "root": [
+                112,
+                232,
+                174,
+                100,
+                197,
+                68,
+                150,
+                76,
+                60,
+                86,
+                66,
+                116,
+                187,
+                245,
+                153,
+                246,
+                223,
+                219,
+                68,
+                191,
+                66,
+                173,
+                116,
+                143,
+                164,
+                38,
+                74,
+                6,
+                22,
+                163,
+                46,
+                94
+              ],
+              "service": "x6hpg-gn63x-74aai",
+              "tenant": "kp7kr-egyv5-3luai",
+              "upload": 909828714
+            },
+            "uploader": "htnxo-3d6pd-yg2ai"
+          }
+        }
+      }
+    },
+    "hex": "495708003600424f4c42010005beddffc00105d8af76ba01958edad80beac4ebb1038c9bacbe0ac5e7c4e9019db1cfac0970e8ae64c544964c3c564274bbf599f6dfdb44bf42ad748fa4264a0616a32e5e83f4a29401057e78f06d01fdb7bdfb0f010202d18becd73aaf95cce73671cd713a29a9c1a4a5563093bf880a1a647ac061e7cd47638c605f016e6f0be1b369c00d323b01e1f4348e0723cece182e1ca25fa10261666978747572652d526573756c743c55706c6f61644d616e69666573744d75746174696f6e2c55706c6f61644d616e69666573744661696c7572653e2e6f62736572766174696f6e2e6d616e69666573742e302e68656164657273302e6e616d6562666978747572652d526573756c743c55706c6f61644d616e69666573744d75746174696f6e2c55706c6f61644d616e69666573744661696c7572653e2e6f62736572766174696f6e2e6d616e69666573742e302e68656164657273302e76616c756561666978747572652d526573756c743c55706c6f61644d616e69666573744d75746174696f6e2c55706c6f61644d616e69666573744661696c7572653e2e6f62736572766174696f6e2e6d616e69666573742e302e68656164657273312e6e616d6562666978747572652d526573756c743c55706c6f61644d616e69666573744d75746174696f6e2c55706c6f61644d616e69666573744661696c7572653e2e6f62736572766174696f6e2e6d616e69666573742e302e68656164657273312e76616c756501"
+  },
+  {
+    "input": {
+      "Err": "Limit"
+    },
+    "hex": "495708003600424f4c42010104"
+  }
+]

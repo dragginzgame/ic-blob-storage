@@ -282,7 +282,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
             f.controller,
             "fixture_inspect_tenant",
             TenantScope {
-                tenant: f.other,
+                tenant: f.other.into(),
                 ..f.tenant_scope()
             },
             REPLY_LIMITS.reply_bytes,

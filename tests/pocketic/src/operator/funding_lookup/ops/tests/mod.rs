@@ -14,10 +14,10 @@ fn selection() -> Selection {
             transport: crate::operator::model::QueryTarget {
                 server: "127.0.0.1:1".parse().unwrap(),
                 instance: 0,
-                canister: service,
-                caller: Fake::principal(3),
+                canister: service.into(),
+                caller: Fake::principal(3).into(),
             },
-            binding: Binding::Funding(peer),
+            binding: Binding::Funding(peer.into()),
         },
         request: FundingLookupRequest {
             service,

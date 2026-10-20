@@ -57,7 +57,7 @@ fn uncertain_admission_recovers_exact_permission_without_resending_after_cancell
         assert_eq!(admit(&f, &input), Err(ConsumerFailure::Pending));
         for changed in [
             UploadAdmissionRequest {
-                uploader: f.other,
+                uploader: f.other.into(),
                 ..permission(&input)
             },
             UploadAdmissionRequest {

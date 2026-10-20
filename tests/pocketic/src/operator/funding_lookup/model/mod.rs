@@ -39,8 +39,8 @@ impl Selection {
         }
         Ok(Self {
             request: FundingLookupRequest {
-                service: target.transport.canister,
-                peer,
+                service: target.transport.canister.into(),
+                peer: peer.into(),
                 attempt,
             },
             target,

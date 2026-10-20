@@ -21,7 +21,7 @@ echo 'Blob client normal graph excludes service storage across targets'
 # Optional and native tooling features must not reintroduce the retired runtime.
 cargo tree --offline --locked --workspace --all-features --target all \
     --edges normal,build,dev --prefix none --format '{p}' > "$contract_graph"
-if rg '^(ic-platform v0\.1\.|(ic-cdk|ic-cdk-macros) v)' "$contract_graph"; then
+if rg '^(ic-platform v0\.[123]\.|(ic-cdk|ic-cdk-macros) v)' "$contract_graph"; then
     echo 'Workspace depends on retired Platform/CDK' >&2; exit 1
 fi
 echo 'Workspace feature/target selections exclude retired Platform/CDK'
@@ -30,7 +30,7 @@ echo 'Workspace feature/target selections exclude retired Platform/CDK'
 # Native interface inspection never enables a deployed parser or tooling runtime.
 cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
     --prefix none --format '{p}' -p ic-blob-storage-canister > "$contract_graph"
-if rg '^((ic-cdk|ic-cdk-macros|ic-testkit|pocket-ic|ic-build|ic-agent|candid_parser) v|ic-platform v0\.1\.|ic-host-)' "$contract_graph"; then
+if rg '^((ic-cdk|ic-cdk-macros|ic-testkit|pocket-ic|ic-build|ic-agent|candid_parser) v|ic-platform v0\.[123]\.|ic-host-)' "$contract_graph"; then
     echo 'Deployment depends on a legacy runtime or native-only owner' >&2
     exit 1
 fi

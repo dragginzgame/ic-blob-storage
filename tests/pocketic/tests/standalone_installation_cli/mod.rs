@@ -89,7 +89,10 @@ fn trial_configuration(f: &Fixture) -> ServiceConfigurationInput {
         ("ACTUAL_SERVICE_PRINCIPAL", f.service),
         ("OPERATOR_PRINCIPAL", f.operator),
         ("ISOLATED_PAYER_PRINCIPAL", f.tenant),
-        ("REVIEWED_CASHIER_PRINCIPAL", f.config.billing.cashier),
+        (
+            "REVIEWED_CASHIER_PRINCIPAL",
+            f.config.billing.cashier.into(),
+        ),
     ] {
         template = template.replace(placeholder, &principal.to_text());
     }
@@ -184,7 +187,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     f.uploader = Fake::principal(91);
     // The checker can only validate the proposed identity. The installed host
     // must compare that identity with the actual canister before allocation.
-    f.config.service = Fake::principal(93);
+    f.config.service = Fake::principal(93).into();
     let wrong = carrier(&f, directory.path(), "standalone-trial", verifier);
     // Install-code instruction debt is platform-owned; qualify the identity
     // refusal after its cooldown rather than assuming immediate reinstall.
@@ -198,7 +201,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     assert_eq!(f.configuration(f.operator).unwrap(), before);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &stable);
 
-    f.config.service = f.service;
+    f.config.service = f.service.into();
     let correct = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let bytes = carrier(&f, correct.path(), "standalone-trial", verifier);
     install_code::settle_install_code_debt(&f.harness.pic);
@@ -211,7 +214,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     let installed = f.configuration(f.operator).unwrap();
     assert_eq!(installed.configuration, f.config);
     assert_eq!(installed.project, "standalone-trial");
-    assert_eq!(installed.completion_verifier, verifier);
+    assert_eq!(installed.completion_verifier, verifier.into());
     assert_eq!(installed.release, before.release);
     assert!(!installed.fenced);
     assert_eq!(f.configuration(f.controller), Err(HostFailure::Denied));

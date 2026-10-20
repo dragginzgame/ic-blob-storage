@@ -1,10 +1,8 @@
 //! Private controls for exercising the maintained reference receipt client.
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
 /// Explicit local proxy controls; not a production service request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReferenceClientInput {
     /// Exact shared service request.
     pub request: ic_blob_storage_contracts::dto::reference::ReferenceCommand,
@@ -14,8 +12,7 @@ pub struct ReferenceClientInput {
     pub max_reply_bytes: u32,
 }
 /// Typed observation of the maintained client.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ReferenceProbeFailure {
     /// Proxy operator check failed.
     Denied,
@@ -36,8 +33,7 @@ pub enum ReferenceProbeFailure {
 }
 
 /// Private trap injection on the same shared mutation handler as the canonical update.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReferenceFaultInput {
     /// Exact maintained operation.
     pub request: ic_blob_storage_contracts::dto::reference::ReferenceCommand,
@@ -46,8 +42,7 @@ pub struct ReferenceFaultInput {
 }
 
 /// Explicit local consumer of passive exact-reference state.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReferenceStatusClientInput {
     /// Exact maintained lookup, with no mutation operation or action.
     pub request: ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest,

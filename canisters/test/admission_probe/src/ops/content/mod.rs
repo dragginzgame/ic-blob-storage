@@ -87,11 +87,11 @@ fn descriptor_view(view: ContentDescriptorView<'_>) -> ContentDescriptor {
 }
 
 fn model_lookup(context: UploadContext, input: ContentLookup) -> Result<ModelLookup, Failure> {
-    if input.service != context.service {
+    if input.service != context.service.into() {
         return Err(Failure::WrongService);
     }
     Ok(ModelLookup {
-        tenant: input.tenant,
+        tenant: input.tenant.into(),
         namespace: NonZeroU128::new(input.namespace).ok_or(Failure::InvalidInput)?,
         root: ProviderRootHash::try_from(input.root.as_slice()).expect("fixed hash width"),
     })

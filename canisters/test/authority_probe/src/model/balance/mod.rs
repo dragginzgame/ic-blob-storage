@@ -1,4 +1,5 @@
 //! Bounded local observation history; no payment or recovery authority.
+use ic_platform::principal::ExternalPrincipal;
 pub(crate) mod billing;
 
 use blob_test_protocol::balance::{BalanceFailure as Failure, BalanceUsability};
@@ -21,10 +22,10 @@ pub(crate) struct BalanceJournalRecord {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ScopeRecord {
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     pub namespace: u128,
-    pub source: Principal,
-    pub account: Principal,
+    pub source: ExternalPrincipal,
+    pub account: ExternalPrincipal,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
@@ -54,10 +55,10 @@ impl ScopeRecord {
         account: Principal,
     ) -> Result<Self, Failure> {
         let value = Self {
-            service,
+            service: service.into(),
             namespace,
-            source,
-            account,
+            source: source.into(),
+            account: account.into(),
         };
         value
             .valid(service, namespace)
@@ -67,13 +68,13 @@ impl ScopeRecord {
 
     fn valid(self, service: Principal, namespace: u128) -> bool {
         let ordinary = |p| p != Principal::anonymous() && p != Principal::management_canister();
-        self.service == service
+        self.service == service.into()
             && self.namespace == namespace
             && namespace != 0
             && ordinary(service)
-            && ordinary(self.source)
-            && ordinary(self.account)
-            && self.source != service
+            && ordinary(self.source.into())
+            && ordinary(self.account.into())
+            && self.source != service.into()
     }
 }
 

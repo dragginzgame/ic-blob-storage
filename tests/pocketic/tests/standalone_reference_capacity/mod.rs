@@ -55,7 +55,7 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
     }
     for scope in [
         TenantScope {
-            service: f.operator,
+            service: f.operator.into(),
             ..request.scope
         },
         TenantScope {

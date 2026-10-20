@@ -25,11 +25,11 @@ fn number(value: u128) -> Result<NonZeroU128, Failure> {
     NonZeroU128::new(value).ok_or(Failure::Invalid)
 }
 pub(super) fn lookup(execution: UploadContext, input: ContentLookup) -> Result<Lookup, Failure> {
-    if input.service != execution.service {
+    if input.service != execution.service.into() {
         return Err(Failure::Binding);
     }
     Ok(Lookup {
-        tenant: input.tenant,
+        tenant: input.tenant.into(),
         namespace: number(input.namespace)?,
         root: ProviderRootHash::try_from(input.root.as_slice()).expect("fixed root"),
     })

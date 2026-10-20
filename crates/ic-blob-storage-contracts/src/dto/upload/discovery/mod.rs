@@ -1,12 +1,10 @@
 //! Tenant-scoped indexed content discovery, without allocation or serving authority.
 use crate::dto::tenant::TenantScope;
 use crate::dto::upload::history::UploadHistoryEntry;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Discover retained content without already knowing its operation identity.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadDiscoveryRequest {
     /// Actual tenant/service and installed namespace.
@@ -15,8 +13,7 @@ pub struct UploadDiscoveryRequest {
     pub root: [u8; 32],
 }
 /// One synchronous local observation. Absence is not upload or retry permission.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadDiscoveryResponse {
     /// Exact request echoed even for absent or foreign content.
@@ -27,8 +24,7 @@ pub struct UploadDiscoveryResponse {
     pub fenced: bool,
 }
 /// Refusal must never be interpreted as an absent root.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadDiscoveryFailure {
     /// Invalid tenant or zero namespace.

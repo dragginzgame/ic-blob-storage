@@ -32,10 +32,13 @@ fn standalone_native_account_observations_keep_scope_reports_and_restore_fences(
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let source = f.harness.pic.get_stable_memory(scope.cashier);
+    let source = f.harness.pic.get_stable_memory(scope.cashier.into());
     f.harness.pic.auto_progress();
     cli.fenced();
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert_eq!(f.harness.pic.get_stable_memory(scope.cashier), source);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        source
+    );
     f.harness.pic.stop_live();
 }

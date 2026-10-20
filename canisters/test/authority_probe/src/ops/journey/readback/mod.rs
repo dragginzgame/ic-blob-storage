@@ -31,10 +31,10 @@ pub(crate) fn begin(
         state.read_intent = Some(crate::model::archive::ReadRecord {
             token,
             valid: true,
-            tenant: request.upload.object.first.object().tenant(),
+            tenant: request.upload.object.first.object().tenant().into(),
             root: *request.upload.object.root.as_bytes(),
             index,
-            gateway,
+            gateway: gateway.into(),
         });
         if state.armed_read_trap == Some(request.upload.object.root) {
             state.armed_read_trap = None;
@@ -84,7 +84,13 @@ pub(crate) async fn fetch(
     index: u64,
 ) -> Result<Vec<u8>, JourneyFailure> {
     Call::bounded_wait(gateway, "fixture_chunk")
-        .with_args(&(request.upload.object.root.as_bytes().to_vec(), index))
+        .take_raw_args(
+            ic_platform::candid::contract::encode_args((
+                request.upload.object.root.as_bytes().to_vec(),
+                index,
+            ))
+            .expect("fixture chunk arguments"),
+        )
         .await
         .map(ic_platform::cdk::call::Response::into_bytes)
         .map_err(|_| JourneyFailure::Transport)

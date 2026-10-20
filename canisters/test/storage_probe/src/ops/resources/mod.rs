@@ -146,6 +146,10 @@ pub(crate) fn populate(context: UploadContext, batch: PopulationBatch) -> Result
     })
 }
 
+#[expect(
+    clippy::too_many_lines,
+    reason = "One measured population step preserves write order and resource attribution"
+)]
 fn populate_upload(
     state: &mut super::State,
     context: UploadContext,
@@ -153,13 +157,18 @@ fn populate_upload(
     index: usize,
 ) {
     let tenant = input.request.tenant;
-    if state.uploads.tenant(context, tenant).unwrap().is_none() {
+    if state
+        .uploads
+        .tenant(context, tenant.into())
+        .unwrap()
+        .is_none()
+    {
         state
             .uploads
             .update_tenant(
                 context,
                 TenantUpdate {
-                    tenant,
+                    tenant: tenant.into(),
                     expected: None,
                     active: true,
                 },
@@ -167,7 +176,7 @@ fn populate_upload(
             .unwrap();
     }
     let tenant_context = UploadContext {
-        actor: tenant,
+        actor: tenant.into(),
         ..context
     };
     let now = ic_platform::cdk::api::time();
@@ -178,7 +187,7 @@ fn populate_upload(
             tenant_context,
             UploadPermission {
                 request,
-                uploader: tenant,
+                uploader: tenant.into(),
                 expires_at_ns: u64::MAX,
             },
             now,

@@ -90,7 +90,12 @@ fn method_direction_and_previous_encodings_never_become_current_authority() {
     assert!(decode_update_response(&response).is_err());
     for old in [
         crate::document::encode(scope).unwrap(),
-        ic_platform::candid::contract::encode_one(scope).unwrap(),
+        ic_platform::candid::contract::encode_one((
+            ic_platform::principal::ExternalPrincipal::from(scope.service),
+            scope.namespace,
+            ic_platform::principal::ExternalPrincipal::from(scope.tenant),
+        ))
+        .unwrap(),
     ] {
         assert!(decode_inspection_request(&old).is_err());
     }

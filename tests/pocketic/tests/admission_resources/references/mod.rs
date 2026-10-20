@@ -23,8 +23,8 @@ fn reference(request: Request, id: u64, retain: bool) -> Command {
 fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
     let input = ReferenceCapacityRequest {
         scope: TenantScope {
-            service: request.service,
-            tenant: request.tenant,
+            service: request.service.into(),
+            tenant: request.tenant.into(),
             namespace: request.namespace,
         },
         root: request.root,

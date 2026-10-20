@@ -1,6 +1,5 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 mod mutations;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
 fn consumer() -> Fixture {
@@ -19,21 +18,22 @@ fn fetch(
     f: &Fixture,
     input: &ReferenceClientInput,
 ) -> Result<ReferenceReceiptLookup, ReferenceProbeFailure> {
-    update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "fixture_fetch_reference_receipt",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .update_control_as(
+            f.tenant,
+            f.operator,
+            "fixture_fetch_reference_receipt",
+            (input,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
 }
 fn selection(f: &Fixture, request: ReferenceInput) -> ReferenceClientInput {
     ReferenceClientInput {
         request: receipt_request(request),
-        tenant: f.tenant,
+        tenant: f.tenant.into(),
         max_reply_bytes: 4096,
     }
 }
@@ -114,7 +114,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
         fetch(
             &f,
             &ReferenceClientInput {
-                tenant: f.operator,
+                tenant: f.operator.into(),
                 ..selected
             }
         ),
@@ -133,7 +133,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
     let wrong_tenant = ReferenceClientInput {
         request: ReferenceCommand {
             upload: ReferenceUpload {
-                tenant: f.other,
+                tenant: f.other.into(),
                 ..selected.request.upload
             },
             ..selected.request
@@ -144,27 +144,31 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
         fetch(&f, &wrong_tenant),
         Err(ReferenceProbeFailure::Binding)
     );
-    let denied: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = update_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.other,
-        "fixture_fetch_reference_receipt",
-        (selected,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let denied: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = f
+        .harness
+        .pic
+        .update_control_as(
+            f.tenant,
+            f.other,
+            "fixture_fetch_reference_receipt",
+            (selected,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(denied, Err(ReferenceProbeFailure::Denied));
-    let query: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = query_candid_args(
-        &f.harness.pic,
-        f.tenant,
-        f.operator,
-        "fixture_nonreplicated_reference_receipt",
-        (selected,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let query: Result<ReferenceReceiptLookup, ReferenceProbeFailure> = f
+        .harness
+        .pic
+        .query_control_as(
+            f.tenant,
+            f.operator,
+            "fixture_nonreplicated_reference_receipt",
+            (selected,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     f.harness

@@ -1,7 +1,7 @@
 //! Inspection-only local archive; never a resumable service checkpoint.
 use crate::journey::{JourneyManifest, JourneyProgress};
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
+use ic_platform::principal::ExternalPrincipal;
 use serde::{Deserialize, Serialize};
 
 /// Catalogs remain separate owners within the test fixture.
@@ -43,7 +43,7 @@ pub struct ArchivedObjectView {
     /// Owning fixture catalog; equal roots across catalogs are independent.
     pub catalog: ArchiveCatalog,
     /// Exact tenant binding; service and namespace are in the enclosing archive.
-    pub tenant: Principal,
+    pub tenant: ExternalPrincipal,
     /// Fixture object ID; also upload request ID when digest is present.
     pub id: u8,
     /// Immutable provider root.
@@ -78,13 +78,13 @@ pub struct ArchivedReadView {
     /// Whether revocation/sync has invalidated this token.
     pub valid: bool,
     /// Bound tenant.
-    pub tenant: Principal,
+    pub tenant: ExternalPrincipal,
     /// Bound root (resolves the complete object in the journey archive).
     pub root: [u8; 32],
     /// Requested leaf index.
     pub index: u64,
     /// Exact source principal selected before dispatch.
-    pub gateway: Principal,
+    pub gateway: ExternalPrincipal,
 }
 
 /// Operator-only inspection of all retained fixture owners, read from stable memory.
@@ -96,19 +96,19 @@ pub struct AuthorityArchiveView {
     /// Restored inspection-only instance; no operational endpoint can act.
     pub fenced: bool,
     /// Bound service instance.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Explicit archive inspection authority, independent of controller status.
-    pub operator: Principal,
+    pub operator: ExternalPrincipal,
     /// Two configured tenants.
-    pub tenants: [Principal; 2],
+    pub tenants: [ExternalPrincipal; 2],
     /// Provider namespace for all fixture bindings.
     pub namespace: u128,
     /// Original configured gateway used by the revocation control.
-    pub initial_gateway: Principal,
+    pub initial_gateway: ExternalPrincipal,
     /// Exact configured gateway-list source (a local substitute).
-    pub sync_source: Principal,
+    pub sync_source: ExternalPrincipal,
     /// Current gateway membership, which may be empty after revocation.
-    pub gateways: Vec<Principal>,
+    pub gateways: Vec<ExternalPrincipal>,
     /// Last allocated sync sequence; no token can be reconstructed from this view.
     pub last_sync: u64,
     /// Pending sync sequence, if any.

@@ -15,7 +15,7 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     let f = Fixture::new();
     let input = GatewayRevocationRequest {
         scope: f.operator_scope(),
-        gateway: Fake::principal(9),
+        gateway: Fake::principal(9).into(),
     };
     let call = |actor, input| -> Result<GatewayRevocationResponse, Error> {
         f.harness
@@ -35,15 +35,15 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     }
     for scope in [
         OperatorScope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..input.scope
         },
         OperatorScope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..input.scope
         },
         OperatorScope {
-            payment_account: f.tenant,
+            payment_account: f.tenant.into(),
             ..input.scope
         },
         OperatorScope {
@@ -58,7 +58,13 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     }
     for gateway in [Principal::anonymous(), Principal::management_canister()] {
         assert_eq!(
-            call(f.operator, GatewayRevocationRequest { gateway, ..input }),
+            call(
+                f.operator,
+                GatewayRevocationRequest {
+                    gateway: gateway.into(),
+                    ..input
+                }
+            ),
             Err(Error::Invalid)
         );
     }

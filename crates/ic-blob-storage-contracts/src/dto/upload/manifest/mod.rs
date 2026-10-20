@@ -1,11 +1,9 @@
 //! Bounded upload declarations and historical recovery; no content bytes or certificates.
 use crate::dto::upload::admission::UploadAdmissionFailure;
 use crate::dto::upload::admission::UploadAdmissionRequest;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 /// Original metadata spelling and value; the boundary does not rewrite either.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestHeader {
     /// ASCII HTTP token, unique ignoring ASCII case.
@@ -14,8 +12,7 @@ pub struct UploadManifestHeader {
     pub value: String,
 }
 /// Ordered leaf hashes and metadata, never complete content or raw-digest evidence.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestDeclaration {
     /// Ordered domain-separated chunk identities.
@@ -24,8 +21,7 @@ pub struct UploadManifestDeclaration {
     pub headers: Vec<UploadManifestHeader>,
 }
 /// Save this complete intent before preparation dispatch; adapters bound ingress decoding.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestRequest {
     /// Full original permission, including uploader and exclusive expiry.
@@ -33,9 +29,8 @@ pub struct UploadManifestRequest {
     /// Declaration to validate against the admitted root and length.
     pub declaration: UploadManifestDeclaration,
 }
-/// Explicit absence prevents incompatible Candid optional data becoming unprepared.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+/// Explicit absence distinguishes an unprepared upload from its retained declaration.
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadManifestInspection {
     /// No declaration is retained; this does not authorize repeating uncertain effects.
@@ -44,8 +39,7 @@ pub enum UploadManifestInspection {
     Prepared(UploadManifestDeclaration),
 }
 /// Authenticated historical observation, not issuance or publication authority.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestResponse {
     /// Exact original permission.
@@ -54,8 +48,7 @@ pub struct UploadManifestResponse {
     pub manifest: UploadManifestInspection,
 }
 /// Successful local preparation, with no provider call or file transfer.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestMutation {
     /// Original accepted declaration, always Prepared.
@@ -64,8 +57,7 @@ pub struct UploadManifestMutation {
     pub changed: bool,
 }
 /// Failed preparation/inspection; uncertainty must preserve the original intent.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadManifestFailure {
     /// Permission identity, authority, expiry, activation or restoration failure.

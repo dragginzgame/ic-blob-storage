@@ -2,8 +2,10 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_pocketic_tests::historical::{
+    self, query_args as query_candid_args, update_args as update_candid_args,
+};
 use ic_platform::candid::decoder;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 use std::path::PathBuf;
 
 // Frozen producer for retired installation contracts, used only to install their
@@ -15,10 +17,9 @@ pub(super) fn frozen_installation(f: &Fixture) -> Vec<u8> {
         16384,
     )
     .unwrap();
-    let mut args = ic_platform::candid_parser::IDLArgs::from_bytes(
-        &ic_platform::candid::contract::encode_one(input).unwrap(),
-    )
-    .unwrap();
+    let mut args =
+        ic_platform::candid_parser::IDLArgs::from_bytes(&historical::encode(input).unwrap())
+            .unwrap();
     let ic_platform::candid_parser::IDLValue::Record(fields) = &mut args.args[0] else {
         panic!("installation record")
     };
@@ -32,14 +33,14 @@ pub(super) fn frozen_installation(f: &Fixture) -> Vec<u8> {
 
 // Project only unchanged upload counters from the pinned image's raw reply.
 // Production decoders accept exclusively the current mandatory funding schema.
-#[derive(ic_platform::candid::contract::CandidType, serde::Deserialize)]
+#[derive(ic_platform::candid::contract::CandidType, serde::Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 struct UploadAccountingView {
-    uploads: ic_blob_storage_contracts::dto::operator::LocalUploadStatus,
+    uploads: historical::LocalUploadStatus,
 }
 // Project only the unchanged release field; preserve and compare the entire raw
 // configuration reply rather than decode a historical schema as the current DTO.
-#[derive(ic_platform::candid::contract::CandidType, serde::Deserialize)]
+#[derive(ic_platform::candid::contract::CandidType, serde::Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 struct ConfigurationView {
     release: String,
@@ -62,7 +63,7 @@ fn raw_status(f: &Fixture) -> Vec<u8> {
             f.service,
             f.operator,
             "blob_local_status",
-            ic_platform::candid::contract::encode_one(f.operator_scope()).unwrap(),
+            historical::encode(f.operator_scope()).unwrap(),
         )
         .unwrap()
 }
@@ -82,11 +83,11 @@ fn pinned_image() -> (serde_json::Value, Vec<u8>, String) {
 }
 
 // These calls target pinned Candid images, never the current service.
-fn frozen_update<T: ic_platform::candid::contract::CandidType + serde::de::DeserializeOwned>(
+fn frozen_update<T: historical::Projection + serde::Serialize + serde::de::DeserializeOwned>(
     f: &Fixture,
     actor: Principal,
     method: &str,
-    input: impl ic_platform::candid::contract::CandidType,
+    input: impl historical::Projection + serde::Serialize,
 ) -> T {
     update_candid_args(
         &f.harness.pic,
@@ -229,7 +230,7 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
         .reinstall_canister(f.service, old, frozen_installation(&f), Some(f.controller))
         .unwrap();
     let configuration = raw_configuration(&f);
-    let installed = decoder::decode_one_with_config::<Result<ConfigurationView, HostFailure>>(
+    let installed = historical::decode::<Result<ConfigurationView, HostFailure>>(
         &configuration,
         &decoder::DecoderConfig::new(),
     )
@@ -241,7 +242,7 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
     );
     let (released, pending) = obligations(&f);
     let raw = raw_status(&f);
-    let status = decoder::decode_one_with_config::<
+    let status = historical::decode::<
         Result<UploadAccountingView, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>,
     >(&raw, &decoder::DecoderConfig::new())
     .unwrap()
@@ -263,19 +264,19 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
         ("status.candid", raw.clone()),
         (
             "released-permission.candid",
-            ic_platform::candid::contract::encode_one(released).unwrap(),
+            historical::encode(released).unwrap(),
         ),
         (
             "pending-permission.candid",
-            ic_platform::candid::contract::encode_one(pending).unwrap(),
+            historical::encode(pending).unwrap(),
         ),
         (
             "released-admission.candid",
-            ic_platform::candid::contract::encode_one(released_before).unwrap(),
+            historical::encode(released_before).unwrap(),
         ),
         (
             "pending-admission.candid",
-            ic_platform::candid::contract::encode_one(pending_before).unwrap(),
+            historical::encode(pending_before).unwrap(),
         ),
     ] {
         std::fs::write(report.join(name), bytes).unwrap();
@@ -340,7 +341,7 @@ fn single_uploader_installation_upgrade_refuses_without_losing_owner_or_obligati
         .reinstall_canister(f.service, old, init.clone(), Some(f.controller))
         .unwrap();
     let configuration = raw_configuration(&f);
-    let installed = decoder::decode_one_with_config::<Result<ConfigurationView, HostFailure>>(
+    let installed = historical::decode::<Result<ConfigurationView, HostFailure>>(
         &configuration,
         &decoder::DecoderConfig::new(),
     )
@@ -394,4 +395,11 @@ fn single_uploader_installation_upgrade_refuses_without_losing_owner_or_obligati
         .unwrap(),
     )
     .unwrap();
+}
+
+impl historical::Projection for UploadAccountingView {
+    type Stored = Self;
+}
+impl historical::Projection for ConfigurationView {
+    type Stored = Self;
 }

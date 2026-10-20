@@ -14,6 +14,7 @@ use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::principal::ExternalPrincipal;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use ic_storage::adapter::storable::Bound;
@@ -58,7 +59,7 @@ pub(crate) enum CompletionRecord {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct AttestationRecord {
-    pub(crate) verifier: Principal,
+    pub(crate) verifier: ExternalPrincipal,
     pub(crate) content_digest: [u8; 32],
     pub(crate) observed_at_ns: u64,
     pub(crate) accepted_at_ns: u64,
@@ -68,8 +69,8 @@ impl CompletionRecord {
         match self {
             Self::HostFact => true,
             Self::Attested(r) => {
-                r.verifier != Principal::anonymous()
-                    && r.verifier != Principal::management_canister()
+                r.verifier != Principal::anonymous().into()
+                    && r.verifier != Principal::management_canister().into()
                     && r.observed_at_ns <= r.accepted_at_ns
             }
         }
@@ -201,7 +202,7 @@ enum ResultRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct ReferenceReceiptRecord {
     version: u8,
-    actor: Principal,
+    actor: ExternalPrincipal,
     reference: u128,
     retain: bool,
     result: ResultRecord,
@@ -225,7 +226,7 @@ impl ReferenceReceiptRecord {
         };
         Self {
             version: 1,
-            actor,
+            actor: actor.into(),
             reference: request.operation.key().reference().get().get(),
             retain: matches!(
                 request.operation,
@@ -238,7 +239,7 @@ impl ReferenceReceiptRecord {
         self.reference
     }
     pub(crate) fn matches(self, actor: Principal, request: ReferenceRequest) -> bool {
-        self.actor == actor
+        self.actor == actor.into()
             && self.reference == request.operation.key().reference().get().get()
             && self.retain
                 == matches!(
@@ -247,7 +248,7 @@ impl ReferenceReceiptRecord {
                 )
     }
     pub(crate) fn valid(self, actor: Principal, state: Option<ReferenceState>) -> bool {
-        if self.version != 1 || self.reference == 0 || self.actor != actor {
+        if self.version != 1 || self.reference == 0 || self.actor != actor.into() {
             return false;
         }
         match self.result {

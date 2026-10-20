@@ -69,7 +69,7 @@ fn receipt(
             content_digest: record.content_digest,
             observed_at_ns: record.observed_at_ns,
         },
-        verifier: record.verifier,
+        verifier: record.verifier.into(),
         accepted_at_ns: record.accepted_at_ns,
     }
 }
@@ -147,7 +147,7 @@ pub(crate) fn attest<M: Memory>(
         return Err(UploadAttestationFailure::Observation);
     }
     let record = AttestationRecord {
-        verifier: context.actor,
+        verifier: context.actor.into(),
         content_digest: input.content_digest,
         observed_at_ns: input.observed_at_ns,
         accepted_at_ns: now,

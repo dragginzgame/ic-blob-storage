@@ -111,3 +111,64 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     snapshots::delete(pic, f.service, f.controller, prepared);
     snapshots::delete(pic, f.service, f.controller, empty);
 }
+
+#[test]
+#[ignore = "Requires the retained Platform 0.2.2 standalone Wasm from the 0.37 qualification"]
+fn owned_principal_adoption_reads_existing_records_and_retains_restore_fences() {
+    let old = std::fs::read(fixture_path("BLOB_PRE_PLATFORM_STANDALONE_WASM")).unwrap();
+    assert_eq!(
+        ic_blob_storage_contracts::identity::ContentDigest::compute(&old).to_string(),
+        "sha256:a87418c7681a2b853a61180873f555557a8bdfaec584c1c37705c23d123ed097"
+    );
+    assert_ne!(old, wasm(), "must cross the actual Principal boundary");
+    // Only replace the empty local fixture; this is not cross-release migration support.
+    let f = Fixture::new();
+    install_code::settle_install_code_debt(&f.harness.pic);
+    f.harness
+        .pic
+        .reinstall_canister(f.service, old, installation(&f.config), Some(f.controller))
+        .unwrap();
+    f.enroll(f.operator).unwrap();
+    let manifest = f.small_manifest();
+    admit(&f, manifest.permission);
+    let prepared = f.prepare(f.uploader, &manifest).unwrap();
+    let permission = f.admission(manifest.permission);
+    let enrollment = f.tenant().enrollment;
+    let mut expected = f.local_status(f.operator, f.operator_scope()).unwrap();
+    expected.uploads.fenced = true;
+    expected.funding.fenced = true;
+    expected.gateways.fenced = true;
+    expected.reads.fenced = true;
+    install_code::settle_install_code_debt(&f.harness.pic);
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .unwrap();
+    let config = f.configuration(f.operator).unwrap();
+    assert!(config.fenced);
+    assert_eq!(config.configuration, f.config);
+    assert_eq!(f.tenant().enrollment, enrollment);
+    assert_eq!(f.admission(manifest.permission), permission);
+    assert_eq!(
+        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        expected
+    );
+    let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
+        .harness
+        .pic
+        .query_blob_as(
+            f.service,
+            f.uploader,
+            "blob_upload_manifest",
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
+    assert_eq!(retained.unwrap(), prepared.observation);
+    let before = f.harness.pic.get_stable_memory(f.service);
+    assert_eq!(
+        f.prepare(f.uploader, &manifest),
+        Err(UploadManifestFailure::Permission(
+            UploadAdmissionFailure::Fenced
+        ))
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+}

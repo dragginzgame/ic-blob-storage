@@ -46,7 +46,7 @@ fn expected_response(outcome: FundingOutcome) -> FundingResponse {
             })
         }
         FundingOutcome::ProviderError(error) => match error {
-            FundingProviderErrorView::NotAuthorized(p) => FundingResponse::NotAuthorized(p),
+            FundingProviderErrorView::NotAuthorized(p) => FundingResponse::NotAuthorized(p.into()),
             FundingProviderErrorView::AccountBalanceOverflow => {
                 FundingResponse::AccountBalanceOverflow
             }
@@ -128,16 +128,17 @@ impl Fixture {
         result.unwrap();
     }
     fn transport(&self, actor: Principal, input: Input) -> Result<Observation, Failure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "fixture_funding_transport",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .update_control_as(
+                self.service,
+                actor,
+                "fixture_funding_transport",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn incoming(&self) -> Vec<FundingReceiptRecord> {
         query_candid_args::<(Option<Vec<FundingReceiptRecord>>,), _>(
@@ -313,7 +314,7 @@ fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity(
         f.transport(
             f.operator,
             input(Intent {
-                cashier: f.other,
+                cashier: f.other.into(),
                 ..intent
             })
         ),
@@ -394,7 +395,7 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
             f.service,
             f.operator,
             "fixture_funding_transport",
-            ic_platform::candid::contract::encode_one(Input {
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(Input {
                 callback_fault: Some(WriteFault::FundingAccounting),
                 ..input(intent)
             })

@@ -52,8 +52,8 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
     f.enroll(f.operator).unwrap();
     let mut permission = UploadAdmissionRequest {
         upload: ReferenceUpload {
-            service: f.service,
-            tenant: f.tenant,
+            service: f.service.into(),
+            tenant: f.tenant.into(),
             namespace: f.config.namespace,
             upload: 1,
             object: 2,
@@ -62,7 +62,7 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
             root: [0; 32],
             bytes: 1,
         },
-        uploader: f.uploader,
+        uploader: f.uploader.into(),
         expires_at_ns: u64::MAX,
     };
     for id in 1u8..=65 {
@@ -145,7 +145,7 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
             .with_application_subnet(),
     ));
     f.operator = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
-    f.config.operator = f.operator;
+    f.config.operator = f.operator.into();
     f.config.resources.max_objects = 65;
     f.config.resources.max_tenant_objects = 65;
     f.config.resources.max_object_bytes = 1;

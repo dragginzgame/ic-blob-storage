@@ -20,7 +20,7 @@ pub(crate) struct Measurement(ReadExecutionProfile);
 impl Measurement {
     pub(crate) fn begin(caller: Principal) -> Self {
         Self(ReadExecutionProfile {
-            caller,
+            caller: caller.into(),
             started: counter(),
             sending: None,
             replied: None,

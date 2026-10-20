@@ -63,12 +63,16 @@ fn load(service: Principal, actor: Principal) -> Option<AuthorityArchiveRecord> 
     storage::open();
     let record = storage::load();
     assert!(record.bounded(), "bounded authority inspection archive");
-    if record.service != service || record.operator != actor {
+    if record.service != service.into() || record.operator != actor.into() {
         return None;
     }
     Some(record)
 }
 
+#[expect(
+    clippy::too_many_lines,
+    reason = "One frozen archive projection binds all retained owner and obligation fields"
+)]
 fn capture(state: &State) -> AuthorityArchiveRecord {
     assert_eq!(
         state.catalog.usage().objects,
@@ -92,7 +96,7 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
         let bytes = if id == 1 { 100 } else { 200 };
         let mut record = ObjectRecord {
             catalog: ArchiveCatalog::Samples,
-            tenant: journal.lifecycle().binding().tenant(),
+            tenant: journal.lifecycle().binding().tenant().into(),
             id,
             root: [id; 32],
             bytes,
@@ -154,13 +158,20 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
         release: crate::model::archive::release_binding(),
         balance: state.balance.clone(),
         fenced: false,
-        service: state.catalog.service(),
-        operator: state.operator,
-        tenants: state.journey.tenants,
+        service: state.catalog.service().into(),
+        operator: state.operator.into(),
+        tenants: state.journey.tenants.map(Into::into),
         namespace: scope.namespace().get(),
-        initial_gateway: state.gateway,
-        sync_source: scope.cashier(),
-        gateways: state.registry.gateways().principals().to_vec(),
+        initial_gateway: state.gateway.into(),
+        sync_source: scope.cashier().into(),
+        gateways: state
+            .registry
+            .gateways()
+            .principals()
+            .iter()
+            .copied()
+            .map(Into::into)
+            .collect(),
         last_sync: sync.last_sequence,
         pending_sync: sync.pending_sequence,
         sync_control: state.sync_control.clone(),
@@ -194,7 +205,7 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
     let charged = matches!(phase, UploadPhase::Reserved | UploadPhase::ExposurePossible);
     let mut record = ObjectRecord {
         catalog,
-        tenant: binding.tenant(),
+        tenant: binding.tenant().into(),
         id,
         root: *request.object.root.as_bytes(),
         bytes: request.object.bytes,
@@ -225,7 +236,7 @@ fn confirmed(record: &mut ObjectRecord, owner: &BlobCatalog) {
     let lifecycle = journal.lifecycle();
     let binding = lifecycle.binding();
     assert_eq!(binding.service(), owner.service());
-    assert_eq!(binding.tenant(), record.tenant);
+    assert_eq!(binding.tenant(), record.tenant.into());
     let identity = binding.identity();
     assert_eq!(
         (
@@ -246,7 +257,7 @@ fn confirmed(record: &mut ObjectRecord, owner: &BlobCatalog) {
     record.liability = lifecycle.liability_bytes();
     let receipt = journal
         .receipt(
-            record.tenant,
+            record.tenant.into(),
             ReferenceRequest {
                 id: ReferenceRequestId::new(number(1)),
                 operation: ReferenceOperation::Release(ReferenceKey::new(
@@ -348,7 +359,7 @@ pub(crate) fn probe(
     let content = object.content.as_ref().ok_or(Failure::InvalidCheckpoint)?;
     let request = super::journey::request(
         service,
-        object.tenant,
+        object.tenant.into(),
         JourneyUpload {
             id: object.id,
             root: object.root,

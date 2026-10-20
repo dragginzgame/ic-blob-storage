@@ -2,6 +2,7 @@
 use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::principal::ExternalPrincipal;
 
 /// One bounded immutable installation record, never a freshness authority.
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -10,12 +11,12 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) format: String,
     pub(crate) release: String,
     pub(crate) platform_installation_version: u64,
-    pub(crate) service: Principal,
-    pub(crate) operator: Principal,
-    pub(crate) payment_account: Principal,
+    pub(crate) service: ExternalPrincipal,
+    pub(crate) operator: ExternalPrincipal,
+    pub(crate) payment_account: ExternalPrincipal,
     pub(crate) namespace: u128,
     pub(crate) project: String,
-    pub(crate) completion_verifier: Principal,
+    pub(crate) completion_verifier: ExternalPrincipal,
     pub(crate) max_tenants: u32,
     pub(crate) max_object_bytes: u64,
     pub(crate) max_headers: u32,
@@ -31,7 +32,7 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) max_receipts_per_object: u32,
     pub(crate) max_active: u32,
     pub(crate) max_tenant_active: u32,
-    pub(crate) billing_cashier: Principal,
+    pub(crate) billing_cashier: ExternalPrincipal,
     pub(crate) billing_reserve: u128,
     pub(crate) billing_minimum_balance: u128,
     pub(crate) billing_target_balance: u128,
@@ -60,7 +61,7 @@ impl ConfigurationRecord {
         if self.format != Self::FORMAT {
             return Err(super::InstallationBindingError::Format);
         }
-        if self.service != service {
+        if self.service != service.into() {
             return Err(super::InstallationBindingError::Service);
         }
         if self.release != release {

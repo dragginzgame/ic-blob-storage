@@ -19,8 +19,8 @@ pub fn upload_request(input: Request) -> Option<UploadRequest> {
     let id = NonZeroU128::new(input.id)?;
     let namespace = NonZeroU128::new(input.namespace)?;
     let binding = ObjectBinding::new(
-        input.service,
-        input.tenant,
+        input.service.into(),
+        input.tenant.into(),
         ObjectIdentity {
             namespace,
             object: id,
@@ -44,8 +44,8 @@ pub fn observation(view: TenantContentView) -> ContentObservation {
     let request = view.request;
     ContentObservation {
         request: Request {
-            service: request.object.first.object().service(),
-            tenant: request.object.first.object().tenant(),
+            service: request.object.first.object().service().into(),
+            tenant: request.object.first.object().tenant().into(),
             namespace: request.object.first.object().identity().namespace.get(),
             id: request.id.get().get(),
             root: *request.object.root.as_bytes(),

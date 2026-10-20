@@ -25,7 +25,9 @@ pub(super) const fn record(status: CashierTopUpStatus) -> FundingResponseRecord 
             }
         }
         CashierTopUpStatus::Replied(Ok(TopUpReply::ProviderFailure(error))) => match error {
-            TopUpProviderError::NotAuthorized(p) => FundingResponseRecord::NotAuthorized(p),
+            TopUpProviderError::NotAuthorized(p) => FundingResponseRecord::NotAuthorized(
+                ic_platform::principal::ExternalPrincipal::from_slice(p.as_slice()),
+            ),
             TopUpProviderError::AccountBalanceOverflow => {
                 FundingResponseRecord::AccountBalanceOverflow
             }
@@ -61,7 +63,7 @@ pub(super) const fn view(record: FundingResponseRecord) -> Option<CashierTopUpSt
             balance: BalanceAmounts::new(total, prepaid, promotional, ledger),
         }),
         FundingResponseRecord::NotAuthorized(p) => Ok(TopUpReply::ProviderFailure(
-            TopUpProviderError::NotAuthorized(p),
+            TopUpProviderError::NotAuthorized(ic_platform::Principal::from_slice(p.as_slice())),
         )),
         FundingResponseRecord::AccountBalanceOverflow => Ok(TopUpReply::ProviderFailure(
             TopUpProviderError::AccountBalanceOverflow,

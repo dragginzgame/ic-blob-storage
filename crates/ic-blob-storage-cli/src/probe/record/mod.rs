@@ -65,24 +65,35 @@ pub(super) fn hash(bytes: &[u8]) -> String {
 pub(super) fn save(directory: &Path, name: &str, bytes: &[u8]) -> Result<(), String> {
     let parent = File::open(directory).map_err(|_| "create_record")?;
     #[cfg(unix)]
-    let mut file = {
+    {
+        use ic_host_fs::durable::{RetainedWriteError, write_retained_at_with};
         use std::{ffi::OsStr, os::fd::AsFd as _};
-        // Retain the named record on interruption or write failure; never publish
-        // through an atomic writer that would discard incomplete evidence.
-        ic_host_fs::durable::create_retained_at(parent.as_fd(), OsStr::new(name), 0o666)
-            .map_err(|_| "create_record")?
-    };
+        write_retained_at_with(parent.as_fd(), OsStr::new(name), 0o666, |file| {
+            file.write_all(bytes)
+        })
+        .map_err(|error| {
+            match error {
+                RetainedWriteError::Create(_) => "create_record",
+                RetainedWriteError::Produce(_) | RetainedWriteError::SyncFile(_) => {
+                    "persist_record"
+                }
+                RetainedWriteError::SyncDirectory(_) => "persist_directory",
+            }
+            .into()
+        })
+    }
     #[cfg(not(unix))]
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(directory.join(name))
-        .map_err(|_| "create_record")?;
-    file.write_all(bytes)
-        .and_then(|()| file.sync_all())
-        .map_err(|_| "persist_record")?;
-    // Sync the directory before any following request. Never overwrite a previous run.
-    parent.sync_all().map_err(|_| "persist_directory".into())
+    {
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(directory.join(name))
+            .map_err(|_| "create_record")?;
+        file.write_all(bytes)
+            .and_then(|()| file.sync_all())
+            .map_err(|_| "persist_record")?;
+        parent.sync_all().map_err(|_| "persist_directory".into())
+    }
 }
 pub(super) fn json<T: Serialize>(directory: &Path, name: &str, record: &T) -> Result<(), String> {
     save(

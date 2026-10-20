@@ -2,12 +2,10 @@
 pub mod capacity;
 pub mod status;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Complete original upload binding. Upload and object IDs are independent.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceUpload {
     /// Storage service canister.
@@ -30,8 +28,7 @@ pub struct ReferenceUpload {
     pub bytes: u64,
 }
 /// Exact reference operation kind.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceAction {
     /// Retain the named reference.
@@ -40,8 +37,7 @@ pub enum ReferenceAction {
     Release,
 }
 /// Passive exact intent shared by mutation and receipt lookup. Persist before dispatch.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceCommand {
     /// Original confirmed upload.
@@ -54,8 +50,7 @@ pub struct ReferenceCommand {
     pub action: ReferenceAction,
 }
 /// Original successful transition; it says nothing about current liveness.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceChange {
     /// The original operation changed the reference.
@@ -64,8 +59,7 @@ pub enum ReferenceChange {
     Unchanged,
 }
 /// Retained failure of an admitted operation, not failure to look up its receipt.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceTransitionFailure {
     /// No such reference existed at the time.
@@ -78,8 +72,7 @@ pub enum ReferenceTransitionFailure {
     DeletionQueued,
 }
 /// Exact recorded outcome. Historical success cannot authorize publication.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceReceiptResponse {
     /// Complete original request, checked before disclosure by the client.
@@ -88,8 +81,7 @@ pub struct ReferenceReceiptResponse {
     pub result: Result<ReferenceChange, ReferenceTransitionFailure>,
 }
 /// Explicit presence avoids Candid optional-value coercion hiding malformed data.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[expect(
     clippy::large_enum_variant,
     reason = "One fixed-size bounded receipt; preserve allocation-free value semantics"
@@ -101,8 +93,7 @@ pub enum ReferenceReceiptLookup {
     Found(ReferenceReceiptResponse),
 }
 /// Admission/lookup refusal, distinct from a recorded transition failure.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceFailure {
     /// Invalid identity or declaration.
@@ -128,8 +119,7 @@ pub enum ReferenceFailure {
 }
 
 /// Exact original result plus whether this call recorded it or replayed history.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceMutationResponse {
     /// Original transition result, including an admitted lifecycle failure.

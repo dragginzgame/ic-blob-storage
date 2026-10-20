@@ -1,7 +1,7 @@
 //! Exact local intent lookup, never a provider completion query or retry permit.
 use super::{FundingObservation, FundingRequest};
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
+use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
 /// Caller-supplied original request and explicit journal bindings.
@@ -9,9 +9,9 @@ use serde::Deserialize;
 #[candid_path("ic_platform::candid::contract")]
 pub struct FundingLookupRequest {
     /// Actual service whose retained journal is queried.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Expected transfer peer, not a qualified Cashier account.
-    pub peer: Principal,
+    pub peer: ExternalPrincipal,
     /// Every immutable input must match, including local experiment controls.
     pub attempt: FundingRequest,
 }

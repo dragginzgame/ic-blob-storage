@@ -25,15 +25,15 @@ pub(crate) fn snapshot(
     request: FundingPreviewRequest,
 ) -> Result<FundingPreviewSnapshot, FundingPreviewFailure> {
     super::read(|record| {
-        let identity = record.preview_identity(service, caller, request.peer, request.id)?;
-        if request.service != service {
+        let identity = record.preview_identity(service, caller, request.peer.into(), request.id)?;
+        if request.service != service.into() {
             return Err(FundingPreviewFailure::Binding);
         }
         let requested_cycles = NonZeroU128::new(request.requested_cycles)
             .ok_or(FundingPreviewFailure::InvalidAmount)?;
         Ok(FundingPreviewSnapshot {
             liquidity: super::liquidity::prepare(
-                request.peer,
+                request.peer.into(),
                 super::liquidity::preview_request(request),
             )
             .liquidity,

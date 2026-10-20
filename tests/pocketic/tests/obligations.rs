@@ -8,7 +8,7 @@ mod support;
 use blob_test_protocol::obligations::{
     ObligationProbeFact, ObligationProbePhase, ObligationProbeView,
 };
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use ic_testkit::{
     Fake,

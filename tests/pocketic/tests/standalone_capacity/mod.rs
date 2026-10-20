@@ -35,7 +35,7 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
     }
     for scope in [
         TenantScope {
-            service: f.operator,
+            service: f.operator.into(),
             ..scope
         },
         TenantScope {
@@ -126,7 +126,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let permission = f.manifest().permission;
     let other_tenant = f.uploader;
     let other_scope = TenantScope {
-        tenant: other_tenant,
+        tenant: other_tenant.into(),
         ..scope
     };
     let enrolled: Result<TenantEnrollmentResponse, TenantFailure> = f
@@ -147,7 +147,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     enrolled.unwrap();
     let other_permission = UploadAdmissionRequest {
         upload: ReferenceUpload {
-            tenant: other_tenant,
+            tenant: other_tenant.into(),
             root: [8; 32],
             ..permission.upload
         },

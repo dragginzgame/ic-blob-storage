@@ -1,11 +1,11 @@
 //! Local cycle-transfer controls; these are not Cashier request DTOs.
+use ic_platform::principal::ExternalPrincipal;
 
 pub mod budget;
 pub mod lookup;
 pub mod preview;
 
 use crate::status::{FundingActivityView, OperatorBlockerView, OperatorWarningView};
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
@@ -15,9 +15,9 @@ use serde::{Deserialize, Serialize};
 #[candid_path("ic_platform::candid::contract")]
 pub struct FundingOperatorStatusView {
     /// Actual canister answering this query.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Journal-bound local transfer peer, never a qualified Cashier account.
-    pub peer: Principal,
+    pub peer: ExternalPrincipal,
     /// Permanent inspection-only fence persisted by every successful restore.
     pub fenced: bool,
     /// Always false for this controlled substitute.
@@ -99,7 +99,7 @@ pub struct FundingUpgradeArgs {
 }
 
 /// Exact identity and parameters of a local experiment.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct FundingRequest {
     /// Fixture operation identity; never reused or automatically retried.
@@ -138,7 +138,7 @@ pub enum FundingOutcome {
 #[candid_path("ic_platform::candid::contract")]
 pub enum FundingProviderErrorView {
     /// The provider-reported principal, not inferred caller or account authority.
-    NotAuthorized(Principal),
+    NotAuthorized(ExternalPrincipal),
     /// Reported balance overflow, not evidence that no cycles were accepted.
     AccountBalanceOverflow,
     /// Internal failure with diagnostic text discarded by the shared decoder.

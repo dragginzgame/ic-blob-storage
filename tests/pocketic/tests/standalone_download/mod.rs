@@ -1,8 +1,8 @@
 //! Operational descriptor delivery uses the installed scope and the shared live-reference gate.
 //! Verified serving and withheld delivery are exercised by standalone browser journeys.
 use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt as _;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::update_candid_args;
 mod native;
 use super::*;
 use ic_blob_storage_contracts::dto::download::DownloadFailure as F;
@@ -47,7 +47,7 @@ fn standalone_download_authenticates_scope_bounds_ingress_and_requires_replicate
     }
     for input in [
         DownloadRequest {
-            service: f.operator,
+            service: f.operator.into(),
             ..input
         },
         DownloadRequest {
@@ -166,7 +166,7 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
             ServiceInstallationInput {
                 configuration: f.config,
                 project,
-                completion_verifier: Fake::principal(90),
+                completion_verifier: Fake::principal(90).into(),
             },
         )
         .unwrap();
@@ -228,21 +228,22 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
     f.tenant = client;
     let input = DownloadClientInput {
         request: request(f.manifest().permission.upload),
-        tenant: client,
+        tenant: client.into(),
         project: PROJECT.into(),
         max_reply_bytes: 4096,
     };
     let fetch = || -> Result<DownloadResponse, DownloadProbeFailure> {
-        update_candid_args(
-            &f.harness.pic,
-            client,
-            f.operator,
-            "fixture_fetch_descriptor",
-            (input.clone(),),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        f.harness
+            .pic
+            .update_control_as(
+                client,
+                f.operator,
+                "fixture_fetch_descriptor",
+                (input.clone(),),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     };
     let client_before = f.harness.pic.get_stable_memory(client);
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Inactive)));
@@ -265,7 +266,7 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
     let installation = ServiceInstallationInput {
         configuration: f.config,
         project: project.clone(),
-        completion_verifier: Fake::principal(90),
+        completion_verifier: Fake::principal(90).into(),
     };
     f.harness
         .pic

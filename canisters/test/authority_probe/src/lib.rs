@@ -18,7 +18,7 @@ use blob_test_protocol::journey::{
 };
 use blob_test_protocol::obligations::{ObligationProbeFact, ObligationProbeView};
 use ic_blob_storage::policy::tenant::TenantAccessContext;
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal;
 
 fn context() -> TenantAccessContext {
     ops::archive::recovery::require_active();
@@ -33,13 +33,18 @@ fn inspection_context() -> TenantAccessContext {
 }
 
 #[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_candid::decode_args")]
-fn init(first: Principal, second: Principal, gateway: Principal, operator: Principal) {
+fn init(
+    first: ExternalPrincipal,
+    second: ExternalPrincipal,
+    gateway: ExternalPrincipal,
+    operator: ExternalPrincipal,
+) {
     workflow::initialize(
         ic_platform::cdk::api::canister_self(),
-        first,
-        second,
-        gateway,
-        operator,
+        first.into(),
+        second.into(),
+        gateway.into(),
+        operator.into(),
     );
 }
 
@@ -113,8 +118,17 @@ fn cancel_upload(root: u8) -> bool {
     decode_with = "blob_test_protocol::fixture_candid::decode_args",
     encode_with = "blob_test_protocol::fixture_candid::encode_one"
 )]
-fn reference_live(root: u8, claimed_service: Principal, claimed_tenant: Principal) -> Option<bool> {
-    workflow::reference_live(context(), root, claimed_service, claimed_tenant)
+fn reference_live(
+    root: u8,
+    claimed_service: ExternalPrincipal,
+    claimed_tenant: ExternalPrincipal,
+) -> Option<bool> {
+    workflow::reference_live(
+        context(),
+        root,
+        claimed_service.into(),
+        claimed_tenant.into(),
+    )
 }
 
 #[ic_platform::cdk::update(
@@ -229,8 +243,8 @@ fn journey_cancel(input: JourneyUpload) -> Result<(), JourneyFailure> {
     decode_with = "blob_test_protocol::fixture_candid::decode_args",
     encode_with = "blob_test_protocol::fixture_candid::encode_one"
 )]
-fn journey_complete(owner: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
-    workflow::journey::complete(context(), owner, input)
+fn journey_complete(owner: ExternalPrincipal, input: JourneyUpload) -> Result<(), JourneyFailure> {
+    workflow::journey::complete(context(), owner.into(), input)
 }
 
 #[ic_platform::cdk::update(

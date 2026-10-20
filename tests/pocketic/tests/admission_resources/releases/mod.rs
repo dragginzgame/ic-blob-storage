@@ -80,8 +80,8 @@ fn capacity(
 ) -> Result<Option<ReferenceHeadroom>, ReferenceCapacityFailure> {
     let input = ReferenceCapacityRequest {
         scope: TenantScope {
-            service: request.service,
-            tenant: request.tenant,
+            service: request.service.into(),
+            tenant: request.tenant.into(),
             namespace: request.namespace,
         },
         root: request.root,

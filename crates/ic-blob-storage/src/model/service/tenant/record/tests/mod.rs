@@ -4,8 +4,8 @@ use super::*;
 fn maximal_records_fit_the_bound_and_round_trip_without_narrowing() {
     let metadata = TenantStoreRecord::Metadata(TenantStoreMetadataRecord {
         version: 1,
-        service: Principal::from_slice(&[1; 29]),
-        operator: Principal::from_slice(&[2; 29]),
+        service: ExternalPrincipal::from_slice(&[1; 29]),
+        operator: ExternalPrincipal::from_slice(&[2; 29]),
         namespace: u128::MAX,
         max_tenants: u64::from(u32::MAX),
     });

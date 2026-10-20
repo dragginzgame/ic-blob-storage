@@ -26,7 +26,7 @@ fn refresh_admission_binds_exact_scope_revision_and_next_sequence() {
         );
     }
     let mut wrong = scope;
-    wrong.source = Principal::from_slice(&[4]);
+    wrong.source = Principal::from_slice(&[4]).into();
     assert_eq!(journal.check_refresh(wrong, 1, 1), Err(Failure::Binding));
     assert_eq!(journal.check_refresh(scope, 1, 1), Ok(()));
     assert_eq!(journal.attempts, []);
@@ -51,7 +51,7 @@ fn exact_pending_identity_and_revision_prevent_rebinding_and_reuse() {
     let (id, _) = journal.begin(10).unwrap();
     assert_eq!(journal.begin(11), Err(Failure::Busy));
     let mut foreign = scope;
-    foreign.account = Principal::from_slice(&[4]);
+    foreign.account = Principal::from_slice(&[4]).into();
     assert_eq!(
         journal.complete(id, foreign, Ok([1; 4]), 12),
         Err(Failure::Stale)
@@ -65,7 +65,7 @@ fn exact_pending_identity_and_revision_prevent_rebinding_and_reuse() {
         Err(Failure::Stale)
     );
     assert!(!journal.busy());
-    assert!(journal.valid(scope.service, 1));
+    assert!(journal.valid(scope.service.into(), 1));
     assert_eq!(
         journal.complete(id, scope, Ok([1; 4]), 14),
         Err(Failure::Stale)
@@ -97,7 +97,7 @@ fn local_age_uses_dispatch_time_and_never_clears_a_fence() {
         amounts: [0; 4],
         received_at: 9,
     });
-    assert!(!journal.valid(scope.service, 1));
+    assert!(!journal.valid(scope.service.into(), 1));
 }
 
 #[test]
@@ -113,21 +113,21 @@ fn retained_history_is_bounded_and_invalid_records_reject() {
         );
     }
     assert_eq!(journal.begin(12), Err(Failure::Limit));
-    assert!(journal.valid(scope.service, 1));
+    assert!(journal.valid(scope.service.into(), 1));
     let mut invalid = journal.clone();
     invalid.attempts[0].outcome = None;
-    assert!(!invalid.valid(scope.service, 1));
+    assert!(!invalid.valid(scope.service.into(), 1));
     invalid = journal.clone();
     invalid.attempts[0].scope.namespace = 2;
-    assert!(!invalid.valid(scope.service, 1));
+    assert!(!invalid.valid(scope.service.into(), 1));
     invalid = journal.clone();
     invalid.attempts[0].outcome = Some(OutcomeRecord::Failed(Failure::Denied));
-    assert!(!invalid.valid(scope.service, 1));
+    assert!(!invalid.valid(scope.service.into(), 1));
     // Past configuration revisions must still name one immutable scope.
     journal.configure(scope).unwrap();
     invalid = journal.clone();
-    invalid.attempts[0].scope.account = Principal::from_slice(&[4]);
-    assert!(!invalid.valid(scope.service, 1));
+    invalid.attempts[0].scope.account = Principal::from_slice(&[4]).into();
+    assert!(!invalid.valid(scope.service.into(), 1));
     journal.revision = u64::MAX;
     assert_eq!(journal.configure(scope), Err(Failure::Limit));
 }
@@ -144,12 +144,12 @@ fn limits_remain_bound_to_their_original_revision_and_reject_invalid_restore() {
     journal.configure(scope).unwrap();
     assert_eq!(journal.current_limits(), None);
     assert!(journal.billing.configured.is_some());
-    assert!(journal.valid(scope.service, 1));
+    assert!(journal.valid(scope.service.into(), 1));
     assert_eq!(
         journal.configure_limits(scope, 1, limits),
         Err(Failure::Binding)
     );
     journal.configure_limits(scope, 2, limits).unwrap();
     journal.billing.configured.as_mut().unwrap().target = 1;
-    assert!(!journal.valid(scope.service, 1));
+    assert!(!journal.valid(scope.service.into(), 1));
 }

@@ -1,9 +1,9 @@
 //! Bounded v1 enrollment records; independent of host memory IDs.
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::serde::Deserialize;
+use ic_platform::principal::ExternalPrincipal;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 #[cfg(test)]
@@ -16,8 +16,8 @@ const MAX_BYTES: u32 = 256;
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct TenantStoreMetadataRecord {
     version: u8,
-    service: Principal,
-    operator: Principal,
+    service: ExternalPrincipal,
+    operator: ExternalPrincipal,
     namespace: u128,
     max_tenants: u64,
 }
@@ -26,8 +26,8 @@ impl TenantStoreMetadataRecord {
     pub(crate) fn new(config: &ServiceConfiguration) -> Self {
         Self {
             version: 1,
-            service: config.bindings().service,
-            operator: config.bindings().operator,
+            service: config.bindings().service.into(),
+            operator: config.bindings().operator.into(),
             namespace: config.bindings().namespace.get(),
             max_tenants: config.limits().max_tenants.get() as u64,
         }

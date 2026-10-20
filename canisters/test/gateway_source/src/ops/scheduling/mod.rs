@@ -9,7 +9,10 @@ pub(super) async fn wait(ready: impl Fn() -> bool) -> bool {
             return true;
         }
         if Call::unbounded_wait(ic_platform::Principal::management_canister(), "raw_rand")
-            .with_args(&())
+            .take_raw_args(
+                ic_platform::candid::contract::encode_args(())
+                    .expect("fixture scheduling arguments"),
+            )
             .await
             .is_err()
         {

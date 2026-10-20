@@ -102,7 +102,7 @@ fn retained_manifest_budget_survives_cancel_restart_and_other_tenant_admission()
         f.call(
             f.operator,
             Command::Enroll {
-                tenant: f.other,
+                tenant: f.other.into(),
                 expected: None,
                 active: true
             }

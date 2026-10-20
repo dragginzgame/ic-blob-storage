@@ -1,4 +1,5 @@
 //! One durable upload/lifecycle owner. Provider evidence is a trusted-host input.
+use ic_platform::principal::ExternalPrincipal;
 pub mod admission;
 pub(crate) mod callbacks;
 pub mod capacity;
@@ -54,15 +55,15 @@ pub use lifecycle::ConfirmedUploadView;
 use std::num::NonZeroU64;
 use thiserror::Error;
 
-type Key = (Principal, u128);
+type Key = (ExternalPrincipal, u128);
 fn key(request: UploadRequest) -> Key {
     (
-        request.object.first.object().tenant(),
+        request.object.first.object().tenant().into(),
         request.id.get().get(),
     )
 }
 fn metadata() -> Key {
-    (Principal::management_canister(), 0)
+    (Principal::management_canister().into(), 0)
 }
 
 /// Ten distinct, exclusively owned memories granted by the host's `ic-memory` runtime.
@@ -102,7 +103,7 @@ pub struct StableUploads<M: Memory> {
     tenants: StableTenantEnrollments<M>,
     roots: StableRootClaims<M>,
     permissions: StableBTreeMap<Key, UploadStoreRecord, M>,
-    usage: StableBTreeMap<Principal, UploadUsageRecord, M>,
+    usage: StableBTreeMap<ExternalPrincipal, UploadUsageRecord, M>,
     manifests: StableBTreeMap<Key, UploadManifestRecord, M>,
     confirmed: StableBTreeMap<Key, ConfirmedLifecycleRecord, M>,
     references: StableBTreeMap<(Key, u128), ReferenceRecord, M>,
@@ -173,7 +174,10 @@ impl<M: Memory> StableUploads<M> {
             metadata(),
             UploadStoreRecord::Configuration(UploadConfigurationRecord::new(&config)),
         );
-        usage.insert(Principal::management_canister(), UploadUsageRecord::empty());
+        usage.insert(
+            Principal::management_canister().into(),
+            UploadUsageRecord::empty(),
+        );
         Ok(Self {
             config,
             tenants,
@@ -312,8 +316,9 @@ impl<M: Memory> StableUploads<M> {
             *input.request.object.root.as_bytes(),
             input.request.id.get().get(),
         );
-        self.usage.insert(context.actor, tenant);
-        self.usage.insert(Principal::management_canister(), global);
+        self.usage.insert(context.actor.into(), tenant);
+        self.usage
+            .insert(Principal::management_canister().into(), global);
         Ok(UploadAdmission::Reserved)
     }
 
@@ -413,8 +418,9 @@ impl<M: Memory> StableUploads<M> {
         }
         self.permissions
             .insert(key(request), UploadStoreRecord::Permission(record));
-        self.usage.insert(context.actor, tenant);
-        self.usage.insert(Principal::management_canister(), global);
+        self.usage.insert(context.actor.into(), tenant);
+        self.usage
+            .insert(Principal::management_canister().into(), global);
         Ok(change)
     }
 
@@ -481,7 +487,7 @@ impl<M: Memory> StableUploads<M> {
             .ok_or(UploadAdmissionError::UnknownPermission.into())
     }
     fn total(&self, tenant: Principal) -> Result<UploadUsageRecord, UploadStoreError> {
-        match self.usage.get(&tenant) {
+        match self.usage.get(&tenant.into()) {
             Some(record) if record.view().is_some() => Ok(record),
             None if tenant != Principal::management_canister() => Ok(UploadUsageRecord::empty()),
             _ => Err(UploadStoreError::InvalidRecord),

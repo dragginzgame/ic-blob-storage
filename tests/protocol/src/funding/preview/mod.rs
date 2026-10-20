@@ -1,6 +1,6 @@
 //! Passive local funding admission; never a transfer request or Cashier schema.
-use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
+use ic_platform::principal::ExternalPrincipal;
 use serde::{Deserialize, Serialize};
 
 /// Exact proposed identity/amount against an explicitly selected local journal.
@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 #[candid_path("ic_platform::candid::contract")]
 pub struct FundingPreviewRequest {
     /// Actual sender fixture.
-    pub service: Principal,
+    pub service: ExternalPrincipal,
     /// Journal-bound local peer.
-    pub peer: Principal,
+    pub peer: ExternalPrincipal,
     /// Proposed operation identity; preview never consumes it.
     pub id: u64,
     /// Full positive amount to diagnose; no partial transfer is proposed.

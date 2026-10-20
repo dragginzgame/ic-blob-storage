@@ -32,7 +32,12 @@ fn old_cbor_candid_and_service_frames_refuse() {
     assert_eq!(decode::<u128>(&old_cbor, 4096), Err(Error::Identity));
     assert_eq!(
         decode::<TenantScope>(
-            &ic_platform::candid::contract::encode_one(value).unwrap(),
+            &ic_platform::candid::contract::encode_one((
+                ic_platform::principal::ExternalPrincipal::from(value.service),
+                value.namespace,
+                ic_platform::principal::ExternalPrincipal::from(value.tenant)
+            ))
+            .unwrap(),
             4096
         ),
         Err(Error::Identity)

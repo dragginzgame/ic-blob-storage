@@ -74,7 +74,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, RejectCode},
@@ -168,9 +168,9 @@ impl Fixture {
             }),
         );
         let mut config = ServiceConfigurationInput {
-            service,
-            operator,
-            payment_account: service,
+            service: service.into(),
+            operator: operator.into(),
+            payment_account: service.into(),
             namespace: u128::MAX,
             resources: ServiceResourceInput {
                 max_tenants: 2,
@@ -190,7 +190,7 @@ impl Fixture {
                 max_tenant_active: 2,
             },
             billing: ServiceBillingInput {
-                cashier,
+                cashier: cashier.into(),
                 reserve: 1,
                 minimum_balance: 10,
                 target_balance: 100,
@@ -247,7 +247,7 @@ impl Fixture {
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
-        input.completion_verifier = verifier;
+        input.completion_verifier = verifier.into();
         input.project = project.into();
         harness.pic.install_canister(
             service,
@@ -279,9 +279,9 @@ impl Fixture {
     }
     fn scope(&self) -> TenantScope {
         TenantScope {
-            service: self.service,
+            service: self.service.into(),
             namespace: self.config.namespace,
-            tenant: self.tenant,
+            tenant: self.tenant.into(),
         }
     }
     fn enroll(&self, actor: Principal) -> Result<TenantEnrollmentResponse, TenantFailure> {
@@ -424,8 +424,8 @@ impl Fixture {
         UploadManifestRequest {
             permission: UploadAdmissionRequest {
                 upload: ReferenceUpload {
-                    service: self.service,
-                    tenant: self.tenant,
+                    service: self.service.into(),
+                    tenant: self.tenant.into(),
                     namespace: self.config.namespace,
                     upload: 1,
                     object: 2,
@@ -434,7 +434,7 @@ impl Fixture {
                     root: *prepared.hashes().provider_root.as_bytes(),
                     bytes,
                 },
-                uploader: self.uploader,
+                uploader: self.uploader.into(),
                 expires_at_ns: u64::MAX,
             },
             declaration: UploadManifestDeclaration {
@@ -601,7 +601,7 @@ fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write
     invalid_limits.resources.max_tenant_active = 0;
     for input in [
         installation(&ServiceConfigurationInput {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..f.config
         }),
         installation(&invalid_limits),
@@ -719,7 +719,7 @@ fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
         ServiceInstallationInput {
             configuration: *configuration,
             project: PROJECT.into(),
-            completion_verifier: Fake::principal(90),
+            completion_verifier: Fake::principal(90).into(),
         },
     )
     .unwrap()

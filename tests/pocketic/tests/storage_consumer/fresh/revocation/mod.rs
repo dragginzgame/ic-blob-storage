@@ -168,7 +168,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
     }
     for changed in [
         UploadAdmissionRequest {
-            uploader: f.other,
+            uploader: f.other.into(),
             ..p
         },
         UploadAdmissionRequest {

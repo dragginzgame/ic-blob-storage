@@ -4,19 +4,20 @@ use blob_test_protocol::journey::readback::{ReadSourceConfig, ReadSourceObservat
 use ic_platform::Principal;
 
 pub(crate) fn configure(caller: Principal, config: ReadSourceConfig) -> bool {
-    ops::read(|state| state.driver == caller && !state.fenced) && ops::readback::configure(config)
+    ops::read(|state| state.driver == caller.into() && !state.fenced)
+        && ops::readback::configure(config)
 }
 
 pub(crate) fn observation(caller: Principal) -> Option<ReadSourceObservation> {
-    ops::read(|state| state.driver == caller).then(ops::readback::observation)
+    ops::read(|state| state.driver == caller.into()).then(ops::readback::observation)
 }
 
 pub(crate) fn resume(caller: Principal) -> bool {
-    ops::read(|state| state.driver == caller && !state.fenced) && ops::readback::resume()
+    ops::read(|state| state.driver == caller.into() && !state.fenced) && ops::readback::resume()
 }
 
 pub(crate) async fn reply(caller: Principal, root: &[u8], index: u64) {
-    if !ops::read(|state| state.service == caller && !state.fenced) {
+    if !ops::read(|state| state.service == caller.into() && !state.fenced) {
         ops::reject();
         return;
     }

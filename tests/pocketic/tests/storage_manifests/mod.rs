@@ -161,7 +161,7 @@ fn manifest_ingress_binds_actual_uploader_full_permission_and_declared_root() {
         Err(F::Permission(A::Conflict))
     );
     changed = input.clone();
-    changed.permission.uploader = f.other;
+    changed.permission.uploader = f.other.into();
     assert_eq!(
         prepare(&f, f.other, &changed),
         Err(F::Permission(A::Denied))

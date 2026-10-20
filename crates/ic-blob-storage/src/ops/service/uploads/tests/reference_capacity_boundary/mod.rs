@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
-use ic_platform::candid::decoder;
+use ic_blob_storage_contracts::wire;
 fn request(root: [u8; 32]) -> ReferenceCapacityRequest {
     ReferenceCapacityRequest {
         scope: TenantScope {
@@ -184,11 +184,12 @@ fn reference_capacity_boundary_retains_cleanup_reservations_and_retired_history(
         ..retired
     };
     assert_eq!(inspect(&restored, context(4), request), Ok(retained));
-    let bytes = ic_platform::candid::contract::encode_one(retained).unwrap();
+    let bytes = wire::encode_response("blob_reference_capacity", retained).unwrap();
     assert_eq!(
-        decoder::decode_one_with_config::<ReferenceCapacityResponse>(
+        wire::decode_response::<ReferenceCapacityResponse>(
+            "blob_reference_capacity",
             &bytes,
-            &decoder::DecoderConfig::new()
+            wire::MAX_MESSAGE_BYTES
         )
         .unwrap(),
         retained

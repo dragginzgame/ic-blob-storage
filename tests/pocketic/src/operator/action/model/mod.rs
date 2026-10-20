@@ -49,19 +49,19 @@ impl Selection {
                 }
                 Request::Balance(BalanceRefreshRequest {
                     scope: BalanceScope {
-                        service: target.transport.canister,
+                        service: target.transport.canister.into(),
                         namespace,
-                        source,
-                        account: canister(take("--account")?)?,
+                        source: source.into(),
+                        account: canister(take("--account")?)?.into(),
                     },
                     revision,
                     sequence,
                 })
             }
             Action::Gateway => Request::Gateway(GatewaySyncRequest {
-                service: target.transport.canister,
+                service: target.transport.canister.into(),
                 namespace,
-                source,
+                source: source.into(),
                 revision,
                 sequence,
             }),

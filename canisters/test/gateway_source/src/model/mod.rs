@@ -1,4 +1,5 @@
 //! Same-release fixture records; no product persistence or reconciliation schema.
+use ic_platform::principal::ExternalPrincipal;
 pub(crate) mod balance;
 
 use blob_test_protocol::{SourceMode, SyncFailure, journey::readback::ReadSourceMode};
@@ -12,9 +13,9 @@ const MAX_EFFECTS: usize = 64;
 #[derive(CandidType, Deserialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct SourceJournalRecord {
-    pub service: Principal,
-    pub gateway: Principal,
-    pub driver: Principal,
+    pub service: ExternalPrincipal,
+    pub gateway: ExternalPrincipal,
+    pub driver: ExternalPrincipal,
     pub fenced: bool,
     pub mode: SourceMode,
     pub requests: u64,
@@ -37,7 +38,7 @@ pub(crate) struct SyncRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct HeldSyncRecord {
     pub sequence: u64,
-    pub gateway: Principal,
+    pub gateway: ExternalPrincipal,
     pub ready: bool,
 }
 
@@ -79,16 +80,16 @@ impl SourceJournalRecord {
     /// A passive gateway observation cannot run a scripted scheduling/effect mode.
     pub fn gateway_inspection(&self) -> Option<GatewayInspection> {
         (!self.fenced && self.sync.held.is_none()).then_some(GatewayInspection {
-            gateway: self.gateway,
+            gateway: self.gateway.into(),
             mode: self.mode,
         })
     }
 
     pub fn new(service: Principal, gateway: Principal, driver: Principal) -> Self {
         Self {
-            service,
-            gateway,
-            driver,
+            service: service.into(),
+            gateway: gateway.into(),
+            driver: driver.into(),
             fenced: false,
             mode: SourceMode::Valid,
             requests: 0,
@@ -114,8 +115,8 @@ impl SourceJournalRecord {
             && self.sync.held.as_ref().is_none_or(|held| {
                 held.sequence != 0
                     && held.sequence == self.requests
-                    && held.gateway != Principal::anonymous()
-                    && held.gateway != Principal::management_canister()
+                    && held.gateway != Principal::anonymous().into()
+                    && held.gateway != Principal::management_canister().into()
             })
     }
 
@@ -135,7 +136,7 @@ impl SourceJournalRecord {
         assert!(sequence != 0, "received request required");
         self.sync.held = Some(HeldSyncRecord {
             sequence,
-            gateway,
+            gateway: gateway.into(),
             ready: false,
         });
         sequence

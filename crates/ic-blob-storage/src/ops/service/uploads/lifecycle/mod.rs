@@ -69,8 +69,9 @@ impl<M: Memory> StableUploads<M> {
         );
         self.permissions
             .insert(key(request), UploadStoreRecord::Permission(permission));
-        self.usage.insert(tenant, own);
-        self.usage.insert(Principal::management_canister(), global);
+        self.usage.insert(tenant.into(), own);
+        self.usage
+            .insert(Principal::management_canister().into(), global);
         Ok(change)
     }
     /// Apply an exact tenant reference request with reserved cleanup receipt capacity.
@@ -128,8 +129,9 @@ impl<M: Memory> StableUploads<M> {
             .insert((key(upload), request.id.get().get()), receipt);
         self.confirmed.insert(key(upload), lifecycle);
         if before != lifecycle.phase() {
-            self.usage.insert(context.actor, own);
-            self.usage.insert(Principal::management_canister(), global);
+            self.usage.insert(context.actor.into(), own);
+            self.usage
+                .insert(Principal::management_canister().into(), global);
         }
         Ok(ReferenceRequestOutcome::Recorded { result })
     }
@@ -231,8 +233,9 @@ impl<M: Memory> StableUploads<M> {
         global.replace_lifecycle(upload.object.bytes, before, record.phase());
         own.replace_lifecycle(upload.object.bytes, before, record.phase());
         self.confirmed.insert(key(upload), record);
-        self.usage.insert(tenant, own);
-        self.usage.insert(Principal::management_canister(), global);
+        self.usage.insert(tenant.into(), own);
+        self.usage
+            .insert(Principal::management_canister().into(), global);
         Ok(change)
     }
     fn trusted_request(&self, request: UploadRequest) -> Result<(), UploadStoreError> {

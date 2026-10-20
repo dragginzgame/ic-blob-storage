@@ -14,7 +14,7 @@ fn agent() -> (Agent, Principal) {
             .with_identity(identity)
             .build()
             .unwrap(),
-        actor,
+        actor.into(),
     )
 }
 
@@ -40,8 +40,8 @@ fn exact_signed_packet_is_durable_and_partial_or_complete_claims_refuse_reuse() 
         argument
     );
     ic_platform::agent::signed_update_inspect(
-        actor,
-        service,
+        actor.into(),
+        service.into(),
         "test_update",
         &argument,
         prepared.signed.ingress_expiry,
@@ -106,7 +106,7 @@ fn historical_reader_accepts_expired_correspondence_and_refuses_corrupt_claims()
     let service = Principal::self_authenticating([7]);
     let argument = ic_blob_storage_contracts::document::encode(42u64).unwrap();
     let signed = agent
-        .update(&service, "test_update")
+        .update(&service.into(), "test_update")
         .with_arg(argument.clone())
         .expire_at(std::time::UNIX_EPOCH + Duration::from_secs(1))
         .sign()

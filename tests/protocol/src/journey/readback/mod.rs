@@ -9,7 +9,7 @@ use serde::Deserialize;
 #[candid_path("ic_platform::candid::contract")]
 pub struct ReadExecutionProfile {
     /// Authenticated initiating actor, preserved across callbacks.
-    pub caller: ic_platform::Principal,
+    pub caller: ic_platform::principal::ExternalPrincipal,
     /// Counter at workflow entry (after ingress decoding).
     pub started: u64,
     /// Immediately before the outgoing call, if admitted.
@@ -33,7 +33,7 @@ pub struct ReadExecutionProfile {
 }
 
 /// One verified manifest leaf; no whole-file read or durable receipt is implied.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct JourneyReadChunk {
     /// Position in the reserved manifest.

@@ -70,7 +70,7 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
     let config = ServiceConfiguration::new(
         ServiceBindings {
             service,
-            operator,
+            operator: operator.into(),
             payment_account: service,
             namespace: number(1),
         },
@@ -98,7 +98,13 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
             },
         },
         // Explicit substitute identity only; this probe cannot call a Cashier.
-        BillingConfiguration::new(operator, FundingLimits::new(1, 10, 100).unwrap(), 8, 4).unwrap(),
+        BillingConfiguration::new(
+            operator.into(),
+            FundingLimits::new(1, 10, 100).unwrap(),
+            8,
+            4,
+        )
+        .unwrap(),
     )
     .expect("valid local envelope");
     STATE.with_borrow_mut(|state| {
@@ -154,7 +160,7 @@ pub(crate) fn admit(
 ) -> Result<Outcome, Failure> {
     let permission = UploadPermission {
         request: request(input.request)?,
-        uploader: input.uploader,
+        uploader: input.uploader.into(),
         expires_at_ns: input.expires_at_ns,
     };
     Ok(
@@ -240,8 +246,8 @@ pub(crate) fn inspect(context: UploadContext, input: Request) -> Result<Observat
     STATE.with_borrow(|state| {
         let owner = &state.as_ref().expect("initialized probe").owner;
         let view = owner.lookup(context, request).map_err(failure)?;
-        let usage = (context.actor == input.tenant).then(|| {
-            let usage = owner.catalog().tenant_usage(input.tenant);
+        let usage = (context.actor == input.tenant.into()).then(|| {
+            let usage = owner.catalog().tenant_usage(input.tenant.into());
             JourneyUsage {
                 logical: usage.logical_bytes,
                 physical: usage.physical_bytes,
@@ -251,7 +257,7 @@ pub(crate) fn inspect(context: UploadContext, input: Request) -> Result<Observat
         Ok(Observation {
             permission: Permission {
                 request: input,
-                uploader: view.permission.uploader,
+                uploader: view.permission.uploader.into(),
                 expires_at_ns: view.permission.expires_at_ns,
             },
             generation: view.tenant_generation.get(),

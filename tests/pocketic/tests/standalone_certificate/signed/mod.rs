@@ -166,9 +166,9 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
         .unwrap();
     for manifest in &manifests {
         assert_eq!(
-            inspect(&f, manifest.permission.uploader, &root(manifest)),
+            inspect(&f, manifest.permission.uploader.into(), &root(manifest)),
             Err(E::Permission(UploadAdmissionFailure::Fenced))
         );
-        refuses(&f, manifest.permission.uploader, &root(manifest));
+        refuses(&f, manifest.permission.uploader.into(), &root(manifest));
     }
 }

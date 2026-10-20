@@ -165,7 +165,7 @@ fn classify(bytes: &[u8]) -> FundingOutcome {
         Ok(TopUpReply::ReportedSuccess { .. }) => FundingOutcome::ReportedSuccess,
         Ok(TopUpReply::ProviderFailure(error)) => FundingOutcome::ProviderError(match error {
             TopUpProviderError::NotAuthorized(principal) => {
-                FundingProviderErrorView::NotAuthorized(principal)
+                FundingProviderErrorView::NotAuthorized(principal.into())
             }
             TopUpProviderError::AccountBalanceOverflow => {
                 FundingProviderErrorView::AccountBalanceOverflow
@@ -202,7 +202,10 @@ pub(crate) async fn delay_reply(mode: FundingReplyMode) {
                 );
             });
             Call::unbounded_wait(Principal::management_canister(), "raw_rand")
-                .with_args(&())
+                .take_raw_args(
+                    ic_platform::candid::contract::encode_args(())
+                        .expect("fixture scheduling arguments"),
+                )
                 .await
                 .expect("bounded fixture scheduling round");
         }

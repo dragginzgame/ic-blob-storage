@@ -39,7 +39,7 @@ enum BalanceError {
 #[derive(CandidType)]
 #[candid_path("ic_platform::candid::contract")]
 struct RelationshipReport {
-    relationship: Option<AccountRelationshipView>,
+    relationship: Option<ic_blob_storage_pocketic_tests::historical::AccountRelationshipView>,
 }
 #[derive(CandidType)]
 #[candid_path("ic_platform::candid::contract")]
@@ -74,16 +74,16 @@ fn request(f: &Fixture, kind: AccountInspectionKind) -> AccountInspectionRequest
 fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
     let account = match kind {
         AccountInspectionKind::Balance => f.config.payment_account,
-        AccountInspectionKind::PaymentRelationship => f.service,
+        AccountInspectionKind::PaymentRelationship => f.service.into(),
     };
     assert!(
         update_candid_args::<(bool,), _>(
             &f.harness.pic,
-            f.config.billing.cashier,
+            f.config.billing.cashier.into(),
             f.controller,
             "configure_balance",
             (BalanceSourceConfig {
-                account,
+                account: account.into(),
                 bytes,
                 reject: false,
                 hold: false
@@ -125,7 +125,7 @@ fn balance(account: Principal, total: Int) -> Vec<u8> {
 }
 fn relation(f: &Fixture) -> AccountRelationshipView {
     AccountRelationshipView {
-        paid_canister: f.service,
+        paid_canister: f.service.into(),
         payment_account: f.config.payment_account,
         spending_limit_per_day: Int::parse(b"-340282366920938463463374607431768211456").unwrap(),
         current_period_spent: Int::parse(b"340282366920938463463374607431768211456").unwrap(),
@@ -140,7 +140,7 @@ fn relation(f: &Fixture) -> AccountRelationshipView {
 }
 fn relationship(value: Option<AccountRelationshipView>) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(Ok::<_, RelationshipError>(RelationshipReport {
-        relationship: value,
+        relationship: ic_blob_storage_pocketic_tests::historical::project(value),
     }))
     .unwrap()
 }
@@ -152,10 +152,10 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
     configure(
         &f,
         input.kind,
-        balance(f.config.payment_account, u128::MAX.into()),
+        balance(f.config.payment_account.into(), u128::MAX.into()),
     );
     let before = f.harness.pic.get_stable_memory(f.service);
-    let source_before = f.harness.pic.get_stable_memory(input.scope.cashier);
+    let source_before = f.harness.pic.get_stable_memory(input.scope.cashier.into());
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
             inspect(&f, actor, input),
@@ -164,7 +164,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
     }
     for scope in [
         OperatorScope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..input.scope
         },
         OperatorScope {
@@ -172,11 +172,11 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
             ..input.scope
         },
         OperatorScope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..input.scope
         },
         OperatorScope {
-            payment_account: f.tenant,
+            payment_account: f.tenant.into(),
             ..input.scope
         },
     ] {
@@ -204,7 +204,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
                 f.service,
                 f.operator,
                 "blob_inspect_account",
-                ic_platform::candid::contract::encode_one(input).unwrap()
+                ic_blob_storage_pocketic_tests::historical::encode(input).unwrap()
             )
             .is_err()
     );
@@ -218,7 +218,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
     }
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     unchanged(
-        &f.harness.pic.get_stable_memory(input.scope.cashier),
+        &f.harness.pic.get_stable_memory(input.scope.cashier.into()),
         &source_before,
     );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
@@ -228,7 +228,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
         Err(AccountInspectionFailure::Fenced)
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(input.scope.cashier),
+        &f.harness.pic.get_stable_memory(input.scope.cashier.into()),
         &source_before,
     );
 }
@@ -244,12 +244,12 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
             AccountInspectionFailure::Binding,
         ),
         (
-            balance(f.config.payment_account, (-1).into()),
+            balance(f.config.payment_account.into(), (-1).into()),
             AccountInspectionFailure::InvalidReply,
         ),
         (
             balance(
-                f.config.payment_account,
+                f.config.payment_account.into(),
                 Int::parse(b"340282366920938463463374607431768211456").unwrap(),
             ),
             AccountInspectionFailure::InvalidReply,
@@ -283,11 +283,11 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
     assert!(
         update_candid_args::<(bool,), _>(
             &f.harness.pic,
-            input.scope.cashier,
+            input.scope.cashier.into(),
             f.controller,
             "configure_balance",
             (BalanceSourceConfig {
-                account: f.config.payment_account,
+                account: f.config.payment_account.into(),
                 bytes: vec![],
                 reject: true,
                 hold: false
@@ -308,7 +308,7 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
 fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_linked_payer() {
     let mut f = fixture();
     // This fresh local installation has no objects or provider effects.
-    f.config.payment_account = Fake::principal(8);
+    f.config.payment_account = Fake::principal(8).into();
     f.harness
         .pic
         .reinstall_canister(
@@ -331,11 +331,11 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
     );
     for changed in [
         AccountRelationshipView {
-            paid_canister: f.tenant,
+            paid_canister: f.tenant.into(),
             ..expected.clone()
         },
         AccountRelationshipView {
-            payment_account: f.service,
+            payment_account: f.service.into(),
             ..expected.clone()
         },
     ] {
@@ -353,11 +353,11 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
     for (error, expected) in [
         (
             RelationshipError::RelationshipNotFound(f.service),
-            AccountObservation::RelationshipNotFound(f.service),
+            AccountObservation::RelationshipNotFound(f.service.into()),
         ),
         (
             RelationshipError::NotAuthorized(f.tenant),
-            AccountObservation::NotAuthorized(f.tenant),
+            AccountObservation::NotAuthorized(f.tenant.into()),
         ),
         (
             RelationshipError::InvalidRequest("private".into()),
@@ -389,7 +389,7 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
     configure(
         &f,
         balance_input.kind,
-        balance(f.config.payment_account, 10.into()),
+        balance(f.config.payment_account.into(), 10.into()),
     );
     assert!(matches!(
         inspect(&f, f.operator, balance_input).unwrap().observation,

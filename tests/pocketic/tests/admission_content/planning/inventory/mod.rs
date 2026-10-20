@@ -120,7 +120,7 @@ fn inventory_cli_distinguishes_absence_pending_live_reuse_and_retired_roots() {
     f.call(
         f.operator,
         Command::Enroll {
-            tenant: f.other,
+            tenant: f.other.into(),
             expected: None,
             active: true,
         },

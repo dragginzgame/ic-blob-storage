@@ -3,27 +3,27 @@ use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::gateways::ReplicatedInput;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 impl Fixture {
     fn replicated_input(&self, token: u64) -> ReplicatedInput {
         ReplicatedInput {
             attempt: self.transport_input(token),
-            service: self.service,
-            cashier: self.operator,
+            service: self.service.into(),
+            cashier: self.operator.into(),
             max_reply_bytes: 2048,
         }
     }
     fn replicated_gateways(&self, actor: Principal, input: ReplicatedInput) -> Result<(), Failure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "fixture_replicated_gateway_transport",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .update_control_as(
+                self.service,
+                actor,
+                "fixture_replicated_gateway_transport",
+                (input,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
 }
 #[test]
@@ -58,11 +58,11 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
     }
     for input in [
         ReplicatedInput {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..f.replicated_input(token)
         },
         ReplicatedInput {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..f.replicated_input(token)
         },
     ] {
@@ -74,7 +74,10 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
     assert_eq!(f.harness.pic.get_stable_memory(f.service), service_memory);
     f.replicated_gateways(f.operator, f.replicated_input(token))
         .unwrap();
-    assert_eq!(f.gateway_view().members, vec![f.other]);
+    assert_eq!(
+        f.gateway_view().members,
+        vec![ic_platform::Principal::from(f.other)]
+    );
     assert_eq!(f.gateway_view().pending_sequence, None);
     assert_eq!(f.harness.pic.get_stable_memory(f.operator), source_memory);
     assert_eq!(f.source_requests(), 0); // The scripted update endpoint was not used.
@@ -86,19 +89,22 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
 #[test]
 fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_or_size_limit() {
     let f = Fixture::with_gateway_source();
-    f.gateways(f.operator, Action::Add(f.tenant)).unwrap();
+    f.gateways(f.operator, Action::Add(f.tenant.into()))
+        .unwrap();
     let token = f.gateway_begin();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let rejected: Result<(), Failure> = query_candid_args(
-        &f.harness.pic,
-        f.service,
-        f.operator,
-        "fixture_nonreplicated_gateway_transport",
-        (f.replicated_input(token),),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let rejected: Result<(), Failure> = f
+        .harness
+        .pic
+        .query_control_as(
+            f.service,
+            f.operator,
+            "fixture_nonreplicated_gateway_transport",
+            (f.replicated_input(token),),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(rejected, Err(Failure::Phase));
     assert_eq!(
         f.replicated_gateways(
@@ -121,12 +127,16 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
     let next = f.gateway_begin();
     f.replicated_gateways(f.operator, f.replicated_input(next))
         .unwrap();
-    assert_eq!(f.gateway_view().members, vec![f.other]);
+    assert_eq!(
+        f.gateway_view().members,
+        vec![ic_platform::Principal::from(f.other)]
+    );
 }
 #[test]
 fn replicated_query_callback_trap_preserves_pending_and_restored_transport_stays_fenced() {
     let f = Fixture::with_gateway_source();
-    f.gateways(f.operator, Action::Add(f.tenant)).unwrap();
+    f.gateways(f.operator, Action::Add(f.tenant.into()))
+        .unwrap();
     let token = f.gateway_begin();
     let before = f.gateway_view();
     let mut input = f.replicated_input(token);
@@ -138,7 +148,7 @@ fn replicated_query_callback_trap_preserves_pending_and_restored_transport_stays
             f.service,
             f.operator,
             "fixture_replicated_gateway_transport",
-            ic_platform::candid::contract::encode_one(input).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
         )
         .unwrap_err();
     assert_eq!(error.reject_code, RejectCode::CanisterError);

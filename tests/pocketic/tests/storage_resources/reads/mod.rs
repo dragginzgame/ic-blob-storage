@@ -1,19 +1,19 @@
 //! The host owns measurement windows and authority; shared arithmetic owns the aggregate.
 use super::*;
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::query_candid_args;
 
 fn observe(f: &Fixture, actor: Principal) -> Result<RestorationResources, Failure> {
-    query_candid_args(
-        &f.harness.pic,
-        f.service,
-        actor,
-        "restoration_resources",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
+    f.harness
+        .pic
+        .query_control_as(
+            f.service,
+            actor,
+            "restoration_resources",
+            (),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
 }
 
 #[test]
@@ -30,8 +30,11 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
     f.expose(permission.request).unwrap();
     let before = f.status();
     assert_eq!(
-        ic_platform::candid::contract::encode_one(observe(&f, f.operator).unwrap()).unwrap(),
-        ic_platform::candid::contract::encode_one(&fresh).unwrap()
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+            observe(&f, f.operator).unwrap()
+        )
+        .unwrap(),
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(&fresh).unwrap()
     );
 
     // Installation instruction debt must cool before testing restore semantics.
@@ -70,13 +73,17 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
             ..before
         }
     );
-    let frozen = ic_platform::candid::contract::encode_one(&restored).unwrap();
+    let frozen =
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(&restored).unwrap();
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
         assert!(matches!(observe(&f, actor), Err(Failure::Denied)));
     }
     f.lookup(f.tenant, permission.request).unwrap();
     assert_eq!(
-        ic_platform::candid::contract::encode_one(observe(&f, f.operator).unwrap()).unwrap(),
+        ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+            observe(&f, f.operator).unwrap()
+        )
+        .unwrap(),
         frozen
     );
 

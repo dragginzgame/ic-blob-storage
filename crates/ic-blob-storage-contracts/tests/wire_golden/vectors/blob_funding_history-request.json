@@ -1,0 +1,34 @@
+[
+  {
+    "input": {
+      "cursor": null,
+      "scope": {
+        "cashier": "d5dwt-tj74z-jooai",
+        "namespace": 841571657,
+        "payment_account": "36dlh-od3nb-ybaai",
+        "service": "egbmj-osnsl-geoai"
+      }
+    },
+    "hex": "49570e003600424f4c4200054d92cc4701c9baa59103053fe652e701057b6870100100"
+  },
+  {
+    "input": {
+      "cursor": {
+        "before_operation": 304186456,
+        "scope": {
+          "cashier": "vjkqj-x4tdj-biuai",
+          "namespace": 4254980617,
+          "payment_account": "t3o24-3z6x2-gtuai",
+          "service": "y5ivd-u76ma-iseai"
+        }
+      },
+      "scope": {
+        "cashier": "pltrt-dpvhv-g4uai",
+        "namespace": 323597465,
+        "payment_account": "wuc5f-unybm-3kkai",
+        "service": "kaeft-kp5yt-222ai"
+      }
+    },
+    "hex": "49570e003600424f4c420005fdc4f5ad0199e9a69a0105f53d4dca0105b80b36a5010105fe6011220189b4f7ec0f05931a428a01053ebe8d3a01d888869101"
+  }
+]

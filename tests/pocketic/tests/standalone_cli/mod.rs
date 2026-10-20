@@ -47,7 +47,7 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
             .with_application_subnet(),
     ));
     f.operator = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
-    f.config.operator = f.operator;
+    f.config.operator = f.operator.into();
     // Fresh local fixture, with no objects, effects or outstanding obligations.
     f.harness
         .pic
@@ -112,7 +112,7 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();
     // A valid signing identity is still refused when it is not the installed operator.
-    f.config.operator = f.controller;
+    f.config.operator = f.controller.into();
     f.harness
         .pic
         .reinstall_canister(

@@ -10,8 +10,8 @@ fn exact_lookup_checks_authority_bindings_and_every_immutable_input() {
     };
     let mut journal = journal();
     let query = FundingLookupRequest {
-        service: principal(1),
-        peer: principal(2),
+        service: principal(1).into(),
+        peer: principal(2).into(),
         attempt: request(1),
     };
     let original = journal.lookup(principal(3), query).unwrap().unwrap();
@@ -21,7 +21,7 @@ fn exact_lookup_checks_authority_bindings_and_every_immutable_input() {
         journal.lookup(
             principal(3),
             FundingLookupRequest {
-                service: principal(4),
+                service: principal(4).into(),
                 ..query
             }
         ),
@@ -31,7 +31,7 @@ fn exact_lookup_checks_authority_bindings_and_every_immutable_input() {
         journal.lookup(
             principal(3),
             FundingLookupRequest {
-                peer: principal(4),
+                peer: principal(4).into(),
                 ..query
             }
         ),
@@ -137,7 +137,7 @@ fn journal_requires_bound_release_unique_identities_and_conserved_transfers() {
         (|j| j.release[0] ^= 1, JournalFailure::Release),
         (|j| j.peer = j.service, JournalFailure::Binding),
         (
-            |j| j.driver = Principal::anonymous(),
+            |j| j.driver = Principal::anonymous().into(),
             JournalFailure::Binding,
         ),
         (

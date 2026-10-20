@@ -64,7 +64,7 @@ pub(super) fn mode(f: &Fixture, selected: SourceMode) {
     assert!(
         update_candid_args::<(bool,), _>(
             &f.harness.pic,
-            f.config.billing.cashier,
+            f.config.billing.cashier.into(),
             f.controller,
             "configure",
             (selected,),
@@ -85,7 +85,7 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
     }
     for changed in [
         OperatorScope {
-            service: f.tenant,
+            service: f.tenant.into(),
             ..scope
         },
         OperatorScope {
@@ -93,27 +93,30 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
             ..scope
         },
         OperatorScope {
-            cashier: f.tenant,
+            cashier: f.tenant.into(),
             ..scope
         },
         OperatorScope {
-            payment_account: f.tenant,
+            payment_account: f.tenant.into(),
             ..scope
         },
     ] {
         assert_eq!(refresh(&f, f.operator, changed), Err(SyncError::Binding));
     }
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    let source_before = f.harness.pic.get_stable_memory(scope.cashier);
+    let source_before = f.harness.pic.get_stable_memory(scope.cashier.into());
     assert_eq!(
         refresh(&f, f.operator, scope),
         Ok(GatewaySyncResponse { scope, sequence: 1 })
     );
     let status = f.local_status(f.operator, scope).unwrap();
-    assert_eq!(status.gateways.members, vec![Fake::principal(9)]);
+    assert_eq!(
+        status.gateways.members,
+        vec![ic_platform::Principal::from(Fake::principal(9))]
+    );
     assert_eq!(status.gateways.pending_sequence, None);
     unchanged(
-        &f.harness.pic.get_stable_memory(scope.cashier),
+        &f.harness.pic.get_stable_memory(scope.cashier.into()),
         &source_before,
     );
     for (index, (selected, error)) in [

@@ -6,8 +6,8 @@ pub trait ServiceCallExt {
     /// Preserves request encoding, platform rejection and reply decoding failures.
     fn query_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: ic_platform::Principal,
-        caller: ic_platform::Principal,
+        canister: impl Into<ic_platform::principal::ExternalPrincipal>,
+        caller: impl Into<ic_platform::principal::ExternalPrincipal>,
         method: &str,
         argument: A,
         max_reply_bytes: usize,
@@ -17,8 +17,8 @@ pub trait ServiceCallExt {
     /// Preserves failures without treating an unusable reply as absence of effects.
     fn update_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: ic_platform::Principal,
-        caller: ic_platform::Principal,
+        canister: impl Into<ic_platform::principal::ExternalPrincipal>,
+        caller: impl Into<ic_platform::principal::ExternalPrincipal>,
         method: &str,
         argument: A,
         max_reply_bytes: usize,
@@ -37,29 +37,29 @@ pub enum ServiceCallError {
 impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
     fn query_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: ic_platform::Principal,
-        caller: ic_platform::Principal,
+        canister: impl Into<ic_platform::principal::ExternalPrincipal>,
+        caller: impl Into<ic_platform::principal::ExternalPrincipal>,
         method: &str,
         argument: A,
         max_reply_bytes: usize,
     ) -> Result<R, ServiceCallError> {
         let args = encode_argument(method, argument).map_err(ServiceCallError::Encoding)?;
         let reply = self
-            .query_call(canister, caller, method, args)
+            .query_call(canister.into(), caller.into(), method, args)
             .map_err(ServiceCallError::Rejected)?;
         decode_reply(method, &reply, max_reply_bytes).map_err(ServiceCallError::Decoding)
     }
     fn update_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
-        canister: ic_platform::Principal,
-        caller: ic_platform::Principal,
+        canister: impl Into<ic_platform::principal::ExternalPrincipal>,
+        caller: impl Into<ic_platform::principal::ExternalPrincipal>,
         method: &str,
         argument: A,
         max_reply_bytes: usize,
     ) -> Result<R, ServiceCallError> {
         let args = encode_argument(method, argument).map_err(ServiceCallError::Encoding)?;
         let reply = self
-            .update_call(canister, caller, method, args)
+            .update_call(canister.into(), caller.into(), method, args)
             .map_err(ServiceCallError::Rejected)?;
         decode_reply(method, &reply, max_reply_bytes).map_err(ServiceCallError::Decoding)
     }

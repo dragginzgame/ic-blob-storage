@@ -149,7 +149,7 @@ pub(crate) fn initialize(
     STATE.with_borrow_mut(|state| {
         *state = Some(State {
             runtime,
-            operator,
+            operator: operator.into(),
             uploads,
             funding,
             gateways,
@@ -437,7 +437,7 @@ pub(crate) fn lookup(context: UploadContext, input: Request) -> Result<Observati
     Ok(Observation {
         permission: Permission {
             request: input,
-            uploader: v.permission.uploader,
+            uploader: v.permission.uploader.into(),
             expires_at_ns: v.permission.expires_at_ns,
         },
         generation: v.tenant_generation.get(),
@@ -560,4 +560,42 @@ pub(crate) fn reply_owned<T: serde::Serialize>(method: &str, value: T) {
         .expect("owned Wire reply encoding");
     ic_platform::ic0::msg_reply_data_append(&bytes);
     ic_platform::ic0::msg_reply();
+}
+
+// Private control tuples are independent of the method-bound service packets.
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "entrypoint owns ingress bytes"
+)]
+pub(crate) fn decode_control<T: serde::Serialize + serde::de::DeserializeOwned>(
+    bytes: Vec<u8>,
+) -> T {
+    let (value,): (T,) = ic_blob_storage_contracts::document::decode(
+        &bytes,
+        blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES,
+    )
+    .expect("private control ingress");
+    value
+}
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "entrypoint owns ingress bytes"
+)]
+pub(crate) fn decode_control_args<T: serde::Serialize + serde::de::DeserializeOwned>(
+    bytes: Vec<u8>,
+) -> T {
+    ic_blob_storage_contracts::document::decode(
+        &bytes,
+        blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES,
+    )
+    .expect("private control arguments")
+}
+pub(crate) fn decode_control_unit(bytes: Vec<u8>) {
+    decode_control_args::<()>(bytes);
+}
+pub(crate) fn encode_control<T: serde::Serialize>(value: T) -> Vec<u8> {
+    ic_blob_storage_contracts::document::encode((value,)).expect("private control reply")
+}
+pub(crate) fn encode_control_unit() -> Vec<u8> {
+    ic_blob_storage_contracts::document::encode(()).expect("private control unit reply")
 }

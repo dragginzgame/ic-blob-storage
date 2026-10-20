@@ -141,7 +141,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     );
     let restored = f.harness.pic.get_stable_memory(f.service);
     refuses(&f, f.uploader, &root);
-    refuses(&f, second.permission.uploader, &second_root);
+    refuses(&f, second.permission.uploader.into(), &second_root);
     assert_eq!(
         f.admission(second.permission).state,
         UploadState::ExposurePossible
@@ -180,14 +180,15 @@ fn check_authority(f: &Fixture, root: &str) {
 fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> UploadManifestRequest {
     // A second project-approved uploader crosses a chunk boundary under shared quotas.
     let mut second = f.manifest_bytes(1024 * 1024 + 1);
-    second.permission.uploader = Fake::principal(91);
+    second.permission.uploader = Fake::principal(91).into();
     second.permission.upload.upload = 2;
     second.permission.upload.object = 3;
     let second_root = self::root(&second);
     admit(f, second.permission).unwrap();
-    f.prepare(second.permission.uploader, &second).unwrap();
+    f.prepare(second.permission.uploader.into(), &second)
+        .unwrap();
     assert_eq!(
-        inspect(f, second.permission.uploader, &second_root)
+        inspect(f, second.permission.uploader.into(), &second_root)
             .unwrap()
             .blockers,
         []
@@ -195,7 +196,7 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
     let reply: CaffeineUploadCertificateResponse = update_candid_args(
         &f.harness.pic,
         f.service,
-        second.permission.uploader,
+        second.permission.uploader.into(),
         ISSUE,
         (second_root.clone(),),
         REPLY_LIMITS,
@@ -207,7 +208,7 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
         f.admission(second.permission).state,
         UploadState::ExposurePossible
     );
-    refuses(f, second.permission.uploader, &second_root);
+    refuses(f, second.permission.uploader.into(), &second_root);
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     let total = u128::from(first.permission.upload.bytes + second.permission.upload.bytes);
     assert_eq!(usage.uploads.active_reservations, 2);

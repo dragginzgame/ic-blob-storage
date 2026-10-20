@@ -50,9 +50,9 @@ fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_bod
     f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let view = f.download(f.tenant, input).unwrap();
-    assert_eq!(view.owner, f.service);
-    assert_ne!(view.owner, f.operator);
-    assert_ne!(view.owner, f.tenant);
+    assert_eq!(view.owner, f.service.into());
+    assert_ne!(view.owner, ic_platform::Principal::from(f.operator));
+    assert_ne!(view.owner, ic_platform::Principal::from(f.tenant));
     assert_eq!(view.project, "fixture project/β?&=");
     assert_eq!(view.request, wire(input));
     assert_eq!(view.bytes, permission.request.bytes);
@@ -170,8 +170,8 @@ fn operational_download_rejects_released_suspended_and_restored_content() {
 
 fn wire(input: RetainedDescriptorInput) -> DownloadRequest {
     DownloadRequest {
-        service: input.content.service,
-        tenant: input.content.tenant,
+        service: input.content.service.into(),
+        tenant: input.content.tenant.into(),
         namespace: input.content.namespace,
         root: input.content.root,
         object: input.object,

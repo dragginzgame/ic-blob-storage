@@ -20,16 +20,16 @@ fn root(permission: Permission) -> String {
         .to_string()
 }
 fn configure(f: &Fixture, input: ExposureInput) {
-    update_candid_args::<((),), _>(
-        &f.harness.pic,
-        f.service,
-        f.operator,
-        "configure_certificate_fixture",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    f.harness
+        .pic
+        .update_control_as::<(), _>(
+            f.service,
+            f.operator,
+            "configure_certificate_fixture",
+            (input,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .unwrap();
 }
 fn refused(f: &Fixture, actor: Principal, root: &str) {
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -63,7 +63,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
             f.service,
             f.uploader,
             "configure_certificate_fixture",
-            ic_platform::candid::contract::encode_one(yes).unwrap(),
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(yes).unwrap(),
         )
         .unwrap_err();
     assert_eq!(rejection.reject_code, RejectCode::CanisterError);

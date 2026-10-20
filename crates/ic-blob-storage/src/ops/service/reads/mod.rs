@@ -1,4 +1,5 @@
 //! Incremental durable read occupancy; no transport, timeout eviction or unfencing.
+use ic_platform::principal::ExternalPrincipal;
 pub mod access;
 pub mod download;
 pub mod transport;
@@ -54,7 +55,7 @@ pub struct ReadSessionView {
 pub struct StableReadSessions<M: Memory> {
     journal: StableBTreeMap<u8, ReadJournalRecord, M>,
     sessions: StableBTreeMap<u64, ReadSessionRecord, M>,
-    tenants: StableBTreeMap<Principal, ReadUsageRecord, M>,
+    tenants: StableBTreeMap<ExternalPrincipal, ReadUsageRecord, M>,
     config: ServiceConfiguration,
     limits: ReadSessionLimits,
     fenced: bool,
@@ -148,7 +149,7 @@ impl<M: Memory> StableReadSessions<M> {
             return Err(ReadSessionError::InvalidRecord);
         }
         for (tenant, usage) in tenants {
-            if store.tenants.get(&tenant) != Some(usage) {
+            if store.tenants.get(&tenant.into()) != Some(usage) {
                 return Err(ReadSessionError::InvalidRecord);
             }
         }
@@ -218,7 +219,7 @@ impl<M: Memory> StableReadSessions<M> {
         let sequence = journal.reserve()?;
         let own = self
             .tenants
-            .get(&intent.context.actor)
+            .get(&intent.context.actor.into())
             .unwrap_or(ReadUsageRecord::empty())
             .reserve(
                 self.limits.tenant_sessions,
@@ -231,7 +232,7 @@ impl<M: Memory> StableReadSessions<M> {
         };
         self.sessions
             .insert(sequence, ReadSessionRecord::new(sequence, intent));
-        self.tenants.insert(intent.context.actor, own);
+        self.tenants.insert(intent.context.actor.into(), own);
         self.journal.insert(0, journal);
         Ok(ticket)
     }
@@ -267,14 +268,14 @@ impl<M: Memory> StableReadSessions<M> {
         journal.release()?;
         let own = self
             .tenants
-            .get(&context.actor)
+            .get(&context.actor.into())
             .ok_or(ReadSessionError::InvalidRecord)?
             .release(self.limits.reply_bytes)?;
         self.sessions.remove(&ticket.sequence);
         if own == ReadUsageRecord::empty() {
-            self.tenants.remove(&context.actor);
+            self.tenants.remove(&context.actor.into());
         } else {
-            self.tenants.insert(context.actor, own);
+            self.tenants.insert(context.actor.into(), own);
         }
         self.journal.insert(0, journal);
         Ok(())

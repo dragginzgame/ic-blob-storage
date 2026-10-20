@@ -82,15 +82,15 @@ fn empty_summary_rejects_foreign_scope_and_clear_restored_history_stays_fenced()
     }
     for changed in [
         Scope {
-            service: f.other,
+            service: f.other.into(),
             ..scope
         },
         Scope {
-            cashier: f.other,
+            cashier: f.other.into(),
             ..scope
         },
         Scope {
-            payment_account: f.other,
+            payment_account: f.other.into(),
             ..scope
         },
         Scope {

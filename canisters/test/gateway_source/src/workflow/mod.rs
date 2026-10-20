@@ -11,7 +11,9 @@ pub(crate) fn initialize(service: Principal, gateway: Principal, driver: Princip
 }
 
 pub(crate) fn configure(caller: Principal, mode: SourceMode) -> bool {
-    if !ops::read(|state| state.driver == caller && !state.fenced && state.sync.held.is_none()) {
+    if !ops::read(|state| {
+        state.driver == caller.into() && !state.fenced && state.sync.held.is_none()
+    }) {
         return false;
     }
     ops::configure(mode);
@@ -19,20 +21,20 @@ pub(crate) fn configure(caller: Principal, mode: SourceMode) -> bool {
 }
 
 pub(crate) fn resume_sync(caller: Principal) -> bool {
-    if !ops::read(|state| state.driver == caller && !state.fenced) {
+    if !ops::read(|state| state.driver == caller.into() && !state.fenced) {
         return false;
     }
     ops::sync_hold::resume()
 }
 
 pub(crate) fn observation(caller: Principal) -> Option<SourceObservation> {
-    ops::read(|state| state.driver == caller).then(ops::observation)
+    ops::read(|state| state.driver == caller.into()).then(ops::observation)
 }
 
 pub(crate) fn inspect_gateways(caller: Principal) {
     let (driver, service) = ops::read(|state| (state.driver, state.service));
-    let service_call = caller == service && ops::unfunded_replicated_query();
-    if caller != driver && !service_call {
+    let service_call = caller == service.into() && ops::unfunded_replicated_query();
+    if caller != driver.into() && !service_call {
         ops::reject();
         return;
     }
@@ -48,19 +50,19 @@ pub(crate) async fn run_sync(
     input: blob_test_protocol::GatewaySyncRequest,
 ) -> Result<(), SyncFailure> {
     let service = ops::read(|state| {
-        (state.driver == caller && !state.fenced)
+        (state.driver == caller.into() && !state.fenced)
             .then_some(state.service)
             .ok_or(SyncFailure::Denied)
     })?;
     if input.service != service {
         return Err(SyncFailure::Binding);
     }
-    ops::sync(service, input).await
+    ops::sync(service.into(), input).await
 }
 
 pub(crate) async fn run_deletion(caller: Principal, roots: Vec<Vec<u8>>) -> Result<(), u32> {
     let service = ops::read(|state| {
-        assert_eq!(state.driver, caller, "fixture driver only");
+        assert_eq!(state.driver, caller.into(), "fixture driver only");
         assert!(!state.fenced, "restored source is fenced");
         state.service
     });
@@ -68,11 +70,11 @@ pub(crate) async fn run_deletion(caller: Principal, roots: Vec<Vec<u8>>) -> Resu
         roots.len() <= 8 && roots.iter().all(|root| root.len() == 32),
         "bounded fixture roots"
     );
-    ops::confirm_deletion(service, roots).await
+    ops::confirm_deletion(service.into(), roots).await
 }
 
 pub(crate) async fn reply(caller: Principal, input: blob_test_protocol::GatewaySyncRequest) {
-    if !ops::read(|state| state.service == caller && !state.fenced) {
+    if !ops::read(|state| state.service == caller.into() && !state.fenced) {
         ops::reject();
         return;
     }
@@ -88,7 +90,7 @@ pub(crate) async fn reply(caller: Principal, input: blob_test_protocol::GatewayS
         SourceMode::Revoke => ops::revoke(service).await,
         SourceMode::Replace(next) => {
             ops::revoke(service).await;
-            ops::replace(next);
+            ops::replace(next.into());
             // This deliberate scenario explicitly authorizes a new sync after
             // its own revocation; it is not a retry of the original request.
             let next_request = ops::next_sync_request(input);
@@ -110,20 +112,20 @@ pub(crate) fn restore() {
 pub(crate) fn recovery(
     caller: Principal,
 ) -> Option<blob_test_protocol::source::SourceRecoveryView> {
-    ops::read(|state| state.driver == caller).then(ops::recovery)
+    ops::read(|state| state.driver == caller.into()).then(ops::recovery)
 }
 
 pub(crate) fn configure_balance(
     caller: Principal,
     config: blob_test_protocol::balance::BalanceSourceConfig,
 ) -> bool {
-    if !ops::read(|s| s.driver == caller && !s.fenced) {
+    if !ops::read(|s| s.driver == caller.into() && !s.fenced) {
         return false;
     }
     ops::balance::configure(config)
 }
 pub(crate) fn resume_balance(caller: Principal) -> bool {
-    if !ops::read(|s| s.driver == caller && !s.fenced) {
+    if !ops::read(|s| s.driver == caller.into() && !s.fenced) {
         return false;
     }
     ops::balance::resume()
@@ -131,10 +133,10 @@ pub(crate) fn resume_balance(caller: Principal) -> bool {
 pub(crate) fn balance_observation(
     caller: Principal,
 ) -> Option<blob_test_protocol::balance::BalanceSourceView> {
-    ops::read(|s| s.driver == caller).then(ops::balance::view)
+    ops::read(|s| s.driver == caller.into()).then(ops::balance::view)
 }
 pub(crate) async fn balance_reply(caller: Principal, account: Principal) {
-    if !ops::read(|s| s.service == caller && !s.fenced) {
+    if !ops::read(|s| s.service == caller.into() && !s.fenced) {
         ops::reject();
         return;
     }
@@ -155,10 +157,10 @@ pub(crate) fn inspect_relationship(caller: Principal, owner: Principal) {
     // Local authorization only. The selected service must use actual replicated
     // execution with no attached cycles; external driver reads remain passive.
     let allowed = ops::read(|state| {
-        let service_call = caller == state.service
+        let service_call = caller == state.service.into()
             && ic_platform::cdk::api::in_replicated_execution()
             && ic_platform::cdk::api::msg_cycles_available() == 0;
-        !state.fenced && (caller == state.driver || service_call)
+        !state.fenced && (caller == state.driver.into() || service_call)
     });
     if !allowed {
         ops::reject();
@@ -196,7 +198,7 @@ async fn passive_reply(gateway: Principal, mode: SourceMode) -> bool {
 // provider's query method. Scripted effects are unavailable on this endpoint.
 pub(crate) async fn gateway_query(caller: Principal) {
     let allowed = ops::read(|state| {
-        state.service == caller
+        state.service == caller.into()
             && !state.fenced
             && matches!(
                 state.mode,

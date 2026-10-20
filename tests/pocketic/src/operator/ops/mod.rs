@@ -75,7 +75,7 @@ pub(super) fn report(target: &Target, bytes: &[u8]) -> Result<Report, Failure> {
         Binding::Authority(namespace) => {
             let status: Option<OperatorStatusView> = decode(bytes, limits)?;
             let status = status.ok_or(Failure::Denied)?;
-            if status.service != target.transport.canister || status.namespace != namespace {
+            if status.service != target.transport.canister.into() || status.namespace != namespace {
                 return Err(Failure::Binding);
             }
             Ok(Report {
@@ -86,7 +86,7 @@ pub(super) fn report(target: &Target, bytes: &[u8]) -> Result<Report, Failure> {
         Binding::Funding(peer) => {
             let status: Option<FundingOperatorStatusView> = decode(bytes, limits)?;
             let status = status.ok_or(Failure::Denied)?;
-            if status.service != target.transport.canister || status.peer != peer {
+            if status.service != target.transport.canister.into() || status.peer != peer.into() {
                 return Err(Failure::Binding);
             }
             Ok(Report {

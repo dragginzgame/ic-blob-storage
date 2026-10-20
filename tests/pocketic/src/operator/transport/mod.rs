@@ -25,7 +25,7 @@ pub(super) fn query_target(
     args: Vec<u8>,
 ) -> Result<Vec<u8>, Failure> {
     attached(target, |pic| {
-        pic.query_call(target.canister, target.caller, method, args)
+        pic.query_call(target.canister.into(), target.caller.into(), method, args)
             .map_err(|_| Failure::QueryRejected)
     })
 }
@@ -37,7 +37,7 @@ pub(super) fn update_target(
 ) -> Result<Vec<u8>, Failure> {
     // Exactly one application dispatch; SDK busy polling never allocates a new identity.
     attached(target, |pic| {
-        pic.update_call(target.canister, target.caller, method, args)
+        pic.update_call(target.canister.into(), target.caller.into(), method, args)
             .map_err(|_| Failure::Transport)
     })
 }

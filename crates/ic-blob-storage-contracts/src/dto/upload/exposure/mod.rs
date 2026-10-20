@@ -1,12 +1,10 @@
 //! Exposure boundary failures; no certificate or provider response schema.
 use crate::dto::upload::admission::UploadAdmissionFailure;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// A missing independent prerequisite for exposure or certificate issuance.
 /// A successful inspection with blockers is not upload authorization.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadExposureBlocker {
     /// Host facts were not established in the current execution.
@@ -19,8 +17,7 @@ pub enum UploadExposureBlocker {
     Durability,
 }
 /// Refused local exposure or historical permission inspection.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadExposureFailure {
     /// Full permission, authority, activation, deadline or restore fence failed.

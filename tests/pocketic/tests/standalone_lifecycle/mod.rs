@@ -42,7 +42,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
             GATEWAY_REVOCATION_METHOD,
             GatewayRevocationRequest {
                 scope: f.operator_scope(),
-                gateway: Fake::principal(9),
+                gateway: Fake::principal(9).into(),
             },
             REPLY_LIMITS.reply_bytes,
         )

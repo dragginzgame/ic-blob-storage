@@ -8,7 +8,7 @@ mod support;
 use ic_testkit::pic::{query_candid_args, update_candid_args};
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, PocketIc},

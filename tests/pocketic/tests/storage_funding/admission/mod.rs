@@ -1,56 +1,59 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::funding::admission::{Attempt, Blocker as B, Preparation, View};
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 impl Fixture {
     fn inspect_attempt(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "funding_attempt",
-            (intent,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as(
+                self.service,
+                actor,
+                "funding_attempt",
+                (intent,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn guarded_attempt(&self, actor: Principal, intent: Intent) -> Result<Attempt, Failure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "mark_funding_attempt",
-            (intent,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .update_control_as(
+                self.service,
+                actor,
+                "mark_funding_attempt",
+                (intent,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn inspect_preparation(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "funding_preparation",
-            (intent,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .query_control_as(
+                self.service,
+                actor,
+                "funding_preparation",
+                (intent,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
     fn guarded_prepare(&self, actor: Principal, intent: Intent) -> Result<Preparation, Failure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.service,
-            actor,
-            "prepare_funding",
-            (intent,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap()
+        self.harness
+            .pic
+            .update_control_as(
+                self.service,
+                actor,
+                "prepare_funding",
+                (intent,),
+                (REPLY_LIMITS).reply_bytes,
+            )
+            .map(|(reply,)| reply)
+            .unwrap()
     }
 }
 #[test]
@@ -92,15 +95,15 @@ fn guarded_first_attempt_preserves_unknowns_and_exact_reservation_through_restor
     }
     for changed in [
         Intent {
-            service: f.other,
+            service: f.other.into(),
             ..intent
         },
         Intent {
-            cashier: f.other,
+            cashier: f.other.into(),
             ..intent
         },
         Intent {
-            account: f.other,
+            account: f.other.into(),
             ..intent
         },
         Intent {
@@ -214,15 +217,15 @@ fn guarded_funding_keeps_unknown_host_evidence_and_rejected_calls_leave_no_reser
     }
     for changed in [
         Intent {
-            service: f.other,
+            service: f.other.into(),
             ..intent
         },
         Intent {
-            cashier: f.other,
+            cashier: f.other.into(),
             ..intent
         },
         Intent {
-            account: f.other,
+            account: f.other.into(),
             ..intent
         },
         Intent {

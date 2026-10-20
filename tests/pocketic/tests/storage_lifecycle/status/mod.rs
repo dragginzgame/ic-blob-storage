@@ -5,7 +5,6 @@ use blob_test_protocol::storage::reference::{ReferenceProbeFailure, ReferenceSta
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 fn request(input: ReferenceInput) -> ReferenceStatusRequest {
     let command = receipt_request(input);
@@ -132,11 +131,11 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let input = ReferenceStatusClientInput {
         request: request(reference(permission.request, 1, 1, false)),
-        tenant: client,
+        tenant: client.into(),
         max_reply_bytes: 4096,
     };
     let fetch = |input: ReferenceStatusClientInput| -> Result<ReferenceStatusResponse, ReferenceProbeFailure> {
-        update_candid_args(&f.harness.pic, client, f.operator, "fixture_fetch_reference_status", (input,), REPLY_LIMITS).map(|(reply,)| reply).unwrap()
+        f.harness.pic.update_control_as( client, f.operator, "fixture_fetch_reference_status", (input,), (REPLY_LIMITS).reply_bytes).map(|(reply,)| reply).unwrap()
     };
     let before = f.harness.pic.get_stable_memory(f.service);
     let client_before = f.harness.pic.get_stable_memory(client);
@@ -155,7 +154,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     );
     assert_eq!(
         fetch(ReferenceStatusClientInput {
-            tenant: f.operator,
+            tenant: f.operator.into(),
             ..input
         }),
         Err(ReferenceProbeFailure::Binding)
@@ -183,27 +182,31 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         }),
         Err(ReferenceProbeFailure::Invalid)
     );
-    let query: Result<ReferenceStatusResponse, ReferenceProbeFailure> = query_candid_args(
-        &f.harness.pic,
-        client,
-        f.operator,
-        "fixture_nonreplicated_reference_status",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let query: Result<ReferenceStatusResponse, ReferenceProbeFailure> = f
+        .harness
+        .pic
+        .query_control_as(
+            client,
+            f.operator,
+            "fixture_nonreplicated_reference_status",
+            (input,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));
-    let denied: Result<ReferenceStatusResponse, ReferenceProbeFailure> = update_candid_args(
-        &f.harness.pic,
-        client,
-        f.other,
-        "fixture_fetch_reference_status",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let denied: Result<ReferenceStatusResponse, ReferenceProbeFailure> = f
+        .harness
+        .pic
+        .update_control_as(
+            client,
+            f.other,
+            "fixture_fetch_reference_status",
+            (input,),
+            (REPLY_LIMITS).reply_bytes,
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
     assert_eq!(denied, Err(ReferenceProbeFailure::Denied));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     assert_eq!(f.harness.pic.get_stable_memory(client), client_before);

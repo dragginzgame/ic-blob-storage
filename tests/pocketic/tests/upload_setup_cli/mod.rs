@@ -11,7 +11,7 @@ use crate::{
 };
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
-use ic_platform::Principal;
+use ic_platform::principal::ExternalPrincipal as Principal;
 use serde_json::{Value, json};
 use std::{
     cell::Cell,
@@ -197,8 +197,8 @@ impl Client {
             self.base[3].clone(),
             directory.clone(),
             Dispatch {
-                service: self.permission.permission.upload.service,
-                actor: actual,
+                service: self.permission.permission.upload.service.into(),
+                actor: actual.into(),
                 method,
                 argument_file: "request.wire",
             },

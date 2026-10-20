@@ -11,12 +11,12 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
         format: ConfigurationRecord::FORMAT.to_owned(),
         release: candidate.release.to_owned(),
         platform_installation_version: candidate.platform_installation_version,
-        service: input.service,
-        operator: input.operator,
-        payment_account: input.payment_account,
+        service: input.service.into(),
+        operator: input.operator.into(),
+        payment_account: input.payment_account.into(),
         namespace: input.namespace,
         project: candidate.project.to_owned(),
-        completion_verifier: candidate.completion_verifier,
+        completion_verifier: candidate.completion_verifier.into(),
         max_tenants: input.resources.max_tenants,
         max_object_bytes: input.resources.max_object_bytes,
         max_headers: input.resources.max_headers,
@@ -32,7 +32,7 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
         max_receipts_per_object: input.resources.max_receipts_per_object,
         max_active: input.resources.max_active,
         max_tenant_active: input.resources.max_tenant_active,
-        billing_cashier: input.billing.cashier,
+        billing_cashier: input.billing.cashier.into(),
         billing_reserve: input.billing.reserve,
         billing_minimum_balance: input.billing.minimum_balance,
         billing_target_balance: input.billing.target_balance,
@@ -51,9 +51,9 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
 }
 pub(super) fn input(record: &ConfigurationRecord) -> ServiceConfigurationInput {
     ServiceConfigurationInput {
-        service: record.service,
-        operator: record.operator,
-        payment_account: record.payment_account,
+        service: record.service.into(),
+        operator: record.operator.into(),
+        payment_account: record.payment_account.into(),
         namespace: record.namespace,
         resources: ServiceResourceInput {
             max_tenants: record.max_tenants,
@@ -73,7 +73,7 @@ pub(super) fn input(record: &ConfigurationRecord) -> ServiceConfigurationInput {
             max_tenant_active: record.max_tenant_active,
         },
         billing: ServiceBillingInput {
-            cashier: record.billing_cashier,
+            cashier: record.billing_cashier.into(),
             reserve: record.billing_reserve,
             minimum_balance: record.billing_minimum_balance,
             target_balance: record.billing_target_balance,

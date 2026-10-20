@@ -1,4 +1,5 @@
 //! Bounded upload, manifest and aggregate accounting records.
+use ic_platform::principal::ExternalPrincipal;
 pub(crate) mod lifecycle;
 use super::LifecycleChange;
 use super::ObjectBinding;
@@ -34,9 +35,9 @@ use ic_blob_storage_contracts::configuration::envelope::MAX_MANIFEST_RECORD_BYTE
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct UploadConfigurationRecord {
     version: u8,
-    service: Principal,
-    operator: Principal,
-    payment_account: Principal,
+    service: ExternalPrincipal,
+    operator: ExternalPrincipal,
+    payment_account: ExternalPrincipal,
     namespace: u128,
     max_tenants: u64,
     max_object_bytes: u64,
@@ -60,9 +61,9 @@ impl UploadConfigurationRecord {
         let l = config.limits();
         Self {
             version: 1,
-            service: b.service,
-            operator: b.operator,
-            payment_account: b.payment_account,
+            service: b.service.into(),
+            operator: b.operator.into(),
+            payment_account: b.payment_account.into(),
             namespace: b.namespace.get(),
             max_tenants: l.max_tenants.get() as u64,
             max_object_bytes: l.max_object_bytes.get(),
@@ -95,8 +96,8 @@ enum UploadPhaseRecord {
 #[candid_path("ic_platform::candid::contract")]
 pub(crate) struct UploadPermissionRecord {
     version: u8,
-    service: Principal,
-    tenant: Principal,
+    service: ExternalPrincipal,
+    tenant: ExternalPrincipal,
     namespace: u128,
     object: u128,
     incarnation: u128,
@@ -104,7 +105,7 @@ pub(crate) struct UploadPermissionRecord {
     request: u128,
     root: [u8; 32],
     bytes: u64,
-    uploader: Principal,
+    uploader: ExternalPrincipal,
     expires: u64,
     admitted: u64,
     generation: u64,
@@ -118,8 +119,8 @@ impl UploadPermissionRecord {
         let id = object.identity();
         Self {
             version: 1,
-            service: object.service(),
-            tenant: object.tenant(),
+            service: object.service().into(),
+            tenant: object.tenant().into(),
             namespace: id.namespace.get(),
             object: id.object.get(),
             incarnation: id.incarnation.get(),
@@ -127,7 +128,7 @@ impl UploadPermissionRecord {
             request: input.request.id.get().get(),
             root: *input.request.object.root.as_bytes(),
             bytes: input.request.object.bytes,
-            uploader: input.uploader,
+            uploader: input.uploader.into(),
             expires: input.expires_at_ns,
             admitted: now,
             generation: generation.get(),
@@ -149,14 +150,14 @@ impl UploadPermissionRecord {
         {
             return None;
         }
-        if self.uploader == Principal::anonymous()
-            || self.uploader == Principal::management_canister()
+        if self.uploader == Principal::anonymous().into()
+            || self.uploader == Principal::management_canister().into()
         {
             return None;
         }
         let object = ObjectBinding::new(
-            self.service,
-            self.tenant,
+            self.service.into(),
+            self.tenant.into(),
             ObjectIdentity {
                 namespace: NonZeroU128::new(self.namespace)?,
                 object: NonZeroU128::new(self.object)?,
@@ -177,7 +178,7 @@ impl UploadPermissionRecord {
                         ),
                     },
                 },
-                uploader: self.uploader,
+                uploader: self.uploader.into(),
                 expires_at_ns: self.expires,
             },
             admitted_at_ns: self.admitted,

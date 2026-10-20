@@ -221,7 +221,7 @@ fn invalid_records_and_over_capacity_state_fail_restoration_without_repair() {
         let memory = FixtureMemory::default();
         let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
         store.entries.insert(
-            invalid_tenant,
+            invalid_tenant.into(),
             TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config())),
         );
         drop(store);
@@ -236,7 +236,7 @@ fn invalid_records_and_over_capacity_state_fail_restoration_without_repair() {
     let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     for tenant in [4, 5, 6] {
         store.entries.insert(
-            p(tenant),
+            p(tenant).into(),
             TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(TenantEnrollmentView {
                 generation: NonZeroU64::MIN,
                 active: true,
@@ -259,7 +259,7 @@ fn exhausted_generations_preserve_suspension_and_stable_history() {
         active: true,
     };
     store.entries.insert(
-        p(4),
+        p(4).into(),
         TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(last)),
     );
     let suspended = store
@@ -293,7 +293,9 @@ fn unrecognized_memory_and_missing_metadata_never_seed_a_fresh_store() {
     ));
     let memory = FixtureMemory::default();
     let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
-    store.entries.remove(&Principal::management_canister());
+    store
+        .entries
+        .remove(&ExternalPrincipal::management_canister());
     drop(store);
     let before = memory.borrow().clone();
     assert!(matches!(

@@ -18,10 +18,10 @@ fn preview_decode_binds_every_request_field_and_preserves_full_width_reserve_val
             transport: crate::operator::model::QueryTarget {
                 server: "127.0.0.1:1".parse().unwrap(),
                 instance: 0,
-                canister: request.service,
-                caller: Fake::principal(3),
+                canister: request.service.into(),
+                caller: Fake::principal(3).into(),
             },
-            binding: Binding::Funding(request.peer),
+            binding: Binding::Funding(request.peer.into()),
         },
     };
     let view = sample_view(request);
