@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.38.0]
+## [0.38.0] - 2026-10-20
 
 - **Breaking Principal identity:** adopt published IC Platform 0.4.0's owned
   application Principal and runtime. Hosts must align their Platform family
