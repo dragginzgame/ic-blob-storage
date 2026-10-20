@@ -66,13 +66,21 @@ fn open(
     .map_err(|_| Failure::Arguments)?;
     Ok((request, scope))
 }
-fn decode(
+fn decode<'de>(
     input: &Input,
     request: DownloadRequest,
     scope: &CaffeineDownloadScope,
-    bytes: &[u8],
-) -> Result<DownloadResponse, Failure> {
-    reply::decode(
+    bytes: &'de [u8],
+) -> Result<
+    DownloadResponse<
+        ic_blob_storage_contracts::wire::TextRef<
+            'de,
+            { ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES },
+        >,
+    >,
+    Failure,
+> {
+    reply::decode_borrowed(
         request,
         scope,
         bytes,
@@ -147,8 +155,8 @@ async fn capture(
         .headers
         .iter()
         .map(|h| CaffeineHeader {
-            name: &h.name,
-            value: &h.value,
+            name: h.name.as_str(),
+            value: h.value.as_str(),
         })
         .collect();
     let expected = ExpectedBody {

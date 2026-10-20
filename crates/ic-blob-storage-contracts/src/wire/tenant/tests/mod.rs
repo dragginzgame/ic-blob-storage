@@ -119,7 +119,7 @@ fn bounded_principals_and_canonical_integers_refuse_malformed_payloads() {
     let mut principal = request.clone();
     principal[11] = 30;
     assert!(decode_inspection_request(&principal).is_err());
-    assert!(Bytes::<29>::new(vec![0; 30]).is_err());
+    assert!(BytesRef::<29>::new(&[0; 30]).is_err());
     assert_ne!(Inspect::ID, Update::ID);
     assert_eq!(Inspect::NAME, crate::protocol::TENANT_INSPECTION_METHOD);
     assert_eq!(Update::NAME, crate::protocol::TENANT_UPDATE_METHOD);

@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.39.0] - Unreleased
+
+- Import Serde directly in the five application Wire reply decoders, removing
+  their incidental Candid namespace coupling without changing codecs or bounds.
+
+- **Breaking borrowed contract API:** use published IC Wire 0.5 bounded principal
+  views for finite tenant contracts. Direct users must supply the input lifetime
+  and convert from native references; native tenant helpers remain owned.
+- Allow bounded byte/text views in generic service and saved-document decoding
+  with explicit input-lifetime deserialization bounds. Decode native download
+  descriptor metadata from the retained authenticated reply using the same
+  validator as owned async clients. Keep records, retry frames and upload requests
+  owned where their lifetimes require it.
+- Preserve method identities, literal packet bytes, decoder budgets, provider
+  protocols and stored schemas. No dual reader or automatic migration is added;
+  cross-release services still require safe retirement and reinstall.
+- Record [local endpoint, allocation and deployment-size measurements](docs/evidence/borrowed-wire0390.md),
+  including the rejected slower borrowed async-upload experiment and the limits
+  of applying chunk-codec gains to Blob's separate HTTP body path.
+
 ## [0.38.0] - 2026-10-20
 
 - **Breaking Principal identity:** adopt published IC Platform 0.4.0's owned

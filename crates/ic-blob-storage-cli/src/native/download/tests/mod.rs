@@ -69,10 +69,31 @@ fn download_binds_exact_reference_and_project_before_any_output_or_provider_requ
         ic_blob_storage_contracts::wire::encode_response("blob_download_descriptor", Ok::<_, E>(r))
             .unwrap()
     };
+    let bytes = encode(&response);
+    let view = decode(&input, request, &scope, &bytes).unwrap();
+    assert_eq!(view.request, response.request);
+    assert_eq!(view.owner, response.owner);
+    assert_eq!(view.project.as_str(), response.project);
+    assert_eq!(view.bytes, response.bytes);
+    assert_eq!(view.headers.len(), response.headers.len());
+    for (view, owned) in view.headers.iter().zip(&response.headers) {
+        assert_eq!(view.name.as_str(), owned.name);
+        assert_eq!(view.value.as_str(), owned.value);
+    }
     assert_eq!(
-        decode(&input, request, &scope, &encode(&response)).unwrap(),
-        response
+        ic_blob_storage_contracts::wire::encode_response(
+            "blob_download_descriptor",
+            Ok::<_, E>(&view)
+        )
+        .unwrap(),
+        bytes
     );
+    let frame = bytes.as_ptr() as usize..bytes.as_ptr() as usize + bytes.len();
+    assert!(frame.contains(&(view.project.as_str().as_ptr() as usize)));
+    for header in &view.headers {
+        assert!(frame.contains(&(header.name.as_str().as_ptr() as usize)));
+        assert!(frame.contains(&(header.value.as_str().as_ptr() as usize)));
+    }
     let mut changed = response.clone();
     changed.request.reference -= 1;
     assert!(matches!(

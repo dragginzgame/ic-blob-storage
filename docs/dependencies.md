@@ -112,14 +112,16 @@ Private Candid probe/provider substitutes retain their existing tuple decoder,
 `blob-test-protocol::fixture_candid` hooks. Existing narrower fixture decoders
 and method-bound Wire controls remain unchanged.
 
-Published Wire 0.5.0 is the selected codec minimum. Its `Wire` trait supplies
-serialization, schema and finite bounds, but no longer implies owned decoding.
-Blob's generic service/document decoders already require `DeserializeOwned`;
-its concrete finite tenant contracts remain valid. Borrowed `BytesRef`/`TextRef`
-contracts are available upstream but do not require rewriting Blob's owned DTOs.
-The actual service contract, limits and saved-byte disposition stay documented
-at [the protocol owner](service-wire.md). Provider chunk bodies remain outside
-Blob RPC; upstream 1 MiB borrowed-codec measurements are not Blob performance.
+Published Wire 0.5.0 remains the selected codec minimum and locked version.
+Its `Wire` trait supplies serialization, schema and finite bounds; generic decode
+callers explicitly choose `Deserialize<'de>` or `DeserializeOwned`. Blob's generic
+service/document decoders now admit input-backed values. Finite tenant principal
+views use `BytesRef<29>`; the native descriptor consumer uses `TextRef` over its
+retained authenticated frame. Owned async requests/results, durable records and
+exact retry buffers remain owned. There is no added dependency or alternate codec.
+The [protocol](service-wire.md) owns the unchanged limits and canonical bytes;
+[measurements](evidence/borrowed-wire0390.md) separate actual upload/descriptor
+operations from chunk codec controls. Provider bodies remain outside Blob RPC.
 
 Platform's application `Principal` is now owned and has no Candid or stable-key
 trait. Application DTOs and runtime calls use it. Required provider/management

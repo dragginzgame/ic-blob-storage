@@ -172,3 +172,82 @@ fn owned_principal_adoption_reads_existing_records_and_retains_restore_fences() 
     );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
 }
+
+#[test]
+#[ignore = "Explicit before-borrowing standalone image and SHA-256 required"]
+fn borrowed_codecs_preserve_existing_records_and_retained_request_bytes() {
+    let old = std::fs::read(fixture_path("BLOB_PRE_BORROWING_STANDALONE_WASM")).unwrap();
+    assert_eq!(
+        ic_blob_storage_contracts::identity::ContentDigest::compute(&old).to_string(),
+        std::env::var("BLOB_PRE_BORROWING_SHA256").unwrap()
+    );
+    assert_ne!(
+        old,
+        wasm(),
+        "must compare the actual before/after artifacts"
+    );
+    let f = Fixture::new();
+    // Only reinstall the empty local fixture, before creating any obligation.
+    install_code::settle_install_code_debt(&f.harness.pic);
+    f.harness
+        .pic
+        .reinstall_canister(f.service, old, installation(&f.config), Some(f.controller))
+        .unwrap();
+    f.enroll(f.operator).unwrap();
+    let manifest = f.small_manifest();
+    admit(&f, manifest.permission);
+    let request =
+        ic_blob_storage_contracts::wire::encode_request("blob_prepare_upload", &manifest).unwrap();
+    let prepared = f.prepare(f.uploader, &manifest).unwrap();
+    let mut tenant = f.tenant();
+    tenant.fenced = true;
+    let admission = f.admission(manifest.permission);
+    let mut expected = f.local_status(f.operator, f.operator_scope()).unwrap();
+    expected.uploads.fenced = true;
+    expected.funding.fenced = true;
+    expected.gateways.fenced = true;
+    expected.reads.fenced = true;
+    install_code::settle_install_code_debt(&f.harness.pic);
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .unwrap();
+    assert_eq!(f.tenant(), tenant);
+    assert_eq!(f.admission(manifest.permission), admission);
+    assert_eq!(
+        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        expected
+    );
+    let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
+        .harness
+        .pic
+        .query_blob_as(
+            f.service,
+            f.uploader,
+            "blob_upload_manifest",
+            manifest.permission,
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
+    assert_eq!(retained.unwrap(), prepared.observation);
+    assert_eq!(
+        ic_blob_storage_contracts::wire::encode_request("blob_prepare_upload", &manifest).unwrap(),
+        request
+    );
+    let stable = f.harness.pic.get_stable_memory(f.service);
+    let result: Result<UploadManifestMutation, UploadManifestFailure> =
+        ic_blob_storage_contracts::wire::decode_response(
+            "blob_prepare_upload",
+            &f.harness
+                .pic
+                .update_call(f.service, f.uploader, "blob_prepare_upload", request)
+                .unwrap(),
+            REPLY_LIMITS.reply_bytes,
+        )
+        .unwrap();
+    assert_eq!(
+        result,
+        Err(UploadManifestFailure::Permission(
+            UploadAdmissionFailure::Fenced
+        ))
+    );
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &stable);
+}

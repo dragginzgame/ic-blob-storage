@@ -11,6 +11,21 @@ use std::num::NonZeroUsize;
 use thiserror::Error;
 #[cfg(test)]
 mod tests;
+// One validation implementation for owned async results and input-backed native views.
+trait MetadataText {
+    fn as_str(&self) -> &str;
+}
+impl MetadataText for String {
+    fn as_str(&self) -> &str {
+        String::as_str(self)
+    }
+}
+impl<const N: usize> MetadataText for crate::wire::TextRef<'_, N> {
+    fn as_str(&self) -> &str {
+        crate::wire::TextRef::as_str(self)
+    }
+}
+
 /// Trusted application decode/metadata budgets, independent of platform buffering.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct DownloadReplyLimits {
@@ -71,11 +86,34 @@ pub fn decode(
     bytes: &[u8],
     limits: DownloadReplyLimits,
 ) -> Result<DownloadResponse, DownloadReplyError> {
+    decode_as(request, scope, bytes, limits)
+}
+/// Decode metadata as input-backed views, without copying its project or headers.
+/// The caller retains the authenticated frame for the complete view lifetime.
+/// # Errors
+/// Preserves the owned decoder's bounds, binding checks and typed refusals.
+pub fn decode_borrowed<'de>(
+    request: DownloadRequest,
+    scope: &CaffeineDownloadScope,
+    bytes: &'de [u8],
+    limits: DownloadReplyLimits,
+) -> Result<
+    DownloadResponse<crate::wire::TextRef<'de, { crate::wire::MAX_MESSAGE_BYTES }>>,
+    DownloadReplyError,
+> {
+    decode_as(request, scope, bytes, limits)
+}
+fn decode_as<'de, T: MetadataText + serde::Serialize + serde::Deserialize<'de>>(
+    request: DownloadRequest,
+    scope: &CaffeineDownloadScope,
+    bytes: &'de [u8],
+    limits: DownloadReplyLimits,
+) -> Result<DownloadResponse<T>, DownloadReplyError> {
     check_request(request, scope)?;
     if bytes.len() > limits.max_reply_bytes.get() {
         return Err(DownloadReplyError::Limit);
     }
-    let response: Result<DownloadResponse, DownloadFailure> = crate::wire::decode_response(
+    let response: Result<DownloadResponse<T>, DownloadFailure> = crate::wire::decode_response(
         "blob_download_descriptor",
         bytes,
         limits.max_reply_bytes.get(),
@@ -84,7 +122,7 @@ pub fn decode(
     let response = response.map_err(DownloadReplyError::Remote)?;
     if response.request != request
         || response.owner != scope.owner()
-        || response.project != scope.project()
+        || response.project.as_str() != scope.project()
     {
         return Err(DownloadReplyError::Binding);
     }
@@ -98,8 +136,8 @@ pub fn decode(
         .headers
         .iter()
         .map(|h| CaffeineHeader {
-            name: &h.name,
-            value: &h.value,
+            name: h.name.as_str(),
+            value: h.value.as_str(),
         })
         .collect();
     validate_upload_metadata(

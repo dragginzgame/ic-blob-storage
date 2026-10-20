@@ -4,20 +4,21 @@
 //! uses. Field and variant IDs own wire order. Principals are bounded bytes;
 //! conversions grant no authority and existing tenant policy still validates them.
 use crate::dto::tenant as native;
-use ic_wire::{Bytes, Limits, Method, Wire};
+use ic_wire::{BytesRef, Limits, Method, Wire};
+use std::marker::PhantomData;
 
 /// Exact selected service, namespace and tenant, without authentication claims.
 #[derive(Clone, Debug, Eq, PartialEq, Wire)]
-pub struct Scope {
+pub struct Scope<'a> {
     /// Intended storage service, at most 29 principal bytes.
     #[wire(id = 1)]
-    pub service: Bytes<29>,
+    pub service: BytesRef<'a, 29>,
     /// Installed local namespace.
     #[wire(id = 2)]
     pub namespace: u128,
     /// Intended tenant, at most 29 principal bytes.
     #[wire(id = 3)]
-    pub tenant: Bytes<29>,
+    pub tenant: BytesRef<'a, 29>,
 }
 /// Exact compare-and-set enrollment observation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Wire)]
@@ -31,10 +32,10 @@ pub struct Enrollment {
 }
 /// One operator-authorized compare-and-set, without dispatch or retry policy.
 #[derive(Clone, Debug, Eq, PartialEq, Wire)]
-pub struct UpdateRequest {
+pub struct UpdateRequest<'a> {
     /// Explicit destination and tenant binding.
     #[wire(id = 1)]
-    pub scope: Scope,
+    pub scope: Scope<'a>,
     /// Exact prior observation; absence requires a never-enrolled tenant.
     #[wire(id = 2)]
     pub expected: Option<Enrollment>,
@@ -44,10 +45,10 @@ pub struct UpdateRequest {
 }
 /// Correlated observation; no historical operation receipt or retry authority.
 #[derive(Clone, Debug, Eq, PartialEq, Wire)]
-pub struct Observation {
+pub struct Observation<'a> {
     /// Echoed original scope.
     #[wire(id = 1)]
-    pub scope: Scope,
+    pub scope: Scope<'a>,
     /// Current enrollment, including explicit absence.
     #[wire(id = 2)]
     pub enrollment: Option<Enrollment>,
@@ -85,9 +86,9 @@ pub enum Failure {
 }
 
 /// Tenant observation method; its identity cannot be used as an update envelope.
-pub struct Inspect;
+pub struct Inspect<'a>(PhantomData<&'a ()>);
 /// Tenant compare-and-set method; retain exact original request bytes before effects.
-pub struct Update;
+pub struct Update<'a>(PhantomData<&'a ()>);
 /// Request byte ceiling shared by method contracts and host preallocation admission.
 pub const MAX_REQUEST_BYTES: usize = 512;
 const LIMITS: Limits = Limits {
@@ -96,34 +97,34 @@ const LIMITS: Limits = Limits {
     nodes: 32,
     depth: 8,
 };
-impl Method for Inspect {
-    type Request = Scope;
-    type Response = Result<Observation, Failure>;
+impl<'a> Method for Inspect<'a> {
+    type Request = Scope<'a>;
+    type Response = Result<Observation<'a>, Failure>;
     const ID: u64 = 0x424c_4f42_3332_0001;
     const NAME: &'static str = crate::protocol::TENANT_INSPECTION_METHOD;
     const REQUEST_LIMITS: Limits = LIMITS;
     const RESPONSE_LIMITS: Limits = LIMITS;
 }
-impl Method for Update {
-    type Request = UpdateRequest;
-    type Response = Result<Observation, Failure>;
+impl<'a> Method for Update<'a> {
+    type Request = UpdateRequest<'a>;
+    type Response = Result<Observation<'a>, Failure>;
     const ID: u64 = 0x424c_4f42_3332_0002;
     const NAME: &'static str = crate::protocol::TENANT_UPDATE_METHOD;
     const REQUEST_LIMITS: Limits = LIMITS;
     const RESPONSE_LIMITS: Limits = LIMITS;
 }
 
-impl From<native::TenantScope> for Scope {
-    fn from(value: native::TenantScope) -> Self {
+impl<'a> From<&'a native::TenantScope> for Scope<'a> {
+    fn from(value: &'a native::TenantScope) -> Self {
         Self {
-            service: Bytes::new(value.service.as_slice().to_vec()).expect("principal byte bound"),
+            service: BytesRef::new(value.service.as_slice()).expect("principal byte bound"),
             namespace: value.namespace,
-            tenant: Bytes::new(value.tenant.as_slice().to_vec()).expect("principal byte bound"),
+            tenant: BytesRef::new(value.tenant.as_slice()).expect("principal byte bound"),
         }
     }
 }
-impl From<Scope> for native::TenantScope {
-    fn from(value: Scope) -> Self {
+impl From<Scope<'_>> for native::TenantScope {
+    fn from(value: Scope<'_>) -> Self {
         Self {
             service: ic_platform::Principal::from_slice(value.service.as_slice()),
             namespace: value.namespace,
@@ -147,8 +148,17 @@ impl From<Enrollment> for native::TenantEnrollment {
         }
     }
 }
-impl From<native::TenantUpdateRequest> for UpdateRequest {
-    fn from(value: native::TenantUpdateRequest) -> Self {
+impl<'a> From<&'a native::TenantUpdateRequest> for UpdateRequest<'a> {
+    fn from(value: &'a native::TenantUpdateRequest) -> Self {
+        Self {
+            scope: (&value.scope).into(),
+            expected: value.expected.map(Into::into),
+            active: value.active,
+        }
+    }
+}
+impl From<UpdateRequest<'_>> for native::TenantUpdateRequest {
+    fn from(value: UpdateRequest<'_>) -> Self {
         Self {
             scope: value.scope.into(),
             expected: value.expected.map(Into::into),
@@ -156,26 +166,17 @@ impl From<native::TenantUpdateRequest> for UpdateRequest {
         }
     }
 }
-impl From<UpdateRequest> for native::TenantUpdateRequest {
-    fn from(value: UpdateRequest) -> Self {
+impl<'a> From<&'a native::TenantEnrollmentResponse> for Observation<'a> {
+    fn from(value: &'a native::TenantEnrollmentResponse) -> Self {
         Self {
-            scope: value.scope.into(),
-            expected: value.expected.map(Into::into),
-            active: value.active,
-        }
-    }
-}
-impl From<native::TenantEnrollmentResponse> for Observation {
-    fn from(value: native::TenantEnrollmentResponse) -> Self {
-        Self {
-            scope: value.scope.into(),
+            scope: (&value.scope).into(),
             enrollment: value.enrollment.map(Into::into),
             fenced: value.fenced,
         }
     }
 }
-impl From<Observation> for native::TenantEnrollmentResponse {
-    fn from(value: Observation) -> Self {
+impl From<Observation<'_>> for native::TenantEnrollmentResponse {
+    fn from(value: Observation<'_>) -> Self {
         Self {
             scope: value.scope.into(),
             enrollment: value.enrollment.map(Into::into),
@@ -216,13 +217,13 @@ impl From<Failure> for native::TenantFailure {
 
 /// Convert a native observation without changing application failure meaning.
 fn response(
-    value: Result<native::TenantEnrollmentResponse, native::TenantFailure>,
-) -> Result<Observation, Failure> {
-    value.map(Into::into).map_err(Into::into)
+    value: &Result<native::TenantEnrollmentResponse, native::TenantFailure>,
+) -> Result<Observation<'_>, Failure> {
+    value.as_ref().map(Into::into).map_err(|e| (*e).into())
 }
 /// Convert an admitted reply; native semantic/binding validators still run afterward.
 fn native_response(
-    value: Result<Observation, Failure>,
+    value: Result<Observation<'_>, Failure>,
 ) -> Result<native::TenantEnrollmentResponse, native::TenantFailure> {
     value.map(Into::into).map_err(Into::into)
 }
@@ -234,25 +235,25 @@ mod tests;
 /// # Errors
 /// Refuses codec admission or allocation failure before dispatch.
 pub fn inspection_request(value: native::TenantScope) -> Result<Vec<u8>, ic_wire::Error> {
-    ic_wire::encode_request::<Inspect>(&value.into()).map(ic_wire::RequestBytes::into_bytes)
+    ic_wire::encode_request::<Inspect<'_>>(&(&value).into()).map(ic_wire::RequestBytes::into_bytes)
 }
 /// Decode only this inspection method and request direction.
 /// # Errors
 /// Rejects foreign identity/direction, malformed, noncanonical or excessive input.
 pub fn decode_inspection_request(bytes: &[u8]) -> Result<native::TenantScope, ic_wire::Error> {
-    ic_wire::decode_request::<Inspect>(bytes).map(Into::into)
+    ic_wire::decode_request::<Inspect<'_>>(bytes).map(Into::into)
 }
 /// Encode one compare-and-set; encoding itself grants no effect authority.
 /// # Errors
 /// Refuses codec admission or allocation failure before dispatch.
 pub fn update_request(value: native::TenantUpdateRequest) -> Result<Vec<u8>, ic_wire::Error> {
-    ic_wire::encode_request::<Update>(&value.into()).map(ic_wire::RequestBytes::into_bytes)
+    ic_wire::encode_request::<Update<'_>>(&(&value).into()).map(ic_wire::RequestBytes::into_bytes)
 }
 /// Decode only the update method and request direction.
 /// # Errors
 /// Rejects foreign identity/direction, malformed, noncanonical or excessive input.
 pub fn decode_update_request(bytes: &[u8]) -> Result<native::TenantUpdateRequest, ic_wire::Error> {
-    ic_wire::decode_request::<Update>(bytes).map(Into::into)
+    ic_wire::decode_request::<Update<'_>>(bytes).map(Into::into)
 }
 /// Encode an inspection observation or application refusal.
 /// # Errors
@@ -260,7 +261,8 @@ pub fn decode_update_request(bytes: &[u8]) -> Result<native::TenantUpdateRequest
 pub fn inspection_response(
     value: Result<native::TenantEnrollmentResponse, native::TenantFailure>,
 ) -> Result<Vec<u8>, ic_wire::Error> {
-    ic_wire::encode_response::<Inspect>(&response(value)).map(ic_wire::ResponseBytes::into_bytes)
+    ic_wire::encode_response::<Inspect<'_>>(&response(&value))
+        .map(ic_wire::ResponseBytes::into_bytes)
 }
 /// Encode an update acknowledgment or application refusal.
 /// # Errors
@@ -268,7 +270,8 @@ pub fn inspection_response(
 pub fn update_response(
     value: Result<native::TenantEnrollmentResponse, native::TenantFailure>,
 ) -> Result<Vec<u8>, ic_wire::Error> {
-    ic_wire::encode_response::<Update>(&response(value)).map(ic_wire::ResponseBytes::into_bytes)
+    ic_wire::encode_response::<Update<'_>>(&response(&value))
+        .map(ic_wire::ResponseBytes::into_bytes)
 }
 /// Decode only an inspection reply; semantic/binding checks remain caller-owned.
 /// # Errors
@@ -276,7 +279,7 @@ pub fn update_response(
 pub fn decode_inspection_response(
     bytes: &[u8],
 ) -> Result<Result<native::TenantEnrollmentResponse, native::TenantFailure>, ic_wire::Error> {
-    ic_wire::decode_response::<Inspect>(bytes).map(native_response)
+    ic_wire::decode_response::<Inspect<'_>>(bytes).map(native_response)
 }
 /// Decode only an update reply; an unusable reply never proves non-execution.
 /// # Errors
@@ -284,5 +287,5 @@ pub fn decode_inspection_response(
 pub fn decode_update_response(
     bytes: &[u8],
 ) -> Result<Result<native::TenantEnrollmentResponse, native::TenantFailure>, ic_wire::Error> {
-    ic_wire::decode_response::<Update>(bytes).map(native_response)
+    ic_wire::decode_response::<Update<'_>>(bytes).map(native_response)
 }

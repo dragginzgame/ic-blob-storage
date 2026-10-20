@@ -4,9 +4,9 @@
 pub(crate) mod decimal;
 /// Existing finite tenant contracts retain their exact identities and bytes.
 pub mod tenant;
-pub use ic_wire::Error;
+pub use ic_wire::{BytesRef, Error, TextRef};
 use ic_wire::{Limits, native};
-use serde::{Serialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize};
 
 /// Absolute frame ceiling; receiving owners may impose a narrower bound.
 pub const MAX_MESSAGE_BYTES: usize = 4 * 1024 * 1024;
@@ -83,9 +83,9 @@ pub fn encode_request<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, E
 /// Admit and decode a complete request under the selected endpoint identity.
 /// # Errors
 /// Refuses mismatched identities/directions, noncanonical or over-budget input.
-pub fn decode_request<T: Serialize + DeserializeOwned>(
+pub fn decode_request<'de, T: Serialize + Deserialize<'de>>(
     method: &str,
-    bytes: &[u8],
+    bytes: &'de [u8],
     max: usize,
 ) -> Result<T, Error> {
     native::decode_request(
@@ -103,9 +103,9 @@ pub fn encode_response<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, 
 /// Decode an independently authenticated reply under the exact original method.
 /// # Errors
 /// Refuses mismatched identities/directions, noncanonical or over-budget input.
-pub fn decode_response<T: Serialize + DeserializeOwned>(
+pub fn decode_response<'de, T: Serialize + Deserialize<'de>>(
     method: &str,
-    bytes: &[u8],
+    bytes: &'de [u8],
     max: usize,
 ) -> Result<T, Error> {
     native::decode_response(identity(method)?, bytes, limits(max.min(MAX_MESSAGE_BYTES)))

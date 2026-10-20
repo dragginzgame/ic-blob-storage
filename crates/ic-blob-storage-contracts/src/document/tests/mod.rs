@@ -101,3 +101,54 @@ fn nesting_admission_precedes_value_allocation() {
     .unwrap();
     assert!(matches!(decode::<Nested>(&bytes, 4096), Err(Error::Limit)));
 }
+
+#[test]
+fn borrowed_chunk_and_metadata_views_preserve_canonical_retained_frames() {
+    use crate::wire::{BytesRef, TextRef};
+    let payload = vec![0x9a_u8; 1024 * 1024];
+    let borrowed = (
+        BytesRef::<{ 1024 * 1024 }>::new(&payload).unwrap(),
+        TextRef::<64>::new("application/octet-stream").unwrap(),
+    );
+    let bytes = encode(borrowed).unwrap();
+    let view: (BytesRef<'_, { 1024 * 1024 }>, TextRef<'_, 64>) =
+        decode(&bytes, MAX_MESSAGE_BYTES).unwrap();
+    let frame = bytes.as_ptr() as usize..bytes.as_ptr() as usize + bytes.len();
+    assert!(frame.contains(&(view.0.as_slice().as_ptr() as usize)));
+    assert!(frame.contains(&(view.1.as_str().as_ptr() as usize)));
+    assert_eq!(view.0.as_slice(), payload);
+    assert_eq!(encode(view).unwrap(), bytes);
+    assert_eq!(
+        encode((
+            ic_wire::Bytes::<{ 1024 * 1024 }>::new(payload).unwrap(),
+            String::from("application/octet-stream")
+        ))
+        .unwrap(),
+        bytes
+    );
+    // The immutable frame is the retained retry identity, independent of source buffers.
+    let mut trailing = bytes.clone();
+    trailing.push(0);
+    assert_eq!(
+        decode::<(BytesRef<'_, { 1024 * 1024 }>, TextRef<'_, 64>)>(&trailing, MAX_MESSAGE_BYTES),
+        Err(Error::Trailing)
+    );
+    assert!(decode::<(BytesRef<'_, 1024>, TextRef<'_, 64>)>(&bytes, MAX_MESSAGE_BYTES).is_err());
+    assert!(
+        decode::<(BytesRef<'_, { 1024 * 1024 }>, TextRef<'_, 4>)>(&bytes, MAX_MESSAGE_BYTES)
+            .is_err()
+    );
+    for end in [0, 10, 11, bytes.len() - 1] {
+        assert!(
+            decode::<(BytesRef<'_, { 1024 * 1024 }>, TextRef<'_, 64>)>(
+                &bytes[..end],
+                MAX_MESSAGE_BYTES
+            )
+            .is_err()
+        );
+    }
+    let text = encode("é").unwrap();
+    let mut invalid = text.clone();
+    *invalid.last_mut().unwrap() = 0xff;
+    assert!(decode::<TextRef<'_, 16>>(&invalid, 4096).is_err());
+}

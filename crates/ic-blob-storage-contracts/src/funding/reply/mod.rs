@@ -10,7 +10,7 @@ use crate::dto::funding::outcome::FundingOutcomeRequest;
 use crate::dto::operator::{LocalFundingStatus, OperatorScope};
 use crate::funding::transfer::FundingTransfer;
 use ic_platform::Principal;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;
 use thiserror::Error;

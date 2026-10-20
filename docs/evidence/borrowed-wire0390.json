@@ -1,0 +1,2045 @@
+{
+  "scope": "IC Wire 0.5 borrowed API adoption on released Blob 0.38; pending 0.39 source cut; no runtime format cut",
+  "baseline": {
+    "scope": "Local PocketIC before/after borrowing; no live provider, commits or release",
+    "source": "837310221129550a925ba057f0a76b3df2329075",
+    "compiler": "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+    "profile": "Cargo default release (optimized Rust, no Binaryen pass), wasm32-unknown-unknown; deterministic gzip level 9, mtime 0",
+    "lock_sha256": "7560ef2dcf82b11d11ca7dc0532c0d45940042a51929731275702cb05f1974b6",
+    "wire": "published ic-wire 0.5.0",
+    "cases": [
+      "upload preparation small and metadata-heavy; first and exact replay",
+      "download descriptor same retained declarations",
+      "1 MiB codec-only chunk/text control; no Blob body endpoint"
+    ]
+  },
+  "lock_packages": [
+    {
+      "name": "ic-build",
+      "version": "0.22.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "9e4f17cdb7df1431acb988aba21d90b3b3b7136b1fdb59d6946ff81f3436bf06"
+    },
+    {
+      "name": "ic-host-artifacts",
+      "version": "0.31.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "f4417f092a4bc5bc1b55fb6a59a43b2d41703dfe1be7943117dbbf31b84211b6"
+    },
+    {
+      "name": "ic-host-fs",
+      "version": "0.31.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "f1cd9bad40d94a862ab47615f998e7f3b8eb9ba9ca5821188488713adf78c5bc"
+    },
+    {
+      "name": "ic-host-process",
+      "version": "0.31.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "3f67820c240d86e86e0310edb8265aebb8c82cf9c97ed31cf59c25aa0404f6ff"
+    },
+    {
+      "name": "ic-host-tools",
+      "version": "0.31.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "4e5270a79d25c5a5b67a9a32d80ab6d427666b564c224135eca52488eeee61fa"
+    },
+    {
+      "name": "ic-memory",
+      "version": "0.49.2",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "5d363a8a008e16f5ec128174d9582f3c234e6674b6b90e73d88f2363d21f2f12"
+    },
+    {
+      "name": "ic-platform",
+      "version": "0.4.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "b18d164492c33ea09395d97ef4f7858678af7565e457b35cafff59a6fc9869fd"
+    },
+    {
+      "name": "ic-platform-macros",
+      "version": "0.4.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e2e0f9df722c5c67459b6f37a03f2ded46d1b58f4946e98950e99571734a7e44"
+    },
+    {
+      "name": "ic-storage",
+      "version": "0.5.8",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "5b9499e26545b487967cf898356bd7d8ebbb733ab419e2edf7beb2182494232c"
+    },
+    {
+      "name": "ic-testkit",
+      "version": "0.59.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "3d93551ce7aa9bfde1e4d38a7d082f570ecfa45198630103670ebc3f00d1069e"
+    },
+    {
+      "name": "ic-wire",
+      "version": "0.5.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "bdfc9e7a6686d78854a2a06f408492313ce10c985a17976e7395fc6cef776479"
+    },
+    {
+      "name": "pocket-ic",
+      "version": "16.1.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "85135917c845e8fc132f5eca3a0a8cbab696477a5fee3c2dda168a0797f81e1c"
+    },
+    {
+      "name": "postcard",
+      "version": "1.1.3",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "6764c3b5dd454e283a30e6dfe78e9b31096d9e32036b5d1eaac7a6119ccb9a24"
+    },
+    {
+      "name": "serde",
+      "version": "1.0.229",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "4148590afebada386688f18773da617792bf2ef03ffc1e4cbd2b1d45b023e0ba"
+    },
+    {
+      "name": "serde_bytes",
+      "version": "0.11.19",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "a5d440709e79d88e51ac01c4b72fc6cb7314017bb7da9eeff678aa94c10e3ea8"
+    },
+    {
+      "name": "thiserror",
+      "version": "1.0.69",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
+    },
+    {
+      "name": "thiserror",
+      "version": "2.0.18",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "4288b5bcbc7920c07a1149a35cf9590a2aa808e0bc1eafaade0b80947865fbc4"
+    },
+    {
+      "name": "ic-metrics",
+      "version": "0.14.9",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "9fda7a261ecf7f0353b139e06340ee21e6cd8ed2ca91a59eff481e906342a1d1"
+    }
+  ],
+  "method": "Call-context instruction-counter deltas after platform ingress admission/copy and before final reply append; local PocketIC; temporary instrumented captures built in distinct target directories. Allocation-observer instructions excluded from performance claims.",
+  "phase_meanings": {
+    "instruction-before": "accepted baseline",
+    "final": "accepted implementation",
+    "instruction-after": "rejected borrowed async upload trial",
+    "before-alloc": "baseline allocation observer only",
+    "final-alloc": "accepted allocation observer only",
+    "after-alloc": "rejected async-upload allocation observer only"
+  },
+  "phases": {
+    "instruction-before": [
+      {
+        "case": "small",
+        "declared_body_bytes": 1024,
+        "upload_first": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:33fbab403e85aa2bb67493827605729b3b38220e01cc6eaf63d96769d2543b7a",
+          "sample_count": 1,
+          "instructions": {
+            "decode_instructions": {
+              "median": 30650,
+              "min": 30650,
+              "max": 30650
+            },
+            "workflow_instructions": {
+              "median": 1853669,
+              "min": 1853669,
+              "max": 1853669
+            },
+            "encode_instructions": {
+              "median": 20119,
+              "min": 20119,
+              "max": 20119
+            },
+            "measured_total_instructions": {
+              "median": 1904438,
+              "min": 1904438,
+              "max": 1904438
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:534a50dc30b10ff0f71e91ce5fe5b8989a76d9f3ea3d10eba703bfbe4bfd9a68",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 30661.0,
+              "min": 30645,
+              "max": 30725
+            },
+            "workflow_instructions": {
+              "median": 1156621.0,
+              "min": 1153286,
+              "max": 1186111
+            },
+            "encode_instructions": {
+              "median": 20466.5,
+              "min": 20220,
+              "max": 20577
+            },
+            "measured_total_instructions": {
+              "median": 1207843.0,
+              "min": 1204319,
+              "max": 1237056
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 240,
+          "request_sha256": "sha256:75ffeec056337c31543113f18baf475e13b0fdacebdc47b2bcc811d9b7b1e0f2",
+          "reply_sha256": "sha256:54db9efe7c583e4d55776d0161b9e696928371168c05c5334e5d1d7e7b2d4562",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 12565.0,
+              "min": 12565,
+              "max": 12565
+            },
+            "workflow_instructions": {
+              "median": 1356928.0,
+              "min": 1356928,
+              "max": 1636081
+            },
+            "encode_instructions": {
+              "median": 14327.0,
+              "min": 14327,
+              "max": 14747
+            },
+            "measured_total_instructions": {
+              "median": 1383820.0,
+              "min": 1383820,
+              "max": 1663393
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "metadata-heavy",
+        "declared_body_bytes": 1048576,
+        "upload_first": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:4fbc55533f3f0ec2514d3d0b5d4a29ac6c7ef8964c94e2588c07dc6ccc64f008",
+          "sample_count": 1,
+          "instructions": {
+            "decode_instructions": {
+              "median": 34866,
+              "min": 34866,
+              "max": 34866
+            },
+            "workflow_instructions": {
+              "median": 1965887,
+              "min": 1965887,
+              "max": 1965887
+            },
+            "encode_instructions": {
+              "median": 21003,
+              "min": 21003,
+              "max": 21003
+            },
+            "measured_total_instructions": {
+              "median": 2021756,
+              "min": 2021756,
+              "max": 2021756
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:6ff629609224569bc7f87faefc47d53032252c7cc114c56c08d6da6d89d7ae1f",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 35050.0,
+              "min": 35050,
+              "max": 35135
+            },
+            "workflow_instructions": {
+              "median": 1262092.0,
+              "min": 1262092,
+              "max": 1303577
+            },
+            "encode_instructions": {
+              "median": 20881.0,
+              "min": 20881,
+              "max": 20881
+            },
+            "measured_total_instructions": {
+              "median": 1318023.0,
+              "min": 1318023,
+              "max": 1359593
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 921,
+          "request_sha256": "sha256:86a96ffca22917e2db7340fc6b7a51422309db9eb1c383d72854e9acd180c000",
+          "reply_sha256": "sha256:c73c211b6eaaf7697ab9ed9756660a6f8b2e0eaa7881d7789c6f46e986ecce5b",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 12565.0,
+              "min": 12565,
+              "max": 12565
+            },
+            "workflow_instructions": {
+              "median": 1359962.0,
+              "min": 1359962,
+              "max": 1638176
+            },
+            "encode_instructions": {
+              "median": 15118.0,
+              "min": 15118,
+              "max": 15280
+            },
+            "measured_total_instructions": {
+              "median": 1387645.0,
+              "min": 1387645,
+              "max": 1666021
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-0",
+        "payload_bytes": 0,
+        "codec": {
+          "request_bytes": 37,
+          "reply_bytes": 37,
+          "request_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "reply_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 2333.0,
+              "min": 2333,
+              "max": 2364
+            },
+            "workflow_instructions": {
+              "median": 299.0,
+              "min": 299,
+              "max": 299
+            },
+            "encode_instructions": {
+              "median": 1817.0,
+              "min": 1817,
+              "max": 1892
+            },
+            "measured_total_instructions": {
+              "median": 4449.0,
+              "min": 4449,
+              "max": 4555
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1024",
+        "payload_bytes": 1024,
+        "codec": {
+          "request_bytes": 1062,
+          "reply_bytes": 1062,
+          "request_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "reply_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 5490.0,
+              "min": 5490,
+              "max": 5490
+            },
+            "workflow_instructions": {
+              "median": 8255.0,
+              "min": 8255,
+              "max": 8255
+            },
+            "encode_instructions": {
+              "median": 2975.0,
+              "min": 2975,
+              "max": 2975
+            },
+            "measured_total_instructions": {
+              "median": 16720.0,
+              "min": 16720,
+              "max": 16720
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1048576",
+        "payload_bytes": 1048576,
+        "codec": {
+          "request_bytes": 1048615,
+          "reply_bytes": 1048615,
+          "request_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "reply_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 5315369.0,
+              "min": 5315369,
+              "max": 5315884
+            },
+            "workflow_instructions": {
+              "median": 8126783.0,
+              "min": 8126783,
+              "max": 8126783
+            },
+            "encode_instructions": {
+              "median": 3610549.0,
+              "min": 3610549,
+              "max": 3611064
+            },
+            "measured_total_instructions": {
+              "median": 17052701.0,
+              "min": 17052701,
+              "max": 17053731
+            }
+          },
+          "linear_memory_bytes_observed": [
+            2424832,
+            3538944,
+            4653056
+          ]
+        }
+      }
+    ],
+    "final": [
+      {
+        "case": "small",
+        "declared_body_bytes": 1024,
+        "upload_first": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:33fbab403e85aa2bb67493827605729b3b38220e01cc6eaf63d96769d2543b7a",
+          "sample_count": 1,
+          "instructions": {
+            "decode_instructions": {
+              "median": 30650,
+              "min": 30650,
+              "max": 30650
+            },
+            "workflow_instructions": {
+              "median": 1853661,
+              "min": 1853661,
+              "max": 1853661
+            },
+            "encode_instructions": {
+              "median": 20119,
+              "min": 20119,
+              "max": 20119
+            },
+            "measured_total_instructions": {
+              "median": 1904430,
+              "min": 1904430,
+              "max": 1904430
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:534a50dc30b10ff0f71e91ce5fe5b8989a76d9f3ea3d10eba703bfbe4bfd9a68",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 30661.0,
+              "min": 30645,
+              "max": 30725
+            },
+            "workflow_instructions": {
+              "median": 1156613.0,
+              "min": 1153278,
+              "max": 1186103
+            },
+            "encode_instructions": {
+              "median": 20466.5,
+              "min": 20220,
+              "max": 20577
+            },
+            "measured_total_instructions": {
+              "median": 1207835.0,
+              "min": 1204311,
+              "max": 1237048
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 240,
+          "request_sha256": "sha256:75ffeec056337c31543113f18baf475e13b0fdacebdc47b2bcc811d9b7b1e0f2",
+          "reply_sha256": "sha256:54db9efe7c583e4d55776d0161b9e696928371168c05c5334e5d1d7e7b2d4562",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 92565.0,
+              "min": 92565,
+              "max": 92565
+            },
+            "workflow_instructions": {
+              "median": 1356928.0,
+              "min": 1356928,
+              "max": 1636081
+            },
+            "encode_instructions": {
+              "median": 14327.0,
+              "min": 14327,
+              "max": 14747
+            },
+            "measured_total_instructions": {
+              "median": 1463820.0,
+              "min": 1463820,
+              "max": 1743393
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "metadata-heavy",
+        "declared_body_bytes": 1048576,
+        "upload_first": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:4fbc55533f3f0ec2514d3d0b5d4a29ac6c7ef8964c94e2588c07dc6ccc64f008",
+          "sample_count": 1,
+          "instructions": {
+            "decode_instructions": {
+              "median": 34866,
+              "min": 34866,
+              "max": 34866
+            },
+            "workflow_instructions": {
+              "median": 1965879,
+              "min": 1965879,
+              "max": 1965879
+            },
+            "encode_instructions": {
+              "median": 21003,
+              "min": 21003,
+              "max": 21003
+            },
+            "measured_total_instructions": {
+              "median": 2021748,
+              "min": 2021748,
+              "max": 2021748
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:6ff629609224569bc7f87faefc47d53032252c7cc114c56c08d6da6d89d7ae1f",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 35050.0,
+              "min": 35050,
+              "max": 35135
+            },
+            "workflow_instructions": {
+              "median": 1262084.0,
+              "min": 1262084,
+              "max": 1303569
+            },
+            "encode_instructions": {
+              "median": 20881.0,
+              "min": 20881,
+              "max": 20881
+            },
+            "measured_total_instructions": {
+              "median": 1318015.0,
+              "min": 1318015,
+              "max": 1359585
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 921,
+          "request_sha256": "sha256:86a96ffca22917e2db7340fc6b7a51422309db9eb1c383d72854e9acd180c000",
+          "reply_sha256": "sha256:c73c211b6eaaf7697ab9ed9756660a6f8b2e0eaa7881d7789c6f46e986ecce5b",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 92565.0,
+              "min": 92565,
+              "max": 92565
+            },
+            "workflow_instructions": {
+              "median": 1359962.0,
+              "min": 1359962,
+              "max": 1638176
+            },
+            "encode_instructions": {
+              "median": 15118.0,
+              "min": 15118,
+              "max": 15280
+            },
+            "measured_total_instructions": {
+              "median": 1467645.0,
+              "min": 1467645,
+              "max": 1746021
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-0",
+        "payload_bytes": 0,
+        "codec": {
+          "request_bytes": 37,
+          "reply_bytes": 37,
+          "request_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "reply_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 1827.0,
+              "min": 1827,
+              "max": 1827
+            },
+            "workflow_instructions": {
+              "median": 295.0,
+              "min": 295,
+              "max": 295
+            },
+            "encode_instructions": {
+              "median": 81861.0,
+              "min": 81861,
+              "max": 81861
+            },
+            "measured_total_instructions": {
+              "median": 83983.0,
+              "min": 83983,
+              "max": 83983
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1024",
+        "payload_bytes": 1024,
+        "codec": {
+          "request_bytes": 1062,
+          "reply_bytes": 1062,
+          "request_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "reply_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 1937.0,
+              "min": 1937,
+              "max": 1937
+            },
+            "workflow_instructions": {
+              "median": 8251.0,
+              "min": 8251,
+              "max": 8251
+            },
+            "encode_instructions": {
+              "median": 83019.0,
+              "min": 83019,
+              "max": 83019
+            },
+            "measured_total_instructions": {
+              "median": 93207.0,
+              "min": 93207,
+              "max": 93207
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1048576",
+        "payload_bytes": 1048576,
+        "codec": {
+          "request_bytes": 1048615,
+          "reply_bytes": 1048615,
+          "request_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "reply_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 1992.0,
+              "min": 1992,
+              "max": 1992
+            },
+            "workflow_instructions": {
+              "median": 8126779.0,
+              "min": 8126779,
+              "max": 8126779
+            },
+            "encode_instructions": {
+              "median": 3690593.0,
+              "min": 3690593,
+              "max": 3691108
+            },
+            "measured_total_instructions": {
+              "median": 11819364.0,
+              "min": 11819364,
+              "max": 11819879
+            }
+          },
+          "linear_memory_bytes_observed": [
+            2424832,
+            3538944
+          ]
+        }
+      }
+    ],
+    "instruction-after": [
+      {
+        "case": "small",
+        "declared_body_bytes": 1024,
+        "upload_first": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:33fbab403e85aa2bb67493827605729b3b38220e01cc6eaf63d96769d2543b7a",
+          "sample_count": 1,
+          "instructions": {
+            "decode_instructions": {
+              "median": 28796,
+              "min": 28796,
+              "max": 28796
+            },
+            "workflow_instructions": {
+              "median": 1926775,
+              "min": 1926775,
+              "max": 1926775
+            },
+            "encode_instructions": {
+              "median": 20042,
+              "min": 20042,
+              "max": 20042
+            },
+            "measured_total_instructions": {
+              "median": 1975613,
+              "min": 1975613,
+              "max": 1975613
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:534a50dc30b10ff0f71e91ce5fe5b8989a76d9f3ea3d10eba703bfbe4bfd9a68",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 28796.0,
+              "min": 28796,
+              "max": 28796
+            },
+            "workflow_instructions": {
+              "median": 1229620.0,
+              "min": 1229620,
+              "max": 1265485
+            },
+            "encode_instructions": {
+              "median": 20579.0,
+              "min": 20579,
+              "max": 20579
+            },
+            "measured_total_instructions": {
+              "median": 1278995.0,
+              "min": 1278995,
+              "max": 1314860
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 240,
+          "request_sha256": "sha256:75ffeec056337c31543113f18baf475e13b0fdacebdc47b2bcc811d9b7b1e0f2",
+          "reply_sha256": "sha256:54db9efe7c583e4d55776d0161b9e696928371168c05c5334e5d1d7e7b2d4562",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 12610.0,
+              "min": 12610,
+              "max": 12610
+            },
+            "workflow_instructions": {
+              "median": 1366339.0,
+              "min": 1365692,
+              "max": 1637463
+            },
+            "encode_instructions": {
+              "median": 14612.0,
+              "min": 14612,
+              "max": 14645
+            },
+            "measured_total_instructions": {
+              "median": 1393561.0,
+              "min": 1392914,
+              "max": 1664718
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "metadata-heavy",
+        "declared_body_bytes": 1048576,
+        "upload_first": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:4fbc55533f3f0ec2514d3d0b5d4a29ac6c7ef8964c94e2588c07dc6ccc64f008",
+          "sample_count": 1,
+          "instructions": {
+            "decode_instructions": {
+              "median": 30962,
+              "min": 30962,
+              "max": 30962
+            },
+            "workflow_instructions": {
+              "median": 2048443,
+              "min": 2048443,
+              "max": 2048443
+            },
+            "encode_instructions": {
+              "median": 20847,
+              "min": 20847,
+              "max": 20847
+            },
+            "measured_total_instructions": {
+              "median": 2100252,
+              "min": 2100252,
+              "max": 2100252
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:6ff629609224569bc7f87faefc47d53032252c7cc114c56c08d6da6d89d7ae1f",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 30962.0,
+              "min": 30962,
+              "max": 30962
+            },
+            "workflow_instructions": {
+              "median": 1346810.0,
+              "min": 1346810,
+              "max": 1380681
+            },
+            "encode_instructions": {
+              "median": 20911.0,
+              "min": 20911,
+              "max": 20911
+            },
+            "measured_total_instructions": {
+              "median": 1398683.0,
+              "min": 1398683,
+              "max": 1432554
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 921,
+          "request_sha256": "sha256:86a96ffca22917e2db7340fc6b7a51422309db9eb1c383d72854e9acd180c000",
+          "reply_sha256": "sha256:c73c211b6eaaf7697ab9ed9756660a6f8b2e0eaa7881d7789c6f46e986ecce5b",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 12610.0,
+              "min": 12610,
+              "max": 12610
+            },
+            "workflow_instructions": {
+              "median": 1357904.0,
+              "min": 1357904,
+              "max": 1639809
+            },
+            "encode_instructions": {
+              "median": 15303.0,
+              "min": 15247,
+              "max": 15303
+            },
+            "measured_total_instructions": {
+              "median": 1385817.0,
+              "min": 1385817,
+              "max": 1667666
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-0",
+        "payload_bytes": 0,
+        "codec": {
+          "request_bytes": 37,
+          "reply_bytes": 37,
+          "request_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "reply_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 1827.0,
+              "min": 1827,
+              "max": 1827
+            },
+            "workflow_instructions": {
+              "median": 295.0,
+              "min": 295,
+              "max": 295
+            },
+            "encode_instructions": {
+              "median": 81861.0,
+              "min": 81861,
+              "max": 81861
+            },
+            "measured_total_instructions": {
+              "median": 83983.0,
+              "min": 83983,
+              "max": 83983
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1024",
+        "payload_bytes": 1024,
+        "codec": {
+          "request_bytes": 1062,
+          "reply_bytes": 1062,
+          "request_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "reply_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 1937.0,
+              "min": 1937,
+              "max": 1937
+            },
+            "workflow_instructions": {
+              "median": 8251.0,
+              "min": 8251,
+              "max": 8251
+            },
+            "encode_instructions": {
+              "median": 83019.0,
+              "min": 83019,
+              "max": 83019
+            },
+            "measured_total_instructions": {
+              "median": 93207.0,
+              "min": 93207,
+              "max": 93207
+            }
+          },
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1048576",
+        "payload_bytes": 1048576,
+        "codec": {
+          "request_bytes": 1048615,
+          "reply_bytes": 1048615,
+          "request_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "reply_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "sample_count": 10,
+          "instructions": {
+            "decode_instructions": {
+              "median": 1992.0,
+              "min": 1992,
+              "max": 1992
+            },
+            "workflow_instructions": {
+              "median": 8126779.0,
+              "min": 8126779,
+              "max": 8126779
+            },
+            "encode_instructions": {
+              "median": 3690593.0,
+              "min": 3690593,
+              "max": 3691108
+            },
+            "measured_total_instructions": {
+              "median": 11819364.0,
+              "min": 11819364,
+              "max": 11819879
+            }
+          },
+          "linear_memory_bytes_observed": [
+            2424832,
+            3538944
+          ]
+        }
+      }
+    ],
+    "before-alloc": [
+      {
+        "case": "small",
+        "declared_body_bytes": 1024,
+        "upload_first": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:33fbab403e85aa2bb67493827605729b3b38220e01cc6eaf63d96769d2543b7a",
+          "sample_count": 1,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1115,
+            104,
+            57270,
+            48060
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:534a50dc30b10ff0f71e91ce5fe5b8989a76d9f3ea3d10eba703bfbe4bfd9a68",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            776.0,
+            56.0,
+            38461.0,
+            32779.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 240,
+          "request_sha256": "sha256:75ffeec056337c31543113f18baf475e13b0fdacebdc47b2bcc811d9b7b1e0f2",
+          "reply_sha256": "sha256:54db9efe7c583e4d55776d0161b9e696928371168c05c5334e5d1d7e7b2d4562",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            724.0,
+            42.0,
+            33956.0,
+            29942.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "metadata-heavy",
+        "declared_body_bytes": 1048576,
+        "upload_first": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:4fbc55533f3f0ec2514d3d0b5d4a29ac6c7ef8964c94e2588c07dc6ccc64f008",
+          "sample_count": 1,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1115,
+            104,
+            65371,
+            54151
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:6ff629609224569bc7f87faefc47d53032252c7cc114c56c08d6da6d89d7ae1f",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            776.0,
+            56.0,
+            44567.0,
+            37530.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 921,
+          "request_sha256": "sha256:86a96ffca22917e2db7340fc6b7a51422309db9eb1c383d72854e9acd180c000",
+          "reply_sha256": "sha256:c73c211b6eaaf7697ab9ed9756660a6f8b2e0eaa7881d7789c6f46e986ecce5b",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            724.0,
+            42.0,
+            35996.0,
+            31301.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-0",
+        "payload_bytes": 0,
+        "codec": {
+          "request_bytes": 37,
+          "reply_bytes": 37,
+          "request_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "reply_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            2.0,
+            0.0,
+            61.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1024",
+        "payload_bytes": 1024,
+        "codec": {
+          "request_bytes": 1062,
+          "reply_bytes": 1062,
+          "request_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "reply_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            3.0,
+            0.0,
+            2110.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1048576",
+        "payload_bytes": 1048576,
+        "codec": {
+          "request_bytes": 1048615,
+          "reply_bytes": 1048615,
+          "request_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "reply_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            3.0,
+            0.0,
+            2097215.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            2424832,
+            3538944,
+            4653056
+          ]
+        }
+      }
+    ],
+    "final-alloc": [
+      {
+        "case": "small",
+        "declared_body_bytes": 1024,
+        "upload_first": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:33fbab403e85aa2bb67493827605729b3b38220e01cc6eaf63d96769d2543b7a",
+          "sample_count": 1,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1115,
+            104,
+            57270,
+            48060
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:534a50dc30b10ff0f71e91ce5fe5b8989a76d9f3ea3d10eba703bfbe4bfd9a68",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            776.0,
+            56.0,
+            38461.0,
+            32779.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 240,
+          "request_sha256": "sha256:75ffeec056337c31543113f18baf475e13b0fdacebdc47b2bcc811d9b7b1e0f2",
+          "reply_sha256": "sha256:54db9efe7c583e4d55776d0161b9e696928371168c05c5334e5d1d7e7b2d4562",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            724.0,
+            42.0,
+            33956.0,
+            29942.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "metadata-heavy",
+        "declared_body_bytes": 1048576,
+        "upload_first": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:4fbc55533f3f0ec2514d3d0b5d4a29ac6c7ef8964c94e2588c07dc6ccc64f008",
+          "sample_count": 1,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1115,
+            104,
+            65371,
+            54151
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:6ff629609224569bc7f87faefc47d53032252c7cc114c56c08d6da6d89d7ae1f",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            776.0,
+            56.0,
+            44567.0,
+            37530.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 921,
+          "request_sha256": "sha256:86a96ffca22917e2db7340fc6b7a51422309db9eb1c383d72854e9acd180c000",
+          "reply_sha256": "sha256:c73c211b6eaaf7697ab9ed9756660a6f8b2e0eaa7881d7789c6f46e986ecce5b",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            724.0,
+            42.0,
+            35996.0,
+            31301.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-0",
+        "payload_bytes": 0,
+        "codec": {
+          "request_bytes": 37,
+          "reply_bytes": 37,
+          "request_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "reply_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1.0,
+            0.0,
+            37.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1024",
+        "payload_bytes": 1024,
+        "codec": {
+          "request_bytes": 1062,
+          "reply_bytes": 1062,
+          "request_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "reply_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1.0,
+            0.0,
+            1062.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1048576",
+        "payload_bytes": 1048576,
+        "codec": {
+          "request_bytes": 1048615,
+          "reply_bytes": 1048615,
+          "request_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "reply_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1.0,
+            0.0,
+            1048615.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            2424832,
+            3538944
+          ]
+        }
+      }
+    ],
+    "after-alloc": [
+      {
+        "case": "small",
+        "declared_body_bytes": 1024,
+        "upload_first": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:33fbab403e85aa2bb67493827605729b3b38220e01cc6eaf63d96769d2543b7a",
+          "sample_count": 1,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1111,
+            104,
+            57156,
+            48252
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 269,
+          "reply_bytes": 272,
+          "request_sha256": "sha256:c1de7af241e0ddea1d44d598ea4bf614c99e774f6b3e9e8610256f2f63f89709",
+          "reply_sha256": "sha256:534a50dc30b10ff0f71e91ce5fe5b8989a76d9f3ea3d10eba703bfbe4bfd9a68",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            772.0,
+            56.0,
+            38347.0,
+            32971.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 240,
+          "request_sha256": "sha256:75ffeec056337c31543113f18baf475e13b0fdacebdc47b2bcc811d9b7b1e0f2",
+          "reply_sha256": "sha256:54db9efe7c583e4d55776d0161b9e696928371168c05c5334e5d1d7e7b2d4562",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            724.0,
+            42.0,
+            33956.0,
+            29942.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "metadata-heavy",
+        "declared_body_bytes": 1048576,
+        "upload_first": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:4fbc55533f3f0ec2514d3d0b5d4a29ac6c7ef8964c94e2588c07dc6ccc64f008",
+          "sample_count": 1,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1111,
+            104,
+            64578,
+            54343
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "upload_replay": {
+          "request_bytes": 950,
+          "reply_bytes": 953,
+          "request_sha256": "sha256:41b39b11ed12d89eef29bb1377b53f4fa856cfc34fb508f7256690d836893856",
+          "reply_sha256": "sha256:6ff629609224569bc7f87faefc47d53032252c7cc114c56c08d6da6d89d7ae1f",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            772.0,
+            56.0,
+            43774.0,
+            37722.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        },
+        "download": {
+          "request_bytes": 106,
+          "reply_bytes": 921,
+          "request_sha256": "sha256:86a96ffca22917e2db7340fc6b7a51422309db9eb1c383d72854e9acd180c000",
+          "reply_sha256": "sha256:c73c211b6eaaf7697ab9ed9756660a6f8b2e0eaa7881d7789c6f46e986ecce5b",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            724.0,
+            42.0,
+            35996.0,
+            31301.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-0",
+        "payload_bytes": 0,
+        "codec": {
+          "request_bytes": 37,
+          "reply_bytes": 37,
+          "request_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "reply_sha256": "sha256:e72a1e3eb889898da862e849f5bf22e44150066466333e1b0d485568a7340363",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1.0,
+            0.0,
+            37.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1024",
+        "payload_bytes": 1024,
+        "codec": {
+          "request_bytes": 1062,
+          "reply_bytes": 1062,
+          "request_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "reply_sha256": "sha256:f9eaa0235860ea45e2fe4577325ba751632923236dfc6cc4b583fff58f0051bd",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1.0,
+            0.0,
+            1062.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            1310720
+          ]
+        }
+      },
+      {
+        "case": "codec-control-1048576",
+        "payload_bytes": 1048576,
+        "codec": {
+          "request_bytes": 1048615,
+          "reply_bytes": 1048615,
+          "request_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "reply_sha256": "sha256:cb666e28f868708adc6219a638682c077c409caa74a8f717585a386ed263b9b2",
+          "sample_count": 10,
+          "allocation_columns": [
+            "allocation_calls",
+            "reallocation_calls",
+            "requested_bytes",
+            "deallocated_bytes"
+          ],
+          "allocation_median": [
+            1.0,
+            0.0,
+            1048615.0,
+            0.0
+          ],
+          "linear_memory_bytes_observed": [
+            2424832,
+            3538944
+          ]
+        }
+      }
+    ]
+  },
+  "native_allocations": {
+    "before": [
+      {
+        "allocations": 6,
+        "async_retained_heap_model_bytes": 402,
+        "case": "small",
+        "frame_bytes": 269,
+        "operation": "upload-request-decode",
+        "peak_additional_live_bytes": 402,
+        "requested_bytes": 402,
+        "value_live_bytes": 402
+      },
+      {
+        "allocations": 6,
+        "case": "small",
+        "frame_bytes": 240,
+        "operation": "download-reply-decode",
+        "peak_additional_live_bytes": 306,
+        "requested_bytes": 306,
+        "value_live_bytes": 306
+      },
+      {
+        "allocations": 6,
+        "async_retained_heap_model_bytes": 1081,
+        "case": "metadata-heavy",
+        "frame_bytes": 950,
+        "operation": "upload-request-decode",
+        "peak_additional_live_bytes": 1081,
+        "requested_bytes": 1081,
+        "value_live_bytes": 1081
+      },
+      {
+        "allocations": 6,
+        "case": "metadata-heavy",
+        "frame_bytes": 921,
+        "operation": "download-reply-decode",
+        "peak_additional_live_bytes": 985,
+        "requested_bytes": 985,
+        "value_live_bytes": 985
+      },
+      {
+        "allocations": 1,
+        "case": "codec-control-0",
+        "frame_bytes": 37,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 24,
+        "requested_bytes": 24,
+        "value_live_bytes": 24
+      },
+      {
+        "allocations": 2,
+        "case": "codec-control-1024",
+        "frame_bytes": 1062,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 1048,
+        "requested_bytes": 1048,
+        "value_live_bytes": 1048
+      },
+      {
+        "allocations": 2,
+        "case": "codec-control-1048576",
+        "frame_bytes": 1048615,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 1048600,
+        "requested_bytes": 1048600,
+        "value_live_bytes": 1048600
+      }
+    ],
+    "after": [
+      {
+        "allocations": 2,
+        "async_retained_heap_model_bytes": 525,
+        "case": "small",
+        "frame_bytes": 269,
+        "operation": "upload-request-decode",
+        "peak_additional_live_bytes": 256,
+        "requested_bytes": 256,
+        "value_live_bytes": 256
+      },
+      {
+        "allocations": 1,
+        "case": "small",
+        "frame_bytes": 240,
+        "operation": "download-reply-decode",
+        "peak_additional_live_bytes": 128,
+        "requested_bytes": 128,
+        "value_live_bytes": 128
+      },
+      {
+        "allocations": 2,
+        "async_retained_heap_model_bytes": 1206,
+        "case": "metadata-heavy",
+        "frame_bytes": 950,
+        "operation": "upload-request-decode",
+        "peak_additional_live_bytes": 256,
+        "requested_bytes": 256,
+        "value_live_bytes": 256
+      },
+      {
+        "allocations": 1,
+        "case": "metadata-heavy",
+        "frame_bytes": 921,
+        "operation": "download-reply-decode",
+        "peak_additional_live_bytes": 128,
+        "requested_bytes": 128,
+        "value_live_bytes": 128
+      },
+      {
+        "allocations": 0,
+        "case": "codec-control-0",
+        "frame_bytes": 37,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 0,
+        "requested_bytes": 0,
+        "value_live_bytes": 0
+      },
+      {
+        "allocations": 0,
+        "case": "codec-control-1024",
+        "frame_bytes": 1062,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 0,
+        "requested_bytes": 0,
+        "value_live_bytes": 0
+      },
+      {
+        "allocations": 0,
+        "case": "codec-control-1048576",
+        "frame_bytes": 1048615,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 0,
+        "requested_bytes": 0,
+        "value_live_bytes": 0
+      }
+    ],
+    "final": [
+      {
+        "allocations": 6,
+        "async_retained_heap_model_bytes": 402,
+        "case": "small",
+        "frame_bytes": 269,
+        "operation": "upload-request-decode",
+        "peak_additional_live_bytes": 402,
+        "requested_bytes": 402,
+        "value_live_bytes": 402
+      },
+      {
+        "allocations": 1,
+        "case": "small",
+        "frame_bytes": 240,
+        "operation": "download-reply-decode",
+        "peak_additional_live_bytes": 128,
+        "requested_bytes": 128,
+        "value_live_bytes": 128
+      },
+      {
+        "allocations": 6,
+        "async_retained_heap_model_bytes": 1081,
+        "case": "metadata-heavy",
+        "frame_bytes": 950,
+        "operation": "upload-request-decode",
+        "peak_additional_live_bytes": 1081,
+        "requested_bytes": 1081,
+        "value_live_bytes": 1081
+      },
+      {
+        "allocations": 1,
+        "case": "metadata-heavy",
+        "frame_bytes": 921,
+        "operation": "download-reply-decode",
+        "peak_additional_live_bytes": 128,
+        "requested_bytes": 128,
+        "value_live_bytes": 128
+      },
+      {
+        "allocations": 0,
+        "case": "codec-control-0",
+        "frame_bytes": 37,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 0,
+        "requested_bytes": 0,
+        "value_live_bytes": 0
+      },
+      {
+        "allocations": 0,
+        "case": "codec-control-1024",
+        "frame_bytes": 1062,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 0,
+        "requested_bytes": 0,
+        "value_live_bytes": 0
+      },
+      {
+        "allocations": 0,
+        "case": "codec-control-1048576",
+        "frame_bytes": 1048615,
+        "operation": "chunk-text-decode",
+        "peak_additional_live_bytes": 0,
+        "requested_bytes": 0,
+        "value_live_bytes": 0
+      }
+    ]
+  },
+  "production_artifacts": [
+    {
+      "phase": "before",
+      "path": ".tmp/review-validation/borrowed-wire0380/standalone-before.wasm",
+      "bytes": 3513165,
+      "sha256": "7b74933d9d11c9f3e57d5f1e5416f9884e9772338b7aca60446e75387ee07d63",
+      "gzip9_bytes": 742223,
+      "gzip9_sha256": "8b927f7ca5648640d73edb0ba24a428932713f645a75ee11881c6e206b32af2c"
+    },
+    {
+      "phase": "final",
+      "path": ".tmp/review-validation/borrowed-wire0380/standalone-final.wasm",
+      "bytes": 3511992,
+      "sha256": "eb1b2aceb15a91e8073e9757494da59cbd45eddcd91a618e44e2e4a1666bfa48",
+      "gzip9_bytes": 742177,
+      "gzip9_sha256": "7c21fe39d081ed81f5d5faa9c27a58e17e75df4b467d4d42617167c95bb50d02"
+    }
+  ],
+  "benchmark_artifacts": {
+    "instruction-before.wasm": "8d5669e39aa0ea16de759dd49eec920f8be120855a732db84d557663b34784ab",
+    "final.wasm": "dec6145e131f41564fd49808d43e668ccb233cf32c7f205a374d485c2ca71e49",
+    "instruction-after.wasm": "954fecb03af30121760eef4bf4c81c3100ec491656e64b79f16cd728f34943e0",
+    "before-alloc.wasm": "6b7b9b6ae3b983e3158482247924ed80507318e988ed3acd6fa63084220c100f",
+    "final-alloc.wasm": "88107b56401b0bfb1bb520af382f5c79339c5b563dab090357e13ebf5e311111",
+    "after-alloc.wasm": "26810ef9a08e9216e8faf6d0971346df7c800ca334873b83565100958be7eeac"
+  },
+  "instrumented_source": {
+    "instrumented-before-final": {
+      "authored_rust_sha256": "e9f718435e59f3d2cd89e6c84e2c16853d84cbd6e520676d3534bbc7b336f2aa",
+      "files": 891
+    },
+    "instrumented-final": {
+      "authored_rust_sha256": "a55ced6c1dcf1a6f8941349efe15b445f4c1507a7aaae2e0fbb13defa5fd34d9",
+      "files": 891
+    },
+    "instrumented-after": {
+      "authored_rust_sha256": "c77fecce1a3864ec2e301f5fafcda3eb36c515f66eacd7726e7830b5f5703d72",
+      "files": 891
+    },
+    "instrumented-before-alloc": {
+      "authored_rust_sha256": "d8c5c96396e2b57877eb0dbc8de88acdf5900b599c60167e6156ccb357ddbefe",
+      "files": 891
+    },
+    "instrumented-final-alloc": {
+      "authored_rust_sha256": "3a818475da96f88b3867fb382562a5d313d6af8d88591cc1f8eb16f95603bea8",
+      "files": 891
+    },
+    "instrumented-after-alloc": {
+      "authored_rust_sha256": "7a279f56ce395629de527885062429e0077cea4ecf1c406dc10d05eee40ef014",
+      "files": 891
+    }
+  },
+  "driver": "3053462fbc1ca20c581ca53fd17b08ffe148e345577cdce175efe795a91e9018  target/borrowed-wire0380/isolated/before-alloc/debug/deps/standalone-d3911f2524a940b0",
+  "local_evidence": ".tmp/review-validation/borrowed-wire0380",
+  "limitations": [
+    "No public Blob chunk-body RPC exists; chunks here are codec-only controls, not storage/provider endpoints.",
+    "Counter probes and allocator observer are temporary clone-only exports and are absent from production Wasm. Code layout/instrumentation may affect absolute IC costs.",
+    "No live provider, installed Canic, native macOS, full CI or optimized-Wasm matrix qualification.",
+    "Initial shared-target builds had stale cache mixing; retained initial results are provisional and excluded. Accepted runs have per-source isolated target directories.",
+    "Native raw decode allocation probes exclude shared metadata validation and subsequent HTTP/storage work.",
+    "IC requested allocation totals and linear pages are not exact IC live/peak heap. Async retained heap is a native model, not an IC heap reading."
+  ],
+  "later_native_validation_graph": {
+    "lock_sha256": "287ad17774d233e40ee8b9a432de58745a2003ffb8a2fbc5744c3cd317f01b65",
+    "change": "Incoming Host artifacts/fs/process/tools 0.31.1 -> 0.31.2 preserved after isolated measurements; no deployment dependency identity changed. Benchmark records remain pinned to captured starting lock."
+  },
+  "raw_samples": "Complete sample rows, frames, temporary source, drivers, captured lockfiles, logs and provisional/failure attempts retained locally at local_evidence; repository JSON retains all aggregate results, identities and canonical hashes.",
+  "build_environment": {
+    "RUSTFLAGS": "<unset>",
+    "CARGO_ENCODED_RUSTFLAGS": "<unset>",
+    "RUSTC_WRAPPER": "<unset>",
+    "RUSTC_WORKSPACE_WRAPPER": "<unset>",
+    "CARGO_BUILD_RUSTFLAGS": "<unset>",
+    "CARGO_PROFILE_RELEASE_LTO": "<unset>",
+    "CARGO_PROFILE_RELEASE_OPT_LEVEL": "<unset>"
+  },
+  "commands": {
+    "production": "cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib (standalone alone, default features)",
+    "instrumented": "same command against each captured instrumented manifest with its own CARGO_TARGET_DIR; identical retained native driver executes measure_borrowing_endpoints --ignored --exact",
+    "native_allocation": "cargo run --offline --locked --release --manifest-path <captured native phase>/Cargo.toml -p ic-blob-storage-contracts --example borrow-allocation; distinct target per phase",
+    "gzip": "gzip-compatible level 9 with mtime 0; Python gzip.compress(data, compresslevel=9, mtime=0)"
+  },
+  "validation": {
+    "linux": "passed",
+    "contracts": "123 unit cases; service export; literal Wire vectors (159 method/lifecycle cases) and other contracts integration targets; borrowed/owned error parity extended afterwards and passed focused rerun",
+    "native_download": "6 native CLI/provider download cases; 3 changed native decoder/output/argument cases rerun after lint cleanup",
+    "installed_standalone": "1 before/after record/retry proof, 1 upload/admission/replay/restore flow, 4 ingress cases, 6 descriptor/client/native refusals, 3 provider certificates, 4 lifecycle/recovery cases",
+    "browser": "Offline tool admission/build, 1 control case and 1 Chromium upload/verification/native-download/release journey with local provider substitute",
+    "lint_msrv": "Strict Clippy for six affected packages all targets/features; actual Rust1.91 native same selection and Contracts/default standalone Wasm checks",
+    "static": "Formatting, pins/inheritance, canonical direct package boundaries, deployment exclusions, documentation links and diff checks pass",
+    "gaps": [
+      "Full CI",
+      "native macOS",
+      "installed Canic",
+      "live provider",
+      "Binaryen O3/Os/Oz matrix"
+    ],
+    "rustdoc": "Strict public Rustdoc for Contracts, Core and Client passed with -D warnings",
+    "log_root": ".tmp/review-validation/borrowed-wire0380/"
+  },
+  "compression_identity": {
+    "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+    "zlib_build": "1.3",
+    "zlib_runtime": "1.3",
+    "level": 9,
+    "mtime": 0
+  }
+}
