@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.39.0] - Unreleased
+## [0.39.0] - 2026-10-20
 
 - Repair the local tool-command fixture for the release-editor setup/check step.
   Verify complete aggregate ordering and fail-before-build behavior under parallel
