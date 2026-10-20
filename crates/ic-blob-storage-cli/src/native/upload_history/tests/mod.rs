@@ -88,7 +88,7 @@ fn saved_continuation_round_trips_and_foreign_or_malformed_scope_rejects_before_
 
 #[test]
 fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
-    let options = Options::parse(&arguments()).unwrap();
+    let options = Options::parse(&arguments()).unwrap().1;
     let input = request(&input()).unwrap();
     let mut page = UploadHistoryPage {
         request: input,
@@ -151,7 +151,7 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
 #[test]
 fn command_requires_an_explicit_filter_and_operator_without_unrelated_billing_scope() {
     let args = arguments();
-    assert!(matches!(Options::parse(&args).unwrap().command,
+    assert!(matches!(Options::parse(&args).unwrap().0,
         super::super::arguments::Command::UploadHistory(input) if input.filter == UploadHistoryFilter::Active));
     assert!(matches!(
         Options::parse(&args[..args.len() - 2]),

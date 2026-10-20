@@ -2,6 +2,39 @@
 
 Date: 2026-10-20
 
+## Pending 0.39.0: CLI dispatch and reference-owner boundary
+
+Separated parsed CLI commands from connection/signer options. One exhaustive
+async match now dispatches every network command; verifier credentials no longer
+carry a fabricated submission command. Parsing order, actor/operator flags,
+transport, saved artifacts and exact retry/recovery behavior are unchanged.
+
+The independent heap catalog, upload, lifecycle, receipt and root owners and
+their read-policy adapters now require `test-support` outside core unit tests.
+This is an intentional public source hard cut in pending 0.39.0. Production keeps
+the durable installed service owner, shared domain/error types, capacity checks
+and pure transitions. No persisted schema, endpoint or wire format changes.
+The authority probe and four reference integration suites explicitly select the
+feature. Their independent accounting/lifecycle assertions are retained.
+
+Passes: 680 native tests (including all 121 CLI cases and four reference suites),
+workspace/all-target/all-feature compilation and strict Clippy; default/feature
+consumer compile checks for all five reference owners; strict default and
+all-feature Rustdoc; actual Rust 1.91 native/Wasm checks; fresh standalone and
+all six probe release Wasms. Twelve installed PocketIC cases plus the pipe-output
+helper pass upload isolation, seven publication-session/recovery cases, three
+certificate/signer cases and standalone admission/restore. Formatting, snapshot,
+pins, dependency/deployment boundaries and documentation links pass. Initial
+compile/lint failures and sandbox socket refusals are retained beside successful
+reruns under `.tmp/review-validation/cli-reference-boundary/` with before-images,
+input hashes and the separately captured default production Wasm.
+
+Incoming Cargo.toml/Cargo.lock edits remain byte-for-byte unchanged. Full CI,
+optimized-Wasm, native macOS, installed Canic and live-provider qualification
+remain unrun. No staging, commit, version preparation, release, push, publication
+or deployment effects ran. Gating preserves the test oracle rather than claiming
+its retained source as deleted functionality.
+
 ## Testkit 0.60: temporary Platform alias removed
 
 Published Testkit 0.60 uses Platform ^0.5; its archive matches registry checksum

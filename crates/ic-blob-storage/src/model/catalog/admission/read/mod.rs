@@ -1,21 +1,26 @@
 //! Bounded current views of upload reservations and immutable root ownership.
 
-use super::UploadCatalog;
-use super::UploadPhase;
-use ic_blob_storage_contracts::binding::ObjectBinding;
-use ic_blob_storage_contracts::identity::HashParseError;
-use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
-use ic_blob_storage_contracts::upload::binding::UploadRequest;
-use ic_blob_storage_contracts::upload::binding::UploadRequestId;
-use ic_blob_storage_contracts::upload::history::UploadRootState;
-use ic_platform::Principal;
-use std::{
-    collections::BTreeMap,
-    num::{NonZeroU128, NonZeroUsize},
-    ops::Bound::{Excluded, Included},
+#[cfg(any(test, feature = "test-support"))]
+use {
+    super::UploadCatalog,
+    super::UploadPhase,
+    ic_blob_storage_contracts::binding::ObjectBinding,
+    ic_blob_storage_contracts::identity::HashParseError,
+    ic_blob_storage_contracts::identity::ProviderRootHash,
+    ic_blob_storage_contracts::identity::batch::ProviderRootBatch,
+    ic_blob_storage_contracts::upload::binding::UploadRequest,
+    ic_blob_storage_contracts::upload::binding::UploadRequestId,
+    ic_blob_storage_contracts::upload::history::UploadRootState,
+    ic_platform::Principal,
+    std::{
+        collections::BTreeMap,
+        num::NonZeroU128,
+        ops::Bound::{Excluded, Included},
+    },
+    thiserror::Error,
 };
-use thiserror::Error;
+
+use std::num::NonZeroUsize;
 
 /// Independent bounds for scanned operation history and returned active uploads.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -29,6 +34,7 @@ pub struct UploadPageLimits {
 /// Forward position in one tenant's operation history, not an authorization token.
 /// No snapshot, persistence, restore validity or completed reconciliation is implied.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct ActiveUploadCursor {
     service: Principal,
     tenant: Principal,
@@ -37,6 +43,7 @@ pub struct ActiveUploadCursor {
 
 /// Exact immutable request and its current active phase, not permission to retry.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct ActiveUploadView {
     /// Original request, including content and complete object/reference binding.
     pub request: UploadRequest,
@@ -46,6 +53,7 @@ pub struct ActiveUploadView {
 
 /// Tenant-scoped active uploads in ascending request-ID order across namespaces.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct ActiveUploadPage {
     /// Active requests only, with no cross-tenant operation data.
     pub entries: Vec<ActiveUploadView>,
@@ -58,10 +66,12 @@ pub struct ActiveUploadPage {
 /// Cursor belongs to a different service or tenant.
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
 #[error("upload cursor belongs to another scope")]
+#[cfg(any(test, feature = "test-support"))]
 pub struct UploadCursorError;
 
 /// Trusted local root correlation for policy, without content or operation details.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct UploadRootView {
     /// Original immutable object binding; caller authorization remains separate.
     pub object: ObjectBinding,
@@ -71,6 +81,7 @@ pub struct UploadRootView {
 
 /// Ordered observations for a bounded root batch, without caller authorization.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct UploadRootBatchView {
     /// One result per input position, preserving duplicates and malformed entries.
     /// `Ok(None)` means no local claim, never permission to delete.
@@ -80,6 +91,7 @@ pub struct UploadRootBatchView {
     pub scanned_operations: usize,
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl UploadCatalog {
     /// Scan the selected tenant's active uploads without touching other tenant rows.
     ///
@@ -222,6 +234,7 @@ impl UploadCatalog {
     }
 }
 
+#[cfg(any(test, feature = "test-support"))]
 fn unconfirmed_root_state(phase: UploadPhase) -> UploadRootState {
     match phase {
         UploadPhase::Reserved => UploadRootState::Reserved,

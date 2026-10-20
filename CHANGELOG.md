@@ -2,6 +2,15 @@
 
 ## [0.39.0] - Unreleased
 
+- **Breaking reference-model API:** require non-default `test-support` for the
+  transient heap catalog, lifecycle, receipt and root owners and their read-policy
+  adapters. Production uses the durable installed service owner; shared domain
+  types and pure transitions remain available. Preserve independent reference
+  and parity tests, with explicit feature selection for their integration suites.
+- Separate CLI command selection from transport/signer options and use one
+  exhaustive async dispatcher. Verifier credentials no longer fabricate a
+  submission command; flags, identity checks and recovery behavior are unchanged.
+
 - **Breaking Platform family:** adopt published IC Platform 0.5.0; hosts must
   align their public Platform types. Preserve bounded call timeouts with its
   explicit wait policy and remove retired no-op entrypoint options. Endpoint

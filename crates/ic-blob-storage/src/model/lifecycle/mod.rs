@@ -5,14 +5,16 @@
 //! namespace; knowing an ID or hash never grants authority. Confirmations consume
 //! facts already authenticated and correlated to the exact operation elsewhere.
 
-use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
 use ic_blob_storage_contracts::binding::ReferenceId;
-use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
-use std::collections::BTreeMap;
-use std::num::NonZeroUsize;
 use thiserror::Error;
+#[cfg(any(test, feature = "test-support"))]
+use {
+    ic_blob_storage_contracts::binding::ObjectBinding,
+    ic_blob_storage_contracts::binding::ReferenceKey, std::collections::BTreeMap,
+    std::num::NonZeroUsize,
+};
 
 pub mod requests;
 pub mod roots;
@@ -60,6 +62,7 @@ pub(crate) struct ReferenceMutation {
 /// stable schema, expiry or restore mechanism. A settled object still retains
 /// its IDs; discarding it requires a separate proven retirement boundary.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct BlobLifecycle {
     binding: ObjectBinding,
     bytes: u64,
@@ -69,6 +72,7 @@ pub struct BlobLifecycle {
     reference_limit: NonZeroUsize,
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl BlobLifecycle {
     /// Start bookkeeping after independently verified upload completion.
     ///

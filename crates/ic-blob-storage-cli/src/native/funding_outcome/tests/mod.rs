@@ -56,20 +56,20 @@ fn render(view: Option<&FundingOutcomeResponse>) -> Value {
             Ok::<_, FundingOutcomeFailure>(view),
         )
         .unwrap(),
-        &Options::parse(&args()).unwrap(),
+        &Options::parse(&args()).unwrap().1,
     )
     .unwrap()
 }
 
 #[test]
 fn exact_original_amounts_and_optional_target_are_required_before_transport() {
-    let Command::FundingOutcome(parsed) = Options::parse(&args()).unwrap().command else {
+    let Command::FundingOutcome(parsed) = Options::parse(&args()).unwrap().0 else {
         panic!("wrong command")
     };
     assert_eq!(parsed, input());
     let mut targeted = args();
     targeted.extend(["--target-balance".into(), u128::MAX.to_string()]);
-    let Command::FundingOutcome(parsed) = Options::parse(&targeted).unwrap().command else {
+    let Command::FundingOutcome(parsed) = Options::parse(&targeted).unwrap().0 else {
         panic!("wrong command")
     };
     assert_eq!(parsed.target_balance, Some(u128::MAX));
@@ -165,7 +165,7 @@ fn absence_and_transport_facts_never_establish_credit_or_retry_authority() {
 
 #[test]
 fn exact_intent_conflict_binding_and_decode_failure_remain_observable() {
-    let options = Options::parse(&args()).unwrap();
+    let options = Options::parse(&args()).unwrap().1;
     let refused: Result<Option<FundingOutcomeResponse>, _> = Err(FundingOutcomeFailure::Conflict);
     assert_eq!(
         output(

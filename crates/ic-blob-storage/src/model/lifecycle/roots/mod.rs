@@ -6,18 +6,20 @@
 //! This is transient: production use requires durable intent-before-effect claims,
 //! exclusive provider ownership and restore fencing. An empty new map is not recovery.
 
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    num::{NonZeroU128, NonZeroUsize},
+#[cfg(any(test, feature = "test-support"))]
+use {
+    ic_blob_storage_contracts::binding::ObjectBindingError,
+    ic_blob_storage_contracts::identity::ProviderRootHash,
+    std::{
+        collections::{BTreeMap, BTreeSet},
+        num::{NonZeroU128, NonZeroUsize},
+    },
 };
 
 use ic_platform::Principal;
 use thiserror::Error;
 
-use ic_blob_storage_contracts::identity::ProviderRootHash;
-
 use ic_blob_storage_contracts::binding::ObjectBinding;
-use ic_blob_storage_contracts::binding::ObjectBindingError;
 
 pub(crate) mod record;
 
@@ -27,6 +29,7 @@ pub(crate) mod record;
 /// allocations without erasing history or blocking lookup of previous claims.
 /// No duplicate-content sharing, namespace alias or root reuse is inferred.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct RootClaims {
     service: Principal,
     limit: NonZeroUsize,
@@ -37,6 +40,7 @@ pub struct RootClaims {
 // The owning service is checked before lookup. All remaining identity fields
 // participate in uniqueness; the set contains exactly one key per retained root.
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+#[cfg(any(test, feature = "test-support"))]
 struct ObjectKey {
     tenant: Principal,
     namespace: NonZeroU128,
@@ -44,6 +48,7 @@ struct ObjectKey {
     incarnation: NonZeroU128,
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl From<ObjectBinding> for ObjectKey {
     fn from(binding: ObjectBinding) -> Self {
         let identity = binding.identity();
@@ -56,6 +61,7 @@ impl From<ObjectBinding> for ObjectKey {
     }
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl RootClaims {
     /// Start a fresh transient claim set, not a reset or restore of an existing one.
     /// # Errors

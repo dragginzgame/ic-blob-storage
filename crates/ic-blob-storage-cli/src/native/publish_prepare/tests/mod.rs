@@ -62,7 +62,7 @@ fn batch_prepare_requires_all_file_selection_without_recovery_or_index_flags() {
     let index = args.iter().position(|a| a == "--file-index").unwrap();
     args.drain(index..=index + 1);
     assert!(matches!(
-        Options::parse(&args).unwrap().command,
+        Options::parse(&args).unwrap().0,
         Command::PublishPrepareBatch(_)
     ));
     for extra in ["--file-index", "--source-run"] {

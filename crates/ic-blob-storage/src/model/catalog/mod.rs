@@ -7,35 +7,41 @@
 //! One authoritative instance must own this state. Cloning/reconstruction does
 //! not establish restore safety, fresh identities or permission to discard history.
 //!
-//! [`admission::UploadCatalog`] additionally owns transient pending reservations
+//! With `test-support`, `admission::UploadCatalog` additionally owns transient pending reservations
 //! and shares this catalog's capacity and root claims. Its confirmed-only view
 //! must not be used as the aggregate usage or liveness of pending uploads.
 
+#[cfg(any(test, feature = "test-support"))]
 mod accounting;
-use accounting::{CatalogAccounting, contribution};
-use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
+#[cfg(any(test, feature = "test-support"))]
+use {
+    crate::model::lifecycle::BlobLifecycle,
+    crate::model::lifecycle::LifecycleChange,
+    crate::model::lifecycle::requests::ReferenceRequestOutcome,
+    crate::model::lifecycle::requests::ReferenceRequests,
+    crate::model::lifecycle::roots::RootClaims,
+    accounting::{CatalogAccounting, contribution},
+    ic_blob_storage_contracts::binding::ObjectBinding,
+    ic_blob_storage_contracts::binding::ObjectBindingError,
+    ic_blob_storage_contracts::binding::ReferenceKey,
+    ic_blob_storage_contracts::configuration::limits::CatalogLimits,
+    ic_blob_storage_contracts::identity::ProviderRootHash,
+    ic_blob_storage_contracts::reference::binding::ReferenceRequest,
+    ic_blob_storage_contracts::upload::history::LifecyclePhase,
+    ic_platform::Principal,
+    std::collections::BTreeMap,
+    std::collections::BTreeSet,
+};
 
 pub mod admission;
+#[cfg(any(test, feature = "test-support"))]
 pub mod pending;
+#[cfg(any(test, feature = "test-support"))]
 pub mod tenant;
 
-use crate::model::lifecycle::BlobLifecycle;
-use crate::model::lifecycle::LifecycleChange;
 use crate::model::lifecycle::LifecycleError;
 use crate::model::lifecycle::requests::ReferenceRequestError;
-use crate::model::lifecycle::requests::ReferenceRequestOutcome;
-use crate::model::lifecycle::requests::ReferenceRequests;
 use crate::model::lifecycle::roots::RootClaimError;
-use crate::model::lifecycle::roots::RootClaims;
-use ic_blob_storage_contracts::binding::ObjectBinding;
-use ic_blob_storage_contracts::binding::ObjectBindingError;
-use ic_blob_storage_contracts::binding::ReferenceKey;
-use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
-use ic_blob_storage_contracts::upload::history::LifecyclePhase;
-use ic_platform::Principal;
-use std::collections::BTreeMap;
-use std::collections::BTreeSet;
 use std::num::NonZeroU128;
 use thiserror::Error;
 
@@ -44,6 +50,7 @@ mod tests;
 
 /// Independently confirmed object input; this does not grant upload authority.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct ConfirmedObject {
     /// Root already bound exclusively to this object before provider effects.
     pub root: ProviderRootHash,
@@ -58,6 +65,7 @@ pub struct ConfirmedObject {
 /// Neither the root nor the reference establishes caller authority. The catalog
 /// must resolve trusted ownership before interpreting the supplied binding.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct CatalogReferenceKey {
     /// Root used to locate the catalog entry.
     pub root: ProviderRootHash,
@@ -67,6 +75,7 @@ pub struct CatalogReferenceKey {
 
 /// Outcome of recording a confirmed object; neither variant authorizes upload.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub enum CatalogInsertOutcome {
     /// New object, root history and reference journal were recorded together.
     Inserted,
@@ -75,6 +84,7 @@ pub enum CatalogInsertOutcome {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 struct Entry {
     original: ConfirmedObject,
     requests: ReferenceRequests,
@@ -88,6 +98,7 @@ struct Entry {
 /// A private tenant index holds one root per confirmed entry, bounded by the same
 /// lifetime limits, and is maintained only by successful object insertion.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct BlobCatalog {
     service: Principal,
     limits: CatalogLimits,
@@ -99,6 +110,7 @@ pub struct BlobCatalog {
     accounting: CatalogAccounting,
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl BlobCatalog {
     /// Construct a fresh local catalog, never restore an existing installation.
     /// # Errors

@@ -57,7 +57,7 @@ url = "2.5.8"
 blob-test-protocol = { path = "tests/protocol" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
 ic-host-tools = { version = "0.62", default-features = false }
-ic-metrics = "0.14"
+ic-metrics = "0.15"
 ic-testkit = "0.62"
 
 [workspace.lints.rust]

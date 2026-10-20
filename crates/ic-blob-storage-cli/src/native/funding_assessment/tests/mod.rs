@@ -86,7 +86,7 @@ fn arguments() -> Vec<String> {
 fn proposed_intent_retains_exact_width_and_absent_target_without_authority_claims() {
     let reply = response();
     assert_eq!(decode(request(), &bytes(&reply)), Ok(reply.clone()));
-    let options = Options::parse(&arguments()).unwrap();
+    let options = Options::parse(&arguments()).unwrap().1;
     let value = output(&options, &reply);
     assert_eq!(value["request"]["operation"], u128::MAX.to_string());
     assert_eq!(value["request"]["offered"], u128::MAX.to_string());
@@ -105,7 +105,7 @@ fn proposed_intent_retains_exact_width_and_absent_target_without_authority_claim
     args.pop();
     args.pop();
     assert!(matches!(
-        Options::parse(&args).unwrap().command,
+        Options::parse(&args).unwrap().0,
         super::super::arguments::Command::FundingAssessment(Request {
             target_balance: None,
             ..

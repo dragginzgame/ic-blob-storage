@@ -183,7 +183,7 @@ fn tenant_download_arguments_require_explicit_origin_project_budget_and_request(
     .map(str::to_owned)
     .collect();
     assert!(matches!(
-        Options::parse(&args).unwrap().command,
+        Options::parse(&args).unwrap().0,
         Command::Download(_)
     ));
     for (flag, value) in [

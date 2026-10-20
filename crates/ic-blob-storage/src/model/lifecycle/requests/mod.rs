@@ -5,20 +5,19 @@
 //! upload/funding retry protocol or proof of recovery after a restart. The
 //! workflow must authenticate the actor before admission or receipt replay.
 
-use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
-use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
-use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+#[cfg(any(test, feature = "test-support"))]
+use {
+    super::BlobLifecycle, ic_blob_storage_contracts::binding::ObjectBinding,
+    ic_blob_storage_contracts::reference::binding::ReferenceOperation,
+    ic_blob_storage_contracts::reference::binding::ReferenceRequest,
+    ic_blob_storage_contracts::reference::binding::ReferenceRequestId, ic_platform::Principal,
+    std::collections::BTreeMap, std::num::NonZeroUsize,
+};
 
-use std::collections::BTreeMap;
-use std::num::NonZeroUsize;
-
-use ic_platform::Principal;
 use thiserror::Error;
 
-use super::BlobLifecycle;
 use super::LifecycleChange;
 use super::LifecycleError;
-use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectBindingMismatch;
 
 /// Original local transition result, distinguished from a receipt replay.
@@ -61,6 +60,7 @@ pub struct ReferenceCapacityView {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 struct ReferenceReceipt {
     actor: Principal,
     operation: ReferenceOperation,
@@ -75,12 +75,14 @@ struct ReferenceReceipt {
 /// are never expired or evicted. All capacity is per object; service/tenant-wide
 /// resource admission and durable atomic accounting remain separate requirements.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct ReferenceRequests {
     lifecycle: BlobLifecycle,
     receipts: BTreeMap<ReferenceRequestId, ReferenceReceipt>,
     receipt_limit: NonZeroUsize,
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl ReferenceRequests {
     /// Take ownership of a lifecycle and reserve one receipt per active reference.
     ///

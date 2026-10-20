@@ -57,6 +57,12 @@ Native fixture custody uses Memory's published `testing::fixture_runtime` with
 retained backing and explicit leases. Raw bytes remain available only to native
 corruption/restore fixtures. Memory fixture support is selected by core unit tests
 and isolated probes; the default standalone build must exclude those selections.
+The core's non-default `test-support` feature exposes independent heap reference
+owners and their read-policy adapters for probes and parity tests. Default
+production consumers use the durable installed owner. The authority probe and
+reference integration suites select the feature explicitly; shared domain types,
+capacity checks and pure lifecycle transitions are available without it.
+
 Do not infer production feature admission from a workspace-wide unified build.
 
 Host owns descriptor-rooted inventory and journal reads, retained creation,

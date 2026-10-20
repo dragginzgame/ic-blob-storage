@@ -197,7 +197,7 @@ fn command_requires_saved_statement_and_explicit_expected_verifier() {
     .map(str::to_owned)
     .collect();
     assert!(
-        matches!(Options::parse(&args).unwrap().command, Command::UploadAttestation { namespace, .. } if namespace == u128::MAX)
+        matches!(Options::parse(&args).unwrap().0, Command::UploadAttestation { namespace, .. } if namespace == u128::MAX)
     );
     let mut missing = args.clone();
     missing.truncate(missing.len() - 2);

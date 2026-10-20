@@ -40,10 +40,8 @@ fn change(args: &mut [String], flag: &str, value: &str) {
 
 #[test]
 fn arguments_require_complete_identity_scope_and_explicit_trust() {
-    assert!(
-        matches!(arguments::Options::parse(&options()).unwrap().command,
-        arguments::Command::Status { scope } if scope.namespace == u128::MAX)
-    );
+    assert!(matches!(arguments::Options::parse(&options()).unwrap().0,
+        arguments::Command::Status { scope } if scope.namespace == u128::MAX));
     for (flag, value) in [
         ("--url", "http://example.com"),
         ("--url", "http://localhost:8080"),
@@ -130,7 +128,7 @@ fn parsed_command_requires_its_identity_role_and_refuses_the_other_flag() {
         .unwrap();
     actor_args[identity] = "--actor".into();
     assert!(matches!(
-        arguments::Options::parse(&actor_args).unwrap().command,
+        arguments::Options::parse(&actor_args).unwrap().0,
         arguments::Command::Reference(_)
     ));
     actor_args.extend(["--operator".into(), actor().to_text()]);

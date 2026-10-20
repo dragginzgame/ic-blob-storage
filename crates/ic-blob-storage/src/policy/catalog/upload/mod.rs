@@ -1,25 +1,25 @@
 //! Authorized current views including pending upload capacity and root history.
 //! No provider wire mapping, effect scheduling, persistence or recovery occurs here.
 
-use crate::model::catalog::admission::UploadCatalog;
-use crate::model::catalog::admission::UploadUsage;
-use crate::model::catalog::admission::read::ActiveUploadCursor;
-use crate::model::catalog::admission::read::ActiveUploadPage;
-use crate::model::catalog::admission::read::UploadCursorError;
-use crate::model::catalog::admission::read::UploadPageLimits;
-use crate::model::gateway::registry::GatewayRegistry;
-use crate::policy::gateway::GatewayAccessError;
-use crate::policy::gateway::GatewayCallbackContext;
-use crate::policy::tenant::TenantAccessContext;
-use crate::policy::tenant::TenantAccessError;
 use ic_blob_storage_contracts::identity::HashParseError;
-use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
-use thiserror::Error;
+#[cfg(any(test, feature = "test-support"))]
+use {
+    crate::model::catalog::admission::UploadCatalog, crate::model::catalog::admission::UploadUsage,
+    crate::model::catalog::admission::read::ActiveUploadCursor,
+    crate::model::catalog::admission::read::ActiveUploadPage,
+    crate::model::catalog::admission::read::UploadCursorError,
+    crate::model::catalog::admission::read::UploadPageLimits,
+    crate::model::gateway::registry::GatewayRegistry, crate::policy::gateway::GatewayAccessError,
+    crate::policy::gateway::GatewayCallbackContext, crate::policy::tenant::TenantAccessContext,
+    crate::policy::tenant::TenantAccessError,
+    ic_blob_storage_contracts::identity::batch::ProviderRootBatch, thiserror::Error,
+};
 
 /// Read charged capacity for the authenticated direct tenant, including reservations.
 /// # Errors
 /// Rejects wrong service and anonymous/management actors, including empty histories.
+#[cfg(any(test, feature = "test-support"))]
 pub fn assess_tenant_upload_usage(
     catalog: &UploadCatalog,
     context: TenantAccessContext,
@@ -35,6 +35,7 @@ pub fn assess_tenant_upload_usage(
 /// The returned requests are observations, not permission to repeat provider work.
 /// # Errors
 /// Rejects caller/service context before checking cursor service/tenant scope.
+#[cfg(any(test, feature = "test-support"))]
 pub fn assess_tenant_active_uploads(
     catalog: &UploadCatalog,
     context: TenantAccessContext,
@@ -70,6 +71,7 @@ pub enum UploadRootStatus {
 /// limits still need production sizing before an endpoint exposes the view.
 /// # Errors
 /// Rejects wrong service or unknown/revoked gateways before returning any statuses.
+#[cfg(any(test, feature = "test-support"))]
 pub fn assess_gateway_upload_roots(
     catalog: &UploadCatalog,
     registry: &GatewayRegistry,
@@ -97,6 +99,7 @@ pub fn assess_gateway_upload_roots(
 
 /// Authorized upload-page read failed before exposing operation data.
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub enum UploadReadError {
     /// Actual execution service/caller is not an eligible direct tenant.
     #[error(transparent)]
