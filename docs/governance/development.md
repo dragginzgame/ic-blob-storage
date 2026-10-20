@@ -138,7 +138,7 @@ continuous evidence recording and separates source/local/live observations.
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
 URLs. `make shared-tooling-tests` exercises consumer fixture completion, evidence
-archive, local lockfile, Cargo metadata and common Make/LOC refusals
+archive, local lockfile, Cargo metadata and actual Testkit/Make forwarding
 with offline substitutes. The declaration
 gate opts in to shared Cargo package/dependency inheritance checks. The separate
 Platform boundary target uses Shared's canonical package-identity checker and
@@ -193,7 +193,7 @@ The component includes carry `make/execution.mk` and its existing behavioral pro
 The probe rejects unsupported Make modes before recipes, including ignored
 failures and non-executing modes. Every isolated fixture includes those inputs;
 the release-command checker binds its tooling root to the disposable checkout.
-The common entrypoint's routing fixture runs in `make shared-tooling-tests`.
+The actual Testkit/Make routing fixture runs in `make shared-tooling-tests`.
 Actual hook, release and parallel Testkit fixtures export `make/consumer.mk`
 with all parsed companions; none may fall back to the real checkout's adapters.
 Release and Testkit fixtures use `prepare-script-fixture.sh` for explicit roots
@@ -297,11 +297,13 @@ Generic matrices stay with Shared Tooling; Blob qualifies its actual selection:
 | --- | --- |
 | Installed tools and selected catalogs | `make tools-check`, including Testkit admission |
 | Dependency declarations and locked versions | `make dependency-pins-check` and `scripts/ci/test-local-lock-versions.pl` |
-| Make/tool forwarding and server selection | `scripts/ci/test-tool-commands.sh` and `scripts/ci/test-testkit-commands.sh` |
+| Make/tool forwarding and server selection | `scripts/ci/test-testkit-commands.sh` |
 | Hooks and formatter preservation | `make hooks-check` |
 | Release/publication refusals and recovery | `scripts/release/test-release.sh` and `make release-commands-check` |
 | Evidence selection, archives and retention | `make tooling-evidence-check` and `scripts/ci/test-evidence-archive.sh` |
 
 Retire exported generic fixture roots through the canonical snapshot exporter at
-its reviewed revision. Producer CI does not qualify Blob's native hosts or its
+its reviewed revision. Generic Make routing, LOC, npm-pin and registry-version
+matrices remain at Shared; their runtime commands and Blob's actual dependency
+and publication checks remain selected. Producer CI does not qualify Blob's native hosts or its
 release adapter. The retained consumer checks and all native CI lanes still run.

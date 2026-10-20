@@ -61,7 +61,7 @@ help:
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
 	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
-	@echo "shared-tooling-tests          Exercise shared digest, IC installer, lockfile and metadata refusals offline"
+	@echo "shared-tooling-tests          Exercise consumer tool, evidence, lockfile and metadata checks offline"
 	@echo "documentation-links-check     Check local Markdown targets without a build or network"
 	@echo "tooling-evidence-check        Check retained tooling archive selection and failure behavior"
 	@echo "release-commands-check        Check Make routing with a substitute release runner"
@@ -111,7 +111,6 @@ testkit-check:
 # Shared owns generic formatter, digest, installer and release-runner matrices.
 # Blob retains actual Make/hook/tool admission and archive/retention callers below.
 shared-tooling-tests:
-	+bash scripts/ci/test-make-consumer.sh
 	+bash scripts/ci/test-consumer-fixture-completion.sh
 	+bash scripts/ci/check-validation-logging.sh
 	+bash scripts/ci/test-evidence-archive.sh
@@ -119,11 +118,7 @@ shared-tooling-tests:
 	+$(MAKE) --no-print-directory tooling-evidence-check
 	+perl scripts/ci/test-local-lock-versions.pl
 	+bash scripts/ci/test-cargo-metadata.sh
-	+bash scripts/ci/test-crates-io-version.sh
-	+bash scripts/ci/test-npm-pins.sh
-	+bash scripts/ci/test-tool-commands.sh
 	+bash scripts/ci/test-testkit-commands.sh
-	+bash scripts/ci/test-cloc.sh
 
 tooling-evidence-check:
 	bash scripts/ci/test-tooling-evidence.sh

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.38.1]
+
+- Keep generic Make, tool-command, LOC, npm-pin and registry-version fixture
+  matrices at Shared Tooling. Retain Blob's actual tool/server forwarding,
+  dependency admission, hook rollback, release recovery and evidence checks.
+  Narrow the existing 0.24.0 snapshot without changing production helper bytes.
+
 ## [0.38.0] - 2026-10-20
 
 - **Breaking Principal identity:** adopt published IC Platform 0.4.0's owned

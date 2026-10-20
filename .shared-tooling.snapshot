@@ -58,10 +58,8 @@ revision	cab12cd3dfa4fdb34846b25397f0d72881bb9ae0
 # entrypoint	scripts/dev/gh-ci.sh
 # entrypoint	rules/rust-workspaces.md
 # entrypoint	scripts/ci/check-make-execution.sh
-# entrypoint	scripts/ci/test-cloc.sh
 # entrypoint	scripts/distribution/refresh-consumer.sh
 # entrypoint	make/tools.mk
-# entrypoint	scripts/ci/test-tool-commands.sh
 # entrypoint	audits/ic-canister-applications.md
 # entrypoint	scripts/dev/install-rust-tools.sh
 # entrypoint	scripts/ci/ic-tool-pins.awk
@@ -87,21 +85,18 @@ revision	cab12cd3dfa4fdb34846b25397f0d72881bb9ae0
 # entrypoint	tasks/systemd/shared-tooling-maintenance.timer
 # entrypoint	scripts/dev/run-maintenance.sh
 # entrypoint	scripts/ci/check-release-source.sh
-# entrypoint	scripts/ci/test-npm-pins.sh
 # entrypoint	ci/ic-tools.tsv
 # entrypoint	make/release.mk
 # entrypoint	make/rust-format.mk
 # entrypoint	make/execution.mk
 # entrypoint	scripts/ci/run-formatting.sh
 # entrypoint	scripts/ci/check-crates-io-version.sh
-# entrypoint	scripts/ci/test-crates-io-version.sh
 # entrypoint	tasks/readme-freshness.md
 # entrypoint	scripts/dev/tool-store.sh
 # entrypoint	scripts/ci/test-tool-store.sh
 # entrypoint	scripts/dev/cargo-tool-build.sh
 # entrypoint	make/consumer.mk
 # entrypoint	docs/make-interface.md
-# entrypoint	scripts/ci/test-make-consumer.sh
 # entrypoint	tasks/cargo-tool-versions.md
 # entrypoint	scripts/dev/check-cargo-tool-versions.pl
 # entrypoint	scripts/ci/test-tool-downloads.sh
@@ -170,10 +165,8 @@ file	a7f5dbb4f1e9751a34ba6c56641a3f8184eef2f669e09d9aeade0f671577b9b4	-	scripts/
 file	6eb261f79ff2780422a75e018b091bb119f552a1d155504acacefb7e2e290ba0	x	scripts/dev/gh-ci.sh
 file	acb25a83d8dbc0924b5b4139646b02a4f1714b66dc945e78c00d3fe8b1d0853b	-	rules/rust-workspaces.md
 file	9e32385247296ce95d2b15b1290c64e6b6dff15716c1c139f21ab5e5128f4be3	x	scripts/ci/check-make-execution.sh
-file	109d6e538aed382a8eac822df06f2df33152c7e0859380f03205d1ff711c5b6f	x	scripts/ci/test-cloc.sh
 file	7b40c55f947b840a957b4d62f8d5be7a54d2de3b9dcc6faebad0ae3802ba723c	x	scripts/distribution/refresh-consumer.sh
 file	73006393ac5e5185b4513f176893753368b18809bb257b04e09cf24babcd7755	-	make/tools.mk
-file	66ab6b6d25233697337d37ee3445d377b3ac71eb050ab4901533f723cfab7c1f	x	scripts/ci/test-tool-commands.sh
 file	94a934651d5cb0c6f77fa429df277856dbda4c1a7441b2b8563e678c416258f6	-	audits/ic-canister-applications.md
 file	fcf765413799da88b68b3612a12498fa761a2f470f1422555bc627694bb7134a	x	scripts/dev/install-rust-tools.sh
 file	6d99677e86759273a88fb4149cbd4c14f2aacc99e1838a0db343d76c776f1aba	-	scripts/ci/ic-tool-pins.awk
@@ -199,21 +192,18 @@ file	d26462d2d6e9c1e991a6f1f45f2a12ce919a29eab987665438af530f51b6fee5	-	tasks/sy
 file	f7b95816164980993403d2d6eae13336db1c476c58217c8e8d356e6d01fe9b27	-	tasks/systemd/shared-tooling-maintenance.timer
 file	dc85d07f05772807e5a91806c8756d020167fedec76323a87eb8fb7c64b7e31a	-	scripts/dev/run-maintenance.sh
 file	a3af7084956384262842be33100f91a22fdd82b0f91b6091a00e90f8726f67fe	x	scripts/ci/check-release-source.sh
-file	b4db00a31a0a573b70c53db856c896e1f1adbe35bcd978d357d460e36eb1cead	x	scripts/ci/test-npm-pins.sh
 file	235d355481adf5b15dd118bbd2e83174484af4e463d75714bf70fd7f7352a8fc	-	ci/ic-tools.tsv
 file	cadaefaea8553889397ab2b87bb644afa8e9abbf7476c937df6f91099903dee6	-	make/release.mk
 file	394b173e903aeb4d057f57665a0fad17233b677eff1f63d17d81314b3086856b	-	make/rust-format.mk
 file	cebc0fa4ee9944550350a492a3bc1084e28820e2c915e20351c336d87ce0359f	-	make/execution.mk
 file	4ff0a961d5fb8639edf798d64bbe3abc0fcd83c6f703d7a6875c6f5174e76201	x	scripts/ci/run-formatting.sh
 file	41e6d60c7110e0d554d49c4aa98d9f2703e45212049992064207950c6d00a037	x	scripts/ci/check-crates-io-version.sh
-file	09909d6857c11ee1cd2e711be769ab67118fdd065ef67b3a7e15bff6d0363c66	x	scripts/ci/test-crates-io-version.sh
 file	227ce86878264ff60aa24a70bb20140b8ef3c8332be640186e96f93805ed1062	-	tasks/readme-freshness.md
 file	11506dc67719964c437ca5adb7b1abcaf6db1b1373a0ad8032e768417c061788	-	scripts/dev/tool-store.sh
 file	af563f004e8b03bea5f12c3896fb7228ae672ce33e7b548ce6da7f0545da6c15	-	scripts/ci/test-tool-store.sh
 file	b936baeb21374c8718c4f35b00cd3ee09350f2315f4367559cf922ef42f68292	-	scripts/dev/cargo-tool-build.sh
 file	c385168599f833bbcd390eaf5ba2aa7507e5a9f05df0ec7264907c3a0de02289	-	make/consumer.mk
 file	285976560aae0ee810c0421cba7651a8ba5e1aa385fa9366c92bbd3ea56ce147	-	docs/make-interface.md
-file	cfbfb9bbe7ae308c29086fe85e6cffb4cbd146682472bd1630233d637f8b07cc	x	scripts/ci/test-make-consumer.sh
 file	a9ed416a02f737d420723642935de94ffdd53cf92f75bb06ab4b0bc1c68430dc	-	tasks/cargo-tool-versions.md
 file	e01538ee7aadd1b599ea9d4fc420fe64f27f204227fe2c7937ac6c2e1d378852	x	scripts/dev/check-cargo-tool-versions.pl
 file	d0b9fc7c8cc0ccc20a4700901848f4374138c6b92b57a478298ea6bff2a4eaad	x	scripts/ci/test-tool-downloads.sh
@@ -240,7 +230,6 @@ file	eeeca9e6e7b92b888fd6547733d6136f0e7e9859d37c983f8048e60551a15c39	-	scripts/
 file	c10514df9c63541c1e86633c6311d9448d06426cd33b93e4dd289e743fc2e4c6	-	scripts/ci/select-rust-formatting-sources.sh
 file	523996a3e4eb9dbe87e8daa4285293a28c5e005223feaa84bd5383d430784b09	-	scripts/ci/fixture-lifecycle.sh
 file	ffab807c6e7ecfa18e354e65201ee53cb40b8c376fcbad319bfc4a9e615dc46d	-	scripts/ci/shared-companions.sh
-file	d866bd1ae0bf5c5d22120c3427857968eba86cbc2affa310951f76742e339116	x	scripts/ci/check-pipe-jobserver.pl
 file	2183e51b479f88cfc99cc1ae79204c5b1a653c3e379193afd65565a11632ebc7	-	docs/tool-catalog-bindings.md
 file	1b01f4b482fb85986d1ffab592626ccbfec187ac7a5133ab946b0acd51a18381	-	scripts/ci/check-release-delivery.sh
 file	e00937f22bd31231993ae9c1d7eda844227b39529466d017de44dbc1f0618026	-	scripts/ci/cargo-workspace-members.jq
