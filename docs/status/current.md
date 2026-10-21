@@ -4,24 +4,25 @@ Date: 2026-10-21
 
 ## Delivered source and pending work
 
-The pending **0.40.4** contributor-tooling fix keeps dependency fetching in
-explicit preparation and release preflight, outside ordinary validation; see
-[#98](https://github.com/dragginzgame/ic-blob-storage/issues/98). It changes no
-product APIs, dependency selections or stored/wire formats.
+Default main is released **0.40.3**, `5fcb43c1a87b2c2ab02cd86cc2fbc9eb3200080a`.
+HTTP adoption [#96](https://github.com/dragginzgame/ic-blob-storage/issues/96) is
+closed: the delivered registry-based reader passed Linux, Intel macOS, Apple
+Silicon and MSRV qualification. Request/evidence policy remains local, and
+provider downloads remain streaming. This establishes no provider acceptance.
 
-Default main is released **0.40.2**, `dc3620f467b9d39ac9b001a6cc2c254553ad65c9`.
-[PR #97](https://github.com/dragginzgame/ic-blob-storage/pull/97), probe evidence
-regressions and Wire integration-recipe corrections are delivered. Pending
-**0.40.3** adopts published IC Tooling 0.63.2 and replaces native probe body
-accumulation with its cancellation-safe HTTP reader. Package versions remain
-0.40.2; no commit, release or publication was run by this adoption.
+Pending **0.40.4**, [PR #99](https://github.com/dragginzgame/ic-blob-storage/pull/99),
+keeps dependency fetching in explicit preparation/release preflight, outside
+ordinary validation ([#98](https://github.com/dragginzgame/ic-blob-storage/issues/98)).
+Its release fixture now consumes a prepared cache and refuses any fetch during
+validation, while exercising explicit preparation separately. Lint-first refusal,
+input sealing, existing recovery checks and parallel Make behavior remain.
+The original PR's three-host failure was a stale expected-fetch assertion in the
+intentional Clippy-refusal case, not a product Clippy defect.
 
-Preserve incoming Cargo.lock edits: Tooling 0.63.2, Platform/macros 0.6.4,
-Memory/Storage 0.50.7, Metrics 0.15.2 and Wire/derive 0.5.14 were already selected
-in the captured before-image. This adoption adds only HTTP and its CLI edge to
-that lock, and sets direct Tooling requirement floors to the API-bearing release.
-Keep dependency edits outside an active validation gate; results remain bound
-to their exact graph.
+The PR keeps package versions and its delivered dependency graph unchanged.
+Unrelated incoming Cargo.lock edits remain in the primary checkout outside this
+isolated branch; do not overwrite or qualify them with this fixture-only repair.
+No product API, schema, wire format, dependency or release effect changes.
 
 ## Ownership and delivered tooling
 
@@ -45,22 +46,13 @@ exact retries, fences and retained obligations remain required.
 
 ## Outstanding issues and current evidence
 
-Eight Blob issues remain; no PR is open at this review. #84 and #95 are resolved
-on main for application DTO decoupling and published Platform-family alignment.
-PR #94 was superseded; PR #97 is merged. Do not conflate these producer deliveries
-with consumer or deployed-provider acceptance.
+Eight Blob issues remain: #98 awaits PR #99 delivery/hosted acceptance;
+#4/#5/#6/#31/#32/#33/#34 retain consumer/provider requirements. #84/#95/#96
+are resolved on main; PR #94 was superseded and #97 is merged. Do not conflate
+producer deliveries with consumer or deployed-provider acceptance. #4's current
+owner links now distinguish Canic #444 composition from the application's asset
+transaction and IC Crates #1; Canic #452 tracks Fleet Ensure, not publication.
 
-- [#96](https://github.com/dragginzgame/ic-blob-storage/issues/96): published
-  `ic-host-http` 0.63.2 is verified against its sparse-index archive checksum and
-  packaged VCS `e5b4095150f49069fc51c3b497e192a8f8eda016`. The released Rust
-  matches the earlier isolated candidate. Local adoption uses `read_body_into`,
-  preserving caller-owned timeout bytes, returned-error prefixes, body-before-
-  status ordering and existing labels, with distinct `body_allocation` evidence.
-  Request/client policy, hashing/redaction and durable custody remain local;
-  provider downloads remain streaming verifier/file sinks. Reqwest remains
-  necessary for those callers. HTTP is native-only with empty defaults and does
-  not enter either CLI or standalone Wasm. Leave #96 open until this pending
-  batch reaches default main; publication is no longer its blocker.
 - [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) and
   [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34): the
   [fresh provider source review](../evidence/caffeine-probes/local/2026-10-21-provider-contract0402-01/summary.json)
@@ -81,36 +73,32 @@ with consumer or deployed-provider acceptance.
   independently evidenced deletion/billing remain required. Existing publisher,
   reference/capacity and local browser results do not close those cells.
 
-[Canic #444](https://github.com/dragginzgame/canic/issues/444#issuecomment-6313616819)
-now reports local Blob 0.40 dedicated/embedded composition and production Root
-initialization/recovery success, with distinct compatible root/private graphs.
-This is owner-reported pending local work, not default-main delivery or execution
-performed here. Canic must deliver its batch and reconcile its adoption tracking;
-provider/application acceptance remains separate. [Canic #494](https://github.com/dragginzgame/canic/issues/494)
+[Canic #444](https://github.com/dragginzgame/canic/issues/444#issuecomment-6315345898)
+reports local dedicated/embedded composition on published Blob 0.40.3, after
+aligning all three graphs and rebuilding actual Wasm. This remains owner-reported
+pending local integration, not default-main delivery or an execution here.
+Application/provider acceptance remains separate. [Canic #494](https://github.com/dragginzgame/canic/issues/494)
 owns guarded funding composition after #34 establishes acquisition.
-[IC Crates #1](https://github.com/dragginzgame/ic-crates/issues/1) retains its
-older graph and complete archive/provider/verifier/catalog transaction.
-No sibling checkout or excluded application was changed or executed here.
+[IC Crates #1](https://github.com/dragginzgame/ic-crates/issues/1) retains its older
+graph and complete archive/provider/verifier/catalog transaction. No excluded
+application was inspected and no sibling checkout was edited or executed here.
 
 ## Validation and evidence
 
-Adoption evidence: `.tmp/review-validation/tooling0632/`, including verified
-published archives/source match, incoming before-images and exact graph inputs.
-Full locked metadata, Platform/dependency/runtime/deployment boundaries and pins
-pass. Native CLI all-features normal/build graphs select one HTTP, Reqwest,
-Host process and Build identity; CLI/standalone Wasm exclude HTTP/Reqwest.
-Strict workspace all-target/all-feature Clippy, 128 native CLI/probe tests,
-actual Rust 1.91 native workspace and supported Wasm checks pass. Probe cases
-cover truncation, oversize and timeout prefixes; the allocation-record fixture
-checks retained evidence but does not induce allocator exhaustion. Production
-Wasm and native CLI build against the same graph.
+Delivered 0.40.3 passed its complete [tooling/native and MSRV matrix](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39592967028)
+on Linux, Intel macOS and Apple Silicon. Earlier HTTP adoption evidence remains
+in `.tmp/review-validation/tooling0632/` in the primary checkout, bound to its
+captured source/graph; it does not qualify later incoming lockfile edits.
 
-Explicit canonical Testkit/server and release-editor setup/offline admission
-pass. The first setup attempt refused a live shared lock owned by IC Persistence;
-no lock was removed. Retry followed that owner's completion. Both focused
-installed cases pass: complete compiled endpoint surface and CLI-carrier
-installation with wrong-actual-service refusal. Formatting and local links pass. This is local Linux evidence, not native macOS,
-installed Canic or deployed-provider qualification. Shared Tooling remains 0.26.1.
+PR #99 repair evidence stays in the primary checkout at
+`.tmp/review-validation/pr99/`. Raw GitHub API logs confirm the Linux/macOS
+`bootstrap-lint` failure; both CLI log commands returned empty output, retained
+as unavailable observations. The isolated local baseline reproduces that failure.
+The repaired full release-adapter fixture passes, and restoring implicit fetch
+fails `bootstrap-success`. No real Git/Cargo delivery effects occur in those
+fixtures. Existing Testkit/editor forwarding, admitted-server and ordered failure
+checks, snapshot integrity, Bash syntax, ShellCheck and documentation links pass. Hosted acceptance
+must use the updated PR head; the original failed run is not green evidence.
 
 Historical complete-gate evidence remains bound to its original graph:
 `.tmp/review-validation/wire058-gate/ci.log` records all 20 targets passing in
@@ -118,7 +106,7 @@ Historical complete-gate evidence remains bound to its original graph:
 original/O3/Os/Oz installation/restoration and archives. It does not qualify today's
 incoming lock. `.tmp/review-validation/backlog0400/` separately retains the
 registry-only Blob 0.40.0 / Platform 0.6.1 installation/restore compile probe.
-Current native macOS, installed Canic and live-provider acceptance remain separate.
+Installed Canic and live-provider acceptance remain separate from native CI.
 [Shared #294](https://github.com/dragginzgame/shared-tooling/issues/294) and
 [Tooling #223](https://github.com/dragginzgame/ic-tooling/issues/223) retain producer
 qualification independently. Earlier graph-specific evidence stays in the

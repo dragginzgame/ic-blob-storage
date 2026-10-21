@@ -460,47 +460,54 @@ echo pins >> "$TEST_EFFECTS"
 [[ "${TEST_PINS_FAIL:-0}" != 1 ]]
 MOCK
     before="$(fingerprint)"
+    export TEST_FETCH_FAIL=1
     case "$1" in
         snapshot) export TEST_SNAPSHOT_FAIL=1; expected=snapshot ;;
         tools) export TEST_TOOLS_FAIL=1; expected=$'snapshot\ntools' ;;
         pins) export TEST_PINS_FAIL=1; expected=$'snapshot\ntools\npins' ;;
-        fetch) export TEST_FETCH_FAIL=1; expected=$'snapshot\ntools\npins\nfetch' ;;
-        fetch-cached)
-            export TEST_FETCH_FAIL=1; expected=$'snapshot\ntools\npins\nfetch'
-            echo retained-cache > target/mock-cargo-cache
-            ;;
-        success) expected=$'snapshot\ntools\npins\nfetch\ncheck' ;;
-        lint|lint-verify) export TEST_CLIPPY_FAIL=1 TEST_RECORD_LINT=1; expected=$'snapshot\ntools\npins\nfetch\nlint' ;;
-        lint-success) export TEST_RECORD_LINT=1; expected=$'snapshot\ntools\npins\nfetch\nlint\ncheck' ;;
+        fetch-success) unset TEST_FETCH_FAIL; expected=fetch ;;
+        fetch|fetch-cached) expected=fetch ;;
+        success) expected=$'snapshot\ntools\npins\ncheck' ;;
+        lint|lint-verify) export TEST_CLIPPY_FAIL=1 TEST_RECORD_LINT=1; expected=$'snapshot\ntools\npins\nlint' ;;
+        lint-success) export TEST_RECORD_LINT=1; expected=$'snapshot\ntools\npins\nlint\ncheck' ;;
     esac
-    if [[ "$1" == lint* ]]; then
-        # Preserve the real CI stage order; select only the relevant actual
-        # targets. Parallel Make must not let check overtake the existing lint.
+    local target=ci
+    if [[ "$1" == fetch* ]]; then
+        # Explicit preparation still owns fetch and preserves an existing cache
+        # on refusal. Ordinary validation below must never invoke this target.
+        target=deps
+        [[ "$1" != fetch-cached ]] || echo retained-cache > target/mock-cargo-cache
+    else
+        echo retained-cache > target/mock-cargo-cache
+        # Select the real validation order without compiling. Keep deps in the
+        # filter so accidentally restoring it to the roster fails this probe.
         # shellcheck disable=SC2016 # GNU Make evaluates this expression in the fixture.
         printf '\nCI_TARGETS := $(filter shared-tooling-check tools-check dependency-pins-check deps clippy check,%s)\n' "$TEST_CI_TARGETS" >> Makefile
-        if [[ "$1" == lint-success ]]; then
-            "$TEST_REAL_MAKE" --no-print-directory -j4 ci
-        else
-            local target=ci
-            [[ "$1" != lint-verify ]] || target=release-verify
+        [[ "$1" != lint-verify ]] || target=release-verify
+    fi
+    case "$1" in
+        success|lint-success|fetch-success)
+            "$TEST_REAL_MAKE" --no-print-directory -j4 "$target"
+            ;;
+        *)
             expect_failure "$TEST_REAL_MAKE" --no-print-directory -j4 "$target"
-            ! rg -q '^cargo check ' "$TEST_LOG" || exit 1
-        fi
-    elif [[ "$1" == success ]]; then
-        "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check'
+            if rg -q '^cargo check ' "$TEST_LOG"; then
+                echo 'Cargo check ran after failed admission, preparation or lint' >&2; exit 1
+            fi
+            ;;
+    esac
+    if [[ "$1" == fetch ]]; then
+        [[ ! -f target/mock-cargo-cache ]] || exit 1
     else
-        expect_failure "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check'
-        if [[ "$1" == fetch-cached ]]; then
+        [[ -f target/mock-cargo-cache ]] || exit 1
+        if [[ "$1" != fetch-success ]]; then
             [[ "$(cat target/mock-cargo-cache)" == retained-cache ]] || exit 1
-        else [[ ! -f target/mock-cargo-cache ]] || exit 1; fi
-        # Failed bootstrap must stop before Cargo checks even with an old cache.
-        if rg -q '^cargo check ' "$TEST_LOG"; then
-            echo 'Cargo check ran after failed bootstrap' >&2; exit 1
         fi
     fi
     [[ "$(cat "$TEST_EFFECTS")" == "$expected" ]] || exit 1
     assert_unchanged; assert_cache_retained
 }
+
 test_preflight_tools() {
     before="$(fingerprint)"
     case "$1" in
@@ -1103,8 +1110,9 @@ run_case bootstrap-success test_dependency_bootstrap success
 run_case bootstrap-snapshot test_dependency_bootstrap snapshot
 run_case bootstrap-tools test_dependency_bootstrap tools
 run_case bootstrap-pins test_dependency_bootstrap pins
-run_case bootstrap-fetch test_dependency_bootstrap fetch
-run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
+for shape in fetch-success fetch fetch-cached; do
+    run_case "preparation-$shape" test_dependency_bootstrap "$shape"
+done
 for shape in lint lint-verify lint-success; do run_case "bootstrap-$shape" test_dependency_bootstrap "$shape"; done
 for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken editor-unprepared; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
