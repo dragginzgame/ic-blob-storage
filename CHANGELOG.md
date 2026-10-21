@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.40.1] - Unreleased
+## [0.40.1] - 2026-10-21
 
 - Protect probe failure evidence with loopback regressions for exact body bounds,
   truncated replies and timeout cancellation, including body-before-status ordering.
