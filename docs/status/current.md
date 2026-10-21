@@ -4,18 +4,19 @@ Date: 2026-10-21
 
 ## Delivered source and pending work
 
-Default main is `18b543cd8ad14b630c6bed513264839ffe557853`, merging
-[PR #97](https://github.com/dragginzgame/ic-blob-storage/pull/97) after release
-**0.40.1**. Probe exact-bound, truncated-response and timeout-prefix regressions
-are delivered; the production HTTP reader has not changed. Pending **0.40.2**
-contains declared-compiler qualification and current integration-recipe corrections.
-Package versions remain 0.40.1; no release or publication was run by this review.
+Default main is released **0.40.2**, `dc3620f467b9d39ac9b001a6cc2c254553ad65c9`.
+[PR #97](https://github.com/dragginzgame/ic-blob-storage/pull/97), probe evidence
+regressions and Wire integration-recipe corrections are delivered. Pending
+**0.40.3** adopts published IC Tooling 0.63.2 and replaces native probe body
+accumulation with its cancellation-safe HTTP reader. Package versions remain
+0.40.2; no commit, release or publication was run by this adoption.
 
-Preserve incoming Cargo.lock edits. At review they select Platform/macros 0.6.3,
-Memory/Storage 0.50.6, Metrics 0.15.2 and Wire/derive 0.5.12. They predate this
-batch and were not changed or runtime-qualified here. Keep dependency edits
-outside an active validation gate; results from earlier graphs are not reusable
-current runtime qualification.
+Preserve incoming Cargo.lock edits: Tooling 0.63.2, Platform/macros 0.6.4,
+Memory/Storage 0.50.7, Metrics 0.15.2 and Wire/derive 0.5.14 were already selected
+in the captured before-image. This adoption adds only HTTP and its CLI edge to
+that lock, and sets direct Tooling requirement floors to the API-bearing release.
+Keep dependency edits outside an active validation gate; results remain bound
+to their exact graph.
 
 ## Ownership and delivered tooling
 
@@ -44,13 +45,17 @@ on main for application DTO decoupling and published Platform-family alignment.
 PR #94 was superseded; PR #97 is merged. Do not conflate these producer deliveries
 with consumer or deployed-provider acceptance.
 
-- [#96](https://github.com/dragginzgame/ic-blob-storage/issues/96): leave HTTP
-  adoption waiting on compatible registry publication. The tested candidate and
-  unapplied registry patch remain in `.tmp/review-validation/host-http-adoption/`.
-  Inspect the actual published archive before selecting it. Preserve timeout
-  partial bytes, body-before-status ordering and existing outcomes; distinguish
-  allocation failure. Request policy/evidence remain local and verified provider
-  downloads remain streaming. No path override is selected.
+- [#96](https://github.com/dragginzgame/ic-blob-storage/issues/96): published
+  `ic-host-http` 0.63.2 is verified against its sparse-index archive checksum and
+  packaged VCS `e5b4095150f49069fc51c3b497e192a8f8eda016`. The released Rust
+  matches the earlier isolated candidate. Local adoption uses `read_body_into`,
+  preserving caller-owned timeout bytes, returned-error prefixes, body-before-
+  status ordering and existing labels, with distinct `body_allocation` evidence.
+  Request/client policy, hashing/redaction and durable custody remain local;
+  provider downloads remain streaming verifier/file sinks. Reqwest remains
+  necessary for those callers. HTTP is native-only with empty defaults and does
+  not enter either CLI or standalone Wasm. Leave #96 open until this pending
+  batch reaches default main; publication is no longer its blocker.
 - [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) and
   [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34): the
   [fresh provider source review](../evidence/caffeine-probes/local/2026-10-21-provider-contract0402-01/summary.json)
@@ -84,14 +89,23 @@ No sibling checkout or excluded application was changed or executed here.
 
 ## Validation and evidence
 
-This documentation/source-review batch uses `.tmp/review-validation/backlog0402/`
-for before-images, source identity and focused validation. It changes no Rust,
-manifest, decoder, storage schema, authentication or retry behavior. New source
-captures and their failed request remain in the probe ledger above. The local
-documentation links check passes (1,523 references across 205 documents), all
-retained evidence checksums pass, and the affected recipes no longer prescribe
-retired application codec paths. No runtime or native macOS test was run for this
-documentation-only batch.
+Adoption evidence: `.tmp/review-validation/tooling0632/`, including verified
+published archives/source match, incoming before-images and exact graph inputs.
+Full locked metadata, Platform/dependency/runtime/deployment boundaries and pins
+pass. Native CLI all-features normal/build graphs select one HTTP, Reqwest,
+Host process and Build identity; CLI/standalone Wasm exclude HTTP/Reqwest.
+Strict workspace all-target/all-feature Clippy, 128 native CLI/probe tests,
+actual Rust 1.91 native workspace and supported Wasm checks pass. Probe cases
+cover truncation, oversize and timeout prefixes; the allocation-record fixture
+checks retained evidence but does not induce allocator exhaustion. Production
+Wasm and native CLI build against the same graph.
+
+Explicit canonical Testkit/server and release-editor setup/offline admission
+pass. The first setup attempt refused a live shared lock owned by IC Persistence;
+no lock was removed. Retry followed that owner's completion. Both focused
+installed cases pass: complete compiled endpoint surface and CLI-carrier
+installation with wrong-actual-service refusal. Formatting and local links pass. This is local Linux evidence, not native macOS,
+installed Canic or deployed-provider qualification. Shared Tooling remains 0.26.1.
 
 Historical complete-gate evidence remains bound to its original graph:
 `.tmp/review-validation/wire058-gate/ci.log` records all 20 targets passing in
@@ -99,8 +113,6 @@ Historical complete-gate evidence remains bound to its original graph:
 original/O3/Os/Oz installation/restoration and archives. It does not qualify today's
 incoming lock. `.tmp/review-validation/backlog0400/` separately retains the
 registry-only Blob 0.40.0 / Platform 0.6.1 installation/restore compile probe.
-The PR #97 merged-revision published-example workflow has passed; its broader
-release/formatting workflow is still running at review, not green evidence.
 Current native macOS, installed Canic and live-provider acceptance remain separate.
 [Shared #294](https://github.com/dragginzgame/shared-tooling/issues/294) and
 [Tooling #223](https://github.com/dragginzgame/ic-tooling/issues/223) retain producer

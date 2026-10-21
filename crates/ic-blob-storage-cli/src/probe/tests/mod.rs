@@ -82,7 +82,8 @@ fn immutable_records_detect_tampering_and_incomplete_runs() {
             index: 0,
             finished_unix_seconds: 2,
             status: Some(503),
-            outcome: "http_status".into(),
+            // Synthetic reader refusal; the test does not exhaust the allocator.
+            outcome: "body_allocation".into(),
             bytes: 7,
             sha256: record::hash(b"failure"),
         },

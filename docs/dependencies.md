@@ -30,6 +30,7 @@ from the workspace and deployment.
 | IC Metrics | Private probe measurement arithmetic; not a public Blob API |
 | IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
 | IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Host HTTP | Bounded native probe response accumulation; request policy, error projection and evidence custody stay with Blob |
 | IC Build | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
 | PocketIC | Testkit-selected local IC execution through Platform; no separate Blob dependency or server catalog |
 
@@ -77,6 +78,16 @@ Held descriptors do not freeze contents: callers exclude concurrent writers and
 verify complete body digests. Interrupted probe evidence deliberately uses retained
 creation rather than an atomic writer that discards partial bytes. These are
 necessary consumer policies, not independent filesystem implementations.
+
+Native probes use published `ic-host-http::read_body_into` with caller-owned
+storage, preserving accepted bytes when the outer timeout cancels the reader.
+Returned failures transfer their retained prefix back into Blob's evidence
+buffer. Blob reads the body before classifying unsuccessful status, keeps its
+existing byte/timeout limits and labels, and records fallible allocation refusal
+as `body_allocation`. Reqwest remains explicit for client configuration and the
+separate streaming verifier/file-sink download; buffering would break that
+contract. HTTP has empty defaults and is selected only by the native CLI target.
+Neither HTTP nor Reqwest enters the CLI or standalone Wasm graph.
 
 The optional archive verifier exchanges Host process limits and typed errors
 with Build, requiring the same Host package identity. Build and direct Host share the coordinated Tooling release line.

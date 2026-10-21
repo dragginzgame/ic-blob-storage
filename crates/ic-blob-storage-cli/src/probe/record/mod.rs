@@ -185,7 +185,13 @@ pub(super) fn verify(directory: &Path) -> Result<serde_json::Value, String> {
         let response: ResponseRecord = decode(directory, &response_name)?;
         if !matches!(
             response.outcome.as_str(),
-            "captured" | "timeout" | "transport" | "body_transport" | "body_limit" | "http_status"
+            "captured"
+                | "timeout"
+                | "transport"
+                | "body_transport"
+                | "body_limit"
+                | "body_allocation"
+                | "http_status"
         ) {
             return Err("invalid_response".into());
         }

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.40.3] - Unreleased
+
+- Adopt published IC Tooling 0.63.2. Use its bounded HTTP reader for native
+  probes, preserving partial timeout/failure evidence and body-before-status
+  ordering; report allocation refusal distinctly. Keep request policy and durable
+  evidence local, verified provider downloads streaming, and HTTP out of Wasm.
+
 ## [0.40.2] - 2026-10-21
 
 - Use the declared development compiler for published-example qualification and

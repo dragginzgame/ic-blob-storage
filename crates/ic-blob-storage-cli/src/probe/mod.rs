@@ -182,16 +182,29 @@ async fn receive(
     status: &mut Option<u16>,
     body: &mut Vec<u8>,
 ) -> Result<(), &'static str> {
-    let mut response = client.get(url).send().await.map_err(|_| "transport")?;
+    use ic_host_http::{ReadFailure, ReadOptions, read_body_into};
+
+    let response = client.get(url).send().await.map_err(|_| "transport")?;
     *status = Some(response.status().as_u16());
-    while let Some(chunk) = response.chunk().await.map_err(|_| "body_transport")? {
-        let remaining = MAX_BODY - body.len();
-        body.extend_from_slice(&chunk[..chunk.len().min(remaining)]);
-        if chunk.len() > remaining {
-            return Err("body_limit");
+    let response_status = read_body_into(
+        response,
+        ReadOptions {
+            max_bytes: MAX_BODY,
+            reject_declared_oversize: false,
+            retain_partial_on_error: true,
+        },
+        body,
+    )
+    .await
+    .map_err(|error| {
+        *body = error.partial_body;
+        match error.failure {
+            ReadFailure::DeclaredLength { .. } | ReadFailure::Limit { .. } => "body_limit",
+            ReadFailure::Transport(_) => "body_transport",
+            ReadFailure::Allocation(_) => "body_allocation",
         }
-    }
-    if !response.status().is_success() {
+    })?;
+    if !response_status.is_success() {
         return Err("http_status");
     }
     Ok(())
