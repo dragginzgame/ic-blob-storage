@@ -10,13 +10,13 @@ description = "Independent blob-storage service library for Internet Computer ca
 readme = "../../README.md"
 
 [features]
-# Non-default access for this workspace's unpublished probe canisters only.
+# Non-default heap reference owners and isolated probe/fault-injection access.
 test-support = ["ic-memory/test-support"]
 
 [dependencies]
 ic-blob-storage-contracts.workspace = true
 ic-memory.workspace = true
-ic-platform = { workspace = true, features = ["candid", "cdk", "management-canister-types"] }
+ic-platform = { workspace = true, features = ["candid", "runtime", "management-canister-types"] }
 ic-storage.workspace = true
 serde.workspace = true
 thiserror.workspace = true
@@ -27,3 +27,19 @@ ic-memory = { workspace = true, features = ["test-support"] }
 
 [lints]
 workspace = true
+
+[[test]]
+name = "catalog_journey"
+required-features = ["test-support"]
+
+[[test]]
+name = "lifecycle_binding"
+required-features = ["test-support"]
+
+[[test]]
+name = "tenant_obligations"
+required-features = ["test-support"]
+
+[[test]]
+name = "upload_reads"
+required-features = ["test-support"]

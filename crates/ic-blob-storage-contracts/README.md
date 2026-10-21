@@ -47,7 +47,15 @@ All owned methods use published IC Wire; passive offline Wire values have their 
 bounded projections use explicit field/variant identities, method/direction-bound
 frames and finite resource limits while native DTO/policy and persisted schemas
 retain their existing owners. See [the adoption state](../../docs/service-wire.md).
-The registry requirement targets Wire 0.5. Literal vectors in
+The registry requirement targets Wire 0.5. Service/document generic decoding
+requires explicit `Deserialize<'de>` and can return bounded `BytesRef`/`TextRef`
+views. Retain the input for their lifetime; use owned values across async results,
+persistence and retained retries. Finite tenant wire projections now take a
+lifetime and convert from native references; their native helper functions retain
+their signatures. `download::reply::decode_borrowed` shares the owned descriptor
+validator over `DownloadResponse<Text = String>` without copying metadata text.
+See [measured applicability and tradeoffs](../../docs/evidence/borrowed-wire0390.md).
+ Literal vectors in
 [`tests/wire_golden`](tests/wire_golden/README.md) freeze all owned method and
 lifecycle contracts independently of round trips. Nested DTOs are exercised
 through these boundary values and focused unit tests rather than a separate

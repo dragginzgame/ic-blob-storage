@@ -9,7 +9,7 @@ fn context() -> UploadContext {
         actor: ic_platform::cdk::api::msg_caller(),
     }
 }
-#[ic_platform::cdk::init(hidden = true)]
+#[ic_platform::cdk::init]
 fn init() {
     let input: ServiceInstallationInput = ops::decode_owned("blob_install");
     ops::install(&input);
@@ -21,18 +21,18 @@ fn post_upgrade() {
 }
 macro_rules! endpoint {
     (query, tenant_inspection, $($item:tt)*) => {
-        #[ic_platform::cdk::query(hidden = true, decode_with = "ops::decode_tenant_inspection", encode_with = "ops::encode_tenant_inspection")]
+        #[ic_platform::cdk::query(decode_with = "ops::decode_tenant_inspection", encode_with = "ops::encode_tenant_inspection")]
         $($item)*
     };
     (update, tenant_update, $($item:tt)*) => {
-        #[ic_platform::cdk::update(hidden = true, decode_with = "ops::decode_tenant_update", encode_with = "ops::encode_tenant_update")]
+        #[ic_platform::cdk::update(decode_with = "ops::decode_tenant_update", encode_with = "ops::encode_tenant_update")]
         $($item)*
     };
     (query, request, fn $name:ident($($arg:ident : $input:ty)? $(,)?) -> $output:ty $body:block) => {
         mod $name {
             use super::*;
             fn admit() -> Result<(), String> { ops::admit_owned(stringify!($name)) }
-            #[ic_platform::cdk::query(manual_reply = true, hidden = true, guard = "admit", decode_with = "std::convert::identity")]
+            #[ic_platform::cdk::query(manual_reply = true, guard = "admit", decode_with = "std::convert::identity")]
             fn $name(bytes: Vec<u8>) {
                 endpoint!(@input stringify!($name), &bytes; $($arg : $input)?);
                 drop(bytes);
@@ -45,7 +45,7 @@ macro_rules! endpoint {
         mod $name {
             use super::*;
             fn admit() -> Result<(), String> { ops::admit_owned(stringify!($name)) }
-            #[ic_platform::cdk::update(manual_reply = true, hidden = true, guard = "admit", decode_with = "std::convert::identity")]
+            #[ic_platform::cdk::update(manual_reply = true, guard = "admit", decode_with = "std::convert::identity")]
             async fn $name(bytes: Vec<u8>) {
                 endpoint!(@input stringify!($name), &bytes; $($arg : $input)?);
                 drop(bytes);
@@ -59,8 +59,8 @@ macro_rules! endpoint {
     };
     (@input $method:expr, $bytes:expr;) => { let _: () = ops::decode_request($method, $bytes); };
     (certificate, request, $wire_name:literal, $($item:tt)*) => {
-        #[ic_platform::cdk::update(name = $wire_name, hidden = true, decode_with = "ops::decode_certificate", encode_with = "ops::encode_certificate")]
-        #[ic_platform::candid::contract::candid_method(update, rename = $wire_name)]
+        #[ic_platform::cdk::update(name = $wire_name, decode_with = "ops::decode_certificate", encode_with = "ops::encode_certificate")]
+        #[cfg_attr(not(target_arch = "wasm32"), ic_platform::candid::contract::candid_method(update, rename = $wire_name))]
         $($item)*
     };
 }

@@ -1,6 +1,6 @@
 //! Single-call mechanics shared by the role-specific replicated clients.
 use ic_platform::Principal;
-use ic_platform::cdk::call::{Call, CallFailed, Response};
+use ic_platform::cdk::call::{Call, CallFailed, Response, WaitPolicy};
 use std::num::NonZeroU32;
 
 /// Admit ordinary identities and the platform's bounded-wait timeout range.
@@ -32,7 +32,9 @@ pub(super) async fn call_raw(
     bytes: &[u8],
 ) -> Result<Response, ClientCallError> {
     Call::bounded_wait(service, method)
-        .change_timeout(timeout.get())
+        .with_wait_policy(WaitPolicy::Bounded {
+            timeout_seconds: timeout.get(),
+        })
         .with_raw_args(bytes)
         .await
         .map_err(ClientCallError::Transport)

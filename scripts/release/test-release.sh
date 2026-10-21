@@ -34,6 +34,9 @@ finish() {
     exit "$status"
 }
 trap finish EXIT
+TEST_RELEASE_EDITOR="$(make --no-print-directory --silent -C "$ROOT" release-editor-check)"
+export TEST_RELEASE_EDITOR
+TEST_CI_TARGETS="$(awk '/^CI_TARGETS := / { sub(/^CI_TARGETS := /, ""); print; exit }' "$ROOT/Makefile")"
 run_case() {
     CASE_NAME="$1"; shift
     printf 'Release-adapter case: %s\n' "$CASE_NAME"
@@ -116,9 +119,24 @@ LOCK
     mkdir -p target/registry
     unset TEST_DIRTY TEST_GATE_FAIL TEST_GATE_DIRTY TEST_METADATA_FAIL TEST_PREPARE_FAIL TEST_INDEX_EXTRA TEST_PUSH_FAIL TEST_FETCH_FAIL TEST_SNAPSHOT_FAIL TEST_TAG_TYPE
     unset TEST_GIT_FAIL_CALL TEST_DATA_FAIL_COMMAND TEST_SORT_SELECTED_FAIL
-    unset TEST_FINALIZER_FAIL
+    unset TEST_FINALIZER_FAIL TEST_CLIPPY_FAIL TEST_RECORD_LINT TEST_EDITOR_FAIL
     unset TEST_FMT_FAIL
     unset TEST_RELEASE_SETUP_FAIL TEST_RELEASE_SETUP_CHANGE
+    cat > target/release-editor <<'EDITOR'
+#!/usr/bin/env bash
+set -euo pipefail
+echo "release-editor $*" >> "$TEST_LOG"
+exec "$TEST_RELEASE_EDITOR" "$@"
+EDITOR
+    chmod +x target/release-editor
+    cat > scripts/dev/install-rust-tools.sh <<'ADMISSION'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$*" == *'--package ic-build '* ]]; then
+    [[ "${TEST_EDITOR_FAIL:-0}" != 1 ]] || exit 1
+    printf '%s/target/release-editor\n' "$PWD"
+fi
+ADMISSION
 }
 expect_failure() {
     local status
@@ -300,6 +318,9 @@ case "$*" in
     'fmt --all -- --check') ;;
     'fetch --locked') echo fetch >> "$TEST_EFFECTS"; [[ "${TEST_FETCH_FAIL:-0}" != 1 ]] || exit 1; touch target/mock-cargo-cache ;;
     'check --offline --locked --workspace --all-targets --all-features') [[ -f target/mock-cargo-cache ]] || exit 1; echo check >> "$TEST_EFFECTS" ;;
+    'clippy --offline --locked --workspace --all-targets --all-features -- -D warnings')
+        [[ "${TEST_RECORD_LINT:-0}" != 1 ]] || echo lint >> "$TEST_EFFECTS"
+        [[ "${TEST_CLIPPY_FAIL:-0}" != 1 ]] ;;
      'publish --locked --registry crates-io -p ic-blob-storage-client'|'publish --locked --registry crates-io -p ic-blob-storage-client --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage'|'publish --locked --registry crates-io -p ic-blob-storage --dry-run'|'publish --locked --registry crates-io -p ic-blob-storage-contracts'|'publish --locked --registry crates-io -p ic-blob-storage-contracts --dry-run')
         package="$6"
         echo "publish:$package" >> "$TEST_EFFECTS"
@@ -384,9 +405,6 @@ MOCK
 cat > "$TEMPORARY/bin/perl" <<'MOCK'
 #!/usr/bin/env bash
 set -euo pipefail
-if [[ "${1##*/}" == render-cargo-workspace-version.pl ]]; then
-    echo "perl $*" >> "$TEST_LOG"
-fi
 if [[ $# -ge 2 && "${1##*/}" == release-data.pl && "$2" == "${TEST_DATA_FAIL_COMMAND:-}" ]]; then
     "$TEST_REAL_PERL" "$@"
     exit 1
@@ -452,8 +470,23 @@ MOCK
             echo retained-cache > target/mock-cargo-cache
             ;;
         success) expected=$'snapshot\ntools\npins\nfetch\ncheck' ;;
+        lint|lint-verify) export TEST_CLIPPY_FAIL=1 TEST_RECORD_LINT=1; expected=$'snapshot\ntools\npins\nfetch\nlint' ;;
+        lint-success) export TEST_RECORD_LINT=1; expected=$'snapshot\ntools\npins\nfetch\nlint\ncheck' ;;
     esac
-    if [[ "$1" == success ]]; then
+    if [[ "$1" == lint* ]]; then
+        # Preserve the real CI stage order; select only the relevant actual
+        # targets. Parallel Make must not let check overtake the existing lint.
+        # shellcheck disable=SC2016 # GNU Make evaluates this expression in the fixture.
+        printf '\nCI_TARGETS := $(filter shared-tooling-check tools-check dependency-pins-check deps clippy check,%s)\n' "$TEST_CI_TARGETS" >> Makefile
+        if [[ "$1" == lint-success ]]; then
+            "$TEST_REAL_MAKE" --no-print-directory -j4 ci
+        else
+            local target=ci
+            [[ "$1" != lint-verify ]] || target=release-verify
+            expect_failure "$TEST_REAL_MAKE" --no-print-directory -j4 "$target"
+            ! rg -q '^cargo check ' "$TEST_LOG" || exit 1
+        fi
+    elif [[ "$1" == success ]]; then
         "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check'
     else
         expect_failure "$TEST_REAL_MAKE" --no-print-directory ci 'CI_TARGETS=shared-tooling-check tools-check dependency-pins-check deps check'
@@ -476,6 +509,7 @@ test_preflight_tools() {
         sort-missing) export TEST_SORT_FAIL=1 ;;
         sort-wrong) export TEST_SORT_VERSION=0.0.0 ;;
         rustfmt-broken) export TEST_FMT_FAIL=1 ;;
+        editor-unprepared) export TEST_EDITOR_FAIL=1 ;;
     esac
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
     assert_unchanged; assert_cache_retained
@@ -483,7 +517,7 @@ test_preflight_tools() {
     case "$1" in
         shellcheck-*) rg -F 'SHELLCHECK=/absolute/path/to/shellcheck' target/rejection.log >/dev/null ;;
     esac
-    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION TEST_FMT_FAIL
+    unset SHELLCHECK TEST_SHELLCHECK_FAIL TEST_SORT_FAIL TEST_SORT_VERSION TEST_FMT_FAIL TEST_EDITOR_FAIL
     # A selected executable with spaces in its path must survive Make dispatch.
     cp "$TEMPORARY/bin/shellcheck" 'target/selected shellcheck'
     export SHELLCHECK="$PWD/target/selected shellcheck"
@@ -565,6 +599,7 @@ test_invalid_changelog() {
         duplicate) printf '\n## [0.1.1]\n- Duplicate.\n' >> CHANGELOG.md ;;
         historical-duplicate) printf '\n## [0.1.0]\n- Duplicate history.\n' >> CHANGELOG.md ;;
         competing) printf '\n## [0.2.0]\n- Competing.\n' >> CHANGELOG.md ;;
+        unreleased-duplicate) printf '\n## [0.1.1] - Unreleased\n- Duplicate.\n' >> CHANGELOG.md ;;
     esac
     before="$(fingerprint)"
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
@@ -575,12 +610,19 @@ test_changelog_content() {
     case "$1" in
         empty) printf '# Changelog\n\n## [0.1.1]\n\n## [0.1.0]\n\n- Imported undated history.\n' > CHANGELOG.md ;;
         missing) printf '# Changelog\n\n## [0.1.0]\n\n- Imported undated history.\n' > CHANGELOG.md ;;
+        unreleased) sed 's/## \[0.1.1\]/## [0.1.1] - Unreleased/' CHANGELOG.md > target/unreleased; cp target/unreleased CHANGELOG.md ;;
     esac
     before="$(fingerprint)"
     perl scripts/release/release-data.pl changelog-check 0.1.1 0.1.0 2040-01-02
     assert_unchanged
     "$TEST_REAL_MAKE" --no-print-directory release-patch
     perl scripts/release/release-data.pl verify
+    if [[ "$1" == unreleased ]]; then
+        local saved_date
+        saved_date="$(jq -er .date docs/release.json)"
+        rg -Fx "## [0.1.1] - $saved_date" CHANGELOG.md
+        ! rg -q 'Unreleased' CHANGELOG.md || exit 1
+    fi
     rg -q '^## \[0.1.0\]$' CHANGELOG.md
     [[ "$(cat "$TEST_EFFECTS")" == $'validate\nstage\ncommit\ntag\npush' ]] || exit 1
     assert_cache_retained
@@ -717,7 +759,7 @@ test_receipt_rollback() {
     cmp "$backup/Cargo.lock" Cargo.lock
     cmp "$backup/CHANGELOG.md" CHANGELOG.md
     # The shared preparer completed; refusal came after writing the candidate receipt.
-    rg -F 'render-cargo-workspace-version.pl' "$TEST_LOG" >/dev/null
+    rg -F 'release-editor --max-input-bytes 8388608 manifest ' "$TEST_LOG" >/dev/null
 }
 
 test_preparation() {
@@ -734,11 +776,11 @@ test_publish() {
     if [[ "${2:-}" != '' ]]; then export PUBLISH_PACKAGE="$2"; fi
     # Dry-run core needs a real indexed contracts dependency, unlike local paired verification.
     if [[ "$1" == dry-run && "${2:-}" != ic-blob-storage-contracts ]]; then
-        "$TEST_REAL_MAKE" --no-print-directory publish PUBLISH_PACKAGE=ic-blob-storage-contracts
+        "$TEST_REAL_MAKE" --no-print-directory -j4 publish PUBLISH_PACKAGE=ic-blob-storage-contracts
         : > "$TEST_EFFECTS"
     fi
-    if [[ "$1" == dry-run ]]; then "$TEST_REAL_MAKE" --no-print-directory publish-dry-run;
-    else "$TEST_REAL_MAKE" --no-print-directory publish; fi
+    if [[ "$1" == dry-run ]]; then "$TEST_REAL_MAKE" --no-print-directory -j4 publish-dry-run;
+    else "$TEST_REAL_MAKE" --no-print-directory -j4 publish; fi
     if [[ "${2:-}" == '' ]]; then
         [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1
     else [[ "$(cat "$TEST_EFFECTS")" == "publish:$2" ]] || exit 1; fi
@@ -753,20 +795,26 @@ test_publication_retry() {
         core-failure) export TEST_PUBLISH_FAIL=ic-blob-storage ;;
         contracts-lost-reply) export TEST_PUBLISH_LOST_REPLY=ic-blob-storage-contracts ;;
         core-lost-reply) export TEST_PUBLISH_LOST_REPLY=ic-blob-storage ;;
+        lint-failure) export TEST_CLIPPY_FAIL=1 ;;
     esac
-    expect_failure "$TEST_REAL_MAKE" --no-print-directory publish
-    if [[ "$1" == contracts-* ]]; then
+    expect_failure "$TEST_REAL_MAKE" --no-print-directory -j4 publish
+    if [[ "$1" == lint-failure ]]; then
+        [[ ! -s "$TEST_EFFECTS" ]] || exit 1
+        ! compgen -G 'target/publication.*' >/dev/null || exit 1
+        ! rg -q '^curl ' "$TEST_LOG" || exit 1
+    elif [[ "$1" == contracts-* ]]; then
         [[ "$(cat "$TEST_EFFECTS")" == publish:ic-blob-storage-contracts ]] || exit 1
     elif [[ "$1" == client-* ]]; then
         [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client' ]] || exit 1
     else
         [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1
     fi
-    unset TEST_PUBLISH_FAIL TEST_PUBLISH_LOST_REPLY
+    unset TEST_PUBLISH_FAIL TEST_PUBLISH_LOST_REPLY TEST_CLIPPY_FAIL
     : > "$TEST_EFFECTS"
     "$TEST_REAL_MAKE" --no-print-directory publish
     case "$1" in
         contracts-failure) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1 ;;
+        lint-failure) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-contracts\npublish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1 ;;
         contracts-lost-reply) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1 ;;
         client-failure) [[ "$(cat "$TEST_EFFECTS")" == $'publish:ic-blob-storage-client\npublish:ic-blob-storage' ]] || exit 1 ;;
         core-lost-reply) [[ ! -s "$TEST_EFFECTS" ]] || exit 1 ;;
@@ -1057,7 +1105,8 @@ run_case bootstrap-tools test_dependency_bootstrap tools
 run_case bootstrap-pins test_dependency_bootstrap pins
 run_case bootstrap-fetch test_dependency_bootstrap fetch
 run_case bootstrap-fetch-cached test_dependency_bootstrap fetch-cached
-for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken; do
+for shape in lint lint-verify lint-success; do run_case "bootstrap-$shape" test_dependency_bootstrap "$shape"; done
+for tool in shellcheck-missing shellcheck-broken sort-missing sort-wrong rustfmt-broken editor-unprepared; do
     run_case "preflight-$tool" test_preflight_tools "$tool"
 done
 for phase in deps install-tools tools-check; do
@@ -1070,8 +1119,8 @@ for shape in lf cr alias; do
     run_case "directory-$shape" test_directory_admission "$shape"
 done
 run_case source-diagnostics test_source_diagnostics
-for shape in duplicate historical-duplicate competing; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
-for shape in empty missing; do run_case "notes-$shape" test_changelog_content "$shape"; done
+for shape in duplicate historical-duplicate competing unreleased-duplicate; do run_case "notes-$shape" test_invalid_changelog "$shape"; done
+for shape in empty missing unreleased; do run_case "notes-$shape" test_changelog_content "$shape"; done
 run_case notes-saved-intent test_changelog_intent
 for phase in preflight during-prepare; do run_case "finalizer-$phase" test_finalizer_failure "$phase"; done
 run_case adapter-release test_release
@@ -1088,6 +1137,7 @@ run_case publish-client test_publish normal ic-blob-storage-client
 run_case publish-client-dry-run test_publish dry-run ic-blob-storage-client
 run_case publish-core test_publish normal ic-blob-storage
 run_case publish-core-dry-run test_publish dry-run ic-blob-storage
+run_case publication-lint-failure test_publication_retry lint-failure
 run_case publish-invalid-selection test_invalid_publish_selection
 run_case publish-unindexed-dry-run test_unpublished_dry_run
 run_case publish-dependency-readback-refusal test_dependency_readback_refusal

@@ -2,8 +2,8 @@
 //! from presentation JSON or create a second dispatch/retry journal.
 use super::{Failure, Input, Options, Run};
 use crate::native::{
-    arguments::Command, identity, observe_upload, publish_inputs::FrozenFile,
-    references::upload_json, submit_attestation,
+    identity, observe_upload, publish_inputs::FrozenFile, references::upload_json,
+    submit_attestation,
 };
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::identity::ContentDigest;
@@ -20,11 +20,6 @@ pub(super) fn options(
     };
     identity(path, installation.completion_verifier)?;
     Ok(Some(Options {
-        command: Command::SubmitAttestation(submit_attestation::Input {
-            service: input.prepare.service,
-            namespace: input.prepare.namespace,
-            directory: input.prepare.directory.clone(),
-        }),
         network: tenant.network,
         url: tenant.url.clone(),
         identity: path.clone(),

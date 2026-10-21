@@ -6,7 +6,6 @@ use std::{collections::BTreeMap, path::PathBuf};
 use url::{Host, Url};
 
 pub(super) struct Options {
-    pub command: Command,
     pub network: &'static str,
     pub url: Url,
     pub identity: PathBuf,
@@ -93,7 +92,7 @@ fn principal(value: &str) -> Result<Principal, Failure> {
 }
 
 impl Options {
-    pub fn parse(args: &[String]) -> Result<Self, Failure> {
+    pub fn parse(args: &[String]) -> Result<(Command, Self), Failure> {
         let command = args.first().map(String::as_str).ok_or(Failure::Arguments)?;
         let mut flags = super::parsing::flags(&args[1..])?;
         let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
@@ -117,14 +116,16 @@ impl Options {
             return Err(Failure::Arguments);
         }
         validate_url(&url, network, root_key.is_some())?;
-        Ok(Self {
+        Ok((
             command,
-            network,
-            url,
-            identity,
-            actor,
-            root_key,
-        })
+            Self {
+                network,
+                url,
+                identity,
+                actor,
+                root_key,
+            },
+        ))
     }
 }
 

@@ -31,7 +31,7 @@ fn observation_arguments_require_origin_budget_and_new_directory() {
     .map(str::to_owned)
     .collect();
     assert!(matches!(
-        Options::parse(&args).unwrap().command,
+        Options::parse(&args).unwrap().0,
         Command::ObserveUpload(_)
     ));
     for (flag, value) in [

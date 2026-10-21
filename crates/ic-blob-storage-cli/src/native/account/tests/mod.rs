@@ -69,10 +69,8 @@ fn relationship(request: AccountInspectionRequest) -> AccountRelationshipView {
 fn explicit_kind_and_complete_installed_account_scope_are_required() {
     for kind in [Kind::Balance, Kind::PaymentRelationship] {
         let request = request(kind);
-        assert!(
-            matches!(Options::parse(&arguments(request)).unwrap().command,
-            super::super::arguments::Command::InspectAccount(value) if value == request)
-        );
+        assert!(matches!(Options::parse(&arguments(request)).unwrap().0,
+            super::super::arguments::Command::InspectAccount(value) if value == request));
     }
     let mut args = arguments(request(Kind::Balance));
     args.pop();
@@ -95,7 +93,7 @@ fn reported_balance_keeps_independent_full_width_amounts_without_credit() {
         }),
     };
     assert_eq!(decode(request, &encoded(&response)), Ok(response.clone()));
-    let output = output(&response, &Options::parse(&arguments(request)).unwrap());
+    let output = output(&response, &Options::parse(&arguments(request)).unwrap().1);
     assert_eq!(output["provider_report"]["total"], u128::MAX.to_string());
     assert_eq!(output["scope"]["namespace"], u128::MAX.to_string());
     assert_eq!(output["provider_credit"], "not_established");
@@ -111,7 +109,7 @@ fn relationship_json_preserves_signed_and_arbitrary_width_decimal_values() {
         observation: Observation::Relationship(Box::new(relationship(request))),
     };
     assert_eq!(decode(request, &encoded(&response)), Ok(response.clone()));
-    let output = output(&response, &Options::parse(&arguments(request)).unwrap());
+    let output = output(&response, &Options::parse(&arguments(request)).unwrap().1);
     let report = &output["provider_report"];
     assert_eq!(
         report["spending_limit_per_day"],

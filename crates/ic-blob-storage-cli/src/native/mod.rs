@@ -269,16 +269,23 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
         Some("upload-inputs") => return upload_inputs::run(args),
         _ => {}
     }
-    let options = arguments::Options::parse(args)?;
+    let (command, options) = arguments::Options::parse(args)?;
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .map_err(|_| Failure::Transport)?;
-    runtime.block_on(observe(&options))
+    runtime.block_on(observe(&command, &options))
 }
 
-async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
-    match &options.command {
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep all supported commands in one exhaustive dispatch match."
+)]
+async fn observe(
+    command: &arguments::Command,
+    options: &arguments::Options,
+) -> Result<serde_json::Value, Failure> {
+    match command {
         arguments::Command::PublishSession(input) => publish_session::run(options, input).await,
         arguments::Command::PublishMap(input) => publish_map::run(options, input).await,
         arguments::Command::UploadSetup(input) => upload_setup::run(options, input)
@@ -306,12 +313,6 @@ async fn observe(options: &arguments::Options) -> Result<serde_json::Value, Fail
         arguments::Command::SubmitReference(input) => submit_reference::run(options, input).await,
         arguments::Command::ObserveUpload(input) => observe_upload::run(options, input).await,
         arguments::Command::Download(input) => download::run(options, input).await,
-        _ => inspect(options).await,
-    }
-}
-
-async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Failure> {
-    match &options.command {
         arguments::Command::UploadAttestation {
             service,
             namespace,
@@ -404,7 +405,6 @@ async fn inspect(options: &arguments::Options) -> Result<serde_json::Value, Fail
                 options.url.as_str(),
             ))
         }
-        _ => Err(Failure::Arguments),
     }
 }
 

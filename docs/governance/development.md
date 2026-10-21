@@ -39,13 +39,14 @@ Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
 declared files, hashes and executable modes without a sibling checkout. It then
-runs offline `make tools-check`, `make dependency-pins-check`,
-`make platform-boundary-check`,
-`make documentation-links-check` and `make shared-tooling-tests`, then
-`make deps` (`cargo fetch --locked`) to populate the cache
-for the selected lockfile; this step may use the network and does not select new
-versions. Fetch failure stops before validation or release-file mutation. Rust
-compilation/tests then use `--offline --locked`. Scoped targets remain offline;
+runs offline `make tools-check` and `make dependency-pins-check`, followed by
+`make deps` (`cargo fetch --locked`) to populate the selected cache. Fetching may
+use the network and never selects new versions. The unchanged workspace Clippy
+gate runs next, before dependency boundaries, documentation/shared fixtures,
+compilation, tests and packaging. The sequential validation runner stops on lint
+failure under parallel Make too. Publication uses that same gate after source/tag
+admission and dependency preparation, before registry or archive work. Rust
+compilation/tests use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
 The shared logger owns stage dispatch and prepared-input checkpoints. Blob's
 `CI_INPUTS` declares the root and all thirteen member manifests, Cargo.lock,
@@ -55,7 +56,11 @@ the same baseline. Changed, deleted or unreadable inputs stop subsequent stages
 with restart guidance and retained hashes/logs. Checks do not refetch or restart
 automatically and do not claim isolation from edits inside a running command.
 Provision the reviewed jq/yq, ripgrep with PCRE2, cloc and common IC executables
-explicitly with `make install-tools` before validation. The reviewed
+explicitly with `make install-tools` before validation. Blob selects only
+`wasm-opt` through `IC_TOOLS`; didc, ic-wasm, ICP CLI and
+Quill are not prerequisites of its maintained workflows. The complete upstream
+pin catalog stays intact. The optimizer runner explicitly admits `wasm-opt` too.
+The reviewed
 `make/consumer.mk` snapshot is Blob's single entrypoint for common setup,
 offline checks, formatting, hooks and releases. Its `make/tools.mk` companion
 owns setup, offline verification and LOC recipes; product tool extensions and
@@ -85,8 +90,10 @@ artifacts or select mutable sibling tools. See
 [shared executable storage](../local-setup.md#shared-executable-storage).
 Cargo-bearing local recipes preserve Make's jobserver descriptors through their
 shell adapters. Blob extends `LOCAL_TOOL_INSTALL_TARGETS` and
-`LOCAL_TOOL_CHECK_TARGETS` with `install-ic-tools`/`ic-tools-check` followed by
-`install-testkit`/`testkit-check` after the common set. Primitive Testkit targets do only their
+`LOCAL_TOOL_CHECK_TARGETS` with `install-ic-tools`/`ic-tools-check`,
+`install-testkit`/`testkit-check` and the lock-selected IC Build release editor
+after the common set. `install-release-editor` explicitly prepares its published
+CLI; `release-editor-check` returns the admitted absolute path offline. Primitive Testkit targets do only their
 named operation; CI uses the same complete aggregate. `make install-testkit`
 provisions the lock-selected CLI/server; `make testkit-check` authenticates it
 offline. Tool installation may compile and use the
@@ -112,8 +119,9 @@ them separately. Ordinary Cargo Wasm output remains unoptimized. These local
 canister cases do not establish deployed provider or Canic application behavior.
 Testkit/PocketIC own client/server compatibility and managed server lifetime.
 Blob has no independent crate-version/server-version equality gate. The
-snapshot-owned `ci/ic-tools.tsv` selects five non-PocketIC executables through the
-canonical shared installer; `make ic-tools-check` authenticates that bundle.
+snapshot-owned `ci/ic-tools.tsv` retains the complete upstream executable
+catalog. Blob selects only Binaryen
+through the canonical shared installer; `make ic-tools-check` authenticates that bundle.
 Testkit owns its PocketIC selection, authenticated setup and offline check under
 `.tools/testkit-server`. The thin consumer adapter delegates the explicit
 Cargo.lock selection and installation to the shared Cargo installer. PocketIC
@@ -296,7 +304,7 @@ Generic matrices stay with Shared Tooling; Blob qualifies its actual selection:
 | Consumer obligation | Retained proof |
 | --- | --- |
 | Installed tools and selected catalogs | `make tools-check`, including Testkit admission |
-| Dependency declarations and locked versions | `make dependency-pins-check` and `scripts/ci/test-local-lock-versions.pl` |
+| Dependency declarations and locked versions | `make dependency-pins-check`; IC Build owns renderer regressions, while `scripts/release/test-release.sh` checks actual consumer preparation |
 | Make/tool forwarding and server selection | `scripts/ci/test-testkit-commands.sh` |
 | Hooks and formatter preservation | `make hooks-check` |
 | Release/publication refusals and recovery | `scripts/release/test-release.sh` and `make release-commands-check` |

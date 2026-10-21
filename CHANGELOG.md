@@ -1,11 +1,65 @@
 # Changelog
 
-## [0.38.1]
+## [0.39.1] - Unreleased
 
-- Keep generic Make, tool-command, LOC, npm-pin and registry-version fixture
-  matrices at Shared Tooling. Retain Blob's actual tool/server forwarding,
-  dependency admission, hook rollback, release recovery and evidence checks.
-  Narrow the existing 0.24.0 snapshot without changing production helper bytes.
+- Adopt Shared Tooling 0.26.0 with explicit `wasm-opt` setup/admission. Keep
+  consumer IC preflight, parallel Make routing and failure-ordering checks.
+- Retire repeated generic Shared fixture matrices from Blob's snapshot and
+  validation. Keep actual consumer admission, evidence and release recovery
+  checks, with generic implementation and regression coverage owned by Shared.
+- Build the optimized production canister separately from probes so their
+  `test-support` feature cannot enter production qualification through unification.
+
+## [0.39.0] - 2026-10-20
+
+- Repair the local tool-command fixture for the release-editor setup/check step.
+  Verify complete aggregate ordering and fail-before-build behavior under parallel
+  Make, including release-editor refusal.
+
+- **Breaking reference-model API:** require non-default `test-support` for the
+  transient heap catalog, lifecycle, receipt and root owners and their read-policy
+  adapters. Production uses the durable installed service owner; shared domain
+  types and pure transitions remain available. Preserve independent reference
+  and parity tests, with explicit feature selection for their integration suites.
+- Separate CLI command selection from transport/signer options and use one
+  exhaustive async dispatcher. Verifier credentials no longer fabricate a
+  submission command; flags, identity checks and recovery behavior are unchanged.
+
+- **Breaking Platform family:** adopt published IC Platform 0.5.0; hosts must
+  align their public Platform types. Preserve bounded call timeouts with its
+  explicit wait policy and remove retired no-op entrypoint options. Endpoint
+  identities, codecs, lifecycle and recovery behavior remain unchanged.
+- Select Platform's macro-free runtime for the core and replicated client.
+  Restrict service-declaration generation to native export/tests. Use published
+  Testkit 0.60's Platform 0.5 decoder types directly, remove the temporary native
+  alias, and exclude Platform 0.4 from the workspace as well as deployment.
+
+- Adopt Shared Tooling 0.25.8. Run the existing workspace Clippy gate after
+  dependency preparation and before expensive release validation or publication
+  work, preserving failure ordering under parallel Make.
+- Accept numbered `- Unreleased` notes in release preflight and finalize them
+  with the saved UTC release date. Keep duplicate/refusal and recovery checks.
+- Delegate release manifest/lock rendering to the lock-selected published IC Build
+  editor. Add explicit setup/offline admission and retire the old Perl renderers;
+  use Shared’s grouped formatting defaults.
+
+- Import Serde directly in the five application Wire reply decoders, removing
+  their incidental Candid namespace coupling without changing codecs or bounds.
+
+- **Breaking borrowed contract API:** use published IC Wire 0.5 bounded principal
+  views for finite tenant contracts. Direct users must supply the input lifetime
+  and convert from native references; native tenant helpers remain owned.
+- Allow bounded byte/text views in generic service and saved-document decoding
+  with explicit input-lifetime deserialization bounds. Decode native download
+  descriptor metadata from the retained authenticated reply using the same
+  validator as owned async clients. Keep records, retry frames and upload requests
+  owned where their lifetimes require it.
+- Preserve method identities, literal packet bytes, decoder budgets, provider
+  protocols and stored schemas. No dual reader or automatic migration is added;
+  cross-release services still require safe retirement and reinstall.
+- Record [local endpoint, allocation and deployment-size measurements](docs/evidence/borrowed-wire0390.md),
+  including the rejected slower borrowed async-upload experiment and the limits
+  of applying chunk-codec gains to Blob's separate HTTP body path.
 
 ## [0.38.0] - 2026-10-20
 

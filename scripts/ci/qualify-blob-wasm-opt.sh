@@ -7,7 +7,7 @@ root="${BASH_SOURCE[0]}"
 [[ "$root" == /* ]] || root="$PWD/$root"
 root="$(cd -P "${root%/*}/../.." && pwd -P)"
 cd "$root"
-bin="$(bash scripts/dev/install-ic-tools.sh --check)"
+bin="$(bash scripts/dev/install-ic-tools.sh --tool wasm-opt --check)"
 report="$(mktemp -d "$CARGO_TARGET_DIR/blob-wasm-opt.XXXXXX")"
 printf 'Blob Wasm optimizer evidence retained: %s\n' "$report"
 complete=false

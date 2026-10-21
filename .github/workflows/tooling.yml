@@ -131,6 +131,11 @@ jobs:
           exit "$failed"
       - name: Prepare the locked native dependency cache
         run: make deps
+      - name: Run the existing Clippy gate before archive qualification
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+        run: make clippy
       - name: Qualify coordinated library archives on this host
         env:
           CARGO_NET_OFFLINE: 'true'

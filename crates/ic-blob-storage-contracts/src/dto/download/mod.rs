@@ -24,27 +24,27 @@ pub struct DownloadRequest {
 /// Original accepted hash metadata; HTTP response headers must not replace it.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct DownloadHeader {
+pub struct DownloadHeader<Text = String> {
     /// Original header name.
-    pub name: String,
+    pub name: Text,
     /// Original header value.
-    pub value: String,
+    pub value: Text,
 }
 /// A current observation. Consumers must authenticate delivery and coordinate
 /// publication/reference lifetime; saved descriptors are not revocation mechanisms.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct DownloadResponse {
+pub struct DownloadResponse<Text = String> {
     /// Complete request echoed by the same synchronous observation.
     pub request: DownloadRequest,
     /// Storage owner, independent of payer and tenant.
     pub owner: Principal,
     /// Explicit provider project; no origin or credential is returned.
-    pub project: String,
+    pub project: Text,
     /// Declared exact nonzero body length.
     pub bytes: u64,
     /// First-accepted metadata in its retained order/spelling.
-    pub headers: Vec<DownloadHeader>,
+    pub headers: Vec<DownloadHeader<Text>>,
 }
 /// Descriptor refusal; no error authorizes body disclosure, retry of paid effects
 /// or release of the consumer's reference.

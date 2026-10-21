@@ -52,8 +52,8 @@ fn saved_permission_scope_and_uploader_are_checked_before_identity_or_transport(
     let bytes = ic_blob_storage_contracts::document::encode(p).unwrap();
     std::fs::write(&path, &bytes).unwrap();
     let mut args = arguments(p, &path);
-    let options = Options::parse(&args).unwrap();
-    let Command::CertificateAssessment(mut input) = options.command else {
+    let (command, _) = Options::parse(&args).unwrap();
+    let Command::CertificateAssessment(mut input) = command else {
         panic!("wrong command")
     };
     assert_eq!(open(&input, p.uploader).unwrap().0, p);
@@ -76,7 +76,9 @@ fn saved_permission_scope_and_uploader_are_checked_before_identity_or_transport(
 #[test]
 fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority() {
     let p = permission();
-    let options = Options::parse(&arguments(p, std::path::Path::new("unused"))).unwrap();
+    let options = Options::parse(&arguments(p, std::path::Path::new("unused")))
+        .unwrap()
+        .1;
     for blockers in [
         vec![],
         vec![

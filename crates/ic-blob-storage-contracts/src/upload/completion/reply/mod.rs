@@ -8,7 +8,7 @@ use crate::dto::upload::completion::UploadAttestationRequest;
 use crate::dto::upload::completion::UploadAttestationResponse;
 use crate::upload::admission;
 use crate::upload::completion::CompletionAuthority;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 use std::num::NonZeroUsize;
 
 /// Unusable evidence. No error or absent receipt authorizes a provider retry.

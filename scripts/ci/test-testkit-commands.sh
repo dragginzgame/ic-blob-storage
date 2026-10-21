@@ -48,10 +48,14 @@ if [[ $# == 4 || ( $# == 5 && ( "$5" == --check || "$5" == --preflight ) ) ]]; t
 fi
 [[ $# == 10 || ( $# == 11 && "${11}" == --check ) ]] || exit 1
 [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --package &&
-   "$4" == ic-testkit && "$5" == --lockfile && "$6" == Cargo.lock &&
-   "$7" == --bin && "$8" == ic-testkit-server && "$9" == --profile && "${10}" == release ]] || exit 1
-[[ "${TESTKIT_FAIL:-}" != install ]] || exit 23
-printf '%s\n' "$TESTKIT_FIXTURE_ROOT/testkit-cli"
+   "$5" == --lockfile && "$6" == Cargo.lock && "$7" == --bin && "$9" == --profile ]] || exit 1
+case "$4:$8:${10}" in
+    ic-testkit:ic-testkit-server:release) failure=install; binary=testkit-cli ;;
+    ic-build:ic-build-release-metadata:debug) failure=release-editor; binary=release-editor ;;
+    *) exit 1 ;;
+esac
+[[ "${TESTKIT_FAIL:-}" != "$failure" ]] || exit 23
+printf '%s\n' "$TESTKIT_FIXTURE_ROOT/$binary"
 INSTALL
 cat > "$consumer/testkit-cli" <<'CLI'
 #!/usr/bin/env bash
@@ -127,8 +131,11 @@ for kind in host ic; do
 set -euo pipefail
 kind="${0##*/install-}"
 kind="${kind%-tools.sh}"
+if [[ "$kind" == ic ]]; then
+    [[ ( $# == 6 || $# == 7 ) && "$3" == --pins && "$5" == --tool && "$6" == wasm-opt ]] || exit 1
+fi
 stage=common
-[[ "${5:-}" != --preflight ]] || stage=preflight
+[[ "${!#}" != --preflight ]] || stage=preflight
 printf '%s-%s\n' "$stage" "$kind" >> "$TESTKIT_COMMAND_LOG"
 [[ "${TESTKIT_FAIL:-}" != "$stage-$kind" ]] || exit 23
 COMMON
@@ -147,24 +154,26 @@ for target in install-tools tools-check; do
     make --no-print-directory -j4 -C "$consumer" "$target" > "$fixture/$target.log" 2>&1
     offset=0
     if [[ "$target" == install-tools ]]; then
-        offset=1
-        [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]] || exit 1
+        offset=2
+        [[ "$(sed -n '1p' "$TESTKIT_COMMAND_LOG")" == preflight-ic ]] || exit 1
+        [[ "$(sed -n '2p' "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--preflight>' ]] || exit 1
     fi
-    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((5 + offset)) ]] || exit 1
+    [[ "$(wc -l < "$TESTKIT_COMMAND_LOG" | tr -d ' ')" == $((6 + offset)) ]] || exit 1
     [[ "$(sed -n "$((offset + 1))p" "$TESTKIT_COMMAND_LOG")" == common-host ]] || exit 1
     [[ "$(sed -n "$((offset + 2))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--versions>'* ]] || exit 1
     [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == common-ic ]] || exit 1
     [[ "$(sed -n "$((offset + 4))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]] || exit 1
-    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]] || exit 1
+    [[ "$(sed -n "$((offset + 5))p" "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]] || exit 1
+    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-build> <--lockfile> <Cargo.lock> <--bin> <ic-build-release-metadata> <--profile> <debug>'* ]] || exit 1
     if [[ "$action" == check ]]; then
-        [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 2 ]] || exit 1
+        [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 3 ]] || exit 1
     elif grep -F '<--check>' "$TESTKIT_COMMAND_LOG" >/dev/null; then exit 1; fi
     cp "$TESTKIT_COMMAND_LOG" "$fixture/ordered-expected"
     admitted_targets=("$target")
-    [[ "$target" != tools-check ]] || admitted_targets[1]=test-native-host
+    [[ "$target" != tools-check ]] || admitted_targets+=(test-native-host test-wasm-opt)
     count=0
-    failures=(common-host common-rust common-ic install "$action")
-    [[ "$target" != install-tools ]] || failures=(preflight-rust "${failures[@]}")
+    failures=(common-host common-rust common-ic install "$action" release-editor)
+    [[ "$target" != install-tools ]] || failures=(preflight-ic preflight-rust "${failures[@]}")
     for failure in "${failures[@]}"; do
         count=$((count + 1))
         for admitted_target in "${admitted_targets[@]}"; do
@@ -178,9 +187,34 @@ for target in install-tools tools-check; do
     done
     cmp "$fixture/selected-lock" "$consumer/Cargo.lock"
 done
+# Optimizer qualification must not unify the probe's test-support into production.
+# Keep the real Make routing, substituting only compilation and qualification.
+cat > "$fixture/bin/cargo" <<'CARGO'
+#!/usr/bin/env bash
+set -euo pipefail
+printf 'cargo' >> "$TESTKIT_COMMAND_LOG"
+printf ' <%s>' "$@" >> "$TESTKIT_COMMAND_LOG"
+printf '\n' >> "$TESTKIT_COMMAND_LOG"
+CARGO
+cat > "$consumer/scripts/ci/qualify-blob-wasm-opt.sh" <<'QUALIFY'
+#!/usr/bin/env bash
+set -euo pipefail
+printf 'qualify\n' >> "$TESTKIT_COMMAND_LOG"
+QUALIFY
+: > "$TESTKIT_COMMAND_LOG"
+PATH="$fixture/bin:$PATH" make --no-print-directory -j4 -C "$consumer" test-wasm-opt \
+    > "$fixture/optimizer.log" 2>&1
+cat > "$fixture/optimizer-expected" <<'EXPECTED'
+cargo <build> <--offline> <--locked> <--release> <--target> <wasm32-unknown-unknown> <-p> <ic-blob-storage-canister> <--lib>
+cargo <build> <--offline> <--locked> <--release> <--target> <wasm32-unknown-unknown> <-p> <blob-storage-probe> <--lib>
+cargo <build> <--offline> <--locked> <-p> <ic-blob-storage-cli>
+qualify
+EXPECTED
+tail -4 "$TESTKIT_COMMAND_LOG" > "$fixture/optimizer-actual"
+cmp "$fixture/optimizer-expected" "$fixture/optimizer-actual"
 # Shared's Cargo installer fixture owns registry selection, source identity,
 # interrupted builds and retained generations. This fixture owns Blob's adapter
 # forwarding, server handoff and ordered refusal; explicit real setup qualifies
 # their composition without maintaining another Cargo installation substitute.
-echo 'Locked Testkit forwarding, admitted server handoff and failure propagation passed (substitute tools)'
+echo 'Locked Testkit/release-editor forwarding, admitted server handoff and ordered failure propagation passed (substitute tools)'
 fixture_complete=true

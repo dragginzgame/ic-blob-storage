@@ -43,7 +43,7 @@ fn arguments(command: &str) -> Vec<String> {
 #[test]
 fn decisions_require_explicit_exact_cancellation_or_gateway_without_other_action_flags() {
     assert!(matches!(
-        Options::parse(&arguments("sync-gateways")).unwrap().command,
+        Options::parse(&arguments("sync-gateways")).unwrap().0,
         super::super::arguments::Command::GatewayControl(Input {
             action: Action::Sync,
             ..
@@ -58,7 +58,7 @@ fn decisions_require_explicit_exact_cancellation_or_gateway_without_other_action
     }
     args.extend(["--sequence".into(), u64::MAX.to_string()]);
     assert!(matches!(
-        Options::parse(&args).unwrap().command,
+        Options::parse(&args).unwrap().0,
         super::super::arguments::Command::GatewayControl(Input {
             action: Action::Cancel(u64::MAX),
             ..
@@ -75,7 +75,7 @@ fn decisions_require_explicit_exact_cancellation_or_gateway_without_other_action
         Principal::self_authenticating([4]).to_text(),
     ]);
     assert!(matches!(
-        Options::parse(&args).unwrap().command,
+        Options::parse(&args).unwrap().0,
         super::super::arguments::Command::GatewayControl(Input {
             action: Action::Revoke(_),
             ..

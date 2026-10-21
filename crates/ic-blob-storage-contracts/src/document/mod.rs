@@ -6,7 +6,7 @@
 //! Values carry no Rust type or field names: byte-identical schemas cannot be
 //! distinguished. These documents are input data, never authentication evidence.
 use ic_wire::{Limits, native};
-use serde::{Serialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize};
 
 pub use ic_wire::Error;
 
@@ -32,7 +32,10 @@ pub fn encode<T: Serialize>(value: T) -> Result<Vec<u8>, Error> {
 /// Decode a complete canonical document under the caller's byte ceiling.
 /// # Errors
 /// Refuses foreign frames, trailing/noncanonical bytes and resource violations.
-pub fn decode<T: Serialize + DeserializeOwned>(bytes: &[u8], max: usize) -> Result<T, Error> {
+pub fn decode<'de, T: Serialize + Deserialize<'de>>(
+    bytes: &'de [u8],
+    max: usize,
+) -> Result<T, Error> {
     native::decode_request(
         IDENTITY,
         bytes,

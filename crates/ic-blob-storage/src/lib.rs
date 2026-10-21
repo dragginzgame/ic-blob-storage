@@ -15,7 +15,10 @@
 //! [`ops::service::installation::ServiceInstallation`]. Component constructors
 //! and evidence-taking certificate issuance are internal. The non-default
 //! `test-support` feature exists only for isolated probes and reference-model
-//! comparisons; production integrations must leave it disabled.
+//! comparisons; production integrations must leave it disabled. Heap catalog,
+//! lifecycle and receipt owners and their read-policy adapters are available only
+//! with that feature (or in this library's unit tests). Shared domain types, pure
+//! transitions and the durable service owner remain available without it.
 //!
 //! Component stores cannot be installed independently through the production API:
 //! ```compile_fail

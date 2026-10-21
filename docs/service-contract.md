@@ -496,7 +496,8 @@ of all state after a gateway callback. Each design choice needs its own rational
 and rejection/recovery evidence.
 
 The local [lifecycle model](../crates/ic-blob-storage/src/model/lifecycle/mod.rs)
-now implements the confirmed-object part of this design. It is transient and
+is an independent `test-support` reference owner for the confirmed-object part
+of this design. It is transient and
 starts only after independently verified completion. It now carries an immutable
 service/tenant/namespace/object/incarnation binding and checks it on every mutation,
 before even idempotent replay. Anonymous and management service/tenant principals
@@ -511,7 +512,7 @@ Delegated actors and per-user permissions need their own reviewed rule; the
 current rule does not implement them. Upload admission, sessions, persistence,
 endpoint authentication and provider evidence validation remain outside this model.
 
-The local `ReferenceRequests` value now owns a lifecycle and its exact-request
+The `test-support` reference owner `ReferenceRequests` owns a lifecycle and its exact-request
 receipts. IDs are scoped to that object incarnation; each admitted ID binds the
 authenticated actor, operation kind and complete reference arguments. Exact
 replay returns the original typed success or lifecycle failure without applying
@@ -1009,7 +1010,7 @@ carries roots, not local incarnations. Resolving a root to the current object
 and supplying that object's binding would defeat stale-confirmation protection.
 The provider association must establish which deletion the callback confirms,
 including when a repeated root's newer incarnation is already deletion-pending.
-The local `RootClaims` model now enforces one lifetime object binding per root
+The `test-support` reference owner `RootClaims` enforces one lifetime object binding per root
 across the entire service, including all tenants and namespaces. Claims survive
 local deletion/settlement and cannot be removed or reassigned; a full lifetime
 bound rejects new claims but preserves old lookup and exact claim replay. This

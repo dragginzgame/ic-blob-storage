@@ -3,30 +3,33 @@
 //! No endpoint, state loading or provider protocol mapping occurs here. The
 //! caller must fence stale/restored state and supply actual execution context.
 
+#[cfg(any(test, feature = "test-support"))]
 pub mod tenant;
 pub mod upload;
 
-use ic_platform::Principal;
-use thiserror::Error;
-
-use crate::model::catalog::BlobCatalog;
-use crate::model::catalog::CatalogUsage;
-use crate::model::catalog::pending::PendingCursorError;
-use crate::model::catalog::pending::PendingDeletionCursor;
-use crate::model::catalog::pending::PendingDeletionPage;
-use crate::model::catalog::pending::PendingPageLimits;
-use crate::model::gateway::registry::GatewayRegistry;
-use ic_blob_storage_contracts::identity::HashParseError;
-use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
-use ic_blob_storage_contracts::upload::history::LifecyclePhase;
-
-use super::{
-    gateway::{GatewayAccessError, GatewayCallbackContext},
-    tenant::{TenantAccessContext, TenantAccessError},
+#[cfg(any(test, feature = "test-support"))]
+use {
+    super::{
+        gateway::{GatewayAccessError, GatewayCallbackContext},
+        tenant::{TenantAccessContext, TenantAccessError},
+    },
+    crate::model::catalog::BlobCatalog,
+    crate::model::catalog::CatalogUsage,
+    crate::model::catalog::pending::PendingCursorError,
+    crate::model::catalog::pending::PendingDeletionCursor,
+    crate::model::catalog::pending::PendingDeletionPage,
+    crate::model::catalog::pending::PendingPageLimits,
+    crate::model::gateway::registry::GatewayRegistry,
+    ic_blob_storage_contracts::identity::HashParseError,
+    ic_blob_storage_contracts::identity::batch::ProviderRootBatch,
+    ic_blob_storage_contracts::upload::history::LifecyclePhase,
+    ic_platform::Principal,
+    thiserror::Error,
 };
 
 /// Local root observation, deliberately not the provider's deletion/liveness boolean.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub enum CatalogRootStatus {
     /// Phase of an object in the authenticated gateway's namespace.
     Known(LifecyclePhase),
@@ -45,6 +48,7 @@ pub enum CatalogRootStatus {
 /// A known phase is local bookkeeping, not provider availability or settlement proof.
 /// # Errors
 /// Rejects wrong service or a revoked/unknown gateway before inspecting roots.
+#[cfg(any(test, feature = "test-support"))]
 pub fn assess_gateway_roots(
     catalog: &BlobCatalog,
     registry: &GatewayRegistry,
@@ -79,6 +83,7 @@ pub fn assess_gateway_roots(
 /// Pages are not snapshots; restart each new sweep to find newly pending earlier roots.
 /// # Errors
 /// Rejects wrong service, revoked callers or a continuation from another scope.
+#[cfg(any(test, feature = "test-support"))]
 pub fn assess_gateway_pending(
     catalog: &BlobCatalog,
     registry: &GatewayRegistry,
@@ -96,6 +101,7 @@ pub fn assess_gateway_pending(
 /// with no entries receives zero local usage, not another tenant's totals.
 /// # Errors
 /// Rejects wrong running service and anonymous/management actors.
+#[cfg(any(test, feature = "test-support"))]
 pub fn assess_tenant_usage(
     catalog: &BlobCatalog,
     context: TenantAccessContext,
@@ -104,6 +110,7 @@ pub fn assess_tenant_usage(
     Ok(catalog.tenant_usage(context.actor))
 }
 
+#[cfg(any(test, feature = "test-support"))]
 fn check_tenant(
     catalog: &BlobCatalog,
     context: TenantAccessContext,
@@ -118,6 +125,7 @@ fn check_tenant(
     Ok(())
 }
 
+#[cfg(any(test, feature = "test-support"))]
 fn check_gateway(
     catalog: &BlobCatalog,
     registry: &GatewayRegistry,
@@ -134,6 +142,7 @@ fn check_gateway(
 
 /// A pending-page read rejected before returning object identities.
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub enum CatalogGatewayReadError {
     /// Current caller/service policy failed.
     #[error(transparent)]

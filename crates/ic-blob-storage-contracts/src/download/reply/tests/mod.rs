@@ -151,4 +151,34 @@ fn descriptor_reply_bounds_decoding_and_rejects_inconsistent_hash_metadata() {
         decode(request, &scope, &refusal, limits),
         Err(DownloadReplyError::Remote(DownloadFailure::Fenced))
     );
+    let mut trailing = encoded.clone();
+    trailing.push(0);
+    let mut inconsistent = response;
+    inconsistent.headers[0].value = "9".into();
+    for (bytes, selected_limits) in [
+        (b"invalid".to_vec(), limits),
+        (encoded[..encoded.len() - 1].to_vec(), limits),
+        (trailing, limits),
+        (encode(inconsistent), limits),
+        (refusal, limits),
+        (
+            encoded.clone(),
+            DownloadReplyLimits {
+                max_reply_bytes: (encoded.len() - 1).try_into().unwrap(),
+                ..limits
+            },
+        ),
+        (
+            encoded,
+            DownloadReplyLimits {
+                max_header_bytes: 1.try_into().unwrap(),
+                ..limits
+            },
+        ),
+    ] {
+        assert_eq!(
+            decode_borrowed(request, &scope, &bytes, selected_limits).unwrap_err(),
+            decode(request, &scope, &bytes, selected_limits).unwrap_err()
+        );
+    }
 }

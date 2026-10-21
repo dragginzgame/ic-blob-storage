@@ -28,8 +28,8 @@ fn arguments() -> Vec<String> {
 #[test]
 fn submission_requires_explicit_actor_scope_and_observation_directory() {
     let args = arguments();
-    let options = Options::parse(&args).unwrap();
-    let Command::SubmitAttestation(input) = options.command else {
+    let (command, _) = Options::parse(&args).unwrap();
+    let Command::SubmitAttestation(input) = command else {
         panic!("submit command")
     };
     assert_eq!(input.namespace, u128::MAX);
@@ -48,9 +48,8 @@ fn submission_requires_explicit_actor_scope_and_observation_directory() {
 #[test]
 fn statement_alone_or_failure_marker_never_authorizes_submission() {
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let options = Options::parse(&arguments()).unwrap();
-    let Command::SubmitAttestation(mut input) = Options::parse(&arguments()).unwrap().command
-    else {
+    let options = Options::parse(&arguments()).unwrap().1;
+    let Command::SubmitAttestation(mut input) = Options::parse(&arguments()).unwrap().0 else {
         panic!("submit command")
     };
     input.directory = dir.path().into();

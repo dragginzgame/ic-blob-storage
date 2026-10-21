@@ -36,17 +36,31 @@ identities are not computed from Rust names or catalog positions. Unknown and
 provider method names refuse.
 
 The two existing tenant contracts retain their finite derived schemas, explicit
-field/variant IDs, `Bytes<29>` principals and exact original frames. Each direction
+field/variant IDs, `BytesRef<29>` principal views and exact original frames. Each direction
 allows 512 encoded bytes, 1024 value-allocation bytes plus codec scratch, 32 nodes
 and depth 8. Native tenant DTOs are projections through `wire::tenant`; the generic
 native helpers do not replace those projections.
 
-Wire 0.5 separates finite schema/serialization from deserialization. The concrete
-owned tenant types supply their own decode traits; generic native service and
-document helpers explicitly require `DeserializeOwned`. This intentionally lets
-endpoint adapters release input frames before awaiting work. The new borrowed
-bounded API is optional: using it would require a real consumer lifetime boundary,
-not another parallel DTO registry. Wire 0.5 preserves the existing contract bytes.
+Wire 0.5 supplies schema and serialization independently of deserialization.
+Generic service/document decoders explicitly require `Deserialize<'de>` and
+accept input-backed `BytesRef`/`TextRef`; callers needing independent ownership
+can retain `DeserializeOwned`. The finite tenant contracts borrow principal bytes
+from the input or native scope. Their public types carry a lifetime and encode
+projections convert from references; the existing native helper functions still
+return owned frames/DTOs. Field IDs, bounds and canonical bytes are unchanged.
+
+`DownloadResponse<Text = String>` and its headers have one field layout. Native
+CLI descriptor decoding uses `download::reply::decode_borrowed` with `TextRef`
+into the retained authenticated reply; owned async clients use the same validator
+and the default owned text. These are ownership forms of the same current format,
+not separate readers for old formats. Persisted records and retained retry frames
+remain owned. Standalone upload input remains owned so its ingress frame can be
+released before the continuity await: the measured borrowed async experiment
+increased cost and retained heap. See [the measured adoption](evidence/borrowed-wire0390.md).
+
+Provider body chunks do not enter a Blob Wire RPC. Caffeine HTTP and async read
+transport ownership remain unchanged; generic document callers can use bounded
+`BytesRef` for chunk views without adding a new endpoint or provider protocol.
 
 The other 29 methods and lifecycle packets use Wire's existing native Serde API.
 Their declared field order and variant order are the frozen positional schema.

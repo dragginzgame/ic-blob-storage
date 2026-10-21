@@ -461,14 +461,6 @@ fn query_budget_refuses_before_loading_identity_or_claiming_output() {
     let b = batch(&d);
     let p = b.files[0].input.permission;
     let options = crate::native::arguments::Options {
-        command: crate::native::arguments::Command::Status {
-            scope: ic_blob_storage_contracts::dto::operator::OperatorScope {
-                service: p.upload.service,
-                namespace: p.upload.namespace,
-                cashier: Principal::self_authenticating([8]),
-                payment_account: p.upload.tenant,
-            },
-        },
         network: "ic",
         url: url::Url::parse("https://icp-api.io").unwrap(),
         identity: d.path().join("missing.pem"),

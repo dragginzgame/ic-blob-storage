@@ -4,30 +4,30 @@
 //! Production must durably commit admission and exposure before authority escapes.
 //! A fresh instance is not recovery. No timeout or retry releases uncertain bytes.
 
+#[cfg(any(test, feature = "test-support"))]
 mod accounting;
 pub(crate) mod capacity;
 pub mod read;
-use accounting::ReservationAccounting;
-use ic_blob_storage_contracts::configuration::limits::UploadLimits;
-use ic_blob_storage_contracts::upload::binding::UploadRequest;
-use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+#[cfg(any(test, feature = "test-support"))]
+use {
+    super::BlobCatalog, super::CatalogUsage, super::ConfirmedObject,
+    crate::model::lifecycle::LifecycleChange,
+    crate::model::lifecycle::requests::ReferenceRequestOutcome, accounting::ReservationAccounting,
+    ic_blob_storage_contracts::binding::ObjectBinding,
+    ic_blob_storage_contracts::binding::ObjectBindingError,
+    ic_blob_storage_contracts::configuration::limits::UploadLimits,
+    ic_blob_storage_contracts::identity::ProviderRootHash,
+    ic_blob_storage_contracts::reference::binding::ReferenceRequest,
+    ic_blob_storage_contracts::upload::binding::UploadRequest,
+    ic_blob_storage_contracts::upload::binding::UploadRequestId, ic_platform::Principal,
+    std::collections::BTreeMap,
+};
 
-use super::BlobCatalog;
 use super::CatalogCapacity;
 use super::CatalogError;
-use super::CatalogUsage;
-use super::ConfirmedObject;
 use super::check_bytes;
-use crate::model::lifecycle::LifecycleChange;
-use crate::model::lifecycle::requests::ReferenceRequestOutcome;
 use crate::model::lifecycle::roots::RootClaimError;
-use ic_blob_storage_contracts::binding::ObjectBinding;
-use ic_blob_storage_contracts::binding::ObjectBindingError;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
-use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
-use ic_platform::Principal;
-use std::collections::BTreeMap;
 use thiserror::Error;
 
 #[cfg(test)]
@@ -46,6 +46,7 @@ pub enum UploadPhase {
     Cancelled,
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl UploadPhase {
     const fn active(self) -> bool {
         matches!(self, Self::Reserved | Self::ExposurePossible)
@@ -62,6 +63,7 @@ pub enum UploadAdmission {
 }
 
 #[derive(Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 struct Operation {
     request: UploadRequest,
     phase: UploadPhase,
@@ -76,6 +78,7 @@ struct Operation {
 /// are maintained with successful transitions; receipt history is never evicted. This owner
 /// deliberately cannot be cloned, imported from a catalog, or serialized.
 #[derive(Debug, Eq, PartialEq)]
+#[cfg(any(test, feature = "test-support"))]
 pub struct UploadCatalog {
     catalog: BlobCatalog,
     limits: UploadLimits,
@@ -83,6 +86,7 @@ pub struct UploadCatalog {
     accounting: ReservationAccounting,
 }
 
+#[cfg(any(test, feature = "test-support"))]
 impl UploadCatalog {
     /// Construct a fresh transient service owner, never restore an installation.
     /// # Errors

@@ -67,7 +67,7 @@ fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
     ] {
         std::fs::write(&path, &encoded).unwrap();
         let args = arguments(kind, &path);
-        let Command::Reference(mut input) = Options::parse(&args).unwrap().command else {
+        let Command::Reference(mut input) = Options::parse(&args).unwrap().0 else {
             panic!("wrong command")
         };
         let inspection = open(&input, c.upload.tenant).unwrap();
@@ -127,7 +127,8 @@ fn historical_success_failure_and_absence_never_observe_current_liveness_or_fenc
         "reference-receipt",
         std::path::Path::new("unused"),
     ))
-    .unwrap();
+    .unwrap()
+    .1;
     for result in [
         Ok(ReferenceChange::Changed),
         Ok(ReferenceChange::Unchanged),
@@ -188,7 +189,8 @@ fn current_liveness_and_restore_fence_are_independent_bounded_observations() {
         "reference-status",
         std::path::Path::new("unused"),
     ))
-    .unwrap();
+    .unwrap()
+    .1;
     for (live, fenced) in [(true, false), (true, true), (false, true)] {
         let bytes = ic_blob_storage_contracts::wire::encode_response(
             REFERENCE_STATUS_METHOD,

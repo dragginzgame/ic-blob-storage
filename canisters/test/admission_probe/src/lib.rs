@@ -124,7 +124,6 @@ fn inspect(request: Request) -> Result<Observation, Failure> {
 
 #[ic_platform::cdk::query(
     manual_reply = true,
-    hidden = true,
     guard = "ops::decode::admit_discovery",
     decode_with = "std::convert::identity"
 )]
@@ -155,7 +154,6 @@ fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
 
 #[ic_platform::cdk::query(
     manual_reply = true,
-    hidden = true,
     guard = "ops::decode::admit_upload_capacity",
     decode_with = "std::convert::identity"
 )]
@@ -178,7 +176,6 @@ fn retained_content_descriptor(
 
 #[ic_platform::cdk::query(
     manual_reply = true,
-    hidden = true,
     guard = "ops::decode::admit_reference_capacity",
     decode_with = "std::convert::identity"
 )]

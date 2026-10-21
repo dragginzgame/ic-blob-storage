@@ -7,7 +7,7 @@ pub mod account;
 use super::{CashierQueryRequest, CashierQueryResponse, CashierQueryTransport};
 use crate::ops::caffeine::query::CashierQuery;
 use ic_platform::Principal;
-use ic_platform::cdk::call::{Call, CallFailed};
+use ic_platform::cdk::call::{Call, CallFailed, WaitPolicy};
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 
@@ -115,7 +115,9 @@ impl ReplicatedGatewayQuery {
             return Err(ReplicatedQueryError::Execution);
         }
         let response = Call::bounded_wait(self.cashier, request.method_name())
-            .change_timeout(self.timeout.get())
+            .with_wait_policy(WaitPolicy::Bounded {
+                timeout_seconds: self.timeout.get(),
+            })
             .with_raw_args(request.arguments())
             .await
             .map_err(|error| match error {
