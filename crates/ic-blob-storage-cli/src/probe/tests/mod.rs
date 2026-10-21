@@ -160,10 +160,13 @@ fn only_exact_commit_ids_can_select_source_paths() {
 #[test]
 fn public_http_capture_records_intent_before_dispatch_and_retains_failed_bounded_bodies() {
     for (status, body_size, outcome) in [
+        (200, 0, "captured"),
         (200, 8, "captured"),
+        (200, MAX_BODY, "captured"),
         (503, 16, "http_status"),
         (302, 0, "http_status"),
         (200, MAX_BODY + 1, "body_limit"),
+        (503, MAX_BODY + 1, "body_limit"),
     ] {
         let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         record::json(dir.path(), "plan.json", &plan().unwrap()).unwrap();
@@ -201,4 +204,90 @@ fn public_http_capture_records_intent_before_dispatch_and_retains_failed_bounded
         assert_eq!(recorded.status, Some(status));
         assert_eq!(record::verify(dir.path()).unwrap()["responses_recorded"], 1);
     }
+}
+
+#[test]
+fn truncated_response_retains_accepted_bytes_before_status_policy() {
+    let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    record::json(directory.path(), "plan.json", &plan().unwrap()).unwrap();
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}/", listener.local_addr().unwrap());
+    let server = std::thread::spawn(move || {
+        let (mut stream, _) = listener.accept().unwrap();
+        stream
+            .set_read_timeout(Some(Duration::from_secs(5)))
+            .unwrap();
+        assert!(stream.read(&mut [0; 4096]).unwrap() > 0);
+        stream.write_all(b"HTTP/1.1 503 Busy\r\nTransfer-Encoding: chunked\r\nConnection: close\r\n\r\n3\r\nabc\r\n").unwrap();
+    });
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap();
+    let mut attempted = 0;
+    let result = runtime.block_on(async {
+        fetch(
+            directory.path(),
+            &client_builder().no_proxy().build().unwrap(),
+            &url,
+            &mut attempted,
+        )
+        .await
+    });
+    server.join().unwrap();
+    assert_eq!(result, Err("body_transport".into()));
+    assert_eq!(attempted, 1);
+    assert_eq!(
+        std::fs::read(directory.path().join("response-0.body")).unwrap(),
+        b"abc"
+    );
+    let recorded: ResponseRecord = record::decode(directory.path(), "response-0.json").unwrap();
+    assert_eq!(recorded.status, Some(503));
+    assert_eq!(recorded.outcome, "body_transport");
+    assert_eq!(recorded.bytes, 3);
+    assert_eq!(
+        record::verify(directory.path()).unwrap()["responses_recorded"],
+        1
+    );
+}
+
+#[test]
+fn timeout_cancellation_retains_status_and_accepted_bytes() {
+    let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+    let url = format!("http://{}/", listener.local_addr().unwrap());
+    let (release, hold) = std::sync::mpsc::channel();
+    let server = std::thread::spawn(move || {
+        let (mut stream, _) = listener.accept().unwrap();
+        stream
+            .set_read_timeout(Some(Duration::from_secs(5)))
+            .unwrap();
+        assert!(stream.read(&mut [0; 4096]).unwrap() > 0);
+        stream
+            .write_all(b"HTTP/1.1 503 Busy\r\nTransfer-Encoding: chunked\r\n\r\n3\r\nabc\r\n")
+            .unwrap();
+        hold.recv_timeout(Duration::from_secs(10)).unwrap();
+    });
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap();
+    let mut status = None;
+    let mut body = Vec::new();
+    let result = runtime.block_on(async {
+        tokio::time::timeout(
+            Duration::from_secs(2),
+            receive(
+                &client_builder().no_proxy().build().unwrap(),
+                &url,
+                &mut status,
+                &mut body,
+            ),
+        )
+        .await
+    });
+    release.send(()).unwrap();
+    server.join().unwrap();
+    assert!(result.is_err());
+    assert_eq!(status, Some(503));
+    assert_eq!(body, b"abc");
 }
