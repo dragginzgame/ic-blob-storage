@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.40.2] - Unreleased
+
+- Use the declared development compiler for published-example qualification and
+  rerun that workflow when its toolchain file changes.
+
 ## [0.40.1] - 2026-10-21
 
 - Protect probe failure evidence with loopback regressions for exact body bounds,
