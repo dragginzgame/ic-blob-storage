@@ -8,12 +8,12 @@ mod sync_request;
 
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, PocketIc},
 };
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -60,7 +60,7 @@ impl Fixture {
             Some(driver),
         );
         let released: bool =
-            update_candid_args(pic, service, tenant, "release", (1_u8,), REPLY_LIMITS)
+            crate::support::update_fixture(pic, service, tenant, "release", (1_u8,))
                 .map(|(reply,)| reply)
                 .expect("owner release");
         assert!(released);
@@ -79,13 +79,12 @@ impl Fixture {
     }
 
     fn configure(&self, mode: SourceMode) {
-        let accepted: bool = update_candid_args(
+        let accepted: bool = crate::support::update_fixture(
             self.pic(),
             self.source,
             self.driver,
             "configure",
             (mode,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("source configuration");
@@ -93,34 +92,27 @@ impl Fixture {
     }
 
     fn sync(&self) -> Result<(), SyncFailure> {
-        update_candid_args(
+        crate::support::update_fixture(
             self.pic(),
             self.source,
             self.driver,
             "run_sync",
             (sync_request::read(self.pic(), self.service, self.source),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("drive actual source-to-probe call")
     }
 
     fn observation(&self) -> SourceObservation {
-        let observation: Option<SourceObservation> = query_candid_args(
-            self.pic(),
-            self.source,
-            self.driver,
-            "observation",
-            (),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .expect("source observation");
+        let observation: Option<SourceObservation> =
+            crate::support::query_fixture(self.pic(), self.source, self.driver, "observation", ())
+                .map(|(reply,)| reply)
+                .expect("source observation");
         observation.expect("authorized driver")
     }
 
     fn pending(&self, actor: Principal) -> Option<Vec<u8>> {
-        query_candid_args(self.pic(), self.service, actor, "pending", (), REPLY_LIMITS)
+        crate::support::query_fixture(self.pic(), self.service, actor, "pending", ())
             .map(|(reply,)| reply)
             .expect("pending query")
     }
@@ -136,7 +128,7 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
         fixture.driver,
         Principal::anonymous(),
     ] {
-        let result: Result<(), SyncFailure> = update_candid_args(
+        let result: Result<(), SyncFailure> = crate::support::update_fixture(
             fixture.pic(),
             fixture.service,
             caller,
@@ -146,7 +138,6 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
                 fixture.service,
                 fixture.source,
             ),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("sync denial");

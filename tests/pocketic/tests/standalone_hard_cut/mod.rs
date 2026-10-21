@@ -2,9 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::identity::ContentDigest;
-use ic_blob_storage_pocketic_tests::historical::{
-    self, query_args as query_candid_args, update_args as update_candid_args,
-};
+use ic_blob_storage_pocketic_tests::historical;
 use ic_platform::candid::decoder;
 use std::path::PathBuf;
 
@@ -89,7 +87,7 @@ fn frozen_update<T: historical::Projection + serde::Serialize + serde::de::Deser
     method: &str,
     input: impl historical::Projection + serde::Serialize,
 ) -> T {
-    update_candid_args(
+    historical::update_args(
         &f.harness.pic,
         f.service,
         actor,
@@ -101,7 +99,7 @@ fn frozen_update<T: historical::Projection + serde::Serialize + serde::de::Deser
     .unwrap()
 }
 fn frozen_admission(f: &Fixture, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
-    query_candid_args::<(Result<UploadAdmissionResponse, UploadAdmissionFailure>,), _>(
+    historical::query_args::<(Result<UploadAdmissionResponse, UploadAdmissionFailure>,), _>(
         &f.harness.pic,
         f.service,
         f.tenant,
@@ -131,7 +129,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     )
     .unwrap();
     let manifest = f.small_manifest();
-    update_candid_args::<(Result<UploadAdmissionMutation, UploadAdmissionFailure>,), _>(
+    historical::update_args::<(Result<UploadAdmissionMutation, UploadAdmissionFailure>,), _>(
         &f.harness.pic,
         f.service,
         f.tenant,
@@ -149,7 +147,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
         &manifest,
     )
     .unwrap();
-    let _: CaffeineUploadCertificateResponse = update_candid_args(
+    let _: CaffeineUploadCertificateResponse = historical::update_args(
         &f.harness.pic,
         f.service,
         f.uploader,
@@ -160,7 +158,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     .map(|(reply,)| reply)
     .unwrap();
     // This statement is a local verifier substitute, not a deployed byte observation.
-    update_candid_args::<(Result<UploadAttestationMutation, UploadAttestationFailure>,), _>(
+    historical::update_args::<(Result<UploadAttestationMutation, UploadAttestationFailure>,), _>(
         &f.harness.pic,
         f.service,
         Fake::principal(90),
@@ -175,7 +173,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     .map(|(reply,)| reply)
     .unwrap()
     .unwrap();
-    update_candid_args::<(Result<ReferenceMutationResponse, ReferenceFailure>,), _>(
+    historical::update_args::<(Result<ReferenceMutationResponse, ReferenceFailure>,), _>(
         &f.harness.pic,
         f.service,
         f.tenant,
@@ -196,7 +194,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     pending.permission.upload.upload = 2;
     pending.permission.upload.object = 4;
     pending.permission.upload.first_reference = 5;
-    update_candid_args::<(Result<UploadAdmissionMutation, UploadAdmissionFailure>,), _>(
+    historical::update_args::<(Result<UploadAdmissionMutation, UploadAdmissionFailure>,), _>(
         &f.harness.pic,
         f.service,
         f.tenant,

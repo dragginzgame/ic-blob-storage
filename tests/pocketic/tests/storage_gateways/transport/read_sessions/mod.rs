@@ -1,6 +1,6 @@
 //! Real local chunks validate durable sessions, verification and callback authority.
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 mod resources;
 use super::*;
 use blob_test_protocol::{
@@ -23,26 +23,24 @@ impl Fixture {
             hold,
         };
         assert!(
-            update_candid_args::<(bool,), _>(
+            crate::support::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
                 "configure_read",
-                (config,),
-                REPLY_LIMITS
+                (config,)
             )
             .map(|(reply,)| reply)
             .unwrap()
         );
     }
     fn chunk_observation(&self) -> ReadSourceObservation {
-        query_candid_args::<(Option<ReadSourceObservation>,), _>(
+        crate::support::query_fixture::<(Option<ReadSourceObservation>,), _>(
             &self.harness.pic,
             self.operator,
             self.controller,
             "read_observation",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -59,13 +57,12 @@ impl Fixture {
     }
     fn resume_chunk(&self) {
         assert!(
-            update_candid_args::<(bool,), _>(
+            crate::support::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
                 "resume_read",
-                (),
-                REPLY_LIMITS
+                ()
             )
             .map(|(reply,)| reply)
             .unwrap()

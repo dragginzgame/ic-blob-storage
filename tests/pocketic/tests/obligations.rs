@@ -9,19 +9,19 @@ use blob_test_protocol::obligations::{
     ObligationProbeFact, ObligationProbePhase, ObligationProbeView,
 };
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, PocketIc},
 };
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 fn objects(
     pic: &PocketIc,
     canister: Principal,
     caller: Principal,
 ) -> Option<Vec<ObligationProbeView>> {
-    query_candid_args(pic, canister, caller, "unsettled_objects", (), REPLY_LIMITS)
+    crate::support::query_fixture(pic, canister, caller, "unsettled_objects", ())
         .map(|(reply,)| reply)
         .expect("tenant query")
 }
@@ -31,16 +31,9 @@ fn confirm(
     caller: Principal,
     fact: ObligationProbeFact,
 ) -> bool {
-    update_candid_args(
-        pic,
-        canister,
-        caller,
-        "confirm_obligation",
-        (1_u8, fact),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .expect("fixture fact")
+    crate::support::update_fixture(pic, canister, caller, "confirm_obligation", (1_u8, fact))
+        .map(|(reply,)| reply)
+        .expect("fixture fact")
 }
 
 fn install(
@@ -111,7 +104,7 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
         ObligationProbeFact::Deleted
     ));
     assert_eq!(objects(pic, canister, first), Some(vec![first_live]));
-    let released: bool = update_candid_args(pic, canister, first, "release", (1_u8,), REPLY_LIMITS)
+    let released: bool = crate::support::update_fixture(pic, canister, first, "release", (1_u8,))
         .map(|(reply,)| reply)
         .expect("release");
     assert!(released);
@@ -141,7 +134,7 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
     };
     assert_eq!(objects(pic, canister, first), Some(vec![deleted]));
     let pending: Option<Vec<u8>> =
-        query_candid_args(pic, canister, gateway, "pending", (), REPLY_LIMITS)
+        crate::support::query_fixture(pic, canister, gateway, "pending", ())
             .map(|(reply,)| reply)
             .expect("deletion queue");
     assert_eq!(pending, Some(vec![]));

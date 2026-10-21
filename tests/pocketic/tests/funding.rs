@@ -14,12 +14,12 @@ use blob_test_protocol::funding::{
 };
 use blob_test_protocol::status::{FundingActivityView, OperatorBlockerView};
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 use ic_testkit::{
     Fake,
     pocket_ic::{CreateCanisterParams, RejectCode},
 };
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -77,26 +77,18 @@ impl Fixture {
         caller: Principal,
         request: FundingRequest,
     ) -> Result<FundingObservation, FundingFailure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.sender,
-            caller,
-            "fund",
-            (request,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .expect("funding call completed")
+        crate::support::update_fixture(&self.harness.pic, self.sender, caller, "fund", (request,))
+            .map(|(reply,)| reply)
+            .expect("funding call completed")
     }
 
     fn attempts(&self) -> Vec<FundingAttemptRecord> {
-        let result: Option<Vec<FundingAttemptRecord>> = query_candid_args(
+        let result: Option<Vec<FundingAttemptRecord>> = crate::support::query_fixture(
             &self.harness.pic,
             self.sender,
             self.driver,
             "attempts",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("sender journal");
@@ -104,13 +96,12 @@ impl Fixture {
     }
 
     fn receipts(&self) -> Vec<FundingReceiptRecord> {
-        let result: Option<Vec<FundingReceiptRecord>> = query_candid_args(
+        let result: Option<Vec<FundingReceiptRecord>> = crate::support::query_fixture(
             &self.harness.pic,
             self.receiver,
             self.driver,
             "receipts",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("receiver journal");
@@ -122,16 +113,9 @@ impl Fixture {
         canister: Principal,
         caller: Principal,
     ) -> Option<FundingOperatorStatusView> {
-        query_candid_args(
-            &self.harness.pic,
-            canister,
-            caller,
-            "operator_status",
-            (),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .expect("read-only funding diagnosis")
+        crate::support::query_fixture(&self.harness.pic, canister, caller, "operator_status", ())
+            .map(|(reply,)| reply)
+            .expect("read-only funding diagnosis")
     }
 
     fn status_unchanged(&self) -> FundingOperatorStatusView {
@@ -739,13 +723,12 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
             assert_eq!(fixture.status_as(canister, caller), None);
         }
     }
-    let hidden: Option<Vec<FundingAttemptRecord>> = query_candid_args(
+    let hidden: Option<Vec<FundingAttemptRecord>> = crate::support::query_fixture(
         &fixture.harness.pic,
         fixture.sender,
         Principal::anonymous(),
         "attempts",
         (),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .expect("private journal query");

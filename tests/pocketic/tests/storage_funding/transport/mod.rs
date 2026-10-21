@@ -2,7 +2,7 @@
 use super::*;
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 mod dispatch;
 use blob_test_protocol::{
     funding::{
@@ -106,7 +106,7 @@ impl Fixture {
                 .map(|value| NonZeroU128::new(value).unwrap()),
         )
         .unwrap();
-        let result: Result<(), FundingFailure> = update_candid_args(
+        let result: Result<(), FundingFailure> = crate::support::update_fixture(
             &self.harness.pic,
             self.operator,
             self.controller,
@@ -121,7 +121,6 @@ impl Fixture {
                     trap_callback: false,
                 },
             },),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -141,13 +140,12 @@ impl Fixture {
             .unwrap()
     }
     fn incoming(&self) -> Vec<FundingReceiptRecord> {
-        query_candid_args::<(Option<Vec<FundingReceiptRecord>>,), _>(
+        crate::support::query_fixture::<(Option<Vec<FundingReceiptRecord>>,), _>(
             &self.harness.pic,
             self.operator,
             self.controller,
             "receipts",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap()

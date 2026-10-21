@@ -1,6 +1,5 @@
 //! Query-only relationship inspection over a controlled local source, not Cashier.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::balance::BalanceSourceConfig;
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::{
@@ -10,7 +9,6 @@ use ic_blob_storage::ops::caffeine::{
         PaymentRelationshipReplyError,
     },
 };
-use ic_testkit::pic::update_candid_args;
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
 use std::num::NonZeroUsize;
 
@@ -53,7 +51,7 @@ impl Fixture {
     }
     fn relationship_response(&self, bytes: Vec<u8>, hold: bool, reject: bool) {
         // The existing bounded raw-response slot is shared by the local experiments.
-        let configured: bool = update_candid_args(
+        let configured: bool = crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.driver,
@@ -64,7 +62,6 @@ impl Fixture {
                 hold,
                 reject,
             },),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -175,7 +172,7 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
     );
     // Configure an otherwise valid report for another requested owner. The source
     // accepts that request but the shared decoder rejects the returned owner.
-    let configured: bool = update_candid_args(
+    let configured: bool = crate::support::update_fixture(
         &f.harness.pic,
         f.gateway,
         f.driver,
@@ -186,7 +183,6 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
             hold: false,
             reject: false,
         },),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();

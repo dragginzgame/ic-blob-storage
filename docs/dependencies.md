@@ -12,26 +12,31 @@ all thirteen members inherit package versions and dependencies. The root
 select features and targets. Registry consumers resolve their own compatible
 lockfiles; local qualification does not cover every future resolution.
 
-The table retains source-bound qualification checkpoints. Published Platform
-0.5.0 is the application/runtime boundary. Published Testkit 0.60 uses the same
-decoder-limit identity, so no native old-family alias is needed. Platform 0.4 is
-excluded from the workspace and deployment. See the [current handoff](status/current.md) for
-this adoption's checks and earlier dependency qualification limits.
+The root catalog and lockfile own version selections; the capability table below
+is not a second version catalog. The [current handoff](status/current.md) records
+source-bound qualification and its limits. Testkit shares Platform's decoder-limit
+identity without an old-family alias; retired Platform families remain excluded
+from the workspace and deployment.
 
-| Owner | Last qualified selection | Responsibility |
-| --- | --- | --- |
-| Blob core | Workspace version | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
-| Blob client | Workspace version | Explicit replicated role clients; no service storage, endpoints or lifecycle |
-| Blob Contracts | Workspace version | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
-| IC Memory | 0.49.1 | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
-| IC Storage | 0.5.8; 0.5.7 minimum | Governed stable collections and codec traits; the stable-structures dependency stays upstream; the minimum excludes Memory 0.48 adapters |
-| IC Platform | 0.5.0 | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
-| IC Wire | 0.5.0 | Bounded method/direction framing for owned service contracts and separate passive document encoding |
-| IC Metrics | 0.14.7 | Private probe measurement arithmetic; not a public Blob API |
-| IC Testkit | 0.60.0 | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform 0.5 directly |
-| IC Host artifacts/fs/process/tools | 0.30.1 | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
-| IC Build | 0.22.0 | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
-| PocketIC | 16.1.0 transitive | Testkit-selected local IC execution through Platform; no separate Blob dependency or server catalog |
+| Owner | Responsibility |
+| --- | --- |
+| Blob core | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
+| Blob client | Explicit replicated role clients; no service storage, endpoints or lifecycle |
+| Blob Contracts | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
+| IC Memory | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
+| IC Storage | Governed stable collections and codec traits; the stable-structures dependency stays upstream; Memory/Storage share the IC Persistence release line |
+| IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
+| IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
+| IC Metrics | Private probe measurement arithmetic; not a public Blob API |
+| IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
+| IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
+| IC Build | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
+| PocketIC | Testkit-selected local IC execution through Platform; no separate Blob dependency or server catalog |
+
+[IC Tooling](https://github.com/dragginzgame/ic-tooling) now owns Host, Build and
+Testkit; [IC Persistence](https://github.com/dragginzgame/ic-persistence) owns
+Memory and Storage. Package names and ownership boundaries remain unchanged.
+Blob consumes published packages, without sibling paths or compatibility aliases.
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
 composition. The core exports none of these implicitly. Consumer frameworks own
@@ -74,12 +79,10 @@ creation rather than an atomic writer that discards partial bytes. These are
 necessary consumer policies, not independent filesystem implementations.
 
 The optional archive verifier exchanges Host process limits and typed errors
-with Build, requiring the same Host package identity. Incoming Build 0.22 and
-direct Host 0.30 align that boundary; the all-feature CLI now compiles and lints.
+with Build, requiring the same Host package identity. Build and direct Host share the coordinated Tooling release line.
 The [earlier mismatch](https://github.com/dragginzgame/ic-build/issues/9#issuecomment-6269225053)
 retains its original reproduction. Keep the actual output limits and exit/signal
-propagation; no copied process types or version bridge is used. The current
-Platform adoption does not rerun the archive-verifier regression matrix.
+propagation; no copied process types or version bridge is used. Archive-verifier qualification is reported separately in the current handoff.
 The normal Host process dependency supplies the default CLI's bounded framing;
 `package-verification` activates Build, not Host process. HTTP fixture support
 remains development-only. Build's source inventory is descriptive provenance,
@@ -166,7 +169,7 @@ check additionally rejects Platform 0.1/0.2/0.3/0.4, Host, Build, Testkit, Pocke
 Agent and the parser. Candid remains through required provider/management
 contracts and persisted schemas; this is not a Candid-free deployment claim.
 
-Testkit 0.60 forwards Platform 0.5's original `CanisterInstallMode` and
+Testkit forwards Platform 0.5's original `CanisterInstallMode` and
 `common::rest::RawMessageId`. Six test modules use those exports for skipped-hook
 upgrades and pending-call recovery; the temporary direct PocketIC declaration
 and boundary exception are removed. Its management DTOs retain PocketIC's own
@@ -174,9 +177,9 @@ identity, separate from Platform's independent management DTO version. Testkit
 continues to own simulator selection and server lifecycle.
 
 Native fixtures and example staging/publication use published `ic-host-fs`
-0.30.1 with empty defaults. Neither `capability` nor `temporary-file` is needed
+with empty defaults. Neither `capability` nor `temporary-file` is needed
 by Blob's actual callers; `test-support` selects neither. Retained scratch files
-remain distinct from the optional scoped `TemporaryFile`. Testkit's Host 0.30
+remain distinct from the optional scoped `TemporaryFile`. Testkit's Host
 selection no longer enables either backend. PocketIC still owns transitive
 `tempfile`; Blob declares none directly.
 Fixture directories clean up after success and retain failed-test
@@ -185,8 +188,7 @@ invocation files use Host's mode-0600 scratch writer within their owned director
 Verified example outputs use Host's create-only publication of the checked file,
 including typed failures after publication; reconcile those before retrying.
 Snapshot bodies use retained-file publication, while the complete snapshot/report
-is still not a crash-durable multi-file transaction. No direct `tempfile`
-declarations remain; Host FS and PocketIC still introduce it transitively.
+is still not a crash-durable multi-file transaction.
 
 All 26 private consumer-probe controls use bounded Wire value documents, with
 a 4 KiB ingress ceiling and complete canonical decoding. Their command/status
@@ -216,8 +218,8 @@ cancellation/backpressure policy.
 
 For consumer adoption of this source:
 
-1. Select compatible Blob core/Contracts packages and the host's same Memory 0.49
-   identity. Store/workflow type parameters now name backing memory; constructors
+1. Select compatible Blob core/Contracts packages and the host's matching Memory
+   package identity. Store/workflow type parameters now name backing memory; constructors
    take exclusive runtime leases. Freeze the application's actual lock and every
    independent fixture lock; sibling paths are not registry-delivery evidence.
 2. Include Blob's seventeen requests in the host's single declaration snapshot

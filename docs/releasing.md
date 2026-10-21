@@ -25,7 +25,7 @@ admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canoni
 committed source; include every directly used helper as an entrypoint. Never patch
 vendored bytes or use mutable sibling tools. See
 [Shared snapshot adoption](consuming-snapshots.md) and
-[the current adoption](status/current.md#shared-tooling-0258).
+[the current adoption](status/current.md#upstream-package-and-shared-tooling-adoption).
 
 Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
 binary. Release preparation uses the published IC Build editor selected from

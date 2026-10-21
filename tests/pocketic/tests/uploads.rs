@@ -4,39 +4,32 @@
 mod support;
 use blob_test_protocol::uploads::UploadProbeState;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, PocketIc},
 };
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    query_candid_args(pic, canister, caller, "upload_usage", (), REPLY_LIMITS)
+    crate::support::query_fixture(pic, canister, caller, "upload_usage", ())
         .map(|(reply,)| reply)
         .expect("usage")
 }
 fn active(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    query_candid_args(pic, canister, caller, "active_uploads", (), REPLY_LIMITS)
+    crate::support::query_fixture(pic, canister, caller, "active_uploads", ())
         .map(|(reply,)| reply)
         .expect("active uploads")
 }
 fn roots(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<UploadProbeState>> {
-    query_candid_args(pic, canister, caller, "upload_roots", (), REPLY_LIMITS)
+    crate::support::query_fixture(pic, canister, caller, "upload_roots", ())
         .map(|(reply,)| reply)
         .expect("root observations")
 }
 fn cancel(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    update_candid_args(
-        pic,
-        canister,
-        caller,
-        "cancel_upload",
-        (root,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .expect("cancel")
+    crate::support::update_fixture(pic, canister, caller, "cancel_upload", (root,))
+        .map(|(reply,)| reply)
+        .expect("cancel")
 }
 
 #[test]
@@ -104,16 +97,10 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
             UploadProbeState::Cancelled
         ])
     );
-    let revoked: bool = update_candid_args(
-        pic,
-        canister,
-        controller,
-        "revoke_gateway",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .expect("revoke");
+    let revoked: bool =
+        crate::support::update_fixture(pic, canister, controller, "revoke_gateway", ())
+            .map(|(reply,)| reply)
+            .expect("revoke");
     assert!(revoked);
     assert_eq!(roots(pic, canister, gateway), None);
     assert_eq!(active(pic, canister, first), Some(vec![12]));

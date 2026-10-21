@@ -1,7 +1,6 @@
 //! Actual configured host: project-bound multi-user issuance, quotas and restore fences.
 use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_testkit::pic::update_candid_args;
 mod signed;
 use super::*;
 use ic_blob_storage_contracts::dto::upload::UploadState;
@@ -95,13 +94,12 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         inspect(&f, f.uploader, &root).unwrap().blockers,
         assessment.blockers
     );
-    let reply: CaffeineUploadCertificateResponse = update_candid_args(
+    let reply: CaffeineUploadCertificateResponse = crate::support::update_fixture(
         &f.harness.pic,
         f.service,
         f.uploader,
         ISSUE,
         (root.clone(),),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();
@@ -193,13 +191,12 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
             .blockers,
         []
     );
-    let reply: CaffeineUploadCertificateResponse = update_candid_args(
+    let reply: CaffeineUploadCertificateResponse = crate::support::update_fixture(
         &f.harness.pic,
         f.service,
         second.permission.uploader.into(),
         ISSUE,
         (second_root.clone(),),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();
@@ -270,13 +267,12 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     malformed(&f, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
-    let reply: CaffeineUploadCertificateResponse = update_candid_args(
+    let reply: CaffeineUploadCertificateResponse = crate::support::update_fixture(
         &f.harness.pic,
         f.service,
         f.uploader,
         ISSUE,
         (root.clone(),),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();

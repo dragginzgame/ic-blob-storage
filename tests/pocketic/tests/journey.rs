@@ -14,13 +14,13 @@ use blob_test_protocol::journey::{
 };
 use ic_platform::candid::decoder;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, RejectCode},
 };
 use sha2::{Digest, Sha256};
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -92,28 +92,14 @@ impl Fixture {
         method: &str,
         input: JourneyUpload,
     ) -> Result<(), JourneyFailure> {
-        update_candid_args(
-            &self.harness.pic,
-            self.service,
-            caller,
-            method,
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .expect("local control reply")
+        crate::support::update_fixture(&self.harness.pic, self.service, caller, method, (input,))
+            .map(|(reply,)| reply)
+            .expect("local control reply")
     }
     fn usage(&self, caller: Principal) -> Result<JourneyUsage, JourneyFailure> {
-        query_candid_args(
-            &self.harness.pic,
-            self.service,
-            caller,
-            "journey_usage",
-            (),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .expect("usage reply")
+        crate::support::query_fixture(&self.harness.pic, self.service, caller, "journey_usage", ())
+            .map(|(reply,)| reply)
+            .expect("usage reply")
     }
     fn reserve(&self, caller: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
         self.reserve_manifest(
@@ -131,7 +117,7 @@ impl Fixture {
         input: JourneyUpload,
         manifest: JourneyManifest,
     ) -> Result<(), JourneyFailure> {
-        update_candid_args(
+        crate::support::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -140,7 +126,6 @@ impl Fixture {
                 upload: input,
                 manifest,
             },),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("admission reply")
@@ -150,13 +135,12 @@ impl Fixture {
         caller: Principal,
         input: JourneyUpload,
     ) -> Result<JourneyProgress, JourneyFailure> {
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
             "journey_progress",
             (root(input.root),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("progress reply")
@@ -168,13 +152,12 @@ impl Fixture {
         index: u64,
         bytes: &[u8],
     ) -> Result<(), JourneyFailure> {
-        update_candid_args(
+        crate::support::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
             "journey_append",
             (root(input.root), index, bytes.to_vec()),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("verification reply")
@@ -199,13 +182,12 @@ impl Fixture {
             .map_err(|error| error.reject_code)
     }
     fn complete(&self, owner: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
-        update_candid_args(
+        crate::support::update_fixture(
             &self.harness.pic,
             self.service,
             self.gateway,
             "journey_complete",
             (owner, input),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("substituted completion")
@@ -216,50 +198,46 @@ impl Fixture {
         method: &str,
         seed: [u8; 32],
     ) -> Result<(), JourneyFailure> {
-        update_candid_args(
+        crate::support::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
             method,
             (root(seed),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("root control")
     }
     fn pending(&self) -> Vec<Vec<u8>> {
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             self.gateway,
             "_immutableObjectStorageBlobsToDelete",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("binary-root deletion list")
     }
     fn live(&self, seeds: &[[u8; 32]]) -> Vec<bool> {
         let roots: Vec<_> = seeds.iter().map(|seed| root(*seed)).collect();
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             self.gateway,
             "_immutableObjectStorageBlobsAreLive",
             (roots,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("liveness batch")
     }
     fn delete(&self, roots: Vec<Vec<u8>>) -> Result<(), u32> {
-        update_candid_args(
+        crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
             "run_deletion",
             (roots,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("real inter-canister callback")
@@ -405,16 +383,10 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     assert_eq!(f.root_control(f.first, "journey_release", b.root), Ok(()));
     let delayed = f.pending();
     assert_eq!(delayed, vec![root(b.root)]);
-    let revoked: bool = update_candid_args(
-        &f.harness.pic,
-        f.service,
-        f.operator,
-        "revoke_gateway",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .expect("revoke");
+    let revoked: bool =
+        crate::support::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
+            .map(|(reply,)| reply)
+            .expect("revoke");
     assert!(revoked);
     assert_eq!(f.delete(delayed), Err(RejectCode::CanisterError as u32));
     assert_eq!(f.delete(vec![]), Err(RejectCode::CanisterError as u32));

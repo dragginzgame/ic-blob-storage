@@ -1,12 +1,10 @@
 //! Local Wasm cost observations and rejected-ingress atomicity, not provider pricing.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     admission::{ExecutionProfile, RESOURCE_SAMPLE_CAPACITY, input::PreparationInput},
     journey::JourneyManifest,
 };
 use ic_platform::candid::decoder;
-use ic_testkit::pic::query_candid_args;
 use sha2::{Digest, Sha256};
 
 mod descriptors;
@@ -82,13 +80,12 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
 
 impl Fixture {
     fn resources(&self, caller: Principal, limit: usize) -> Result<Vec<ExecutionProfile>, Failure> {
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
             "resources",
             (u8::try_from(limit).unwrap(),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap()

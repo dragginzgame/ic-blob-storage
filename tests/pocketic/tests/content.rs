@@ -6,9 +6,8 @@ mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
 use ic_platform::candid::contract::encode_args;
-use ic_testkit::pic::update_candid_args;
 use ic_testkit::{Fake, pocket_ic::CanisterSettings};
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 #[test]
 fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_budget() {
@@ -29,13 +28,12 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         encode_args((tenant, Fake::principal(2), Fake::principal(3), operator)).expect("init"),
         Some(operator),
     );
-    let denied: Result<ContentProbeReport, ContentProbeFailure> = update_candid_args(
+    let denied: Result<ContentProbeReport, ContentProbeFailure> = crate::support::update_fixture(
         pic,
         canister,
         tenant,
         "probe_content",
         (ContentProbeCase::FullChunk,),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .expect("denial");
@@ -56,16 +54,10 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             .iter()
             .find(|vector| vector["name"] == name)
             .expect("selected vector");
-        let result: Result<ContentProbeReport, ContentProbeFailure> = update_candid_args(
-            pic,
-            canister,
-            operator,
-            "probe_content",
-            (case,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .expect("Wasm execution");
+        let result: Result<ContentProbeReport, ContentProbeFailure> =
+            crate::support::update_fixture(pic, canister, operator, "probe_content", (case,))
+                .map(|(reply,)| reply)
+                .expect("Wasm execution");
         let report = result.expect("verified identities");
         assert_eq!(
             report.raw_digest,
@@ -97,16 +89,10 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         ),
         (ContentProbeCase::Truncated, ContentProbeFailure::Incomplete),
     ] {
-        let result: Result<ContentProbeReport, ContentProbeFailure> = update_candid_args(
-            pic,
-            canister,
-            operator,
-            "probe_content",
-            (case,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .expect("expected rejection");
+        let result: Result<ContentProbeReport, ContentProbeFailure> =
+            crate::support::update_fixture(pic, canister, operator, "probe_content", (case,))
+                .map(|(reply,)| reply)
+                .expect("expected rejection");
         assert_eq!(result, Err(error));
     }
 }

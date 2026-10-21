@@ -1,12 +1,11 @@
 //! Source reconstruction and refusal to act from retained or older stable state.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     SourceMode, SyncFailure,
     journey::readback::ReadSourceConfig,
     source::{SourceAction, SourceEffectView, SourceRecoveryView},
 };
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
@@ -14,13 +13,12 @@ impl Fixture {
         &self,
         caller: Principal,
     ) -> Option<SourceRecoveryView> {
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.gateway,
             caller,
             "recovery_observation",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("journal inspection")
@@ -49,7 +47,7 @@ impl Fixture {
             self.read_chunk(self.first, v.upload, 0),
             Err(JourneyFailure::Transport)
         );
-        let configured: bool = update_candid_args(
+        let configured: bool = crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -61,40 +59,36 @@ impl Fixture {
                 mode: ReadSourceMode::Valid,
                 hold: false,
             },),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("fenced configuration");
         assert!(!configured);
-        let configured: bool = update_candid_args(
+        let configured: bool = crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
             "configure",
             (SourceMode::Reject,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("fenced list configuration");
         assert!(!configured);
-        let resumed: bool = update_candid_args(
+        let resumed: bool = crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
             "resume_read",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("fenced resume");
         assert!(!resumed);
-        let sync: Result<(), SyncFailure> = update_candid_args(
+        let sync: Result<(), SyncFailure> = crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
             "run_sync",
             (self.sync_request(),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("fenced outgoing sync");
@@ -139,13 +133,12 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
             .bytes,
         v.bytes
     );
-    let result: Result<(), SyncFailure> = update_candid_args(
+    let result: Result<(), SyncFailure> = crate::support::update_fixture(
         &f.harness.pic,
         f.gateway,
         f.operator,
         "run_sync",
         (f.sync_request(),),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .expect("actual source sync");

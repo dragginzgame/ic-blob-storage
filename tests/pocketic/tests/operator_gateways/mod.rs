@@ -1,6 +1,5 @@
 //! Maintained query shape over a controlled local source, not a deployed Cashier.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::SourceMode;
 use ic_blob_storage::model::gateway::GatewayListError;
 use ic_blob_storage::model::gateway::membership::GatewayMembership;
@@ -9,7 +8,6 @@ use ic_blob_storage::model::gateway::registry::GatewayScope;
 use ic_blob_storage::model::gateway::registry::GatewaySyncError;
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::gateway::GatewayReplyError;
-use ic_testkit::pic::update_candid_args;
 
 use ic_blob_storage::ops::caffeine::query::CashierQuery;
 use ic_blob_storage::ops::caffeine::query::CashierQueryRequest;
@@ -120,13 +118,12 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         SourceMode::Revoke,
         SourceMode::Replace(Fake::principal(99)),
     ] {
-        let configured: bool = update_candid_args(
+        let configured: bool = crate::support::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.driver,
             "configure",
             (mode,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -138,13 +135,12 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
             "query must not execute a scripted source action"
         );
     }
-    let configured: bool = update_candid_args(
+    let configured: bool = crate::support::update_fixture(
         &f.harness.pic,
         f.gateway,
         f.driver,
         "configure",
         (SourceMode::Valid,),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();
@@ -184,13 +180,12 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(GatewayListError::Empty)),
         ),
     ] {
-        let configured: bool = update_candid_args(
+        let configured: bool = crate::support::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.driver,
             "configure",
             (mode,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();

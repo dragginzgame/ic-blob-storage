@@ -3,9 +3,10 @@ SHELL := /bin/bash
 
 # Keep all builds in this repository, including calls from another workspace.
 export CARGO_TARGET_DIR := $(CURDIR)/target
+IC_TOOLS := wasm-opt
 LOCAL_TOOL_INSTALL_TARGETS := install-ic-tools install-testkit install-release-editor
 LOCAL_TOOL_CHECK_TARGETS := ic-tools-check testkit-check release-editor-check
-RELEASE_EDITOR_ARGS := --consumer "$(CURDIR)" --package ic-build --lockfile Cargo.lock --bin ic-build-release-metadata --profile debug
+RELEASE_EDITOR_ARGS := --consumer "$(CURDIR)" --package ic-build --lockfile Cargo.lock --bin ic-build-release-metadata --profile debug --features cli
 override SHARED_TOOLING_ROOT := $(CURDIR)
 override RELEASE_DELIVERY_POLICY := ci/release-delivery-policy.txt
 export PATH := $(CURDIR)/.tools/ic/bin:$(PATH)
@@ -62,7 +63,7 @@ help:
 	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
 	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
-	@echo "shared-tooling-tests          Exercise shared digest, IC installer, lockfile and metadata refusals offline"
+	@echo "shared-tooling-tests          Exercise consumer tool, evidence, lockfile and metadata checks offline"
 	@echo "documentation-links-check     Check local Markdown targets without a build or network"
 	@echo "tooling-evidence-check        Check retained tooling archive selection and failure behavior"
 	@echo "release-commands-check        Check Make routing with a substitute release runner"
@@ -118,18 +119,13 @@ release-editor-check:
 # Shared owns generic formatter, digest, installer and release-runner matrices.
 # Blob retains actual Make/hook/tool admission and archive/retention callers below.
 shared-tooling-tests:
-	+bash scripts/ci/test-make-consumer.sh
 	+bash scripts/ci/test-consumer-fixture-completion.sh
 	+bash scripts/ci/check-validation-logging.sh
 	+bash scripts/ci/test-evidence-archive.sh
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
 	+bash scripts/ci/test-cargo-metadata.sh
-	+bash scripts/ci/test-crates-io-version.sh
-	+bash scripts/ci/test-npm-pins.sh
-	+bash scripts/ci/test-tool-commands.sh
 	+bash scripts/ci/test-testkit-commands.sh
-	+bash scripts/ci/test-cloc.sh
 
 tooling-evidence-check:
 	bash scripts/ci/test-tooling-evidence.sh
@@ -226,7 +222,8 @@ build-standalone:
 
 test-wasm-opt:
 	+$(MAKE) --no-print-directory tools-check
-	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-storage-probe --lib
+	+$(MAKE) --no-print-directory build-standalone
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	+cargo build --offline --locked -p ic-blob-storage-cli
 	+bash scripts/ci/qualify-blob-wasm-opt.sh
 

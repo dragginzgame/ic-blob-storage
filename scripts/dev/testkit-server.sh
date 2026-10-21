@@ -10,7 +10,7 @@ root="${BASH_SOURCE[0]}"
 root="$(cd -P "${root%/*}/../.." && printf '%s/.' "$PWD")"
 root="${root%/.}"
 args=(--consumer "$root" --package ic-testkit --lockfile Cargo.lock
-    --bin ic-testkit-server --profile release)
+    --bin ic-testkit-server --profile release --features cli)
 [[ "$1" != check ]] || args+=(--check)
 cli="$(bash "$root/scripts/dev/install-rust-tools.sh" "${args[@]}")"
 exec "$cli" "$1" --directory "$root/.tools/testkit-server"

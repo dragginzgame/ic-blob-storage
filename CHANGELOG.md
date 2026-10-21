@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.40.0] - Unreleased
+
+- **Breaking Platform family:** adopt published Platform 0.6 and matching
+  Host/Build/Testkit 0.63. Hosts must align their public Platform types and rebuild;
+  endpoint identities, Wire frames, decoder budgets and persisted schemas remain
+  unchanged. Keep the reviewed Memory/Storage, Wire and Metrics patch selections.
+- Move private Candid fixture calls from retired Testkit codec helpers to
+  Platform codecs with the same finite reply budgets and single raw transport
+  attempt. Keep frozen historical projections at their existing test owner.
+  Explicit Testkit and release-editor setup now selects their required `cli`
+  feature; ordinary library consumers do not select these command dependencies.
+- Adopt Shared Tooling 0.26.1 and select only `wasm-opt` for IC executable setup
+  and offline admission. Stop requiring four unused IC executables while
+  retaining the full upstream pin catalog and prior installation evidence.
+- Update consumer fixtures for IC preflight ordering and explicit selection.
+  Retain shared release retry protection and existing failure/recovery checks.
+- Retire repeated generic Shared fixture matrices from Blob's snapshot and
+  validation. Keep actual consumer tool routing, admission, evidence and release
+  recovery checks; Shared remains their generic implementation and test owner.
+- Build the optimized production canister separately from probes so their
+  `test-support` feature cannot enter production qualification through unification.
+- Correct current Memory/Storage and Host/Build/Testkit ownership and version
+  guidance after their repository consolidations. Keep versions authoritative in
+  Cargo and archive earlier handoff checkpoints.
+
 ## [0.39.0] - 2026-10-20
 
 - Repair the local tool-command fixture for the release-editor setup/check step.

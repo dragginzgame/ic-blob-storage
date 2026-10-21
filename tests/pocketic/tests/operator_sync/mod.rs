@@ -1,10 +1,8 @@
 //! Actual sync commands with a controlled source; simulated caller is explicit.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::status::OperatorStatusView;
 use blob_test_protocol::{GatewaySyncRequest, SourceMode, SourceObservation, SyncFailure};
 use ic_platform::candid::decoder;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 fn request(f: &Fixture) -> GatewaySyncRequest {
     sync_request::read(&f.harness.pic, f.authority, f.gateway)
@@ -39,52 +37,43 @@ fn sync_command(args: &[String]) -> (i32, Value) {
     )
 }
 fn status(f: &Fixture) -> OperatorStatusView {
-    query_candid_args::<(Option<OperatorStatusView>,), _>(
+    crate::support::query_fixture::<(Option<OperatorStatusView>,), _>(
         &f.harness.pic,
         f.authority,
         f.gateway,
         "operator_status",
         (),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap()
     .unwrap()
 }
 fn observed(f: &Fixture) -> SourceObservation {
-    query_candid_args::<(Option<SourceObservation>,), _>(
+    crate::support::query_fixture::<(Option<SourceObservation>,), _>(
         &f.harness.pic,
         f.gateway,
         f.driver,
         "observation",
         (),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap()
     .unwrap()
 }
 fn configure(f: &Fixture, mode: SourceMode) {
-    let result: bool = update_candid_args(
-        &f.harness.pic,
-        f.gateway,
-        f.driver,
-        "configure",
-        (mode,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let result: bool =
+        crate::support::update_fixture(&f.harness.pic, f.gateway, f.driver, "configure", (mode,))
+            .map(|(reply,)| reply)
+            .unwrap();
     assert!(result);
 }
 fn revoke(f: &Fixture) {
-    let result: bool = update_candid_args(
+    let result: bool = crate::support::update_fixture(
         &f.harness.pic,
         f.authority,
         f.gateway,
         "revoke_gateway",
         (),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();
@@ -193,16 +182,10 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
     }
     revoke(&f);
     let revised = status(&f).sync_revision;
-    let resumed: bool = update_candid_args(
-        &f.harness.pic,
-        f.gateway,
-        f.driver,
-        "resume_sync",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let resumed: bool =
+        crate::support::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_sync", ())
+            .map(|(reply,)| reply)
+            .unwrap();
     assert!(resumed);
     let completed: Result<(), SyncFailure> = decoder::decode_one_with_config(
         &f.harness.pic.await_call(id).unwrap(),
@@ -241,16 +224,10 @@ fn forced_restore_during_sync_retains_pending_evidence_when_callback_arrives() {
     f.upgrade_fixture(f.authority, true);
     let mut retained = status(&f);
     assert!(retained.fenced);
-    let resumed: bool = update_candid_args(
-        &f.harness.pic,
-        f.gateway,
-        f.driver,
-        "resume_sync",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let resumed: bool =
+        crate::support::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_sync", ())
+            .map(|(reply,)| reply)
+            .unwrap();
     assert!(resumed);
     // Actual upgrade clears the async heap: the late callback can trap before
     // entering Rust. It cannot apply membership or clear the frozen journal.

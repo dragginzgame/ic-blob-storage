@@ -1,23 +1,15 @@
 //! Passive funding admission against actual transfer journals, not a payment client.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::preview::{
     FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
 };
 use ic_platform::candid::decoder;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 fn args(f: &Fixture, id: u64, amount: u128) -> Vec<String> {
-    let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> = query_candid_args(
-        &f.harness.pic,
-        f.sender,
-        f.driver,
-        "operator_status",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> =
+        crate::support::query_fixture(&f.harness.pic, f.sender, f.driver, "operator_status", ())
+            .map(|(reply,)| reply)
+            .unwrap();
     let mut args = f.args(
         f.sender,
         f.driver,
@@ -247,16 +239,16 @@ fn wrong_binding_denied_callers_and_invalid_amounts_never_change_journals() {
             FundingPreviewFailure::InvalidAmount,
         ),
     ] {
-        let result: Result<FundingPreviewView, FundingPreviewFailure> = query_candid_args(
-            &f.harness.pic,
-            f.sender,
-            caller,
-            "preview_funding",
-            (input,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<FundingPreviewView, FundingPreviewFailure> =
+            crate::support::query_fixture(
+                &f.harness.pic,
+                f.sender,
+                caller,
+                "preview_funding",
+                (input,),
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         assert_eq!(result, Err(expected));
     }
     let mut denied = args(&f, 1, 1);
@@ -336,7 +328,7 @@ fn preview_reports_the_same_amount_bound_enforced_before_update_admission() {
             .iter()
             .any(|b| b.get("AmountLimitExceeded").is_some())
     );
-    let result: Result<FundingObservation, FundingFailure> = update_candid_args(
+    let result: Result<FundingObservation, FundingFailure> = crate::support::update_fixture(
         &f.harness.pic,
         f.sender,
         f.driver,
@@ -348,7 +340,6 @@ fn preview_reports_the_same_amount_bound_enforced_before_update_admission() {
             reply: FundingReplyMode::Success,
             trap_callback: true,
         },),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();

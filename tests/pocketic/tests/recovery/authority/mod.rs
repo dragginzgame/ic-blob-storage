@@ -1,6 +1,5 @@
 //! Atomic stable inspection records, without pretending to resume authority.
-use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 mod capacity;
 mod checkpoint;
 mod restore;
@@ -16,26 +15,24 @@ use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
     pub(super) fn archive(&self) -> AuthorityArchiveView {
-        let result: Option<AuthorityArchiveView> = query_candid_args(
+        let result: Option<AuthorityArchiveView> = crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             self.authority_operator,
             "authority_archive",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("stable archive query");
         result.expect("explicit operator")
     }
     fn sample_fact(&self, fact: ObligationProbeFact) {
-        let accepted: bool = update_candid_args(
+        let accepted: bool = crate::support::update_fixture(
             &self.harness.pic,
             self.service,
             self.authority_operator,
             "confirm_obligation",
             (1_u8, fact),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("sample fact");
@@ -52,13 +49,12 @@ impl Fixture {
         let result: Result<
             blob_test_protocol::content::ContentProbeReport,
             blob_test_protocol::content::ContentProbeFailure,
-        > = update_candid_args(
+        > = crate::support::update_fixture(
             &self.harness.pic,
             self.service,
             self.authority_operator,
             "probe_content",
             (blob_test_protocol::content::ContentProbeCase::UnicodeMetadata,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("stateless update after memory injection");
@@ -100,24 +96,17 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
     let cancelled = upload(3, b"cancelled");
     assert_eq!(f.reserve(f.first, cancelled), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
-    let (released,): (bool,) = update_candid_args(
-        &f.harness.pic,
-        f.service,
-        f.first,
-        "release",
-        (1_u8,),
-        REPLY_LIMITS,
-    )
-    .unwrap();
+    let (released,): (bool,) =
+        crate::support::update_fixture(&f.harness.pic, f.service, f.first, "release", (1_u8,))
+            .unwrap();
     assert!(released);
     f.sample_fact(ObligationProbeFact::Deleted);
-    let (sample_cancel,): (bool,) = update_candid_args(
+    let (sample_cancel,): (bool,) = crate::support::update_fixture(
         &f.harness.pic,
         f.service,
         f.first,
         "cancel_upload",
         (11_u8,),
-        REPLY_LIMITS,
     )
     .unwrap();
     assert!(sample_cancel);
@@ -209,13 +198,12 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
-    let (armed,): (bool,) = update_candid_args(
+    let (armed,): (bool,) = crate::support::update_fixture(
         &f.harness.pic,
         f.service,
         f.operator,
         "journey_arm_read_callback_trap",
         (root(v.upload.root),),
-        REPLY_LIMITS,
     )
     .unwrap();
     assert!(armed);
@@ -231,15 +219,9 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     assert_eq!(before.last_read, read.token);
     assert!(read.valid);
     assert_eq!(before.armed_read_trap, None);
-    let (resumed,): (bool,) = update_candid_args(
-        &f.harness.pic,
-        f.gateway,
-        f.operator,
-        "resume_read",
-        (),
-        REPLY_LIMITS,
-    )
-    .unwrap();
+    let (resumed,): (bool,) =
+        crate::support::update_fixture(&f.harness.pic, f.gateway, f.operator, "resume_read", ())
+            .unwrap();
     assert!(resumed);
     let error = f
         .harness
@@ -248,15 +230,9 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
         .expect_err("actual read callback trap");
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     assert_eq!(f.archive(), before);
-    let (revoked,): (bool,) = update_candid_args(
-        &f.harness.pic,
-        f.service,
-        f.operator,
-        "revoke_gateway",
-        (),
-        REPLY_LIMITS,
-    )
-    .unwrap();
+    let (revoked,): (bool,) =
+        crate::support::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
+            .unwrap();
     assert!(revoked);
     let after = f.archive();
     assert_eq!(after.gateways, []);
@@ -279,25 +255,23 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
         Principal::anonymous(),
         f.service,
     ] {
-        let denied: Option<AuthorityArchiveView> = query_candid_args(
+        let denied: Option<AuthorityArchiveView> = crate::support::query_fixture(
             &f.harness.pic,
             f.service,
             caller,
             "authority_archive",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();
         assert!(denied.is_none());
     }
-    let (initial,): (Option<AuthorityArchiveView>,) = query_candid_args(
+    let (initial,): (Option<AuthorityArchiveView>,) = crate::support::query_fixture(
         &f.harness.pic,
         f.service,
         f.gateway,
         "authority_archive",
         (),
-        REPLY_LIMITS,
     )
     .unwrap();
     assert!(initial.is_some());
@@ -397,13 +371,12 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
 fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
     let f = Fixture::with_source_operator(true);
     let query = || -> AuthorityArchiveView {
-        let value: Option<AuthorityArchiveView> = query_candid_args(
+        let value: Option<AuthorityArchiveView> = crate::support::query_fixture(
             &f.harness.pic,
             f.service,
             f.gateway,
             "authority_archive",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -416,24 +389,22 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
         (SourceMode::Overlap, Ok(())),
         (SourceMode::Revoke, Err(SyncFailure::Stale)),
     ] {
-        let configured: bool = update_candid_args(
+        let configured: bool = crate::support::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,
             "configure",
             (mode,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();
         assert!(configured);
-        let result: Result<(), SyncFailure> = update_candid_args(
+        let result: Result<(), SyncFailure> = crate::support::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,
             "run_sync",
             (f.sync_request(),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap();

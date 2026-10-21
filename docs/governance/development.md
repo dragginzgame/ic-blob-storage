@@ -56,7 +56,11 @@ the same baseline. Changed, deleted or unreadable inputs stop subsequent stages
 with restart guidance and retained hashes/logs. Checks do not refetch or restart
 automatically and do not claim isolation from edits inside a running command.
 Provision the reviewed jq/yq, ripgrep with PCRE2, cloc and common IC executables
-explicitly with `make install-tools` before validation. The reviewed
+explicitly with `make install-tools` before validation. Blob selects only
+`wasm-opt` through `IC_TOOLS`; didc, ic-wasm, ICP CLI and
+Quill are not prerequisites of its maintained workflows. The complete upstream
+pin catalog stays intact. The optimizer runner explicitly admits `wasm-opt` too.
+The reviewed
 `make/consumer.mk` snapshot is Blob's single entrypoint for common setup,
 offline checks, formatting, hooks and releases. Its `make/tools.mk` companion
 owns setup, offline verification and LOC recipes; product tool extensions and
@@ -92,7 +96,9 @@ after the common set. `install-release-editor` explicitly prepares its published
 CLI; `release-editor-check` returns the admitted absolute path offline. Primitive Testkit targets do only their
 named operation; CI uses the same complete aggregate. `make install-testkit`
 provisions the lock-selected CLI/server; `make testkit-check` authenticates it
-offline. Tool installation may compile and use the
+offline. Both lock-selected Tooling CLIs require explicit `--features cli` during
+setup and admission; this feature belongs to tool selections, not the application
+library graph. Tool installation may compile and use the
 network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/example/PocketIC installation and
 Metrics restoration-read check used by
@@ -115,8 +121,9 @@ them separately. Ordinary Cargo Wasm output remains unoptimized. These local
 canister cases do not establish deployed provider or Canic application behavior.
 Testkit/PocketIC own client/server compatibility and managed server lifetime.
 Blob has no independent crate-version/server-version equality gate. The
-snapshot-owned `ci/ic-tools.tsv` selects five non-PocketIC executables through the
-canonical shared installer; `make ic-tools-check` authenticates that bundle.
+snapshot-owned `ci/ic-tools.tsv` retains the complete upstream executable
+catalog. Blob selects only Binaryen
+through the canonical shared installer; `make ic-tools-check` authenticates that bundle.
 Testkit owns its PocketIC selection, authenticated setup and offline check under
 `.tools/testkit-server`. The thin consumer adapter delegates the explicit
 Cargo.lock selection and installation to the shared Cargo installer. PocketIC
@@ -141,8 +148,12 @@ continuous evidence recording and separates source/local/live observations.
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
 URLs. `make shared-tooling-tests` exercises consumer fixture completion, evidence
-archive, local lockfile, Cargo metadata and common Make/LOC refusals
-with offline substitutes. The declaration
+archive, local lockfile, Cargo metadata and actual Testkit/Make forwarding
+with offline substitutes. Dependency changes follow the
+[focused adoption contract](../cargo-graph-checks.md#focused-dependency-adoption-contract):
+admit each actual locked graph and policy before lint and artifact checks,
+preserving separate qualification for native hosts and installed IC behavior.
+The declaration
 gate opts in to shared Cargo package/dependency inheritance checks. The separate
 Platform boundary target uses Shared's canonical package-identity checker and
 Blob's explicit exception policy; that policy is a guarded CI input. It covers
@@ -196,7 +207,7 @@ The component includes carry `make/execution.mk` and its existing behavioral pro
 The probe rejects unsupported Make modes before recipes, including ignored
 failures and non-executing modes. Every isolated fixture includes those inputs;
 the release-command checker binds its tooling root to the disposable checkout.
-The common entrypoint's routing fixture runs in `make shared-tooling-tests`.
+The actual Testkit/Make routing fixture runs in `make shared-tooling-tests`.
 Actual hook, release and parallel Testkit fixtures export `make/consumer.mk`
 with all parsed companions; none may fall back to the real checkout's adapters.
 Release and Testkit fixtures use `prepare-script-fixture.sh` for explicit roots
@@ -300,11 +311,13 @@ Generic matrices stay with Shared Tooling; Blob qualifies its actual selection:
 | --- | --- |
 | Installed tools and selected catalogs | `make tools-check`, including Testkit admission |
 | Dependency declarations and locked versions | `make dependency-pins-check`; IC Build owns renderer regressions, while `scripts/release/test-release.sh` checks actual consumer preparation |
-| Make/tool forwarding and server selection | `scripts/ci/test-tool-commands.sh` and `scripts/ci/test-testkit-commands.sh` |
+| Make/tool forwarding and server selection | `scripts/ci/test-testkit-commands.sh` |
 | Hooks and formatter preservation | `make hooks-check` |
 | Release/publication refusals and recovery | `scripts/release/test-release.sh` and `make release-commands-check` |
 | Evidence selection, archives and retention | `make tooling-evidence-check` and `scripts/ci/test-evidence-archive.sh` |
 
 Retire exported generic fixture roots through the canonical snapshot exporter at
-its reviewed revision. Producer CI does not qualify Blob's native hosts or its
+its reviewed revision. Generic Make routing, LOC, npm-pin and registry-version
+matrices remain at Shared; their runtime commands and Blob's actual dependency
+and publication checks remain selected. Producer CI does not qualify Blob's native hosts or its
 release adapter. The retained consumer checks and all native CI lanes still run.

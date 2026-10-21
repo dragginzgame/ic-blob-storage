@@ -95,3 +95,53 @@ impl Harness {
         }
     }
 }
+
+/// Query Blob's private Candid fixtures under their fixed reply budgets.
+/// Platform owns codecs; Testkit owns transport panic classification.
+#[allow(
+    dead_code,
+    reason = "shared by independent query-only and update-only fixture binaries"
+)]
+pub(super) fn query_fixture<T, A>(
+    pic: &PocketIc,
+    service: ic_platform::principal::ExternalPrincipal,
+    caller: ic_platform::principal::ExternalPrincipal,
+    method: &str,
+    arguments: A,
+) -> Result<T, Box<dyn std::error::Error>>
+where
+    T: for<'de> ic_platform::candid::contract::ArgumentDecoder<'de>,
+    A: ic_platform::candid::contract::ArgumentEncoder,
+{
+    let arguments = ic_platform::candid::contract::encode_args(arguments)?;
+    let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
+        pic.query_call(service, caller, method, arguments)
+    })?
+    .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+    ic_platform::candid::decode_args(&reply, REPLY_LIMITS).map_err(Into::into)
+}
+
+/// Update Blob's private Candid fixtures once, using the same finite budgets.
+/// A transport failure never authorizes retrying an uncertain update.
+#[allow(
+    dead_code,
+    reason = "shared by independent query-only and update-only fixture binaries"
+)]
+pub(super) fn update_fixture<T, A>(
+    pic: &PocketIc,
+    service: ic_platform::principal::ExternalPrincipal,
+    caller: ic_platform::principal::ExternalPrincipal,
+    method: &str,
+    arguments: A,
+) -> Result<T, Box<dyn std::error::Error>>
+where
+    T: for<'de> ic_platform::candid::contract::ArgumentDecoder<'de>,
+    A: ic_platform::candid::contract::ArgumentEncoder,
+{
+    let arguments = ic_platform::candid::contract::encode_args(arguments)?;
+    let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
+        pic.update_call(service, caller, method, arguments)
+    })?
+    .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+    ic_platform::candid::decode_args(&reply, REPLY_LIMITS).map_err(Into::into)
+}

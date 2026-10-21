@@ -1,7 +1,6 @@
 //! Real local source calls; no deployed provider durability or HTTP claims.
-use crate::support::REPLY_LIMITS;
 use ic_platform::candid::decoder;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 mod resources;
 
 use super::*;
@@ -21,13 +20,12 @@ impl Fixture {
         &self,
         caller: Principal,
     ) -> Result<Option<ReadExecutionProfile>, JourneyFailure> {
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
             "journey_read_resources",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("read resource observation")
@@ -41,7 +39,7 @@ impl Fixture {
         mode: ReadSourceMode,
         hold: bool,
     ) {
-        let accepted: bool = update_candid_args(
+        let accepted: bool = crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -53,7 +51,6 @@ impl Fixture {
                 mode,
                 hold,
             },),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("configure local source");
@@ -61,13 +58,12 @@ impl Fixture {
     }
 
     pub(super) fn source_observation(&self) -> ReadSourceObservation {
-        let observed: Option<ReadSourceObservation> = query_candid_args(
+        let observed: Option<ReadSourceObservation> = crate::support::query_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
             "read_observation",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("source observation");
@@ -80,13 +76,12 @@ impl Fixture {
         input: JourneyUpload,
         index: u64,
     ) -> Result<JourneyReadChunk, JourneyFailure> {
-        update_candid_args(
+        crate::support::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
             "journey_read",
             (root(input.root), index),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("read reply")
@@ -114,13 +109,12 @@ impl Fixture {
     }
 
     pub(super) fn resume_read(&self, id: RawMessageId) -> Result<JourneyReadChunk, JourneyFailure> {
-        let resumed: bool = update_candid_args(
+        let resumed: bool = crate::support::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
             "resume_read",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("resume source");
@@ -265,16 +259,10 @@ fn release_during_a_held_read_prevents_reply_disclosure_and_later_reads() {
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);
-    let resumed: bool = update_candid_args(
-        &f.harness.pic,
-        f.gateway,
-        f.first,
-        "resume_read",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .expect("denied resume");
+    let resumed: bool =
+        crate::support::update_fixture(&f.harness.pic, f.gateway, f.first, "resume_read", ())
+            .map(|(reply,)| reply)
+            .expect("denied resume");
     assert!(!resumed);
     assert_eq!(
         f.read_chunk(f.first, v.upload, 0),
@@ -327,24 +315,22 @@ fn revoked_and_readded_gateway_cannot_validate_its_old_held_reply() {
         (SourceMode::Revoke, Err(SyncFailure::Stale)),
         (SourceMode::Valid, Ok(())),
     ] {
-        let configured: bool = update_candid_args(
+        let configured: bool = crate::support::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,
             "configure",
             (mode,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("sync source mode");
         assert!(configured);
-        let result: Result<(), SyncFailure> = update_candid_args(
+        let result: Result<(), SyncFailure> = crate::support::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,
             "run_sync",
             (f.sync_request(),),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("sync response");

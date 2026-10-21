@@ -14,13 +14,12 @@ use blob_test_protocol::admission::{
 };
 use ic_platform::candid::decoder;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pic::query_candid_args;
 use ic_testkit::{
     Fake,
     pocket_ic::{CanisterSettings, RejectCode},
 };
 use std::time::Duration;
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 struct Fixture {
     harness: Harness,
@@ -82,13 +81,12 @@ impl Fixture {
     }
 
     fn inspect(&self, caller: Principal, request: Request) -> Result<Observation, Failure> {
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
             "inspect",
             (request,),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("typed query reply")

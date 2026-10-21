@@ -1,11 +1,9 @@
 //! Actual caller authorization and descriptor-to-client verification.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::{ContentDescriptor, release::LifecycleCommand};
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
-use ic_testkit::pic::query_candid_args;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 mod preparation;
@@ -16,13 +14,12 @@ fn read(
     actor: Principal,
     input: ContentLookup,
 ) -> Result<Option<ContentDescriptor>, Failure> {
-    query_candid_args(
+    crate::support::query_fixture(
         &f.harness.pic,
         f.service,
         actor,
         "content_descriptor",
         (input,),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap()

@@ -1,13 +1,11 @@
 //! Actual IC effects against an explicitly installed local attachment envelope.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::funding::{
     budget::FundingBudgetInput,
     preview::{
         FundingPreviewBlocker, FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
     },
 };
-use ic_testkit::pic::{query_candid_args, update_candid_args};
 
 #[test]
 fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
@@ -61,13 +59,12 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
         Err(FundingFailure::AlreadyAdmitted)
     );
     f.harness.pic.add_cycles(f.sender, 1_000_000_000_000);
-    let incoming: Result<FundingObservation, FundingFailure> = update_candid_args(
+    let incoming: Result<FundingObservation, FundingFailure> = crate::support::update_fixture(
         &f.harness.pic,
         f.receiver,
         f.driver,
         "fund",
         (request(99, 50_000_000, FundingReplyMode::Success),),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();
@@ -119,7 +116,7 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
         )
         .unwrap();
     assert_eq!(f.assert_unknown_status(paid).budget, pending);
-    let preview: Result<FundingPreviewView, FundingPreviewFailure> = query_candid_args(
+    let preview: Result<FundingPreviewView, FundingPreviewFailure> = crate::support::query_fixture(
         &f.harness.pic,
         f.sender,
         f.driver,
@@ -131,7 +128,6 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
             requested_cycles: 1,
             revision: pending.revision,
         },),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();
@@ -169,16 +165,16 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
         revision: 0,
     };
     let preview = |request| -> FundingPreviewView {
-        let result: Result<FundingPreviewView, FundingPreviewFailure> = query_candid_args(
-            &f.harness.pic,
-            f.sender,
-            f.driver,
-            "preview_funding",
-            (request,),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<FundingPreviewView, FundingPreviewFailure> =
+            crate::support::query_fixture(
+                &f.harness.pic,
+                f.sender,
+                f.driver,
+                "preview_funding",
+                (request,),
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         result.unwrap()
     };
     let before = preview(proposed);
@@ -263,22 +259,22 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
 fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
     let f = Fixture::new();
     let preview = |requested_cycles| -> FundingPreviewView {
-        let result: Result<FundingPreviewView, FundingPreviewFailure> = query_candid_args(
-            &f.harness.pic,
-            f.sender,
-            f.driver,
-            "preview_funding",
-            (FundingPreviewRequest {
-                service: f.sender,
-                peer: f.receiver,
-                id: 1,
-                requested_cycles,
-                revision: 0,
-            },),
-            REPLY_LIMITS,
-        )
-        .map(|(reply,)| reply)
-        .unwrap();
+        let result: Result<FundingPreviewView, FundingPreviewFailure> =
+            crate::support::query_fixture(
+                &f.harness.pic,
+                f.sender,
+                f.driver,
+                "preview_funding",
+                (FundingPreviewRequest {
+                    service: f.sender,
+                    peer: f.receiver,
+                    id: 1,
+                    requested_cycles,
+                    revision: 0,
+                },),
+            )
+            .map(|(reply,)| reply)
+            .unwrap();
         result.unwrap()
     };
     let observed = preview(1);

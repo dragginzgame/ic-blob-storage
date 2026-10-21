@@ -1,8 +1,6 @@
 //! Read protected checkpoint bytes from stable memory and test a disposable copy.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::authority::{CheckpointProbeFailure, CheckpointProbeInput};
-use ic_testkit::pic::query_candid_args;
 
 impl Fixture {
     pub(super) fn checkpoint_probe(
@@ -12,7 +10,7 @@ impl Fixture {
         index: u64,
         bytes: &[u8],
     ) -> Result<JourneyProgress, CheckpointProbeFailure> {
-        query_candid_args(
+        crate::support::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -22,7 +20,6 @@ impl Fixture {
                 index,
                 bytes: bytes.to_vec(),
             },),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .expect("isolated verifier probe")
@@ -198,13 +195,12 @@ fn controller_status_cannot_use_an_operator_checkpoint_probe() {
         f.checkpoint_probe(f.operator, v.upload, 0, &v.bytes),
         Err(CheckpointProbeFailure::Denied)
     );
-    let retained: Option<AuthorityArchiveView> = query_candid_args(
+    let retained: Option<AuthorityArchiveView> = crate::support::query_fixture(
         &f.harness.pic,
         f.service,
         f.gateway,
         "authority_archive",
         (),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .unwrap();

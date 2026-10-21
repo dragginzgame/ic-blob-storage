@@ -5,8 +5,7 @@
 
 mod support;
 
-use ic_testkit::pic::{query_candid_args, update_candid_args};
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::{
@@ -15,7 +14,7 @@ use ic_testkit::{
 };
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    query_candid_args(pic, canister, caller, "usage", (), REPLY_LIMITS)
+    crate::support::query_fixture(pic, canister, caller, "usage", ())
         .map(|(reply,)| reply)
         .expect("usage query")
 }
@@ -28,26 +27,25 @@ fn live(
     service: Principal,
     tenant: Principal,
 ) -> Option<bool> {
-    query_candid_args(
+    crate::support::query_fixture(
         pic,
         canister,
         caller,
         "reference_live",
         (root, service, tenant),
-        REPLY_LIMITS,
     )
     .map(|(reply,)| reply)
     .expect("liveness query")
 }
 
 fn release(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    update_candid_args(pic, canister, caller, "release", (root,), REPLY_LIMITS)
+    crate::support::update_fixture(pic, canister, caller, "release", (root,))
         .map(|(reply,)| reply)
         .expect("release update")
 }
 
 fn pending(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    query_candid_args(pic, canister, caller, "pending", (), REPLY_LIMITS)
+    crate::support::query_fixture(pic, canister, caller, "pending", ())
         .map(|(reply,)| reply)
         .expect("pending query")
 }
@@ -100,21 +98,15 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
     for caller in [first, second, controller, Principal::anonymous()] {
         assert_eq!(pending(pic, canister, caller), None);
     }
-    let denied: bool = update_candid_args(pic, canister, first, "revoke_gateway", (), REPLY_LIMITS)
+    let denied: bool = crate::support::update_fixture(pic, canister, first, "revoke_gateway", ())
         .map(|(reply,)| reply)
         .expect("operator denial");
     assert!(!denied);
     assert_eq!(pending(pic, canister, gateway), Some(vec![1]));
-    let revoked: bool = update_candid_args(
-        pic,
-        canister,
-        controller,
-        "revoke_gateway",
-        (),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .expect("operator revocation");
+    let revoked: bool =
+        crate::support::update_fixture(pic, canister, controller, "revoke_gateway", ())
+            .map(|(reply,)| reply)
+            .expect("operator revocation");
     assert!(revoked);
     assert_eq!(pending(pic, canister, gateway), None);
     assert_eq!(usage(pic, canister, second), Some(200));

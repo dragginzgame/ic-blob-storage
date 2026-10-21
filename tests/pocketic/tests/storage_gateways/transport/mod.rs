@@ -1,6 +1,6 @@
 //! Real IC scheduling against an explicitly different local source method.
 use crate::support::REPLY_LIMITS;
-use ic_testkit::pic::{query_candid_args, update_candid_args};
+
 mod read_sessions;
 use super::*;
 use blob_test_protocol::{
@@ -23,26 +23,24 @@ impl Fixture {
     }
     fn source_mode(&self, mode: SourceMode) {
         assert!(
-            update_candid_args::<(bool,), _>(
+            crate::support::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
                 "configure",
-                (mode,),
-                REPLY_LIMITS
+                (mode,)
             )
             .map(|(reply,)| reply)
             .unwrap()
         );
     }
     fn source_requests(&self) -> u64 {
-        query_candid_args::<(Option<SourceObservation>,), _>(
+        crate::support::query_fixture::<(Option<SourceObservation>,), _>(
             &self.harness.pic,
             self.operator,
             self.controller,
             "observation",
             (),
-            REPLY_LIMITS,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -72,13 +70,12 @@ impl Fixture {
     fn wait_source(&self) {
         for _ in 0..30 {
             self.harness.pic.tick();
-            let view: Option<SourceRecoveryView> = query_candid_args(
+            let view: Option<SourceRecoveryView> = crate::support::query_fixture(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
                 "recovery_observation",
                 (),
-                REPLY_LIMITS,
             )
             .map(|(reply,)| reply)
             .unwrap();
@@ -90,13 +87,12 @@ impl Fixture {
     }
     fn resume_source(&self) {
         assert!(
-            update_candid_args::<(bool,), _>(
+            crate::support::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
                 "resume_sync",
-                (),
-                REPLY_LIMITS
+                ()
             )
             .map(|(reply,)| reply)
             .unwrap()

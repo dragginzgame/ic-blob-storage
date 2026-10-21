@@ -799,14 +799,18 @@ where
     A::Stored: ic_platform::candid::contract::ArgumentEncoder,
     R::Stored: for<'de> ic_platform::candid::contract::ArgumentDecoder<'de>,
 {
-    ic_testkit::pic::query_candid_args::<R::Stored, A::Stored>(
-        pic,
-        service,
-        caller,
-        method,
-        project(args),
-        limits,
-    )
+    {
+        let (pic, service, caller, method, arguments, limits) =
+            (pic, service, caller, method, project(args), limits);
+        (|| -> Result<_, Box<dyn std::error::Error>> {
+            let arguments = ic_platform::candid::contract::encode_args::<A::Stored>(arguments)?;
+            let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
+                pic.query_call(service, caller, method, arguments)
+            })?
+            .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+            ic_platform::candid::decode_args::<R::Stored>(&reply, limits).map_err(Into::into)
+        })()
+    }
     .map(project)
     .map_err(|e| e.to_string())
 }
@@ -831,14 +835,18 @@ where
     A::Stored: ic_platform::candid::contract::ArgumentEncoder,
     R::Stored: for<'de> ic_platform::candid::contract::ArgumentDecoder<'de>,
 {
-    ic_testkit::pic::update_candid_args::<R::Stored, A::Stored>(
-        pic,
-        service,
-        caller,
-        method,
-        project(args),
-        limits,
-    )
+    {
+        let (pic, service, caller, method, arguments, limits) =
+            (pic, service, caller, method, project(args), limits);
+        (|| -> Result<_, Box<dyn std::error::Error>> {
+            let arguments = ic_platform::candid::contract::encode_args::<A::Stored>(arguments)?;
+            let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
+                pic.update_call(service, caller, method, arguments)
+            })?
+            .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+            ic_platform::candid::decode_args::<R::Stored>(&reply, limits).map_err(Into::into)
+        })()
+    }
     .map(project)
     .map_err(|e| e.to_string())
 }
