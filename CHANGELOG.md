@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.40.2] - Unreleased
+## [0.40.2] - 2026-10-21
 
 - Use the declared development compiler for published-example qualification and
   rerun that workflow when its toolchain file changes.
