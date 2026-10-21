@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.40.4] - Unreleased
+## [0.40.4] - 2026-10-21
 
 - Adopt Shared Tooling 0.26.4: preserve independent parent validation failures,
   publish failure logs atomically and reject ambiguous checksum/artifact metadata.
