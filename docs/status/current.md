@@ -4,8 +4,8 @@ Date: 2026-10-21
 
 ## Source and release
 
-Starting source is released 0.39.0 at `8430be0`; workspace package versions
-remain 0.39.0. Pending notes target **0.40.0** because public Platform type
+Current source is the prepared batch at `be4ec51`, based on released 0.39.0
+(`8430be0`); workspace package versions remain 0.39.0. Pending notes target **0.40.0** because public Platform type
 identity moves from 0.5 to 0.6. Hosts must align that family and rebuild.
 Endpoint identities, application Wire frames, decoder budgets and persisted
 schemas are unchanged. No staging, commit, release or registry effects were
@@ -13,10 +13,10 @@ performed in this adoption. Preserve the earlier unrelated pending cleanup.
 
 ## Published dependencies and ownership
 
-The maintainer confirmed the graph settled. Locked full metadata admits all
-thirteen members: Platform/macros **0.6.1**; Host artifacts/fs/process/tools,
+The current captured graph has passed full local Linux CI. Its thirteen
+workspace members select: Platform/macros **0.6.1**; Host artifacts/fs/process/tools,
 Build and Testkit **0.63.0**; Memory/Storage **0.50.4**; Metrics **0.15.1**;
-Wire/derive **0.5.7**. Published sources/checksums were inspected; no sibling
+Wire/derive **0.5.8**. Published sources/checksums were inspected; no sibling
 path override, legacy alias or compatibility package is selected.
 
 Platform owns the IC identity/runtime/Candid boundary; Wire owns application
@@ -62,7 +62,7 @@ registry records/checksums, exporter preview, full metadata, input checkpoints,
 artifact hashes and raw logs. After the settled locked fetch, unchanged manifest,
 lock, snapshot and Make inputs were checked around every runtime stage.
 
-Passes on the settled graph: dependency declarations/pins and deployment
+Earlier Wire 0.5.7 qualification passes: dependency declarations/pins and deployment
 exclusions; formatting; workspace all-target/all-feature check and strict Clippy;
 **680 native cases**; actual Rust **1.91** native/Wasm checks; fresh six-probe and
 separate default production release Wasms; rebuilt CLI. **31 installed PocketIC
@@ -74,7 +74,7 @@ Explicit CLI setup and offline tool admission, consumer Shared fixtures,
 release-adapter recovery and hook checks pass on Linux.
 
 Normal/build deployment, all-feature native CLI and full workspace observations
-select one Platform 0.6.1 and one Wire 0.5.7. No retired Platform family or legacy
+select one Platform 0.6.1 and one Wire 0.5.8. No retired Platform family or legacy
 CDK/macros appears. Candid and Platform's required CDK executor remain transitive;
 these are not Candid-free claims. Deployment excludes native Host, Agent, Testkit,
 Build, PocketIC and parser owners. Declaration checks cover aliases, kinds and
@@ -88,8 +88,24 @@ The initial 0.6/0.62.1 reproduction remains under
 `.tmp/review-validation/platform0391/`. Prior 0.5-family optimized-Wasm evidence
 under `.tmp/review-validation/upstream0391/` qualifies that earlier graph only.
 
-Full CI/archive and optimized-Wasm qualification for this new graph, native
-macOS, installed Canic and live-provider qualification remain unrun.
+The subsequent release-validation attempt changed Cargo.lock from Wire 0.5.7 to
+0.5.8 during optimizer tests. Two original-image cases passed before the next
+Cargo invocation refused the uncached patch offline; the input guard then
+correctly rejected the mixed run. Original failure evidence remains at
+`target/blob-wasm-opt.LFJGVq/` and the 20261021T083728Z validation logs.
+
+After explicit `cargo fetch --locked`, full `make ci` passes all **20 targets**
+on lock SHA-256 `35e5c1618e668571eb59289717e504b26197abcc1e6fae7c2b0e2d9cea2332ff`:
+680 native cases, the complete PocketIC suite, original/O3/Os/Oz installation and
+restoration, Wasm checking and coordinated archive regressions/verification.
+All 1,995 tracked file contents remained unchanged throughout the 930-second run.
+Logs/checkpoints are at `.tmp/review-validation/wire058-gate/`; optimizer artifacts
+are at `target/blob-wasm-opt.eYy5ny/`. No product-code change was needed. Perform
+dependency edits before preparation and leave the graph fixed until validation ends.
+
+Native macOS, installed Canic and live-provider qualification remain unrun for
+this graph. The earlier Rust 1.91 and pinned historical-image runs above remain
+Wire 0.5.7 evidence; they were not repeated during this CI restart.
 [Shared #294](https://github.com/dragginzgame/shared-tooling/issues/294) remains open:
 its [exact-source producer run](https://github.com/dragginzgame/shared-tooling/actions/runs/39559474466)
 passes Linux but fails an unexported fixture assertion on macOS. Do not equate
