@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.40.3] - Unreleased
+## [0.40.3] - 2026-10-21
 
 - Adopt published IC Tooling 0.63.2. Use its bounded HTTP reader for native
   probes, preserving partial timeout/failure evidence and body-before-status
