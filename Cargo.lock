@@ -260,7 +260,7 @@ checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
 
 [[package]]
 name = "blob-admission-probe"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -271,7 +271,7 @@ dependencies = [
 
 [[package]]
 name = "blob-authority-probe"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -284,7 +284,7 @@ dependencies = [
 
 [[package]]
 name = "blob-consumer-probe"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -297,7 +297,7 @@ dependencies = [
 
 [[package]]
 name = "blob-funding-probe"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -309,7 +309,7 @@ dependencies = [
 
 [[package]]
 name = "blob-gateway-source"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "blob-test-protocol",
  "ic-memory",
@@ -319,7 +319,7 @@ dependencies = [
 
 [[package]]
 name = "blob-storage-probe"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "blob-test-protocol",
  "ic-blob-storage",
@@ -332,7 +332,7 @@ dependencies = [
 
 [[package]]
 name = "blob-test-protocol"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
@@ -1496,7 +1496,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "hex",
  "ic-blob-storage-contracts",
@@ -1509,7 +1509,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-canister"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
@@ -1519,7 +1519,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-cli"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "hex",
  "ic-blob-storage-contracts",
@@ -1538,7 +1538,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-client"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "ic-blob-storage-contracts",
  "ic-platform",
@@ -1548,7 +1548,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-contracts"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "hex",
  "ic-host-artifacts",
@@ -1564,7 +1564,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-pocketic-tests"
-version = "0.40.0"
+version = "0.40.1"
 dependencies = [
  "blob-test-protocol",
  "hex",
@@ -1716,9 +1716,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.50.4"
+version = "0.50.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "773167fd96487b1baca49f06ef669aa9cf48f078f3a4406f3f63f3d707d941f7"
+checksum = "d13a0d6b3f063fbb5f60e0e0b6d9b2bafb66867aa1e4a23d0121cab9db26bd6e"
 dependencies = [
  "ic-stable-structures",
  "serde",
@@ -1734,9 +1734,9 @@ checksum = "10d73e4784a14737d07f1c5401936f0e722570f84d43478fe4ccaf56b772cab0"
 
 [[package]]
 name = "ic-platform"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d895a280a0d7542d5a1636f72ae44fed177a7f14c68bc666ccbd3451ffd4983"
+checksum = "5fe3c6c29dbf9ac6bcae2d27447c9a1e342963c01649b6529a6fbb1e66e9f056"
 dependencies = [
  "candid",
  "candid_parser",
@@ -1757,9 +1757,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-macros"
-version = "0.6.1"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c88ba3f2b228f60aba3db053f76cef8d1a4681c3d55e3f6d5153baeee09b6dcd"
+checksum = "f1dddc511610090af16d191918adb45a618438696c088daaec111f82ad47f5c4"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1777,9 +1777,9 @@ dependencies = [
 
 [[package]]
 name = "ic-storage"
-version = "0.50.4"
+version = "0.50.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5c1b5408fa878ea2ef2f609e672f496764dd880dfa9dc29ac32305b28b1feb3"
+checksum = "dcccdc7d708e5bffe31cfd5524bc58f8af504f43be0dcac23447f1fb7b8ab1d7"
 dependencies = [
  "ic-memory",
  "ic-stable-structures",
@@ -1834,9 +1834,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.5.8"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2428801e2f427afe516bf71b5fa32456a464ce19764676f3c321c4a0737cf526"
+checksum = "93dd2e5c28d3243ccb205dbc69d4a1c2649c1af831a6037b753462d9a0b6e6ea"
 dependencies = [
  "ic-wire-derive",
  "postcard",
@@ -1845,9 +1845,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire-derive"
-version = "0.5.8"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18b29995a4d9f9d894f5b4ad2b672bf8ed785649f01636a49179d27ef34b2d99"
+checksum = "f1de24534b26b9148f56f6bca6cf289b22256d57e6f5d5a883a314ae53c3d0dd"
 dependencies = [
  "proc-macro2",
  "quote",

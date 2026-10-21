@@ -1,12 +1,12 @@
 {
    "date" : "2026-10-21",
    "files" : {
-      "CHANGELOG.md" : "abca1bda7ee9ba9e598ded2890e290abafd1cbe7989a57076596ff35b7264108",
-      "Cargo.lock" : "8db83a5ae5b881259750052852071554c4cba7aa34af34cf5ecf2c78c376e688",
-      "Cargo.toml" : "151c83c4ab8096c14d4a9dc39c6bd726bef4f26830c5101ee16c217c982c3add"
+      "CHANGELOG.md" : "4c40f06f975e4c0acabc5c33c12d1ca8f2a78799ad29efdaad6b63efca881ef0",
+      "Cargo.lock" : "055ac44f07b6e8ec1b8e4fb53ea8a1e7c9a4976c377cca1e9f13d9a836158e87",
+      "Cargo.toml" : "2e720e04c527ba5078d8b5b7cc1e240ca15a636b48ffad088415d0022475e162"
    },
    "gate" : "release-verify",
    "schema" : 1,
-   "source" : "724bab6ec7114f48f9ba05eb2aa1f824d2653fec",
-   "version" : "0.40.0"
+   "source" : "f728c474a5aefb5f26b58ec365c3c33adb1c999c",
+   "version" : "0.40.1"
 }
