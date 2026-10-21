@@ -39,10 +39,12 @@ Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
 declared files, hashes and executable modes without a sibling checkout. It then
-runs offline `make tools-check` and `make dependency-pins-check`, followed by
-`make deps` (`cargo fetch --locked`) to populate the selected cache. Fetching may
-use the network and never selects new versions. The unchanged workspace Clippy
-gate runs next, before dependency boundaries, documentation/shared fixtures,
+runs offline `make tools-check` and `make dependency-pins-check`. Prepare the
+selected dependency cache explicitly with `make deps` (`cargo fetch --locked`)
+before validation; fresh release preflight already does so. Fetching may use the
+network and never selects new versions; the validation aggregate does not fetch.
+The unchanged workspace Clippy gate runs next, before dependency boundaries,
+documentation/shared fixtures,
 compilation, tests and packaging. The sequential validation runner stops on lint
 failure under parallel Make too. Publication uses that same gate after source/tag
 admission and dependency preparation, before registry or archive work. Rust
