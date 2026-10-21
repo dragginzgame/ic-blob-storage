@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.40.0] - Unreleased
+## [0.40.0] - 2026-10-21
 
 - **Breaking Platform family:** adopt published Platform 0.6 and matching
   Host/Build/Testkit 0.63. Hosts must align their public Platform types and rebuild;
