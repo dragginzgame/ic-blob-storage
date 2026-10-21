@@ -14,6 +14,21 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Provider GC and credit source refresh — 2026-10-21
+
+The [intent](local/2026-10-21-provider-contract0402-01/intent.json),
+[summary](local/2026-10-21-provider-contract0402-01/summary.json) and
+[checksums](local/2026-10-21-provider-contract0402-01/files.sha256) retain four
+bounded anonymous source requests. Public main is now
+`74ef654e00bdca6c86348865c282fb45c77e29b2`; `Mixin.mo` and `Storage.mo` match the
+2026-10-09 capture byte-for-byte. The package README lookup returns 404; its
+failure is retained and no request is retried. Gateway-side failure/deletion/
+billing semantics and a uniquely attributable credit acquisition path remain
+unestablished. These two application-side files do not prove the absence of other
+provider APIs. No live provider request, payment, deployment or sibling edit;
+no external cleanup. [GC #32](https://github.com/dragginzgame/ic-blob-storage/issues/32)
+and [funding #34](https://github.com/dragginzgame/ic-blob-storage/issues/34) stay open.
+
 ## Matched tenant codec experiment — 2026-10-17
 
 The [intent](local/2026-10-17-wire-bench0320-01/intent.json),

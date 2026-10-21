@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "evidence_class": "public_source_review",
+  "issues": [
+    32,
+    34
+  ],
+  "purpose": "Check current authoritative application-side GC and Cashier source for deletion/billing or uniquely attributable credit evidence before implementing blocked integrations.",
+  "targets": [
+    "https://api.github.com/repos/caffeinelabs/skills/commits/main",
+    "exact committed packages/object-storage/backend/src/Mixin.mo",
+    "exact committed packages/object-storage/backend/src/Storage.mo",
+    "exact committed packages/object-storage/README.md"
+  ],
+  "actor": "anonymous public source reader; no service or account identity",
+  "max_public_requests": 4,
+  "max_bytes_per_request": 1048576,
+  "max_seconds_per_request": 30,
+  "redirects": false,
+  "automatic_retries": false,
+  "stop_condition": "Stop on any failed, oversized, redirected or unreadable response; retain the outcome before any further request.",
+  "live_provider_requests": 0,
+  "attached_cycles": 0,
+  "paid_effects": 0,
+  "cleanup": "No accounts, objects or deployments are created; no external cleanup. Existing provider obligations remain unchanged."
+}

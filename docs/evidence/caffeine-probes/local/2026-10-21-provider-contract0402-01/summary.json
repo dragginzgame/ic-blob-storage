@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "evidence_class": "public_source_review",
+  "source_repository": "https://github.com/caffeinelabs/skills",
+  "commit": "74ef654e00bdca6c86348865c282fb45c77e29b2",
+  "sources": [
+    {
+      "path": "packages/object-storage/backend/src/Mixin.mo",
+      "retained_file": "Mixin.mo",
+      "sha256": "175c6b98672a83054fc08855062d1a7b7f2bd3713bf11a60d5319ac5afefe2b3",
+      "matches_review_2026_10_09": true
+    },
+    {
+      "path": "packages/object-storage/backend/src/Storage.mo",
+      "retained_file": "Storage.mo",
+      "sha256": "0c757f4cb30ebe8e30b42a59b130a1662b47e403b9664f44e98d14b08b20af42",
+      "matches_review_2026_10_09": true
+    }
+  ],
+  "requests": {
+    "attempted": 4,
+    "succeeded": 3,
+    "failed": 1,
+    "failed_path": "packages/object-storage/README.md",
+    "failed_http_status": 404,
+    "failure_record": "README.md.request.json",
+    "failure_body": "Not captured by urllib HTTPError handling; no retry was made.",
+    "stopped_on_failure": true
+  },
+  "findings": {
+    "gc": "Liveness uses Motoko heap primitives; deletion listing is gateway-authenticated and capped at 10000. Root-only confirmation prunes local bookkeeping and awaits local GC. No deployed gateway caller, failure policy, physical deletion or billing receipt is established.",
+    "funding": "The reviewed refill helper calls account_top_up_v1 with an account and attached cycles, receiving unit. Its local success/topped_up_amount result is not independent provider credit evidence. No original operation ID or attributable credit receipt is supplied by this application-side helper.",
+    "decision": "Keep Blob issues 32 and 34 open. Do not add placeholder callbacks or infer credit/deletion/settlement. Canic mounts/composes qualified contracts; application owners retain worker/asset/session policy."
+  },
+  "limitations": [
+    "Review covers the two exact public application-side files, not the entire provider implementation or all possible APIs.",
+    "The missing package README is inconclusive, not proof that provider documentation or receipt APIs do not exist.",
+    "No source change or local substitute establishes deployed provider behavior."
+  ],
+  "effects": {
+    "live_provider_requests": 0,
+    "attached_cycles": 0,
+    "paid_effects": 0,
+    "objects_or_accounts_created": 0,
+    "sibling_edits": 0
+  },
+  "cleanup": "No external cleanup; all existing obligations remain unchanged."
+}

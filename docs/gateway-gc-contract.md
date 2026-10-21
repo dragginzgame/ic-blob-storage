@@ -6,6 +6,13 @@ does not export these provider methods. Its authenticated root observations are
 local lifecycle views, not provider deletion permission. This review does not
 enable GC or establish deployed retention or billing behavior.
 
+The [2026-10-21 source refresh](evidence/caffeine-probes/local/2026-10-21-provider-contract0402-01/summary.json)
+checks current public main `74ef654e00bdca6c86348865c282fb45c77e29b2`.
+Both implementation files below are byte-for-byte unchanged. The same missing
+gateway failure/deletion/billing facts still block handlers; this is source
+evidence, not a deployed-provider probe. The additional package README lookup
+returned 404 and is retained as a failed request.
+
 ## Reviewed provider interface
 
 On 2026-10-09, the public `caffeinelabs/skills` main revision was

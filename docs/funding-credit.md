@@ -123,7 +123,7 @@ operation, a history reset or a cross-release migration.
 Operator status and preparation assessment expose mandatory decimal-string
 `uncredited_accepted`, `cumulative_allocation` and `renewal_ceiling` in native JSON,
 separate from lifetime `transport_accepted`.
-Exact outcomes add `CreditConfirmed { accepted_cycles, receipt_digest }` in Candid
+Exact Wire outcomes include `CreditConfirmed { accepted_cycles, receipt_digest }`
 and `credit_confirmed` with `accepted` and `receipt_sha256` in native JSON.
 `provider_credit: host_confirmed` means the authenticated service retained the
 host's confirmation, not independent client verification of the provider.
@@ -132,11 +132,15 @@ JSON); zero means no grant. Its amount requires confirmed credit and cannot exce
 acceptance. Reported balances remain separate; every outcome keeps
 `retry_authorized: false`.
 
-The current funding records require credit state and confirmed totals. Their
-installation format is
-`ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal`.
-Update hosts, DTOs, tools, codecs and fixtures together for 0.15.0. Prior layouts
-are refused; there is no fallback reader or migration. Before reinstalling, apply
+The current funding records require credit state and confirmed totals. The
+enclosing installation format is owned by
+[`InstallationRecord::FORMAT`](../crates/ic-blob-storage/src/model/service/installation/record/mod.rs),
+including the later project-upload-grant boundary; the older 0.15 format is not
+a current installation contract.
+Credit/renewal was introduced by the 0.15.0 hard cut. Select matching released
+hosts, DTOs, tools, codecs and fixtures; that historical release is not the current
+adoption target. Prior layouts are refused; there is no fallback reader or
+migration. Before reinstalling, apply
 [installation retirement](retiring-installations.md) to provider objects, balances,
 uncertain effects and continuing billing. The hard cut preserves the requirements
 for same-contract interruption recovery and restoration.

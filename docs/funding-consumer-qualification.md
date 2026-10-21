@@ -5,7 +5,17 @@ provider evidence. The [local handoff](status/current.md) owns implementation;
 [funding credit](funding-credit.md) owns the current host API. Framework adapters
 and integration tests remain with their consumer repositories.
 
-## Current Canic boundary — 2026-10-12
+## Current funding prerequisite — 2026-10-21
+
+The [current public source review](evidence/caffeine-probes/local/2026-10-21-provider-contract0402-01/summary.json)
+finds the application-side Cashier implementation unchanged. Its
+`account_top_up_v1({ account }) -> ()` call carries no original operation ID and
+returns no unique credit receipt or complete account activity. This does not prove
+that no other provider API exists; the required authenticated acquisition path
+remains unestablished under [Blob #34](https://github.com/dragginzgame/ic-blob-storage/issues/34).
+Do not enable repeated funding from a success reply or inferred balance change.
+
+## Historical Canic boundary — 2026-10-12
 
 Released Blob 0.22.12 retains the host-internal credit and bounded renewal APIs
 introduced in 0.15.0. They do not acquire or authenticate provider evidence.
@@ -56,7 +66,9 @@ caller assertion or locally renamed operation.
 ## Consumer-owned acceptance
 
 1. Select the current published blob contract and one matching ic-memory runtime.
-   Update the wrapper, generated Candid and every affected independent lockfile.
+   Update the wrapper, method-bound Wire request/reply codecs, required external
+   provider Candid and every affected independent lockfile. A Candid service
+   export alone does not describe Blob's application endpoints.
    Freeze and verify exact clean source/artifacts for qualification. Retire
    retained old installations with their original tools and obligations before
    reinstalling; do not reset or migrate their ledgers.

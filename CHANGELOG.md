@@ -4,6 +4,9 @@
 
 - Use the declared development compiler for published-example qualification and
   rerun that workflow when its toolchain file changes.
+- Correct verifier and funding adoption recipes for Wire documents and endpoint
+  codecs; refresh consumer/provider qualification gaps without treating local
+  composition or unchanged application-side provider source as deployed acceptance.
 
 ## [0.40.1] - 2026-10-21
 

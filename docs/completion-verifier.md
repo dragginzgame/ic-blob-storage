@@ -35,9 +35,11 @@ authenticate a directory rewritten by another principal.
 
 The application backend authenticates the user and correlates the job with the
 exact Blob service, tenant, original permission and prepared manifest. It passes
-the original binary `permission.candid` through a bounded job input. The worker
-does not accept a browser's replacement digest, root, gateway or tenant assertion
-as authority. The signed Blob verification plan supplies the installed
+the original binary Wire value document `permission.wire` through a bounded job
+input. Use the file produced by the selected released Blob tools; it is not a
+method-bound endpoint frame. The worker does not accept a browser's replacement
+digest, root, gateway or tenant assertion as authority. The signed Blob
+verification plan supplies the installed
 owner/project and original declaration; a conflicting job must stop.
 The application-owned multi-user delegation boundary remains
 [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31).
@@ -60,6 +62,14 @@ claims and syncs exact submission intent before dispatch. Keep the original
 permission, observation, signed request and any accepted receipt correlated in
 the application's job record. Report completion only from the accepted statement
 or its exact historical receipt; command exit status alone is insufficient.
+
+The complete observation retains `permission.wire`, `statement.wire` and the
+method-bound verification `request.wire`. Submission writes its separate
+method-bound request under `attestation/`; the Agent's `signed-request.cbor`
+remains an IC transport envelope. Do not rename or convert old `.candid`/`.cbor`
+application documents to fit a newer worker. Retain interrupted old runs with
+their original tools and installation; the Wire hard cut supplies no dual reader
+or cross-release migration.
 
 ## Restart, uncertainty and availability
 
