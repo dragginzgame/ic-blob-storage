@@ -2,6 +2,11 @@
 
 ## [0.40.4] - Unreleased
 
+- Adopt Shared Tooling 0.26.4: preserve independent parent validation failures,
+  publish failure logs atomically and reject ambiguous checksum/artifact metadata.
+  Use asynchronous hosted CI for already-authorized ordinary integration while
+  preserving enforced checks and separate release/service acceptance gates.
+  Keep solutions to DFINITY dependency limitations under Dragginzgame ownership.
 - Keep dependency fetching in explicit preparation and release preflight;
   ordinary CI validation consumes the prepared cache. Release fixtures reject
   implicit fetching while preserving explicit preparation, retained caches and

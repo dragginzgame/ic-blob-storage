@@ -10,8 +10,9 @@ closed: the delivered registry-based reader passed Linux, Intel macOS, Apple
 Silicon and MSRV qualification. Request/evidence policy remains local, and
 provider downloads remain streaming. This establishes no provider acceptance.
 
-Pending **0.40.4**, [PR #99](https://github.com/dragginzgame/ic-blob-storage/pull/99),
-keeps dependency fetching in explicit preparation/release preflight, outside
+Default main now includes [PR #99](https://github.com/dragginzgame/ic-blob-storage/pull/99)
+at `2dbfcefda956667aac0b806d4230c11138f3aa46`, pending **0.40.4**. It keeps
+dependency fetching in explicit preparation/release preflight, outside
 ordinary validation ([#98](https://github.com/dragginzgame/ic-blob-storage/issues/98)).
 Its release fixture now consumes a prepared cache and refuses any fetch during
 validation, while exercising explicit preparation separately. Lint-first refusal,
@@ -19,10 +20,10 @@ input sealing, existing recovery checks and parallel Make behavior remain.
 The original PR's three-host failure was a stale expected-fetch assertion in the
 intentional Clippy-refusal case, not a product Clippy defect.
 
-The PR keeps package versions and its delivered dependency graph unchanged.
-Unrelated incoming Cargo.lock edits remain in the primary checkout outside this
-isolated branch; do not overwrite or qualify them with this fixture-only repair.
-No product API, schema, wire format, dependency or release effect changes.
+The local Shared Tooling 0.26.4 adoption joins those pending notes; package
+versions remain 0.40.3. Preserve unrelated incoming Cargo.lock edits. Neither
+the fixture repair nor snapshot refresh qualifies that incoming runtime graph.
+No product API, schema, wire format or dependency selection changes are needed.
 
 ## Ownership and delivered tooling
 
@@ -35,8 +36,17 @@ application framing/schema. Host/Build/Testkit belong to
 [IC Tooling](https://github.com/dragginzgame/ic-tooling); Memory/Storage to
 [IC Persistence](https://github.com/dragginzgame/ic-persistence).
 
-Shared Tooling **0.26.1**, revision `67d4f25d1a613a27d7dfd7b5a4ae119e0e529fc7`,
-has a verified 125-file snapshot. Only `wasm-opt` is selected for IC tool setup.
+Shared Tooling **0.26.4**, revision `dc1ced7e240e90f0c6daa89fb6248fcb074164eb`,
+has a verified 125-file snapshot, exported from an isolated clean exact revision.
+Its validation logger preserves independent parent errors, bounds diagnostic
+excerpts and publishes latest failure logs atomically. Checksum/evidence readers
+reject NUL-bearing digests and multiple metadata documents, retaining failed
+attempts and existing destinations. Tool pins and snapshot membership are unchanged.
+Ordinary authorized integration follows asynchronous hosted CI; enforced checks,
+known failures and separate release/service/issue acceptance remain binding.
+Task-relevant sibling inspection stays read-only. DFINITY limitations need an
+available capability, a Dragginzgame-owned solution or removal of the need, rather
+than a plan depending on future DFINITY work. Only `wasm-opt` is selected for IC setup.
 Production optimizer builds are separate from probes to exclude `test-support`.
 Tooling 0.63 Testkit/server and release-editor setup/admission explicitly select
 `cli`; application libraries do not. Retain actual consumer routing, admission,
@@ -46,7 +56,8 @@ exact retries, fences and retained obligations remain required.
 
 ## Outstanding issues and current evidence
 
-Eight Blob issues remain: #98 awaits PR #99 delivery/hosted acceptance;
+Eight Blob issues remain: #98's fix is delivered through PR #99, with Intel
+macOS qualification still pending in the run linked below;
 #4/#5/#6/#31/#32/#33/#34 retain consumer/provider requirements. #84/#95/#96
 are resolved on main; PR #94 was superseded and #97 is merged. Do not conflate
 producer deliveries with consumer or deployed-provider acceptance. #4's current
@@ -97,8 +108,28 @@ as unavailable observations. The isolated local baseline reproduces that failure
 The repaired full release-adapter fixture passes, and restoring implicit fetch
 fails `bootstrap-success`. No real Git/Cargo delivery effects occur in those
 fixtures. Existing Testkit/editor forwarding, admitted-server and ordered failure
-checks, snapshot integrity, Bash syntax, ShellCheck and documentation links pass. Hosted acceptance
-must use the updated PR head; the original failed run is not green evidence.
+checks, snapshot integrity, Bash syntax, ShellCheck and documentation links pass.
+On exact repair head `f1137bb8ef244db3c1d8ae0b99e59591a5b6ab0d`,
+[run 39611955172](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39611955172)
+passes Linux, Apple Silicon and MSRV; Intel macOS remains pending. The PR was
+merged under the maintainer's existing queue authorization and asynchronous
+cadence, with no enforced GitHub check/review requirements bypassed. #98 retains
+the owning follow-up; neither the original failed run nor pending coverage is green.
+
+Shared adoption evidence stays in `.tmp/review-validation/shared0264/` with
+before-images, exporter preview/output and focused consumer results. The producer's
+[exact-revision CI](https://github.com/dragginzgame/shared-tooling/actions/runs/39625117898)
+was still pending at source review; it is separate from consumer qualification.
+Local Linux snapshot verification, explicit setup/offline tool admission,
+formatting, documentation links, changed-helper Bash/ShellCheck, consumer logging
+and input checkpoints, parent-log preservation, evidence archive/retention,
+loopback download/checksum and hook checks pass. The incoming lock remains
+byte-for-byte unchanged. No Rust implementation, package versions, tool pins or
+deployment dependency selection changed; no full product suite or new native
+macOS/installed-IC/provider qualification was run for this snapshot adoption.
+The complete focused release-adapter fixture also passes against the refreshed
+helpers, including prepared-cache, publication-refusal and interruption-recovery
+cases; all Git/Cargo effects stay inside disposable fixtures.
 
 Historical complete-gate evidence remains bound to its original graph:
 `.tmp/review-validation/wire058-gate/ci.log` records all 20 targets passing in

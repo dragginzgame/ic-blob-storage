@@ -35,6 +35,12 @@ Check selection and execution authority follow
 [shared validation policy](../../DRAGGINZGAME.md#validation-and-evidence).
 The local [release boundary](../../AGENTS.md#delivery-and-release) remains
 maintainer-operated; this guide names the local commands.
+Ordinary development, PR delivery and already-authorized merges use asynchronous
+hosted integration/native CI after focused review and checks. Preserve enforced
+GitHub checks/reviews and report exact pending runs with an owning failure
+follow-up; do not wait solely for the full matrix. Pending is not passing evidence.
+Separate release, publication, deployment and issue-specific acceptance gates
+still apply. This cadence grants no additional merge or release authority.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
 That gate first runs the offline `make shared-tooling-check`, verifying the
