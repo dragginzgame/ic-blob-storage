@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/published-example-install.yml'
       - '.shared-tooling.snapshot'
+      - 'rust-toolchain.toml'
       - 'scripts/ci/qualify-published-example-install.sh'
       - 'scripts/ci/test-published-example-install.sh'
   push:
@@ -12,6 +13,7 @@ on:
     paths:
       - '.github/workflows/published-example-install.yml'
       - '.shared-tooling.snapshot'
+      - 'rust-toolchain.toml'
       - 'scripts/ci/qualify-published-example-install.sh'
       - 'scripts/ci/test-published-example-install.sh'
   workflow_dispatch:
@@ -41,7 +43,7 @@ jobs:
           persist-credentials: false
       - name: Prepare the assessment compiler and host tools
         run: |
-          rustup toolchain install 1.99.1 --profile minimal
+          rustup toolchain install --profile minimal --no-self-update
           make --no-print-directory install-host-tools host-tools-check
           echo "$GITHUB_WORKSPACE/.tools/host/bin" >> "$GITHUB_PATH"
       - name: Check adapter rejection and retained evidence
