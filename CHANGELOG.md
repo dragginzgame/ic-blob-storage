@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.40.4]
+
+- Keep dependency fetching in explicit preparation and release preflight;
+  ordinary CI validation consumes the prepared cache
+  ([#98 — Keep dependency fetching outside ordinary CI validation](https://github.com/dragginzgame/ic-blob-storage/issues/98)).
+
 ## [0.40.3] - 2026-10-21
 
 - Adopt published IC Tooling 0.63.2. Use its bounded HTTP reader for native

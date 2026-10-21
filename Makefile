@@ -30,7 +30,7 @@ export RELEASE_DELIVERY ?= direct
 export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check tools-check dependency-pins-check deps clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
+CI_TARGETS := shared-tooling-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
 CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-dependency-boundaries.json \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \

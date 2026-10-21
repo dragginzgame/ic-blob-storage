@@ -4,6 +4,11 @@ Date: 2026-10-21
 
 ## Delivered source and pending work
 
+The pending **0.40.4** contributor-tooling fix keeps dependency fetching in
+explicit preparation and release preflight, outside ordinary validation; see
+[#98](https://github.com/dragginzgame/ic-blob-storage/issues/98). It changes no
+product APIs, dependency selections or stored/wire formats.
+
 Default main is released **0.40.2**, `dc3620f467b9d39ac9b001a6cc2c254553ad65c9`.
 [PR #97](https://github.com/dragginzgame/ic-blob-storage/pull/97), probe evidence
 regressions and Wire integration-recipe corrections are delivered. Pending
