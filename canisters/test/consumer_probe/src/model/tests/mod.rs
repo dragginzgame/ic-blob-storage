@@ -109,7 +109,7 @@ fn retained(intent: &Registration) -> ReferenceCommand {
 }
 
 #[test]
-fn first_reference_reservation_and_newer_completion_survive_conflicting_observations() {
+fn first_reference_reservation_and_registration_survive_conflicting_observations() {
     use ic_blob_storage_contracts::dto::upload::UploadState;
     use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
     let (mut record, mut intent) = fixture();
@@ -143,12 +143,19 @@ fn first_reference_reservation_and_newer_completion_survive_conflicting_observat
             ),
         )
         .unwrap();
-    let confirmed = record.view(1).unwrap();
-    for state in [
-        UploadState::Reserved,
-        UploadState::Registered,
-        UploadState::Cancelled,
-    ] {
+    let registered = record.view(1).unwrap();
+    record
+        .observe_upload(
+            1,
+            UploadStatusResponse {
+                upload,
+                state: UploadState::Registered,
+                revoked: false,
+            },
+        )
+        .unwrap();
+    assert_eq!(record.view(1), Ok(registered.clone()));
+    for state in [UploadState::Reserved, UploadState::Cancelled] {
         assert_eq!(
             record.observe_upload(
                 1,
@@ -160,7 +167,7 @@ fn first_reference_reservation_and_newer_completion_survive_conflicting_observat
             ),
             Err(Failure::Conflict)
         );
-        assert_eq!(record.view(1), Ok(confirmed.clone()));
+        assert_eq!(record.view(1), Ok(registered.clone()));
     }
     record.cancel(1).unwrap();
     assert_eq!(record.publish(1), Err(Failure::State));

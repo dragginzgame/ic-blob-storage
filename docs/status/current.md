@@ -4,7 +4,8 @@ Date: 2026-10-22
 
 ## Source and accepted scope
 
-Default main is released **0.40.4**, `ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7`.
+Latest released source is **0.40.4**, `ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7`.
+Local main includes the pending batch at `5f5d34e`; no 0.41.0 tag is present.
 The working batch targets **0.41.0**; package versions remain 0.40.4 for the
 maintainer's release runner. Preserve the incoming Cargo.lock changes and the
 October 22 source-discovery evidence. No staging, commit, push or release is
@@ -91,12 +92,11 @@ they are not successful qualification. No complete release gate was run.
 
 Incoming Cargo.lock updates continued after those runs. Wire 0.5.20 passes all
 139 frozen vectors, and 338 core unit cases pass on the subsequent incoming graph;
-Metrics 0.15.5 changes documentation only. A subsequent
-native all-target check stopped before compilation because `icu_locale_core 2.4.0`
-is not cached. Preserve the incoming graph; it is not covered by the installed
-artifact results above. `qualification.json` separates tested artifacts from the
-later lock snapshot. Prepare dependencies and qualify the settled graph before
-release; do not reuse earlier evidence as qualification of a changing lockfile.
+Metrics 0.15.5 changes documentation only. The earlier missing ICU cache is no
+longer blocking the native rerun below. Preserve the incoming graph; it is not
+covered by the installed artifact results above. `qualification.json` separates
+those artifacts from the later lock snapshot. Qualify the settled graph before
+release; do not reuse earlier installed evidence for a changing lockfile.
 
 The current-compiler managed Testkit selection is not provisioned. Local installed
 checks explicitly select the retained PocketIC 16.1.0 binary, matching Testkit's
@@ -104,3 +104,14 @@ published server requirement; this does not qualify the shared setup selection.
 No native macOS, real installed IC or deployed Caffeine qualification is claimed.
 Released-source hosted results remain linked in the [October 20 handoff](handoff-2026-10-20.md)
 and [history](history.md); they do not qualify this dirty hard cut.
+
+The October 22 release gate exposed three stale native regression expectations:
+identical Registered observations are idempotent; reservation accounting is checked
+before registration; active pages exclude registered history but still count its
+scan cost. Tests now assert those contracts without changing production behavior.
+Focused rerun evidence is under `.tmp/review-validation/registration-observation-fix/`.
+All native targets pass across the complete run and the CLI localhost rerun
+(the sandbox initially blocked six socket fixtures). Strict core/probe Clippy,
+scoped formatting and whitespace checks pass; Cargo.lock remained unchanged.
+Production code, installation schemas and package versions are unchanged by this
+repair. The complete CI/release gate and installed suites were not repeated.

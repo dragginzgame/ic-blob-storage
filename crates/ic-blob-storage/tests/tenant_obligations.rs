@@ -365,13 +365,13 @@ fn confirmed_index_tracks_exact_replays_rejections_and_upload_transfer() {
         },
     };
     uploads.reserve(p(2), request).expect("reserve");
-    uploads.register(p(2), request).expect("exposure");
     let pending =
         assess_tenant_unsettled_objects(uploads.confirmed(), context(2), None, budget(1, 1))
             .expect("confirmed only");
     assert_eq!(pending.scanned, 0);
     assert_eq!(pending.entries, []);
     assert_eq!(uploads.tenant_usage(p(2)).reserved_bytes, 10);
+    uploads.register(p(2), request).expect("register");
     let confirmed =
         assess_tenant_unsettled_objects(uploads.confirmed(), context(2), None, budget(1, 1))
             .expect("transferred");

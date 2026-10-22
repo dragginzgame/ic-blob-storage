@@ -112,7 +112,7 @@ fn reserve(owner: &mut UploadCatalog, request: UploadRequest) {
 fn confirm(owner: &mut UploadCatalog, request: UploadRequest) {
     owner
         .register(request.object.first.object().tenant(), request)
-        .expect("exposure");
+        .expect("registration");
 }
 fn registry(service: u8, namespace: u128) -> GatewayRegistry {
     let mut members = GatewayMembership::new(GatewayListLimits {
@@ -156,7 +156,7 @@ fn tenant_pages_bound_work_skip_terminal_history_and_do_not_scan_other_tenants()
         reserve(&mut owner, request);
     }
     owner.cancel(p(2), requests[0]).expect("cancel");
-    owner.register(p(2), requests[2]).expect("uncertain");
+    owner.register(p(2), requests[2]).expect("register");
     confirm(&mut owner, requests[3]);
     let before = owner.usage();
     for (scan, results) in [(1, 1), (2, 1), (1, 3), (16, 16)] {
@@ -184,13 +184,7 @@ fn tenant_pages_bound_work_skip_terminal_history_and_do_not_scan_other_tenants()
                 break;
             }
         }
-        assert_eq!(
-            seen,
-            vec![
-                (requests[2], UploadPhase::Registered),
-                (requests[4], UploadPhase::Reserved)
-            ]
-        );
+        assert_eq!(seen, vec![(requests[4], UploadPhase::Reserved)]);
         assert_eq!(scanned, 4); // This tenant's history only; terminal entries still cost work.
     }
     let empty = assess_tenant_active_uploads(&owner, context(2), None, limits(1, 1))

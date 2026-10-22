@@ -11,6 +11,12 @@
   See [trusted registration](docs/trusted-registration.md)
   ([#33](https://github.com/dragginzgame/ic-blob-storage/issues/33)).
 
+- Correct consumer regression coverage for idempotent registration observations;
+  stale or conflicting states must still leave the first-reference record intact.
+  Check pending accounting before registration, then require the live obligation
+  and retained liability immediately afterward; registered uploads leave the
+  active-reservation listing while their history still counts toward scan limits.
+
 - Record the provider's Motoko GC primitive boundary and the unresolved gateway
   contract needed for safe shared callbacks. Distinguish historical Canic trusted
   registration from Blob's later independently verified completion requirement
