@@ -79,8 +79,8 @@ needs the gateway failure contract because rejection might itself affect retenti
 
 | Retained local state | Safe implementation constraint |
 | --- | --- |
-| Reserved, ExposurePossible | Protect pending and uncertain work from deletion; absence of a confirmed reference is insufficient. |
-| Live | Protect every live reference, including overlapping application release and read sessions. |
+| Reserved | Protect the original pending reservation; absence of a live reference is insufficient for deletion authority. |
+| Registered / Live | Certificate issuance registers retention before transfer. Protect every live reference, including uncertain transfers, overlapping application release and read sessions. |
 | DeletionPending | A possible candidate only after exact root/scope authority and the deletion protocol are qualified. Physical bytes and financial liability remain charged. |
 | Cancelled, ProviderDeleted, Settled | Retained history is not permission to delete or reassign a root. A duplicate confirmation needs the exact original evidence. |
 | Unknown, malformed, foreign | Refuse disclosure/deletion authority; never infer an absent object or safe cleanup. |

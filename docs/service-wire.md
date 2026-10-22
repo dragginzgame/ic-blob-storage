@@ -1,8 +1,13 @@
 # Blob-owned service protocol
 
-All 31 owned methods use one IC Wire request/response contract. Standalone
+All 27 owned methods use one IC Wire request/response contract. Standalone
 installation and same-release post-upgrade inputs also use method-bound Wire.
-The 0.36.0 hard cut rejects old CBOR and Candid service packets,
+The 0.41.0 hard cut removes four verifier methods and changes native service
+and lifecycle identities from `0036` to `0041`; the two finite tenant frames keep
+their original identities and bytes. Old native frames refuse. The
+[registration contract](trusted-registration.md) defines the installation/state
+cut and retirement/reinstall requirements. Application calls also reject old
+CBOR and Candid service packets,
 with no detection, fallback or compatibility lane. The root manifest selects
 published Wire 0.5.0 or later in that family; Cargo.lock retains the exact selection. Wire itself
 owns no Blob DTO, endpoint, platform dependency or provider transport.
@@ -16,10 +21,10 @@ owns no Blob DTO, endpoint, platform dependency or provider transport.
 | Same-release post-upgrade input | Request frame for `blob_post_upgrade`, containing unit; no replacement configuration |
 | Provider certificate, outgoing Cashier/provider and IC management | Their existing external Candid contracts |
 | Caffeine HTTP upload/download and 1 MiB chunks | Existing provider contract; bodies never pass through the Blob RPC codec |
-| Offline permissions, declarations, reference commands and statements | Bounded Wire value documents with identity `0x424c4f420036ff10`; never service-method frames |
+| Offline permissions, declarations and reference commands | Bounded Wire value documents with identity `0x424c4f420036ff10`; never service-method frames |
 | Private consumer/storage-probe controls | Private Wire values using `document`; storage controls retain argument/reply tuple envelopes |
 | Signed IC transport envelope | IC transport CBOR, containing the exact application frame |
-| Stable records and accounting journals | Existing persisted encoding; no migration |
+| Stable records and accounting journals | Storage-owned schemas; the 0.41 registration cut requires retirement/reinstall, with no migration |
 
 `endpoints::SERVICE_METHODS` supplies method names, modes and codecs from the
 same catalog that mounts endpoints. Linking Core, Contracts or Client exports
@@ -62,7 +67,7 @@ Provider body chunks do not enter a Blob Wire RPC. Caffeine HTTP and async read
 transport ownership remain unchanged; generic document callers can use bounded
 `BytesRef` for chunk views without adding a new endpoint or provider protocol.
 
-The other 29 methods and lifecycle packets use Wire's existing native Serde API.
+The other 25 methods and lifecycle packets use Wire's existing native Serde API.
 Their declared field order and variant order are the frozen positional schema.
 Reordering or changing a DTO is a protocol change, even if the Rust names remain.
 There are no named-field extensions, unknown-field skipping or optional old-schema
@@ -101,9 +106,10 @@ Dispatched application packets use `request.wire`, `response.wire`,
 `service-response.wire` and query-specific `-args.wire`/`-reply.wire` files.
 `signed-request.cbor` remains the actual IC envelope. Reference submission also
 retains passive `reference.wire` for receipt inspection: an apply frame cannot be
-relabelled as a receipt request. Observations retain passive `permission.wire`
-and `statement.wire` alongside the verification `request.wire`; attestation
-dispatch creates its own method-bound `request.wire`. Save original signed bytes for uncertain updates;
+relabelled as a receipt request. Upload preparation retains passive
+`permission.wire` and manifest documents; there is no observation/attestation
+dispatch or current `statement.wire` workflow. Save original signed bytes for
+uncertain updates;
 never regenerate or redispatch them as codec recovery. Old run directories retain
 their original tools and disposition; their packets are not current authority.
 
@@ -116,12 +122,14 @@ Replicated Client, native CLI and installed-test callers use matching method-bou
 request and reply codecs. No wrapper may fall back to CBOR when Wire rejects.
 
 Consumer frameworks own their wrappers, installation/lifecycle and integration
-qualification in their own repositories. Canic must adopt these native emitters
-and callers before claiming this release. Blob's local substitutes do not qualify
+qualification in their own repositories. Canic must adopt these native emitters,
+the registration state and all affected callers before claiming this release.
+Blob's local substitutes do not qualify
 Canic or the deployed provider. The 0.38 application trait cut removes public
 application DTO Candid implementations without changing Wire bytes. External
 provider types retain Candid; historical inputs and persisted private probe
-records use frozen local schemas. Production stable records remain unchanged.
+records use frozen local schemas. The 0.41 registration record and installation
+format changes are separate from these codec ownership choices.
 
 Cross-release transitions remain retirement and reinstall only. Resolve provider
 objects, uncertain effects, balances and continuing billing under
@@ -142,15 +150,16 @@ caller byte ceiling is capped at 4 MiB, traversal depth at 32, nodes at 262,144
 and allocation admission at 64 MiB. Full-width integers and principals retain
 their values; field/variant order belongs to the frozen native schema.
 
-New offline permission, manifest, configuration, reference, download and
-attestation documents use `.wire`. Browser fixtures carry those exact opaque
+Current offline permission, manifest, configuration, reference and download
+documents use `.wire`. Browser fixtures carry those exact opaque
 values from the Rust owner; they define no second codec. There is no Ciborium
 implementation or direct dependency in Blob. IC Memory owns its persisted
 metadata codec, and IC transport/certificate CBOR remains external.
 Never rewrite old saved directories into this format or replay old uncertain
 effects. Preserve their original release/tools for reconciliation and retire
-installations before the cross-release reinstall. Persistent records and
-journals are not changed by this application-protocol cut.
+installations before the cross-release reinstall. Decode stored records and
+journals only with their owning release's schema; current document decoding is
+not a persisted-record migration path.
 
 Platform 0.4 owns the application Principal without Candid traits. Its binary
 Serde representation preserves the literal Wire vectors. External Candid,

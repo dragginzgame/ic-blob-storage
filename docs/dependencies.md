@@ -115,8 +115,8 @@ process identity. After adoption, explicitly prepare the locked Testkit CLI with
 `make install-testkit` and the locked release editor with
 `make install-release-editor`; application lockfile changes do not install tools.
 
-The [service wire guide](service-wire.md) defines the 0.36.0 contract.
-All 31 owned methods and standalone lifecycle inputs use published IC Wire
+The [service wire guide](service-wire.md) defines the current 0.41.0 contract.
+All 27 owned methods and standalone lifecycle inputs use published IC Wire
 0.5.0, with explicit method/direction identity and no old-packet fallback.
 Finite tenant frames retain their bytes; other methods use Wire's bounded native
 Serde codec. Passive offline values use a separate document identity, and new

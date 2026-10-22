@@ -35,8 +35,9 @@ do not clear its fence to make retirement easier.
 
 Freeze the old module, source/dependency lock, compiled release, installation input,
 matching CLI/browser tools and their hashes. Record the actual service principal,
-namespace, provider owner/project, tenant bindings, operator, uploader, verifier,
-payer and cashier. Keep secrets under their existing access controls, separate
+namespace, provider owner/project, tenant bindings, operator, uploader, payer and
+cashier, plus the verifier identity for older verifier-bearing releases. Keep
+secrets under their existing access controls, separate
 from public evidence. Current Memory tools refuse incompatible earlier ledger
 formats; use the frozen old contract for inspection. A failed upgrade is not a
 migration.

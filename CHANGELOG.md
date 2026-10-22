@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.41.1] - Unreleased
+
+- Align Canic adoption and service acceptance guidance with released trusted
+  registration: remove the mandatory worker prerequisite, correct the current
+  Wire method inventory and distinguish provider GC/funding qualification from
+  framework delivery ([#33 — Qualify the application-operated completion verifier](https://github.com/dragginzgame/ic-blob-storage/issues/33)).
+- Record Canic's owner-reported local 0.41 framework qualification; distinguish
+  passing mounted/metrics cases from pending delivery and actual provider
+  acceptance in the [service gaps](docs/service-gaps.md).
+
 ## [0.41.0] - 2026-10-22
 
 - **Hard cut:** register retention intent and the first live reference atomically

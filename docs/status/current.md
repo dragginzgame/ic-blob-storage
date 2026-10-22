@@ -2,137 +2,95 @@
 
 Date: 2026-10-22
 
-## Source and accepted scope
+## Delivered source and pending work
 
-Latest released source is **0.40.4**, `ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7`.
-Local main includes the pending batch at `19ee2f5`; no 0.41.0 tag is present.
-The working batch targets **0.41.0**; package versions remain 0.40.4 for the
-maintainer's release runner. Preserve the incoming Cargo.lock changes and the
-October 22 source-discovery evidence. No staging, commit, push or release is
-part of this implementation.
+Released **0.41.0**, tag `v0.41.0`, is on verified GitHub default main at
+`d15c64c0f43d06c89286c049c593966a6adc5a2d`. The matching remote annotated tag
+is `09474b8e1a6619a860e40716d15dcd30e6096a4d`. Package versions remain 0.41.0.
+The next notes are **0.41.1**, covering adoption/acceptance documentation only.
+Do not stage, commit, release or deploy as part of ordinary continuation.
 
-The maintainer approved the [trusted-registration hard cut](../trusted-registration.md).
+Preserve the incoming Cargo.lock change selecting Wire/derive 0.5.21 instead of
+released 0.5.20. This pass did not update dependencies or qualify that patch.
+The released graph uses Platform 0.6.7, Host/Build/Testkit 0.64.0,
+Memory/Storage 0.50.10 and Metrics 0.15.5. Shared Tooling remains the reviewed
+125-file 0.26.4 snapshot at `dc1ced7e240e90f0c6daa89fb6248fcb074164eb`.
+
+## Current contract and ownership
+
+The [trusted-registration hard cut](../trusted-registration.md) is delivered.
 Certificate issuance atomically registers retention intent and the first live
-reference. Remove mandatory verifier configuration, attestation state/endpoints,
-CLI observer/submission commands and the session `verify` phase. Keep local body
-verification and verified downloads. Registration does not prove uploaded bytes,
-availability or future provider retention. Reference maps explicitly report this.
+reference before returning upload authority. There is no mandatory verifier,
+attestation endpoint or worker. Registration does not prove uploaded bytes,
+availability or provider retention. Actual downloads still verify original bytes.
 
-The installation discriminator and owned native Wire identities change. Old
-installations require retirement/reinstall; old saved runs keep their original
-tools. No dual readers, automatic migration or repeat dispatch is introduced.
-Same-release restoration, exact retry records, lifetime quotas and physical/billing
-obligations remain required. Retirement cannot discard the only uncertain records.
+There are 27 owned Wire methods. Native service/lifecycle frames use the `0041`
+family; the two finite tenant frames retain their bytes. Passive documents keep
+their separate identity and are not service frames. Installation/state changes
+require [retirement/reinstall](../retiring-installations.md), with old tools and
+obligations preserved. Same-release recovery keeps exact retries, restore fences,
+references, balances and physical/billing liabilities. No dual readers or migration.
 
-Shared Tooling **0.26.4**, revision `dc1ced7e240e90f0c6daa89fb6248fcb074164eb`,
-remains the 125-file reviewed snapshot. The latest native adoption selects
-published Host/Build/Testkit 0.64.0 together; Platform 0.6.7, Wire 0.5.20,
-Metrics 0.15.5 and Memory/Storage 0.50.10 remain unchanged. Earlier hard-cut
-installed artifacts use Tooling 0.63.3, Wire 0.5.19 and Metrics 0.15.4.
-Ordinary CI is offline after explicit
-preparation; released [#98](https://github.com/dragginzgame/ic-blob-storage/issues/98)
-is resolved, including native macOS/MSRV qualification of its exact source.
+Blob owns tenant policy, data, provider economics, references and durable journals,
+the standalone adapter and native/browser primitives. Platform owns IC runtime
+and external Candid; Wire owns application framing. Tooling owns Host/Build/Testkit;
+Persistence owns Memory/Storage. Canic owns mounting/lifecycle/metrics composition
+and its tests; applications own login, grants, asset publication and serving policy.
+Siblings remain read-only. Do not copy downstream adapters/tests into this repo.
 
-## Ownership and consumer boundary
+## Consumer acceptance and provider boundary
 
-Blob owns tenant policy, durable upload/reference/accounting workflows, restoration,
-the standalone adapter and native/browser primitives. Frameworks own mounting,
-lifecycle composition and their integration tests. Applications own authentication,
-grants, asset transactions and publication/availability decisions. Platform owns
-IC identities/runtime and external Candid; Wire owns application framing.
-Host/Build/Testkit belong to IC Tooling; Memory/Storage to IC Persistence.
+Canic reports local framework qualification on published Blob/contracts 0.41.0
+and Testkit 0.64.0: both exact managed dedicated/embedded build/install/recovery
+cases, two-uploader registration/reference journeys, public metrics, strict and
+isolated-feature Clippy, installation decoders and three-workspace dependencies
+pass. See its [mounted/recovery report](https://github.com/dragginzgame/canic/issues/620#issuecomment-6338568536)
+and [metrics report](https://github.com/dragginzgame/canic/issues/621#issuecomment-6338568898).
+These are owner-reported local results, not executions in this repo. Evidence
+stays at `/tmp/canic-blob041/` with Canic; older 0.40.4 captures retain their graph.
+The changes remain uncommitted. Canic still owns default-branch/coherent delivery;
+native macOS and MSRV were not rerun. Keep delivery open under
+[#444](https://github.com/dragginzgame/canic/issues/444),
+[#620](https://github.com/dragginzgame/canic/issues/620) and
+[#621](https://github.com/dragginzgame/canic/issues/621).
 
-Historical Canic parent `d9d70322ade2ba6fbd17520acf93acad66dcf4aa` registered a live
-root inside certificate issuance, before upload. That verified source behavior
-motivates the approved cut; it proves no deployed provider deletion/billing facts.
-Canic's [0.40.4 local mounted/recovery report](https://github.com/dragginzgame/canic/issues/620#issuecomment-6323164353)
-and [metrics report](https://github.com/dragginzgame/canic/issues/621#issuecomment-6322744750)
-retain their original verifier-bearing graph. They do not qualify the new contract.
-Verified Canic main `4caeec25db7d81f6121db1c95ba7a2d91d319c60` declares Blob 0.35;
-its newer dirty checkout is not delivered source. Consumer owners must update
-installation DTOs, state handling, generated bindings and removed calls together.
-Sibling checkouts remain read-only. Do not duplicate their adapters/tests here.
+[Blob #33](https://github.com/dragginzgame/ic-blob-storage/issues/33#issuecomment-6338540006)
+is closed as a retired requirement after verified default-main delivery, not as
+qualification of an operated verifier. Current #31/#4 acceptance no longer
+requires that worker; historical captures retain their original meaning.
 
-## Outstanding acceptance
+[#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) remains blocked on
+gateway caller/failure semantics, provider-key association and deletion evidence.
+The [October 22 source discovery](../evidence/caffeine-probes/local/2026-10-22-gc-contract-discovery-01/summary.md)
+proves local Motoko weak-reference pruning, not remote deletion or billing.
+No new provider requests were made. Do not expose placeholder GC callbacks or
+connect pruning to physical/billing settlement. The [GC review](../gateway-gc-contract.md)
+names the remaining facts needed before shared handlers can be implemented.
 
-- [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33#issuecomment-6336781863) tracks disposition
-  of the mandatory verifier architecture. It is retired by this approved batch,
-  pending delivery; do not operate another worker to satisfy the removed model.
-- [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) retains gateway
-  caller/failure behavior and independent physical-deletion/billing semantics.
-  [October 22 discovery](../evidence/caffeine-probes/local/2026-10-22-gc-contract-discovery-01/summary.md)
-  proves Motoko weak-reference pruning, not remote deletion or billing cessation.
-  The completed source/public-package capture remains immutable; no provider
-  canister/gateway was queried and no payment or deployment occurred.
-- [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34) retains unique
-  credit acquisition and project-payer linkage; Canic #494 owns later composition.
-- [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
-  [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
-  [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5) and
-  [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) retain actual users,
-  media-map transactions, serving/CSP/cache, overlapping references and provider
-  cleanup acceptance. Local substitutes or registration alone cannot close them.
-  Canic #444/#620/#621 retain adapter delivery. Canic #493 remains future dynamic
-  parent provisioning, separate from the current shared-service topology.
+[#34](https://github.com/dragginzgame/ic-blob-storage/issues/34) retains authenticated
+project-payer linkage and unique top-up credit evidence. A successful reply or
+balance change cannot unblock uncertain paid effects. Canic #494 owns guarded
+composition after that contract exists. [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+[#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+[#5](https://github.com/dragginzgame/ic-blob-storage/issues/5) and
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) retain actual users,
+media-map transactions, serving/CSP/cache, overlapping references and deployed
+provider acceptance. The [acceptance plan](../acceptance-plan.md) applies the
+released registration contract; local substitutes cannot close deployed acceptance.
 
-## Validation and continuation
+## Evidence and continuation
 
-Before-images, reviewed Wire inputs, artifacts and focused logs are retained under
-`.tmp/review-validation/hardcut041/`. Passing checks cover 338 core, 120 contract,
-4 client and 113 CLI unit cases; the frozen test checks 139 literal vectors.
-Scoped installed evidence covers 30 admission, 49 journey, 74 standalone and
-121 storage cases (including the two corrected targeted reruns), plus all four
-opt-in Chromium registration journeys. Worker checks and 22 actual launcher/profile
-cases pass. These use controlled local provider bytes, not deployed Caffeine.
+Hard-cut source/artifact identities and focused logs remain under
+`.tmp/review-validation/hardcut041/`; Host 0.64 metadata, singleton/deployment
+checks, strict Clippy, Rust 1.91 native checks and local installed certificate
+proof remain under `.tmp/review-validation/host064/`. Stale native/upload test
+repairs retain `.tmp/review-validation/registration-observation-fix/` and
+`.tmp/review-validation/uploads-registration-fix/`. These logs retain failed
+attempts and their distinct graphs; the released source preserves the older
+[detailed handoff](https://github.com/dragginzgame/ic-blob-storage/blob/d15c64c0f43d06c89286c049c593966a6adc5a2d/docs/status/current.md).
 
-Strict affected-package Clippy with all targets/features, scoped formatting,
-release Wasm builds, Rust 1.91 public/core/client/standalone Wasm compilation,
-Platform/runtime/deployment boundaries, documentation links and whitespace pass.
-The final changed-test lint check is retained separately. Earlier sandbox, missing
-CLI-artifact and obsolete-expectation failures remain in their original logs;
-they are not successful qualification. No complete release gate was run.
-
-Incoming Cargo.lock updates continued after those runs. Wire 0.5.20 passes all
-139 frozen vectors, and 338 core unit cases pass on the subsequent incoming graph;
-Metrics 0.15.5 changes documentation only. The earlier missing ICU cache is no
-longer blocking the native rerun below. Preserve the incoming graph; it is not
-covered by the installed artifact results above. `qualification.json` separates
-those artifacts from the later lock snapshot. Qualify the settled graph before
-release; do not reuse earlier installed evidence for a changing lockfile.
-
-The maintainer's 09:30 CI run passed managed `tools-check`, including Testkit's
-16.1.0 server admission. Earlier local installed checks selected that retained
-binary explicitly; they did not independently qualify the setup selection.
-No native macOS, real installed IC or deployed Caffeine qualification is claimed.
-Released-source hosted results remain linked in the [October 20 handoff](handoff-2026-10-20.md)
-and [history](history.md); they do not qualify this dirty hard cut.
-
-The committed regression repair at `c1103db` corrected idempotent observations,
-registration accounting and reservation listings; its native evidence remains at
-`.tmp/review-validation/registration-observation-fix/` on Tooling 0.63.3.
-
-The new Host 0.64 adoption uses published registry sources only. Native tests import
-PocketIC directly from Platform and call Testkit's `fake_principal`; startup,
-lifecycle and transport extensions stay with Testkit. A remaining inventory test
-incorrectly classified Live content as pending/retired; remove that negative case,
-retaining the separate live-content reference-capacity test. Production storage,
-wire contracts and package versions are unchanged.
-
-Evidence under `.tmp/review-validation/host064/` covers locked metadata, one 0.64.0
-identity for each of the seven Tooling packages, deployment exclusions, strict
-affected-package Clippy, Rust 1.91 all-target/all-feature native checks, 121 CLI
-cases, 25 native PocketIC unit cases and four installed certificate cases using
-the retained 16.1.0 server. The certificate CLI case also passes with the rebuilt
-0.64 Host CLI; standalone Wasm is unchanged and its default Wasm check passes.
-The first inventory test failure is retained separately.
-No new native macOS or full release gate is claimed. The maintainer subsequently
-prepared the tools; this adoption itself did not install executables.
-
-The 09:30 release gate reached the final PocketIC target, `uploads`, after the
-other native and installed targets passed. Its stale list expectations still
-included registered objects as active reservations. The focused repair keeps
-only unregistered reservations in those lists, while retaining caller isolation,
-registered-root history, logical charges and cancellation refusal. Both upload
-tests and strict target Clippy pass; formatting/whitespace pass and Cargo.lock
-is unchanged. Evidence: `.tmp/review-validation/uploads-registration-fix/`.
-Production code and schemas are untouched. The complete gate still needs rerunning.
+This closeout changes only current guidance/issues. Documentation links and
+whitespace are checked; no compiler, provider, browser or Canic execution is
+claimed for it. Managed tools passed the maintainer's earlier CI admission;
+installation remains explicit. No fresh native macOS, installed-IC or live
+Caffeine qualification is claimed. Frozen source/provider captures remain intact.

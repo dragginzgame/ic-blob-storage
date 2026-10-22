@@ -16,6 +16,11 @@ maintained release and open work.
 
 ## GC runtime contract discovery — 2026-10-22
 
+**Later disposition:** [released Blob 0.41.0](https://github.com/dragginzgame/ic-blob-storage/blob/d15c64c0f43d06c89286c049c593966a6adc5a2d/docs/trusted-registration.md)
+adopts trusted registration and retires mandatory verifier operation. The capture
+below predates that decision and remains unchanged. Its missing gateway/deletion/
+billing facts still apply to #32; its worker requirement is historical.
+
 The [intent](local/2026-10-22-gc-contract-discovery-01/intent.json),
 [outcomes](local/2026-10-22-gc-contract-discovery-01/summary.md) and
 [checksums](local/2026-10-22-gc-contract-discovery-01/files.sha256) retain one

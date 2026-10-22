@@ -18,7 +18,7 @@ baseline and current work.
 ## Current evidence and open gates
 
 The current library supplies shared durable owners, tenant policy,
-provider bookkeeping, references, verifier completion, read descriptors and
+provider bookkeeping, references, trusted registration, verified reads and
 operator workflows. Native tools prepare exact inputs and verified snapshots,
 send signed requests once and recover original outcomes through inspection.
 Browser composition reuses the maintained Caffeine SDK and journal boundary.
@@ -53,9 +53,9 @@ describes explicit target selection and preparation.
 
 | Case | Maintained behavior and local evidence | Required qualification |
 | --- | --- | --- |
-| A01 — authority | Explicit tenant, uploader, operator and verifier bindings; shared handlers and standalone endpoints | Accepted consumer transaction and deployed service identity; controller status grants no tenant access |
-| A02 — content | Bounded manifests, streaming blob-root verification and exact verifier receipts; retained 0.7.0 live samples and matching released-tool local media journeys | Current-release consumer/deployment adoption; accepted empty-object/serving limits and deployed retention |
-| A03 — interruption | Persisted intents, exact historical lookup, uncertainty retention, local IC rollback and actual IndexedDB tab/restart evidence | Provider lost-response/charging semantics, selected browser persistence environment and production consumer outbox/worker |
+| A01 — authority | Explicit tenant, uploader, operator and provider-namespace bindings; shared handlers and standalone endpoints | Accepted consumer transaction and deployed service identity; controller status grants no tenant access |
+| A02 — content | Bounded manifests, atomic retention registration and first reference, streaming blob-root verification on actual reads; historical live samples keep their original contract | Current-release consumer/deployment adoption and asset transaction; registration does not prove uploaded bytes, availability or deployed retention |
+| A03 — interruption | Persisted intents, exact historical lookup, uncertainty retention, local IC rollback and actual IndexedDB tab/restart evidence | Provider lost-response/charging semantics, selected browser persistence environment and production consumer outbox |
 | A04 — capacity | Bounded objects, references, receipts, sessions, reservations and liabilities; reserved release capacity | Provider pre-charge bounds and production sizing for the selected consumer |
 | A05 — restore | Synchronous same-release reopening preserves history with all owners fenced; operator-only current-instance activation uses bounded independent IC history, with old snapshots and incomplete history refused | Consumer adoption and operating-policy qualification; older-backup activation remains unsupported and retained obligations need independent surviving records |
 | A06 — release race | Exact reference mutation/receipt/liveness, tombstones, revocation and separate byte accounting | Consumer release coordination, provider deletion and billing cessation |
@@ -63,8 +63,15 @@ describes explicit target selection and preparation.
 | A08 — economics | Maintained Cashier codecs, local transfer/refund journals, conservative liquidity and attachment checks | Production spendability, complete liabilities and authoritative provider/account evidence |
 | A09 — retirement | Logical release, physical deletion, billing cessation and installation retirement are distinct | Per-installation inventory and accountable disposition/settlement; no reset authority from source removal |
 | A10 — serving | Reference-qualified descriptors and complete native verified file output; local PNG/JPEG/WebP/GLB bytes, MIME, cache/CORS/CSP checks | Consumer certified-registration transaction, actual production origins/access policy and deployed serving/retention |
-| A11 — operator | Signed inspection, account/gateway controls, passive funding assessment and verifier tooling | Qualified packaged funding and production operator acceptance |
+| A11 — operator | Signed inspection, account/gateway controls, passive funding assessment, local body verification and verified downloads | Qualified packaged funding and production operator acceptance |
 | A12 — consumer acceptance | Common library contract for independently owned wrappers | Concrete application/maintainer, source-bound wrapper tests and actual deployment evidence |
+
+The released [0.41 trusted-registration contract](trusted-registration.md) removes
+the mandatory completion verifier, attestation endpoints and worker. Consumers
+qualify original certificate/retry identities, exact live references and actual
+verified reads. They do not provision a completion signer or treat registration
+as proof of availability. Provider GC and repeated funding retain their separate
+acceptance boundaries.
 
 ## Evidence and release scope
 
