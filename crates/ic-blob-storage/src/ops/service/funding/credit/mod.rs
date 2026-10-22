@@ -20,6 +20,9 @@ impl<M: Memory> StableFundingJournal<M> {
         if view.transfer.accepted().is_none_or(|amount| amount == 0) {
             return Err(FundingCreditError::AcceptanceRequired.into());
         }
+        if view.acknowledged.is_some() {
+            return Err(FundingCreditError::ProviderAcknowledged.into());
+        }
         Ok(view)
     }
 

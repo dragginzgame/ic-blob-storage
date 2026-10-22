@@ -2,6 +2,25 @@
 
 mod endpoints {
     macro_rules! endpoint {
+        (provider, update, $category:ident, $wire:literal, async fn $name:ident($($arg:ident: $ty:ty),* $(,)?) $body:block) => {
+            #[ic_platform::candid::contract::candid_method(update, rename = $wire)]
+            #[expect(dead_code, reason = "declaration-only host fixture")]
+            fn $name($($arg: $ty),*) {
+                $(let _ = $arg;)*
+                panic!("declaration-only host fixture")
+            }
+        };
+        (provider, $mode:ident, $category:ident, $wire:literal, async fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $reply:ty $body:block) => {
+            endpoint!(provider, $mode, $category, $wire, fn $name($($arg:$ty),*) -> $reply $body);
+        };
+        (provider, $mode:ident, $category:ident, $wire:literal, fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $reply:ty $body:block) => {
+            #[ic_platform::candid::contract::candid_method($mode, rename = $wire)]
+            #[expect(dead_code, reason = "declaration-only host fixture")]
+            fn $name($($arg: $ty),*) -> $reply {
+                $(let _ = $arg;)*
+                panic!("declaration-only host fixture")
+            }
+        };
         (certificate, request, $wire:literal, async fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $reply:ty $body:block) => {
             #[ic_platform::candid::contract::candid_method(update, rename = $wire)]
             #[expect(dead_code, reason = "declaration-only host fixture")]
@@ -36,7 +55,10 @@ fn provider_declaration_precedes_service_export() {
         contract,
         concat!(
             "typeCaffeineUploadCertificateResponse=record{method:text;blob_hash:text;};",
-            "service:{_immutableObjectStorageCreateCertificate:(text)->(CaffeineUploadCertificateResponse,);}",
+            "service:{_immutableObjectStorageBlobsAreLive:(vecblob)->(vecbool)query;",
+            "_immutableObjectStorageBlobsToDelete:()->(vecblob)query;",
+            "_immutableObjectStorageConfirmBlobDeletion:(vecblob)->();",
+            "_immutableObjectStorageCreateCertificate:(text)->(CaffeineUploadCertificateResponse,);}",
         )
     );
     for method in ic_blob_storage_contracts::endpoints::SERVICE_METHODS {

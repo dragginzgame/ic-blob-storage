@@ -127,7 +127,7 @@ fn absence_and_transport_facts_never_establish_credit_or_retry_authority() {
             promotional: 1,
             ledger: 0,
         })),
-        reconciliation: FundingReconciliation::CreditRequired(1),
+        reconciliation: FundingReconciliation::ProviderAcknowledged(1),
         renewed_allocation: 0,
         fenced: false,
     }));
@@ -141,7 +141,7 @@ fn absence_and_transport_facts_never_establish_credit_or_retry_authority() {
     );
     assert_eq!(
         reported["record"]["reconciliation"],
-        json!({"state":"credit_required","accepted":"1"})
+        json!({"state":"provider_acknowledged","accepted":"1"})
     );
     assert_eq!(reported["provider_credit"], "not_established");
     let refunded = render(Some(&FundingOutcomeResponse {

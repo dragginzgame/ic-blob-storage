@@ -1,5 +1,6 @@
 //! Pure provider contracts.
 pub mod download;
+pub mod gc;
 pub mod onboarding;
 pub mod preparation;
 pub mod upload;

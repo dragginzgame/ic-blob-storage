@@ -1,12 +1,12 @@
 [
   {
-    "hex": "49570f004100424f4c42010000",
+    "hex": "49570f004200424f4c42010000",
     "input": {
       "Ok": null
     }
   },
   {
-    "hex": "49570f004100424f4c4201000105f67b25c30192ca939a0b0556aa45c901051cb6636701f4cceab50d849da8db0a01a7b0daec0500010801b8a983a80d01",
+    "hex": "49570f004200424f4c4201000105f67b25c30192ca939a0b0556aa45c901051cb6636701f4cceab50d849da8db0a01a7b0daec0500010802b8a983a80d01",
     "input": {
       "Ok": {
         "fenced": true,
@@ -29,9 +29,45 @@
     }
   },
   {
-    "hex": "49570f004100424f4c42010101",
+    "hex": "49570f004200424f4c42010101",
     "input": {
       "Err": "Denied"
+    }
+  },
+  {
+    "hex": "49570f004200424f4c4201000105f67b25c30192ca939a0b0556aa45c901051cb6636701f4cceab50d849da8db0a01a7b0daec0503839da8db0a01030101000000010000",
+    "input": {
+      "Ok": {
+        "fenced": false,
+        "phase": {
+          "Callback": {
+            "refunded": 2875854467
+          }
+        },
+        "reconciliation": {
+          "ProviderAcknowledged": 1
+        },
+        "renewed_allocation": 0,
+        "request": {
+          "offered": 2875854468,
+          "operation": 3602556532,
+          "scope": {
+            "cashier": "jdesp-lkwvj-c4sai",
+            "namespace": 3007636754,
+            "payment_account": "jqasi-vy4wz-rwoai",
+            "service": "cq7ek-3pwpm-s4gai"
+          },
+          "target_balance": 1570150439
+        },
+        "response": {
+          "ReportedSuccess": {
+            "ledger": 0,
+            "prepaid": 1,
+            "promotional": 0,
+            "total": 1
+          }
+        }
+      }
     }
   }
 ]

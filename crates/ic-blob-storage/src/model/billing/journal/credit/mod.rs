@@ -42,6 +42,9 @@ impl FundingCreditReceipt {
 /// Credit cannot be invented, moved to another intent or overwritten.
 #[derive(Clone, Copy, Debug, Eq, Error, PartialEq)]
 pub enum FundingCreditError {
+    /// The matching successful callback already reconciled this accepted attachment.
+    #[error("payment already acknowledged by provider")]
+    ProviderAcknowledged,
     /// Missing/uncertain transport, proven unsent or fully refunded attachments.
     #[error("positive exact transport acceptance required")]
     AcceptanceRequired,

@@ -74,6 +74,8 @@ pub enum FundingResponse {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingReconciliation {
+    /// Successful original provider callback; not independent account-credit proof.
+    ProviderAcknowledged(u128),
     /// Immutable receipt established by the trusted host, not inferred from balance.
     CreditConfirmed {
         /// Exact positive transport-accepted attachment covered by the evidence.
@@ -98,7 +100,7 @@ pub struct FundingOutcomeResponse {
     pub phase: FundingPhase,
     /// Absent when no structured response was durably retained.
     pub response: Option<FundingResponse>,
-    /// Independent diagnosis; a success report cannot clear accepted attachment.
+    /// Retained acknowledgment or independent reconciliation; accepted cycles stay spent.
     pub reconciliation: FundingReconciliation,
     /// Immutable local budget authorization increase; zero means no grant.
     /// This is neither refunded cycles nor provider credit.

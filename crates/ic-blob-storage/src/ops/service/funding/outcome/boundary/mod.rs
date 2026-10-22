@@ -54,6 +54,9 @@ pub(crate) fn present(
         phase: super::super::boundary::phase(view.state),
         response: view.response.map(response),
         reconciliation: match reconciliation {
+            FundingReconciliation::ProviderAcknowledged { accepted_cycles } => {
+                Reconciliation::ProviderAcknowledged(accepted_cycles.get())
+            }
             FundingReconciliation::CreditConfirmed {
                 accepted_cycles,
                 receipt_digest,

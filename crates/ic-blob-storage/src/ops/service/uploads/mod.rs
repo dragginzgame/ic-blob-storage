@@ -51,6 +51,7 @@ use ic_memory::{Memory, RuntimeMemory};
 use ic_platform::Principal;
 use ic_storage::adapter::StableBTreeMap;
 pub use lifecycle::ConfirmedUploadView;
+pub(crate) mod gateway;
 use std::num::NonZeroU64;
 use thiserror::Error;
 

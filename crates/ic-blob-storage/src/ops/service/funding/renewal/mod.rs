@@ -9,7 +9,7 @@ impl<M: Memory> StableFundingJournal<M> {
     /// capacity/operation identity never reset. All dispatch gates still apply.
     /// Exact replay returns false, even after later intents; conflicts refuse.
     /// # Errors
-    /// Rejects caller, binding, fence, absent credit, excess/conflicting amount,
+    /// Rejects caller, binding, fence, absent reconciliation, excess/conflicting amount,
     /// unreconciled history, a new grant on an older intent or exhausted ceiling.
     /// # Panics
     /// Propagate stable traps for whole-message IC rollback of both writes.
@@ -30,7 +30,7 @@ impl<M: Memory> StableFundingJournal<M> {
         if totals.last() != input.intent.operation.get() {
             return Err(FundingRenewalError::NotLatest.into());
         }
-        if totals.view().uncredited() != 0 || totals.view().reserved_or_uncertain() != 0 {
+        if totals.view().unresolved() != 0 || totals.view().reserved_or_uncertain() != 0 {
             return Err(FundingRenewalError::Unreconciled.into());
         }
         let totals = totals.renew(input.additional)?;

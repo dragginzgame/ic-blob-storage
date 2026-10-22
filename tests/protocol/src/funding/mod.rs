@@ -165,6 +165,8 @@ pub struct FundingObservation {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub enum FundingReconciliationView {
+    /// Matching successful provider callback, without independent credit proof.
+    ProviderAcknowledged(u128),
     /// Exact receipt retained by the trusted host, separate from balance reports.
     CreditConfirmed {
         /// Exact known positive attachment accepted by this operation.

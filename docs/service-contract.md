@@ -14,7 +14,7 @@ separate.
 
 The implemented protocol uses [per-method contracts](service-wire.md): tenant
 inspection/update retain finite IC Wire, while the other owned methods and lifecycle
-inputs use native method-bound Wire. Each reply uses its exact method and direction. The external Caffeine certificate method remains Candid.
+inputs use native method-bound Wire. Each reply uses its exact method and direction. The external Caffeine certificate and GC callback methods remain Candid.
 Old Candid requests refuse. Provider calls, management traffic, persisted records,
 method authority, original operation identity and recovery obligations keep their
 separate owners. Consumer wrappers must change request and reply handling together.
@@ -205,7 +205,8 @@ methods retain their finite 512-byte contracts. Native inputs admit 4 KiB ordina
 16 KiB for installation and 128 KiB for manifest preparation before typed decoding;
 allocation, node and depth budgets are recorded in [the protocol](service-wire.md).
 Trailing values, wrong identities/directions and old CBOR packets reject.
-The provider certificate retains its original bounded Candid decoder separately.
+The provider certificate retains its bounded Candid decoder; GC callbacks use
+the separate shared bounded provider codec.
 Installed boundary checks preserve the owner on refusal; dense admitted manifests
 still reach their independent domain header-count refusal.
 
@@ -972,8 +973,8 @@ placement and authority; linking the library registers nothing. See
 Only the current allocation ledger and stored schemas are supported. The envelope's
 version-1 marker does not make earlier logical layouts compatible. There is no
 dual reader, migration or automatic reset; never clear allocation ID 0 to bypass
-failed recovery. Funding records retain credit attribution and confirmed-cycle
-accounting; absent current fields refuse. Frozen prior Wasms and records keep
+failed recovery. Funding records retain successful callback acknowledgments separately from credit
+attribution and confirmed-cycle accounting; absent current fields refuse. Frozen prior Wasms and records keep
 their original tools and identities until their obligations are dispositioned.
 
 Before a cross-release reinstall, apply the installation retirement contract and
@@ -1140,6 +1141,13 @@ liveness booleans, completion receipts or deletion permission. Provider semantic
 callback correlation, read-session generations and recovery remain separate gates.
 The probe endpoint is explicitly a local fixture; no provider callback export,
 automatic deletion or paid effect is installed by linking the library.
+
+The pending 0.42 provider profile adds public liveness and membership-guarded
+bounded deletion-list/acknowledgment handlers from the same durable owners.
+Unknown roots stay protected; gateway acknowledgments retain the complete root
+history and all physical/billing liabilities. Active reads prevent deletion
+listing and acknowledgment. See the [GC contract](gateway-gc-contract.md) for
+exact wire shapes, bounds, retry behavior and deployed-evidence limitations.
 
 `workflow::reads::{capture,recheck}` adds current durable read authority. The
 opaque host-retained observation binds original caller/service, provider scope,
@@ -1321,9 +1329,12 @@ intent lookup/mutation rather than silently changing the encoded call.
 Unknown transport retains the entire attachment. Returned amounts release only
 their own allocation; accepted amounts remain charged and never imply credit.
 
-The [host funding contract](funding-credit.md) defines synchronous credit confirmation
-and separate bounded allocation increases. Confirmation does not refund acceptance.
-A host-authorized grant belongs to one exact latest credited intent, precedes the
+The [host funding contract](funding-credit.md) defines matching provider acknowledgment,
+optional independent credit confirmation and bounded allocation increases. A
+successful structured callback reconciles its exact accepted attachment without
+claiming independently proved account credit. Accepted cycles remain spent.
+Missing/malformed replies and accepted provider errors stay unresolved.
+A host-authorized grant belongs to one exact latest acknowledged/credited intent, precedes the
 next reservation and cannot exceed that acceptance or the installed cumulative
 ceiling. Exact replay leaves every total unchanged; lifetime slots are never
 recycled. Available + accepted + reserved/uncertain equals cumulative authorization.
@@ -1437,8 +1448,10 @@ Operator `summary` checks the same explicit `FundingJournalScope` used by histor
 including empty journals. It reads maintained accounting and metadata counts without
 decoding intent rows, exposing lifetime capacity, the last retained identity and
 the independent restore fence. Workflow applies `assess_uncredited_allocation`:
-any accepted or reserved/uncertain amount remains unresolved, regardless of later
-refunds, unsent attempts or reported balances. This summarizes the complete local
+accepted attachments without acknowledgment/independent credit, and reserved or
+uncertain offers, remain unresolved. A matching successful callback acknowledges
+its original accepted attachment, never an amount inferred from balance changes.
+Later refunds or unsent attempts cannot clear another original operation. This summarizes the complete local
 journal only; other installations, linked payers and direct provider-account
 activity require independently established completeness. Zero local obligations
 neither release the restore fence nor establish payment authority.
@@ -1465,7 +1478,7 @@ amount and optional target. Other-activity observations exclude only that exact
 unattempted intent; available-for-offer funds include its still-unsent attachment
 and retain every other liability. The service does not add a reservation back to
 an arbitrary balance. Prepared state, the last retained identity and its complete
-hold must agree. Earlier uncredited accepted amounts, external unknowns and the actual fence
+hold must agree. Earlier unresolved accepted amounts, external unknowns and the actual fence
 independently block marking. Full history and exhausted unreserved allocation do
 not charge this already-reserved intent again. Uncertain and terminal states
 always reject another attempt, including fully refunded or proven-unsent results.
@@ -1494,15 +1507,14 @@ host evidence acquisition remains open; this handler creates no automatic paymen
 endpoint, timer or lifecycle ownership.
 
 Operator `outcome` inspection works while fenced and supplies validated transfer
-facts alongside the independent response. The probe workflow applies shared
-reconciliation policy to the transfer and retained host receipt. Reported success never clears required
-credit evidence; missing transport retains the full offered amount as potentially
-spent. The v1 record schema is replaced directly, without migration or dual
-readers; cross-release transitions remain reinstall-only. Production provider
-authentication, independently verified credit acquisition, account-wide
-uncredited activity, spendability and dispatch admission remain separate work before
-a production call can use this journal. Local simulated transfers do not qualify
-deployed Cashier behavior or authorize a paid trial.
+facts alongside the retained response. Shared reconciliation combines transport,
+the matching provider acknowledgment and optional independent host credit receipt.
+A successful callback can clear the sequential gate without establishing independent
+credit; missing transport retains the full offer as potentially spent. The current
+record schema is hard-cut without migration or dual readers. Production provider
+identity, payer authorization, relevant external activity, spendability and dispatch
+admission remain host duties. Local simulated transfers do not qualify deployed
+Cashier behavior or authorize a paid trial.
 
 - Object identity: an allocated object incarnation bound to service, tenant and
   provider namespace, with provider root and declared length as data, distinct

@@ -26,6 +26,8 @@ pub(crate) fn roots(context: UploadContext, input: &RootsInput) -> Result<Vec<Ro
         GatewayCallbackError::Access(error) => callbacks::access_failure(error),
         GatewayCallbackError::Registry(error) => callbacks::registry_failure(error),
         GatewayCallbackError::Uploads(error) => callbacks::upload_failure(error),
+        GatewayCallbackError::Batch(_) | GatewayCallbackError::MalformedRoot => Failure::Invalid,
+        GatewayCallbackError::Reads(_) => Failure::Fenced,
     })?;
     callbacks::present(entries)
 }

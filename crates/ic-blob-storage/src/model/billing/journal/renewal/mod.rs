@@ -3,7 +3,7 @@ use super::FundingIntent;
 use std::num::NonZeroU128;
 use thiserror::Error;
 
-/// One host-authorized increase, uniquely bound to an original credited top-up.
+/// One host-authorized increase, uniquely bound to an original acknowledged/credited top-up.
 /// Each original intent permits at most one immutable increase, no larger than
 /// its accepted attachment. This grants planning allowance, not real cycles.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -17,8 +17,8 @@ pub struct FundingBudgetRenewal {
 /// Refusal before any durable budget mutation.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
 pub enum FundingRenewalError {
-    /// Known accepted transport and exact credit confirmation are required.
-    #[error("confirmed original funding credit required")]
+    /// Known accepted transport and provider acknowledgment or credit confirmation are required.
+    #[error("acknowledged or credited original funding required")]
     CreditRequired,
     /// A single increase cannot exceed this original acceptance.
     #[error("funding renewal exceeds original accepted cycles")]
@@ -29,7 +29,7 @@ pub enum FundingRenewalError {
     /// New increases occur only after the latest complete intent, before the next.
     #[error("funding renewal requires the latest settled intent")]
     NotLatest,
-    /// Uncredited or uncertain history is not a completed funding boundary.
+    /// Unresolved or uncertain history is not a completed funding boundary.
     #[error("funding history is not fully reconciled")]
     Unreconciled,
 }

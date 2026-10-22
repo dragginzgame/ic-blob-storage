@@ -75,7 +75,41 @@ fn assert_uninitialized() {
 fn publish(host: Host) {
     HOST.with_borrow_mut(|state| *state = Some(host));
 }
-/// Keep only the external provider certificate method on its mandated Candid codec.
+/// Bound raw provider callback ingress before Platform copies the argument buffer.
+#[expect(clippy::unnecessary_wraps, reason = "Platform guard signature")]
+pub(crate) fn admit_gc() -> Result<(), String> {
+    assert!(
+        ic_platform::ic0::msg_arg_data_size()
+            <= ic_blob_storage_contracts::provider::gc::MAX_REQUEST_BYTES,
+        "GC ingress byte bound"
+    );
+    Ok(())
+}
+/// Bounded external Candid roots; malformed entries never become false liveness.
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "Platform owns the ingress buffer"
+)]
+pub(crate) fn decode_gc_roots(bytes: Vec<u8>) -> Vec<Vec<u8>> {
+    ic_blob_storage_contracts::provider::gc::decode_roots(&bytes).expect("invalid GC roots")
+}
+
+pub(crate) fn encode_gc<T: ic_platform::candid::contract::CandidType>(value: T) -> Vec<u8> {
+    ic_platform::candid::contract::encode_one(value).expect("provider GC response")
+}
+pub(crate) fn encode_gc_empty() -> Vec<u8> {
+    ic_platform::candid::contract::encode_args(()).expect("provider GC empty response")
+}
+/// The no-argument deletion-list contract must not accept a root payload.
+#[expect(
+    clippy::needless_pass_by_value,
+    reason = "Platform owns the ingress buffer"
+)]
+pub(crate) fn decode_gc_empty(bytes: Vec<u8>) {
+    ic_blob_storage_contracts::provider::gc::decode_empty(&bytes)
+        .expect("invalid GC empty ingress");
+}
+/// Keep the external provider certificate method on its mandated Candid codec.
 #[expect(clippy::needless_pass_by_value, reason = "CDK owns the ingress buffer")]
 pub(crate) fn decode_certificate(bytes: Vec<u8>) -> String {
     assert!(bytes.len() <= 4096, "certificate ingress byte bound");

@@ -76,7 +76,8 @@ fn validate(response: &Response) -> Result<(), FundingAssessmentReplyError> {
         (B::JournalFenced, journal.fenced),
         (
             B::JournalUncredited,
-            journal.uncredited_accepted > 0 || journal.reserved_or_uncertain > 0,
+            journal.uncredited_accepted > journal.provider_acknowledged
+                || journal.reserved_or_uncertain > 0,
         ),
         (
             B::JournalFull,

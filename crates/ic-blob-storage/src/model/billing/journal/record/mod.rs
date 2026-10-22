@@ -117,8 +117,8 @@ impl FundingIntentRecord {
         }
         if self.renewed_allocation != 0
             && self
-                .credit()
-                .is_none_or(|credit| self.renewed_allocation > credit.accepted_cycles().get())
+                .reconciled_amount()
+                .is_none_or(|accepted| self.renewed_allocation > accepted.get())
         {
             return None;
         }
@@ -166,6 +166,26 @@ impl FundingIntentRecord {
             }
         })
     }
+    /// Matching successful callback, independent of the reported balance amount.
+    /// A separately confirmed credit takes precedence so accounting is disjoint.
+    pub(crate) fn acknowledged(self) -> Option<NonZeroU128> {
+        if self.credit != FundingCreditRecord::Required
+            || !matches!(self.response, FundingResponseRecord::Balance { .. })
+        {
+            return None;
+        }
+        let FundingPhaseRecord::Callback { refunded } = self.phase else {
+            return None;
+        };
+        self.offered
+            .checked_sub(refunded)
+            .and_then(NonZeroU128::new)
+    }
+    fn reconciled_amount(self) -> Option<NonZeroU128> {
+        self.credit()
+            .map(FundingCreditReceipt::accepted_cycles)
+            .or_else(|| self.acknowledged())
+    }
     pub(crate) fn credit(self) -> Option<FundingCreditReceipt> {
         match self.credit {
             FundingCreditRecord::Required => None,
@@ -182,6 +202,9 @@ impl FundingIntentRecord {
         mut self,
         confirmation: FundingCreditConfirmation,
     ) -> Result<Self, FundingCreditError> {
+        if self.acknowledged().is_some() {
+            return Err(FundingCreditError::ProviderAcknowledged);
+        }
         let accepted = self
             .transfer()
             .and_then(FundingTransfer::accepted)
@@ -210,8 +233,10 @@ impl FundingIntentRecord {
         mut self,
         input: FundingBudgetRenewal,
     ) -> Result<Self, FundingRenewalError> {
-        let credit = self.credit().ok_or(FundingRenewalError::CreditRequired)?;
-        if input.additional.get() > credit.accepted_cycles().get() {
+        let accepted = self
+            .reconciled_amount()
+            .ok_or(FundingRenewalError::CreditRequired)?;
+        if input.additional.get() > accepted.get() {
             return Err(FundingRenewalError::Amount);
         }
         if self.renewed_allocation != 0 && self.renewed_allocation != input.additional.get() {
@@ -311,6 +336,13 @@ impl FundingJournalRecord {
     }
     pub(crate) fn renew(mut self, additional: NonZeroU128) -> Result<Self, FundingAllocationError> {
         self.allocation = self.allocation.renew(additional)?;
+        Ok(self)
+    }
+    pub(crate) fn acknowledge(
+        mut self,
+        accepted: NonZeroU128,
+    ) -> Result<Self, FundingAllocationError> {
+        self.allocation = self.allocation.acknowledge(accepted)?;
         Ok(self)
     }
     pub(crate) fn confirm_credit(

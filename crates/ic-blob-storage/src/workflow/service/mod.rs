@@ -87,6 +87,73 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
             )
         })
     }
+    /// Project public Caffeine liveness from the installed durable reference owner.
+    /// # Errors
+    /// Rejects malformed/bounded input, wrong service, owner mismatch or fences.
+    pub fn provider_liveness(
+        context: UploadContext,
+        roots: &[Vec<u8>],
+    ) -> Result<Vec<bool>, crate::workflow::gateways::callbacks::GatewayCallbackError> {
+        Self::read(|stores| {
+            crate::workflow::gateways::callbacks::provider_liveness(
+                stores,
+                Self::provider_context(context),
+                Self::provider_scope(stores),
+                roots,
+            )
+        })
+    }
+    /// Return the bounded deletion list under current gateway membership.
+    /// # Errors
+    /// Rejects authority, scope, fences or corrupt retained state.
+    pub fn provider_deletions(
+        context: UploadContext,
+    ) -> Result<Vec<Vec<u8>>, crate::workflow::gateways::callbacks::GatewayCallbackError> {
+        Self::read(|stores| {
+            crate::workflow::gateways::callbacks::provider_deletions(
+                stores,
+                Self::provider_context(context),
+                Self::provider_scope(stores),
+            )
+        })
+    }
+    /// Retain gateway acknowledgment without releasing physical/billing liabilities.
+    /// # Errors
+    /// Rejects authority, scope, malformed/live/unknown roots and fences.
+    /// # Panics
+    /// Stable traps propagate for whole-message rollback.
+    pub fn acknowledge_provider_deletions(
+        context: UploadContext,
+        roots: &[Vec<u8>],
+    ) -> Result<(), crate::workflow::gateways::callbacks::GatewayCallbackError> {
+        Self::mutate(|stores| {
+            let scope = Self::provider_scope(stores);
+            crate::workflow::gateways::callbacks::acknowledge_provider_deletions(
+                stores,
+                Self::provider_context(context),
+                scope,
+                roots,
+            )
+        })
+    }
+    fn provider_context(context: UploadContext) -> crate::policy::gateway::GatewayCallbackContext {
+        crate::policy::gateway::GatewayCallbackContext {
+            service: context.service,
+            actor: context.actor,
+        }
+    }
+    fn provider_scope(
+        stores: &ServiceStores<H::Memory>,
+    ) -> crate::model::gateway::registry::GatewayScope {
+        let config = stores.uploads.callback_configuration();
+        let bindings = config.bindings();
+        crate::model::gateway::registry::GatewayScope::new(
+            bindings.service,
+            bindings.namespace,
+            config.billing().cashier(),
+        )
+        .expect("validated installation scope")
+    }
     /// Delegate `before_update` with shared continuity and host-selected bounds.
     pub async fn before_update() {
         crate::workflow::installation::recovery::before_update(&Self::ACCESS).await;

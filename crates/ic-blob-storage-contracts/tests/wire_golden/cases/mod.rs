@@ -1,4 +1,4 @@
-// Frozen named inputs and literal bytes, captured before removing application Candid traits.
+// Frozen named inputs and literal bytes, reviewed and recaptured for the 0.42 hard cut.
 use contracts::{dto, wire};
 use ic_blob_storage_contracts as contracts;
 use serde::{Serialize, de::DeserializeOwned};

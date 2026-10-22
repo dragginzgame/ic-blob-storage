@@ -66,6 +66,9 @@ pub(super) fn funding(status: &FundingOperatorStatusView) -> Value {
 
 pub(in crate::operator) fn reconciliation(value: FundingReconciliationView) -> Value {
     match value {
+        FundingReconciliationView::ProviderAcknowledged(cycles) => {
+            json!({"kind":"ProviderAcknowledged", "cycles":cycles.to_string()})
+        }
         FundingReconciliationView::CreditConfirmed {
             accepted_cycles,
             receipt_digest,

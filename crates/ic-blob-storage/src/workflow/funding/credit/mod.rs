@@ -26,7 +26,7 @@ pub enum FundingCreditResult {
 /// not be reacquired after a lost confirmation reply; exact replay is harmless.
 /// This creates no endpoint, timer, provider contract, retry or restore authority.
 /// # Errors
-/// Rejects scope, operator, fence, unknown/unaccepted intent or receipt conflicts.
+/// Rejects scope, operator, fence, unknown/unaccepted or already acknowledged intent, and receipt conflicts.
 /// # Panics
 /// Stable traps must propagate to preserve whole-message IC rollback.
 pub fn confirm<M: Memory>(

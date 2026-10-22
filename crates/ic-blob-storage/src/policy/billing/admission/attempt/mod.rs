@@ -55,7 +55,7 @@ pub enum FundingAttemptBlocker {
     AlreadyAttempted,
     /// The exact unattempted intent must own the entire final reservation.
     ReservationMismatch,
-    /// Older accepted amounts still need independent credit evidence.
+    /// Older accepted amounts have neither provider acknowledgment nor independent credit.
     JournalUncredited,
     /// Other account activity, recovery or spendability is missing or unsafe.
     Evidence(FundingEvidenceBlocker),
@@ -107,7 +107,7 @@ pub fn assess_first_attempt(
         }
         Some(_) => blockers.push(B::AlreadyAttempted),
     }
-    if local.allocation.uncredited() != 0 {
+    if local.allocation.unresolved() != 0 {
         blockers.push(B::JournalUncredited);
     }
     blockers.extend(

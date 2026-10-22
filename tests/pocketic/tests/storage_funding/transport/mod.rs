@@ -233,6 +233,8 @@ fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_repl
             retained.reconciliation,
             if accepted == 0 {
                 FundingReconciliationView::NoTransfer
+            } else if expected == FundingOutcome::ReportedSuccess {
+                FundingReconciliationView::ProviderAcknowledged(accepted)
             } else {
                 FundingReconciliationView::CreditRequired(accepted)
             }
@@ -484,7 +486,7 @@ fn actual_cashier_acceptance_is_not_cleared_by_a_later_fully_refunded_call() {
     let f = Fixture::with_cashier();
     for (id, offered, accepted) in [(1, 900, 400), (2, 500, 0)] {
         let intent = f.funding_intent(id, offered);
-        f.configure_cashier(intent, accepted, FundingReplyMode::Success);
+        f.configure_cashier(intent, accepted, FundingReplyMode::Malformed);
         // Explicit local effect controls; production activity admission is separate.
         f.funding(f.operator, intent, Action::Prepare).unwrap();
         f.transport(f.operator, input(intent)).unwrap();

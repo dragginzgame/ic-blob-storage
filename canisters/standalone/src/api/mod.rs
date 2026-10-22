@@ -20,6 +20,21 @@ fn post_upgrade() {
     ops::restore();
 }
 macro_rules! endpoint {
+    (provider, query, roots, $wire:literal, $($item:tt)*) => {
+        #[ic_platform::cdk::query(name = $wire, guard = "ops::admit_gc", decode_with = "ops::decode_gc_roots", encode_with = "ops::encode_gc")]
+        #[cfg_attr(not(target_arch = "wasm32"), ic_platform::candid::contract::candid_method(query, rename = $wire))]
+        $($item)*
+    };
+    (provider, query, empty, $wire:literal, $($item:tt)*) => {
+        #[ic_platform::cdk::query(name = $wire, guard = "ops::admit_gc", decode_with = "ops::decode_gc_empty", encode_with = "ops::encode_gc")]
+        #[cfg_attr(not(target_arch = "wasm32"), ic_platform::candid::contract::candid_method(query, rename = $wire))]
+        $($item)*
+    };
+    (provider, update, roots, $wire:literal, $($item:tt)*) => {
+        #[ic_platform::cdk::update(name = $wire, guard = "ops::admit_gc", decode_with = "ops::decode_gc_roots", encode_with = "ops::encode_gc_empty")]
+        #[cfg_attr(not(target_arch = "wasm32"), ic_platform::candid::contract::candid_method(update, rename = $wire))]
+        $($item)*
+    };
     (query, tenant_inspection, $($item:tt)*) => {
         #[ic_platform::cdk::query(decode_with = "ops::decode_tenant_inspection", encode_with = "ops::encode_tenant_inspection")]
         $($item)*

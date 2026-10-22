@@ -1,0 +1,36 @@
+{
+  "date": "2026-10-22",
+  "source": "d4dbfa1006106ae07ce47f207acdd3af294fc7d7",
+  "issues": [32, 34],
+  "class": "public-contract-review",
+  "purpose": "Find authoritative gateway failure/root/deletion semantics and Cashier top-up/audit attribution beyond the previously reviewed application-side helpers; implement only behavior justified by those facts.",
+  "targets": {
+    "search_domains": ["help.caffeine.ai", "docs.caffeine.ai", "github.com"],
+    "queries": [
+      "Caffeine object storage gateway garbage collection BlobsAreLive ConfirmBlobDeletion",
+      "Caffeine Cashier account_top_up_v1 audit_log TopUp receipt",
+      "site:help.caffeine.ai file storage deletion billing garbage collection"
+    ],
+    "official_prior_guides": [
+      "https://help.caffeine.ai/hc/en-us/articles/49362898986644-File-Storage-Costs",
+      "https://help.caffeine.ai/hc/en-us/articles/46899784111380-File-Storage-Troubleshooting"
+    ]
+  },
+  "budget": {
+    "search_calls": 1,
+    "search_queries": 3,
+    "public_page_reads": 4,
+    "max_page_bytes": 524288,
+    "provider_canister_or_data_requests": 0,
+    "account_queries": 0,
+    "payments": 0,
+    "deployments": 0
+  },
+  "constraints": [
+    "Read public primary contract sources only; do not use unrelated cloud provider semantics.",
+    "Do not retry prior failed package README or deleted server-repository reads.",
+    "Retain failed and inconclusive results separately; expand this intent before further reads.",
+    "No signer, provider payment, account query, deployment or sibling modification.",
+    "Do not infer physical deletion or billing cessation from local pruning, or credit from a balance delta."
+  ]
+}

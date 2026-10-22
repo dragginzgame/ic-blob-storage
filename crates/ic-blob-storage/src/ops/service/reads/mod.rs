@@ -197,6 +197,26 @@ impl<M: Memory> StableReadSessions<M> {
             })
             .collect()
     }
+    pub(crate) fn protected_roots(
+        &self,
+        expected: &ServiceConfiguration,
+    ) -> Result<
+        std::collections::BTreeSet<ic_blob_storage_contracts::identity::ProviderRootHash>,
+        ReadSessionError,
+    > {
+        self.bind(expected)?;
+        self.record()?;
+        self.sessions
+            .iter()
+            .map(|entry| {
+                entry
+                    .value()
+                    .ticket()
+                    .map(|ticket| ticket.chunk().target.root)
+                    .ok_or(ReadSessionError::InvalidRecord)
+            })
+            .collect()
+    }
     pub(crate) fn bind(&self, expected: &ServiceConfiguration) -> Result<(), ReadSessionError> {
         if self.config != *expected {
             return Err(ReadSessionError::Binding);

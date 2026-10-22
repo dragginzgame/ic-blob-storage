@@ -5,15 +5,27 @@ provider evidence. The [local handoff](status/current.md) owns implementation;
 [funding credit](funding-credit.md) owns the current host API. Framework adapters
 and integration tests remain with their consumer repositories.
 
-## Current funding prerequisite — 2026-10-21
+## Current operational contract — pending 0.42
 
-The [current public source review](evidence/caffeine-probes/local/2026-10-21-provider-contract0402-01/summary.json)
-finds the application-side Cashier implementation unchanged. Its
-`account_top_up_v1({ account }) -> ()` call carries no original operation ID and
-returns no unique credit receipt or complete account activity. This does not prove
-that no other provider API exists; the required authenticated acquisition path
-remains unestablished under [Blob #34](https://github.com/dragginzgame/ic-blob-storage/issues/34).
-Do not enable repeated funding from a success reply or inferred balance change.
+The [funding contract](funding-credit.md) treats a matching successful Cashier
+callback as provider acknowledgment, not independent credit proof. Guarded
+subsequent payments can proceed within the installed budget without waiting for
+a new receipt API or a Caffeine response. The exact accepted attachment remains
+spent; a missing/malformed reply or provider error with accepted cycles blocks.
+A lost reply never authorizes resending the original payment.
+
+The [bounded source review](evidence/caffeine-probes/local/2026-10-22-gc-credit-contract-02/summary.md)
+distinguishes the public helper, which discards the response, from Cashier's
+structured interface, which Blob already decodes. Independent credit confirmation
+remains available for unacknowledged accepted payments when the host can establish
+sufficient evidence. It is no longer mandatory for an acknowledged happy path.
+
+[Caffeine #17 — Cashier credit and payer linkage](https://github.com/caffeinelabs/skills/issues/17)
+asks about stronger credit guarantees, payer-link authorization and audit recovery.
+Configured payer identity alone does not establish a provider relationship.
+Existing account-link preparation/inspection interfaces remain the integration
+boundary; hosts must establish the selected relationship and authority. No
+undocumented account authorization or automatic external-payer setup is invented.
 
 ## Historical Canic boundary — 2026-10-12
 
@@ -31,7 +43,7 @@ That framework completion does not supply provider evidence or guarded funding.
 [Canic #494](https://github.com/dragginzgame/canic/issues/494) owns guarded host
 composition and its two-payment/recovery qualification.
 [Blob #34](https://github.com/dragginzgame/ic-blob-storage/issues/34) owns the
-provider receipt/account-activity prerequisite. A scheduler or pre-upload path
+acknowledgment implementation and remaining provider/account qualification. A scheduler or pre-upload path
 must reconcile the same durable original operation; it cannot bypass an
 uncredited/uncertain journal or repeat a payment from a missing reply. Keep
 confirmation and financial renewal host-authorized, with all current bindings
@@ -72,29 +84,29 @@ caller assertion or locally renamed operation.
    Freeze and verify exact clean source/artifacts for qualification. Retire
    retained old installations with their original tools and obligations before
    reinstalling; do not reset or migrate their ledgers.
-2. Obtain the provider-owned authenticated receipt contract and complete account
-   activity evidence. Preserve the original receipt, authority, exact Cashier,
-   payment account, accepted attachment and unique top-up attribution. Hash that
-   evidence once. A host closure returning a constant digest proves only a local
-   substitute and cannot close this acceptance item.
-3. Keep the original durable intent across dispatch and any evidence-acquisition
-   await. Release borrows before awaiting. Authenticate/recheck current state,
-   then synchronously use `workflow::funding::credit::confirm`. A lost confirmation
-   reply requires exact receipt replay, without another paid top-up.
+2. Authenticate the selected Cashier/account/service relationship and complete
+   relevant activity/liquidity holds. Use the shared guarded dispatch, preserving
+   the original intent across its await. Persist its matching structured reply
+   and callback refund before yielding again; no borrow crosses the call.
+3. For an acknowledged success, inspect the exact retained result after lost
+   output and proceed only with a distinct authorized intent. Do not call the
+   independent credit API for an acknowledged operation. If the callback/reply is
+   uncertain, stop further funding. Independent evidence can reconcile accepted
+   unacknowledged transport; a balance change cannot manufacture the missing facts.
 4. Declare finite initial allowance, reserve, cumulative `renewal_ceiling` and
-   lifetime intent capacity. If ongoing funding uses grants, make the explicit
-   host/operator decision after full credit reconciliation and before preparing
-   the next intent. Use `workflow::funding::renewal::increase` once for that
-   original intent; real liquidity and all dispatch gates remain independent.
-5. Exercise two distinct guarded top-ups through the actual host acquisition path.
-   Verify retained receipts and spent totals, lost confirmation/grant output,
-   exact replay without another provider request, receipt conflict/reuse,
-   uncredited/uncertain refusal, ceiling and capacity exhaustion, IC write rollback,
-   synchronous same-image restore and independent current-instance activation.
-   Retain original request/reply bytes, artifacts, graph and provider evidence.
+   lifetime intent capacity. A host-authorized increase requires the latest
+   acknowledged/credited intent and no unresolved history, before preparing the
+   next intent. Use `workflow::funding::renewal::increase` once per original intent;
+   real liquidity and all other dispatch gates remain independent.
+5. Exercise two distinct acknowledged payments through the actual host dispatch.
+   Verify spent/refund/acknowledgment totals, partial and complete refunds, typed
+   provider errors, malformed/lost responses, exact inspection without resend,
+   independent receipt conflict/reuse, ceiling and capacity exhaustion, IC write
+   rollback, same-image restore and current-instance activation. Keep provider
+   acknowledgment distinct from independently verified credit and spendability.
 
-The library's local PocketIC receipts/Cashier tests do not close item 2 or prove
-these consumer-owned executions. No sibling changes, consumer builds, deployment
-or paid provider effects were performed in that review. Current provider and
-host-integration work remains with Blob #34 and Canic #494 above; lifetime
-acceptance remains with [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).
+Canic #494 owns guarded composition and its executions. Local Cashier substitutes
+qualify the local protocol and journals; they cannot prove deployed account-link
+rules, charging or production credit behavior. No sibling changes, consumer
+builds, deployment or paid effects occur as part of this repository's hard cut.
+Lifetime acceptance remains with [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).

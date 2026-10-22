@@ -70,7 +70,7 @@ pub(super) fn output(
 pub(super) fn funding(s: &LocalFundingStatus) -> Value {
     json!({"cumulative_allocation":s.cumulative_allocation.to_string(),"renewal_ceiling":s.renewal_ceiling.to_string(),
         "available_allocation":s.available_allocation.to_string(),"attachment_allowance":s.attachment_allowance.to_string(),
-        "transport_accepted":s.transport_accepted.to_string(),"uncredited_accepted":s.uncredited_accepted.to_string(),"refunded":s.refunded.to_string(),
+        "transport_accepted":s.transport_accepted.to_string(),"uncredited_accepted":s.uncredited_accepted.to_string(),"provider_acknowledged":s.provider_acknowledged.to_string(),"refunded":s.refunded.to_string(),
         "not_enqueued":s.not_enqueued.to_string(),"reserved_or_uncertain":s.reserved_or_uncertain.to_string(),
         "retained_intents":s.retained_intents.to_string(),"intent_capacity":s.intent_capacity.to_string(),
         "last_operation":s.last_operation.map(|n|n.to_string()),"fenced":s.fenced})

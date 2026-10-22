@@ -162,6 +162,7 @@ fn status() -> LocalServiceStatus {
             attachment_allowance: 0,
             transport_accepted: 0,
             uncredited_accepted: 0,
+            provider_acknowledged: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
@@ -368,6 +369,7 @@ fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
         },
         LocalFundingStatus {
             uncredited_accepted: 301,
+            provider_acknowledged: 0,
             ..value.funding
         },
     ] {

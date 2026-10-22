@@ -368,3 +368,38 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
         }]
     );
 }
+
+#[test]
+fn successful_cashier_callbacks_allow_two_bounded_payments_without_independent_credit() {
+    let f = Fixture::with_cashier();
+    for (operation, accepted) in [(1, 300), (2, 200)] {
+        let intent = f.funding_intent(operation, 400);
+        f.configure_cashier(intent, accepted, FundingReplyMode::Success);
+        f.funding(f.operator, intent, Action::Prepare).unwrap();
+        assert_eq!(
+            settled(f.guarded_dispatch(f.operator, request(intent))).accepted,
+            accepted
+        );
+        let outcome = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+        assert_eq!(
+            outcome.reconciliation,
+            FundingReconciliationView::ProviderAcknowledged(accepted)
+        );
+        // Exact original effect cannot be repeated after a successful or lost reply.
+        assert_eq!(
+            refused(f.guarded_dispatch(f.operator, request(intent))).0,
+            vec![B::AlreadyAttempted]
+        );
+    }
+    let status = f.local_status().funding;
+    assert_eq!(status.transport_accepted, 500);
+    assert_eq!(status.uncredited_accepted, 500);
+    assert_eq!(status.provider_acknowledged, 500);
+    assert_eq!(f.funding_allocation().available, 500);
+    assert_eq!(f.incoming().len(), 2);
+    f.upgrade_storage();
+    let restored = f.local_status().funding;
+    assert!(restored.fenced);
+    assert_eq!(restored.provider_acknowledged, 500);
+    assert_eq!(restored.transport_accepted, 500);
+}

@@ -12,7 +12,7 @@ use crate::ops::caffeine::funding::transport::CashierTopUpStatus;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 
 /// Retained local evidence, independently readable after lost output or restore.
-/// A balance report is not credit evidence, and no result permits a retry.
+/// A matching success acknowledges acceptance, not independent credit; no result permits retry.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct FundingOutcomeView {
     /// Original exact scope, identity and attachment.
@@ -25,6 +25,8 @@ pub struct FundingOutcomeView {
     pub transfer: FundingTransfer,
     /// Exact immutable host credit confirmation, separate from provider reports.
     pub credit: Option<crate::model::billing::journal::credit::FundingCreditReceipt>,
+    /// Exact accepted attachment covered by the matching successful provider reply.
+    pub acknowledged: Option<std::num::NonZeroU128>,
     /// Immutable local budget increase for this intent, separate from spent cycles.
     pub renewed_allocation: Option<std::num::NonZeroU128>,
 }
@@ -86,6 +88,7 @@ impl<M: Memory> StableFundingJournal<M> {
                     response: conversion::view(record.response()),
                     transfer,
                     credit: record.credit(),
+                    acknowledged: record.acknowledged(),
                     renewed_allocation: record.renewed_allocation(),
                 })
             })
@@ -121,6 +124,14 @@ impl<M: Memory> StableFundingJournal<M> {
             totals
         } else {
             totals.resolve(next.transfer().ok_or(FundingJournalError::InvalidRecord)?)?
+        };
+        let totals = if prior.acknowledged().is_none() {
+            match next.acknowledged() {
+                Some(accepted) => totals.acknowledge(accepted)?,
+                None => totals,
+            }
+        } else {
+            totals
         };
         self.intents.insert(input.operation.get(), next);
         self.write_totals(&totals);

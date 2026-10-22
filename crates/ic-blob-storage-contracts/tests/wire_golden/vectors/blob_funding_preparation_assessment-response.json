@@ -1,6 +1,6 @@
 [
   {
-    "hex": "495710004100424f4c4201000595f86dae01e382f3900f05b32c08660105d03615b401c8f3c8c201b9fdf7f70400fdbee6b804b3e9a2cc08f3b5a5db03ff96d4940efa8aa1c102a6f581ba05fb95b18706b5af89bb07d49d8da307c18e9a9d07eed398920b000000",
+    "hex": "495710004200424f4c4201000595f86dae01e382f3900f05b32c08660105d03615b401c8f3c8c201b9fdf7f70400fdbee6b804b3e9a2cc08f3b5a5db03ff96d4940efa8aa1c102a6f581ba0500fb95b18706b5af89bb07d49d8da307c18e9a9d07eed398920b000000",
     "input": {
       "Ok": {
         "blockers": [],
@@ -12,6 +12,7 @@
           "intent_capacity": 2990942702,
           "last_operation": null,
           "not_enqueued": 2002933685,
+          "provider_acknowledged": 0,
           "refunded": 1626098427,
           "renewal_ceiling": 2307437747,
           "reserved_or_uncertain": 1952665300,
@@ -34,7 +35,7 @@
     }
   },
   {
-    "hex": "495710004100424f4c42010005744ae7a801ebe9fcbd010528d0e04f01054ab7260701a28ea3de06c8b4d1ad020195c8ebdc0df8e6e7ca01a6b4bdb40c98c7bcfc08faa49aba06e4aff2e3068c8ea2be0dc8c986ed08e9f09cf706afaea0c20cb9edd4a50289b5ab730199d3bdec050102068aeec0be0609",
+    "hex": "495710004200424f4c42010005744ae7a801ebe9fcbd010528d0e04f01054ab7260701a28ea3de06c8b4d1ad020195c8ebdc0df8e6e7ca01a6b4bdb40c98c7bcfc08faa49aba06e4aff2e3068c8ea2be0d00c8c986ed08e9f09cf706afaea0c20cb9edd4a50289b5ab730199d3bdec050102068aeec0be0609",
     "input": {
       "Ok": {
         "blockers": [
@@ -53,6 +54,7 @@
           "intent_capacity": 241883785,
           "last_operation": 1569679769,
           "not_enqueued": 1860647017,
+          "provider_acknowledged": 0,
           "refunded": 2376180936,
           "renewal_ceiling": 3331283494,
           "reserved_or_uncertain": 3360167727,
@@ -75,7 +77,7 @@
     }
   },
   {
-    "hex": "495710004100424f4c42010101",
+    "hex": "495710004200424f4c42010101",
     "input": {
       "Err": "Denied"
     }

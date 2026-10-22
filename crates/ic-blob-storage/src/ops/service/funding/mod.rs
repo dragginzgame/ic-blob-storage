@@ -143,6 +143,9 @@ impl<M: Memory> StableFundingJournal<M> {
                 receipts += 1;
                 reconstructed = reconstructed.confirm_credit(credit.accepted_cycles())?;
             }
+            if let Some(accepted) = record.acknowledged() {
+                reconstructed = reconstructed.acknowledge(accepted)?;
+            }
             if let Some(additional) = record.renewed_allocation() {
                 reconstructed = reconstructed.renew(additional)?;
             }

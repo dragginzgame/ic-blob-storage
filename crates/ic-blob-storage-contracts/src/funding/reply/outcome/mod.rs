@@ -47,6 +47,12 @@ pub fn inspect(
     }
     let transfer = transfer(input.offered, view.phase)?;
     let consistent = match view.reconciliation {
+        FundingReconciliation::ProviderAcknowledged(amount) => {
+            amount > 0
+                && transfer.accepted() == Some(amount)
+                && matches!(view.response, Some(FundingResponse::ReportedSuccess(_)))
+                && view.renewed_allocation <= amount
+        }
         FundingReconciliation::CreditConfirmed {
             accepted_cycles,
             receipt_digest,
@@ -58,7 +64,9 @@ pub fn inspect(
         }
         FundingReconciliation::NoTransfer => transfer.accepted() == Some(0),
         FundingReconciliation::CreditRequired(amount) => {
-            amount > 0 && transfer.accepted() == Some(amount)
+            amount > 0
+                && transfer.accepted() == Some(amount)
+                && !matches!(view.response, Some(FundingResponse::ReportedSuccess(_)))
         }
         FundingReconciliation::TransferUnknown(amount) => {
             amount == input.offered && transfer.accepted().is_none()
@@ -75,6 +83,7 @@ pub fn inspect(
         || matches!(
             view.reconciliation,
             FundingReconciliation::CreditConfirmed { .. }
+                | FundingReconciliation::ProviderAcknowledged(_)
         );
     if !consistent || !response_matches || !renewal_matches {
         return Err(FundingReplyError::Invalid);

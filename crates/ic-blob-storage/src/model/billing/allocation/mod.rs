@@ -105,6 +105,7 @@ impl FundingAllocation {
             available: self.allocated,
             accepted: 0,
             credit_confirmed: 0,
+            acknowledged: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
@@ -123,6 +124,7 @@ pub struct FundingAllocationView {
     available: u128,
     accepted: u128,
     credit_confirmed: u128,
+    acknowledged: u128,
     refunded: u128,
     not_enqueued: u128,
     reserved_or_uncertain: u128,
@@ -220,11 +222,35 @@ impl FundingAllocationView {
         self.accepted - self.credit_confirmed
     }
 
+    /// Accepted attachments acknowledged by the matching Cashier success reply.
+    /// Disjoint from independently confirmed credit; neither returns spent cycles.
+    #[must_use]
+    pub const fn acknowledged(self) -> u128 {
+        self.acknowledged
+    }
+
+    /// Accepted attachments with neither acknowledgment nor independent credit.
+    #[must_use]
+    pub const fn unresolved(self) -> u128 {
+        self.uncredited() - self.acknowledged
+    }
+
+    pub(crate) fn acknowledge(
+        mut self,
+        accepted: NonZeroU128,
+    ) -> Result<Self, FundingAllocationError> {
+        if accepted.get() > self.unresolved() {
+            return Err(FundingAllocationError::CreditExceedsAcceptance);
+        }
+        self.acknowledged += accepted.get();
+        Ok(self)
+    }
+
     pub(crate) fn confirm_credit(
         mut self,
         accepted: NonZeroU128,
     ) -> Result<Self, FundingAllocationError> {
-        if accepted.get() > self.uncredited() {
+        if accepted.get() > self.unresolved() {
             return Err(FundingAllocationError::CreditExceedsAcceptance);
         }
         self.credit_confirmed += accepted.get();

@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.42.0]
+
+- **Hard cut:** retain matching successful Cashier callbacks as provider
+  acknowledgments and permit subsequent distinct funding within the installed
+  budget. Preserve spent cycles, exact refunds, one-shot identities and restore
+  fences; missing/malformed replies and accepted provider errors remain blocked.
+  Acknowledgment is distinct from independent credit proof. Passive outcomes and
+  status expose the distinction ([#34 — Qualify payer linkage and top-up attribution](https://github.com/dragginzgame/ic-blob-storage/issues/34)).
+- Restore the three external Caffeine GC callbacks through the shared catalog.
+  Protect live references, reservations, active reads and unknown roots. Persist
+  idempotent gateway acknowledgments without releasing physical bytes or billing
+  liabilities ([#32 — Define and qualify gateway GC callbacks](https://github.com/dragginzgame/ic-blob-storage/issues/32)).
+- Retire/reinstall with old obligations preserved: installation schemas and owned
+  native Wire identities change to `0042`. Update host catalog emitters and DTOs
+  together; provider callbacks remain Candid. No compatibility reader or migration.
+  See [funding](docs/funding-credit.md) and [GC](docs/gateway-gc-contract.md).
+
 ## [0.41.1] - 2026-10-22
 
 - Align Canic adoption and service acceptance guidance with released trusted

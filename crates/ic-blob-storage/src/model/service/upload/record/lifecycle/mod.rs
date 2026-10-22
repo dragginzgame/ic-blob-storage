@@ -47,6 +47,7 @@ pub(crate) struct ConfirmedLifecycleRecord {
     references: u64,
     active: u64,
     receipts: u64,
+    gateway_acknowledged: bool,
 }
 impl ConfirmedLifecycleRecord {
     pub(crate) const fn new() -> Self {
@@ -56,7 +57,21 @@ impl ConfirmedLifecycleRecord {
             references: 1,
             active: 1,
             receipts: 0,
+            gateway_acknowledged: false,
         }
+    }
+    pub(crate) const fn gateway_acknowledged(self) -> bool {
+        self.gateway_acknowledged
+    }
+    pub(crate) fn acknowledge_gateway(&mut self) -> Result<LifecycleChange, LifecycleError> {
+        if self.phase == PhaseRecord::Live {
+            return Err(LifecycleError::LiveReferencesRemain);
+        }
+        if self.gateway_acknowledged {
+            return Ok(LifecycleChange::Unchanged);
+        }
+        self.gateway_acknowledged = true;
+        Ok(LifecycleChange::Changed)
     }
     pub(crate) const fn phase(self) -> LifecyclePhase {
         match self.phase {
@@ -71,6 +86,7 @@ impl ConfirmedLifecycleRecord {
     }
     pub(crate) fn valid(self, limits: CatalogLimits) -> bool {
         self.version == 1
+            && (!self.gateway_acknowledged || self.phase != PhaseRecord::Live)
             && self.references > 0
             && self.active <= self.references
             && (self.phase == PhaseRecord::Live) == (self.active > 0)

@@ -25,6 +25,8 @@ pub struct ConfirmedUploadView {
     pub active_references: u64,
     /// Retained exact operation outcomes, including lifecycle failures.
     pub receipt_slots: u64,
+    /// Matching gateway callback observed; physical deletion and billing remain separate.
+    pub gateway_acknowledged: bool,
 }
 impl<M: Memory> StableUploads<M> {
     /// Apply an exact tenant reference request with reserved cleanup receipt capacity.
@@ -141,6 +143,7 @@ impl<M: Memory> StableUploads<M> {
             reference_slots,
             active_references,
             receipt_slots,
+            gateway_acknowledged: record.gateway_acknowledged(),
         })
     }
     /// Apply independently authenticated physical deletion for this exact object.
@@ -191,7 +194,7 @@ impl<M: Memory> StableUploads<M> {
             .insert(Principal::management_canister().into(), global);
         Ok(change)
     }
-    fn trusted_request(&self, request: UploadRequest) -> Result<(), UploadStoreError> {
+    pub(super) fn trusted_request(&self, request: UploadRequest) -> Result<(), UploadStoreError> {
         validation::object(
             &self.config,
             UploadContext {

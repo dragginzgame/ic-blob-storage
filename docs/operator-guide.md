@@ -1263,8 +1263,10 @@ means no structured reply was retained. Reported success balances and typed
 provider errors remain separate from attachment accounting.
 
 `transfer_unknown` keeps the entire original offer potentially spent.
-`credit_required` names the exact accepted attachment still needing independent
-provider-credit evidence. `no_transfer` concerns attached cycles only; execution
+`provider_acknowledged` names the exact accepted attachment covered by the
+matching successful Cashier callback; it keeps `provider_credit: not_established`.
+`credit_required` names accepted attachment without that acknowledgment or
+independent credit evidence. `no_transfer` concerns attached cycles only; execution
 fees are separate. `credit_confirmed` carries the accepted amount and original
 receipt SHA-256 fingerprint retained by the trusted host; it sets
 `provider_credit: host_confirmed`. Other states retain `not_established`.
@@ -1276,12 +1278,14 @@ query, polling, journal write or automatic retry occurs.
 
 Hosts can use the [internal credit-confirmation contract](funding-credit.md) after
 independently establishing exact provider credit. No standalone credit setter is
-exposed. Status separates lifetime `transport_accepted` from `uncredited_accepted`;
-confirmation clears only the covered local blocker, without replenishing the
+exposed. Status separates lifetime `transport_accepted`, `uncredited_accepted`
+and `provider_acknowledged`. Acknowledged payments can permit later distinct
+bounded funding, while accepted amounts with neither acknowledgment nor independent
+credit remain blocked. Confirmation clears only its covered local blocker, without replenishing the
 funding allocation or releasing recovery fences. A separate host-authorized
 [bounded budget grant](funding-credit.md#bounded-host-authorized-allocation-increases)
-can increase authorization within the installed ceiling after complete credit
-reconciliation and before the next intent. It preserves spent totals and lifetime
+can increase authorization within the installed ceiling after acknowledgment or
+independent credit reconciliation and before the next intent. It preserves spent totals and lifetime
 slots. Status shows cumulative authorization and the ceiling; exact outcomes show
 the original intent's immutable grant.
 

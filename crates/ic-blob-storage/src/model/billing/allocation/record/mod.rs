@@ -15,6 +15,7 @@ pub(crate) struct FundingAllocationRecord {
     available: u128,
     accepted: u128,
     credit_confirmed: u128,
+    acknowledged: u128,
     refunded: u128,
     not_enqueued: u128,
     reserved_or_uncertain: u128,
@@ -30,6 +31,7 @@ impl FundingAllocationRecord {
             available: config.allocated,
             accepted: 0,
             credit_confirmed: 0,
+            acknowledged: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,
@@ -52,6 +54,7 @@ impl FundingAllocationRecord {
             available: self.available,
             accepted: self.accepted,
             credit_confirmed: self.credit_confirmed,
+            acknowledged: self.acknowledged,
             refunded: self.refunded,
             not_enqueued: self.not_enqueued,
             reserved_or_uncertain: self.reserved_or_uncertain,
@@ -62,6 +65,7 @@ impl FundingAllocationRecord {
         self.available = view.available;
         self.accepted = view.accepted;
         self.credit_confirmed = view.credit_confirmed;
+        self.acknowledged = view.acknowledged;
         self.refunded = view.refunded;
         self.not_enqueued = view.not_enqueued;
         self.reserved_or_uncertain = view.reserved_or_uncertain;
@@ -76,6 +80,9 @@ impl FundingAllocationRecord {
         index: usize,
     ) -> Result<Self, FundingAllocationError> {
         Ok(self.with_view(self.view().reserve(amount, index)?))
+    }
+    pub(crate) fn acknowledge(self, accepted: NonZeroU128) -> Result<Self, FundingAllocationError> {
+        Ok(self.with_view(self.view().acknowledge(accepted)?))
     }
     pub(crate) fn confirm_credit(
         self,

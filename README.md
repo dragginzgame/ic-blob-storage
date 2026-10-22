@@ -126,10 +126,12 @@ leases. Cross-release installations require safe obligation
 disposition before reinstall, as described in the
 [service contract](docs/service-contract.md#current-persisted-boundaries).
 
-The library supports [host-internal funding credit confirmation](docs/funding-credit.md).
-Hosts can reconcile exact accepted top-ups using independently verified receipts
-and then admit subsequent guarded funding. Accepted cycles remain spent;
-provider verification and consumer integration remain host-owned.
+The pending hard cut supports [durable provider funding acknowledgments](docs/funding-credit.md).
+A matching successful Cashier callback permits further bounded funding without
+independent credit receipts. Missing/malformed replies and accepted provider
+errors remain unresolved; no original payment is automatically repeated.
+[Gateway callbacks](docs/gateway-gc-contract.md) use the same durable reference
+owner and retain physical/billing liabilities after acknowledgment.
 
 The public library has no downstream framework dependency. Consumer frameworks
 wrap its shared workflows and own integration testing in their repositories.

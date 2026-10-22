@@ -50,7 +50,8 @@ pub(crate) struct ConfigurationRecord {
 impl ConfigurationRecord {
     /// Frozen current layout, independently checked from the installation release.
     /// The host allocation key names a memory slot, not this record's layout.
-    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:trusted-registration-platform-anchor-funding-credit-index-renewal";
+    pub(crate) const FORMAT: &str =
+        "ic-blob-storage/installation:trusted-registration-provider-acknowledgments";
 
     pub(crate) fn check_binding(
         &self,

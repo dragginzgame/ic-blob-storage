@@ -14,6 +14,24 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## GC and Cashier contract follow-up — 2026-10-22
+
+**Later disposition:** the maintainer approved pending 0.42's narrower
+[funding acknowledgment](../../funding-credit.md) and [GC callback](../../gateway-gc-contract.md)
+profiles. Local implementation no longer waits for provider answers. The capture
+below retains its original source-only findings; local regressions do not prove
+independent credit, deployed deletion or billing cessation.
+
+The [intent](local/2026-10-22-gc-credit-contract-02/intent.json),
+[summary](local/2026-10-22-gc-credit-contract-02/summary.md) and
+[checksums](local/2026-10-22-gc-credit-contract-02/files.sha256) retain the bounded
+public search and source follow-up for #32/#34. Newly indexed helpers at
+`d03174cc42ab2833293ba1cb313b7593a611a73f` match the earlier bytes. Official
+retail guides do not establish callback or exact credit semantics. Distinguish
+the helper's discarded unit reply from Cashier's structured result, already
+decoded by Blob. No runtime change or issue closure follows. No account,
+provider-object, payment, deployment or sibling effect; no external cleanup.
+
 ## GC runtime contract discovery — 2026-10-22
 
 **Later disposition:** [released Blob 0.41.0](https://github.com/dragginzgame/ic-blob-storage/blob/d15c64c0f43d06c89286c049c593966a6adc5a2d/docs/trusted-registration.md)

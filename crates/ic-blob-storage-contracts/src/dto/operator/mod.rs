@@ -66,6 +66,8 @@ pub struct LocalFundingStatus {
     pub transport_accepted: u128,
     /// Accepted attachments still awaiting exact host credit confirmation.
     pub uncredited_accepted: u128,
+    /// Accepted cycles acknowledged by successful replies, without independent credit proof.
+    pub provider_acknowledged: u128,
     /// Lifetime exact refunds, already included in available allocation.
     pub refunded: u128,
     /// Lifetime proven unsent attachments, not callback refunds.

@@ -1,5 +1,6 @@
 use super::*;
 mod account;
+mod gateway;
 mod operator;
 use crate::ops::service::configuration::{tests::candidate, validate_candidate};
 use crate::test_support::memory::FixtureMemory;

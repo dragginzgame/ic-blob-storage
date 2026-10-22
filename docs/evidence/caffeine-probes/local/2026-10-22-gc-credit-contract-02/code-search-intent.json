@@ -1,0 +1,20 @@
+{
+  "reason": "The bounded public web search returned retail help and unrelated storage systems. Official retail guides do not specify Cashier cycle-credit attribution or gateway RPC semantics. Search only the provider's public code for a canonical implementation beyond the previously retained application helper.",
+  "queries": [
+    "account_top_up_v1 org:caffeinelabs",
+    "_immutableObjectStorageBlobsAreLive org:caffeinelabs"
+  ],
+  "budget": {
+    "github_code_search_reads": 2,
+    "max_results_each": 10,
+    "max_response_bytes_each": 524288,
+    "additional_source_reads": 0,
+    "provider_account_or_data_requests": 0,
+    "paid_effects": 0
+  },
+  "constraints": [
+    "Retain failures and incomplete results without retries.",
+    "Search hits alone are not contract or deployed behavior evidence.",
+    "Any further source reads require an explicit intent expansion."
+  ]
+}

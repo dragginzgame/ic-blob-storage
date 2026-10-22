@@ -75,6 +75,8 @@ fn output(input: FundingOutcomeRequest, bytes: &[u8], options: &Options) -> Resu
     });
     let record = observed.map(|view| {
         let reconciliation = match view.reconciliation {
+            FundingReconciliation::ProviderAcknowledged(amount) =>
+                json!({"state":"provider_acknowledged","accepted":amount.to_string()}),
             FundingReconciliation::CreditConfirmed { accepted_cycles, receipt_digest } => {
                 json!({"state":"credit_confirmed","accepted":accepted_cycles.to_string(),
                     "receipt_sha256":ic_blob_storage_contracts::identity::ContentDigest::try_from(receipt_digest.as_slice()).expect("fixed receipt digest").to_string()})

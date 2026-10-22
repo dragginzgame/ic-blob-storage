@@ -21,7 +21,7 @@ fn increase(f: &Fixture, actor: Principal, input: RenewalCommand) -> Result<bool
 fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
     let f = Fixture::with_cashier();
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Success);
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
     f.confirm_credit(f.operator, credit(first, 300, 1)).unwrap();
@@ -104,7 +104,7 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
         200
     );
     let second = f.funding_intent(2, 400);
-    f.configure_cashier(second, 200, FundingReplyMode::Success);
+    f.configure_cashier(second, 200, FundingReplyMode::Malformed);
     f.funding(f.operator, second, Action::Prepare).unwrap();
     assert_eq!(
         settled(f.guarded_dispatch(f.operator, request(second))).accepted,
@@ -142,7 +142,7 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
 fn post_commit_credit_trap_rolls_back_intent_index_and_accounting_without_another_payment() {
     let f = Fixture::with_cashier();
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Success);
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
     let before = f.harness.pic.get_stable_memory(f.service);

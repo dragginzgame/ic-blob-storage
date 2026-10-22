@@ -1,131 +1,86 @@
-# Caffeine gateway GC contract review
+# Caffeine gateway GC callbacks
 
-This is the source-derived wire contract and implementation prerequisite for
-[#32](https://github.com/dragginzgame/ic-blob-storage/issues/32). Current Blob
-does not export these provider methods. Its authenticated root observations are
-local lifecycle views, not provider deletion permission. This review does not
-enable GC or establish deployed retention or billing behavior.
+The pending 0.42 hard cut restores the three external Candid callbacks through
+Blob's [shared endpoint catalog](../crates/ic-blob-storage-contracts/src/endpoints/mod.rs).
+The service core owns their policy and durable state; standalone and consumer
+frameworks explicitly mount that catalog. Linking the library exports nothing.
+This implements the supported local protocol for
+[#32](https://github.com/dragginzgame/ic-blob-storage/issues/32), without claiming
+qualification of the deployed gateway's failure handling, deletion or charging.
 
-The [2026-10-21 source refresh](evidence/caffeine-probes/local/2026-10-21-provider-contract0402-01/summary.json)
-checks current public main `74ef654e00bdca6c86348865c282fb45c77e29b2`.
-Both implementation files below are byte-for-byte unchanged. The same missing
-gateway failure/deletion/billing facts still block handlers; this is source
-evidence, not a deployed-provider probe. The additional package README lookup
-returned 404 and is retained as a failed request.
+## Supported tree-root profile
 
-## Reviewed provider interface
+Keys are the original 32-byte Caffeine tree roots admitted with each upload.
+The upload manifest builder and SDK comparison already distinguish these from
+raw-content digests and chunk hashes. The retained
+[SDK/source review](evidence/caffeine-probes/local/2026-10-22-gc-contract-discovery-01/summary.md)
+and [follow-up](evidence/caffeine-probes/local/2026-10-22-gc-credit-contract-02/summary.md)
+remain source evidence, not a deployed gateway observation. A different or unknown
+provider key is protected, never guessed to be a released file or chunk.
 
-On 2026-10-09, the public `caffeinelabs/skills` main revision was
-`1b72e52699b9092d8ba16c4cb2f2d99920662afc`. The exact
-[Mixin.mo](https://github.com/caffeinelabs/skills/blob/1b72e52699b9092d8ba16c4cb2f2d99920662afc/packages/object-storage/backend/src/Mixin.mo)
-and [Storage.mo](https://github.com/caffeinelabs/skills/blob/1b72e52699b9092d8ba16c4cb2f2d99920662afc/packages/object-storage/backend/src/Storage.mo)
-bytes match the earlier 2026-10-02 review. The
-[retained capture](evidence/caffeine-probes/local/2026-10-09-gc-contract0191-01/summary.json)
-records hashes, request bounds and limitations. Its Candid file is a review
-projection of these three methods, not the Blob service interface.
-
-| Method | Candid arguments and result | Source behavior |
+| External method | Contract | Local behavior |
 | --- | --- | --- |
-| `_immutableObjectStorageBlobsAreLive` | `(vec blob) -> (vec bool) query` | Maps Motoko's `Prim.isStorageBlobLive` over the input, preserving order and duplicates. The reviewed method has no gateway-membership check. |
-| `_immutableObjectStorageBlobsToDelete` | `() -> (vec blob) query` | Requires current gateway membership, then returns at most 10,000 roots from `Prim.getDeadBlobs`. There is no cursor or namespace argument. |
-| `_immutableObjectStorageConfirmBlobDeletion` | `(vec blob) -> ()` update | Requires current gateway membership, prunes Motoko's retained dead-root list, then awaits the local GC trigger. It receives no deletion operation, incarnation or billing receipt. |
+| `_immutableObjectStorageBlobsAreLive` | `(vec blob) -> (vec bool) query` | Public, positional and duplicate-preserving. Known reservations, live references and active read sessions are protected. Unknown roots return true. Malformed batches refuse. |
+| `_immutableObjectStorageBlobsToDelete` | `() -> (vec blob) query` | Current scoped gateway members only. Returns at most 10,000 known released tree roots, excluding read-held or already acknowledged lifetimes. |
+| `_immutableObjectStorageConfirmBlobDeletion` | `(vec blob) -> ()` | Current scoped gateway members only. Records an acknowledgment on each exact original released lifetime. It does not erase records or settle physical/billing obligations. |
 
-The reviewed membership owner replaces its in-memory list with Cashier's
-`storage_gateway_list_v1` reply. Blob already owns a scoped durable registry,
-operator revocation and correlated sync; those remain authoritative here.
-Mounting these callbacks must not introduce a second membership cache or copy
-Motoko's runtime primitives into a Rust service.
+The explicit public liveness query follows the provider mixin's access pattern;
+it discloses only retention booleans, not tenant/request identities or manifests.
+Operators, controllers and tenants cannot impersonate gateway membership for
+listing or acknowledgment. The registry remains the existing durable owner,
+refreshed from the configured Cashier; no second membership cache is introduced.
 
-The public source contains the application-side methods. It does not contain
-the deployed gateway's callback caller, retry loop or failure policy. A method
-name containing "ConfirmBlobDeletion" and successful empty Candid output alone
-do not establish physical deletion or cessation of charges.
+All three operations bind the actual service and the installation's namespace
+and Cashier. Registry, upload and read owners must share the same configuration
+and be unfenced. Suspension, expired permissions and a revoked uploader do not
+erase registered retention or escaped upload authority. Releasing the final
+reference queues logical deletion; an outstanding local read still protects it.
 
-## Runtime primitive review — 2026-10-22
+## Bounds, acknowledgments and recovery
 
-The [bounded discovery record](evidence/caffeine-probes/local/2026-10-22-gc-contract-discovery-01/summary.md)
-adds the provider's public Motoko compiler at exact commit
-`9f8180640732ae182a3161862e0e4e3e4377d9fc`. Its
-[primitive implementation](https://github.com/caffeinelabs/motoko/blob/9f8180640732ae182a3161862e0e4e3e4377d9fc/src/prelude/prim.mo#L134)
-marks this section experimental. Liveness looks up a deduplication-table entry
-and tests its weak reference; dead-list enumeration selects entries whose weak
-reference is gone. Confirmation prunes matching entries only while they remain
-dead. These are Motoko runtime bookkeeping operations, not remote storage calls.
+The shared provider codec bounds raw ingress to 400,000 bytes, roots to 10,000
+and combined key bytes to 320,000. Candid work, type/header and skipping budgets
+are explicit. The no-argument query has its own 1,024-byte decoding envelope.
+The endpoint guard bounds ingress before the Platform argument-buffer copy.
+Malformed keys, extra arguments and excess batches refuse before root mutation.
 
-This source supports keeping live entries protected and pruning idempotently,
-but does not define the gateway's caller, unknown-root/failure interpretation,
-physical-deletion acknowledgment or billing boundary. Nor does it supply the
-required Rust object/manifest-to-provider-key association. Blob's durable
-references remain authoritative; do not port the weak-reference table or treat
-a prune acknowledgment as `confirm_provider_deleted` or `confirm_billing_stopped`.
-The discovery found no authoritative gateway specification; it does not prove
-that none exists. The concrete provider questions below still block mounting.
+Deletion selection traverses the bounded lifetime lifecycle history in its stable
+key order. Acknowledged entries disappear from this projection, so subsequent
+polls can reach later entries without a new cursor or durable deletion index.
+The work bound is the installed lifetime history; this is not a constant-time
+scan and no history slots are reclaimed by acknowledgment.
 
-## Required Blob decisions before mounting
+An acknowledgment validates the complete batch before writes, including native
+backing. Live/read-held, malformed and unknown roots refuse the whole batch.
+Duplicates are deduplicated for mutation. Exact retries after a lost reply remain
+idempotent, including after later independently established physical deletion or
+billing settlement. Acknowledgment cannot release another incarnation: permanent
+root claims and the original request/index binding remain retained. Current
+membership and all fences are checked again on every call, including empty input.
+Stable write traps must propagate for whole-message IC rollback.
 
-The endpoint supplies actual caller/service and an explicit installed provider
-scope. Membership, namespace and both durable-owner fences are checked before
-reading any roots, including empty, malformed and unknown batches. Controllers,
-operators and tenant identities do not impersonate gateways. If gateway callers
-need the upstream unauthenticated liveness query, qualify that requirement before
-changing Blob's authenticated observation boundary.
+The acknowledgment bit lives in the existing lifecycle record. Same-release
+restoration validates it and opens fenced; a live record cannot carry it.
+Cross-release transitions require retirement/reinstall with the old obligations
+and tools retained. There is no migration, dual reader or automatic reset.
 
-Wire blobs must use the provider's established root encoding. Configure finite
-decoded-byte, root-count and retained-history limits; reject excess input before
-lookup rather than silently truncating a positional reply. An authenticated
-empty liveness request may return an empty vector. Malformed, unknown or foreign
-roots cannot be turned into `false` or deletion candidates. Unknown-root handling
-needs the gateway failure contract because rejection might itself affect retention.
+## What the callback does not establish
 
-| Retained local state | Safe implementation constraint |
-| --- | --- |
-| Reserved | Protect the original pending reservation; absence of a live reference is insufficient for deletion authority. |
-| Registered / Live | Certificate issuance registers retention before transfer. Protect every live reference, including uncertain transfers, overlapping application release and read sessions. |
-| DeletionPending | A possible candidate only after exact root/scope authority and the deletion protocol are qualified. Physical bytes and financial liability remain charged. |
-| Cancelled, ProviderDeleted, Settled | Retained history is not permission to delete or reassign a root. A duplicate confirmation needs the exact original evidence. |
-| Unknown, malformed, foreign | Refuse disclosure/deletion authority; never infer an absent object or safe cleanup. |
+Gateway acknowledgment does not invoke `confirm_provider_deleted` or
+`confirm_billing_stopped`. Physical bytes and financial liability remain charged
+until their existing host-internal evidence boundaries are satisfied. No physical
+or billing confirmation is manufactured from a timeout, missing download, empty
+list, acknowledged callback or zero balance.
 
-The no-argument deletion-list method requires one installed exclusive provider
-namespace. It must enumerate a bounded deterministic selection from the same
-durable lifecycle owner; a tenant's logical release is not an external deletion
-receipt. An operator scan cursor is not a provider callback cursor. Confirm that
-repeated bounded lists eventually advance under the actual acknowledgement rules
-before relying on them for continuing cleanup.
+The provider's Motoko implementation prunes local weak-reference bookkeeping and
+triggers local GC. Rust uses explicit durable references; it does not reproduce
+that runtime table or GC trigger. Unknown roots are deliberately protected rather
+than using Motoko's absent-entry false result. If the gateway supplies other key
+kinds, this can retain data; that conservative difference needs deployed acceptance.
 
-Root-only confirmations require the complete permanent root-claim history and
-verified namespace exclusivity, including earlier provider usage. Resolve a root
-to its original binding, never to a new incarnation. Revocation, foreign scope,
-active references and restore fences refuse before mutation. Same-contract
-interruption must preserve the original deletion evidence and duplicate outcome.
-The existing `confirm_provider_deleted` host API requires independently
-authenticated physical-deletion evidence; a prune acknowledgement cannot be
-connected to it until the provider establishes that meaning. Billing settlement
-continues through its separate evidence boundary.
-
-## Missing, rejecting and malformed methods
-
-No deployed-provider result is available for any of these cases:
-
-| Callback outcome | Provider evidence still required |
-| --- | --- |
-| Method absent or query/update mode wrong | Does the gateway retain bytes, retry, delete, or continue charging? Which caller and interval apply? |
-| Authorization rejection, trap or malformed reply | Are failures treated as retention, liveness, deletion permission or an unavailable application? |
-| Liveness vector length differs from input | Does the gateway reject the whole result or use a partial positional interpretation? |
-| Confirmation reply lost after local mutation | What exact original deletion may be acknowledged again, and what happens to the provider's pending list? |
-| Empty deletion list | Does this end one poll only, or affect retention/billing independently? |
-
-A local missing-method reject or provider substitute would qualify only that
-local outcome. It cannot answer these gateway questions. Obtain authoritative
-gateway source/documentation or record a separately authorized, budgeted deployed
-experiment before exposing deletion authority. Preserve physical/economic
-obligations on uncertainty; do not install false/empty placeholder handlers.
-
-## Consumer and provider acceptance
-
-Blob owns the shared protocol implementation and safety tests once the provider
-meaning is established. Canic mounts it without recreating wire DTOs or policy.
-Toko retains application references and grants; Motoko heap liveness is not its
-replacement Blob reference owner. Qualify live/reference protection, final release,
-bounded batches, lost replies, duplicate/late confirmations, gateway revocation,
-foreign roots and restored fences against exact committed artifacts. Record
-provider deletion and billing cessation separately from all local results.
+[Caffeine #16 — GC callback contract](https://github.com/caffeinelabs/skills/issues/16)
+asks for the remaining key mapping and missing/rejecting/malformed callback,
+remote deletion, replay and billing semantics. An answer is not a prerequisite
+for local implementation and testing of this narrower profile. It is still needed
+for stronger claims about the deployed provider, or those claims need separately
+authorized observations. Local substitutes cannot supply those guarantees.

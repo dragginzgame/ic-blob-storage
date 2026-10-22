@@ -25,6 +25,7 @@ fn response() -> Response {
             attachment_allowance: u128::MAX - 1,
             transport_accepted: 0,
             uncredited_accepted: 0,
+            provider_acknowledged: 0,
             refunded: 0,
             not_enqueued: 0,
             reserved_or_uncertain: 0,

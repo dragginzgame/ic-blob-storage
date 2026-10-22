@@ -1,6 +1,6 @@
 //! Canonical service declarations and callable surface shared by host adapters.
 //! Hosts own authentication, lifecycle and endpoint registration. Blob-owned
-//! methods declare their codec; the Caffeine certificate remains Candid.
+//! methods declare their codec; external Caffeine provider methods remain Candid.
 
 /// Platform dispatch mode of a maintained service method.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -15,7 +15,7 @@ pub enum MethodMode {
 pub enum MethodCodec {
     /// Bounded, method- and direction-bound IC Wire contract.
     IcWire,
-    /// Provider-defined Caffeine certificate contract.
+    /// Provider-defined external Caffeine contract.
     Candid,
 }
 /// Passive callable metadata emitted from the same catalog as host endpoints.
@@ -29,6 +29,12 @@ pub struct MethodSpec {
     pub codec: MethodCodec,
 }
 macro_rules! method_spec {
+    (provider, query, $category:ident, $name:literal, $($rest:tt)*) => {
+        MethodSpec { name: $name, mode: MethodMode::Query, codec: MethodCodec::Candid }
+    };
+    (provider, update, $category:ident, $name:literal, $($rest:tt)*) => {
+        MethodSpec { name: $name, mode: MethodMode::Update, codec: MethodCodec::Candid }
+    };
     (query, tenant_inspection, $($rest:tt)*) => {
         MethodSpec { name: crate::protocol::TENANT_INSPECTION_METHOD, mode: MethodMode::Query, codec: MethodCodec::IcWire }
     };
@@ -62,7 +68,7 @@ pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
 );
 
 /// Mount the canonical methods through a host's per-method bounded endpoint emitter.
-/// The provider certificate entry uses its separate Candid emitter. The context
+/// Provider entries use their separate bounded Candid emitters. The context
 /// must capture the actual caller/canister; clock, caller and trap paths must be
 /// trusted platform adapters. Linking contracts exports no lifecycle or endpoints.
 #[macro_export]
@@ -200,6 +206,23 @@ macro_rules! __blob_service_catalog {
                 $contracts::dto::upload::exposure::UploadExposureFailure,
             > {
                 $workflow::certificate_assessment($context(), &root, $clock())
+            }]
+            [provider, query, roots, "_immutableObjectStorageBlobsAreLive",
+            fn caffeine_blobs_are_live(roots: Vec<Vec<u8>>) -> Vec<bool> {
+                $workflow::provider_liveness($context(), &roots)
+                    .unwrap_or_else(|_| $trap("provider liveness refused"))
+            }]
+            [provider, query, empty, "_immutableObjectStorageBlobsToDelete",
+            fn caffeine_blobs_to_delete() -> Vec<Vec<u8>> {
+                $workflow::provider_deletions($context())
+                    .unwrap_or_else(|_| $trap("provider deletion list refused"))
+            }]
+            [provider, update, roots, "_immutableObjectStorageConfirmBlobDeletion",
+            async fn caffeine_confirm_blob_deletion(roots: Vec<Vec<u8>>) {
+                let call_context = $context();
+                $workflow::before_update().await;
+                $workflow::acknowledge_provider_deletions(call_context, &roots)
+                    .unwrap_or_else(|_| $trap("provider acknowledgment refused"))
             }]
             [certificate, request, "_immutableObjectStorageCreateCertificate",
             async fn caffeine_upload_certificate(

@@ -221,7 +221,7 @@ and opaque browser packets use that encoder; JavaScript defines no fixture
 schemas. Actual service operations use their method-bound Wire clients.
 Private storage controls now use Wire argument/reply tuples under their existing
 4 KiB ingress bound. They reuse the same document codec and native control caller;
-provider certificate callbacks and probe lifecycle arguments retain Candid.
+provider certificate/GC callbacks and probe lifecycle arguments retain Candid.
 Application-only DTOs no longer implement Candid traits. Frozen historical inputs
 and the saved consumer-probe record use private schema projections, preserving
 their existing Candid bytes rather than changing production storage. Named,
@@ -256,7 +256,10 @@ For consumer adoption of this source:
    count, including nested application configuration.
    Retain exact target/operation bytes for lost-reply reconciliation.
 4. Mount both request and response codecs from the current method catalog:
-   all owned methods use Wire, and the provider certificate uses Candid. Check actual Wasm names/modes and the provider-only
+   all owned methods use Wire, and provider certificate/GC callbacks use Candid.
+   The catalog adds the `provider` query/update emitter families; update the host
+   emitter and delegate to shared `ServiceWorkflow` handlers. Use the canonical
+   `provider::gc` decoder bounds. Check actual Wasm names/modes and the provider-only
    Candid subset. A Candid service file does not describe the complete Blob API.
 5. Run dedicated/embedded PocketIC initialization, target/caller refusal, rollback,
    lost-result, metrics and same-image recovery cases in Canic. Apply the

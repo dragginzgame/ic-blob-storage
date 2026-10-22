@@ -70,8 +70,10 @@ The released [0.41 trusted-registration contract](trusted-registration.md) remov
 the mandatory completion verifier, attestation endpoints and worker. Consumers
 qualify original certificate/retry identities, exact live references and actual
 verified reads. They do not provision a completion signer or treat registration
-as proof of availability. Provider GC and repeated funding retain their separate
-acceptance boundaries.
+as proof of availability. Pending 0.42 adds the narrower [GC callback](gateway-gc-contract.md) and
+[funding acknowledgment](funding-credit.md) profiles. Local implementation does
+not wait for provider answers; production payer linkage, physical deletion,
+credit guarantees and billing retain their separate acceptance boundaries.
 
 ## Evidence and release scope
 

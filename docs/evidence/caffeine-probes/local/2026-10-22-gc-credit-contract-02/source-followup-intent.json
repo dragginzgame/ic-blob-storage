@@ -1,0 +1,20 @@
+{
+  "reason": "Both successful provider-scoped code searches returned exactly one indexed file at a newly observed skills commit. Verify the exact source bytes rather than assuming they match the earlier capture or that the search result supplies a contract.",
+  "commit": "d03174cc42ab2833293ba1cb313b7593a611a73f",
+  "source_reads": [
+    "https://raw.githubusercontent.com/caffeinelabs/skills/d03174cc42ab2833293ba1cb313b7593a611a73f/packages/object-storage/backend/src/Storage.mo",
+    "https://raw.githubusercontent.com/caffeinelabs/skills/d03174cc42ab2833293ba1cb313b7593a611a73f/packages/object-storage/backend/src/Mixin.mo"
+  ],
+  "budget": {
+    "additional_public_source_reads": 2,
+    "max_bytes_each": 524288,
+    "timeout_seconds_each": 30,
+    "retries": 0,
+    "provider_account_or_data_requests": 0,
+    "paid_effects": 0
+  },
+  "constraints": [
+    "Retain HTTP failures and bounded bodies; do not retry.",
+    "An indexed provider source revision does not establish deployed gateway or Cashier behavior."
+  ]
+}

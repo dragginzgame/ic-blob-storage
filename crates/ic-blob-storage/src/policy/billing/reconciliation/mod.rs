@@ -8,13 +8,13 @@ use crate::model::billing::journal::credit::FundingCreditReceipt;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
 
 /// Diagnose the complete maintained totals of one uncredited local journal.
-/// Equivalent to inspecting all retained transfers and credit confirmations.
+/// Includes successful callback acknowledgments and independent credit confirmations.
 /// Prepared/uncertain reservations conservatively block alongside accepted amounts.
 /// A local `Clear` establishes neither account-wide completeness nor freshness,
 /// provider credit, spendability or permission to release a restoration fence.
 #[must_use]
 pub const fn assess_uncredited_allocation(allocation: FundingAllocationView) -> FundingActivity {
-    if allocation.uncredited() != 0 || allocation.reserved_or_uncertain() != 0 {
+    if allocation.unresolved() != 0 || allocation.reserved_or_uncertain() != 0 {
         FundingActivity::Uncertain
     } else {
         FundingActivity::Clear
@@ -34,7 +34,9 @@ pub fn assess_uncredited_activity(
     if attempts.into_iter().any(|attempt| {
         !matches!(
             attempt,
-            FundingReconciliation::NoTransfer | FundingReconciliation::CreditConfirmed { .. }
+            FundingReconciliation::NoTransfer
+                | FundingReconciliation::CreditConfirmed { .. }
+                | FundingReconciliation::ProviderAcknowledged { .. }
         )
     }) {
         FundingActivity::Uncertain
@@ -43,12 +45,18 @@ pub fn assess_uncredited_activity(
     }
 }
 
-/// Work remaining for one exactly bound attempt, independent of Cashier replies.
+/// Work remaining for one exactly bound attempt; acknowledgment is not credit proof.
 ///
 /// No variant clears account-wide activity or authorizes a replacement payment.
 /// Identity/recovery fences and other liabilities remain the workflow's concern.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum FundingReconciliation {
+    /// Exact accepted attachment acknowledged by the matching successful callback.
+    /// This is operational provider acknowledgment, not independently verified credit.
+    ProviderAcknowledged {
+        /// Full positive accepted attachment from the original callback.
+        accepted_cycles: NonZeroU128,
+    },
     /// Exact immutable credit receipt was established by the trusted host.
     /// Spent attachments remain charged and other activity is independent.
     CreditConfirmed {
@@ -90,11 +98,13 @@ pub const fn assess_funding_reconciliation(transfer: FundingTransfer) -> Funding
 }
 
 /// Combine exact transport facts with a validated immutable journal receipt.
-/// Reported balances and provider response decoding are deliberately not inputs.
+/// Acknowledgment comes only from the exact retained successful callback.
+/// Its reported balance is never used to derive a credited amount.
 #[must_use]
 pub fn assess_reconciled_funding(
     transfer: FundingTransfer,
     credit: Option<FundingCreditReceipt>,
+    acknowledged: Option<NonZeroU128>,
 ) -> FundingReconciliation {
     if let Some(credit) = credit
         && transfer.accepted() == Some(credit.accepted_cycles().get())
@@ -103,6 +113,11 @@ pub fn assess_reconciled_funding(
             accepted_cycles: credit.accepted_cycles(),
             receipt_digest: credit.receipt_digest(),
         };
+    }
+    if let Some(accepted_cycles) = acknowledged
+        && transfer.accepted() == Some(accepted_cycles.get())
+    {
+        return FundingReconciliation::ProviderAcknowledged { accepted_cycles };
     }
     assess_funding_reconciliation(transfer)
 }

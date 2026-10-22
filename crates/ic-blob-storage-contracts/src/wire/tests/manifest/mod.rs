@@ -44,7 +44,7 @@ fn full_width_manifest_requests_and_historical_replies_keep_order_and_exact_iden
     assert!(request.len() < 128 * 1024);
     assert_eq!(
         &request[..11],
-        &[b'I', b'W', 8, 0, 0x41, 0, 0x42, 0x4f, 0x4c, 0x42, 0]
+        &[b'I', b'W', 8, 0, 0x42, 0, 0x42, 0x4f, 0x4c, 0x42, 0]
     );
     assert_eq!(
         decode_request::<UploadManifestRequest>("blob_prepare_upload", &request, 128 * 1024)

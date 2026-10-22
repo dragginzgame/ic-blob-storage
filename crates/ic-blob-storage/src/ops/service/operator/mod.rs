@@ -136,6 +136,7 @@ pub(crate) fn funding_status(
         attachment_allowance: funding.allocation.transferable(),
         transport_accepted: funding.allocation.accepted(),
         uncredited_accepted: funding.allocation.uncredited(),
+        provider_acknowledged: funding.allocation.acknowledged(),
         refunded: funding.allocation.refunded(),
         not_enqueued: funding.allocation.not_enqueued(),
         reserved_or_uncertain: funding.allocation.reserved_or_uncertain(),

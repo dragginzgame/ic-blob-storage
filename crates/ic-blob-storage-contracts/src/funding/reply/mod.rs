@@ -181,4 +181,5 @@ pub fn valid_journal(status: &LocalFundingStatus) -> bool {
         && status.last_operation != Some(0)
         && status.attachment_allowance <= status.available_allocation
         && status.uncredited_accepted <= status.transport_accepted
+        && status.provider_acknowledged <= status.uncredited_accepted
 }

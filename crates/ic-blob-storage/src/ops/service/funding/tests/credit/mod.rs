@@ -42,7 +42,7 @@ pub(super) fn paid(
         )
         .unwrap();
 }
-fn host(intent: FundingIntent) -> FundingHostEvidence {
+pub(super) fn host(intent: FundingIntent) -> FundingHostEvidence {
     FundingHostEvidence {
         scope: crate::model::billing::journal::FundingJournalScope {
             service: intent.service,

@@ -395,7 +395,7 @@ fn check_callback(mut view: FundingOutcomeResponse) {
         promotional: 0,
         ledger: 0,
     }));
-    view.reconciliation = FundingReconciliation::CreditRequired(1);
+    view.reconciliation = FundingReconciliation::ProviderAcknowledged(1);
     assert_eq!(decode_outcome(&view), Ok(Some(view)));
     for changed in [
         FundingOutcomeResponse {
@@ -423,6 +423,18 @@ fn check_callback(mut view: FundingOutcomeResponse) {
         assert_eq!(decode_outcome(&changed), Err(FundingReplyError::Binding));
     }
     for changed in [
+        FundingOutcomeResponse {
+            reconciliation: FundingReconciliation::ProviderAcknowledged(2),
+            ..view
+        },
+        FundingOutcomeResponse {
+            reconciliation: FundingReconciliation::CreditRequired(1),
+            ..view
+        },
+        FundingOutcomeResponse {
+            response: Some(FundingResponse::InvalidReply),
+            ..view
+        },
         FundingOutcomeResponse {
             reconciliation: FundingReconciliation::NoTransfer,
             ..view

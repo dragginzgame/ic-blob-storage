@@ -78,7 +78,7 @@ fn retain(f: &Fixture, name: &str) {
 fn confirmed_credit_allows_another_dispatch_without_replenishing_spent_cycles() {
     let f = Fixture::with_cashier();
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Success);
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     assert_eq!(
         settled(f.guarded_dispatch(f.operator, request(first))).accepted,
@@ -120,7 +120,7 @@ fn confirmed_credit_allows_another_dispatch_without_replenishing_spent_cycles() 
             receipt_digest: [1; 32],
         }
     );
-    f.configure_cashier(next, 200, FundingReplyMode::Success);
+    f.configure_cashier(next, 200, FundingReplyMode::Malformed);
     assert_eq!(
         settled(f.guarded_dispatch(f.operator, request(next))).accepted,
         200
@@ -144,7 +144,7 @@ fn confirmed_credit_allows_another_dispatch_without_replenishing_spent_cycles() 
 fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay() {
     let f = Fixture::with_cashier();
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Success);
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -185,7 +185,7 @@ fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay
 fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_without_writes() {
     let f = Fixture::with_cashier();
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Success);
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
     for (actor, input, failure) in [
@@ -223,7 +223,7 @@ fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_withou
     }
     f.confirm_credit(f.operator, credit(first, 300, 1)).unwrap();
     let next = f.funding_intent(2, 400);
-    f.configure_cashier(next, 200, FundingReplyMode::Success);
+    f.configure_cashier(next, 200, FundingReplyMode::Malformed);
     f.funding(f.operator, next, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(next)));
     for input in [credit(first, 300, 2), credit(next, 200, 1)] {
@@ -238,7 +238,7 @@ fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_withou
 fn same_release_restoration_preserves_credit_receipts_and_fences_even_exact_replay() {
     let f = Fixture::with_cashier();
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Success);
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
     f.confirm_credit(f.operator, credit(first, 300, 1)).unwrap();

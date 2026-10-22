@@ -23,7 +23,7 @@ pub fn inspect<M: Memory>(
         boundary::present(
             input,
             &view,
-            assess_reconciled_funding(view.transfer, view.credit),
+            assess_reconciled_funding(view.transfer, view.credit, view.acknowledged),
             journal.is_fenced(),
         )
     }))

@@ -1,0 +1,7 @@
+{
+  "retention": "Raw web-tool response retained locally; this portable index deliberately omits full third-party article text and irrelevant search excerpts.",
+  "raw_path": ".tmp/review-validation/gc-credit-contract-02/official-guides.json",
+  "sha256": "2ac44ce694e14c4b023edfbb5c90321e1f20a9f7ce7b5ac51935a5912096dab4",
+  "bytes": 13696,
+  "outcome": "No implementation contract found. See summary.md for primary-source URLs, findings and limitations."
+}

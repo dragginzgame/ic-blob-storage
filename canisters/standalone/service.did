@@ -8,6 +8,9 @@ type CaffeineUploadCertificateResponse = record {
   blob_hash : text;
 };
 service : {
+  _immutableObjectStorageBlobsAreLive : (vec blob) -> (vec bool) query;
+  _immutableObjectStorageBlobsToDelete : () -> (vec blob) query;
+  _immutableObjectStorageConfirmBlobDeletion : (vec blob) -> ();
   _immutableObjectStorageCreateCertificate : (text) -> (
       CaffeineUploadCertificateResponse,
     );
