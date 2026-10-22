@@ -5,7 +5,7 @@ Date: 2026-10-22
 ## Source and accepted scope
 
 Latest released source is **0.40.4**, `ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7`.
-Local main includes the pending batch at `c1103db`; no 0.41.0 tag is present.
+Local main includes the pending batch at `19ee2f5`; no 0.41.0 tag is present.
 The working batch targets **0.41.0**; package versions remain 0.40.4 for the
 maintainer's release runner. Preserve the incoming Cargo.lock changes and the
 October 22 source-discovery evidence. No staging, commit, push or release is
@@ -100,9 +100,9 @@ covered by the installed artifact results above. `qualification.json` separates
 those artifacts from the later lock snapshot. Qualify the settled graph before
 release; do not reuse earlier installed evidence for a changing lockfile.
 
-The current-compiler managed Testkit selection is not provisioned. Local installed
-checks explicitly select the retained PocketIC 16.1.0 binary, matching Testkit's
-published server requirement; this does not qualify the shared setup selection.
+The maintainer's 09:30 CI run passed managed `tools-check`, including Testkit's
+16.1.0 server admission. Earlier local installed checks selected that retained
+binary explicitly; they did not independently qualify the setup selection.
 No native macOS, real installed IC or deployed Caffeine qualification is claimed.
 Released-source hosted results remain linked in the [October 20 handoff](handoff-2026-10-20.md)
 and [history](history.md); they do not qualify this dirty hard cut.
@@ -125,6 +125,14 @@ cases, 25 native PocketIC unit cases and four installed certificate cases using
 the retained 16.1.0 server. The certificate CLI case also passes with the rebuilt
 0.64 Host CLI; standalone Wasm is unchanged and its default Wasm check passes.
 The first inventory test failure is retained separately.
-No new native macOS or full release gate is claimed. Explicitly prepare the locked
-tools with `make install-testkit` and `make install-release-editor` before the
-maintainer's release gate; this adoption does not install executables.
+No new native macOS or full release gate is claimed. The maintainer subsequently
+prepared the tools; this adoption itself did not install executables.
+
+The 09:30 release gate reached the final PocketIC target, `uploads`, after the
+other native and installed targets passed. Its stale list expectations still
+included registered objects as active reservations. The focused repair keeps
+only unregistered reservations in those lists, while retaining caller isolation,
+registered-root history, logical charges and cancellation refusal. Both upload
+tests and strict target Clippy pass; formatting/whitespace pass and Cargo.lock
+is unchanged. Evidence: `.tmp/review-validation/uploads-registration-fix/`.
+Production code and schemas are untouched. The complete gate still needs rerunning.

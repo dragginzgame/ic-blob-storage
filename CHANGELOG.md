@@ -17,7 +17,9 @@
   and retained liability immediately afterward; registered uploads leave the
   active-reservation listing while their history still counts toward scan limits.
   Keep live content out of pending/retired inventory fixtures; its separate
-  reference-capacity checks remain covered.
+  reference-capacity checks remain covered. Installed caller-isolation coverage
+  likewise lists only reservations, retaining registered-root history, charges
+  and the refusal to cancel registered objects.
 
 - Adopt published IC Host, Build and Testkit 0.64.0 together. Native tests import
   PocketIC directly from Platform and use Testkit's deterministic principal

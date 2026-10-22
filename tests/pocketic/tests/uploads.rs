@@ -31,7 +31,7 @@ fn cancel(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> b
 }
 
 #[test]
-fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
+fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_work() {
     let harness = Harness::new();
     let pic = &harness.pic;
     let (first, second, gateway, controller) = (
@@ -61,7 +61,7 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
         UploadProbeState::Cancelled,
     ];
     assert_eq!(roots(pic, canister, gateway), Some(observations));
-    assert_eq!(active(pic, canister, first), Some(vec![11, 12]));
+    assert_eq!(active(pic, canister, first), Some(vec![11]));
     assert_eq!(active(pic, canister, second), Some(vec![]));
     assert_eq!(usage(pic, canister, first), Some(200));
     assert_eq!(usage(pic, canister, second), Some(100));
@@ -78,12 +78,12 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
     for caller in [first, second, controller, Principal::anonymous()] {
         assert_eq!(roots(pic, canister, caller), None);
     }
-    assert!(!cancel(pic, canister, first, 12)); // Real owner still cannot release uncertainty.
-    assert!(!cancel(pic, canister, second, 13)); // Confirmed object's lifecycle owns release.
+    assert!(!cancel(pic, canister, first, 12)); // Registered references require lifecycle release.
+    assert!(!cancel(pic, canister, second, 13)); // The same rule applies to either tenant.
     assert!(!cancel(pic, canister, first, 99));
     assert!(cancel(pic, canister, first, 11));
     assert!(cancel(pic, canister, first, 11));
-    assert_eq!(active(pic, canister, first), Some(vec![12]));
+    assert_eq!(active(pic, canister, first), Some(vec![]));
     assert_eq!(usage(pic, canister, first), Some(100));
     assert_eq!(usage(pic, canister, second), Some(100));
     assert_eq!(
@@ -101,6 +101,6 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
             .expect("revoke");
     assert!(revoked);
     assert_eq!(roots(pic, canister, gateway), None);
-    assert_eq!(active(pic, canister, first), Some(vec![12]));
+    assert_eq!(active(pic, canister, first), Some(vec![]));
     assert_eq!(usage(pic, canister, first), Some(100));
 }
