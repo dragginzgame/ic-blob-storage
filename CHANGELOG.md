@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.42.0]
+## [0.42.0] - 2026-10-22
 
 - **Hard cut:** retain matching successful Cashier callbacks as provider
   acknowledgments and permit subsequent distinct funding within the installed
