@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.41.0] - Unreleased
+## [0.41.0] - 2026-10-22
 
 - **Hard cut:** register retention intent and the first live reference atomically
   at certificate issuance. Remove the mandatory completion verifier, attestation
