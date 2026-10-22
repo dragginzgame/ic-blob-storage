@@ -1,5 +1,6 @@
 [
   {
+    "hex": "495709004100424f4c42010005298569ba010522da86e001dedc87a505acbfe5b405b49998ef0eb79e8ba60bc5d5ced90fc9829c9abb5acaaf6be5a8872ea8fa34661d8bb73d9be4a6440f9925402fe2b491df99be080502fd79f301aebaa3e202efc580f50b00",
     "input": {
       "Ok": {
         "assessed_at_ns": 3198165743,
@@ -53,10 +54,10 @@
           "uploader": "3nmlw-mac7v-47gai"
         }
       }
-    },
-    "hex": "495709003600424f4c42010005298569ba010522da86e001dedc87a505acbfe5b405b49998ef0eb79e8ba60bc5d5ced90fc9829c9abb5acaaf6be5a8872ea8fa34661d8bb73d9be4a6440f9925402fe2b491df99be080502fd79f301aebaa3e202efc580f50b00"
+    }
   },
   {
+    "hex": "495709004100424f4c42010005ae96ff9c01058f26816d01f7a5a9c901bbf9c29904abf5c451d5cee5900be188be8d0de3bf0928f49e49875f25acc028e3c67145af4cc807d32d1cb7b741aea6725b36d7f5dd9d0c0535e9e31901c4aa9bd10bf8ebbabf08020003",
     "input": {
       "Ok": {
         "assessed_at_ns": 2280568312,
@@ -113,13 +114,12 @@
           "uploader": "im3ts-lrv5h-rrsai"
         }
       }
-    },
-    "hex": "495709003600424f4c42010005ae96ff9c01058f26816d01f7a5a9c901bbf9c29904abf5c451d5cee5900be188be8d0de3bf0928f49e49875f25acc028e3c67145af4cc807d32d1cb7b741aea6725b36d7f5dd9d0c0535e9e31901c4aa9bd10bf8ebbabf08020003"
+    }
   },
   {
+    "hex": "495709004100424f4c42010103",
     "input": {
       "Err": "Phase"
-    },
-    "hex": "495709003600424f4c42010103"
+    }
   }
 ]

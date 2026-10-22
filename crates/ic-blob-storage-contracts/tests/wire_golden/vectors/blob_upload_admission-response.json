@@ -1,5 +1,6 @@
 [
   {
+    "hex": "495705004100424f4c4201000554275178010575ec042901e4d6eab10da1d78ee40f80e3acbc01c2e59a12eabbc262555c5babef2c64e8c35c93a0ad08171ad276936a2bc6d2bc2240f1a495b41ee7a3e69eff0105d7941fbe01eec2a292050100",
     "input": {
       "Ok": {
         "permission": {
@@ -51,12 +52,12 @@
           "uploader": "2xxhk-swxsq-p34ai"
         },
         "revoked": false,
-        "state": "ExposurePossible"
+        "state": "Registered"
       }
-    },
-    "hex": "495705003600424f4c4201000554275178010575ec042901e4d6eab10da1d78ee40f80e3acbc01c2e59a12eabbc262555c5babef2c64e8c35c93a0ad08171ad276936a2bc6d2bc2240f1a495b41ee7a3e69eff0105d7941fbe01eec2a292050100"
+    }
   },
   {
+    "hex": "495705004100424f4c42010005946c18e50105635a9ae901bb84ca9b09b69eddb70483d4e0ba0380c9d8c00d98e0a9aa01f401c74dca37fa1b914a85a63dbe38c8d6a77305594ff731b3f2d83a81f4d0d9ebb2ab800605e884557c01d5ef9a87050101",
     "input": {
       "Ok": {
         "permission": {
@@ -108,15 +109,14 @@
           "uploader": "ejd3a-whiqr-kxyai"
         },
         "revoked": true,
-        "state": "ExposurePossible"
+        "state": "Registered"
       }
-    },
-    "hex": "495705003600424f4c42010005946c18e50105635a9ae901bb84ca9b09b69eddb70483d4e0ba0380c9d8c00d98e0a9aa01f401c74dca37fa1b914a85a63dbe38c8d6a77305594ff731b3f2d83a81f4d0d9ebb2ab800605e884557c01d5ef9a87050101"
+    }
   },
   {
+    "hex": "495705004100424f4c42010104",
     "input": {
       "Err": "Conflict"
-    },
-    "hex": "495705003600424f4c42010104"
+    }
   }
 ]

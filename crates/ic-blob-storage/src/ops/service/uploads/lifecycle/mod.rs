@@ -2,7 +2,7 @@
 use super::{
     ConfirmedLifecycleRecord, Key, LifecycleChange, Memory, ReferenceReceiptRecord,
     ReferenceRecord, StableUploads, UploadContext, UploadError, UploadPhase, UploadRequest,
-    UploadStoreError, UploadStoreRecord, key, validation,
+    UploadStoreError, key, validation,
 };
 use crate::model::lifecycle::ReferenceState;
 use crate::model::lifecycle::requests::ReferenceReceiptView;
@@ -27,53 +27,6 @@ pub struct ConfirmedUploadView {
     pub receipt_slots: u64,
 }
 impl<M: Memory> StableUploads<M> {
-    /// Apply independently authenticated completion for the exact reserved root,
-    /// size and object lifetime. This is trusted-host bookkeeping, not an endpoint.
-    /// A browser digest, progress report or generic HTTP success is insufficient.
-    /// Revocation after exposure cannot erase an actual completion obligation.
-    /// # Errors
-    /// Rejects scope, identity, wrong phase and restored owner before writes.
-    /// # Panics
-    /// Stable-write traps must roll back the entire IC update.
-    pub fn confirm_upload(
-        &mut self,
-        request: UploadRequest,
-    ) -> Result<LifecycleChange, UploadStoreError> {
-        self.complete_upload(
-            request,
-            crate::model::service::upload::record::lifecycle::CompletionRecord::HostFact,
-        )
-    }
-    pub(super) fn complete_upload(
-        &mut self,
-        request: UploadRequest,
-        completion: crate::model::service::upload::record::lifecycle::CompletionRecord,
-    ) -> Result<LifecycleChange, UploadStoreError> {
-        self.trusted_request(request)?;
-        self.mutable()?;
-        let mut permission = self.required(request)?;
-        let change = permission.confirm()?;
-        if change == LifecycleChange::Unchanged {
-            return Ok(change);
-        }
-        let tenant = request.object.first.object().tenant();
-        let mut global = self.total(Principal::management_canister())?;
-        let mut own = self.total(tenant)?;
-        global.finish_reservation(request.object.bytes);
-        own.finish_reservation(request.object.bytes);
-        self.confirmed
-            .insert(key(request), ConfirmedLifecycleRecord::new(completion));
-        self.references.insert(
-            (key(request), request.object.first.reference().get().get()),
-            ReferenceRecord::new(ReferenceState::Active),
-        );
-        self.permissions
-            .insert(key(request), UploadStoreRecord::Permission(permission));
-        self.usage.insert(tenant.into(), own);
-        self.usage
-            .insert(Principal::management_canister().into(), global);
-        Ok(change)
-    }
     /// Apply an exact tenant reference request with reserved cleanup receipt capacity.
     /// Recorded lifecycle errors consume a receipt; replays return the original result.
     /// # Errors
@@ -257,7 +210,7 @@ impl<M: Memory> StableUploads<M> {
             .required(upload)?
             .view()
             .ok_or(UploadStoreError::InvalidRecord)?;
-        if view.phase != UploadPhase::Confirmed {
+        if view.phase != UploadPhase::Registered {
             return Err(UploadError::InvalidPhase(view.phase).into());
         }
         self.confirmed

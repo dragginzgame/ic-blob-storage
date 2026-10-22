@@ -12,7 +12,6 @@ use super::json;
 use super::publish_map;
 use super::publish_prepare;
 use super::sources::Sources;
-use super::verification;
 use std::path::PathBuf;
 use tokio::sync::mpsc;
 
@@ -89,12 +88,7 @@ impl<'a> Session<'a> {
         }
     }
     fn incomplete_file(&self, index: usize) -> Frame {
-        if self.sources.files[index].observation.is_some() {
-            Frame::Verify {
-                index,
-                source_observation: None,
-            }
-        } else if self.sources.files[index].transfer.is_some() {
+        if self.sources.files[index].transfer.is_some() {
             Frame::Transfer {
                 index,
                 source_transfer: None,
@@ -170,10 +164,7 @@ impl<'a> Session<'a> {
         Ok(PhaseOutcome {
             report,
             finished: false,
-            next_frame: self.actors.verifier.as_ref().map(|_| Frame::Verify {
-                index,
-                source_observation: None,
-            }),
+            next_frame: Some(Frame::Status { index }),
         })
     }
     async fn status(&mut self, index: usize, action: &Run) -> Result<PhaseOutcome, Failure> {
@@ -201,7 +192,6 @@ impl<'a> Session<'a> {
         let index = match &frame {
             Frame::Prepare { index, .. }
             | Frame::Transfer { index, .. }
-            | Frame::Verify { index, .. }
             | Frame::Status { index } => Some(*index),
             Frame::Map {} => None,
         };
@@ -212,7 +202,7 @@ impl<'a> Session<'a> {
                     control::record_unattempted(action, index, self.next)?;
                 }
                 return Ok(PhaseOutcome {
-                    report: self.blocked("previous_file_unconfirmed"),
+                    report: self.blocked("previous_file_unregistered"),
                     finished: false,
                     next_frame: None,
                 });
@@ -225,44 +215,6 @@ impl<'a> Session<'a> {
                 index,
                 source_transfer,
             } => self.transfer(index, action, &directory, source_transfer.as_deref()),
-            Frame::Verify {
-                index,
-                source_observation,
-            } => {
-                let selected = self.batch.files.get(index).ok_or(Failure::Arguments)?;
-                let verifier = self.actors.verifier.as_ref().ok_or(Failure::Denied)?;
-                // One create-new owner per original file, independent of step
-                // numbering. Partial observations and pending submissions never
-                // permit another GET or another attestation in this session.
-                let directory = self
-                    .input
-                    .prepare
-                    .directory
-                    .join(format!("verification-{index:04}"));
-                let recovering = source_observation.is_some();
-                let (observed, submitted) = verification::run(
-                    verifier,
-                    self.input,
-                    selected,
-                    directory,
-                    source_observation,
-                )
-                .await?;
-                let publication = self
-                    .observation(publish_map::Selection::File(index), action)
-                    .await?;
-                if publication.complete {
-                    self.next += 1;
-                }
-                Ok(PhaseOutcome {
-                    report: json!({"schema":1,"operation":"publish_session_verification",
-                    "file_index":index,"observation":observed,"attestation":submitted,
-                    "publication":publication.report,"file_live":publication.complete,
-                    "max_provider_requests_this_phase":u8::from(!recovering),"retry_authorized":false}),
-                    finished: false,
-                    next_frame: publication.complete.then(|| self.following_file()),
-                })
-            }
             Frame::Map {} => {
                 if self.next != self.batch.files.len() {
                     return Ok(PhaseOutcome {

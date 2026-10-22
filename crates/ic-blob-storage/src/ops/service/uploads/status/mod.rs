@@ -21,8 +21,7 @@ pub(crate) fn present(
         revoked,
         state: match phase {
             UploadPhase::Reserved => UploadState::Reserved,
-            UploadPhase::ExposurePossible => UploadState::ExposurePossible,
-            UploadPhase::Confirmed => UploadState::Confirmed,
+            UploadPhase::Registered => UploadState::Registered,
             UploadPhase::Cancelled => UploadState::Cancelled,
         },
     }

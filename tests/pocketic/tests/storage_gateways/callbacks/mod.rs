@@ -113,7 +113,7 @@ fn gateway_root_reads_preserve_uncertainty_and_every_cleanup_phase() {
     f.prepare(&preparation).unwrap();
     f.expose(permission.request).unwrap();
     f.revoke(permission).unwrap();
-    f.gateway_phase(root, ContentState::ExposurePossible);
+    f.gateway_phase(root, ContentState::Live);
     let cancelled = f.permission(2, 2).0;
     f.admit(f.tenant, cancelled).unwrap();
     f.revoke(cancelled).unwrap();
@@ -133,15 +133,14 @@ fn gateway_root_reads_preserve_uncertainty_and_every_cleanup_phase() {
             }
         ),
         Ok(vec![
-            RootView::Known(ContentState::ExposurePossible),
+            RootView::Known(ContentState::Live),
             RootView::Unknown,
             RootView::Malformed { bytes: 0 },
             RootView::Known(ContentState::Cancelled),
-            RootView::Known(ContentState::ExposurePossible)
+            RootView::Known(ContentState::Live)
         ])
     );
     assert_eq!(f.status(), before);
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     f.gateway_phase(root, ContentState::Live);
     f.enroll(Some(f.tenant().unwrap()), false).unwrap();
     f.gateway_phase(root, ContentState::Live);

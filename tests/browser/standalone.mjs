@@ -88,7 +88,7 @@ try {
     puts, providerCompletion: false, uploadFailure: outcome.failure ?? null,
     finalRequestPhase: uploaded.gateway.requests.at(-1).phase });
   assert.deepEqual(await next(), { finish: true });
-  assert.equal(gets.length, config.corruptRead || config.withdrawAfterObservation ? 1 : config.refuseFirstRead ? 3 : 2);
+  assert.equal(gets.length, 1);
   assert.equal(puts.length, 2); assert.equal(state.failure, undefined);
   assert.deepEqual(unexpected, []);
   if (config.corruptRead || config.withdrawAfterObservation) {

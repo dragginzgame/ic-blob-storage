@@ -1,5 +1,6 @@
 [
   {
+    "hex": "49570b004100424f4c42010005a2ece3a701052963a2ca01f387d8a50debbcc1308ff1a3820bd9a7c68701fac9c08a0e531aa2c80e21ad3793cddcbbf88cb9f99c34925b1b594a86aebdc494c6d1e631e9abc506cea0adc9098f88bee20b00000000",
     "input": {
       "Ok": {
         "receipt": {
@@ -58,10 +59,10 @@
         },
         "replayed": false
       }
-    },
-    "hex": "49570b003600424f4c42010005a2ece3a701052963a2ca01f387d8a50debbcc1308ff1a3820bd9a7c68701fac9c08a0e531aa2c80e21ad3793cddcbbf88cb9f99c34925b1b594a86aebdc494c6d1e631e9abc506cea0adc9098f88bee20b00000000"
+    }
   },
   {
+    "hex": "49570b004100424f4c42010005b694d3200105b151c12501c0a8b9c104d987c8bb0cd791af4baac3d8f40a99c9c1d50edd7c76d24c25ee654ebe9d6ba192b2f25e76aec0c55ae86a962edce11679d01d87d8ba9e07fbe19eaf0797c0b5ee0300010001",
     "input": {
       "Ok": {
         "receipt": {
@@ -120,13 +121,12 @@
         },
         "replayed": true
       }
-    },
-    "hex": "49570b003600424f4c42010005b694d3200105b151c12501c0a8b9c104d987c8bb0cd791af4baac3d8f40a99c9c1d50edd7c76d24c25ee654ebe9d6ba192b2f25e76aec0c55ae86a962edce11679d01d87d8ba9e07fbe19eaf0797c0b5ee0300010001"
+    }
   },
   {
+    "hex": "49570b004100424f4c42010101",
     "input": {
       "Err": "Denied"
-    },
-    "hex": "49570b003600424f4c42010101"
+    }
   }
 ]

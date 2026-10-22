@@ -74,11 +74,6 @@ fn inventory_cli_distinguishes_absence_pending_live_reuse_and_retired_roots() {
     assert_eq!(f.observe(p), before);
     f.prepare(p, &vector);
     f.call(f.uploader, Command::Expose(p.request.root)).unwrap();
-    f.call(
-        f.operator,
-        Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(p.request)),
-    )
-    .unwrap();
     let live = inspect(&f, f.project, &input, 4);
     assert_eq!(live["blockers"], json!(["reference_capacity"]));
     assert_eq!(live["contents"][0]["fresh_reference_demand"], 2);

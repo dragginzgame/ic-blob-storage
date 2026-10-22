@@ -30,16 +30,11 @@ fn consumer() -> Fixture {
     f
 }
 #[test]
-#[expect(
-    clippy::too_many_lines,
-    reason = "One installed descriptor, caller and recovery-boundary scenario"
-)]
 fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() {
     let f = consumer();
     let client = f.tenant;
     let (permission, _, input) = f.download_input();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let selection = DownloadClientInput {
         request: wire(input),
         tenant: client.into(),

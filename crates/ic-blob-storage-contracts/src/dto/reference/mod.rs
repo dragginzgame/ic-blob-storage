@@ -104,7 +104,7 @@ pub enum ReferenceFailure {
     Binding,
     /// No matching upload operation is retained.
     Unknown,
-    /// Upload has not completed.
+    /// Upload retention intent has not been registered.
     Unconfirmed,
     /// Existing identity has different original arguments.
     Conflict,

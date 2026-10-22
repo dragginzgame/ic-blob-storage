@@ -214,7 +214,7 @@ pub(crate) fn expose(actor: Principal, request: ContentRequest) -> Result<(), Jo
         }
         match state
             .catalog
-            .mark_exposure_possible(actor, request.upload)
+            .register(actor, request.upload)
             .map_err(error)?
         {
             LifecycleChange::Changed => Ok(()),
@@ -283,17 +283,6 @@ pub(crate) fn cancel(actor: Principal, request: ContentRequest) -> Result<(), Jo
         state
             .catalog
             .cancel(actor, request.upload)
-            .map(|_| ())
-            .map_err(error)
-    })
-}
-
-pub(crate) fn complete(request: ContentRequest) -> Result<(), JourneyFailure> {
-    mutate(|state| {
-        check_content_request(state, request)?;
-        state
-            .catalog
-            .confirm_upload(request.upload)
             .map(|_| ())
             .map_err(error)
     })

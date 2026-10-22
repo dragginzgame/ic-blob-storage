@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-22",
+  "class": "public-source-discovery",
+  "issues": [
+    32,
+    33
+  ],
+  "purpose": "Find authoritative public gateway callback/failure/deletion documentation beyond the previously captured application-side Motoko mixin; identify whether a local implementation can be justified. Review existing verifier APIs separately without operating a signer.",
+  "targets": {
+    "search_queries": [
+      "Caffeine object storage _immutableObjectStorageConfirmBlobDeletion gateway garbage collection",
+      "Caffeine object storage gateway blobs are live deletion billing documentation"
+    ],
+    "github_org_inventory": "https://api.github.com/orgs/caffeinelabs/repos?per_page=100&type=public",
+    "motoko_commit": "https://api.github.com/repos/caffeinelabs/motoko/commits/master",
+    "motoko_prim": "src/prelude/prim.mo at the observed exact commit",
+    "npm_latest": "https://registry.npmjs.org/@caffeineai%2Fobject-storage/latest",
+    "npm_archive": "https://registry.npmjs.org/@caffeineai/object-storage/-/object-storage-1.1.2.tgz"
+  },
+  "budget": {
+    "web_search_calls": 1,
+    "queries": 2,
+    "additional_page_reads": 0,
+    "provider_requests": 0,
+    "payments": 0,
+    "deployments": 0,
+    "github_source_requests": 3,
+    "github_inventory_max_bytes": 1048576,
+    "motoko_commit_max_bytes": 65536,
+    "motoko_prim_max_bytes": 1048576,
+    "npm_metadata_requests": 1,
+    "npm_metadata_max_bytes": 524288,
+    "npm_archive_requests": 1,
+    "npm_archive_max_bytes": 262144
+  },
+  "constraints": [
+    "No new provider request, account query, signer provisioning or paid effect.",
+    "Do not repeat the prior failed README lookup.",
+    "Retain inconclusive or failed searches; expand intent before additional network reads.",
+    "Siblings remain read-only; no downstream fixtures or dependencies."
+  ],
+  "source": "ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7",
+  "reason_for_expansion": "Broad web discovery returned unrelated cloud billing pages and the existing Blob announcement, not authoritative gateway behavior. Inspect the canonical provider organization public repository inventory once for a gateway/specification owner.",
+  "reason_for_second_expansion": "The complete provider organization inventory exposes a Motoko compiler fork, whose GC primitives are used by the captured mixin, but no separately named gateway/server repository. Inspect the exact compiler primitive contract to determine root/chunk identities and whether it specifies gateway behavior.",
+  "provider_selection": "Maintainer confirms Caffeine is fixed provider; determine whether its published SDK supplies authenticated completion proof rather than assuming an additional verifier operator.",
+  "archive_inspection": "Check SHA-512 against observed registry integrity; read only package/package.json, LICENSE, README.md, dist/StorageClient.d.ts and dist/StorageClient.js by exact tar member name. Do not install or extract arbitrary paths."
+}

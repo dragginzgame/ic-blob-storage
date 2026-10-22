@@ -1,5 +1,6 @@
 [
   {
+    "hex": "495719004100424f4c42000574958b4001a3a084ab0505ecb0498501057ef7f0c90101",
     "input": {
       "kind": "PaymentRelationship",
       "scope": {
@@ -8,10 +9,10 @@
         "payment_account": "iofkr-3d667-ymsai",
         "service": "flycw-5tusw-fuaai"
       }
-    },
-    "hex": "495719003600424f4c42000574958b4001a3a084ab0505ecb0498501057ef7f0c90101"
+    }
   },
   {
+    "hex": "495719004100424f4c42000560872b7a01a3e88abd020566b4119b0105ffdfa2700101",
     "input": {
       "kind": "PaymentRelationship",
       "scope": {
@@ -20,7 +21,6 @@
         "payment_account": "6c2vs-mh736-rhaai",
         "service": "xfiqm-olaq4-vxuai"
       }
-    },
-    "hex": "495719003600424f4c42000560872b7a01a3e88abd020566b4119b0105ffdfa2700101"
+    }
   }
 ]

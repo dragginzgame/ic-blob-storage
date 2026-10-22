@@ -4,15 +4,10 @@ use crate::native::publish_check::tests as fixture;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationReceipt;
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse;
 
 enum Replies {
     Valid,
     WrongProject,
-    WrongDigest,
     Inactive,
     Fenced,
     Transport,
@@ -33,17 +28,11 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
     let mut host = HostConfigurationView {
         configuration: input.configuration,
         project: input.project.clone(),
-        completion_verifier: input.completion_verifier,
         release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: matches!(replies, Replies::Fenced),
     };
     if matches!(replies, Replies::WrongProject) {
         host.project.push_str("-wrong");
-    }
-    let mut digest =
-        *ic_blob_storage_contracts::identity::ContentDigest::compute(b"abc").as_bytes();
-    if matches!(replies, Replies::WrongDigest) {
-        digest[0] ^= 1;
     }
     let run = Run::create(&directory.path().join("map")).unwrap();
     tokio::runtime::Builder::new_current_thread()
@@ -66,23 +55,6 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
                     UPLOAD_CAPACITY_METHOD => ic_blob_storage_contracts::wire::encode_response(
                         "blob_upload_capacity",
                         Ok::<_, UploadCapacityFailure>(fixture::capacity(scope)),
-                    )
-                    .unwrap(),
-                    UPLOAD_ATTESTATION_METHOD => ic_blob_storage_contracts::wire::encode_response(
-                        "blob_upload_attestation",
-                        Ok::<_, UploadAttestationFailure>(UploadAttestationResponse {
-                            permission,
-                            fenced: false,
-                            attestation: UploadAttestationLookup::Found(UploadAttestationReceipt {
-                                request: UploadAttestationRequest {
-                                    permission,
-                                    content_digest: digest,
-                                    observed_at_ns: 10,
-                                },
-                                verifier: input.completion_verifier,
-                                accepted_at_ns: 11,
-                            }),
-                        }),
                     )
                     .unwrap(),
                     REFERENCE_STATUS_METHOD => {
@@ -114,7 +86,7 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
 }
 
 #[test]
-fn map_requires_exact_installed_project_matching_digest_live_reference_and_no_fence() {
+fn map_requires_exact_installed_project_live_reference_and_no_fence() {
     let passed = observe(&Replies::Valid).unwrap();
     assert_eq!(passed["all_references_live"], true);
     assert_eq!(
@@ -130,9 +102,9 @@ fn map_requires_exact_installed_project_matching_digest_live_reference_and_no_fe
         "fixture-project"
     );
     assert_eq!(passed["publication_lease"], false);
+    assert_eq!(passed["provider_upload_verified"], false);
     assert_eq!(observe(&Replies::WrongProject), Err(Failure::Binding));
     for (replies, code) in [
-        (Replies::WrongDigest, "completion_unmatched"),
         (Replies::Inactive, "reference_inactive"),
         (Replies::Fenced, "fenced"),
     ] {

@@ -32,7 +32,6 @@ fn setup_profile(envelope: Envelope) -> Fixture {
         Fake::principal(2),
         uploader(),
         envelope,
-        Fake::principal(90),
         "publish-check-fixture",
     );
     f.tenant = signer();
@@ -76,7 +75,6 @@ pub(super) fn freeze_bodies(
             ServiceInstallationInput {
                 configuration: host.configuration,
                 project: host.project.clone(),
-                completion_verifier: host.completion_verifier,
             },
         )
         .unwrap(),

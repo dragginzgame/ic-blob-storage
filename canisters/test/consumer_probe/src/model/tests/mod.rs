@@ -137,7 +137,7 @@ fn first_reference_reservation_and_newer_completion_survive_conflicting_observat
             Ok(
                 ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse {
                     permission,
-                    state: UploadState::Confirmed,
+                    state: UploadState::Registered,
                     revoked: false,
                 },
             ),
@@ -146,7 +146,7 @@ fn first_reference_reservation_and_newer_completion_survive_conflicting_observat
     let confirmed = record.view(1).unwrap();
     for state in [
         UploadState::Reserved,
-        UploadState::ExposurePossible,
+        UploadState::Registered,
         UploadState::Cancelled,
     ] {
         assert_eq!(

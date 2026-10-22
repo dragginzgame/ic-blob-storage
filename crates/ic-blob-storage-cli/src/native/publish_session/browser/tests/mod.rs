@@ -22,7 +22,6 @@ fn selection_binds_fresh_paths_batch_and_original_recovery_without_allocating_ou
             source: None,
         },
         operator_identity: directory.path().join("key"),
-        verifier_identity: None,
         source_session: None,
         browser_selection: Some(path.clone()),
         gateway: "https://example.com/".parse().unwrap(),

@@ -375,7 +375,7 @@ fn suspension_blocks_new_authority_and_reactivation_cannot_renew_old_permission(
     );
     owner.expose(context(5), fresh.request, 13).unwrap();
     assert_eq!(owner.catalog().usage().operations, 2);
-    assert_eq!(owner.catalog().usage().reserved_bytes, 10);
+    assert_eq!(owner.catalog().usage().reserved_bytes, 0);
 }
 
 #[test]
@@ -392,8 +392,7 @@ fn suspended_project_can_cancel_unexposed_and_reconcile_exposed_uploads() {
     assert_eq!(owner.catalog().usage(), before);
     owner.revoke(context(4), pending.request).unwrap();
     owner.revoke(context(4), exposed.request).unwrap();
-    assert_eq!(owner.catalog().usage().reserved_bytes, 10);
-    owner.confirm_upload(exposed.request).unwrap();
+    assert_eq!(owner.catalog().usage().reserved_bytes, 0);
     assert_eq!(owner.catalog().usage().physical_bytes, 10);
     assert_eq!(owner.catalog().usage().liability_bytes, 10);
     let release = ReferenceRequest {
@@ -424,7 +423,6 @@ fn reference_boundary_checks_actual_project_service_namespace_and_catalog_bindin
     owner.admit(context(4), input, 10).unwrap();
     prepare(&mut owner, &input);
     owner.expose(context(5), input.request, 11).unwrap();
-    owner.confirm_upload(input.request).unwrap();
     let retain = ReferenceRequest {
         id: ReferenceRequestId::new(id(1)),
         operation: ReferenceOperation::Retain(second),
@@ -520,7 +518,6 @@ fn suspended_reference_operations_allow_exact_replay_and_release_without_fresh_r
     owner.admit(context(4), input, 10).unwrap();
     prepare(&mut owner, &input);
     owner.expose(context(5), input.request, 11).unwrap();
-    owner.confirm_upload(input.request).unwrap();
     let retain = ReferenceRequest {
         id: ReferenceRequestId::new(id(1)),
         operation: ReferenceOperation::Retain(second),
@@ -610,11 +607,16 @@ fn only_project_admits_and_only_its_exact_uploader_exposes() {
     assert_eq!(owner.expose(context(5), input.request, 11), Ok(()));
     assert_eq!(
         owner.expose(context(5), input.request, 12),
-        Err(UploadAdmissionError::NotReserved(
-            UploadPhase::ExposurePossible
-        ))
+        Err(UploadAdmissionError::NotReserved(UploadPhase::Registered))
     );
-    assert_eq!(owner.catalog().usage(), before);
+    assert_eq!(
+        owner.catalog().usage(),
+        crate::model::catalog::admission::UploadUsage {
+            active_reservations: 0,
+            reserved_bytes: 0,
+            ..before
+        }
+    );
 }
 
 #[test]
@@ -767,11 +769,7 @@ fn exposed_revocation_keeps_uncertainty_and_accepts_late_completion() {
     );
     assert_eq!(
         owner.admit(context(4), input, 200),
-        Ok(UploadAdmission::Existing(UploadPhase::ExposurePossible))
-    );
-    assert_eq!(
-        owner.confirm_upload(input.request),
-        Ok(LifecycleChange::Changed)
+        Ok(UploadAdmission::Existing(UploadPhase::Registered))
     );
     assert_eq!(owner.catalog().usage().reserved_bytes, 0);
     assert_eq!(owner.catalog().usage().physical_bytes, 10);
@@ -803,7 +801,7 @@ fn exact_lookup_preserves_original_permission_and_exposed_uncertainty_without_re
                 admitted_at_ns: 10,
                 tenant_generation: NonZeroU64::MIN,
                 revoked: true,
-                phase: UploadPhase::ExposurePossible,
+                phase: UploadPhase::Registered,
                 manifest: UploadManifestState::Bound,
             })
         );
@@ -842,16 +840,11 @@ fn failed_consumer_registration_and_replayed_completion_keep_one_reference_and_i
     owner.admit(context(4), input, 10).unwrap();
     prepare(&mut owner, &input);
     owner.expose(context(5), input.request, 11).unwrap();
-    owner.confirm_upload(input.request).unwrap(); // independently supplied provider fact
     // Consumer registration may fail or lose its reply: no service transition occurs.
     let confirmed = owner.catalog().usage();
     assert_eq!(
         owner.admit(context(4), input, 200),
-        Ok(UploadAdmission::Existing(UploadPhase::Confirmed))
-    );
-    assert_eq!(
-        owner.confirm_upload(input.request),
-        Ok(LifecycleChange::Unchanged)
+        Ok(UploadAdmission::Existing(UploadPhase::Registered))
     );
     assert_eq!(owner.catalog().usage(), confirmed);
     let release = ReferenceRequest {
@@ -865,7 +858,6 @@ fn failed_consumer_registration_and_replayed_completion_keep_one_reference_and_i
     assert_eq!(released.logical_bytes, 0);
     assert_eq!(released.physical_bytes, 10);
     assert_eq!(released.liability_bytes, 10);
-    owner.confirm_upload(input.request).unwrap();
     assert_eq!(owner.catalog().usage(), released);
     owner
         .confirm_provider_deleted(
@@ -973,9 +965,7 @@ fn root_only_certificate_lookup_uses_retained_project_operation_and_cannot_rebin
     assert_eq!(owner.expose_root(context(5), root, 11), Ok(input.request));
     assert_eq!(
         owner.expose_root(context(5), root, 12),
-        Err(UploadAdmissionError::NotReserved(
-            UploadPhase::ExposurePossible
-        ))
+        Err(UploadAdmissionError::NotReserved(UploadPhase::Registered))
     );
 
     let second = permission(2);

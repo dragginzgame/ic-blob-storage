@@ -123,7 +123,7 @@ fn content_discovery_keeps_exact_identity_isolation_and_uncertain_history() {
         query(&f, f.project, input),
         Ok(Some(UploadHistoryEntry {
             request: identity(p.request),
-            state: UploadContentState::ExposurePossible
+            state: UploadContentState::Live
         }))
     );
     assert_eq!(f.observe(p), exposed);
@@ -135,7 +135,7 @@ fn content_discovery_keeps_exact_identity_isolation_and_uncertain_history() {
         query(&f, f.project, input),
         Ok(Some(UploadHistoryEntry {
             request: identity(p.request),
-            state: UploadContentState::ExposurePossible
+            state: UploadContentState::Live
         }))
     );
     assert_eq!(f.observe(p).usage, exposed.usage);

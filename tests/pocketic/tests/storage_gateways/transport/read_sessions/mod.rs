@@ -11,7 +11,7 @@ use blob_test_protocol::{
     journey::readback::{
         JourneyReadChunk, ReadSourceConfig, ReadSourceMode, ReadSourceObservation,
     },
-    storage::{ProviderFact, gateways::ReadSessionInput},
+    storage::gateways::ReadSessionInput,
 };
 impl Fixture {
     fn chunk_mode(&self, mode: ReadSourceMode, hold: bool) {
@@ -74,8 +74,6 @@ impl Fixture {
         self.admit(self.tenant, permission).unwrap();
         self.prepare(&preparation).unwrap();
         self.expose(permission.request).unwrap();
-        self.fact(permission.request, ProviderFact::Uploaded)
-            .unwrap();
         self.gateways(self.operator, Action::Add(self.operator.into()))
             .unwrap();
         self.chunk_mode(ReadSourceMode::Valid, false);

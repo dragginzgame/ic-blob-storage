@@ -146,10 +146,6 @@ pub(crate) fn populate(context: UploadContext, batch: PopulationBatch) -> Result
     })
 }
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "One measured population step preserves write order and resource attribution"
-)]
 fn populate_upload(
     state: &mut super::State,
     context: UploadContext,
@@ -231,8 +227,6 @@ fn populate_upload(
     if index.is_multiple_of(4) {
         return;
     }
-    // Explicit local completion substitute, not verifier or deployed-provider evidence.
-    state.uploads.confirm_upload(request).unwrap();
     let operation = if index % 4 == 1 {
         ReferenceOperation::Retain(ReferenceKey::new(
             request.object.first.object(),

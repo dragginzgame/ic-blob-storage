@@ -71,8 +71,6 @@ pub struct ContentLookup {
 pub enum ContentState {
     /// Admitted without exposure.
     Reserved,
-    /// Possible exposure remains unresolved.
-    ExposurePossible,
     /// Unexposed cancellation retains its identity.
     Cancelled,
     /// Confirmed with live references.
@@ -143,10 +141,8 @@ pub enum ManifestState {
 pub enum Phase {
     /// Capacity reserved, exposure not marked.
     Reserved,
-    /// Possible exposure; bytes remain charged.
-    ExposurePossible,
     /// Host completion fact; measurement controls can supply an explicit substitute.
-    Confirmed,
+    Registered,
     /// Cancelled before exposure, identity history retained.
     Cancelled,
 }

@@ -87,7 +87,6 @@ fn input() -> ServiceInstallationCandidate<'static> {
         platform_installation_version: 0,
         configuration: candidate(),
         project: "project/β?&=",
-        completion_verifier: Principal::from_slice(&[5, 1]),
         release: RELEASE,
     }
 }
@@ -184,13 +183,12 @@ fn configuration_inspection_binds_operator_service_and_preserves_restore_fences(
     let view = inspect(&installed, context).unwrap();
     assert_eq!(view.configuration, candidate());
     assert_eq!(view.project, input().project);
-    assert_eq!(view.completion_verifier, input().completion_verifier);
     assert_eq!(view.release, RELEASE);
     assert!(!view.fenced);
     let before = bytes(&memory);
     for actor in [
         candidate().payment_account,
-        input().completion_verifier,
+        Principal::from_slice(&[88, 1]),
         Principal::anonymous(),
     ] {
         assert_eq!(
@@ -224,10 +222,10 @@ fn configuration_inspection_binds_operator_service_and_preserves_restore_fences(
 }
 
 #[test]
-fn whole_candidate_rejects_invalid_bindings_project_verifier_and_release() {
+fn whole_candidate_rejects_invalid_bindings_project_and_release() {
     let original = input();
     assert!(matches!(
-        ValidatedServiceInstallation::new(original.completion_verifier, original),
+        ValidatedServiceInstallation::new(Principal::from_slice(&[88, 1]), original),
         Err(ServiceInstallationError::Configuration(
             ServiceConfigurationAdapterError::Input(
                 ic_blob_storage_contracts::configuration::ConfigurationInputError::ServiceBinding
@@ -245,20 +243,6 @@ fn whole_candidate_rejects_invalid_bindings_project_verifier_and_release() {
             ),
             Err(ServiceInstallationError::Project(
                 DownloadScopeError::Project
-            ))
-        ));
-    }
-    for completion_verifier in [Principal::anonymous(), Principal::management_canister()] {
-        assert!(matches!(
-            ValidatedServiceInstallation::new(
-                candidate().service,
-                ServiceInstallationCandidate {
-                    completion_verifier,
-                    ..original
-                }
-            ),
-            Err(ServiceInstallationError::Verifier(
-                InvalidCompletionAuthority
             ))
         ));
     }
@@ -336,7 +320,7 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
     let before = bytes(&memory);
     for (service, release, expected) in [
         (
-            input().completion_verifier,
+            Principal::from_slice(&[88, 1]),
             RELEASE,
             InstallationBindingError::Service,
         ),
@@ -363,22 +347,27 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
     let mut records: StableBTreeMap<u8, ConfigurationRecord, _> =
         StableBTreeMap::load(memory[0].lease());
     let mut record = records.get(&0).unwrap();
-    // Prior single-uploader layout must refuse even if the release is unchanged.
-    record.format =
-        "ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal".to_owned();
-    records.insert(0, record.clone());
-    drop(records);
-    let before = bytes(&memory);
-    assert!(matches!(
-        ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
-        Err(ServiceInstallationError::Binding(
-            InstallationBindingError::Format
-        ))
-    ));
-    assert_eq!(bytes(&memory), before);
+    // Both prior allocation and verifier-bearing installation formats must refuse
+    // even when the host release string is unchanged. Never mutate old bytes.
+    for retired in [
+        "ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal",
+        "ic-blob-storage/installation:project-upload-grants-platform-anchor-funding-credit-index-renewal",
+    ] {
+        record.format = retired.to_owned();
+        records.insert(0, record.clone());
+        drop(records);
+        let before = bytes(&memory);
+        assert!(matches!(
+            ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
+            Err(ServiceInstallationError::Binding(
+                InstallationBindingError::Format
+            ))
+        ));
+        assert_eq!(bytes(&memory), before);
+        records = StableBTreeMap::load(memory[0].lease());
+    }
     record.format = ConfigurationRecord::FORMAT.to_owned();
     record.project = " invalid-project".to_owned();
-    let mut records = StableBTreeMap::<u8, ConfigurationRecord, _>::load(memory[0].lease());
     records.insert(0, record);
     drop(records);
     let before = bytes(&memory);
@@ -445,10 +434,6 @@ fn populated_installation_preserves_full_configuration_scope_verifier_and_owner_
     assert_eq!(
         restored.download_scope().namespace().get(),
         candidate().namespace
-    );
-    assert_eq!(
-        restored.completion_authority().verifier(),
-        original.completion_verifier
     );
     assert_eq!(restored.release(), RELEASE);
     assert_eq!(

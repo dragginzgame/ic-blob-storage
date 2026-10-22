@@ -181,9 +181,9 @@ try {
   native.nativeSession = join(report, 'native-session'); await mkdir(native.nativeSession);
   const hash = bytes => createHash('sha256').update(bytes).digest('hex');
   const inventory = Buffer.from('{}'), installation = Buffer.from([68, 73, 68, 76]);
-  const nativeIntent = { format: 'ic-blob-storage/publication-session:retained-browser-handoffs',
+  const nativeIntent = { format: 'ic-blob-storage/publication-session:trusted-registration',
     operation: 'publish_session', source_session: null, files: 1,
-    network: 'local', namespace: '1', operator: binding.uploader, verifier: binding.uploader,
+    network: 'local', namespace: '1', operator: binding.uploader,
     max_steps: 9, max_service_updates: 2, max_service_queries: 50, timeout_seconds: 30,
     max_provider_requests: 0, automatic_retries: 0,
     input_verification: 'one_complete_startup_pass_and_selected_body_before_setup',
@@ -289,7 +289,7 @@ try {
   const map = { schema: 1, operation: 'publish_map', authentication: 'query_signatures',
     inventory_sha256: nativeReady.inventory_sha256, installation_sha256: nativeReady.installation_sha256,
     files: [{ index: 0 }], blockers: [], atomic_snapshot: false, publication_lease: false,
-    provider_requests: 0, public_serving_qualified: false, retry_authorized: false, all_references_live: true };
+    provider_requests: 0, provider_upload_verified: false, public_serving_qualified: false, retry_authorized: false, all_references_live: true };
   const mapPeer = (report = map, finish = async () => ({ report, exit_code: 0 })) => peer(async selected => ({
     schema: 1, event: 'phase', step: selected.phase === 'status' ? 0 : 1,
     next_index: 1, report: selected.phase === 'map' ? report : { file_live: true },

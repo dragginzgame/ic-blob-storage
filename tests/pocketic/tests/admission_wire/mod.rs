@@ -35,9 +35,6 @@ pub(super) fn encode(command: Command) -> (&'static str, Vec<u8>) {
         Command::Expose(root) => input("expose", root),
         Command::Revoke(request) => input("revoke", request),
         Command::FixtureLifecycle(command) => match command {
-            LifecycleCommand::SubstituteCompletion(request) => {
-                input("substitute_completion", request)
-            }
             LifecycleCommand::SubstituteDeletion(request) => input("substitute_deletion", request),
             LifecycleCommand::SubstituteSettlement(request) => {
                 input("substitute_settlement", request)

@@ -63,8 +63,6 @@ pub struct UploadHistoryRequest {
 pub enum UploadContentState {
     /// Unexposed local reservation.
     Reserved,
-    /// Escaped upload authority may have caused an effect.
-    ExposurePossible,
     /// Cancelled before exposure; identity remains retained.
     Cancelled,
     /// Confirmed content with live references.

@@ -10,8 +10,6 @@ use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::download::scope::DownloadScopeError;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
-use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
-use ic_blob_storage_contracts::upload::completion::InvalidCompletionAuthority;
 use ic_memory::{Memory, RuntimeMemory};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
 use ic_platform::Principal;
@@ -42,13 +40,12 @@ pub struct ValidatedServiceInstallation {
     configuration: ConfigurationRecord,
     limits: ServiceStoreConfiguration,
     download_scope: CaffeineDownloadScope,
-    completion: CompletionAuthority,
 }
 impl ValidatedServiceInstallation {
     /// Validate the complete candidate without memory, registration or provider effects.
     /// The host authenticates installation and supplies its actual platform identity.
     /// # Errors
-    /// Rejects invalid limits, bindings, project, verifier or bounded release identity.
+    /// Rejects invalid limits, bindings, project or bounded release identity.
     pub fn new(
         actual_service: Principal,
         candidate: ServiceInstallationCandidate<'_>,
@@ -58,7 +55,6 @@ impl ValidatedServiceInstallation {
             candidate,
         )?;
         let limits = super::configuration::from_validated(input.configuration())?;
-        let completion = input.completion();
         let download_scope = input.into_download_scope();
         let configuration = configuration::record(&candidate);
         if configuration.to_bytes().len() > 16_384 {
@@ -68,7 +64,6 @@ impl ValidatedServiceInstallation {
             configuration,
             limits,
             download_scope,
-            completion,
         })
     }
 }
@@ -98,7 +93,6 @@ pub struct ServiceInstallation<M: Memory> {
     last_platform_version: Option<u64>,
     configuration: ConfigurationRecord,
     download_scope: CaffeineDownloadScope,
-    completion: CompletionAuthority,
     stores: ServiceStores<M>,
 }
 impl<M: Memory> ServiceInstallation<M> {
@@ -128,7 +122,6 @@ impl<M: Memory> ServiceInstallation<M> {
             last_platform_version: Some(candidate.configuration.platform_installation_version),
             configuration: candidate.configuration,
             download_scope: candidate.download_scope,
-            completion: candidate.completion,
             stores,
         })
     }
@@ -160,7 +153,6 @@ impl<M: Memory> ServiceInstallation<M> {
             ServiceInstallationCandidate {
                 configuration: configuration::input(&record),
                 project: &record.project,
-                completion_verifier: record.completion_verifier.into(),
                 release,
                 platform_installation_version: record.platform_installation_version,
             },
@@ -170,7 +162,6 @@ impl<M: Memory> ServiceInstallation<M> {
             last_platform_version: None,
             configuration: record,
             download_scope: candidate.download_scope,
-            completion: candidate.completion,
             stores,
         })
     }
@@ -189,7 +180,6 @@ impl<M: Memory> ServiceInstallation<M> {
         ic_blob_storage_contracts::dto::configuration::HostConfigurationView {
             configuration: self.configuration(),
             project: self.download_scope.project().to_owned(),
-            completion_verifier: self.completion.verifier(),
             release: self.configuration.release.clone(),
             fenced: self.stores.uploads.is_fenced(),
         }
@@ -198,11 +188,6 @@ impl<M: Memory> ServiceInstallation<M> {
     #[must_use]
     pub fn download_scope(&self) -> &CaffeineDownloadScope {
         &self.download_scope
-    }
-    /// Immutable verifier trust; this grants no operator/controller delegation.
-    #[must_use]
-    pub const fn completion_authority(&self) -> CompletionAuthority {
-        self.completion
     }
 
     /// Derive current restricted-contract facts from the installed owner and limits.
@@ -326,9 +311,6 @@ pub enum ServiceInstallationError {
     /// Explicit provider serving identity is invalid.
     #[error(transparent)]
     Project(#[from] DownloadScopeError),
-    /// Explicit verifier identity is invalid.
-    #[error(transparent)]
-    Verifier(#[from] InvalidCompletionAuthority),
     /// A shared store could not be installed or restored under the immutable limits.
     #[error(transparent)]
     Stores(#[from] ServiceStoreError),
@@ -342,7 +324,6 @@ impl From<ic_blob_storage_contracts::configuration::InstallationInputError>
         match error {
             InstallationInputError::Configuration(error) => Self::Configuration(error.into()),
             InstallationInputError::Download(error) => Self::Project(error),
-            InstallationInputError::Completion(error) => Self::Verifier(error),
             InstallationInputError::ReleaseIdentity => Self::ReleaseIdentity,
         }
     }

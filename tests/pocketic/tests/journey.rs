@@ -181,17 +181,6 @@ impl Fixture {
             })
             .map_err(|error| error.reject_code)
     }
-    fn complete(&self, owner: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
-        crate::support::update_fixture(
-            &self.harness.pic,
-            self.service,
-            self.gateway,
-            "journey_complete",
-            (owner, input),
-        )
-        .map(|(reply,)| reply)
-        .expect("substituted completion")
-    }
     fn root_control(
         &self,
         caller: Principal,
@@ -312,21 +301,11 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
         Err(JourneyFailure::InvalidPhase)
     );
     assert_eq!(
-        f.root_control(f.first, "journey_release", a.root),
-        Err(JourneyFailure::InvalidPhase)
-    );
-    assert_eq!(
         f.delete(vec![root(a.root)]),
         Err(RejectCode::CanisterError as u32)
     );
     assert_eq!(f.live(&[a.root, [99; 32], a.root]), vec![true, true, true]);
     assert_eq!(f.usage(f.first), Ok(usage(100, 100, 100)));
-    assert_eq!(
-        f.complete(f.first, JourneyUpload { bytes: 101, ..a }),
-        Err(JourneyFailure::Conflict)
-    );
-    assert_eq!(f.complete(f.first, a), Ok(()));
-    assert_eq!(f.complete(f.first, a), Ok(()));
     assert_eq!(f.usage(f.first), Ok(usage(100, 100, 100)));
     assert_eq!(
         f.root_control(f.operator, "journey_settle", a.root),
@@ -350,7 +329,6 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     assert_eq!(f.reserve(f.first, b), Ok(()));
     assert_eq!(f.append(f.first, b, 0, &[22; 150]), Ok(()));
     f.certificate(f.first, b.root).expect("second certificate");
-    assert_eq!(f.complete(f.first, b), Ok(()));
     // The first mutation must roll back when the second root still has references.
     assert_eq!(
         f.delete(vec![root(a.root), root(b.root)]),
@@ -358,7 +336,6 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     );
     assert_eq!(f.usage(f.first), Ok(usage(150, 250, 250)));
     assert_eq!(f.pending(), delayed);
-    assert_eq!(f.complete(f.first, a), Ok(())); // Late completion cannot reactivate A.
     assert_eq!(f.pending(), delayed);
     assert_eq!(
         f.certificate(f.first, a.root),
@@ -439,7 +416,6 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
         f.certificate(f.first, a.root),
         Err(RejectCode::CanisterError)
     );
-    assert_eq!(f.complete(f.first, a), Err(JourneyFailure::InvalidPhase));
     assert_eq!(f.usage(f.first), Ok(usage(0, 0, 0)));
     assert_eq!(f.usage(f.second), Ok(usage(100, 100, 100)));
     for caller in [f.first, f.second, f.operator, Principal::anonymous()] {
@@ -501,7 +477,6 @@ fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
     assert_eq!(root_text(a.root), vector["provider_root"]);
     assert_eq!(root_text(a.digest), vector["raw_digest"]);
     assert_eq!(f.reserve(f.first, a), Ok(()));
-    assert_eq!(f.complete(f.first, a), Err(JourneyFailure::InvalidPhase));
     assert_eq!(
         f.certificate(f.first, a.root),
         Err(RejectCode::CanisterError)
@@ -528,7 +503,6 @@ fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
         f.append(f.first, a, 0, b"abd"),
         Err(JourneyFailure::ContentMismatch)
     );
-    assert_eq!(f.complete(f.first, a), Err(JourneyFailure::InvalidPhase));
     assert_eq!(
         f.root_control(f.first, "journey_release", a.root),
         Err(JourneyFailure::InvalidPhase)
@@ -539,7 +513,6 @@ fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
         f.append(f.first, a, 0, b"abc"),
         Err(JourneyFailure::InvalidPhase)
     );
-    assert_eq!(f.complete(f.first, a), Ok(()));
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
     assert_eq!(f.usage(f.second), Ok(usage(0, 0, 0)));
 }
@@ -562,10 +535,6 @@ fn mismatched_raw_digest_cannot_issue_authority_or_rebind_the_reservation() {
         Err(RejectCode::CanisterError)
     );
     assert_eq!(f.reserve(f.first, correct), Err(JourneyFailure::Conflict));
-    assert_eq!(
-        f.complete(f.first, wrong),
-        Err(JourneyFailure::InvalidPhase)
-    );
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
     assert_eq!(f.control(f.first, "journey_cancel", wrong), Ok(()));
     assert_eq!(

@@ -47,7 +47,7 @@ pub struct ActiveUploadCursor {
 pub struct ActiveUploadView {
     /// Original request, including content and complete object/reference binding.
     pub request: UploadRequest,
-    /// Reserved or `ExposurePossible` at the time this page was read.
+    /// Unregistered reservation at the time this page was read.
     pub phase: UploadPhase,
 }
 
@@ -238,9 +238,8 @@ impl UploadCatalog {
 fn unconfirmed_root_state(phase: UploadPhase) -> UploadRootState {
     match phase {
         UploadPhase::Reserved => UploadRootState::Reserved,
-        UploadPhase::ExposurePossible => UploadRootState::ExposurePossible,
         UploadPhase::Cancelled => UploadRootState::Cancelled,
         // Confirmation inserts the catalog entry before changing this phase.
-        UploadPhase::Confirmed => unreachable!("confirmed operation owns catalog entry"),
+        UploadPhase::Registered => unreachable!("confirmed operation owns catalog entry"),
     }
 }

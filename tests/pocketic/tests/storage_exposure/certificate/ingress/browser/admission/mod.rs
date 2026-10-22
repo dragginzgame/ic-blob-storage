@@ -201,7 +201,7 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
         assert_eq!(view.registration, run.registration);
         assert!(!view.published);
         assert!(!view.retain_started);
-        assert_eq!(view.upload_state, Some(UploadState::ExposurePossible));
+        assert_eq!(view.upload_state, Some(UploadState::Registered));
         view
     };
     let pending = view(&replies.pending);

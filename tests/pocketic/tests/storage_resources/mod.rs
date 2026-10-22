@@ -456,9 +456,9 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         assert_eq!(
             group.iter().map(|r| r.phase).collect::<Vec<_>>(),
             vec![
-                Phase::ExposurePossible,
-                Phase::Confirmed,
-                Phase::Confirmed,
+                Phase::Registered,
+                Phase::Registered,
+                Phase::Registered,
                 Phase::Cancelled
             ]
         );

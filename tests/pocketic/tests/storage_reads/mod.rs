@@ -128,7 +128,6 @@ fn durable_descriptors_require_the_consumers_exact_live_reference_through_upgrad
     reordered.manifest.headers.reverse();
     assert_eq!(f.prepare(&reordered), Ok(false));
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let second = RetainedDescriptorInput {
         reference: 2,
         ..first
@@ -213,7 +212,6 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&preparation).unwrap();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     f.admit(f.tenant, f.permission(u128::MAX, 2).0).unwrap();
     let query = ScanInput {
         service: f.service.into(),
@@ -387,8 +385,7 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
     observe(UploadContentState::Reserved);
     f.prepare(&preparation).unwrap();
     f.expose(permission.request).unwrap();
-    observe(UploadContentState::ExposurePossible);
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
+    observe(UploadContentState::Live);
     observe(UploadContentState::Live);
     f.reference(ReferenceInput {
         object: permission.request,

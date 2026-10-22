@@ -7,7 +7,7 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
   const require = condition => { if (!condition) refuse('native-control'); };
   function frame(value) {
     const shapes = { status: ['phase', 'index'], prepare: ['phase', 'index', 'source_run'],
-      transfer: ['phase', 'index', 'source_transfer'], verify: ['phase', 'index', 'source_observation'], map: ['phase'] };
+      transfer: ['phase', 'index', 'source_transfer'], map: ['phase'] };
     require(typeof value?.phase === 'string' && Object.hasOwn(shapes, value.phase));
     const fields = shapes[value.phase];
     require(validFields(value, fields));
@@ -41,11 +41,11 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
       require(final.exit_code === 0 && isDeepStrictEqual(final.report, report) &&
         validFields(report, ['schema', 'operation', 'authentication', 'inventory_sha256', 'installation_sha256',
           'files', 'blockers', 'atomic_snapshot', 'publication_lease', 'provider_requests',
-          'public_serving_qualified', 'retry_authorized', 'all_references_live']) &&
+          'provider_upload_verified', 'public_serving_qualified', 'retry_authorized', 'all_references_live']) &&
         report.schema === 1 && report.operation === 'publish_map' && report.authentication === 'query_signatures' &&
         report.inventory_sha256 === ready.inventory_sha256 && report.installation_sha256 === ready.installation_sha256 &&
         report.atomic_snapshot === false && report.publication_lease === false && report.provider_requests === 0 &&
-        report.public_serving_qualified === false && report.retry_authorized === false &&
+        report.provider_upload_verified === false && report.public_serving_qualified === false && report.retry_authorized === false &&
         Array.isArray(report.blockers) && report.blockers.length === 0 &&
         Array.isArray(report.files) && report.files.length === ready.files &&
         report.files.every((file, index) => file?.index === index));
@@ -64,7 +64,7 @@ export async function driveSession({ ready, phase, finish, execute, refuse, sign
     if (selected.phase === 'transfer' && event.report.operation === 'publish_session_transfer') {
       require(event.report.file_index === selected.index && typeof event.report.native_phase === 'string' &&
         isAbsolute(event.report.native_phase) && event.report.retry_authorized === false);
-      // A completed or uncertain SDK result still needs the native verifier.
+      // A completed or uncertain SDK result never proves provider availability.
       // A process/control exception stops this invocation; it is never retried.
       jobs++;
       await execute({ index: selected.index, action: 'transfer', nativePhase: event.report.native_phase });

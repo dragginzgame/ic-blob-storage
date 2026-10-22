@@ -104,8 +104,6 @@ fn reference_capacity_boundary_retains_cleanup_reservations_and_retired_history(
     let mut store = StableUploads::install(clone_memory(&memory), config()).unwrap();
     let permission = lifecycle::exposed(&mut store);
     let request = request(*permission.request.object.root.as_bytes());
-    assert_eq!(inspect(&store, context(4), request).unwrap().headroom, None);
-    store.confirm_upload(permission.request).unwrap();
     let initial = inspect(&store, context(4), request).unwrap();
     assert_eq!(
         initial.headroom,

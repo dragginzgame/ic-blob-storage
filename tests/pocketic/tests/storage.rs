@@ -5,20 +5,15 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod authenticated_cli;
 mod browser_driver;
 mod install_code;
-mod observation_provider;
 mod reference_cli;
 mod snapshots;
-mod storage_attestation_cli;
-mod storage_completion;
 mod storage_exposure;
 mod storage_gateways;
 mod storage_growth;
 mod storage_manifests;
-mod storage_observe_cli;
 mod storage_reference_native_cli;
 mod storage_resources;
 mod storage_tenants;
-mod submission_proxy;
 mod support;
 use blob_test_protocol::{
     admission::{Permission, Phase, Request, input::PreparationInput},
@@ -468,10 +463,17 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
     f.expose(permission.request).unwrap();
     assert_eq!(f.revoke(permission), Ok(true));
     assert_eq!(f.revoke(permission), Ok(false));
-    assert_eq!(f.status(), totals);
+    assert_eq!(
+        f.status(),
+        Status {
+            active: 0,
+            bytes: 0,
+            ..totals
+        }
+    );
     assert_eq!(
         f.lookup(f.uploader, permission.request).unwrap().phase,
-        Phase::ExposurePossible
+        Phase::Registered
     );
     assert_eq!(f.expose(permission.request), Err(Failure::Revoked));
 }
@@ -497,8 +499,8 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
         before,
         Status {
             operations: 2,
-            active: 1,
-            bytes: 10,
+            active: 0,
+            bytes: 0,
             usage: JourneyUsage {
                 logical: 10,
                 physical: 10,

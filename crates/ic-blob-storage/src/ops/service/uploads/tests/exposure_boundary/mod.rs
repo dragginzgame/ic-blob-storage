@@ -157,8 +157,15 @@ fn exposure_binds_complete_permission_and_current_evidence_before_any_write() {
         panic!("qualified local exposure")
     };
     assert_eq!(result.permission, p);
-    assert_eq!(result.state, UploadState::ExposurePossible);
-    assert_eq!(store.usage().unwrap(), usage);
+    assert_eq!(result.state, UploadState::Registered);
+    assert_eq!(
+        store.usage().unwrap(),
+        crate::model::catalog::admission::UploadUsage {
+            active_reservations: 0,
+            reserved_bytes: 0,
+            ..usage
+        }
+    );
     assert_eq!(
         exposure::commit(&mut store, context(5), p, yes, 2),
         Err(F::Phase)
@@ -239,7 +246,7 @@ fn exposure_requires_preparation_and_retains_charged_uncertainty_after_withdrawa
     assert_eq!(store.usage().unwrap(), usage);
     let retained = exposure::inspect(&store, context(5), input.permission).unwrap();
     assert!(retained.revoked);
-    assert_eq!(retained.state, UploadState::ExposurePossible);
+    assert_eq!(retained.state, UploadState::Registered);
     assert_eq!(
         exposure::inspect(&store, context(6), input.permission),
         Err(F::Permission(A::Denied))

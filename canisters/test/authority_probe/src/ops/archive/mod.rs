@@ -202,7 +202,7 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
     let phase = owner
         .phase(binding.tenant(), request)
         .expect("retained request");
-    let charged = matches!(phase, UploadPhase::Reserved | UploadPhase::ExposurePossible);
+    let charged = matches!(phase, UploadPhase::Reserved | UploadPhase::Registered);
     let mut record = ObjectRecord {
         catalog,
         tenant: binding.tenant().into(),
@@ -212,8 +212,7 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
         digest: None,
         phase: match phase {
             UploadPhase::Reserved => ArchivePhase::Reserved,
-            UploadPhase::ExposurePossible => ArchivePhase::ExposurePossible,
-            UploadPhase::Confirmed => ArchivePhase::Live,
+            UploadPhase::Registered => ArchivePhase::Live,
             UploadPhase::Cancelled => ArchivePhase::Cancelled,
         },
         logical: if charged { request.object.bytes } else { 0 },
@@ -222,7 +221,7 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
         release_receipt: None,
         content: None,
     };
-    if phase == UploadPhase::Confirmed {
+    if phase == UploadPhase::Registered {
         confirmed(&mut record, owner.confirmed());
     }
     record

@@ -30,9 +30,7 @@ pub(super) enum Command {
     FundingOutcome(ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest),
     UploadHistory(super::upload_history::Input),
     CertificateAssessment(super::certificate_assessment::Input),
-    SubmitAttestation(super::submit_attestation::Input),
     SubmitReference(super::submit_reference::Input),
-    ObserveUpload(super::observe_upload::Input),
     Status {
         scope: OperatorScope,
     },
@@ -46,12 +44,6 @@ pub(super) enum Command {
         permission: PathBuf,
         body: PathBuf,
         max_bytes: std::num::NonZeroU64,
-    },
-    UploadAttestation {
-        service: Principal,
-        namespace: u128,
-        verifier: Principal,
-        statement: PathBuf,
     },
 }
 
@@ -74,11 +66,8 @@ impl Command {
             | Self::Download(_)
             | Self::Reference(_)
             | Self::CertificateAssessment(_)
-            | Self::SubmitAttestation(_)
             | Self::SubmitReference(_)
-            | Self::ObserveUpload(_)
-            | Self::VerifyUpload { .. }
-            | Self::UploadAttestation { .. } => "--actor",
+            | Self::VerifyUpload { .. } => "--actor",
         }
     }
 }
@@ -244,12 +233,6 @@ fn parse_scoped_command(
                 namespace,
                 permission: PathBuf::from(take("--permission")?),
             })
-        } else if command == "submit-attestation" {
-            Command::SubmitAttestation(super::submit_attestation::Input {
-                service,
-                namespace,
-                directory: PathBuf::from(take("--run-dir")?),
-            })
         } else if command == "download" {
             let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
             validate_url(&gateway, network, network == "local")?;
@@ -262,24 +245,6 @@ fn parse_scoped_command(
                 directory: PathBuf::from(take("--run-dir")?),
                 max_bytes: maximum(take("--max-bytes")?)?,
             })
-        } else if command == "observe-upload" {
-            let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
-            validate_url(&gateway, network, network == "local")?;
-            Command::ObserveUpload(super::observe_upload::Input {
-                service,
-                namespace,
-                gateway,
-                permission: PathBuf::from(take("--permission")?),
-                directory: PathBuf::from(take("--run-dir")?),
-                max_bytes: maximum(take("--max-bytes")?)?,
-            })
-        } else if command == "upload-attestation" {
-            Command::UploadAttestation {
-                service,
-                namespace,
-                verifier: principal(take("--verifier")?)?,
-                statement: PathBuf::from(take("--statement")?),
-            }
         } else if command == "verify-upload" {
             let permission = PathBuf::from(take("--permission")?);
             let body = PathBuf::from(take("--body")?);
@@ -407,7 +372,6 @@ fn parse_publish_session(
         return Err(Failure::Arguments);
     }
     Ok(Command::PublishSession(super::publish_session::Input {
-        verifier_identity: flags.remove("--verifier-identity").map(PathBuf::from),
         source_session: flags.remove("--source-session").map(PathBuf::from),
         browser_selection: flags.remove("--browser-selection").map(PathBuf::from),
         operator_identity: PathBuf::from(

@@ -14,8 +14,7 @@ pub(super) fn request(input: Request) -> Result<UploadRequest, Failure> {
 pub(super) const fn phase(phase: UploadPhase) -> Phase {
     match phase {
         UploadPhase::Reserved => Phase::Reserved,
-        UploadPhase::ExposurePossible => Phase::ExposurePossible,
-        UploadPhase::Confirmed => Phase::Confirmed,
+        UploadPhase::Registered => Phase::Registered,
         UploadPhase::Cancelled => Phase::Cancelled,
     }
 }

@@ -7,7 +7,6 @@ fn confirmed() -> (UploadAdmissions, UploadPermission) {
     owner.admit(context(4), input, 1).unwrap();
     prepare(&mut owner, &input);
     owner.expose(context(5), input.request, 2).unwrap();
-    owner.confirm_upload(input.request).unwrap();
     (owner, input)
 }
 

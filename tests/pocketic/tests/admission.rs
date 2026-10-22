@@ -296,7 +296,7 @@ fn actual_uploader_and_observer_roles_gate_manifest_and_exposure() {
     );
     let exposed = f.observe(p);
     assert!(exposed.revoked);
-    assert_eq!(exposed.phase, Phase::ExposurePossible);
+    assert_eq!(exposed.phase, Phase::Registered);
     assert_eq!(exposed.usage, original.usage);
 }
 

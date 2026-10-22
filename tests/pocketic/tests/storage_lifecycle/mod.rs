@@ -111,76 +111,6 @@ fn changed(request: ReferenceInput, replayed: bool) -> ReferenceMutationResponse
     }
 }
 #[test]
-fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference() {
-    let f = Fixture::new();
-    let permission = f.exposed();
-    let before = f.status();
-    for actor in [f.tenant, f.uploader, f.controller] {
-        let result: Result<bool, Failure> = f
-            .harness
-            .pic
-            .update_control_as(
-                f.service,
-                actor,
-                "fixture_provider_fact",
-                (FactInput {
-                    request: permission.request,
-                    fact: ProviderFact::Uploaded,
-                    fault: None,
-                },),
-                (REPLY_LIMITS).reply_bytes,
-            )
-            .map(|(reply,)| reply)
-            .unwrap();
-        assert_eq!(result, Err(Failure::Denied));
-    }
-    for fault in [
-        WriteFault::References,
-        WriteFault::Permissions,
-        WriteFault::Usage,
-    ] {
-        let error = f
-            .harness
-            .pic
-            .update_call(
-                f.service,
-                f.operator,
-                "fixture_provider_fact",
-                ic_blob_storage_pocketic_tests::control_calls::encode_control_one(FactInput {
-                    request: permission.request,
-                    fact: ProviderFact::Uploaded,
-                    fault: Some(fault),
-                })
-                .unwrap(),
-            )
-            .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
-        assert_eq!(f.status(), before);
-        assert_eq!(
-            f.lookup(f.tenant, permission.request).unwrap().phase,
-            Phase::ExposurePossible
-        );
-        assert_eq!(
-            f.live(reference(permission.request, 1, 1, false)),
-            Err(ReferenceFailure::Unconfirmed)
-        );
-    }
-    assert_eq!(f.fact(permission.request, ProviderFact::Uploaded), Ok(true));
-    assert_eq!(
-        f.fact(permission.request, ProviderFact::Uploaded),
-        Ok(false)
-    );
-    assert_eq!(
-        f.status(),
-        Status {
-            active: 0,
-            bytes: 0,
-            ..before
-        }
-    );
-    assert_eq!(f.live(reference(permission.request, 1, 1, false)), Ok(true));
-}
-#[test]
 #[expect(
     clippy::too_many_lines,
     reason = "One ordered reference/receipt/settlement rollback journey shares the same constrained history"
@@ -188,7 +118,6 @@ fn completion_faults_preserve_the_reservation_and_cannot_leak_a_first_reference(
 fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
     let f = Fixture::new();
     let permission = f.exposed();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let retain = reference(permission.request, u128::MAX, 2, true);
     let before = f.status();
     for fault in [WriteFault::Receipts, WriteFault::Confirmed] {
@@ -301,10 +230,6 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
     );
     assert_eq!(f.reference(retain), Ok(changed(retain, true)));
     assert_eq!(f.live(retain), Ok(false));
-    assert_eq!(
-        f.fact(permission.request, ProviderFact::Uploaded),
-        Ok(false)
-    );
     assert_eq!(f.live(retain), Ok(false));
 }
 #[test]
@@ -312,7 +237,6 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
     for stage in 0..4 {
         let f = Fixture::new();
         let permission = f.exposed();
-        f.fact(permission.request, ProviderFact::Uploaded).unwrap();
         let release = reference(permission.request, 1, 1, false);
         if stage > 0 {
             f.reference(release).unwrap();
@@ -344,11 +268,7 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
         assert_eq!(f.receipt(release), Ok(receipt));
         assert_eq!(f.live(release), Ok(stage == 0));
         assert_eq!(f.reference(release), Err(ReferenceFailure::Fenced));
-        for fact in [
-            ProviderFact::Uploaded,
-            ProviderFact::Deleted,
-            ProviderFact::Settled,
-        ] {
+        for fact in [ProviderFact::Deleted, ProviderFact::Settled] {
             assert_eq!(f.fact(permission.request, fact), Err(Failure::Fenced));
         }
         let denied: Result<ReferenceReceiptLookup, ReferenceFailure> = f

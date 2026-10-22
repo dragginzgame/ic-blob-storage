@@ -47,48 +47,16 @@ pub(crate) struct ConfirmedLifecycleRecord {
     references: u64,
     active: u64,
     receipts: u64,
-    completion: CompletionRecord,
-}
-/// Current schema distinguishes low-level host facts from retained verifier evidence.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
-pub(crate) enum CompletionRecord {
-    HostFact,
-    Attested(AttestationRecord),
-}
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
-pub(crate) struct AttestationRecord {
-    pub(crate) verifier: ExternalPrincipal,
-    pub(crate) content_digest: [u8; 32],
-    pub(crate) observed_at_ns: u64,
-    pub(crate) accepted_at_ns: u64,
-}
-impl CompletionRecord {
-    pub(crate) fn valid(self) -> bool {
-        match self {
-            Self::HostFact => true,
-            Self::Attested(r) => {
-                r.verifier != Principal::anonymous().into()
-                    && r.verifier != Principal::management_canister().into()
-                    && r.observed_at_ns <= r.accepted_at_ns
-            }
-        }
-    }
 }
 impl ConfirmedLifecycleRecord {
-    pub(crate) const fn new(completion: CompletionRecord) -> Self {
+    pub(crate) const fn new() -> Self {
         Self {
             version: 1,
             phase: PhaseRecord::Live,
             references: 1,
             active: 1,
             receipts: 0,
-            completion,
         }
-    }
-    pub(crate) const fn completion(self) -> CompletionRecord {
-        self.completion
     }
     pub(crate) const fn phase(self) -> LifecyclePhase {
         match self.phase {
@@ -103,7 +71,6 @@ impl ConfirmedLifecycleRecord {
     }
     pub(crate) fn valid(self, limits: CatalogLimits) -> bool {
         self.version == 1
-            && self.completion.valid()
             && self.references > 0
             && self.active <= self.references
             && (self.phase == PhaseRecord::Live) == (self.active > 0)

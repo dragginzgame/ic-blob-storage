@@ -97,7 +97,6 @@ fn failed_receipt(
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&manifest).unwrap();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let failed = ReferenceCommand {
         upload: admission_input(permission).upload,
         operation: 3,
@@ -151,7 +150,6 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&manifest).unwrap();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let input = ReferenceCommand {
         upload: admission_input(permission).upload,
         reference: u128::MAX - 1,

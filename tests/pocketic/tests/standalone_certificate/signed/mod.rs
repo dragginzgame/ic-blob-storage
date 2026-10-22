@@ -159,7 +159,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
     for manifest in &manifests {
         assert_eq!(
             f.admission(manifest.permission).state,
-            UploadState::ExposurePossible
+            UploadState::Registered
         );
     }
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())

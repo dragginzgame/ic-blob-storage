@@ -85,7 +85,6 @@ fn stable_checkpoint_copy_completes_tails_without_advancing_live_authority() {
         assert_eq!(f.append(f.first, v.upload, index, leaves[last]), Ok(()));
         f.certificate(f.first, v.upload.root)
             .expect("only the live verifier issues authority");
-        assert_eq!(f.complete(f.first, v.upload), Ok(()));
         let verified = f.progress(f.first, v.upload).unwrap();
         assert_eq!(
             f.checkpoint_probe(f.operator, v.upload, index, leaves[last]),

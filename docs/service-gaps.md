@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
 </p>
 
-# Service qualification gaps — 2026-10-21
+# Service qualification gaps — 2026-10-22
 
 This review stays within this repository. The core and standalone host have no
 Canic dependency, endpoint registration or lifecycle ownership on linkage.
@@ -20,13 +20,13 @@ active release and implementation handoff.
 
 | Gap | Repository result | Remaining acceptance and owner |
 | --- | --- | --- |
-| Framework adapter and composition | Framework-free core and explicit host grants. [Canic's current owner report](https://github.com/dragginzgame/canic/issues/444#issuecomment-6313616819) records local Blob 0.40 dedicated, embedded and production Root initialization/recovery cases, with separate root/private graphs. This is consumer-reported pending work, not default-main delivery or an execution performed here. [Earlier composition evidence](evidence/canic0229.md) retains its original graph. | Canic: deliver the qualified consumer batch and reconcile its adoption issue. Application owners retain two-user/verifier, serving, provider GC and funding qualification; local composition success does not establish these. |
+| Framework adapter and composition | Framework-free core and explicit host grants. Canic reports local published-Blob 0.40.4 [mounted journeys and recovery](https://github.com/dragginzgame/canic/issues/620#issuecomment-6323164353), plus [public metrics/restoration](https://github.com/dragginzgame/canic/issues/621#issuecomment-6322744750), in its dedicated and embedded consumers. Controlled bytes/verifier remain substitutes; this is owner-reported local work, not default-main delivery or an execution here. [Earlier composition evidence](evidence/canic0229.md) retains its original graph. | Canic: deliver #444/#620/#621; verified main still declares Blob 0.35. Applications retain authenticated users, verified actual provider reads and asset publication; local composition success does not establish those or provider GC/funding facts. |
 | Complete live upload/download | The [fresh frozen 0.7.0 record](evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json) completes 1 KiB and 10 MiB uploads, independent verification, accepted attestations and matching tenant downloads. | Consumer owner: qualify distinct real media, complete publication batches, interruption, serving and CSP. These samples do not prove retention or itemized billing. |
 | Current-instance restoration | Released 0.8.0 adds operator-only recovery from an independent replicated IC `canister_info` call, checked against the immutable platform installation version. PocketIC qualifies activation with retained obligations and rejection of stale/incomplete history. | Consumer owner: qualify the released contract in its composition and operating policy. Frozen live 0.7.0 does not acquire this endpoint. |
 | Older snapshot/backup restoration | Snapshot loads and history that cannot reach installation refuse active recovery. The standalone guard fences management-version gaps, including old heap restoration. | Operator: retain the surviving complete inventory of provider objects, uncertain effects, balances and billing outside any rolled-back installation. Active older-backup recovery remains unsupported. |
 | Provider deletion | Final-reference release retains physical bytes. Core deletion acknowledgement and billing settlement remain separate transitions. Reviewed public Caffeine callbacks do not establish an executed live deletion. | Provider/service owner: qualify exact-object authority, deletion request/callback identity, uncertain-result reconciliation and authoritative deployed deletion evidence before decrementing physical accounting. |
 | Billing cessation | Logical release or a provider deletion callback cannot clear economic liability. Fresh live samples retain 10,486,784 physical/liability bytes after logical release. | Provider/service owner: obtain exact final object billing evidence, settlement amount/cutoff, and treatment of delayed charges. Current reviewed contracts and zero usage counters supply no such proof. |
-| Existing consumers | The [service contract](service-contract.md) defines the current format and lifetime rules. Canic's published adapter and Toko Miner's reported registry-only disposable acceptance are recorded in the [current delivery review](evidence/canic0229.md); siblings remain read-only. | Application owners: qualify their production installation, verifier, tenant/payer bindings and provider activity, and explicitly disposition old installations and obligations. Toko's per-project journey remains separate from Toko Miner. No compatibility layer or cross-release migration is supplied. |
+| Existing consumers | The [service contract](service-contract.md) defines the current format and lifetime rules. Canic's published adapter and Toko Miner's reported registry-only disposable acceptance are recorded in the [current delivery review](evidence/canic0229.md); siblings remain read-only. | Application owners: qualify their production installation, tenant/payer bindings and provider activity, and explicitly disposition old installations and obligations. Toko's per-project journey remains separate from Toko Miner. No compatibility layer or cross-release migration is supplied. |
 
 ## Recent local evidence
 
@@ -60,7 +60,7 @@ The [representative emitted-media record](evidence/caffeine-probes/README.md#rep
 adds local PNG/JPEG/WebP and an eight-chunk GLB from frozen consumer bytes,
 without a consumer build or framework wrapper. Lost replies add no PUT; tail
 corruption prevents the next admission. An occupied native map output refuses,
-then fresh signed queries recover the map with completion/reference history
+then fresh signed queries recover the map with registration/reference history
 intact. This does not qualify an application asset-registration transaction.
 The [original-cache metadata checks](evidence/caffeine-probes/README.md#original-cache-metadata--2026-10-04)
 now reproduce all four retained original roots through the same SDK preparation.

@@ -1,5 +1,6 @@
 [
   {
+    "hex": "49570c004100424f4c4201000105f0d54cef0105e918528c01b1f4b2b7039282bffe05a9eca7db04b998c434a1edd6d409ca90c11bd547b30929e476259dbedceedc207f347bada71f92d5581feaa78288a2ba9efe0fffaad9a90ba6a6a8810a000001",
     "input": {
       "Ok": {
         "Found": {
@@ -57,10 +58,10 @@
           }
         }
       }
-    },
-    "hex": "49570c003600424f4c4201000105f0d54cef0105e918528c01b1f4b2b7039282bffe05a9eca7db04b998c434a1edd6d409ca90c11bd547b30929e476259dbedceedc207f347bada71f92d5581feaa78288a2ba9efe0fffaad9a90ba6a6a8810a000001"
+    }
   },
   {
+    "hex": "49570c004100424f4c4201000105e58c6880010524dca844019aefabee0bb0d8eaf40a81c0b7d0098b87d9af07c5e6b9fa05296a3bbef5ddb669f8293e03776b48c9b4972457b3b459ecf31bcf13bd66b893f4868a840ef098c58c0b92b9aed70c000103",
     "input": {
       "Ok": {
         "Found": {
@@ -118,13 +119,12 @@
           }
         }
       }
-    },
-    "hex": "49570c003600424f4c4201000105e58c6880010524dca844019aefabee0bb0d8eaf40a81c0b7d0098b87d9af07c5e6b9fa05296a3bbef5ddb669f8293e03776b48c9b4972457b3b459ecf31bcf13bd66b893f4868a840ef098c58c0b92b9aed70c000103"
+    }
   },
   {
+    "hex": "49570c004100424f4c42010107",
     "input": {
       "Err": "Fenced"
-    },
-    "hex": "49570c003600424f4c42010107"
+    }
   }
 ]

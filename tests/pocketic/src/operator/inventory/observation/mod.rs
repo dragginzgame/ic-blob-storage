@@ -199,7 +199,7 @@ fn existing(
                 (available.fresh_retains < blob.assets.len() as u64).then_some("reference_capacity")
             }
         }
-        UploadContentState::Reserved | UploadContentState::ExposurePossible => {
+        UploadContentState::Reserved => {
             entry["status"] = json!("recover_existing_operation");
             Some("recover_existing_operation")
         }

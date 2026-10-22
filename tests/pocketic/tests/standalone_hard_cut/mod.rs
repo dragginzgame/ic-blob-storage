@@ -15,9 +15,15 @@ pub(super) fn frozen_installation(f: &Fixture) -> Vec<u8> {
         16384,
     )
     .unwrap();
-    let mut args =
-        ic_platform::candid_parser::IDLArgs::from_bytes(&historical::encode(input).unwrap())
-            .unwrap();
+    let mut args = ic_platform::candid_parser::IDLArgs::from_bytes(
+        &ic_platform::candid::contract::encode_one(historical::ServiceInstallationInput {
+            configuration: historical::project(input.configuration),
+            project: input.project,
+            completion_verifier: Fake::principal(90),
+        })
+        .unwrap(),
+    )
+    .unwrap();
     let ic_platform::candid_parser::IDLValue::Record(fields) = &mut args.args[0] else {
         panic!("installation record")
     };
@@ -114,9 +120,9 @@ fn frozen_admission(f: &Fixture, input: UploadAdmissionRequest) -> UploadAdmissi
 
 fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) {
     use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
-    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
-    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
-    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
+    use ic_blob_storage_pocketic_tests::historical::UploadAttestationFailure;
+    use ic_blob_storage_pocketic_tests::historical::UploadAttestationMutation;
+    use ic_blob_storage_pocketic_tests::historical::UploadAttestationRequest;
     frozen_update::<Result<TenantEnrollmentResponse, TenantFailure>>(
         f,
         f.operator,
@@ -164,7 +170,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
         Fake::principal(90),
         "blob_attest_upload",
         (UploadAttestationRequest {
-            permission: manifest.permission,
+            permission: historical::project(manifest.permission),
             content_digest: [1; 32],
             observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
         },),

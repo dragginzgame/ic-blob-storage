@@ -211,9 +211,7 @@ fn existing(
         return Err(Failure::Binding);
     }
     let status = match content.state {
-        UploadContentState::Reserved | UploadContentState::ExposurePossible => {
-            "recover_existing_operation"
-        }
+        UploadContentState::Reserved => "recover_existing_operation",
         UploadContentState::Live => "live_requires_retain",
         UploadContentState::Cancelled
         | UploadContentState::DeletionPending

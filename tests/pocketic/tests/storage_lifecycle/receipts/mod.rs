@@ -43,11 +43,6 @@ fn replicated_receipt_preserves_historical_success_through_release_suspension_an
     let input = f.exposed();
     let retain = reference(input.request, 1, 2, true);
     let selected = selection(&f, retain);
-    assert_eq!(
-        fetch(&f, &selected),
-        Err(ReferenceProbeFailure::Remote(ReferenceFailure::Unconfirmed))
-    );
-    f.fact(input.request, ProviderFact::Uploaded).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(fetch(&f, &selected), Ok(ReferenceReceiptLookup::Absent));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
@@ -95,7 +90,6 @@ fn replicated_receipt_preserves_historical_success_through_release_suspension_an
 fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_reply_bounds() {
     let f = consumer();
     let input = f.exposed();
-    f.fact(input.request, ProviderFact::Uploaded).unwrap();
     let unknown = reference(input.request, 1, 2, false);
     assert_eq!(
         f.reference(unknown).unwrap().receipt.result,

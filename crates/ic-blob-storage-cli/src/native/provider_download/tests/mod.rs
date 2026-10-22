@@ -1,16 +1,16 @@
 use super::*;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
-use ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestHeader;
+use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
 use std::{io::Write, net::TcpListener, time::Instant};
 
-fn plan(bytes: &[u8]) -> UploadVerificationPlan {
+fn plan(bytes: &[u8]) -> UploadManifestRequest {
     let length = bytes.len().to_string();
     let headers = [
         CaffeineHeader {
@@ -37,7 +37,7 @@ fn plan(bytes: &[u8]) -> UploadVerificationPlan {
     builder.append(0, bytes).unwrap();
     let prepared = builder.finish().unwrap();
     let principal = Principal::self_authenticating([1]);
-    UploadVerificationPlan {
+    UploadManifestRequest {
         permission: UploadAdmissionRequest {
             upload: ReferenceUpload {
                 service: principal,
@@ -53,10 +53,6 @@ fn plan(bytes: &[u8]) -> UploadVerificationPlan {
             uploader: principal,
             expires_at_ns: u64::MAX,
         },
-        verifier: principal,
-        owner: principal,
-        project: "project".into(),
-        admitted_at_ns: 1,
         declaration: UploadManifestDeclaration {
             chunks: prepared
                 .manifest()
@@ -98,7 +94,7 @@ fn serve(listener: &TcpListener, headers: &str, bytes: &[u8]) -> std::io::Result
         .and_then(|()| stream.write_all(bytes))
 }
 fn run_case(
-    plan: &UploadVerificationPlan,
+    plan: &UploadManifestRequest,
     headers: &str,
     bytes: &[u8],
     expected: Result<ContentDigest, Failure>,
@@ -249,6 +245,6 @@ fn download_stream_requires_eof_and_original_metadata_with_no_redirect_or_decodi
         run_case(&small, headers, body, Err(failure));
     }
 }
-fn plan_for_failures() -> UploadVerificationPlan {
+fn plan_for_failures() -> UploadManifestRequest {
     plan(b"abc")
 }

@@ -58,8 +58,8 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
     );
     let observations = vec![
         UploadProbeState::Reserved,
-        UploadProbeState::ExposurePossible,
-        UploadProbeState::Confirmed,
+        UploadProbeState::Registered,
+        UploadProbeState::Registered,
         UploadProbeState::Cancelled,
     ];
     assert_eq!(roots(pic, canister, gateway), Some(observations));
@@ -92,8 +92,8 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
         roots(pic, canister, gateway),
         Some(vec![
             UploadProbeState::Cancelled,
-            UploadProbeState::ExposurePossible,
-            UploadProbeState::Confirmed,
+            UploadProbeState::Registered,
+            UploadProbeState::Registered,
             UploadProbeState::Cancelled
         ])
     );

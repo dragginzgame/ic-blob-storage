@@ -16,7 +16,6 @@ mod standalone_capacity;
 mod standalone_certificate;
 mod standalone_certificate_cli;
 mod standalone_cli;
-mod standalone_completion;
 mod standalone_discovery;
 mod standalone_download;
 mod standalone_funding;
@@ -94,10 +93,6 @@ struct Fixture {
 enum Envelope {
     Regular,
     Single,
-    Serial {
-        max_object_bytes: u64,
-        total_bytes: u64,
-    },
 }
 fn wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_STANDALONE_WASM")).unwrap()
@@ -131,7 +126,6 @@ impl Fixture {
             operator,
             Fake::principal(4),
             Envelope::Regular,
-            Fake::principal(90),
             PROJECT,
         )
     }
@@ -142,21 +136,15 @@ impl Fixture {
             Fake::principal(2),
             uploader,
             Envelope::Single,
-            Fake::principal(90),
             PROJECT,
         )
     }
-    #[expect(
-        clippy::too_many_lines,
-        reason = "One fixture constructor binds the envelope, principals and installed service"
-    )]
     fn with_profile(
         harness: Harness,
         cashier: Principal,
         operator: Principal,
         uploader: Principal,
         envelope: Envelope,
-        verifier: Principal,
         project: &str,
     ) -> Self {
         let controller = Fake::principal(1);
@@ -211,7 +199,7 @@ impl Fixture {
                 tenant_bytes: 2048,
             },
         };
-        if matches!(envelope, Envelope::Single | Envelope::Serial { .. }) {
+        if matches!(envelope, Envelope::Single) {
             let r = &mut config.resources;
             r.max_tenants = 1;
             r.max_object_bytes = 1024;
@@ -224,22 +212,6 @@ impl Fixture {
             r.max_receipts_per_object = 2;
             r.max_active = 1;
             r.max_tenant_active = 1;
-            if let Envelope::Serial {
-                max_object_bytes,
-                total_bytes,
-            } = envelope
-            {
-                r.max_object_bytes = max_object_bytes;
-                r.max_objects = 2;
-                r.max_tenant_objects = 2;
-                r.max_physical_bytes = u128::from(total_bytes);
-                r.max_liability_bytes = u128::from(total_bytes);
-                r.max_tenant_logical_bytes = u128::from(total_bytes);
-                r.max_references_per_object = 2;
-                r.max_receipts_per_object = 4;
-                config.reads.bytes = total_bytes;
-                config.reads.tenant_bytes = total_bytes;
-            }
         }
         let mut input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
             "blob_install",
@@ -247,7 +219,6 @@ impl Fixture {
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
-        input.completion_verifier = verifier.into();
         input.project = project.into();
         harness.pic.install_canister(
             service,
@@ -719,7 +690,6 @@ fn installation(configuration: &ServiceConfigurationInput) -> Vec<u8> {
         ServiceInstallationInput {
             configuration: *configuration,
             project: PROJECT.into(),
-            completion_verifier: Fake::principal(90).into(),
         },
     )
     .unwrap()

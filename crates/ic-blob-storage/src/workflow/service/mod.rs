@@ -11,9 +11,7 @@ use crate::ops::service::{
     recovery::{ActiveContinuityRequest, ContinuityInstallationAccess, RecoveryInstallationAccess},
     stores::ServiceStores,
 };
-use ic_blob_storage_contracts::{
-    download::scope::CaffeineDownloadScope, upload::completion::CompletionAuthority,
-};
+use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use std::{
     marker::PhantomData,
     num::{NonZeroU32, NonZeroUsize},
@@ -76,14 +74,6 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
     fn mutate<R>(operation: impl FnOnce(&mut ServiceStores<H::Memory>) -> R) -> R {
         Self::with_certificate(|installation| operation(installation.stores_mut()))
     }
-    fn with_completion<R>(
-        operation: impl FnOnce(&mut ServiceStores<H::Memory>, CompletionAuthority) -> R,
-    ) -> R {
-        Self::with_certificate(|installation| {
-            let authority = installation.completion_authority();
-            operation(installation.stores_mut(), authority)
-        })
-    }
     fn with_download<R>(
         operation: impl FnOnce(
             &crate::ops::service::uploads::StableUploads<H::Memory>,
@@ -93,21 +83,6 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
         Self::with_installation(|installation| {
             operation(
                 &installation.stores().uploads,
-                installation.download_scope(),
-            )
-        })
-    }
-    fn with_verification<R>(
-        operation: impl FnOnce(
-            &crate::ops::service::uploads::StableUploads<H::Memory>,
-            CompletionAuthority,
-            &CaffeineDownloadScope,
-        ) -> R,
-    ) -> R {
-        Self::with_installation(|installation| {
-            operation(
-                &installation.stores().uploads,
-                installation.completion_authority(),
                 installation.download_scope(),
             )
         })
@@ -510,80 +485,6 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
         .await;
         Self::observe_version();
         outcome
-    }
-
-    /// Delegate `attest` with shared continuity and host-selected bounds.
-    /// # Errors
-    /// Returns the operation's typed authority, binding, fence or resource refusal.
-    pub fn attest(
-        context: UploadContext,
-        input: &ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest,
-    ) -> Result<
-        ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation,
-        ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-    > {
-        Self::with_completion(|stores, authority| {
-            crate::workflow::uploads::completion::attest(
-                &mut stores.uploads,
-                authority,
-                context,
-                input,
-                H::time(),
-            )
-        })
-    }
-    /// Delegate `attestation` with shared continuity and host-selected bounds.
-    /// # Errors
-    /// Returns the operation's typed authority, binding, fence or resource refusal.
-    pub fn attestation(
-        context: UploadContext,
-        input: UploadAdmissionRequest,
-    ) -> Result<
-        ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse,
-        ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-    > {
-        Self::with_completion(|stores, authority| {
-            crate::workflow::uploads::completion::inspect(
-                &stores.uploads,
-                authority,
-                context,
-                input,
-            )
-        })
-    }
-
-    /// Delegate `verification_manifest` with shared continuity and host-selected bounds.
-    /// # Errors
-    /// Returns the operation's typed authority, binding, fence or resource refusal.
-    pub fn verification_manifest(
-        context: UploadContext,
-        input: UploadAdmissionRequest,
-    ) -> Result<UploadManifestResponse, UploadManifestFailure> {
-        Self::with_completion(|stores, authority| {
-            crate::workflow::uploads::completion::manifest(
-                &stores.uploads,
-                authority,
-                context,
-                input,
-            )
-        })
-    }
-
-    /// Delegate `verification_plan` with shared continuity and host-selected bounds.
-    /// # Errors
-    /// Returns the operation's typed authority, binding, fence or resource refusal.
-    pub fn verification_plan(
-        context: UploadContext,
-        input: UploadAdmissionRequest,
-    ) -> Result<
-        ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
-        ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-    > {
-        Self::with_verification(|uploads, authority, scope| {
-            crate::workflow::uploads::completion::verification_plan(
-                uploads, authority, scope, context, input,
-            )
-        })
     }
 }
 impl<H: ServiceHost> RecoveryInstallationAccess for ServiceWorkflow<H> {

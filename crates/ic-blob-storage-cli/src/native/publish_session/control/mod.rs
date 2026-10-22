@@ -52,10 +52,6 @@ pub(super) enum Frame {
         index: usize,
         source_transfer: Option<PathBuf>,
     },
-    Verify {
-        index: usize,
-        source_observation: Option<PathBuf>,
-    },
     Map {},
 }
 

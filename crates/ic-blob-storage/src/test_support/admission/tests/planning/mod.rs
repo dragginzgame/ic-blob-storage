@@ -186,8 +186,13 @@ fn other_tenant_obligations_limit_headroom_until_billing_really_stops() {
     );
     prepare(&mut owner, &first);
     owner.expose(context(5), first.request, 11).unwrap();
-    assert_eq!(view(&owner, 4), full);
-    owner.confirm_upload(first.request).unwrap();
+    assert_eq!(
+        view(&owner, 4),
+        AdmissionCapacityView {
+            remaining_active_uploads: 1,
+            ..full
+        }
+    );
     assert_eq!(view(&owner, 4).remaining_active_uploads, 1);
     assert_eq!(view(&owner, 4).remaining_bytes, 0);
     owner

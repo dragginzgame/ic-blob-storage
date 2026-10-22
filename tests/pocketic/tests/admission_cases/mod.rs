@@ -63,7 +63,7 @@ fn metadata_rejection_preserves_reservation_and_reordered_retry_preserves_bindin
         Ok(Outcome::Exposed)
     );
     let exposed = f.observe(p);
-    assert_eq!(exposed.phase, Phase::ExposurePossible);
+    assert_eq!(exposed.phase, Phase::Registered);
     assert_eq!(exposed.usage, original.usage);
 }
 
@@ -187,7 +187,7 @@ fn ten_mib_manifest_authorizes_local_exposure_without_claiming_completion() {
         Ok(Outcome::Exposed)
     );
     let exposed = f.observe(p);
-    assert_eq!(exposed.phase, Phase::ExposurePossible);
+    assert_eq!(exposed.phase, Phase::Registered);
     assert_eq!(exposed.usage, initial.usage);
     f.restart();
     assert_eq!(f.observe(p), exposed);
@@ -206,7 +206,7 @@ fn ten_mib_manifest_authorizes_local_exposure_without_claiming_completion() {
         (usage.logical, usage.physical, usage.liability),
         (amount, amount, amount)
     );
-    assert_eq!(retained.phase, Phase::ExposurePossible);
+    assert_eq!(retained.phase, Phase::Registered);
 }
 
 #[test]

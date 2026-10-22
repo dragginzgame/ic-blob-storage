@@ -86,7 +86,7 @@ fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
     )
     .unwrap();
     for bytes in [
-        ic_blob_storage_pocketic_tests::historical::encode(&input).unwrap(),
+        super::standalone_hard_cut::frozen_installation(&f),
         ic_blob_storage_contracts::wire::encode_request("blob_install", (&input, true)).unwrap(),
         vec![0; 16385],
     ] {

@@ -107,7 +107,7 @@ fn restoration_retains_large_reused_capacity_and_exhausted_lifetime_slots() {
         (settled.upload.root, ArchivePhase::Settled, Some(true)),
         (cancelled.upload.root, ArchivePhase::Cancelled, None),
         (live.upload.root, ArchivePhase::Live, None),
-        (exposed.upload.root, ArchivePhase::ExposurePossible, None),
+        (exposed.upload.root, ArchivePhase::Live, None),
     ] {
         let entry = object(&retained, ArchiveCatalog::Journey, root);
         assert_eq!((entry.phase, entry.release_receipt), (phase, receipt));

@@ -59,7 +59,6 @@ pub fn observation(view: TenantContentView) -> ContentObservation {
 pub fn content_state(state: UploadRootState) -> ContentState {
     match state {
         UploadRootState::Reserved => ContentState::Reserved,
-        UploadRootState::ExposurePossible => ContentState::ExposurePossible,
         UploadRootState::Cancelled => ContentState::Cancelled,
         UploadRootState::Confirmed(phase) => match phase {
             LifecyclePhase::Live => ContentState::Live,

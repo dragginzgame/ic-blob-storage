@@ -137,8 +137,6 @@ pub struct Status {
 /// Labelled local provider-fact substitute; never a deployed provider callback.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ProviderFact {
-    /// Exact upload completion substitute.
-    Uploaded,
     /// Exact physical deletion substitute.
     Deleted,
     /// Final settlement and billing cessation substitute.

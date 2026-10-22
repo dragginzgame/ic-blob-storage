@@ -89,7 +89,6 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     // These remain labelled fixture controls, not a deployed-provider integration.
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let published = register(&f, &input).unwrap();
     assert!(published.published);
     assert!(!published.retain_started);

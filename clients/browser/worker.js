@@ -83,7 +83,7 @@ export function createPublicationWorker(options) {
             maxRequests, maxRequestBytes, maxTotalRequestBytes, signal,
             certificateFetch, gatewayFetch });
           await upload.upload();
-          return report({ state: 'transfer-observed', requires_verification: true,
+          return report({ state: 'transfer-observed', provider_upload_verified: false,
             journal: journal(await upload.inspect()) });
         }
         require(row, 'history-missing');
@@ -92,7 +92,7 @@ export function createPublicationWorker(options) {
         if (current.action === 'cancel') return report({ state: 'cancelled',
           journal: journal(await certificate.cancel()) });
         const recovered = await certificate.recover();
-        return report({ state: 'certificate-observed', requires_verification: true,
+        return report({ state: 'certificate-observed', provider_upload_verified: false,
           certificate_bytes: recovered.certificate.length,
           journal: journal(await certificate.inspect()) });
       } catch (error) {

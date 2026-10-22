@@ -21,7 +21,7 @@ fn revocation_reply_requires_withdrawal_and_the_complete_original_permission() {
     let response = UploadRevocationResponse {
         admission: UploadAdmissionResponse {
             permission,
-            state: UploadState::ExposurePossible,
+            state: UploadState::Registered,
             revoked: true,
         },
         changed: true,

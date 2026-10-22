@@ -14,6 +14,23 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## GC runtime contract discovery — 2026-10-22
+
+The [intent](local/2026-10-22-gc-contract-discovery-01/intent.json),
+[outcomes](local/2026-10-22-gc-contract-discovery-01/summary.md) and
+[checksums](local/2026-10-22-gc-contract-discovery-01/files.sha256) retain one
+inconclusive web search and five successful bounded public source/SDK reads.
+The provider's exact Motoko compiler source establishes weak-reference/dedup
+bookkeeping and dead-only pruning, not gateway failure policy or remote deletion.
+The public repository inventory supplies no authoritative gateway specification;
+this limited discovery does not prove none exists. The current SDK archive also
+returns a hash, not an authenticated completion receipt. Historical Canic
+registered roots live before upload, without an independent verifier; restoring
+that trust model needs an explicit current-contract decision. #32 still needs
+the gateway contract; #33 needs actual worker operation under Blob's current
+verified-completion model. No provider/account request, payment, signer,
+deployment or sibling edit occurred, and no external cleanup is needed.
+
 ## Provider GC and credit source refresh — 2026-10-21
 
 The [intent](local/2026-10-21-provider-contract0402-01/intent.json),
@@ -4146,6 +4163,11 @@ provider authenticity; rerunning the opt-in test establishes current local behav
 
 ## Run index
 
+`gc-contract-discovery-01` / 2026-10-22: bounded public-source discovery of the
+provider's exact Motoko GC primitive owner. [Intent](local/2026-10-22-gc-contract-discovery-01/intent.json)
+and [summary](local/2026-10-22-gc-contract-discovery-01/summary.md) retain successful
+source reads and inconclusive search evidence, with zero provider/paid effects.
+
 `host051-cleanup-0181-02` / 2026-10-08: shared child-group ownership, buffered
 final output and current locked graph qualification. [Intent](local/2026-10-08-host051-cleanup-0181-02/intent.json),
 [correction](local/2026-10-08-host051-cleanup-0181-02/attempt-correction.json) and
@@ -4243,7 +4265,7 @@ canisters/files require cleanup. The completed result is indexed below.
 | --- | --- | --- | --- |
 | standalone-certificate / 2026-09-30 | Actual standalone and local storage-fixture PocketIC endpoints; no deployed provider | [Host refusal case](../../../tests/pocketic/tests/standalone_certificate/mod.rs) passes (4.27 seconds); six existing exposure/certificate cases pass (12.77 seconds), including real signed ingress verification, rollback and lost-reply recovery; optional Chromium case not rerun. Five core certificate tests, Candid comparison, strict affected Clippy, warning-free core/host docs and release Wasm builds pass | Standalone reports four unqualified prerequisites and refuses certificate issuance; role/malformed/unprepared/revoked/restored cases preserve state. Stop/start grants no new authority. Assessment does not reserve issuance. Shared blocker DTO/conversion replaces the fixture duplicate; positive issuance facts remain labelled fixture substitutes. No provider requests/attached cycles, external charges or cleanup obligations; no provider or old-backup qualification |
 | public-source-03 / 2026-09-30 | Anonymous official source/registry capture, four bounded GETs | [Plan](runs/2026-09-30-public-source-01/plan.json), [summary](runs/2026-09-30-public-source-01/summary.json); captured at commit `14ab9511fd73258a380bc1a6861d6da6e548ebbb` | Upstream HEAD moved; retained Mixin/Storage SHA-256 values still match public-source-02, and npm remains 1.1.2 with the same integrity. The root-only certificate reply has no owner/project, admitted size, deadline or operation identity fields; source refresh adds no deployed pre-charge, replay, provisioning or recovery evidence. No provider/account effects or external cleanup |
-| verifier-submission / 2026-09-30 | Native artifact validation and signed PocketIC through a bounded local fault proxy; fixture exposure and ten-byte local content | [Maintained journeys](../../../tests/pocketic/tests/storage_observe_cli/mod.rs) pass (4.49 seconds): normal acknowledgment, dropped real acknowledgment and forced HTTP 202. Native CLI tests and strict affected Clippy pass; historical settled/restored recovery (5.28 seconds) and signed standalone status/history regression (6.46 seconds) pass | Proxy compares the exact signed wire body with saved intent before forwarding one update. Competing submitters send once; incomplete, failed or changed observations reject before claiming. Killed provider reads remain undispatchable. A dropped acknowledgment stays uncertain; 202 stays pending. Both recover the exact immutable receipt through signed queries without resending. Request IDs, source/root/artifact hashes and outcomes are retained in temporary controlled test runs; scenario definitions remain in source. The pinned ic-agent 0.49.2 implementation was inspected locally for one-call transport, certificate verification and disabled retries. No live provider/account, attached cycles, external charges or cleanup obligations; deployed retention/billing/exposure remain unqualified |
+| verifier-submission / 2026-09-30 | Native artifact validation and signed PocketIC through a bounded local fault proxy; fixture exposure and ten-byte local content | [Maintained journeys](https://github.com/dragginzgame/ic-blob-storage/blob/ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7/tests/pocketic/tests/storage_observe_cli/mod.rs) pass (4.49 seconds): normal acknowledgment, dropped real acknowledgment and forced HTTP 202. Native CLI tests and strict affected Clippy pass; historical settled/restored recovery (5.28 seconds) and signed standalone status/history regression (6.46 seconds) pass | Proxy compares the exact signed wire body with saved intent before forwarding one update. Competing submitters send once; incomplete, failed or changed observations reject before claiming. Killed provider reads remain undispatchable. A dropped acknowledgment stays uncertain; 202 stays pending. Both recover the exact immutable receipt through signed queries without resending. Request IDs, source/root/artifact hashes and outcomes are retained in temporary controlled test runs; scenario definitions remain in source. The pinned ic-agent 0.49.2 implementation was inspected locally for one-call transport, certificate verification and disabled retries. No live provider/account, attached cycles, external charges or cleanup obligations; deployed retention/billing/exposure remain unqualified |
 | historical-recovery / 2026-09-26 | Source inspection, substituted HTTP replies, Candid codecs and anonymous metadata | [Existing record](../caffeine-recovery-review.json), indexed retrospectively; not rerun | SDK progress is insufficient; root-only callbacks and payment correlation need conservative handling. No paid effects were recorded in that review; no fabricated modern run metadata |
 | historical-deployment / 2026-09-25 | Anonymous deployed interface/gateway/price observations | [Existing record](../caffeine-deployment-observation.json), indexed retrospectively; use its own timestamps/scope | Interface reachability is not upload, payment or billing qualification |
 | public-source-01 / 2026-09-29 | Anonymous public source/registry capture; four recorded GET invocations, no account/paid effects | [Plan](runs/2026-09-29-public-source-01/plan.json), [summary](runs/2026-09-29-public-source-01/summary.json); captured, integrity checked | Official commit `78781961e52b8c9c874becd473402950429d4818`; both backend hashes match the prior review; npm 1.1.2/integrity unchanged. This runner had no application retries but still inherited reqwest protocol retries; actual wire request count was not measured. Preserved as captured; current runner explicitly disables transport retries |

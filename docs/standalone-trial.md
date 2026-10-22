@@ -24,6 +24,10 @@ and [probe ledger](evidence/caffeine-probes/README.md) own command/evidence hand
   <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-trial-sequence.svg" alt="Standalone trial sequence from provisioning and upload permission through direct storage, independent verification and tenant download" width="800">
 </p>
 
+This document retains historical trial evidence for its recorded versions.
+Current operation uses [trusted registration](trusted-registration.md); the old
+verifier-based commands below are historical, not current instructions.
+
 ## Local issuance prerequisites and provider limitations
 
 | Blocker | What we have | What is still needed |

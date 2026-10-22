@@ -13,6 +13,15 @@ fn catalog_identities_are_unique_and_provider_is_external() {
             assert!(ids.insert(identity(method.name).unwrap()));
         }
     }
+    for retired in [
+        "blob_attest_upload",
+        "blob_upload_attestation",
+        "blob_verification_manifest",
+        "blob_verification_plan",
+    ] {
+        assert!(identity(retired).is_err());
+        assert!(!SERVICE_METHODS.iter().any(|method| method.name == retired));
+    }
 }
 #[test]
 fn exact_method_direction_canonicality_and_bounds() {

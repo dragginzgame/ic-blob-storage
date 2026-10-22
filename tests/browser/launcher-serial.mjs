@@ -108,7 +108,7 @@ async function coordinate() {
   await start(selected.native.args, 'session');
   await open('create');
   const phase = async (frame, signal) => {
-    if (config.lostFinalReply && frame.phase === 'verify' && frame.index === 0 && !interrupted) {
+    if (config.lostFinalReply && frame.phase === 'status' && frame.index === 0 && !interrupted) {
       interrupted = true;
       await observed({ restart: await native.finish() }); await native.close();
       throw new Error('fixture control loss after browser transfer, before verification');

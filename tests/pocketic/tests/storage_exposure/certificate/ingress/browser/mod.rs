@@ -71,7 +71,7 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
             inspect(&h.fixture, h.fixture.uploader, input)
                 .unwrap()
                 .state,
-            UploadState::ExposurePossible
+            UploadState::Registered
         );
         // The explicit consumer follow-through withdraws; browser cancellation alone does not.
         assert_eq!(

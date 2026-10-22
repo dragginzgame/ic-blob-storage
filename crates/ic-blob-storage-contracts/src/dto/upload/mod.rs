@@ -2,7 +2,6 @@
 pub mod admission;
 pub mod capacity;
 pub mod certificate;
-pub mod completion;
 pub mod discovery;
 pub mod exposure;
 pub mod history;
@@ -15,11 +14,9 @@ use serde::Deserialize;
 pub enum UploadState {
     /// Reserved locally; upload authority has not escaped.
     Reserved,
-    /// Upload authority may have escaped; effects remain uncertain.
-    ExposurePossible,
-    /// Independently authenticated completion was applied and the first reference created.
-    /// This remains historical fact after release/deletion/settlement.
-    Confirmed,
+    /// Retention intent was registered and the first reference created.
+    /// This does not prove that the provider received or still stores the bytes.
+    Registered,
     /// Cancelled before exposure; retained identity is not reusable.
     Cancelled,
 }

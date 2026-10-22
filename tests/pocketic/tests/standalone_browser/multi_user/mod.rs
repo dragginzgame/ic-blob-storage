@@ -14,7 +14,7 @@ const SECOND_UPLOADER_PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2Vw
 fn user_directory(trial: &mut Trial, parent: &Path, seed: u8) {
     trial.report = parent.join(format!("user-{seed}"));
     std::fs::create_dir(&trial.report).unwrap();
-    for name in ["tenant.pem", "verifier.pem", "root.der", "uploader.pem"] {
+    for name in ["tenant.pem", "root.der", "uploader.pem"] {
         std::fs::copy(parent.join(name), trial.report.join(name)).unwrap();
     }
     if seed == 45 {
@@ -46,21 +46,8 @@ fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest 
     assert_eq!(uploaded.puts.len(), 2);
     assert_eq!(
         trial.f.admission(input.permission).state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
-    trial.download(
-        &input,
-        input.permission.upload.first_reference,
-        &uploaded.gateway,
-        "unconfirmed",
-        3,
-    );
-    let observed = trial.observe(&input, &uploaded.gateway, 0);
-    assert_eq!(
-        observed["content_digest"],
-        ContentDigest::compute(&body).to_string()
-    );
-    assert_eq!(trial.attest(0, "attestation")["outcome"], "accepted");
     let delivered = trial.download(
         &input,
         input.permission.upload.first_reference,
@@ -68,7 +55,10 @@ fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest 
         "download",
         0,
     );
-    assert_eq!(delivered["content_digest"], observed["content_digest"]);
+    assert_eq!(
+        delivered["content_digest"],
+        json!(ContentDigest::compute(&body).to_string())
+    );
     assert_eq!(
         std::fs::read(trial.report.join("download/body.bin")).unwrap(),
         body
@@ -77,15 +67,15 @@ fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest 
     let browser = driver.finish();
     assert_eq!(browser["outcome"], "passed");
     assert_eq!(browser["puts"].as_array().unwrap().len(), 2);
-    assert_eq!(browser["gets"].as_array().unwrap().len(), 2);
+    assert_eq!(browser["gets"].as_array().unwrap().len(), 1);
     trial.record("browser-result.json", &browser);
     trial.record(
         "summary.json",
         &json!({
             "uploader": input.permission.uploader.to_text(), "root": uploaded.root,
-            "body_sha256": observed["content_digest"], "project_grant_signed": true,
+            "body_sha256": json!(ContentDigest::compute(&body).to_string()), "project_grant_signed": true,
             "browser_identity_conflict_refused_before_ingress": true,
-            "independent_verification": true, "tenant_download_verified": true,
+            "trusted_registration": true, "provider_upload_verified": false, "tenant_download_verified": true,
             "provider": "local HTTP/2 substitute",
         }),
     );
@@ -122,7 +112,7 @@ fn chromium_standalone_trial_two_users_verify_distinct_uploads_and_release_indep
     assert_eq!(one.uploads.liability_bytes, 2048);
     assert_eq!(
         trial.f.admission(files[1].permission).state,
-        UploadState::Confirmed
+        UploadState::Registered
     );
     trial.report = parent.join("user-45");
     trial.release(&files[1]);
@@ -140,7 +130,7 @@ fn chromium_standalone_trial_two_users_verify_distinct_uploads_and_release_indep
             "evidence_class": "actual_standalone_chromium_native_local_provider_substitute",
             "service": trial.f.service.to_text(), "tenant": trial.f.tenant.to_text(),
             "distinct_signed_browser_uploaders": 2, "distinct_roots": 2,
-            "provider_puts": 4, "provider_gets": 4,
+            "provider_puts": 4, "provider_gets": 2,
             "releasing_first_preserves_second_logical_bytes": one.uploads.logical_bytes,
             "final_logical_bytes": released.uploads.logical_bytes,
             "retained_physical_bytes": released.uploads.physical_bytes,

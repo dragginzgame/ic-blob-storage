@@ -243,11 +243,7 @@ fn replay(catalog: &mut UploadCatalog, request: UploadRequest, phase: ArchivePha
         }
         _ => {}
     }
-    catalog.mark_exposure_possible(tenant, request).ok()?;
-    if phase == ArchivePhase::ExposurePossible {
-        return Some(());
-    }
-    catalog.confirm_upload(request).ok()?;
+    catalog.register(tenant, request).ok()?;
     if phase == ArchivePhase::Live {
         return Some(());
     }

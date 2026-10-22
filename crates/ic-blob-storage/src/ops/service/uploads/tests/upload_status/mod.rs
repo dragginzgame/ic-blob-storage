@@ -29,7 +29,7 @@ fn upload_status_is_exact_tenant_history_not_liveness_or_mutation_authority() {
     let upload = wire(permission.request);
     assert_eq!(
         inspect(&store, context(4), upload).unwrap().state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     for actor in [2, 5, 6] {
         assert_eq!(
@@ -51,8 +51,7 @@ fn upload_status_is_exact_tenant_history_not_liveness_or_mutation_authority() {
     store.revoke(context(4), permission.request).unwrap();
     let uncertain = inspect(&store, context(4), upload).unwrap();
     assert!(uncertain.revoked);
-    assert_eq!(uncertain.state, UploadState::ExposurePossible);
-    store.confirm_upload(permission.request).unwrap();
+    assert_eq!(uncertain.state, UploadState::Registered);
     assert_eq!(
         store
             .confirmed(context(4), permission.request)
@@ -62,7 +61,7 @@ fn upload_status_is_exact_tenant_history_not_liveness_or_mutation_authority() {
     );
     assert_eq!(
         inspect(&store, context(4), upload).unwrap().state,
-        UploadState::Confirmed
+        UploadState::Registered
     );
     apply(
         &mut store,
@@ -78,7 +77,7 @@ fn upload_status_is_exact_tenant_history_not_liveness_or_mutation_authority() {
     store.confirm_provider_deleted(permission.request).unwrap();
     store.confirm_billing_stopped(permission.request).unwrap();
     let original = inspect(&store, context(4), upload).unwrap();
-    assert_eq!(original.state, UploadState::Confirmed);
+    assert_eq!(original.state, UploadState::Registered);
     drop(store);
     let restored = StableUploads::open(clone_memory(&(m)), config()).unwrap();
     assert_eq!(inspect(&restored, context(4), upload), Ok(original));

@@ -72,7 +72,6 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
         crate::account_native_cli::signer(),
         crate::account_native_cli::signer(),
         Envelope::Regular,
-        Fake::principal(90),
         "persistent-session-fixture",
     );
     f.tenant = crate::account_native_cli::signer();
@@ -218,7 +217,7 @@ fn recover_preparation(
 }
 
 #[test]
-fn standalone_publication_session_requires_selected_installed_verifier_before_effects() {
+fn standalone_publication_session_refuses_retired_verifier_controls_before_effects() {
     let directory = Directory::new("session-verifier-authority-");
     let (mut f, _, url) = fixture(directory.path());
     let mut args = arguments(
@@ -232,7 +231,7 @@ fn standalone_publication_session_requires_selected_installed_verifier_before_ef
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     session.send(&json!({"phase":"verify","index":0}));
-    assert_eq!(session.finish(3)["error"], "denied");
+    assert_eq!(session.finish(2)["error"], "arguments");
     assert!(
         !directory
             .path()
@@ -250,7 +249,7 @@ fn standalone_publication_session_requires_selected_installed_verifier_before_ef
         directory.path().join("tenant.pem").display().to_string(),
     ]);
     let session = NativeSession::start(&args);
-    assert_eq!(session.finish(3)["error"], "identity_binding");
+    assert_eq!(session.finish(2)["error"], "arguments");
     assert!(!directory.path().join("wrong-verifier").exists());
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.harness.pic.stop_live();

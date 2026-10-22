@@ -1,5 +1,6 @@
 [
   {
+    "hex": "49570c004100424f4c4200058c67f5270105f655850301d1ffb6ca028ce5ab8807b096a3d001fcd1e2de08b3e5c4ff03b7f4e93c686c80b1b0c00fdfdc5904d72ca98df834baf990e6434fcc01055250a5aead9f09cff789ee038cb49fac0900",
     "input": {
       "action": "Retain",
       "operation": 2508708364,
@@ -48,10 +49,10 @@
         "tenant": "iziro-txwkw-cqgai",
         "upload": 1896542860
       }
-    },
-    "hex": "49570c003600424f4c4200058c67f5270105f655850301d1ffb6ca028ce5ab8807b096a3d001fcd1e2de08b3e5c4ff03b7f4e93c686c80b1b0c00fdfdc5904d72ca98df834baf990e6434fcc01055250a5aead9f09cff789ee038cb49fac0900"
+    }
   },
   {
+    "hex": "49570c004100424f4c420005723bb2260105196b903a01ae95b1bd058a82c79e03b1c5f1ed01bff0f2d407ba8ec2890ac5f72188829023ed5b47a6395f6025e2abb230c290152ac0b957b48fa0dc714eccb18ceb088be2a10ab6e1eeca0d01",
     "input": {
       "action": "Release",
       "operation": 3646664886,
@@ -100,7 +101,6 @@
         "tenant": "5becj-4yzno-iduai",
         "upload": 869384458
       }
-    },
-    "hex": "49570c003600424f4c420005723bb2260105196b903a01ae95b1bd058a82c79e03b1c5f1ed01bff0f2d407ba8ec2890ac5f72188829023ed5b47a6395f6025e2abb230c290152ac0b957b48fa0dc714eccb18ceb088be2a10ab6e1eeca0d01"
+    }
   }
 ]

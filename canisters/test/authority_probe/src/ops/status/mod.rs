@@ -31,7 +31,7 @@ pub(crate) fn observation<'a>(
         funding: None,
         sync_pending: record.pending_sync.is_some(),
         read_pending: record.pending_read.is_some(),
-        uncertain_uploads: count(record, ArchivePhase::ExposurePossible),
+        uncertain_uploads: count(record, ArchivePhase::Reserved),
         pending_deletions: count(record, ArchivePhase::DeletionPending),
         pending_billing: count(record, ArchivePhase::ProviderDeleted),
     }
@@ -96,7 +96,6 @@ fn catalog_view(record: &AuthorityArchiveRecord, catalog: ArchiveCatalog) -> Cat
         objects: size(entries.len()),
         phases: [
             ArchivePhase::Reserved,
-            ArchivePhase::ExposurePossible,
             ArchivePhase::Cancelled,
             ArchivePhase::Live,
             ArchivePhase::DeletionPending,

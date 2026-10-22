@@ -52,13 +52,6 @@ fn retained_descriptor_requires_exact_live_reference_despite_old_successful_rece
     f.prepare(p, &v);
     assert_eq!(inspect(&f, f.project, first), Ok(None));
     f.call(f.uploader, Command::Expose(p.request.root)).unwrap();
-    assert_eq!(inspect(&f, f.project, first), Ok(None));
-    lifecycle(
-        &f,
-        f.operator,
-        LifecycleCommand::SubstituteCompletion(p.request),
-    )
-    .unwrap();
     let descriptor = inspect(&f, f.project, first).unwrap().unwrap();
     assert_eq!(descriptor.reference, first);
     assert_eq!(descriptor.descriptor.content.state, ContentState::Live);

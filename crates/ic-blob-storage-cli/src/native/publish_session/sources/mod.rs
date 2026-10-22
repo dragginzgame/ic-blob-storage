@@ -21,7 +21,6 @@ pub(super) struct Sources {
 pub(super) struct FileSources {
     pub setup: Option<PathBuf>,
     pub transfer: Option<PathBuf>,
-    pub observation: Option<PathBuf>,
 }
 
 /// Passive original-path provenance. Dispatch claims stay with phase owners;
@@ -33,11 +32,9 @@ struct SessionSourcesRecord {
     source_session: PathBuf,
     setup: Vec<Option<PathBuf>>,
     transfers: Vec<Option<PathBuf>>,
-    observations: Vec<Option<PathBuf>>,
 }
 impl SessionSourcesRecord {
-    const FORMAT: &'static str =
-        "ic-blob-storage/publication-session-sources:retained-browser-handoffs";
+    const FORMAT: &'static str = "ic-blob-storage/publication-session-sources:trusted-registration";
     const MAX_BYTES: u64 = 8 * 1024 * 1024;
 }
 
@@ -165,11 +162,6 @@ impl Sources {
                 .iter()
                 .map(|file| file.transfer.clone())
                 .collect(),
-            observations: self
-                .files
-                .iter()
-                .map(|file| file.observation.clone())
-                .collect(),
         };
         let bytes = serde_json::to_vec_pretty(&record).map_err(|_| Failure::File)?;
         if bytes.len() as u64 > SessionSourcesRecord::MAX_BYTES {
@@ -200,7 +192,6 @@ impl Sources {
             || !record.source_session.is_absolute()
             || record.setup.len() != files
             || record.transfers.len() != files
-            || record.observations.len() != files
         {
             return Err(Failure::Binding);
         }
@@ -210,7 +201,6 @@ impl Sources {
             .setup
             .iter_mut()
             .chain(&mut record.transfers)
-            .chain(&mut record.observations)
             .flatten()
         {
             if !path.is_absolute() {
@@ -223,12 +213,7 @@ impl Sources {
                 .setup
                 .into_iter()
                 .zip(record.transfers)
-                .zip(record.observations)
-                .map(|((setup, transfer), observation)| FileSources {
-                    setup,
-                    transfer,
-                    observation,
-                })
+                .map(|(setup, transfer)| FileSources { setup, transfer })
                 .collect(),
         })
     }
@@ -292,27 +277,6 @@ impl Sources {
                     super::transfer::original(&path, index)?;
                     pin(slot, &path)?;
                 }
-                Frame::Verify {
-                    index,
-                    source_observation,
-                } => {
-                    let slot = &mut sources
-                        .files
-                        .get_mut(index)
-                        .ok_or(Failure::Binding)?
-                        .observation;
-                    let original = source.join(format!("verification-{index:04}/observation"));
-                    if source_observation.is_none()
-                        && slot.is_none()
-                        && unattempted(&action, &original, index, batch.files.len())?
-                    {
-                        continue;
-                    }
-                    let path = source_observation
-                        .or_else(|| slot.clone())
-                        .unwrap_or(original);
-                    pin(slot, &path)?;
-                }
                 Frame::Status { index } if index >= batch.files.len() => {
                     return Err(Failure::Binding);
                 }
@@ -340,17 +304,6 @@ impl Sources {
                     .get_mut(*index)
                     .ok_or(Failure::Arguments)?
                     .transfer,
-            ),
-            Frame::Verify {
-                index,
-                source_observation,
-            } => (
-                source_observation,
-                &mut self
-                    .files
-                    .get_mut(*index)
-                    .ok_or(Failure::Arguments)?
-                    .observation,
             ),
             Frame::Status { .. } | Frame::Map {} => return Ok(frame),
         };

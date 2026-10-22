@@ -24,11 +24,6 @@ fn download_descriptor_binds_service_not_payer_or_tenant_and_preserves_original_
     let root = input.request.object.root;
     let reference = input.request.object.first;
     let scope = scope(p(1), NonZeroU128::MIN);
-    assert_eq!(
-        store.download_descriptor(context(4), &scope, root, reference),
-        Err(DownloadDescriptorError::Unavailable)
-    );
-    store.confirm_upload(input.request).unwrap();
     let before = store.usage().unwrap();
     let view = store
         .download_descriptor(context(4), &scope, root, reference)
@@ -72,7 +67,6 @@ fn operational_download_refuses_suspension_release_and_restore_while_inspection_
     let m = memory();
     let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
     let input = lifecycle::exposed(&mut store);
-    store.confirm_upload(input.request).unwrap();
     let root = input.request.object.root;
     let reference = input.request.object.first;
     let scope = scope(p(1), NonZeroU128::MIN);

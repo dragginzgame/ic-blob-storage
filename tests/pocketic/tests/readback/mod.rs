@@ -144,7 +144,6 @@ impl Fixture {
         }
         self.certificate(self.first, v.upload.root)
             .expect("verified certificate");
-        assert_eq!(self.complete(self.first, v.upload), Ok(()));
     }
 }
 

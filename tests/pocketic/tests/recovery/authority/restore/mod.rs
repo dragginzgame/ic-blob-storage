@@ -59,11 +59,6 @@ impl Fixture {
             (self.first, "journey_release", args(upload.root)),
             (self.authority_operator, "journey_settle", args(upload.root)),
             (
-                self.gateway,
-                "journey_complete",
-                encode_args((self.first, upload)).unwrap(),
-            ),
-            (
                 self.first,
                 "_immutableObjectStorageCreateCertificate",
                 encode_args((root_text(upload.root),)).unwrap(),
@@ -180,7 +175,6 @@ fn old_archive_is_fenced_and_missing_archive_rejects_atomically() {
     f.upgrade_skipping_outgoing_hook(f.service, false);
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
     f.replace_archive_bytes(saved);
-    assert_eq!(f.complete(f.first, v.upload), Ok(()));
     // The old archive predates exposure. It cannot prove no authority escaped.
     f.replace_archive_bytes(old);
     f.upgrade_skipping_outgoing_hook(f.service, true);

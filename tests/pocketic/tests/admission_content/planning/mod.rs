@@ -249,11 +249,6 @@ fn completion_and_settlement_never_restore_lifetime_manifest_capacity() {
     let pending = capacity(&f, f.project, input).unwrap();
     assert_eq!(pending.remaining_bytes, 0);
     assert_eq!(pending.remaining_manifest_chunks, 0);
-    f.call(
-        f.operator,
-        Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(permission.request)),
-    )
-    .unwrap();
     assert_eq!(
         capacity(&f, f.project, input)
             .unwrap()

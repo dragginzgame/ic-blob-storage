@@ -140,7 +140,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         finish_cancelled(&f, &input, permission, exposed);
     }
 }
-fn finish_cancelled(f: &Fixture, input: &Run, permission: Permission, exposed: bool) {
+fn finish_cancelled(f: &Fixture, input: &Run, _permission: Permission, exposed: bool) {
     assert!(!register(f, input).unwrap().published);
     if exposed {
         assert_eq!(
@@ -151,10 +151,9 @@ fn finish_cancelled(f: &Fixture, input: &Run, permission: Permission, exposed: b
                 liability: 10
             }
         );
-        f.fact(permission.request, ProviderFact::Uploaded).unwrap();
         let observed = recover(f, 1, false).unwrap();
         assert!(observed.cancelled && !observed.published);
-        assert_eq!(observed.upload_state, Some(UploadState::Confirmed));
+        assert_eq!(observed.upload_state, Some(UploadState::Registered));
         assert_eq!(
             release(f, 1).unwrap().release_result,
             Some(Ok(ReferenceChange::Changed))

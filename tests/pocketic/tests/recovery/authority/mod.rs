@@ -434,7 +434,7 @@ fn assert_sample_history(archive: &AuthorityArchiveView) {
     );
     for (id, phase) in [
         (11, ArchivePhase::Cancelled),
-        (12, ArchivePhase::ExposurePossible),
+        (12, ArchivePhase::Live),
         (13, ArchivePhase::Live),
         (14, ArchivePhase::Cancelled),
     ] {

@@ -78,7 +78,7 @@ async fn body(
         },
     )?;
     // Native HTTP observations are evidence, never replacement hash metadata or
-    // browser-serving acceptance. Keep the existing attestation input unchanged.
+    // browser-serving acceptance. Keep the original expected body metadata unchanged.
     run.json(
         "http-response-headers.json",
         &headers::record(response.headers()),

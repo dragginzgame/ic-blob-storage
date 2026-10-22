@@ -80,7 +80,7 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
     assert!(f.sample(f.uploader).after_work < 5_000_000);
     let exposed = f.inspect(f.other, last.request).unwrap();
     assert_eq!(exposed.permission, last);
-    assert_eq!(exposed.phase, Phase::ExposurePossible);
+    assert_eq!(exposed.phase, Phase::Registered);
     assert_eq!(exposed.usage, original.usage);
     assert_eq!(
         f.call(f.uploader, Command::Expose(last.request.root)),

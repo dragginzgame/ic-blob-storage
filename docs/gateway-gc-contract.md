@@ -1,7 +1,7 @@
 # Caffeine gateway GC contract review
 
 This is the source-derived wire contract and implementation prerequisite for
-[#32](https://github.com/dragginzgame/ic-blob-storage/issues/32). Blob 0.19.0
+[#32](https://github.com/dragginzgame/ic-blob-storage/issues/32). Current Blob
 does not export these provider methods. Its authenticated root observations are
 local lifecycle views, not provider deletion permission. This review does not
 enable GC or establish deployed retention or billing behavior.
@@ -40,6 +40,26 @@ The public source contains the application-side methods. It does not contain
 the deployed gateway's callback caller, retry loop or failure policy. A method
 name containing "ConfirmBlobDeletion" and successful empty Candid output alone
 do not establish physical deletion or cessation of charges.
+
+## Runtime primitive review — 2026-10-22
+
+The [bounded discovery record](evidence/caffeine-probes/local/2026-10-22-gc-contract-discovery-01/summary.md)
+adds the provider's public Motoko compiler at exact commit
+`9f8180640732ae182a3161862e0e4e3e4377d9fc`. Its
+[primitive implementation](https://github.com/caffeinelabs/motoko/blob/9f8180640732ae182a3161862e0e4e3e4377d9fc/src/prelude/prim.mo#L134)
+marks this section experimental. Liveness looks up a deduplication-table entry
+and tests its weak reference; dead-list enumeration selects entries whose weak
+reference is gone. Confirmation prunes matching entries only while they remain
+dead. These are Motoko runtime bookkeeping operations, not remote storage calls.
+
+This source supports keeping live entries protected and pruning idempotently,
+but does not define the gateway's caller, unknown-root/failure interpretation,
+physical-deletion acknowledgment or billing boundary. Nor does it supply the
+required Rust object/manifest-to-provider-key association. Blob's durable
+references remain authoritative; do not port the weak-reference table or treat
+a prune acknowledgment as `confirm_provider_deleted` or `confirm_billing_stopped`.
+The discovery found no authoritative gateway specification; it does not prove
+that none exists. The concrete provider questions below still block mounting.
 
 ## Required Blob decisions before mounting
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.41.0] - Unreleased
+
+- **Hard cut:** register retention intent and the first live reference atomically
+  at certificate issuance. Remove the mandatory completion verifier, attestation
+  records/endpoints and CLI worker flow. Keep authorization, prepared manifests,
+  verified downloads, exact retries, restore fences and provider liabilities.
+  Registration does not prove uploaded bytes. Installation/Wire schemas change;
+  retire/reinstall and update consumers together, without dual readers or migration.
+  See [trusted registration](docs/trusted-registration.md)
+  ([#33](https://github.com/dragginzgame/ic-blob-storage/issues/33)).
+
+- Record the provider's Motoko GC primitive boundary and the unresolved gateway
+  contract needed for safe shared callbacks. Distinguish historical Canic trusted
+  registration from Blob's later independently verified completion requirement
+  ([#32 — Provider GC contract](https://github.com/dragginzgame/ic-blob-storage/issues/32),
+  [#33 — Operated completion verifier](https://github.com/dragginzgame/ic-blob-storage/issues/33)).
+- Refresh Canic adoption guidance for its locally qualified mounted upload,
+  recovery and metrics paths. Keep adapter delivery, trusted registration and
+  deployed-provider acceptance separate; reconcile released offline-validation
+  qualification and the remaining integration owners
+  ([#31 — Application/provider multi-user acceptance](https://github.com/dragginzgame/ic-blob-storage/issues/31)).
+
 ## [0.40.4] - 2026-10-21
 
 - Adopt Shared Tooling 0.26.4: preserve independent parent validation failures,

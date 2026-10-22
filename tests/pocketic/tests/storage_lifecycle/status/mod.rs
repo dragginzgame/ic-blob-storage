@@ -33,7 +33,6 @@ fn inspect(
 fn reference_status_keeps_history_distinct_from_live_references_through_settlement() {
     let f = Fixture::new();
     let permission = f.exposed();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let retain = reference(permission.request, 1, u128::MAX, true);
     f.reference(retain).unwrap();
     let expected = f.receipt(retain).unwrap();
@@ -128,7 +127,6 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     );
     f.tenant = client;
     let permission = f.exposed();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let input = ReferenceStatusClientInput {
         request: request(reference(permission.request, 1, 1, false)),
         tenant: client.into(),

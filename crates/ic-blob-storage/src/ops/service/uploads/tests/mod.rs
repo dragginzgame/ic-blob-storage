@@ -2,7 +2,6 @@ use super::*;
 mod admission_boundary;
 mod capacity_boundary;
 mod certificate_boundary;
-mod completion;
 mod discovery_boundary;
 mod exposure_boundary;
 mod manifest_boundary;
@@ -317,10 +316,10 @@ fn manifest_exposure_and_revocation_retain_uncertain_bytes_and_original_metadata
     let totals = store.usage().unwrap();
     store.revoke(context(4), input.request).unwrap();
     assert_eq!(store.usage(), Ok(totals));
-    assert_eq!(totals.reserved_bytes, 10);
+    assert_eq!(totals.reserved_bytes, 0);
     assert_eq!(
         store.lookup(context(5), input.request).unwrap().phase,
-        UploadPhase::ExposurePossible
+        UploadPhase::Registered
     );
     assert_eq!(
         store.expose(context(5), input.request, 4),

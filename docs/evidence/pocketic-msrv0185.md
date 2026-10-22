@@ -94,7 +94,7 @@ with Canic #444. Released CI does not qualify the new incoming graph.
 
 #35/#36 remain open for committed minimum/native acceptance. #29's archive
 round trip remains open for matching hosted evidence. The new
-[completion-verifier recipe](../completion-verifier.md) supplies #33's operating
+[completion-verifier recipe](https://github.com/dragginzgame/ic-blob-storage/blob/ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7/docs/completion-verifier.md) supplies #33's operating
 reference using existing commands; two-user/deployed-provider acceptance remains
 open. #31 needs application-authenticated delegation and a separately reviewed
 contract change; #32/#34 need authoritative provider callback/funding evidence.

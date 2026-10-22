@@ -111,9 +111,8 @@ fn reserve(owner: &mut UploadCatalog, request: UploadRequest) {
 }
 fn confirm(owner: &mut UploadCatalog, request: UploadRequest) {
     owner
-        .mark_exposure_possible(request.object.first.object().tenant(), request)
+        .register(request.object.first.object().tenant(), request)
         .expect("exposure");
-    owner.confirm_upload(request).expect("completion fact");
 }
 fn registry(service: u8, namespace: u128) -> GatewayRegistry {
     let mut members = GatewayMembership::new(GatewayListLimits {
@@ -157,9 +156,7 @@ fn tenant_pages_bound_work_skip_terminal_history_and_do_not_scan_other_tenants()
         reserve(&mut owner, request);
     }
     owner.cancel(p(2), requests[0]).expect("cancel");
-    owner
-        .mark_exposure_possible(p(2), requests[2])
-        .expect("uncertain");
+    owner.register(p(2), requests[2]).expect("uncertain");
     confirm(&mut owner, requests[3]);
     let before = owner.usage();
     for (scan, results) in [(1, 1), (2, 1), (1, 3), (16, 16)] {
@@ -190,7 +187,7 @@ fn tenant_pages_bound_work_skip_terminal_history_and_do_not_scan_other_tenants()
         assert_eq!(
             seen,
             vec![
-                (requests[2], UploadPhase::ExposurePossible),
+                (requests[2], UploadPhase::Registered),
                 (requests[4], UploadPhase::Reserved)
             ]
         );
@@ -405,9 +402,7 @@ fn gateway_reads_pending_cancelled_and_confirmed_roots_without_leaking_other_nam
     for request in [a, uncertain, cancelled, foreign] {
         reserve(&mut owner, request);
     }
-    owner
-        .mark_exposure_possible(p(2), uncertain)
-        .expect("exposure");
+    owner.register(p(2), uncertain).expect("exposure");
     owner.cancel(p(2), cancelled).expect("cancel");
     let batch = batch(&[
         vec![2; 32],
@@ -423,20 +418,17 @@ fn gateway_reads_pending_cancelled_and_confirmed_roots_without_leaking_other_nam
     assert_eq!(
         assess_gateway_upload_roots(&owner, &registry, gateway(), &batch),
         Ok(vec![
-            UploadRootStatus::Known(UploadRootState::ExposurePossible),
+            UploadRootStatus::Known(UploadRootState::Confirmed(LifecyclePhase::Live)),
             UploadRootStatus::WrongNamespace,
             UploadRootStatus::Malformed(HashParseError::InvalidByteLength { actual: 0 }),
             UploadRootStatus::Known(UploadRootState::Reserved),
-            UploadRootStatus::Known(UploadRootState::ExposurePossible),
+            UploadRootStatus::Known(UploadRootState::Confirmed(LifecyclePhase::Live)),
             UploadRootStatus::Known(UploadRootState::Cancelled),
             UploadRootStatus::Unknown,
         ])
     );
     assert_eq!(owner.usage(), before);
-    assert_eq!(
-        owner.phase(p(2), uncertain),
-        Ok(UploadPhase::ExposurePossible)
-    );
+    assert_eq!(owner.phase(p(2), uncertain), Ok(UploadPhase::Registered));
     confirm(&mut owner, a);
     assert_eq!(
         owner.root_view(a.object.root).expect("confirmed").state,
@@ -533,9 +525,7 @@ fn duplicate_heavy_mixed_batches_share_one_scan_and_match_single_root_observatio
     owner
         .cancel(p(2), request(12, 2, 1))
         .expect("retained terminal history");
-    owner
-        .mark_exposure_possible(p(2), request(3, 2, 1))
-        .expect("uncertain");
+    owner.register(p(2), request(3, 2, 1)).expect("uncertain");
     confirm(&mut owner, request(5, 2, 1));
     let mut inputs = vec![
         vec![12; 32],
@@ -579,7 +569,7 @@ fn duplicate_heavy_mixed_batches_share_one_scan_and_match_single_root_observatio
     );
     assert_eq!(
         observed.entries[2].expect("valid").expect("known").state,
-        UploadRootState::ExposurePossible
+        UploadRootState::Confirmed(LifecyclePhase::Live)
     );
     assert_eq!(observed.entries[4], Ok(None));
     assert_eq!(

@@ -63,7 +63,7 @@ function invoke(name, command, expected) {
 }
 const installation = invoke('installation', ['installation-check', '--configuration', configurationPath,
   '--service', binding.service, '--project', binding.project,
-  '--verifier', 'rdmx6-jaaaa-aaaaa-aaadq-cai', '--release', 'offline-fixture', '--run-dir', installationDirectory], 0);
+  '--release', 'offline-fixture', '--run-dir', installationDirectory], 0);
 const result = invoke('prepared', args, 0);
 assert.equal(result.body_verified, true);
 assert.equal(result.installation_binding_checked, true);

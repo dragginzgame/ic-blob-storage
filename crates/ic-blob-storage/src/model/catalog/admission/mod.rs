@@ -38,10 +38,8 @@ mod tests;
 pub enum UploadPhase {
     /// Capacity reserved; no upload authority may have escaped yet.
     Reserved,
-    /// Authority may have escaped; completion and effects remain unresolved.
-    ExposurePossible,
-    /// Exact independently authenticated completion was applied to the catalog.
-    Confirmed,
+    /// Retention intent and its first live reference were registered.
+    Registered,
     /// Cancelled before exposure; byte capacity freed but identity history retained.
     Cancelled,
 }
@@ -49,7 +47,7 @@ pub enum UploadPhase {
 #[cfg(any(test, feature = "test-support"))]
 impl UploadPhase {
     const fn active(self) -> bool {
-        matches!(self, Self::Reserved | Self::ExposurePossible)
+        matches!(self, Self::Reserved)
     }
 }
 
@@ -153,25 +151,6 @@ impl UploadCatalog {
         Ok(UploadAdmission::Reserved)
     }
 
-    /// Mark that upload authority may escape; this must precede any actual effect.
-    ///
-    /// Repeating this call reports `Unchanged`, not permission to repeat an upload.
-    /// There is no return to Reserved, expiry or failed-transport reset.
-    /// # Errors
-    /// Rejects wrong actor, unknown/conflicting request, or terminal operation.
-    pub fn mark_exposure_possible(
-        &mut self,
-        actor: Principal,
-        request: UploadRequest,
-    ) -> Result<LifecycleChange, UploadError> {
-        self.check_actor(actor, request)?;
-        self.transition(
-            request,
-            UploadPhase::Reserved,
-            UploadPhase::ExposurePossible,
-        )
-    }
-
     /// Cancel only while the model knows upload authority has not escaped.
     ///
     /// Byte/concurrent capacity is released; the exact operation and root claim
@@ -187,28 +166,26 @@ impl UploadCatalog {
         self.transition(request, UploadPhase::Reserved, UploadPhase::Cancelled)
     }
 
-    /// Apply a trusted exact completion fact, transferring reservation to catalog.
-    ///
-    /// The caller must independently authenticate and correlate provider completion
-    /// to this entire request, including provider root and stored size. A client hash/progress,
-    /// timeout or generic HTTP success cannot supply that fact. This local method
-    /// defines no provider evidence format. Replays never reactivate references.
+    /// Register retention intent before returning upload authority.
+    /// Replays never reactivate references or authorize another certificate.
     /// # Errors
     /// Rejects unknown/conflicting, unexposed or cancelled operations. All catalog
     /// capacity was reserved up front; rejection leaves the reservation intact.
-    pub fn confirm_upload(
+    pub fn register(
         &mut self,
+        actor: Principal,
         request: UploadRequest,
     ) -> Result<LifecycleChange, UploadError> {
+        self.check_actor(actor, request)?;
         self.operation(request)?;
         let operation = self
             .operations
             .get_mut(&Self::key(request))
             .ok_or(UploadError::UnknownRequest)?;
-        if operation.phase == UploadPhase::Confirmed {
+        if operation.phase == UploadPhase::Registered {
             return Ok(LifecycleChange::Unchanged);
         }
-        if operation.phase != UploadPhase::ExposurePossible {
+        if operation.phase != UploadPhase::Reserved {
             return Err(UploadError::InvalidPhase(operation.phase));
         }
         self.catalog.insert_confirmed(ConfirmedObject {
@@ -216,7 +193,7 @@ impl UploadCatalog {
             bytes: request.object.bytes,
             first: request.object.first,
         })?;
-        operation.phase = UploadPhase::Confirmed;
+        operation.phase = UploadPhase::Registered;
         self.accounting
             .release(Self::key(request).0, request.object.bytes);
         Ok(LifecycleChange::Changed)

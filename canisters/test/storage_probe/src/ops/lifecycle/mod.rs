@@ -12,7 +12,6 @@ pub(crate) fn fact(context: UploadContext, input: FactInput) -> Result<bool, Fai
         }
         TRAP_WRITE.set(input.fault);
         let result = match input.fact {
-            ProviderFact::Uploaded => state.uploads.confirm_upload(request),
             ProviderFact::Deleted => state.uploads.confirm_provider_deleted(request),
             ProviderFact::Settled => state.uploads.confirm_billing_stopped(request),
         };
@@ -20,75 +19,5 @@ pub(crate) fn fact(context: UploadContext, input: FactInput) -> Result<bool, Fai
         result
             .map(|v| v == LifecycleChange::Changed)
             .map_err(conversion::failure)
-    })
-}
-
-// Explicit test substitute: installation operator is the configured verifier in this fixture.
-fn completion_authority(
-    operator: ic_platform::Principal,
-) -> ic_blob_storage_contracts::upload::completion::CompletionAuthority {
-    ic_blob_storage_contracts::upload::completion::CompletionAuthority::new(
-        ic_platform::cdk::api::canister_self(),
-        std::num::NonZeroU128::MIN,
-        operator,
-    )
-    .unwrap()
-}
-pub(crate) fn verification_plan(
-    context: UploadContext,
-    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-> {
-    STATE.with_borrow(|state| {
-        let state = state.as_ref().unwrap();
-        ic_blob_storage::workflow::uploads::completion::verification_plan(
-            &state.uploads,
-            completion_authority(state.operator),
-            &super::read::download::scope(context),
-            context,
-            input,
-        )
-    })
-}
-pub(crate) fn attest(
-    context: UploadContext,
-    input: &ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest,
-    fault: Option<blob_test_protocol::storage::WriteFault>,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation,
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-> {
-    STATE.with_borrow_mut(|state| {
-        let state = state.as_mut().unwrap();
-        let authority = completion_authority(state.operator);
-        TRAP_WRITE.set(fault);
-        let result = ic_blob_storage::workflow::uploads::completion::attest(
-            &mut state.uploads,
-            authority,
-            context,
-            input,
-            ic_platform::cdk::api::time(),
-        );
-        TRAP_WRITE.set(None);
-        result
-    })
-}
-pub(crate) fn attestation(
-    context: UploadContext,
-    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse,
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-> {
-    STATE.with_borrow(|state| {
-        let state = state.as_ref().unwrap();
-        ic_blob_storage::workflow::uploads::completion::inspect(
-            &state.uploads,
-            completion_authority(state.operator),
-            context,
-            input,
-        )
     })
 }

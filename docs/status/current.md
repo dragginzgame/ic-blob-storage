@@ -1,145 +1,106 @@
 # Current status
 
-Date: 2026-10-21
+Date: 2026-10-22
 
-## Delivered source and pending work
+## Source and accepted scope
 
-Default main is released **0.40.3**, `5fcb43c1a87b2c2ab02cd86cc2fbc9eb3200080a`.
-HTTP adoption [#96](https://github.com/dragginzgame/ic-blob-storage/issues/96) is
-closed: the delivered registry-based reader passed Linux, Intel macOS, Apple
-Silicon and MSRV qualification. Request/evidence policy remains local, and
-provider downloads remain streaming. This establishes no provider acceptance.
+Default main is released **0.40.4**, `ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7`.
+The working batch targets **0.41.0**; package versions remain 0.40.4 for the
+maintainer's release runner. Preserve the incoming Cargo.lock changes and the
+October 22 source-discovery evidence. No staging, commit, push or release is
+part of this implementation.
 
-Default main now includes [PR #99](https://github.com/dragginzgame/ic-blob-storage/pull/99)
-at `2dbfcefda956667aac0b806d4230c11138f3aa46`, pending **0.40.4**. It keeps
-dependency fetching in explicit preparation/release preflight, outside
-ordinary validation ([#98](https://github.com/dragginzgame/ic-blob-storage/issues/98)).
-Its release fixture now consumes a prepared cache and refuses any fetch during
-validation, while exercising explicit preparation separately. Lint-first refusal,
-input sealing, existing recovery checks and parallel Make behavior remain.
-The original PR's three-host failure was a stale expected-fetch assertion in the
-intentional Clippy-refusal case, not a product Clippy defect.
+The maintainer approved the [trusted-registration hard cut](../trusted-registration.md).
+Certificate issuance atomically registers retention intent and the first live
+reference. Remove mandatory verifier configuration, attestation state/endpoints,
+CLI observer/submission commands and the session `verify` phase. Keep local body
+verification and verified downloads. Registration does not prove uploaded bytes,
+availability or future provider retention. Reference maps explicitly report this.
 
-The local Shared Tooling 0.26.4 adoption joins those pending notes; package
-versions remain 0.40.3. Preserve unrelated incoming Cargo.lock edits. Neither
-the fixture repair nor snapshot refresh qualifies that incoming runtime graph.
-No product API, schema, wire format or dependency selection changes are needed.
-
-## Ownership and delivered tooling
-
-Blob owns tenant policy, durable service workflows, provider accounting and
-recovery, plus its standalone adapter and native/browser primitives. Consumer
-frameworks own their wrappers, lifecycle composition and integration tests;
-applications own login/grants, verifier operation and asset transactions.
-Platform owns IC identities/runtime and required external Candid; Wire owns
-application framing/schema. Host/Build/Testkit belong to
-[IC Tooling](https://github.com/dragginzgame/ic-tooling); Memory/Storage to
-[IC Persistence](https://github.com/dragginzgame/ic-persistence).
+The installation discriminator and owned native Wire identities change. Old
+installations require retirement/reinstall; old saved runs keep their original
+tools. No dual readers, automatic migration or repeat dispatch is introduced.
+Same-release restoration, exact retry records, lifetime quotas and physical/billing
+obligations remain required. Retirement cannot discard the only uncertain records.
 
 Shared Tooling **0.26.4**, revision `dc1ced7e240e90f0c6daa89fb6248fcb074164eb`,
-has a verified 125-file snapshot, exported from an isolated clean exact revision.
-Its validation logger preserves independent parent errors, bounds diagnostic
-excerpts and publishes latest failure logs atomically. Checksum/evidence readers
-reject NUL-bearing digests and multiple metadata documents, retaining failed
-attempts and existing destinations. Tool pins and snapshot membership are unchanged.
-Ordinary authorized integration follows asynchronous hosted CI; enforced checks,
-known failures and separate release/service/issue acceptance remain binding.
-Task-relevant sibling inspection stays read-only. DFINITY limitations need an
-available capability, a Dragginzgame-owned solution or removal of the need, rather
-than a plan depending on future DFINITY work. Only `wasm-opt` is selected for IC setup.
-Production optimizer builds are separate from probes to exclude `test-support`.
-Tooling 0.63 Testkit/server and release-editor setup/admission explicitly select
-`cli`; application libraries do not. Retain actual consumer routing, admission,
-evidence and release recovery checks; generic matrices remain with Shared.
-Cross-release transitions remain retirement/reinstall only; same-release recovery,
-exact retries, fences and retained obligations remain required.
+remains the 125-file reviewed snapshot. The qualified artifacts use Platform 0.6.7,
+Wire 0.5.19, Metrics 0.15.4, Memory/Storage 0.50.10 and Tooling/Testkit 0.63.3.
+This batch does not select new dependencies. Ordinary CI is offline after explicit
+preparation; released [#98](https://github.com/dragginzgame/ic-blob-storage/issues/98)
+is resolved, including native macOS/MSRV qualification of its exact source.
 
-## Outstanding issues and current evidence
+## Ownership and consumer boundary
 
-Eight Blob issues remain: #98's fix is delivered through PR #99, with Intel
-macOS qualification still pending in the run linked below;
-#4/#5/#6/#31/#32/#33/#34 retain consumer/provider requirements. #84/#95/#96
-are resolved on main; PR #94 was superseded and #97 is merged. Do not conflate
-producer deliveries with consumer or deployed-provider acceptance. #4's current
-owner links now distinguish Canic #444 composition from the application's asset
-transaction and IC Crates #1; Canic #452 tracks Fleet Ensure, not publication.
+Blob owns tenant policy, durable upload/reference/accounting workflows, restoration,
+the standalone adapter and native/browser primitives. Frameworks own mounting,
+lifecycle composition and their integration tests. Applications own authentication,
+grants, asset transactions and publication/availability decisions. Platform owns
+IC identities/runtime and external Candid; Wire owns application framing.
+Host/Build/Testkit belong to IC Tooling; Memory/Storage to IC Persistence.
 
-- [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) and
-  [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34): the
-  [fresh provider source review](../evidence/caffeine-probes/local/2026-10-21-provider-contract0402-01/summary.json)
-  finds public application GC/top-up implementation unchanged. Gateway failure,
-  physical deletion/billing and uniquely attributable credit evidence remain
-  unestablished. The README lookup failed with 404 and is retained; no retries,
-  live provider calls or paid effects. Do not fabricate handlers or receipts.
-- [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33) and
-  [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31): actual worker/
-  signer operation and two authenticated application users through the deployed
-  provider remain open. The verifier recipe now names passive `permission.wire`
-  and `statement.wire`, separate method-bound frames and the IC CBOR envelope.
-  Old interrupted runs retain their original tools; no conversion is supplied.
-- [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+Historical Canic parent `d9d70322ade2ba6fbd17520acf93acad66dcf4aa` registered a live
+root inside certificate issuance, before upload. That verified source behavior
+motivates the approved cut; it proves no deployed provider deletion/billing facts.
+Canic's [0.40.4 local mounted/recovery report](https://github.com/dragginzgame/canic/issues/620#issuecomment-6323164353)
+and [metrics report](https://github.com/dragginzgame/canic/issues/621#issuecomment-6322744750)
+retain their original verifier-bearing graph. They do not qualify the new contract.
+Verified Canic main `4caeec25db7d81f6121db1c95ba7a2d91d319c60` declares Blob 0.35;
+its newer dirty checkout is not delivered source. Consumer owners must update
+installation DTOs, state handling, generated bindings and removed calls together.
+Sibling checkouts remain read-only. Do not duplicate their adapters/tests here.
+
+## Outstanding acceptance
+
+- [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33#issuecomment-6336781863) tracks disposition
+  of the mandatory verifier architecture. It is retired by this approved batch,
+  pending delivery; do not operate another worker to satisfy the removed model.
+- [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32) retains gateway
+  caller/failure behavior and independent physical-deletion/billing semantics.
+  [October 22 discovery](../evidence/caffeine-probes/local/2026-10-22-gc-contract-discovery-01/summary.md)
+  proves Motoko weak-reference pruning, not remote deletion or billing cessation.
+  The completed source/public-package capture remains immutable; no provider
+  canister/gateway was queried and no payment or deployment occurred.
+- [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34) retains unique
+  credit acquisition and project-payer linkage; Canic #494 owns later composition.
+- [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+  [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
   [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5) and
-  [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6): consumer asset-map
-  transaction, deployed serving/CSP/cache/integrity, overlapping releases and
-  independently evidenced deletion/billing remain required. Existing publisher,
-  reference/capacity and local browser results do not close those cells.
+  [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) retain actual users,
+  media-map transactions, serving/CSP/cache, overlapping references and provider
+  cleanup acceptance. Local substitutes or registration alone cannot close them.
+  Canic #444/#620/#621 retain adapter delivery. Canic #493 remains future dynamic
+  parent provisioning, separate from the current shared-service topology.
 
-[Canic #444](https://github.com/dragginzgame/canic/issues/444#issuecomment-6315345898)
-reports local dedicated/embedded composition on published Blob 0.40.3, after
-aligning all three graphs and rebuilding actual Wasm. This remains owner-reported
-pending local integration, not default-main delivery or an execution here.
-Application/provider acceptance remains separate. [Canic #494](https://github.com/dragginzgame/canic/issues/494)
-owns guarded funding composition after #34 establishes acquisition.
-[IC Crates #1](https://github.com/dragginzgame/ic-crates/issues/1) retains its older
-graph and complete archive/provider/verifier/catalog transaction. No excluded
-application was inspected and no sibling checkout was edited or executed here.
+## Validation and continuation
 
-## Validation and evidence
+Before-images, reviewed Wire inputs, artifacts and focused logs are retained under
+`.tmp/review-validation/hardcut041/`. Passing checks cover 338 core, 120 contract,
+4 client and 113 CLI unit cases; the frozen test checks 139 literal vectors.
+Scoped installed evidence covers 30 admission, 49 journey, 74 standalone and
+121 storage cases (including the two corrected targeted reruns), plus all four
+opt-in Chromium registration journeys. Worker checks and 22 actual launcher/profile
+cases pass. These use controlled local provider bytes, not deployed Caffeine.
 
-Delivered 0.40.3 passed its complete [tooling/native and MSRV matrix](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39592967028)
-on Linux, Intel macOS and Apple Silicon. Earlier HTTP adoption evidence remains
-in `.tmp/review-validation/tooling0632/` in the primary checkout, bound to its
-captured source/graph; it does not qualify later incoming lockfile edits.
+Strict affected-package Clippy with all targets/features, scoped formatting,
+release Wasm builds, Rust 1.91 public/core/client/standalone Wasm compilation,
+Platform/runtime/deployment boundaries, documentation links and whitespace pass.
+The final changed-test lint check is retained separately. Earlier sandbox, missing
+CLI-artifact and obsolete-expectation failures remain in their original logs;
+they are not successful qualification. No complete release gate was run.
 
-PR #99 repair evidence stays in the primary checkout at
-`.tmp/review-validation/pr99/`. Raw GitHub API logs confirm the Linux/macOS
-`bootstrap-lint` failure; both CLI log commands returned empty output, retained
-as unavailable observations. The isolated local baseline reproduces that failure.
-The repaired full release-adapter fixture passes, and restoring implicit fetch
-fails `bootstrap-success`. No real Git/Cargo delivery effects occur in those
-fixtures. Existing Testkit/editor forwarding, admitted-server and ordered failure
-checks, snapshot integrity, Bash syntax, ShellCheck and documentation links pass.
-On exact repair head `f1137bb8ef244db3c1d8ae0b99e59591a5b6ab0d`,
-[run 39611955172](https://github.com/dragginzgame/ic-blob-storage/actions/runs/39611955172)
-passes Linux, Apple Silicon and MSRV; Intel macOS remains pending. The PR was
-merged under the maintainer's existing queue authorization and asynchronous
-cadence, with no enforced GitHub check/review requirements bypassed. #98 retains
-the owning follow-up; neither the original failed run nor pending coverage is green.
+Incoming Cargo.lock updates continued after those runs. Wire 0.5.20 passes all
+139 frozen vectors, and 338 core unit cases pass on the subsequent incoming graph;
+Metrics 0.15.5 changes documentation only. A subsequent
+native all-target check stopped before compilation because `icu_locale_core 2.4.0`
+is not cached. Preserve the incoming graph; it is not covered by the installed
+artifact results above. `qualification.json` separates tested artifacts from the
+later lock snapshot. Prepare dependencies and qualify the settled graph before
+release; do not reuse earlier evidence as qualification of a changing lockfile.
 
-Shared adoption evidence stays in `.tmp/review-validation/shared0264/` with
-before-images, exporter preview/output and focused consumer results. The producer's
-[exact-revision CI](https://github.com/dragginzgame/shared-tooling/actions/runs/39625117898)
-was still pending at source review; it is separate from consumer qualification.
-Local Linux snapshot verification, explicit setup/offline tool admission,
-formatting, documentation links, changed-helper Bash/ShellCheck, consumer logging
-and input checkpoints, parent-log preservation, evidence archive/retention,
-loopback download/checksum and hook checks pass. The incoming lock remains
-byte-for-byte unchanged. No Rust implementation, package versions, tool pins or
-deployment dependency selection changed; no full product suite or new native
-macOS/installed-IC/provider qualification was run for this snapshot adoption.
-The complete focused release-adapter fixture also passes against the refreshed
-helpers, including prepared-cache, publication-refusal and interruption-recovery
-cases; all Git/Cargo effects stay inside disposable fixtures.
-
-Historical complete-gate evidence remains bound to its original graph:
-`.tmp/review-validation/wire058-gate/ci.log` records all 20 targets passing in
-930 seconds with 1,995 tracked file contents unchanged, including PocketIC,
-original/O3/Os/Oz installation/restoration and archives. It does not qualify today's
-incoming lock. `.tmp/review-validation/backlog0400/` separately retains the
-registry-only Blob 0.40.0 / Platform 0.6.1 installation/restore compile probe.
-Installed Canic and live-provider acceptance remain separate from native CI.
-[Shared #294](https://github.com/dragginzgame/shared-tooling/issues/294) and
-[Tooling #223](https://github.com/dragginzgame/ic-tooling/issues/223) retain producer
-qualification independently. Earlier graph-specific evidence stays in the
-[2026-10-20 handoff](handoff-2026-10-20.md),
-[2026-10-18 handoff](handoff-2026-10-18.md) and [history](history.md).
+The current-compiler managed Testkit selection is not provisioned. Local installed
+checks explicitly select the retained PocketIC 16.1.0 binary, matching Testkit's
+published server requirement; this does not qualify the shared setup selection.
+No native macOS, real installed IC or deployed Caffeine qualification is claimed.
+Released-source hosted results remain linked in the [October 20 handoff](handoff-2026-10-20.md)
+and [history](history.md); they do not qualify this dirty hard cut.

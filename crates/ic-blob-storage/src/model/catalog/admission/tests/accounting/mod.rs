@@ -10,14 +10,14 @@ fn audit(owner: &UploadCatalog, admitted: &[UploadRequest]) {
         {
             expected.operations += 1;
             match owner.phase(actor(*input), *input).unwrap() {
-                UploadPhase::Reserved | UploadPhase::ExposurePossible => {
+                UploadPhase::Reserved => {
                     expected.active_reservations += 1;
                     expected.reserved_bytes += u128::from(input.object.bytes);
                     expected.logical_bytes += u128::from(input.object.bytes);
                     expected.physical_bytes += u128::from(input.object.bytes);
                     expected.liability_bytes += u128::from(input.object.bytes);
                 }
-                UploadPhase::Confirmed => {
+                UploadPhase::Registered => {
                     let lifecycle = owner
                         .confirmed()
                         .get(input.object.root)
@@ -57,10 +57,6 @@ fn totals_follow_interleaved_success_rejection_and_terminal_replay() {
                 owner.reserve(actor(input), changed),
                 Err(UploadError::RequestConflict)
             );
-            assert_eq!(
-                owner.confirm_upload(input),
-                Err(UploadError::InvalidPhase(UploadPhase::Reserved))
-            );
             assert_eq!(owner.cancel(p(9), input), Err(UploadError::Denied));
             audit(&owner, &admitted);
             if id % 3 == 0 {
@@ -71,16 +67,14 @@ fn totals_follow_interleaved_success_rejection_and_terminal_replay() {
                     Ok(LifecycleChange::Unchanged)
                 );
             } else {
-                owner.mark_exposure_possible(actor(input), input).unwrap();
+                owner.register(actor(input), input).unwrap();
                 audit(&owner, &admitted);
                 assert_eq!(
                     owner.cancel(actor(input), input),
-                    Err(UploadError::InvalidPhase(UploadPhase::ExposurePossible))
+                    Err(UploadError::InvalidPhase(UploadPhase::Registered))
                 );
                 if id % 2 == 0 {
-                    owner.confirm_upload(input).unwrap();
                     audit(&owner, &admitted);
-                    assert_eq!(owner.confirm_upload(input), Ok(LifecycleChange::Unchanged));
                     release(&mut owner, input);
                     audit(&owner, &admitted);
                     owner
@@ -91,7 +85,6 @@ fn totals_follow_interleaved_success_rejection_and_terminal_replay() {
                         .confirm_billing_stopped(input.object.root, input.object.first.object())
                         .unwrap();
                     audit(&owner, &admitted);
-                    assert_eq!(owner.confirm_upload(input), Ok(LifecycleChange::Unchanged));
                 }
             }
             assert_eq!(

@@ -17,7 +17,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let path = Path::new(take("--configuration")?);
     let service = principal(take("--service")?)?;
     let project = take("--project")?;
-    let verifier = principal(take("--verifier")?)?;
     let release = take("--release")?;
     let directory = Path::new(take("--run-dir")?);
     if !flags.is_empty() {
@@ -28,7 +27,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let candidate = ServiceInstallationCandidate {
         configuration,
         project,
-        completion_verifier: verifier,
         release,
         platform_installation_version: 0,
     };
@@ -37,7 +35,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let input = ServiceInstallationInput {
         configuration,
         project: project.into(),
-        completion_verifier: verifier,
     };
     let configuration_bytes =
         ic_blob_storage_contracts::document::encode(configuration).map_err(|_| Failure::File)?;
@@ -52,7 +49,7 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         "payment_account":configuration.payment_account.to_text(),
         "cashier":configuration.billing.cashier.to_text(),
         "namespace":configuration.namespace.to_string(),"project":project,
-        "completion_verifier":verifier.to_text(),"expected_host_release":release,
+        "expected_host_release":release,
         "authenticated":false,"platform_identity_checked":false,
         "compiled_release_checked":false,"stable_memory_allocated":false,"host_init_encoded":true,
         "installation_dispatched":false,"provider_dispatched":false,"funding_dispatched":false,

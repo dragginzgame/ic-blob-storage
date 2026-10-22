@@ -43,7 +43,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
         )
         .map(|(reply,)| reply)
         .unwrap();
-    assert_eq!(f.admission(permission).state, UploadState::ExposurePossible);
+    assert_eq!(f.admission(permission).state, UploadState::Registered);
     pic.update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
         f.service,
         f.tenant,

@@ -7,7 +7,7 @@
 The [current status](status/current.md) owns the exact released baseline and
 active implementation work. The maintained product supplies a
 framework-independent library and standalone service, configured uploads, exact
-verifier completion and native/browser publication components. Consumer owners
+trusted registration and native/browser publication components. Consumer owners
 supply framework wrappers, deployment integration and their composition tests.
 Library publication is separate from qualified live service operation.
 
@@ -37,7 +37,7 @@ journals. Provider authority and effect recovery stay with those owners.
 | --- | --- | --- |
 | Provider contract | Caffeine request/reply definitions and retained source/local/live probes | Provider limits, namespace/payer authority, physical deletion and billing evidence |
 | Durable service | Bounded stores, exact replay/history, logical/physical/liability accounting and fenced recovery | Actual consumer operating bounds and independent continuity evidence |
-| Standalone | Maintained endpoints, native/browser publisher, independent completion verifier and local IC tests | Selected released artifacts, application media and deployed provider journeys |
+| Standalone | Maintained endpoints, native/browser publisher, trusted registration and local IC tests | Selected released artifacts, application media and deployed provider journeys |
 | Framework integration | Core handlers, explicit host grants and passive installation DTOs | Canic/application wrappers, Root/parent initialization and coherent family delivery |
 | Retirement | Exact receipts, obligation inventory and supported refusal/recovery workflows | Accountable per-installation disposition, settlement and billing cessation |
 
@@ -50,7 +50,7 @@ with the application. Provider completion, payer attribution, GC and billing
 cannot be closed by another local wrapper, substitute receipt or dependency bump.
 
 Use [dependency and memory composition](dependencies.md#canic-integration),
-[the operator guide](operator-guide.md), [verifier operation](completion-verifier.md)
+[the operator guide](operator-guide.md), [registration contract](trusted-registration.md)
 and [the retirement runbook](retiring-installations.md) for current procedures.
 [Service gaps](service-gaps.md) and [the acceptance plan](acceptance-plan.md)
 distinguish local evidence from production qualification. The

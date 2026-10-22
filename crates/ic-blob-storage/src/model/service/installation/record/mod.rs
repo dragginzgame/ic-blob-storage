@@ -16,7 +16,6 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) payment_account: ExternalPrincipal,
     pub(crate) namespace: u128,
     pub(crate) project: String,
-    pub(crate) completion_verifier: ExternalPrincipal,
     pub(crate) max_tenants: u32,
     pub(crate) max_object_bytes: u64,
     pub(crate) max_headers: u32,
@@ -51,7 +50,7 @@ pub(crate) struct ConfigurationRecord {
 impl ConfigurationRecord {
     /// Frozen current layout, independently checked from the installation release.
     /// The host allocation key names a memory slot, not this record's layout.
-    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:project-upload-grants-platform-anchor-funding-credit-index-renewal";
+    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:trusted-registration-platform-anchor-funding-credit-index-renewal";
 
     pub(crate) fn check_binding(
         &self,

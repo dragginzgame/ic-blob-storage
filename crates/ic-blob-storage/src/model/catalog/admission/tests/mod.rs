@@ -67,10 +67,7 @@ fn actor(request: UploadRequest) -> Principal {
     request.object.first.object().tenant()
 }
 fn confirm(owner: &mut UploadCatalog, request: UploadRequest) {
-    owner
-        .mark_exposure_possible(actor(request), request)
-        .expect("exposure");
-    assert_eq!(owner.confirm_upload(request), Ok(LifecycleChange::Changed));
+    owner.register(actor(request), request).expect("exposure");
 }
 fn release(owner: &mut UploadCatalog, request: UploadRequest) {
     assert_eq!(
@@ -284,45 +281,30 @@ fn exposure_uncertainty_retains_capacity_and_cannot_be_cancelled_or_reset() {
     .expect("owner");
     let a = request(1, 2, 100);
     owner.reserve(actor(a), a).expect("reserve");
-    assert_eq!(
-        owner.confirm_upload(a),
-        Err(UploadError::InvalidPhase(UploadPhase::Reserved))
-    );
-    assert_eq!(
-        owner.mark_exposure_possible(actor(a), a),
-        Ok(LifecycleChange::Changed)
-    );
+    assert_eq!(owner.register(actor(a), a), Ok(LifecycleChange::Changed));
     let before = snapshot(&owner);
     for _ in 0..3 {
-        assert_eq!(
-            owner.mark_exposure_possible(actor(a), a),
-            Ok(LifecycleChange::Unchanged)
-        );
+        assert_eq!(owner.register(actor(a), a), Ok(LifecycleChange::Unchanged));
         assert_eq!(
             owner.reserve(actor(a), a),
-            Ok(UploadAdmission::Existing(UploadPhase::ExposurePossible))
+            Ok(UploadAdmission::Existing(UploadPhase::Registered))
         );
         assert_eq!(
             owner.cancel(actor(a), a),
-            Err(UploadError::InvalidPhase(UploadPhase::ExposurePossible))
+            Err(UploadError::InvalidPhase(UploadPhase::Registered))
         );
-        assert_eq!(
-            owner.reserve(p(3), request(2, 3, 0)),
-            Err(UploadError::ActiveLimit)
+        assert!(
+            owner
+                .confirm_provider_deleted(a.object.root, a.object.first.object())
+                .is_err()
         );
-        assert_eq!(
-            owner.confirm_provider_deleted(a.object.root, a.object.first.object()),
-            Err(CatalogError::UnknownRoot)
-        );
-        assert_eq!(
-            owner.confirm_billing_stopped(a.object.root, a.object.first.object()),
-            Err(CatalogError::UnknownRoot)
+        assert!(
+            owner
+                .confirm_billing_stopped(a.object.root, a.object.first.object())
+                .is_err()
         );
         assert_eq!(snapshot(&owner), before);
     }
-    owner
-        .confirm_upload(a)
-        .expect("independently resolved completion");
     owner
         .reserve(p(3), request(2, 3, 0))
         .expect("active slot freed by resolution");
@@ -357,11 +339,7 @@ fn cancellation_retains_history_and_never_reopens_the_operation() {
         Ok(UploadAdmission::Existing(UploadPhase::Cancelled))
     );
     assert_eq!(
-        owner.mark_exposure_possible(actor(a), a),
-        Err(UploadError::InvalidPhase(UploadPhase::Cancelled))
-    );
-    assert_eq!(
-        owner.confirm_upload(a),
+        owner.register(actor(a), a),
         Err(UploadError::InvalidPhase(UploadPhase::Cancelled))
     );
     assert_eq!(
@@ -450,12 +428,8 @@ fn exact_payload_actor_and_scope_are_required_even_for_retries() {
         };
         assert_eq!(owner.reserve(p(2), candidate), Err(expected));
         assert_eq!(owner.cancel(p(2), candidate), Err(expected));
-        assert_eq!(owner.mark_exposure_possible(p(2), candidate), Err(expected));
+        assert_eq!(owner.register(p(2), candidate), Err(expected));
         assert_eq!(owner.phase(p(2), candidate), Err(expected));
-        assert_eq!(
-            owner.confirm_upload(candidate),
-            Err(UploadError::RequestConflict)
-        );
     }
     assert_eq!(snapshot(&owner), before);
 }
@@ -474,16 +448,9 @@ fn wrong_actors_and_unknown_operations_cannot_mutate_or_read_reservations() {
     ] {
         assert_eq!(owner.reserve(foreign, a), Err(UploadError::Denied));
         assert_eq!(owner.cancel(foreign, a), Err(UploadError::Denied));
-        assert_eq!(
-            owner.mark_exposure_possible(foreign, a),
-            Err(UploadError::Denied)
-        );
+        assert_eq!(owner.register(foreign, a), Err(UploadError::Denied));
         assert_eq!(owner.phase(foreign, a), Err(UploadError::Denied));
     }
-    assert_eq!(
-        owner.confirm_upload(request(2, 2, 1)),
-        Err(UploadError::UnknownRequest)
-    );
     assert_eq!(snapshot(&owner), before);
 }
 
@@ -567,16 +534,12 @@ fn release_deletion_and_billing_free_distinct_capacities_and_replay_never_resurr
     let before = snapshot(&owner);
     assert_eq!(
         owner.reserve(actor(a), a),
-        Ok(UploadAdmission::Existing(UploadPhase::Confirmed))
+        Ok(UploadAdmission::Existing(UploadPhase::Registered))
     );
-    assert_eq!(owner.confirm_upload(a), Ok(LifecycleChange::Unchanged));
-    assert_eq!(
-        owner.mark_exposure_possible(actor(a), a),
-        Err(UploadError::InvalidPhase(UploadPhase::Confirmed))
-    );
+    assert_eq!(owner.register(actor(a), a), Ok(LifecycleChange::Unchanged));
     assert_eq!(
         owner.cancel(actor(a), a),
-        Err(UploadError::InvalidPhase(UploadPhase::Confirmed))
+        Err(UploadError::InvalidPhase(UploadPhase::Registered))
     );
     assert_eq!(snapshot(&owner), before);
     assert_eq!(
@@ -666,7 +629,7 @@ fn owner_with_mixed_tenant_history() -> UploadCatalog {
         match id {
             1 => {}
             2 => {
-                owner.mark_exposure_possible(p(3), input).expect("exposure");
+                owner.register(p(3), input).expect("exposure");
             }
             7 => {
                 owner.cancel(p(3), input).expect("cancel");
@@ -697,8 +660,8 @@ fn tenant_usage_includes_boundary_ids_and_all_phases_without_foreign_charges() {
     let mut owner = owner_with_mixed_tenant_history();
     let expected = UploadUsage {
         operations: 7,
-        active_reservations: 2,
-        reserved_bytes: 30,
+        active_reservations: 1,
+        reserved_bytes: 10,
         logical_bytes: 60,
         physical_bytes: 100,
         liability_bytes: 150,
@@ -737,8 +700,8 @@ fn tenant_usage_includes_boundary_ids_and_all_phases_without_foreign_charges() {
         owner.usage(),
         UploadUsage {
             operations: 9,
-            active_reservations: 4,
-            reserved_bytes: 530,
+            active_reservations: 3,
+            reserved_bytes: 510,
             logical_bytes: 560,
             physical_bytes: 600,
             liability_bytes: 650,

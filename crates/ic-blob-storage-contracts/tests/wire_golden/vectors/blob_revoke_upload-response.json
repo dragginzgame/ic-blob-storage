@@ -1,5 +1,6 @@
 [
   {
+    "hex": "495707004100424f4c42010005e6ea506e0105b9d2159b019fef9dd108e9fbccc304b39be123a0e8ae47afd5c3be0699db1684894a797d12f05c833112b2586a9fcb9250ceac61864b1c043fc1f815d589f8e10b05e26b879501abcceeec03020000",
     "input": {
       "Ok": {
         "admission": {
@@ -56,10 +57,10 @@
         },
         "changed": false
       }
-    },
-    "hex": "495707003600424f4c42010005e6ea506e0105b9d2159b019fef9dd108e9fbccc304b39be123a0e8ae47afd5c3be0699db1684894a797d12f05c833112b2586a9fcb9250ceac61864b1c043fc1f815d589f8e10b05e26b879501abcceeec03030000"
+    }
   },
   {
+    "hex": "495707004100424f4c420100056d057d280105fc811c5b018be3bdb905fcc2bd8c05fb8387b904b294b4a801a7a9c19908dd26712b48b6053b49179836126b77268dece55edcf75e73bf6615344e1b6d79f1b7f7880805d7a83c2501f9bfb2ca0a010101",
     "input": {
       "Ok": {
         "admission": {
@@ -112,17 +113,16 @@
             "uploader": "y6wzs-o6xva-6ckai"
           },
           "revoked": true,
-          "state": "ExposurePossible"
+          "state": "Registered"
         },
         "changed": true
       }
-    },
-    "hex": "495707003600424f4c420100056d057d280105fc811c5b018be3bdb905fcc2bd8c05fb8387b904b294b4a801a7a9c19908dd26712b48b6053b49179836126b77268dece55edcf75e73bf6615344e1b6d79f1b7f7880805d7a83c2501f9bfb2ca0a010101"
+    }
   },
   {
+    "hex": "495707004100424f4c42010105",
     "input": {
       "Err": "Inactive"
-    },
-    "hex": "495707003600424f4c42010105"
+    }
   }
 ]

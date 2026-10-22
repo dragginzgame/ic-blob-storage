@@ -788,7 +788,7 @@ The following record predates released 0.18.5 and retains its original inputs.
   macOS and Apple Silicon, and both crates are published with matching VCS.
   #27/#28 are closed; this does not qualify incoming changes or close #29.
 - [#33](https://github.com/dragginzgame/ic-blob-storage/issues/33) now has a
-  [private native-worker recipe](../completion-verifier.md) defining signer,
+  [private native-worker recipe](https://github.com/dragginzgame/ic-blob-storage/blob/ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7/docs/completion-verifier.md) defining signer,
   service/tenant/job binding, original observation/submission and restart
   reconciliation. Two-user/deployed-provider acceptance remains unqualified.
 - Provider callback/funding evidence, multi-user consumer integration and

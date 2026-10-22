@@ -211,21 +211,13 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
                 .map(|(input, _)| Command::Expose(input.request.root)),
             Outcome::Exposed,
         );
-        calls(
-            f,
-            f.operator,
-            group.iter().map(|(input, _)| {
-                Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(input.request))
-            }),
-            Outcome::Changed(true),
-        );
-        let actors: Vec<_> = [f.project, f.uploader, f.uploader, f.operator]
+        let actors: Vec<_> = [f.project, f.uploader, f.uploader]
             .into_iter()
             .flat_map(|actor| std::iter::repeat_n(actor, count))
             .collect();
         let profiles = measurements(f, &mut previous, &actors);
         if milestone {
-            let [admit, prepare, _, confirm] = profiles.as_slice() else {
+            let [admit, prepare, register] = profiles.as_slice() else {
                 panic!("single-object milestone");
             };
             samples.push(serde_json::json!({
@@ -236,16 +228,16 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
                 "prepare_instructions":prepare.after_work, "prepare_before_work":prepare.before_work,
                 "prepare_before_decode":prepare.before_decode, "prepare_after_header":prepare.after_header,
                 "prepare_after_value":prepare.after_value, "prepare_after_decode":prepare.after_decode,
-                "confirm_instructions":confirm.after_work, "confirm_before_work":confirm.before_work,
-                "confirm_before_decode":confirm.before_decode, "confirm_after_header":confirm.after_header,
-                "confirm_after_value":confirm.after_value, "confirm_after_decode":confirm.after_decode,
+                "register_instructions":register.after_work, "register_before_work":register.before_work,
+                "register_before_decode":register.before_decode, "register_after_header":register.after_header,
+                "register_after_value":register.after_value, "register_after_decode":register.after_decode,
                 "wasm_memory_bytes":f.wasm_bytes(),
             }));
         }
         inputs.extend(group.into_iter().map(|(input, _)| input));
         index += count;
     }
-    println!("release history: all manifests retained and substitute completions applied");
+    println!("release history: all manifests retained and retention intents registered");
     inputs
 }
 
@@ -389,17 +381,6 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
             capacity(&f, actor, first.request),
             Err(ReferenceCapacityFailure::Denied)
         );
-        assert_eq!(
-            f.call(
-                actor,
-                Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(first.request))
-            ),
-            if actor == f.operator {
-                Ok(Outcome::Changed(false))
-            } else {
-                Err(Failure::NotOperator)
-            }
-        );
     }
     assert_eq!(
         capacity(&f, f.project, first.request)
@@ -444,7 +425,7 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
     );
     assert_eq!(
         f.call(f.project, Command::Admit(first)),
-        Ok(Outcome::Existing(Phase::Confirmed))
+        Ok(Outcome::Existing(Phase::Registered))
     );
     let final_heap = f.wasm_bytes();
     assert!(final_heap <= initial_heap + 16 * CHUNK as u64);

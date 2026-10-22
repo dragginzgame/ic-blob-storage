@@ -239,9 +239,6 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
 
 pub(super) fn confirm_and_release_locally(f: &Fixture) {
     use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
-    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
-    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
-    use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
     f.enroll(f.operator).unwrap();
     let manifest = f.small_manifest();
     f.harness
@@ -266,21 +263,6 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
     .map(|(reply,)| reply)
     .unwrap();
     // This statement is a local verifier substitute, not a deployed byte observation.
-    f.harness
-        .pic
-        .update_blob_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
-            f.service,
-            Fake::principal(90),
-            "blob_attest_upload",
-            UploadAttestationRequest {
-                permission: manifest.permission,
-                content_digest: [1; 32],
-                observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
-            },
-            REPLY_LIMITS.reply_bytes,
-        )
-        .unwrap()
-        .unwrap();
     f.harness
         .pic
         .update_blob_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(

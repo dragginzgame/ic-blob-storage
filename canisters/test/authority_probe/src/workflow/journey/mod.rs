@@ -19,7 +19,6 @@ use ic_blob_storage_contracts::identity::batch::ProviderRootBatch;
 use ic_blob_storage_contracts::identity::batch::RootBatchLimits;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_blob_storage_contracts::upload::history::UploadRootState;
-use ic_platform::Principal;
 
 fn tenant(context: TenantAccessContext) -> Result<(), JourneyFailure> {
     ops::read(|s| {
@@ -114,17 +113,6 @@ fn gateway(
     })
     .map_err(|_| JourneyFailure::Denied)?;
     Ok(request)
-}
-
-pub(crate) fn complete(
-    context: TenantAccessContext,
-    owner: Principal,
-    input: JourneyUpload,
-) -> Result<(), JourneyFailure> {
-    let request = ops::journey::request(context.service, owner, input)?;
-    gateway(context, request.upload.object.root)?;
-    // Explicitly substituted exact completion fact, not a client progress report.
-    ops::journey::complete(request)
 }
 
 pub(crate) fn release(context: TenantAccessContext, root: &[u8]) -> Result<(), JourneyFailure> {

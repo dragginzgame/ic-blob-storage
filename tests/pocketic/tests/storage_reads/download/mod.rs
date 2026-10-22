@@ -47,7 +47,6 @@ fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_bod
         Err(DownloadFailure::Unavailable)
     );
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
     let view = f.download(f.tenant, input).unwrap();
     assert_eq!(view.owner, f.service.into());
@@ -112,7 +111,6 @@ fn operational_download_rejects_released_suspended_and_restored_content() {
     let f = Fixture::new();
     let (permission, _, first) = f.download_input();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     f.reference(ReferenceInput {
         object: permission.request,
         reference: 2,

@@ -4,7 +4,6 @@ pub mod admission;
 pub(crate) mod callbacks;
 pub mod capacity;
 pub mod certificate;
-pub mod completion;
 pub mod discovery;
 pub mod exposure;
 pub mod history;
@@ -368,9 +367,23 @@ impl<M: Memory> StableUploads<M> {
         now: u64,
     ) -> Result<(), UploadStoreError> {
         let mut record = self.exposure_record(context, request, now)?;
+        let tenant = request.object.first.object().tenant();
+        let mut global = self.total(Principal::management_canister())?;
+        let mut own = self.total(tenant)?;
+        global.finish_reservation(request.object.bytes);
+        own.finish_reservation(request.object.bytes);
         record.expose();
+        self.confirmed
+            .insert(key(request), ConfirmedLifecycleRecord::new());
+        self.references.insert(
+            (key(request), request.object.first.reference().get().get()),
+            ReferenceRecord::new(crate::model::lifecycle::ReferenceState::Active),
+        );
         self.permissions
             .insert(key(request), UploadStoreRecord::Permission(record));
+        self.usage.insert(tenant.into(), own);
+        self.usage
+            .insert(Principal::management_canister().into(), global);
         Ok(())
     }
     // Shared by inspection and commit; an inspection can never bypass the current

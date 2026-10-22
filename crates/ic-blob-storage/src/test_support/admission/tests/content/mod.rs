@@ -121,8 +121,10 @@ fn overlapping_releases_recover_receipts_and_cleanup_at_history_capacity() {
     owner.admit(context(4), input, 1).unwrap();
     prepare(&mut owner, &input);
     owner.expose(context(5), input.request, 2).unwrap();
-    assert_eq!(state(&owner, input), UploadRootState::ExposurePossible);
-    owner.confirm_upload(input.request).unwrap(); // Trusted local fact, not provider evidence.
+    assert_eq!(
+        state(&owner, input),
+        UploadRootState::Confirmed(LifecyclePhase::Live)
+    );
     let first = input.request.object.first;
     let second = ReferenceKey::new(first.object(), ReferenceId::new(id(2)));
     let retain = ReferenceRequest {
@@ -255,7 +257,7 @@ fn settle_and_check_retained_identity(owner: &mut UploadAdmissions, input: Uploa
     assert_eq!(owner.catalog().usage(), settled_usage);
     assert_eq!(
         owner.admit(context(4), input, 200),
-        Ok(UploadAdmission::Existing(UploadPhase::Confirmed))
+        Ok(UploadAdmission::Existing(UploadPhase::Registered))
     );
     assert_eq!(
         state(owner, input),
@@ -270,7 +272,6 @@ fn stale_live_discovery_does_not_authorize_a_later_retain() {
     owner.admit(context(4), input, 1).unwrap();
     prepare(&mut owner, &input);
     owner.expose(context(5), input.request, 2).unwrap();
-    owner.confirm_upload(input.request).unwrap();
     assert_eq!(
         state(&owner, input),
         UploadRootState::Confirmed(LifecyclePhase::Live)

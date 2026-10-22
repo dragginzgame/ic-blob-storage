@@ -134,8 +134,6 @@ fn stop_start_retains_verified_prefix_exposure_and_unchanged_accounting() {
     );
     f.certificate(f.first, partial.upload.root)
         .expect("continued prefix");
-    assert_eq!(f.complete(f.first, partial.upload), Ok(()));
-    assert_eq!(f.complete(f.second, exposed.upload), Ok(()));
     assert_eq!(f.usage(f.first), first_usage);
     assert_eq!(f.usage(f.second), second_usage);
     f.source_config(
@@ -199,7 +197,6 @@ fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
         Ok(())
     );
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
-    assert_eq!(f.complete(f.first, exposed.upload), Ok(()));
     f.source_config(
         exposed.upload,
         0,

@@ -21,7 +21,6 @@ fn mutate(
 fn committed_mutation_with_unusable_reply_recovers_exact_receipt_and_cleanup_at_capacity() {
     let f = consumer();
     let permission = f.exposed();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let retain = reference(permission.request, u128::MAX, 2, true);
     let selected = selection(&f, retain);
     // The service commits, but the client cannot use its reply. No automatic retry.
@@ -108,7 +107,6 @@ fn committed_mutation_with_unusable_reply_recovers_exact_receipt_and_cleanup_at_
 fn replicated_mutation_preserves_recorded_failure_and_does_not_treat_it_as_release_success() {
     let f = consumer();
     let permission = f.exposed();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let unknown = reference(permission.request, 1, 9, false);
     let selected = selection(&f, unknown);
     let result = mutate(&f, &selected).unwrap();
@@ -142,7 +140,6 @@ fn replicated_mutation_preserves_recorded_failure_and_does_not_treat_it_as_relea
 fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_without_writes() {
     let f = consumer();
     let permission = f.exposed();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let retain = reference(permission.request, 1, 2, true);
     let selected = selection(&f, retain);
     let before = f.harness.pic.get_stable_memory(f.service);

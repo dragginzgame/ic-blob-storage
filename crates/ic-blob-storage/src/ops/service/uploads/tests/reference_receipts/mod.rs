@@ -64,7 +64,6 @@ fn reference_receipt_boundary_preserves_independent_full_width_identities_and_fa
         )
         .unwrap();
     store.expose(context(5), input.request, 3).unwrap();
-    store.confirm_upload(input.request).unwrap();
     assert_eq!(
         receipt(&store, context(4), request),
         Ok(ReferenceReceiptLookup::Absent)

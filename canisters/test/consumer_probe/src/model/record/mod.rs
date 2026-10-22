@@ -166,8 +166,7 @@ struct UploadManifestRequest {
 #[candid_path("ic_platform::candid::contract")]
 enum UploadState {
     Reserved,
-    ExposurePossible,
-    Confirmed,
+    Registered,
     Cancelled,
 }
 

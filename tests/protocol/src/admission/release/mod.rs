@@ -6,8 +6,6 @@ use serde::Deserialize;
 /// In-process dispatch for a single shared-owner mutation, never a wire envelope.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LifecycleCommand {
-    /// Operator supplies a substitute completion fact after local exposure.
-    SubstituteCompletion(Request),
     /// Operator supplies a substitute physical-deletion fact.
     SubstituteDeletion(Request),
     /// Operator supplies a separate substitute billing-cessation fact.

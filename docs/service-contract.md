@@ -10,7 +10,7 @@ Candidate validation composes the local models without installing state or
 proving provider behavior. Library publication and live service acceptance are
 separate.
 
-## Incoming protocol for 0.36
+## Incoming protocol for 0.41
 
 The implemented protocol uses [per-method contracts](service-wire.md): tenant
 inspection/update retain finite IC Wire, while the other owned methods and lifecycle
@@ -25,12 +25,12 @@ separate owners. Consumer wrappers must change request and reply handling togeth
   quotas, provider accounting and durable workflow state. A host owns endpoints,
   caller authentication, memory grants and lifecycle integration.
 - File bytes travel between the client and Caffeine. The service stores the
-  permissions, verification evidence and usage records needed to control them.
-- Tenant, uploader, verifier and operator are separate roles. Controller status
+  permissions, original manifests, references and usage records needed to control them.
+- Tenant, uploader and operator are separate roles. Controller status
   alone grants none of those application authorities.
-- Completion requires the configured verifier to fetch and check the complete
-  file before submitting its statement. That statement proves an observation,
-  not future provider retention.
+- Certificate issuance atomically registers retention intent and its first live
+  reference. Registration does not prove provider availability; downloads verify
+  the actual bytes. No independent completion worker is required.
 - Restored state opens fenced. Current-instance recovery requires independent IC
   history; active recovery from an older snapshot remains unsupported.
 - Releasing the last application reference, deleting provider bytes and ending
@@ -38,9 +38,6 @@ separate owners. Consumer wrappers must change request and reply handling togeth
 - Uncertain paid or provider effects are inspected and reconciled from their
   original records; absence of a reply never authorizes an automatic retry.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-authority-boundaries.svg" alt="Authority boundaries between the tenant, uploader, verifier, operator, storage provider and application" width="800">
-</p>
 
 ## Terms used in this contract
 
@@ -49,8 +46,8 @@ separate owners. Consumer wrappers must change request and reply handling togeth
 | Tenant | The application account or organization that owns permissions and references |
 | Permission | A bounded authorization for one exact upload request |
 | Manifest | The expected file length, content identity and ordered provider chunks |
-| Reference | A durable record that an application use still depends on a confirmed file |
-| Verifier | The configured identity trusted to fetch and check the complete provider object |
+| Reference | A durable record that an application use still depends on a registered object |
+| Registration | Durable retention intent, not evidence of a completed upload |
 | Fence | A state that permits inspection but blocks mutation until recovery is proven safe |
 | Obligation | Provider bytes, uncertain effects, balances or billing that must remain accounted for |
 
@@ -102,84 +99,13 @@ The public host-evidence field and DTO blocker for the former trial envelope are
 removed outright, including Candid and native JSON. This semantic/API change
 requires a minor release; existing deployed installations remain frozen.
 
-## Explicit verifier completion trust — accepted 2026-09-29
+## Trusted registration — accepted 2026-10-22
 
-The maintainer authorized a configured external verifier to attest observed content
-availability after independently fetching the whole object under the installed
-provider owner/project mapping and checking original root, length and metadata.
-This is trusted-role evidence, not an untrusted client's progress, certificate,
-local file check or proof of future retention. Provider payment/deletion/billing
-semantics remain independent. No whole-file hashing occurs on the storage canister.
-
-`CompletionAuthority` binds actual service, namespace and verifier. Shared
-`workflow::uploads::completion` supplies verifier-only manifest inspection,
-`attest` and historical receipt inspection. An attestation binds the complete
-original permission, raw digest and observation time; time must fall between
-admission and acceptance. Only prepared, exposed uploads can transition. Receipt,
-confirmation, first reference and maintained accounting commit in one synchronous
-IC transaction. The first accepted statement is immutable; exact replay preserves
-its acceptance time and never recreates a released reference. A conflicting
-statement rejects. Late evidence after revocation/suspension preserves obligations.
-Inspection remains available through restore fencing; every attestation update,
-including replay, refuses a restored owner. No new stable memory grant is needed.
-
-Standalone requires an immutable `completion_verifier` at installation and exposes
-`blob_verification_manifest`, `blob_attest_upload` and `blob_upload_attestation`.
-Controller/operator/gateway status grants no implicit verifier authority. The
-current v1 host/lifecycle schemas change directly, requiring a minor release and
-cross-release reinstall. The existing trusted-host bookkeeping primitive remains
-explicitly distinguishable from a verifier receipt; no receipt is invented for it.
-Standalone certificate/exposure integration uses the restricted local contract
-above; live end-to-end acceptance remains open.
-See the [probe ledger](evidence/caffeine-probes/README.md)
-for local transaction evidence and the [host contract](../canisters/standalone/README.md)
-for endpoint usage.
-
-Native recovery now uses `blob-storage upload-attestation` with an independently
-selected expected verifier and a saved exact statement. Shared
-`ops::service::uploads::completion::reply` owns the lookup encoding and bounded
-inspection/mutation decoding. Scope, full permission, receipt verifier and time
-ordering are checked; mutation acknowledgment must match the original digest and
-observation time too. Lookup preserves a conflicting accepted statement for
-diagnosis. Neither an absent nor a matched historical receipt establishes current
-availability or authorizes redispatch; queries never resend statements or write
-the journal. Restore fencing remains visible. This recovery reader does not
-dispatch an attestation.
-
-`blob_verification_plan` now authenticates that verifier and binds its exact original
-permission/declaration to the installed Caffeine owner/project. It requires an
-unfenced exposed unfinished upload; revoked/suspended exposed work can still be
-reconciled. It does not grant upload, retry or future availability authority.
-The native `observe-upload` command authenticates this snapshot, uses the maintained
-provider target encoder with an explicitly approved origin, and makes one bounded
-GET. Complete root/metadata/length verification precedes durable statement creation.
-Fresh no-clobber runs persist intent before effects and retain failures; interrupted
-runs cannot resume automatically. Provider reads can cost money and live trials
-remain separately authorized. This command does not dispatch the saved statement.
-
-Explicit native `submit-attestation` validates the complete successful observation
-and its exact permission, declaration, owner/project, digest, timestamps and hashes.
-It exclusively claims the run and persists the statement, signed envelope, request
-identity, ingress expiry and trust/artifact hashes before one bounded update. The
-saved statement is never regenerated. Shared reply decoding checks a certified
-acknowledgment against that exact statement. Pending or uncertain outcomes require
-explicit receipt inspection, without polling, refetching or automatic resubmission.
-Existing claims refuse even after interruption before dispatch. Artifacts are trusted
-local verifier input, not portable authentication or a distributed submission lock;
-the canister's immutable receipt remains authoritative. This command introduces no
-new installation, public DTO or stable-state schema.
-
-Native saved-request and exact installation decoding share `native::exact_candid`.
-It checks total bytes before decoding, rejects skipped fields, extra arguments and
-trailing bytes, and suppresses payload diagnostics. Each caller keeps its existing
-ceilings: 4 KiB small inputs, 16 KiB installation inputs/replies and 64 KiB manifest
-decoding; 100,000 work units, or 2,000,000 for setup; 32 type-table entries for byte
-verification/observation permissions and 64 elsewhere. Setup still reads ordinary
-permissions with a 4 KiB file bound before its shared manifest decoder. File,
-binding and remote-reply refusals stay distinct. Authenticated reply decoders retain
-their separate contracts. Local byte verification uses the core permission validator
-before opening the body or querying; role checks and its own byte ceiling remain
-local. This structural validation grants no completion or retry authority.
+The [0.41 hard cut](trusted-registration.md) replaces independent verifier
+completion with atomic registration at certificate issuance. It documents the
+removed APIs, new state/schema identities, consumer changes and evidence limits.
+Local body and download verification remain supported. No live availability
+or provider deletion/billing guarantee follows from registration.
 
 ## Service configuration and host
 
@@ -231,7 +157,7 @@ composition acceptance under [Canic #444](https://github.com/dragginzgame/canic/
 track consumer adoption. This contract owns the required service behavior.
 
 `ops::service::installation::ValidatedServiceInstallation` also validates the
-explicit project, verifier and bounded library release before allocation.
+explicit project and bounded library release before allocation.
 Use `ic_blob_storage::LIBRARY_VERSION` for that compiled dependency identity;
 an embedding host's package version and Wasm/module identity are separate facts.
 `ServiceInstallation` owns the immutable current configuration record and the
@@ -255,7 +181,7 @@ endpoints delegate to shared workflows, with bounded per-method codecs and opera
 configuration readback. Standalone installation takes the core's passive
 `ServiceInstallationInput`:
 shared `ServiceConfigurationInput` plus required explicit Caffeine project,
-completion verifier. Each enrolled project grants original upload permissions
+operator. Each enrolled project grants original upload permissions
 naming its users separately. Initialization accepts exactly the current typed
 record; skipped fields and extra init arguments refuse. The
 host binds owner to its actual service and project to the installed local namespace,
@@ -294,14 +220,14 @@ wrapper or a deployed service.
 
 The owning canister authenticates the actual caller and service, bounds transport
 and decoding work, and delegates to shared workflows. Tenant, operator, uploader
-and verifier roles remain explicit; framework activation and controller status
+roles remain explicit; framework activation and controller status
 grant none of those roles. Provider request/callback contracts have one core owner,
 and clients use the service API rather than defining a provider protocol.
 
 The host declares the installation configuration key and sixteen shared service
 requests within one allocation authority, bootstraps one ic-memory runtime, validates
 all installation inputs and calls `ServiceInstallation::install` synchronously.
-It supplies actual service identity, project, verifier and compiled release.
+It supplies actual service identity, project and compiled release.
 Publishing a partially constructed owner or initializing through deferred work
 is unsupported. Stable-memory failures must propagate for IC transaction rollback.
 
@@ -491,14 +417,14 @@ The earlier source/design review is retained as historical evidence in the
 Canic is a capability inventory and source of counterexamples, not the target
 data model. The maintainer explicitly requested reassessing its choices. Existing
 capabilities remain required; preserving them does not require copying root-keyed
-ownership, automatic liveness on registration, transient funding locks or deletion
+ownership, transient funding locks or deletion
 of all state after a gateway callback. Each design choice needs its own rationale
 and rejection/recovery evidence.
 
 The local [lifecycle model](../crates/ic-blob-storage/src/model/lifecycle/mod.rs)
 is an independent `test-support` reference owner for the confirmed-object part
 of this design. It is transient and
-starts only after independently verified completion. It now carries an immutable
+starts with trusted registration and its first reference. It now carries an immutable
 service/tenant/namespace/object/incarnation binding and checks it on every mutation,
 before even idempotent replay. Anonymous and management service/tenant principals
 reject; the opaque namespace ID still needs a trusted provider configuration.
@@ -586,7 +512,7 @@ retry authority. Consumer transaction/outbox and durable production coordination
 remain separate requirements.
 
 Managed signed tenant evidence combines this command and receipt/status queries
-with actual signed verifier completion over labelled ten-byte local content.
+with certificate-time registration over labelled ten-byte local content.
 Acknowledged/dropped/pending reference updates recover exact original results
 without resend. A stored unknown-reference failure remains a failure; capacity
 and suspension preserve releases. Exact historical replay does not revive dead
@@ -797,7 +723,7 @@ manifests and per-client transport controls; the fixture disables retries and
 uses only an owned HTTP gateway substitute. Preparation snapshots bytes before
 awaiting, yields an immutable manifest view and consumes its original handle once.
 These ephemeral handles are not durable operation identities or recovery authority.
-Failed/aborted transfers preserve local service exposure, not confirmed completion.
+Failed/aborted transfers preserve registration and its liabilities; they do not prove uploaded bytes.
 `ops::caffeine::preparation` converts the upstream prepared JSON into the existing
 declaration with caller-selected buffering and manifest limits. Metadata and root
 checks reuse the existing model; redundant nested tree nodes are not validated.
@@ -1120,7 +1046,7 @@ it equals the object ID. The root/request index commits during admission and is
 validated against every permission on reopen without repair. Tenant-authorized
 descriptor queries copy one bounded manifest's original headers; unknown/foreign
 roots remain indistinguishable. Reference-qualified descriptors additionally
-require confirmed completion and the exact currently live reference, regardless
+require registration and the exact currently live reference, regardless
 of another live reference or a historical successful retain receipt.
 
 `scan` bounds inspected operation rows and returned results independently, with

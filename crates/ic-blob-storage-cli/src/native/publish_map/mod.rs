@@ -6,15 +6,11 @@ use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationLookup;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::protocol::REFERENCE_STATUS_METHOD;
-use ic_blob_storage_contracts::protocol::UPLOAD_ATTESTATION_METHOD;
 use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
 use ic_blob_storage_contracts::provider::download::request_target;
 use ic_blob_storage_contracts::reference::reply;
-use ic_blob_storage_contracts::upload::completion::CompletionAuthority;
-use ic_blob_storage_contracts::upload::completion::reply as completion_reply;
 use ic_platform::Principal;
 use serde_json::{Value, json};
 use std::{future::Future, path::PathBuf, time::Duration};
@@ -82,10 +78,10 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         options.actor,
     )?;
     let required_queries = match input.selection {
-        Selection::Batch => 2 * batch.files.len() as u64 + 2,
+        Selection::Batch => batch.files.len() as u64 + 2,
         Selection::File(index) => {
             batch.files.get(index).ok_or(Failure::Arguments)?;
-            4
+            3
         }
     };
     if limits.max_queries < required_queries {
@@ -161,12 +157,6 @@ where
     let scope =
         publish_check::observation::scope(&batch.files, first.service, first.namespace, actor)?;
     let host = configuration(batch, run, &mut query).await?;
-    let authority = CompletionAuthority::new(
-        first.service,
-        first.namespace.try_into().map_err(|_| Failure::Binding)?,
-        host.completion_verifier,
-    )
-    .map_err(|_| Failure::Binding)?;
     let capacity = publish_check::observation::capacity(
         scope,
         &super::query::observe(
@@ -199,10 +189,7 @@ where
         for index in selected {
             let file = &batch.files[index].input;
             let digest = &batch.files[index].body_sha256;
-            let blocked = match completion(file, index, authority, digest, run, &mut query).await? {
-                Some(code) => Some(code),
-                None => reference(file, index, run, &mut query).await?,
-            };
+            let blocked = reference(file, index, run, &mut query).await?;
             if let Some(code) = blocked {
                 blockers.push(json!({"index":index,"code":code}));
                 break;
@@ -215,7 +202,7 @@ where
         "inventory_sha256":super::upload_inputs::digest(&batch.inventory),
         "installation_sha256":super::upload_inputs::digest(&batch.installation.bytes),
         "files":files,"blockers":blockers,"atomic_snapshot":false,"publication_lease":false,
-        "provider_requests":0,"public_serving_qualified":false,"retry_authorized":false});
+        "provider_requests":0,"provider_upload_verified":false,"public_serving_qualified":false,"retry_authorized":false});
     match selection {
         Selection::Batch => report["all_references_live"] = json!(complete),
         Selection::File(index) => {
@@ -267,56 +254,11 @@ pub(in crate::native) fn decode_configuration(
     let host = host.map_err(|_| Failure::Denied)?;
     if host.configuration != installation.configuration
         || host.project != installation.project
-        || host.completion_verifier != installation.completion_verifier
         || host.release != ic_blob_storage_contracts::CONTRACT_VERSION
     {
         return Err(Failure::Binding);
     }
     Ok(host)
-}
-
-async fn completion<Q, F>(
-    file: &super::upload_inputs::PreparedInput,
-    index: usize,
-    authority: CompletionAuthority,
-    digest: &ic_host_artifacts::artifact::Sha256Digest,
-    run: &Run,
-    query: &mut Q,
-) -> Result<Option<&'static str>, Failure>
-where
-    Q: FnMut(&'static str, Vec<u8>) -> F,
-    F: Future<Output = Result<Vec<u8>, Failure>>,
-{
-    let args =
-        completion_reply::inspection_request("blob_upload_attestation", authority, file.permission)
-            .map_err(super::attestation::failure)?;
-    let bytes =
-        super::query::observe(run, 2 * index + 2, UPLOAD_ATTESTATION_METHOD, args, query).await?;
-    let confirmation = match completion_reply::inspection(
-        authority,
-        file.permission,
-        &bytes,
-        4096.try_into().expect("positive reply bound"),
-    ) {
-        Ok(confirmation) => confirmation,
-        Err(completion_reply::UploadAttestationReplyError::Remote(
-            ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure::Permission(
-                ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure::Unknown,
-            ),
-        )) => return Ok(Some("completion_unmatched")),
-        Err(error) => return Err(super::attestation::failure(error)),
-    };
-    if confirmation.fenced {
-        return Ok(Some("fenced"));
-    }
-    match confirmation.attestation {
-        UploadAttestationLookup::Found(receipt)
-            if receipt.request.content_digest == *digest.as_bytes() =>
-        {
-            Ok(None)
-        }
-        _ => Ok(Some("completion_unmatched")),
-    }
 }
 
 async fn reference<Q, F>(
@@ -334,14 +276,19 @@ where
         reference: file.permission.upload.first_reference,
     };
     let args = reply::status_request(request).map_err(super::references::failure)?;
-    let bytes =
-        super::query::observe(run, 2 * index + 3, REFERENCE_STATUS_METHOD, args, query).await?;
-    let status = reply::decode_status(
+    let bytes = super::query::observe(run, index + 2, REFERENCE_STATUS_METHOD, args, query).await?;
+    let status = match reply::decode_status(
         request,
         &bytes,
         4096.try_into().expect("positive reply bound"),
-    )
-    .map_err(super::references::failure)?;
+    ) {
+        Ok(status) => status,
+        Err(reply::ReferenceReplyError::Remote(
+            ic_blob_storage_contracts::dto::reference::ReferenceFailure::Unknown
+            | ic_blob_storage_contracts::dto::reference::ReferenceFailure::Unconfirmed,
+        )) => return Ok(Some("registration_unmatched")),
+        Err(error) => return Err(super::references::failure(error)),
+    };
     Ok(if status.fenced {
         Some("fenced")
     } else if !status.live {

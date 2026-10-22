@@ -28,7 +28,7 @@ permission read during attested-completion validation.
 The [recovery tests](../../crates/ic-blob-storage/src/ops/service/uploads/tests/recovery/mod.rs)
 accept distinct roots with shared request IDs across tenants, then reject same-root
 corruption both within and across tenants while preserving all ten memories. The
-[completion tests](../../crates/ic-blob-storage/src/ops/service/uploads/tests/completion/mod.rs)
+[completion tests](https://github.com/dragginzgame/ic-blob-storage/blob/ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7/crates/ic-blob-storage/src/ops/service/uploads/tests/completion/mod.rs)
 retain valid late attestations and reject observations before original admission.
 Existing malformed root/request indexes, manifests, references/receipts, totals,
 fences and storage assembly remain covered. Scoped native checks, strict core

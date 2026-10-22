@@ -22,8 +22,6 @@ pub enum ArchiveCatalog {
 pub enum ArchivePhase {
     /// Reserved before certificate exposure.
     Reserved,
-    /// Certificate may have escaped; completion remains unknown.
-    ExposurePossible,
     /// Cancelled before exposure, with immutable identity retained.
     Cancelled,
     /// Confirmed object with a live reference.

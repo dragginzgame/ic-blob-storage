@@ -72,24 +72,20 @@ fn manifest_binding_is_atomic_idempotent_and_never_provider_completion() {
         owner.catalog().phase(p(4), input.request),
         Ok(UploadPhase::Reserved)
     );
-    assert_eq!(
-        owner.confirm_upload(input.request),
-        Err(UploadError::InvalidPhase(UploadPhase::Reserved))
-    );
     owner.expose(context(5), input.request, 12).unwrap();
     assert_eq!(
         owner.catalog().phase(p(4), input.request),
-        Ok(UploadPhase::ExposurePossible)
+        Ok(UploadPhase::Registered)
     );
     assert!(
         owner
             .catalog()
             .confirmed()
             .get(input.request.object.root)
-            .is_none()
+            .is_some()
     );
     owner.revoke(context(4), input.request).unwrap();
-    assert_eq!(owner.catalog().usage().reserved_bytes, 10);
+    assert_eq!(owner.catalog().usage().reserved_bytes, 0);
 }
 
 #[test]
@@ -314,6 +310,6 @@ fn malformed_metadata_cannot_replace_a_bound_manifest_or_change_accounting() {
     owner.expose(context(5), input.request, 12).unwrap();
     assert_eq!(
         owner.catalog().phase(p(4), input.request),
-        Ok(UploadPhase::ExposurePossible)
+        Ok(UploadPhase::Registered)
     );
 }

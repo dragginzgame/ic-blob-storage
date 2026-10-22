@@ -39,11 +39,12 @@ fn retained_descriptor_requires_completion_and_the_exact_reference_through_clean
         Ok(None)
     );
     owner.expose(context(5), input.request, 2).unwrap();
-    assert_eq!(
-        owner.retained_content_descriptor(context(4), root, first),
-        Ok(None)
+    assert!(
+        owner
+            .retained_content_descriptor(context(4), root, first)
+            .unwrap()
+            .is_some()
     );
-    owner.confirm_upload(input.request).unwrap();
     assert_eq!(
         owner.retained_content_descriptor(context(4), root, second),
         Ok(None)
@@ -119,7 +120,6 @@ fn retained_descriptor_checks_actor_and_every_object_binding_before_disclosure()
     owner.admit(context(4), input, 1).unwrap();
     prepare(&mut owner, &input);
     owner.expose(context(5), input.request, 2).unwrap();
-    owner.confirm_upload(input.request).unwrap();
     let root = input.request.object.root;
     let first = reference(input, 1);
     for actor in [2, 3, 5, 6] {

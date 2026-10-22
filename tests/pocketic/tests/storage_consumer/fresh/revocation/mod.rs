@@ -119,7 +119,7 @@ fn unusable_revocation_reply_keeps_exposed_bytes_charged_and_late_completion_rel
     let before = f.harness.pic.get_stable_memory(f.service);
     let known = recover_withdrawal(&f).unwrap();
     assert_eq!(known.revocation_result, Some(Ok(())));
-    assert_eq!(known.upload_state, Some(UploadState::ExposurePossible));
+    assert_eq!(known.upload_state, Some(UploadState::Registered));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     assert_eq!(
         f.status().usage,
@@ -129,7 +129,6 @@ fn unusable_revocation_reply_keeps_exposed_bytes_charged_and_late_completion_rel
             liability: 10
         }
     );
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     recover(&f, 1, false).unwrap();
     assert_eq!(
         release(&f, 1).unwrap().release_result,

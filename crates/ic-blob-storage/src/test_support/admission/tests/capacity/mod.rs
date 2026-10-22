@@ -107,7 +107,6 @@ fn catalog_rejection_cannot_consume_leaf_capacity_or_claim_the_rejected_root() {
     prepare(&mut owner, &second);
     for input in [first, second] {
         owner.expose(context(5), input.request, 11).unwrap();
-        owner.confirm_upload(input.request).unwrap();
         let reference = input.request.object.first;
         owner
             .apply_reference(

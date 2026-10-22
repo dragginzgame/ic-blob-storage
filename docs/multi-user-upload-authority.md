@@ -21,7 +21,7 @@ The existing retained permission is the uploader grant.
 Each project may approve two different browser principals through two separately
 bound original permissions. A grant applies only to its enrolled tenant, exact
 service/namespace, original object/root/operation, size and deadline. It grants
-no tenant, operator, verifier or gateway authority. Anonymous and management
+no tenant, operator or gateway authority. Anonymous and management
 principals remain invalid. No global uploader registry, wildcard capability,
 new stable journal, browser bearer secret or application authentication dependency
 is needed.
@@ -68,7 +68,8 @@ The [local implementation record](evidence/multi-user0190.md) retains passing
 two-signer ingress/certificate, cross-user refusal, permission binding,
 expiry/revocation, shared quota, uncertainty and restored-owner checks. Frozen
 old-image refusal preserves every stable byte and existing obligations.
-Existing verifier trust stays separate.
+Registration records retention intent at certificate issuance; it does not prove
+provider availability. Downloads still verify actual bytes.
 The [later Chromium record](evidence/multi-user-browser0192.md) qualifies two
 browser signing keys uploading distinct bodies to one actual standalone service,
 independent native verification/download and separate reference release, using

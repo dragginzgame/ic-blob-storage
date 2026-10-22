@@ -17,7 +17,6 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
         Fake::principal(2),
         uploader(),
         Envelope::Regular,
-        Fake::principal(90),
         "signed-setup-fixture",
     );
     f.tenant = signer();
@@ -40,7 +39,6 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
         ServiceInstallationInput {
             configuration: host.configuration,
             project: host.project,
-            completion_verifier: host.completion_verifier,
         },
     );
     client.before_restore();

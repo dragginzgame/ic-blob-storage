@@ -2,7 +2,6 @@
 pub mod admission;
 pub mod capacity;
 pub mod certificate;
-pub mod completion;
 pub mod discovery;
 pub mod exposure;
 pub mod history;

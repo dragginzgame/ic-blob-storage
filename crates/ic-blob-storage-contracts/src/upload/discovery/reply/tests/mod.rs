@@ -41,7 +41,7 @@ fn preserves_absence_every_lifecycle_and_restore_fence() {
     let ceiling = NonZeroUsize::new(4096).unwrap();
     for state in [
         UploadContentState::Reserved,
-        UploadContentState::ExposurePossible,
+        UploadContentState::Live,
         UploadContentState::Cancelled,
         UploadContentState::Live,
         UploadContentState::DeletionPending,

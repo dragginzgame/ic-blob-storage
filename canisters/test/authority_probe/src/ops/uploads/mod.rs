@@ -54,14 +54,11 @@ pub(crate) fn initialize(service: Principal, first: Principal, second: Principal
             .expect("fixture reservation");
     }
     catalog
-        .mark_exposure_possible(first, requests[1])
+        .register(first, requests[1])
         .expect("uncertain fixture");
     catalog
-        .mark_exposure_possible(second, requests[2])
+        .register(second, requests[2])
         .expect("fixture exposure");
-    catalog
-        .confirm_upload(requests[2])
-        .expect("substituted completion fact");
     catalog
         .cancel(second, requests[3])
         .expect("unexposed cancellation");
@@ -97,11 +94,10 @@ pub(crate) fn roots() -> ProviderRootBatch {
 pub(crate) fn status(status: UploadRootStatus) -> Option<UploadProbeState> {
     match status {
         UploadRootStatus::Known(UploadRootState::Reserved) => Some(UploadProbeState::Reserved),
-        UploadRootStatus::Known(UploadRootState::ExposurePossible) => {
-            Some(UploadProbeState::ExposurePossible)
-        }
         UploadRootStatus::Known(UploadRootState::Cancelled) => Some(UploadProbeState::Cancelled),
-        UploadRootStatus::Known(UploadRootState::Confirmed(_)) => Some(UploadProbeState::Confirmed),
+        UploadRootStatus::Known(UploadRootState::Confirmed(_)) => {
+            Some(UploadProbeState::Registered)
+        }
         _ => None,
     }
 }

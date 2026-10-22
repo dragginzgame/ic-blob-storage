@@ -115,10 +115,7 @@ pub fn inspection(
     bytes: &[u8],
     limits: UploadManifestReplyLimits,
 ) -> Result<UploadManifestResponse, UploadManifestReplyError> {
-    if !matches!(
-        method,
-        "blob_upload_manifest" | "blob_verification_manifest"
-    ) {
+    if !matches!(method, "blob_upload_manifest") {
         return Err(UploadManifestReplyError::Invalid);
     }
     let response = decode(method, input, bytes, limits)?;

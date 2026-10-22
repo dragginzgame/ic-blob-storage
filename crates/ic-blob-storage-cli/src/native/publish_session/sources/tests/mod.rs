@@ -8,17 +8,17 @@ use serde_json::json;
 fn intent(batch: &PreparedBatch) -> SessionIntentRecord {
     let installation = batch.installation();
     let upload = batch.files[0].input.permission.upload;
-    serde_json::from_value(json!({"format":"ic-blob-storage/publication-session:retained-browser-handoffs",
+    serde_json::from_value(json!({"format":"ic-blob-storage/publication-session:trusted-registration",
         "source_session":null,"browser":null,"operation":"publish_session",
         "network":"ic","service_url":"https://icp-api.io/",
         "service":upload.service.to_text(),"namespace":upload.namespace.to_string(),
         "tenant":upload.tenant.to_text(),"uploader":batch.files[0].input.permission.uploader.to_text(),
         "operator":installation.configuration.operator.to_text(),
-        "verifier":installation.completion_verifier.to_text(),"gateway":"https://gateway.example/",
+        "gateway":"https://gateway.example/",
         "inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation.bytes),
         "root_key_sha256":digest(b"selected-root"),"files":1,"max_steps":9,
-        "max_service_updates":3,"max_service_queries":50,"timeout_seconds":30,
-        "max_provider_requests":1,"automatic_retries":0,
+        "max_service_updates":2,"max_service_queries":50,"timeout_seconds":30,
+        "max_provider_requests":0,"automatic_retries":0,
         "input_verification":"one_complete_startup_pass_and_selected_body_before_setup"})).unwrap()
 }
 
@@ -32,7 +32,6 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
     let host = HostConfigurationView {
         configuration: installation.configuration,
         project: installation.project.clone(),
-        completion_verifier: installation.completion_verifier,
         release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
         fenced: false,
     };
@@ -59,6 +58,10 @@ fn request(path: &Path, step: usize, frame: &Frame) -> PathBuf {
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One retained setup/transfer provenance scenario checks restart, tampering and missing originals"
+)]
 fn reopened_sources_keep_original_setup_and_observation_without_following_report_json() {
     let directory = fixture::frozen();
     let batch = fixture::batch(&directory);
@@ -86,13 +89,20 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
     request(
         &source,
         2,
-        &Frame::Verify {
+        &Frame::Transfer {
             index: 0,
-            source_observation: None,
+            source_transfer: None,
         },
     );
-    let observation = source.join("verification-0000/observation");
-    std::fs::create_dir_all(&observation).unwrap();
+    let transfer = source.join("step-0002");
+    std::fs::write(
+        transfer.join("transfer.json"),
+        serde_json::to_vec(&json!({
+        "format":"ic-blob-storage/browser-handoff", "session":source,
+        "file_index":0,"source_run":setup,"source_transfer":null,"transfer":{}}))
+        .unwrap(),
+    )
+    .unwrap();
     // Presentation values confer no advancement or authority.
     std::fs::write(
         source.join("summary.json"),
@@ -113,11 +123,11 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
     let provenance = std::fs::read(status_only.join("source-session.json")).unwrap();
     assert_eq!(
         serde_json::from_slice::<serde_json::Value>(&provenance).unwrap(),
-        json!({"format":"ic-blob-storage/publication-session-sources:retained-browser-handoffs",
+        json!({"format":"ic-blob-storage/publication-session-sources:trusted-registration",
             "source_session":source,"setup":[setup.canonicalize().unwrap()],
-            "transfers":[null],"observations":[observation.canonicalize().unwrap()]}),
+            "transfers":[transfer.canonicalize().unwrap()]}),
     );
-    for field in ["setup", "transfers", "observations"] {
+    for field in ["setup", "transfers"] {
         for invalid in [json!([]), json!([null, null])] {
             let mut changed: serde_json::Value = serde_json::from_slice(&provenance).unwrap();
             changed[field] = invalid;
@@ -143,8 +153,8 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
         Frame::Prepare { source_run:Some(path), .. } if path == setup.canonicalize().unwrap())
     );
     assert!(
-        matches!(sources.resolve(Frame::Verify { index:0, source_observation:None }).unwrap(),
-        Frame::Verify { source_observation:Some(path), .. } if path == observation.canonicalize().unwrap())
+        matches!(sources.resolve(Frame::Transfer { index:0, source_transfer:None }).unwrap(),
+        Frame::Transfer { source_transfer:Some(path), .. } if path == transfer.canonicalize().unwrap())
     );
     let foreign = directory.path().join("foreign");
     std::fs::create_dir(&foreign).unwrap();
@@ -153,9 +163,9 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
             index: 0,
             source_run: Some(foreign.clone()),
         },
-        Frame::Verify {
+        Frame::Transfer {
             index: 0,
-            source_observation: Some(foreign),
+            source_transfer: Some(foreign),
         },
     ] {
         assert!(matches!(sources.resolve(frame), Err(Failure::Binding)));
@@ -216,7 +226,6 @@ fn source_history_refuses_changed_scope_content_roles_gateway_root_and_release()
         "namespace",
         "operator",
         "uploader",
-        "verifier",
         "gateway",
         "service_url",
         "network",
@@ -314,9 +323,9 @@ fn partial_or_discontinuous_control_history_never_selects_fresh_phase_sources() 
         (
             "missing-observation",
             0,
-            Some(Frame::Verify {
+            Some(Frame::Transfer {
                 index: 0,
-                source_observation: None,
+                source_transfer: None,
             }),
         ),
         ("gap", 1, Some(Frame::Status { index: 0 })),
@@ -366,9 +375,9 @@ fn only_exact_unattempted_facts_distinguish_ordering_refusals_from_missing_claim
             index: 0,
             source_run: None,
         },
-        Frame::Verify {
+        Frame::Transfer {
             index: 0,
-            source_observation: None,
+            source_transfer: None,
         },
     ]
     .into_iter()
@@ -388,7 +397,7 @@ fn only_exact_unattempted_facts_distinguish_ordering_refusals_from_missing_claim
     }
     let sources = Sources::load(Some(&source), &expected, &batch).unwrap();
     assert!(sources.files[0].setup.is_none());
-    assert!(sources.files[0].observation.is_none());
+    assert!(sources.files[0].transfer.is_none());
     for invalid in [
         json!({"format":UnattemptedPhaseRecord::FORMAT,"index":0,"next_index":0}),
         json!({"format":UnattemptedPhaseRecord::FORMAT,"index":1,"next_index":0}),

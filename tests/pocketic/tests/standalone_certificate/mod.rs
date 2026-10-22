@@ -107,7 +107,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     assert_eq!(reply.blob_hash, root);
     assert_eq!(
         f.admission(manifest.permission).state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     refuses(&f, f.uploader, &root);
 
@@ -142,7 +142,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     refuses(&f, second.permission.uploader.into(), &second_root);
     assert_eq!(
         f.admission(second.permission).state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
 }
@@ -203,12 +203,12 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
     assert_eq!(reply.blob_hash, second_root);
     assert_eq!(
         f.admission(second.permission).state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     refuses(f, second.permission.uploader.into(), &second_root);
     let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     let total = u128::from(first.permission.upload.bytes + second.permission.upload.bytes);
-    assert_eq!(usage.uploads.active_reservations, 2);
+    assert_eq!(usage.uploads.active_reservations, 0);
     assert_eq!(usage.uploads.physical_bytes, total);
     assert_eq!(usage.uploads.liability_bytes, total);
     let mut third = second.permission;
@@ -266,7 +266,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     }
     malformed(&f, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    let usage = f.local_status(f.operator, f.operator_scope()).unwrap();
+    let mut usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     let reply: CaffeineUploadCertificateResponse = crate::support::update_fixture(
         &f.harness.pic,
         f.service,
@@ -280,8 +280,10 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     assert_eq!(reply.blob_hash, root);
     assert_eq!(
         f.admission(manifest.permission).state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
+    usage.uploads.active_reservations = 0;
+    usage.uploads.reserved_bytes = 0;
     assert_eq!(
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         usage
@@ -313,7 +315,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         .unwrap();
     let retained = f.admission(manifest.permission);
     assert!(retained.revoked);
-    assert_eq!(retained.state, UploadState::ExposurePossible);
+    assert_eq!(retained.state, UploadState::Registered);
     assert_eq!(
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         usage

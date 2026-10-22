@@ -16,7 +16,7 @@ fn snapshot_rollback_forgets_exposure_and_simulated_freshness_allows_reexposure(
     assert!(matches!(first, ExposureOutcome::Exposed(_)));
     assert_eq!(
         inspect(&f, f.uploader, yes).unwrap().state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     assert_eq!(expose(&f, f.uploader, yes), Err(E::Phase));
     f.revoke(permission).unwrap();

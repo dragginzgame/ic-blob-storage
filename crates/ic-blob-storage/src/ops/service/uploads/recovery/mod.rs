@@ -112,8 +112,7 @@ impl<M: Memory> StableUploads<M> {
                 return Err(UploadStoreError::InvalidRecord);
             }
             manifest_count += u64::from(self.validate_manifest(input.request, view.manifest)?);
-            let confirmed =
-                self.validate_confirmed(input.request, view.phase, view.admitted_at_ns)?;
+            let confirmed = self.validate_confirmed(input.request, view.phase)?;
             if let Some(record) = confirmed {
                 confirmed_count += 1;
                 reference_count += record.counts().0;
@@ -216,11 +215,10 @@ impl<M: Memory> StableUploads<M> {
         &self,
         upload: UploadRequest,
         phase: UploadPhase,
-        admitted_at_ns: u64,
     ) -> Result<Option<ConfirmedLifecycleRecord>, UploadStoreError> {
         let owner = key(upload);
         let retained = self.confirmed.get(&owner);
-        if phase != UploadPhase::Confirmed {
+        if phase != UploadPhase::Registered {
             return if retained.is_none() {
                 Ok(None)
             } else {
@@ -230,13 +228,6 @@ impl<M: Memory> StableUploads<M> {
         let record = retained
             .filter(|r| r.valid(self.config.limits().catalog))
             .ok_or(UploadStoreError::InvalidRecord)?;
-        if let crate::model::service::upload::record::lifecycle::CompletionRecord::Attested(
-            evidence,
-        ) = record.completion()
-            && evidence.observed_at_ns < admitted_at_ns
-        {
-            return Err(UploadStoreError::InvalidRecord);
-        }
         let mut references = 0;
         let mut active = 0;
         for entry in self.references.range((owner, 0)..=(owner, u128::MAX)) {

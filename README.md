@@ -108,7 +108,7 @@ test or maintain the project.
 | Shared Rust core | Implemented, with native and local IC evidence |
 | Standalone canister | Shared handlers; project-authorized multi-user certificate issuance within configured object sizes, quotas and multi-file capacity |
 | Lifecycle | Synchronous fenced restoration; IC-history-proven current-instance recovery and snapshot refusal |
-| Native tooling | Installation/account inputs, verified snapshots and signed setup/recovery; tenant downloads and verifier completion pass live |
+| Native tooling | Installation/account inputs, verified snapshots and signed setup/recovery; tenant downloads verify actual bytes; registration records retention intent |
 | Batch publication | Frozen inventories, native session, SDK worker and original source/profile/handoff bindings; callable phase driver and bounded native subprocess helper. Consumer key/history selection and acceptance remain open |
 | Application integration | Consumer frameworks own their wrappers, asset transactions and integration tests |
 | Browser integration | Caffeine's SDK with certificate intent and bounded persistent journaling; live 1 KiB and ten-chunk 10 MiB transfers pass |
@@ -146,8 +146,7 @@ configurable upload limits from the first live owner's 1 KiB configuration.
 Exact trial authority, budgets and retained obligations are recorded in the
 [current handoff](docs/status/current.md). Provider spending caps remain unqualified.
 
-Local tests use controlled provider substitutes where stated. A verifier's
-attestation records observed content availability; it does not promise future
+Local tests use controlled provider substitutes where stated. Registration does not prove provider availability or future
 retention. Releasing a reference, deleting provider bytes and ending billing are
 separate events. Frozen 0.7.0 restores inspection-only; the current release supports operator-only
 current-instance recovery from IC management history. Its twenty-change window must
@@ -206,7 +205,7 @@ canisters in `canisters/`, and packaged test support in `tests/pocketic/` and
 | [Replicated clients](crates/ic-blob-storage-client/README.md) | Explicit remote calls without service storage; caller-owned intent and recovery |
 | [Rust core](crates/ic-blob-storage) | Service policy, durable state, accounting and workflows; depends downward on contracts |
 | [Standalone host](canisters/standalone/README.md) | Explicit endpoints, installation, memory and lifecycle |
-| [Native CLI](crates/ic-blob-storage-cli) | Offline snapshots and batch inputs, signed setup/inspection, tenant references, verified downloads and verifier tooling |
+| [Native CLI](crates/ic-blob-storage-cli) | Offline snapshots and batch inputs, signed setup/inspection, tenant references, verified downloads |
 | [Browser client](clients/browser/README.md) | Certificate transport and durable intent boundary; reuses Caffeine's upload SDK |
 | [PocketIC harness](tests/pocketic) | Actual local canister, lifecycle and inter-canister tests |
 
@@ -229,7 +228,7 @@ for the integration details.
 | Prepare one batch file or recover its setup | [Indexed preparation and original journals](docs/operator-guide.md#prepare-one-indexed-file-with-surviving-setup-intent) |
 | Prepare a batch with one verification pass | [Bounded serial setup](docs/operator-guide.md#prepare-a-complete-batch-with-one-verification-pass); active capacity still applies |
 | Complete uploads at concurrency one | [Per-file verification and reference checks](docs/operator-guide.md#complete-one-file-before-preparing-the-next); complete headless publisher still open |
-| Reuse one validated batch across publication phases | [Persistent native session](docs/operator-guide.md#hold-one-validated-batch-across-publication-phases) with an explicitly selected verifier |
+| Reuse one validated batch across publication phases | [Persistent native session](docs/operator-guide.md#hold-one-validated-batch-across-publication-phases) with exact original setup and transfer journals |
 | Offload uploads to a browser worker | [Private-port publication worker](clients/browser/README.md#run-jobs-in-a-browser-worker) and [selected-signer host/bootstrap](clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer) |
 | Launch a browser from a native parent | [Chromium bridge](clients/browser/README.md#launch-chromium-from-a-native-parent), with fixed profile/origin and bounded selected-body loading |
 | Confirm every batch file before mapping assets | [Authenticated complete reference map](docs/operator-guide.md#produce-a-complete-confirmed-reference-map); serving and publication remain consumer responsibilities |
@@ -237,14 +236,14 @@ for the integration details.
 | Hand a verified upload snapshot to the browser client | [Generated binding](clients/browser/README.md) and [offline check](docs/dependencies.md#offline-nativebrowser-handoff) |
 | Download a verified file | [Tenant downloads](docs/operator-guide.md#download-a-verified-file) |
 | Diagnose a proposed funding intent | [Passive funding assessment](docs/operator-guide.md#passive-funding-assessment) |
-| Inspect service state or retained funding | [Operator and verifier guide](docs/operator-guide.md#identity-trust-and-service-status) |
+| Inspect service state or retained funding | [Operator guide](docs/operator-guide.md#identity-trust-and-service-status) |
 | Observe provider-reported balances or relationships | [Account inspection](docs/operator-guide.md#account-inspection) |
 | Sync or revoke gateways, or cancel a pending sync | [Gateway controls](docs/operator-guide.md#gateway-controls) |
 | Find uploads or inspect references | [Upload history](docs/operator-guide.md#upload-history) and [reference inspection](docs/operator-guide.md#reference-receipts-and-current-status) |
 | Retain or release an exact tenant reference | [Generate inputs](docs/operator-guide.md#generate-reference-inputs-offline), then [submit once](docs/operator-guide.md#submit-a-reference) |
 | Use one confirmed blob for two tenant assets | [Share and release references](docs/operator-guide.md#share-a-confirmed-blob-within-a-tenant) |
 | Check a file against its saved upload declaration | [Local-file verification](docs/operator-guide.md#verify-a-local-file) |
-| Observe provider bytes and submit a verifier statement | [Observation](docs/operator-guide.md#observe-provider-content) and [submission](docs/operator-guide.md#submit-an-attestation) |
+| Understand certificate-time retention intent | [Trusted registration](docs/trusted-registration.md) |
 | Prepare file manifests, inventories or saved bodies | [Local preparation guide](docs/local-tools.md#prepare-one-file) |
 | Inspect or exercise a running PocketIC fixture | [Fixture tools](docs/local-tools.md#inspect-a-running-pocketic-fixture) |
 | Integrate the standalone canister | [Host configuration and endpoint contract](canisters/standalone/README.md) |
@@ -291,7 +290,7 @@ Releases preserve build artifacts; cleanup is a separate `make clean` action.
 | [Documentation index](docs/README.md) | Choose the right conceptual, integration, operations or evidence guide |
 | [Current status](docs/status/current.md) | Latest handoff, validation evidence and next work |
 | [Development plan](docs/roadmap.md) | Milestones and consumer integration direction |
-| [Service contract](docs/service-contract.md) | Authority, accounting, verifier trust and recovery rules |
+| [Service contract](docs/service-contract.md) | Authority, accounting, registration trust and recovery rules |
 | [Acceptance plan](docs/acceptance-plan.md) | What must be demonstrated before service qualification |
 | [Service gaps](docs/service-gaps.md) | Remaining consumer, recovery, deletion and billing acceptance |
 | [GitHub issues](https://github.com/dragginzgame/ic-blob-storage/issues) | Consumer integration, publication, serving and retirement work |

@@ -121,7 +121,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
     assert_eq!(reply.blob_hash, root);
     assert_eq!(
         inspect(&f, f.uploader, yes).unwrap().state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     assert_eq!(
         inspect(&f, f.uploader, input(&f, other)).unwrap().state,
@@ -171,11 +171,18 @@ fn certificate_response_traps_rollback_and_lost_committed_reply_cannot_reissue()
         .unwrap();
     assert_eq!(
         inspect(&f, f.uploader, yes).unwrap().state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     refused(&f, f.uploader, &root);
     f.revoke(permission).unwrap();
-    assert_eq!(f.status(), totals);
+    assert_eq!(
+        f.status(),
+        Status {
+            active: 0,
+            bytes: 0,
+            ..totals
+        }
+    );
     let retained = inspect(&f, f.tenant, yes).unwrap();
     assert!(retained.revoked);
     f.harness

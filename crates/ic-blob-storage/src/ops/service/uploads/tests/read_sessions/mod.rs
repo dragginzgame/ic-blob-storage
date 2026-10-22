@@ -94,7 +94,6 @@ fn read_session_completion_keeps_capacity_when_either_authority_owner_is_restore
     registry.add(context(2), scope, p(6)).unwrap();
     let mut uploads = StableUploads::install(clone_memory(&um), config()).unwrap();
     let input = lifecycle::exposed(&mut uploads);
-    uploads.confirm_upload(input.request).unwrap();
     let mut sessions = store();
     let ticket = begin(
         &registry,

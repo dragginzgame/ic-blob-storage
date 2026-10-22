@@ -176,7 +176,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
         )
         .unwrap();
     let original = inspect(&f, f.uploader, yes).unwrap();
-    assert_eq!(original.state, UploadState::ExposurePossible);
+    assert_eq!(original.state, UploadState::Registered);
     assert_eq!(original.permission, yes.permission);
     let before = f.harness.pic.get_stable_memory(f.service);
     assert_eq!(expose(&f, f.uploader, yes), Err(E::Phase));
@@ -185,10 +185,17 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
     }
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     f.revoke(permission).unwrap();
-    assert_eq!(f.status(), totals);
+    assert_eq!(
+        f.status(),
+        Status {
+            active: 0,
+            bytes: 0,
+            ..totals
+        }
+    );
     let withdrawn = inspect(&f, f.tenant, yes).unwrap();
     assert!(withdrawn.revoked);
-    assert_eq!(withdrawn.state, UploadState::ExposurePossible);
+    assert_eq!(withdrawn.state, UploadState::Registered);
     f.harness
         .pic
         .upgrade_canister(

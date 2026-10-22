@@ -57,7 +57,7 @@ fn inconsistent_permission_phases_cannot_become_valid_views() {
     record.phase = UploadPhaseRecord::Cancelled;
     assert!(record.view().is_none());
     record = original;
-    record.phase = UploadPhaseRecord::ExposurePossible;
+    record.phase = UploadPhaseRecord::Registered;
     assert!(record.view().is_none());
     record.manifest = true;
     assert!(record.view().is_some());

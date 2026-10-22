@@ -144,10 +144,6 @@ fn descriptor_keeps_authority_original_metadata_and_current_lifecycle() {
     f.call(f.uploader, Command::Expose(p.request.root)).unwrap();
     let commands = [
         (
-            ContentState::ExposurePossible,
-            LifecycleCommand::SubstituteCompletion(p.request),
-        ),
-        (
             ContentState::Live,
             LifecycleCommand::Reference {
                 object: p.request,

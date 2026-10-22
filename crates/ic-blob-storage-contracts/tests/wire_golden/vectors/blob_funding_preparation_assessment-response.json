@@ -1,5 +1,6 @@
 [
   {
+    "hex": "495710004100424f4c4201000595f86dae01e382f3900f05b32c08660105d03615b401c8f3c8c201b9fdf7f70400fdbee6b804b3e9a2cc08f3b5a5db03ff96d4940efa8aa1c102a6f581ba05fb95b18706b5af89bb07d49d8da307c18e9a9d07eed398920b000000",
     "input": {
       "Ok": {
         "blockers": [],
@@ -30,10 +31,10 @@
           "target_balance": null
         }
       }
-    },
-    "hex": "495710003600424f4c4201000595f86dae01e382f3900f05b32c08660105d03615b401c8f3c8c201b9fdf7f70400fdbee6b804b3e9a2cc08f3b5a5db03ff96d4940efa8aa1c102a6f581ba05fb95b18706b5af89bb07d49d8da307c18e9a9d07eed398920b000000"
+    }
   },
   {
+    "hex": "495710004100424f4c42010005744ae7a801ebe9fcbd010528d0e04f01054ab7260701a28ea3de06c8b4d1ad020195c8ebdc0df8e6e7ca01a6b4bdb40c98c7bcfc08faa49aba06e4aff2e3068c8ea2be0dc8c986ed08e9f09cf706afaea0c20cb9edd4a50289b5ab730199d3bdec050102068aeec0be0609",
     "input": {
       "Ok": {
         "blockers": [
@@ -71,13 +72,12 @@
           "target_balance": 3684361237
         }
       }
-    },
-    "hex": "495710003600424f4c42010005744ae7a801ebe9fcbd010528d0e04f01054ab7260701a28ea3de06c8b4d1ad020195c8ebdc0df8e6e7ca01a6b4bdb40c98c7bcfc08faa49aba06e4aff2e3068c8ea2be0dc8c986ed08e9f09cf706afaea0c20cb9edd4a50289b5ab730199d3bdec050102068aeec0be0609"
+    }
   },
   {
+    "hex": "495710004100424f4c42010101",
     "input": {
       "Err": "Denied"
-    },
-    "hex": "495710003600424f4c42010101"
+    }
   }
 ]

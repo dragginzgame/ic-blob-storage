@@ -79,12 +79,6 @@ fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
     assert_eq!(inspect(), Ok(None));
     f.call(f.uploader, Command::Expose(permission.request.root))
         .unwrap();
-    assert_eq!(inspect(), Ok(None));
-    f.call(
-        f.operator,
-        Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(permission.request)),
-    )
-    .unwrap();
     let descriptor = inspect().unwrap().unwrap().descriptor;
     assert_eq!(descriptor.headers, vector.manifest.headers);
     let headers: Vec<_> = descriptor

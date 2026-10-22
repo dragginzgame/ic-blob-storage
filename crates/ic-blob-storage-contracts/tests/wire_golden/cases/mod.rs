@@ -312,38 +312,6 @@ fn frozen_method_and_lifecycle_surface() {
             dto::account::AccountInspectionFailure,
         >
     );
-    method!(
-        "blob_attest_upload",
-        dto::upload::completion::UploadAttestationRequest,
-        Result<
-            dto::upload::completion::UploadAttestationMutation,
-            dto::upload::completion::UploadAttestationFailure,
-        >
-    );
-    method!(
-        "blob_upload_attestation",
-        dto::upload::admission::UploadAdmissionRequest,
-        Result<
-            dto::upload::completion::UploadAttestationResponse,
-            dto::upload::completion::UploadAttestationFailure,
-        >
-    );
-    method!(
-        "blob_verification_manifest",
-        dto::upload::admission::UploadAdmissionRequest,
-        Result<
-            dto::upload::manifest::UploadManifestResponse,
-            dto::upload::manifest::UploadManifestFailure,
-        >
-    );
-    method!(
-        "blob_verification_plan",
-        dto::upload::admission::UploadAdmissionRequest,
-        Result<
-            dto::upload::completion::UploadVerificationPlan,
-            dto::upload::completion::UploadAttestationFailure,
-        >
-    );
     check::<dto::configuration::ServiceInstallationInput>(
         "blob_install-request",
         "blob_install",

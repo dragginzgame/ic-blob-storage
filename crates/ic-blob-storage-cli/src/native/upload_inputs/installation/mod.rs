@@ -28,7 +28,6 @@ impl Installation {
             ServiceInstallationCandidate {
                 configuration: input.configuration,
                 project: &input.project,
-                completion_verifier: input.completion_verifier,
                 // Offline syntax/model validation only; the actual host supplies
                 // its own compiled release and independently authenticates init.
                 release: env!("CARGO_PKG_VERSION"),

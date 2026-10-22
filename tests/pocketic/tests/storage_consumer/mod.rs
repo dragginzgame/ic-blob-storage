@@ -5,7 +5,6 @@ use blob_test_protocol::consumer::{
     AssetView, Failure as ConsumerFailure, Fault, Recovery, Registration, RegistrationSource,
     Release, Run, Use,
 };
-use blob_test_protocol::storage::ProviderFact;
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceChange;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
@@ -44,7 +43,6 @@ fn input(f: &Fixture, id: u8) -> Run {
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&manifest).unwrap();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     Run {
         registration: Registration {
             asset: u128::from(id),

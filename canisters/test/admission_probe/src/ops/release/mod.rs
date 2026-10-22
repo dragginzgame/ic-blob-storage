@@ -66,8 +66,7 @@ pub(crate) fn execute(
         Ok(())
     })?;
     let input = match command {
-        LifecycleCommand::SubstituteCompletion(input)
-        | LifecycleCommand::SubstituteDeletion(input)
+        LifecycleCommand::SubstituteDeletion(input)
         | LifecycleCommand::SubstituteSettlement(input) => input,
         LifecycleCommand::Reference { .. } => unreachable!("reference handled above"),
     };
@@ -88,9 +87,6 @@ pub(crate) fn execute(
             )
             .map_err(failure)?;
         let result = match command {
-            LifecycleCommand::SubstituteCompletion(_) => {
-                owner.confirm_upload(object).map_err(|_| Failure::Catalog)
-            }
             LifecycleCommand::SubstituteDeletion(_) => owner
                 .confirm_provider_deleted(object.object.root, object.object.first.object())
                 .map_err(|_| Failure::Catalog),

@@ -70,9 +70,8 @@ impl UploadAdmissions {
             .expect("indexed operation")
         {
             UploadPhase::Reserved => UploadRootState::Reserved,
-            UploadPhase::ExposurePossible => UploadRootState::ExposurePossible,
             UploadPhase::Cancelled => UploadRootState::Cancelled,
-            UploadPhase::Confirmed => UploadRootState::Confirmed(
+            UploadPhase::Registered => UploadRootState::Confirmed(
                 self.catalog
                     .confirmed()
                     .get(input.root)

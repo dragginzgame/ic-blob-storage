@@ -259,7 +259,7 @@ No sibling source or lockfile is changed by Blob adoption.
 
 Managed installation does not complete application acceptance. The application
 must authenticate two users, issue exact tenant-approved permissions, operate the
-[completion verifier](completion-verifier.md), qualify deployed provider reads and
+[trusted registration](trusted-registration.md), qualify deployed provider reads and
 commit its media map only after exact completion/live references. See
 [multi-user authority](multi-user-upload-authority.md),
 [confirmed-reference publication](operator-guide.md#produce-a-complete-confirmed-reference-map)

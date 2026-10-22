@@ -166,7 +166,6 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
             ServiceInstallationInput {
                 configuration: f.config,
                 project,
-                completion_verifier: Fake::principal(90).into(),
             },
         )
         .unwrap();
@@ -266,7 +265,6 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
     let installation = ServiceInstallationInput {
         configuration: f.config,
         project: project.clone(),
-        completion_verifier: Fake::principal(90).into(),
     };
     f.harness
         .pic

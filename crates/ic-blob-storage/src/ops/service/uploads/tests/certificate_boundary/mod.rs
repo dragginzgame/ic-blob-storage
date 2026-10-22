@@ -28,11 +28,27 @@ fn certificate_root_resolves_exact_original_permission_and_commits_before_plain_
     );
     let before = store.usage().unwrap();
     let reply = certificate::issue(&mut store, context(5), &root, yes, 2).unwrap();
-    assert_eq!(store.usage().unwrap(), before);
+    assert_eq!(
+        store.usage().unwrap(),
+        crate::model::catalog::admission::UploadUsage {
+            active_reservations: 0,
+            reserved_bytes: 0,
+            ..before
+        }
+    );
     let input = manifest_boundary::input().permission;
+    // Issuance registers intent without a provider callback or content observation.
+    let registered = yes.permission.request;
+    let lifecycle = store.confirmed(context(4), registered).unwrap();
+    assert_eq!(lifecycle.reference_slots, 1);
+    assert!(
+        store
+            .reference_is_live(context(4), registered, registered.object.first)
+            .unwrap()
+    );
     assert_eq!(
         exposure::inspect(&store, context(5), input).unwrap().state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     // Decode independently as the reviewed provider record, without a Result envelope.
     let decoded: ProviderReply = ic_platform::candid::decoder::decode_one_with_config(
@@ -56,7 +72,7 @@ fn certificate_root_resolves_exact_original_permission_and_commits_before_plain_
         exposure::inspect(&restored, context(5), input)
             .unwrap()
             .state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
 }
 

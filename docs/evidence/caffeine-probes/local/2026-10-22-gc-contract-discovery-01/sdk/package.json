@@ -1,0 +1,44 @@
+{
+  "name": "@caffeineai/object-storage",
+  "version": "1.1.2",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Caffeine Labs AG",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/caffeinelabs/skills",
+    "directory": "packages/object-storage/frontend"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "@caffeine/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@icp-sdk/core": "^5.3.0",
+    "file-type": "^21.3.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "biome:check": "biome check --error-on-warnings .",
+    "biome:check:fix": "biome check --write --error-on-warnings .",
+    "test": "node --import tsx --test src/**/*.test.ts"
+  }
+}

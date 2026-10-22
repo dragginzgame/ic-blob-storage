@@ -24,7 +24,6 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
     f.admit(permission);
     let original = f.observe(permission);
     for command in [
-        LifecycleCommand::SubstituteCompletion(permission.request),
         LifecycleCommand::SubstituteDeletion(permission.request),
         LifecycleCommand::SubstituteSettlement(permission.request),
     ] {
@@ -68,13 +67,6 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
     assert_eq!(
         f.call(f.uploader, Command::Expose(permission.request.root)),
         Ok(Outcome::Exposed)
-    );
-    assert_eq!(
-        f.call(
-            f.operator,
-            Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(permission.request))
-        ),
-        Ok(Outcome::Changed(true))
     );
 }
 
@@ -379,7 +371,7 @@ fn resource_profile_ten_mib_direct_manifest_and_exposure() {
     assert!(total < 10_000_000);
     let view = f.observe(p);
     assert_eq!(view.manifest, ManifestState::Bound);
-    assert_eq!(view.phase, Phase::ExposurePossible);
+    assert_eq!(view.phase, Phase::Registered);
     assert_eq!(view.usage.unwrap().liability, u128::from(p.request.bytes));
     let wasm_sha256 = wasm_hash();
     let report = serde_json::json!({

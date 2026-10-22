@@ -1,5 +1,14 @@
 # Browser certificate client
 
+The 0.41 [trusted-registration hard cut](../../docs/trusted-registration.md)
+removes verifier credentials, attestation commands and the native session's
+`verify` phase. Certificate issuance registers retention intent before upload.
+Current session phases are `prepare`, `transfer`, `status` and `map`; reference
+maps report `provider_upload_verified:false`. Retain the original browser profile
+and certificate/gateway journals. Use verified tenant downloads to check actual
+bytes. Historical test reports retain their recorded versions, not current APIs.
+
+
 Integration direction: reuse Caffeine's upload implementation. This private module
 is the narrow certificate/intent boundary, now composed locally with the published
 package and a [small preparation/transport patch](patches/README.md).
@@ -66,8 +75,8 @@ certificate extraction and wire formats. The existing guarded real SDK HttpAgent
 refuses cancelled observations before handing certificates to Caffeine.
 
 The returned `{ hash }` and progress are SDK observations, not verified availability
-or permission to publish. Complete download verification, configured-verifier
-attestation and the tenant's authenticated asset transaction remain separate.
+or permission to publish. Actual download verification and the tenant's authenticated asset transaction
+remain separate from certificate-time registration.
 Explicit project/bucket strings do not qualify provider namespace ownership;
 client request bounds do not prove provider pre-charge or replay charging limits.
 Production consumer integration and persistence qualification remain open.
@@ -133,41 +142,10 @@ the certificate/tree request envelope adds bytes that are checked by the existin
 gateway guard at dispatch. Passing preflight does not guarantee budget sufficiency
 or provider spending bounds. Recovery continues to inspect original claims.
 
-The existing certificate and gateway journals own dispatch, with no retry and
-one SDK upload per helper. Reopening supports `recoverCertificate()` for historical
-certificate inspection; `.upload()` refuses claimed or cancelled rows and cannot
-resume an uncertain gateway effect. `inspect()` and `cancel()` use the same journal.
-SDK success remains an observation: independently download/verify, submit the
-configured verifier attestation, and confirm tenant references before publishing
-the media map. Keep all native and browser journals after any failure.
-
 The standalone Chromium fixture now uses frozen native batch preparation and this
 helper. Its HTTPS HTTP/2 gateway is an owned substitute; success, lost-final-reply,
 corrupt-read and withdrawn/late-completion journeys establish local composition,
 not production provider behavior or a complete Miner publication.
-
-The serial local fixture drives two original frozen files at one active service
-reservation, with independent native verification/attestation between transfers
-and `publish-file-status` before advancing. Whole-browser restarts preserve the
-existing strict IndexedDB rows. Lost chunk replies reconcile without another PUT;
-corrupt observation stops before the second upload or any complete media map.
-The [serial recipe](../../docs/operator-guide.md#complete-one-file-before-preparing-the-next)
-describes the remaining consumer orchestration boundary. This helper still owns
-one file's SDK transfer; it does not own service setup, verifier credentials or a
-second batch dispatch journal. The persistent-session fixture additionally holds
-one validated batch across setup/status/map, rechecks selected bytes before setup,
-and reopens original signed setup journals after native process interruption.
-An exposed permission refuses setup recovery with zero updates; independent
-verification reconciles the original lost-reply upload before advancement. See
-the [session protocol](../../docs/operator-guide.md#hold-one-validated-batch-across-publication-phases).
-The maintained SDK and strict IndexedDB rows remain the certificate/gateway owners;
-the worker below is implemented. The native session can now compose the maintained
-observer and one-shot attestation with an explicitly selected verifier, or inspect
-an original observation without another GET/submission. The maintained host below
-boots a selected SDK signer over its private port. The Chromium bridge below owns
-process launch and checks the native session's immutable selection. Current native
-guidance, the callable driver and the private subprocess helper compose these
-owners; consumer key/history selection and explicit restart remain responsibilities.
 
 ### Run jobs in a browser worker
 
@@ -232,16 +210,6 @@ another job's guard. Every call consumes the finite budget (maximum 32,769).
 IDs increase per worker and index is bounded to the current batch ceiling.
 These process-local numbers correlate jobs; existing signed certificate/gateway
 claims remain durable dispatch authority.
-
-Replies echo bounded `id`, `index` and `action`, with state or a redacted error
-code from a finite public vocabulary; arbitrary exported-error code strings are
-also redacted. Journal projections validate cancellation, certificate phase and at most
-256 gateway request index/phase/status entries. They omit envelopes, certificates,
-permission bytes, URLs, headers and provider/SDK error messages. Every reply states
-`service_completion_checked:false` and `retry_authorized:false`. Require independent
-whole-download observation/attestation, then the native session's `file_live:true`
-before advancing; finish with its map. Neither SDK success nor certificate
-recovery establishes service completion.
 
 The configured deadline (at most one hour) aborts network requests and fences new
 jobs after idle time. Crypto, IndexedDB and scheduling remain cooperative; the
@@ -310,7 +278,7 @@ and hostile asset-origin isolation are not guarantees of this helper.
 Actual Chromium checks cover both signer kinds, malformed/mismatched bootstrap
 before journal creation, body snapshots, concurrency, hard worker termination and
 reopening the same profile. Serial PocketIC uploads use this host and maintained
-entry with independent native verifier completion. Release 0.11.0 also adds the native
+entry with certificate-time registration. Release 0.11.0 also adds the native
 Chromium bridge below. Current native guidance and subprocess control are callable;
 consumer adoption remains open. Select SDK identity JSON explicitly; native PEM
 and browser SDK identity formats remain separate selected inputs.
@@ -340,7 +308,7 @@ try {
   const report = await browser.execute({
     id: 1, index: 0, action: 'transfer', nativePhase: transferPhase.report.native_phase,
   });
-  // Independently verify/attest and inspect the current reference in the native
+  // Verify actual downloaded bytes and inspect the current reference in the native
   // session. This browser report never grants completion or retry authority.
 } finally {
   await browser.close();
@@ -413,7 +381,7 @@ the worker still validates them before jobs. Port
 contention refuses before profile creation; it never chooses another origin.
 Missing history refuses without creating a replacement journal. Closing, deadline
 or a process loss never authorizes another upload. Keep every original native
-setup/observer/attestation claim as well as the browser profile. This does not
+setup/transfer claim as well as the browser profile. This does not
 prove a profile wasn't rolled back; stale-backup fencing remains required.
 
 Chromium launch/navigation waits and the running context have explicit deadlines;
@@ -434,13 +402,13 @@ discover keys, select the next phase or replace the original phase claims.
 The native session's released 0.13.0
 [`--source-session`](../../docs/operator-guide.md#hold-one-validated-batch-across-publication-phases)
 retains original setup/verification/transfer paths and rejects lost provenance; it does not
-select or recover browser profiles, signer keys or origins. The operator, tenant and verifier still need their original
+select or recover browser profiles, signer keys or origins. The operator and tenant still need their original
 native identities and journals; no automatic key discovery or paid authority follows.
 
 ### Follow native phase guidance
 
 Release 0.14.0 adds `browser.driveSession(nativeControl)` for a native-bound profile
-with an explicitly selected verifier. Pass the maintained native subprocess handle
+with original setup and transfer journals. Pass the maintained native subprocess handle
 below, or a trusted private peer with `ready`, `phase(frame, signal)` and
 `finish(signal)`. `phase` returns the current native process's full next phase
 event; `finish` returns its final `{report, exit_code}` only after exit. Both
@@ -452,20 +420,6 @@ const result = await browser.driveSession(nativeControl);
 // 'complete' requires the exact current complete map AND matching final report/exit 0.
 // result.native_result retains the final report and exit alongside the observation.
 ```
-
-The driver starts with `status` at index zero and follows native `next_frame`
-guidance. Rust derives that guidance from checked phase results and original
-setup/handoff/observation paths; it never persists another cursor or retry owner.
-Each retained transfer goes through the same `execute`/worker path. Successful
-or uncertain SDK results still need the independent native verifier. A null
-continuation or exhausted current step budget stops phase selection and finishes
-the native run. The final result must be bounded and consistent with its exit.
-`complete` also requires an exact current `publish_map`, original input hashes,
-every ordered index, no blockers, neutral lease/serving claims, a matching final
-report and exit zero. This boundary validates passive peer facts; native Rust owns
-the signed completion/reference checks. Manual `execute`
-jobs and another driver invocation refuse while this loop owns the context.
-The launcher allocates monotonic worker correlation IDs; they grant no replay.
 
 Replies must have the complete current phase-event shape and fit 8 MiB. Native
 phase and final results share one serialization/size boundary; unknown or non-string
@@ -493,7 +447,7 @@ asset-registration transaction or serving lease.
 Released 0.14.0 `startPublicationSession` (`./native`) launches one explicitly selected
 native CLI over private stdin/stdout pipes. Select an absolute binary and working
 directory and the complete `publish-session` arguments, including your original
-native PEM paths, input/output paths, verifier and browser-selection file. The
+native PEM paths, input/output paths and browser-selection file. The
 helper discovers no identity and parses no key. The separate browser bootstrap
 still takes explicitly selected SDK identity JSON.
 
@@ -559,11 +513,6 @@ The retained actual IC/Chromium journeys exercise these direct pipes after a los
 reply and stop on corrupt content. The fixtures explicitly select restart; the
 helper does not. Run the dependency-free pipe checks with `make test-browser-native
 BLOB_NATIVE_REPORT=NEW_DIRECTORY` using Node 20.19 or later.
-
-Run the scoped owned-profile checks with `make test-browser-launcher
-BLOB_LAUNCHER_REPORT=NEW_DIRECTORY`. The selected serial verifier journeys run
-this bridge through owned PocketIC/HTTPS substitutes and whole-browser restart;
-they do not qualify deployed provider behavior or full Miner/public serving.
 
 The distinct-PNG cases also use this driver. They compare independently verified
 tenant downloads with frozen originals and decode dimensions/pixels in Chromium;
@@ -785,23 +734,6 @@ Same-origin script compromise, profile loss/rollback and browser eviction are ou
 these guarantees. `CertificateRefusal.code` identifies local refusals; SDK, network
 and storage errors also propagate. Errors never authorize retrying issuance.
 
-Run the journal-only checks with `make test-browser-store` or the actual
-Chromium/PocketIC checks with `make test-browser`, after the setup
-in [dependency documentation](../../docs/dependencies.md#browser-certificate-evidence).
-`make test-browser-standalone` additionally rehearses the complete restricted host,
-SDK upload, independent verifier and tenant download against a local gateway
-substitute. It includes corrupt bytes and a pre-header connection loss after
-the gateway receives the file. Historical certificate recovery preserves the
-uncertain gateway claim; verification can establish observed content without
-another upload dispatch. The same trusted verifier can reconcile stored bytes
-after tenant withdrawal. Explicit reference release ends local liveness; replay
-of the accepted attestation leaves the released reference inactive. The fixture
-uses the maintained clients, one-slot store and test identities; it supplies
-neither production authentication nor live provisioning.
-Upload, verifier and tenant reads now use the same TLS HTTP/2 substitute, with
-native certificate verification against its explicit fixture CA. Unrelated roots
-and a refused stream retain failed observations without implicit read retries.
-
 ## Gateway request coordination
 
 `createGatewayTransport` in `gateway.js` (package subpath `./gateway`) supplies the
@@ -872,14 +804,6 @@ complete bounded HTTP response is recorded before Caffeine receives it; non-2xx
 responses block further requests. Late responses may update history but cannot
 clear cancellation or allow the next request. Local cancellation after a claim
 cannot recall its dispatch. Certificate recovery does not change gateway history.
-
-An uncertain upload response does not prove the provider lacks the object. With
-the separately approved read budget and configured verifier, use `observe-upload`
-on the original permission to check complete bytes, then explicitly submit that
-saved statement. This is reconciliation, never a new upload or an automatic
-retry. Tenant withdrawal cannot erase an already stored object; if it is later
-confirmed, retain its obligations and explicitly release its exact reference.
-Consumers must preserve this cleanup intent when an application cancels publication.
 
 The caller must validate and retain these bounded records together with certificate
 intent and cancellation. Do not evict, reset or restore an old row to regain an

@@ -63,7 +63,7 @@ pub enum UploadRootStatus {
 ///
 /// Current membership/service checks precede all root reads, even for empty batches.
 /// Input order, duplicates and malformed positions are retained. In particular,
-/// Reserved and `ExposurePossible` are known local states rather than absent objects.
+/// Reserved roots are known local state rather than absent objects.
 /// A provider adapter must separately qualify how to protect these states in its
 /// protocol. Cancelled, unknown and settled observations confer no deletion authority.
 /// Unique roots share at most one bounded history scan, and duplicates reuse their

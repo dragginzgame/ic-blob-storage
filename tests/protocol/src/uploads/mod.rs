@@ -9,10 +9,8 @@ use serde::Deserialize;
 pub enum UploadProbeState {
     /// Capacity reserved, no possible exposure recorded.
     Reserved,
-    /// Upload authority may have escaped; reservations remain charged.
-    ExposurePossible,
     /// Cancelled before exposure, with retained root history.
     Cancelled,
     /// Confirmed fixture object; says nothing about a deployed provider.
-    Confirmed,
+    Registered,
 }

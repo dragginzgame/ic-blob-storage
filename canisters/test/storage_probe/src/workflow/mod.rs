@@ -338,32 +338,3 @@ pub(crate) fn funding_summary(
 }
 pub(crate) mod reads;
 pub(crate) mod uploads;
-
-pub(crate) fn attest(
-    context: ic_blob_storage_contracts::upload::binding::UploadContext,
-    input: &ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest,
-    fault: Option<blob_test_protocol::storage::WriteFault>,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation,
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-> {
-    ops::lifecycle::attest(context, input, fault)
-}
-pub(crate) fn attestation(
-    context: ic_blob_storage_contracts::upload::binding::UploadContext,
-    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationResponse,
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-> {
-    ops::lifecycle::attestation(context, input)
-}
-pub(crate) fn verification_plan(
-    context: ic_blob_storage_contracts::upload::binding::UploadContext,
-    input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,
-) -> Result<
-    ic_blob_storage_contracts::dto::upload::completion::UploadVerificationPlan,
-    ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure,
-> {
-    ops::lifecycle::verification_plan(context, input)
-}

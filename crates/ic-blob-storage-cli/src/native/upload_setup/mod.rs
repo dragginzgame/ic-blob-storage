@@ -101,8 +101,7 @@ pub(super) fn permission_json(p: UploadAdmissionRequest) -> Value {
 fn admission_json(response: UploadAdmissionResponse) -> Value {
     let state = match response.state {
         UploadState::Reserved => "reserved",
-        UploadState::ExposurePossible => "exposure_possible",
-        UploadState::Confirmed => "confirmed",
+        UploadState::Registered => "registered",
         UploadState::Cancelled => "cancelled",
     };
     json!({"permission":permission_json(response.permission),"state":state,"revoked":response.revoked})

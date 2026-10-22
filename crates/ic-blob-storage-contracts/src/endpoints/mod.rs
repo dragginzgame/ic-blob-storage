@@ -344,41 +344,6 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::inspect_account(call_context, input).await
             }]
-            [update, request,
-            async fn blob_attest_upload(
-                input: $contracts::dto::upload::completion::UploadAttestationRequest,
-            ) -> Result<
-                $contracts::dto::upload::completion::UploadAttestationMutation,
-                $contracts::dto::upload::completion::UploadAttestationFailure,
-            > {
-                let call_context = $context();
-                $workflow::before_update().await;
-                $workflow::attest(call_context, &input)
-            }]
-            [query, request,
-            fn blob_upload_attestation(
-                input: UploadAdmissionRequest,
-            ) -> Result<
-                $contracts::dto::upload::completion::UploadAttestationResponse,
-                $contracts::dto::upload::completion::UploadAttestationFailure,
-            > {
-                $workflow::attestation($context(), input)
-            }]
-            [query, request,
-            fn blob_verification_manifest(
-                input: UploadAdmissionRequest,
-            ) -> Result<UploadManifestResponse, UploadManifestFailure> {
-                $workflow::verification_manifest($context(), input)
-            }]
-            [query, request,
-            fn blob_verification_plan(
-                input: UploadAdmissionRequest,
-            ) -> Result<
-                $contracts::dto::upload::completion::UploadVerificationPlan,
-                $contracts::dto::upload::completion::UploadAttestationFailure,
-            > {
-                $workflow::verification_plan($context(), input)
-            }]
         }
     };
 }

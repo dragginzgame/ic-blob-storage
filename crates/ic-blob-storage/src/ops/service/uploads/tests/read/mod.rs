@@ -90,10 +90,6 @@ fn indexed_lookup_preserves_independent_request_identity_and_tenant_isolation() 
     assert_eq!(restored.usage(), Ok(before));
 }
 #[test]
-#[expect(
-    clippy::too_many_lines,
-    reason = "One ordered exact-reference, original-header and fenced-restore journey"
-)]
 fn descriptors_require_the_exact_live_reference_and_preserve_first_headers() {
     let m = memory();
     let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
@@ -117,7 +113,6 @@ fn descriptors_require_the_exact_live_reference_and_preserve_first_headers() {
         )
         .unwrap();
     store.expose(context(5), input.request, 3).unwrap();
-    store.confirm_upload(input.request).unwrap();
     let second = ReferenceKey::new(
         first.object(),
         ReferenceId::new(NonZeroU128::new(2).unwrap()),
@@ -202,7 +197,6 @@ fn filtered_pages_advance_and_new_sweeps_find_phase_changes_behind_the_cursor() 
     let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = prepared(&mut store, 1);
     store.expose(context(5), input.request, 3).unwrap();
-    store.confirm_upload(input.request).unwrap();
     let mut last = permission(2);
     last.request.id = UploadRequestId::new(NonZeroU128::MAX);
     store.admit(context(4), last, 1).unwrap();
@@ -407,7 +401,6 @@ fn cleanup_views_keep_billing_obligations_after_physical_deletion() {
     let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = prepared(&mut store, 1);
     store.expose(context(5), input.request, 3).unwrap();
-    store.confirm_upload(input.request).unwrap();
     store
         .apply_reference(
             context(4),

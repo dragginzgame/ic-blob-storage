@@ -16,8 +16,6 @@ pub struct ServiceInstallationInput {
     pub configuration: ServiceConfigurationInput,
     /// Explicit provider project mapping; validation does not provision it.
     pub project: String,
-    /// Trusted external whole-content verifier; no controller or operator default.
-    pub completion_verifier: Principal,
 }
 
 /// Operator-only installed configuration and local restore state.
@@ -28,8 +26,6 @@ pub struct HostConfigurationView {
     pub configuration: ServiceConfigurationInput,
     /// Immutable installed provider project, independent of the payer and tenants.
     pub project: String,
-    /// Explicit installed verifier, independent of gateway membership.
-    pub completion_verifier: Principal,
     /// Host-validated release identity, not a module hash or freshness authority.
     pub release: String,
     /// Restored stores allow inspection only; false is not provider readiness.

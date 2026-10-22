@@ -93,7 +93,6 @@ fn output(
         .map(|entry| {
             let state = match entry.state {
                 S::Reserved => "reserved",
-                S::ExposurePossible => "exposure_possible",
                 S::Cancelled => "cancelled",
                 S::Live => "live",
                 S::DeletionPending => "deletion_pending",

@@ -7,9 +7,6 @@ use crate::{
     standalone_publish_check::freeze_files,
     upload_setup_cli::uploader,
 };
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure;
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation;
-use ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
@@ -28,7 +25,6 @@ fn setup(directory: &Path) -> (Fixture, Vec<UploadAdmissionRequest>) {
         signer(),
         uploader(),
         Envelope::Regular,
-        Fake::principal(90),
         "publish-map-fixture",
     );
     f.tenant = signer();
@@ -71,30 +67,6 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
             ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
             ic_platform::candid::contract::encode_one(root).unwrap(),
         )
-        .unwrap();
-    let statement = UploadAttestationRequest {
-        permission: manifest.permission,
-        content_digest: *ContentDigest::compute(&vec![
-            42;
-            usize::try_from(
-                manifest.permission.upload.bytes
-            )
-            .unwrap()
-        ])
-        .as_bytes(),
-        observed_at_ns: f.harness.pic.get_time().as_nanos_since_unix_epoch(),
-    };
-    // A locally trusted statement exercises service confirmation, not provider availability.
-    f.harness
-        .pic
-        .update_blob_as::<Result<UploadAttestationMutation, UploadAttestationFailure>, _>(
-            f.service,
-            Fake::principal(90),
-            "blob_attest_upload",
-            statement,
-            REPLY_LIMITS.reply_bytes,
-        )
-        .unwrap()
         .unwrap();
 }
 fn args(f: &mut Fixture, directory: &Path, label: &str) -> Vec<String> {
@@ -162,7 +134,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
     assert!(!directory.path().join("first-file/media-map.json").exists());
     let incomplete = run(&args(&mut f, directory.path(), "incomplete"), 0);
     assert_eq!(incomplete["all_references_live"], false);
-    assert_eq!(incomplete["blockers"][0]["code"], "completion_unmatched");
+    assert_eq!(incomplete["blockers"][0]["code"], "registration_unmatched");
     assert!(!directory.path().join("incomplete/media-map.json").exists());
     f.harness.pic.stop_live();
     confirm(&f, &manifest(directory.path(), 1));
@@ -223,11 +195,11 @@ fn standalone_publish_map_refuses_bad_frozen_bytes_budget_and_operator_before_cl
     change_native(&mut input, "--file-index", "01");
     assert_eq!(run(&input, 2)["error"], "arguments");
     change_native(&mut input, "--file-index", "0");
-    change_native(&mut input, "--max-queries", "3");
+    change_native(&mut input, "--max-queries", "2");
     assert_eq!(run(&input, 3)["error"], "reply_limit");
     assert!(!directory.path().join("refused").exists());
     input = args(&mut f, directory.path(), "refused");
-    change_native(&mut input, "--max-queries", "5");
+    change_native(&mut input, "--max-queries", "3");
     assert_eq!(run(&input, 3)["error"], "reply_limit");
     assert!(!directory.path().join("refused").exists());
     change_native(&mut input, "--max-queries", "6");

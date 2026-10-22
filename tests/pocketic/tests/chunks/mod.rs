@@ -65,7 +65,6 @@ fn metadata_and_multiple_chunks_retain_exact_progress_until_separate_completion(
         f.certificate(f.first, a.root),
         Err(RejectCode::CanisterError)
     );
-    assert_eq!(f.complete(f.first, a), Err(JourneyFailure::InvalidPhase));
     assert_eq!(f.usage(f.first), Ok(usage(amount, amount, amount)));
 
     // Another tenant's completed metadata-bound file cannot alter this prefix.
@@ -77,7 +76,6 @@ fn metadata_and_multiple_chunks_retain_exact_progress_until_separate_completion(
     assert_eq!(f.append(f.second, other.upload, 0, &other.bytes), Ok(()));
     f.certificate(f.second, other.upload.root)
         .expect("other certificate");
-    assert_eq!(f.complete(f.second, other.upload), Ok(()));
     assert_eq!(f.progress(f.first, a).expect("tenant progress"), prefix);
     for (index, bytes) in v.bytes.chunks(CHUNK).enumerate().skip(1) {
         let index = u64::try_from(index).expect("index");
@@ -106,10 +104,8 @@ fn metadata_and_multiple_chunks_retain_exact_progress_until_separate_completion(
         Err(JourneyFailure::ContentMismatch)
     );
     assert_eq!(f.progress(f.first, a).expect("tenant progress"), verified);
-    assert_eq!(f.complete(f.first, a), Err(JourneyFailure::InvalidPhase));
     f.certificate(f.first, a.root)
         .expect("whole content verified");
-    assert_eq!(f.complete(f.first, a), Ok(()));
     assert_eq!(f.root_control(f.first, "journey_release", a.root), Ok(()));
     assert_eq!(f.usage(f.first), Ok(usage(0, amount, amount)));
     assert_eq!(f.delete(vec![root(a.root)]), Ok(()));
@@ -300,7 +296,6 @@ fn ten_mib_media_boundary_verifies_across_messages_and_keeps_billing_until_settl
     }
     f.certificate(f.first, v.upload.root)
         .expect("verified full manifest");
-    assert_eq!(f.complete(f.first, v.upload), Ok(())); // controlled provider substitute
     assert_eq!(
         f.root_control(f.first, "journey_release", v.upload.root),
         Ok(())

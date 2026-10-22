@@ -150,13 +150,6 @@ fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() 
         f.call(f.uploader, Command::Expose(input.request.root)),
         Ok(Outcome::Exposed)
     );
-    assert_eq!(
-        f.call(
-            f.operator,
-            Command::FixtureLifecycle(LifecycleCommand::SubstituteCompletion(input.request))
-        ),
-        Ok(Outcome::Changed(true))
-    );
     let initial_heap = f.wasm_bytes();
     let mut samples = Vec::new();
     let (max_retain, max_retain_workflow) = retain_all(&f, input, &mut samples);

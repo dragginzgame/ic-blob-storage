@@ -240,14 +240,6 @@ fn journey_cancel(input: JourneyUpload) -> Result<(), JourneyFailure> {
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "blob_test_protocol::fixture_candid::decode_args",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
-)]
-fn journey_complete(owner: ExternalPrincipal, input: JourneyUpload) -> Result<(), JourneyFailure> {
-    workflow::journey::complete(context(), owner.into(), input)
-}
-
-#[ic_platform::cdk::update(
     decode_with = "blob_test_protocol::fixture_candid::decode_one",
     encode_with = "blob_test_protocol::fixture_candid::encode_one"
 )]

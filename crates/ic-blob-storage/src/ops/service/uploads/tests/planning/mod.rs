@@ -179,13 +179,12 @@ fn root_observations_preserve_order_uncertainty_cleanup_and_fenced_history() {
     );
     assert_eq!(first[2], UploadRootObservation::Unknown);
     assert!(
-        matches!(first[0], UploadRootObservation::Known(v) if v.request == input.request && v.state == UploadRootState::ExposurePossible)
+        matches!(first[0], UploadRootObservation::Known(v) if v.request == input.request && v.state == UploadRootState::Confirmed(LifecyclePhase::Live))
     );
     assert!(
         matches!(first[3], UploadRootObservation::Known(v) if v.state == UploadRootState::Reserved)
     );
     store.revoke(context(4), permission(2).request).unwrap();
-    store.confirm_upload(input.request).unwrap();
     for phase in [
         LifecyclePhase::Live,
         LifecyclePhase::DeletionPending,

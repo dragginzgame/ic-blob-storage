@@ -18,8 +18,6 @@ fn args(base: &Path, bytes: &[u8]) -> Vec<String> {
         "rrkah-fqaaa-aaaaa-aaaaq-cai",
         "--project",
         "isolated local fixture/β",
-        "--verifier",
-        "rdmx6-jaaaa-aaaaa-aaadq-cai",
         "--release",
         env!("CARGO_PKG_VERSION"),
         "--run-dir",
@@ -75,10 +73,6 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     let decoded: ServiceConfigurationInput = serde_json::from_slice(&original).unwrap();
     assert_eq!(encoded.configuration, decoded);
     assert_eq!(encoded.project, "isolated local fixture/β");
-    assert_eq!(
-        encoded.completion_verifier.to_text(),
-        "rdmx6-jaaaa-aaaaa-aaadq-cai"
-    );
     for field in [
         "authenticated",
         "platform_identity_checked",
@@ -154,8 +148,6 @@ fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_befor
         ("--service", "ryjl3-tyaaa-aaaaa-aaaba-cai"),
         ("--service", "2vxsx-fae"),
         ("--service", "invalid"),
-        ("--verifier", "2vxsx-fae"),
-        ("--verifier", "aaaaa-aa"),
         ("--project", ""),
         ("--project", " surrounding space "),
         ("--project", "line\nbreak"),

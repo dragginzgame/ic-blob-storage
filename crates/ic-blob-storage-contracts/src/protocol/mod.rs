@@ -46,15 +46,7 @@ pub const UPLOAD_DISCOVERY_METHOD: &str = "blob_lookup_content";
 pub const TENANT_UPDATE_METHOD: &str = "blob_update_tenant";
 /// Scoped enrollment inspection for the operator or original tenant.
 pub const TENANT_INSPECTION_METHOD: &str = "blob_tenant";
-/// Canonical verifier update; linking the library exports no endpoint.
-pub const UPLOAD_ATTEST_METHOD: &str = "blob_attest_upload";
-/// Canonical historical receipt query; absence never authorizes a new upload.
-pub const UPLOAD_ATTESTATION_METHOD: &str = "blob_upload_attestation";
-/// Canonical verifier-only historical manifest query; no fetch or attestation is implied.
-pub const UPLOAD_VERIFICATION_MANIFEST_METHOD: &str = "blob_verification_manifest";
 /// Canonical preparation update. Linking exports no endpoint.
 pub const UPLOAD_MANIFEST_PREPARE_METHOD: &str = "blob_prepare_upload";
 /// Canonical exact permission manifest query, including after fencing/revocation.
 pub const UPLOAD_MANIFEST_INSPECT_METHOD: &str = "blob_upload_manifest";
-/// Canonical verifier-only query. Linking the library exports no endpoint.
-pub const UPLOAD_VERIFICATION_PLAN_METHOD: &str = "blob_verification_plan";

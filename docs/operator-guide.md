@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
 </p>
 
-# Operator and verifier guide
+# Operator guide
 
 This guide is organized by operator task. Commands act on an explicitly selected
 installation and identity; examples do not grant authority or authorize provider
@@ -24,7 +24,7 @@ Trusted ancestors and exclusive namespace custody remain the operator's duty.
 | Inspect identities, limits and fences | [Identity, trust and service status](#identity-trust-and-service-status) |
 | Inspect provider accounts or gateways | [Account inspection](#account-inspection) and [gateway controls](#gateway-controls) |
 | Retain, share or release a file reference | [Generate reference inputs](#generate-reference-inputs-offline) and [share a confirmed blob](#share-a-confirmed-blob-within-a-tenant) |
-| Verify provider content and submit completion | [Observe provider content](#observe-provider-content), then [submit an attestation](#submit-an-attestation) |
+| Verify actual provider content | [Download a verified file](#download-a-verified-file) |
 | Resume after an upgrade | [Current-instance recovery](#current-instance-recovery) |
 
 <p align="center">
@@ -71,7 +71,7 @@ surviving complete inventory. See the [gap review](service-gaps.md) for separate
 deletion, billing-cessation and consumer adoption requirements.
 
 Use the native `blob-storage` client to inspect a service, submit tenant reference
-operations, check content and submit an explicitly trusted verifier's statement. Run examples from the
+operations, check content and verify actual downloaded bytes. Run examples from the
 repository root. Replace environment variables and input files with the exact
 installation scope and original saved requests.
 
@@ -95,10 +95,7 @@ installation scope and original saved requests.
 | Retain or release a saved tenant reference | `submit-reference` | One signed service update and local intent writes |
 | Inspect issuance blockers | `certificate-assessment` | Signed service query |
 | Check a local body against its declaration | `verify-upload` | Signed service query and local file read |
-| Recover a trusted completion receipt | `upload-attestation` | Signed service query |
 | Save a verified tenant file | `download` | One replicated descriptor update, then one provider GET and private file writes |
-| Check provider bytes and retain a statement | `observe-upload` | Signed service query, provider GET and local evidence writes |
-| Submit the saved statement once | `submit-attestation` | Signed service update and local intent writes |
 
 Native commands redact local filesystem failures as `{"error":"file"}`.
 That result can include a failure after a complete record became visible; it
@@ -117,7 +114,7 @@ remain the recovery checks. A changed fingerprint grants no retry permission.
 The standalone host exposes the maintained blob method types; consumer frameworks
 own their wrappers elsewhere. See [current status](status/current.md) before
 selecting a target. Signed local standalone/browser journeys cover setup,
-independent verification, attestation, tenant reads and interruption recovery
+trusted registration, verified tenant reads and interruption recovery
 against a gateway substitute. They do not qualify deployed Caffeine behavior.
 Service observations preserve local facts and fences; they do not grant retry or
 payment authority. Provider reads require a selected installation, approved origin
@@ -127,7 +124,7 @@ and budget under the [probe ledger](evidence/caffeine-probes/README.md).
 
 `installation-check` checks the complete shared installation candidate,
 including service/operator/payer bindings, portable quotas, reference cleanup
-capacity, funding reserves, read limits, project and trusted completion verifier. It emits the complete shared `ServiceInstallationInput`
+capacity, funding reserves, read limits, project. It emits the complete shared `ServiceInstallationInput`
 without opening memory or dispatching installation.
 
 Prepare one strict JSON `ServiceConfigurationInput` using explicitly reviewed
@@ -142,7 +139,7 @@ cp canisters/standalone/trial/configuration.json.template trial-configuration.js
 cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
 target/debug/blob-storage installation-check \
   --configuration trial-configuration.json --service "$SERVICE" \
-  --project "$PROJECT" --verifier "$VERIFIER" --release "$HOST_RELEASE" \
+  --project "$PROJECT" --release "$HOST_RELEASE" \
   --run-dir .tmp/trial-installation-check
 ```
 
@@ -156,7 +153,7 @@ identity, compiled release and effect facts remain false.
 
 The service and release are planned inputs. Deployment independently checks the
 actual canister and compiled artifact. Standalone accepts the complete method-bound Wire
-`ServiceInstallationInput { configuration, project, completion_verifier }`;
+`ServiceInstallationInput { configuration, project }`;
 `installation.wire` is its init argument. `configuration.wire` alone is insufficient.
 Use `ic_blob_storage_contracts::wire::decode_request::<ServiceInstallationInput>(
 "blob_install", &bytes, 16_384)` to inspect the carrier with the shared codec before installation.
@@ -181,13 +178,12 @@ wrapper. This repository supplies no framework adapter or integration suite.
 
 | Stage | Concrete preparation or observation | Required before moving on |
 | --- | --- | --- |
-| Bind the trial | Select host, controller/deployer, operator, tenant, uploader, verifier, explicit payer, Cashier, project/bucket, gateway origin and cleanup owner | Exact identities, namespace assignment and separately authorized creation/deployment; no implicit account or role defaults |
+| Bind the trial | Select host, controller/deployer, operator, tenant, uploader, explicit payer, Cashier, project/bucket, gateway origin and cleanup owner | Exact identities, namespace assignment and separately authorized creation/deployment; no implicit account or role defaults |
 | Freeze local inputs | Run `installation-check`, prepare `account-link-inputs`, bind exact Wasm/interface/release hashes and choose a nonempty file within installed limits (1 KiB for the retained first live owner) | Original configuration/terms/body retained; size larger/multi-file installations explicitly and recheck actual service after authorized creation; no fixture defaults |
 | Review economics and lifecycle | Record raw price/expiry units, selected spending controls, retained uncertainty and the accepted fresh-owner lifecycle | No guaranteed provider spending cap or replay charges; use trusted participants and preserve all continuing obligations |
 | Provision and inspect | After exact action authority, create the isolated owner, recheck configuration against its actual principal, then install and separately submit account/funding actions; inspect configuration, relationship/balance and gateway scope | Actual identities match the finalized plan, namespace is provisioned, obligations and every failed/uncertain action are retained; no automatic retry |
 | Admit and prepare | Use maintained SDK preparation, `upload-inputs`, tenant `admit-upload` and uploader `prepare-upload` | Original snapshot/root/permission match; trusted roles and current certificate assessment checked |
 | Transfer once | After explicit trial authority and qualified host facts, use `createUploadTransfer` with serial/no-retry settings and original binding | One certificate claim; reviewed request/body/time limits and numeric financial exposure; stop on refusal, uncertainty or budget exhaustion |
-| Verify and download | `observe-upload`, `submit-attestation`, then tenant `download`, using separate fresh evidence directories | Whole-body root/length verification and exact trusted receipt; SDK success alone cannot establish completion |
 | Close the trial | Release the exact reference, retain provider object/payment/uncertainty records and assign ongoing reconciliation | Logical release is not physical deletion or billing cessation; retire only under the existing contract |
 
 The first paid transfer remains **stopped** until exact live targets and effect
@@ -199,7 +195,7 @@ financial ceiling.
 
 Before any network trial, record numeric request, aggregate body/response byte,
 wall-time and financial limits in the [probe ledger](evidence/caffeine-probes/README.md).
-Include setup/inspection, certificate, gateway writes and both verifier/tenant
+Include setup/inspection, certificate, gateway writes and tenant
 reads; the small file size is not the total wire or cost budget. The browser hook's
 limits govern cooperating client traffic, not an escaped certificate. A lost
 result stops effects; inspect original service intent/provider evidence without
@@ -214,7 +210,7 @@ Use the [maintained configuration envelope](../canisters/standalone/trial/README
 and private `.tmp/trial-provisioning-01/proposal.json`. The preparation proposes
 `canic-mainnet` solely as deployer/controller/operator, with a fresh repository-local
 principal explicitly sharing payer/tenant/original-uploader roles and a distinct
-fresh verifier. No existing signing key or account is read; the default identity
+fresh operator. No existing signing key or account is read; the default identity
 remains unchanged. Fresh key files are private candidates, not selected authority
 or funded accounts. Before any use, arrange their retention and controlled browser
 handoff; never serve identity files from the trial page or put them in its bundle.
@@ -404,7 +400,7 @@ The enrolled tenant approves each exact uploader permission through
 [per-upload authority](multi-user-upload-authority.md); it may authorize multiple
 browser principals. The application owns user authentication and capability
 checks before admission. Controller status grants no upload authority, and the
-installed completion verifier remains a separate role. Choose resource limits
+no completion verifier is installed. Choose resource limits
 for the new installation; changing an existing installation's immutable limits
 requires [retirement and reinstall](retiring-installations.md), preserving its
 provider and billing obligations. Sizing does not qualify provider economics or
@@ -436,7 +432,7 @@ Also measure browser transaction-count latency, disk/quota and native setup I/O:
 each indexed preparation currently reverifies the full selected frozen batch.
 `publish-prepare-batch` performs one verification pass for a serial setup run;
 active-reservation capacity can stop it before every file is prepared. It does
-not interleave provider transfer/completion to free those reservations.
+not interleave provider transfer/registration to free those reservations.
 At large scale, bounded reopening or partitioning may be needed; do not weaken
 fences or obligation validation to fit an instruction budget.
 
@@ -808,200 +804,29 @@ ordinary indexed preparation with fresh output directories; never reissue a
 claimed step. Reverify bytes immediately before transfer through the maintained
 browser helper, including after any change since the batch's verification pass.
 
-### Produce a complete confirmed-reference map
+### Produce a complete registered-reference map
 
-After each indexed file has transferred and the configured verifier has independently
-observed and attested its complete bytes, use `publish-map` for the final
-batch observation. The command reverifies all frozen files once before signing
-queries or claiming output. Authenticate the tenant and operator independently;
-the expected operator comes from the frozen installation input. It must match the
-actual installed configuration, project, verifier, uploader and compiled library
-release. A proposed installation alone cannot supply that proof.
-
-```sh
-blob-storage publish-map --network ic --url https://icp-api.io \
-  --identity tenant.pem --actor TENANT --operator-identity operator.pem \
-  --service SERVICE --namespace 1 --inputs publish-inputs \
-  --gateway https://REVIEWED_GATEWAY \
-  --max-bytes 10485760 --max-total-bytes 1073741824 \
-  --max-queries 1352 --timeout-seconds 3600 --run-dir publication-map
-```
-
-Allow at least `2 × files + 2` queries (1,352 for Miner's 675 distinct blobs):
-installed configuration, tenant capacity/enrollment, then exact verifier receipt
-and first-reference status for each file. Each query has a thirty-second deadline;
-the whole observation has the explicit deadline, at most one hour. Query replies
-are bounded and the exact intents, arguments and raw results survive failures.
-There are no service updates, provider requests or automatic retries.
-
-Inspect `all_references_live`, including on exit zero. Missing or unmatched
-completion, an inactive reference/tenant or a restore fence blocks the map;
-malformed/foreign replies and transport errors fail with retained evidence.
-`media-map.json` appears only when every file passes. It binds original file
-indices and upload/reference identities to the installed project, shared Caffeine
-request target, raw body SHA-256 and exact original headers. No partial success
-list is a complete map. New observations use new directories and never overwrite
-the original upload, observation, attestation or browser journals.
-
-This is a sequence of authenticated observations, not an atomic snapshot or
-publication lease. References may change afterward. It does not perform the
-consumer's asset transaction, create overlapping-release references or qualify
-public MIME/CORS/cache/CSP/retention. Consumers must join every emitted asset
-identity to the original frozen index, retain the selected release references,
-verify bounded bytes before decoding and own final publication/cancellation.
-The command checks first references; additional release references use the exact
-maintained retain/receipt/status workflows. Logical release still does not prove
-provider deletion or billing cessation.
-
-### Complete one file before preparing the next
-
-At concurrency one, use indexed `publish-prepare`, then the maintained browser
-`createPublicationUpload`, independent `observe-upload` and exact
-`submit-attestation` before moving to the next original index. SDK success does
-not free a reservation. A lost SDK reply is reconciled through complete download
-observation; it never authorizes another upload. Retain each file's original setup,
-browser, observation and signed-attestation journals, including uncertain claims.
-Use the approved provider read budget and handle pending attestations through
-`upload-attestation` with the saved statement, without resubmitting it.
-
-`publish-file-status` supplies the authenticated per-file check:
-
-```sh
-blob-storage publish-file-status --network ic --url https://icp-api.io \
-  --identity tenant.pem --actor TENANT --operator-identity operator.pem \
-  --service SERVICE --namespace 1 --inputs publish-inputs --file-index 0 \
-  --gateway https://REVIEWED_GATEWAY \
-  --max-bytes 10485760 --max-total-bytes 1073741824 \
-  --max-queries 4 --timeout-seconds 30 --run-dir confirmed-file-0000
-```
-
-Require `file_live:true` for the exact original index, digest and first reference.
-The command authenticates installed configuration/release with the operator,
-tenant enrollment/capacity, the configured verifier's accepted whole-body digest
-and current unfenced reference status. Its shared decoders and target builder are
-the same as `publish-map`; it sends no update or provider request. Missing
-completion, release, suspension or fencing blocks progress. Exit zero alone is
-insufficient. A successful file check sets `batch_complete:false` and never writes
-`media-map.json`. Finish with the complete `publish-map` observation after every
-file passes, then perform the consumer's asset transaction separately.
-
-Independent CLI invocations reverify the complete frozen batch; this is bounded
-but repeats file I/O. The persistent session below retains one validated batch
-and reuses these phase owners. The current commands and local serial harness
-are components, not a complete production headless publisher.
-The local two-file trials use an owned HTTPS HTTP/2 substitute, synthetic bytes
-and authored PNGs, including distinct full/partial chunks. Chromium fetches the
-canonical native URLs and checks MIME/CORS/decoded bytes locally; these checks
-do not qualify Miner's real media or deployed cache/CSP/retention behavior.
-Logical release refuses new service descriptors but cannot revoke a saved public
-URL. Treat the URL and downloaded copies according to the consumer's access policy.
-Keep independent physical/liability limits: confirmation frees active concurrency,
-while stored bytes and billing obligations remain accounted for.
+`publish-map` and `publish-file-status` authenticate configuration, tenant
+capacity/enrollment and exact live first references. They no longer query an
+attestation. A batch requires files + 2 queries; one selected file requires 3.
+Their maps report `provider_upload_verified:false`, not availability or a lease.
+The frozen original bodies and metadata still bind the output URLs and digests.
+Use `download` to verify actual provider bytes before application publication.
 
 ### Hold one validated batch across publication phases
 
-`publish-session` keeps the validated batch in one native process.
-It authenticates the tenant, uploader and operator, compares the actual installed
-configuration/release, and refuses a fenced host before its `ready` event.
-It handles setup, indexed completion checks and final-map observations through
-the same maintained command implementations. Optional `--verifier-identity`
-authenticates the installed completion verifier before `ready` and enables a
-`verify` phase that composes the existing whole-download observer and one-shot
-attestation owner. Certificate/SDK transfer stays with the browser. This command is the native
-phase controller. The browser [publication worker](../clients/browser/README.md#run-jobs-in-a-browser-worker)
-supplies a fixed-authority job boundary. Use the
-[selected-signer browser host/bootstrap](../clients/browser/README.md#launch-the-maintained-worker-with-a-selected-signer).
-The [native Chromium bridge](../clients/browser/README.md#launch-chromium-from-a-native-parent)
-uses selected SDK identity JSON, bounded file loading and a fixed profile/origin.
-The launcher persists the original immutable launch binding inside the profile
-before Chromium opens, rejecting changed signer/scope/trust/journal/assets or
-missing history. Keep older profiles with their original launcher and bundles;
-the new reader does not create a binding for pre-existing history.
-Native `next_frame` guidance and the bridge's
-[`driveSession`](../clients/browser/README.md#follow-native-phase-guidance)
-select and run phases around the existing owners. Native process/key selection
-and explicit restart remain caller responsibilities.
+`publish-session` retains the frozen batch, original setup paths and browser
+handoffs. It accepts `prepare`, `transfer`, `status` and `map` control frames.
+There is no `verify` phase or verifier credential. Status advances when the exact
+first reference is live. Certificate issuance registers that reference before
+provider upload, so this observation alone is not a successful transfer.
+The browser owns certificate/SDK dispatch, its original profile and uncertainty.
+Never discard original claims or repeat an uncertain upload to repair a map.
 
-```sh
-blob-storage publish-session --network ic --url https://icp-api.io \
-  --identity tenant.pem --actor TENANT --operator-identity operator.pem \
-  --uploader-identity uploader.pem --service SERVICE --namespace 1 \
-  --verifier-identity verifier.pem \
-  --inputs publish-inputs --gateway https://REVIEWED_GATEWAY \
-  --max-bytes 10485760 --max-total-bytes 1073741824 \
-  --max-steps 2701 --timeout-seconds 3600 --run-dir publication-session
-```
-
-A parent process supplies one JSON object per newline on stdin and reads flushed
-JSON lines on stdout. Keep stdin open until the final map or an intentional stop;
-EOF ends with a typed transport failure and retained journals. Wait for `ready`
-before sending frames. Each phase produces an `event:"phase"` line containing
-`step`, `next_index` and `report`. Unreleased adds `next_frame`: a passive derived
-continuation, or null when this phase has no automatic continuation. Map completion or step exhaustion then emits
-the final CLI result and exits. Errors emit the normal redacted failure result.
-
-| Control frame | Required handling |
-| --- | --- |
-| `{"phase":"prepare","index":0}` | Require `report.prepared:true`; a browser-selected session next requires `transfer`; native-only setup retains its descriptor |
-| `{"phase":"transfer","index":0}` | With a browser selection, retain `report.native_phase` and pass its directory to the launcher; a repeated phase requests recovery only |
-| `{"phase":"transfer","index":0,"source_transfer":"/absolute/original/step-NNNN"}` | Recover the exact original handoff; no certificate submission or upload dispatch is authorized |
-| `{"phase":"status","index":0}` | After independent verification/attestation, require `report.file_live:true` before moving to index 1 |
-| `{"phase":"verify","index":0}` | With a selected verifier, perform at most one bounded GET and one attestation; advance only if the exact current reference passes |
-| `{"phase":"verify","index":0,"source_observation":"/absolute/original/verification-0000/observation"}` | Inspect the original complete observation and immutable attestation history, then current reference; no GET or submission |
-| `{"phase":"prepare","index":0,"source_run":"/absolute/original/setup"}` | Recover the exact original per-file setup, preserving its signed journals; never name a recovery-report directory |
-| `{"phase":"map"}` | After every original index passes, inspect `all_references_live`; only complete success writes the root `media-map.json` |
-
-Frames are bounded to 8 KiB including newline; unknown fields/phases and truncated
-frames fail. The control queue holds one frame. Choose a positive step budget of
-at most `8 × files + 1`; 2,701 allows four phases per file plus the map for 675
-files. Include transfer/recovery phases in the budget. A blocked phase consumes
-a step; there is no automatic polling.
-The finite session deadline includes configuration checks, control waits and
-network phases after synchronous startup input verification. Filesystem I/O and
-stdout writes are synchronous; this is not a preemptive filesystem deadline.
-Idle stdin does not keep the process alive beyond the tested control deadline.
-
-The session starts at index zero and advances only on authenticated exact
-completion/reference evidence. It rejects out-of-order setup/status and premature
-maps. A restarted session must inspect already-confirmed original indices again;
-`--source-session /absolute/retained-session` recovers original setup
-and observation/transfer paths for omitted `source_run`/`source_observation`/
-`source_transfer` frame fields.
-Use a new `--run-dir`, the same frozen batch, principals, service/namespace,
-gateway and trust root. The original installed configuration/release must match,
-and fresh authenticated preflight still precedes readiness. Control budgets may
-change within their bounds; they never renew effect authority.
-The existing setup owner can still execute an originally unclaimed preparation
-after matching admission evidence; it never repeats a claimed or uncertain step.
-
-The strict native intent format is
-`ic-blob-storage/publication-session:retained-browser-handoffs`. Source provenance
-uses `ic-blob-storage/publication-session-sources:retained-browser-handoffs`.
-No old session intent
-reader or conversion exists. Retain original binaries and claims for old runs.
-Recovery records carry direct original paths, including unused sources through a
-status-only run, without following a session chain. A required provenance file,
-control record or claim directory that is missing/partial refuses; an explicit
-unattempted ordering fact distinguishes a phase that never called its owner.
-History traversal and the provenance file are bounded; provenance is at most
-8 MiB. Existing summaries do not establish completion or replay authority.
-Without a source session, name each original `step-NNNN/setup/` or observation
-explicitly in its frame. Both routes converge on the same source and phase owners.
-Within a running session, repeated preparation uses its pinned original directory.
-With a browser selection, setup does not return a transfer descriptor. The
-`transfer` phase validates the original setup's input and signed admission/
-preparation claims, then saves `transfer.json` before returning its canonical step
-directory. This passive handoff is at most 512 KiB; no service query/update or
-provider request runs in this phase. The certificate endpoint still checks fresh
-authority when issuance occurs. The first handoff can be consumed once by the
-maintained parent; repeat/recovery handoffs name the original directly and request
-certificate recovery only, even if the browser journal is absent. Preserve the
-original handoff; an archived first handoff is never retry permission. Browser
-claims, not native summaries, remain authoritative for paid-effect dispatch.
-Neither a restarted process, expired signed ingress nor a lost browser reply
-authorizes redispatch. An already-exposed permission refuses preparation; reconcile
-the original object through the independent verifier instead. Keep original
-browser profiles and all setup/observation/attestation journals.
+Registration frees an unregistered reservation slot while retaining lifetime
+object/manifest/reference history and physical/liability bytes. Releasing the
+last reference, deleting provider bytes and stopping billing are separate steps.
+See [the hard-cut contract](trusted-registration.md) for all consumer changes.
 
 ### Bind browser selection to the native session
 
@@ -1037,44 +862,8 @@ is regenerated. Browser-only operation uses explicit `nativeSession:null` when
 first creating its profile and cannot bypass an existing native binding.
 Keep signer keys separately. Neither startup readiness nor provenance establishes
 current completion or permission to repeat an uncertain effect. Phase control,
-original setup/observation/attestation claims and fresh authenticated completion
+original setup/transfer claims and fresh authenticated reference observations
 remain authoritative; automatic parent phase/restart coordination is unfinished.
-
-### Verify original session uploads
-
-Verification binds the original permission, raw body digest, configured gateway
-and installed verifier before signing. Each original index has one create-new
-`verification-NNNN` directory, separate from process step numbers. Corrupt bytes,
-partial observations, refused/uncertain submissions and exhausted deadlines stop
-the session without advancing. Pending submissions can produce `file_live:false`;
-inspect status explicitly, without repeating `verify`. A second verification of
-that index refuses its existing directory. Recovery retains the original observer
-and signed attestation files; it never regenerates a statement or submits it again.
-An absent historical receipt does not authorize another update. A complete
-observation without a submission can still be passed explicitly to the existing
-one-shot `submit-attestation` tool; its original create-new claim owns dispatch.
-A new session/root is not authority to repeat an interrupted verification: use
-`source_observation`, or inspect already confirmed indices with `status`.
-
-Full-batch bodies and metadata are validated once at startup. Setup rehashes the
-selected body against that frozen digest; completed and unrelated bodies are not
-rescanned for each phase. The returned `transfer` includes cached binding,
-manifest JSON, original preparation hints, raw digest/byte count and the body path. The browser must
-snapshot that body and recheck raw digest and SDK root before certificate intent,
-using `createPublicationUpload`; a path alone is not verified content. Final maps
-describe the initially validated intent and current reference observations, not
-the present integrity of every local body copy or an atomic publication lease.
-
-Intent, exact control requests and query replies are saved under a private
-create-new root, with existing signed setup journals below each step. The recorded
-maximum is two setup updates per original file, plus one attestation when a verifier
-is selected, and a conservative `5 × max_steps + 2 × files + 3` service-query bound.
-With a verifier, budget at most one provider GET per original file; reads may incur
-charges. Without that explicit identity, verification refuses before effects.
-Recovery performs no provider request or attestation update. External transfers
-need their own budgets; no funding, automatic retry or guaranteed spend cap follows.
-Exit zero may describe blocked/incomplete
-work; inspect typed report fields before continuing or publishing.
 
 ## Admit and prepare an upload
 
@@ -1159,15 +948,11 @@ worker fit the tenant-signed publication session.
    and its original durable journal, using the same uploader, binding and body.
    Preserve the launch profile and selected binary/bundles across recovery.
    SDK success alone does not confirm the service's object.
-4. Have the configured verifier run [observe-upload](#observe-provider-content)
-   with the original permission, approved gateway and explicit read budget, then
-   [submit-attestation](#submit-an-attestation) from that observation directory.
-   Keep their existing one-shot intent and recovery owners; do not add an upload
-   retry or an independent provider request encoder around them.
-5. The tenant application authenticates completion for its exact operation and
-   content digest, checks the current live reference, then performs its own
-   media-map or registry transaction. A worker's local report is not application
-   authorization or an atomic publication receipt.
+4. Certificate issuance registers retention intent and the first live reference.
+   Transfer the original bytes through the browser's retained journal. A lost
+   reply never authorizes another certificate or upload.
+5. The tenant can attempt a verified `download`. Only the application decides
+   when to publish its asset; a live reference alone proves no byte availability.
 
 For new intents, choose explicit MIME preparation hints and save them before
 admission. The maintained Caffeine 1.1.2 SDK treats `application/octet-stream`
@@ -1225,7 +1010,7 @@ whole occurrence would exceed 32 entries or 8 KiB of combined name/value bytes,
 setting `complete: false`. Remaining selected names can then be unobserved.
 Completeness concerns only these selected headers; unrelated headers are omitted.
 This sidecar is retained before HTTP-status/body admission and does not replace
-the existing status artifact or attestation inputs. An incomplete capture does
+the existing status artifact or original transfer inputs. An incomplete capture does
 not invalidate an independently verified body.
 
 These are parsed native observations, not an HTTP wire transcript or proof that
@@ -1716,7 +1501,7 @@ object identity and its **current** lifecycle determine the supported path:
 
 | `UploadContentState` | Supported action |
 | --- | --- |
-| `Reserved`, `ExposurePossible` | Recover the original operation and its journal; expired evidence does not authorize another provider effect |
+| `Reserved` | Recover the original operation and its journal; expired evidence does not authorize another provider effect |
 | `Live` | Retain a new exact reference if current tenant authority and capacity permit, then commit the consumer mapping |
 | `Cancelled`, `DeletionPending`, `ProviderDeleted`, `Settled` | Typed retained history establishes retirement; reintroduction in this installation is unsupported and the root stays claimed |
 
@@ -1817,137 +1602,5 @@ The JSON preserves full-width identities and a computed raw digest, and explicit
 reports provider completion/availability as unestablished/unobserved. It does not
 fetch provider content, attest completion, write a destination or grant retry
 authority. Inspection works after restoration without clearing fences. This is
-separate from the configured verifier's trusted availability attestation described
-in the [standalone contract](../canisters/standalone/README.md).
-
-## Recover an attestation receipt
-
-`upload-attestation` recovers historical evidence using the exact statement saved
-before an attestation was sent:
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  upload-attestation --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
-  --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --verifier "$VERIFIER_PRINCIPAL" \
-  --statement statement.wire
-```
-
-The statement is one binary Wire document `UploadAttestationRequest`, bounded to 4 KiB.
-It contains the complete original permission, raw digest and observation time.
-Obtain `--verifier` from the trusted installation configuration; the command does
-not discover or install a verifier. The signer may be that verifier, the tenant
-or the original uploader. No original body file is required, and the saved
-statement is never overwritten. The service remains responsible for caller checks.
-
-The signed `blob_upload_attestation` query reuses the library's bounded decoder
-and checks the exact scope, permission, verifier and receipt chronology. JSON
-`outcome` is `matched`, `conflict` or `absent`; `receipt` is null only for absence.
-Conflicts retain both the expected digest/time and the accepted digest/time.
-All three observations exit 0, including when fenced; callers must inspect the
-outcome. Failures exit 3 and never become absence. IDs and times remain decimal
-strings. Limits are 30 seconds, 256 KiB HTTP and 4 KiB Wire with bounded decoding.
-
-A matched receipt proves the service retained that exact trusted statement. It
-does not establish current availability, reference liveness or billing cessation.
-Absence does not prove a pending update cannot still complete, and cannot authorize
-resending an uncertain effect. Every outcome reports `retry_authorized: false`.
-The command sends no update or provider request and writes no journal.
-
-## Observe provider content
-
-For a browser application's signer ownership, private worker, job correlation
-and restart procedure, see the [completion verifier recipe](completion-verifier.md).
-
-`observe-upload` performs the verifier's independent provider read and saves the
-statement for explicit submission. Run it only against an explicitly approved gateway
-and installation with a read budget; provider charges remain unknown, including
-when a loopback origin forwards requests. No live trial was performed here.
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  observe-upload --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
-  --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --permission permission.wire \
-  --gateway "$APPROVED_GATEWAY_ORIGIN" --max-bytes 10485760 --run-dir new-observation
-```
-
-The service authenticates the verifier through `blob_verification_plan` and returns
-its installed owner/project and exact original declaration. The command validates
-the signed reply and uses the maintained Caffeine request-target encoder. The host
-must have already recorded exposure. Standalone exposes an uploader-only
-`blob_upload_certificate_assessment(root)` and the canonical certificate update,
-with the accepted project-approved uploader/current-owner contract; see
-the [host contract](../canisters/standalone/README.md).
-Unexposed, confirmed or restored work rejects before any provider GET. Revoked or
-suspended exposed uploads remain eligible for reconciliation.
-
-One GET is allowed, with no redirects, HTTP retries, credentials or automatic
-decompression. IC mode requires HTTPS origins; local mode accepts literal loopback
-origins only. Both query and GET have 30-second deadlines. Service Wire is bounded
-to 64 KiB, 1,024 leaves and 16 headers/4 KiB metadata. The explicit content budget is
-at most 1 GiB and is checked before fetching. Whole-body streaming checks the
-original root, metadata and exact length off-canister. HTTP metadata cannot replace
-the original declaration; partial/encoded responses and incomplete EOF reject.
-These request/byte limits are not a billing guarantee or a bound on transport overhead.
-
-The run directory must be new and its parent must exist. Intent is synced before
-the query and GET. Artifacts include `plan.json`, `permission.wire`, the bounded
-`service-response.wire`, `download-request.json`, HTTP status and download outcome.
-Only complete verification writes and syncs `statement.wire`, followed by
-`summary.json` with its hash and observation time. The runner fingerprint covers its
-observation/transport/argument sources and lockfile; artifact hashes establish local
-integrity, not portable IC/provider signatures. Download bodies and identity keys
-are never retained. Keep this directory in controlled storage.
-
-Errors retain `failure.json` when writable. Abrupt interruption can leave partial
-files with no summary; neither failed nor interrupted runs are resumed or overwritten.
-Preserve their evidence before deciding on any separately budgeted new attempt.
-A saved statement binds the exact original permission and locally observed UTC time;
-the service still checks its admission/acceptance time bounds. The command sends no
-attestation or upload, and reports `attestation_dispatched: false` and
-`retry_authorized: false`. `verify-upload` local-file
-output cannot be promoted to a provider observation.
-
-## Submit an attestation
-
-Submit a completed observation explicitly with the same service URL, service,
-namespace and verifier identity:
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
-  submit-attestation --network ic --url "$IC_API_URL" --identity "$VERIFIER_PEM" \
-  --actor "$VERIFIER_PRINCIPAL" --service "$SERVICE_PRINCIPAL" \
-  --namespace "$SERVICE_NAMESPACE" --run-dir new-observation
-```
-
-The command validates every required observation artifact, the original declaration,
-owner/project, complete download result, exact statement, hashes and time ordering.
-Records are bounded and must be regular files; a failure marker rejects the run.
-These files remain trusted verifier input: local hashes do not prove authenticity
-against someone who can rewrite the entire run. Keep the directory under the
-verifier's control, including during submission. No provider read occurs here.
-
-An exclusive `attestation/` directory claims the run. Before one signed update,
-the command syncs the original passive `statement.wire`, method-bound
-`request.wire`, `signed-request.cbor` and
-`intent.json` containing the runner version/source fingerprint, request ID, expiry,
-root-key and artifact hashes. The fingerprint covers the native submission,
-observation-reader, shared transport/record/argument sources and lockfile.
-Keep the signed envelope private; it can authorize that exact request until expiry.
-The update has a 30-second deadline, disabled transport retries and no automatic
-polling. A certified reply must match the complete statement before reporting
-`accepted`. A queued request reports `pending`; transport or verification failure
-leaves an `uncertain` outcome when writable. An authenticated service refusal is
-recorded separately. The reply and outcome are retained without changing the
-observation's original summary.
-
-Every existing claim, including an empty directory left by a killed process, refuses
-resubmission with `submission_already_claimed`. Do not remove or copy the claim to
-retry. This is a local single-submission guard, not a distributed lock or global
-exactly-once guarantee. Recover with `upload-attestation` using the saved
-original observation `statement.wire` and independently configured verifier.
-The dispatched `attestation/request.wire` is not a passive statement input.
-An absent receipt, expired ingress request or local error never authorizes another
-submission. No statement, digest or observation time is regenerated. Exit zero can
-mean `pending`; inspect the outcome before treating it as acceptance.
+consistent with [trusted registration](trusted-registration.md): registration
+records retention intent and does not prove provider availability.

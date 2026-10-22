@@ -29,7 +29,6 @@ pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInp
     ServiceInstallationInput {
         configuration,
         project: binding["project"].as_str().unwrap().into(),
-        completion_verifier: Principal::self_authenticating([4]),
     }
 }
 fn arguments(base: &Path, binding: &Value, manifest: &Value) -> Vec<String> {

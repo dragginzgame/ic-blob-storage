@@ -88,9 +88,8 @@ impl UploadConfigurationRecord {
 #[candid_path("ic_platform::candid::contract")]
 enum UploadPhaseRecord {
     Reserved,
-    ExposurePossible,
     Cancelled,
-    Confirmed,
+    Registered,
 }
 #[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
 #[candid_path("ic_platform::candid::contract")]
@@ -143,10 +142,7 @@ impl UploadPermissionRecord {
             || self.admitted >= self.expires
             || matches!(self.phase, UploadPhaseRecord::Reserved) && self.revoked
             || matches!(self.phase, UploadPhaseRecord::Cancelled) && !self.revoked
-            || matches!(
-                self.phase,
-                UploadPhaseRecord::ExposurePossible | UploadPhaseRecord::Confirmed
-            ) && !self.manifest
+            || matches!(self.phase, UploadPhaseRecord::Registered) && !self.manifest
         {
             return None;
         }
@@ -191,9 +187,8 @@ impl UploadPermissionRecord {
             },
             phase: match self.phase {
                 UploadPhaseRecord::Reserved => UploadPhase::Reserved,
-                UploadPhaseRecord::ExposurePossible => UploadPhase::ExposurePossible,
                 UploadPhaseRecord::Cancelled => UploadPhase::Cancelled,
-                UploadPhaseRecord::Confirmed => UploadPhase::Confirmed,
+                UploadPhaseRecord::Registered => UploadPhase::Registered,
             },
         })
     }
@@ -204,21 +199,7 @@ impl UploadPermissionRecord {
     pub(crate) fn expose(&mut self) {
         assert_eq!(self.phase, UploadPhaseRecord::Reserved);
         assert!(self.manifest);
-        self.phase = UploadPhaseRecord::ExposurePossible;
-    }
-    pub(crate) fn confirm(
-        &mut self,
-    ) -> Result<LifecycleChange, crate::model::catalog::admission::UploadError> {
-        match self.phase {
-            UploadPhaseRecord::Confirmed => Ok(LifecycleChange::Unchanged),
-            UploadPhaseRecord::ExposurePossible => {
-                self.phase = UploadPhaseRecord::Confirmed;
-                Ok(LifecycleChange::Changed)
-            }
-            _ => Err(crate::model::catalog::admission::UploadError::InvalidPhase(
-                self.view().expect("validated permission").phase,
-            )),
-        }
+        self.phase = UploadPhaseRecord::Registered;
     }
     pub(crate) fn revoke(&mut self) -> LifecycleChange {
         if self.revoked {

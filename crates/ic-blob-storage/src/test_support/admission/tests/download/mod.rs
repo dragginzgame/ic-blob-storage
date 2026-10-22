@@ -193,9 +193,8 @@ fn descriptor_preserves_metadata_through_separate_deletion_and_billing_states() 
             .unwrap()
             .content
             .state,
-        UploadRootState::ExposurePossible
+        UploadRootState::Confirmed(LifecyclePhase::Live)
     );
-    owner.confirm_upload(input.request).unwrap();
     let root = input.request.object.root;
     for expected in [
         LifecyclePhase::Live,

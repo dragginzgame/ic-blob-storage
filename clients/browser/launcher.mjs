@@ -15,7 +15,7 @@ const require = (condition, code) => { if (!condition) throw new LauncherRefusal
 const exact = (value, keys, optional = []) => require(validFields(value, keys, optional), 'configuration');
 const digest = bytes => createHash('sha256').update(bytes).digest('hex');
 const nativeIntentFields = ['format', 'source_session', 'browser', 'operation', 'network', 'service_url',
-  'service', 'namespace', 'tenant', 'uploader', 'operator', 'verifier', 'gateway',
+  'service', 'namespace', 'tenant', 'uploader', 'operator', 'gateway',
   'inventory_sha256', 'installation_sha256', 'root_key_sha256', 'files', 'max_steps',
   'max_service_updates', 'max_service_queries', 'timeout_seconds', 'max_provider_requests',
   'automatic_retries', 'input_verification'];
@@ -90,7 +90,7 @@ async function nativeSelection(options, bootstrap, hostBundle, workerBundle) {
     const bytes = await boundedFile(join(session, 'intent.json'), 16384);
     const intent = JSON.parse(bytes), selected = intent.browser, config = bootstrap.configuration;
     exact(intent, nativeIntentFields);
-    require(intent.format === 'ic-blob-storage/publication-session:retained-browser-handoffs' &&
+    require(intent.format === 'ic-blob-storage/publication-session:trusted-registration' &&
       intent.operation === 'publish_session' && intent.source_session === null, 'native-session');
     exact(selected, ['format', 'session', 'profile', 'project', 'bucket', 'asset_port',
       'signer_sha256', 'host_sha256', 'worker_sha256', 'database', 'max_slots']);
@@ -193,8 +193,8 @@ async function nativeTransfer(native, request) {
  * The caller supplies its installed Chromium engine, trusted bundles, exact SDK
  * signer/bootstrap and original profile/origin. Native owns phase decisions and
  * signed service dispatch; the bridge follows them without a durable cursor,
- * retry owner or verifier implementation. Browser results remain
- * redacted observations; the native session must independently establish completion.
+ * retry owner or integrity implementation. Browser results remain
+ * redacted observations; the native session observes registration and exact live references, not provider availability.
  */
 export async function launchPublicationBrowser(chromium, options, browserOptions = {}) {
   exact(options, ['profile', 'assetPort', 'hostBundle', 'workerBundle', 'bootstrap', 'nativeSession']);
@@ -316,7 +316,7 @@ export async function launchPublicationBrowser(chromium, options, browserOptions
     execute: request => own(() => execute(request)),
     driveSession: control => own(async () => {
       const { ready: currentReady, phase, finish } = control ?? {};
-      require(native && native.intent.verifier !== null && typeof phase === 'function' && typeof finish === 'function', 'native-session');
+      require(native && typeof phase === 'function' && typeof finish === 'function', 'native-session');
       const ready = structuredClone(currentReady); nativeReady(ready, native.intent);
       try { return await driveSession({ ready, phase, finish, execute: request => execute({ ...request, id: lastId + 1 }), signal: lifetime.signal,
         refuse: code => { throw new LauncherRefusal(code); } }); }

@@ -174,7 +174,6 @@ fn reference_status_boundary_preserves_liveness_through_suspension_release_settl
         )
         .unwrap();
     store.expose(context(5), permission.request, 3).unwrap();
-    store.confirm_upload(permission.request).unwrap();
     let input = request();
     let mut expected = ReferenceStatusResponse {
         request: input,

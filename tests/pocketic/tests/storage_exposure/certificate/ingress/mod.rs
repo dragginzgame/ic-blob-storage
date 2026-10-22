@@ -94,7 +94,7 @@ fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_p
         inspect(&h.fixture, h.fixture.uploader, input)
             .unwrap()
             .state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     let mut forged: ic_platform::certification::Certificate =
         serde_cbor::from_slice(&certificate).unwrap();
@@ -178,7 +178,7 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         inspect(&h.fixture, h.fixture.uploader, input)
             .unwrap()
             .state,
-        UploadState::ExposurePossible
+        UploadState::Registered
     );
     // A new signed ingress is a new attempt; its certified rejection is not an
     // upload certificate even though HTTP successfully transports a certificate.

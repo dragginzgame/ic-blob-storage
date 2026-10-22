@@ -74,7 +74,7 @@ pub struct BlobLifecycle {
 
 #[cfg(any(test, feature = "test-support"))]
 impl BlobLifecycle {
-    /// Start bookkeeping after independently verified upload completion.
+    /// Start bookkeeping for trusted retention intent and its first reference.
     ///
     /// The caller must already have admitted object size, tenant/global capacity,
     /// the reference identity and its authority. This constructor does not turn

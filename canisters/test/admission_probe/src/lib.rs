@@ -75,16 +75,6 @@ fn revoke(input: Request) -> Result<Outcome, Failure> {
     decode_with = "ops::decode::mutation",
     encode_with = "blob_test_protocol::fixture_candid::encode_one"
 )]
-fn substitute_completion(input: Request) -> Result<Outcome, Failure> {
-    dispatch(Command::FixtureLifecycle(
-        LifecycleCommand::SubstituteCompletion(input),
-    ))
-}
-
-#[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
-)]
 fn substitute_deletion(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
         LifecycleCommand::SubstituteDeletion(input),

@@ -9,7 +9,7 @@ fn input() -> Input {
     Input {
         service: Principal::from_slice(&[1, 1]),
         namespace: u128::MAX,
-        filter: UploadHistoryFilter::Active,
+        filter: UploadHistoryFilter::Outstanding,
         cursor: None,
     }
 }
@@ -39,7 +39,7 @@ fn arguments() -> Vec<String> {
         "--namespace",
         &u128::MAX.to_string(),
         "--filter",
-        "active",
+        "outstanding",
     ]
     .into_iter()
     .map(str::to_owned)
@@ -63,7 +63,7 @@ fn saved_continuation_round_trips_and_foreign_or_malformed_scope_rejects_before_
     for (field, value, error) in [
         ("namespace", "1", Failure::CursorScope),
         ("service", "2vxsx-fae", Failure::CursorScope),
-        ("filter", "all", Failure::CursorScope),
+        ("filter", "active", Failure::CursorScope),
         ("scope", "tenant", Failure::CursorScope),
         ("after_tenant", "2vxsx-fae", Failure::Arguments),
         ("after_tenant", "aaaaa-aa", Failure::Arguments),
@@ -118,7 +118,7 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
             root: [42; 32],
             bytes: u64::MAX,
         },
-        state: S::ExposurePossible,
+        state: S::Live,
     });
     page.next = None;
     page.scanned = 1;
@@ -129,7 +129,7 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
             .unwrap(),
     )
     .unwrap();
-    assert_eq!(value["entries"][0]["state"], "exposure_possible");
+    assert_eq!(value["entries"][0]["state"], "live");
     assert_eq!(
         value["entries"][0]["upload"]["object"],
         (u128::MAX - 1).to_string()
@@ -152,7 +152,7 @@ fn json_keeps_empty_progress_full_width_identities_local_states_and_fences() {
 fn command_requires_an_explicit_filter_and_operator_without_unrelated_billing_scope() {
     let args = arguments();
     assert!(matches!(Options::parse(&args).unwrap().0,
-        super::super::arguments::Command::UploadHistory(input) if input.filter == UploadHistoryFilter::Active));
+        super::super::arguments::Command::UploadHistory(input) if input.filter == UploadHistoryFilter::Outstanding));
     assert!(matches!(
         Options::parse(&args[..args.len() - 2]),
         Err(Failure::Arguments)

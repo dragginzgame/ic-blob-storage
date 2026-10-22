@@ -380,9 +380,8 @@ impl<M: Memory> StableUploads<M> {
     ) -> Result<TenantContentView, UploadStoreError> {
         let state = match phase {
             UploadPhase::Reserved => UploadRootState::Reserved,
-            UploadPhase::ExposurePossible => UploadRootState::ExposurePossible,
             UploadPhase::Cancelled => UploadRootState::Cancelled,
-            UploadPhase::Confirmed => UploadRootState::Confirmed(
+            UploadPhase::Registered => UploadRootState::Confirmed(
                 self.confirmed
                     .get(&key(request))
                     .filter(|r| r.valid(self.config.limits().catalog))

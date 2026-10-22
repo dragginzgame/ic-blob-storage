@@ -50,7 +50,6 @@ pub(super) fn present(view: TenantContentView) -> UploadHistoryEntry {
         request: super::admission::upload(view.request),
         state: match view.state {
             UploadRootState::Reserved => UploadContentState::Reserved,
-            UploadRootState::ExposurePossible => UploadContentState::ExposurePossible,
             UploadRootState::Cancelled => UploadContentState::Cancelled,
             UploadRootState::Confirmed(phase) => match phase {
                 LifecyclePhase::Live => UploadContentState::Live,

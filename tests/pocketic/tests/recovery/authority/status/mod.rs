@@ -98,7 +98,7 @@ fn operator_query_denies_controller_and_reports_missing_economics_without_effect
         ),
         (4, 300, 300, 300)
     );
-    assert_eq!(phase(uploads, ArchivePhase::ExposurePossible), 1);
+    assert_eq!(phase(uploads, ArchivePhase::Live), 2);
     assert_eq!(phase(uploads, ArchivePhase::Cancelled), 1);
     let journey = catalog(&view, ArchiveCatalog::Journey);
     assert_eq!(
@@ -140,11 +140,10 @@ fn diagnostic_counts_keep_logical_physical_and_billing_release_separate() {
     assert_eq!(
         phase(
             catalog(&f.status_unchanged(), ArchiveCatalog::Journey),
-            ArchivePhase::ExposurePossible
+            ArchivePhase::Live
         ),
         1
     );
-    assert_eq!(f.complete(f.first, v.upload), Ok(()));
     assert_eq!(
         f.root_control(f.first, "journey_release", v.upload.root),
         Ok(())

@@ -16,7 +16,6 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
         payment_account: input.payment_account.into(),
         namespace: input.namespace,
         project: candidate.project.to_owned(),
-        completion_verifier: candidate.completion_verifier.into(),
         max_tenants: input.resources.max_tenants,
         max_object_bytes: input.resources.max_object_bytes,
         max_headers: input.resources.max_headers,

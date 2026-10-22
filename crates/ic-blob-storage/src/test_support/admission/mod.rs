@@ -17,6 +17,7 @@ mod tenant;
 use crate::model::catalog::CatalogError;
 use crate::model::catalog::admission::UploadAdmission;
 use crate::model::catalog::admission::UploadCatalog;
+#[cfg(test)]
 use crate::model::catalog::admission::UploadError;
 use crate::model::catalog::admission::UploadPhase;
 use crate::model::lifecycle::LifecycleChange;
@@ -212,7 +213,7 @@ impl UploadAdmissions {
             return Err(UploadAdmissionError::ManifestNotPrepared);
         }
         self.catalog
-            .mark_exposure_possible(request.object.first.object().tenant(), request)?;
+            .register(request.object.first.object().tenant(), request)?;
         Ok(())
     }
 
@@ -318,20 +319,6 @@ impl UploadAdmissions {
             return Err(UploadAdmissionError::NotObserver);
         }
         Ok(permission.view(self.catalog.phase(tenant, request)?))
-    }
-
-    /// Apply independently authenticated provider completion and exact stored size.
-    ///
-    /// The browser's success/progress cannot supply that evidence. Confirmation
-    /// retains the initial reference even if consumer asset registration fails.
-    /// Repeating completion never allocates another reference or resurrects release.
-    /// # Errors
-    /// Propagates exact catalog identity and phase errors.
-    pub fn confirm_upload(
-        &mut self,
-        request: UploadRequest,
-    ) -> Result<LifecycleChange, UploadError> {
-        self.catalog.confirm_upload(request)
     }
 
     /// Apply an exact project reference operation through the same catalog.

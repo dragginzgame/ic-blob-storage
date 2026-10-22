@@ -21,8 +21,6 @@ pub enum LifecyclePhase {
 pub enum UploadRootState {
     /// Unexposed reservation; must not be mistaken for an unknown/dead root.
     Reserved,
-    /// Authority may have escaped; preserve the unresolved object's reservation.
-    ExposurePossible,
     /// Cancelled before exposure; root history remains claimed, not reusable.
     Cancelled,
     /// Current confirmed-object phase, including retained settlement history.
@@ -47,10 +45,7 @@ impl UploadScanFilter {
     pub fn includes(self, state: UploadRootState) -> bool {
         match self {
             Self::All => true,
-            Self::Active => matches!(
-                state,
-                UploadRootState::Reserved | UploadRootState::ExposurePossible
-            ),
+            Self::Active => matches!(state, UploadRootState::Reserved),
             Self::DeletionPending => {
                 state == UploadRootState::Confirmed(LifecyclePhase::DeletionPending)
             }

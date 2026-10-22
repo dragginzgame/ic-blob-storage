@@ -117,7 +117,6 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
     assert_eq!(f.capacity(f.tenant, scope).unwrap().remaining_bytes, 10);
     f.prepare(&preparation).unwrap();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     assert_eq!(
         f.reference_headroom(f.tenant, lookup),
         Ok(Some(ReferenceHeadroom {
@@ -276,7 +275,7 @@ fn operator_root_batches_are_bounded_authorized_and_preserved_after_upgrade() {
     let before = f.status();
     let observed = f.roots(f.operator, &query).unwrap();
     assert!(
-        matches!(observed[0], RootObservation::Known(v) if v.request == permission.request && v.state == ContentState::ExposurePossible)
+        matches!(observed[0], RootObservation::Known(v) if v.request == permission.request && v.state == ContentState::Live)
     );
     assert_eq!(observed[1], RootObservation::Unknown);
     assert_eq!(observed[2], RootObservation::Malformed { bytes: 0 });

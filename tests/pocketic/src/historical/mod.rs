@@ -356,9 +356,6 @@ pub struct ServiceInstallationInput {
     /// Frozen field.
     pub completion_verifier: Principal,
 }
-impl Projection for ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput {
-    type Stored = ServiceInstallationInput;
-}
 /// Frozen historical schema.
 #[derive(Clone, Debug, PartialEq, CandidType, Deserialize, Serialize)]
 #[candid_path("ic_platform::candid::contract")]
@@ -576,9 +573,6 @@ pub enum UploadAttestationFailure {
     /// Frozen variant.
     Observation,
 }
-impl Projection for ic_blob_storage_contracts::dto::upload::completion::UploadAttestationFailure {
-    type Stored = UploadAttestationFailure;
-}
 /// Frozen historical schema.
 #[derive(Clone, Debug, PartialEq, CandidType, Deserialize, Serialize)]
 #[candid_path("ic_platform::candid::contract")]
@@ -587,9 +581,6 @@ pub struct UploadAttestationMutation {
     pub receipt: UploadAttestationReceipt,
     /// Frozen field.
     pub changed: bool,
-}
-impl Projection for ic_blob_storage_contracts::dto::upload::completion::UploadAttestationMutation {
-    type Stored = UploadAttestationMutation;
 }
 /// Frozen historical schema.
 #[derive(Clone, Debug, PartialEq, CandidType, Deserialize, Serialize)]
@@ -602,9 +593,6 @@ pub struct UploadAttestationReceipt {
     /// Frozen field.
     pub accepted_at_ns: u64,
 }
-impl Projection for ic_blob_storage_contracts::dto::upload::completion::UploadAttestationReceipt {
-    type Stored = UploadAttestationReceipt;
-}
 /// Frozen historical schema.
 #[derive(Clone, Debug, PartialEq, CandidType, Deserialize, Serialize)]
 #[candid_path("ic_platform::candid::contract")]
@@ -615,9 +603,6 @@ pub struct UploadAttestationRequest {
     pub content_digest: [u8; 32],
     /// Frozen field.
     pub observed_at_ns: u64,
-}
-impl Projection for ic_blob_storage_contracts::dto::upload::completion::UploadAttestationRequest {
-    type Stored = UploadAttestationRequest;
 }
 /// Frozen historical schema.
 #[derive(Clone, Debug, PartialEq, CandidType, Deserialize, Serialize)]
@@ -726,6 +711,16 @@ impl Projection for ic_blob_storage_contracts::dto::upload::UploadState {
     type Stored = UploadState;
 }
 
+// These DTOs exist only for the pinned old-image regression, not current calls.
+impl Projection for UploadAttestationRequest {
+    type Stored = Self;
+}
+impl Projection for UploadAttestationMutation {
+    type Stored = Self;
+}
+impl Projection for UploadAttestationFailure {
+    type Stored = Self;
+}
 /// Explicit historical counterpart; application DTOs themselves have no Candid trait.
 pub trait Projection {
     /// Frozen representation.

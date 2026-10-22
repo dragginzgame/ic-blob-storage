@@ -23,8 +23,8 @@ fn exact_upload_status_preserves_phases_refusals_and_full_original_binding() {
     let max = 4096.try_into().unwrap();
     for state in [
         UploadState::Reserved,
-        UploadState::ExposurePossible,
-        UploadState::Confirmed,
+        UploadState::Registered,
+        UploadState::Registered,
         UploadState::Cancelled,
     ] {
         let response = UploadStatusResponse {

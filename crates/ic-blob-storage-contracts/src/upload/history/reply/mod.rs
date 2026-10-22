@@ -96,7 +96,6 @@ fn position(c: UploadHistoryCursor) -> (Principal, u128) {
 fn state(input: UploadContentState) -> UploadRootState {
     match input {
         UploadContentState::Reserved => UploadRootState::Reserved,
-        UploadContentState::ExposurePossible => UploadRootState::ExposurePossible,
         UploadContentState::Cancelled => UploadRootState::Cancelled,
         UploadContentState::Live => UploadRootState::Confirmed(LifecyclePhase::Live),
         UploadContentState::DeletionPending => {

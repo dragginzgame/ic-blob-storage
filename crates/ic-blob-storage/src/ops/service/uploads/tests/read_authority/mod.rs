@@ -25,7 +25,6 @@ pub(super) fn setup() -> (
     registry.add(context(2), scope(), p(6)).unwrap();
     let mut uploads = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = lifecycle::exposed(&mut uploads);
-    uploads.confirm_upload(input.request).unwrap();
     (registry, uploads, input)
 }
 pub(super) fn target(input: UploadPermission) -> ReadTarget {
@@ -187,7 +186,6 @@ fn read_authority_refuses_either_restored_owner_and_wrong_scope() {
     registry.add(context(2), scope(), p(6)).unwrap();
     let mut uploads = StableUploads::install(clone_memory(&um), config()).unwrap();
     let input = lifecycle::exposed(&mut uploads);
-    uploads.confirm_upload(input.request).unwrap();
     let stamp = capture(&registry, &uploads, context(4), scope(), target(input)).unwrap();
     let reopened_registry = StableGatewayRegistry::open(gm.snapshot().lease(), config()).unwrap();
     let reopened_uploads = StableUploads::open(snapshot_memory(&um), config()).unwrap();

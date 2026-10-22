@@ -183,7 +183,7 @@ fn absent_existing_and_retired_roots_never_infer_upload_or_retry_authority() {
             true,
         ),
         (
-            Some(UploadContentState::ExposurePossible),
+            Some(UploadContentState::Reserved),
             "recover_existing_operation",
             true,
         ),

@@ -76,10 +76,6 @@ fn confirmed_reference_and_settlement_journey_matches_heap_accounting() {
     // Withdrawal after exposure cannot discard verified provider completion.
     store.revoke(context(4), input.request).unwrap();
     heap.revoke(context(4), input.request).unwrap();
-    assert_eq!(
-        store.confirm_upload(input.request).unwrap(),
-        heap.confirm_upload(input.request).unwrap()
-    );
     assert_eq!(store.usage().unwrap(), heap.catalog().usage());
     planning::parity(&store, &heap, input);
     let retained = command(input.request, u128::MAX, 2, true);
@@ -123,10 +119,6 @@ fn confirmed_reference_and_settlement_journey_matches_heap_accounting() {
     assert_eq!(store.usage().unwrap(), heap.catalog().usage());
     planning::parity(&store, &heap, input);
     let before = store.usage().unwrap();
-    assert_eq!(
-        store.confirm_upload(input.request),
-        Ok(LifecycleChange::Unchanged)
-    );
     assert_eq!(store.usage(), Ok(before));
     assert_eq!(
         store.apply_reference(context(4), input.request, retained),
@@ -159,10 +151,6 @@ fn confirmed_reference_and_settlement_journey_matches_heap_accounting() {
         Err(UploadStoreError::Fenced)
     );
     assert_eq!(
-        restored.confirm_upload(input.request),
-        Err(UploadStoreError::Fenced)
-    );
-    assert_eq!(
         restored.confirm_provider_deleted(input.request),
         Err(UploadStoreError::Fenced)
     );
@@ -175,7 +163,6 @@ fn confirmed_reference_and_settlement_journey_matches_heap_accounting() {
 fn receipt_headroom_preserves_cleanup_and_suspension_allows_replay_and_release() {
     let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
     let input = exposed(&mut store);
-    store.confirm_upload(input.request).unwrap();
     let retained = command(input.request, 1, 2, true);
     store
         .apply_reference(context(4), input.request, retained)
@@ -261,7 +248,6 @@ fn recorded_failure_survives_later_success_without_reinterpretation() {
     let m = memory();
     let mut store = StableUploads::install(clone_memory(&m), config).unwrap();
     let input = exposed(&mut store);
-    store.confirm_upload(input.request).unwrap();
     let failure = command(input.request, 1, 2, false);
     assert_eq!(
         store.apply_reference(context(4), input.request, failure),
@@ -301,7 +287,6 @@ fn every_confirmed_phase_reopens_with_separate_byte_obligations() {
         let m = memory();
         let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
         let input = exposed(&mut store);
-        store.confirm_upload(input.request).unwrap();
         if stage > 0 {
             store
                 .apply_reference(
@@ -331,7 +316,6 @@ fn missing_or_orphaned_reference_receipt_and_lifecycle_rows_reject_restore() {
         let m = memory();
         let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
         let input = exposed(&mut store);
-        store.confirm_upload(input.request).unwrap();
         store
             .apply_reference(
                 context(4),
@@ -368,27 +352,21 @@ fn missing_or_orphaned_reference_receipt_and_lifecycle_rows_reject_restore() {
         assert_eq!(*m.references.borrow(), before);
     }
 }
+
 #[test]
-fn premature_or_changed_confirmation_never_releases_capacity() {
-    let mut store = StableUploads::install(clone_memory(&(memory())), config()).unwrap();
+fn registration_requires_original_prepared_permission_and_preserves_capacity_on_refusal() {
+    let mut store = StableUploads::install(clone_memory(&memory()), config()).unwrap();
     enroll(&mut store);
     let input = permission(1);
     store.admit(context(4), input, 1).unwrap();
     let before = store.usage().unwrap();
-    assert_eq!(
-        store.confirm_upload(input.request),
-        Err(UploadError::InvalidPhase(UploadPhase::Reserved).into())
-    );
+    assert!(store.expose(context(5), input.request, 2).is_err());
     let mut changed = input.request;
     changed.object.bytes = 9;
-    assert_eq!(
-        store.confirm_upload(changed),
-        Err(UploadAdmissionError::PermissionConflict.into())
-    );
+    assert!(store.expose(context(5), changed, 2).is_err());
     assert_eq!(store.usage(), Ok(before));
     store.revoke(context(4), input.request).unwrap();
-    assert_eq!(
-        store.confirm_upload(input.request),
-        Err(UploadError::InvalidPhase(UploadPhase::Cancelled).into())
-    );
+    let cancelled = store.usage().unwrap();
+    assert!(store.expose(context(5), input.request, 3).is_err());
+    assert_eq!(store.usage(), Ok(cancelled));
 }

@@ -375,7 +375,7 @@ impl AssetRecord {
             RegistrationSource::Existing(_) => matches!(self.retain_result, Some(Ok(_))),
             RegistrationSource::Fresh(_) => {
                 self.upload_state
-                    == Some(ic_blob_storage_contracts::dto::upload::UploadState::Confirmed)
+                    == Some(ic_blob_storage_contracts::dto::upload::UploadState::Registered)
             }
         }
     }
@@ -395,11 +395,7 @@ impl ConsumerRecord {
         }
         if let Some(prior) = a.upload_state {
             let backwards = match prior {
-                UploadState::Confirmed | UploadState::Cancelled => prior != response.state,
-                UploadState::ExposurePossible => matches!(
-                    response.state,
-                    UploadState::Reserved | UploadState::Cancelled
-                ),
+                UploadState::Registered | UploadState::Cancelled => prior != response.state,
                 UploadState::Reserved => false,
             };
             if backwards {

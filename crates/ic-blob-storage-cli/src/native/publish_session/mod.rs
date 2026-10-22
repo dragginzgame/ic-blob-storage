@@ -5,7 +5,6 @@ mod control;
 mod progress;
 mod sources;
 mod transfer;
-mod verification;
 use crate::native::{
     Failure, agent, agent_for, arguments::Options, artifacts::Run, publish_check,
     publish_inputs::PreparedBatch, publish_map, publish_prepare, upload_inputs::digest,
@@ -19,7 +18,6 @@ use url::Url;
 pub(super) struct Input {
     pub prepare: publish_prepare::Input,
     pub operator_identity: PathBuf,
-    pub verifier_identity: Option<PathBuf>,
     pub source_session: Option<PathBuf>,
     pub browser_selection: Option<PathBuf>,
     pub gateway: Url,
@@ -42,7 +40,6 @@ struct SessionIntentRecord {
     tenant: String,
     uploader: String,
     operator: String,
-    verifier: Option<String>,
     gateway: String,
     inventory_sha256: String,
     installation_sha256: String,
@@ -61,13 +58,8 @@ struct Actors {
     tenant: Agent,
     uploader: Agent,
     operator: Agent,
-    verifier: Option<Options>,
 }
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "Keep startup authority binding, original intent and failure persistence together before session effects"
-)]
 pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let batch = PreparedBatch::open_frozen(
         &input.prepare.inputs,
@@ -96,10 +88,9 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             &input.operator_identity,
             installation.configuration.operator,
         )?,
-        verifier: verification::options(options, input, installation)?,
     };
     let intent = SessionIntentRecord {
-        format: "ic-blob-storage/publication-session:retained-browser-handoffs".into(),
+        format: "ic-blob-storage/publication-session:trusted-registration".into(),
         browser: browser::selection(input, &batch)?,
         source_session: input
             .source_session
@@ -114,25 +105,17 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         tenant: scope.tenant.to_text(),
         uploader: batch.files[0].input.permission.uploader.to_text(),
         operator: installation.configuration.operator.to_text(),
-        verifier: actors
-            .verifier
-            .as_ref()
-            .map(|options| options.actor.to_text()),
         gateway: input.gateway.as_str().into(),
         inventory_sha256: digest(&batch.inventory),
         installation_sha256: digest(&batch.installation.bytes),
         root_key_sha256: digest(&actors.tenant.read_root_key()),
         files: batch.files.len(),
         max_steps: input.max_steps,
-        max_service_updates: (2 + usize::from(actors.verifier.is_some())) * batch.files.len(),
+        max_service_updates: 2 * batch.files.len(),
         max_service_queries: budget::query_limit(input.max_steps, batch.files.len())
             .ok_or(Failure::Arguments)?,
         timeout_seconds: input.prepare.timeout_seconds,
-        max_provider_requests: if actors.verifier.is_some() {
-            batch.files.len()
-        } else {
-            0
-        },
+        max_provider_requests: 0,
         automatic_retries: 0,
         input_verification: "one_complete_startup_pass_and_selected_body_before_setup".into(),
     };

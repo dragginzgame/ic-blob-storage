@@ -94,15 +94,14 @@ fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt
     f.prepare(&manifest).unwrap();
     f.expose(permission.request).unwrap();
     let pending = register(&f, &input).unwrap();
-    assert_eq!(pending.upload_state, Some(UploadState::ExposurePossible));
-    assert!(!pending.published);
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
+    assert_eq!(pending.upload_state, Some(UploadState::Registered));
+    assert!(pending.published); // Consumer publishes retention intent, not verified provider bytes.
     let before = f.harness.pic.get_stable_memory(f.service);
     let published = register(&f, &input).unwrap();
     assert!(published.published);
     assert!(!published.retain_started);
     assert_eq!(published.retain_result, None);
-    assert_eq!(published.upload_state, Some(UploadState::Confirmed));
+    assert_eq!(published.upload_state, Some(UploadState::Registered));
     assert_eq!(register(&f, &input), Ok(published));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     cancel(&f, 1).unwrap();
@@ -120,7 +119,7 @@ fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt
     );
     assert_eq!(
         inspect(&f, f.tenant, upload(&input)).unwrap().state,
-        UploadState::Confirmed
+        UploadState::Registered
     );
     assert!(!register(&f, &input).unwrap().published);
     let retired = asset(&f, 1).unwrap();
@@ -150,14 +149,12 @@ fn late_upload_completion_after_cancellation_is_reconciled_for_cleanup_under_sus
     revocation::withdraw(&f, Fault::None, 4096).unwrap();
     assert_eq!(
         recover(&f, 1, false).unwrap().upload_state,
-        Some(UploadState::ExposurePossible)
+        Some(UploadState::Registered)
     );
-    assert_eq!(release(&f, 1), Err(ConsumerFailure::State));
     f.enroll(Some(f.tenant().unwrap()), false).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     assert_eq!(
         recover(&f, 1, false).unwrap().upload_state,
-        Some(UploadState::Confirmed)
+        Some(UploadState::Registered)
     );
     assert_eq!(
         release(&f, 1).unwrap().release_result,
@@ -181,7 +178,6 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
     admit(&f, &input).unwrap();
     f.prepare(&manifest).unwrap();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     input.fault = Fault::AfterUploadObservation;
     let before = f.harness.pic.get_stable_memory(f.service);
     let error = f
@@ -228,7 +224,6 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
     admit(&f, &input).unwrap();
     f.prepare(&manifest).unwrap();
     f.expose(permission.request).unwrap();
-    f.fact(permission.request, ProviderFact::Uploaded).unwrap();
     let u = upload(&input);
     for actor in [f.operator, f.controller, f.uploader, f.other] {
         assert_eq!(inspect(&f, actor, u), Err(UploadStatusFailure::Denied));
@@ -258,7 +253,7 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
     // Historical completion is readable, but operational descriptor delivery stays fenced.
     assert_eq!(register(&f, &input), Err(ConsumerFailure::Transport));
     let known = asset(&f, 1).unwrap();
-    assert_eq!(known.upload_state, Some(UploadState::Confirmed));
+    assert_eq!(known.upload_state, Some(UploadState::Registered));
     assert!(!known.published);
 }
 fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
