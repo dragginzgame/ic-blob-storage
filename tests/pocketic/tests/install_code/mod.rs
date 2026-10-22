@@ -1,6 +1,6 @@
 //! Platform cooldown for the installation/restoration qualification journeys.
 
-use ic_testkit::pocket_ic::PocketIc;
+use ic_platform::pocket_ic::PocketIc;
 
 /// Drain install-code debt through real rounds without disabling rate limits.
 /// The selected application's 300B per-install maximum and 2B per-round

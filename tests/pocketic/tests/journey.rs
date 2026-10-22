@@ -15,10 +15,8 @@ use blob_test_protocol::journey::{
 use ic_platform::candid::decoder;
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, RejectCode},
-};
+use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
+use ic_testkit::fake_principal;
 use sha2::{Digest, Sha256};
 use support::{Harness, fixture_path};
 
@@ -44,9 +42,9 @@ impl Fixture {
     fn with_source_operator(source_operator: bool) -> Self {
         let harness = Harness::new();
         let pic = &harness.pic;
-        let first = Fake::principal(1);
-        let second = Fake::principal(2);
-        let operator = Fake::principal(4);
+        let first = fake_principal(1);
+        let second = fake_principal(2);
+        let operator = fake_principal(4);
         let service = pic.create_canister_with_settings(
             Some(operator),
             Some(CanisterSettings {

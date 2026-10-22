@@ -13,7 +13,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 
 fn live(f: &mut Fixture, receipt: &mut [String], status: &mut [String]) {
@@ -142,7 +142,7 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
                 .with_nns_subnet()
                 .with_application_subnet(),
         ),
-        Fake::principal(2),
+        fake_principal(2),
     );
     f.tenant = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
     f.enroll(None, true).unwrap();

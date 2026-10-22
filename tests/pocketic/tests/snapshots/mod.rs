@@ -1,6 +1,6 @@
 //! Actual management snapshot operations, without an intervening upgrade hook.
+use ic_platform::pocket_ic::PocketIc;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pocket_ic::PocketIc;
 
 pub(super) fn take(pic: &PocketIc, service: Principal, controller: Principal) -> Vec<u8> {
     pic.stop_canister(service, Some(controller)).unwrap();

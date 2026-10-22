@@ -11,10 +11,8 @@ use ic_host_process::{
     child::OwnedChild,
     tool::{OutputLimit, OutputLimits, drain_child_output},
 };
-use ic_testkit::{
-    pic::{PocketIcInstance, PocketIcManagedServer, PocketIcStartupConfig},
-    pocket_ic::{PocketIc, PocketIcBuilder},
-};
+use ic_platform::pocket_ic::{PocketIc, PocketIcBuilder};
+use ic_testkit::pic::{PocketIcInstance, PocketIcManagedServer, PocketIcStartupConfig};
 
 /// Finite decoding budgets for replies from Blob's installed local fixtures.
 /// These cover bounded status/history pages and byte-bearing probe replies;

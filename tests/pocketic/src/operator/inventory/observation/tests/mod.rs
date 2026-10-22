@@ -223,7 +223,6 @@ fn pending_and_retired_content_never_become_new_upload_candidates() {
     let inventory = prepared();
     for state in [
         UploadContentState::Reserved,
-        UploadContentState::Live,
         UploadContentState::Cancelled,
         UploadContentState::DeletionPending,
         UploadContentState::ProviderDeleted,

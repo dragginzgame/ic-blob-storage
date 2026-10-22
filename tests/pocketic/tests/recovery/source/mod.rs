@@ -6,7 +6,7 @@ use blob_test_protocol::{
     source::{SourceAction, SourceEffectView, SourceRecoveryView},
 };
 
-use ic_testkit::pocket_ic::common::rest::BlobCompression;
+use ic_platform::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
     pub(in crate::recovery) fn source_recovery(

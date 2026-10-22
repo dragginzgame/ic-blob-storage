@@ -149,7 +149,7 @@ fn resource_window_preserves_order_and_overwrites_only_the_oldest_samples() {
     f.enroll();
     let initial = f.sample(f.operator).sequence;
     let callers: Vec<_> = (0..RESOURCE_SAMPLE_CAPACITY + 3)
-        .map(|index| Fake::principal(u32::try_from(index + 20).unwrap()))
+        .map(|index| fake_principal(u32::try_from(index + 20).unwrap()))
         .collect();
     for caller in &callers {
         assert_eq!(

@@ -2,7 +2,7 @@
 use super::*;
 use ic_platform::agent::{Agent, BasicIdentity, Identity};
 use ic_platform::candid::decoder;
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 use std::time::Duration;
 
 fn agent(url: &str, seed: u8, root_key: &[u8]) -> Agent {

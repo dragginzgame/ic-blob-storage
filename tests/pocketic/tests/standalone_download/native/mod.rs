@@ -8,7 +8,7 @@ use crate::{
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 use std::{
     net::TcpListener,
     path::{Path, PathBuf},

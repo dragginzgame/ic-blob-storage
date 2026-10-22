@@ -3,7 +3,7 @@ mod authority;
 mod source;
 use super::*;
 use blob_test_protocol::journey::readback::ReadSourceMode;
-use ic_testkit::pocket_ic::CanisterInstallMode;
+use ic_platform::pocket_ic::CanisterInstallMode;
 use std::time::Duration;
 
 const CHUNK: usize = 1024 * 1024;

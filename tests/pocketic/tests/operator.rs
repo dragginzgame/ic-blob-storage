@@ -14,8 +14,9 @@ mod sync_request;
 use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
 };
+use ic_platform::pocket_ic::CreateCanisterParams;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::{Fake, pocket_ic::CreateCanisterParams};
+use ic_testkit::fake_principal;
 use serde_json::Value;
 use std::process::Command;
 use support::{Harness, fixture_path};
@@ -51,13 +52,13 @@ impl Fixture {
         let gateway = create();
         let sender = create();
         let receiver = create();
-        let driver = Fake::principal(11);
+        let driver = fake_principal(11);
         pic.install_canister(
             authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
             ic_platform::candid::contract::encode_args((
-                Fake::principal(1),
-                Fake::principal(2),
+                fake_principal(1),
+                fake_principal(2),
                 gateway,
                 if source_operator { gateway } else { driver },
             ))

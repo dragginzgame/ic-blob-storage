@@ -200,7 +200,7 @@ fn denied_invalid_and_misbound_limit_updates_leave_journals_unchanged() {
     }
     let wrong = BillingLimitsInput {
         scope: BalanceScope {
-            account: Fake::principal(50),
+            account: fake_principal(50),
             ..input.scope
         },
         ..input

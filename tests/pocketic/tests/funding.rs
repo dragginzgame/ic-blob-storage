@@ -15,10 +15,8 @@ use blob_test_protocol::funding::{
 use blob_test_protocol::status::{FundingActivityView, OperatorBlockerView};
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CreateCanisterParams, RejectCode},
-};
+use ic_platform::pocket_ic::{CreateCanisterParams, RejectCode};
+use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 
 struct Fixture {
@@ -41,7 +39,7 @@ impl Fixture {
     fn with_budget(budget: blob_test_protocol::funding::budget::FundingBudgetInput) -> Self {
         let harness = Harness::new();
         let pic = &harness.pic;
-        let driver = Fake::principal(11);
+        let driver = fake_principal(11);
         let create = || {
             pic.create_canister_with_params(
                 None,
@@ -716,7 +714,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
     for canister in [fixture.sender, fixture.receiver] {
         for caller in [
             Principal::anonymous(),
-            Fake::principal(99),
+            fake_principal(99),
             fixture.sender,
             fixture.receiver,
         ] {

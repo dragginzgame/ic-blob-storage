@@ -7,8 +7,8 @@ use blob_test_protocol::{
     balance::*,
     status::{OperatorBlockerView, OperatorStatusView},
 };
-use ic_testkit::pocket_ic::common::rest::BlobCompression;
-use ic_testkit::pocket_ic::{CanisterInstallMode, common::rest::RawMessageId};
+use ic_platform::pocket_ic::common::rest::BlobCompression;
+use ic_platform::pocket_ic::{CanisterInstallMode, common::rest::RawMessageId};
 use sha2::{Digest, Sha256};
 use std::time::Duration;
 
@@ -259,7 +259,7 @@ fn malformed_rejected_and_misbound_replies_replace_no_history_with_zero() {
             Some(BalanceOutcomeView::Failed(expected))
         );
     }
-    let other = Fake::principal(50);
+    let other = fake_principal(50);
     let changed = BalanceScope {
         account: other,
         ..f.balance_scope()
@@ -374,7 +374,7 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
         .expect_err("old async heap cannot resume after upgrade");
     assert_eq!(
         error.reject_code,
-        ic_testkit::pocket_ic::RejectCode::CanisterError
+        ic_platform::pocket_ic::RejectCode::CanisterError
     );
     assert_eq!(f.balance_status().balance_observation.attempts, pending);
     assert_eq!(f.balance_status().provider_balance, None);

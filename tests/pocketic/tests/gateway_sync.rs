@@ -9,10 +9,8 @@ mod sync_request;
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, PocketIc},
-};
+use ic_platform::pocket_ic::{CanisterSettings, PocketIc};
+use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 
 struct Fixture {
@@ -28,8 +26,7 @@ impl Fixture {
     fn new() -> Self {
         let harness = Harness::new();
         let pic = &harness.pic;
-        let (tenant, gateway, driver) =
-            (Fake::principal(1), Fake::principal(3), Fake::principal(4));
+        let (tenant, gateway, driver) = (fake_principal(1), fake_principal(3), fake_principal(4));
         let create = || {
             pic.create_canister_with_settings(
                 Some(driver),
@@ -45,7 +42,7 @@ impl Fixture {
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("probe Wasm"),
             ic_platform::candid::contract::encode_args((
                 tenant,
-                Fake::principal(2),
+                fake_principal(2),
                 gateway,
                 source,
             ))
@@ -184,7 +181,7 @@ fn reentrant_sync_cannot_overlap_or_undo_revocation_and_newer_membership() {
     assert_eq!(fixture.sync(), Ok(()));
     assert_eq!(fixture.pending(fixture.gateway), Some(vec![1]));
 
-    let replacement = Fake::principal(5);
+    let replacement = fake_principal(5);
     fixture.configure(SourceMode::Replace(replacement));
     let requests = fixture.observation().requests;
     assert_eq!(fixture.sync(), Err(SyncFailure::Stale));

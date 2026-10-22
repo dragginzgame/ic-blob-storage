@@ -16,6 +16,14 @@
   Check pending accounting before registration, then require the live obligation
   and retained liability immediately afterward; registered uploads leave the
   active-reservation listing while their history still counts toward scan limits.
+  Keep live content out of pending/retired inventory fixtures; its separate
+  reference-capacity checks remain covered.
+
+- Adopt published IC Host, Build and Testkit 0.64.0 together. Native tests import
+  PocketIC directly from Platform and use Testkit's deterministic principal
+  function, removing reliance on the retired forwarding APIs. Deployment and
+  Blob's public contracts are unchanged; explicitly refresh installed Build and
+  Testkit tools before release validation.
 
 - Record the provider's Motoko GC primitive boundary and the unresolved gateway
   contract needed for safe shared callbacks. Distinguish historical Canic trusted

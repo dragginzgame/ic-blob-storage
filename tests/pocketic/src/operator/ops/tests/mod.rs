@@ -4,24 +4,24 @@ use blob_test_protocol::{
     status::FundingActivityView,
 };
 use ic_platform::Principal;
-use ic_testkit::Fake;
+use ic_testkit::fake_principal;
 
 fn target() -> Target {
     Target {
         transport: crate::operator::model::QueryTarget {
             server: "127.0.0.1:1".parse().unwrap(),
             instance: 0,
-            canister: Fake::principal(1).into(),
+            canister: fake_principal(1).into(),
             caller: Principal::anonymous(),
         },
-        binding: Binding::Funding(Fake::principal(2).into()),
+        binding: Binding::Funding(fake_principal(2).into()),
     }
 }
 
 fn status() -> FundingOperatorStatusView {
     FundingOperatorStatusView {
-        service: Fake::principal(1),
-        peer: Fake::principal(2),
+        service: fake_principal(1),
+        peer: fake_principal(2),
         fenced: true,
         provider_qualified: false,
         billing_configured: false,
@@ -94,7 +94,7 @@ fn bounded_decode_preserves_exact_amounts_and_unknowns() {
         Err(Failure::Denied)
     );
     let mut changed = status();
-    changed.peer = Fake::principal(3);
+    changed.peer = fake_principal(3);
     assert_eq!(
         report(
             &target(),
@@ -103,7 +103,7 @@ fn bounded_decode_preserves_exact_amounts_and_unknowns() {
         Err(Failure::Binding)
     );
     let mut changed = status();
-    changed.service = Fake::principal(3);
+    changed.service = fake_principal(3);
     assert_eq!(
         report(
             &target(),

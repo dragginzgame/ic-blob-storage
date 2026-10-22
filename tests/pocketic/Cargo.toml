@@ -12,7 +12,7 @@ blob-test-protocol.workspace = true
 ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-host-fs.workspace = true
-ic-platform = { workspace = true, features = ["candid"] }
+ic-platform = { workspace = true, features = ["candid", "pocket-ic"] }
 ic-testkit.workspace = true
 serde.workspace = true
 serde_json.workspace = true

@@ -103,7 +103,7 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         Principal::anonymous(),
         f.authority,
         f.gateway,
-        Fake::principal(99),
+        fake_principal(99),
     ] {
         assert!(query(caller).is_err());
     }
@@ -116,7 +116,7 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         SourceMode::Reject,
         SourceMode::Overlap,
         SourceMode::Revoke,
-        SourceMode::Replace(Fake::principal(99)),
+        SourceMode::Replace(fake_principal(99)),
     ] {
         let configured: bool = crate::support::update_fixture(
             &f.harness.pic,

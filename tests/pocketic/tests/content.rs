@@ -6,15 +6,16 @@ mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
 use ic_platform::candid::contract::encode_args;
-use ic_testkit::{Fake, pocket_ic::CanisterSettings};
+use ic_platform::pocket_ic::CanisterSettings;
+use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 
 #[test]
 fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_budget() {
     let harness = Harness::new();
     let pic = &harness.pic;
-    let operator = Fake::principal(4);
-    let tenant = Fake::principal(1);
+    let operator = fake_principal(4);
+    let tenant = fake_principal(1);
     let canister = pic.create_canister_with_settings(
         Some(operator),
         Some(CanisterSettings {
@@ -25,7 +26,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
     pic.install_canister(
         canister,
         std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("Wasm"),
-        encode_args((tenant, Fake::principal(2), Fake::principal(3), operator)).expect("init"),
+        encode_args((tenant, fake_principal(2), fake_principal(3), operator)).expect("init"),
         Some(operator),
     );
     let denied: Result<ContentProbeReport, ContentProbeFailure> = crate::support::update_fixture(

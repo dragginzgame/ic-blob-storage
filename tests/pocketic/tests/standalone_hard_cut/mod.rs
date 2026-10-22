@@ -19,7 +19,7 @@ pub(super) fn frozen_installation(f: &Fixture) -> Vec<u8> {
         &ic_platform::candid::contract::encode_one(historical::ServiceInstallationInput {
             configuration: historical::project(input.configuration),
             project: input.project,
-            completion_verifier: Fake::principal(90),
+            completion_verifier: fake_principal(90),
         })
         .unwrap(),
     )
@@ -167,7 +167,7 @@ fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) 
     historical::update_args::<(Result<UploadAttestationMutation, UploadAttestationFailure>,), _>(
         &f.harness.pic,
         f.service,
-        Fake::principal(90),
+        fake_principal(90),
         "blob_attest_upload",
         (UploadAttestationRequest {
             permission: historical::project(manifest.permission),

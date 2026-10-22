@@ -85,7 +85,7 @@ fn preview_cannot_authorize_changed_bindings_or_another_callers_refresh() {
     );
     let current = f.refresh_request();
     let mut wrong = current;
-    wrong.scope.account = Fake::principal(30);
+    wrong.scope.account = fake_principal(30);
     assert_eq!(
         refresh_command(&args(&f, "refresh", wrong)).1["action"]["failure"],
         "Binding"

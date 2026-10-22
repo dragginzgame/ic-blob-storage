@@ -41,7 +41,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
             GATEWAY_REVOCATION_METHOD,
             GatewayRevocationRequest {
                 scope: f.operator_scope(),
-                gateway: Fake::principal(9).into(),
+                gateway: fake_principal(9).into(),
             },
             REPLY_LIMITS.reply_bytes,
         )
@@ -283,7 +283,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
 
 #[test]
 fn active_current_instance_recovery_retains_released_physical_and_billing_obligations() {
-    let f = Fixture::small(Harness::new(), Fake::principal(4));
+    let f = Fixture::small(Harness::new(), fake_principal(4));
     confirm_and_release_locally(&f);
     let permission = f.small_manifest().permission;
     let before = f.local_status(f.operator, f.operator_scope()).unwrap();

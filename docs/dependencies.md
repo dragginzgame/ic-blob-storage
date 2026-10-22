@@ -102,6 +102,19 @@ upstream identities; Blob must not pass typed values across incompatible
 package versions. Installed tool selection is separate from the application lock:
 run `make install-testkit` then `make testkit-check` after changing Testkit.
 
+The current native Tooling selection is the published 0.64.0 release. Testkit's
+PocketIC re-exports and stateless `Fake` wrapper are retired: test dependencies
+select Platform's `pocket-ic` feature, import `ic_platform::pocket_ic` directly,
+and call `ic_testkit::fake_principal`. Testkit still owns server startup,
+lifecycle extensions and transport error handling. The simulator identity,
+principal bytes and local decoder limits are unchanged. These are native test
+changes, not new deployment dependencies. Host Tools' decoder limits now belong
+to Platform; Blob already uses that canonical type and does not need a bridge.
+The optional package verifier and its Build dependency stay on the same Host
+process identity. After adoption, explicitly prepare the locked Testkit CLI with
+`make install-testkit` and the locked release editor with
+`make install-release-editor`; application lockfile changes do not install tools.
+
 The [service wire guide](service-wire.md) defines the 0.36.0 contract.
 All 31 owned methods and standalone lifecycle inputs use published IC Wire
 0.5.0, with explicit method/direction identity and no old-packet fallback.

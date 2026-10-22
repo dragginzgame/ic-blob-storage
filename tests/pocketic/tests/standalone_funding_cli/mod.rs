@@ -3,7 +3,7 @@ use super::*;
 use crate::authenticated_cli::{PEM, arguments, run};
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
 
 fn change(args: &mut [String], flag: &str, value: &str) {

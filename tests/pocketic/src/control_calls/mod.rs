@@ -30,11 +30,11 @@ pub enum ControlCallError {
     /// Request encoding refused before dispatch.
     Encoding(ic_blob_storage_contracts::document::Error),
     /// Platform rejection from this call.
-    Rejected(ic_testkit::pocket_ic::RejectResponse),
+    Rejected(ic_platform::pocket_ic::RejectResponse),
     /// Reply admission or decoding refused after dispatch.
     Decoding(ic_blob_storage_contracts::document::Error),
 }
-impl ControlCallExt for ic_testkit::pocket_ic::PocketIc {
+impl ControlCallExt for ic_platform::pocket_ic::PocketIc {
     fn query_control_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,

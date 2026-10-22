@@ -30,11 +30,9 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
+use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, RejectCode},
-};
+use ic_testkit::fake_principal;
 use std::num::{NonZeroU64, NonZeroUsize};
 use support::{Harness, REPLY_LIMITS, fixture_path};
 struct Fixture {
@@ -74,10 +72,10 @@ impl Fixture {
             .unwrap()
     }
     fn new() -> Self {
-        Self::with_operator(Harness::new(), Fake::principal(1))
+        Self::with_operator(Harness::new(), fake_principal(1))
     }
     fn with_operator(harness: Harness, operator: Principal) -> Self {
-        let controller = Fake::principal(2);
+        let controller = fake_principal(2);
         let service = harness.pic.create_canister_with_settings(
             Some(controller),
             Some(CanisterSettings {
@@ -96,9 +94,9 @@ impl Fixture {
             service,
             operator,
             controller,
-            tenant: Fake::principal(3),
-            uploader: Fake::principal(4),
-            other: Fake::principal(5),
+            tenant: fake_principal(3),
+            uploader: fake_principal(4),
+            other: fake_principal(5),
         }
     }
     fn wasm() -> Vec<u8> {

@@ -141,8 +141,8 @@ fn receipt_populated_confirmation_and_restoration_profile() {
 )]
 fn profile(directory: &Path, count: u32) {
     let harness = Harness::new();
-    let operator = Fake::principal(1);
-    let controller = Fake::principal(2);
+    let operator = fake_principal(1);
+    let controller = fake_principal(2);
     let service = harness.pic.create_canister_with_settings(
         Some(controller),
         Some(CanisterSettings {
@@ -173,8 +173,8 @@ fn profile(directory: &Path, count: u32) {
         operator,
         controller,
         tenant: Principal::anonymous(),
-        uploader: Fake::principal(4),
-        other: Fake::principal(5),
+        uploader: fake_principal(4),
+        other: fake_principal(5),
     };
     let started = Instant::now();
     for start in (0..count).step_by(16) {

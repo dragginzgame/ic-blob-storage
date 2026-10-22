@@ -1,13 +1,13 @@
 use super::*;
 use crate::operator::model::{Binding, Target};
 use blob_test_protocol::funding::preview::FundingPreviewRequest;
-use ic_testkit::Fake;
+use ic_testkit::fake_principal;
 
 #[test]
 fn preview_decode_binds_every_request_field_and_preserves_full_width_reserve_values() {
     let request = FundingPreviewRequest {
-        service: Fake::principal(1),
-        peer: Fake::principal(2),
+        service: fake_principal(1),
+        peer: fake_principal(2),
         id: u64::MAX,
         requested_cycles: u128::MAX,
         revision: 0,
@@ -19,7 +19,7 @@ fn preview_decode_binds_every_request_field_and_preserves_full_width_reserve_val
                 server: "127.0.0.1:1".parse().unwrap(),
                 instance: 0,
                 canister: request.service.into(),
-                caller: Fake::principal(3).into(),
+                caller: fake_principal(3).into(),
             },
             binding: Binding::Funding(request.peer.into()),
         },

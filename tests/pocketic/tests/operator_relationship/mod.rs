@@ -9,7 +9,7 @@ use ic_blob_storage::ops::caffeine::{
         PaymentRelationshipReplyError,
     },
 };
-use ic_testkit::pocket_ic::common::rest::BlobCompression;
+use ic_platform::pocket_ic::common::rest::BlobCompression;
 use std::num::NonZeroUsize;
 
 fn owner() -> Principal {
@@ -211,7 +211,7 @@ fn query_cannot_bypass_driver_owner_or_source_hold_controls() {
     let request = f.relationship_request(owner(), payer());
     f.relationship_response(bytes("linked"), false, false);
     let before = f.journals();
-    for caller in [Principal::anonymous(), f.authority, Fake::principal(99)] {
+    for caller in [Principal::anonymous(), f.authority, fake_principal(99)] {
         assert!(
             f.harness
                 .pic

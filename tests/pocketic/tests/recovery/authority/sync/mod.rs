@@ -3,7 +3,7 @@ use super::*;
 use blob_test_protocol::{SourceObservation, source::SourceHeldSyncView};
 use ic_platform::candid::decoder;
 
-use ic_testkit::pocket_ic::common::rest::RawMessageId;
+use ic_platform::pocket_ic::common::rest::RawMessageId;
 
 impl Fixture {
     pub(super) fn hold_sync(&self) -> RawMessageId {

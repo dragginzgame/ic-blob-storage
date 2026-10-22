@@ -1,8 +1,8 @@
 //! Real stable-memory restores fence both sides of local cycle transfers.
 use super::*;
 use ic_platform::candid::decoder;
-use ic_testkit::pocket_ic::CanisterInstallMode;
-use ic_testkit::pocket_ic::{RejectResponse, common::rest::BlobCompression};
+use ic_platform::pocket_ic::CanisterInstallMode;
+use ic_platform::pocket_ic::{RejectResponse, common::rest::BlobCompression};
 use sha2::{Digest, Sha256};
 
 impl Fixture {
@@ -75,7 +75,7 @@ impl Fixture {
                 Err(FundingFailure::Fenced)
             );
         }
-        for caller in [Principal::anonymous(), self.receiver, Fake::principal(99)] {
+        for caller in [Principal::anonymous(), self.receiver, fake_principal(99)] {
             assert_eq!(self.fund(caller, paid), Err(FundingFailure::Denied));
             assert_eq!(self.status_as(self.sender, caller), None);
         }

@@ -9,7 +9,7 @@ fn consumer_wasm() -> Vec<u8> {
 }
 fn fixture(operator_client: bool) -> (Fixture, Principal) {
     let harness = Harness::new();
-    let driver = Fake::principal(2);
+    let driver = fake_principal(2);
     let client = harness.pic.create_canister_with_settings(
         Some(driver),
         Some(CanisterSettings {
@@ -22,7 +22,7 @@ fn fixture(operator_client: bool) -> (Fixture, Principal) {
         if operator_client {
             client
         } else {
-            Fake::principal(1)
+            fake_principal(1)
         },
     );
     f.harness.pic.install_canister(

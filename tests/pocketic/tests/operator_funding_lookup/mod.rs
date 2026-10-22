@@ -4,7 +4,7 @@ use blob_test_protocol::funding::lookup::{
     FundingLookupFailure, FundingLookupRequest, FundingLookupState, FundingLookupView,
 };
 
-use ic_testkit::pocket_ic::common::rest::BlobCompression;
+use ic_platform::pocket_ic::common::rest::BlobCompression;
 
 fn request() -> FundingRequest {
     FundingRequest {
@@ -186,7 +186,7 @@ fn callback_trap_remains_pending_through_lookup_and_restore() {
         .unwrap_err();
     assert_eq!(
         failure.reject_code,
-        ic_testkit::pocket_ic::RejectCode::CanisterError
+        ic_platform::pocket_ic::RejectCode::CanisterError
     );
     for restored in [false, true] {
         if restored {
@@ -259,7 +259,7 @@ fn lookup_denies_wrong_callers_and_bindings_and_never_falls_back_to_update() {
     let before = f.journals();
     for (flag, value, error) in [
         ("--caller", Principal::anonymous().to_text(), "denied"),
-        ("--peer", Fake::principal(99).to_text(), "binding_mismatch"),
+        ("--peer", fake_principal(99).to_text(), "binding_mismatch"),
         ("--amount", "10000000000001".into(), "invalid_request"),
     ] {
         let mut args = args(&f, request());

@@ -50,7 +50,7 @@ enum RelationshipError {
 }
 
 fn fixture() -> Fixture {
-    fixture_with_operator(Harness::new(), Fake::principal(2))
+    fixture_with_operator(Harness::new(), fake_principal(2))
 }
 fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
     let cashier = harness.pic.create_canister();
@@ -58,7 +58,7 @@ fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
     f.harness.pic.install_canister(
         cashier,
         std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-        ic_platform::candid::contract::encode_args((f.service, Fake::principal(9), f.controller))
+        ic_platform::candid::contract::encode_args((f.service, fake_principal(9), f.controller))
             .unwrap(),
         None,
     );
@@ -305,7 +305,7 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
 fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_linked_payer() {
     let mut f = fixture();
     // This fresh local installation has no objects or provider effects.
-    f.config.payment_account = Fake::principal(8).into();
+    f.config.payment_account = fake_principal(8).into();
     f.harness
         .pic
         .reinstall_canister(

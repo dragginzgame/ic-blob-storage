@@ -15,7 +15,7 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     let f = Fixture::new();
     let input = GatewayRevocationRequest {
         scope: f.operator_scope(),
-        gateway: Fake::principal(9).into(),
+        gateway: fake_principal(9).into(),
     };
     let call = |actor, input| -> Result<GatewayRevocationResponse, Error> {
         f.harness

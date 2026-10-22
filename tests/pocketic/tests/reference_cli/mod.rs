@@ -1,6 +1,6 @@
 //! Shared subprocess harness for the maintained receipt endpoint on both local hosts.
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
-use ic_testkit::pocket_ic::PocketIc;
+use ic_platform::pocket_ic::PocketIc;
 use std::{fs, path::Path};
 
 /// Native requests use genuine signed tenant queries with independently supplied trust.

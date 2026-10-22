@@ -11,7 +11,7 @@ use blob_test_protocol::{
         },
     },
 };
-use ic_testkit::pocket_ic::RejectResponse;
+use ic_platform::pocket_ic::RejectResponse;
 
 #[derive(Clone, Copy)]
 struct HistoryWorkload {
@@ -248,8 +248,8 @@ fn scaled_occupied_history_restoration_profile() {
 )]
 fn profile_workload(directory: &Path, workload: HistoryWorkload) {
     let harness = Harness::new();
-    let operator = Fake::principal(1);
-    let controller = Fake::principal(2);
+    let operator = fake_principal(1);
+    let controller = fake_principal(2);
     let service = harness.pic.create_canister_with_settings(
         Some(controller),
         Some(CanisterSettings {
@@ -280,8 +280,8 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         operator,
         controller,
         tenant: Principal::anonymous(),
-        uploader: Fake::principal(4),
-        other: Fake::principal(5),
+        uploader: fake_principal(4),
+        other: fake_principal(5),
     };
     let objects = Workload {
         name: workload.name,

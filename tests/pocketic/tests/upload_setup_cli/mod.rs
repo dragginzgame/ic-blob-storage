@@ -32,7 +32,7 @@ pub(crate) fn uploader() -> Principal {
         .unwrap()
 }
 pub(crate) fn cancelled_totals(
-    pic: &ic_testkit::pocket_ic::PocketIc,
+    pic: &ic_platform::pocket_ic::PocketIc,
     scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
     operator: Principal,
 ) {

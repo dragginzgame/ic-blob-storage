@@ -10,7 +10,7 @@ use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::path::Path;
@@ -28,8 +28,8 @@ fn setup_profile(envelope: Envelope) -> Fixture {
                 .with_nns_subnet()
                 .with_application_subnet(),
         ),
-        Fake::principal(5),
-        Fake::principal(2),
+        fake_principal(5),
+        fake_principal(2),
         uploader(),
         envelope,
         "publish-check-fixture",

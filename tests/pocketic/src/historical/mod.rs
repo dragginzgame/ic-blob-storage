@@ -781,7 +781,7 @@ pub fn decode<T: Projection + serde::de::DeserializeOwned>(
 /// # Panics
 /// Panics if fixture fields cannot project into the frozen schema.
 pub fn query_args<R, A>(
-    pic: &ic_testkit::pocket_ic::PocketIc,
+    pic: &ic_platform::pocket_ic::PocketIc,
     service: Principal,
     caller: Principal,
     method: &str,
@@ -817,7 +817,7 @@ where
 /// # Panics
 /// Panics if fixture fields cannot project into the frozen schema.
 pub fn update_args<R, A>(
-    pic: &ic_testkit::pocket_ic::PocketIc,
+    pic: &ic_platform::pocket_ic::PocketIc,
     service: Principal,
     caller: Principal,
     method: &str,

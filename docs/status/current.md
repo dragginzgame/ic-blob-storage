@@ -5,7 +5,7 @@ Date: 2026-10-22
 ## Source and accepted scope
 
 Latest released source is **0.40.4**, `ba779305b66acc87bf7af1e4f5a4a4f3ee5f24c7`.
-Local main includes the pending batch at `5f5d34e`; no 0.41.0 tag is present.
+Local main includes the pending batch at `c1103db`; no 0.41.0 tag is present.
 The working batch targets **0.41.0**; package versions remain 0.40.4 for the
 maintainer's release runner. Preserve the incoming Cargo.lock changes and the
 October 22 source-discovery evidence. No staging, commit, push or release is
@@ -25,9 +25,11 @@ Same-release restoration, exact retry records, lifetime quotas and physical/bill
 obligations remain required. Retirement cannot discard the only uncertain records.
 
 Shared Tooling **0.26.4**, revision `dc1ced7e240e90f0c6daa89fb6248fcb074164eb`,
-remains the 125-file reviewed snapshot. The qualified artifacts use Platform 0.6.7,
-Wire 0.5.19, Metrics 0.15.4, Memory/Storage 0.50.10 and Tooling/Testkit 0.63.3.
-This batch does not select new dependencies. Ordinary CI is offline after explicit
+remains the 125-file reviewed snapshot. The latest native adoption selects
+published Host/Build/Testkit 0.64.0 together; Platform 0.6.7, Wire 0.5.20,
+Metrics 0.15.5 and Memory/Storage 0.50.10 remain unchanged. Earlier hard-cut
+installed artifacts use Tooling 0.63.3, Wire 0.5.19 and Metrics 0.15.4.
+Ordinary CI is offline after explicit
 preparation; released [#98](https://github.com/dragginzgame/ic-blob-storage/issues/98)
 is resolved, including native macOS/MSRV qualification of its exact source.
 
@@ -105,13 +107,24 @@ No native macOS, real installed IC or deployed Caffeine qualification is claimed
 Released-source hosted results remain linked in the [October 20 handoff](handoff-2026-10-20.md)
 and [history](history.md); they do not qualify this dirty hard cut.
 
-The October 22 release gate exposed three stale native regression expectations:
-identical Registered observations are idempotent; reservation accounting is checked
-before registration; active pages exclude registered history but still count its
-scan cost. Tests now assert those contracts without changing production behavior.
-Focused rerun evidence is under `.tmp/review-validation/registration-observation-fix/`.
-All native targets pass across the complete run and the CLI localhost rerun
-(the sandbox initially blocked six socket fixtures). Strict core/probe Clippy,
-scoped formatting and whitespace checks pass; Cargo.lock remained unchanged.
-Production code, installation schemas and package versions are unchanged by this
-repair. The complete CI/release gate and installed suites were not repeated.
+The committed regression repair at `c1103db` corrected idempotent observations,
+registration accounting and reservation listings; its native evidence remains at
+`.tmp/review-validation/registration-observation-fix/` on Tooling 0.63.3.
+
+The new Host 0.64 adoption uses published registry sources only. Native tests import
+PocketIC directly from Platform and call Testkit's `fake_principal`; startup,
+lifecycle and transport extensions stay with Testkit. A remaining inventory test
+incorrectly classified Live content as pending/retired; remove that negative case,
+retaining the separate live-content reference-capacity test. Production storage,
+wire contracts and package versions are unchanged.
+
+Evidence under `.tmp/review-validation/host064/` covers locked metadata, one 0.64.0
+identity for each of the seven Tooling packages, deployment exclusions, strict
+affected-package Clippy, Rust 1.91 all-target/all-feature native checks, 121 CLI
+cases, 25 native PocketIC unit cases and four installed certificate cases using
+the retained 16.1.0 server. The certificate CLI case also passes with the rebuilt
+0.64 Host CLI; standalone Wasm is unchanged and its default Wasm check passes.
+The first inventory test failure is retained separately.
+No new native macOS or full release gate is claimed. Explicitly prepare the locked
+tools with `make install-testkit` and `make install-release-editor` before the
+maintainer's release gate; this adoption does not install executables.

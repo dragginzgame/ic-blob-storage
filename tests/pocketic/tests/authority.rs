@@ -7,11 +7,9 @@ mod support;
 
 use support::{Harness, fixture_path};
 
+use ic_platform::pocket_ic::{CanisterSettings, PocketIc};
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, PocketIc},
-};
+use ic_testkit::fake_principal;
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
     crate::support::query_fixture(pic, canister, caller, "usage", ())
@@ -55,10 +53,10 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
     let harness = Harness::new();
     let pic = &harness.pic;
     let (first, second, gateway, controller) = (
-        Fake::principal(1),
-        Fake::principal(2),
-        Fake::principal(3),
-        Fake::principal(4),
+        fake_principal(1),
+        fake_principal(2),
+        fake_principal(3),
+        fake_principal(4),
     );
     let canister = pic.create_canister_with_settings(
         Some(controller),

@@ -51,7 +51,7 @@ impl Selection {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ic_testkit::Fake;
+    use ic_testkit::fake_principal;
 
     fn args() -> Vec<String> {
         [
@@ -61,13 +61,13 @@ mod tests {
             "--instance".into(),
             "0".into(),
             "--canister".into(),
-            Fake::principal(1).to_text(),
+            fake_principal(1).to_text(),
             "--caller".into(),
-            Fake::principal(3).to_text(),
+            fake_principal(3).to_text(),
             "--kind".into(),
             "funding".into(),
             "--peer".into(),
-            Fake::principal(2).to_text(),
+            fake_principal(2).to_text(),
             "--id".into(),
             u64::MAX.to_string(),
             "--amount".into(),

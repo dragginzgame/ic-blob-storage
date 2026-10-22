@@ -4,18 +4,18 @@ use blob_test_protocol::funding::{
     FundingObservation, FundingOutcome, FundingReconciliationView, FundingReplyMode,
     FundingRequest, lookup::FundingLookupRequest,
 };
-use ic_testkit::Fake;
+use ic_testkit::fake_principal;
 
 fn selection() -> Selection {
-    let service = Fake::principal(1);
-    let peer = Fake::principal(2);
+    let service = fake_principal(1);
+    let peer = fake_principal(2);
     Selection {
         target: Target {
             transport: crate::operator::model::QueryTarget {
                 server: "127.0.0.1:1".parse().unwrap(),
                 instance: 0,
                 canister: service.into(),
-                caller: Fake::principal(3).into(),
+                caller: fake_principal(3).into(),
             },
             binding: Binding::Funding(peer.into()),
         },

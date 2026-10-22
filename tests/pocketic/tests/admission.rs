@@ -13,11 +13,9 @@ use blob_test_protocol::admission::{
     Phase, Request, Workload,
 };
 use ic_platform::candid::decoder;
+use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, RejectCode},
-};
+use ic_testkit::fake_principal;
 use std::time::Duration;
 use support::{Harness, fixture_path};
 
@@ -38,8 +36,8 @@ impl Fixture {
 
     fn with_workload(workload: Workload) -> Self {
         let harness = Harness::new();
-        let operator = Fake::principal(1);
-        let controller = Fake::principal(2);
+        let operator = fake_principal(1);
+        let controller = fake_principal(2);
         let service = harness.pic.create_canister_with_settings(
             Some(controller),
             Some(CanisterSettings {
@@ -59,9 +57,9 @@ impl Fixture {
             service,
             operator,
             controller,
-            project: Fake::principal(3),
-            other: Fake::principal(4),
-            uploader: Fake::principal(5),
+            project: fake_principal(3),
+            other: fake_principal(4),
+            uploader: fake_principal(5),
         }
     }
 

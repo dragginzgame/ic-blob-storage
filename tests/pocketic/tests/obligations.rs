@@ -10,10 +10,8 @@ use blob_test_protocol::obligations::{
 };
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, PocketIc},
-};
+use ic_platform::pocket_ic::{CanisterSettings, PocketIc};
+use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 
 fn objects(
@@ -65,10 +63,10 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
     let harness = Harness::new();
     let pic = &harness.pic;
     let (first, second, gateway, controller) = (
-        Fake::principal(1),
-        Fake::principal(2),
-        Fake::principal(3),
-        Fake::principal(4),
+        fake_principal(1),
+        fake_principal(2),
+        fake_principal(3),
+        fake_principal(4),
     );
     let canister = install(pic, first, second, gateway, controller);
     let first_live = ObligationProbeView {
@@ -85,7 +83,7 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
     };
     assert_eq!(objects(pic, canister, first), Some(vec![first_live]));
     assert_eq!(objects(pic, canister, second), Some(vec![second_live]));
-    for actor in [controller, gateway, Fake::principal(9)] {
+    for actor in [controller, gateway, fake_principal(9)] {
         assert_eq!(objects(pic, canister, actor), Some(vec![]));
     }
     assert_eq!(objects(pic, canister, Principal::anonymous()), None);

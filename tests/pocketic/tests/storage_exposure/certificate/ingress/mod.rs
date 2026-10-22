@@ -6,7 +6,7 @@ mod browser;
 mod proof;
 use super::*;
 use ic_platform::agent::{Agent, BasicIdentity, Identity, RequestStatusResponse, SignedUpdate};
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 use proof::{ProofError, extract, submit};
 use std::time::Duration;
 
@@ -29,7 +29,7 @@ impl Headless {
                 .with_nns_subnet()
                 .with_application_subnet(),
         );
-        let mut fixture = Fixture::with_operator(harness, Fake::principal(1));
+        let mut fixture = Fixture::with_operator(harness, fake_principal(1));
         // Fixed test-only key, never a deployment identity.
         let identity = BasicIdentity::from_raw_key(&[42; 32]);
         fixture.uploader = identity.sender().unwrap();

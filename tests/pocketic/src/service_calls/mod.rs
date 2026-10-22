@@ -30,11 +30,11 @@ pub enum ServiceCallError {
     /// Request encoding refused before dispatch.
     Encoding(ic_blob_storage_contracts::wire::Error),
     /// Platform rejection from this call.
-    Rejected(ic_testkit::pocket_ic::RejectResponse),
+    Rejected(ic_platform::pocket_ic::RejectResponse),
     /// Reply admission or decoding refused after dispatch.
     Decoding(ic_blob_storage_contracts::wire::Error),
 }
-impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
+impl ServiceCallExt for ic_platform::pocket_ic::PocketIc {
     fn query_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,

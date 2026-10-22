@@ -170,7 +170,7 @@ fn carrier(f: &Fixture, directory: &Path, project: &str) -> Vec<u8> {
 
 #[test]
 fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service() {
-    let mut f = Fixture::small(Harness::new(), Fake::principal(4));
+    let mut f = Fixture::small(Harness::new(), fake_principal(4));
     let before = f.configuration(f.operator).unwrap();
     assert_eq!(before.release, ic_blob_storage::LIBRARY_VERSION);
     // Deployment review supplies its independently selected release: retained
@@ -181,10 +181,10 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     let stable = f.harness.pic.get_stable_memory(f.service);
     f.config = trial_configuration(&f);
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    f.uploader = Fake::principal(91);
+    f.uploader = fake_principal(91);
     // The checker can only validate the proposed identity. The installed host
     // must compare that identity with the actual canister before allocation.
-    f.config.service = Fake::principal(93).into();
+    f.config.service = fake_principal(93).into();
     let wrong = carrier(&f, directory.path(), "standalone-trial");
     // Install-code instruction debt is platform-owned; qualify the identity
     // refusal after its cooldown rather than assuming immediate reinstall.

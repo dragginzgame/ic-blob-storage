@@ -7,10 +7,10 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncErr
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn fixture() -> Fixture {
-    fixture_with_operator(Harness::new(), Fake::principal(2))
+    fixture_with_operator(Harness::new(), fake_principal(2))
 }
 pub(super) fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
-    let driver = Fake::principal(1);
+    let driver = fake_principal(1);
     let cashier = harness.pic.create_canister_with_settings(
         Some(driver),
         Some(CanisterSettings {
@@ -22,8 +22,7 @@ pub(super) fn fixture_with_operator(harness: Harness, operator: Principal) -> Fi
     f.harness.pic.install_canister(
         cashier,
         std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-        ic_platform::candid::contract::encode_args((f.service, Fake::principal(9), driver))
-            .unwrap(),
+        ic_platform::candid::contract::encode_args((f.service, fake_principal(9), driver)).unwrap(),
         Some(driver),
     );
     f
@@ -110,7 +109,7 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
     let status = f.local_status(f.operator, scope).unwrap();
     assert_eq!(
         status.gateways.members,
-        vec![ic_platform::Principal::from(Fake::principal(9))]
+        vec![ic_platform::Principal::from(fake_principal(9))]
     );
     assert_eq!(status.gateways.pending_sequence, None);
     unchanged(

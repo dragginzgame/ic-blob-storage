@@ -4,7 +4,7 @@ use crate::{
     account_native_cli::signer,
     upload_setup_cli::{Client, uploader},
 };
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 #[test]
 fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels_and_fences() {
     let mut f = Fixture::with_profile(
@@ -13,8 +13,8 @@ fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_cancels
                 .with_nns_subnet()
                 .with_application_subnet(),
         ),
-        Fake::principal(5),
-        Fake::principal(2),
+        fake_principal(5),
+        fake_principal(2),
         uploader(),
         Envelope::Regular,
         "signed-setup-fixture",

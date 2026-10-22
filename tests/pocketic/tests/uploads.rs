@@ -5,10 +5,8 @@ mod support;
 use blob_test_protocol::uploads::UploadProbeState;
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, PocketIc},
-};
+use ic_platform::pocket_ic::{CanisterSettings, PocketIc};
+use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
@@ -37,10 +35,10 @@ fn real_callers_observe_only_owned_uploads_and_cannot_cancel_uncertain_work() {
     let harness = Harness::new();
     let pic = &harness.pic;
     let (first, second, gateway, controller) = (
-        Fake::principal(1),
-        Fake::principal(2),
-        Fake::principal(3),
-        Fake::principal(4),
+        fake_principal(1),
+        fake_principal(2),
+        fake_principal(3),
+        fake_principal(4),
     );
     let canister = pic.create_canister_with_settings(
         Some(controller),

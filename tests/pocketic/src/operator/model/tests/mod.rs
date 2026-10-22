@@ -1,5 +1,5 @@
 use super::*;
-use ic_testkit::Fake;
+use ic_testkit::fake_principal;
 
 fn args() -> Vec<String> {
     [
@@ -9,7 +9,7 @@ fn args() -> Vec<String> {
         "--instance",
         "0",
         "--canister",
-        &Fake::principal(1).to_text(),
+        &fake_principal(1).to_text(),
         "--caller",
         "2vxsx-fae",
         "--kind",

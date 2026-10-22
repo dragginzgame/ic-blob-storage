@@ -234,7 +234,7 @@ fn forced_restore_during_sync_retains_pending_evidence_when_callback_arrives() {
     let failure = f.harness.pic.await_call(id).unwrap_err();
     assert_eq!(
         failure.reject_code,
-        ic_testkit::pocket_ic::RejectCode::CanisterError
+        ic_platform::pocket_ic::RejectCode::CanisterError
     );
     assert_eq!(status(&f), retained);
     assert_eq!(

@@ -50,7 +50,7 @@ impl Trial {
         Self::with_envelope(label, Envelope::Single)
     }
     pub(super) fn with_envelope(label: &str, envelope: Envelope) -> Self {
-        use ic_testkit::pocket_ic::PocketIcBuilder;
+        use ic_platform::pocket_ic::PocketIcBuilder;
         let principal = |seed| BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap();
         let mut f = Fixture::with_profile(
             Harness::with_builder(
@@ -58,8 +58,8 @@ impl Trial {
                     .with_nns_subnet()
                     .with_application_subnet(),
             ),
-            Fake::principal(5),
-            Fake::principal(2),
+            fake_principal(5),
+            fake_principal(2),
             principal(42),
             envelope,
             PROJECT,

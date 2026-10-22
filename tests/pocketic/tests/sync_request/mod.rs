@@ -1,7 +1,7 @@
 //! Explicit fixture request construction from a passive current-owner observation.
 use blob_test_protocol::{GatewaySyncRequest, status::OperatorStatusView};
+use ic_platform::pocket_ic::PocketIc;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::pocket_ic::PocketIc;
 
 pub(super) fn read(pic: &PocketIc, service: Principal, operator: Principal) -> GatewaySyncRequest {
     let status: Option<OperatorStatusView> =

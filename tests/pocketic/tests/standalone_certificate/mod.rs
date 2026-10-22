@@ -152,7 +152,7 @@ fn check_authority(f: &Fixture, root: &str) {
         f.controller,
         f.operator,
         f.tenant,
-        Fake::principal(90),
+        fake_principal(90),
         Principal::anonymous(),
     ] {
         assert_eq!(
@@ -178,7 +178,7 @@ fn check_authority(f: &Fixture, root: &str) {
 fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> UploadManifestRequest {
     // A second project-approved uploader crosses a chunk boundary under shared quotas.
     let mut second = f.manifest_bytes(1024 * 1024 + 1);
-    second.permission.uploader = Fake::principal(91).into();
+    second.permission.uploader = fake_principal(91).into();
     second.permission.upload.upload = 2;
     second.permission.upload.object = 3;
     let second_root = self::root(&second);
@@ -242,7 +242,7 @@ fn admit(
 
 #[test]
 fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_stop_and_restore() {
-    let f = Fixture::small(Harness::new(), Fake::principal(4));
+    let f = Fixture::small(Harness::new(), fake_principal(4));
     f.enroll(f.operator).unwrap();
     let manifest = f.small_manifest();
     let root = root(&manifest);

@@ -193,7 +193,7 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
     f.harness.pic.set_stable_memory(
         f.service,
         corrupted.clone(),
-        ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
+        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
     );
     let error = f
         .upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())

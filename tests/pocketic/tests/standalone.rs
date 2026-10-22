@@ -73,11 +73,9 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_testkit::{
-    Fake,
-    pocket_ic::{CanisterSettings, RejectCode},
-};
+use ic_testkit::fake_principal;
 use support::{Harness, REPLY_LIMITS, fixture_path};
 
 struct Fixture {
@@ -110,10 +108,10 @@ impl Fixture {
         Self::with_harness(Harness::new())
     }
     fn with_harness(harness: Harness) -> Self {
-        Self::with_cashier(harness, Fake::principal(5))
+        Self::with_cashier(harness, fake_principal(5))
     }
     fn with_cashier(harness: Harness, cashier: Principal) -> Self {
-        Self::with_cashier_and_operator(harness, cashier, Fake::principal(2))
+        Self::with_cashier_and_operator(harness, cashier, fake_principal(2))
     }
     fn with_cashier_and_operator(
         harness: Harness,
@@ -124,7 +122,7 @@ impl Fixture {
             harness,
             cashier,
             operator,
-            Fake::principal(4),
+            fake_principal(4),
             Envelope::Regular,
             PROJECT,
         )
@@ -132,8 +130,8 @@ impl Fixture {
     fn small(harness: Harness, uploader: Principal) -> Self {
         Self::with_profile(
             harness,
-            Fake::principal(5),
-            Fake::principal(2),
+            fake_principal(5),
+            fake_principal(2),
             uploader,
             Envelope::Single,
             PROJECT,
@@ -147,7 +145,7 @@ impl Fixture {
         envelope: Envelope,
         project: &str,
     ) -> Self {
-        let controller = Fake::principal(1);
+        let controller = fake_principal(1);
         let service = harness.pic.create_canister_with_settings(
             Some(controller),
             Some(CanisterSettings {
@@ -231,7 +229,7 @@ impl Fixture {
             service,
             controller,
             operator,
-            tenant: Fake::principal(3),
+            tenant: fake_principal(3),
             uploader,
             config,
         }
@@ -313,7 +311,7 @@ impl Fixture {
             )
             .unwrap()
     }
-    fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_testkit::pocket_ic::RejectResponse> {
+    fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_platform::pocket_ic::RejectResponse> {
         self.harness
             .pic
             .upgrade_canister(self.service, wasm(), args, Some(self.controller))
@@ -616,7 +614,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     target.harness.pic.set_stable_memory(
         target.service,
         foreign.clone(),
-        ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
+        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
     );
     assert_eq!(
         target
@@ -634,7 +632,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     target.harness.pic.set_stable_memory(
         target.service,
         Vec::new(),
-        ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
+        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
     );
     assert_eq!(
         target
@@ -666,7 +664,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     original.harness.pic.set_stable_memory(
         original.service,
         wrong_release.clone(),
-        ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
+        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
     );
     assert_eq!(
         original

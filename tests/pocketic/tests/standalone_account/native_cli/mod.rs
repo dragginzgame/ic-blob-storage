@@ -4,7 +4,7 @@ use crate::{
     account_native_cli::{NativeAccountCli, signer},
     support::Harness,
 };
-use ic_testkit::pocket_ic::PocketIcBuilder;
+use ic_platform::pocket_ic::PocketIcBuilder;
 
 #[test]
 fn standalone_native_account_observations_keep_scope_reports_and_restore_fences() {
