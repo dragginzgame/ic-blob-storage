@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.41.1] - Unreleased
+## [0.41.1] - 2026-10-22
 
 - Align Canic adoption and service acceptance guidance with released trusted
   registration: remove the mandatory worker prerequisite, correct the current
