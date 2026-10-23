@@ -5,6 +5,10 @@ use ic_platform::Principal;
 use serde::Deserialize;
 
 /// Complete original upload binding. Upload and object IDs are independent.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceUpload {
@@ -28,6 +32,10 @@ pub struct ReferenceUpload {
     pub bytes: u64,
 }
 /// Exact reference operation kind.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceAction {
@@ -37,6 +45,10 @@ pub enum ReferenceAction {
     Release,
 }
 /// Passive exact intent shared by mutation and receipt lookup. Persist before dispatch.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceCommand {
@@ -50,6 +62,10 @@ pub struct ReferenceCommand {
     pub action: ReferenceAction,
 }
 /// Original successful transition; it says nothing about current liveness.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceChange {
@@ -59,6 +75,10 @@ pub enum ReferenceChange {
     Unchanged,
 }
 /// Retained failure of an admitted operation, not failure to look up its receipt.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceTransitionFailure {
@@ -72,6 +92,10 @@ pub enum ReferenceTransitionFailure {
     DeletionQueued,
 }
 /// Exact recorded outcome. Historical success cannot authorize publication.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceReceiptResponse {
@@ -81,6 +105,10 @@ pub struct ReferenceReceiptResponse {
     pub result: Result<ReferenceChange, ReferenceTransitionFailure>,
 }
 /// Explicit presence avoids Candid optional-value coercion hiding malformed data.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[expect(
     clippy::large_enum_variant,
@@ -93,6 +121,10 @@ pub enum ReferenceReceiptLookup {
     Found(ReferenceReceiptResponse),
 }
 /// Admission/lookup refusal, distinct from a recorded transition failure.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceFailure {
@@ -119,6 +151,10 @@ pub enum ReferenceFailure {
 }
 
 /// Exact original result plus whether this call recorded it or replayed history.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceMutationResponse {

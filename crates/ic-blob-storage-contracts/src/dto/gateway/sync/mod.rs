@@ -4,6 +4,10 @@ use serde::Deserialize;
 
 /// Acknowledgment of one completed local membership replacement.
 /// Inspect local status after an uncertain reply; do not automatically start again.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct GatewaySyncResponse {
@@ -13,6 +17,10 @@ pub struct GatewaySyncResponse {
     pub sequence: u64,
 }
 /// Cancel exactly one observed pending read-only sync, never a paid operation.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct GatewaySyncCancellation {
@@ -22,6 +30,10 @@ pub struct GatewaySyncCancellation {
     pub sequence: u64,
 }
 /// Typed failure; transport/decoding failures preserve pending work for inspection.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum GatewaySyncFailure {

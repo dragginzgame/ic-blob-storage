@@ -3,6 +3,10 @@ use crate::dto::tenant::TenantScope;
 use serde::Deserialize;
 
 /// Root lookup; a digest is not tenant authority or proof of global absence.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceCapacityRequest {
@@ -12,6 +16,10 @@ pub struct ReferenceCapacityRequest {
     pub root: [u8; 32],
 }
 /// Independent lifetime capacity dimensions, without allocating a reference or receipt.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceHeadroom {
@@ -26,6 +34,10 @@ pub struct ReferenceHeadroom {
     pub fresh_retains: u64,
 }
 /// Correlated observation, not reservation, liveness or mutation authority.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceCapacityResponse {
@@ -37,6 +49,10 @@ pub struct ReferenceCapacityResponse {
     pub fenced: bool,
 }
 /// Typed inspection refusal; never interpreted as absent content.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum ReferenceCapacityFailure {

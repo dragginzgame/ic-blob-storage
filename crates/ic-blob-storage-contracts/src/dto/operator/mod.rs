@@ -3,6 +3,10 @@ use ic_platform::Principal;
 use serde::Deserialize;
 
 /// Complete installed service/provider/account scope for explicit operator requests.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct OperatorScope {
@@ -17,6 +21,10 @@ pub struct OperatorScope {
 }
 /// One synchronous local snapshot. No provider call or history traversal occurs.
 /// Separate fences remain visible; none of these observations authorize dispatch.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct LocalServiceStatus {
@@ -32,6 +40,10 @@ pub struct LocalServiceStatus {
     pub reads: LocalReadStatus,
 }
 /// Maintained upload counters, including cancelled/settled lifetime history.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct LocalUploadStatus {
@@ -51,6 +63,10 @@ pub struct LocalUploadStatus {
     pub fenced: bool,
 }
 /// Complete maintained totals for this local funding journal only.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct LocalFundingStatus {
@@ -84,6 +100,10 @@ pub struct LocalFundingStatus {
     pub fenced: bool,
 }
 /// One bounded membership row, not evidence of deployed provider authorization.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct LocalGatewayStatus {
@@ -97,6 +117,10 @@ pub struct LocalGatewayStatus {
     pub fenced: bool,
 }
 /// Occupied read slots survive interruption; inspection does not release them.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct LocalReadStatus {
@@ -110,6 +134,10 @@ pub struct LocalReadStatus {
     pub fenced: bool,
 }
 /// Local inspection refusal; failures never become empty or zero observations.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum LocalStatusFailure {

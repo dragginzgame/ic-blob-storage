@@ -2,34 +2,47 @@
 
 Date: 2026-10-23
 
-## Released contract and pending adoption
+## Released contract and pending schema delivery
 
-Local HEAD is released **0.43.1**, `f9f8c32`. The tenant methods now use native
-Wire with identities `0043/001a` and `0043/001b`, zero-based failure tags,
-borrowed 29-byte principals and a 512-byte frame ceiling. Other method identities
-stay `0042`. Retired finite Method markers are removed without compatibility
-readers. Persisted representations were not changed by the Wire migration.
-Cross-release installations still follow retirement/reinstall policy.
+HEAD is released **0.43.2**, `fbf924d`. Pending **0.43.3** implements the supplier
+API requested by [Blob #100](https://github.com/dragginzgame/ic-blob-storage/issues/100).
+Contracts' opt-in native `wire-schema` feature derives metadata and enumerates all
+27 owned callable methods from the existing endpoint declaration catalog. It
+exports method IDs/modes, serialized request/reply schemas and complete native
+byte/allocation/node/depth allowances. Provider Candid classification stays in
+`SERVICE_METHODS`; lifecycle belongs to each host and is not a callable method.
+Tenant metadata uses actual bounded projections; account Int/Nat fields use
+validated underscore-grouped decimal strings. The small generated runtime adapter
+supplies only those custom scalar validators to the unmodified Wire runtime.
+No endpoint identity, serialization, persisted record or lifecycle is changed.
 
-Pending **0.43.2** adopts published Host/Build/Testkit **0.66.0** together, keeping
-shared Host type identities coherent. The integration harness takes client/server
-ownership through `into_parts()` and retains client-before-server drop order.
-No application source, fixture feature, deployment dependency or package release
-version is changed. Incoming unrelated lockfile edits remain preserved.
-The graph selects published Wire/derive 0.6.7, Platform 0.6.9, Memory/Storage
-0.50.11 and Metrics 0.15.6. Host 0.66.0 remains the latest published family.
+The selected published Wire/derive is **0.6.10**; Platform requires at least 0.6.9
+for Principal metadata and resolves to **0.6.10**. Incoming lockfile updates to
+Memory/Storage 0.50.13 and Metrics 0.15.7 are preserved. Host/Build/Testkit remains
+0.66.0; Shared Tooling remains 0.26.8 at `0b07c2a`. No sibling source overrides,
+new installations, commits, staging, releases or publication were performed.
 
-Shared Tooling **0.26.8**, revision `0b07c2a3163a5a66328e100b553baf93afd8ed07`,
-is exported through the canonical refresh tool with the existing entrypoints
-plus `audits/ci-release-integrity.md`, required by the refreshed audit index.
-Snapshot payloads are not locally patched. Explicit Cargo-tool setup now waits
-up to 60 seconds for a valid competing owner, then rechecks its inputs and output.
-Offline checks remain immediate and no competing process's lock is deleted.
-Versions 0.26.5–0.26.6 also improve evidence retention and review guidance.
-The 0.26.8 committed snapshot fixes admitted-owner lock cleanup races and removes
-the global source-cache setup lock. Explicit Cargo setup is rerun under the new
-build policy; prior generations remain retained. Its changelog is still labelled
-Unreleased; the committed revision above is the reviewed snapshot identity.
+Use the contracts README's host-schema API and `wire_schema` example. Canic still
+mounts this catalog in `integrations/blob-service/src/endpoints/mod.rs` (read-only
+source review); its #613 owns adoption, embedded/dedicated artifact qualification
+and immutable release-sidecar binding after publication. Do not copy the schema
+or infer it from DID. #100 stays open until supplying API publication and consumer
+acceptance. No deployed provider claim follows from these local checks.
+
+Current evidence is under `.tmp/review-validation/issue100/`: contracts/all-feature
+unit, integration and golden tests; strict workspace Clippy; Rust 1.91 native
+all-target/all-feature contracts and normal standalone Wasm checks; dependency
+boundaries; documentation links; generated TypeScript qualification of 27 methods
+and 137 frozen Rust frames including identity/direction/trailing/truncation/byte
+limits and custom decimal refusals. The standalone optimized Wasm is rebuilt and its actual export inventory and
+provider Candid classification test passes. The feature guard also detects an
+explicitly enabled schema negative control.
+Normal deployed feature admission explicitly rejects schema generation. Exported
+Rust allocation budgets are not JavaScript heap guarantees. Native macOS and
+Canic installed qualification were not rerun; full release CI remains required.
+Initial Node/npm sandbox refusal and the corrected null-prototype assertion are
+retained alongside passing checks. Historical evidence below is not a claim that
+those full runtime suites were rerun for the schema addition.
 
 ## Service ownership and remaining integration
 

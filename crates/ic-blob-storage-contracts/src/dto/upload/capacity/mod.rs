@@ -4,6 +4,10 @@ use crate::dto::tenant::TenantScope;
 use serde::Deserialize;
 
 /// Current tighter global/tenant headroom, including retained provider liabilities.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadCapacityResponse {
@@ -39,6 +43,10 @@ pub struct UploadCapacityResponse {
 }
 
 /// Refusal to inspect capacity, never an implicit zero or permission to upload.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadCapacityFailure {

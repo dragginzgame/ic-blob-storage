@@ -9,6 +9,10 @@ use serde::Deserialize;
 /// application input. The method/direction, frozen positional schema and complete
 /// consumption must be checked before writes. The adapter owns authentication
 /// and its byte ceiling; Wire also bounds allocation, nodes and depth.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceInstallationInput {
@@ -19,6 +23,10 @@ pub struct ServiceInstallationInput {
 }
 
 /// Operator-only installed configuration and local restore state.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct HostConfigurationView {
@@ -33,6 +41,10 @@ pub struct HostConfigurationView {
 }
 
 /// Installed-configuration inspection authority rejection.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum HostFailure {
@@ -42,6 +54,10 @@ pub enum HostFailure {
 
 /// Candidate configuration for a separately authorized host installation.
 /// No defaults, deployment authorization, provider namespace proof or mutation is implied.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceConfigurationInput {
@@ -64,6 +80,10 @@ pub struct ServiceConfigurationInput {
 }
 
 /// Local attachment budget, not platform liquidity or provider credit.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceFundingInput {
@@ -79,6 +99,10 @@ pub struct ServiceFundingInput {
 }
 
 /// Explicit concurrent read bounds; abandoned sessions continue consuming capacity.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceReadInput {
@@ -95,6 +119,10 @@ pub struct ServiceReadInput {
 }
 
 /// Positive resource limits; conversion also checks all existing model relationships.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceResourceInput {
@@ -131,6 +159,10 @@ pub struct ServiceResourceInput {
 }
 
 /// Explicit provider identity and local cycle thresholds, with no service defaults.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ServiceBillingInput {

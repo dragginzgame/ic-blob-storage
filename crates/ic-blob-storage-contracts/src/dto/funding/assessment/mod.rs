@@ -4,6 +4,10 @@ use crate::dto::operator::OperatorScope;
 use serde::Deserialize;
 
 /// Explicit proposed identity and complete attachment; no amount is defaulted.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingPreparationRequest {
@@ -17,6 +21,10 @@ pub struct FundingPreparationRequest {
     pub target_balance: Option<u128>,
 }
 /// Independent current reason preparation is blocked in the unqualified hosts.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingPreparationBlocker {
@@ -45,6 +53,10 @@ pub enum FundingPreparationBlocker {
     SpendabilityUnknown,
 }
 /// Synchronous observation of local facts and explicitly missing host evidence.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingPreparationResponse {
@@ -56,6 +68,10 @@ pub struct FundingPreparationResponse {
     pub blockers: Vec<FundingPreparationBlocker>,
 }
 /// Rejected assessment leaves all journals unchanged and calls no provider.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingPreparationFailure {

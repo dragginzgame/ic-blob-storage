@@ -9,6 +9,10 @@ pub mod manifest;
 use crate::dto::reference::ReferenceUpload;
 use serde::Deserialize;
 /// Retained local upload phase; neither provider dispatch nor publication authority.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadState {
@@ -21,6 +25,10 @@ pub enum UploadState {
     Cancelled,
 }
 /// Full original binding and current retained local state.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadStatusResponse {
@@ -32,6 +40,10 @@ pub struct UploadStatusResponse {
     pub revoked: bool,
 }
 /// Failed exact upload inspection. Absence does not authorize a fresh upload.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadStatusFailure {

@@ -3,6 +3,10 @@ use crate::dto::reference::ReferenceUpload;
 use serde::Deserialize;
 
 /// Tenant-owned lookup, with no mutation operation or action to replay.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceStatusRequest {
@@ -12,6 +16,10 @@ pub struct ReferenceStatusRequest {
     pub reference: u128,
 }
 /// One synchronous retained-state observation, never a serving or mutation lease.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct ReferenceStatusResponse {

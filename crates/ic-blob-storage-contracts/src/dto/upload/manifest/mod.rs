@@ -3,6 +3,10 @@ use crate::dto::upload::admission::UploadAdmissionFailure;
 use crate::dto::upload::admission::UploadAdmissionRequest;
 use serde::Deserialize;
 /// Original metadata spelling and value; the boundary does not rewrite either.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestHeader {
@@ -12,6 +16,10 @@ pub struct UploadManifestHeader {
     pub value: String,
 }
 /// Ordered leaf hashes and metadata, never complete content or raw-digest evidence.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestDeclaration {
@@ -21,6 +29,10 @@ pub struct UploadManifestDeclaration {
     pub headers: Vec<UploadManifestHeader>,
 }
 /// Save this complete intent before preparation dispatch; adapters bound ingress decoding.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestRequest {
@@ -30,6 +42,10 @@ pub struct UploadManifestRequest {
     pub declaration: UploadManifestDeclaration,
 }
 /// Explicit absence distinguishes an unprepared upload from its retained declaration.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadManifestInspection {
@@ -39,6 +55,10 @@ pub enum UploadManifestInspection {
     Prepared(UploadManifestDeclaration),
 }
 /// Authenticated historical observation, not issuance or publication authority.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestResponse {
@@ -48,6 +68,10 @@ pub struct UploadManifestResponse {
     pub manifest: UploadManifestInspection,
 }
 /// Successful local preparation, with no provider call or file transfer.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadManifestMutation {
@@ -57,6 +81,10 @@ pub struct UploadManifestMutation {
     pub changed: bool,
 }
 /// Failed preparation/inspection; uncertainty must preserve the original intent.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadManifestFailure {

@@ -35,3 +35,11 @@ if rg '^((ic-cdk|ic-cdk-macros|ic-testkit|pocket-ic|ic-build|ic-agent|candid_par
     exit 1
 fi
 echo 'Standalone deployment excludes legacy CDK/Platform and native-only owners'
+
+cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
+    --prefix none --format '{p}|{f}' -p ic-blob-storage-canister > "$contract_graph"
+if rg '^ic-(wire|platform|blob-storage-contracts) v[^|]*\|([^,]*,)*(typescript|wire-schema)(,| |$)' "$contract_graph"; then
+    echo 'Deployment enables host-only Wire schema generation' >&2
+    exit 1
+fi
+echo 'Standalone deployment excludes host-only Wire schema features'

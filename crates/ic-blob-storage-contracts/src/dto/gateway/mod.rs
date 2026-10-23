@@ -7,6 +7,10 @@ use serde::Deserialize;
 /// One current operator decision to revoke a gateway from this installation.
 /// Repeating it is another revocation, not replay of a historical receipt; it can
 /// remove membership added since an earlier call. Clients must not retry silently.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct GatewayRevocationRequest {
@@ -16,6 +20,10 @@ pub struct GatewayRevocationRequest {
     pub gateway: Principal,
 }
 /// Synchronous acknowledgment, not a retained receipt or provider-side settlement.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct GatewayRevocationResponse {
@@ -26,6 +34,10 @@ pub struct GatewayRevocationResponse {
     pub removed: bool,
 }
 /// Rejected revocations leave membership and pending work unchanged.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum GatewayRevocationFailure {

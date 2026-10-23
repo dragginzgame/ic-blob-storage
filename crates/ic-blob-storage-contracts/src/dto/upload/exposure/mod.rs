@@ -4,6 +4,10 @@ use serde::Deserialize;
 
 /// A missing independent prerequisite for exposure or certificate issuance.
 /// A successful inspection with blockers is not upload authorization.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadExposureBlocker {
@@ -17,6 +21,10 @@ pub enum UploadExposureBlocker {
     Durability,
 }
 /// Refused local exposure or historical permission inspection.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadExposureFailure {

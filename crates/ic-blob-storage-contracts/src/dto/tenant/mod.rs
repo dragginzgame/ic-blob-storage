@@ -3,6 +3,10 @@ use ic_platform::Principal;
 use serde::Deserialize;
 
 /// Exact service namespace and tenant; supplied identity alone grants no authority.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantScope {
@@ -15,6 +19,10 @@ pub struct TenantScope {
 }
 
 /// Passive current enrollment, also used as an exact update precondition.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantEnrollment {
@@ -25,6 +33,10 @@ pub struct TenantEnrollment {
 }
 
 /// Operator-authorized compare-and-set; inspect after a lost reply before deciding again.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantUpdateRequest {
@@ -37,6 +49,10 @@ pub struct TenantUpdateRequest {
 }
 
 /// Correlated observation, not a durable operation receipt or upload permission.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TenantEnrollmentResponse {
@@ -49,6 +65,10 @@ pub struct TenantEnrollmentResponse {
 }
 
 /// Typed refusal without granting authority or erasing tenant history.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum TenantFailure {

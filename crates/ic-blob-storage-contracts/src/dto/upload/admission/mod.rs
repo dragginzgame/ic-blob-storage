@@ -4,6 +4,10 @@ use crate::dto::upload::UploadState;
 use ic_platform::Principal;
 use serde::Deserialize;
 /// Immutable permission. Persist every field before dispatch; IDs are caller allocated.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadAdmissionRequest {
@@ -15,6 +19,10 @@ pub struct UploadAdmissionRequest {
     pub expires_at_ns: u64,
 }
 /// Exact retained permission and historical phase, not issuance or serving authority.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadAdmissionResponse {
@@ -26,6 +34,10 @@ pub struct UploadAdmissionResponse {
     pub revoked: bool,
 }
 /// Result of a synchronous local reservation, with no certificate or provider call.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadAdmissionMutation {
@@ -35,6 +47,10 @@ pub struct UploadAdmissionMutation {
     pub replayed: bool,
 }
 /// Local permission withdrawal, distinct from reference release or provider deletion.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadRevocationResponse {
@@ -44,6 +60,10 @@ pub struct UploadRevocationResponse {
     pub changed: bool,
 }
 /// Admission/inspection refusal; missing history never proves safe provider retry.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadAdmissionFailure {

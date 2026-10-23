@@ -5,6 +5,10 @@ use crate::dto::operator::OperatorScope;
 use serde::Deserialize;
 
 /// Descending local operation position, never a snapshot or retry permission.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryCursor {
@@ -14,6 +18,10 @@ pub struct FundingHistoryCursor {
     pub before_operation: u128,
 }
 /// One operator history query with host-owned result bounds.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryRequest {
@@ -23,6 +31,10 @@ pub struct FundingHistoryRequest {
     pub cursor: Option<FundingHistoryCursor>,
 }
 /// Local attachment progress, separate from any provider response or credit.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingPhase {
@@ -39,6 +51,10 @@ pub enum FundingPhase {
     },
 }
 /// Original identity and amounts recovered without a saved caller request.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryEntry {
@@ -54,6 +70,10 @@ pub struct FundingHistoryEntry {
     pub phase: FundingPhase,
 }
 /// Bounded current observations, newest local operation first.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingHistoryPage {
@@ -67,6 +87,10 @@ pub struct FundingHistoryPage {
     pub fenced: bool,
 }
 /// Inspection refusals never become empty history or retry permission.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingHistoryFailure {

@@ -47,7 +47,7 @@ All owned methods use published IC Wire; passive offline Wire values have their 
 bounded projections use Serde declaration order, method/direction-bound
 frames and finite resource limits while native DTO/policy and persisted schemas
 retain their existing owners. See [the adoption state](../../docs/service-wire.md).
-The registry requirement targets Wire 0.6.2. Service/document generic decoding
+The registry requirement targets Wire 0.6.10. Service/document generic decoding
 requires explicit `Deserialize<'de>` and can return bounded `BytesRef`/`TextRef`
 views. Retain the input for their lifetime; use owned values across async results,
 persistence and retained retries. Borrowed tenant wire projections now take a
@@ -67,3 +67,39 @@ Application DTO principals use Platform 0.4's owned `ic_platform::Principal`.
 Provider Candid projections use `ic_platform::principal::ExternalPrincipal`;
 convert with `.into()` when crossing that boundary. Binary Wire bytes remain
 unchanged; the public Rust type identity requires aligned host dependencies.
+
+## Host-only Wire schemas
+
+Enable `wire-schema` on a native build to use `wire::schema::methods()` and the
+`ic_wire::typescript::Wire` implementations on service DTOs. The catalog is
+expanded from the same declarations as `mount_service_endpoints!`; it contains
+all owned callable methods, their dispatch modes and stable IDs, actual request
+and response schemas, and complete byte/allocation/node/depth limits. Tenant
+entries use their bounded serialized projections rather than the native DTOs.
+`endpoints::SERVICE_METHODS` remains the complete Wire/external-Candid inventory.
+Lifecycle inputs are host-owned and are not callable methods in this catalog.
+
+For generated clients, use `wire::schema::typescript("./blob-runtime.ts")`,
+`wire::schema::runtime_adapter("./wire-runtime.ts")` and the unchanged published
+`ic_wire::typescript::RUNTIME`. The adapter supplies Blob's custom decimal
+validators. Account integers remain **strings** in canonical underscore-grouped
+form, including arbitrary-width values; do not substitute JavaScript numbers or
+omit the adapter. The raw metadata names these validators as `blobInt`/`blobNat`.
+Wire's TypeScript conventions use bigint for wide integers, Uint8Array for
+principals, `{some: value}`/null for options and `{ok: value}`/`{err: value}` for
+results. Metadata does not authenticate calls or establish provider guarantees.
+
+The `wire_schema` example emits `metadata`, `client`, `adapter` or `runtime` to
+stdout. `make test-wire-schema` uses explicitly prepared browser tools to bundle
+and test generated TypeScript against the frozen Rust frames, including rejection
+cases. It installs nothing. The regular all-feature native test gate covers the
+catalog, projections and custom scalars. The deployment dependency check refuses
+schema features in the normal standalone graph; the metadata API/derives are
+absent on Wasm. Explicit all-feature tooling builds are a separate selection.
+Exported allocation limits describe Rust admission, **not** a JavaScript heap
+bound. Wire's shared TypeScript runtime owns its own traversal accounting.
+
+This additive export preserves endpoint identities, bytes and persisted formats.
+Consumers own transport, final-Wasm inventory comparison and release sidecar
+binding. In particular Canic owns embedded-host qualification and adoption after
+this API is published; native catalog checks cannot replace those artifact checks.

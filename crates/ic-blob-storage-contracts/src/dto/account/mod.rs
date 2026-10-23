@@ -7,6 +7,10 @@ use ic_platform::candid::contract::Nat;
 use serde::Deserialize;
 
 /// Explicit observation kind; account and owner come from the installed scope.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum AccountInspectionKind {
@@ -16,6 +20,10 @@ pub enum AccountInspectionKind {
     PaymentRelationship,
 }
 /// Operator-selected read, never arbitrary provider arguments.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AccountInspectionRequest {
@@ -54,6 +62,10 @@ pub struct AccountRelationshipView {
     pub bandwidth_baseline_ts_ns: u64,
 }
 /// Account reports and structured provider errors remain distinct from transport failure.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum AccountObservation {
@@ -75,6 +87,10 @@ pub enum AccountObservation {
     ProviderInternalError,
 }
 /// Reply bound to this exact invocation; not persisted or usable as a funding permit.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AccountInspectionResponse {
@@ -84,6 +100,10 @@ pub struct AccountInspectionResponse {
     pub observation: AccountObservation,
 }
 /// Refusal or unusable observation; none supplies fallback account data.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum AccountInspectionFailure {
@@ -105,4 +125,28 @@ pub enum AccountInspectionFailure {
     ReplyTooLarge,
     /// Malformed, over-budget or invalid provider figures.
     InvalidReply,
+}
+
+// This DTO has field-level decimal serializers: deriving from its Rust numeric
+// types would describe the wrong bytes. Keep the explicit projection beside its
+// serializer annotations and qualify every field against frozen endpoint frames.
+#[cfg(all(feature = "wire-schema", not(target_arch = "wasm32")))]
+impl ic_wire::typescript::Wire for AccountRelationshipView {
+    fn native_schema(
+        c: &mut ic_wire::typescript::SchemaContext,
+    ) -> Result<serde_json::Value, ic_wire::typescript::GenerationError> {
+        use serde_json::json;
+        Ok(json!({"k": "record", "fields": [
+            {"name": "paid_canister", "value": c.describe::<Principal>()?},
+            {"name": "payment_account", "value": c.describe::<Principal>()?},
+            {"name": "spending_limit_per_day", "value": {"k":"text", "check":"blobInt"}},
+            {"name": "current_period_spent", "value": {"k":"text", "check":"blobInt"}},
+            {"name": "current_period_start", "value": c.describe::<u64>()?},
+            {"name": "added_timestamp", "value": c.describe::<u64>()?},
+            {"name": "expiration_timestamp", "value": c.describe::<Option<u64>>()?},
+            {"name": "bandwidth_baseline_uploaded", "value": {"k":"text", "check":"blobNat"}},
+            {"name": "bandwidth_baseline_downloaded", "value": {"k":"text", "check":"blobNat"}},
+            {"name": "bandwidth_baseline_ts_ns", "value": c.describe::<u64>()?}
+        ]}))
+    }
 }

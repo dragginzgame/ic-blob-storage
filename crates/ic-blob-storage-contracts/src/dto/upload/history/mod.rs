@@ -4,6 +4,10 @@ use ic_platform::Principal;
 use serde::Deserialize;
 
 /// Independently authenticated observer scope.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadHistoryScope {
@@ -13,6 +17,10 @@ pub enum UploadHistoryScope {
     Service,
 }
 /// Current local states to select, not a provider reconciliation result.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadHistoryFilter {
@@ -26,6 +34,10 @@ pub enum UploadHistoryFilter {
     Outstanding,
 }
 /// Untrusted forward position. Changes behind it require a fresh sweep.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryCursor {
@@ -43,6 +55,10 @@ pub struct UploadHistoryCursor {
     pub after_request: u128,
 }
 /// One scan; work and result limits are host-owned, never supplied by ingress.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryRequest {
@@ -58,6 +74,10 @@ pub struct UploadHistoryRequest {
     pub cursor: Option<UploadHistoryCursor>,
 }
 /// Current local reservation or confirmed lifecycle.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadContentState {
@@ -75,6 +95,10 @@ pub enum UploadContentState {
     Settled,
 }
 /// Complete original upload identity with its current local lifecycle.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryEntry {
@@ -84,6 +108,10 @@ pub struct UploadHistoryEntry {
     pub state: UploadContentState,
 }
 /// One bounded synchronous observation, available during inspection-only restore.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadHistoryPage {
@@ -99,6 +127,10 @@ pub struct UploadHistoryPage {
     pub fenced: bool,
 }
 /// Refusal never means empty history or safe retry.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadHistoryFailure {

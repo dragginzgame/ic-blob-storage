@@ -8,6 +8,10 @@ use ic_wire::{BytesRef, Limits};
 use serde::{Deserialize, Serialize};
 
 /// Exact selected service, namespace and tenant, without authentication claims.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Scope<'a> {
     /// Intended storage service, at most 29 principal bytes.
@@ -20,6 +24,10 @@ pub struct Scope<'a> {
     pub tenant: BytesRef<'a, 29>,
 }
 /// Exact compare-and-set enrollment observation.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Enrollment {
     /// Existing policy requires a positive generation.
@@ -28,6 +36,10 @@ pub struct Enrollment {
     pub active: bool,
 }
 /// One operator-authorized compare-and-set, without dispatch or retry policy.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct UpdateRequest<'a> {
     /// Explicit destination and tenant binding.
@@ -39,6 +51,10 @@ pub struct UpdateRequest<'a> {
     pub active: bool,
 }
 /// Correlated observation; no historical operation receipt or retry authority.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Observation<'a> {
     /// Echoed original scope.
@@ -50,6 +66,10 @@ pub struct Observation<'a> {
     pub fenced: bool,
 }
 /// Existing application refusals, independent of codec and transport errors.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum Failure {
     /// Wrong actual/installed service or namespace.
@@ -72,7 +92,7 @@ pub enum Failure {
 
 /// Request byte ceiling shared by method contracts and host preallocation admission.
 pub const MAX_REQUEST_BYTES: usize = 512;
-const LIMITS: Limits = Limits {
+pub(super) const LIMITS: Limits = Limits {
     bytes: MAX_REQUEST_BYTES,
     // Native visitor charges include repeated value-size accounting. These
     // conservative bounds admit the full borrowed response, not arbitrary DTOs.

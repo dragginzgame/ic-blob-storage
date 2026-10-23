@@ -5,6 +5,10 @@ use ic_platform::Principal;
 use serde::Deserialize;
 
 /// Complete original local intent; changed amounts or target options must reject.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingOutcomeRequest {
@@ -18,6 +22,10 @@ pub struct FundingOutcomeRequest {
     pub target_balance: Option<u128>,
 }
 /// Provider-reported balance components, never a credited-amount receipt.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingReportedBalance {
@@ -31,6 +39,10 @@ pub struct FundingReportedBalance {
     pub ledger: u128,
 }
 /// Balance component whose decoding or amount validation failed.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingBalanceField {
@@ -44,6 +56,10 @@ pub enum FundingBalanceField {
     Ledger,
 }
 /// Retained structured response, independent of the exact callback refund.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingResponse {
@@ -71,6 +87,10 @@ pub enum FundingResponse {
     InvalidBalance(FundingBalanceField),
 }
 /// Conservative follow-up derived only from retained attachment facts.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingReconciliation {
@@ -91,6 +111,10 @@ pub enum FundingReconciliation {
     TransferUnknown(u128),
 }
 /// One retained local observation; no field authorizes retry or unfencing.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct FundingOutcomeResponse {
@@ -109,6 +133,10 @@ pub struct FundingOutcomeResponse {
     pub fenced: bool,
 }
 /// Exact inspection refusal; absence is returned separately and never permits retry.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum FundingOutcomeFailure {

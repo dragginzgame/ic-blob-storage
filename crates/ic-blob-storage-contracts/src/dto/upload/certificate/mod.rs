@@ -5,6 +5,10 @@ use serde::Deserialize;
 
 /// Exact uploader-only preparation assessment. This snapshot cannot authorize a
 /// later update; issuance rechecks the original permission and current host facts.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadCertificateAssessmentResponse {
@@ -19,6 +23,10 @@ pub struct UploadCertificateAssessmentResponse {
 /// Successful `_immutableObjectStorageCreateCertificate` response, matching the
 /// reviewed Caffeine Mixin. This record alone is neither a signed certificate nor
 /// proof of provider acceptance, completed upload, or billing behavior.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 #[derive(ic_platform::candid::contract::CandidType)]

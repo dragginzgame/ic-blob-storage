@@ -3,6 +3,10 @@ use ic_platform::Principal;
 use serde::Deserialize;
 
 /// Exact tenant-owned reference, never an allocation or a publication lease.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct DownloadRequest {
@@ -22,6 +26,10 @@ pub struct DownloadRequest {
     pub reference: u128,
 }
 /// Original accepted hash metadata; HTTP response headers must not replace it.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct DownloadHeader<Text = String> {
@@ -32,6 +40,10 @@ pub struct DownloadHeader<Text = String> {
 }
 /// A current observation. Consumers must authenticate delivery and coordinate
 /// publication/reference lifetime; saved descriptors are not revocation mechanisms.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct DownloadResponse<Text = String> {
@@ -48,6 +60,10 @@ pub struct DownloadResponse<Text = String> {
 }
 /// Descriptor refusal; no error authorizes body disclosure, retry of paid effects
 /// or release of the consumer's reference.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum DownloadFailure {

@@ -2,6 +2,9 @@
 //! Native Serde field/variant order is the frozen Blob schema. Provider codecs,
 //! passive offline documents and persistent records have independent owners.
 pub(crate) mod decimal;
+/// Canonical host-side schemas and client generation.
+#[cfg(all(feature = "wire-schema", not(target_arch = "wasm32")))]
+pub mod schema;
 /// Bounded tenant projections use the same native codec as other methods.
 pub mod tenant;
 pub use ic_wire::{BytesRef, Error, TextRef};
@@ -60,6 +63,28 @@ pub fn request_limit(method: &str) -> Result<usize, Error> {
         "blob_prepare_upload" => 128 * 1024,
         "blob_install" => 16 * 1024,
         _ => 4096,
+    })
+}
+/// Complete admission budgets for the mounted request codec.
+/// # Errors
+/// Refuses unknown and external provider methods.
+pub fn request_limits(method: &str) -> Result<Limits, Error> {
+    let bytes = request_limit(method)?;
+    Ok(if matches!(method, "blob_tenant" | "blob_update_tenant") {
+        tenant::LIMITS
+    } else {
+        limits(bytes)
+    })
+}
+/// Complete admission budgets for the mounted response codec.
+/// # Errors
+/// Refuses unknown and external provider methods.
+pub fn response_limits(method: &str) -> Result<Limits, Error> {
+    identity(method)?;
+    Ok(if matches!(method, "blob_tenant" | "blob_update_tenant") {
+        tenant::LIMITS
+    } else {
+        limits(MAX_MESSAGE_BYTES)
     })
 }
 fn limits(bytes: usize) -> Limits {

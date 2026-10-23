@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.43.3]
+
+- Export opt-in host Wire schemas and TypeScript generation from the canonical
+  Blob method declarations, including tenant limits and validated account decimal
+  scalars. Keep external provider Candid separate and preserve endpoint bytes,
+  identities and storage. Qualify the generated codecs against Rust golden frames
+  and exclude schema features from normal deployment builds. Select published
+  Wire 0.6.10 and require Platform 0.6.9 or later for Principal metadata.
+
 ## [0.43.2] - 2026-10-23
 
 - Adopt Wire/derive 0.6.7 with unchanged protocol bytes, and Shared Tooling 0.26.8

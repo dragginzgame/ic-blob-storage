@@ -75,39 +75,7 @@ pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
 macro_rules! mount_service_endpoints {
     (emit = $emit:ident, workflow = $workflow:ident, context = $context:ident, contracts = $contracts:ident,
      clock = $clock:path, caller = $caller:path, trap = $trap:path $(,)?) => {
-        pub(super) use $contracts::dto::funding::assessment::{
-            FundingPreparationFailure, FundingPreparationRequest, FundingPreparationResponse,
-        };
-        pub(super) use $contracts::dto::funding::outcome::{
-            FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
-        };
-        pub(super) use $contracts::dto::funding::{
-            FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
-        };
-        pub(super) use $contracts::dto::operator::{
-            LocalServiceStatus, LocalStatusFailure, OperatorScope,
-        };
-        pub(super) use $contracts::dto::upload::history::{
-            UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest,
-        };
-        pub(super) use $contracts::dto::{
-            configuration::{HostConfigurationView, HostFailure},
-            reference::{
-                ReferenceCommand, ReferenceFailure, ReferenceMutationResponse,
-                ReferenceReceiptLookup,
-            },
-            tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
-            upload::{
-                admission::{
-                    UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
-                    UploadAdmissionResponse, UploadRevocationResponse,
-                },
-                manifest::{
-                    UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
-                    UploadManifestResponse,
-                },
-            },
-        };
+        $crate::__blob_service_types!($contracts);
         pub(super) use $contracts::upload::binding::UploadContext;
         $crate::__blob_service_catalog!(
             dispatch = [$crate::__emit_blob_service],
@@ -368,5 +336,46 @@ macro_rules! __blob_service_catalog {
                 $workflow::inspect_account(call_context, input).await
             }]
         }
+    };
+}
+
+// Shared lexical names for the declaration catalog's endpoint and schema emitters.
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __blob_service_types {
+    ($contracts:ident) => {
+        pub(super) use $contracts::dto::funding::assessment::{
+            FundingPreparationFailure, FundingPreparationRequest, FundingPreparationResponse,
+        };
+        pub(super) use $contracts::dto::funding::outcome::{
+            FundingOutcomeFailure, FundingOutcomeRequest, FundingOutcomeResponse,
+        };
+        pub(super) use $contracts::dto::funding::{
+            FundingHistoryFailure, FundingHistoryPage, FundingHistoryRequest,
+        };
+        pub(super) use $contracts::dto::operator::{
+            LocalServiceStatus, LocalStatusFailure, OperatorScope,
+        };
+        pub(super) use $contracts::dto::upload::history::{
+            UploadHistoryFailure, UploadHistoryPage, UploadHistoryRequest,
+        };
+        pub(super) use $contracts::dto::{
+            configuration::{HostConfigurationView, HostFailure},
+            reference::{
+                ReferenceCommand, ReferenceFailure, ReferenceMutationResponse,
+                ReferenceReceiptLookup,
+            },
+            tenant::{TenantEnrollmentResponse, TenantFailure, TenantScope, TenantUpdateRequest},
+            upload::{
+                admission::{
+                    UploadAdmissionFailure, UploadAdmissionMutation, UploadAdmissionRequest,
+                    UploadAdmissionResponse, UploadRevocationResponse,
+                },
+                manifest::{
+                    UploadManifestFailure, UploadManifestMutation, UploadManifestRequest,
+                    UploadManifestResponse,
+                },
+            },
+        };
     };
 }

@@ -400,3 +400,14 @@ publish:
 
 publish-dry-run:
 	+$(RELEASE) publish --dry-run
+
+# Opt-in host schema qualification; normal deployed builds never enable metadata.
+.PHONY: test-wire-schema
+test-wire-schema: browser-tools-check
+	+cargo build --offline --locked -p ic-blob-storage-contracts --example wire_schema --features wire-schema
+	mkdir -p .tmp/wire-schema
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema metadata > .tmp/wire-schema/metadata.json
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema client > .tmp/wire-schema/client.ts
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema adapter > .tmp/wire-schema/blob-runtime.ts
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema runtime > .tmp/wire-schema/wire-runtime.ts
+	$(BLOB_BROWSER_NODE) tests/browser/wire-schema.mjs

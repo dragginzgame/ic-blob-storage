@@ -4,6 +4,10 @@ use crate::dto::upload::history::UploadHistoryEntry;
 use serde::Deserialize;
 
 /// Discover retained content without already knowing its operation identity.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadDiscoveryRequest {
@@ -13,6 +17,10 @@ pub struct UploadDiscoveryRequest {
     pub root: [u8; 32],
 }
 /// One synchronous local observation. Absence is not upload or retry permission.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct UploadDiscoveryResponse {
@@ -24,6 +32,10 @@ pub struct UploadDiscoveryResponse {
     pub fenced: bool,
 }
 /// Refusal must never be interpreted as an absent root.
+#[cfg_attr(
+    all(feature = "wire-schema", not(target_arch = "wasm32")),
+    derive(ic_wire::Wire)
+)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub enum UploadDiscoveryFailure {

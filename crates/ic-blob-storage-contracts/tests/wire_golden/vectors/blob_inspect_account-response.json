@@ -40,5 +40,35 @@
         "Rejected": 487846170
       }
     }
+  },
+  {
+    "hex": "495719004200424f4c420100010401010401040102010400062d315f30303009315f3233345f35363701020103273132335f3435365f3738395f3031325f3334355f3637385f3930315f3233345f3536375f383930013004",
+    "input": {
+      "Ok": {
+        "request": {
+          "scope": {
+            "service": "2vxsx-fae",
+            "namespace": 1,
+            "cashier": "2vxsx-fae",
+            "payment_account": "2vxsx-fae"
+          },
+          "kind": "PaymentRelationship"
+        },
+        "observation": {
+          "Relationship": {
+            "paid_canister": "2vxsx-fae",
+            "payment_account": "aaaaa-aa",
+            "spending_limit_per_day": "-1_000",
+            "current_period_spent": "1_234_567",
+            "current_period_start": 1,
+            "added_timestamp": 2,
+            "expiration_timestamp": 3,
+            "bandwidth_baseline_uploaded": "123_456_789_012_345_678_901_234_567_890",
+            "bandwidth_baseline_downloaded": "0",
+            "bandwidth_baseline_ts_ns": 4
+          }
+        }
+      }
+    }
   }
 ]
