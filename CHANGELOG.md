@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.43.4]
+## [0.43.4] - 2026-10-23
 
 - Expose compile-time Wire IDs and complete codec budgets through an optional
   mounting descriptor callback, allowing hosts to emit artifact declarations
