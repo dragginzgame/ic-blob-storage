@@ -14,6 +14,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  wire-schema:
+    name: Wire schema and generated clients
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - name: Select the declared Node runtime
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: tests/browser/.nvmrc
+          package-manager-cache: false
+      - name: Prepare the declared npm and locked browser dependencies
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+        run: |
+          npm install --global "$(node -p 'require("./tests/browser/package.json").packageManager')" --no-audit --no-fund
+          npm ci --prefix tests/browser --no-audit --no-fund
+          make browser-tools-check
+      - name: Prepare the declared compiler and locked Cargo dependencies
+        run: |
+          rustup show active-toolchain
+          make deps
+      - name: Qualify native schemas and generated Wire clients
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+        run: |
+          mkdir -p .tmp/wire-schema
+          cargo clippy --offline --locked -p ic-blob-storage-contracts --all-targets --all-features -- -D warnings 2>&1 | tee .tmp/wire-schema/clippy.log
+          cargo test --offline --locked -p ic-blob-storage-contracts --all-features 2>&1 | tee .tmp/wire-schema/contracts.log
+          make test-wire-schema 2>&1 | tee .tmp/wire-schema/qualification.log
+      - name: Retain generated clients and qualification logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: blob-wire-schema-${{ github.run_attempt }}
+          path: .tmp/wire-schema/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 30
+
   msrv:
     runs-on: ubuntu-24.04
     timeout-minutes: 30

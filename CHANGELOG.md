@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.43.4]
+
+- Expose compile-time Wire IDs and complete codec budgets through an optional
+  mounting descriptor callback, allowing hosts to emit artifact declarations
+  without copying Blob policy. Preserve existing mounting callers, protocol bytes
+  and external provider classification.
+
+- Automatically qualify generated Wire clients on pull requests and main pushes,
+  using the pinned Node/npm environment and Rust contract tests. Retain generated
+  schemas, clients and qualification logs as CI artifacts.
+
 ## [0.43.3] - 2026-10-23
 
 - Export opt-in host Wire schemas and TypeScript generation from the canonical

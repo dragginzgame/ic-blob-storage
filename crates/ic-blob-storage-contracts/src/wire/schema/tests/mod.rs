@@ -7,9 +7,17 @@ fn catalog_is_complete_unique_and_uses_mounted_limits() {
         let name = row["name"].as_str().unwrap();
         let request = crate::wire::request_limits(name).unwrap();
         let response = crate::wire::response_limits(name).unwrap();
-        assert_eq!(row["requestAllocation"], request.allocation);
-        assert_eq!(row["responseBytes"], response.bytes);
-        assert_eq!(row["requestNodes"], request.nodes);
+        assert_eq!(row["id"], crate::wire::identity(name).unwrap().to_string());
+        for (direction, limits) in [("request", request), ("response", response)] {
+            for (field, value) in [
+                ("Bytes", limits.bytes),
+                ("Allocation", limits.allocation),
+                ("Nodes", limits.nodes),
+                ("Depth", limits.depth),
+            ] {
+                assert_eq!(row[format!("{direction}{field}")], value);
+            }
+        }
         if name == "blob_tenant" {
             assert_eq!(row["requestBytes"], 512);
             assert_eq!(row["responseBytes"], 512);

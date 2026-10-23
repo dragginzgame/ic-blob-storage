@@ -63,12 +63,13 @@ fn method<Q: Wire, R: Wire>(name: &str) -> Result<Value, GenerationError> {
         .iter()
         .find(|s| s.name == name)
         .ok_or(GenerationError::Schema)?;
-    let request = super::request_limits(name).map_err(|_| GenerationError::Schema)?;
-    let response = super::response_limits(name).map_err(|_| GenerationError::Schema)?;
+    let contract = spec.wire().map_err(|_| GenerationError::Schema)?;
+    let request = contract.request;
+    let response = contract.response;
     Ok(json!({
         "name": name,
         "mode": match spec.mode { MethodMode::Query => "query", MethodMode::Update => "update" },
-        "id": super::identity(name).map_err(|_| GenerationError::Schema)?.to_string(),
+        "id": contract.id.to_string(),
         "request": native_schema::<Q>()?, "response": native_schema::<R>()?,
         "requestBytes": request.bytes, "responseBytes": response.bytes,
         "requestAllocation": request.allocation, "responseAllocation": response.allocation,

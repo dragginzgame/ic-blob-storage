@@ -62,3 +62,40 @@ fn exact_method_direction_canonicality_and_bounds() {
 }
 
 mod manifest;
+
+#[test]
+fn lifecycle_constants_remain_separate_from_callable_methods() {
+    const INSTALL: u64 = match identity("blob_install") {
+        Ok(id) => id,
+        Err(_) => panic!("install identity"),
+    };
+    const POST_UPGRADE: u64 = match identity("blob_post_upgrade") {
+        Ok(id) => id,
+        Err(_) => panic!("recovery identity"),
+    };
+    const INSTALL_LIMITS: Limits = match request_limits("blob_install") {
+        Ok(limits) => limits,
+        Err(_) => panic!("install limits"),
+    };
+    const RECOVERY_LIMITS: Limits = match request_limits("blob_post_upgrade") {
+        Ok(limits) => limits,
+        Err(_) => panic!("recovery limits"),
+    };
+    const UNKNOWN: Result<u64, Error> = identity("unknown");
+    assert_eq!(
+        (INSTALL, POST_UPGRADE),
+        (0x424c_4f42_0042_ff01, 0x424c_4f42_0042_ff02)
+    );
+    assert_eq!(
+        (INSTALL_LIMITS.bytes, RECOVERY_LIMITS.bytes),
+        (16 * 1024, 4096)
+    );
+    assert_eq!(UNKNOWN, Err(Error::Identity));
+    for name in ["blob_install", "blob_post_upgrade"] {
+        assert!(
+            !crate::endpoints::SERVICE_METHODS
+                .iter()
+                .any(|m| m.name == name)
+        );
+    }
+}

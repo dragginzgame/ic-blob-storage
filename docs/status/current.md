@@ -2,6 +2,53 @@
 
 Date: 2026-10-23
 
+## Compile-time method descriptor follow-up
+
+Pending **0.43.4** also addresses [Blob #101](https://github.com/dragginzgame/ic-blob-storage/issues/101).
+Runtime ID/limit lookups are now const functions. `MethodSpec::wire()` supplies a
+passive `WireContract` with the ID and both complete allowances; provider Candid
+refuses. Optional `describe = callback` in the existing mounting macro visits
+all canonical declarations before endpoint emission, providing codec classification,
+Rust identifier and a const descriptor expression. Hosts can define constants
+without repeating the method roster or numeric policy. The schema exporter uses
+the same descriptor owner; lifecycle lookup names remain outside the callable
+catalog. Existing mounting callers and frame/storage/lifecycle behavior are unchanged.
+
+Canic's raw declaration support is already implemented locally. After publication,
+Canic owns descriptor adoption, dedicated/embedded final-artifact matching and
+release binding; #101 is not closed by an unpublished Blob working tree. No sibling
+files or framework-specific section formats are introduced. The existing CI batch
+and incoming Cargo.lock changes are preserved. Evidence for this follow-up is
+under `.tmp/review-validation/issue101/`.
+
+Pass: strict workspace Clippy, contracts/all-feature tests including 31 static
+mount descriptors and separate lifecycle constants, Rust 1.91 native all-targets
+and normal standalone Wasm, dependency/feature boundaries, rebuilt standalone
+Wasm export/provider classification, formatting and docs checks. Generated schema
+JSON is byte-identical to its pre-change output; TypeScript passes all 137 frozen
+Rust frames and refusal cases. All 29 owned/lifecycle IDs are unchanged. No full
+release gate, fresh macOS or Canic installed qualification was run. Nothing was
+staged, committed, pushed or published; the incoming lockfile is unchanged.
+
+## Generated-client CI follow-up
+
+Released HEAD is **0.43.3**, `45738f5`. Pending **0.43.4** adds an independent
+Linux `Wire schema and generated clients` job to the existing PR/main workflow.
+It selects Node from `tests/browser/.nvmrc` and npm from the browser manifest,
+prepares the locked npm/Cargo dependencies, then runs contracts Clippy, the
+all-feature Rust contract suite and `make test-wire-schema` offline. The job
+retains generated schemas/clients and check logs for 30 days, including failures.
+It uses existing owners and adds no dependencies or protocol changes. Incoming
+Cargo.lock work remains preserved. Hosted execution awaits delivery; local
+qualification is recorded under `.tmp/review-validation/wire-schema-ci/`.
+Pass: actionlint, scoped strict Clippy, all-feature contracts tests, generated
+TypeScript parity/rejections (27 methods, 137 frozen frames), documentation links
+and whitespace checks. The incoming lockfile is byte-identical to its before-image.
+The hosted setup/artifact transport has not run; no commit or push was performed.
+
+The schema implementation below shipped in 0.43.3. Its earlier pending/publication
+wording records the original batch; Canic consumer acceptance remains separate.
+
 ## Released contract and pending schema delivery
 
 HEAD is released **0.43.2**, `fbf924d`. Pending **0.43.3** implements the supplier

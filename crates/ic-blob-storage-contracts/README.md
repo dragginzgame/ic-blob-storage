@@ -92,7 +92,10 @@ results. Metadata does not authenticate calls or establish provider guarantees.
 The `wire_schema` example emits `metadata`, `client`, `adapter` or `runtime` to
 stdout. `make test-wire-schema` uses explicitly prepared browser tools to bundle
 and test generated TypeScript against the frozen Rust frames, including rejection
-cases. It installs nothing. The regular all-feature native test gate covers the
+cases. It installs nothing. The `Wire schema and generated clients` CI job runs this
+check on pull requests and main pushes after explicit pinned dependency setup,
+and retains generated files and qualification logs for 30 days. The regular
+all-feature native test gate covers the
 catalog, projections and custom scalars. The deployment dependency check refuses
 schema features in the normal standalone graph; the metadata API/derives are
 absent on Wasm. Explicit all-feature tooling builds are a separate selection.
@@ -103,3 +106,48 @@ This additive export preserves endpoint identities, bytes and persisted formats.
 Consumers own transport, final-Wasm inventory comparison and release sidecar
 binding. In particular Canic owns embedded-host qualification and adoption after
 this API is published; native catalog checks cannot replace those artifact checks.
+
+
+## Compile-time mounted method policy
+
+The existing `wire::{identity, request_limit, request_limits, response_limits}`
+lookups are const functions. `endpoints::MethodSpec::wire()` returns a
+`WireContract` containing the ID and complete request/reply `ic_wire::Limits`.
+External Candid descriptors refuse with `Error::Identity`. This API works without
+`wire-schema`, including on Wasm, and uses the same owner as runtime lookup and
+native schema generation. Lifecycle lookup names `blob_install` and
+`blob_post_upgrade` remain separate from `SERVICE_METHODS` and endpoint mounting.
+
+Supply `describe = describe` immediately after `emit = endpoint` in
+`mount_service_endpoints!` to receive each descriptor before endpoint emission.
+The callback receives `(IcWire | Candid, Rust_function_identifier, MethodSpec_expression)`.
+For example, a host can create constants for its own artifact format:
+
+```rust
+macro_rules! describe {
+    (IcWire, $name:ident, $spec:expr) => {
+        mod $name {
+            pub const SPEC: ic_blob_storage_contracts::endpoints::MethodSpec = $spec;
+            pub const WIRE: ic_blob_storage_contracts::endpoints::WireContract =
+                match SPEC.wire() {
+                    Ok(contract) => contract,
+                    Err(_) => panic!("owned Wire method"),
+                };
+            pub const ID: u64 = WIRE.id;
+        }
+    };
+    (Candid, $name:ident, $spec:expr) => {
+        mod $name {
+            pub const SPEC: ic_blob_storage_contracts::endpoints::MethodSpec = $spec;
+        }
+    };
+}
+```
+
+The host's unchanged endpoint emitter can use `$name::ID`, `$name::WIRE.request`
+and `$name::WIRE.response` for owned methods. Provider branches use their external
+classification and never receive a fabricated Wire ID. Hosts own section encoding,
+transform preservation and final-artifact/schema comparison; Blob supplies no
+Canic-specific format or framework dependency. Omitting `describe` retains the
+existing mounting invocation. Endpoint IDs, bytes, limits and lifecycle behavior
+are unchanged.

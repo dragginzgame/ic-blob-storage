@@ -28,32 +28,34 @@ pub struct MethodSpec {
     /// Required application codec.
     pub codec: MethodCodec,
 }
-macro_rules! method_spec {
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __blob_method_spec {
     (provider, query, $category:ident, $name:literal, $($rest:tt)*) => {
-        MethodSpec { name: $name, mode: MethodMode::Query, codec: MethodCodec::Candid }
+        $crate::endpoints::MethodSpec { name: $name, mode: $crate::endpoints::MethodMode::Query, codec: $crate::endpoints::MethodCodec::Candid }
     };
     (provider, update, $category:ident, $name:literal, $($rest:tt)*) => {
-        MethodSpec { name: $name, mode: MethodMode::Update, codec: MethodCodec::Candid }
+        $crate::endpoints::MethodSpec { name: $name, mode: $crate::endpoints::MethodMode::Update, codec: $crate::endpoints::MethodCodec::Candid }
     };
     (query, tenant_inspection, $($rest:tt)*) => {
-        MethodSpec { name: crate::protocol::TENANT_INSPECTION_METHOD, mode: MethodMode::Query, codec: MethodCodec::IcWire }
+        $crate::endpoints::MethodSpec { name: $crate::protocol::TENANT_INSPECTION_METHOD, mode: $crate::endpoints::MethodMode::Query, codec: $crate::endpoints::MethodCodec::IcWire }
     };
     (update, tenant_update, $($rest:tt)*) => {
-        MethodSpec { name: crate::protocol::TENANT_UPDATE_METHOD, mode: MethodMode::Update, codec: MethodCodec::IcWire }
+        $crate::endpoints::MethodSpec { name: $crate::protocol::TENANT_UPDATE_METHOD, mode: $crate::endpoints::MethodMode::Update, codec: $crate::endpoints::MethodCodec::IcWire }
     };
     (query, $category:ident, fn $name:ident $($rest:tt)*) => {
-        MethodSpec { name: stringify!($name), mode: MethodMode::Query, codec: MethodCodec::IcWire }
+        $crate::endpoints::MethodSpec { name: stringify!($name), mode: $crate::endpoints::MethodMode::Query, codec: $crate::endpoints::MethodCodec::IcWire }
     };
-    (update, $category:ident, $($rest:tt)*) => { method_spec!(@update $($rest)*) };
+    (update, $category:ident, $($rest:tt)*) => { $crate::__blob_method_spec!(@update $($rest)*) };
     (@update async fn $name:ident $($rest:tt)*) => {
-        MethodSpec { name: stringify!($name), mode: MethodMode::Update, codec: MethodCodec::IcWire }
+        $crate::endpoints::MethodSpec { name: stringify!($name), mode: $crate::endpoints::MethodMode::Update, codec: $crate::endpoints::MethodCodec::IcWire }
     };
     (certificate, $category:ident, $name:literal, $($rest:tt)*) => {
-        MethodSpec { name: $name, mode: MethodMode::Update, codec: MethodCodec::Candid }
+        $crate::endpoints::MethodSpec { name: $name, mode: $crate::endpoints::MethodMode::Update, codec: $crate::endpoints::MethodCodec::Candid }
     };
 }
 macro_rules! method_specs {
-    ($emit:ident; $([$($entry:tt)*])*) => { &[$(method_spec!($($entry)*)),*] };
+    ($emit:ident; $([$($entry:tt)*])*) => { &[$( $crate::__blob_method_spec!($($entry)*)),*] };
 }
 /// Complete callable service surface; linking this value exports no endpoint.
 pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
@@ -71,10 +73,22 @@ pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
 /// Provider entries use their separate bounded Candid emitters. The context
 /// must capture the actual caller/canister; clock, caller and trap paths must be
 /// trusted platform adapters. Linking contracts exports no lifecycle or endpoints.
+/// Optional `describe = callback` follows `emit` and runs before endpoint emission.
+/// It receives `(IcWire | Candid, rust_identifier, MethodSpec_expression)` for each
+/// declaration. Use the expression in a const/static; `MethodSpec::wire` supplies
+/// complete Wire policy. The callback owns artifact records and their format;
+/// provider entries must remain external Candid. Existing emitters are unchanged.
 #[macro_export]
 macro_rules! mount_service_endpoints {
-    (emit = $emit:ident, workflow = $workflow:ident, context = $context:ident, contracts = $contracts:ident,
+    (emit = $emit:ident, $(describe = $describe:ident,)? workflow = $workflow:ident, context = $context:ident, contracts = $contracts:ident,
      clock = $clock:path, caller = $caller:path, trap = $trap:path $(,)?) => {
+        $(
+            $crate::__blob_service_catalog!(
+                dispatch = [$crate::__describe_blob_service], emit = $describe,
+                workflow = $workflow, context = $context, contracts = $contracts,
+                clock = $clock, caller = $caller, trap = $trap,
+            );
+        )?
         $crate::__blob_service_types!($contracts);
         pub(super) use $contracts::upload::binding::UploadContext;
         $crate::__blob_service_catalog!(
@@ -89,6 +103,72 @@ macro_rules! mount_service_endpoints {
         );
     };
 }
+/// Complete Wire framing policy, usable by a host's static artifact declaration.
+/// The provider's external Candid contract has no value of this type.
+#[derive(Clone, Copy, Debug)]
+pub struct WireContract {
+    /// Stable method identity shared with the runtime codec.
+    pub id: u64,
+    /// Complete request admission limits, including the frame header.
+    pub request: ic_wire::Limits,
+    /// Complete response admission limits, including the frame header.
+    pub response: ic_wire::Limits,
+}
+impl MethodSpec {
+    /// Obtain the mounted Wire contract without enabling schema generation.
+    /// # Errors
+    /// External provider methods and unknown identities have no owned Wire contract.
+    pub const fn wire(self) -> Result<WireContract, crate::wire::Error> {
+        if matches!(self.codec, MethodCodec::Candid) {
+            return Err(crate::wire::Error::Identity);
+        }
+        let id = match crate::wire::identity(self.name) {
+            Ok(id) => id,
+            Err(e) => return Err(e),
+        };
+        let request = match crate::wire::request_limits(self.name) {
+            Ok(limits) => limits,
+            Err(e) => return Err(e),
+        };
+        let response = match crate::wire::response_limits(self.name) {
+            Ok(limits) => limits,
+            Err(e) => return Err(e),
+        };
+        Ok(WireContract {
+            id,
+            request,
+            response,
+        })
+    }
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __describe_blob_service {
+    ($emit:ident; $([$($entry:tt)*])*) => {
+        $($crate::__describe_blob_method! { $emit; [$($entry)*]; $($entry)* })*
+    };
+}
+#[doc(hidden)]
+#[macro_export]
+macro_rules! __describe_blob_method {
+    ($emit:ident; [$($original:tt)*]; provider, $mode:ident, $category:ident, $name:literal, $($rest:tt)*) => {
+        $crate::__describe_blob_method! { $emit; [$($original)*]; @signature Candid; $($rest)* }
+    };
+    ($emit:ident; [$($original:tt)*]; certificate, $category:ident, $name:literal, $($rest:tt)*) => {
+        $crate::__describe_blob_method! { $emit; [$($original)*]; @signature Candid; $($rest)* }
+    };
+    ($emit:ident; [$($original:tt)*]; $mode:ident, $category:ident, $($rest:tt)*) => {
+        $crate::__describe_blob_method! { $emit; [$($original)*]; @signature IcWire; $($rest)* }
+    };
+    ($emit:ident; [$($original:tt)*]; @signature $codec:ident; async $($rest:tt)*) => {
+        $crate::__describe_blob_method! { $emit; [$($original)*]; @signature $codec; $($rest)* }
+    };
+    ($emit:ident; [$($original:tt)*]; @signature $codec:ident; fn $name:ident $($rest:tt)*) => {
+        $emit! { $codec, $name, $crate::__blob_method_spec!($($original)*) }
+    };
+}
+
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __emit_blob_service {
