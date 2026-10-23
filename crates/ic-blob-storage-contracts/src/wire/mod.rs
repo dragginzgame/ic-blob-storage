@@ -2,7 +2,7 @@
 //! Native Serde field/variant order is the frozen Blob schema. Provider codecs,
 //! passive offline documents and persistent records have independent owners.
 pub(crate) mod decimal;
-/// Existing finite tenant contracts retain their exact identities and bytes.
+/// Bounded tenant projections use the same native codec as other methods.
 pub mod tenant;
 pub use ic_wire::{BytesRef, Error, TextRef};
 use ic_wire::{Limits, native};
@@ -18,8 +18,8 @@ pub const MAX_DEPTH: usize = 32;
 /// Returns an identity error for methods outside the owned Wire surface.
 pub fn identity(method: &str) -> Result<u64, Error> {
     Ok(match method {
-        "blob_tenant" => 0x424c_4f42_3332_0001,
-        "blob_update_tenant" => 0x424c_4f42_3332_0002,
+        "blob_tenant" => 0x424c_4f42_0043_001a,
+        "blob_update_tenant" => 0x424c_4f42_0043_001b,
         "blob_resume_current_instance" => 0x424c_4f42_0042_0001,
         "blob_configuration" => 0x424c_4f42_0042_0002,
         "blob_local_status" => 0x424c_4f42_0042_0003,
@@ -70,7 +70,7 @@ fn limits(bytes: usize) -> Limits {
         depth: MAX_DEPTH,
     }
 }
-/// Encode one owned native request. Tenant callers use the finite tenant module.
+/// Encode one owned native request. Tenant callers use the bounded tenant module.
 /// # Errors
 /// Refuses unknown identities and values outside encoding/traversal allowances.
 pub fn encode_request<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, Error> {

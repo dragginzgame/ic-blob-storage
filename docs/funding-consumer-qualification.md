@@ -5,7 +5,7 @@ provider evidence. The [local handoff](status/current.md) owns implementation;
 [funding credit](funding-credit.md) owns the current host API. Framework adapters
 and integration tests remain with their consumer repositories.
 
-## Current operational contract — pending 0.42
+## Current operational contract — 0.42
 
 The [funding contract](funding-credit.md) treats a matching successful Cashier
 callback as provider acknowledgment, not independent credit proof. Guarded
@@ -27,6 +27,22 @@ Existing account-link preparation/inspection interfaces remain the integration
 boundary; hosts must establish the selected relationship and authority. No
 undocumented account authorization or automatic external-payer setup is invented.
 
+## Current Canic adoption — 2026-10-22
+
+Read-only inspection of Canic's working tree based on
+`cf2d3d1fba84a00a76cdbc541ae7e68fe36e9bb5` finds published Blob/contracts 0.42.0
+selected in the root and both independent consumer locks. The new provider
+emitters use Blob's bounded GC decoders and shared workflow. Dedicated and
+embedded managed PocketIC logs under `/tmp/canic-blob042/` report passing
+mounted callback, acknowledgment and restore cases; these were inspected, not
+rerun here. The adoption is uncommitted consumer work, not default-branch proof.
+
+Canic now implements opt-in guarded prepare, dispatch, credit and renewal.
+Canic #494 owns accepted-payment and recovery qualification; its current refunded
+and concurrent-call cases do not establish positive acceptance. Blob already supplies
+the acknowledgment path; another credit API or local funding engine is not
+needed. Payer linkage and real-provider acceptance remain separate.
+
 ## Historical Canic boundary — 2026-10-12
 
 Released Blob 0.22.12 retains the host-internal credit and bounded renewal APIs
@@ -45,7 +61,7 @@ composition and its two-payment/recovery qualification.
 [Blob #34](https://github.com/dragginzgame/ic-blob-storage/issues/34) owns the
 acknowledgment implementation and remaining provider/account qualification. A scheduler or pre-upload path
 must reconcile the same durable original operation; it cannot bypass an
-uncredited/uncertain journal or repeat a payment from a missing reply. Keep
+unresolved journal or repeat a payment from a missing reply. Keep
 confirmation and financial renewal host-authorized, with all current bindings
 and fences rechecked after evidence-acquisition awaits.
 

@@ -1,6 +1,6 @@
 # Caffeine gateway GC callbacks
 
-The pending 0.42 hard cut restores the three external Candid callbacks through
+The released 0.42 hard cut restores the three external Candid callbacks through
 Blob's [shared endpoint catalog](../crates/ic-blob-storage-contracts/src/endpoints/mod.rs).
 The service core owns their policy and durable state; standalone and consumer
 frameworks explicitly mount that catalog. Linking the library exports nothing.

@@ -15,7 +15,12 @@ fn full_width_native_values_and_every_application_failure_round_trip() {
     let query = inspection_request(scope).unwrap();
     assert_eq!(decode_inspection_request(&query).unwrap(), scope);
     assert_eq!(&query[..2], b"IW");
-    assert_eq!(&query[2..10], &Inspect::ID.to_le_bytes());
+    assert_eq!(
+        &query[2..10],
+        &super::super::identity(crate::protocol::TENANT_INSPECTION_METHOD)
+            .unwrap()
+            .to_le_bytes()
+    );
     assert_eq!(query[10], 0);
     for expected in [
         None,
@@ -88,6 +93,18 @@ fn method_direction_and_previous_encodings_never_become_current_authority() {
     assert!(decode_inspection_request(&response).is_err());
     assert!(decode_inspection_response(&request).is_err());
     assert!(decode_update_response(&response).is_err());
+    // Even byte-compatible successes from the retired finite codec must refuse.
+    for (mut old, id) in [
+        (request.clone(), 0x424c_4f42_3332_0001u64),
+        (update.clone(), 0x424c_4f42_3332_0002u64),
+    ] {
+        old[2..10].copy_from_slice(&id.to_le_bytes());
+        assert!(decode_inspection_request(&old).is_err());
+        assert!(decode_update_request(&old).is_err());
+    }
+    let mut old_reply = response.clone();
+    old_reply[2..10].copy_from_slice(&0x424c_4f42_3332_0001u64.to_le_bytes());
+    assert!(decode_inspection_response(&old_reply).is_err());
     for old in [
         crate::document::encode(scope).unwrap(),
         ic_platform::candid::contract::encode_one((
@@ -120,7 +137,8 @@ fn bounded_principals_and_canonical_integers_refuse_malformed_payloads() {
     principal[11] = 30;
     assert!(decode_inspection_request(&principal).is_err());
     assert!(BytesRef::<29>::new(&[0; 30]).is_err());
-    assert_ne!(Inspect::ID, Update::ID);
-    assert_eq!(Inspect::NAME, crate::protocol::TENANT_INSPECTION_METHOD);
-    assert_eq!(Update::NAME, crate::protocol::TENANT_UPDATE_METHOD);
+    assert_ne!(
+        super::super::identity(crate::protocol::TENANT_INSPECTION_METHOD).unwrap(),
+        super::super::identity(crate::protocol::TENANT_UPDATE_METHOD).unwrap()
+    );
 }

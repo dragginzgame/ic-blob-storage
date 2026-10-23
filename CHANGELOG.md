@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.43.0]
+
+- **Hard cut:** adopt published Wire/derive 0.6.2 and replace the retired finite
+  tenant codec with bounded native Serde projections. Tenant frame identities
+  change to `0043/001a` and `0043/001b`; application failure tags become zero-based.
+  Retain borrowed principal bounds and the 512-byte frame ceiling, with explicit
+  native traversal budgets. Other method bytes and persisted records are unchanged.
+  Remove the obsolete `Inspect`/`Update` method marker types; callers use the
+  existing tenant encode/decode functions. No compatibility reader is provided.
+- Adopt published IC Tooling 0.64.1. Retain Blob's durable recovery fixtures;
+  no new fixture feature or deployment dependency is enabled.
+
+- Correct the integration guide to the released `0042` Wire identities and all
+  four external provider methods. Record Canic's local 0.42 adoption separately
+  from pending guarded funding, delivery and deployed-provider qualification.
+
 ## [0.42.0] - 2026-10-22
 
 - **Hard cut:** retain matching successful Cashier callbacks as provider

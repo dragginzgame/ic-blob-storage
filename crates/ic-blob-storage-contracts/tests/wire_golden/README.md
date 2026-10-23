@@ -3,8 +3,11 @@
 These 140 cases in 56 JSON files cover all 27 owned method request/reply pairs
 and standalone install/post-upgrade inputs. The approved 0.42 hard cut changes
 native frame identities from `0041` to `0042`, adds the disjoint provider
-acknowledgment status amount and funding reconciliation variant. Tenant finite-Wire
-bytes and named inputs are unchanged. External provider GC callbacks use Candid
+acknowledgment status amount and funding reconciliation variant. The subsequent
+0.43 Wire 0.6 cut changes only the four tenant vector files: explicit new frame
+identities and the `Binding` failure tag from one to zero. Named inputs and other
+method bytes stay unchanged; the typed tests verify all 140 cases. The old tenant
+vectors remain in released 0.42 Git history. External provider GC callbacks use Candid
 and do not enter this application-Wire inventory.
 
 The existing named inputs were reviewed before one typed recapture. Existing

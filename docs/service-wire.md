@@ -2,14 +2,14 @@
 
 All 27 owned methods use one IC Wire request/response contract. Standalone
 installation and same-release post-upgrade inputs also use method-bound Wire.
-The 0.41.0 hard cut removes four verifier methods and changes native service
-and lifecycle identities from `0036` to `0041`; the two finite tenant frames keep
-their original identities and bytes. Old native frames refuse. The
+The 0.43.0 hard cut moves the two tenant methods from the retired finite codec
+to native Serde framing, with identities `0043/001a` and `0043/001b`. Other
+service/lifecycle frames retain their `0042` identities and bytes. Old tenant frames refuse. The
 [registration contract](trusted-registration.md) defines the installation/state
 cut and retirement/reinstall requirements. Application calls also reject old
 CBOR and Candid service packets,
 with no detection, fallback or compatibility lane. The root manifest selects
-published Wire 0.5.0 or later in that family; Cargo.lock retains the exact selection. Wire itself
+published Wire 0.6.2; Cargo.lock retains the exact selection. Wire itself
 owns no Blob DTO, endpoint, platform dependency or provider transport.
 
 ## Boundaries and ownership
@@ -19,17 +19,17 @@ owns no Blob DTO, endpoint, platform dependency or provider transport.
 | All owned service requests and replies | Canonical Postcard in a method- and direction-bound IC Wire frame |
 | Standalone initialization | Request frame for `blob_install`, containing `ServiceInstallationInput` |
 | Same-release post-upgrade input | Request frame for `blob_post_upgrade`, containing unit; no replacement configuration |
-| Provider certificate, outgoing Cashier/provider and IC management | Their existing external Candid contracts |
+| Provider certificate and three GC callbacks, outgoing Cashier/provider and IC management | Their existing external Candid contracts |
 | Caffeine HTTP upload/download and 1 MiB chunks | Existing provider contract; bodies never pass through the Blob RPC codec |
 | Offline permissions, declarations and reference commands | Bounded Wire value documents with identity `0x424c4f420036ff10`; never service-method frames |
 | Private consumer/storage-probe controls | Private Wire values using `document`; storage controls retain argument/reply tuple envelopes |
 | Signed IC transport envelope | IC transport CBOR, containing the exact application frame |
-| Stable records and accounting journals | Storage-owned schemas; the 0.41 registration cut requires retirement/reinstall, with no migration |
+| Stable records and accounting journals | Storage-owned schemas; the 0.42 acknowledgment cut requires retirement/reinstall, with no migration |
 
 `endpoints::SERVICE_METHODS` supplies method names, modes and codecs from the
 same catalog that mounts endpoints. Linking Core, Contracts or Client exports
-no endpoints or lifecycle hooks. `service.did` describes only the provider
-certificate method. Wasm omits extraction machinery; the native exporter owns
+no endpoints or lifecycle hooks. `service.did` describes the provider
+certificate method and three GC callbacks. Wasm omits extraction machinery; the native exporter owns
 provider schema generation.
 
 ## Schema and admission
@@ -40,19 +40,22 @@ The eleven-byte Wire header binds the literal u64 identity and direction
 identities are not computed from Rust names or catalog positions. Unknown and
 provider method names refuse.
 
-The two existing tenant contracts retain their finite derived schemas, explicit
-field/variant IDs, `BytesRef<29>` principal views and exact original frames. Each direction
-allows 512 encoded bytes, 1024 value-allocation bytes plus codec scratch, 32 nodes
-and depth 8. Native tenant DTOs are projections through `wire::tenant`; the generic
-native helpers do not replace those projections.
+The tenant contracts use Serde declaration order and zero-based application
+failure tags, retaining `BytesRef<29>` principal views. Each direction allows
+512 encoded bytes, 16 KiB native allocation allowance, 64 traversal nodes and
+depth 16. These are conservative native visitor charges, not measured heap use;
+the retired finite codec's budgets are not interchangeable with them. Full-width
+values, all application failures and malformed inputs are covered by tests.
+Native tenant DTOs remain projections through `wire::tenant`; generic helpers
+do not replace its principal and traversal admission.
 
-Wire 0.5 supplies schema and serialization independently of deserialization.
+Wire 0.6 uses ordinary Serde serialization and deserialization.
 Generic service/document decoders explicitly require `Deserialize<'de>` and
 accept input-backed `BytesRef`/`TextRef`; callers needing independent ownership
-can retain `DeserializeOwned`. The finite tenant contracts borrow principal bytes
+can retain `DeserializeOwned`. The tenant contracts borrow principal bytes
 from the input or native scope. Their public types carry a lifetime and encode
 projections convert from references; the existing native helper functions still
-return owned frames/DTOs. Field IDs, bounds and canonical bytes are unchanged.
+return owned frames/DTOs. No retired Method trait or finite-codec facade remains.
 
 `DownloadResponse<Text = String>` and its headers have one field layout. Native
 CLI descriptor decoding uses `download::reply::decode_borrowed` with `TextRef`
@@ -83,8 +86,8 @@ at most 64 MiB of allocation charge, 262,144 nodes and depth 32. Responses admit
 at most 4 MiB; clients apply their existing narrower reply and transport limits.
 These are codec ceilings, separate from domain counts, quotas and liabilities.
 The standalone raw adapter checks platform argument size before copying native
-request bytes. The existing finite tenant adapter's CDK transport buffer remains
-separate from finite value admission.
+request bytes. The tenant adapter's platform transport buffer remains
+separate from native value admission.
 
 Wrong method/direction, noncanonical values, truncation, trailing bytes and
 exhausted resource budgets refuse before workflow effects. Response encoding
@@ -116,8 +119,8 @@ their original tools and disposition; their packets are not current authority.
 ## Host and consumer adoption
 
 The standalone host and storage probe mount raw native methods with exact method
-selection and manual Wire replies. Tenant emitters keep their finite custom
-codecs. Provider registration and Candid export remain in one separate expansion.
+selection and manual Wire replies. Tenant emitters keep the bounded tenant
+entry points. Provider registration and Candid export remain in one separate expansion.
 Replicated Client, native CLI and installed-test callers use matching method-bound
 request and reply codecs. No wrapper may fall back to CBOR when Wire rejects.
 

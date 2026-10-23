@@ -34,23 +34,23 @@ exact wire name. Keep lifecycle, installation, memory allocation and post-await
 continuity in the host. See the standalone API module for a complete expansion.
 Linking this runtime-free crate alone exports no endpoint or lifecycle hook.
 
-Use the exact finite IC Wire tenant contracts for their two categories and the
+Use the bounded native IC Wire tenant contracts for their two categories and the
 method-bound native Wire helpers for ordinary/manifest declarations. Both request and reply codecs
 must agree with the method catalog.
-The certificate category remains Candid. Mount the endpoint catalogue before exporting the provider Candid service. `endpoints::SERVICE_METHODS`
+The certificate and provider GC categories remain Candid. Mount the endpoint catalogue before exporting the provider Candid service. `endpoints::SERVICE_METHODS`
 provides the complete method/mode/codec inventory from the same catalog; compare
 that inventory with actual Wasm exports and compare only the provider subset
 with generated Candid. Native compilation alone is insufficient.
 
 All owned methods use published IC Wire; passive offline Wire values have their separate
 `document` owner. The tenant methods'
-bounded projections use explicit field/variant identities, method/direction-bound
+bounded projections use Serde declaration order, method/direction-bound
 frames and finite resource limits while native DTO/policy and persisted schemas
 retain their existing owners. See [the adoption state](../../docs/service-wire.md).
-The registry requirement targets Wire 0.5. Service/document generic decoding
+The registry requirement targets Wire 0.6.2. Service/document generic decoding
 requires explicit `Deserialize<'de>` and can return bounded `BytesRef`/`TextRef`
 views. Retain the input for their lifetime; use owned values across async results,
-persistence and retained retries. Finite tenant wire projections now take a
+persistence and retained retries. Borrowed tenant wire projections now take a
 lifetime and convert from native references; their native helper functions retain
 their signatures. `download::reply::decode_borrowed` shares the owned descriptor
 validator over `DownloadResponse<Text = String>` without copying metadata text.

@@ -173,12 +173,15 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
     let original = f.harness.pic.get_stable_memory(f.service);
     let mut trailing = wire::update_request(command).unwrap();
     trailing.push(0);
+    let mut retired = wire::update_request(command).unwrap();
+    retired[2..10].copy_from_slice(&0x424c_4f42_3332_0002u64.to_le_bytes());
     for bytes in [
         query.clone(),
         wire::inspection_response(Err(TenantFailure::Denied)).unwrap(),
         ic_blob_storage_contracts::document::encode(command).unwrap(),
         ic_blob_storage_pocketic_tests::historical::encode(command).unwrap(),
         trailing,
+        retired,
         vec![0; 513],
     ] {
         let rejected = f

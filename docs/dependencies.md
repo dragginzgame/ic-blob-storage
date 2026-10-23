@@ -115,10 +115,10 @@ process identity. After adoption, explicitly prepare the locked Testkit CLI with
 `make install-testkit` and the locked release editor with
 `make install-release-editor`; application lockfile changes do not install tools.
 
-The [service wire guide](service-wire.md) defines the current 0.41.0 contract.
+The [service wire guide](service-wire.md) defines the current 0.43.0 contract.
 All 27 owned methods and standalone lifecycle inputs use published IC Wire
-0.5.0, with explicit method/direction identity and no old-packet fallback.
-Finite tenant frames retain their bytes; other methods use Wire's bounded native
+0.6.2, with explicit method/direction identity and no old-packet fallback.
+Tenant frames use new 0.43 identities; all methods use Wire's bounded native
 Serde codec. Passive offline values use a separate document identity, and new
 application artifacts use `.wire`. Exact saved-input and signed-frame binding
 remains with the CLI/workflow owner.
@@ -144,14 +144,13 @@ Private Candid probe/provider substitutes retain their existing tuple decoder,
 `blob-test-protocol::fixture_candid` hooks. Existing narrower fixture decoders
 and method-bound Wire controls remain unchanged.
 
-Published Wire 0.5.0 remains the selected codec minimum and locked version.
-Its `Wire` trait supplies serialization, schema and finite bounds; generic decode
+Published Wire 0.6.2 supplies the native Serde codec; generic decode
 callers explicitly choose `Deserialize<'de>` or `DeserializeOwned`. Blob's generic
-service/document decoders now admit input-backed values. Finite tenant principal
+service/document decoders now admit input-backed values. Borrowed tenant principal
 views use `BytesRef<29>`; the native descriptor consumer uses `TextRef` over its
 retained authenticated frame. Owned async requests/results, durable records and
 exact retry buffers remain owned. There is no added dependency or alternate codec.
-The [protocol](service-wire.md) owns the unchanged limits and canonical bytes;
+The [protocol](service-wire.md) owns the current limits and canonical bytes;
 [measurements](evidence/borrowed-wire0390.md) separate actual upload/descriptor
 operations from chunk codec controls. Provider bodies remain outside Blob RPC.
 
@@ -199,6 +198,24 @@ upgrades and pending-call recovery; the temporary direct PocketIC declaration
 and boundary exception are removed. Its management DTOs retain PocketIC's own
 identity, separate from Platform's independent management DTO version. Testkit
 continues to own simulator selection and server lifecycle.
+
+### Delayed provider fixtures
+
+Testkit 0.64.1's opt-in `held-reply-fixtures` owns generic immutable reply slots
+and manual PocketIC release. It is suitable for consumer callback races without
+provider lifecycle operations. It does not replace Blob's durable
+[gateway source](../canisters/test/gateway_source/src/model/mod.rs): the
+[recovery cases](../tests/pocketic/tests/recovery/authority/sync/mod.rs) inspect
+captured source journals, reject pending upgrades, restore old source bytes and
+verify bounded exhaustion. Testkit's held controller explicitly excludes fixture
+upgrade/reinstall/restore with held calls and keeps no durable source journal.
+
+The [transport cases](../tests/pocketic/tests/storage_gateways/transport/mod.rs)
+already cover cancellation, revocation, newer pending attempts and completed
+replacements before an original reply arrives. Retain their shared source owner;
+moving only these cases would add a second fixture without removing the required
+recovery implementation. Use Testkit for new generic cases when that avoids a
+new local scheduler; keep application authority and accounting assertions here.
 
 Native fixtures and example staging/publication use published `ic-host-fs`
 with empty defaults. Neither `capability` nor `temporary-file` is needed
