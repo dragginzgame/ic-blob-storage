@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.43.1]
+
+- Adopt published Host/Build/Testkit 0.65.0, retaining Blob's native Wire callers
+  and durable recovery fixtures without enabling new deployment features.
+- Refresh Shared Tooling to 0.26.7: explicit Cargo-tool setup waits up to 60
+  seconds for an admitted installation owner, then rechecks inputs and reuses
+  verified output. Offline checks still refuse immediately; locks are never
+  removed by a competing setup. Preserve validation failure evidence and shared
+  review guidance from 0.26.5–0.26.6.
+
 ## [0.43.0] - 2026-10-23
 
 - **Hard cut:** adopt published Wire/derive 0.6.2 and replace the retired finite
