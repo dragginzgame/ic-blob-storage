@@ -164,13 +164,14 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
     use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
     use ic_blob_storage_contracts::wire::tenant as wire;
     let f = Fixture::new();
+    let pic = &f.harness.pic;
     let command = TenantUpdateRequest {
         scope: f.scope(),
         expected: None,
         active: true,
     };
     let query = wire::inspection_request(f.scope()).unwrap();
-    let original = f.harness.pic.get_stable_memory(f.service);
+    let original = pic.get_stable_memory(f.service);
     let mut trailing = wire::update_request(command).unwrap();
     trailing.push(0);
     let mut retired = wire::update_request(command).unwrap();
@@ -184,38 +185,30 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         retired,
         vec![0; 513],
     ] {
-        let rejected = f
-            .harness
-            .pic
+        let rejected = pic
             .update_call(f.service, f.operator, "blob_update_tenant", bytes)
             .unwrap_err();
         assert_eq!(rejected.reject_code, RejectCode::CanisterError);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
+        unchanged(&pic.get_stable_memory(f.service), &original);
     }
     assert!(
-        f.harness
-            .pic
-            .query_call(
-                f.service,
-                f.tenant,
-                "blob_tenant",
-                ic_blob_storage_pocketic_tests::historical::encode(f.scope()).unwrap(),
-            )
-            .is_err()
+        pic.query_call(
+            f.service,
+            f.tenant,
+            "blob_tenant",
+            ic_blob_storage_pocketic_tests::historical::encode(f.scope()).unwrap(),
+        )
+        .is_err()
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
-    let bytes = f
-        .harness
-        .pic
+    unchanged(&pic.get_stable_memory(f.service), &original);
+    let bytes = pic
         .query_call(f.service, f.tenant, "blob_tenant", query)
         .unwrap();
     let inspected = ic_blob_storage_contracts::wire::tenant::decode_inspection_response(&bytes)
         .unwrap()
         .unwrap();
     assert_eq!(inspected.enrollment, None);
-    let denied = f
-        .harness
-        .pic
+    let denied = pic
         .update_call(
             f.service,
             f.controller,
@@ -227,10 +220,8 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         ic_blob_storage_contracts::wire::tenant::decode_update_response(&denied).unwrap(),
         Err(TenantFailure::Denied)
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &original);
-    let accepted = f
-        .harness
-        .pic
+    unchanged(&pic.get_stable_memory(f.service), &original);
+    let accepted = pic
         .update_call(
             f.service,
             f.operator,
@@ -250,9 +241,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         })
     );
     assert_eq!(f.tenant(), accepted);
-    let conflict = f
-        .harness
-        .pic
+    let conflict = pic
         .update_call(
             f.service,
             f.operator,
