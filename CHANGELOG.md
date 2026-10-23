@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.43.3]
+## [0.43.3] - 2026-10-23
 
 - Export opt-in host Wire schemas and TypeScript generation from the canonical
   Blob method declarations, including tenant limits and validated account decimal
