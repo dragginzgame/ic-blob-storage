@@ -12,7 +12,7 @@ use ic_host_process::{
     tool::{OutputLimit, OutputLimits, drain_child_output},
 };
 use ic_platform::pocket_ic::{PocketIc, PocketIcBuilder};
-use ic_testkit::pic::{PocketIcInstance, PocketIcManagedServer, PocketIcStartupConfig};
+use ic_testkit::pic::{PocketIcManagedServer, PocketIcStartupConfig};
 
 /// Finite decoding budgets for replies from Blob's installed local fixtures.
 /// These cover bounded status/history pages and byte-bearing probe replies;
@@ -78,7 +78,7 @@ impl Harness {
     }
 
     pub fn with_builder(builder: PocketIcBuilder) -> Self {
-        let PocketIcInstance { instance, server } = PocketIcStartupConfig::Spawn {
+        let (instance, server) = PocketIcStartupConfig::Spawn {
             server_binary: fixture_path("POCKET_IC_BIN"),
             timeout: Duration::from_secs(30),
             server_hard_ttl: None,
@@ -86,7 +86,8 @@ impl Harness {
             server_output_files: None,
         }
         .build_instance(builder)
-        .expect("start explicitly selected local server and instance");
+        .expect("start explicitly selected local server and instance")
+        .into_parts();
         Self {
             pic: instance,
             _server: server,

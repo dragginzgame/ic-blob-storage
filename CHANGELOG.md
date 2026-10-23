@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.43.2]
+
+- Adopt Wire/derive 0.6.7 with unchanged protocol bytes, and Shared Tooling 0.26.8
+  at committed revision `0b07c2a`. Reprepare Cargo tools for the source-cache
+  policy change; setup tolerates an admitted owner's lock cleanup without
+  deleting competing locks or weakening offline checks.
+
+- Adopt Host/Build/Testkit 0.66.0 and use explicit PocketIC ownership transfer
+  in the shared integration harness. Preserve client-before-server teardown;
+  application endpoints, storage and deployment features are unchanged.
+
 ## [0.43.1] - 2026-10-23
 
 - Adopt published Host/Build/Testkit 0.65.0, retaining Blob's native Wire callers

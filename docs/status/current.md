@@ -4,27 +4,32 @@ Date: 2026-10-23
 
 ## Released contract and pending adoption
 
-Local HEAD is released **0.43.0**, `d23039c`. The tenant methods now use native
+Local HEAD is released **0.43.1**, `f9f8c32`. The tenant methods now use native
 Wire with identities `0043/001a` and `0043/001b`, zero-based failure tags,
 borrowed 29-byte principals and a 512-byte frame ceiling. Other method identities
 stay `0042`. Retired finite Method markers are removed without compatibility
 readers. Persisted representations were not changed by the Wire migration.
 Cross-release installations still follow retirement/reinstall policy.
 
-Pending **0.43.1** adopts published Host/Build/Testkit **0.65.0** together, keeping
-shared Host type identities coherent. Blob already uses native Wire callers and
-does not consume Testkit's removed finite Method interface. No application source,
-fixture feature, deployment dependency or package release version is changed.
-The existing graph selects Wire/derive 0.6.5, Platform 0.6.9, Memory/Storage
-0.50.11 and Metrics 0.15.6; this adoption changes only seven Tooling packages.
+Pending **0.43.2** adopts published Host/Build/Testkit **0.66.0** together, keeping
+shared Host type identities coherent. The integration harness takes client/server
+ownership through `into_parts()` and retains client-before-server drop order.
+No application source, fixture feature, deployment dependency or package release
+version is changed. Incoming unrelated lockfile edits remain preserved.
+The graph selects published Wire/derive 0.6.7, Platform 0.6.9, Memory/Storage
+0.50.11 and Metrics 0.15.6. Host 0.66.0 remains the latest published family.
 
-Shared Tooling **0.26.7**, revision `3e8d7cd3e7e9b7b79a5e800c30daf0be2710dab0`,
+Shared Tooling **0.26.8**, revision `0b07c2a3163a5a66328e100b553baf93afd8ed07`,
 is exported through the canonical refresh tool with the existing entrypoints
 plus `audits/ci-release-integrity.md`, required by the refreshed audit index.
 Snapshot payloads are not locally patched. Explicit Cargo-tool setup now waits
 up to 60 seconds for a valid competing owner, then rechecks its inputs and output.
 Offline checks remain immediate and no competing process's lock is deleted.
 Versions 0.26.5–0.26.6 also improve evidence retention and review guidance.
+The 0.26.8 committed snapshot fixes admitted-owner lock cleanup races and removes
+the global source-cache setup lock. Explicit Cargo setup is rerun under the new
+build policy; prior generations remain retained. Its changelog is still labelled
+Unreleased; the committed revision above is the reviewed snapshot identity.
 
 ## Service ownership and remaining integration
 
@@ -54,7 +59,7 @@ billing. Provider acknowledgments are not independent credit or deletion proof.
 
 ## Validation
 
-Current adoption evidence is retained in
+Previous 0.65 adoption evidence is retained in
 `.tmp/review-validation/host065-shared0267/`, including snapshot preview/refresh,
 locked metadata, boundaries, Clippy and explicit tool setup/checks.
 All pass, along with contracts/golden tests, Rust 1.91 native CLI all-feature
@@ -69,3 +74,20 @@ No full release gate, native macOS, live provider operation or deployment is
 claimed by this adoption. No staging, commit, push or release was performed.
 Focused native CLI upload-input tests exercise the adopted Host filesystem path;
 results are retained in `cli-inputs.log` alongside the adoption checks.
+
+Current 0.66 adoption logs are in `.tmp/review-validation/host066/`.
+Locked metadata, declaration/runtime boundaries, strict workspace Clippy,
+formatting and documentation checks pass. The harness changes only explicit
+ownership transfer; its existing drop order remains authoritative.
+Rust 1.91 standalone-test compilation, release standalone Wasm and the installed
+tenant ingress regression pass on the new harness. The PocketIC test exercises
+server startup, application refusal/success and normal harness teardown. Full CI,
+native macOS and live-provider qualification were not rerun.
+
+Latest Shared 0.26.8 / Wire 0.6.7 adoption evidence is retained in
+`.tmp/review-validation/shared0268-wire067/`. Locked metadata, snapshot and
+runtime/declaration boundaries, strict workspace Clippy, contracts/golden vectors,
+342 core tests, Rust 1.91 standalone Wasm and shared fixture tests pass.
+Explicit common Rust/Testkit/Build setup completed under the new build policy.
+No new runtime code, protocol identities or fixtures were introduced. Full CI,
+fresh installed IC execution and native macOS were not rerun for this slice.
