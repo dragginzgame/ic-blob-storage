@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.43.2]
+## [0.43.2] - 2026-10-23
 
 - Adopt Wire/derive 0.6.7 with unchanged protocol bytes, and Shared Tooling 0.26.8
   at committed revision `0b07c2a`. Reprepare Cargo tools for the source-cache
