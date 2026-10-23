@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.43.1]
+## [0.43.1] - 2026-10-23
 
 - Adopt published Host/Build/Testkit 0.65.0, retaining Blob's native Wire callers
   and durable recovery fixtures without enabling new deployment features.
