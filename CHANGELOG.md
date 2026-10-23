@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.43.0]
+## [0.43.0] - 2026-10-23
 
 - **Hard cut:** adopt published Wire/derive 0.6.2 and replace the retired finite
   tenant codec with bounded native Serde projections. Tenant frame identities
