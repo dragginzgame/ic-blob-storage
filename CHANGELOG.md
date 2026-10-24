@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.44.3]
+## [0.44.3] - 2026-10-24
 
 - Share continuity-aware installed funding access and typed native schema
   projections with embedding hosts, preserving endpoint and stored formats.
