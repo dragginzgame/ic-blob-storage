@@ -1,9 +1,9 @@
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::reference::ReferenceFaultInput;
 use ic_blob_storage_contracts::dto::reference::*;
 use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod receipts;
 mod status;

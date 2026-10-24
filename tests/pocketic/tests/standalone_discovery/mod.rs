@@ -1,10 +1,10 @@
 //! Production-host indexed discovery, exact independent identities and restore fencing.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as F;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn discovery(

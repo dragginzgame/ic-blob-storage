@@ -1,11 +1,11 @@
 //! Opt-in measurements of ordinary bounded funding history and interrupted reads.
 use super::*;
 use crate::storage_resources::{resources, retain, retain_bytes};
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::funding::{
     Action as FundingAction, Command as FundingCommand, Intent, Phase as FundingPhase,
     Request as FundingRequest,
 };
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use std::{path::Path, time::Instant};
 
 fn funding_command(

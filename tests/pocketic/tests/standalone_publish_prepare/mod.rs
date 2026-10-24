@@ -1,12 +1,12 @@
 //! Signed indexed setup, distinct actors and lost-reply recovery against real IC state.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use crate::{
     account_native_cli::OUTSIDER_PEM,
     authenticated_cli::{PEM, run},
     standalone_publish_check::{freeze, setup},
     submission_proxy::{Dispatch, Proxy, Reply},
 };
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use serde_json::{Value, json};

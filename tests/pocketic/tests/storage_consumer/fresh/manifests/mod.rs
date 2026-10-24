@@ -1,9 +1,9 @@
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::manifests::{
     ManifestDispatch, ManifestFault, ManifestIntent, ManifestIntentView,
 };
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 mod cancellation;
 fn uploader_fixture() -> Fixture {
     let mut f = fixture();

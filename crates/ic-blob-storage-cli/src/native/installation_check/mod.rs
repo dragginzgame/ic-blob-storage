@@ -11,8 +11,7 @@ use std::path::Path;
 
 const CONFIGURATION_BYTES: usize = exact_wire::INSTALLATION_BYTES;
 
-pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let flags = super::arguments::parse(args)?;
+pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
     let take = |key| {
         flags
             .get_one::<String>(key)

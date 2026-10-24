@@ -4,6 +4,7 @@ use blob_test_protocol::{
     billing::{BillingLimitsInput, FundingNeedView},
     status::BillingBlockerView,
 };
+use ic_blob_storage_pocketic_tests::fixture_calls;
 
 impl Fixture {
     fn limits(&self, minimum: u128, target: u128) -> BillingLimitsInput {
@@ -20,7 +21,7 @@ impl Fixture {
         actor: Principal,
         input: BillingLimitsInput,
     ) -> Result<(), BalanceFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.authority,
             actor,

@@ -1,8 +1,8 @@
 //! Actual canister actor, committed command intent and shared client recovery.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, TenantDispatch};
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()

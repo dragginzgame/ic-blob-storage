@@ -1,5 +1,5 @@
 use super::*;
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 mod mutations;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
 fn consumer() -> Fixture {

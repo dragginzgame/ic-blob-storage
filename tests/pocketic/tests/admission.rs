@@ -1,6 +1,7 @@
 //! Actual IC caller/time composition of the shared owner, without provider effects.
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod admission_cases;
 mod admission_content;
 mod admission_resources;
@@ -79,7 +80,7 @@ impl Fixture {
     }
 
     fn inspect(&self, caller: Principal, request: Request) -> Result<Observation, Failure> {
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             caller,

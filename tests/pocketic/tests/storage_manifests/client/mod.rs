@@ -1,7 +1,7 @@
 //! The uploader is a distinct canister, separate from the admitted tenant.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 mod cancellation;
 use blob_test_protocol::consumer::{
     Failure as C,

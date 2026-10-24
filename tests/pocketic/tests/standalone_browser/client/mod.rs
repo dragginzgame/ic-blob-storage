@@ -1,7 +1,6 @@
 //! Current native tooling supplies exact files and real signed standalone requests.
 use super::super::*;
 use super::BrowserPreparation;
-use crate::support::REPLY_LIMITS;
 use crate::{
     account_native_cli::OUTSIDER_PEM,
     authenticated_cli::{PEM, run_with_tls_roots},
@@ -11,6 +10,7 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};

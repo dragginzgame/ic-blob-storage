@@ -4,6 +4,7 @@ use blob_test_protocol::{
     admission::{ExecutionProfile, RESOURCE_SAMPLE_CAPACITY, input::PreparationInput},
     journey::JourneyManifest,
 };
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::candid::decoder;
 use sha2::{Digest, Sha256};
 
@@ -72,7 +73,7 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
 
 impl Fixture {
     fn resources(&self, caller: Principal, limit: usize) -> Result<Vec<ExecutionProfile>, Failure> {
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             caller,

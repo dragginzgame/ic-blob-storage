@@ -1,5 +1,6 @@
 //! Atomic stable inspection records, without pretending to resume authority.
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod capacity;
 mod checkpoint;
 mod restore;
@@ -15,7 +16,7 @@ use ic_platform::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
     pub(super) fn archive(&self) -> AuthorityArchiveView {
-        let result: Option<AuthorityArchiveView> = crate::support::query_fixture(
+        let result: Option<AuthorityArchiveView> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             self.authority_operator,
@@ -27,7 +28,7 @@ impl Fixture {
         result.expect("explicit operator")
     }
     fn sample_fact(&self, fact: ObligationProbeFact) {
-        let accepted: bool = crate::support::update_fixture(
+        let accepted: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.service,
             self.authority_operator,
@@ -49,7 +50,7 @@ impl Fixture {
         let result: Result<
             blob_test_protocol::content::ContentProbeReport,
             blob_test_protocol::content::ContentProbeFailure,
-        > = crate::support::update_fixture(
+        > = fixture_calls::update_fixture(
             &self.harness.pic,
             self.service,
             self.authority_operator,
@@ -97,11 +98,11 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
     assert_eq!(f.reserve(f.first, cancelled), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
     let (released,): (bool,) =
-        crate::support::update_fixture(&f.harness.pic, f.service, f.first, "release", (1_u8,))
+        fixture_calls::update_fixture(&f.harness.pic, f.service, f.first, "release", (1_u8,))
             .unwrap();
     assert!(released);
     f.sample_fact(ObligationProbeFact::Deleted);
-    let (sample_cancel,): (bool,) = crate::support::update_fixture(
+    let (sample_cancel,): (bool,) = fixture_calls::update_fixture(
         &f.harness.pic,
         f.service,
         f.first,
@@ -198,7 +199,7 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
-    let (armed,): (bool,) = crate::support::update_fixture(
+    let (armed,): (bool,) = fixture_calls::update_fixture(
         &f.harness.pic,
         f.service,
         f.operator,
@@ -220,7 +221,7 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     assert!(read.valid);
     assert_eq!(before.armed_read_trap, None);
     let (resumed,): (bool,) =
-        crate::support::update_fixture(&f.harness.pic, f.gateway, f.operator, "resume_read", ())
+        fixture_calls::update_fixture(&f.harness.pic, f.gateway, f.operator, "resume_read", ())
             .unwrap();
     assert!(resumed);
     let error = f
@@ -231,7 +232,7 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
     assert_eq!(error.reject_code, RejectCode::CanisterError);
     assert_eq!(f.archive(), before);
     let (revoked,): (bool,) =
-        crate::support::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
+        fixture_calls::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
             .unwrap();
     assert!(revoked);
     let after = f.archive();
@@ -255,7 +256,7 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
         Principal::anonymous(),
         f.service,
     ] {
-        let denied: Option<AuthorityArchiveView> = crate::support::query_fixture(
+        let denied: Option<AuthorityArchiveView> = fixture_calls::query_fixture(
             &f.harness.pic,
             f.service,
             caller,
@@ -266,7 +267,7 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
         .unwrap();
         assert!(denied.is_none());
     }
-    let (initial,): (Option<AuthorityArchiveView>,) = crate::support::query_fixture(
+    let (initial,): (Option<AuthorityArchiveView>,) = fixture_calls::query_fixture(
         &f.harness.pic,
         f.service,
         f.gateway,
@@ -371,7 +372,7 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
 fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
     let f = Fixture::with_source_operator(true);
     let query = || -> AuthorityArchiveView {
-        let value: Option<AuthorityArchiveView> = crate::support::query_fixture(
+        let value: Option<AuthorityArchiveView> = fixture_calls::query_fixture(
             &f.harness.pic,
             f.service,
             f.gateway,
@@ -389,7 +390,7 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
         (SourceMode::Overlap, Ok(())),
         (SourceMode::Revoke, Err(SyncFailure::Stale)),
     ] {
-        let configured: bool = crate::support::update_fixture(
+        let configured: bool = fixture_calls::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,
@@ -399,7 +400,7 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
         .map(|(reply,)| reply)
         .unwrap();
         assert!(configured);
-        let result: Result<(), SyncFailure> = crate::support::update_fixture(
+        let result: Result<(), SyncFailure> = fixture_calls::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,

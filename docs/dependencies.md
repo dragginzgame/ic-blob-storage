@@ -44,11 +44,13 @@ composition. The core exports none of these implicitly. Consumer frameworks own
 their wrappers and composition tests; see [Canic integration](#canic-integration).
 The [service contract](service-contract.md) owns supported service invariants.
 
-Contracts owns provider JSON boundary codecs, including
+Contracts owns opt-in `provider-json` boundary codecs, including
 [`provider::upload`](../crates/ic-blob-storage-contracts/src/provider/upload/mod.rs).
 For 0.34, replace `ic_blob_storage::ops::caffeine::upload` imports with
 `ic_blob_storage_contracts::provider::upload`. The decoder, status and error
 semantics are unchanged; Core no longer declares `serde_json` directly.
+The Contracts crate has no default features; native callers of these codecs
+must enable `provider-json`. CLI and PocketIC already select it explicitly.
 The CLI retains its required Serde/JSON dependencies and Host test helpers,
 but no longer declares Testkit. PocketIC retains Testkit and owns its server
 selection; removing the CLI declaration does not retire simulator setup.

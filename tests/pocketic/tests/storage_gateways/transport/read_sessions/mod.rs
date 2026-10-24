@@ -1,5 +1,6 @@
 //! Real local chunks validate durable sessions, verification and callback authority.
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 
 mod resources;
 use super::*;
@@ -23,7 +24,7 @@ impl Fixture {
             hold,
         };
         assert!(
-            crate::support::update_fixture::<(bool,), _>(
+            fixture_calls::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
@@ -35,7 +36,7 @@ impl Fixture {
         );
     }
     fn chunk_observation(&self) -> ReadSourceObservation {
-        crate::support::query_fixture::<(Option<ReadSourceObservation>,), _>(
+        fixture_calls::query_fixture::<(Option<ReadSourceObservation>,), _>(
             &self.harness.pic,
             self.operator,
             self.controller,
@@ -57,7 +58,7 @@ impl Fixture {
     }
     fn resume_chunk(&self) {
         assert!(
-            crate::support::update_fixture::<(bool,), _>(
+            fixture_calls::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,

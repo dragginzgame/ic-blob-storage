@@ -1,6 +1,5 @@
 //! Real consumer-owned transactions through canonical storage clients.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{
     AssetView, Failure as ConsumerFailure, Fault, Recovery, Registration, RegistrationSource,
     Release, Run, Use,
@@ -12,6 +11,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()

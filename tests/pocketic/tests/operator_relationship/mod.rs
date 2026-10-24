@@ -9,6 +9,7 @@ use ic_blob_storage::ops::caffeine::{
         PaymentRelationshipReplyError,
     },
 };
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::pocket_ic::common::rest::BlobCompression;
 use std::num::NonZeroUsize;
 
@@ -51,7 +52,7 @@ impl Fixture {
     }
     fn relationship_response(&self, bytes: Vec<u8>, hold: bool, reject: bool) {
         // The existing bounded raw-response slot is shared by the local experiments.
-        let configured: bool = crate::support::update_fixture(
+        let configured: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.driver,
@@ -172,7 +173,7 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
     );
     // Configure an otherwise valid report for another requested owner. The source
     // accepts that request but the shared decoder rejects the returned owner.
-    let configured: bool = crate::support::update_fixture(
+    let configured: bool = fixture_calls::update_fixture(
         &f.harness.pic,
         f.gateway,
         f.driver,

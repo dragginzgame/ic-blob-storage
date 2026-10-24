@@ -1,6 +1,6 @@
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::read::{DownloadClientInput, DownloadProbeFailure};
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 fn fetch(
     f: &Fixture,
     input: DownloadClientInput,

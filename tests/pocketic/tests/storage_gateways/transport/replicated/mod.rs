@@ -1,7 +1,7 @@
 //! Canonical query-only entry point exercised through the shared replicated caller.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::gateways::ReplicatedInput;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn replicated_input(&self, token: u64) -> ReplicatedInput {

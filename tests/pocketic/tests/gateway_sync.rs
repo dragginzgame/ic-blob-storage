@@ -3,6 +3,7 @@
 
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod support;
 mod sync_request;
 
@@ -57,7 +58,7 @@ impl Fixture {
             Some(driver),
         );
         let released: bool =
-            crate::support::update_fixture(pic, service, tenant, "release", (1_u8,))
+            fixture_calls::update_fixture(pic, service, tenant, "release", (1_u8,))
                 .map(|(reply,)| reply)
                 .expect("owner release");
         assert!(released);
@@ -76,7 +77,7 @@ impl Fixture {
     }
 
     fn configure(&self, mode: SourceMode) {
-        let accepted: bool = crate::support::update_fixture(
+        let accepted: bool = fixture_calls::update_fixture(
             self.pic(),
             self.source,
             self.driver,
@@ -89,7 +90,7 @@ impl Fixture {
     }
 
     fn sync(&self) -> Result<(), SyncFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             self.pic(),
             self.source,
             self.driver,
@@ -102,14 +103,14 @@ impl Fixture {
 
     fn observation(&self) -> SourceObservation {
         let observation: Option<SourceObservation> =
-            crate::support::query_fixture(self.pic(), self.source, self.driver, "observation", ())
+            fixture_calls::query_fixture(self.pic(), self.source, self.driver, "observation", ())
                 .map(|(reply,)| reply)
                 .expect("source observation");
         observation.expect("authorized driver")
     }
 
     fn pending(&self, actor: Principal) -> Option<Vec<u8>> {
-        crate::support::query_fixture(self.pic(), self.service, actor, "pending", ())
+        fixture_calls::query_fixture(self.pic(), self.service, actor, "pending", ())
             .map(|(reply,)| reply)
             .expect("pending query")
     }
@@ -125,7 +126,7 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
         fixture.driver,
         Principal::anonymous(),
     ] {
-        let result: Result<(), SyncFailure> = crate::support::update_fixture(
+        let result: Result<(), SyncFailure> = fixture_calls::update_fixture(
             fixture.pic(),
             fixture.service,
             caller,

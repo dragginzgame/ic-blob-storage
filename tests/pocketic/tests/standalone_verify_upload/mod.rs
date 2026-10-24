@@ -1,7 +1,7 @@
 //! Authenticated historical manifest + native byte verification, with no provider effects.
 use super::*;
 use crate::authenticated_cli::{PEM, run};
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};

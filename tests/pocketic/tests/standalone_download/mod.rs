@@ -1,7 +1,7 @@
 //! Operational descriptor delivery uses the installed scope and the shared live-reference gate.
 //! Verified serving and withheld delivery are exercised by standalone browser journeys.
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt as _;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod native;
 use super::*;

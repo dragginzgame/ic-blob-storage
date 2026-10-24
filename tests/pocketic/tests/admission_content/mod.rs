@@ -1,6 +1,5 @@
 //! Actual caller isolation and passive discovery through the shared owner.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::{ContentLookup, ContentState};
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
@@ -9,6 +8,7 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 mod descriptor;

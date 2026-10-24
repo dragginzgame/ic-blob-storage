@@ -8,6 +8,7 @@ use ic_blob_storage::model::gateway::registry::GatewayScope;
 use ic_blob_storage::model::gateway::registry::GatewaySyncError;
 use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 use ic_blob_storage::ops::caffeine::gateway::GatewayReplyError;
+use ic_blob_storage_pocketic_tests::fixture_calls;
 
 use ic_blob_storage::ops::caffeine::query::CashierQuery;
 use ic_blob_storage::ops::caffeine::query::CashierQueryRequest;
@@ -118,7 +119,7 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         SourceMode::Revoke,
         SourceMode::Replace(fake_principal(99)),
     ] {
-        let configured: bool = crate::support::update_fixture(
+        let configured: bool = fixture_calls::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.driver,
@@ -135,7 +136,7 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
             "query must not execute a scripted source action"
         );
     }
-    let configured: bool = crate::support::update_fixture(
+    let configured: bool = fixture_calls::update_fixture(
         &f.harness.pic,
         f.gateway,
         f.driver,
@@ -180,7 +181,7 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
             GatewayReplyError::Sync(GatewaySyncError::InvalidList(GatewayListError::Empty)),
         ),
     ] {
-        let configured: bool = crate::support::update_fixture(
+        let configured: bool = fixture_calls::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.driver,

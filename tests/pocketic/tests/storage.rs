@@ -30,11 +30,12 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
 use std::num::{NonZeroU64, NonZeroUsize};
-use support::{Harness, REPLY_LIMITS, fixture_path};
+use support::{Harness, fixture_path};
 struct Fixture {
     harness: Harness,
     service: Principal,

@@ -57,9 +57,17 @@ fn principal(value: &str) -> Result<Principal, Failure> {
 }
 
 impl Options {
+    #[cfg(test)]
     pub fn parse(args: &[String]) -> Result<(Command, Self), Failure> {
-        let command = args.first().map(String::as_str).ok_or(Failure::Arguments)?;
-        let flags = super::arguments::parse(args)?;
+        let matches = parse(args)?;
+        let (command, flags) = matches.subcommand().ok_or(Failure::Arguments)?;
+        Self::from_matches(command, flags)
+    }
+
+    pub fn from_matches(
+        command: &str,
+        flags: &clap::ArgMatches,
+    ) -> Result<(Command, Self), Failure> {
         let take = |name| {
             flags
                 .get_one::<String>(name)
@@ -75,7 +83,7 @@ impl Options {
         let identity = PathBuf::from(take("--identity")?);
         let service = principal(take("--service")?)?;
         let namespace = positive::<u128>(take("--namespace")?)?;
-        let command = parse_command(command, service, namespace, network, &flags)?;
+        let command = parse_command(command, service, namespace, network, flags)?;
         let actor = principal(
             flags
                 .get_one::<String>(if flags.try_contains_id("--operator").unwrap_or(false) {
@@ -531,29 +539,25 @@ fn parse_operator_command(
     })
 }
 
-/// Parse the selected command before any file or network effect.
+/// Parse once before any file or network effect. Tests use the same grammar.
+#[cfg(test)]
 pub(super) fn parse(args: &[String]) -> Result<clap::ArgMatches, Failure> {
-    let matches = schema::cli()
+    schema::cli()
         .try_get_matches_from(
             std::iter::once("blob-storage").chain(args.iter().map(String::as_str)),
         )
-        .map_err(|_| Failure::Arguments)?;
-    matches
-        .subcommand()
-        .map(|(_, args)| args.clone())
-        .ok_or(Failure::Arguments)
+        .map_err(|_| Failure::Arguments)
 }
 
-/// Clap owns help and syntax errors; its text is not echoed on argument refusal
-/// because CLI inputs may contain sensitive paths or identity material.
-pub(super) fn invocation(args: &[String]) -> Result<bool, Failure> {
+/// Clap owns help and syntax errors; refusal never echoes sensitive arguments.
+pub(super) fn invocation(args: &[String]) -> Result<Option<clap::ArgMatches>, Failure> {
     match schema::cli().try_get_matches_from(
         std::iter::once("blob-storage").chain(args.iter().map(String::as_str)),
     ) {
-        Ok(_) => Ok(true),
+        Ok(matches) => Ok(Some(matches)),
         Err(error) if error.kind() == clap::error::ErrorKind::DisplayHelp => {
             error.print().map_err(|_| Failure::File)?;
-            Ok(false)
+            Ok(None)
         }
         Err(_) => Err(Failure::Arguments),
     }

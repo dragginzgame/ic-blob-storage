@@ -1,4 +1,5 @@
 //! Real local source calls; no deployed provider durability or HTTP claims.
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::candid::decoder;
 
 mod resources;
@@ -20,7 +21,7 @@ impl Fixture {
         &self,
         caller: Principal,
     ) -> Result<Option<ReadExecutionProfile>, JourneyFailure> {
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -39,7 +40,7 @@ impl Fixture {
         mode: ReadSourceMode,
         hold: bool,
     ) {
-        let accepted: bool = crate::support::update_fixture(
+        let accepted: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -58,7 +59,7 @@ impl Fixture {
     }
 
     pub(super) fn source_observation(&self) -> ReadSourceObservation {
-        let observed: Option<ReadSourceObservation> = crate::support::query_fixture(
+        let observed: Option<ReadSourceObservation> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -76,7 +77,7 @@ impl Fixture {
         input: JourneyUpload,
         index: u64,
     ) -> Result<JourneyReadChunk, JourneyFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -109,7 +110,7 @@ impl Fixture {
     }
 
     pub(super) fn resume_read(&self, id: RawMessageId) -> Result<JourneyReadChunk, JourneyFailure> {
-        let resumed: bool = crate::support::update_fixture(
+        let resumed: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -259,7 +260,7 @@ fn release_during_a_held_read_prevents_reply_disclosure_and_later_reads() {
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);
     let resumed: bool =
-        crate::support::update_fixture(&f.harness.pic, f.gateway, f.first, "resume_read", ())
+        fixture_calls::update_fixture(&f.harness.pic, f.gateway, f.first, "resume_read", ())
             .map(|(reply,)| reply)
             .expect("denied resume");
     assert!(!resumed);
@@ -314,7 +315,7 @@ fn revoked_and_readded_gateway_cannot_validate_its_old_held_reply() {
         (SourceMode::Revoke, Err(SyncFailure::Stale)),
         (SourceMode::Valid, Ok(())),
     ] {
-        let configured: bool = crate::support::update_fixture(
+        let configured: bool = fixture_calls::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,
@@ -324,7 +325,7 @@ fn revoked_and_readded_gateway_cannot_validate_its_old_held_reply() {
         .map(|(reply,)| reply)
         .expect("sync source mode");
         assert!(configured);
-        let result: Result<(), SyncFailure> = crate::support::update_fixture(
+        let result: Result<(), SyncFailure> = fixture_calls::update_fixture(
             &f.harness.pic,
             f.gateway,
             f.operator,

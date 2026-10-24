@@ -1,6 +1,5 @@
 //! Actual IC persistence/rollback of gateway membership and sync correlation.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::gateways::{Action, Command, Outcome, Scope, View};
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
@@ -9,6 +8,7 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(principals).unwrap()

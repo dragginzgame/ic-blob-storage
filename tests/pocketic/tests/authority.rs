@@ -3,6 +3,7 @@
 
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod support;
 
 use support::{Harness, fixture_path};
@@ -12,7 +13,7 @@ use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    crate::support::query_fixture(pic, canister, caller, "usage", ())
+    fixture_calls::query_fixture(pic, canister, caller, "usage", ())
         .map(|(reply,)| reply)
         .expect("usage query")
 }
@@ -25,7 +26,7 @@ fn live(
     service: Principal,
     tenant: Principal,
 ) -> Option<bool> {
-    crate::support::query_fixture(
+    fixture_calls::query_fixture(
         pic,
         canister,
         caller,
@@ -37,13 +38,13 @@ fn live(
 }
 
 fn release(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    crate::support::update_fixture(pic, canister, caller, "release", (root,))
+    fixture_calls::update_fixture(pic, canister, caller, "release", (root,))
         .map(|(reply,)| reply)
         .expect("release update")
 }
 
 fn pending(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    crate::support::query_fixture(pic, canister, caller, "pending", ())
+    fixture_calls::query_fixture(pic, canister, caller, "pending", ())
         .map(|(reply,)| reply)
         .expect("pending query")
 }
@@ -96,13 +97,13 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
     for caller in [first, second, controller, Principal::anonymous()] {
         assert_eq!(pending(pic, canister, caller), None);
     }
-    let denied: bool = crate::support::update_fixture(pic, canister, first, "revoke_gateway", ())
+    let denied: bool = fixture_calls::update_fixture(pic, canister, first, "revoke_gateway", ())
         .map(|(reply,)| reply)
         .expect("operator denial");
     assert!(!denied);
     assert_eq!(pending(pic, canister, gateway), Some(vec![1]));
     let revoked: bool =
-        crate::support::update_fixture(pic, canister, controller, "revoke_gateway", ())
+        fixture_calls::update_fixture(pic, canister, controller, "revoke_gateway", ())
             .map(|(reply,)| reply)
             .expect("operator revocation");
     assert!(revoked);

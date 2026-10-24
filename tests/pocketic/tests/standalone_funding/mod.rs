@@ -1,6 +1,5 @@
 //! Standalone passive funding scope and restored empty history.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryCursor;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryFailure;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
@@ -11,6 +10,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
 use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 #[test]

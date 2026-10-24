@@ -1,6 +1,5 @@
 //! Synthetic multi-file manifests and explicit host-fact substitutes, not Miner acceptance.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::admission::release::LifecycleCommand;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
@@ -10,6 +9,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_platform::candid::decoder;
 use std::num::{NonZeroU64, NonZeroUsize};

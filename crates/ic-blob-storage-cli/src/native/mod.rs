@@ -148,8 +148,8 @@ impl Failure {
 pub(super) fn run() -> ExitCode {
     let args: Vec<_> = std::env::args().skip(1).collect();
     let result = match arguments::invocation(&args) {
-        Ok(false) => return ExitCode::SUCCESS,
-        Ok(true) => execute(&args),
+        Ok(None) => return ExitCode::SUCCESS,
+        Ok(Some(matches)) => execute_matches(&matches),
         Err(error) => Err(error),
     };
     match result {
@@ -214,21 +214,27 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
     Ok(identity)
 }
 
+#[cfg(test)]
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
-    if args == ["--version"] {
+    execute_matches(&arguments::parse(args)?)
+}
+
+fn execute_matches(matches: &clap::ArgMatches) -> Result<serde_json::Value, Failure> {
+    if matches.get_flag("version") {
         return Ok(
             json!({"tool":"blob-storage","version":ic_blob_storage_contracts::CONTRACT_VERSION}),
         );
     }
-    match args.first().map(String::as_str) {
-        Some("publish-inputs") => return publish_inputs::run(args),
-        Some("installation-check") => return installation_check::run(args),
-        Some("account-link-inputs") => return account_link_inputs::run(args),
-        Some("reference-inputs") => return reference_inputs::run(args),
-        Some("upload-inputs") => return upload_inputs::run(args),
+    let (name, flags) = matches.subcommand().ok_or(Failure::Arguments)?;
+    match name {
+        "publish-inputs" => return publish_inputs::run(flags),
+        "installation-check" => return installation_check::run(flags),
+        "account-link-inputs" => return account_link_inputs::run(flags),
+        "reference-inputs" => return reference_inputs::run(flags),
+        "upload-inputs" => return upload_inputs::run(flags),
         _ => {}
     }
-    let (command, options) = arguments::Options::parse(args)?;
+    let (command, options) = arguments::Options::from_matches(name, flags)?;
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()

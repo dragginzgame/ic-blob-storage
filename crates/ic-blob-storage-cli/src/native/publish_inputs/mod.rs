@@ -144,8 +144,7 @@ fn metadata(
     Ok(bytes)
 }
 
-pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let flags = super::arguments::parse(args)?;
+pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
     let take = |name| {
         flags
             .get_one::<String>(name)

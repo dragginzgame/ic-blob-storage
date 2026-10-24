@@ -1,10 +1,10 @@
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::Revocation;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 pub(super) fn withdraw(
     f: &Fixture,

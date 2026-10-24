@@ -1,6 +1,5 @@
 //! Local provider facts substitute completion/settlement; tenant queries are signed.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use crate::{
     authenticated_cli::run,
     reference_cli::{change_native, native_requests},
@@ -10,6 +9,7 @@ use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceMutationResponse;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};

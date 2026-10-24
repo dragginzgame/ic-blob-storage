@@ -2,6 +2,7 @@
 use super::*;
 use blob_test_protocol::status::OperatorStatusView;
 use blob_test_protocol::{GatewaySyncRequest, SourceMode, SourceObservation, SyncFailure};
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::candid::decoder;
 
 fn request(f: &Fixture) -> GatewaySyncRequest {
@@ -37,7 +38,7 @@ fn sync_command(args: &[String]) -> (i32, Value) {
     )
 }
 fn status(f: &Fixture) -> OperatorStatusView {
-    crate::support::query_fixture::<(Option<OperatorStatusView>,), _>(
+    fixture_calls::query_fixture::<(Option<OperatorStatusView>,), _>(
         &f.harness.pic,
         f.authority,
         f.gateway,
@@ -49,7 +50,7 @@ fn status(f: &Fixture) -> OperatorStatusView {
     .unwrap()
 }
 fn observed(f: &Fixture) -> SourceObservation {
-    crate::support::query_fixture::<(Option<SourceObservation>,), _>(
+    fixture_calls::query_fixture::<(Option<SourceObservation>,), _>(
         &f.harness.pic,
         f.gateway,
         f.driver,
@@ -62,21 +63,16 @@ fn observed(f: &Fixture) -> SourceObservation {
 }
 fn configure(f: &Fixture, mode: SourceMode) {
     let result: bool =
-        crate::support::update_fixture(&f.harness.pic, f.gateway, f.driver, "configure", (mode,))
+        fixture_calls::update_fixture(&f.harness.pic, f.gateway, f.driver, "configure", (mode,))
             .map(|(reply,)| reply)
             .unwrap();
     assert!(result);
 }
 fn revoke(f: &Fixture) {
-    let result: bool = crate::support::update_fixture(
-        &f.harness.pic,
-        f.authority,
-        f.gateway,
-        "revoke_gateway",
-        (),
-    )
-    .map(|(reply,)| reply)
-    .unwrap();
+    let result: bool =
+        fixture_calls::update_fixture(&f.harness.pic, f.authority, f.gateway, "revoke_gateway", ())
+            .map(|(reply,)| reply)
+            .unwrap();
     assert!(result);
 }
 
@@ -183,7 +179,7 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
     revoke(&f);
     let revised = status(&f).sync_revision;
     let resumed: bool =
-        crate::support::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_sync", ())
+        fixture_calls::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_sync", ())
             .map(|(reply,)| reply)
             .unwrap();
     assert!(resumed);
@@ -225,7 +221,7 @@ fn forced_restore_during_sync_retains_pending_evidence_when_callback_arrives() {
     let mut retained = status(&f);
     assert!(retained.fenced);
     let resumed: bool =
-        crate::support::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_sync", ())
+        fixture_calls::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_sync", ())
             .map(|(reply,)| reply)
             .unwrap();
     assert!(resumed);

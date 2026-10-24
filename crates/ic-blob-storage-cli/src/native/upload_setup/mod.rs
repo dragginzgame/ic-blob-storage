@@ -1,6 +1,7 @@
 //! Exact local upload reservation/preparation; no certificate or provider dispatch.
 use ic_blob_storage_contracts::protocol;
 mod dispatch;
+pub(super) mod record;
 mod request;
 use super::{Failure, arguments::Options, query, references};
 use ic_blob_storage_contracts::dto::upload::UploadState;

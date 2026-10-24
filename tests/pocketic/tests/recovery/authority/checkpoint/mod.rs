@@ -1,6 +1,7 @@
 //! Read protected checkpoint bytes from stable memory and test a disposable copy.
 use super::*;
 use blob_test_protocol::authority::{CheckpointProbeFailure, CheckpointProbeInput};
+use ic_blob_storage_pocketic_tests::fixture_calls;
 
 impl Fixture {
     pub(super) fn checkpoint_probe(
@@ -10,7 +11,7 @@ impl Fixture {
         index: u64,
         bytes: &[u8],
     ) -> Result<JourneyProgress, CheckpointProbeFailure> {
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -194,7 +195,7 @@ fn controller_status_cannot_use_an_operator_checkpoint_probe() {
         f.checkpoint_probe(f.operator, v.upload, 0, &v.bytes),
         Err(CheckpointProbeFailure::Denied)
     );
-    let retained: Option<AuthorityArchiveView> = crate::support::query_fixture(
+    let retained: Option<AuthorityArchiveView> = fixture_calls::query_fixture(
         &f.harness.pic,
         f.service,
         f.gateway,

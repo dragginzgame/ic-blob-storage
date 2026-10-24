@@ -1,6 +1,5 @@
 //! Scoped operation recovery through the actual standalone endpoint.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
@@ -10,6 +9,7 @@ use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
 use ic_blob_storage_contracts::protocol::UPLOAD_HISTORY_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 impl Fixture {

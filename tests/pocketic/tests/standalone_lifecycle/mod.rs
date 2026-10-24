@@ -1,6 +1,5 @@
 //! Current-instance restoration retains obligations and requires independent IC history.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
 use ic_blob_storage_contracts::dto::account::AccountInspectionKind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
@@ -10,6 +9,8 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn fences(status: &LocalServiceStatus, expected: bool) {
@@ -253,7 +254,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
         .unwrap()
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
-    let _: CaffeineUploadCertificateResponse = crate::support::update_fixture(
+    let _: CaffeineUploadCertificateResponse = fixture_calls::update_fixture(
         &f.harness.pic,
         f.service,
         f.uploader,

@@ -1,4 +1,5 @@
 //! Authority and source journal recovery with permanent restore fences on the IC.
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod authority;
 mod source;
 use super::*;
@@ -267,7 +268,7 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
         Principal::anonymous(),
         f.operator,
     ] {
-        let armed: bool = crate::support::update_fixture(
+        let armed: bool = fixture_calls::update_fixture(
             &f.harness.pic,
             f.service,
             caller,

@@ -1,8 +1,9 @@
 //! Actual snapshot loads bypass lifecycle hooks but cannot regain operational authority.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
@@ -34,7 +35,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     f.resume(f.operator).unwrap();
     let root = super::standalone_certificate::root(&manifest);
     let _: ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse =
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             pic,
             f.service,
             f.uploader,

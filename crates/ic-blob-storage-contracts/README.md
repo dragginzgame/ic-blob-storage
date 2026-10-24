@@ -154,10 +154,9 @@ are unchanged.
 
 ## Native tooling versus deployed contracts
 
-The default `provider-json` feature preserves the SDK prepared-manifest and
-chunk-reply parsing APIs. Canister consumers that do not parse those HTTP/SDK
-payloads should select `default-features = false`; native upload tooling selects
-`provider-json` explicitly. The native `wire-schema` feature independently enables
+Contracts has no default features. Native upload tooling must select
+`provider-json` explicitly for SDK prepared-manifest and chunk-reply parsing.
+This is a build-contract hard cut from releases that enabled those APIs by default. The native `wire-schema` feature independently enables
 its JSON dependency. Other dependencies can still introduce JSON transitively;
 inspect the selected deployment graph rather than inferring Wasm size savings.
 

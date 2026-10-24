@@ -15,8 +15,7 @@ ic-host-fs = { workspace = true, features = ["test-support"] }
 ic-platform = { workspace = true, features = ["candid-service"] }
 
 [features]
-# Preserve tooling API defaults; deployed hosts should disable default features.
-default = ["provider-json"]
+# Provider JSON codecs are opt-in; the default contract graph stays minimal.
 provider-json = ["dep:serde_json"]
 # Host metadata is never required by mounted canisters.
 wire-schema = ["ic-wire/typescript", "ic-platform/wire-schema", "dep:serde_json"]

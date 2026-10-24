@@ -1,5 +1,5 @@
 use super::*;
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn mutate(
     f: &Fixture,

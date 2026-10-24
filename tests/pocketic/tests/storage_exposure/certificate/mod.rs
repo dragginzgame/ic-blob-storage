@@ -1,6 +1,7 @@
 //! Local ingress update payload/rollback evidence, not gateway certificate acceptance.
 use super::*;
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 mod ingress;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as METHOD;
@@ -114,7 +115,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
 
     // Independent wire shape mirrors official Mixin.mo; no Result wrapper is accepted.
     let reply: ProviderReply =
-        crate::support::update_fixture(&f.harness.pic, f.service, f.uploader, METHOD, (&root,))
+        fixture_calls::update_fixture(&f.harness.pic, f.service, f.uploader, METHOD, (&root,))
             .map(|(reply,)| reply)
             .unwrap();
     assert_eq!(reply.method, "upload");

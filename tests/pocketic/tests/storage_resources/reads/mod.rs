@@ -1,6 +1,6 @@
 //! The host owns measurement windows and authority; shared arithmetic owns the aggregate.
 use super::*;
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 
 fn observe(f: &Fixture, actor: Principal) -> Result<RestorationResources, Failure> {
     f.harness

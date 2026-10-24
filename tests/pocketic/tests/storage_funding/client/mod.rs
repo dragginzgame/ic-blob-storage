@@ -1,6 +1,5 @@
 //! Real replicated observers, bounded replies and passive inspection after restore.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, funding::FundingHistoryInspection};
 use ic_blob_storage_contracts::dto::funding::FundingHistoryPage;
 use ic_blob_storage_contracts::dto::funding::FundingHistoryRequest;
@@ -9,6 +8,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }

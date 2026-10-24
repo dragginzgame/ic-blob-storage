@@ -1,6 +1,6 @@
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::funding::admission::{Attempt, Blocker as B, Preparation, View};
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 
 impl Fixture {
     fn inspect_attempt(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {

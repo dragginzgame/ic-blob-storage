@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.47.0]
+
+- **Breaking:** Contracts no longer enables `provider-json` by default. Native
+  SDK/HTTP parsing consumers must select it explicitly; endpoint bytes are unchanged.
+- Parse CLI grammar once and share admitted arguments with command handlers.
+  Share setup-intent authority fields between writing and recovery without changing
+  saved field names, retained request bytes or no-redispatch rules.
+
+- Give private Candid fixture calls and their decoding limits one owner in the
+  unpublished PocketIC support library, removing the last two allow attributes
+  without weakening lint checks or changing call/reply behavior.
+
 ## [0.46.0] - 2026-10-24
 
 - **Breaking:** adopt Memory/Storage 0.51.0. Embedding hosts must select Memory

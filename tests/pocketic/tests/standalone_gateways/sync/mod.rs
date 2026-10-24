@@ -1,10 +1,11 @@
 //! Real standalone refresh against a labelled query-only Cashier substitute.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::SourceMode;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncError;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn fixture() -> Fixture {
     fixture_with_operator(Harness::new(), fake_principal(2))
@@ -60,7 +61,7 @@ fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError>
 }
 pub(super) fn mode(f: &Fixture, selected: SourceMode) {
     assert!(
-        crate::support::update_fixture::<(bool,), _>(
+        fixture_calls::update_fixture::<(bool,), _>(
             &f.harness.pic,
             f.config.billing.cashier.into(),
             f.controller,

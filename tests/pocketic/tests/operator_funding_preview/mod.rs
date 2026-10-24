@@ -3,11 +3,12 @@ use super::*;
 use blob_test_protocol::funding::preview::{
     FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
 };
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::candid::decoder;
 
 fn args(f: &Fixture, id: u64, amount: u128) -> Vec<String> {
     let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> =
-        crate::support::query_fixture(&f.harness.pic, f.sender, f.driver, "operator_status", ())
+        fixture_calls::query_fixture(&f.harness.pic, f.sender, f.driver, "operator_status", ())
             .map(|(reply,)| reply)
             .unwrap();
     let mut args = f.args(
@@ -240,7 +241,7 @@ fn wrong_binding_denied_callers_and_invalid_amounts_never_change_journals() {
         ),
     ] {
         let result: Result<FundingPreviewView, FundingPreviewFailure> =
-            crate::support::query_fixture(
+            fixture_calls::query_fixture(
                 &f.harness.pic,
                 f.sender,
                 caller,
@@ -328,7 +329,7 @@ fn preview_reports_the_same_amount_bound_enforced_before_update_admission() {
             .iter()
             .any(|b| b.get("AmountLimitExceeded").is_some())
     );
-    let result: Result<FundingObservation, FundingFailure> = crate::support::update_fixture(
+    let result: Result<FundingObservation, FundingFailure> = fixture_calls::update_fixture(
         &f.harness.pic,
         f.sender,
         f.driver,

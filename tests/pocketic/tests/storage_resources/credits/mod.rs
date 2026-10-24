@@ -1,10 +1,10 @@
 //! Opt-in fully credited local funding histories; receipts are synthetic host facts.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::{
     funding::{CreditCommand, Intent, Phase as FundingPhase},
     resources::{FundingCreditResources, FundingPopulationIntent, HistoryPopulationBatch},
 };
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_host_fs::testing::FixtureDirectory;
 
 fn digest(operation: u128) -> [u8; 32] {

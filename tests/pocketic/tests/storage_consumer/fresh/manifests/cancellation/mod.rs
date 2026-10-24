@@ -1,7 +1,7 @@
 //! Actual late uploader acknowledgment cannot undo either application's cancellation.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 #[test]
 #[expect(
     clippy::too_many_lines,

@@ -1,10 +1,10 @@
 //! Production-host absence and authority; confirmed lifecycle coverage uses labelled fixtures.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailure as F;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
 use ic_blob_storage_contracts::protocol::REFERENCE_CAPACITY_METHOD;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn reference_capacity(

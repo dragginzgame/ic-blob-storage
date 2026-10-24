@@ -1,5 +1,6 @@
 //! Real IC scheduling against an explicitly different local source method.
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 
 mod read_sessions;
 use super::*;
@@ -23,7 +24,7 @@ impl Fixture {
     }
     fn source_mode(&self, mode: SourceMode) {
         assert!(
-            crate::support::update_fixture::<(bool,), _>(
+            fixture_calls::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
@@ -35,7 +36,7 @@ impl Fixture {
         );
     }
     fn source_requests(&self) -> u64 {
-        crate::support::query_fixture::<(Option<SourceObservation>,), _>(
+        fixture_calls::query_fixture::<(Option<SourceObservation>,), _>(
             &self.harness.pic,
             self.operator,
             self.controller,
@@ -70,7 +71,7 @@ impl Fixture {
     fn wait_source(&self) {
         for _ in 0..30 {
             self.harness.pic.tick();
-            let view: Option<SourceRecoveryView> = crate::support::query_fixture(
+            let view: Option<SourceRecoveryView> = fixture_calls::query_fixture(
                 &self.harness.pic,
                 self.operator,
                 self.controller,
@@ -87,7 +88,7 @@ impl Fixture {
     }
     fn resume_source(&self) {
         assert!(
-            crate::support::update_fixture::<(bool,), _>(
+            fixture_calls::update_fixture::<(bool,), _>(
                 &self.harness.pic,
                 self.operator,
                 self.controller,

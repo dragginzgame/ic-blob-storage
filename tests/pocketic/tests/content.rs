@@ -2,6 +2,7 @@
 
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
@@ -29,7 +30,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         encode_args((tenant, fake_principal(2), fake_principal(3), operator)).expect("init"),
         Some(operator),
     );
-    let denied: Result<ContentProbeReport, ContentProbeFailure> = crate::support::update_fixture(
+    let denied: Result<ContentProbeReport, ContentProbeFailure> = fixture_calls::update_fixture(
         pic,
         canister,
         tenant,
@@ -56,7 +57,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             .find(|vector| vector["name"] == name)
             .expect("selected vector");
         let result: Result<ContentProbeReport, ContentProbeFailure> =
-            crate::support::update_fixture(pic, canister, operator, "probe_content", (case,))
+            fixture_calls::update_fixture(pic, canister, operator, "probe_content", (case,))
                 .map(|(reply,)| reply)
                 .expect("Wasm execution");
         let report = result.expect("verified identities");
@@ -91,7 +92,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         (ContentProbeCase::Truncated, ContentProbeFailure::Incomplete),
     ] {
         let result: Result<ContentProbeReport, ContentProbeFailure> =
-            crate::support::update_fixture(pic, canister, operator, "probe_content", (case,))
+            fixture_calls::update_fixture(pic, canister, operator, "probe_content", (case,))
                 .map(|(reply,)| reply)
                 .expect("expected rejection");
         assert_eq!(result, Err(error));

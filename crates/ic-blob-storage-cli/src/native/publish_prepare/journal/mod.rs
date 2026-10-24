@@ -112,29 +112,30 @@ pub(super) fn validate_attempt(
     } else {
         selected.permission.uploader
     };
-    let intent: Value = crate::native::signed_update::record::inspect(
-        &packet("intent.json", 16384)?,
-        signed,
-        actor,
-        selected.permission.upload.service,
-        kind.method(),
-        &request,
-        root,
-    )?;
+    let intent: crate::native::upload_setup::record::SetupIntentRecord =
+        crate::native::signed_update::record::inspect(
+            &packet("intent.json", 16384)?,
+            signed,
+            actor,
+            selected.permission.upload.service,
+            kind.method(),
+            &request,
+            root,
+        )?;
     let packets_match = packet("request.wire", 65536)? == request
         && packet("permission.wire", 4096)? == permission
-        && intent["request_sha256"] == ContentDigest::compute(&request).to_string();
-    let role_and_scope_match = intent["actor"] == actor.to_text()
-        && intent["service"] == selected.permission.upload.service.to_text()
-        && intent["namespace"] == selected.permission.upload.namespace.to_string()
-        && intent["permission"] == upload_setup::permission_json(selected.permission);
+        && intent.request_sha256 == ContentDigest::compute(&request).to_string();
+    let role_and_scope_match = intent.actor == actor.to_text()
+        && intent.service == selected.permission.upload.service.to_text()
+        && intent.namespace == selected.permission.upload.namespace.to_string()
+        && intent.permission == upload_setup::permission_json(selected.permission);
     let transport_matches =
-        intent["network"] == options.network && intent["service_url"] == options.url.as_str();
+        intent.network == options.network && intent.service_url == options.url.as_str();
     if !packets_match
         || !role_and_scope_match
         || !transport_matches
-        || intent["schema"] != 1
-        || intent["method"] != kind.method()
+        || intent.schema != 1
+        || intent.method != kind.method()
     {
         return Err(Failure::Binding);
     }

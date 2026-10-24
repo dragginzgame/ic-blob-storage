@@ -4,6 +4,7 @@ use blob_test_protocol::admission::{ContentDescriptor, ContentLookup, ContentSta
 use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest) {
@@ -53,7 +54,7 @@ fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest)
 }
 
 fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
-    let result: Result<Option<ContentDescriptor>, Failure> = crate::support::query_fixture(
+    let result: Result<Option<ContentDescriptor>, Failure> = fixture_calls::query_fixture(
         &f.harness.pic,
         f.service,
         p.request.tenant,

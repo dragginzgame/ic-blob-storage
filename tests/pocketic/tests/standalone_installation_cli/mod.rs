@@ -1,9 +1,9 @@
 //! Offline CLI init bytes installed by the actual host, with independent platform binding.
 use super::*;
 use crate::authenticated_cli::run;
-use crate::support::REPLY_LIMITS;
 use ic_blob_storage_contracts::endpoints::{MethodCodec, MethodMode, SERVICE_METHODS};
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use std::path::Path;

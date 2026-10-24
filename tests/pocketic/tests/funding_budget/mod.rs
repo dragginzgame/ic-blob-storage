@@ -6,6 +6,7 @@ use blob_test_protocol::funding::{
         FundingPreviewBlocker, FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
     },
 };
+use ic_blob_storage_pocketic_tests::fixture_calls;
 
 #[test]
 fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
@@ -59,7 +60,7 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
         Err(FundingFailure::AlreadyAdmitted)
     );
     f.harness.pic.add_cycles(f.sender, 1_000_000_000_000);
-    let incoming: Result<FundingObservation, FundingFailure> = crate::support::update_fixture(
+    let incoming: Result<FundingObservation, FundingFailure> = fixture_calls::update_fixture(
         &f.harness.pic,
         f.receiver,
         f.driver,
@@ -116,7 +117,7 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
         )
         .unwrap();
     assert_eq!(f.assert_unknown_status(paid).budget, pending);
-    let preview: Result<FundingPreviewView, FundingPreviewFailure> = crate::support::query_fixture(
+    let preview: Result<FundingPreviewView, FundingPreviewFailure> = fixture_calls::query_fixture(
         &f.harness.pic,
         f.sender,
         f.driver,
@@ -166,7 +167,7 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
     };
     let preview = |request| -> FundingPreviewView {
         let result: Result<FundingPreviewView, FundingPreviewFailure> =
-            crate::support::query_fixture(
+            fixture_calls::query_fixture(
                 &f.harness.pic,
                 f.sender,
                 f.driver,
@@ -260,7 +261,7 @@ fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
     let f = Fixture::new();
     let preview = |requested_cycles| -> FundingPreviewView {
         let result: Result<FundingPreviewView, FundingPreviewFailure> =
-            crate::support::query_fixture(
+            fixture_calls::query_fixture(
                 &f.harness.pic,
                 f.sender,
                 f.driver,

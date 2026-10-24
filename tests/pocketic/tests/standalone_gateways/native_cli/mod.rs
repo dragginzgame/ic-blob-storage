@@ -1,7 +1,7 @@
 //! Signed gateway decisions through standalone, with occupied unrelated owners.
 use super::{super::*, sync};
-use crate::support::REPLY_LIMITS;
 use crate::{account_native_cli::signer, gateway_native_cli::GatewayCli};
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_platform::pocket_ic::PocketIcBuilder;
 

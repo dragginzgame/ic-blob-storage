@@ -1,4 +1,5 @@
 //! Actual balance reads with independently encoded bytes and adversarial schedules.
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::candid::decoder;
 
 mod refresh;
@@ -33,7 +34,7 @@ impl Fixture {
         }
     }
     fn configure_balance(&self, scope: BalanceScope) -> Result<(), BalanceFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.authority,
             self.driver,
@@ -44,7 +45,7 @@ impl Fixture {
         .unwrap()
     }
     fn source_balance(&self, reply: Vec<u8>, hold: bool, reject: bool) {
-        let result: bool = crate::support::update_fixture(
+        let result: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.driver,
@@ -61,7 +62,7 @@ impl Fixture {
         assert!(result);
     }
     fn refresh_balance(&self) -> Result<(), BalanceFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.authority,
             self.driver,
@@ -80,7 +81,7 @@ impl Fixture {
         }
     }
     fn balance_status(&self) -> OperatorStatusView {
-        let status: Option<OperatorStatusView> = crate::support::query_fixture(
+        let status: Option<OperatorStatusView> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.authority,
             self.driver,
@@ -92,7 +93,7 @@ impl Fixture {
         status.unwrap()
     }
     fn balance_source_status(&self) -> BalanceSourceView {
-        let status: Option<BalanceSourceView> = crate::support::query_fixture(
+        let status: Option<BalanceSourceView> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.gateway,
             self.driver,
@@ -135,7 +136,7 @@ impl Fixture {
         panic!("balance read did not reach held source");
     }
     fn resume_balance(&self, id: RawMessageId) -> Result<(), BalanceFailure> {
-        let resumed: bool = crate::support::update_fixture(
+        let resumed: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.driver,
@@ -265,7 +266,7 @@ fn malformed_rejected_and_misbound_replies_replace_no_history_with_zero() {
         ..f.balance_scope()
     };
     f.configure_balance(changed).unwrap();
-    let configured: bool = crate::support::update_fixture(
+    let configured: bool = fixture_calls::update_fixture(
         &f.harness.pic,
         f.gateway,
         f.driver,
@@ -363,7 +364,7 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
     let pending = f.balance_status().balance_observation.attempts;
     f.upgrade_fixture(f.authority, true);
     let resumed: bool =
-        crate::support::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_balance", ())
+        fixture_calls::update_fixture(&f.harness.pic, f.gateway, f.driver, "resume_balance", ())
             .map(|(reply,)| reply)
             .unwrap();
     assert!(resumed);
@@ -385,7 +386,7 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
 fn authority_and_capacity_checks_happen_before_any_source_call() {
     let f = Fixture::new();
     let before = f.journals();
-    let denied: Result<(), BalanceFailure> = crate::support::update_fixture(
+    let denied: Result<(), BalanceFailure> = fixture_calls::update_fixture(
         &f.harness.pic,
         f.authority,
         Principal::anonymous(),

@@ -1,6 +1,5 @@
 //! Actual caller, live membership and restored fencing of phase-only observations.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     admission::{ContentState, input::ReferenceInput},
     storage::{
@@ -8,6 +7,7 @@ use blob_test_protocol::{
         gateways::{RootView, RootsInput},
     },
 };
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 impl Fixture {
     fn gateway_roots(
         &self,

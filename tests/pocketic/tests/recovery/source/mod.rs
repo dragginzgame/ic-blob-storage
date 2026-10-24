@@ -5,6 +5,7 @@ use blob_test_protocol::{
     journey::readback::ReadSourceConfig,
     source::{SourceAction, SourceEffectView, SourceRecoveryView},
 };
+use ic_blob_storage_pocketic_tests::fixture_calls;
 
 use ic_platform::pocket_ic::common::rest::BlobCompression;
 
@@ -13,7 +14,7 @@ impl Fixture {
         &self,
         caller: Principal,
     ) -> Option<SourceRecoveryView> {
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.gateway,
             caller,
@@ -47,7 +48,7 @@ impl Fixture {
             self.read_chunk(self.first, v.upload, 0),
             Err(JourneyFailure::Transport)
         );
-        let configured: bool = crate::support::update_fixture(
+        let configured: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -63,7 +64,7 @@ impl Fixture {
         .map(|(reply,)| reply)
         .expect("fenced configuration");
         assert!(!configured);
-        let configured: bool = crate::support::update_fixture(
+        let configured: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -73,7 +74,7 @@ impl Fixture {
         .map(|(reply,)| reply)
         .expect("fenced list configuration");
         assert!(!configured);
-        let resumed: bool = crate::support::update_fixture(
+        let resumed: bool = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -83,7 +84,7 @@ impl Fixture {
         .map(|(reply,)| reply)
         .expect("fenced resume");
         assert!(!resumed);
-        let sync: Result<(), SyncFailure> = crate::support::update_fixture(
+        let sync: Result<(), SyncFailure> = fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -133,7 +134,7 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
             .bytes,
         v.bytes
     );
-    let result: Result<(), SyncFailure> = crate::support::update_fixture(
+    let result: Result<(), SyncFailure> = fixture_calls::update_fixture(
         &f.harness.pic,
         f.gateway,
         f.operator,

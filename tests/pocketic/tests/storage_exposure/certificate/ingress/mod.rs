@@ -1,5 +1,5 @@
 //! Actual signed HTTP ingress and certificate recovery against local `PocketIC` only.
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 mod browser;

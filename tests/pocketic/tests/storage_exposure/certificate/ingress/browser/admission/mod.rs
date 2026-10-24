@@ -1,6 +1,5 @@
 //! Actual browser identity -> consumer intent -> tenant admission -> uploader preparation.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::consumer::{
     AssetView, Failure as ConsumerFailure, Fault, Registration, RegistrationSource, Revocation, Run,
 };
@@ -13,6 +12,7 @@ use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 
 pub(super) fn install(f: &mut Fixture) {
     let consumer = f.harness.pic.create_canister_with_settings(

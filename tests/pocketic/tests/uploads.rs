@@ -1,6 +1,7 @@
 //! Actual caller isolation and revocation over substituted transient upload facts.
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod support;
 use blob_test_protocol::uploads::UploadProbeState;
 use ic_platform::principal::ExternalPrincipal as Principal;
@@ -10,22 +11,22 @@ use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
-    crate::support::query_fixture(pic, canister, caller, "upload_usage", ())
+    fixture_calls::query_fixture(pic, canister, caller, "upload_usage", ())
         .map(|(reply,)| reply)
         .expect("usage")
 }
 fn active(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
-    crate::support::query_fixture(pic, canister, caller, "active_uploads", ())
+    fixture_calls::query_fixture(pic, canister, caller, "active_uploads", ())
         .map(|(reply,)| reply)
         .expect("active uploads")
 }
 fn roots(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<UploadProbeState>> {
-    crate::support::query_fixture(pic, canister, caller, "upload_roots", ())
+    fixture_calls::query_fixture(pic, canister, caller, "upload_roots", ())
         .map(|(reply,)| reply)
         .expect("root observations")
 }
 fn cancel(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
-    crate::support::update_fixture(pic, canister, caller, "cancel_upload", (root,))
+    fixture_calls::update_fixture(pic, canister, caller, "cancel_upload", (root,))
         .map(|(reply,)| reply)
         .expect("cancel")
 }
@@ -96,7 +97,7 @@ fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_wor
         ])
     );
     let revoked: bool =
-        crate::support::update_fixture(pic, canister, controller, "revoke_gateway", ())
+        fixture_calls::update_fixture(pic, canister, controller, "revoke_gateway", ())
             .map(|(reply,)| reply)
             .expect("revoke");
     assert!(revoked);

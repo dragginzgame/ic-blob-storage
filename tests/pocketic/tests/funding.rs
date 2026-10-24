@@ -3,6 +3,7 @@
 
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod funding_budget;
 mod funding_recovery;
 mod support;
@@ -75,13 +76,13 @@ impl Fixture {
         caller: Principal,
         request: FundingRequest,
     ) -> Result<FundingObservation, FundingFailure> {
-        crate::support::update_fixture(&self.harness.pic, self.sender, caller, "fund", (request,))
+        fixture_calls::update_fixture(&self.harness.pic, self.sender, caller, "fund", (request,))
             .map(|(reply,)| reply)
             .expect("funding call completed")
     }
 
     fn attempts(&self) -> Vec<FundingAttemptRecord> {
-        let result: Option<Vec<FundingAttemptRecord>> = crate::support::query_fixture(
+        let result: Option<Vec<FundingAttemptRecord>> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.sender,
             self.driver,
@@ -94,7 +95,7 @@ impl Fixture {
     }
 
     fn receipts(&self) -> Vec<FundingReceiptRecord> {
-        let result: Option<Vec<FundingReceiptRecord>> = crate::support::query_fixture(
+        let result: Option<Vec<FundingReceiptRecord>> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.receiver,
             self.driver,
@@ -111,7 +112,7 @@ impl Fixture {
         canister: Principal,
         caller: Principal,
     ) -> Option<FundingOperatorStatusView> {
-        crate::support::query_fixture(&self.harness.pic, canister, caller, "operator_status", ())
+        fixture_calls::query_fixture(&self.harness.pic, canister, caller, "operator_status", ())
             .map(|(reply,)| reply)
             .expect("read-only funding diagnosis")
     }
@@ -721,7 +722,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
             assert_eq!(fixture.status_as(canister, caller), None);
         }
     }
-    let hidden: Option<Vec<FundingAttemptRecord>> = crate::support::query_fixture(
+    let hidden: Option<Vec<FundingAttemptRecord>> = fixture_calls::query_fixture(
         &fixture.harness.pic,
         fixture.sender,
         Principal::anonymous(),

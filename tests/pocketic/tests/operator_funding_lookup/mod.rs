@@ -3,6 +3,7 @@ use super::*;
 use blob_test_protocol::funding::lookup::{
     FundingLookupFailure, FundingLookupRequest, FundingLookupState, FundingLookupView,
 };
+use ic_blob_storage_pocketic_tests::fixture_calls;
 
 use ic_platform::pocket_ic::common::rest::BlobCompression;
 
@@ -157,7 +158,7 @@ fn old_backup_absence_cannot_erase_a_receipt_or_authorize_another_transfer() {
     assert_eq!(absent["lookup"]["fenced"], true);
     assert!(absent["lookup"]["observation"].is_null());
     let result: Result<FundingObservation, FundingFailure> =
-        crate::support::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (original,))
+        fixture_calls::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (original,))
             .map(|(reply,)| reply)
             .unwrap();
     assert_eq!(result, Err(FundingFailure::Fenced));
@@ -225,16 +226,15 @@ fn live_lookup_observes_pending_then_original_completion_without_repeating_it() 
     let mut pending = false;
     for _ in 0..20 {
         f.harness.pic.tick();
-        let result: Result<FundingLookupView, FundingLookupFailure> =
-            crate::support::query_fixture(
-                &f.harness.pic,
-                f.sender,
-                f.driver,
-                "lookup_funding",
-                (query,),
-            )
-            .map(|(reply,)| reply)
-            .unwrap();
+        let result: Result<FundingLookupView, FundingLookupFailure> = fixture_calls::query_fixture(
+            &f.harness.pic,
+            f.sender,
+            f.driver,
+            "lookup_funding",
+            (query,),
+        )
+        .map(|(reply,)| reply)
+        .unwrap();
         if result.unwrap().state == FundingLookupState::Pending {
             pending = true;
             break;

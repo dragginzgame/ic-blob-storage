@@ -3,9 +3,10 @@ use super::*;
 use ic_blob_storage_contracts::dto::gateway::sync::{GatewaySyncFailure, GatewaySyncResponse};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
+use ic_blob_storage_pocketic_tests::fixture_calls;
 
 fn live(f: &Fixture, roots: Vec<Vec<u8>>) -> Result<Vec<bool>, Box<dyn std::error::Error>> {
-    crate::support::query_fixture::<(Vec<bool>,), _>(
+    fixture_calls::query_fixture::<(Vec<bool>,), _>(
         &f.harness.pic,
         f.service,
         Principal::anonymous(),
@@ -15,7 +16,7 @@ fn live(f: &Fixture, roots: Vec<Vec<u8>>) -> Result<Vec<bool>, Box<dyn std::erro
     .map(|r| r.0)
 }
 fn deletions(f: &Fixture, actor: Principal) -> Result<Vec<Vec<u8>>, Box<dyn std::error::Error>> {
-    crate::support::query_fixture::<(Vec<Vec<u8>>,), _>(
+    fixture_calls::query_fixture::<(Vec<Vec<u8>>,), _>(
         &f.harness.pic,
         f.service,
         actor,
@@ -29,7 +30,7 @@ fn acknowledge(
     actor: Principal,
     roots: Vec<Vec<u8>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    crate::support::update_fixture::<(), _>(
+    fixture_calls::update_fixture::<(), _>(
         &f.harness.pic,
         f.service,
         actor,
@@ -78,7 +79,7 @@ fn mounted_gc_callbacks_protect_references_and_retain_acknowledgments_without_se
         ic_blob_storage_contracts::identity::ProviderRootHash::try_from(upload.root.as_slice())
             .unwrap()
             .to_string();
-    crate::support::update_fixture::<(CaffeineUploadCertificateResponse,), _>(
+    fixture_calls::update_fixture::<(CaffeineUploadCertificateResponse,), _>(
         &f.harness.pic,
         f.service,
         f.uploader,

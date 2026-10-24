@@ -1,9 +1,9 @@
 //! The shared query distinguishes current reference state from retained mutation receipts.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::storage::reference::{ReferenceProbeFailure, ReferenceStatusClientInput};
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn request(input: ReferenceInput) -> ReferenceStatusRequest {

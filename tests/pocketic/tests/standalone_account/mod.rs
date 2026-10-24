@@ -1,5 +1,6 @@
 //! Actual replicated account queries over a passive source; no provider qualification.
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod native_cli;
 use super::*;
@@ -76,7 +77,7 @@ fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
         AccountInspectionKind::PaymentRelationship => f.service.into(),
     };
     assert!(
-        crate::support::update_fixture::<(bool,), _>(
+        fixture_calls::update_fixture::<(bool,), _>(
             &f.harness.pic,
             f.config.billing.cashier.into(),
             f.controller,
@@ -279,7 +280,7 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
         );
     }
     assert!(
-        crate::support::update_fixture::<(bool,), _>(
+        fixture_calls::update_fixture::<(bool,), _>(
             &f.harness.pic,
             input.scope.cashier.into(),
             f.controller,

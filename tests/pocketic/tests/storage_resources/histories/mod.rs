@@ -1,6 +1,5 @@
 //! Opt-in larger lifetime funding histories and workflow-admitted read occupancy.
 use super::*;
-use crate::support::REPLY_LIMITS;
 use blob_test_protocol::{
     admission::{ContentLookup, input::RetainedDescriptorInput},
     storage::{
@@ -11,6 +10,7 @@ use blob_test_protocol::{
         },
     },
 };
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_platform::pocket_ic::RejectResponse;
 
 #[derive(Clone, Copy)]

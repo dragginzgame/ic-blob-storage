@@ -1,6 +1,7 @@
 //! Connected local upload/deletion journey; completion and billing facts are substitutes.
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod chunks;
 mod content_vectors;
 mod readback;
@@ -90,12 +91,12 @@ impl Fixture {
         method: &str,
         input: JourneyUpload,
     ) -> Result<(), JourneyFailure> {
-        crate::support::update_fixture(&self.harness.pic, self.service, caller, method, (input,))
+        fixture_calls::update_fixture(&self.harness.pic, self.service, caller, method, (input,))
             .map(|(reply,)| reply)
             .expect("local control reply")
     }
     fn usage(&self, caller: Principal) -> Result<JourneyUsage, JourneyFailure> {
-        crate::support::query_fixture(&self.harness.pic, self.service, caller, "journey_usage", ())
+        fixture_calls::query_fixture(&self.harness.pic, self.service, caller, "journey_usage", ())
             .map(|(reply,)| reply)
             .expect("usage reply")
     }
@@ -115,7 +116,7 @@ impl Fixture {
         input: JourneyUpload,
         manifest: JourneyManifest,
     ) -> Result<(), JourneyFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -133,7 +134,7 @@ impl Fixture {
         caller: Principal,
         input: JourneyUpload,
     ) -> Result<JourneyProgress, JourneyFailure> {
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -150,7 +151,7 @@ impl Fixture {
         index: u64,
         bytes: &[u8],
     ) -> Result<(), JourneyFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -185,7 +186,7 @@ impl Fixture {
         method: &str,
         seed: [u8; 32],
     ) -> Result<(), JourneyFailure> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.service,
             caller,
@@ -196,7 +197,7 @@ impl Fixture {
         .expect("root control")
     }
     fn pending(&self) -> Vec<Vec<u8>> {
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             self.gateway,
@@ -208,7 +209,7 @@ impl Fixture {
     }
     fn live(&self, seeds: &[[u8; 32]]) -> Vec<bool> {
         let roots: Vec<_> = seeds.iter().map(|seed| root(*seed)).collect();
-        crate::support::query_fixture(
+        fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
             self.gateway,
@@ -219,7 +220,7 @@ impl Fixture {
         .expect("liveness batch")
     }
     fn delete(&self, roots: Vec<Vec<u8>>) -> Result<(), u32> {
-        crate::support::update_fixture(
+        fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
             self.operator,
@@ -359,7 +360,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     let delayed = f.pending();
     assert_eq!(delayed, vec![root(b.root)]);
     let revoked: bool =
-        crate::support::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
+        fixture_calls::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
             .map(|(reply,)| reply)
             .expect("revoke");
     assert!(revoked);

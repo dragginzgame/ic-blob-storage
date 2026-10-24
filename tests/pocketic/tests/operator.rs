@@ -1,6 +1,7 @@
 //! Actual CLI subprocesses against local fixtures; never a production provider.
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod operator_balance;
 mod operator_funding_lookup;
 mod operator_funding_preview;
@@ -217,7 +218,7 @@ fn funding_report_keeps_accepted_cycles_separate_from_credit_after_restore() {
         trap_callback: false,
     };
     let result: Result<FundingObservation, FundingFailure> =
-        crate::support::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (request,))
+        fixture_calls::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (request,))
             .map(|(reply,)| reply)
             .unwrap();
     result.unwrap();
@@ -295,7 +296,7 @@ fn funding_provider_failures_reach_json_without_becoming_refunds_or_credit() {
             trap_callback: false,
         };
         let result: Result<FundingObservation, FundingFailure> =
-            crate::support::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (request,))
+            fixture_calls::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (request,))
                 .map(|(reply,)| reply)
                 .unwrap();
         result.unwrap();

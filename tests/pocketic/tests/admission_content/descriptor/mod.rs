@@ -4,6 +4,7 @@ use blob_test_protocol::admission::{ContentDescriptor, release::LifecycleCommand
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
+use ic_blob_storage_pocketic_tests::fixture_calls;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 mod preparation;
@@ -14,7 +15,7 @@ fn read(
     actor: Principal,
     input: ContentLookup,
 ) -> Result<Option<ContentDescriptor>, Failure> {
-    crate::support::query_fixture(
+    fixture_calls::query_fixture(
         &f.harness.pic,
         f.service,
         actor,

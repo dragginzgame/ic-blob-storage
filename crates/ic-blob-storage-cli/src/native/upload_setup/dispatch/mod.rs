@@ -26,13 +26,22 @@ pub(super) async fn run(
             reply_limit: MANIFEST_REPLY_BYTES,
         },
         || {
-            json!({"schema":1,"runner_version":env!("CARGO_PKG_VERSION"),
-        "network":options.network,"service_url":options.url.as_str(),"actor":actor.to_text(),
-        "service":input.service.to_text(),"namespace":input.namespace.to_string(),
-        "permission":permission_json(saved.payload.permission()),"method":input.kind.method(),
-        "request_sha256":ContentDigest::compute(&saved.argument).to_string(),
-            "runner_source_sha256":crate::native::provenance::runner_source(),
-        "provider_requests":0})
+            let binding = super::record::SetupIntentRecord {
+                schema: 1,
+                network: options.network.to_owned(),
+                service_url: options.url.as_str().to_owned(),
+                actor: actor.to_text(),
+                service: input.service.to_text(),
+                namespace: input.namespace.to_string(),
+                permission: permission_json(saved.payload.permission()),
+                method: input.kind.method().to_owned(),
+                request_sha256: ContentDigest::compute(&saved.argument).to_string(),
+            };
+            let mut intent = serde_json::to_value(binding).expect("passive JSON intent fields");
+            intent["runner_version"] = env!("CARGO_PKG_VERSION").into();
+            intent["runner_source_sha256"] = crate::native::provenance::runner_source().into();
+            intent["provider_requests"] = 0.into();
+            intent
         },
     )?;
     prepared.run().bytes(

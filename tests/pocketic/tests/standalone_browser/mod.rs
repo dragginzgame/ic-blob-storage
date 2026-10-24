@@ -1,5 +1,5 @@
 //! Full restricted standalone/browser/native journey with a local provider substitute.
-use crate::support::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 mod multi_user;

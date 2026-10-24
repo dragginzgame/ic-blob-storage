@@ -3,6 +3,7 @@
 
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_pocketic_tests::fixture_calls;
 mod support;
 
 use blob_test_protocol::obligations::{
@@ -19,7 +20,7 @@ fn objects(
     canister: Principal,
     caller: Principal,
 ) -> Option<Vec<ObligationProbeView>> {
-    crate::support::query_fixture(pic, canister, caller, "unsettled_objects", ())
+    fixture_calls::query_fixture(pic, canister, caller, "unsettled_objects", ())
         .map(|(reply,)| reply)
         .expect("tenant query")
 }
@@ -29,7 +30,7 @@ fn confirm(
     caller: Principal,
     fact: ObligationProbeFact,
 ) -> bool {
-    crate::support::update_fixture(pic, canister, caller, "confirm_obligation", (1_u8, fact))
+    fixture_calls::update_fixture(pic, canister, caller, "confirm_obligation", (1_u8, fact))
         .map(|(reply,)| reply)
         .expect("fixture fact")
 }
@@ -102,7 +103,7 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
         ObligationProbeFact::Deleted
     ));
     assert_eq!(objects(pic, canister, first), Some(vec![first_live]));
-    let released: bool = crate::support::update_fixture(pic, canister, first, "release", (1_u8,))
+    let released: bool = fixture_calls::update_fixture(pic, canister, first, "release", (1_u8,))
         .map(|(reply,)| reply)
         .expect("release");
     assert!(released);
@@ -132,7 +133,7 @@ fn tenant_observes_billing_after_physical_deletion_without_controller_override()
     };
     assert_eq!(objects(pic, canister, first), Some(vec![deleted]));
     let pending: Option<Vec<u8>> =
-        crate::support::query_fixture(pic, canister, gateway, "pending", ())
+        fixture_calls::query_fixture(pic, canister, gateway, "pending", ())
             .map(|(reply,)| reply)
             .expect("deletion queue");
     assert_eq!(pending, Some(vec![]));
