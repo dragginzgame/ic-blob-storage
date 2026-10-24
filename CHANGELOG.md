@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.44.0]
+## [0.44.0] - 2026-10-24
 
 - Repair the isolated Testkit/Make admission fixture after deployment-boundary
   checks gained a second command. Keep both boundary commands substituted so
