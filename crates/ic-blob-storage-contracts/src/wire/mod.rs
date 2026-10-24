@@ -132,8 +132,8 @@ pub fn encode_request<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, E
 }
 /// Admit and decode a complete request under the selected endpoint identity.
 /// # Errors
-/// Refuses mismatched identities/directions, noncanonical or over-budget input.
-pub fn decode_request<'de, T: Serialize + Deserialize<'de>>(
+/// Refuses mismatched identities/directions, malformed primitives or over-budget input.
+pub fn decode_request<'de, T: Deserialize<'de>>(
     method: &str,
     bytes: &'de [u8],
     max: usize,
@@ -155,8 +155,8 @@ pub fn encode_response<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, 
 }
 /// Decode an independently authenticated reply under the exact original method.
 /// # Errors
-/// Refuses mismatched identities/directions, noncanonical or over-budget input.
-pub fn decode_response<'de, T: Serialize + Deserialize<'de>>(
+/// Refuses mismatched identities/directions, malformed primitives or over-budget input.
+pub fn decode_response<'de, T: Deserialize<'de>>(
     method: &str,
     bytes: &'de [u8],
     max: usize,

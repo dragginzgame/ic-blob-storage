@@ -127,7 +127,7 @@ pub fn decode_status(
     Ok(response)
 }
 
-fn bounded<T: serde::Serialize + for<'de> Deserialize<'de>>(
+fn bounded<T: for<'de> Deserialize<'de>>(
     method: &str,
     bytes: &[u8],
     max_reply_bytes: NonZeroUsize,

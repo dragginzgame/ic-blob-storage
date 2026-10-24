@@ -296,7 +296,7 @@ test-browser-standalone:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
 	+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
-	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone chromium_standalone_trial -- --ignored --test-threads=1
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_browser:: -- --ignored --test-threads=1
 
 test-browser:
 	$(BLOB_BROWSER_NODE) --test tests/browser/response.test.mjs

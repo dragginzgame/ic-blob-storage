@@ -14,6 +14,28 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Complete standalone browser selection — 2026-10-24
+
+Routine local qualification found that the Make target's former name-prefix
+filter omitted the renamed lost-reply/withdrawal test. The module selector now
+includes that case. Intent: `/tmp/blob-browser0444-intent.txt`; retained fixture
+requests/results: `/tmp/blob-browser0444/`; log: `/tmp/blob-followup-browser.log`.
+All four maintained tests pass (24.86s), covering six 1 KiB uploads across success,
+corruption, two interruption/withdrawal scenarios and two distinct uploaders.
+The three browser-control tests pass too. These use actual Chromium, the native
+CLI and standalone PocketIC with a local TLS provider substitute; zero deployed
+provider requests or paid effects. Harness-owned local processes close; evidence
+remains. This does not qualify Canic sessions, production serving or provider billing.
+
+The initial sandbox Node/npm check failed with an empty npm version; unchanged
+installed Node 24.21.0/npm 12.2.0 pass outside that sandbox. Both logs remain under
+`/tmp/blob-followup-browser-{preflight,native}.log`. No tools were installed.
+Generated TypeScript separately passes 27 owned methods and 137 frozen Rust frames,
+including malformed/identity/direction/limit and decimal cases:
+`/tmp/blob-followup-wire-schema.log`. Executed source/artifact hashes are retained
+in `/tmp/blob-browser0444-identity.json`; source is release `9534f42` plus the
+Make selector change. Historical trial/attestation captures remain unchanged.
+
 ## GC and Cashier contract follow-up — 2026-10-22
 
 **Later disposition:** the maintainer approved pending 0.42's narrower

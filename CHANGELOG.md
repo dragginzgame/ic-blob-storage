@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.45.0]
+
+- Adopt Platform 0.6.15 and Wire 0.7.2. Decode-only callers no longer require
+  Serialize; collection/custom decoders may normalize input and malformed
+  primitives report Malformed. Retain original frames for exact retries and
+  hashes. Encoder bytes, endpoint identities and stored schemas are unchanged.
+- Adopt Shared Tooling 0.26.14 for bounded busy-tool admission during release
+  recovery and recovery from manually committed candidate metadata.
+
+- Adopt coordinated IC Build, Host and Testkit 0.68.0 for native tooling and
+  tests.
+
+- Run the complete standalone browser test module so the renamed lost-reply and
+  withdrawal regression is included alongside upload, corruption and two-user
+  isolation coverage.
+
 ## [0.44.3] - 2026-10-24
 
 - Share continuity-aware installed funding access and typed native schema

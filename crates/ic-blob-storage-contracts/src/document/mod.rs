@@ -29,13 +29,12 @@ pub fn encode<T: Serialize>(value: T) -> Result<Vec<u8>, Error> {
     native::encode_request(IDENTITY, &value, LIMITS)
 }
 
-/// Decode a complete canonical document under the caller's byte ceiling.
+/// Decode a complete document under the caller's byte ceiling.
+/// Collection/custom visitors may normalize values; retain original frames for
+/// exact retries, signatures and hashes rather than reconstructing them.
 /// # Errors
-/// Refuses foreign frames, trailing/noncanonical bytes and resource violations.
-pub fn decode<'de, T: Serialize + Deserialize<'de>>(
-    bytes: &'de [u8],
-    max: usize,
-) -> Result<T, Error> {
+/// Refuses foreign frames, trailing bytes, malformed primitives and resource violations.
+pub fn decode<'de, T: Deserialize<'de>>(bytes: &'de [u8], max: usize) -> Result<T, Error> {
     native::decode_request(
         IDENTITY,
         bytes,

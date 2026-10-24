@@ -117,7 +117,12 @@ and the [funding qualification recipe](funding-consumer-qualification.md).
 They establish expected local behavior, not results for the application run above.
 The opt-in `make test-browser-standalone` requires the exact Node/npm selections,
 installed browser packages/Chromium and admitted Testkit; it downloads nothing.
+The target selects the complete `standalone_browser::` module, including the
+lost-final-reply/withdrawal case whose name no longer has the former trial prefix.
 A failed prerequisite check is not a failed upload or a passing browser test.
+The 2026-10-24 follow-up passed Node/npm admission outside the execution sandbox;
+the earlier empty npm version was environment-specific. Do not install replacement
+tools or bypass the version check solely on that earlier failure.
 
 Attach the evidence location, exact source/graph, observed refusals, unresolved
 operations and cleanup/continuing liabilities to each owning issue. Leave an item

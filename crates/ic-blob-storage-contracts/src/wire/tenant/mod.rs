@@ -147,7 +147,7 @@ pub fn inspection_request(value: native::TenantScope) -> Result<Vec<u8>, ic_wire
 }
 /// Decode only this inspection method and request direction.
 /// # Errors
-/// Rejects foreign identity/direction, malformed, noncanonical or excessive input.
+/// Rejects foreign identity/direction, malformed primitives or excessive input.
 pub fn decode_inspection_request(bytes: &[u8]) -> Result<native::TenantScope, ic_wire::Error> {
     ic_wire::native::decode_request::<Scope<'_>>(
         super::identity(crate::protocol::TENANT_INSPECTION_METHOD)?,
@@ -168,7 +168,7 @@ pub fn update_request(value: native::TenantUpdateRequest) -> Result<Vec<u8>, ic_
 }
 /// Decode only the update method and request direction.
 /// # Errors
-/// Rejects foreign identity/direction, malformed, noncanonical or excessive input.
+/// Rejects foreign identity/direction, malformed primitives or excessive input.
 pub fn decode_update_request(bytes: &[u8]) -> Result<native::TenantUpdateRequest, ic_wire::Error> {
     ic_wire::native::decode_request::<UpdateRequest<'_>>(
         super::identity(crate::protocol::TENANT_UPDATE_METHOD)?,
@@ -203,7 +203,7 @@ pub fn update_response(
 }
 /// Decode only an inspection reply; semantic/binding checks remain caller-owned.
 /// # Errors
-/// Rejects foreign identity/direction, malformed, noncanonical or excessive input.
+/// Rejects foreign identity/direction, malformed primitives or excessive input.
 pub fn decode_inspection_response(
     bytes: &[u8],
 ) -> Result<Result<native::TenantEnrollmentResponse, native::TenantFailure>, ic_wire::Error> {
@@ -216,7 +216,7 @@ pub fn decode_inspection_response(
 }
 /// Decode only an update reply; an unusable reply never proves non-execution.
 /// # Errors
-/// Rejects foreign identity/direction, malformed, noncanonical or excessive input.
+/// Rejects foreign identity/direction, malformed primitives or excessive input.
 pub fn decode_update_response(
     bytes: &[u8],
 ) -> Result<Result<native::TenantEnrollmentResponse, native::TenantFailure>, ic_wire::Error> {

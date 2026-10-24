@@ -8,7 +8,7 @@ use ic_platform::Principal;
 use serde_json::{Value, json};
 
 /// Shared bounded small replies; command owners retain error and binding policy.
-pub(super) fn decode_small<T: serde::Serialize + for<'de> serde::Deserialize<'de>>(
+pub(super) fn decode_small<T: for<'de> serde::Deserialize<'de>>(
     method: &str,
     bytes: &[u8],
     too_large: Failure,

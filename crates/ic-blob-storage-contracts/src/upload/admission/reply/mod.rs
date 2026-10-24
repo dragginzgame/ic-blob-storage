@@ -39,7 +39,7 @@ pub fn validate_request(input: UploadAdmissionRequest) -> Result<(), UploadAdmis
     .map(|_| ())
     .map_err(|_| UploadAdmissionReplyError::Invalid)
 }
-fn decode<T: serde::Serialize + for<'de> Deserialize<'de>>(
+fn decode<T: for<'de> Deserialize<'de>>(
     method: &str,
     input: UploadAdmissionRequest,
     bytes: &[u8],

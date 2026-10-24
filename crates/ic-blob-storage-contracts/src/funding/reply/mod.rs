@@ -80,7 +80,7 @@ pub fn check_outcome(input: FundingOutcomeRequest) -> Result<(), FundingReplyErr
     }
     Ok(())
 }
-fn decode<T: serde::Serialize + for<'de> Deserialize<'de>>(
+fn decode<T: for<'de> Deserialize<'de>>(
     method: &str,
     bytes: &[u8],
     max: NonZeroUsize,

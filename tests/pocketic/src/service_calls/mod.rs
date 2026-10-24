@@ -4,7 +4,7 @@ pub trait ServiceCallExt {
     /// Execute one raw read-only call and decode its exact bounded reply.
     /// # Errors
     /// Preserves request encoding, platform rejection and reply decoding failures.
-    fn query_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -15,7 +15,7 @@ pub trait ServiceCallExt {
     /// Execute one replicated call without retry and decode its bounded reply.
     /// # Errors
     /// Preserves failures without treating an unusable reply as absence of effects.
-    fn update_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -35,7 +35,7 @@ pub enum ServiceCallError {
     Decoding(ic_blob_storage_contracts::wire::Error),
 }
 impl ServiceCallExt for ic_platform::pocket_ic::PocketIc {
-    fn query_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -49,7 +49,7 @@ impl ServiceCallExt for ic_platform::pocket_ic::PocketIc {
             .map_err(ServiceCallError::Rejected)?;
         decode_reply(method, &reply, max_reply_bytes).map_err(ServiceCallError::Decoding)
     }
-    fn update_blob_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -105,7 +105,7 @@ fn encode_argument<A: serde::Serialize>(
         _ => Ok(bytes),
     }
 }
-fn decode_reply<R: serde::Serialize + serde::de::DeserializeOwned>(
+fn decode_reply<R: serde::de::DeserializeOwned>(
     method: &str,
     bytes: &[u8],
     max: usize,

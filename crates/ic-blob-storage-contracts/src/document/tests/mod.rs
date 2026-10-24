@@ -152,3 +152,21 @@ fn borrowed_chunk_and_metadata_views_preserve_canonical_retained_frames() {
     *invalid.last_mut().unwrap() = 0xff;
     assert!(decode::<TextRef<'_, 16>>(&invalid, 4096).is_err());
 }
+
+#[test]
+fn deserialize_only_values_and_normalizing_maps_keep_original_frames() {
+    #[derive(Debug, PartialEq, serde::Deserialize)]
+    struct Decoded(u64);
+    let frame = encode(42_u64).unwrap();
+    assert_eq!(decode::<Decoded>(&frame, 4096).unwrap(), Decoded(42));
+    let mut unsorted = encode(()).unwrap();
+    unsorted.extend_from_slice(&[2, 2, 20, 1, 10]);
+    let retained = unsorted.clone();
+    let map: std::collections::BTreeMap<u8, u8> = decode(&unsorted, 4096).unwrap();
+    assert_eq!(map.get(&1), Some(&10));
+    assert_ne!(encode(map).unwrap(), retained);
+    assert_eq!(unsorted, retained);
+    let mut malformed = encode(()).unwrap();
+    malformed.extend_from_slice(&[0x80, 0]);
+    assert_eq!(decode::<u64>(&malformed, 4096), Err(Error::Malformed));
+}

@@ -2,7 +2,7 @@
 use super::Failure;
 pub(super) const INSTALLATION_BYTES: usize = 16 * 1024;
 /// Callers retain their command-specific byte ceilings; extra values always refuse.
-pub(super) fn decode<T: serde::Serialize + serde::de::DeserializeOwned>(
+pub(super) fn decode<T: serde::de::DeserializeOwned>(
     bytes: &[u8],
     max: usize,
 ) -> Result<T, Failure> {

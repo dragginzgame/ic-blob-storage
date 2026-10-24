@@ -4,7 +4,7 @@ pub trait ControlCallExt {
     /// Execute one raw read-only call and decode its exact bounded reply.
     /// # Errors
     /// Preserves request encoding, platform rejection and reply decoding failures.
-    fn query_control_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn query_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -15,7 +15,7 @@ pub trait ControlCallExt {
     /// Execute one replicated call without retry and decode its bounded reply.
     /// # Errors
     /// Preserves failures without treating an unusable reply as absence of effects.
-    fn update_control_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn update_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -35,7 +35,7 @@ pub enum ControlCallError {
     Decoding(ic_blob_storage_contracts::document::Error),
 }
 impl ControlCallExt for ic_platform::pocket_ic::PocketIc {
-    fn query_control_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn query_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -51,7 +51,7 @@ impl ControlCallExt for ic_platform::pocket_ic::PocketIc {
         ic_blob_storage_contracts::document::decode(&reply, max_reply_bytes)
             .map_err(ControlCallError::Decoding)
     }
-    fn update_control_as<R: serde::Serialize + serde::de::DeserializeOwned, A: serde::Serialize>(
+    fn update_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -91,7 +91,7 @@ pub fn encode_control_one<T: serde::Serialize>(
 /// Decode a single private storage-control result from its tuple envelope.
 /// # Errors
 /// Refuses malformed, trailing, foreign or over-budget replies.
-pub fn decode_control_one<T: serde::Serialize + serde::de::DeserializeOwned>(
+pub fn decode_control_one<T: serde::de::DeserializeOwned>(
     bytes: &[u8],
     max: usize,
 ) -> Result<T, ic_blob_storage_contracts::document::Error> {

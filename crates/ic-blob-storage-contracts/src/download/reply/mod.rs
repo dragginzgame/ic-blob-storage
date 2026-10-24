@@ -103,7 +103,7 @@ pub fn decode_borrowed<'de>(
 > {
     decode_as(request, scope, bytes, limits)
 }
-fn decode_as<'de, T: MetadataText + serde::Serialize + serde::Deserialize<'de>>(
+fn decode_as<'de, T: MetadataText + serde::Deserialize<'de>>(
     request: DownloadRequest,
     scope: &CaffeineDownloadScope,
     bytes: &'de [u8],
