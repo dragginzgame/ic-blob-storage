@@ -1,102 +1,92 @@
 # Current status — 2026-10-24
 
-## Released baseline and prior adoption
+## Released baseline and pending cleanup
 
-Released baseline is `f50fd47` (0.44.1); adoption source included `64aeb49`. The architectural cleanup, native Clap
-adoption and Testkit fixture repair are in that source. Its committed handoff
-retains previous qualification; those results are not new evidence for this graph.
+Released baseline: `4a15d0c` (0.44.2). Pending compatible **0.44.3** changes no
+package version, endpoint identities, Wire frames, stored schema or stable keys.
+The incoming lock selects Wire/derive 0.6.13 and is preserved byte-for-byte against
+`/tmp/blob-cleanup-before/Cargo.lock`. Platform 0.6.14, Memory/Storage 0.50.16,
+Metrics 0.15.8 and Tooling 0.67.0 remain selected.
 
-Released **0.44.1** adopts published IC Tooling 0.67.0 across Build, Host artifacts,
-FS, HTTP, Process, Tools and Testkit. The archive verifier now passes explicit
-`CargoFeatureSelection::default()`; archive packaging, metadata and tests preserve
-its former default-feature policy. No Blob public protocol, persistence or runtime
-contract changes are introduced. Cargo package versions are 0.44.1.
+Shared Tooling remains `4c0f198e56d4c6d27b12a5c2d515e0e01070151e` (committed
+VERSION 0.26.10; its title/changelog call it 0.26.11). No upstream adoption or
+sibling checkout edit is part of this cleanup.
 
-Shared Tooling is pinned to `4c0f198e56d4c6d27b12a5c2d515e0e01070151e`, verified
-as the latest pushed HEAD during adoption. That commit's `VERSION` is **0.26.10**,
-although its title/changelog call the setup-timing change 0.26.11. The snapshot
-retains the canonical committed annotation; the dirty sibling VERSION was not used.
-The exporter ran from an isolated clean clone, preserving the sibling checkout.
+## Ten audit findings: disposition
 
-The adopted snapshot includes Cargo setup phase timing, offline aggregate tool
-reports, literal formatting catalogs and common external-IC dependency inventory.
-Blob enables `--external-ic` alongside its stricter local policy and includes the
-inventory in frozen CI inputs. Deployment graph exclusions remain independent.
-The inventory is a reviewed list, not proof of complete external-package discovery.
-Optional hosted Cargo-tool caching was not enabled by this adoption.
+1. Shared funding access: `ServiceWorkflow::<Host>::ACCESS` now implements
+   `FundingJournalAccess`, observing platform continuity on every synchronous
+   borrow. Hosts still own caller context, evidence acquisition and financial policy.
+2. Public API narrowing: deferred until consumer migration. Canic currently uses
+   the public model/policy/journal types and `stores_mut` through its funding adapter.
+   Do not remove these in a patch or replace them with another forwarding hierarchy.
+3. Provider JSON: explicit `provider-json` feature, enabled by default for existing
+   tooling callers. Minimal workspace consumers disable defaults; CLI and browser
+   integration tests opt in. Native schema generation enables JSON independently.
+   The standalone normal/build deployment graph contains no serde_json; a feature
+   guard and negative fixture checks reject provider JSON activation in deployment.
+4. Schema metadata: native `projections()` supplies typed catalog metadata, limits
+   and actual codec schemas. Serialized `methods()` and TypeScript output preserve
+   their existing layout. Canic can adopt the typed boundary after release.
+5. Grants: named keys map directly to owner fields, with no positional handle list.
+   All existing keys, ordering and exclusive host runtime ownership are retained.
+6. Installation bounds: candidate encoding checks the record owner's shared ceiling
+   before invoking the trapping stored-record contract. Durable corruption still traps.
+7. Capacity errors: explicit store/admission classifications retain current public
+   failures; new top-level categories now require mapping review.
+8. Funding conversions: retained deliberately. Stored records and public DTOs have
+   different contracts; a generic mapper would couple them or hide the explicit
+   conversion rather than reduce ownership. Existing round-trip coverage remains.
+9. Registration terminology: clarify Rustdoc; keep public enum/variant identities
+   and stored names. Registered content does not establish provider availability.
+10. Restoration sizing: the existing one-upload installed resource regression passes.
+    Production combined-occupancy qualification needs Canic's selected installation
+    ceilings, which the maintainer does not yet know. Existing occupied-history tooling is
+    explicitly fixture-sized, not production acceptance. No deferred activation or weakened
+    recovery validation was introduced.
 
-## Dependency graph and qualification
+## Validation and evidence
 
-The reviewed graph selects Platform 0.6.14, Memory/Storage 0.50.16, Metrics 0.15.8,
-Wire 0.6.12 and Tooling 0.67.0. Manifest minimums now match these published releases.
-The incoming lockfile, including crypto-common/generic-array selections, is preserved
-byte-for-byte. No source overrides or unpublished sibling packages are used.
-Registry checks outside this workspace confirmed Wire 0.6.13 is not yet published.
-Shared Tooling and IC Tooling remote HEADs remain at the prior selected revisions.
+Focused strict Clippy passes for Core, Contracts and CLI, all targets/features.
+Native tests pass: installation 12 (including funding access/version-gap coverage),
+grants 4, capacity 32, schema 3, provider 10 and the frozen Wire-vector test.
+Dependency declaration/deployment checks and negative feature fixtures pass.
+Rust 1.91 checks pass for Core/Contracts all native targets/features and the
+minimal Core Wasm target. Formatting, documentation links and shell syntax are
+checked separately; initial manifest-order failure is retained in the logs.
+Fresh release storage-probe Wasm passes the installed restoration/read-attribution
+case with two same-release upgrades. This is Linux PocketIC fixture evidence,
+not Canic composition, deployed-provider or production-capacity qualification.
 
-Published Memory/Storage source trees are identical to 0.50.15; Metrics source is
-identical to 0.15.7. Platform's source changes add signature-verification evidence
-that Blob does not enable; used runtime and codec source paths are unchanged.
-No caller rewrite, protocol change or persisted-format migration is needed.
+Logs: `/tmp/blob-cleanup-*.log`; the successful installed run is
+`/tmp/blob-cleanup-restoration-qualified.log`. Earlier attempts are retained:
+loopback socket admission failed in the sandbox, then the explicit fixture path
+was missing. Both failed before the intended canister regression executed.
+Intent is `/tmp/blob-cleanup-restoration-intent.txt`.
+Wasm SHA-256: `a8fd4190f8aa473aad97526edc9ce16c3d342ccb1a2da9de9205f208c7e953f4`.
+Lock SHA-256: `6ddef5c603a1bcecf4d6c249e49dfb9025ae264576ed0c71af8bb8d926449b75`.
+Earlier released adoption evidence remains in `/tmp/blob-upstream-*.log` and
+`/tmp/blob-tooling-*.log`; it is not relabelled as this cleanup's qualification.
 
-Current before-images: `/tmp/blob-upstream-before/`; evidence:
-`/tmp/blob-upstream-*.log`. Strict Clippy passes for the affected Core, Contracts,
-Client, CLI, storage probe and PocketIC targets/features. Memory composition,
-installation, stored-record and Wire-boundary tests pass, as do native signed-update
-and HTTP failure-handling tests. Fresh release standalone Wasm and a rebuilt CLI
-pass both installed endpoint-surface and installation/service-binding tests.
-Final installed proof is `/tmp/blob-upstream-installed-fresh.log`; the earlier
-installed run preceded the explicit CLI rebuild and is not final graph proof.
-Rust 1.91 checks pass for affected public libraries, CLI and storage probe, across
-all their targets/features. Snapshot, pins, declaration/deployment boundaries,
-formatting and documentation links pass.
+## Consumer delivery and outstanding acceptance
 
-Previous Tooling-specific qualification remains in `/tmp/blob-tooling-*.log`:
-real archive replacement/drift regressions, Shared consumer fixtures, hooks,
-substituted release routing and offline tool admission passed. No Tooling or
-Shared implementation changed in this follow-up; those checks were not repeated.
-The common external-IC inventory also has retained negative alias/optional/dev
-admission evidence. Setup uses the published Testkit and Build editor CLIs.
+Canic remains read-only. Its last reviewed three locks select Blob/contracts
+0.44.1, Platform 0.6.14, Memory 0.50.16 and Wire 0.6.12. Canic must replace its
+private funding accessor and consume typed projections in its own checkout after
+adoption. Existing public APIs remain available during that transition.
+[Funding guidance](../funding-consumer-qualification.md) documents the accessor.
+Canic #613 owns frontend/schema delivery, #622 mounted acceptance and #494
+independent credit qualification; these are not additional Blob funding engines.
 
-The pre-release adoption lock SHA-256 was
-`ed4f3c88b52050dbed1177100bd859c6731d4bf7a083e83e690c203f1e71d26d`.
-Full release CI, full PocketIC suites, optimizer qualification, native macOS,
-current-feed security audit and deployed provider checks are not claimed.
-No staging, commit, push, release, publication, sibling edit or paid effect occurred.
+Blob #4/#5/#6/#31/#34 still require application/provider evidence. Follow the
+[acceptance checklist](../acceptance-plan.md#next-application-acceptance-run).
+The earlier browser preflight failure remains `/tmp/blob-acceptance-preflight.log`:
+selected npm returned no version instead of required 12.2.0. No fresh browser
+qualification or tool installation occurred in this batch.
+[Blob #102](https://github.com/dragginzgame/ic-blob-storage/issues/102) and
+[Platform #50](https://github.com/dragginzgame/ic-platform/issues/50) retain native
+Agent crypto advisory work, separate from normal deployment.
 
-## Ownership and outstanding acceptance
-
-Blob owns service authority, storage, references, quotas, funding/GC journals and
-recovery. Canic owns framework adapters, lifecycle and installed composition.
-The latest read-only Canic review resolves Blob/contracts 0.44.1, Platform 0.6.14,
-Memory 0.50.16 and Wire 0.6.12 in all three locks. Retained dedicated/embedded
-0.44.0 logs pass; the current graph is not newly qualified here.
-Canic #613 tracks build/schema delivery, #622 application delivery, and #494
-independent credit qualification. They do not indicate missing ordinary Blob funding APIs.
-
-Blob #4/#5/#6/#31/#34 retain actual application/provider acceptance: publication,
-serving, multi-user uploads, payer linkage/activity, deletion and billing cessation.
-[Funding qualification](../funding-consumer-qualification.md) and
-[service gaps](../service-gaps.md) distinguish these from local fixtures.
-
-[Blob #102](https://github.com/dragginzgame/ic-blob-storage/issues/102) tracks the
-native Agent crypto-bigint advisory; [Platform #50](https://github.com/dragginzgame/ic-platform/issues/50)
-owns the supplier correction. Normal standalone deployment excludes that graph.
-No current-feed security audit, exemption or correction is claimed by this adoption.
-
-## Pending 0.44.2 application acceptance guidance
-
-The acceptance plan now gives #31/#5/#34 one concrete application run with
-identity/evidence requirements and stop conditions. Existing APIs suffice;
-application sessions, asset transactions and financial scheduling stay downstream.
-No runtime change or new provider mechanism is justified by the reviewed issues.
-
-Fresh browser prerequisite admission failed before test execution: selected
-`npm --version` produced no version (required npm 12.2.0). Retained log:
-`/tmp/blob-acceptance-preflight.log`. No browser build/test, provider request,
-paid effect or downstream edit followed. Prepare the pinned browser toolchain
-before rerunning the maintained local cases; do not bypass admission. The current
-acceptance gap remains application/provider evidence, not a local test substitute.
-
-Documentation-link checks pass (1,578 references across 211 documents), as does
-`git diff --check`. Runtime source, manifests and lockfiles are unchanged.
+No staging, commit, push, release, publication, paid effect or sibling edit.
+Full release CI, full PocketIC suites, optimizer, native macOS, current-feed
+security audit and live-provider acceptance are not claimed.

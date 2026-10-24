@@ -19,7 +19,37 @@ fn failure(error: UploadStoreError) -> UploadCapacityFailure {
         | UploadStoreError::Admission(A::WrongService | A::WrongNamespace) => F::Binding,
         UploadStoreError::Admission(A::NotProject) => F::Denied,
         UploadStoreError::Admission(A::Tenant(TenantError::NotEnrolled)) => F::NotEnrolled,
-        _ => F::Internal,
+        UploadStoreError::AlreadyAllocated
+        | UploadStoreError::Missing
+        | UploadStoreError::InvalidRecord
+        | UploadStoreError::UnsupportedEnvelope
+        | UploadStoreError::Fenced
+        | UploadStoreError::Tenants(_)
+        | UploadStoreError::Roots(_)
+        | UploadStoreError::Reference(_)
+        | UploadStoreError::Lifecycle(_)
+        | UploadStoreError::CursorScope
+        | UploadStoreError::Admission(
+            A::ManifestCapacity(_)
+            | A::ManifestNotPrepared
+            | A::Manifest(_)
+            | A::Metadata(_)
+            | A::EmptyObject
+            | A::NotOperator
+            | A::Reference(_)
+            | A::InvalidUploader
+            | A::UnknownPermission
+            | A::PermissionConflict
+            | A::NotUploader
+            | A::NotObserver
+            | A::Revoked
+            | A::Expired
+            | A::ClockReversed
+            | A::ObjectTooLarge
+            | A::NotReserved(_)
+            | A::Catalog(_)
+            | A::Tenant(_),
+        ) => F::Internal,
     }
 }
 /// Inspect one tenant under actual caller/service context. Hosts bound ingress and

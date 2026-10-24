@@ -77,8 +77,8 @@ pub struct ServiceMemories<M> {
     /// Three read occupancy memories.
     pub reads: ReadSessionMemories<M>,
 }
-impl<M: Memory> ServiceMemories<M> {
-    fn all(&self) -> [&M; 16] {
+impl<M> ServiceMemories<M> {
+    pub(super) fn all(&self) -> [&M; 16] {
         [
             &self.uploads.tenants,
             &self.uploads.roots,

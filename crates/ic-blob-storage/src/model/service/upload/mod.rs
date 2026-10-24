@@ -41,7 +41,7 @@ pub struct UploadPermissionView {
     pub tenant_generation: NonZeroU64,
     /// Project revocation; escaped effects remain accounted separately.
     pub revoked: bool,
-    /// Current catalog state, retaining uncertainty and confirmed reference history.
+    /// Current catalog state, retaining uncertainty and registered reference history.
     pub phase: UploadPhase,
 }
 

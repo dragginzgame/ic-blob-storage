@@ -42,11 +42,11 @@ echo 'Standalone deployment excludes legacy CDK/Platform and native-only owners'
 
 cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
     --prefix none --format '{p}|{f}' -p ic-blob-storage-canister > "$contract_graph"
-if rg '^ic-(wire|platform|blob-storage-contracts) v[^|]*\|([^,]*,)*(typescript|wire-schema)(,| |$)' "$contract_graph"; then
-    echo 'Deployment enables host-only Wire schema generation' >&2
+if rg '^ic-(wire|platform|blob-storage-contracts) v[^|]*\|([^,]*,)*(typescript|wire-schema|provider-json)(,| |$)' "$contract_graph"; then
+    echo 'Deployment enables host-only schema or provider JSON tooling' >&2
     exit 1
 fi
-echo 'Standalone deployment excludes host-only Wire schema features'
+echo 'Standalone deployment excludes host-only schema and provider JSON features'
 
 if rg '^ic-(blob-storage|memory|storage) v[^|]*\|([^,]*,)*test-support(,| |$)' "$contract_graph"; then
     echo 'Deployment enables test-support access' >&2

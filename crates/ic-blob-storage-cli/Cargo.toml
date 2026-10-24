@@ -17,7 +17,7 @@ ic-platform = { workspace = true, features = ["candid"] }
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 clap.workspace = true
-ic-blob-storage-contracts.workspace = true
+ic-blob-storage-contracts = { workspace = true, features = ["provider-json"] }
 ic-build = { workspace = true, optional = true }
 ic-host-artifacts.workspace = true
 ic-host-fs.workspace = true

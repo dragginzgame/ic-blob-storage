@@ -25,13 +25,14 @@ fn catalog_is_complete_unique_and_uses_mounted_limits() {
             assert_eq!(row["responseDepth"], 16);
         }
     }
-    let mut duplicate = catalog.clone();
-    duplicate.push(catalog[0].clone());
+    let typed = projections().unwrap();
+    let mut duplicate = typed.clone();
+    duplicate.push(typed[0].clone());
     assert!(validate(&duplicate).is_err());
-    let mut reused_id = catalog.clone();
-    reused_id[1]["id"] = reused_id[0]["id"].clone();
+    let mut reused_id = typed.clone();
+    reused_id[1].contract.id = reused_id[0].contract.id;
     assert!(validate(&reused_id).is_err());
-    assert!(validate(&catalog[1..]).is_err());
+    assert!(validate(&typed[1..]).is_err());
     assert!(
         typescript("./blob-runtime.js")
             .unwrap()

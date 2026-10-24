@@ -454,3 +454,47 @@ fn populated_installation_preserves_full_configuration_scope_and_owner_fences() 
     );
     assert_eq!(bytes(&memory), before);
 }
+
+#[test]
+fn shared_funding_access_releases_borrows_and_observes_version_gaps() {
+    use crate::ops::service::funding::access::FundingJournalAccess;
+    use crate::workflow::service::{ServiceExecutionLimits, ServiceHost, ServiceWorkflow};
+    use std::cell::{Cell, RefCell};
+    thread_local! {
+        static OWNER: RefCell<Option<ServiceInstallation<ic_memory::VectorMemory>>> = const { RefCell::new(None) };
+        static VERSION: Cell<u64> = const { Cell::new(0) };
+    }
+    struct Host;
+    impl ServiceHost for Host {
+        type Memory = ic_memory::VectorMemory;
+        fn with_installation<R>(
+            operation: impl FnOnce(&mut ServiceInstallation<Self::Memory>) -> R,
+        ) -> R {
+            OWNER.with_borrow_mut(|owner| operation(owner.as_mut().unwrap()))
+        }
+        fn platform_version() -> u64 {
+            VERSION.get()
+        }
+        fn time() -> u64 {
+            0
+        }
+        fn limits() -> ServiceExecutionLimits {
+            panic!("journal access needs no dispatch limits")
+        }
+    }
+    let memory = memory();
+    OWNER.with_borrow_mut(|owner| {
+        *owner = Some(ServiceInstallation::install(memories(&memory), validated()).unwrap());
+    });
+    let before = bytes(&memory);
+    let access = ServiceWorkflow::<Host>::ACCESS;
+    assert!(!access.with_funding_journal(|journal| journal.is_fenced()));
+    // A separate callback borrow observes a management-version gap before access.
+    VERSION.set(2);
+    assert!(access.with_funding_journal(|journal| journal.is_fenced()));
+    Host::with_installation(|owner| {
+        assert!(owner.stores().uploads.is_fenced());
+    });
+    assert_eq!(bytes(&memory), before);
+    OWNER.with_borrow_mut(|owner| *owner = None);
+}

@@ -35,3 +35,15 @@ for package in blob-test-protocol ic-blob-storage-pocketic-tests blob-authority-
     rg -q 'Deployment depends on private fixture packages' "$fixture/output"
 done
 printf 'Deployment private package refusals: PASS\n'
+
+unset FIXTURE_PACKAGE_LINE
+for features in provider-json 'default,provider-json' 'provider-json,other'; do
+    export FIXTURE_FEATURE_LINE="ic-blob-storage-contracts v1.0.0|$features (*)"
+    if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
+        echo "Deployment accepted provider JSON tooling: $features" >&2; exit 1
+    fi
+    rg -q 'Deployment enables host-only schema or provider JSON tooling' "$fixture/output"
+done
+export FIXTURE_FEATURE_LINE='ic-blob-storage-contracts v1.0.0|other-provider-json'
+bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1
+printf 'Deployment provider JSON feature refusals: PASS\n'

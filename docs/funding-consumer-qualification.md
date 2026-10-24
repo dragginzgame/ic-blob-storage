@@ -152,3 +152,19 @@ qualify the local protocol and journals; they cannot prove deployed account-link
 rules, charging or production credit behavior. No sibling changes, consumer
 builds, deployment or paid effects occur as part of this repository's hard cut.
 Lifetime acceptance remains with [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6).
+
+## Shared installed-journal access
+
+Hosts implementing `workflow::service::ServiceHost` can use
+`ServiceWorkflow::<Host>::ACCESS` as `FundingJournalAccess`. Each borrow observes
+the host's current platform version and releases the installation borrow before
+returning; subsequent funding callbacks use the same owner. Canic can replace its
+private `InstalledJournal` implementation with this value after adopting the
+release. This repository does not change Canic's checkout.
+
+Keep actual caller/service context, authenticated evidence acquisition, budgets
+and scheduling in the host. The shared accessor adds no funding endpoint,
+automatic retry or evidence source. Continue using the existing preparation,
+dispatch, independent credit and renewal workflows; a raw journal borrow is not
+financial authority. Public low-level types remain supported while consumers
+migrate, rather than removing their imports in advance.

@@ -12,24 +12,30 @@ use ic_memory::{MemoryDeclarationError, MemoryRequest};
 
 // Logical identities are independent of host-selected physical IDs. Keep this
 // mapping shared so an adapter cannot accidentally swap accounting and history.
-const KEYS: [&str; 16] = [
-    "blob.tenants.v1",
-    "blob.roots.v1",
-    "blob.root_objects.v1",
-    "blob.permissions.v1",
-    "blob.usage.v1",
-    "blob.manifests.v1",
-    "blob.confirmed.v1",
-    "blob.references.v1",
-    "blob.receipts.v1",
-    "blob.root_requests.v1",
-    "blob.funding_accounting.v1",
-    "blob.funding_intents.v1",
-    "blob.gateways.v1",
-    "blob.read_journal.v1",
-    "blob.read_sessions.v1",
-    "blob.read_tenants.v1",
-];
+const KEYS: ServiceMemories<&str> = ServiceMemories {
+    uploads: UploadMemories {
+        tenants: "blob.tenants.v1",
+        roots: "blob.roots.v1",
+        objects: "blob.root_objects.v1",
+        permissions: "blob.permissions.v1",
+        usage: "blob.usage.v1",
+        manifests: "blob.manifests.v1",
+        confirmed: "blob.confirmed.v1",
+        references: "blob.references.v1",
+        receipts: "blob.receipts.v1",
+        root_requests: "blob.root_requests.v1",
+    },
+    funding: FundingMemories {
+        accounting: "blob.funding_accounting.v1",
+        intents: "blob.funding_intents.v1",
+    },
+    gateways: "blob.gateways.v1",
+    reads: ReadSessionMemories {
+        journal: "blob.read_journal.v1",
+        sessions: "blob.read_sessions.v1",
+        tenants: "blob.read_tenants.v1",
+    },
+};
 
 /// Build the sixteen current service requests under an explicit host authority.
 /// No registration, namespace grant, runtime bootstrap or stable write occurs.
@@ -38,7 +44,8 @@ const KEYS: [&str; 16] = [
 /// # Errors
 /// Rejects an authority unsupported by `ic-memory`.
 pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclarationError> {
-    KEYS.into_iter()
+    KEYS.all()
+        .into_iter()
         .map(|key| MemoryRequest::new(authority, key))
         .collect()
 }
@@ -51,56 +58,31 @@ pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclaration
 /// independent freshness or permission to activate a restored installation.
 /// # Errors
 /// Preserves the host lookup's errors for an unbootstrapped runtime or missing grant.
-/// # Panics
-/// Only an inconsistent internal key count can panic.
 pub fn open<M: Memory, E>(
     mut lookup: impl FnMut(&str) -> Result<RuntimeMemory<M>, E>,
 ) -> Result<ServiceMemories<RuntimeMemory<M>>, E> {
-    let memories = KEYS
-        .into_iter()
-        .map(&mut lookup)
-        .collect::<Result<Vec<_>, _>>()?;
-    let mut memories = memories.into_iter();
-    let [
-        tenants,
-        roots,
-        objects,
-        permissions,
-        usage,
-        manifests,
-        confirmed,
-        references,
-        receipts,
-        root_requests,
-        accounting,
-        intents,
-        gateways,
-        journal,
-        sessions,
-        read_tenants,
-    ] = std::array::from_fn::<_, 16, _>(|_| memories.next().expect("fixed service grant count"));
     Ok(ServiceMemories {
         uploads: UploadMemories {
-            tenants,
-            roots,
-            objects,
-            permissions,
-            usage,
-            manifests,
-            confirmed,
-            references,
-            receipts,
-            root_requests,
+            tenants: lookup(KEYS.uploads.tenants)?,
+            roots: lookup(KEYS.uploads.roots)?,
+            objects: lookup(KEYS.uploads.objects)?,
+            permissions: lookup(KEYS.uploads.permissions)?,
+            usage: lookup(KEYS.uploads.usage)?,
+            manifests: lookup(KEYS.uploads.manifests)?,
+            confirmed: lookup(KEYS.uploads.confirmed)?,
+            references: lookup(KEYS.uploads.references)?,
+            receipts: lookup(KEYS.uploads.receipts)?,
+            root_requests: lookup(KEYS.uploads.root_requests)?,
         },
         funding: FundingMemories {
-            accounting,
-            intents,
+            accounting: lookup(KEYS.funding.accounting)?,
+            intents: lookup(KEYS.funding.intents)?,
         },
-        gateways,
+        gateways: lookup(KEYS.gateways)?,
         reads: ReadSessionMemories {
-            journal,
-            sessions,
-            tenants: read_tenants,
+            journal: lookup(KEYS.reads.journal)?,
+            sessions: lookup(KEYS.reads.sessions)?,
+            tenants: lookup(KEYS.reads.tenants)?,
         },
     })
 }

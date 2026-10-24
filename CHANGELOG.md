@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.44.3]
+
+- Share continuity-aware installed funding access and typed native schema
+  projections with embedding hosts, preserving endpoint and stored formats.
+- Make provider JSON tooling an explicit feature, retained by default for existing
+  consumers; minimal canister dependencies disable it independently of native
+  schema generation.
+- Open stable grants by named keys and validate installation encoding bounds
+  before the trapping storage boundary. Keep capacity error classifications
+  explicit and clarify that registered objects are not proof of stored bytes.
+
 ## [0.44.2] - 2026-10-24
 
 - Clarify application acceptance for multi-user uploads, browser serving and

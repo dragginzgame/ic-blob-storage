@@ -151,3 +151,18 @@ transform preservation and final-artifact/schema comparison; Blob supplies no
 Canic-specific format or framework dependency. Omitting `describe` retains the
 existing mounting invocation. Endpoint IDs, bytes, limits and lifecycle behavior
 are unchanged.
+
+## Native tooling versus deployed contracts
+
+The default `provider-json` feature preserves the SDK prepared-manifest and
+chunk-reply parsing APIs. Canister consumers that do not parse those HTTP/SDK
+payloads should select `default-features = false`; native upload tooling selects
+`provider-json` explicitly. The native `wire-schema` feature independently enables
+its JSON dependency. Other dependencies can still introduce JSON transitively;
+inspect the selected deployment graph rather than inferring Wasm size savings.
+
+Native schema hosts can call `wire::schema::projections()` to obtain `MethodSchema`
+values with catalog `spec`, `contract` budgets and request/response schemas. This
+avoids parsing names and limits back out of JSON. `methods()` remains the canonical
+serialized registry used by TypeScript generation and retained schema artifacts;
+its bytes/layout and method identities are unchanged.

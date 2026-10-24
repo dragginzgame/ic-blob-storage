@@ -54,7 +54,10 @@ pub trait ServiceHost {
 /// Linking or naming this type registers no endpoint, memory, timer or lifecycle.
 pub struct ServiceWorkflow<H>(PhantomData<fn() -> H>);
 impl<H: ServiceHost> ServiceWorkflow<H> {
-    const ACCESS: Self = Self(PhantomData);
+    /// Access the same installed owner synchronously, observing platform continuity
+    /// on every borrow, including funding callbacks. This supplies no caller or
+    /// economic evidence and registers no endpoint or lifecycle hook.
+    pub const ACCESS: Self = Self(PhantomData);
     fn observe_version() {
         H::with_installation(|installation| {
             installation.observe_platform_version(H::platform_version());
@@ -556,6 +559,17 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
         .await;
         Self::observe_version();
         outcome
+    }
+}
+impl<H: ServiceHost> crate::ops::service::funding::access::FundingJournalAccess
+    for ServiceWorkflow<H>
+{
+    type Memory = H::Memory;
+    fn with_funding_journal<R>(
+        &self,
+        operation: impl FnOnce(&mut crate::ops::service::funding::StableFundingJournal<H::Memory>) -> R,
+    ) -> R {
+        Self::mutate(|stores| operation(&mut stores.funding))
     }
 }
 impl<H: ServiceHost> RecoveryInstallationAccess for ServiceWorkflow<H> {

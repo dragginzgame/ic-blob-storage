@@ -23,7 +23,7 @@ struct ChunkReply {
 ///
 /// Transfer progress, a returned root and successful HTTP transport are not inputs
 /// to this decision. Only the exact provider indicator reports completion, and
-/// even that observation does not construct a confirmed lifecycle or prove storage.
+/// even that observation does not construct a registered lifecycle or prove storage.
 /// The transport must bound response buffering separately before calling this.
 /// # Errors
 /// Rejects oversized, malformed, missing, duplicate or wrongly typed status data.

@@ -71,9 +71,12 @@ impl ConfigurationRecord {
     }
 }
 crate::model::record_codec::storable!(
-    ConfigurationRecord, bytes: 16_384, work: 100_000, skipping: 1024,
-    types: 64, header: 16_384,
+    ConfigurationRecord, bytes: MAX_CONFIGURATION_BYTES, work: 100_000, skipping: 1024,
+    types: 64, header: MAX_CONFIGURATION_BYTES,
     layout: ic_storage::adapter::storable::Bound::Bounded {
-        max_size: 16_384, is_fixed_size: false,
+        max_size: MAX_CONFIGURATION_BYTES, is_fixed_size: false,
     },
 );
+
+/// Maximum encoded installation size, shared by candidate admission and storage.
+pub(crate) const MAX_CONFIGURATION_BYTES: u32 = 16_384;

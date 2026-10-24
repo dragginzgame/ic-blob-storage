@@ -2,7 +2,7 @@
 pub mod reply;
 
 use crate::dto::upload::history::UploadHistoryFilter;
-/// Distinct logical, physical and economic stages of a confirmed object's release.
+/// Distinct logical, physical and economic stages of a registered object's release.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum LifecyclePhase {
     /// At least one live reference remains.
@@ -15,7 +15,7 @@ pub enum LifecyclePhase {
     Settled,
 }
 
-/// Local root state spanning reservations and confirmed lifecycle history.
+/// Local root state spanning reservations and registered lifecycle history.
 /// None of these observations grants deletion permission or proves provider state.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum UploadRootState {
@@ -23,7 +23,8 @@ pub enum UploadRootState {
     Reserved,
     /// Cancelled before exposure; root history remains claimed, not reusable.
     Cancelled,
-    /// Current confirmed-object phase, including retained settlement history.
+    /// Current registered-object phase, including retained settlement history.
+    /// The historical variant name does not establish provider upload or availability.
     Confirmed(LifecyclePhase),
 }
 
@@ -36,7 +37,7 @@ pub enum UploadScanFilter {
     Active,
     /// Last reference released, physical deletion still unresolved.
     DeletionPending,
-    /// Active uploads or confirmed objects with any unresolved obligation.
+    /// Active uploads or registered objects with any unresolved obligation.
     Outstanding,
 }
 impl UploadScanFilter {
