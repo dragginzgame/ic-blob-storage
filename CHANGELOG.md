@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.46.0]
+## [0.46.0] - 2026-10-24
 
 - **Breaking:** adopt Memory/Storage 0.51.0. Embedding hosts must select Memory
   0.51 alongside Blob because its public memory types have new Cargo identities.
