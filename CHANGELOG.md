@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.44.2]
+## [0.44.2] - 2026-10-24
 
 - Clarify application acceptance for multi-user uploads, browser serving and
   project-payer funding, with explicit evidence and uncertainty stop conditions.
