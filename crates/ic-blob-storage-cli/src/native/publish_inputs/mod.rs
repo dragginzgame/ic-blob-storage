@@ -145,16 +145,20 @@ fn metadata(
 }
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = super::parsing::flags(&args[1..])?;
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let flags = super::arguments::parse(args)?;
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let inventory_path = Path::new(take("--inventory")?);
     let root = paths::Root::new(Path::new(take("--root")?))?;
     let installation_path = Path::new(take("--installation")?);
     let maximum: NonZeroU64 = positive(take("--max-bytes")?)?;
     let total_maximum: NonZeroU64 = positive(take("--max-total-bytes")?)?;
     let directory = Path::new(take("--run-dir")?);
-    if !flags.is_empty() || maximum.get() > MAX_FILE_BYTES || total_maximum.get() > MAX_TOTAL_BYTES
-    {
+    if maximum.get() > MAX_FILE_BYTES || total_maximum.get() > MAX_TOTAL_BYTES {
         return Err(Failure::Arguments);
     }
     let inventory_bytes = read(inventory_path, INVENTORY_BYTES)?;

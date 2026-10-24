@@ -2,7 +2,7 @@
 pub mod access;
 mod admission;
 pub mod assessment;
-mod boundary;
+pub(crate) mod boundary;
 pub mod credit;
 pub mod history;
 pub mod outcome;

@@ -24,7 +24,7 @@ organized by the job a reader is trying to do.
 | --- | --- |
 | [Dependency setup](dependencies.md) | Rust, browser, PocketIC and memory-composition setup |
 | [Local tools](local-tools.md) | Preparing files and using local fixtures |
-| [Operator and verifier guide](operator-guide.md) | Installation, publication, inspection, references, verification and recovery |
+| [Operator guide](operator-guide.md) | Installation, publication, inspection, references, verification and recovery |
 | [Standalone trial](standalone-trial.md) | Historical live-trial scope, retained obligations and current constraints |
 | [Supported hosts](supported-hosts.md) | Host-platform expectations and prerequisites |
 

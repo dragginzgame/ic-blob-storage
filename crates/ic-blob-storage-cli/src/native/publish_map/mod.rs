@@ -7,6 +7,7 @@ use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
+use ic_blob_storage_contracts::protocol;
 use ic_blob_storage_contracts::protocol::REFERENCE_STATUS_METHOD;
 use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
 use ic_blob_storage_contracts::provider::download::request_target;
@@ -56,7 +57,7 @@ pub(super) async fn query(
     method: &'static str,
     args: Vec<u8>,
 ) -> Result<Vec<u8>, Failure> {
-    let agent = if method == "blob_configuration" {
+    let agent = if method == protocol::BLOB_CONFIGURATION_METHOD {
         operator
     } else {
         tenant
@@ -226,8 +227,8 @@ where
     let bytes = super::query::observe(
         run,
         0,
-        "blob_configuration",
-        ic_blob_storage_contracts::wire::encode_request("blob_configuration", ())
+        protocol::BLOB_CONFIGURATION_METHOD,
+        ic_blob_storage_contracts::wire::encode_request(protocol::BLOB_CONFIGURATION_METHOD, ())
             .map_err(|_| Failure::Arguments)?,
         query,
     )
@@ -246,7 +247,7 @@ pub(in crate::native) fn decode_configuration(
     }
     let host: Result<HostConfigurationView, HostFailure> =
         ic_blob_storage_contracts::wire::decode_response(
-            "blob_configuration",
+            protocol::BLOB_CONFIGURATION_METHOD,
             bytes,
             exact_wire::INSTALLATION_BYTES,
         )

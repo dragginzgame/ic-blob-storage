@@ -71,6 +71,39 @@ capacity checks and pure lifecycle transitions are available without it.
 
 Do not infer production feature admission from a workspace-wide unified build.
 
+## Open native Agent advisory
+
+[Blob #102](https://github.com/dragginzgame/ic-blob-storage/issues/102) tracks
+RUSTSEC-2026-0387. The 2026-10-24 working lock at released source `dcbb881`
+(SHA-256 `da403d6db61b72a1f635bff19e7c9f3d1dfaf49629dac9d5f0fd6cfaf5dda8e2`)
+selects Platform 0.6.11 and Agent 0.49.3, whose elliptic-curve 0.13.8 paths
+select crypto-bigint 0.5.5. RustSec revision
+`1645308cb4766561b0b274d8c93f7033a766fc96` requires crypto-bigint >=0.7.6.
+This is the incoming working lock, not a claim about the released lock.
+
+The Linux native CLI's normal/build graph includes the affected package.
+Its [identity loader](../crates/ic-blob-storage-cli/src/native/mod.rs) supports
+secp256k1 PEM signing as well as Ed25519; this is not a verification-only consumer.
+The advisory concerns potentially secret-dependent arithmetic; the graph and
+signing path identify a review obligation, not measured exploitability on a
+particular compiler or CPU. Selecting an Ed25519 identity does not remove the
+affected dependency or establish a package-wide exemption.
+
+The standalone's normal/build `wasm32-unknown-unknown` graph excludes crypto-bigint
+and Agent. The existing `make contracts-boundary-check` rejects deployed Agent
+and other native owners. This target-specific graph evidence is distinct from a
+linked-Wasm scan and does not qualify downstream host feature selections.
+
+[Platform #50](https://github.com/dragginzgame/ic-platform/issues/50) owns the
+supplying correction. The older elliptic-curve requirement cannot accept the
+patched crypto-bigint line through a lock-only update. Retain the supported
+identity contract until a compatible supplier correction is available; do not
+force a crypto override, implement local arithmetic or suppress the advisory.
+After adoption, rerun the current-feed audit, native identity/Agent tests, MSRV
+and deployment boundary checks. No exemption or security fix is claimed here.
+
+## Native tooling boundaries
+
 Host owns descriptor-rooted inventory and journal reads, retained creation,
 validated publication and bounded subprocess framing. Blob retains input bounds,
 request/reply correlation, JSON contracts, uncertainty records and error mapping.
@@ -123,8 +156,14 @@ Serde codec. Passive offline values use a separate document identity, and new
 application artifacts use `.wire`. Exact saved-input and signed-frame binding
 remains with the CLI/workflow owner.
 
-Blob has no direct Ciborium dependency or local CBOR implementation. Incoming
-Memory 0.49 removes the remaining Ciborium tree; its ledger codec and byte
+Native command grammar uses Clap with standard help, usage and error context;
+color and suggestion features are not selected. Command handlers retain domain
+validation. Blob and probe argument errors remain sanitized so identity/path inputs
+are not echoed; generated help documents syntax without dispatching an operation.
+Clap is excluded from canister targets.
+
+Blob has no direct Ciborium dependency or local CBOR implementation. The adopted
+Memory codec removes the former Ciborium tree; its ledger codec and byte
 contract stay Memory-owned. Native test `serde_cbor` remains
 for IC transport envelopes and certificates. Provider/management Candid and
 stored records retain their external/persisted contracts. Platform owns the
@@ -349,7 +388,6 @@ for remote calls. The old Core client paths are removed in the released 0.35.0
 public cut. Core owns installed service state and workflows; consumers retain
 intent, retry decisions, application publication and uncertain-outcome recovery.
 The client package installs no endpoints, lifecycle hooks, stores or timers.
-Publishing proceeds Contracts, Client, Core. All three 0.35.0 packages are now
-available from crates.io. Only maintainer release preparation advances their
+Publishing proceeds Contracts, Client, Core. Only maintainer release preparation advances their
 coherent workspace version; registry publication does not qualify consumer
 runtime composition or provider behavior.

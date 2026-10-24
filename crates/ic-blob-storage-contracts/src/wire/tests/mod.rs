@@ -99,3 +99,24 @@ fn lifecycle_constants_remain_separate_from_callable_methods() {
         );
     }
 }
+
+#[test]
+fn generic_helpers_enforce_declared_tenant_response_and_traversal_limits() {
+    let method = crate::protocol::TENANT_INSPECTION_METHOD;
+    let oversized = vec![0u8; 1024];
+    assert!(super::encode_response(method, &oversized).is_err());
+    let permissive = super::limits(super::MAX_MESSAGE_BYTES);
+    let frame =
+        ic_wire::native::encode_response(super::identity(method).unwrap(), &oversized, permissive)
+            .unwrap();
+    assert!(super::decode_response::<Vec<u8>>(method, &frame, super::MAX_MESSAGE_BYTES).is_err());
+    // Small bytes still exceed the tenant traversal budget; the generic path must
+    // not silently substitute the ordinary service's larger node allowance.
+    let many_nodes = vec![0u8; 100];
+    let frame =
+        ic_wire::native::encode_request(super::identity(method).unwrap(), &many_nodes, permissive)
+            .unwrap();
+    assert!(frame.len() < super::tenant::MAX_REQUEST_BYTES);
+    assert!(super::decode_request::<Vec<u8>>(method, &frame, 512).is_err());
+    assert!(super::encode_request(method, &many_nodes).is_err());
+}

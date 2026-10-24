@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.44.0]
+
+- Use Clap for native command grammar, duplicate/unknown/required flags and generated
+  help, including provider probes and package qualification. Preserve Blob's JSON
+  version and sanitized argument-error output, command names and domain validation.
+  Clap remains native-only; no canister dependency or protocol change is introduced.
+- Remove the forwarding-only reference-status ops entry point; the existing public
+  workflow owns parsing and observation. Refresh current storage/funding guidance.
+
+- Isolate standalone qualification from probe feature unification and reject
+  private fixture packages in deployment graphs. Apply catalog codec budgets to
+  generic helpers and use catalog method names in native commands.
+- Remove the unused Core Candid billing-configuration and operator-amount input
+  API (`FundingLimitsInput`, `BillingConfigurationInput`,
+  `BillingConfigurationInputError`, `configuration_from_candid`,
+  `funding_limits_from_candid`, `funding_from_nat`, `parse_funding_cycles`) and
+  their obsolete error/field variants. Use Contracts configuration validation
+  and positive typed amounts; provider balance conversion remains supported.
+- Resolve certificate roots once per installed operation, retain final exposure
+  checks, and inspect outcomes only when needed. Test-support exposure completion
+  now returns `Exposed` without a response payload; inspect retained state explicitly.
+  Consolidate remaining history/operator workflows and decoder configuration.
+
+- Consolidate endpoint policy and tenant wire types, ordered tenant admission,
+  synchronous installation access and private probe journals. Preserve protocol
+  identities, encoded bytes and persisted records. Production dependency checks
+  now reject fixture-only access features.
+- Replace `wire::tenant::{Enrollment, Failure}` imports with
+  `dto::tenant::{TenantEnrollment, TenantFailure}`. Borrowed scope and response
+  projections remain supported. Follow the existing retirement/reinstall policy
+  across releases; same-release recovery remains required.
+- Refresh provider and consumer acceptance guidance and archive superseded
+  verifier-era instructions and release handoffs.
+
 ## [0.43.4] - 2026-10-23
 
 - Expose compile-time Wire IDs and complete codec budgets through an optional

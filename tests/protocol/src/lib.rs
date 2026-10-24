@@ -97,3 +97,7 @@ pub mod balance;
 pub mod billing;
 
 pub mod fixture_candid;
+
+/// Bounded same-release probe journals; excluded unless a fixture selects them.
+#[cfg(feature = "fixture-storage")]
+pub mod fixture_storage;

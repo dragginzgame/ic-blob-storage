@@ -16,87 +16,105 @@ pub const MAX_MESSAGE_BYTES: usize = 4 * 1024 * 1024;
 /// Native traversal ceiling, independent of the initial platform argument buffer.
 pub const MAX_DEPTH: usize = 32;
 
+// Policy is declared beside the mounted signature. Lifecycle frames are host-owned.
+macro_rules! contract {
+    (external; $($entry:tt)*) => {
+        None
+    };
+    ($id:literal; $mode:ident, tenant_inspection, $($entry:tt)*) => {
+        Some(crate::endpoints::WireContract {
+            id: $id,
+            request: tenant::LIMITS,
+            response: tenant::LIMITS,
+        })
+    };
+    ($id:literal; $mode:ident, tenant_update, $($entry:tt)*) => {
+        Some(crate::endpoints::WireContract {
+            id: $id,
+            request: tenant::LIMITS,
+            response: tenant::LIMITS,
+        })
+    };
+    ($id:literal; $mode:ident, manifest, $($entry:tt)*) => {
+        Some(crate::endpoints::WireContract {
+            id: $id,
+            request: limits(128 * 1024),
+            response: limits(MAX_MESSAGE_BYTES),
+        })
+    };
+    ($id:literal; $($entry:tt)*) => {
+        Some(crate::endpoints::WireContract {
+            id: $id,
+            request: limits(4096),
+            response: limits(MAX_MESSAGE_BYTES),
+        })
+    };
+}
+macro_rules! contracts {
+    ($emit:ident; $([$constant:ident, $id:tt; $($entry:tt)*])*) => {
+        pub(crate) const fn selected_contract(method: &str) -> Result<crate::endpoints::WireContract, Error> {
+            $(const $constant: &[u8] = crate::protocol::$constant.as_bytes();)*
+            match method.as_bytes() {
+                $($constant => match contract!($id; $($entry)*) {
+                    Some(value) => Ok(value), None => Err(Error::Identity),
+                },)*
+                // Lifecycle inputs are host-owned and are not callable service methods.
+                b"blob_install" => Ok(crate::endpoints::WireContract {
+                    id: 0x424c_4f42_0042_ff01, request: limits(16 * 1024), response: limits(MAX_MESSAGE_BYTES),
+                }),
+                b"blob_post_upgrade" => Ok(crate::endpoints::WireContract {
+                    id: 0x424c_4f42_0042_ff02, request: limits(4096), response: limits(MAX_MESSAGE_BYTES),
+                }),
+                _ => Err(Error::Identity),
+            }
+        }
+    };
+}
+crate::__blob_service_catalog!(
+    dispatch = [contracts],
+    emit = unused,
+    workflow = unused,
+    context = unused,
+    contracts = crate,
+    clock = unused,
+    caller = unused,
+    trap = unused,
+);
 /// Consumer-assigned stable identity. Unknown and provider method names refuse.
 /// # Errors
 /// Returns an identity error for methods outside the owned Wire surface.
 pub const fn identity(method: &str) -> Result<u64, Error> {
-    Ok(match method.as_bytes() {
-        b"blob_tenant" => 0x424c_4f42_0043_001a,
-        b"blob_update_tenant" => 0x424c_4f42_0043_001b,
-        b"blob_resume_current_instance" => 0x424c_4f42_0042_0001,
-        b"blob_configuration" => 0x424c_4f42_0042_0002,
-        b"blob_local_status" => 0x424c_4f42_0042_0003,
-        b"blob_admit_upload" => 0x424c_4f42_0042_0004,
-        b"blob_upload_admission" => 0x424c_4f42_0042_0005,
-        b"blob_upload_status" => 0x424c_4f42_0042_0006,
-        b"blob_revoke_upload" => 0x424c_4f42_0042_0007,
-        b"blob_prepare_upload" => 0x424c_4f42_0042_0008,
-        b"blob_upload_certificate_assessment" => 0x424c_4f42_0042_0009,
-        b"blob_upload_manifest" => 0x424c_4f42_0042_000a,
-        b"blob_apply_reference" => 0x424c_4f42_0042_000b,
-        b"blob_reference_receipt" => 0x424c_4f42_0042_000c,
-        b"blob_upload_history" => 0x424c_4f42_0042_000d,
-        b"blob_funding_history" => 0x424c_4f42_0042_000e,
-        b"blob_funding_outcome" => 0x424c_4f42_0042_000f,
-        b"blob_funding_preparation_assessment" => 0x424c_4f42_0042_0010,
-        b"blob_revoke_gateway" => 0x424c_4f42_0042_0011,
-        b"blob_sync_gateways" => 0x424c_4f42_0042_0012,
-        b"blob_cancel_gateway_sync" => 0x424c_4f42_0042_0013,
-        b"blob_upload_capacity" => 0x424c_4f42_0042_0014,
-        b"blob_reference_capacity" => 0x424c_4f42_0042_0015,
-        b"blob_lookup_content" => 0x424c_4f42_0042_0016,
-        b"blob_download_descriptor" => 0x424c_4f42_0042_0017,
-        b"blob_reference_status" => 0x424c_4f42_0042_0018,
-        b"blob_inspect_account" => 0x424c_4f42_0042_0019,
-        b"blob_install" => 0x424c_4f42_0042_ff01,
-        b"blob_post_upgrade" => 0x424c_4f42_0042_ff02,
-        _ => return Err(Error::Identity),
-    })
+    match selected_contract(method) {
+        Ok(value) => Ok(value.id),
+        Err(error) => Err(error),
+    }
 }
 /// Complete request ceiling, including the eleven-byte Wire header.
 /// # Errors
 /// Refuses names outside this contract.
 pub const fn request_limit(method: &str) -> Result<usize, Error> {
-    if let Err(error) = identity(method) {
-        return Err(error);
+    match selected_contract(method) {
+        Ok(value) => Ok(value.request.bytes),
+        Err(error) => Err(error),
     }
-    Ok(match method.as_bytes() {
-        b"blob_tenant" | b"blob_update_tenant" => tenant::MAX_REQUEST_BYTES,
-        b"blob_prepare_upload" => 128 * 1024,
-        b"blob_install" => 16 * 1024,
-        _ => 4096,
-    })
 }
 /// Complete admission budgets for the mounted request codec.
 /// # Errors
 /// Refuses unknown and external provider methods.
 pub const fn request_limits(method: &str) -> Result<Limits, Error> {
-    let bytes = match request_limit(method) {
-        Ok(bytes) => bytes,
-        Err(error) => return Err(error),
-    };
-    Ok(
-        if matches!(method.as_bytes(), b"blob_tenant" | b"blob_update_tenant") {
-            tenant::LIMITS
-        } else {
-            limits(bytes)
-        },
-    )
+    match selected_contract(method) {
+        Ok(value) => Ok(value.request),
+        Err(error) => Err(error),
+    }
 }
 /// Complete admission budgets for the mounted response codec.
 /// # Errors
 /// Refuses unknown and external provider methods.
 pub const fn response_limits(method: &str) -> Result<Limits, Error> {
-    if let Err(error) = identity(method) {
-        return Err(error);
+    match selected_contract(method) {
+        Ok(value) => Ok(value.response),
+        Err(error) => Err(error),
     }
-    Ok(
-        if matches!(method.as_bytes(), b"blob_tenant" | b"blob_update_tenant") {
-            tenant::LIMITS
-        } else {
-            limits(MAX_MESSAGE_BYTES)
-        },
-    )
 }
 const fn limits(bytes: usize) -> Limits {
     Limits {
@@ -110,7 +128,7 @@ const fn limits(bytes: usize) -> Limits {
 /// # Errors
 /// Refuses unknown identities and values outside encoding/traversal allowances.
 pub fn encode_request<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, Error> {
-    native::encode_request(identity(method)?, &value, limits(request_limit(method)?))
+    native::encode_request(identity(method)?, &value, request_limits(method)?)
 }
 /// Admit and decode a complete request under the selected endpoint identity.
 /// # Errors
@@ -123,14 +141,17 @@ pub fn decode_request<'de, T: Serialize + Deserialize<'de>>(
     native::decode_request(
         identity(method)?,
         bytes,
-        limits(max.min(request_limit(method)?)),
+        Limits {
+            bytes: max.min(request_limit(method)?),
+            ..request_limits(method)?
+        },
     )
 }
 /// Encode one complete response; encoding failure must trap after local effects.
 /// # Errors
 /// Refuses unknown identities and values outside encoding/traversal allowances.
 pub fn encode_response<T: Serialize>(method: &str, value: T) -> Result<Vec<u8>, Error> {
-    native::encode_response(identity(method)?, &value, limits(MAX_MESSAGE_BYTES))
+    native::encode_response(identity(method)?, &value, response_limits(method)?)
 }
 /// Decode an independently authenticated reply under the exact original method.
 /// # Errors
@@ -140,7 +161,14 @@ pub fn decode_response<'de, T: Serialize + Deserialize<'de>>(
     bytes: &'de [u8],
     max: usize,
 ) -> Result<T, Error> {
-    native::decode_response(identity(method)?, bytes, limits(max.min(MAX_MESSAGE_BYTES)))
+    native::decode_response(
+        identity(method)?,
+        bytes,
+        Limits {
+            bytes: max.min(response_limits(method)?.bytes),
+            ..response_limits(method)?
+        },
+    )
 }
 
 #[cfg(test)]

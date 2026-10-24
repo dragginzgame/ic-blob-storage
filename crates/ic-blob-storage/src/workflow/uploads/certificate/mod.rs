@@ -21,7 +21,7 @@ pub fn inspect_installation<M: Memory>(
     inspect(
         &installation.stores().uploads,
         context,
-        root,
+        permission,
         installation.certificate_evidence(permission, now),
         now,
     )
@@ -46,7 +46,7 @@ pub fn issue_installation<M: Memory>(
     issue(
         &mut installation.stores_mut().uploads,
         context,
-        root,
+        permission,
         evidence,
         now,
     )
@@ -63,4 +63,5 @@ pub enum UploadCertificateFailure {
 }
 
 pub(crate) mod boundary;
-use boundary::{inspect, issue, resolve};
+use crate::ops::service::uploads::certificate::resolve;
+use boundary::{inspect, issue};

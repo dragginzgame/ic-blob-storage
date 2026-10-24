@@ -5,7 +5,6 @@ use crate::model::service::upload::UploadPermissionView;
 use crate::policy::upload::exposure::UploadExposureHostEvidence;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
-use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
@@ -31,7 +30,7 @@ pub fn blockers(
         })
         .collect()
 }
-fn permission<M: Memory>(
+pub(crate) fn permission<M: Memory>(
     store: &StableUploads<M>,
     context: UploadContext,
     input: UploadAdmissionRequest,
@@ -80,14 +79,6 @@ pub(crate) fn commit<M: Memory>(
     store
         .expose(context, permission.request, now)
         .map_err(failure)
-}
-pub(crate) fn inspect<M: Memory>(
-    store: &StableUploads<M>,
-    context: UploadContext,
-    input: UploadAdmissionRequest,
-) -> Result<UploadAdmissionResponse, UploadExposureFailure> {
-    let view = permission(store, context, input, false)?;
-    admission::present(input, &view).map_err(UploadExposureFailure::Permission)
 }
 pub(super) fn failure(error: UploadStoreError) -> UploadExposureFailure {
     use UploadAdmissionError as A;

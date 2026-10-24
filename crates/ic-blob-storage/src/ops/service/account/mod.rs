@@ -15,7 +15,6 @@ use crate::ops::caffeine::relationship::PaymentRelationshipProviderError;
 use crate::ops::caffeine::relationship::PaymentRelationshipReply;
 use crate::ops::caffeine::relationship::PaymentRelationshipReplyError;
 
-use crate::ops::service::operator;
 use crate::ops::service::operator::OperatorStores;
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
 use ic_blob_storage_contracts::dto::account::AccountInspectionKind;
@@ -23,7 +22,6 @@ use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::account::AccountObservation;
 use ic_blob_storage_contracts::dto::account::AccountRelationshipView;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
-use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
 
 /// Synchronous host borrowing across independent stages; never retain borrows over await.
@@ -34,26 +32,6 @@ pub trait AccountInspectionAccess {
     type Memory: Memory;
     /// Borrow the same installed owners on every call, without performing transport.
     fn with_account_stores<R>(&self, f: impl FnOnce(OperatorStores<'_, Self::Memory>) -> R) -> R;
-}
-pub(crate) fn check<M: Memory>(
-    stores: OperatorStores<'_, M>,
-    context: UploadContext,
-    input: AccountInspectionRequest,
-) -> Result<(), AccountInspectionFailure> {
-    use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
-    let status = operator::inspect(stores, context, input.scope).map_err(|e| match e {
-        LocalStatusFailure::Denied => AccountInspectionFailure::Denied,
-        LocalStatusFailure::Binding => AccountInspectionFailure::Binding,
-        LocalStatusFailure::Internal => AccountInspectionFailure::Internal,
-    })?;
-    if status.uploads.fenced
-        || status.funding.fenced
-        || status.gateways.fenced
-        || status.reads.fenced
-    {
-        return Err(AccountInspectionFailure::Fenced);
-    }
-    Ok(())
 }
 pub(crate) fn request(
     input: AccountInspectionRequest,

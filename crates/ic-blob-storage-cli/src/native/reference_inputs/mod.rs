@@ -49,8 +49,13 @@ impl ReferenceFiles {
     }
 }
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = super::parsing::flags(&args[1..])?;
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let flags = super::arguments::parse(args)?;
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let path = Path::new(take("--permission")?);
     let action = match take("--action")? {
         "retain" => ReferenceAction::Retain,
@@ -60,9 +65,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
     let reference = positive(take("--reference")?)?;
     let operation = positive(take("--operation")?)?;
     let directory = Path::new(take("--run-dir")?);
-    if !flags.is_empty() {
-        return Err(Failure::Arguments);
-    }
     let permission_bytes = read(path, 4096)?;
     let permission: UploadAdmissionRequest =
         crate::native::exact_wire::decode(&permission_bytes, 4096)?;

@@ -164,7 +164,7 @@ where a malformed ledger blocks an otherwise sufficient total. This preserves
 Canic's complete numeric validation; its source conversion hash still matches
 the captured inventory.
 
-[Configuration conversion](../../crates/ic-blob-storage/src/ops/billing/configuration/mod.rs)
+[Configuration conversion](https://github.com/dragginzgame/ic-blob-storage/blob/dcbb8811ccc1e4fdd61c7e9ddf8fc25457c95386/crates/ic-blob-storage/src/ops/billing/configuration/mod.rs)
 builds a [validated candidate](../../crates/ic-blob-storage-contracts/src/configuration/billing/mod.rs)
 combining Cashier principal, funding limits and gateway bounds. Anonymous and
 management Cashier principals reject. Both gateway limits must be positive and

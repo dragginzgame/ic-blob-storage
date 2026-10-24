@@ -18,13 +18,12 @@ macro_rules! storable {
             }
             fn from_bytes(bytes: std::borrow::Cow<'_, [u8]>) -> Self {
                 assert!(bytes.len() <= $bytes as usize, "stable record byte bound");
-                let mut config = ic_platform::candid::decoder::DecoderConfig::new();
-                config
-                    .set_decoding_quota($work)
-                    .set_skipping_quota($skipping)
-                    .set_max_type_len($types)
-                    .set_max_header_len($header as usize)
-                    .set_full_error_message(false);
+                let config = ic_blob_storage_contracts::decoding::limits(
+                    $work,
+                    $skipping,
+                    $types,
+                    Some($header as usize),
+                );
                 ic_platform::candid::decoder::decode_one_with_config(&bytes, &config)
                     .expect("valid same-release record")
             }

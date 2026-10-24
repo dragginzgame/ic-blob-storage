@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::account::AccountInspectionResponse;
 use ic_blob_storage_contracts::dto::account::AccountObservation as Observation;
+use ic_blob_storage_contracts::protocol;
 use serde_json::{Value, json};
 
 pub(super) fn kind(value: &str) -> Result<Kind, Failure> {
@@ -18,8 +19,11 @@ fn decode(
     request: AccountInspectionRequest,
     bytes: &[u8],
 ) -> Result<AccountInspectionResponse, Failure> {
-    let reply: Result<AccountInspectionResponse, E> =
-        super::reply::decode_small("blob_inspect_account", bytes, Failure::ReplyTooLarge)?;
+    let reply: Result<AccountInspectionResponse, E> = super::reply::decode_small(
+        protocol::BLOB_INSPECT_ACCOUNT_METHOD,
+        bytes,
+        Failure::ReplyTooLarge,
+    )?;
     let response = reply.map_err(Failure::AccountRefused)?;
     if response.request != request {
         return Err(Failure::Binding);
@@ -55,12 +59,15 @@ pub(super) async fn run(
     request: AccountInspectionRequest,
 ) -> Result<Value, Failure> {
     let agent = agent(options)?;
-    let argument = ic_blob_storage_contracts::wire::encode_request("blob_inspect_account", request)
-        .map_err(|_| Failure::Arguments)?;
+    let argument = ic_blob_storage_contracts::wire::encode_request(
+        protocol::BLOB_INSPECT_ACCOUNT_METHOD,
+        request,
+    )
+    .map_err(|_| Failure::Arguments)?;
     let bytes = super::inspection_update(
         &agent,
         request.scope.service,
-        "blob_inspect_account",
+        protocol::BLOB_INSPECT_ACCOUNT_METHOD,
         argument,
     )
     .await?;

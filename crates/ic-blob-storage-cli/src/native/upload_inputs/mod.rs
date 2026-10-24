@@ -204,15 +204,20 @@ fn validate_namespaces(
 }
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = super::parsing::flags(&args[1..])?;
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let flags = super::arguments::parse(args)?;
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let binding_path = Path::new(take("--binding")?);
     let installation_path = Path::new(take("--installation")?);
     let manifest_path = Path::new(take("--manifest")?);
     let maximum: NonZeroU64 = positive(take("--max-bytes")?)?;
     let directory = Path::new(take("--run-dir")?);
     let body_path = Path::new(take("--body")?);
-    if !flags.is_empty() || maximum.get() > 1024 * 1024 * 1024 {
+    if maximum.get() > 1024 * 1024 * 1024 {
         return Err(Failure::Arguments);
     }
     PreparedInput::load(InputFiles {

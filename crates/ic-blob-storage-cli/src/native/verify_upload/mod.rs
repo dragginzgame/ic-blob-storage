@@ -5,6 +5,7 @@ use super::{
 };
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
+use ic_blob_storage_contracts::protocol;
 use ic_blob_storage_contracts::upload::admission::reply::validate_request;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
@@ -56,7 +57,7 @@ impl Verification {
         url: &str,
     ) -> Result<Value, Failure> {
         let declaration = reply::inspection(
-            "blob_upload_manifest",
+            protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
             self.permission,
             response,
             manifest_reply_limits(self.max_bytes),

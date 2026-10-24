@@ -1,4 +1,5 @@
 //! Exact local upload reservation/preparation; no certificate or provider dispatch.
+use ic_blob_storage_contracts::protocol;
 mod dispatch;
 mod request;
 use super::{Failure, arguments::Options, query, references};
@@ -63,11 +64,11 @@ impl Kind {
     }
     pub const fn method(self) -> &'static str {
         match self {
-            Self::Admit => ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_METHOD,
-            Self::Revoke => ic_blob_storage_contracts::protocol::UPLOAD_REVOCATION_METHOD,
-            Self::Permission => ic_blob_storage_contracts::protocol::UPLOAD_ADMISSION_STATUS_METHOD,
-            Self::Prepare => ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD,
-            Self::Manifest => ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
+            Self::Admit => protocol::UPLOAD_ADMISSION_METHOD,
+            Self::Revoke => protocol::UPLOAD_REVOCATION_METHOD,
+            Self::Permission => protocol::UPLOAD_ADMISSION_STATUS_METHOD,
+            Self::Prepare => protocol::UPLOAD_MANIFEST_PREPARE_METHOD,
+            Self::Manifest => protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
         }
     }
 }
@@ -182,7 +183,7 @@ fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<SetupObse
         }
         Kind::Manifest => SetupObservation::Manifest {
             response: manifest_reply::inspection(
-                "blob_upload_manifest",
+                protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
                 saved.payload.permission(),
                 bytes,
                 manifest_reply_limits(

@@ -4,6 +4,8 @@ use crate::ops::caffeine::query::transport::CashierQueryTransport;
 use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
 use crate::ops::service::account;
 use crate::ops::service::account::AccountInspectionAccess;
+use crate::ops::service::operator::OperatorStores;
+use ic_memory::Memory;
 
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
@@ -26,10 +28,10 @@ pub async fn inspect<
     input: AccountInspectionRequest,
     limits: CaffeineReplyLimits,
 ) -> Result<AccountInspectionResponse, AccountInspectionFailure> {
-    host.with_account_stores(|stores| account::check(stores, context, input))?;
+    host.with_account_stores(|stores| check(stores, context, input))?;
     let request = account::request(input)?;
     let response = transport.query(&request, limits.max_bytes).await;
-    host.with_account_stores(|stores| account::check(stores, context, input))?;
+    host.with_account_stores(|stores| check(stores, context, input))?;
     let observation = account::decode(
         &request,
         &response.map_err(account::transport_error)?,
@@ -39,4 +41,26 @@ pub async fn inspect<
         request: input,
         observation,
     })
+}
+
+fn check<M: Memory>(
+    stores: OperatorStores<'_, M>,
+    context: UploadContext,
+    input: AccountInspectionRequest,
+) -> Result<(), AccountInspectionFailure> {
+    use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
+    let status =
+        crate::workflow::operator::inspect(stores, context, input.scope).map_err(|e| match e {
+            LocalStatusFailure::Denied => AccountInspectionFailure::Denied,
+            LocalStatusFailure::Binding => AccountInspectionFailure::Binding,
+            LocalStatusFailure::Internal => AccountInspectionFailure::Internal,
+        })?;
+    if status.uploads.fenced
+        || status.funding.fenced
+        || status.gateways.fenced
+        || status.reads.fenced
+    {
+        return Err(AccountInspectionFailure::Fenced);
+    }
+    Ok(())
 }

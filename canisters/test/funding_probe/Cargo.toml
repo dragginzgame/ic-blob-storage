@@ -10,7 +10,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-blob-test-protocol.workspace = true
+blob-test-protocol = { workspace = true, features = ["fixture-storage"] }
 ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
 ic-memory = { workspace = true, features = ["test-support"] }

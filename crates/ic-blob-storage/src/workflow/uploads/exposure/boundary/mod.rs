@@ -5,7 +5,6 @@ use crate::policy::upload::exposure::UploadExposureAssessment;
 use crate::policy::upload::exposure::UploadExposureHostEvidence;
 use crate::policy::upload::exposure::assess_exposure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
-use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
@@ -16,7 +15,7 @@ pub enum UploadExposureResult {
     Blocked(UploadExposureAssessment),
     /// Possible exposure is now retained. This does not establish stored bytes,
     /// actual certificate delivery or permission to repeat an uncertain effect.
-    Exposed(Box<UploadAdmissionResponse>),
+    Exposed,
 }
 /// Inspect actual local eligibility and independently supplied current host facts.
 /// Admission enforces installed quotas. The host must derive uploader trust, local
@@ -55,7 +54,5 @@ pub fn commit<M: Memory>(
         return Ok(UploadExposureResult::Blocked(assessment));
     }
     exposure::commit(store, context, permission, now)?;
-    Ok(UploadExposureResult::Exposed(Box::new(exposure::inspect(
-        store, context, input,
-    )?)))
+    Ok(UploadExposureResult::Exposed)
 }

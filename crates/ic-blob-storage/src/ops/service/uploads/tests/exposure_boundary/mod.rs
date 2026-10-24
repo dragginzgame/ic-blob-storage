@@ -151,11 +151,12 @@ fn exposure_binds_complete_permission_and_current_evidence_before_any_write() {
         UploadState::Reserved
     );
     assert_eq!(store.usage().unwrap(), usage);
-    let UploadExposureResult::Exposed(result) =
+    let UploadExposureResult::Exposed =
         exposure::commit(&mut store, context(5), p, yes, 2).unwrap()
     else {
         panic!("qualified local exposure")
     };
+    let result = exposure::inspect(&store, context(5), p).unwrap();
     assert_eq!(result.permission, p);
     assert_eq!(result.state, UploadState::Registered);
     assert_eq!(

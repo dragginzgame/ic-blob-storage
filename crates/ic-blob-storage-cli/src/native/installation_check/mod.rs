@@ -12,16 +12,18 @@ use std::path::Path;
 const CONFIGURATION_BYTES: usize = exact_wire::INSTALLATION_BYTES;
 
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = super::parsing::flags(&args[1..])?;
-    let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
+    let flags = super::arguments::parse(args)?;
+    let take = |key| {
+        flags
+            .get_one::<String>(key)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let path = Path::new(take("--configuration")?);
     let service = principal(take("--service")?)?;
     let project = take("--project")?;
     let release = take("--release")?;
     let directory = Path::new(take("--run-dir")?);
-    if !flags.is_empty() {
-        return Err(Failure::Arguments);
-    }
     let bytes = read(path, CONFIGURATION_BYTES as u64)?;
     let configuration = serde_json::from_slice(&bytes).map_err(|_| Failure::Arguments)?;
     let candidate = ServiceInstallationCandidate {

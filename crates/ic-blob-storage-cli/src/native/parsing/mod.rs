@@ -1,21 +1,7 @@
 //! Canonical syntax shared by commands; role-specific authority stays with callers.
 use super::Failure;
 use ic_platform::Principal;
-use std::{collections::BTreeMap, fmt::Display, str::FromStr};
-
-pub(super) fn flags(args: &[String]) -> Result<BTreeMap<&str, &str>, Failure> {
-    let (pairs, remainder) = args.as_chunks::<2>();
-    if !remainder.is_empty() {
-        return Err(Failure::Arguments);
-    }
-    let mut flags = BTreeMap::new();
-    for [name, value] in pairs {
-        if flags.insert(name.as_str(), value.as_str()).is_some() {
-            return Err(Failure::Arguments);
-        }
-    }
-    Ok(flags)
-}
+use std::{fmt::Display, str::FromStr};
 
 pub(super) fn principal(value: &str) -> Result<Principal, Failure> {
     let result = Principal::from_text(value).map_err(|_| Failure::Arguments)?;

@@ -37,12 +37,6 @@ macro_rules! __blob_method_spec {
     (provider, update, $category:ident, $name:literal, $($rest:tt)*) => {
         $crate::endpoints::MethodSpec { name: $name, mode: $crate::endpoints::MethodMode::Update, codec: $crate::endpoints::MethodCodec::Candid }
     };
-    (query, tenant_inspection, $($rest:tt)*) => {
-        $crate::endpoints::MethodSpec { name: $crate::protocol::TENANT_INSPECTION_METHOD, mode: $crate::endpoints::MethodMode::Query, codec: $crate::endpoints::MethodCodec::IcWire }
-    };
-    (update, tenant_update, $($rest:tt)*) => {
-        $crate::endpoints::MethodSpec { name: $crate::protocol::TENANT_UPDATE_METHOD, mode: $crate::endpoints::MethodMode::Update, codec: $crate::endpoints::MethodCodec::IcWire }
-    };
     (query, $category:ident, fn $name:ident $($rest:tt)*) => {
         $crate::endpoints::MethodSpec { name: stringify!($name), mode: $crate::endpoints::MethodMode::Query, codec: $crate::endpoints::MethodCodec::IcWire }
     };
@@ -55,7 +49,7 @@ macro_rules! __blob_method_spec {
     };
 }
 macro_rules! method_specs {
-    ($emit:ident; $([$($entry:tt)*])*) => { &[$( $crate::__blob_method_spec!($($entry)*)),*] };
+    ($emit:ident; $([$constant:ident, $id:tt; $($entry:tt)*])*) => { &[$( $crate::__blob_method_spec!($($entry)*)),*] };
 }
 /// Complete callable service surface; linking this value exports no endpoint.
 pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
@@ -122,30 +116,14 @@ impl MethodSpec {
         if matches!(self.codec, MethodCodec::Candid) {
             return Err(crate::wire::Error::Identity);
         }
-        let id = match crate::wire::identity(self.name) {
-            Ok(id) => id,
-            Err(e) => return Err(e),
-        };
-        let request = match crate::wire::request_limits(self.name) {
-            Ok(limits) => limits,
-            Err(e) => return Err(e),
-        };
-        let response = match crate::wire::response_limits(self.name) {
-            Ok(limits) => limits,
-            Err(e) => return Err(e),
-        };
-        Ok(WireContract {
-            id,
-            request,
-            response,
-        })
+        crate::wire::selected_contract(self.name)
     }
 }
 
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __describe_blob_service {
-    ($emit:ident; $([$($entry:tt)*])*) => {
+    ($emit:ident; $([$constant:ident, $id:tt; $($entry:tt)*])*) => {
         $($crate::__describe_blob_method! { $emit; [$($entry)*]; $($entry)* })*
     };
 }
@@ -172,7 +150,7 @@ macro_rules! __describe_blob_method {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! __emit_blob_service {
-    ($emit:ident; $([$($entry:tt)*])*) => { $($emit! { $($entry)* })* };
+    ($emit:ident; $([$constant:ident, $id:tt; $($entry:tt)*])*) => { $($emit! { $($entry)* })* };
 }
 #[doc(hidden)]
 #[macro_export]
@@ -180,22 +158,22 @@ macro_rules! __blob_service_catalog {
     (dispatch = [$($dispatch:tt)*], emit = $emit:ident, workflow = $workflow:ident, context = $context:ident,
      contracts = $contracts:ident, clock = $clock:path, caller = $caller:path, trap = $trap:path $(,)?) => {
         $($dispatch)*! { $emit;
-            [update, request,
+            [BLOB_RESUME_CURRENT_INSTANCE_METHOD, 0x424c_4f42_0042_0001; update, request,
             async fn blob_resume_current_instance()
             -> Result<(), $contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
                 $workflow::resume_current_instance($context()).await
             }]
-            [query, request,
+            [BLOB_CONFIGURATION_METHOD, 0x424c_4f42_0042_0002; query, request,
             fn blob_configuration() -> Result<HostConfigurationView, HostFailure> {
                 $workflow::configuration($caller())
             }]
-            [query, request,
+            [LOCAL_STATUS_METHOD, 0x424c_4f42_0042_0003; query, request,
             fn blob_local_status(
                 input: OperatorScope,
             ) -> Result<LocalServiceStatus, LocalStatusFailure> {
                 $workflow::local_status($context(), input)
             }]
-            [update, tenant_update,
+            [TENANT_UPDATE_METHOD, 0x424c_4f42_0043_001b; update, tenant_update,
             async fn blob_update_tenant(
                 input: TenantUpdateRequest,
             ) -> Result<TenantEnrollmentResponse, TenantFailure> {
@@ -203,11 +181,11 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::update_tenant(call_context, input)
             }]
-            [query, tenant_inspection,
+            [TENANT_INSPECTION_METHOD, 0x424c_4f42_0043_001a; query, tenant_inspection,
             fn blob_tenant(input: TenantScope) -> Result<TenantEnrollmentResponse, TenantFailure> {
                 $workflow::tenant($context(), input)
             }]
-            [update, request,
+            [UPLOAD_ADMISSION_METHOD, 0x424c_4f42_0042_0004; update, request,
             async fn blob_admit_upload(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadAdmissionMutation, UploadAdmissionFailure> {
@@ -215,13 +193,13 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::admit(call_context, input, $clock())
             }]
-            [query, request,
+            [UPLOAD_ADMISSION_STATUS_METHOD, 0x424c_4f42_0042_0005; query, request,
             fn blob_upload_admission(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadAdmissionResponse, UploadAdmissionFailure> {
                 $workflow::admission($context(), input)
             }]
-            [query, request,
+            [UPLOAD_STATUS_METHOD, 0x424c_4f42_0042_0006; query, request,
             fn blob_upload_status(
                 input: $contracts::dto::reference::ReferenceUpload,
             ) -> Result<
@@ -230,7 +208,7 @@ macro_rules! __blob_service_catalog {
             > {
                 $workflow::upload_status($context(), input)
             }]
-            [update, request,
+            [UPLOAD_REVOCATION_METHOD, 0x424c_4f42_0042_0007; update, request,
             async fn blob_revoke_upload(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadRevocationResponse, UploadAdmissionFailure> {
@@ -238,7 +216,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::revoke(call_context, input)
             }]
-            [update, manifest,
+            [UPLOAD_MANIFEST_PREPARE_METHOD, 0x424c_4f42_0042_0008; update, manifest,
             async fn blob_prepare_upload(
                 input: UploadManifestRequest,
             ) -> Result<UploadManifestMutation, UploadManifestFailure> {
@@ -246,7 +224,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::prepare(call_context, &input, $clock())
             }]
-            [query, request,
+            [UPLOAD_CERTIFICATE_ASSESSMENT_METHOD, 0x424c_4f42_0042_0009; query, request,
             fn blob_upload_certificate_assessment(
                 root: String,
             ) -> Result<
@@ -255,24 +233,24 @@ macro_rules! __blob_service_catalog {
             > {
                 $workflow::certificate_assessment($context(), &root, $clock())
             }]
-            [provider, query, roots, "_immutableObjectStorageBlobsAreLive",
+            [CAFFEINE_BLOBS_ARE_LIVE_METHOD, external; provider, query, roots, "_immutableObjectStorageBlobsAreLive",
             fn caffeine_blobs_are_live(roots: Vec<Vec<u8>>) -> Vec<bool> {
                 $workflow::provider_liveness($context(), &roots)
                     .unwrap_or_else(|_| $trap("provider liveness refused"))
             }]
-            [provider, query, empty, "_immutableObjectStorageBlobsToDelete",
+            [CAFFEINE_BLOBS_TO_DELETE_METHOD, external; provider, query, empty, "_immutableObjectStorageBlobsToDelete",
             fn caffeine_blobs_to_delete() -> Vec<Vec<u8>> {
                 $workflow::provider_deletions($context())
                     .unwrap_or_else(|_| $trap("provider deletion list refused"))
             }]
-            [provider, update, roots, "_immutableObjectStorageConfirmBlobDeletion",
+            [CAFFEINE_CONFIRM_BLOB_DELETION_METHOD, external; provider, update, roots, "_immutableObjectStorageConfirmBlobDeletion",
             async fn caffeine_confirm_blob_deletion(roots: Vec<Vec<u8>>) {
                 let call_context = $context();
                 $workflow::before_update().await;
                 $workflow::acknowledge_provider_deletions(call_context, &roots)
                     .unwrap_or_else(|_| $trap("provider acknowledgment refused"))
             }]
-            [certificate, request, "_immutableObjectStorageCreateCertificate",
+            [CAFFEINE_UPLOAD_CERTIFICATE_METHOD, external; certificate, request, "_immutableObjectStorageCreateCertificate",
             async fn caffeine_upload_certificate(
                 root: String,
             ) -> $contracts::dto::upload::certificate::CaffeineUploadCertificateResponse {
@@ -283,13 +261,13 @@ macro_rules! __blob_service_catalog {
                 $workflow::certificate(call_context, &root, $clock())
                     .unwrap_or_else(|_| $trap("certificate issuance refused"))
             }]
-            [query, request,
+            [UPLOAD_MANIFEST_INSPECT_METHOD, 0x424c_4f42_0042_000a; query, request,
             fn blob_upload_manifest(
                 input: UploadAdmissionRequest,
             ) -> Result<UploadManifestResponse, UploadManifestFailure> {
                 $workflow::manifest($context(), input)
             }]
-            [update, request,
+            [REFERENCE_APPLY_METHOD, 0x424c_4f42_0042_000b; update, request,
             async fn blob_apply_reference(
                 input: ReferenceCommand,
             ) -> Result<ReferenceMutationResponse, ReferenceFailure> {
@@ -297,37 +275,37 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::reference(call_context, input)
             }]
-            [query, request,
+            [REFERENCE_RECEIPT_METHOD, 0x424c_4f42_0042_000c; query, request,
             fn blob_reference_receipt(
                 input: ReferenceCommand,
             ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
                 $workflow::receipt($context(), input)
             }]
-            [query, request,
+            [UPLOAD_HISTORY_METHOD, 0x424c_4f42_0042_000d; query, request,
             fn blob_upload_history(
                 input: UploadHistoryRequest,
             ) -> Result<UploadHistoryPage, UploadHistoryFailure> {
                 $workflow::history($context(), input)
             }]
-            [query, request,
+            [FUNDING_HISTORY_METHOD, 0x424c_4f42_0042_000e; query, request,
             fn blob_funding_history(
                 input: FundingHistoryRequest,
             ) -> Result<FundingHistoryPage, FundingHistoryFailure> {
                 $workflow::funding_history($context(), input)
             }]
-            [query, request,
+            [FUNDING_OUTCOME_METHOD, 0x424c_4f42_0042_000f; query, request,
             fn blob_funding_outcome(
                 input: FundingOutcomeRequest,
             ) -> Result<Option<FundingOutcomeResponse>, FundingOutcomeFailure> {
                 $workflow::funding_outcome($context(), input)
             }]
-            [query, request,
+            [FUNDING_PREPARATION_METHOD, 0x424c_4f42_0042_0010; query, request,
             fn blob_funding_preparation_assessment(
                 input: FundingPreparationRequest,
             ) -> Result<FundingPreparationResponse, FundingPreparationFailure> {
                 $workflow::funding_assessment($context(), input)
             }]
-            [update, request,
+            [GATEWAY_REVOCATION_METHOD, 0x424c_4f42_0042_0011; update, request,
             async fn blob_revoke_gateway(
                 input: $contracts::dto::gateway::GatewayRevocationRequest,
             ) -> Result<
@@ -338,7 +316,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::revoke_gateway(call_context, input)
             }]
-            [update, request,
+            [GATEWAY_SYNC_METHOD, 0x424c_4f42_0042_0012; update, request,
             async fn blob_sync_gateways(
                 input: OperatorScope,
             ) -> Result<
@@ -349,7 +327,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::sync_gateways(call_context, input).await
             }]
-            [update, request,
+            [GATEWAY_SYNC_CANCEL_METHOD, 0x424c_4f42_0042_0013; update, request,
             async fn blob_cancel_gateway_sync(
                 input: $contracts::dto::gateway::sync::GatewaySyncCancellation,
             ) -> Result<(), $contracts::dto::gateway::sync::GatewaySyncFailure> {
@@ -357,7 +335,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::cancel_gateway_sync(call_context, input)
             }]
-            [query, request,
+            [UPLOAD_CAPACITY_METHOD, 0x424c_4f42_0042_0014; query, request,
             fn blob_upload_capacity(
                 input: $contracts::dto::tenant::TenantScope,
             ) -> Result<
@@ -366,7 +344,7 @@ macro_rules! __blob_service_catalog {
             > {
                 $workflow::upload_capacity($context(), input)
             }]
-            [query, request,
+            [REFERENCE_CAPACITY_METHOD, 0x424c_4f42_0042_0015; query, request,
             fn blob_reference_capacity(
                 input: $contracts::dto::reference::capacity::ReferenceCapacityRequest,
             ) -> Result<
@@ -375,7 +353,7 @@ macro_rules! __blob_service_catalog {
             > {
                 $workflow::reference_capacity($context(), input)
             }]
-            [query, request,
+            [UPLOAD_DISCOVERY_METHOD, 0x424c_4f42_0042_0016; query, request,
             fn blob_lookup_content(
                 input: $contracts::dto::upload::discovery::UploadDiscoveryRequest,
             ) -> Result<
@@ -384,7 +362,7 @@ macro_rules! __blob_service_catalog {
             > {
                 $workflow::discover($context(), input)
             }]
-            [update, request,
+            [DOWNLOAD_METHOD, 0x424c_4f42_0042_0017; update, request,
             async fn blob_download_descriptor(
                 input: $contracts::dto::download::DownloadRequest,
             ) -> Result<
@@ -395,7 +373,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::download(call_context, input)
             }]
-            [query, request,
+            [REFERENCE_STATUS_METHOD, 0x424c_4f42_0042_0018; query, request,
             fn blob_reference_status(
                 input: $contracts::dto::reference::status::ReferenceStatusRequest,
             ) -> Result<
@@ -404,7 +382,7 @@ macro_rules! __blob_service_catalog {
             > {
                 $workflow::reference_status($context(), input)
             }]
-            [update, request,
+            [BLOB_INSPECT_ACCOUNT_METHOD, 0x424c_4f42_0042_0019; update, request,
             async fn blob_inspect_account(
                 input: $contracts::dto::account::AccountInspectionRequest,
             ) -> Result<

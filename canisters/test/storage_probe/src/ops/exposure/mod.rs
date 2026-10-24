@@ -144,11 +144,13 @@ pub(crate) fn commit(
     if input.trap_after {
         ic_platform::cdk::api::trap("fixture after exposure write");
     }
-    result.map(|r| match r {
-        UploadExposureResult::Blocked(a) => ExposureOutcome::Blocked(
+    result.and_then(|r| match r {
+        UploadExposureResult::Blocked(a) => Ok(ExposureOutcome::Blocked(
             ic_blob_storage::ops::service::uploads::exposure::blockers(a),
-        ),
-        UploadExposureResult::Exposed(v) => ExposureOutcome::Exposed(v),
+        )),
+        UploadExposureResult::Exposed => {
+            inspect(context, input.permission).map(|view| ExposureOutcome::Exposed(Box::new(view)))
+        }
     })
 }
 pub(crate) fn inspect(

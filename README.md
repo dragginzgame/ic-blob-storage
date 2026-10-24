@@ -119,14 +119,14 @@ open integration work and retained trial obligations are recorded in the
 [current status](docs/status/current.md). Earlier live trials remain frozen and
 do not establish production readiness for the current release.
 
-The pending 0.33 storage API uses IC Storage 0.5 and publicly re-exports IC Memory
-0.48. Hosts compose one memory package identity and one allocation pool. Owner
+Stable collections use IC Storage; public memory types and allocation leases use
+IC Memory. The workspace manifests and lockfile select their supported versions. Hosts compose one memory package identity and one allocation pool. Owner
 type parameters name the backing memory; construction takes exclusive runtime
 leases. Cross-release installations require safe obligation
 disposition before reinstall, as described in the
 [service contract](docs/service-contract.md#current-persisted-boundaries).
 
-The pending hard cut supports [durable provider funding acknowledgments](docs/funding-credit.md).
+The service supports [durable provider funding acknowledgments](docs/funding-credit.md).
 A matching successful Cashier callback permits further bounded funding without
 independent credit receipts. Missing/malformed replies and accepted provider
 errors remain unresolved; no original payment is automatically repeated.

@@ -1,3 +1,4 @@
+use ic_blob_storage_contracts::{protocol, wire};
 mod account;
 mod account_link_inputs;
 mod arguments;
@@ -39,57 +40,31 @@ mod upload_inputs;
 mod upload_setup;
 mod verify_upload;
 
-const USAGE: &str = concat!(
-    "blob-storage --version\n",
+const SAFETY_HELP: &str = concat!(
     "Offline JSON tool/version identity; not installed-service or provider qualification.\n",
     "New run directories use owner-only creation and reject CR/LF in their path or physical parent. Existing and partial runs refuse.\n",
-    "blob-storage account-link-inputs --cashier PRINCIPAL --caller PRINCIPAL --owner PRINCIPAL --payer PRINCIPAL --daily-limit DECIMAL --expiry DECIMAL --run-dir NEW_DIRECTORY\n",
     "account-link-inputs is offline. It encodes explicit positive raw provider terms with an explicit payer/expiry, never selects units, signs, links or funds an account. Existing/partial output refuses; generated input is not an effect journal, financial cap proof or retry permit.\n",
-    "blob-storage installation-check --configuration CONFIGURATION_JSON --service PRINCIPAL --project PROJECT --release HOST_RELEASE --run-dir NEW_DIRECTORY\n",
     "installation-check is offline. It reads a strict JSON configuration proposal and validates the complete proposed installation, preserving configuration.json and encoded configuration.wire/installation.wire with hashes and a passive summary. It does not authenticate platform/release identity, grant memory, deploy, provision, fund or qualify provider facts. Existing/partial output refuses.\n",
-    "blob-storage upload-inputs --installation INSTALLATION_WIRE --binding JSON --manifest UPSTREAM_MANIFEST_JSON --body FILE --max-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline preparation checks the complete installation candidate against the original service/namespace/project/trusted uploader and installed resource bounds. It saves installation.wire, permission.wire, manifest.wire, first-reference requests, certificate-binding.json and a root-verified body.bin snapshot. No authentication, actual installed-state/provisioning proof, signer, network, ID allocation or certificate. Failed snapshots remain private body.part; existing or partial directories refuse.\n",
-    "blob-storage publish-inputs --inventory JSON --root DIRECTORY --installation INSTALLATION_WIRE --max-bytes DECIMAL --max-total-bytes DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline batch preparation verifies frozen input hashes, unique identities, one tenant/provider scope and aggregate fresh-installation capacity before serial root-verified snapshots. Final summary appears only on complete success; failures retain partial evidence and refuse overwrite. No remaining-live-capacity proof, allocation, certificate, network, publication or retry authority.\n",
-    "blob-storage publish-map --network ic|local --url URL --identity TENANT_PEM --actor TENANT --operator-identity OPERATOR_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --gateway ORIGIN --max-bytes DECIMAL --max-total-bytes DECIMAL --max-queries DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
-    "blob-storage publish-file-status accepts the same scope/input flags plus --file-index ZERO_BASED_DECIMAL and --max-queries 3. It checks installed configuration, enrollment and the exact live first reference; it does not verify provider upload. Require file_live:true before advancing a serial publisher; no whole-batch map, upload retry or publication lease is produced. The complete frozen batch is reverified before queries.\n",
     "Reverify one complete frozen batch and authenticate current enrollment, fence and exact first-reference liveness. Write media-map.json only when every file passes; blocked or partial runs never emit a map. Sequential observations are not an atomic publication/retention lease or public serving qualification. No update, provider request, reference mutation or retry.\n",
-    "blob-storage publish-check --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --max-bytes DECIMAL --max-total-bytes DECIMAL --max-queries DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "publish-check reverifies complete frozen snapshots and request packets before signed sequential capacity/content queries. Retain query intents/replies, blockers and original discovered IDs. Existing roots require recovery, retain or retirement handling; no allocation, reservation, updates, provider calls or retry/publication authority. A blocked summary is an observation, not command failure. Partial runs retain failure evidence and refuse overwrite.\n",
-    "blob-storage publish-prepare|publish-prepare-resume --network ic|local --url URL --identity TENANT_PEM --actor TENANT --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --file-index ZERO_BASED_DECIMAL --max-bytes DECIMAL --max-total-bytes DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--source-run ORIGINAL_PREPARATION_DIRECTORY] [--root-key DER]\n",
     "Prepare one indexed file serially. Reverify the entire batch, authenticate both roles and retain finite capacity/discovery observations before at most two local updates. Resume requires --source-run, binds the original signed admission, and never resubmits a claimed update; it may send only an unclaimed preparation. Four queries maximum per invocation. No certificate, provider transfer, expiry renewal, allocation or publication. Preserve the original journal; partial claims and unknown state never license redispatch.\n",
-    "blob-storage publish-prepare-batch --network ic|local --url URL --identity TENANT_PEM --actor TENANT --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --max-bytes DECIMAL --max-total-bytes DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
-    "blob-storage publish-session --network ic|local --url URL --identity TENANT_PEM --actor TENANT --operator-identity OPERATOR_PEM --uploader-identity UPLOADER_PEM --service PRINCIPAL --namespace DECIMAL --inputs COMPLETE_PUBLISH_INPUTS_DIRECTORY --gateway ORIGIN --max-bytes DECIMAL --max-total-bytes DECIMAL --max-steps DECIMAL --timeout-seconds DECIMAL --run-dir NEW_DIRECTORY [--source-session ORIGINAL_SESSION_DIRECTORY] [--browser-selection JSON_FILE] [--root-key DER]\n",
     "A bounded JSON-lines session retains one validated batch. Prepare/transfer/status accept the current original index; status advances on exact registration and a live reference, not provider availability. Transfer owns the original browser handoff; keep its journal/profile for lost replies. Map finishes only after every index passes. No verifier, automatic retry or publication lease.
 ",
     "Verify the frozen batch once and serially prepare its files through the same signed setup workflow. Each file has an independent file-NNNN journal, at most two updates and four queries. Stop at the first blocker, uncertainty or failure; never repeat a claimed step or resume the whole batch. The overall deadline covers all setup calls. Recovery uses publish-prepare-resume with the original file directory. No certificate, provider transfer or publication; active reservation capacity still limits progress.\n",
-    "blob-storage reference-inputs --permission PERMISSION_Wire document --action retain|release --reference DECIMAL --operation DECIMAL --run-dir NEW_DIRECTORY\n",
     "Offline exact reference.wire, reference-status.wire and download.wire generation from the original saved permission. Canonical positive identities are caller-supplied, never allocated. No signer, network, mutation, liveness, expiry renewal or retry authority; existing or partial directories refuse.\n",
-    "blob-storage admit-upload|prepare-upload|revoke-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request Wire document --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "Upload setup persists exact signed intent before one local service update, with no polling or retry. Admit/revoke require the tenant; prepare requires the uploader and a complete UploadManifestRequest. No certificate, provider transfer or publication. Existing or partial runs refuse.\n",
-    "blob-storage upload-permission|upload-manifest --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --request PERMISSION_Wire document [--root-key DER]\n",
     "Exact historical inspection uses a saved UploadAdmissionRequest (permission.wire). Permission requires the tenant; manifest permits tenant or uploader. A retained record or unprepared/unknown result never authorizes redispatch or renews an expiry.\n",
-    "blob-storage download --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request Wire document --project PROJECT --gateway ORIGIN --max-bytes DECIMAL --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "download authenticates one exact live-reference descriptor through a replicated update, then performs one bounded provider GET. Original metadata/root and complete EOF verification precede body.bin publication; failed bodies remain body.part. No redirects, decoding, retry, publication lease or funding. Provider reads require an approved origin and budget. Existing or partial runs refuse.\n",
-    "blob-storage funding-assessment --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
     "funding-assessment signs one passive preparation-policy query. It reports exact local limits/history/fence and missing provider/recovery/account/spendability evidence, without reserving funds, allocating an operation, querying a provider or paying. Observations never authorize preparation, dispatch or retry.\n",
-    "blob-storage sync-gateways|cancel-gateway-sync|revoke-gateway --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --run-dir NEW_DIRECTORY [--sequence DECIMAL | --gateway PRINCIPAL] [--root-key DER]\n",
     "Gateway controls persist exact signed intent before one update. Cancel requires the observed pending sequence; revoke requires an explicit gateway. Existing/partial runs refuse. No polling, retry, provider deletion or billing cessation. After a lost reply inspect status; current membership is not an exact historical receipt or permission to repeat.\n",
-    "blob-storage inspect-account --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --kind balance|relationship [--root-key DER]\n",
     "inspect-account submits one scoped service read update, then waits for that exact IC request within thirty seconds. It reports one provider balance or relationship, including absence/errors; no payment, gateway change, credit inference, automatic refresh or redispatch. A lost result remains unobserved.\n",
-    "blob-storage submit-reference --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request Wire document --run-dir NEW_DIRECTORY [--root-key DER]\n",
     "submit-reference validates one exact ReferenceCommand, claims a new private directory and saves request.wire, reference.wire, the signed update and intent before one dispatch. Pending or uncertain results require reference-receipt inspection with saved reference.wire; no polling, retry or identity allocation. A recorded inner failure is not a successful retain/release. Existing or partial runs refuse.\n",
-    "blob-storage reference-receipt|reference-status --network ic|local --url URL --identity PEM --actor TENANT --service PRINCIPAL --namespace DECIMAL --request Wire document [--root-key DER]\n",
     "reference-receipt inspects one saved Wire document ReferenceCommand; original success/failure is historical, with no fence or liveness observation. reference-status reads one ReferenceStatusRequest and returns current local liveness and fence. Each signs one tenant query; no mutation, provider call or retry authority. Canister tenants use ReplicatedReferenceClient.\n",
-    "blob-storage funding-outcome --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL --operation DECIMAL --offered DECIMAL [--target-balance DECIMAL] [--root-key DER]\n",
     "funding-outcome inspects one exact original funding intent. Omit target-balance only when the original intent had none. Absence, unknown transfer and reported balance never authorize another payment; no mutation or provider call occurs.\n",
-    "blob-storage upload-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --filter all|active|deletion-pending|outstanding [--cursor FILE] [--root-key DER]\n",
     "upload-history reads one service-wide page of retained upload identities and local states. Save a non-null next object for explicit continuation; empty filtered pages can still continue. No auto-pagination, provider call, retry or mutation.\n",
-    "blob-storage certificate-assessment --network ic|local --url URL --identity PEM --actor UPLOADER --service PRINCIPAL --namespace DECIMAL --permission Wire document [--root-key DER]\n",
     "certificate-assessment reads one exact permission assessment and its missing prerequisites. It never issues a certificate, reserves issuance or authorizes retry, even with no blockers.\n",
-    "blob-storage status|funding-history --network ic|local --url URL --identity PEM --operator PRINCIPAL --service PRINCIPAL --namespace DECIMAL --cashier PRINCIPAL --payer PRINCIPAL [--root-key DER]\n",
-    "verify-upload --network ic|local --url URL --identity PEM --actor PRINCIPAL --service PRINCIPAL --namespace DECIMAL --permission Wire document --body FILE --max-bytes DECIMAL [--root-key DER]\n",
-    "verify-upload checks a regular local file against the authenticated original manifest. Permission is one Wire document UploadAdmissionRequest; maximum is at most 1 GiB. No provider availability, completion, or retry authority is established.\n",
 );
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -172,11 +147,12 @@ impl Failure {
 
 pub(super) fn run() -> ExitCode {
     let args: Vec<_> = std::env::args().skip(1).collect();
-    if args == ["--help"] {
-        print!("{USAGE}");
-        return ExitCode::SUCCESS;
-    }
-    match execute(&args) {
+    let result = match arguments::invocation(&args) {
+        Ok(false) => return ExitCode::SUCCESS,
+        Ok(true) => execute(&args),
+        Err(error) => Err(error),
+    };
+    match result {
         Ok(value) => {
             println!("{value}");
             ExitCode::SUCCESS
@@ -293,8 +269,8 @@ async fn observe(
             let response = query(
                 options,
                 request.scope.service,
-                ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD,
-                ic_blob_storage_contracts::wire::encode_request("blob_funding_history", request)
+                protocol::FUNDING_HISTORY_METHOD,
+                wire::encode_request(protocol::FUNDING_HISTORY_METHOD, request)
                     .map_err(|_| Failure::Arguments)?,
             )
             .await?;
@@ -324,9 +300,9 @@ async fn observe(
             let response = query(
                 options,
                 verification.permission.upload.service,
-                ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
-                ic_blob_storage_contracts::wire::encode_request(
-                    "blob_upload_manifest",
+                protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
+                wire::encode_request(
+                    protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
                     verification.permission,
                 )
                 .map_err(|_| Failure::Arguments)?,
@@ -344,7 +320,7 @@ async fn observe(
                 options,
                 scope.service,
                 LOCAL_STATUS_METHOD,
-                ic_blob_storage_contracts::wire::encode_request("blob_local_status", scope)
+                wire::encode_request(protocol::LOCAL_STATUS_METHOD, scope)
                     .map_err(|_| Failure::Arguments)?,
             )
             .await?;

@@ -34,6 +34,10 @@ if rg '^((ic-cdk|ic-cdk-macros|ic-testkit|pocket-ic|ic-build|ic-agent|candid_par
     echo 'Deployment depends on a legacy runtime or native-only owner' >&2
     exit 1
 fi
+if rg '^(blob-test-protocol|ic-blob-storage-pocketic-tests|blob-[a-z-]+-probe|blob-gateway-source) v' "$contract_graph"; then
+    echo 'Deployment depends on private fixture packages' >&2
+    exit 1
+fi
 echo 'Standalone deployment excludes legacy CDK/Platform and native-only owners'
 
 cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
@@ -43,3 +47,9 @@ if rg '^ic-(wire|platform|blob-storage-contracts) v[^|]*\|([^,]*,)*(typescript|w
     exit 1
 fi
 echo 'Standalone deployment excludes host-only Wire schema features'
+
+if rg '^ic-(blob-storage|memory|storage) v[^|]*\|([^,]*,)*test-support(,| |$)' "$contract_graph"; then
+    echo 'Deployment enables test-support access' >&2
+    exit 1
+fi
+echo 'Standalone deployment excludes test-support access'

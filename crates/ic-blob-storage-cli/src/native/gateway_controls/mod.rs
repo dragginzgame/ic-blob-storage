@@ -13,6 +13,7 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncErr
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::identity::ContentDigest;
+use ic_blob_storage_contracts::protocol;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
 use ic_blob_storage_contracts::protocol::GATEWAY_SYNC_CANCEL_METHOD;
 use ic_blob_storage_contracts::protocol::GATEWAY_SYNC_METHOD;
@@ -114,8 +115,11 @@ fn prepare(options: &Options, input: &Input, agent: &Agent) -> Result<PreparedUp
 fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
     match input.action {
         Action::Sync => {
-            let reply: Result<GatewaySyncResponse, SyncError> =
-                super::reply::decode_small("blob_sync_gateways", bytes, Failure::ReplyLimit)?;
+            let reply: Result<GatewaySyncResponse, SyncError> = super::reply::decode_small(
+                protocol::GATEWAY_SYNC_METHOD,
+                bytes,
+                Failure::ReplyLimit,
+            )?;
             let reply = reply.map_err(Failure::GatewaySyncRefused)?;
             if reply.scope != input.scope {
                 return Err(Failure::Binding);
@@ -126,14 +130,20 @@ fn acknowledgment(input: &Input, bytes: &[u8]) -> Result<Value, Failure> {
             Ok(json!({"sequence":reply.sequence.to_string()}))
         }
         Action::Cancel(sequence) => {
-            let reply: Result<(), SyncError> =
-                super::reply::decode_small("blob_cancel_gateway_sync", bytes, Failure::ReplyLimit)?;
+            let reply: Result<(), SyncError> = super::reply::decode_small(
+                protocol::GATEWAY_SYNC_CANCEL_METHOD,
+                bytes,
+                Failure::ReplyLimit,
+            )?;
             reply.map_err(Failure::GatewaySyncRefused)?;
             Ok(json!({"sequence":sequence.to_string()}))
         }
         Action::Revoke(gateway) => {
-            let reply: Result<GatewayRevocationResponse, RevokeError> =
-                super::reply::decode_small("blob_revoke_gateway", bytes, Failure::ReplyLimit)?;
+            let reply: Result<GatewayRevocationResponse, RevokeError> = super::reply::decode_small(
+                protocol::GATEWAY_REVOCATION_METHOD,
+                bytes,
+                Failure::ReplyLimit,
+            )?;
             let reply = reply.map_err(Failure::GatewayRevocationRefused)?;
             if reply.request
                 != (GatewayRevocationRequest {

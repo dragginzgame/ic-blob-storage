@@ -61,12 +61,16 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
         });
     }
     fn with_installation<R>(operation: impl FnOnce(&ServiceInstallation<H::Memory>) -> R) -> R {
-        Self::observe_version();
-        H::with_installation(|installation| operation(installation))
+        H::with_installation(|installation| {
+            installation.observe_platform_version(H::platform_version());
+            operation(installation)
+        })
     }
     fn with_certificate<R>(operation: impl FnOnce(&mut ServiceInstallation<H::Memory>) -> R) -> R {
-        Self::observe_version();
-        H::with_installation(operation)
+        H::with_installation(|installation| {
+            installation.observe_platform_version(H::platform_version());
+            operation(installation)
+        })
     }
     fn read<R>(operation: impl FnOnce(&ServiceStores<H::Memory>) -> R) -> R {
         Self::with_installation(|installation| operation(installation.stores()))

@@ -49,3 +49,34 @@ pub fn assess_tenant_access(
     }
     Ok(())
 }
+
+/// Refusal for a direct tenant's passive scope, before storage inspection.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum TenantScopeError {
+    Binding,
+    Denied,
+    Invalid,
+}
+
+/// Preserve authority refusal order before parsing the positive namespace.
+pub(crate) fn assess_scope(
+    service: Principal,
+    actor: Principal,
+    requested_service: Principal,
+    tenant: Principal,
+    namespace: u128,
+) -> Result<std::num::NonZeroU128, TenantScopeError> {
+    if requested_service != service {
+        return Err(TenantScopeError::Binding);
+    }
+    if tenant != actor {
+        return Err(TenantScopeError::Denied);
+    }
+    if [Principal::anonymous(), Principal::management_canister()].contains(&tenant) {
+        return Err(TenantScopeError::Invalid);
+    }
+    std::num::NonZeroU128::new(namespace).ok_or(TenantScopeError::Invalid)
+}
+
+#[cfg(test)]
+mod tests;

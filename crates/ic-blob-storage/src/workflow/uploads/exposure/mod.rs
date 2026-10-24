@@ -19,5 +19,7 @@ pub fn inspect<M: Memory>(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<UploadAdmissionResponse, UploadExposureFailure> {
-    exposure::inspect(store, context, input)
+    let view = exposure::permission(store, context, input, false)?;
+    crate::ops::service::uploads::admission::present(input, &view)
+        .map_err(UploadExposureFailure::Permission)
 }

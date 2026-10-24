@@ -5,6 +5,7 @@ use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationFailu
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest as Request;
 use ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationResponse as Response;
 use ic_blob_storage_contracts::funding::reply::assessment::{self, FundingAssessmentReplyError};
+use ic_blob_storage_contracts::protocol;
 use ic_blob_storage_contracts::protocol::FUNDING_PREPARATION_METHOD;
 use serde_json::{Value, json};
 
@@ -45,7 +46,7 @@ pub(super) async fn run(options: &Options, request: Request) -> Result<Value, Fa
         request.scope.service,
         FUNDING_PREPARATION_METHOD,
         ic_blob_storage_contracts::wire::encode_request(
-            "blob_funding_preparation_assessment",
+            protocol::FUNDING_PREPARATION_METHOD,
             request,
         )
         .map_err(|_| Failure::Arguments)?,

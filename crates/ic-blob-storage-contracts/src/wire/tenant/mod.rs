@@ -23,18 +23,6 @@ pub struct Scope<'a> {
     #[serde(borrow)]
     pub tenant: BytesRef<'a, 29>,
 }
-/// Exact compare-and-set enrollment observation.
-#[cfg_attr(
-    all(feature = "wire-schema", not(target_arch = "wasm32")),
-    derive(ic_wire::Wire)
-)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Enrollment {
-    /// Existing policy requires a positive generation.
-    pub generation: u64,
-    /// Fresh admission state; suspension retains obligations.
-    pub active: bool,
-}
 /// One operator-authorized compare-and-set, without dispatch or retry policy.
 #[cfg_attr(
     all(feature = "wire-schema", not(target_arch = "wasm32")),
@@ -46,7 +34,7 @@ pub struct UpdateRequest<'a> {
     #[serde(borrow)]
     pub scope: Scope<'a>,
     /// Exact prior observation; absence requires a never-enrolled tenant.
-    pub expected: Option<Enrollment>,
+    pub expected: Option<native::TenantEnrollment>,
     /// Requested admission state.
     pub active: bool,
 }
@@ -61,35 +49,10 @@ pub struct Observation<'a> {
     #[serde(borrow)]
     pub scope: Scope<'a>,
     /// Current enrollment, including explicit absence.
-    pub enrollment: Option<Enrollment>,
+    pub enrollment: Option<native::TenantEnrollment>,
     /// Current owner is inspection-only after restore.
     pub fenced: bool,
 }
-/// Existing application refusals, independent of codec and transport errors.
-#[cfg_attr(
-    all(feature = "wire-schema", not(target_arch = "wasm32")),
-    derive(ic_wire::Wire)
-)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub enum Failure {
-    /// Wrong actual/installed service or namespace.
-    Binding,
-    /// Actual caller lacks authority.
-    Denied,
-    /// Invalid principal or generation.
-    Invalid,
-    /// Exact compare-and-set precondition differs.
-    Conflict,
-    /// Lifetime tenant capacity is exhausted.
-    Capacity,
-    /// Activation cannot advance the generation.
-    GenerationExhausted,
-    /// Restored owner refuses mutation.
-    Fenced,
-    /// Retained state is inconsistent.
-    Internal,
-}
-
 /// Request byte ceiling shared by method contracts and host preallocation admission.
 pub const MAX_REQUEST_BYTES: usize = 512;
 pub(super) const LIMITS: Limits = Limits {
@@ -119,27 +82,11 @@ impl From<Scope<'_>> for native::TenantScope {
         }
     }
 }
-impl From<native::TenantEnrollment> for Enrollment {
-    fn from(value: native::TenantEnrollment) -> Self {
-        Self {
-            generation: value.generation,
-            active: value.active,
-        }
-    }
-}
-impl From<Enrollment> for native::TenantEnrollment {
-    fn from(value: Enrollment) -> Self {
-        Self {
-            generation: value.generation,
-            active: value.active,
-        }
-    }
-}
 impl<'a> From<&'a native::TenantUpdateRequest> for UpdateRequest<'a> {
     fn from(value: &'a native::TenantUpdateRequest) -> Self {
         Self {
             scope: (&value.scope).into(),
-            expected: value.expected.map(Into::into),
+            expected: value.expected,
             active: value.active,
         }
     }
@@ -148,7 +95,7 @@ impl From<UpdateRequest<'_>> for native::TenantUpdateRequest {
     fn from(value: UpdateRequest<'_>) -> Self {
         Self {
             scope: value.scope.into(),
-            expected: value.expected.map(Into::into),
+            expected: value.expected,
             active: value.active,
         }
     }
@@ -157,7 +104,7 @@ impl<'a> From<&'a native::TenantEnrollmentResponse> for Observation<'a> {
     fn from(value: &'a native::TenantEnrollmentResponse) -> Self {
         Self {
             scope: (&value.scope).into(),
-            enrollment: value.enrollment.map(Into::into),
+            enrollment: value.enrollment,
             fenced: value.fenced,
         }
     }
@@ -166,38 +113,8 @@ impl From<Observation<'_>> for native::TenantEnrollmentResponse {
     fn from(value: Observation<'_>) -> Self {
         Self {
             scope: value.scope.into(),
-            enrollment: value.enrollment.map(Into::into),
+            enrollment: value.enrollment,
             fenced: value.fenced,
-        }
-    }
-}
-
-impl From<native::TenantFailure> for Failure {
-    fn from(value: native::TenantFailure) -> Self {
-        match value {
-            native::TenantFailure::Binding => Self::Binding,
-            native::TenantFailure::Denied => Self::Denied,
-            native::TenantFailure::Invalid => Self::Invalid,
-            native::TenantFailure::Conflict => Self::Conflict,
-            native::TenantFailure::Capacity => Self::Capacity,
-            native::TenantFailure::GenerationExhausted => Self::GenerationExhausted,
-            native::TenantFailure::Fenced => Self::Fenced,
-            native::TenantFailure::Internal => Self::Internal,
-        }
-    }
-}
-
-impl From<Failure> for native::TenantFailure {
-    fn from(value: Failure) -> Self {
-        match value {
-            Failure::Binding => Self::Binding,
-            Failure::Denied => Self::Denied,
-            Failure::Invalid => Self::Invalid,
-            Failure::Conflict => Self::Conflict,
-            Failure::Capacity => Self::Capacity,
-            Failure::GenerationExhausted => Self::GenerationExhausted,
-            Failure::Fenced => Self::Fenced,
-            Failure::Internal => Self::Internal,
         }
     }
 }
@@ -205,14 +122,14 @@ impl From<Failure> for native::TenantFailure {
 /// Convert a native observation without changing application failure meaning.
 fn response(
     value: &Result<native::TenantEnrollmentResponse, native::TenantFailure>,
-) -> Result<Observation<'_>, Failure> {
-    value.as_ref().map(Into::into).map_err(|e| (*e).into())
+) -> Result<Observation<'_>, native::TenantFailure> {
+    value.as_ref().map(Into::into).map_err(|e| *e)
 }
 /// Convert an admitted reply; native semantic/binding validators still run afterward.
 fn native_response(
-    value: Result<Observation<'_>, Failure>,
+    value: Result<Observation<'_>, native::TenantFailure>,
 ) -> Result<native::TenantEnrollmentResponse, native::TenantFailure> {
-    value.map(Into::into).map_err(Into::into)
+    value.map(Into::into)
 }
 
 #[cfg(test)]

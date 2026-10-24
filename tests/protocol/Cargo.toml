@@ -6,9 +6,13 @@ edition.workspace = true
 rust-version.workspace = true
 publish = false
 
+[features]
+fixture-storage = ["dep:ic-memory", "ic-memory/test-support"]
+
 [dependencies]
 ic-blob-storage.workspace = true
 ic-blob-storage-contracts.workspace = true
+ic-memory = { workspace = true, optional = true }
 ic-platform = { workspace = true, features = ["candid"] }
 serde.workspace = true
 serde_bytes.workspace = true

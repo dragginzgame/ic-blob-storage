@@ -1,13 +1,58 @@
-//! Bounded local operation recovery, without provider calls or retry authority.
+//! Passive boundary conversion around the existing bounded stable scan.
+
 use crate::model::catalog::admission::read::UploadPageLimits;
+use crate::model::service::upload::UploadAdmissionError;
 use crate::ops::service::uploads::StableUploads;
-use crate::ops::service::uploads::history;
+use crate::ops::service::uploads::UploadStoreError;
+use crate::ops::service::uploads::history::present;
+use crate::ops::service::uploads::read::UploadScanCursor;
+use crate::ops::service::uploads::read::UploadScanScope;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryCursor;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryFailure;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
+use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadRequestId;
+use ic_blob_storage_contracts::upload::history::filter;
 use ic_memory::Memory;
+use std::num::NonZeroU128;
 
+fn number(value: u128) -> Result<NonZeroU128, UploadHistoryFailure> {
+    NonZeroU128::new(value).ok_or(UploadHistoryFailure::Invalid)
+}
+fn scope(
+    input: UploadHistoryScope,
+    namespace: u128,
+) -> Result<UploadScanScope, UploadHistoryFailure> {
+    let namespace = number(namespace)?;
+    Ok(match input {
+        UploadHistoryScope::Tenant(tenant) => UploadScanScope::Tenant { tenant, namespace },
+        UploadHistoryScope::Service => UploadScanScope::Service { namespace },
+    })
+}
+
+fn cursor(input: UploadHistoryCursor) -> Result<UploadScanCursor, UploadHistoryFailure> {
+    Ok(UploadScanCursor {
+        service: input.service,
+        scope: scope(input.scope, input.namespace)?,
+        filter: filter(input.filter),
+        after_tenant: input.after_tenant,
+        after_request: UploadRequestId::new(number(input.after_request)?),
+    })
+}
+
+fn failure(error: UploadStoreError) -> UploadHistoryFailure {
+    use UploadAdmissionError as A;
+    use UploadHistoryFailure as F;
+    match error {
+        UploadStoreError::Binding
+        | UploadStoreError::Admission(A::WrongService | A::WrongNamespace) => F::Binding,
+        UploadStoreError::Admission(A::NotProject | A::NotOperator | A::NotObserver) => F::Denied,
+        UploadStoreError::CursorScope => F::CursorScope,
+        _ => F::Internal,
+    }
+}
 /// Inspect retained identities as their tenant or the configured service operator.
 /// The host supplies actual execution context and trusted scan/result bounds.
 /// Suspended/restored inspection does not grant mutation or provider authority.
@@ -20,5 +65,30 @@ pub fn inspect<M: Memory>(
     input: UploadHistoryRequest,
     limits: UploadPageLimits,
 ) -> Result<UploadHistoryPage, UploadHistoryFailure> {
-    history::inspect(uploads, context, input, limits)
+    if input.service != context.service {
+        return Err(UploadHistoryFailure::Binding);
+    }
+    let page = uploads
+        .scan(
+            context,
+            scope(input.scope, input.namespace)?,
+            filter(input.filter),
+            input.cursor.map(cursor).transpose()?,
+            limits,
+        )
+        .map_err(failure)?;
+    Ok(UploadHistoryPage {
+        request: input,
+        entries: page.entries.into_iter().map(present).collect(),
+        next: page.next.map(|position| UploadHistoryCursor {
+            service: input.service,
+            namespace: input.namespace,
+            scope: input.scope,
+            filter: input.filter,
+            after_tenant: position.after_tenant,
+            after_request: position.after_request.get().get(),
+        }),
+        scanned: u64::try_from(page.scanned).map_err(|_| UploadHistoryFailure::Internal)?,
+        fenced: uploads.is_fenced(),
+    })
 }

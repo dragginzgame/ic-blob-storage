@@ -1,6 +1,6 @@
 use super::*;
+use crate::test_support::certificate;
 use crate::workflow::uploads::certificate::UploadCertificateFailure as F;
-use crate::workflow::uploads::certificate::boundary as certificate;
 use crate::workflow::uploads::exposure;
 use exposure_boundary::{evidence, prepared};
 use ic_blob_storage_contracts::dto::upload::UploadState;
@@ -23,7 +23,7 @@ fn certificate_root_resolves_exact_original_permission_and_commits_before_plain_
     let yes = evidence();
     let root = yes.permission.request.object.root.to_string();
     assert_eq!(
-        certificate::resolve(&store, context(5), &root, 2),
+        crate::ops::service::uploads::certificate::resolve(&store, context(5), &root, 2),
         Ok(yes.permission)
     );
     let before = store.usage().unwrap();
@@ -85,12 +85,12 @@ fn certificate_root_is_a_locator_and_never_caller_or_evidence_authority() {
     let before = m.permissions.borrow().clone();
     for actor in [1, 2, 4, 6] {
         assert_eq!(
-            certificate::resolve(&store, context(actor), &root, 2),
+            crate::ops::service::uploads::certificate::resolve(&store, context(actor), &root, 2),
             Err(E::Permission(A::Denied))
         );
     }
     assert_eq!(
-        certificate::resolve(
+        crate::ops::service::uploads::certificate::resolve(
             &store,
             context(5),
             &format!("sha256:{}", "ff".repeat(32)),
@@ -100,7 +100,7 @@ fn certificate_root_is_a_locator_and_never_caller_or_evidence_authority() {
     );
     for root in [String::new(), "sha256:00".to_owned(), "x".repeat(1 << 20)] {
         assert_eq!(
-            certificate::resolve(&store, context(5), &root, 2),
+            crate::ops::service::uploads::certificate::resolve(&store, context(5), &root, 2),
             Err(E::Permission(A::Invalid))
         );
     }
@@ -109,7 +109,7 @@ fn certificate_root_is_a_locator_and_never_caller_or_evidence_authority() {
         ..context(5)
     };
     assert_eq!(
-        certificate::resolve(&store, wrong_service, &root, 2),
+        crate::ops::service::uploads::certificate::resolve(&store, wrong_service, &root, 2),
         Err(E::Permission(A::Binding))
     );
     let mut foreign = yes;
@@ -120,7 +120,7 @@ fn certificate_root_is_a_locator_and_never_caller_or_evidence_authority() {
     );
     assert_eq!(*m.permissions.borrow(), before);
     assert_eq!(
-        certificate::resolve(&store, context(5), &root, 100),
+        crate::ops::service::uploads::certificate::resolve(&store, context(5), &root, 100),
         Err(E::Permission(A::Expired))
     );
     store.revoke(context(4), yes.permission.request).unwrap();
@@ -143,7 +143,12 @@ fn certificate_resolution_rejects_corrupt_root_request_indexes_without_writes() 
         }
         let before = m.permissions.borrow().clone();
         assert_eq!(
-            certificate::resolve(&store, context(5), &root.to_string(), 2),
+            crate::ops::service::uploads::certificate::resolve(
+                &store,
+                context(5),
+                &root.to_string(),
+                2
+            ),
             Err(E::Permission(A::Internal))
         );
         assert_eq!(*m.permissions.borrow(), before);

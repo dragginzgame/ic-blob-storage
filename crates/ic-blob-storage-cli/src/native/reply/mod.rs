@@ -3,6 +3,7 @@ use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
+use ic_blob_storage_contracts::protocol;
 use ic_platform::Principal;
 use serde_json::{Value, json};
 
@@ -24,8 +25,12 @@ pub(super) fn decode(bytes: &[u8], scope: OperatorScope) -> Result<LocalServiceS
         return Err(Failure::ReplyTooLarge);
     }
     let response: Result<LocalServiceStatus, LocalStatusFailure> =
-        ic_blob_storage_contracts::wire::decode_response("blob_local_status", bytes, 64 * 1024)
-            .map_err(|_| Failure::InvalidReply)?;
+        ic_blob_storage_contracts::wire::decode_response(
+            protocol::LOCAL_STATUS_METHOD,
+            bytes,
+            64 * 1024,
+        )
+        .map_err(|_| Failure::InvalidReply)?;
     let status = response.map_err(|error| match error {
         LocalStatusFailure::Binding => Failure::Binding,
         LocalStatusFailure::Denied => Failure::Denied,

@@ -1,9 +1,10 @@
 //! Passive exact-reference recovery inspection, including suspended and restored owners.
-use crate::ops::service::references::status;
+use crate::ops::service::references::failure;
 use crate::ops::service::uploads::StableUploads;
 use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
+use ic_blob_storage_contracts::reference::status::parse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
 
@@ -18,5 +19,13 @@ pub fn inspect<M: Memory>(
     context: UploadContext,
     request: ReferenceStatusRequest,
 ) -> Result<ReferenceStatusResponse, ReferenceFailure> {
-    status::inspect(uploads, context, request)
+    let (upload, reference) = parse(context, request)?;
+    let live = uploads
+        .reference_is_live(context, upload, reference)
+        .map_err(failure)?;
+    Ok(ReferenceStatusResponse {
+        request,
+        live,
+        fenced: uploads.is_fenced(),
+    })
 }

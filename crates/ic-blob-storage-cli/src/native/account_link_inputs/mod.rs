@@ -13,8 +13,13 @@ use std::{
 use super::parsing::positive;
 use super::parsing::principal;
 pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
-    let mut flags = super::parsing::flags(&args[1..])?;
-    let mut take = |key| flags.remove(key).ok_or(Failure::Arguments);
+    let flags = super::arguments::parse(args)?;
+    let take = |key| {
+        flags
+            .get_one::<String>(key)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let binding = AccountLinkBinding {
         cashier: principal(take("--cashier")?)?,
         caller: principal(take("--caller")?)?,
@@ -26,9 +31,6 @@ pub(super) fn run(args: &[String]) -> Result<Value, Failure> {
         expiration_timestamp: positive::<NonZeroU64>(take("--expiry")?)?,
     };
     let directory = Path::new(take("--run-dir")?);
-    if !flags.is_empty() {
-        return Err(Failure::Arguments);
-    }
     let request = AccountLinkRequest::new(binding, terms).map_err(|_| Failure::Arguments)?;
     let report = json!({"schema":1,"observation":"local_account_link_inputs",
         "cashier":binding.cashier.to_text(),"caller":binding.caller.to_text(),

@@ -27,7 +27,24 @@ Existing account-link preparation/inspection interfaces remain the integration
 boundary; hosts must establish the selected relationship and authority. No
 undocumented account authorization or automatic external-payer setup is invented.
 
-## Current Canic adoption — 2026-10-22
+## Current Canic qualification report — 2026-10-24
+
+[Canic #494](https://github.com/dragginzgame/canic/issues/494) now records installed
+Blob 0.43.1/Testkit 0.65 coverage for two acknowledged payments with partial
+refunds, accepted malformed/error replies, held-response concurrency, callback
+traps, bounded renewal and exact mounted paid outcomes. These are reported
+Linux/PocketIC results with controlled provider fixtures, not independently
+rerun here or deployed-provider acceptance. Positive independent-credit receipt
+replay and default-branch delivery remain separate acceptance items in that issue.
+Do not describe accepted-payment coverage as wholly missing or require a new
+receipt API before ordinary acknowledged funding can proceed.
+
+Blob #34 remains open for authenticated project-payer/service linkage, external
+account activity and real-provider reconciliation/spendability. Application
+evidence acquisition and financial policy stay with the application; no additional
+funding engine or downstream fixture belongs here.
+
+## Historical Canic adoption — 2026-10-22
 
 Read-only inspection of Canic's working tree based on
 `cf2d3d1fba84a00a76cdbc541ae7e68fe36e9bb5` finds published Blob/contracts 0.42.0

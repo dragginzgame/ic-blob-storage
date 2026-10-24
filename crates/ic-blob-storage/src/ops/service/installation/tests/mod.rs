@@ -381,7 +381,7 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
 }
 
 #[test]
-fn populated_installation_preserves_full_configuration_scope_verifier_and_owner_fences() {
+fn populated_installation_preserves_full_configuration_scope_and_owner_fences() {
     let memory = memory();
     let original = input();
     let mut installation = ServiceInstallation::install(memories(&memory), validated()).unwrap();

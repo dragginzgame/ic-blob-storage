@@ -1,8 +1,9 @@
+mod schema;
 use super::Failure;
 use super::parsing::positive;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_platform::Principal;
-use std::{collections::BTreeMap, path::PathBuf};
+use std::path::PathBuf;
 use url::{Host, Url};
 
 pub(super) struct Options {
@@ -47,31 +48,6 @@ pub(super) enum Command {
     },
 }
 
-impl Command {
-    fn identity_flag(&self) -> &'static str {
-        match self {
-            Self::GatewayControl(_)
-            | Self::FundingAssessment(_)
-            | Self::InspectAccount(_)
-            | Self::FundingOutcome(_)
-            | Self::UploadHistory(_)
-            | Self::Status { .. }
-            | Self::FundingHistory { .. } => "--operator",
-            Self::PublishSession(_)
-            | Self::PublishMap(_)
-            | Self::PublishPrepareBatch(_)
-            | Self::PublishPrepare(_)
-            | Self::PublishCheck(_)
-            | Self::UploadSetup(_)
-            | Self::Download(_)
-            | Self::Reference(_)
-            | Self::CertificateAssessment(_)
-            | Self::SubmitReference(_)
-            | Self::VerifyUpload { .. } => "--actor",
-        }
-    }
-}
-
 fn principal(value: &str) -> Result<Principal, Failure> {
     let principal = super::parsing::principal(value)?;
     if principal == Principal::anonymous() || principal == Principal::management_canister() {
@@ -83,8 +59,13 @@ fn principal(value: &str) -> Result<Principal, Failure> {
 impl Options {
     pub fn parse(args: &[String]) -> Result<(Command, Self), Failure> {
         let command = args.first().map(String::as_str).ok_or(Failure::Arguments)?;
-        let mut flags = super::parsing::flags(&args[1..])?;
-        let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+        let flags = super::arguments::parse(args)?;
+        let take = |name| {
+            flags
+                .get_one::<String>(name)
+                .map(String::as_str)
+                .ok_or(Failure::Arguments)
+        };
         let network = match take("--network")? {
             "ic" => "ic",
             "local" => "local",
@@ -94,16 +75,21 @@ impl Options {
         let identity = PathBuf::from(take("--identity")?);
         let service = principal(take("--service")?)?;
         let namespace = positive::<u128>(take("--namespace")?)?;
-        let command = parse_command(command, service, namespace, network, &mut flags)?;
+        let command = parse_command(command, service, namespace, network, &flags)?;
         let actor = principal(
             flags
-                .remove(command.identity_flag())
+                .get_one::<String>(if flags.try_contains_id("--operator").unwrap_or(false) {
+                    "--operator"
+                } else {
+                    "--actor"
+                })
+                .map(String::as_str)
                 .ok_or(Failure::Arguments)?,
         )?;
-        let root_key = flags.remove("--root-key").map(PathBuf::from);
-        if !flags.is_empty() {
-            return Err(Failure::Arguments);
-        }
+        let root_key = flags
+            .get_one::<String>("--root-key")
+            .map(String::as_str)
+            .map(PathBuf::from);
         validate_url(&url, network, root_key.is_some())?;
         Ok((
             command,
@@ -130,7 +116,7 @@ fn parse_command(
     service: Principal,
     namespace: u128,
     network: &str,
-    flags: &mut BTreeMap<&str, &str>,
+    flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
     match command {
         "publish-session" => parse_publish_session(service, namespace, network, flags),
@@ -142,7 +128,10 @@ fn parse_command(
         )?)),
         "publish-map" | "publish-file-status" => {
             let selection = if command == "publish-file-status" {
-                let text = flags.remove("--file-index").ok_or(Failure::Arguments)?;
+                let text = flags
+                    .get_one::<String>("--file-index")
+                    .map(String::as_str)
+                    .ok_or(Failure::Arguments)?;
                 let index: usize = text.parse().map_err(|_| Failure::Arguments)?;
                 if index.to_string() != text || index >= super::publish_inputs::MAX_FILES {
                     return Err(Failure::Arguments);
@@ -151,14 +140,20 @@ fn parse_command(
             } else {
                 super::publish_map::Selection::Batch
             };
-            let gateway = Url::parse(flags.remove("--gateway").ok_or(Failure::Arguments)?)
-                .map_err(|_| Failure::Arguments)?;
+            let gateway = Url::parse(
+                flags
+                    .get_one::<String>("--gateway")
+                    .map(String::as_str)
+                    .ok_or(Failure::Arguments)?,
+            )
+            .map_err(|_| Failure::Arguments)?;
             validate_url(&gateway, network, network == "local")?;
             Ok(Command::PublishMap(super::publish_map::Input {
                 selection,
                 operator_identity: PathBuf::from(
                     flags
-                        .remove("--operator-identity")
+                        .get_one::<String>("--operator-identity")
+                        .map(String::as_str)
                         .ok_or(Failure::Arguments)?,
                 ),
                 checks: parse_publish_check(
@@ -186,9 +181,14 @@ fn parse_scoped_command(
     service: Principal,
     namespace: u128,
     network: &str,
-    flags: &mut BTreeMap<&str, &str>,
+    flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     Ok(
         if let Some(kind) = super::upload_setup::Kind::parse(command) {
             Command::UploadSetup(super::upload_setup::Input {
@@ -225,7 +225,10 @@ fn parse_scoped_command(
                 service,
                 namespace,
                 filter: super::upload_history::filter(take("--filter")?)?,
-                cursor: flags.remove("--cursor").map(PathBuf::from),
+                cursor: flags
+                    .get_one::<String>("--cursor")
+                    .map(String::as_str)
+                    .map(PathBuf::from),
             })
         } else if command == "certificate-assessment" {
             Command::CertificateAssessment(super::certificate_assessment::Input {
@@ -265,10 +268,15 @@ fn parse_scoped_command(
 fn parse_publish_check(
     service: Principal,
     namespace: u128,
-    flags: &mut BTreeMap<&str, &str>,
+    flags: &clap::ArgMatches,
     query_limit: u128,
 ) -> Result<super::publish_check::Input, Failure> {
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let max_bytes = maximum(take("--max-bytes")?)?;
     let max_total_bytes = positive::<u128>(take("--max-total-bytes")?)?;
     let max_queries = positive::<u128>(take("--max-queries")?)?;
@@ -298,9 +306,14 @@ fn parse_publish_prepare(
     command: &str,
     service: Principal,
     namespace: u128,
-    flags: &mut BTreeMap<&str, &str>,
+    flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let index_text = if command == "publish-prepare-batch" {
         "0"
     } else {
@@ -328,9 +341,14 @@ fn parse_prepare_input(
     service: Principal,
     namespace: u128,
     index: usize,
-    flags: &mut BTreeMap<&str, &str>,
+    flags: &clap::ArgMatches,
 ) -> Result<super::publish_prepare::Input, Failure> {
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     let max_bytes = maximum(take("--max-bytes")?)?;
     let total = positive::<u128>(take("--max-total-bytes")?)?;
     let timeout = positive::<u128>(take("--timeout-seconds")?)?;
@@ -360,23 +378,40 @@ fn parse_publish_session(
     service: Principal,
     namespace: u128,
     network: &str,
-    flags: &mut BTreeMap<&str, &str>,
+    flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
-    let gateway = Url::parse(flags.remove("--gateway").ok_or(Failure::Arguments)?)
-        .map_err(|_| Failure::Arguments)?;
+    let gateway = Url::parse(
+        flags
+            .get_one::<String>("--gateway")
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)?,
+    )
+    .map_err(|_| Failure::Arguments)?;
     validate_url(&gateway, network, network == "local")?;
-    let max_steps = positive::<u64>(flags.remove("--max-steps").ok_or(Failure::Arguments)?)?;
+    let max_steps = positive::<u64>(
+        flags
+            .get_one::<String>("--max-steps")
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)?,
+    )?;
     if super::publish_session::budget::step_limit(super::publish_inputs::MAX_FILES)
         .is_none_or(|limit| max_steps > limit)
     {
         return Err(Failure::Arguments);
     }
     Ok(Command::PublishSession(super::publish_session::Input {
-        source_session: flags.remove("--source-session").map(PathBuf::from),
-        browser_selection: flags.remove("--browser-selection").map(PathBuf::from),
+        source_session: flags
+            .get_one::<String>("--source-session")
+            .map(String::as_str)
+            .map(PathBuf::from),
+        browser_selection: flags
+            .get_one::<String>("--browser-selection")
+            .map(String::as_str)
+            .map(PathBuf::from),
         operator_identity: PathBuf::from(
             flags
-                .remove("--operator-identity")
+                .get_one::<String>("--operator-identity")
+                .map(String::as_str)
                 .ok_or(Failure::Arguments)?,
         ),
         prepare: parse_prepare_input(service, namespace, 0, flags)?,
@@ -414,9 +449,14 @@ fn parse_operator_command(
     command: &str,
     service: Principal,
     namespace: u128,
-    flags: &mut BTreeMap<&str, &str>,
+    flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
-    let mut take = |name| flags.remove(name).ok_or(Failure::Arguments);
+    let take = |name| {
+        flags
+            .get_one::<String>(name)
+            .map(String::as_str)
+            .ok_or(Failure::Arguments)
+    };
     Ok({
         let scope = OperatorScope {
             service,
@@ -453,7 +493,8 @@ fn parse_operator_command(
             let operation = positive::<u128>(take("--operation")?)?;
             let offered = positive::<u128>(take("--offered")?)?;
             let target_balance = flags
-                .remove("--target-balance")
+                .get_one::<String>("--target-balance")
+                .map(String::as_str)
                 .map(positive::<u128>)
                 .transpose()?;
             if command == "funding-assessment" {
@@ -477,7 +518,10 @@ fn parse_operator_command(
         } else if command == "funding-history" {
             Command::FundingHistory {
                 scope,
-                cursor: flags.remove("--cursor").map(PathBuf::from),
+                cursor: flags
+                    .get_one::<String>("--cursor")
+                    .map(String::as_str)
+                    .map(PathBuf::from),
             }
         } else if command == "status" {
             Command::Status { scope }
@@ -485,4 +529,32 @@ fn parse_operator_command(
             return Err(Failure::Arguments);
         }
     })
+}
+
+/// Parse the selected command before any file or network effect.
+pub(super) fn parse(args: &[String]) -> Result<clap::ArgMatches, Failure> {
+    let matches = schema::cli()
+        .try_get_matches_from(
+            std::iter::once("blob-storage").chain(args.iter().map(String::as_str)),
+        )
+        .map_err(|_| Failure::Arguments)?;
+    matches
+        .subcommand()
+        .map(|(_, args)| args.clone())
+        .ok_or(Failure::Arguments)
+}
+
+/// Clap owns help and syntax errors; its text is not echoed on argument refusal
+/// because CLI inputs may contain sensitive paths or identity material.
+pub(super) fn invocation(args: &[String]) -> Result<bool, Failure> {
+    match schema::cli().try_get_matches_from(
+        std::iter::once("blob-storage").chain(args.iter().map(String::as_str)),
+    ) {
+        Ok(_) => Ok(true),
+        Err(error) if error.kind() == clap::error::ErrorKind::DisplayHelp => {
+            error.print().map_err(|_| Failure::File)?;
+            Ok(false)
+        }
+        Err(_) => Err(Failure::Arguments),
+    }
 }

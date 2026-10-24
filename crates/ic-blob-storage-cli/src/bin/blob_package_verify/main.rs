@@ -8,14 +8,16 @@ fn main() {
         };
         use ic_host_process::tool::{OutputLimit, OutputLimits, ToolError};
         use std::{path::PathBuf, process::Command};
-        let args = std::env::args_os().skip(1).collect::<Vec<_>>();
-        if args.len() != 4 {
-            eprintln!("expected workspace, archive root, retained evidence and version");
-            std::process::exit(2);
-        }
-        let Some(version) = args[3].to_str() else {
-            std::process::exit(2)
-        };
+        let args = clap::Command::new("blob-package-verify")
+            .about("Qualify coordinated package archives without publication")
+            .args(["workspace", "archives", "evidence"].map(|name| {
+                clap::Arg::new(name)
+                    .required(true)
+                    .value_parser(clap::value_parser!(PathBuf))
+            }))
+            .arg(clap::Arg::new("version").required(true))
+            .get_matches();
+        let version = args.get_one::<String>("version").expect("required version");
         let packages = [
             PackageArchiveSpec {
                 name: "ic-blob-storage-contracts",
@@ -34,9 +36,12 @@ fn main() {
             },
         ];
         let result = qualify_package_archives(
-            &PathBuf::from(&args[0]),
-            &PathBuf::from(&args[1]),
-            &PathBuf::from(&args[2]),
+            args.get_one::<PathBuf>("workspace")
+                .expect("required workspace"),
+            args.get_one::<PathBuf>("archives")
+                .expect("required archives"),
+            args.get_one::<PathBuf>("evidence")
+                .expect("required evidence"),
             &packages,
             PackageQualificationLimits {
                 process: OutputLimits {

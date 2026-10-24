@@ -7,12 +7,11 @@ use ic_blob_storage::{
         gateway::{GatewayList, GatewayListError},
     },
     ops::billing::{
-        BillingField, BillingInputError, FundingLimitsInput,
+        BillingField, BillingInputError,
         balance::{
             BalanceAmountsInput, BalanceField, BalanceInputError, balance_amounts_from_candid,
         },
-        configuration::{BillingConfigurationInput, configuration_from_candid},
-        cycles_from_int, funding_from_nat, funding_limits_from_candid, parse_funding_cycles,
+        cycles_from_int, cycles_from_nat,
     },
     policy::billing::{
         BalanceObservation, BillingBlocker, BillingObservation, FundingDecision, FundingStatus,
@@ -24,18 +23,17 @@ use ic_blob_storage::{
         assess_funding, assess_readiness,
     },
 };
+use ic_blob_storage_contracts::configuration::{
+    billing::BillingConfiguration, funding::FundingLimits,
+};
 use ic_platform::Principal;
 use ic_platform::candid::contract::{Int, Nat, encode_one};
 use ic_platform::candid::decoder;
+use std::num::NonZeroU128;
 
 #[test]
 fn wire_valid_malformed_component_cannot_make_billing_ready() {
-    let limits = funding_limits_from_candid(FundingLimitsInput {
-        reserve: &Nat::from(1_u8),
-        minimum_balance: &Nat::from(10_u8),
-        target_balance: &Nat::from(100_u8),
-    })
-    .expect("valid limits");
+    let limits = FundingLimits::new(1, 10, 100).expect("valid limits");
     for (ledger, expected) in [
         (
             Int::from(-1),
@@ -83,22 +81,10 @@ fn wire_valid_malformed_component_cannot_make_billing_ready() {
 }
 
 #[test]
-fn operator_amounts_survive_candid_and_keep_full_request_reserve_rules() {
-    let limits = funding_limits_from_candid(FundingLimitsInput {
-        reserve: &Nat::from(500_u16),
-        minimum_balance: &Nat::from(10_u8),
-        target_balance: &Nat::from(100_u8),
-    })
-    .expect("valid numeric configuration");
-
-    for (text, fits) in [("000500", true), ("501", false)] {
-        let operator_amount = parse_funding_cycles(text).expect("valid operator amount");
-        let bytes = encode_one(Nat::from(operator_amount.get())).expect("Candid encode");
-        let decoded: Nat = decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
-            .expect("Candid decode");
-        let amount = funding_from_nat(&decoded).expect("bounded positive input");
-        assert_eq!(amount, operator_amount);
-        let decision = assess_funding(limits, amount, 1_000);
+fn typed_amounts_keep_full_request_reserve_rules() {
+    let limits = FundingLimits::new(500, 10, 100).unwrap();
+    for (amount, fits) in [(500, true), (501, false)] {
+        let amount = NonZeroU128::new(amount).unwrap();
         let expected = if fits {
             FundingDecision::FitsReserve {
                 requested_cycles: amount,
@@ -109,19 +95,14 @@ fn operator_amounts_survive_candid_and_keep_full_request_reserve_rules() {
                 transferable_cycles: 500,
             }
         };
-        assert_eq!(decision, expected);
+        assert_eq!(assess_funding(limits, amount, 1_000), expected);
     }
 }
 
 #[test]
 fn diagnostic_top_up_does_not_bypass_funding_admission() {
-    let limits = funding_limits_from_candid(FundingLimitsInput {
-        reserve: &Nat::from(500_u16),
-        minimum_balance: &Nat::from(10_u8),
-        target_balance: &Nat::from(100_u8),
-    })
-    .expect("validated limits");
-    let amount = funding_from_nat(&Nat::from(100_u8)).expect("validated request");
+    let limits = FundingLimits::new(500, 10, 100).expect("validated limits");
+    let amount = NonZeroU128::new(100).unwrap();
 
     for (recovery, activity, expected) in [
         (
@@ -186,9 +167,9 @@ fn valid_candid_encoding_does_not_make_out_of_range_numbers_valid() {
     let decoded: Nat = decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
         .expect("Candid decode");
     assert_eq!(
-        funding_from_nat(&decoded),
+        cycles_from_nat(BillingField::ObservedBalance, &decoded),
         Err(BillingInputError::OutOfRange {
-            field: BillingField::RequestedFunding,
+            field: BillingField::ObservedBalance,
         })
     );
 
@@ -210,16 +191,12 @@ fn valid_candid_encoding_does_not_make_out_of_range_numbers_valid() {
 
 #[test]
 fn configuration_drives_gateway_bounds_and_funding_diagnosis() {
-    let configuration = configuration_from_candid(BillingConfigurationInput {
-        cashier: Principal::from_slice(&[9, 1]),
-        funding: FundingLimitsInput {
-            reserve: &Nat::from(100_u8),
-            minimum_balance: &Nat::from(10_u8),
-            target_balance: &Nat::from(50_u8),
-        },
-        max_gateway_entries: 3,
-        max_gateway_unique: 2,
-    })
+    let configuration = BillingConfiguration::new(
+        Principal::from_slice(&[9, 1]),
+        FundingLimits::new(100, 10, 50).unwrap(),
+        3,
+        2,
+    )
     .expect("validated configuration");
     let first = Principal::from_slice(&[1, 1]);
     let second = Principal::from_slice(&[2, 1]);
@@ -251,7 +228,7 @@ fn configuration_drives_gateway_bounds_and_funding_diagnosis() {
     assert_eq!(
         blocked.funding(),
         FundingStatus::TopUp(FundingDecision::ReserveWouldBeViolated {
-            requested_cycles: parse_funding_cycles("41").expect("positive amount"),
+            requested_cycles: NonZeroU128::new(41).unwrap(),
             transferable_cycles: 40,
         })
     );

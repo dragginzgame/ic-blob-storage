@@ -18,6 +18,7 @@ use ic_blob_storage_contracts::dto::download::DownloadResponse;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
+use ic_blob_storage_contracts::protocol;
 use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
 use ic_blob_storage_contracts::provider::download::request_target;
 use ic_platform::Principal;
@@ -103,7 +104,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     let identity = identity(&options.identity, options.actor)?;
     let run = Run::create(&input.directory)?;
     let argument =
-        ic_blob_storage_contracts::wire::encode_request("blob_download_descriptor", request)
+        ic_blob_storage_contracts::wire::encode_request(protocol::DOWNLOAD_METHOD, request)
             .map_err(|_| Failure::Arguments)?;
     run.bytes("request.wire", &argument)?;
     run.json("plan.json", &json!({"schema":1,"operation":"tenant_download",

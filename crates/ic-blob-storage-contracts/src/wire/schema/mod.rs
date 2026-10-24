@@ -17,13 +17,13 @@ macro_rules! projection {
     ($mode:ident, tenant_inspection, fn $name:ident($arg:ident: $request:ty) -> $reply:ty $body:block) => {
         fn $name() -> Result<Value, GenerationError> {
             let _ = std::marker::PhantomData::<fn($request) -> $reply>;
-            method::<super::tenant::Scope<'_>, Result<super::tenant::Observation<'_>, super::tenant::Failure>>(stringify!($name))
+            method::<super::tenant::Scope<'_>, Result<super::tenant::Observation<'_>, crate::dto::tenant::TenantFailure>>(stringify!($name))
         }
     };
     ($mode:ident, tenant_update, fn $name:ident($arg:ident: $request:ty $(,)?) -> $reply:ty $body:block) => {
         fn $name() -> Result<Value, GenerationError> {
             let _ = std::marker::PhantomData::<fn($request) -> $reply>;
-            method::<super::tenant::UpdateRequest<'_>, Result<super::tenant::Observation<'_>, super::tenant::Failure>>(stringify!($name))
+            method::<super::tenant::UpdateRequest<'_>, Result<super::tenant::Observation<'_>, crate::dto::tenant::TenantFailure>>(stringify!($name))
         }
     };
     ($mode:ident, $category:ident, fn $name:ident($arg:ident: $request:ty $(,)?) -> $reply:ty $body:block) => {
@@ -52,7 +52,7 @@ macro_rules! collect_projection {
     ($out:ident; query, $category:ident, fn $name:ident $($rest:tt)*) => { $out.push($name()?); };
 }
 macro_rules! collect_projections {
-    ($emit:ident; $([$($entry:tt)*])*) => {{
+    ($emit:ident; $([$constant:ident, $id:tt; $($entry:tt)*])*) => {{
         let mut methods = Vec::new();
         $(collect_projection!(methods; $($entry)*);)*
         methods

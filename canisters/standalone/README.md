@@ -25,7 +25,8 @@ The interface test compares the provider declaration with `service.did` and
 checks every production method name/mode against the shared endpoint catalog.
 It also rejects the extraction export in production Wasm.
 
-Production endpoints use Platform 0.2.2, without a legacy Platform dependency.
+Production endpoints use the published Platform selected by the workspace lockfile,
+without a legacy Platform dependency.
 Host inspects compiled function exports to verify names and modes independently
 of the native provider schema. The deployment dependency guard rejects legacy
 Platform/CDK and native tooling in the normal/build Wasm graph.

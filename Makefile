@@ -155,6 +155,7 @@ platform-boundary-check:
 
 contracts-boundary-check:
 	+bash scripts/ci/check-runtime-free-contracts.sh
+	+bash scripts/ci/test-runtime-free-contracts.sh
 
 check:
 	+cargo check --offline --locked --workspace --all-targets --all-features
@@ -236,7 +237,8 @@ test-hard-cut:
 
 test-standalone:
 	+$(MAKE) --no-print-directory testkit-check
-	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-gateway-source -p blob-storage-probe -p blob-consumer-probe --lib
+	+$(MAKE) --no-print-directory build-standalone
 	+cargo build --offline --locked -p ic-blob-storage-cli
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone -- --test-threads=1
 

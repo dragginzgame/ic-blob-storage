@@ -23,7 +23,7 @@ pub(super) fn intent(
     })
 }
 
-pub(super) const fn phase(state: FundingIntentState) -> FundingPhase {
+pub(crate) const fn phase(state: FundingIntentState) -> FundingPhase {
     match state {
         FundingIntentState::Prepared => FundingPhase::Prepared,
         FundingIntentState::Uncertain => FundingPhase::Uncertain,
