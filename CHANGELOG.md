@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.44.1]
+## [0.44.1] - 2026-10-24
 
 - Qualify Platform 0.6.14, Memory/Storage 0.50.16 and Metrics 0.15.8 with the
   existing Wire 0.6.12 protocol; align manifest minimums with the reviewed graph.
