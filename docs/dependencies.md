@@ -144,7 +144,8 @@ principal bytes and local decoder limits are unchanged. These are native test
 changes, not new deployment dependencies. Host Tools' decoder limits now belong
 to Platform; Blob already uses that canonical type and does not need a bridge.
 The optional package verifier and its Build dependency stay on the same Host
-process identity. After adoption, explicitly prepare the locked Testkit CLI with
+process identity. Archive qualification passes explicit default-feature selection to
+Build; packaging, extracted metadata and tests retain the previous graph policy. After adoption, explicitly prepare the locked Testkit CLI with
 `make install-testkit` and the locked release editor with
 `make install-release-editor`; application lockfile changes do not install tools.
 
@@ -339,6 +340,14 @@ and [funding qualification](funding-consumer-qualification.md). Provider payer,
 credit, GC, deletion and billing facts cannot be replaced with local substitutes.
 
 ## Setup and checks
+
+The Platform boundary target enables Shared Tooling's reviewed external-IC package
+inventory alongside Blob's stricter local rules. It checks aliases, optional,
+build/dev and target-specific declarations. Deployment exclusions still use the
+separate resolved-graph gate; a declaration check does not prove Wasm contents.
+The common inventory is a known-package list, not automatic discovery of all IC crates.
+`make tools-report` collects every offline tool-check result without installing tools;
+release admission continues to use fail-fast `tools-check`.
 
 `make install-tools` provisions the complete shared host/IC/Cargo set followed by
 Blob's lock-selected Testkit CLI/server. `make tools-check` admits those selections

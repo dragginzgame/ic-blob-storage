@@ -163,8 +163,8 @@ admit each actual locked graph and policy before lint and artifact checks,
 preserving separate qualification for native hosts and installed IC behavior.
 The declaration
 gate opts in to shared Cargo package/dependency inheritance checks. The separate
-Platform boundary target uses Shared's canonical package-identity checker and
-Blob's explicit exception policy; that policy is a guarded CI input. It covers
+Platform boundary target uses Shared's canonical package-identity checker, its
+external-IC inventory and Blob's stricter local policy; that policy is a guarded CI input. It covers
 all direct dependency kinds/targets, not transitive deployment admission.
 The upstream exporter/governance integration fixture runs in Shared Tooling;
 it is omitted from Blob's selected files and gate. Actual snapshot verification,

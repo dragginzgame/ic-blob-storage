@@ -1,88 +1,69 @@
 # Current status — 2026-10-24
 
-## Released baseline and pending cleanup
+## Released baseline and pending adoption
 
-Released baseline is `dcbb881` (0.43.4); cleanup source is committed at `c9bd705`. Blob #100/#101 are closed; their published
-schema and descriptor APIs are adopted in Canic's working tree. The
-[previous handoff](archive/2026-10-24-pre-cleanup.md) retains original validation
-and historical pending-release descriptions.
+Released baseline is `cca4571` (0.44.0). The architectural cleanup, native Clap
+adoption and Testkit fixture repair are in that source. Its committed handoff
+retains previous qualification; those results are not new evidence for this graph.
 
-Pending **0.44.0** consolidates method names/IDs/budgets in the endpoint catalog,
-uses canonical tenant enrollment/failure DTOs inside borrowed Wire projections,
-and removes forwarding-only capacity/discovery/manifest workflow layers. The
-removed public `wire::tenant::{Enrollment, Failure}` projections require consumers
-to use `dto::tenant::{TenantEnrollment, TenantFailure}`. Endpoint identities,
-protocol bytes and persisted records remain unchanged; normal cross-release
-retirement/reinstall policy still applies.
+Pending **0.44.1** adopts published IC Tooling 0.67.0 across Build, Host artifacts,
+FS, HTTP, Process, Tools and Testkit. The archive verifier now passes explicit
+`CargoFeatureSelection::default()`; archive packaging, metadata and tests preserve
+its former default-feature policy. No Blob public protocol, persistence or runtime
+contract changes are introduced. Cargo package versions remain 0.44.0.
 
-Tenant scope checks now share a pure ordered authority predicate. Synchronous
-service access observes continuity and performs work within one host borrow.
-Private probe journals share bounded persistence plumbing with original record
-codecs, keys and quotas. Production feature checks reject test-support access.
-Provider/acceptance documentation describes the released trust contract and
-retains superseded investigations as historical evidence.
+Shared Tooling is pinned to `4c0f198e56d4c6d27b12a5c2d515e0e01070151e`, verified
+as the latest pushed HEAD during adoption. That commit's `VERSION` is **0.26.10**,
+although its title/changelog call the setup-timing change 0.26.11. The snapshot
+retains the canonical committed annotation; the dirty sibling VERSION was not used.
+The exporter ran from an isolated clean clone, preserving the sibling checkout.
 
-The second cleanup pass isolates `test-standalone` builds, rejects private fixture
-packages in deployment graphs, and applies catalog budgets to generic codec helpers.
-It retires the unused public Candid configuration/operator-amount input API in favor
-of Contracts validation and typed positive amounts. Provider balance decoding remains.
-Certificate roots resolve once before exact final exposure checks; test-support
-completion returns a marker and callers inspect observations explicitly. Remaining
-history/operator orchestration and account checks now share the workflow owner.
-Decoder configuration and CLI method names reuse existing canonical definitions.
+The adopted snapshot includes Cargo setup phase timing, offline aggregate tool
+reports, literal formatting catalogs and common external-IC dependency inventory.
+Blob enables `--external-ic` alongside its stricter local policy and includes the
+inventory in frozen CI inputs. Deployment graph exclusions remain independent.
+The inventory is a reviewed list, not proof of complete external-package discovery.
+Optional hosted Cargo-tool caching was not enabled by this adoption.
 
-## Upstream package and shared-tooling adoption
+## Dependency graph and qualification
 
-The incoming lock selects Platform 0.6.13, Wire 0.6.12, Host/Build/Testkit 0.66.3,
-Memory/Storage 0.50.13 and Metrics 0.15.7. Shared Tooling remains 0.26.8.
-This batch preserves incoming dependency selections, adds the existing Memory
-edge for optional private probe persistence, and selects native-only Clap 4.6.7
-without color/suggestions for the CLI grammar.
-Manifests, lockfile and snapshot remain authoritative; no sibling overrides exist.
+The incoming Memory/Storage 0.50.15 lock changes are preserved. Platform remains
+0.6.13, Wire 0.6.12 and Metrics 0.15.7. Only the seven Tooling package identities
+changed against this task's initial graph; no path overrides or sibling dependencies
+were added. Manifest/lock selections remain authoritative.
 
-## Current checks and next work
+Before-images: `/tmp/blob-tooling-before/`; evidence: `/tmp/blob-tooling-*.log`,
+`/tmp/blob-shared-{impact,adoption}.log`. Published archive APIs were inspected
+from Cargo's registry source; repository guidance was checked against them.
 
-The third cleanup pass replaces hand-written flag machinery and syntax help with
-Clap across Blob, probe and package-verification commands. Domain identity/trust
-and budget checks remain in command handlers; Blob JSON version and sanitized
-argument refusals remain supported. Reference-status parsing/observation now lives
-in its existing workflow, and stale current storage/funding descriptions are removed.
-The proposed account split was not applied: operator inspection checks all four
-owners' retained-state consistency before and after await. Its small presentation
-conversion does not justify a second observation API or weakening those checks.
+Strict CLI/PocketIC all-target/all-feature Clippy passes. Native CLI qualification
+passes 114 Blob tests, 7 probe tests and 1 native-file test; the PocketIC support
+library passes 25 cases. Fresh standalone release Wasm and both focused installed
+installation/endpoint-surface checks pass using Testkit 0.67.0. The archive verifier
+passes real same-version replacement plus graph and final drift refusal fixtures.
 
-Third-pass before-images: `/tmp/blob-third-before/`; logs: `/tmp/blob-third-*.log`.
-Focused CLI tests pass (114 Blob, 7 probe, 1 native-file); the reference-status
-rejection/liveness tests and account authority/restore test pass (3 Core tests).
-Native HTTP fixtures required loopback permission; their earlier sandbox failures
-were retained and the focused CLI suite rerun successfully. Strict CLI/Core Clippy,
-Rust 1.91 CLI all-target/all-feature checks, Core Wasm compilation, manifest/Rust
-formatting and dependency/deployment boundaries pass. Only Clap's dependency
-closure changed relative to this pass's incoming Platform 0.6.13 graph.
+Snapshot integrity, dependency pins, common/local boundaries, deployment exclusions,
+formatting, consumer Shared fixtures, hooks and substituted release routing pass.
+An isolated real-metadata probe rejects renamed optional and target-specific dev
+IC dependencies. Lock-selected Testkit and Build editor setup succeeds; `tools-report`
+admits Host, Rust, IC, Testkit and release-editor tools offline. Setup timing remains
+on stderr while the adapter's stdout retains only the selected path.
 
-Earlier second-pass evidence under `/tmp/blob-next-*.log` qualified Platform 0.6.12:
-699 native tests, 246 PocketIC cases, 137 frozen frames/27 methods, byte-identical
-schema JSON, and workspace/standalone MSRV checks. Those runtime results are not
-new qualification of Platform 0.6.13. Fifteen separately selected cases were ignored.
-
-The release gate exposed a missing substitute for `test-runtime-free-contracts.sh`
-in the isolated Testkit/Make fixture. Both boundary commands are now substituted;
-the full `make shared-tooling-tests` target, shell lint and documentation links pass.
-Production boundary checks remain unchanged. Original failing fixture: `/tmp/blob-testkit-commands.6LCglV`.
-
-Full release CI, installed/optimized-Wasm qualification, native macOS, current-feed
-security audit and deployed-provider qualification were not rerun in this pass.
+Rust 1.91 CLI/PocketIC all-target/all-feature checks and final documentation links
+pass. The final lock SHA-256 is
+`bf2acaa4480cbda8056b00a73777e6b5c9805edf06ab117fd130558759f5a888`.
+Full release CI, full PocketIC suites, optimizer qualification, native macOS,
+current-feed security audit and deployed provider checks are not claimed.
 No staging, commit, push, release, publication, sibling edit or paid effect occurred.
 
 ## Ownership and outstanding acceptance
 
 Blob owns service authority, storage, references, quotas, funding/GC journals and
 recovery. Canic owns framework adapters, lifecycle and installed composition.
-The latest read-only Canic review selects Blob 0.43.4 in all three locks and
-reports dedicated/embedded and accepted-payment/recovery tests. Its #613 still
-needs schema generation in normal builds, release hash propagation and frontend
-delivery; #622 needs delivery, and #494 retains positive independent-credit
-receipt qualification. These are not missing ordinary Blob funding APIs.
+The last read-only Canic review selected Blob 0.43.4 and reported dedicated/embedded
+and accepted-payment/recovery tests; adoption was not refreshed in this task.
+Canic #613 tracks build/schema delivery, #622 application delivery, and #494
+independent credit qualification. They do not indicate missing ordinary Blob funding APIs.
 
 Blob #4/#5/#6/#31/#34 retain actual application/provider acceptance: publication,
 serving, multi-user uploads, payer linkage/activity, deletion and billing cessation.
@@ -91,6 +72,5 @@ serving, multi-user uploads, payer linkage/activity, deletion and billing cessat
 
 [Blob #102](https://github.com/dragginzgame/ic-blob-storage/issues/102) tracks the
 native Agent crypto-bigint advisory; [Platform #50](https://github.com/dragginzgame/ic-platform/issues/50)
-owns the supplier correction. The normal standalone graph excludes it. The
-[dependency review](../dependencies.md#open-native-agent-advisory) records the
-incoming graph and retained RustSec revision; no exemption or correction is claimed.
+owns the supplier correction. Normal standalone deployment excludes that graph.
+No current-feed security audit, exemption or correction is claimed by this adoption.

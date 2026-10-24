@@ -31,7 +31,7 @@ export PUBLISH_PACKAGE
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
 CI_TARGETS := shared-tooling-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
-CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-dependency-boundaries.json \
+CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
@@ -151,7 +151,7 @@ hooks-check:
 
 .PHONY: platform-boundary-check
 platform-boundary-check:
-	+bash scripts/ci/check-cargo-dependency-boundaries.sh --consumer "$(CURDIR)"
+	+bash scripts/ci/check-cargo-dependency-boundaries.sh --consumer "$(CURDIR)" --external-ic
 
 contracts-boundary-check:
 	+bash scripts/ci/check-runtime-free-contracts.sh

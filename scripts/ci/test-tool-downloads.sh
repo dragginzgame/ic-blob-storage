@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
-# Shared companions: scripts/dev/tool-store.sh scripts/ci/verify-file-checksum.sh
+# Shared companions: scripts/dev/tool-store.sh scripts/ci/verify-file-checksum.sh scripts/ci/fixture-lifecycle.sh
 set -euo pipefail
 ROOT="${BASH_SOURCE[0]}"
 [[ "$ROOT" == /* ]] || ROOT="$PWD/$ROOT"
 ROOT="$(cd -P "${ROOT%/*}/../.." && printf '%s/.' "$PWD")"; ROOT="${ROOT%/.}"
-fixture="$(mktemp -d "${TMPDIR:-/tmp}/tool-downloads.XXXXXX")"
+# shellcheck source=scripts/ci/fixture-lifecycle.sh
+source "$ROOT/scripts/ci/fixture-lifecycle.sh"
+fixture="$(fixture_create "${TMPDIR:-/tmp}/tool-downloads.XXXXXX")"
 server=''
 fixture_complete=false
 finish() {
     local status=$?
-    [[ "$fixture_complete" == true || "$status" != 0 ]] || status=1
     if [[ -n "$server" ]]; then kill "$server" 2>/dev/null || true; wait "$server" 2>/dev/null || true; fi
-    if [[ "$status" == 0 ]]; then rm -rf "$fixture"
-    else printf 'Download fixtures retained: %s\n' "$fixture" >&2; fi
-    exit "$status"
+    fixture_finish "$status" "$fixture" 'Download fixtures retained'
 }
 trap finish EXIT
 trap 'exit 130' INT

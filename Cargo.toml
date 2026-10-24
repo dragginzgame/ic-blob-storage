@@ -33,11 +33,11 @@ hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.44.0" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.44.0" }
-ic-build = "0.66.0"
-ic-host-artifacts = { version = "0.66.0", default-features = false }
-ic-host-fs = { version = "0.66.0", default-features = false }
-ic-host-http = { version = "0.66.0", default-features = false }
-ic-host-process = { version = "0.66.0", default-features = false }
+ic-build = "0.67.0"
+ic-host-artifacts = { version = "0.67.0", default-features = false }
+ic-host-fs = { version = "0.67.0", default-features = false }
+ic-host-http = { version = "0.67.0", default-features = false }
+ic-host-process = { version = "0.67.0", default-features = false }
 ic-memory = "0.50.1"
 ic-platform = { version = "0.6.9", default-features = false }
 ic-storage = "0.50.1"
@@ -58,9 +58,9 @@ url = "2.5.8"
 # Tests and tooling only
 blob-test-protocol = { path = "tests/protocol" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
-ic-host-tools = { version = "0.66.0", default-features = false }
+ic-host-tools = { version = "0.67.0", default-features = false }
 ic-metrics = "0.15.0"
-ic-testkit = "0.66.0"
+ic-testkit = "0.67.0"
 
 [workspace.lints.rust]
 missing_docs = "deny"

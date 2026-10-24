@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.44.1]
+
+- Adopt published IC Tooling 0.67.0 across Build, Host and Testkit. Pass explicit
+  default-feature selection to archive qualification, preserving its existing graph.
+- Refresh Shared Tooling to commit `4c0f198` (committed version 0.26.10), including
+  Cargo setup timing, tool diagnostics and the common external-IC dependency guard.
+  Enable that guard alongside Blob’s stricter local rules and bind its inventory
+  into validation inputs.
+
 ## [0.44.0] - 2026-10-24
 
 - Repair the isolated Testkit/Make admission fixture after deployment-boundary

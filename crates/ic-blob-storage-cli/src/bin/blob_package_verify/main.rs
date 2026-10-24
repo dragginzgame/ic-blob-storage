@@ -6,6 +6,7 @@ fn main() {
             PackageArchiveSpec, PackageCommandError, PackageQualificationLimits,
             qualify_package_archives,
         };
+        use ic_build::cargo::selection::CargoFeatureSelection;
         use ic_host_process::tool::{OutputLimit, OutputLimits, ToolError};
         use std::{path::PathBuf, process::Command};
         let args = clap::Command::new("blob-package-verify")
@@ -43,6 +44,7 @@ fn main() {
             args.get_one::<PathBuf>("evidence")
                 .expect("required evidence"),
             &packages,
+            &CargoFeatureSelection::default(),
             PackageQualificationLimits {
                 process: OutputLimits {
                     stdout: OutputLimit::Terminate(64 * 1024 * 1024),
