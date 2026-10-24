@@ -2,6 +2,10 @@
 
 ## [0.44.1]
 
+- Qualify Platform 0.6.14, Memory/Storage 0.50.16 and Metrics 0.15.8 with the
+  existing Wire 0.6.12 protocol; align manifest minimums with the reviewed graph.
+  Preserve endpoint bytes, decoder budgets and stored records.
+
 - Adopt published IC Tooling 0.67.0 across Build, Host and Testkit. Pass explicit
   default-feature selection to archive qualification, preserving its existing graph.
 - Refresh Shared Tooling to commit `4c0f198` (committed version 0.26.10), including

@@ -2,7 +2,7 @@
 
 ## Released baseline and pending adoption
 
-Released baseline is `cca4571` (0.44.0). The architectural cleanup, native Clap
+Released baseline is `cca4571` (0.44.0); pending adoption source is `64aeb49`. The architectural cleanup, native Clap
 adoption and Testkit fixture repair are in that source. Its committed handoff
 retains previous qualification; those results are not new evidence for this graph.
 
@@ -27,31 +27,39 @@ Optional hosted Cargo-tool caching was not enabled by this adoption.
 
 ## Dependency graph and qualification
 
-The incoming Memory/Storage 0.50.15 lock changes are preserved. Platform remains
-0.6.13, Wire 0.6.12 and Metrics 0.15.7. Only the seven Tooling package identities
-changed against this task's initial graph; no path overrides or sibling dependencies
-were added. Manifest/lock selections remain authoritative.
+The reviewed graph selects Platform 0.6.14, Memory/Storage 0.50.16, Metrics 0.15.8,
+Wire 0.6.12 and Tooling 0.67.0. Manifest minimums now match these published releases.
+The incoming lockfile, including crypto-common/generic-array selections, is preserved
+byte-for-byte. No source overrides or unpublished sibling packages are used.
+Registry checks outside this workspace confirmed Wire 0.6.13 is not yet published.
+Shared Tooling and IC Tooling remote HEADs remain at the prior selected revisions.
 
-Before-images: `/tmp/blob-tooling-before/`; evidence: `/tmp/blob-tooling-*.log`,
-`/tmp/blob-shared-{impact,adoption}.log`. Published archive APIs were inspected
-from Cargo's registry source; repository guidance was checked against them.
+Published Memory/Storage source trees are identical to 0.50.15; Metrics source is
+identical to 0.15.7. Platform's source changes add signature-verification evidence
+that Blob does not enable; used runtime and codec source paths are unchanged.
+No caller rewrite, protocol change or persisted-format migration is needed.
 
-Strict CLI/PocketIC all-target/all-feature Clippy passes. Native CLI qualification
-passes 114 Blob tests, 7 probe tests and 1 native-file test; the PocketIC support
-library passes 25 cases. Fresh standalone release Wasm and both focused installed
-installation/endpoint-surface checks pass using Testkit 0.67.0. The archive verifier
-passes real same-version replacement plus graph and final drift refusal fixtures.
+Current before-images: `/tmp/blob-upstream-before/`; evidence:
+`/tmp/blob-upstream-*.log`. Strict Clippy passes for the affected Core, Contracts,
+Client, CLI, storage probe and PocketIC targets/features. Memory composition,
+installation, stored-record and Wire-boundary tests pass, as do native signed-update
+and HTTP failure-handling tests. Fresh release standalone Wasm and a rebuilt CLI
+pass both installed endpoint-surface and installation/service-binding tests.
+Final installed proof is `/tmp/blob-upstream-installed-fresh.log`; the earlier
+installed run preceded the explicit CLI rebuild and is not final graph proof.
+Rust 1.91 checks pass for affected public libraries, CLI and storage probe, across
+all their targets/features. Snapshot, pins, declaration/deployment boundaries,
+formatting and documentation links pass.
 
-Snapshot integrity, dependency pins, common/local boundaries, deployment exclusions,
-formatting, consumer Shared fixtures, hooks and substituted release routing pass.
-An isolated real-metadata probe rejects renamed optional and target-specific dev
-IC dependencies. Lock-selected Testkit and Build editor setup succeeds; `tools-report`
-admits Host, Rust, IC, Testkit and release-editor tools offline. Setup timing remains
-on stderr while the adapter's stdout retains only the selected path.
+Previous Tooling-specific qualification remains in `/tmp/blob-tooling-*.log`:
+real archive replacement/drift regressions, Shared consumer fixtures, hooks,
+substituted release routing and offline tool admission passed. No Tooling or
+Shared implementation changed in this follow-up; those checks were not repeated.
+The common external-IC inventory also has retained negative alias/optional/dev
+admission evidence. Setup uses the published Testkit and Build editor CLIs.
 
-Rust 1.91 CLI/PocketIC all-target/all-feature checks and final documentation links
-pass. The final lock SHA-256 is
-`bf2acaa4480cbda8056b00a73777e6b5c9805edf06ab117fd130558759f5a888`.
+The current lock SHA-256 is
+`ed4f3c88b52050dbed1177100bd859c6731d4bf7a083e83e690c203f1e71d26d`.
 Full release CI, full PocketIC suites, optimizer qualification, native macOS,
 current-feed security audit and deployed provider checks are not claimed.
 No staging, commit, push, release, publication, sibling edit or paid effect occurred.
