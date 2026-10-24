@@ -2,6 +2,10 @@
 
 ## [0.44.0]
 
+- Repair the isolated Testkit/Make admission fixture after deployment-boundary
+  checks gained a second command. Keep both boundary commands substituted so
+  ordered tool-failure checks reach admission without invoking real builds.
+
 - Use Clap for native command grammar, duplicate/unknown/required flags and generated
   help, including provider probes and package qualification. Preserve Blob's JSON
   version and sanitized argument-error output, command names and domain validation.

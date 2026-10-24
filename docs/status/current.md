@@ -2,7 +2,7 @@
 
 ## Released baseline and pending cleanup
 
-Released HEAD is `dcbb881` (0.43.4). Blob #100/#101 are closed; their published
+Released baseline is `dcbb881` (0.43.4); cleanup source is committed at `c9bd705`. Blob #100/#101 are closed; their published
 schema and descriptor APIs are adopted in Canic's working tree. The
 [previous handoff](archive/2026-10-24-pre-cleanup.md) retains original validation
 and historical pending-release descriptions.
@@ -64,6 +64,11 @@ Earlier second-pass evidence under `/tmp/blob-next-*.log` qualified Platform 0.6
 699 native tests, 246 PocketIC cases, 137 frozen frames/27 methods, byte-identical
 schema JSON, and workspace/standalone MSRV checks. Those runtime results are not
 new qualification of Platform 0.6.13. Fifteen separately selected cases were ignored.
+
+The release gate exposed a missing substitute for `test-runtime-free-contracts.sh`
+in the isolated Testkit/Make fixture. Both boundary commands are now substituted;
+the full `make shared-tooling-tests` target, shell lint and documentation links pass.
+Production boundary checks remain unchanged. Original failing fixture: `/tmp/blob-testkit-commands.6LCglV`.
 
 Full release CI, installed/optimized-Wasm qualification, native macOS, current-feed
 security audit and deployed-provider qualification were not rerun in this pass.

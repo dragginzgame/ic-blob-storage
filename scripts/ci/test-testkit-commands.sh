@@ -147,7 +147,11 @@ printf 'unexpected-build\n' >> "$TESTKIT_COMMAND_LOG"
 exit 98
 CARGO
 chmod +x "$fixture/bin/cargo"
-printf '# Substitute boundary check; no build.\n' > "$consumer/scripts/ci/check-runtime-free-contracts.sh"
+# Both commands belong to the real contracts-boundary-check prerequisite.
+# This fixture qualifies tool admission, not their independent Cargo fixtures.
+for script in check-runtime-free-contracts test-runtime-free-contracts; do
+    printf '# Substitute boundary check; no build.\n' > "$consumer/scripts/ci/$script.sh"
+done
 for target in install-tools tools-check; do
     action=setup; [[ "$target" != tools-check ]] || action=check
     : > "$TESTKIT_COMMAND_LOG"
