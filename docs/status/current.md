@@ -1,6 +1,47 @@
 # Current status — 2026-10-24
 
-## Released baseline and completed cleanup
+## Current batch: Tooling and Persistence dependencies
+
+Released baseline is now `27d0905` (0.45.0). The earlier qualification sections
+below describe completed work, not pending release blockers. The pending Memory type-identity cut
+now targets 0.46.0 without changing package versions.
+
+Adopted published Build, Host artifacts/fs/http/process/tools and Testkit 0.68.1
+minimums. The incoming lockfile already selected all seven packages and is
+preserved byte-for-byte. Platform 0.6.15, Wire 0.7.2 and the existing feature
+selections remain unchanged. No application, stored-format or endpoint change.
+
+Strict Clippy and Rust 1.91 native checks pass for CLI/PocketIC all targets and
+features. Declaration/deployment boundaries, negative fixtures, formatting,
+documentation and locked Testkit/release-editor command forwarding pass.
+Native CLI tests also pass (114 Blob tests and 7 probe tests, with loopback
+HTTP fixtures). Lock-selected Testkit and release-editor executables were
+prepared explicitly; both offline admission checks pass. Evidence: `/tmp/blob-tooling0681-*.log`. No macOS, installed-canister or Wasm
+qualification has been rerun for this host dependency patch.
+
+### Memory/Storage 0.51.0
+
+Verified published Memory and Storage 0.51.0 and preserved the incoming manifest
+selection (`0.51`) and lockfile. Their published Rust source trees are identical
+to 0.50.17; both retain Rust 1.91. No local API adapter or storage rewrite is needed.
+However, Blob publicly re-exports Memory and exposes its types: embedding hosts
+must select the 0.51 line too. This changes Cargo type identity and requires the
+pending 0.46.0 minor release despite unchanged implementation and retained bytes.
+Blob's reinstall-only cross-release policy remains in force; no automatic
+migration or cross-release upgrade support is introduced.
+
+Metrics 0.16.0 and Tooling 0.68.1 remain selected. Blob uses only Metrics arithmetic
+in its probe, not the metrics-stable adapter now owned by IC Persistence. The
+previous 0.50.17 qualification is retained in `/tmp/blob-persistence5017-*.log`;
+new 0.51 qualification is in `/tmp/blob-persistence51-*.log`.
+
+On 0.51, 339 core tests, 4 measurement tests and 2 composition tests pass, as do
+strict Clippy, Rust 1.91 native/Wasm checks, dependency/deployment boundaries,
+formatting and documentation checks. Fresh release storage-probe Wasm passes
+installed PocketIC restoration/read-attribution through same-release upgrades.
+No macOS, live provider or cross-release upgrade qualification is claimed.
+
+## Historical 0.44.3 baseline and completed cleanup
 
 Released baseline: `9534f42` (0.44.3). The completed cleanup preserved
 endpoint identities, Wire frames, stored schema and stable keys.
@@ -111,7 +152,7 @@ empty-version failure was environment-specific. Local loopback provider fixtures
 are not production acceptance. No live provider/account or paid effect occurred.
 Historical trial documents remain labelled historical; no attestation is restored.
 
-## Pending 0.45.0: published Platform/Wire and Shared Tooling
+## Released 0.45.0: published Platform/Wire and Shared Tooling
 
 Adopted published Platform/macros 0.6.15 and Wire/derive 0.7.2, resolving the
 publication blocker in [Platform #55](https://github.com/dragginzgame/ic-platform/issues/55).

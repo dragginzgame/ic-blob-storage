@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.46.0]
+
+- **Breaking:** adopt Memory/Storage 0.51.0. Embedding hosts must select Memory
+  0.51 alongside Blob because its public memory types have new Cargo identities.
+  Allocation, collection and stored formats are unchanged. Retain Metrics 0.16.0;
+  Blob does not use the relocated stable metrics adapter.
+
+- Adopt coordinated IC Build, Host and Testkit 0.68.1, aligning their Platform
+  and Wire minimums with Blob and retaining existing protocols and features.
+
 ## [0.45.0] - 2026-10-24
 
 - Adopt Platform 0.6.15 and Wire 0.7.2. Decode-only callers no longer require
