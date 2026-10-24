@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.47.0]
+## [0.47.0] - 2026-10-24
 
 - **Breaking:** Contracts no longer enables `provider-json` by default. Native
   SDK/HTTP parsing consumers must select it explicitly; endpoint bytes are unchanged.
