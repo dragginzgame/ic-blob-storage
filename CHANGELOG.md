@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.45.0]
+## [0.45.0] - 2026-10-24
 
 - Adopt Platform 0.6.15 and Wire 0.7.2. Decode-only callers no longer require
   Serialize; collection/custom decoders may normalize input and malformed
