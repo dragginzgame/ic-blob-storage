@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.44.2]
+
+- Clarify application acceptance for multi-user uploads, browser serving and
+  project-payer funding, with explicit evidence and uncertainty stop conditions.
+  Refresh Canic adoption guidance without treating earlier test graphs as current
+  deployment qualification.
+
 ## [0.44.1] - 2026-10-24
 
 - Qualify Platform 0.6.14, Memory/Storage 0.50.16 and Metrics 0.15.8 with the

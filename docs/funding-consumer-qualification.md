@@ -39,6 +39,15 @@ replay and default-branch delivery remain separate acceptance items in that issu
 Do not describe accepted-payment coverage as wholly missing or require a new
 receipt API before ordinary acknowledged funding can proceed.
 
+Current read-only source inspection resolves Blob/contracts 0.44.1, Platform
+0.6.14, Memory 0.50.16 and Wire 0.6.12 in Canic's root and both independent
+consumer locks. Its adapter delegates prepare/dispatch/confirmation/renewal to
+Blob and uses the installed host journal. Retained `/tmp/canic-adoption-044/`
+dedicated/embedded logs pass on Blob 0.44.0; they are not qualification of the
+newer graph. Current source remains pending consumer work. No missing Blob
+funding API was identified. Use the [application acceptance checklist](acceptance-plan.md#next-application-acceptance-run)
+for the remaining provider evidence rather than repeating a local fixture claim.
+
 Blob #34 remains open for authenticated project-payer/service linkage, external
 account activity and real-provider reconciliation/spendability. Application
 evidence acquisition and financial policy stay with the application; no additional

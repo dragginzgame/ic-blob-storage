@@ -87,3 +87,39 @@ Library release validation is independent of downstream frameworks. Service
 qualification still requires the cases above and the
 [service contract](service-contract.md). Removing framework test infrastructure
 here does not waive provider, recovery, accounting or retirement requirements.
+
+## Next application acceptance run
+
+Use one released graph and the application's real mounted service. Record the
+application commit, three Canic lock hashes where applicable, installed Wasm hash,
+Blob version, service/tenant/namespace, payer and public actor principals before
+execution. Keep private keys, certificates and signed envelopes out of public
+issues. Retain sensitive recovery inputs in the operator's controlled evidence
+store. Record a separate intent and approved budget under the probe ledger before
+any provider effect; the checklist itself grants no deployment or payment authority.
+
+| Owning issue | Smallest useful run and evidence | Stop/refusal and completion condition |
+| --- | --- | --- |
+| [#31: two application users](https://github.com/dragginzgame/ic-blob-storage/issues/31) | Two distinct signed-in users obtain separate project-authorized permissions and upload distinct files to the same service. Retain original operation, root, uploader and first-reference identities; verify downloaded bytes against each original file. | Wrong user, tenant/service, expired and revoked permissions must refuse before exposure. Recover lost output from the original operation; never issue another certificate to repair uncertainty. Complete only with actual application-session and deployed-provider evidence. |
+| [#5: serving and integrity](https://github.com/dragginzgame/ic-blob-storage/issues/5) | Use those files from the real application origin with its CSP. Retain final URL, MIME, CORS/cache headers, cold/warm reads, byte length and verified content result. Exercise representative image/model loading and bounded corrupt/truncated/failing responses in a local substitute. | Do not advertise an asset solely because registration succeeded. Public URL accessibility after logical release must not be described as authenticated access or deletion. Local failure injection and deployed successful reads remain separately labelled. |
+| [#34: payer and funding](https://github.com/dragginzgame/ic-blob-storage/issues/34) | Establish authenticated project-payer/service linkage, limits and expiry; retain provider relationship and activity evidence. Under an explicit budget, inspect two distinct acknowledged payments and their original callback refunds, spent totals and remaining allowance. | An unresolved accepted payment stops further dispatch. A lost host reply requires original-outcome inspection, never resend. Independent credit confirmation requires attributable provider evidence, not a balance delta. Complete only when real linkage, competing activity and spendability are established. |
+
+Existing tooling is sufficient for preparation: the operator guide describes
+[offline account-link inputs](operator-guide.md#generate-account-link-inputs-offline),
+`inspect-account --kind relationship`, `funding-history` and `funding-outcome`.
+Application login, asset publication and scheduling remain consumer-owned. Do not
+copy them into Blob or introduce a receipt API merely to fill an evidence gap.
+
+Local references are the maintained two-user case in
+[standalone browser tests](../tests/pocketic/tests/standalone_browser/multi_user/mod.rs),
+[corruption and interruption cases](../tests/pocketic/tests/standalone_browser/mod.rs),
+and the [funding qualification recipe](funding-consumer-qualification.md).
+They establish expected local behavior, not results for the application run above.
+The opt-in `make test-browser-standalone` requires the exact Node/npm selections,
+installed browser packages/Chromium and admitted Testkit; it downloads nothing.
+A failed prerequisite check is not a failed upload or a passing browser test.
+
+Attach the evidence location, exact source/graph, observed refusals, unresolved
+operations and cleanup/continuing liabilities to each owning issue. Leave an item
+open when its consumer/provider cells are missing; no aggregate percentage or
+library publication substitutes for those cells.

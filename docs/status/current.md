@@ -1,16 +1,16 @@
 # Current status — 2026-10-24
 
-## Released baseline and pending adoption
+## Released baseline and prior adoption
 
-Released baseline is `cca4571` (0.44.0); pending adoption source is `64aeb49`. The architectural cleanup, native Clap
+Released baseline is `f50fd47` (0.44.1); adoption source included `64aeb49`. The architectural cleanup, native Clap
 adoption and Testkit fixture repair are in that source. Its committed handoff
 retains previous qualification; those results are not new evidence for this graph.
 
-Pending **0.44.1** adopts published IC Tooling 0.67.0 across Build, Host artifacts,
+Released **0.44.1** adopts published IC Tooling 0.67.0 across Build, Host artifacts,
 FS, HTTP, Process, Tools and Testkit. The archive verifier now passes explicit
 `CargoFeatureSelection::default()`; archive packaging, metadata and tests preserve
 its former default-feature policy. No Blob public protocol, persistence or runtime
-contract changes are introduced. Cargo package versions remain 0.44.0.
+contract changes are introduced. Cargo package versions are 0.44.1.
 
 Shared Tooling is pinned to `4c0f198e56d4c6d27b12a5c2d515e0e01070151e`, verified
 as the latest pushed HEAD during adoption. That commit's `VERSION` is **0.26.10**,
@@ -58,7 +58,7 @@ Shared implementation changed in this follow-up; those checks were not repeated.
 The common external-IC inventory also has retained negative alias/optional/dev
 admission evidence. Setup uses the published Testkit and Build editor CLIs.
 
-The current lock SHA-256 is
+The pre-release adoption lock SHA-256 was
 `ed4f3c88b52050dbed1177100bd859c6731d4bf7a083e83e690c203f1e71d26d`.
 Full release CI, full PocketIC suites, optimizer qualification, native macOS,
 current-feed security audit and deployed provider checks are not claimed.
@@ -68,8 +68,9 @@ No staging, commit, push, release, publication, sibling edit or paid effect occu
 
 Blob owns service authority, storage, references, quotas, funding/GC journals and
 recovery. Canic owns framework adapters, lifecycle and installed composition.
-The last read-only Canic review selected Blob 0.43.4 and reported dedicated/embedded
-and accepted-payment/recovery tests; adoption was not refreshed in this task.
+The latest read-only Canic review resolves Blob/contracts 0.44.1, Platform 0.6.14,
+Memory 0.50.16 and Wire 0.6.12 in all three locks. Retained dedicated/embedded
+0.44.0 logs pass; the current graph is not newly qualified here.
 Canic #613 tracks build/schema delivery, #622 application delivery, and #494
 independent credit qualification. They do not indicate missing ordinary Blob funding APIs.
 
@@ -82,3 +83,20 @@ serving, multi-user uploads, payer linkage/activity, deletion and billing cessat
 native Agent crypto-bigint advisory; [Platform #50](https://github.com/dragginzgame/ic-platform/issues/50)
 owns the supplier correction. Normal standalone deployment excludes that graph.
 No current-feed security audit, exemption or correction is claimed by this adoption.
+
+## Pending 0.44.2 application acceptance guidance
+
+The acceptance plan now gives #31/#5/#34 one concrete application run with
+identity/evidence requirements and stop conditions. Existing APIs suffice;
+application sessions, asset transactions and financial scheduling stay downstream.
+No runtime change or new provider mechanism is justified by the reviewed issues.
+
+Fresh browser prerequisite admission failed before test execution: selected
+`npm --version` produced no version (required npm 12.2.0). Retained log:
+`/tmp/blob-acceptance-preflight.log`. No browser build/test, provider request,
+paid effect or downstream edit followed. Prepare the pinned browser toolchain
+before rerunning the maintained local cases; do not bypass admission. The current
+acceptance gap remains application/provider evidence, not a local test substitute.
+
+Documentation-link checks pass (1,578 references across 211 documents), as does
+`git diff --check`. Runtime source, manifests and lockfiles are unchanged.
