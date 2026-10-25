@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.47.1]
+## [0.47.1] - 2026-10-25
 
 - Bind admitted CLI setup operations to their payloads and journal destinations;
   share preparation budgets and frozen-batch recovery fields. Saved formats,
