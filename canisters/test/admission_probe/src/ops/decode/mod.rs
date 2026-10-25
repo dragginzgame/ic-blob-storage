@@ -99,10 +99,7 @@ fn admit_blob(method: &str) -> Result<(), String> {
     Ok(())
 }
 /// Decode the exact method-bound service frame after admission.
-pub(crate) fn blob<T: serde::Serialize + serde::de::DeserializeOwned>(
-    method: &str,
-    bytes: &[u8],
-) -> T {
+pub(crate) fn blob<T: serde::de::DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
     let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
     ic_blob_storage_contracts::wire::decode_request(method, bytes, limit)
         .expect("invalid or over-budget Blob probe input")

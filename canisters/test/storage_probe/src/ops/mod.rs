@@ -546,10 +546,7 @@ pub(crate) fn admit_owned(method: &str) -> Result<(), String> {
     Ok(())
 }
 /// Admit method identity, frame size and traversal before workflow effects.
-pub(crate) fn decode_owned<T: serde::Serialize + serde::de::DeserializeOwned>(
-    method: &str,
-    bytes: &[u8],
-) -> T {
+pub(crate) fn decode_owned<T: serde::de::DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
     let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
     ic_blob_storage_contracts::wire::decode_request(method, bytes, limit)
         .expect("invalid owned Wire ingress")
@@ -567,9 +564,7 @@ pub(crate) fn reply_owned<T: serde::Serialize>(method: &str, value: T) {
     clippy::needless_pass_by_value,
     reason = "entrypoint owns ingress bytes"
 )]
-pub(crate) fn decode_control<T: serde::Serialize + serde::de::DeserializeOwned>(
-    bytes: Vec<u8>,
-) -> T {
+pub(crate) fn decode_control<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
     let (value,): (T,) = ic_blob_storage_contracts::document::decode(
         &bytes,
         blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES,
@@ -581,9 +576,7 @@ pub(crate) fn decode_control<T: serde::Serialize + serde::de::DeserializeOwned>(
     clippy::needless_pass_by_value,
     reason = "entrypoint owns ingress bytes"
 )]
-pub(crate) fn decode_control_args<T: serde::Serialize + serde::de::DeserializeOwned>(
-    bytes: Vec<u8>,
-) -> T {
+pub(crate) fn decode_control_args<T: serde::de::DeserializeOwned>(bytes: Vec<u8>) -> T {
     ic_blob_storage_contracts::document::decode(
         &bytes,
         blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES,

@@ -196,7 +196,7 @@ impl ic_blob_storage::workflow::service::ServiceHost for Host {
     }
 }
 /// Admit method identity, frame size and traversal before workflow effects.
-pub(crate) fn decode_owned<T: serde::Serialize + serde::de::DeserializeOwned>(method: &str) -> T {
+pub(crate) fn decode_owned<T: serde::de::DeserializeOwned>(method: &str) -> T {
     let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
     assert!(
         ic_platform::ic0::msg_arg_data_size() <= limit,
@@ -219,10 +219,7 @@ pub(crate) fn admit_owned(method: &str) -> Result<(), String> {
     Ok(())
 }
 /// Decode already-admitted bytes with the catalogue's exact method identity.
-pub(crate) fn decode_request<T: serde::Serialize + serde::de::DeserializeOwned>(
-    method: &str,
-    bytes: &[u8],
-) -> T {
+pub(crate) fn decode_request<T: serde::de::DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
     let limit = ic_blob_storage_contracts::wire::request_limit(method).expect("owned method");
     ic_blob_storage_contracts::wire::decode_request(method, bytes, limit)
         .expect("invalid owned Wire ingress")

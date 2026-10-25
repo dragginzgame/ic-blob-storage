@@ -12,14 +12,14 @@ pub(super) async fn run(
     input: &Input,
     saved: &Request,
     agent: &ic_platform::agent::Agent,
+    directory: &std::path::Path,
 ) -> Result<SetupOutcome, Failure> {
     let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
-    let directory = input.directory.as_ref().ok_or(Failure::Arguments)?;
     let prepared = PreparedUpdate::claim(
         agent,
         UpdateInput {
             service: input.service,
-            method: input.kind.method(),
+            method: saved.payload.kind().method(),
             argument: &saved.argument,
             argument_file: "request.wire",
             directory,
@@ -34,7 +34,7 @@ pub(super) async fn run(
                 service: input.service.to_text(),
                 namespace: input.namespace.to_string(),
                 permission: permission_json(saved.payload.permission()),
-                method: input.kind.method().to_owned(),
+                method: saved.payload.kind().method().to_owned(),
                 request_sha256: ContentDigest::compute(&saved.argument).to_string(),
             };
             let mut intent = serde_json::to_value(binding).expect("passive JSON intent fields");
@@ -50,7 +50,7 @@ pub(super) async fn run(
             .map_err(|_| Failure::Arguments)?,
     )?;
     let (observation, report) = prepared.dispatch(agent).await.finish(
-        |bytes| observation(input, saved, bytes),
+        |bytes| observation(saved, bytes),
         |request_id, result| {
             let state = crate::native::signed_update::outcome(result, "acknowledged", |e| {
                 matches!(
@@ -58,7 +58,7 @@ pub(super) async fn run(
                     Failure::UploadAdmissionRefused(_) | Failure::UploadManifestRefused(_)
                 )
             });
-            let mut report = json!({"schema":1,"operation":input.kind.method(),"request_id":request_id,
+            let mut report = json!({"schema":1,"operation":saved.payload.kind().method(),"request_id":request_id,
                 "outcome":state,"observation":null,"authentication":null,
                 "retry_authorized":false,"certificate_issued":false,"provider_requests":0,"publication_authorized":false});
             match result {

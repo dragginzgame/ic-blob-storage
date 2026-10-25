@@ -27,3 +27,17 @@ fn confined_claim_reads_keep_limits_missing_errors_and_reject_links_without_writ
         b"original"
     );
 }
+
+#[test]
+fn recovery_packets_stay_with_the_opened_directory_after_path_replacement() {
+    let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    let path = base.path().join("original");
+    std::fs::create_dir(&path).unwrap();
+    std::fs::write(path.join("intent.json"), b"original").unwrap();
+    let held = RecoveryDirectory::open(&path).unwrap();
+    std::fs::rename(&path, base.path().join("retained")).unwrap();
+    std::fs::create_dir(&path).unwrap();
+    std::fs::write(path.join("intent.json"), b"replacement").unwrap();
+    assert_eq!(held.read("intent.json", 32).unwrap(), b"original");
+    assert_eq!(read_at(&path, "intent.json", 32).unwrap(), b"replacement");
+}

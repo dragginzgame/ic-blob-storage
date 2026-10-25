@@ -13,6 +13,11 @@ resolved physical parent must contain no CR/LF characters; refused paths create
 no new run. Existing or partial directories remain evidence and cannot be reused.
 Trusted ancestors and exclusive namespace custody remain the operator's duty.
 
+Use `blob-storage --help` to select a command and
+`blob-storage COMMAND --help` for its operation-specific constraints. Detailed
+recovery procedures below remain authoritative; a missing reply or partial run
+never grants permission to repeat an update.
+
 ## Choose a task
 
 | Goal | Start here |

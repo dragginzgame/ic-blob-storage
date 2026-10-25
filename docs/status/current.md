@@ -1,53 +1,56 @@
-# Current status — 2026-10-24
+# Current status — 2026-10-25
 
-Released baseline: `c7b420d` (0.46.0). Pending notes target 0.47.0 because the
-Contracts feature default changes. Package versions remain untouched. Incoming
-Wire 0.7.3 lockfile edits and the earlier fixture-library cleanup are preserved.
-Older adoption and qualification detail is retained in [history](history.md).
+Released baseline: `f04c12dd` (0.47.0). Pending notes target 0.47.1: internal
+cleanup and command help, with unchanged public Rust APIs, endpoint bytes,
+saved formats and retry behavior. Package versions remain untouched. The incoming
+Cargo.lock update is preserved; this batch does not change dependencies.
+Prior completed cleanup and evidence are retained in the 0.47.0 Git history and
+[earlier handoff history](history.md).
 
-## Completed Blob-owned cleanup
+## Completed local cleanup
 
-- Private Candid query/update helpers and reply limits have one owner in the
-  unpublished PocketIC library. No authored Rust allow attributes remain.
-- CLI invocation retains the first Clap result and passes selected arguments to
-  online/offline handlers. Production no longer reparses argv or clones the
-  subcommand. Test entrypoints exercise the same grammar and command conversion.
-  Domain checks remain with their owners; no second argument model or CLI DSL.
-- Setup dispatch and recovery share SetupIntentRecord for authority fields.
-  Saved JSON keys and optional observational metadata behavior are retained;
-  signatures, original request bytes and no-redispatch rules remain authoritative.
-- Contracts has no default features. SDK/HTTP prepared-manifest and upload-reply
-  users must explicitly enable provider-json. CLI/PocketIC already do; native
-  wire-schema independently enables its JSON dependency. Canister features and
-  endpoint encodings are unchanged.
-- Replaced this handoff's accumulated current/historical narratives with this
-  active record, retaining the complete prior text and evidence links in history.
+- Admitted CLI setup operations carry the matching payload and required mutation
+  journal destination together. Inspections cannot be dispatched as mutations;
+  CLI parsing still owns unvalidated input and exact role checks precede effects.
+- Recovery packet validation opens its directory once and reads all packets
+  through that held handle. Recovery roots retain their no-symlink admission;
+  input roots keep their separately documented canonicalization behavior.
+- Frozen batch summaries share typed recovery-binding fields between writing
+  and reading. Other observational JSON fields remain non-authoritative; the
+  original packet hashes and body verification are still required.
+- Preparation ceilings and CLI upload limits have named owners. Saved-document
+  and service-reply limits remain distinct; no limit was increased.
+- Command-specific help replaces the global workflow narrative. The operator
+  guide retains detailed recovery procedures and original-journal obligations.
+- Decode-only canister adapters no longer require Serialize. Capacity errors
+  retain the same public classification with mutation-only failures mapped to
+  Internal, without maintaining a second exhaustive list of storage variants.
 
-## Reviewed and retained
+## Investigated and retained
 
-- Frozen Candid projections support actual old-frame rejection tests and
-  independent external provider replies. They are not a production fallback.
-  Splitting their shared shape solely to rename ownership would duplicate it.
-- Funding and upload cursor files retain JSON. They carry different scopes and
-  continuation rules; common scalar parsing already has one owner. Moving them
-  to Wire would break saved files for little deletion benefit.
-- Heap admission/catalog/lifecycle models remain test-support-only accounting
-  comparisons and fault-injection fixtures, not a parallel production store.
-  Reusing durable transitions would compromise the independent comparison.
-- Keep public installation access until consumer migration. Read-only Canic
-  inspection still finds InstalledJournal and JSON schema reconstruction; Canic
-  can adopt ServiceWorkflow::ACCESS and typed schema projections. No sibling edits.
+- Public upload-source traits retain UploadStoreError. Narrowing those signatures
+  would require a consumer hard cut and extra conversion types for little gain;
+  the local capacity translation was simplified instead.
+- The storage probe retains its private endpoint emitter and fault-injection
+  workflows. The canonical service catalog emits complete production workflow
+  calls; sharing it here would need selection/override machinery. Existing probe
+  ingress already uses Contracts' method identities, limits and codecs.
+- Independent heap models and frozen Candid rejection fixtures remain useful
+  test evidence. Distinct cursor formats and exact same-release recovery journals
+  are unchanged. No sibling files, public compatibility shims or new framework.
 
 ## Validation
 
-Strict CLI/Contracts Clippy all targets/features and dependency/deployment
-boundaries pass. Native CLI tests pass (114 Blob, 7 probe); minimal Contracts
-unit tests pass (118), as do explicit provider-json tests (10).
-Rust 1.91 checks and the standalone release Wasm build pass. All seven installed
-publish-preparation tests pass, including lost replies, tampered journals and
-recovery without resubmission. The first installed invocation omitted BLOB_CLI_BIN
-and failed before exercising recovery; the corrected explicit-artifact run passes.
-Formatting and documentation links pass. Full CI and macOS were not rerun.
-Logs: `/tmp/blob-owned-cleanup-*.log`. Earlier fixture-library qualification is
-in `/tmp/blob-audit046-*.log`. No new provider, macOS or production-capacity
-qualification is claimed. No commit, push, release or deployment was performed.
+Focused all-target/all-feature checks and strict Clippy pass for the CLI, core,
+standalone and edited probe adapters. All 124 CLI tests, 32 capacity tests and
+seven installed preparation/recovery tests pass. New regressions cover missing
+journal destinations, malformed frozen-summary bindings and replacement of an
+opened recovery-directory path. Lost-reply recovery still never resubmits.
+Rust 1.91 checks for CLI/core and release Wasm builds for the standalone and
+three edited probes pass. Formatting, documentation links and dependency/
+deployment boundaries pass. Package-verification has no selected unit tests;
+its compilation is covered by the all-feature CLI checks.
+Evidence: `/tmp/blob-cleanup047-*.log`. The starting dirty tree is captured at
+`/tmp/blob-cleanup047-before/`; the incoming lockfile must remain byte-identical.
+No full CI, native macOS, live-provider or production-capacity qualification is
+claimed. No staging, commit, push, release or deployment was performed.

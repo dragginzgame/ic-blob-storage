@@ -95,17 +95,16 @@ fn original_permission_echo_and_typed_refusal_are_required_for_acknowledgment() 
             .unwrap()
     };
     assert_eq!(
-        observation(&input, &saved, &encode(&reply)).unwrap().json()["replayed"],
+        observation(&saved, &encode(&reply)).unwrap().json()["replayed"],
         false
     );
     reply.admission.permission.expires_at_ns -= 1;
     assert!(matches!(
-        observation(&input, &saved, &encode(&reply)),
+        observation(&saved, &encode(&reply)),
         Err(Failure::Binding)
     ));
     assert!(matches!(
         observation(
-            &input,
             &saved,
             &ic_blob_storage_contracts::wire::encode_response(
                 "blob_admit_upload",
@@ -115,4 +114,23 @@ fn original_permission_echo_and_typed_refusal_are_required_for_acknowledgment() 
         ),
         Err(Failure::UploadAdmissionRefused(A::Fenced))
     ));
+}
+
+#[test]
+fn mutations_require_a_journal_while_inspections_do_not() {
+    let (_temp, mut input, permission) = saved(Kind::Admit);
+    input.directory = None;
+    for kind in [Kind::Admit, Kind::Revoke] {
+        input.kind = kind;
+        assert!(matches!(
+            request::load(&input, permission.upload.tenant),
+            Err(Failure::Arguments)
+        ));
+    }
+    for kind in [Kind::Permission, Kind::Manifest] {
+        input.kind = kind;
+        let saved = request::load(&input, permission.upload.tenant).unwrap();
+        assert_eq!(saved.payload.kind(), kind);
+        assert!(saved.payload.directory().is_none());
+    }
 }

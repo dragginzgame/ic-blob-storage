@@ -11,7 +11,7 @@ use super::{
 };
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_host_artifacts::artifact::Sha256Digest;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path, rc::Rc};
 
@@ -24,6 +24,17 @@ pub(super) const MAX_FILES: usize = 4096;
 pub(super) const MAX_FILE_BYTES: u64 = 1024 * 1024 * 1024;
 pub(super) const MAX_TOTAL_BYTES: u64 = 1024 * 1024 * 1024 * 1024;
 pub(super) const MAX_TIMEOUT_SECONDS: u64 = 3600;
+
+/// Recovery binding shared by the summary writer and frozen-input reader.
+/// Other summary fields are presentation, not permission to skip verification.
+#[derive(Deserialize, Serialize)]
+struct FrozenBatchRecord {
+    schema: u8,
+    observation: String,
+    inventory_sha256: String,
+    installation_sha256: String,
+    all_bodies_verified: bool,
+}
 
 /// One complete frozen batch; caller-supplied identities remain proposals.
 pub(super) struct PreparedBatch {
@@ -53,11 +64,13 @@ impl PreparedBatch {
         let installation = root.read("installation.wire", exact_wire::INSTALLATION_BYTES as u64)?;
         let summary: Value = serde_json::from_slice(&root.read("summary.json", 8 * 1024 * 1024)?)
             .map_err(|_| Failure::Arguments)?;
-        if summary["schema"] != 1
-            || summary["observation"] != "local_publish_inputs"
-            || summary["all_bodies_verified"] != true
-            || summary["inventory_sha256"] != digest(&inventory_bytes)
-            || summary["installation_sha256"] != digest(&installation)
+        let summary: FrozenBatchRecord =
+            serde_json::from_value(summary).map_err(|_| Failure::Binding)?;
+        if summary.schema != 1
+            || summary.observation != "local_publish_inputs"
+            || !summary.all_bodies_verified
+            || summary.inventory_sha256 != digest(&inventory_bytes)
+            || summary.installation_sha256 != digest(&installation)
         {
             return Err(Failure::Binding);
         }
@@ -187,12 +200,27 @@ pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
         };
         results.push(json!({"directory":name, "inputs":result}));
     }
-    let result = json!({"schema":1, "observation":"local_publish_inputs",
-        "inventory_sha256":digest(&inventory_bytes), "installation_sha256":digest(&installation.bytes),
-        "capacity":capacity.summary(), "files":results, "all_bodies_verified":true,
-        "authenticated":false, "identities_allocated":false, "installed_state_observed":false,
-        "remaining_capacity_observed":false, "namespace_provisioned":false,
-        "service_dispatched":false, "provider_dispatched":false});
+    let mut result = serde_json::to_value(FrozenBatchRecord {
+        schema: 1,
+        observation: "local_publish_inputs".into(),
+        inventory_sha256: digest(&inventory_bytes),
+        installation_sha256: digest(&installation.bytes),
+        all_bodies_verified: true,
+    })
+    .map_err(|_| Failure::File)?;
+    result["capacity"] = capacity.summary();
+    result["files"] = results.into();
+    for field in [
+        "authenticated",
+        "identities_allocated",
+        "installed_state_observed",
+        "remaining_capacity_observed",
+        "namespace_provisioned",
+        "service_dispatched",
+        "provider_dispatched",
+    ] {
+        result[field] = false.into();
+    }
     run.json("summary.json", &result)?;
     Ok(result)
 }

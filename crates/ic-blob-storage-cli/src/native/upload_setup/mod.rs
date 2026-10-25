@@ -26,12 +26,21 @@ use std::{num::NonZeroU64, path::PathBuf};
 #[cfg(test)]
 mod tests;
 
+// CLI policy: saved documents and received service frames have separate ceilings.
+const PERMISSION_DOCUMENT_BYTES: usize = 4096;
+const MANIFEST_DOCUMENT_BYTES: usize = 65536;
+const SMALL_REPLY_BYTES: usize = 4096;
+const MANIFEST_REPLY_BYTES: usize = 64 * 1024;
+const MAX_CONTENT_BYTES: u64 = 1024 * 1024 * 1024;
+
 /// Shared native upload-metadata envelope; each caller supplies its own body bound.
 pub(super) fn manifest_reply_limits(
     max_content_bytes: NonZeroU64,
 ) -> manifest_reply::UploadManifestReplyLimits {
     manifest_reply::UploadManifestReplyLimits {
-        max_reply_bytes: (64 * 1024).try_into().expect("positive reply bound"),
+        max_reply_bytes: MANIFEST_REPLY_BYTES
+            .try_into()
+            .expect("positive reply bound"),
         declaration: CaffeineManifestLimits {
             max_content_bytes,
             max_chunks: 1024.try_into().expect("positive chunk bound"),
@@ -85,15 +94,38 @@ pub(super) struct Request {
     payload: Payload,
     argument: Vec<u8>,
 }
+// Admitted operations bind payload and journal destination together. Only the
+// CLI input may contain an absent mutation directory or an unvalidated kind.
 enum Payload {
+    Admit(UploadAdmissionRequest, PathBuf),
+    Revoke(UploadAdmissionRequest, PathBuf),
+    Prepare(UploadManifestRequest, PathBuf),
     Permission(UploadAdmissionRequest),
-    Manifest(UploadManifestRequest),
+    Manifest(UploadAdmissionRequest),
 }
 impl Payload {
     fn permission(&self) -> UploadAdmissionRequest {
         match self {
-            Payload::Permission(permission) => *permission,
-            Payload::Manifest(manifest) => manifest.permission,
+            Self::Admit(permission, _)
+            | Self::Revoke(permission, _)
+            | Self::Permission(permission)
+            | Self::Manifest(permission) => *permission,
+            Self::Prepare(manifest, _) => manifest.permission,
+        }
+    }
+    fn kind(&self) -> Kind {
+        match self {
+            Self::Admit(..) => Kind::Admit,
+            Self::Revoke(..) => Kind::Revoke,
+            Self::Prepare(..) => Kind::Prepare,
+            Self::Permission(..) => Kind::Permission,
+            Self::Manifest(..) => Kind::Manifest,
+        }
+    }
+    fn directory(&self) -> Option<&std::path::Path> {
+        match self {
+            Self::Admit(_, path) | Self::Revoke(_, path) | Self::Prepare(_, path) => Some(path),
+            Self::Permission(_) | Self::Manifest(_) => None,
         }
     }
 }
@@ -149,32 +181,29 @@ pub(super) struct SetupOutcome {
     pub report: Value,
 }
 
-fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<SetupObservation, Failure> {
-    let max = 4096.try_into().unwrap();
-    Ok(match input.kind {
-        Kind::Admit => {
+fn observation(saved: &Request, bytes: &[u8]) -> Result<SetupObservation, Failure> {
+    let max = SMALL_REPLY_BYTES.try_into().unwrap();
+    Ok(match &saved.payload {
+        Payload::Admit(..) => {
             let r = admission_reply::mutation(saved.payload.permission(), bytes, max)
                 .map_err(admission_error)?;
             SetupObservation::Admission(r)
         }
-        Kind::Revoke => {
+        Payload::Revoke(..) => {
             let r = admission_reply::revocation(saved.payload.permission(), bytes, max)
                 .map_err(admission_error)?;
             SetupObservation::Revocation(r)
         }
-        Kind::Permission => SetupObservation::Permission(
+        Payload::Permission(_) => SetupObservation::Permission(
             admission_reply::inspection(saved.payload.permission(), bytes, max)
                 .map_err(admission_error)?,
         ),
-        Kind::Prepare => {
+        Payload::Prepare(manifest, _) => {
             let limits = manifest_reply_limits(
-                (1024 * 1024 * 1024)
+                MAX_CONTENT_BYTES
                     .try_into()
                     .expect("positive content bound"),
             );
-            let Payload::Manifest(manifest) = &saved.payload else {
-                return Err(Failure::Arguments);
-            };
             let response =
                 manifest_reply::mutation(manifest, bytes, limits).map_err(manifest_error)?;
             SetupObservation::Manifest {
@@ -182,13 +211,13 @@ fn observation(input: &Input, saved: &Request, bytes: &[u8]) -> Result<SetupObse
                 changed: Some(response.changed),
             }
         }
-        Kind::Manifest => SetupObservation::Manifest {
+        Payload::Manifest(_) => SetupObservation::Manifest {
             response: manifest_reply::inspection(
                 protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
                 saved.payload.permission(),
                 bytes,
                 manifest_reply_limits(
-                    (1024 * 1024 * 1024)
+                    MAX_CONTENT_BYTES
                         .try_into()
                         .expect("positive content bound"),
                 ),
@@ -221,8 +250,8 @@ async fn execute(
     saved: &Request,
     agent: &Agent,
 ) -> Result<SetupOutcome, Failure> {
-    if input.kind.mutation() {
-        return dispatch::run(options, input, saved, agent).await;
+    if let Some(directory) = saved.payload.directory() {
+        return dispatch::run(options, input, saved, agent, directory).await;
     }
     let bytes = query::with_agent(
         agent,
@@ -231,7 +260,7 @@ async fn execute(
         saved.argument.clone(),
     )
     .await?;
-    let observed = observation(input, saved, &bytes)?;
+    let observed = observation(saved, &bytes)?;
     let report = json!({"schema":1,"operation":input.kind.method(),"authentication":"query_signatures",
         "observation":observed.json(),"retry_authorized":false,
         "certificate_issued":false,"provider_requests":0,"publication_authorized":false});
@@ -261,7 +290,7 @@ pub(super) async fn inspect_recorded(
         query::with_agent(agent, input.service, input.kind.method(), args)
     })
     .await?;
-    observation(input, &saved, &bytes)
+    observation(&saved, &bytes)
 }
 fn admission_error(error: admission_reply::UploadAdmissionReplyError) -> Failure {
     use admission_reply::UploadAdmissionReplyError as R;

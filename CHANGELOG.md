@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.47.1]
+
+- Bind admitted CLI setup operations to their payloads and journal destinations;
+  share preparation budgets and frozen-batch recovery fields. Saved formats,
+  endpoint contracts and no-resubmission behavior remain unchanged.
+- Read each recovery packet set through one held directory handle, preserving
+  confinement and bounded reads when a directory path is replaced.
+- Show operation-specific CLI safety guidance beside each command. Remove
+  obsolete serialization requirements from decode-only canister adapters and
+  simplify capacity error translation without changing public failures.
+
 ## [0.47.0] - 2026-10-24
 
 - **Breaking:** Contracts no longer enables `provider-json` by default. Native

@@ -10,6 +10,10 @@ use ic_platform::agent::Agent;
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::PathBuf, time::Duration};
 
+/// Per-file ceilings for the preparation workflow, including recovery inspection.
+const MAX_UPDATES: usize = 2;
+const MAX_QUERIES: usize = 4;
+
 #[cfg(test)]
 mod tests;
 
@@ -129,7 +133,7 @@ pub(in crate::native) async fn run_selected(
         run.json(
             "recovery.json",
             &json!({"source_run":origin,
-            "max_service_updates_this_run":1,"max_service_queries":4,
+            "max_service_updates_this_run":1,"max_service_queries":MAX_QUERIES,
             "timeout_seconds":input.timeout_seconds,"redispatch_authorized":false}),
         )?;
     }

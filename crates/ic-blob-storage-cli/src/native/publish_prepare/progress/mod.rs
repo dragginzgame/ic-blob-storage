@@ -60,7 +60,7 @@ impl Context<'_> {
             state,
             report: json!({"schema":1,"operation":"publish_prepare","state":state,"file_index":self.input.index,
             "permission":upload_setup::permission_json(self.selected.permission),"preflight":preflight,
-            "original_run":self.origin,"service_updates_this_run":updates,"max_service_queries":4,
+            "original_run":self.origin,"service_updates_this_run":updates,"max_service_queries":super::MAX_QUERIES,
             "prepared":state==PreparationState::Prepared,"batch_complete":false,"certificate_issued":false,
             "provider_requests":0,"retry_authorized":false,"publication_authorized":false}),
         }

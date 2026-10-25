@@ -10,15 +10,22 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
     let bytes = crate::native::read(
         &input.request,
         if input.kind == Kind::Prepare {
-            65536
+            super::MANIFEST_DOCUMENT_BYTES as u64
         } else {
-            4096
+            super::PERMISSION_DOCUMENT_BYTES as u64
         },
     )?;
-    let payload = if input.kind == Kind::Prepare {
-        Payload::Manifest(crate::native::exact_wire::decode(&bytes, 65536)?)
-    } else {
-        Payload::Permission(crate::native::exact_wire::decode(&bytes, 65536)?)
+    let directory = || input.directory.clone().ok_or(Failure::Arguments);
+    let permission = || crate::native::exact_wire::decode(&bytes, super::PERMISSION_DOCUMENT_BYTES);
+    let payload = match input.kind {
+        Kind::Prepare => Payload::Prepare(
+            crate::native::exact_wire::decode(&bytes, super::MANIFEST_DOCUMENT_BYTES)?,
+            directory()?,
+        ),
+        Kind::Admit => Payload::Admit(permission()?, directory()?),
+        Kind::Revoke => Payload::Revoke(permission()?, directory()?),
+        Kind::Permission => Payload::Permission(permission()?),
+        Kind::Manifest => Payload::Manifest(permission()?),
     };
     let permission = payload.permission();
     admission::validate_request(permission).map_err(admission_error)?;
@@ -34,9 +41,9 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
     if !allowed {
         return Err(Failure::Binding);
     }
-    if let Payload::Manifest(r) = &payload {
+    if let Payload::Prepare(r, _) = &payload {
         let limits = manifest_reply_limits(
-            (1024 * 1024 * 1024)
+            super::MAX_CONTENT_BYTES
                 .try_into()
                 .expect("positive content bound"),
         );
@@ -44,12 +51,10 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
             .map_err(manifest_error)?;
     }
     let argument = match &payload {
-        Payload::Manifest(manifest) => {
-            ic_blob_storage_contracts::wire::encode_request(input.kind.method(), manifest)
+        Payload::Prepare(manifest, _) => {
+            ic_blob_storage_contracts::wire::encode_request(payload.kind().method(), manifest)
         }
-        Payload::Permission(permission) => {
-            ic_blob_storage_contracts::wire::encode_request(input.kind.method(), permission)
-        }
+        _ => ic_blob_storage_contracts::wire::encode_request(payload.kind().method(), permission),
     }
     .map_err(|_| Failure::Arguments)?;
     Ok(Request { payload, argument })

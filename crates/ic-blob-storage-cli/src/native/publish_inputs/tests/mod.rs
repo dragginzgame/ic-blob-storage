@@ -314,3 +314,36 @@ fn bounded_inventory_and_regular_body_requirements_refuse_before_claiming_output
     assert_eq!(execute(&args), Err(Failure::Arguments));
     assert!(!trial.output().exists());
 }
+
+#[test]
+fn frozen_summary_requires_original_bindings_but_ignores_observational_metadata() {
+    let trial = Trial::new();
+    let original = execute(&trial.args()).unwrap();
+    let path = trial.output().join("summary.json");
+    let open = || {
+        PreparedBatch::open_frozen(
+            &trial.output(),
+            10.try_into().unwrap(),
+            20.try_into().unwrap(),
+        )
+    };
+    for field in [
+        "schema",
+        "observation",
+        "inventory_sha256",
+        "installation_sha256",
+        "all_bodies_verified",
+    ] {
+        let mut changed = original.clone();
+        changed.as_object_mut().unwrap().remove(field);
+        fs::write(&path, serde_json::to_vec(&changed).unwrap()).unwrap();
+        assert!(matches!(open(), Err(Failure::Binding)), "{field}");
+        changed[field] = json!(["wrong type"]);
+        fs::write(&path, serde_json::to_vec(&changed).unwrap()).unwrap();
+        assert!(matches!(open(), Err(Failure::Binding)), "{field}");
+    }
+    let mut changed = original;
+    changed["extra_observation"] = json!("not authority");
+    fs::write(&path, serde_json::to_vec(&changed).unwrap()).unwrap();
+    assert!(open().is_ok());
+}

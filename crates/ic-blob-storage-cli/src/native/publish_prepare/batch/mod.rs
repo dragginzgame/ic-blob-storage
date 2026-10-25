@@ -26,8 +26,8 @@ pub(in crate::native) async fn run(options: &Options, input: &Input) -> Result<V
         "uploader":selected.permission.uploader.to_text(),"service":input.service.to_text(),
         "namespace":input.namespace.to_string(),"inventory_sha256":digest(&batch.inventory),
         "installation_sha256":digest(&batch.installation.bytes),"root_key_sha256":ContentDigest::compute(&tenant.read_root_key()).to_string(),
-        "files":batch.files.len(),"max_service_updates":2*batch.files.len(),
-        "max_service_queries":4*batch.files.len(),"timeout_seconds":input.timeout_seconds,
+        "files":batch.files.len(),"max_service_updates":super::MAX_UPDATES*batch.files.len(),
+        "max_service_queries":super::MAX_QUERIES*batch.files.len(),"timeout_seconds":input.timeout_seconds,
         "provider_requests":0,"automatic_retries":0,"publication_authorized":false}))?;
     let result = tokio::time::timeout(Duration::from_secs(input.timeout_seconds), async {
         let mut results = Vec::with_capacity(batch.files.len());

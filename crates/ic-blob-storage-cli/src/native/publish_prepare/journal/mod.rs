@@ -13,47 +13,68 @@ pub(super) fn binding(
     json!({"schema":1,"operation":"publish_prepare","network":options.network,"url":options.url.as_str(),
         "service":input.service.to_text(),"namespace":input.namespace.to_string(),"tenant":options.actor.to_text(),
         "file_index":input.index,"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation.bytes),
-        "root_key_sha256":ContentDigest::compute(root).to_string(),"max_service_updates":2,"max_service_queries":4,
+        "root_key_sha256":ContentDigest::compute(root).to_string(),"max_service_updates":super::MAX_UPDATES,"max_service_queries":super::MAX_QUERIES,
         "provider_requests":0,"automatic_retries":0,"certificate_issued":false,"publication_authorized":false})
 }
-pub(super) fn read_at(origin: &Path, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
-    #[cfg(unix)]
-    {
-        use ic_host_artifacts::artifact::ArtifactError;
-        use std::os::fd::AsFd;
-        let directory = ic_host_fs::read::open_directory_no_follow(origin).map_err(|error| {
-            if error.raw_os_error() == Some(libc::ELOOP) {
-                Failure::Binding
-            } else {
-                Failure::File
-            }
-        })?;
-        let file = ic_host_fs::read::open_regular_file_beneath(
-            directory.as_fd(),
-            Path::new(name),
-            maximum,
-        )
-        .map_err(|error| match error {
-            ArtifactError::Io(error)
-                if error.kind() == std::io::ErrorKind::InvalidInput
-                    || error.raw_os_error() == Some(libc::ELOOP) =>
-            {
-                Failure::Binding
-            }
-            _ => Failure::File,
-        })?;
-        let limit = usize::try_from(maximum).map_err(|_| Failure::File)?;
-        let bytes = ic_host_fs::read::read_opened_file(file, limit).map_err(|_| Failure::File)?;
-        if bytes.is_empty() {
-            return Err(Failure::File);
+/// One recovery validation reads every packet through the same directory handle.
+/// Unlike input roots, recovery roots are never canonicalized through a symlink.
+struct RecoveryDirectory(std::fs::File);
+impl RecoveryDirectory {
+    fn open(origin: &Path) -> Result<Self, Failure> {
+        #[cfg(unix)]
+        {
+            ic_host_fs::read::open_directory_no_follow(origin)
+                .map(Self)
+                .map_err(|error| {
+                    if error.raw_os_error() == Some(libc::ELOOP) {
+                        Failure::Binding
+                    } else {
+                        Failure::File
+                    }
+                })
         }
-        Ok(bytes)
+        #[cfg(not(unix))]
+        {
+            let _ = origin;
+            Err(Failure::File)
+        }
     }
-    #[cfg(not(unix))]
-    {
-        let _ = (origin, name, maximum);
-        Err(Failure::File)
+    fn read(&self, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
+        #[cfg(unix)]
+        {
+            use ic_host_artifacts::artifact::ArtifactError;
+            use std::os::fd::AsFd;
+            let file = ic_host_fs::read::open_regular_file_beneath(
+                self.0.as_fd(),
+                Path::new(name),
+                maximum,
+            )
+            .map_err(|error| match error {
+                ArtifactError::Io(error)
+                    if error.kind() == std::io::ErrorKind::InvalidInput
+                        || error.raw_os_error() == Some(libc::ELOOP) =>
+                {
+                    Failure::Binding
+                }
+                _ => Failure::File,
+            })?;
+            let limit = usize::try_from(maximum).map_err(|_| Failure::File)?;
+            let bytes =
+                ic_host_fs::read::read_opened_file(file, limit).map_err(|_| Failure::File)?;
+            if bytes.is_empty() {
+                return Err(Failure::File);
+            }
+            Ok(bytes)
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = (name, maximum);
+            Err(Failure::File)
+        }
     }
+}
+pub(super) fn read_at(origin: &Path, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
+    RecoveryDirectory::open(origin)?.read(name, maximum)
 }
 pub(super) fn validate(
     origin: &Path,
@@ -64,12 +85,13 @@ pub(super) fn validate(
     if !metadata.is_dir() || metadata.file_type().is_symlink() {
         return Err(Failure::Binding);
     }
-    let intent: Value = serde_json::from_slice(&read_at(origin, "intent.json", 16384)?)
+    let directory = RecoveryDirectory::open(origin)?;
+    let intent: Value = serde_json::from_slice(&directory.read("intent.json", 16384)?)
         .map_err(|_| Failure::Arguments)?;
     let (permission, manifest) = selected.setup_requests();
     if intent != *expected
-        || read_at(origin, "permission.wire", 4096)? != permission
-        || read_at(origin, "manifest.wire", 65536)? != manifest
+        || directory.read("permission.wire", 4096)? != permission
+        || directory.read("manifest.wire", 65536)? != manifest
     {
         return Err(Failure::Binding);
     }
@@ -97,8 +119,9 @@ pub(super) fn validate_attempt(
     selected: &PreparedInput,
     root: &[u8],
 ) -> Result<(), Failure> {
+    let directory = RecoveryDirectory::open(origin)?;
     let prefix = name(kind);
-    let packet = |name: &str, maximum| read_at(origin, &format!("{prefix}/{name}"), maximum);
+    let packet = |name: &str, maximum| directory.read(&format!("{prefix}/{name}"), maximum);
     let (permission, _) = selected.setup_requests();
     let request = if kind == upload_setup::Kind::Admit {
         ic_blob_storage_contracts::wire::encode_request(kind.method(), selected.permission)
