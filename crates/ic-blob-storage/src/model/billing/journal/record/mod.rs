@@ -155,16 +155,7 @@ impl FundingIntentRecord {
         Ok(self)
     }
     pub(crate) fn transfer(self) -> Option<FundingTransfer> {
-        let view = self.view()?;
-        Some(match view.state {
-            FundingIntentState::Prepared | FundingIntentState::Uncertain => {
-                FundingTransfer::unknown(view.intent.offered)
-            }
-            FundingIntentState::NotEnqueued => FundingTransfer::not_enqueued(view.intent.offered),
-            FundingIntentState::Callback { refunded } => {
-                FundingTransfer::unbounded_callback(view.intent.offered, refunded).ok()?
-            }
-        })
+        self.view()?.transfer()
     }
     /// Matching successful callback, independent of the reported balance amount.
     /// A separately confirmed credit takes precedence so accounting is disjoint.

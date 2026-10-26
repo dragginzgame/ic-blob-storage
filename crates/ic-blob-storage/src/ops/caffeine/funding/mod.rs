@@ -11,7 +11,6 @@ pub mod transport;
 
 use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::decoder::decode_one_with_config;
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -62,12 +61,11 @@ pub fn decode_top_up_reply(
     bytes: &[u8],
     limits: CaffeineReplyLimits,
 ) -> Result<TopUpReply, TopUpReplyError> {
-    if bytes.len() > limits.max_bytes.get() {
-        return Err(TopUpReplyError::ReplyTooLarge);
-    }
-    let config = limits.config();
-    let reply: wire::AccountTopUpResult =
-        decode_one_with_config(bytes, &config).map_err(|_| TopUpReplyError::InvalidReply)?;
+    let reply: wire::AccountTopUpResult = limits.decode(
+        bytes,
+        TopUpReplyError::ReplyTooLarge,
+        TopUpReplyError::InvalidReply,
+    )?;
     match reply {
         Ok(reply) => {
             let balance = balance_amounts_from_candid(BalanceAmountsInput {

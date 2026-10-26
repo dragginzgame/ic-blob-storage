@@ -16,7 +16,24 @@ pub struct CaffeineReplyLimits {
 }
 
 impl CaffeineReplyLimits {
-    pub(super) fn config(self) -> DecoderConfig {
+    /// Decode mechanics only; callers retain validation order and error identity.
+    pub(super) fn decode<'de, T, E>(
+        self,
+        bytes: &'de [u8],
+        too_large: E,
+        invalid: E,
+    ) -> Result<T, E>
+    where
+        T: ic_platform::candid::contract::CandidType + serde::Deserialize<'de>,
+    {
+        if bytes.len() > self.max_bytes.get() {
+            return Err(too_large);
+        }
+        ic_platform::candid::decoder::decode_one_with_config(bytes, &self.config())
+            .map_err(|_| invalid)
+    }
+
+    fn config(self) -> DecoderConfig {
         ic_blob_storage_contracts::decoding::limits(
             self.decoding_quota.get(),
             self.skipping_quota.get(),

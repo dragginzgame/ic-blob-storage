@@ -7,7 +7,7 @@ import { checkNodeInputs, checkNodeTools } from './check-node-tools.mjs';
 const root = await mkdtemp(join(tmpdir(), 'shared-node-tools.'));
 let complete = false;
 try {
-  const manifest = { packageManager: 'npm@12.2.0', dependencies: { prod: '1.0.0' }, devDependencies: { dev: '2.0.0' }, engines: { node: '>=20' } };
+  const manifest = { packageManager: 'npm@12.2.0', dependencies: { prod: '1.0.0' }, devDependencies: { dev: '2.0.0' }, optionalDependencies: { optional: '3.0.0' }, peerDependencies: { peer: '^4.0.0' }, engines: { node: '>=20' } };
   const file = name => join(root, name);
   const json = (name, value) => writeFile(file(name), JSON.stringify(value));
   await writeFile(file('.nvmrc'), process.versions.node + '\n');
@@ -17,8 +17,15 @@ try {
   await writeFile(npm, '#!/bin/sh\n[ "$1" = --version ] || exit 2\nprintf "12.2.0\\n"\n', { mode: 0o700 });
   const original = await readFile(file('package-lock.json'));
   assert.equal((await checkNodeTools(root, npm)).packageManager, 'npm@12.2.0');
-  for (const field of ['dependencies', 'devDependencies', 'engines']) {
+  for (const field of ['dependencies', 'devDependencies', 'optionalDependencies', 'peerDependencies', 'engines']) {
     await json('package-lock.json', { packages: { '': { ...manifest, [field]: {} } } });
+    await assert.rejects(checkNodeInputs(root));
+  }
+  // Omitting an optional/peer section from the lock must not hide manifest drift.
+  for (const field of ['optionalDependencies', 'peerDependencies']) {
+    const locked = { ...manifest };
+    delete locked[field];
+    await json('package-lock.json', { packages: { '': locked } });
     await assert.rejects(checkNodeInputs(root));
   }
   await writeFile(file('package-lock.json'), original);

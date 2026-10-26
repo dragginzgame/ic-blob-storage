@@ -31,6 +31,17 @@ export function validGatewayLimits({ maxRequests, maxRequestBytes, maxTotalReque
     integer(maxTotalRequestBytes, 1, maxRequests * maxRequestBytes);
 }
 
+export function validGatewayTarget(url, origin) {
+  return url.origin === origin && !url.username && !url.password &&
+    !url.hash && url.href.length <= 4096;
+}
+
+export function validGatewayHeaders(headers) {
+  return Array.isArray(headers) && headers.length <= 16 && headers.every(pair =>
+    Array.isArray(pair) && pair.length === 2 && pair.every(part => typeof part === 'string')) &&
+    headers.reduce((n, [key, value]) => n + key.length + value.length, 0) <= 4096;
+}
+
 export function validJournalConfiguration({ database, maxSlots, mode }) {
   return typeof database === 'string' && database.length > 0 && database.length <= 128 &&
     integer(maxSlots, 1, 1_000_000) &&

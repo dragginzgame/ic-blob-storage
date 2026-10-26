@@ -18,6 +18,25 @@ use crate::policy::billing::admission::journal::assess_journal_preparation;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
 
+/// Authenticate the exact installed intent before asking the host for fresh evidence.
+/// Journal accesses are synchronous; the first borrow ends before `observe`.
+/// Evidence never authorizes dispatch or repeating an uncertain effect.
+/// # Errors
+/// Rejects caller/scope/intent conflicts before invoking `observe`, then applies
+/// the current journal and host-evidence preparation gates.
+/// # Panics
+/// Host and stable traps propagate for whole-message rollback.
+pub fn prepare<H: crate::ops::service::funding::access::FundingJournalAccess>(
+    host: &H,
+    execution: UploadContext,
+    input: FundingIntent,
+    observe: impl FnOnce() -> FundingHostEvidence,
+) -> Result<FundingPreparationResult, FundingJournalError> {
+    host.with_funding_journal(|journal| journal.lookup(execution, input))?;
+    let evidence = observe();
+    host.with_funding_journal(|journal| prepare_new(journal, execution, input, evidence))
+}
+
 /// Exact passive report. It cannot be passed back to the preparation handler.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FundingPreparationView {

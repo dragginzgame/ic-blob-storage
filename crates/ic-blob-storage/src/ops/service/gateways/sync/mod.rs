@@ -18,12 +18,7 @@ pub(crate) fn scope<M: Memory>(
         return Err(Failure::Invalid);
     }
     let config = store.inspection_configuration();
-    let expected = OperatorScope {
-        service: config.bindings().service,
-        namespace: config.bindings().namespace.get(),
-        cashier: config.billing().cashier(),
-        payment_account: config.bindings().payment_account,
-    };
+    let expected = crate::ops::service::operator::scope(config);
     if input != expected {
         return Err(Failure::Binding);
     }

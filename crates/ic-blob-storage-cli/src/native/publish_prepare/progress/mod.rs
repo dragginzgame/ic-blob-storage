@@ -12,6 +12,14 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestInspection;
 use std::path::Path;
 use upload_setup::SetupObservation;
 
+#[derive(Clone, Copy)]
+enum SetupStep {
+    Permission,
+    Admission,
+    Manifest,
+    Preparation,
+}
+
 pub(super) struct Context<'a> {
     pub options: &'a Options,
     pub tenant: &'a ic_platform::agent::Agent,
@@ -35,22 +43,28 @@ fn preflight_allows(
     Ok(!recovery && observation.recoverable_upload.is_none() && observation.setup_allowed)
 }
 impl Context<'_> {
-    fn setup(&self, kind: upload_setup::Kind) -> upload_setup::Input {
+    fn setup(&self, step: SetupStep) -> upload_setup::Input {
+        use upload_setup::Kind;
+        let (kind, request, claim) = match step {
+            SetupStep::Permission => (Kind::Permission, "permission.wire", None),
+            SetupStep::Admission => (
+                Kind::Admit,
+                "permission.wire",
+                Some(journal::Step::Admission),
+            ),
+            SetupStep::Manifest => (Kind::Manifest, "permission.wire", None),
+            SetupStep::Preparation => (
+                Kind::Prepare,
+                "manifest.wire",
+                Some(journal::Step::Preparation),
+            ),
+        };
         upload_setup::Input {
             kind,
             service: self.input.service,
             namespace: self.input.namespace,
-            request: self.origin.join(if kind == upload_setup::Kind::Prepare {
-                "manifest.wire"
-            } else {
-                "permission.wire"
-            }),
-            directory: match kind {
-                upload_setup::Kind::Admit => Some(journal::Step::Admission),
-                upload_setup::Kind::Prepare => Some(journal::Step::Preparation),
-                _ => None,
-            }
-            .map(|step| self.origin.join(journal::name(step))),
+            request: self.origin.join(request),
+            directory: claim.map(|step| self.origin.join(journal::name(step))),
         }
     }
     fn report(
@@ -80,7 +94,7 @@ impl Context<'_> {
         let permission = if recovery {
             let SetupObservation::Permission(permission) = upload_setup::inspect_recorded(
                 self.tenant,
-                &self.setup(upload_setup::Kind::Permission),
+                &self.setup(SetupStep::Permission),
                 self.run,
                 "permission",
             )
@@ -92,7 +106,7 @@ impl Context<'_> {
         } else {
             let result = upload_setup::with_agent(
                 self.options,
-                &self.setup(upload_setup::Kind::Admit),
+                &self.setup(SetupStep::Admission),
                 self.tenant,
             )
             .await?;
@@ -120,7 +134,7 @@ impl Context<'_> {
             response: manifest, ..
         } = upload_setup::inspect_recorded(
             self.tenant,
-            &self.setup(upload_setup::Kind::Manifest),
+            &self.setup(SetupStep::Manifest),
             self.run,
             "manifest",
         )
@@ -160,7 +174,7 @@ impl Context<'_> {
         }
         let result = upload_setup::with_agent(
             self.options,
-            &self.setup(upload_setup::Kind::Prepare),
+            &self.setup(SetupStep::Preparation),
             self.uploader,
         )
         .await?;

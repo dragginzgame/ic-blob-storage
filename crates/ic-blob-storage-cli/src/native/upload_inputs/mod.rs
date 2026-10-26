@@ -343,7 +343,9 @@ impl PreparedInput {
         let references = ReferenceFiles::new(permission.upload, permission.upload.first_reference)?;
         let preparation = ic_blob_storage_contracts::document::encode(&request)
             .map_err(|_| Failure::Arguments)?;
-        if admission.len() > 4096 || preparation.len() > 65536 {
+        if admission.len() > super::exact_wire::PERMISSION_DOCUMENT_BYTES
+            || preparation.len() > super::exact_wire::MANIFEST_DOCUMENT_BYTES
+        {
             return Err(Failure::ReplyLimit);
         }
         let browser = serde_json::to_vec(&BrowserCertificateBinding::new(

@@ -86,8 +86,14 @@ pub(super) fn validate(
         .map_err(|_| Failure::Arguments)?;
     let (permission, manifest) = selected.setup_requests();
     if intent != *expected
-        || directory.read("permission.wire", 4096)? != permission
-        || directory.read("manifest.wire", 65536)? != manifest
+        || directory.read(
+            "permission.wire",
+            crate::native::exact_wire::PERMISSION_DOCUMENT_BYTES as u64,
+        )? != permission
+        || directory.read(
+            "manifest.wire",
+            crate::native::exact_wire::MANIFEST_DOCUMENT_BYTES as u64,
+        )? != manifest
     {
         return Err(Failure::Binding);
     }
@@ -156,7 +162,10 @@ pub(super) fn validate_attempt(
             root,
         )?;
     let packets_match = packet("request.wire", 65536)? == request
-        && packet("permission.wire", 4096)? == permission
+        && packet(
+            "permission.wire",
+            crate::native::exact_wire::PERMISSION_DOCUMENT_BYTES as u64,
+        )? == permission
         && intent.request_sha256 == ContentDigest::compute(&request).to_string();
     let role_and_scope_match = intent.actor == actor.to_text()
         && intent.service == selected.permission.upload.service.to_text()

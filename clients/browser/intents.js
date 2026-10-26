@@ -1,4 +1,5 @@
-import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration } from './validation.js';
+import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validJournalConfiguration,
+  validGatewayTarget, validGatewayHeaders } from './validation.js';
 import { equal, integer, validFields } from './value-validation.js';
 
 import { IntentRefusal, require, bound, claimGateway, observeGateway } from './intent-state.js';
@@ -40,12 +41,9 @@ function request(value, bounds) {
   fields(value, ['url', 'method', 'headers', 'bodyBytes', 'bodySha256']);
   require(typeof value.url === 'string' && value.url.length <= 4096, 'request');
   const url = new URL(value.url);
-  require(url.href === value.url && url.origin === bounds.origin && !url.username &&
-    !url.password && !url.hash && value.method === 'PUT' &&
+  require(url.href === value.url && validGatewayTarget(url, bounds.origin) && value.method === 'PUT' &&
     integer(value.bodyBytes, 0, bounds.maxRequestBytes) && hex(value.bodySha256), 'request');
-  require(Array.isArray(value.headers) && value.headers.length <= 16 && value.headers.every(pair =>
-    Array.isArray(pair) && pair.length === 2 && pair.every(part => typeof part === 'string')) &&
-    value.headers.reduce((n, [k, v]) => n + k.length + v.length, 0) <= 4096, 'headers');
+  require(validGatewayHeaders(value.headers), 'headers');
   require(equal(Array.from(new Headers(value.headers).entries()), value.headers), 'headers');
   return { url: value.url, method: value.method, headers: value.headers,
     bodyBytes: value.bodyBytes, bodySha256: value.bodySha256 };

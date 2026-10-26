@@ -7,7 +7,6 @@
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
 use ic_platform::Principal;
-use ic_platform::candid::decoder::decode_one_with_config;
 use thiserror::Error;
 
 use crate::{
@@ -57,12 +56,11 @@ pub fn decode_balance_reply(
     {
         return Err(BalanceReplyError::InvalidAccount);
     }
-    if bytes.len() > limits.max_bytes.get() {
-        return Err(BalanceReplyError::ReplyTooLarge);
-    }
-    let config = limits.config();
-    let reply: wire::AccountBalanceGetResult =
-        decode_one_with_config(bytes, &config).map_err(|_| BalanceReplyError::InvalidReply)?;
+    let reply: wire::AccountBalanceGetResult = limits.decode(
+        bytes,
+        BalanceReplyError::ReplyTooLarge,
+        BalanceReplyError::InvalidReply,
+    )?;
     match reply {
         Ok(reply) => {
             if reply.account != expected_account.into() {

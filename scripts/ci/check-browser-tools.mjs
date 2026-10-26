@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { join, extname } from 'node:path';
 import { checkNodeInputs } from './check-node-tools.mjs';
+import { checkIcSdkBoundary } from './check-ic-sdk-boundary.mjs';
 await checkNodeInputs(fileURLToPath(new URL('../../tests/browser/', import.meta.url)));
 
 const json = async path => JSON.parse(await readFile(new URL(path, import.meta.url), 'utf8'));
@@ -38,32 +38,5 @@ assert.equal(fixtureRequire.resolve('@icp-sdk/core/agent'), platformRequire.reso
 
 // Product, build and test sources use Platform; provider/Platform transitive SDK
 // imports and the reviewed Caffeine source patch keep their external ownership.
-const directSdkImport = /(?:\bfrom\s+|\bimport\s*(?:\(\s*)?|\brequire\s*\(\s*)['"`]@icp-sdk\/core(?:\/|['"`])/;
-async function checkSources(directory) {
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    if (entry.name === 'node_modules') continue;
-    const path = join(directory, entry.name);
-    if (entry.isDirectory()) { await checkSources(path); continue; }
-    if (!entry.isFile()) continue;
-    if (entry.name === 'package.json') {
-      const manifest = JSON.parse(await readFile(path, 'utf8'));
-      for (const field of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']) {
-        for (const [name, version] of Object.entries(manifest[field] ?? {})) {
-          assert(name !== '@icp-sdk/core' && !name.startsWith('@icp-sdk/core/') &&
-            !/^npm:@icp-sdk\/core(?:@|$)/.test(String(version)),
-            `${path}: direct SDK Core dependency (${field}/${name}); use Platform`);
-        }
-      }
-      for (const [name, script] of Object.entries(manifest.scripts ?? {})) {
-        assert(!directSdkImport.test(script), `${path}: direct SDK Core import in script ${name}; use Platform`);
-      }
-    } else if (['.js', '.mjs', '.cjs', '.ts', '.mts', '.cts', '.jsx', '.tsx'].includes(extname(path))) {
-      const source = await readFile(path, 'utf8');
-      assert(!directSdkImport.test(source),
-        `${path}: direct SDK Core import; use Platform`);
-    }
-  }
-}
-for (const root of ['clients/browser', 'tests/browser', 'scripts']) {
-  await checkSources(fileURLToPath(new URL(`../../${root}`, import.meta.url)));
-}
+await checkIcSdkBoundary(['clients/browser', 'tests/browser', 'scripts'].map(root =>
+  fileURLToPath(new URL(`../../${root}`, import.meta.url))));

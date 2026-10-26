@@ -17,7 +17,7 @@ const MAX_QUERIES: usize = 4;
 #[cfg(test)]
 mod tests;
 
-#[derive(Clone, Copy, Eq, PartialEq, serde::Serialize)]
+#[derive(Clone, Copy, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum PreparationState {
     Blocked,
@@ -25,6 +25,21 @@ enum PreparationState {
     PermissionInactive,
     Prepared,
     PreparationUnobserved,
+}
+#[derive(serde::Deserialize)]
+struct PreparationSummaryView {
+    prepared: bool,
+    state: PreparationState,
+}
+impl PreparationSummaryView {
+    fn validate(bytes: &[u8]) -> Result<(), Failure> {
+        let report: Value = serde_json::from_slice(bytes).map_err(|_| Failure::Binding)?;
+        let report: Self = serde_json::from_value(report).map_err(|_| Failure::Unprepared)?;
+        if !report.prepared || report.state != PreparationState::Prepared {
+            return Err(Failure::Unprepared);
+        }
+        Ok(())
+    }
 }
 pub(in crate::native) struct PreparationOutcome {
     state: PreparationState,
@@ -59,12 +74,7 @@ pub(in crate::native) fn transfer_source(
     for step in [journal::Step::Admission, journal::Step::Preparation] {
         journal::validate_attempt(&directory, step, options, selected, root)?;
     }
-    let report: Value = serde_json::from_slice(&directory.read("summary.json", 1024 * 1024)?)
-        .map_err(|_| Failure::Binding)?;
-    if report["prepared"] != true || report["state"] != "prepared" {
-        return Err(Failure::Unprepared);
-    }
-    Ok(())
+    PreparationSummaryView::validate(&directory.read("summary.json", 1024 * 1024)?)
 }
 
 #[derive(Clone)]

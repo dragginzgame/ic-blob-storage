@@ -71,6 +71,22 @@ pub struct FundingIntentView {
     /// Current local progress.
     pub state: FundingIntentState,
 }
+impl FundingIntentView {
+    pub(crate) fn transfer(
+        self,
+    ) -> Option<ic_blob_storage_contracts::funding::transfer::FundingTransfer> {
+        use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+        Some(match self.state {
+            FundingIntentState::Prepared | FundingIntentState::Uncertain => {
+                FundingTransfer::unknown(self.intent.offered)
+            }
+            FundingIntentState::NotEnqueued => FundingTransfer::not_enqueued(self.intent.offered),
+            FundingIntentState::Callback { refunded } => {
+                FundingTransfer::unbounded_callback(self.intent.offered, refunded).ok()?
+            }
+        })
+    }
+}
 /// Independently correlated transport evidence supplied by a trusted host.
 /// Missing replies/timeouts must not be converted to either variant.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

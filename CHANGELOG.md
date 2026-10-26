@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.49.1] - Unreleased
+
+- Adopt Shared Tooling 0.26.20 and published Host/Build/Testkit 0.68.7.
+  Use Shared's SDK boundary checker while retaining Blob's installed SDK identity
+  checks. Normal releases start fresh; recover a saved attempt explicitly with
+  `release-resume VERSION=X.Y.Z`.
+
+- Share installed funding preparation: authenticate the exact intent, release
+  the journal borrow for host evidence, then recheck and reserve synchronously.
+  Reuse validated funding projections and the installed operator-scope mapping.
+- Consolidate bounded provider reply decoding while retaining each provider's
+  error classification, semantic checks and validation order.
+- Read saved preparation status through a typed projection, narrow its setup
+  operations, and share permission/manifest document ceilings with their writers.
+- Share browser gateway target/header admission between fresh requests and
+  retained intents, preserving canonical saved headers and exact retry bytes.
+  Refresh dependency guidance and the current handoff; saved formats and public
+  endpoint contracts are unchanged.
+
 ## [0.49.0] - 2026-10-26
 
 - **Breaking:** browser consumers depend on published `@tokostudios/ic-platform`

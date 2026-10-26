@@ -8,8 +8,8 @@ service/lifecycle frames retain their `0042` identities and bytes. Old tenant fr
 [registration contract](trusted-registration.md) defines the installation/state
 cut and retirement/reinstall requirements. Application calls also reject old
 CBOR and Candid service packets,
-with no detection, fallback or compatibility lane. The root manifest selects
-published Wire 0.6.2; Cargo.lock retains the exact selection. Wire itself
+with no detection, fallback or compatibility lane. The [root catalog](../Cargo.toml)
+selects published Wire; [Cargo.lock](../Cargo.lock) retains the exact selection. Wire itself
 owns no Blob DTO, endpoint, platform dependency or provider transport.
 
 ## Boundaries and ownership
@@ -49,7 +49,7 @@ values, all application failures and malformed inputs are covered by tests.
 Native tenant DTOs remain projections through `wire::tenant`; generic helpers
 do not replace its principal and traversal admission.
 
-Wire 0.6 uses ordinary Serde serialization and deserialization.
+Wire uses ordinary Serde serialization and deserialization.
 Generic service/document decoders explicitly require `Deserialize<'de>` and
 accept input-backed `BytesRef`/`TextRef`; callers needing independent ownership
 can retain `DeserializeOwned`. The tenant contracts borrow principal bytes

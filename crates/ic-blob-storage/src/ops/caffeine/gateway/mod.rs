@@ -8,7 +8,6 @@
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
 use ic_platform::Principal;
-use ic_platform::candid::decoder::decode_one_with_config;
 use thiserror::Error;
 
 use crate::model::gateway::registry::{
@@ -36,12 +35,11 @@ pub fn apply_gateway_sync_reply(
     limits: CaffeineReplyLimits,
 ) -> Result<(), GatewayReplyError> {
     registry.check_sync(token, response_scope)?;
-    if bytes.len() > limits.max_bytes.get() {
-        return Err(GatewayReplyError::ReplyTooLarge);
-    }
-    let config = limits.config();
-    let principals: Vec<ic_platform::principal::ExternalPrincipal> =
-        decode_one_with_config(bytes, &config).map_err(|_| GatewayReplyError::InvalidReply)?;
+    let principals: Vec<ic_platform::principal::ExternalPrincipal> = limits.decode(
+        bytes,
+        GatewayReplyError::ReplyTooLarge,
+        GatewayReplyError::InvalidReply,
+    )?;
     let principals = principals
         .into_iter()
         .map(Into::into)

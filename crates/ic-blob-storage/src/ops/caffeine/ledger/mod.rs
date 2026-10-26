@@ -13,7 +13,6 @@ use crate::{
     ops::billing::balance::{BalanceAmountsInput, BalanceInputError, balance_amounts_from_candid},
 };
 use ic_platform::candid::contract::{CandidType, Nat};
-use ic_platform::candid::decoder::decode_one_with_config;
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -114,12 +113,11 @@ pub fn decode_ledger_deposit_reply(
     bytes: &[u8],
     limits: CaffeineReplyLimits,
 ) -> Result<LedgerDepositReply, LedgerDepositReplyError> {
-    if bytes.len() > limits.max_bytes.get() {
-        return Err(LedgerDepositReplyError::ReplyTooLarge);
-    }
-    let config = limits.config();
-    let reply: wire::NotifyResult = decode_one_with_config(bytes, &config)
-        .map_err(|_| LedgerDepositReplyError::InvalidReply)?;
+    let reply: wire::NotifyResult = limits.decode(
+        bytes,
+        LedgerDepositReplyError::ReplyTooLarge,
+        LedgerDepositReplyError::InvalidReply,
+    )?;
     match reply {
         Ok(value) => {
             let balance = balance_amounts_from_candid(BalanceAmountsInput {

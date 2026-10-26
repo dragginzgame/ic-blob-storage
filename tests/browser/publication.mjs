@@ -6,6 +6,21 @@ import { join } from 'node:path';
 import { StorageClient } from '@caffeineai/object-storage';
 import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { createPublicationUpload } from '../../clients/browser/publication.js';
+import { validGatewayTarget, validGatewayHeaders } from '../../clients/browser/validation.js';
+
+const gatewayOrigin = 'https://gateway.example';
+for (const [url, accepted] of [
+  [`${gatewayOrigin}/chunk?index=1`, true],
+  ['https://other.example/chunk', false],
+  ['https://user@gateway.example/chunk', false],
+  [`${gatewayOrigin}/chunk#fragment`, false],
+  [gatewayOrigin + '/' + 'x'.repeat(4096), false],
+]) assert.equal(validGatewayTarget(new URL(url), gatewayOrigin), accepted);
+for (const [headers, accepted] of [
+  [[], true], [[['x', 'y']], true], [[['x', 'v'.repeat(4095)]], true],
+  [[['x', 'v'.repeat(4096)]], false], [Array.from({ length: 17 }, () => ['x', 'y']), false],
+  [[['x', 1]], false], [[['x', 'y', 'z']], false], [null, false],
+]) assert.equal(validGatewayHeaders(headers), accepted);
 const directory = process.argv[2];
 assert(directory);
 await mkdir(directory, { mode: 0o700 });

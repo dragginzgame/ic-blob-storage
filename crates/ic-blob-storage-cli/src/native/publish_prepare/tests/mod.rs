@@ -3,6 +3,32 @@ use crate::native::{arguments::Command, execute, upload_inputs::tests as fixture
 use ic_host_fs::testing::FixtureDirectory;
 use std::fs;
 
+#[test]
+fn preparation_summary_preserves_shape_and_refusal_classification() {
+    assert_eq!(
+        PreparationSummaryView::validate(br#"{"prepared":true,"state":"prepared","extra":1}"#),
+        Ok(())
+    );
+    assert_eq!(
+        PreparationSummaryView::validate(b"{"),
+        Err(Failure::Binding)
+    );
+    for report in [
+        json!(null),
+        json!([]),
+        json!({}),
+        json!({"prepared":"true","state":"prepared"}),
+        json!({"prepared":true,"state":"unknown"}),
+        json!({"prepared":false,"state":"prepared"}),
+        json!({"prepared":true,"state":"blocked"}),
+    ] {
+        assert_eq!(
+            PreparationSummaryView::validate(&serde_json::to_vec(&report).unwrap()),
+            Err(Failure::Unprepared)
+        );
+    }
+}
+
 fn arguments(directory: &std::path::Path) -> Vec<String> {
     [
         "publish-prepare",

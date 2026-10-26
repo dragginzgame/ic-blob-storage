@@ -1,6 +1,8 @@
 //! Exact bounded passive Wire values for offline native inputs.
 use super::Failure;
 pub(super) const INSTALLATION_BYTES: usize = 16 * 1024;
+pub(super) const PERMISSION_DOCUMENT_BYTES: usize = 4096;
+pub(super) const MANIFEST_DOCUMENT_BYTES: usize = 65536;
 /// Callers retain their command-specific byte ceilings; extra values always refuse.
 pub(super) fn decode<T: serde::de::DeserializeOwned>(
     bytes: &[u8],

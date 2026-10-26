@@ -45,7 +45,8 @@ first-party runtime, test and build sources use its explicit ESM subpaths. SDK
 Core remains transitive through Platform and the external Caffeine package.
 The maintained workspace overrides Caffeine's SDK selection to 6.1.1, matching
 Platform 0.1.0. Browser prerequisites enforce that graph and reject direct SDK
-declarations/imports, aliases and separate installed Agent identities. External
+declarations/imports and aliases through Shared's opt-in SDK boundary checker.
+Blob additionally rejects separate installed Agent identities. External
 Caffeine Candid remains on Platform's `/candid` boundary; application bytes stay
 with Wire. Rust and browser Platform packages have independent versions.
 
@@ -56,9 +57,8 @@ The [service contract](service-contract.md) owns supported service invariants.
 
 Contracts owns opt-in `provider-json` boundary codecs, including
 [`provider::upload`](../crates/ic-blob-storage-contracts/src/provider/upload/mod.rs).
-For 0.34, replace `ic_blob_storage::ops::caffeine::upload` imports with
-`ic_blob_storage_contracts::provider::upload`. The decoder, status and error
-semantics are unchanged; Core no longer declares `serde_json` directly.
+Use `ic_blob_storage_contracts::provider::upload`; Core does not own HTTP JSON
+parsing or declare `serde_json` directly.
 The Contracts crate has no default features; native callers of these codecs
 must enable `provider-json`. CLI and PocketIC already select it explicitly.
 The CLI retains its required Serde/JSON dependencies and Host test helpers,
@@ -147,23 +147,21 @@ upstream identities; Blob must not pass typed values across incompatible
 package versions. Installed tool selection is separate from the application lock:
 run `make install-testkit` then `make testkit-check` after changing Testkit.
 
-The current native Tooling selection is the published 0.64.0 release. Testkit's
-PocketIC re-exports and stateless `Fake` wrapper are retired: test dependencies
-select Platform's `pocket-ic` feature, import `ic_platform::pocket_ic` directly,
+Test dependencies select Platform's `pocket-ic` feature, import `ic_platform::pocket_ic` directly,
 and call `ic_testkit::fake_principal`. Testkit still owns server startup,
 lifecycle extensions and transport error handling. The simulator identity,
-principal bytes and local decoder limits are unchanged. These are native test
-changes, not new deployment dependencies. Host Tools' decoder limits now belong
-to Platform; Blob already uses that canonical type and does not need a bridge.
+principal bytes and local decoder limits retain their original identities.
+Host Tools' decoder limits belong to Platform; Blob uses that canonical type.
 The optional package verifier and its Build dependency stay on the same Host
 process identity. Archive qualification passes explicit default-feature selection to
-Build; packaging, extracted metadata and tests retain the previous graph policy. After adoption, explicitly prepare the locked Testkit CLI with
+Build; packaging, extracted metadata and tests use the same graph policy.
+After dependency changes, explicitly prepare the locked Testkit CLI with
 `make install-testkit` and the locked release editor with
 `make install-release-editor`; application lockfile changes do not install tools.
 
 The [service wire guide](service-wire.md) defines the current 0.43.0 contract.
-All 27 owned methods and standalone lifecycle inputs use published IC Wire
-0.6.2, with explicit method/direction identity and no old-packet fallback.
+All 27 owned methods and standalone lifecycle inputs use published IC Wire,
+with explicit method/direction identity and no old-packet fallback.
 Tenant frames use new 0.43 identities; all methods use Wire's bounded native
 Serde codec. Passive offline values use a separate document identity, and new
 application artifacts use `.wire`. Exact saved-input and signed-frame binding
@@ -186,7 +184,7 @@ service inventory. Host interprets the bounded Wasm function exports through
 `ic-interface` without its optional Candid parser. Direct Candid/CDK declarations
 remain forbidden by the boundary policy.
 
-Platform 0.5.0 owns non-cryptographic runtime adapters, using the original
+Platform owns non-cryptographic runtime adapters, using the original
 executor 2.0.0 and IC0 1.2.0 identities. Callable entrypoints select codecs
 explicitly. Blob's method emitters bind pre-copy admission to the declared
 method, not inspect-message-only APIs. Provider Candid replies remain explicit;
@@ -196,7 +194,7 @@ Private Candid probe/provider substitutes retain their existing tuple decoder,
 `blob-test-protocol::fixture_candid` hooks. Existing narrower fixture decoders
 and method-bound Wire controls remain unchanged.
 
-Published Wire 0.6.2 supplies the native Serde codec; generic decode
+Published Wire supplies the native Serde codec; generic decode
 callers explicitly choose `Deserialize<'de>` or `DeserializeOwned`. Blob's generic
 service/document decoders now admit input-backed values. Borrowed tenant principal
 views use `BytesRef<29>`; the native descriptor consumer uses `TextRef` over its
@@ -206,22 +204,17 @@ The [protocol](service-wire.md) owns the current limits and canonical bytes;
 [measurements](evidence/borrowed-wire0390.md) separate actual upload/descriptor
 operations from chunk codec controls. Provider bodies remain outside Blob RPC.
 
-Platform's application `Principal` is now owned and has no Candid or stable-key
+Platform's application `Principal` is owned and has no Candid or stable-key
 trait. Application DTOs and runtime calls use it. Required provider/management
 Candid DTOs, Agent/PocketIC arguments, persisted records and stable keys retain
 `principal::ExternalPrincipal`, the original upstream identity, with explicit
 conversions at those boundaries. Stored schemas, key ordering, Wire principal
 bytes and decoder budgets stay unchanged; this is not a storage migration.
-Platform 0.4 removes runtime Candid convenience methods. Calls now provide
-separately encoded bytes, including explicit Candid unit arguments; existing
-reply decoders and transport/codec failure mappings remain at their owners.
-
-Published Testkit 0.60 shares Platform 0.5's original `DecodeLimits` and
-`DecodeError`. Native fixture policy and historical-image helpers use the ordinary
-`ic-platform` dependency directly. The temporary native alias and resolved
-Platform 0.4 package are removed, preserving all five reply budgets without
-conversion, copied decoding or alternate transport. The earlier prepared
-compatibility report no longer needs publication.
+Runtime calls supply separately encoded bytes, including explicit Candid unit
+arguments; reply decoders and transport/codec failure mappings remain at their
+owners. Native fixture policy and historical-image helpers use Platform's
+`DecodeLimits` and `DecodeError` directly, preserving their five reply budgets
+without conversion, copied decoding or alternate transport.
 
 Core and replicated client select `runtime`, retaining their existing CDK API
 paths and shared executor identity without requesting the entrypoint generator.
@@ -233,7 +226,6 @@ Wire/provider codec hooks and no longer carry the retired no-op `hidden` option.
 Upstream Candid printer dependencies can still be enabled transitively; these
 feature choices do not claim a Candid-free deployment.
 
-The old Platform 0.1 alias and optional Wasm extraction feature stay removed.
 The native standalone `export_candid` example still exports the same provider
 contract; Host's callable export inspection requires no Candid extraction pointer.
 The resolved graph selects neither Platform 0.1 nor full CDK. No bounded Host
@@ -244,16 +236,15 @@ check additionally rejects Platform 0.1/0.2/0.3/0.4, Host, Build, Testkit, Pocke
 Agent and the parser. Candid remains through required provider/management
 contracts and persisted schemas; this is not a Candid-free deployment claim.
 
-Testkit forwards Platform 0.5's original `CanisterInstallMode` and
-`common::rest::RawMessageId`. Six test modules use those exports for skipped-hook
-upgrades and pending-call recovery; the temporary direct PocketIC declaration
-and boundary exception are removed. Its management DTOs retain PocketIC's own
+Platform's PocketIC module supplies `CanisterInstallMode` and
+`common::rest::RawMessageId` for skipped-hook upgrades and pending-call recovery.
+Its management DTOs retain PocketIC's own
 identity, separate from Platform's independent management DTO version. Testkit
 continues to own simulator selection and server lifecycle.
 
 ### Delayed provider fixtures
 
-Testkit 0.64.1's opt-in `held-reply-fixtures` owns generic immutable reply slots
+Testkit's opt-in `held-reply-fixtures` owns generic immutable reply slots
 and manual PocketIC release. It is suitable for consumer callback races without
 provider lifecycle operations. It does not replace Blob's durable
 [gateway source](../canisters/test/gateway_source/src/model/mod.rs): the
@@ -352,6 +343,13 @@ and [funding qualification](funding-consumer-qualification.md). Provider payer,
 credit, GC, deletion and billing facts cannot be replaced with local substitutes.
 
 ## Setup and checks
+
+The browser prerequisite/build adapter selects `clients/browser`, `tests/browser`
+and `scripts` for Shared's read-only SDK boundary check. It rejects direct Core
+and legacy DFINITY declarations and literal imports; Blob retains locked/installed
+identity and provider compatibility checks. Computed imports and arbitrary loaders
+are not proved by a literal-source guard. The maintained bundles and actual
+browser acceptance remain separate evidence.
 
 The Platform boundary target enables Shared Tooling's reviewed external-IC package
 inventory alongside Blob's stricter local rules. It checks aliases, optional,

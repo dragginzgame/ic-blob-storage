@@ -489,6 +489,8 @@ fn shared_funding_access_releases_borrows_and_observes_version_gaps() {
     let before = bytes(&memory);
     let access = ServiceWorkflow::<Host>::ACCESS;
     assert!(!access.with_funding_journal(|journal| journal.is_fenced()));
+    assert_preparation_borrow_boundaries(&access);
+    assert_eq!(bytes(&memory), before);
     // A separate callback borrow observes a management-version gap before access.
     VERSION.set(2);
     assert!(access.with_funding_journal(|journal| journal.is_fenced()));
@@ -497,4 +499,80 @@ fn shared_funding_access_releases_borrows_and_observes_version_gaps() {
     });
     assert_eq!(bytes(&memory), before);
     OWNER.with_borrow_mut(|owner| *owner = None);
+}
+
+fn assert_preparation_borrow_boundaries(
+    access: &impl crate::ops::service::funding::access::FundingJournalAccess,
+) {
+    use crate::model::billing::journal::{FundingIntent, FundingJournalScope};
+    use crate::ops::service::funding::FundingJournalError;
+    use crate::policy::billing::admission::evidence::FundingAdmissionEvidence;
+    use crate::policy::billing::admission::journal::FundingHostEvidence;
+    use crate::workflow::funding::{FundingPreparationResult, prepare};
+    use std::cell::Cell;
+    let (intent, context) = access.with_funding_journal(|journal| {
+        let config = journal.inspection_configuration();
+        let bindings = config.bindings();
+        (
+            FundingIntent {
+                service: bindings.service,
+                cashier: config.billing().cashier(),
+                account: bindings.payment_account,
+                namespace: bindings.namespace,
+                operation: 1.try_into().unwrap(),
+                offered: 1.try_into().unwrap(),
+                target_balance: None,
+            },
+            UploadContext {
+                service: bindings.service,
+                actor: bindings.operator,
+            },
+        )
+    });
+    let denied = UploadContext {
+        actor: ic_platform::Principal::anonymous(),
+        ..context
+    };
+    assert_eq!(
+        prepare(access, denied, intent, || panic!(
+            "unauthorized evidence callback"
+        )),
+        Err(FundingJournalError::NotOperator)
+    );
+    let mut wrong_scope = intent;
+    wrong_scope.namespace = (intent.namespace.get() - 1).try_into().unwrap();
+    assert_eq!(
+        prepare(access, context, wrong_scope, || panic!(
+            "foreign-scope evidence callback"
+        )),
+        Err(FundingJournalError::Binding)
+    );
+    let observed = Cell::new(false);
+    let result = prepare(access, context, intent, || {
+        observed.set(true);
+        // Evidence acquisition can borrow the same host: no owner borrow leaked.
+        assert_eq!(
+            access
+                .with_funding_journal(|journal| journal.lookup(context, intent))
+                .unwrap(),
+            None
+        );
+        FundingHostEvidence {
+            scope: FundingJournalScope {
+                service: intent.service,
+                cashier: intent.cashier,
+                account: intent.account,
+                namespace: intent.namespace,
+            },
+            provider_qualified: false,
+            admission: FundingAdmissionEvidence {
+                available_cycles: None,
+                recovery: None,
+                activity: None,
+            },
+        }
+    })
+    .unwrap();
+    assert!(observed.get());
+    assert!(matches!(result, FundingPreparationResult::Blocked(_)));
 }

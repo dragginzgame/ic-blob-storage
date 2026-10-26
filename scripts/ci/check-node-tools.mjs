@@ -15,6 +15,8 @@ export async function checkNodeInputs(packageRoot) {
   assert.match(manifest.packageManager, /^npm@\d+\.\d+\.\d+$/);
   assert.deepEqual(lock.packages[''].dependencies, manifest.dependencies, 'Root production dependencies differ from the lock');
   assert.deepEqual(lock.packages[''].devDependencies, manifest.devDependencies, 'Root development dependencies differ from the lock');
+  assert.deepEqual(lock.packages[''].optionalDependencies, manifest.optionalDependencies, 'Root optional dependencies differ from the lock');
+  assert.deepEqual(lock.packages[''].peerDependencies, manifest.peerDependencies, 'Root peer dependencies differ from the lock');
   assert.deepEqual(lock.packages[''].engines, manifest.engines, 'Root engine declarations differ from the lock');
   return { root, nodeVersion, packageManager: manifest.packageManager };
 }

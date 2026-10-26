@@ -228,7 +228,9 @@ case "$1" in
             --cached)
                 case "$3" in
                     --name-only) printf 'Cargo.toml\0Cargo.lock\0CHANGELOG.md\0docs/release.json\0'; [[ "${TEST_INDEX_EXTRA:-0}" != 1 ]] || printf 'src/lib.rs\0' ;;
-                    --quiet) [[ "${TEST_INDEX_EXTRA:-0}" != 1 ]] ;;
+                    # Inject the extra staged path only after this fixture stages
+                    # release files; initial admission still sees its clean index.
+                    --quiet) [[ "${TEST_INDEX_EXTRA:-0}" != 1 || ! -e target/mock-staged ]] ;;
                     *) exit 97 ;;
                 esac ;;
             --quiet) [[ "${TEST_DIRTY:-0}" != 1 ]] ;;
@@ -255,7 +257,10 @@ case "$1" in
         printf '%s\n' "$history" ;;
     merge-base) [[ "$2" == --is-ancestor ]] || exit 97; ancestor "$3" "$4" ;;
     show) ref="$2"; cat "target/history/${ref%%:*}.files/${ref#*:}" ;;
-    add) [[ "$*" == 'add -- Cargo.toml Cargo.lock CHANGELOG.md docs/release.json' ]] || exit 97; echo stage >> "$TEST_EFFECTS" ;;
+    add)
+        [[ "$*" == 'add -- Cargo.toml Cargo.lock CHANGELOG.md docs/release.json' ]] || exit 97
+        touch target/mock-staged
+        echo stage >> "$TEST_EFFECTS" ;;
     commit)
         if [[ -d "target/history/$release_head.files" ]]; then release_head=7777777777777777777777777777777777777777; fi
         mkdir -p "target/history/$release_head.files/docs"
@@ -596,9 +601,9 @@ test_source_diagnostics() {
     before="$(fingerprint)"
     export TEST_DIRTY=1
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
-    rg -F 'unstaged: src/lib.rs' target/rejection.log >/dev/null
-    rg -F 'preflight refused; this attempt has not started validation or version preparation' target/rejection.log >/dev/null
-    [[ ! -s "$TEST_EFFECTS" && ! -e target/gate-ran && ! -e docs/release.json ]] || exit 1
+    rg -F 'commit or restore worktree changes before starting a release' target/rejection.log >/dev/null
+    [[ ! -s "$TEST_EFFECTS" && ! -e target/gate-ran && ! -e docs/release.json &&
+       ! -e target/release-state/0.1.1.plan ]] || exit 1
     assert_unchanged; assert_cache_retained
 }
 test_invalid_changelog() {
@@ -1004,6 +1009,7 @@ test_recovery_integration() {
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-minor
     unset TEST_PUSH_FAIL
     [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == push ]] || exit 1
+    cp target/release-state/0.2.0.plan target/older-plan
     cp target/history/3333333333333333333333333333333333333333.files/docs/release.json target/older-receipt
     cp target/tags/v0.2.0.sha target/older-tag
     commit_fixture_fix
@@ -1011,7 +1017,9 @@ test_recovery_integration() {
     cp target/notes CHANGELOG.md
     export TEST_GATE_FAIL=1
     expect_failure "$TEST_REAL_MAKE" --no-print-directory release-patch
-    [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == complete && "$(perl scripts/release/release-data.pl version)" == 0.2.0 ]] || exit 1
+    # A fresh gate never resumes the older lost-push-ack attempt.
+    cmp target/older-plan target/release-state/0.2.0.plan
+    [[ "$(perl scripts/release/release-data.pl version)" == 0.2.0 ]] || exit 1
     [[ "$(cat target/remote-head)" == 3333333333333333333333333333333333333333 ]] || exit 1
     # The real validation adapter retains its failed log across the retry.
     local retained
@@ -1019,6 +1027,9 @@ test_recovery_integration() {
     [[ -n "$retained" ]] || exit 1
     cp "$retained" target/first-failed-validation.log
     unset TEST_GATE_FAIL
+    # Finish that exact attempt only on explicit selection, without replaying it.
+    "$TEST_REAL_MAKE" --no-print-directory release-resume VERSION=0.2.0
+    [[ "$(tail -n 1 target/release-state/0.2.0.plan)" == complete ]] || exit 1
     "$TEST_REAL_MAKE" --no-print-directory release-patch
     [[ "$(perl scripts/release/release-data.pl version)" == 0.2.1 && "$(tail -n 1 target/release-state/0.2.1.plan)" == complete ]] || exit 1
     [[ "$(cat target/remote-head)" == 7777777777777777777777777777777777777777 ]] || exit 1

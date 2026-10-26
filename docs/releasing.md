@@ -102,33 +102,23 @@ Failed attempts retain unique raw logs under Git's
 `release-state/validation-failures`; retries preserve earlier logs. If that
 destination is unavailable, the logger preserves and reports its temporary logs.
 
-If preflight or validation fails, fix and commit the source, then rerun the normal
-target for fresh gates. Uncommitted preparation remains bound to its saved source
-and increment. A normal direct target can supersede
-preparation when a newer clean descendant commit records the local metadata's
-disposition, with no staging evidence and the same destination. It archives the
-old intent unchanged, reads the current version, applies the requested increment
-and repeats preflight/full validation. Explicit resume remains exact-source.
-Blob preparation changes only local metadata; failed transactions restore their
-inputs and retain their backup. Committed receipts remain in Git, and validation
-logs use unique retained attempts. Do not rewrite an old receipt or remove a
-backup to trigger restart. See the [shared restart contract](releases.md#source-changes-after-saved-preparation-intent).
-
-After the release commit exists, a normal command reconciles that
-exact release even when newer fixes are committed on its descendant history:
+Normal release commands start fresh from current clean committed metadata. They
+do not scan historical plans, finish an older push or reuse saved validation.
+After a failed gate, fix and commit the inputs, then rerun the normal target.
+Uncommitted preparation must be restored, committed deliberately or recovered
+through its exact saved attempt:
 
 ```bash
-make release-patch
-# Explicit selection of retained intent, if needed:
 make release-resume VERSION=VERSION_FROM_SAVED_PLAN
 ```
 
-An unchanged same-kind retry finishes only the saved release. With newer
-committed fixes or a different requested increment, the command finishes the old
-release first, then reads the actual local version and validates the next release
-against current source. For example, an interrupted minor at `0.15.0`, followed
-by a committed fix, lets `make release-patch` reconcile `0.15.0` and then validate
-`0.15.1`. Explicit resume finishes only the selected release.
+Resume preserves that plan's source, version, date, destination and payload
+checks. A fresh release clears only stale intent for its selected candidate;
+other historical plans remain untouched. For example, committed metadata at
+`0.15.0` makes `release-patch` validate and prepare `0.15.1`, without claiming
+delivery of an older attempt. Blob's failed metadata transactions retain their
+backup and restore their inputs. Never rewrite receipts or delete evidence to
+trigger restart. See the [shared restart contract](releases.md#source-changes-after-saved-preparation-intent).
 
 Late checks receive `RELEASE_COMMIT` separately from `RELEASE_SOURCE`. They read
 Cargo files, notes and the receipt from that exact commit and bind its sole parent

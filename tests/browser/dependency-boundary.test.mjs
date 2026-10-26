@@ -17,6 +17,7 @@ async function fixture(root) {
     await mkdir(join(root, path), { recursive: true });
   }
   for (const path of ['scripts/ci/check-browser-tools.mjs', 'scripts/ci/check-node-tools.mjs',
+    'scripts/ci/check-ic-sdk-boundary.mjs',
     'clients/browser/package.json', 'tests/browser/package.json', 'tests/browser/package-lock.json',
     'tests/browser/.nvmrc']) {
     await writeFile(join(root, path), await readFile(new URL(path, repo)));
@@ -43,21 +44,21 @@ test('browser dependency boundary admits Platform and refuses SDK escape paths',
     ...['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'].map(field =>
       [field, root => changeJson(root, 'clients/browser/package.json', value => {
         value[field] = { ...value[field], [sdk]: '6.1.1' };
-      }), 'direct SDK Core dependency']),
+      }), 'direct SDK dependency']),
     ['dependency alias', root => changeJson(root, 'clients/browser/package.json', value => {
       value.dependencies['renamed-sdk'] = `npm:${sdk}@6.1.1`;
-    }), 'direct SDK Core dependency'],
+    }), 'direct SDK dependency'],
     ['product import', root => writeFile(join(root, 'clients/browser/escape.js'),
-      `import { Principal } from '${sdk}/principal';`), 'direct SDK Core import'],
+      `import { Principal } from '${sdk}/principal';`), 'direct SDK import'],
     ['test dynamic import', root => writeFile(join(root, 'tests/browser/escape.mjs'),
-      `await import('${sdk}/agent');`), 'direct SDK Core import'],
+      `await import('${sdk}/agent');`), 'direct SDK import'],
     ['build require', root => writeFile(join(root, 'scripts/ci/escape.cjs'),
-      `require('${sdk}/agent');`), 'direct SDK Core import'],
+      `require('${sdk}/agent');`), 'direct SDK import'],
     ['npm script import', root => changeJson(root, 'clients/browser/package.json', value => {
       value.scripts = { escape: `node -e "require('${sdk}/agent')"` };
-    }), 'direct SDK Core import in script'],
+    }), 'direct SDK import'],
     ['re-export', root => writeFile(join(root, 'clients/browser/escape.js'),
-      `export { Principal } from '${sdk}/principal';`), 'direct SDK Core import'],
+      `export { Principal } from '${sdk}/principal';`), 'direct SDK import'],
     ...['nested', 'aliased'].map(kind => [kind, root => changeJson(root, 'tests/browser/package-lock.json', value => {
       const original = value.packages[`node_modules/${sdk}`];
       const path = kind === 'nested' ? `node_modules/provider/node_modules/${sdk}` : 'node_modules/renamed-sdk';

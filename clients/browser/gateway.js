@@ -1,4 +1,4 @@
-import { validGatewayLimits } from './validation.js';
+import { validGatewayLimits, validGatewayTarget, validGatewayHeaders } from './validation.js';
 import { readResponseBody } from './response.js';
 import { hex } from './bytes.js';
 import { equal } from './value-validation.js';
@@ -53,8 +53,7 @@ export async function createGatewayTransport({ certificate, intents, origin,
   }
   return async (url, init = {}) => {
     const target = new URL(url);
-    require(target.origin === endpoint.origin && !target.username && !target.password &&
-      !target.hash && target.href.length <= 4096 && init.method === 'PUT', 'request');
+    require(validGatewayTarget(target, endpoint.origin) && init.method === 'PUT', 'request');
     // Snapshot before any await. Only the body forms used by the pinned upstream
     // client are supported; streams and mutable Request objects are not accepted.
     require(typeof init.body === 'string' || init.body instanceof Uint8Array, 'body');
@@ -64,8 +63,7 @@ export async function createGatewayTransport({ certificate, intents, origin,
     require(body.length <= maxRequestBytes, 'request-size');
     require(body.length <= maxTotalRequestBytes - claimedBytes, 'request-budget');
     const headers = Array.from(new Headers(init.headers).entries());
-    require(headers.length <= 16 && headers.reduce((n, [k, v]) => n + k.length + v.length, 0)
-      <= 4096, 'headers');
+    require(validGatewayHeaders(headers), 'headers');
     const signal = init.signal ? AbortSignal.any([init.signal, AbortSignal.timeout(20_000)])
       : AbortSignal.timeout(20_000);
     signal.throwIfAborted();

@@ -1463,7 +1463,10 @@ separately scoped host evidence. Provider qualification, recovery, spendability
 and complete external account activity remain independent requirements. Local
 clearance cannot fill missing external evidence; external clearance cannot erase
 local obligations or release the actual restore fence.
-`prepare_new` re-reads these local facts and reserves synchronously without an
+`workflow::funding::prepare` authenticates the exact request through
+`FundingJournalAccess`, releases that borrow, and invokes the host observation
+closure once. It then calls `prepare_new`, which re-reads the current local facts
+and reserves synchronously without an
 await. Blocked requests do not mutate storage, and the update accepts no saved
 preview as authority. Host observations are ordinary trusted integration values,
 not authenticated proof objects: the host must establish their scope, completeness

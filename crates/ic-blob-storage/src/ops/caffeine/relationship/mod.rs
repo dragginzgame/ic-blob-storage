@@ -9,7 +9,6 @@ use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 
 use ic_platform::Principal;
 use ic_platform::candid::contract::{Int, Nat};
-use ic_platform::candid::decoder::decode_one_with_config;
 use thiserror::Error;
 
 /// Expected relationship from trusted installation/request context, never defaults.
@@ -156,12 +155,11 @@ pub fn decode_payment_relationship_reply(
     if !valid_principal(expected.paid_canister) || !valid_principal(expected.payment_account) {
         return Err(PaymentRelationshipReplyError::InvalidBinding);
     }
-    if bytes.len() > limits.max_bytes.get() {
-        return Err(PaymentRelationshipReplyError::ReplyTooLarge);
-    }
-    let config = limits.config();
-    let reply: wire::GetResult = decode_one_with_config(bytes, &config)
-        .map_err(|_| PaymentRelationshipReplyError::InvalidReply)?;
+    let reply: wire::GetResult = limits.decode(
+        bytes,
+        PaymentRelationshipReplyError::ReplyTooLarge,
+        PaymentRelationshipReplyError::InvalidReply,
+    )?;
     match reply {
         Ok(wire::GetResponse { relationship: None }) => {
             Ok(PaymentRelationshipReply::NoRelationshipReported)

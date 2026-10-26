@@ -77,11 +77,8 @@ impl<M: Memory> StableFundingJournal<M> {
         self.authorize(execution)?;
         Self::scope(&self.totals()?, input)?;
         self.exact(input)?
-            .map(|record| {
-                let view = record.view().ok_or(FundingJournalError::InvalidRecord)?;
-                let transfer = record
-                    .transfer()
-                    .ok_or(FundingJournalError::InvalidRecord)?;
+            .map(|(record, view)| {
+                let transfer = view.transfer().ok_or(FundingJournalError::InvalidRecord)?;
                 Ok(FundingOutcomeView {
                     intent: view.intent,
                     state: view.state,

@@ -69,7 +69,7 @@ help:
 	@echo "release-commands-check        Check Make routing with a substitute release runner"
 	@echo "dependency-pins-check         Check dependency selectors and workspace lockfiles offline"
 	@echo "fmt / fmt-check              Format Rust or check formatting"
-	@echo "check / clippy / test         Compile, lint, or test the workspace"
+	@echo "check / clippy / test         Workspace aggregates; release or explicit validation only"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
 	@echo "test-hard-cut                Old-ledger refusal; explicit pinned Wasm and fresh BLOB_HARD_CUT_REPORT"

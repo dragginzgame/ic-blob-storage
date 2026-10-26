@@ -37,6 +37,18 @@ impl<'a, M: Memory> From<&'a ServiceStores<M>> for OperatorStores<'a, M> {
     }
 }
 
+pub(crate) fn scope(
+    config: &ic_blob_storage_contracts::configuration::service::ServiceConfiguration,
+) -> ic_blob_storage_contracts::dto::operator::OperatorScope {
+    let bindings = config.bindings();
+    ic_blob_storage_contracts::dto::operator::OperatorScope {
+        service: bindings.service,
+        namespace: bindings.namespace.get(),
+        cashier: config.billing().cashier(),
+        payment_account: bindings.payment_account,
+    }
+}
+
 pub(crate) fn funding_status(
     funding: &crate::ops::service::funding::summary::FundingJournalSummary,
 ) -> LocalFundingStatus {

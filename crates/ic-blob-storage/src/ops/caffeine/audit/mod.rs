@@ -9,7 +9,6 @@ use std::num::{NonZeroU64, NonZeroUsize};
 
 use ic_platform::Principal;
 use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::decoder::decode_one_with_config;
 use serde::Deserialize;
 use thiserror::Error;
 
@@ -118,12 +117,11 @@ pub fn decode_audit_log_reply(
     bytes: &[u8],
     limits: AuditLogReplyLimits,
 ) -> Result<AuditLogReply, AuditLogReplyError> {
-    if bytes.len() > limits.decoding.max_bytes.get() {
-        return Err(AuditLogReplyError::ReplyTooLarge);
-    }
-    let config = limits.decoding.config();
-    let reply: wire::AuditLogDownloadResult =
-        decode_one_with_config(bytes, &config).map_err(|_| AuditLogReplyError::InvalidReply)?;
+    let reply: wire::AuditLogDownloadResult = limits.decoding.decode(
+        bytes,
+        AuditLogReplyError::ReplyTooLarge,
+        AuditLogReplyError::InvalidReply,
+    )?;
     match reply {
         Err(error) => Ok(AuditLogReply::ProviderFailure(match error {
             wire::AuditLogError::NotAuthorized(principal) => {

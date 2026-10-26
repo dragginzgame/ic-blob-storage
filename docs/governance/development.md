@@ -43,6 +43,13 @@ Separate release, publication, deployment and issue-specific acceptance gates
 still apply. This cadence grants no additional merge or release authority.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
+`make check`, `make clippy`, `make test`, `make test-native`, `make msrv-check`
+and `make docs-check` are workspace aggregates, reserved for explicitly authorized
+release/full validation. Ordinary changes select affected packages and test
+filters directly, for example `cargo clippy --offline --locked -p
+ic-blob-storage-cli --all-targets --all-features -- -D warnings` or a named
+`--test standalone` filter through `scripts/ci/run-pocketic-test.sh`. Finish a
+coherent edit batch before focused checks; reuse evidence for unchanged inputs.
 That gate first runs the offline `make shared-tooling-check`, verifying the
 declared files, hashes and executable modes without a sibling checkout. It then
 runs offline `make tools-check` and `make dependency-pins-check`. Prepare the
@@ -277,9 +284,10 @@ the exact atomic branch/tag push, with implicit tag following disabled and no
 force. One-shot releases default to main/origin; branch and remote are explicit
 saved inputs. Before preparation, a failed gate starts fresh through the same
 target. Uncommitted preparation stays bound to the saved source and increment.
-Once committed, a normal target reconciles saved intent at its original version;
-newer fixes or a different requested increment then get fresh gates for the next
-version. Explicit resume finishes only its selected release. An uncertain push
+Normal targets use current clean committed metadata and always run fresh gates;
+they do not inspect historical plans or finish earlier delivery. Use explicit
+`release-resume VERSION=X.Y.Z` for one saved attempt with its original bindings.
+A fresh attempt replaces stale intent only for its selected candidate. An uncertain push
 requires remote readback. The local
 adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`

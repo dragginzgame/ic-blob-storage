@@ -162,6 +162,13 @@ returning; subsequent funding callbacks use the same owner. Canic can replace it
 private `InstalledJournal` implementation with this value after adopting the
 release. This repository does not change Canic's checkout.
 
+Use `workflow::funding::prepare(&ServiceWorkflow::<Host>::ACCESS, context,
+intent, observe)` for preparation. It authenticates the caller and exact scope
+before invoking `observe`, releases the borrow during evidence acquisition, and
+rechecks the current journal before reserving. The callback must establish fresh,
+complete host evidence in that execution; it supplies no dispatch or retry
+authority. Hosts that already hold a journal can still use `prepare_new` directly.
+
 Keep actual caller/service context, authenticated evidence acquisition, budgets
 and scheduling in the host. The shared accessor adds no funding endpoint,
 automatic retry or evidence source. Continue using the existing preparation,

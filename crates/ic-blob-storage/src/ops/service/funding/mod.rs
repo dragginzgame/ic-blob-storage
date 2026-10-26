@@ -127,11 +127,8 @@ impl<M: Memory> StableFundingJournal<M> {
                 return Err(FundingJournalError::InvalidRecord);
             }
             reconstructed = reconstructed.reserve(view.intent)?;
-            reconstructed = reconstructed.resolve(
-                record
-                    .transfer()
-                    .ok_or(FundingJournalError::InvalidRecord)?,
-            )?;
+            reconstructed = reconstructed
+                .resolve(view.transfer().ok_or(FundingJournalError::InvalidRecord)?)?;
             if let Some(credit) = record.credit() {
                 if store.accounting.get(&credit.receipt_digest())
                     != Some(FundingAccountingRecord::Receipt {
@@ -172,13 +169,8 @@ impl<M: Memory> StableFundingJournal<M> {
         let totals = self.totals()?;
         Self::scope(&totals, input)?;
         Self::encode_request(input)?;
-        if let Some(record) = self.exact(input)? {
-            return Ok(FundingIntentAdmission::Existing(
-                record
-                    .view()
-                    .ok_or(FundingJournalError::InvalidRecord)?
-                    .state,
-            ));
+        if let Some((_, view)) = self.exact(input)? {
+            return Ok(FundingIntentAdmission::Existing(view.state));
         }
         if input.operation.get() <= totals.last() {
             return Err(FundingJournalError::StaleIdentity);
@@ -241,9 +233,7 @@ impl<M: Memory> StableFundingJournal<M> {
     ) -> Result<Option<FundingIntentView>, FundingJournalError> {
         self.authorize(execution)?;
         Self::scope(&self.totals()?, input)?;
-        self.exact(input)?
-            .map(|r| r.view().ok_or(FundingJournalError::InvalidRecord))
-            .transpose()
+        Ok(self.exact(input)?.map(|(_, view)| view))
     }
     /// Read local allocation accounting, never provider credit or spendable cycles.
     /// # Errors
@@ -327,22 +317,20 @@ impl<M: Memory> StableFundingJournal<M> {
     fn exact(
         &self,
         input: FundingIntent,
-    ) -> Result<Option<FundingIntentRecord>, FundingJournalError> {
+    ) -> Result<Option<(FundingIntentRecord, FundingIntentView)>, FundingJournalError> {
         let Some(record) = self.intents.get(&input.operation.get()) else {
             return Ok(None);
         };
-        if record
-            .view()
-            .ok_or(FundingJournalError::InvalidRecord)?
-            .intent
-            != input
-        {
+        let view = record.view().ok_or(FundingJournalError::InvalidRecord)?;
+        if view.intent != input {
             return Err(FundingIntentError::Conflict.into());
         }
-        Ok(Some(record))
+        Ok(Some((record, view)))
     }
     fn required(&self, input: FundingIntent) -> Result<FundingIntentRecord, FundingJournalError> {
-        self.exact(input)?.ok_or(FundingJournalError::Unknown)
+        self.exact(input)?
+            .map(|(record, _)| record)
+            .ok_or(FundingJournalError::Unknown)
     }
 }
 /// Typed journal rejection before any write; binary/storage failures trap.

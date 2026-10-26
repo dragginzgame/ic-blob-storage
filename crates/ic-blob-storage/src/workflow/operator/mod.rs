@@ -24,12 +24,7 @@ pub fn inspect<M: Memory>(
 ) -> Result<LocalServiceStatus, LocalStatusFailure> {
     let config = stores.uploads.callback_configuration();
     let bindings = config.bindings();
-    let expected = OperatorScope {
-        service: bindings.service,
-        namespace: bindings.namespace.get(),
-        cashier: config.billing().cashier(),
-        payment_account: bindings.payment_account,
-    };
+    let expected = crate::ops::service::operator::scope(config);
     if context.service != bindings.service || scope != expected {
         return Err(LocalStatusFailure::Binding);
     }
