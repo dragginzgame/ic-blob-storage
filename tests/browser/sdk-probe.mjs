@@ -5,7 +5,7 @@ import { mkdirSync, openSync, writeFileSync, fsyncSync, closeSync, readFileSync 
 import { resolve, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
-import { Cbor } from '@icp-sdk/core/agent';
+import { Cbor } from '@tokostudios/ic-platform/agent';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createGatewayTransport, GatewayRefusal } from '../../clients/browser/gateway.js';
 import { createUploadTransfer, TransferRefusal } from '../../clients/browser/transfer.js';

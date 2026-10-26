@@ -1,5 +1,5 @@
 // Only fixed test identity/evidence remain here; maintained host owns the port.
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { createIndexedDBIntentStore } from '../../clients/browser/intents.js';
 import { createPublicationWorkerHost } from '../../clients/browser/bootstrap.js';
 export async function workerPublication(config, mode, reports) {

@@ -1,5 +1,5 @@
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
-import { Secp256k1KeyIdentity } from '@icp-sdk/core/identity/secp256k1';
+import { restoreEd25519Identity } from '@tokostudios/ic-platform/identity';
+import { restoreSecp256k1Identity } from '@tokostudios/ic-platform/identity/secp256k1';
 import { createIndexedDBIntentStore } from './intents.js';
 import { createPublicationWorker, servePublicationWorker } from './worker.js';
 import { fields, publicationConfiguration, snapshotPublicationJob } from './worker-configuration.js';
@@ -19,15 +19,10 @@ function input(value) {
   fields(value.signer, ['kind', 'json']);
   require(['ed25519', 'secp256k1'].includes(value.signer.kind) &&
     typeof value.signer.json === 'string' && value.signer.json.length <= 512, 'signer');
-  const type = value.signer.kind === 'ed25519' ? Ed25519KeyIdentity : Secp256k1KeyIdentity;
-  const parsed = JSON.parse(value.signer.json);
-  require(Array.isArray(parsed) && parsed.length === 2 && parsed.every(part =>
-    typeof part === 'string' && /^[0-9a-f]+$/.test(part)) && parsed[1].length === 64, 'signer');
-  const advertised = type.fromJSON(value.signer.json);
-  // The SDK JSON reader accepts a caller-provided public/private pair. Recompute
-  // through that SDK before trusting its advertised principal; no custom crypto.
-  const identity = type.fromSecretKey(advertised.getKeyPair().secretKey.slice());
-  require(identity.getPrincipal().toText() === advertised.getPrincipal().toText(), 'signer');
+  const restore = value.signer.kind === 'ed25519' ? restoreEd25519Identity : restoreSecp256k1Identity;
+  let identity;
+  try { identity = restore(value.signer.json, 512); }
+  catch { throw new BootstrapRefusal('signer'); }
   fields(value.configuration, ['host', 'rootKey', 'service', 'tenant', 'uploader',
     'project', 'bucket', 'origin', 'maxBodyBytes', 'maxRequests', 'maxRequestBytes',
     'maxTotalRequestBytes', 'maxJobs', 'timeoutSeconds']);

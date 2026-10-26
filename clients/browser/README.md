@@ -17,16 +17,17 @@ See the [reuse assessment](../../docs/provider-review.md#browser-reuse-assessmen
 for existing extension points and the specific missing controls.
 
 `createCertificateClient` is the reusable browser certificate transport. This
-private source package uses the exact `@icp-sdk/core` peer version in package.json;
-it is not published to npm. The Chromium fixture imports this implementation.
-The peer is SDK 6.1.1. Caffeine 1.1.2 still declares SDK `^5.3.0`; the maintained
-browser workspace explicitly overrides that dependency to its selected SDK 6.1.1
-and qualifies the patched composition. This is a Blob-owned integration choice,
-not upstream Caffeine compatibility evidence. Consumers must use the same override
-and rebuild their bundles; do not mix SDK 5 and 6 identities in this composition.
-`make browser-tools-check` verifies matching peers, one non-aliased locked SDK
-package and the same installed Agent resolution for Blob and Caffeine. Bundle
-generation runs the same admission checks.
+private source package depends on published `@tokostudios/ic-platform` 0.1.0;
+Blob's browser package itself is not published to npm. Platform owns SDK Core
+6.1.1, Principal parsing, checked identity restoration and Agent construction
+plumbing through explicit subpaths. The Chromium fixture imports this implementation.
+Caffeine 1.1.2 still declares SDK `^5.3.0`; consumers must retain the maintained
+workspace's explicit `6.1.1` override and rebuild their bundles. This is a
+Blob-qualified composition, not upstream Caffeine compatibility evidence.
+`make browser-tools-check` verifies the Platform selection, matching Caffeine
+peer, one non-aliased locked SDK and the same installed Agent resolution for
+Platform and Caffeine. It rejects first-party direct SDK dependencies/imports
+across browser, test and build sources. Bundle generation runs the same checks.
 Application authentication, selection of a persistent browser environment and
 deployed Caffeine qualification are still integration requirements. The package
 now supplies the bounded IndexedDB journal described below.
@@ -58,7 +59,7 @@ const observation = await client.issue();
 
 For Caffeine's upload path, use `createUploadTransfer` from `./transfer.js` with
 the maintained [patched SDK](patches/README.md). The private package requires
-Caffeine 1.1.2 and SDK 6.1.1; the unpatched npm artifact refuses with `sdk`.
+Caffeine 1.1.2 and Platform 0.1.0 over SDK 6.1.1; the unpatched Caffeine artifact refuses with `sdk`.
 Prepare with Caffeine before service admission, then create the transfer after
 authenticated admission/preparation using the same certificate client and store:
 

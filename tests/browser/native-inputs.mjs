@@ -5,8 +5,8 @@ import { join, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { StorageClient } from '@caffeineai/object-storage';
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
-import { Principal } from '@icp-sdk/core/principal';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
+import { Principal } from '@tokostudios/ic-platform/principal';
 import { createCertificateClient } from '../../clients/browser/certificate.js';
 import { configuration } from './installation.js';
 

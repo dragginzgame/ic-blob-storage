@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { StorageClient } from '@caffeineai/object-storage';
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { createPublicationWorker } from '../../clients/browser/worker.js';
 import { IntentRefusal } from '../../clients/browser/intents.js';
 import { createCertificateClient } from '../../clients/browser/certificate.js';

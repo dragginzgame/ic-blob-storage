@@ -1,4 +1,4 @@
-import { Principal } from '@icp-sdk/core/principal';
+import { Principal, parseCanonicalPrincipal } from '@tokostudios/ic-platform/principal';
 import { validNamespace } from './namespace.js';
 import { integer } from './value-validation.js';
 
@@ -11,8 +11,7 @@ export function certificateBindingFailure(value) {
   if (!validNamespace(value.project, true) || !validNamespace(value.bucket)) return 'namespace';
   for (const field of ['service', 'tenant', 'uploader']) {
     try {
-      if (typeof value[field] !== 'string' || value[field].length > 63 ||
-        Principal.fromText(value[field]).toText() !== value[field]) return 'principal';
+      parseCanonicalPrincipal(value[field]);
     } catch { return 'principal'; }
   }
   if (value.uploader === Principal.anonymous().toText()) return 'identity';

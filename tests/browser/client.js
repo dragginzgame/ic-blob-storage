@@ -1,6 +1,6 @@
 // Local test identity, fault injection and controls; transport lives in clients/browser.
-import { Cbor } from '@icp-sdk/core/agent';
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Cbor } from '@tokostudios/ic-platform/agent';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from '../../clients/browser/certificate.js';
 import { createUploadTransfer } from '../../clients/browser/transfer.js';

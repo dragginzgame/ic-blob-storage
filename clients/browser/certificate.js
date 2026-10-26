@@ -1,6 +1,7 @@
-import { HttpAgent, Certificate, Cbor, requestIdOf, lookupResultToBuffer } from '@icp-sdk/core/agent';
-import { Principal } from '@icp-sdk/core/principal';
-import { IDL } from '@icp-sdk/core/candid';
+import { HttpAgent, Cbor, requestIdOf, createAgentOptions } from '@tokostudios/ic-platform/agent';
+import { Certificate, lookupResultToBuffer } from '@tokostudios/ic-platform/certification';
+import { Principal } from '@tokostudios/ic-platform/principal';
+import { IDL } from '@tokostudios/ic-platform/candid';
 import { certificateBindingFailure, validServiceEndpoint } from './validation.js';
 import { readResponseBody } from './response.js';
 import { hex } from './bytes.js';
@@ -102,8 +103,8 @@ export async function createCertificateClient({ host, identity, rootKey, binding
       return result;
     }
   }
-  const agent = new IntentAgent({ host: endpoint.origin, identity, rootKey: trustRoot,
-    shouldFetchRootKey: false, shouldSyncTime: false, retryTimes: 0, fetch: guardedFetch });
+  const agent = new IntentAgent(createAgentOptions({ host: endpoint, identity, rootKey: trustRoot,
+    shouldSyncTime: false, retryTimes: 0, verifyQuerySignatures: true, fetch: guardedFetch }));
 
   /** Verify a historical response and persist observation without clearing cancellation. */
   async function observeCertificate(raw, requestId) {

@@ -11,12 +11,12 @@
   },
   "overrides": {
     "@caffeineai/object-storage": {
-      "@icp-sdk/core": "$@icp-sdk/core"
+      "@icp-sdk/core": "6.1.1"
     }
   },
   "devDependencies": {
     "@caffeineai/object-storage": "1.1.2",
-    "@icp-sdk/core": "6.1.1",
+    "@tokostudios/ic-platform": "0.1.0",
     "esbuild": "0.28.2",
     "playwright": "1.64.1"
   }

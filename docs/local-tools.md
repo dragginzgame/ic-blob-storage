@@ -74,8 +74,9 @@ shasum -a 256 Cargo.lock tests/browser/package-lock.json \
   > "$BLOB_TOOLS_ROOT/SHA256SUMS"
 ```
 
-The existing bundler verifies original SDK hashes and peer versions, applies the
-maintained patch to a build copy, and emits the host/worker bundles. Installed npm
+The existing bundler verifies the published Platform dependency, one SDK identity,
+original Caffeine hashes and its peer version, applies the maintained Caffeine
+patch to a build copy, and emits the host/worker bundles. Installed npm
 files stay unchanged. A consumer imports `launcher.mjs` and `native.mjs` from this
 retained checkout and selects the installed binary and those bundle paths
 explicitly. See the [callable driver](../clients/browser/README.md#follow-native-phase-guidance)

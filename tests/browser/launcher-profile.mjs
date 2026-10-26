@@ -1,6 +1,6 @@
 // Opt-in actual launcher/CDP/SDK measurements; deliberately stop before certificate intent.
 import { chromium } from 'playwright';
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { createServer } from 'node:net';
 import { mkdir, open, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';

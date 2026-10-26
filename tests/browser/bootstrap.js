@@ -1,6 +1,6 @@
 // Only test identities and boundary fixtures live here; maintained host/entry do work.
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
-import { Secp256k1KeyIdentity } from '@icp-sdk/core/identity/secp256k1';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
+import { Secp256k1KeyIdentity } from '@tokostudios/ic-platform/identity/secp256k1';
 import { createPublicationWorkerHost } from '../../clients/browser/bootstrap.js';
 import { StorageClient } from '@caffeineai/object-storage';
 window.bootstrapFixture = {

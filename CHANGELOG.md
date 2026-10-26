@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.49.0]
+
+- **Breaking:** browser consumers depend on published `@tokostudios/ic-platform`
+  0.1.0 instead of declaring SDK Core directly. Rebuild bundles with its explicit
+  subpaths and the retained Caffeine SDK 6.1.1 override. Reuse Platform's canonical
+  Principal admission, checked identity restoration and explicit Agent options;
+  preserve Blob's trust, intent, budget and retry policy. CI rejects direct SDK
+  declarations/imports and duplicate or shadow SDK identities.
+- Adopt Rust IC Platform 0.6.18 with existing feature selections.
+
+- Adopt published Host/Build/Testkit 0.68.6 and align workspace minimums with
+  the selected lockfile, including upstream native Cargo completion admission
+  and diagnostic-reader fixes. Retain existing CLI and local simulator contracts.
+
 ## [0.48.0] - 2026-10-26
 
 - **Breaking:** require ICP JavaScript SDK 6.1.1 for the browser client. Rebuild

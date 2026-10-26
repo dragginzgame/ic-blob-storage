@@ -41,6 +41,10 @@ it does not override shared rules or depend on a mutable sibling checkout.
 
 ## Ownership and layering
 
+- Browser SDK capabilities use published `@tokostudios/ic-platform` subpaths.
+  Do not declare or import SDK Core directly in first-party product, test or
+  build code. Keep the external Caffeine dependency/patch, its explicit SDK
+  override, and application trust, budgets, intents and retry policy local.
 - Use published `ic-platform` for Principal, Candid contracts/decoding/service
   export, management-history DTOs and supported native Agent/certification APIs;
   keep application protocols on `ic-wire`. Native dynamic fixtures, Agent

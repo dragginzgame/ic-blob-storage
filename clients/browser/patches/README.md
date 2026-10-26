@@ -13,9 +13,10 @@ bundles that artifact. Installed npm files are unchanged. There is no download,
 fallback to an unpatched package, release step or production deployment in this
 build. A new upstream version requires an explicit patch/dependency review.
 
-The maintained browser workspace selects ICP SDK 6.1.1 through an explicit npm
-override for Caffeine's declared SDK `^5.3.0` dependency. Both Blob and the patched
-Caffeine bundle use that one SDK identity. The original Caffeine package hashes
+The maintained browser workspace consumes published `@tokostudios/ic-platform`
+0.1.0, which owns SDK Core 6.1.1. An explicit `6.1.1` npm override for Caffeine's
+declared SDK `^5.3.0` dependency keeps Platform and the patched Caffeine bundle on
+one SDK identity. The original Caffeine package hashes
 and this source patch remain unchanged; installed tests qualify the local
 composition, not an upstream promise of SDK 6 support.
 

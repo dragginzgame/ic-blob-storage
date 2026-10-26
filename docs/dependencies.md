@@ -26,6 +26,7 @@ from the workspace and deployment.
 | IC Memory | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
 | IC Storage | Governed stable collections and codec traits; the stable-structures dependency stays upstream; Memory/Storage share the IC Persistence release line |
 | IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
+| IC Platform browser package | Published `@tokostudios/ic-platform` owns SDK Core selection, canonical Principal admission, checked identity restoration and explicit Agent construction; Blob retains trust, intents and effect policy |
 | IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
 | IC Metrics | Private probe measurement arithmetic; not a public Blob API |
 | IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
@@ -38,6 +39,15 @@ from the workspace and deployment.
 Testkit; [IC Persistence](https://github.com/dragginzgame/ic-persistence) owns
 Memory and Storage. Package names and ownership boundaries remain unchanged.
 Blob consumes published packages, without sibling paths or compatibility aliases.
+
+The browser client declares `@tokostudios/ic-platform` as a regular dependency;
+first-party runtime, test and build sources use its explicit ESM subpaths. SDK
+Core remains transitive through Platform and the external Caffeine package.
+The maintained workspace overrides Caffeine's SDK selection to 6.1.1, matching
+Platform 0.1.0. Browser prerequisites enforce that graph and reject direct SDK
+declarations/imports, aliases and separate installed Agent identities. External
+Caffeine Candid remains on Platform's `/candid` boundary; application bytes stay
+with Wire. Rust and browser Platform packages have independent versions.
 
 The standalone owns endpoint registration, caller capture, lifecycle and memory
 composition. The core exports none of these implicitly. Consumer frameworks own

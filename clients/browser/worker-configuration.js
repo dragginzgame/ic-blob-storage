@@ -1,4 +1,4 @@
-import { Principal } from '@icp-sdk/core/principal';
+import { Principal, parseCanonicalPrincipal } from '@tokostudios/ic-platform/principal';
 import { validNamespace } from './namespace.js';
 import { certificateBindingFailure, certificateBindingFields, validGatewayLimits, validServiceEndpoint } from './validation.js';
 import { validUtf8Text, integer, validFields } from './value-validation.js';
@@ -30,8 +30,8 @@ export function publicationConfiguration(options) {
   const scope = Object.fromEntries(['service', 'tenant', 'uploader', 'project', 'bucket']
     .map(key => [key, options[key]]));
   for (const key of ['service', 'tenant', 'uploader']) {
-    require(typeof scope[key] === 'string' && scope[key].length <= 63 &&
-      Principal.fromText(scope[key]).toText() === scope[key], 'principal');
+    try { parseCanonicalPrincipal(scope[key]); }
+    catch { throw new WorkerRefusal('principal'); }
   }
   const { identity, maxBodyBytes, maxRequests, maxRequestBytes,
     maxTotalRequestBytes, maxJobs, timeoutSeconds } = options;

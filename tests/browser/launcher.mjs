@@ -1,6 +1,6 @@
 // Actual maintained Node/Chromium/profile boundary; no IC/provider request.
 import { chromium } from 'playwright';
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { createServer } from 'node:net';
 import { mkdir, writeFile, readFile, lstat, symlink, rename, unlink } from 'node:fs/promises';
 import { createHash } from 'node:crypto';

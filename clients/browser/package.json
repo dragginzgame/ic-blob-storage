@@ -2,6 +2,22 @@
   "name": "@dragginzgame/blob-storage-browser",
   "private": true,
   "type": "module",
-  "exports": { ".": "./certificate.js", "./gateway": "./gateway.js", "./transfer": "./transfer.js", "./publication": "./publication.js", "./worker": "./worker.js", "./bootstrap": "./bootstrap.js", "./worker-entry": "./worker-entry.js", "./launcher": "./launcher.mjs", "./native": "./native.mjs", "./intents": "./intents.js" },
-  "peerDependencies": { "@icp-sdk/core": "6.1.1", "@caffeineai/object-storage": "1.1.2" }
+  "exports": {
+    ".": "./certificate.js",
+    "./gateway": "./gateway.js",
+    "./transfer": "./transfer.js",
+    "./publication": "./publication.js",
+    "./worker": "./worker.js",
+    "./bootstrap": "./bootstrap.js",
+    "./worker-entry": "./worker-entry.js",
+    "./launcher": "./launcher.mjs",
+    "./native": "./native.mjs",
+    "./intents": "./intents.js"
+  },
+  "peerDependencies": {
+    "@caffeineai/object-storage": "1.1.2"
+  },
+  "dependencies": {
+    "@tokostudios/ic-platform": "0.1.0"
+  }
 }

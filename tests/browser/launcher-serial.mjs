@@ -2,7 +2,7 @@
 import { createRequire as browserPackages } from 'node:module';
 const { chromium } = browserPackages(new URL('../../tests/browser/package.json', import.meta.url))('playwright');
 import { StorageClient } from '@caffeineai/object-storage';
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { readFile, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { resolve, join } from 'node:path';

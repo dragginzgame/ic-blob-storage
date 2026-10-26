@@ -4,7 +4,7 @@ import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { StorageClient } from '@caffeineai/object-storage';
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { createPublicationUpload } from '../../clients/browser/publication.js';
 const directory = process.argv[2];
 assert(directory);

@@ -1,5 +1,5 @@
 // Local standalone trial harness; maintained clients own all certificate/upload rules.
-import { Ed25519KeyIdentity } from '@icp-sdk/core/identity';
+import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createPublicationUpload } from '../../clients/browser/publication.js';
 import { createIndexedDBIntentStore } from '../../clients/browser/intents.js';
