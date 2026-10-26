@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.49.0]
+## [0.49.0] - 2026-10-26
 
 - **Breaking:** browser consumers depend on published `@tokostudios/ic-platform`
   0.1.0 instead of declaring SDK Core directly. Rebuild bundles with its explicit
