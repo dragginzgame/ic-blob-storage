@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.48.0]
+## [0.48.0] - 2026-10-26
 
 - **Breaking:** require ICP JavaScript SDK 6.1.1 for the browser client. Rebuild
   bundles and apply the maintained workspace's explicit Caffeine SDK override;
