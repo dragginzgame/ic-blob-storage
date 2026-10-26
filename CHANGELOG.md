@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.48.0]
+
+- **Breaking:** require ICP JavaScript SDK 6.1.1 for the browser client. Rebuild
+  bundles and apply the maintained workspace's explicit Caffeine SDK override;
+  the selected composition uses one SDK identity. Existing service endpoints,
+  saved formats and application retry policy are unchanged.
+- Enforce one locked browser SDK identity and matching installed Agent resolution
+  for Blob and Caffeine during browser prerequisite checks and bundle generation.
+
+- Stop rerunning Shared Tooling's checksum and archive implementation suites;
+  retain local evidence integration, snapshot integrity and native-host gates.
+
+- Adopt published Host/Build/Testkit 0.68.4, Platform 0.6.17, Wire 0.7.12,
+  Memory/Storage 0.51.2 and Metrics 0.16.2. Align dependency minimums with the
+  selected lockfile, including libc, Serde JSON, SHA-2 and Tokio updates. Surface
+  Wire generator advice on stderr without changing generated client bytes.
+  Update browser-test Playwright to 1.64.1; retain existing feature boundaries
+  and stored contracts.
+- Keep transfer recovery on one opened journal directory across binding,
+  signed-attempt and summary validation. Restrict preparation recovery to its
+  two valid steps and derive setup transport metadata from the admitted request.
+  Live session input and recovery share frame and timeout ceilings. Saved formats,
+  authentication and no-resubmission behavior are unchanged.
+- Open browser selections without following the final symlink, removing the
+  separate check/read race. Share the session-intent write/recovery byte ceiling
+  without changing its value or saved format.
+
 ## [0.47.1] - 2026-10-25
 
 - Bind admitted CLI setup operations to their payloads and journal destinations;

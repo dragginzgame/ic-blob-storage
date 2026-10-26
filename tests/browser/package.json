@@ -9,10 +9,15 @@
   "scripts": {
     "build": "node build.mjs"
   },
+  "overrides": {
+    "@caffeineai/object-storage": {
+      "@icp-sdk/core": "$@icp-sdk/core"
+    }
+  },
   "devDependencies": {
     "@caffeineai/object-storage": "1.1.2",
-    "@icp-sdk/core": "5.4.0",
+    "@icp-sdk/core": "6.1.1",
     "esbuild": "0.28.2",
-    "playwright": "1.63.0"
+    "playwright": "1.64.1"
   }
 }

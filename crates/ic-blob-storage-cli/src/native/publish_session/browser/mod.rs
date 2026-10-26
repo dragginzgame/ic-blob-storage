@@ -1,6 +1,6 @@
 //! Passive browser selection; phase/effect claims remain with existing owners.
 use super::{Failure, Input, PreparedBatch};
-use crate::native::read;
+use crate::native::read_no_follow;
 use serde::{Deserialize, Serialize};
 use std::path::{Component, Path, PathBuf};
 #[cfg(test)]
@@ -47,15 +47,8 @@ pub(super) fn selection(
     let Some(path) = &input.browser_selection else {
         return Ok(None);
     };
-    if std::fs::symlink_metadata(path)
-        .map_err(|_| Failure::File)?
-        .file_type()
-        .is_symlink()
-    {
-        return Err(Failure::Binding);
-    }
     let record: BrowserSelectionRecord =
-        serde_json::from_slice(&read(path, 16384)?).map_err(|_| Failure::Binding)?;
+        serde_json::from_slice(&read_no_follow(path, 16384)?).map_err(|_| Failure::Binding)?;
     if record.format != "ic-blob-storage/browser-selection"
         || record.asset_port == 0
         || record

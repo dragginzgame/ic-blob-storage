@@ -1,5 +1,5 @@
 //! Persist the exact signed local update before dispatch; never resubmit or poll it.
-use super::{Failure, Input, Request, SetupOutcome, observation, permission_json};
+use super::{Failure, Request, SetupOutcome, observation, permission_json};
 use crate::native::{
     arguments::Options,
     signed_update::{MANIFEST_REPLY_BYTES, PreparedUpdate, UpdateInput},
@@ -9,16 +9,16 @@ use serde_json::json;
 
 pub(super) async fn run(
     options: &Options,
-    input: &Input,
     saved: &Request,
     agent: &ic_platform::agent::Agent,
     directory: &std::path::Path,
 ) -> Result<SetupOutcome, Failure> {
+    let permission = saved.payload.permission();
     let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
     let prepared = PreparedUpdate::claim(
         agent,
         UpdateInput {
-            service: input.service,
+            service: permission.upload.service,
             method: saved.payload.kind().method(),
             argument: &saved.argument,
             argument_file: "request.wire",
@@ -31,9 +31,9 @@ pub(super) async fn run(
                 network: options.network.to_owned(),
                 service_url: options.url.as_str().to_owned(),
                 actor: actor.to_text(),
-                service: input.service.to_text(),
-                namespace: input.namespace.to_string(),
-                permission: permission_json(saved.payload.permission()),
+                service: permission.upload.service.to_text(),
+                namespace: permission.upload.namespace.to_string(),
+                permission: permission_json(permission),
                 method: saved.payload.kind().method().to_owned(),
                 request_sha256: ContentDigest::compute(&saved.argument).to_string(),
             };
@@ -46,8 +46,7 @@ pub(super) async fn run(
     )?;
     prepared.run().bytes(
         "permission.wire",
-        &ic_blob_storage_contracts::document::encode(saved.payload.permission())
-            .map_err(|_| Failure::Arguments)?,
+        &ic_blob_storage_contracts::document::encode(permission).map_err(|_| Failure::Arguments)?,
     )?;
     let (observation, report) = prepared.dispatch(agent).await.finish(
         |bytes| observation(saved, bytes),

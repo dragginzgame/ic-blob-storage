@@ -45,9 +45,12 @@ impl Context<'_> {
             } else {
                 "permission.wire"
             }),
-            directory: kind
-                .mutation()
-                .then(|| self.origin.join(journal::name(kind))),
+            directory: match kind {
+                upload_setup::Kind::Admit => Some(journal::Step::Admission),
+                upload_setup::Kind::Prepare => Some(journal::Step::Preparation),
+                _ => None,
+            }
+            .map(|step| self.origin.join(journal::name(step))),
         }
     }
     fn report(
@@ -129,10 +132,10 @@ impl Context<'_> {
             if declaration != *self.selected.declaration() {
                 return Err(Failure::Binding);
             }
-            if recovery && journal::claimed(self.origin, upload_setup::Kind::Prepare)? {
+            if recovery && journal::claimed(self.origin, journal::Step::Preparation)? {
                 journal::validate_attempt(
-                    self.origin,
-                    upload_setup::Kind::Prepare,
+                    &journal::RecoveryDirectory::open(self.origin)?,
+                    journal::Step::Preparation,
                     self.options,
                     self.selected,
                     &self.tenant.read_root_key(),
@@ -140,11 +143,11 @@ impl Context<'_> {
             }
             return Ok(self.report(PreparationState::Prepared, updates, &preflight.report));
         }
-        if journal::claimed(self.origin, upload_setup::Kind::Prepare)? {
+        if journal::claimed(self.origin, journal::Step::Preparation)? {
             // Unprepared, missing/partial evidence or expiry never licenses another attempt.
             journal::validate_attempt(
-                self.origin,
-                upload_setup::Kind::Prepare,
+                &journal::RecoveryDirectory::open(self.origin)?,
+                journal::Step::Preparation,
                 self.options,
                 self.selected,
                 &self.tenant.read_root_key(),

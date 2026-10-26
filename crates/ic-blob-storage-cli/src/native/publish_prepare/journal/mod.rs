@@ -18,9 +18,13 @@ pub(super) fn binding(
 }
 /// One recovery validation reads every packet through the same directory handle.
 /// Unlike input roots, recovery roots are never canonicalized through a symlink.
-struct RecoveryDirectory(std::fs::File);
+pub(super) struct RecoveryDirectory(std::fs::File);
 impl RecoveryDirectory {
-    fn open(origin: &Path) -> Result<Self, Failure> {
+    pub(super) fn open(origin: &Path) -> Result<Self, Failure> {
+        let metadata = std::fs::symlink_metadata(origin).map_err(|_| Failure::File)?;
+        if !metadata.is_dir() || metadata.file_type().is_symlink() {
+            return Err(Failure::Binding);
+        }
         #[cfg(unix)]
         {
             ic_host_fs::read::open_directory_no_follow(origin)
@@ -39,7 +43,7 @@ impl RecoveryDirectory {
             Err(Failure::File)
         }
     }
-    fn read(&self, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
+    pub(super) fn read(&self, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
         #[cfg(unix)]
         {
             use ic_host_artifacts::artifact::ArtifactError;
@@ -73,19 +77,11 @@ impl RecoveryDirectory {
         }
     }
 }
-pub(super) fn read_at(origin: &Path, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
-    RecoveryDirectory::open(origin)?.read(name, maximum)
-}
 pub(super) fn validate(
-    origin: &Path,
+    directory: &RecoveryDirectory,
     expected: &Value,
     selected: &PreparedInput,
 ) -> Result<(), Failure> {
-    let metadata = std::fs::symlink_metadata(origin).map_err(|_| Failure::File)?;
-    if !metadata.is_dir() || metadata.file_type().is_symlink() {
-        return Err(Failure::Binding);
-    }
-    let directory = RecoveryDirectory::open(origin)?;
     let intent: Value = serde_json::from_slice(&directory.read("intent.json", 16384)?)
         .map_err(|_| Failure::Arguments)?;
     let (permission, manifest) = selected.setup_requests();
@@ -97,30 +93,44 @@ pub(super) fn validate(
     }
     Ok(())
 }
+/// Only admission and manifest preparation have publication recovery claims.
+#[derive(Clone, Copy)]
+pub(super) enum Step {
+    Admission,
+    Preparation,
+}
+impl Step {
+    const fn kind(self) -> upload_setup::Kind {
+        match self {
+            Self::Admission => upload_setup::Kind::Admit,
+            Self::Preparation => upload_setup::Kind::Prepare,
+        }
+    }
+}
 /// Existing/partial claims never become permission to repeat an update.
-pub(super) fn claimed(origin: &Path, kind: upload_setup::Kind) -> Result<bool, Failure> {
-    match std::fs::symlink_metadata(origin.join(name(kind))) {
+pub(super) fn claimed(origin: &Path, step: Step) -> Result<bool, Failure> {
+    match std::fs::symlink_metadata(origin.join(name(step))) {
         Ok(metadata) if metadata.is_dir() && !metadata.file_type().is_symlink() => Ok(true),
         Ok(_) => Err(Failure::Binding),
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(false),
         Err(_) => Err(Failure::File),
     }
 }
-pub(super) const fn name(kind: upload_setup::Kind) -> &'static str {
-    match kind {
-        upload_setup::Kind::Admit => "admission",
-        _ => "preparation",
+pub(super) const fn name(step: Step) -> &'static str {
+    match step {
+        Step::Admission => "admission",
+        Step::Preparation => "preparation",
     }
 }
 pub(super) fn validate_attempt(
-    origin: &Path,
-    kind: upload_setup::Kind,
+    directory: &RecoveryDirectory,
+    step: Step,
     options: &Options,
     selected: &PreparedInput,
     root: &[u8],
 ) -> Result<(), Failure> {
-    let directory = RecoveryDirectory::open(origin)?;
-    let prefix = name(kind);
+    let kind = step.kind();
+    let prefix = name(step);
     let packet = |name: &str, maximum| directory.read(&format!("{prefix}/{name}"), maximum);
     let (permission, _) = selected.setup_requests();
     let request = if kind == upload_setup::Kind::Admit {

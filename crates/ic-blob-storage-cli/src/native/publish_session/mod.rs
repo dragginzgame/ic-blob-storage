@@ -54,6 +54,10 @@ struct SessionIntentRecord {
     input_verification: String,
 }
 
+impl SessionIntentRecord {
+    const MAX_BYTES: u64 = 16 * 1024;
+}
+
 struct Actors {
     tenant: Agent,
     uploader: Agent,
@@ -121,7 +125,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     };
     let sources = sources::Sources::load(input.source_session.as_deref(), &intent, &batch)?;
     let intent_bytes = serde_json::to_vec_pretty(&intent).map_err(|_| Failure::File)?;
-    if intent_bytes.len() > 16384 {
+    if intent_bytes.len() as u64 > SessionIntentRecord::MAX_BYTES {
         return Err(Failure::ReplyLimit);
     }
     let run = Run::create(&input.prepare.directory)?;

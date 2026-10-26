@@ -121,7 +121,6 @@ release-editor-check:
 shared-tooling-tests:
 	+bash scripts/ci/test-consumer-fixture-completion.sh
 	+bash scripts/ci/check-validation-logging.sh
-	+bash scripts/ci/test-evidence-archive.sh
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
 	+bash scripts/ci/test-cargo-metadata.sh
@@ -170,8 +169,8 @@ probe-check:
 	done
 	+$(MAKE) --no-print-directory evidence-check
 
+# Check Blob evidence itself; Shared owns the verifier implementation matrix.
 evidence-check:
-	bash scripts/ci/test-evidence-checksums.sh
 	bash scripts/ci/verify-evidence-checksums.sh docs/evidence/caffeine-probes/local/SHA256SUMS docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:

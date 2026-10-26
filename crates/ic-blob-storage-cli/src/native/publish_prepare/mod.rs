@@ -50,17 +50,17 @@ pub(in crate::native) fn transfer_source(
         .get(input.index)
         .ok_or(Failure::Arguments)?
         .input;
+    let directory = journal::RecoveryDirectory::open(origin)?;
     journal::validate(
-        origin,
+        &directory,
         &journal::binding(options, input, batch, root),
         selected,
     )?;
-    for kind in [upload_setup::Kind::Admit, upload_setup::Kind::Prepare] {
-        journal::validate_attempt(origin, kind, options, selected, root)?;
+    for step in [journal::Step::Admission, journal::Step::Preparation] {
+        journal::validate_attempt(&directory, step, options, selected, root)?;
     }
-    let report: Value =
-        serde_json::from_slice(&journal::read_at(origin, "summary.json", 1024 * 1024)?)
-            .map_err(|_| Failure::Binding)?;
+    let report: Value = serde_json::from_slice(&directory.read("summary.json", 1024 * 1024)?)
+        .map_err(|_| Failure::Binding)?;
     if report["prepared"] != true || report["state"] != "prepared" {
         return Err(Failure::Unprepared);
     }
@@ -118,10 +118,11 @@ pub(in crate::native) async fn run_selected(
     let origin = input.source.as_ref().unwrap_or(&input.directory);
     let binding = journal::binding(options, input, batch, &tenant.read_root_key());
     if input.source.is_some() {
-        journal::validate(origin, &binding, selected)?;
+        let directory = journal::RecoveryDirectory::open(origin)?;
+        journal::validate(&directory, &binding, selected)?;
         journal::validate_attempt(
-            origin,
-            upload_setup::Kind::Admit,
+            &directory,
+            journal::Step::Admission,
             options,
             selected,
             &tenant.read_root_key(),

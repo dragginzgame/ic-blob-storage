@@ -8,7 +8,7 @@ use std::{
 };
 use tokio::sync::mpsc;
 
-const MAX_FRAME_BYTES: u64 = 8192;
+pub(super) const MAX_FRAME_BYTES: u64 = 8192;
 
 /// Durable fact written only when ordering rejects a phase before its owner
 /// is called. Absence of its claim directory alone never proves an unattempted phase.

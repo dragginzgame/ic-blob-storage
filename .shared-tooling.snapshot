@@ -51,7 +51,6 @@ revision	e14050bcc0c627f9c8a9064051699cac44fd7ab3
 # entrypoint	scripts/ci/read-cargo-workspace-version.sh
 # entrypoint	scripts/ci/test-cargo-metadata.sh
 # entrypoint	scripts/ci/check-format-tools.sh
-# entrypoint	scripts/ci/test-evidence-checksums.sh
 # entrypoint	scripts/distribution/governance-files.txt
 # entrypoint	scripts/dev/gh-ci.sh
 # entrypoint	rules/rust-workspaces.md
@@ -64,7 +63,6 @@ revision	e14050bcc0c627f9c8a9064051699cac44fd7ab3
 # entrypoint	rules/contributions.md
 # entrypoint	scripts/ci/release-pr.sh
 # entrypoint	scripts/ci/archive-evidence.sh
-# entrypoint	scripts/ci/test-evidence-archive.sh
 # entrypoint	scripts/ci/test-tool-evidence.sh
 # entrypoint	scripts/ci/select-tool-evidence.sh
 # entrypoint	.github/actions/retain-failure-evidence/action.yml
@@ -157,7 +155,6 @@ file	1063002468575e2f821cfec71524bde06a64634bf30455d64d2d9fed872969d6	-	docs/tag
 file	40f31a19d6115411ebffe7c26e3ed30b8af7eead10dd4830de8d5a9312291222	x	scripts/ci/read-cargo-workspace-version.sh
 file	a37905355c8606327be4ea0af48b9032b2be7e3c1bbb2d2eb73bb5e1f65a7fc3	x	scripts/ci/test-cargo-metadata.sh
 file	a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a	x	scripts/ci/check-format-tools.sh
-file	63aa3234167bca3d4e4b37a40a48a3f2a96c34fba74d6770bfa8f3e226ada84e	x	scripts/ci/test-evidence-checksums.sh
 file	affb8ed180886b9c946be6e1a70eee7faaf1fa33beb007d9b75877afe933819d	-	scripts/distribution/governance-files.txt
 file	6eb261f79ff2780422a75e018b091bb119f552a1d155504acacefb7e2e290ba0	x	scripts/dev/gh-ci.sh
 file	b49655e8878d19e7232197faeebf6dfcdb001acd81b257aea135af629548ca56	-	rules/rust-workspaces.md
@@ -170,7 +167,6 @@ file	6d99677e86759273a88fb4149cbd4c14f2aacc99e1838a0db343d76c776f1aba	-	scripts/
 file	a662981d8f9e6da91314d06ba6ae6272f1cd48f7e98b0bbd258abf614367a118	-	rules/contributions.md
 file	ec8948910a221713a967d62b7ae42775929cad5ead4de111cb1cacdb1dedcb56	-	scripts/ci/release-pr.sh
 file	5be336cb3e8045b2d2d536542a94944b376ee812b03f786a90b9d962ab697f13	x	scripts/ci/archive-evidence.sh
-file	74a1d5bb3bb5b7c9a05262c91ccf095e45df06c44e6e2fd15ec74637ded8dcd3	x	scripts/ci/test-evidence-archive.sh
 file	f93edce1f8881690a6702efbfcb8d7679488e83b5da8b6f53bdeb643e3fba706	x	scripts/ci/test-tool-evidence.sh
 file	064ee8ecf5e36d760ae4b0aad1cc80563cac074445677526bc7d1d124ff5b303	x	scripts/ci/select-tool-evidence.sh
 file	26a269c0e63125e8bd939578a64a6a67dbc5280cd3fbfd7da8b9c8e4d44cc6d5	-	.github/actions/retain-failure-evidence/action.yml

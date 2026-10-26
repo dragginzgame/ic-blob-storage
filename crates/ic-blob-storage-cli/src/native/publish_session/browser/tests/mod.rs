@@ -37,6 +37,20 @@ fn selection_binds_fresh_paths_batch_and_original_recovery_without_allocating_ou
     save(&selected);
     assert!(selection(&input, &batch).unwrap().is_some());
     assert!(!input.prepare.directory.exists());
+    #[cfg(unix)]
+    {
+        let original = directory.path().join("original-browser.json");
+        std::fs::rename(&path, &original).unwrap();
+        std::os::unix::fs::symlink(&original, &path).unwrap();
+        assert!(matches!(selection(&input, &batch), Err(Failure::Binding)));
+        std::fs::remove_file(&original).unwrap();
+        assert!(matches!(selection(&input, &batch), Err(Failure::Binding)));
+        std::fs::remove_file(&path).unwrap();
+        assert!(matches!(selection(&input, &batch), Err(Failure::File)));
+        std::fs::write(&path, vec![b' '; 16385]).unwrap();
+        assert!(matches!(selection(&input, &batch), Err(Failure::File)));
+        save(&selected);
+    }
     for (key, value) in [
         ("format", json!("unknown")),
         ("asset_port", json!(0)),

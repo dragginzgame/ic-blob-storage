@@ -19,7 +19,14 @@ for existing extension points and the specific missing controls.
 `createCertificateClient` is the reusable browser certificate transport. This
 private source package uses the exact `@icp-sdk/core` peer version in package.json;
 it is not published to npm. The Chromium fixture imports this implementation.
-The peer is SDK 5.4.0, within Caffeine 1.1.2's declared `^5.3.0` dependency range.
+The peer is SDK 6.1.1. Caffeine 1.1.2 still declares SDK `^5.3.0`; the maintained
+browser workspace explicitly overrides that dependency to its selected SDK 6.1.1
+and qualifies the patched composition. This is a Blob-owned integration choice,
+not upstream Caffeine compatibility evidence. Consumers must use the same override
+and rebuild their bundles; do not mix SDK 5 and 6 identities in this composition.
+`make browser-tools-check` verifies matching peers, one non-aliased locked SDK
+package and the same installed Agent resolution for Blob and Caffeine. Bundle
+generation runs the same admission checks.
 Application authentication, selection of a persistent browser environment and
 deployed Caffeine qualification are still integration requirements. The package
 now supplies the bounded IndexedDB journal described below.
@@ -51,7 +58,7 @@ const observation = await client.issue();
 
 For Caffeine's upload path, use `createUploadTransfer` from `./transfer.js` with
 the maintained [patched SDK](patches/README.md). The private package requires
-Caffeine 1.1.2 and SDK 5.4.0; the unpatched npm artifact refuses with `sdk`.
+Caffeine 1.1.2 and SDK 6.1.1; the unpatched npm artifact refuses with `sdk`.
 Prepare with Caffeine before service admission, then create the transfer after
 authenticated admission/preparation using the same certificate client and store:
 
@@ -290,7 +297,7 @@ Chromium context and the maintained host/worker. Supply your installed Chromium
 engine, explicitly selected signer/bootstrap, trusted built bundles, original
 absolute profile path and fixed loopback port. The private client adds no Playwright
 or framework dependency to the Rust/Wasm graph; the evidence harness uses pinned
-Playwright 1.63.0. Build the reviewed bundles with `tests/browser/build.mjs`.
+Playwright 1.64.1. Build the reviewed bundles with `tests/browser/build.mjs`.
 
 ```js
 import { chromium } from 'playwright';

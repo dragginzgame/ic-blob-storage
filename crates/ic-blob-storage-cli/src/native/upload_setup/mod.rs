@@ -230,7 +230,7 @@ fn observation(saved: &Request, bytes: &[u8]) -> Result<SetupObservation, Failur
 pub(super) async fn run(options: &Options, input: &Input) -> Result<SetupOutcome, Failure> {
     let saved = request::load(input, options.actor)?;
     let agent = super::agent(options)?;
-    execute(options, input, &saved, &agent).await
+    execute(options, &saved, &agent).await
 }
 
 /// Reuse the invocation's authenticated role; request binding is still checked.
@@ -241,27 +241,26 @@ pub(super) async fn with_agent(
 ) -> Result<SetupOutcome, Failure> {
     let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
     let saved = request::load(input, actor.into())?;
-    execute(options, input, &saved, agent).await
+    execute(options, &saved, agent).await
 }
 
 async fn execute(
     options: &Options,
-    input: &Input,
     saved: &Request,
     agent: &Agent,
 ) -> Result<SetupOutcome, Failure> {
     if let Some(directory) = saved.payload.directory() {
-        return dispatch::run(options, input, saved, agent, directory).await;
+        return dispatch::run(options, saved, agent, directory).await;
     }
     let bytes = query::with_agent(
         agent,
-        input.service,
-        input.kind.method(),
+        saved.payload.permission().upload.service,
+        saved.payload.kind().method(),
         saved.argument.clone(),
     )
     .await?;
     let observed = observation(saved, &bytes)?;
-    let report = json!({"schema":1,"operation":input.kind.method(),"authentication":"query_signatures",
+    let report = json!({"schema":1,"operation":saved.payload.kind().method(),"authentication":"query_signatures",
         "observation":observed.json(),"retry_authorized":false,
         "certificate_issued":false,"provider_requests":0,"publication_authorized":false});
     Ok(SetupOutcome {
@@ -284,10 +283,15 @@ pub(super) async fn inspect_recorded(
         input,
         agent.get_principal().map_err(|_| Failure::Identity)?.into(),
     )?;
-    let intent = json!({"method":input.kind.method(),
+    let intent = json!({"method":saved.payload.kind().method(),
         "argument_sha256":crate::native::upload_inputs::digest(&saved.argument),"updates":0});
     let bytes = query::recorded(run, label, saved.argument.clone(), &intent, |args| {
-        query::with_agent(agent, input.service, input.kind.method(), args)
+        query::with_agent(
+            agent,
+            saved.payload.permission().upload.service,
+            saved.payload.kind().method(),
+            args,
+        )
     })
     .await?;
     observation(&saved, &bytes)

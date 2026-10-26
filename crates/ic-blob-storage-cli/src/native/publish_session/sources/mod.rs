@@ -3,7 +3,7 @@
 //! its original claims. Missing history refuses instead of allocating a replacement.
 use super::{
     Failure, PreparedBatch, SessionIntentRecord,
-    control::{Frame, UnattemptedPhaseRecord},
+    control::{Frame, MAX_FRAME_BYTES, UnattemptedPhaseRecord},
 };
 use crate::native::{artifacts::Run, exact_wire, publish_map};
 use serde::{Deserialize, Serialize};
@@ -86,15 +86,18 @@ fn history_binding(
     expected: &SessionIntentRecord,
     batch: &PreparedBatch,
 ) -> Result<(u64, Option<PathBuf>), Failure> {
-    let mut original: SessionIntentRecord =
-        serde_json::from_slice(&packet(&source.join("intent.json"), 16384)?)
-            .map_err(|_| Failure::Binding)?;
+    let mut original: SessionIntentRecord = serde_json::from_slice(&packet(
+        &source.join("intent.json"),
+        SessionIntentRecord::MAX_BYTES,
+    )?)
+    .map_err(|_| Failure::Binding)?;
     if original.max_steps == 0
         || super::budget::step_limit(batch.files.len())
             .is_none_or(|limit| original.max_steps > limit)
         || super::budget::query_limit(original.max_steps, batch.files.len())
             != Some(original.max_service_queries)
-        || !(1..=3600).contains(&original.timeout_seconds)
+        || !(1..=crate::native::publish_inputs::MAX_TIMEOUT_SECONDS)
+            .contains(&original.timeout_seconds)
     {
         return Err(Failure::Binding);
     }
@@ -237,8 +240,9 @@ impl Sources {
             if step != expected_step as u64 {
                 return Err(Failure::Binding);
             }
-            let frame: Frame = serde_json::from_slice(&packet(&action.join("request.json"), 8192)?)
-                .map_err(|_| Failure::Binding)?;
+            let frame: Frame =
+                serde_json::from_slice(&packet(&action.join("request.json"), MAX_FRAME_BYTES)?)
+                    .map_err(|_| Failure::Binding)?;
             match frame {
                 Frame::Prepare { index, source_run } => {
                     let slot = &mut sources.files.get_mut(index).ok_or(Failure::Binding)?.setup;

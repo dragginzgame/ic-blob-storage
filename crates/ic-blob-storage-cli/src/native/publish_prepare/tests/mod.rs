@@ -96,30 +96,47 @@ fn original_batch_binding_refuses_changed_manifest_permission_and_index() {
     fs::write(directory.path().join("intent.json"), expected.to_string()).unwrap();
     fs::write(directory.path().join("permission.wire"), permission).unwrap();
     fs::write(directory.path().join("manifest.wire"), manifest).unwrap();
-    journal::validate(directory.path(), &expected, &selected).unwrap();
+    journal::validate(
+        &journal::RecoveryDirectory::open(directory.path()).unwrap(),
+        &expected,
+        &selected,
+    )
+    .unwrap();
     let changed = json!({"operation":"publish_prepare","file_index":1});
     assert_eq!(
-        journal::validate(directory.path(), &changed, &selected),
+        journal::validate(
+            &journal::RecoveryDirectory::open(directory.path()).unwrap(),
+            &changed,
+            &selected
+        ),
         Err(Failure::Binding)
     );
     fs::write(directory.path().join("manifest.wire"), b"changed").unwrap();
     assert_eq!(
-        journal::validate(directory.path(), &expected, &selected),
+        journal::validate(
+            &journal::RecoveryDirectory::open(directory.path()).unwrap(),
+            &expected,
+            &selected
+        ),
         Err(Failure::Binding)
     );
     fs::write(directory.path().join("manifest.wire"), manifest).unwrap();
     fs::write(directory.path().join("permission.wire"), b"changed").unwrap();
     assert_eq!(
-        journal::validate(directory.path(), &expected, &selected),
+        journal::validate(
+            &journal::RecoveryDirectory::open(directory.path()).unwrap(),
+            &expected,
+            &selected
+        ),
         Err(Failure::Binding)
     );
 }
 #[test]
 fn partial_attempt_is_claimed_and_symlink_claim_is_refused() {
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    assert!(!journal::claimed(directory.path(), upload_setup::Kind::Prepare).unwrap());
+    assert!(!journal::claimed(directory.path(), journal::Step::Preparation).unwrap());
     fs::create_dir(directory.path().join("preparation")).unwrap();
-    assert!(journal::claimed(directory.path(), upload_setup::Kind::Prepare).unwrap());
+    assert!(journal::claimed(directory.path(), journal::Step::Preparation).unwrap());
     #[cfg(unix)]
     {
         std::os::unix::fs::symlink(
@@ -128,7 +145,7 @@ fn partial_attempt_is_claimed_and_symlink_claim_is_refused() {
         )
         .unwrap();
         assert_eq!(
-            journal::claimed(directory.path(), upload_setup::Kind::Admit),
+            journal::claimed(directory.path(), journal::Step::Admission),
             Err(Failure::Binding)
         );
     }

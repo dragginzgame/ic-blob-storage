@@ -147,10 +147,17 @@ pub fn methods() -> Result<Vec<Value>, GenerationError> {
 }
 /// Generate TypeScript codecs. `runtime_module` must export the Blob scalar-aware
 /// `createCodec` produced by [`runtime_adapter`], not the bare Wire runtime.
+/// Wire's bulk-field advice is emitted to stderr, leaving generated source clean.
 /// # Errors
 /// Refuses incomplete/invalid contracts or unsupported metadata.
 pub fn typescript(runtime_module: &str) -> Result<String, GenerationError> {
-    ic_wire::typescript::generate_registry(&BTreeMap::new(), &methods()?, runtime_module)
+    ic_wire::typescript::generate_registry(
+        &BTreeMap::new(),
+        &methods()?,
+        runtime_module,
+        &BTreeMap::new(),
+        |report| eprint!("{report}"),
+    )
 }
 /// Blob scalar validation adapter for the unmodified published Wire runtime.
 /// Write [`ic_wire::typescript::RUNTIME`] at `wire_runtime_module`.
