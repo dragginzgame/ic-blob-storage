@@ -1,77 +1,90 @@
 # Current status — 2026-10-26
 
-Released baseline: `8d8a455a` (0.49.1). Local main is `6685029b`, after merging
-[PR #104 — Use IcyDB-style sections in the latest root changelog](https://github.com/dragginzgame/ic-blob-storage/pull/104).
-Package versions remain 0.49.1. The [released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/8d8a455a/docs/status/current.md)
-retains the cleanup and Tooling adoption evidence; earlier records remain in
-[handoff history](history.md).
+Source baseline: `122a2603`, following released 0.49.1 and merged
+[PR #104 — Changelog sections](https://github.com/dragginzgame/ic-blob-storage/pull/104).
+Pending compatible notes target 0.49.2; package versions remain 0.49.1.
+The [released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/8d8a455a/docs/status/current.md)
+retains earlier cleanup/Tooling evidence and [handoff history](history.md) retains
+older implementation records.
 
-## Current adoption
+## Upstream adoption
 
-Shared Tooling 0.26.21 is exported from clean committed source
-`66c91c4412856baa147482e648fc80428db8b179`. Only the baseline's changelog
-presentation guidance and its detailed rule change. Root notes use emoji category
-headings; a small entry can use one `📝 Summary` section. Versions, dates, content
-and older history remain preserved. PR #104 supplies that heading in the latest
-released entry. This governance-only adoption creates no new release draft.
+The root catalog now requires published Host/Build/Testkit 0.68.9,
+Memory/Storage 0.51.5, Platform/macros 0.6.19, Wire/derive 0.7.18 and Metrics 0.16.3.
+The incoming lock already selects this graph and is preserved. No features,
+workspace boundaries, endpoint identities, persisted schemas or exact retry
+bytes change. No caller adaptation is needed. Cross-release service transitions
+remain reinstall-only; unchanged schemas do not authorize an in-place upgrade,
+and this batch adds no migration or dual reader.
 
-The snapshot and this handoff remain local edits. No product implementation,
-endpoint bytes, persisted schemas, retry policy or executable tooling changes
-are part of this adoption. Shared's SDK boundary checker and Blob's installed
-SDK identity checks remain as delivered in 0.49.1.
+All direct external Cargo requirements were checked against crates.io's canonical
+sparse index. Other direct Rust packages are current except thiserror: retain
+2.0.18 because PocketIC 16.1.0 requires it exactly. Do not force the incompatible
+2.0.21 minimum. The twelve selected suppliers' `src/` trees match their earlier
+qualified releases; Platform macros and Wire derive match too. Their reviewed
+changes concern dependency minimums, tooling/governance and package metadata.
+Source equality does not replace qualification of the selected composition.
 
-## Dependency state
+The maintained npm selections are already current: published
+`@tokostudios/ic-platform` 0.1.0, Caffeine 1.1.2, esbuild 0.28.2 and Playwright
+1.64.1. Core 6.1.1 remains transitive through Platform and the explicitly qualified
+Caffeine override. The browser manifests, lock and provider patch are unchanged.
 
-The [root catalog](../../Cargo.toml) retains Host/Build/Testkit minimums 0.68.7
-and Rust Platform 0.6.18. The incoming [lock](../../Cargo.lock) selects Tooling
-0.68.8, Platform/macros 0.6.19 and openssl-probe 0.2.2. Those edits are preserved
-byte-for-byte; their adoption and runtime qualification were not requested or
-performed in this pass. Do not reuse the prior graph's evidence for them.
-Memory/Storage remain 0.51.3, Wire/derive 0.7.16 and Metrics 0.16.2. Browser
-Platform remains published `@tokostudios/ic-platform` 0.1.0 with Core 6.1.1 and
-the existing Caffeine override. Application protocols stay on Wire; required
-external/provider and persisted Candid contracts retain their existing owners.
+Shared Tooling remains 0.26.21 at
+`66c91c4412856baa147482e648fc80428db8b179`. Root release notes use its emoji
+sections. Tool setup remains explicit; normal releases start fresh while
+`release-resume VERSION=X.Y.Z` recovers one saved attempt.
 
-## Released integration support
+## Integration boundaries
 
-- Hosts can use `workflow::funding::prepare` with
-  `ServiceWorkflow::<Host>::ACCESS`: authenticate the exact intent, release the
-  borrow for synchronous host evidence, then recheck and reserve. Canic owns its
-  adoption and removal of its private journal-access adapter.
-- Funding reads reuse validated views without removing record validation,
-  accounting obligations or restore fences. Operator scope and bounded provider
-  decode mechanics have shared owners while retaining authentication and errors.
-- CLI preparation uses typed saved status, narrowed setup operations and shared
-  document bounds. Browser request/retained-intent validation shares pure rules;
-  canonical headers, exact bytes and no-resubmission boundaries remain separate.
-- Native pipe lifecycle state remains independent because startup, pending work,
-  stdin closure and exit can overlap. No competing phase machine was added.
+Blob owns tenant authority, service state, provider accounting, retention,
+deletion and recovery; frameworks own their adapters and acceptance. Hosts can
+use `workflow::funding::prepare` with `ServiceWorkflow::<Host>::ACCESS` to avoid
+repeating authenticated preparation/journal-access orchestration. Canic owns its
+remaining adoption and delivery. No sibling checkout is changed.
 
-## Qualification and next actions
+Application protocols remain on Wire. Required external/provider and persisted
+Candid use Platform; stable collection codecs use Storage and allocation/backing
+authority uses Memory. Do not infer Candid-free deployment or provider credit
+from dependency adoption. The [native Agent advisory](https://github.com/dragginzgame/ic-blob-storage/issues/102)
+remains unresolved; these releases do not supply its cryptographic correction.
 
-The PR's two-line insertion was reviewed against exact head `c5d00831`. Removing
-that heading and its blank line reconstructs the pre-PR changelog byte-for-byte.
-There were no review objections or enforced branch requirements. Schema and MSRV
-jobs passed before merge; optional native tooling jobs were still running.
-The [merge CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/40363210822)
-was pending at readback; pending is not passing evidence.
+## Qualification
 
-Snapshot integrity, documentation links and diff checks pass for this adoption.
-No Rust/runtime suites were rerun for the documentation-only changes. Previous
-0.68.7 qualification remains in the released handoff and
-`/tmp/blob-adopt-tooling-20261026/`: scoped CLI/standalone Clippy, 125 CLI/probe
-cases, seven installed sessions, Wasm surface inspection and CLI Rust 1.91.
-Earlier cleanup qualification remains at `/tmp/blob-cleanup0491-*`.
+Registry records, incoming files, supplier source comparisons and command logs
+are retained under `/tmp/blob-upstream-20261026.CuhRRC/`. The incoming Cargo.lock
+is byte-identical; locked source preparation and metadata admission pass.
 
-Current review, preservation proof and refresh evidence are under
-`/tmp/blob-shared02621-pr104/`. Confirm normal merge CI separately and qualify the
-incoming dependency graph before claiming its runtime acceptance. Native macOS,
-other engines, production capacity and deployed-provider behavior have no new
-qualification here. Installed provider substitutes remain local evidence.
+Passing focused checks on this graph:
 
-[Blob #103 — Browser Platform adoption](https://github.com/dragginzgame/ic-blob-storage/issues/103),
-[Canic #637 — Browser Platform adoption](https://github.com/dragginzgame/canic/issues/637)
-and [Blob #102 — Native Agent advisory](https://github.com/dragginzgame/ic-blob-storage/issues/102)
-retain their separate ownership; no new acceptance claim or issue closure is made.
-No source commit, release, publication, deployment or sibling edit occurred for
-this adoption. The authorized PR merge is complete; local edits are unstaged.
+- Dependency pins, Platform boundary, runtime-free contracts and default
+  standalone Wasm dependency exclusions; formatting, documentation links,
+  browser build and browser admission (15 cases).
+- Strict Clippy for core/contracts/client libraries, CLI targets, standalone and
+  storage-probe Wasm, and the standalone PocketIC test target.
+- Core funding (40), public Memory composition (2), CLI binaries (125), Wire
+  golden bytes (1), and generated TypeScript (27 methods / 137 frozen frames).
+- Rust 1.91 CLI and standalone Wasm checks, plus fresh development-compiler
+  native CLI and release standalone Wasm builds.
+- Installed standalone publication/session recovery (7) and exact callable
+  deployment-surface/provider-contract comparison (1), using those fresh artifacts.
+
+Initial installed attempts stopped at managed tool admission; one retry masked
+that failure with a shell export and ran with an empty server path. Those retained
+failures are not Blob runtime evidence. Explicit Testkit 0.68.9 setup in the
+execution environment followed by separate Make admission resolved selection;
+no installer code or receipt was changed by hand. Tool checks remain offline.
+
+The full workspace gate, native macOS and live provider qualification were not
+run for this focused adoption.
+Earlier evidence at `/tmp/blob-adopt-tooling-20261026/` and
+`/tmp/blob-cleanup0491-*` retains its original dependency scope.
+
+The prior Canic read-only review found passing dedicated/embedded Blob 0.49.1,
+generated-client, packaged CLI and operator-recovery evidence. Its newer Auth
+selection and unfinished 0.112 source batch need Canic-owned closeout. Linux
+PocketIC/provider substitutes do not qualify native macOS, production capacity,
+deployed Caffeine, billing or independent provider-credit acceptance.
+
+No staging, commit, push, release, publication, deployment or sibling edit occurs
+as part of this adoption.

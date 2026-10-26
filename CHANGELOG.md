@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.49.2] - Unreleased
+
+### 📝 Summary
+
+- Adopt published Host/Build/Testkit 0.68.9, Platform 0.6.19, Wire 0.7.18,
+  Memory/Storage 0.51.5 and Metrics 0.16.3. Align dependency minimums with the
+  selected lockfile while preserving features, Rust 1.91, endpoint bytes,
+  stable formats and exact retry behavior.
+
 ## [0.49.1] - 2026-10-26
 
 ### 📝 Summary
