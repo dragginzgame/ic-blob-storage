@@ -2,6 +2,8 @@
 
 ## [0.49.1] - 2026-10-26
 
+### 📝 Summary
+
 - Adopt Shared Tooling 0.26.20 and published Host/Build/Testkit 0.68.7.
   Use Shared's SDK boundary checker while retaining Blob's installed SDK identity
   checks. Normal releases start fresh; recover a saved attempt explicitly with
