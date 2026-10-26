@@ -1,97 +1,77 @@
 # Current status — 2026-10-26
 
-Released baseline: `9777e07b` (0.49.0). Pending compatible notes target 0.49.1;
-package versions remain 0.49.0. This batch changes no endpoint identity, Wire
-bytes, persisted schema, saved filename, authentication or retry policy. The
-[released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/9777e07b/docs/status/current.md)
-retains the preceding browser Platform adoption evidence; earlier implementation
-records remain in [handoff history](history.md).
+Released baseline: `8d8a455a` (0.49.1). Local main is `6685029b`, after merging
+[PR #104 — Use IcyDB-style sections in the latest root changelog](https://github.com/dragginzgame/ic-blob-storage/pull/104).
+Package versions remain 0.49.1. The [released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/8d8a455a/docs/status/current.md)
+retains the cleanup and Tooling adoption evidence; earlier records remain in
+[handoff history](history.md).
 
-## Current changes
+## Current adoption
 
-- `workflow::funding::prepare` authenticates an exact intent before calling the
-  host's evidence callback without an installation borrow, then rechecks and
-  reserves synchronously. Hosts can pair it with `ServiceWorkflow::<Host>::ACCESS`.
-  Canic owns adopting this helper and removing its private journal-access adapter;
-  its checkout has not been edited.
-- Funding restoration, exact lookup and outcome inspection reuse the record's
-  validated view within the same read. Validation at each read/mutation boundary
-  and all credit, refund, uncertainty and restore-fence obligations remain.
-- Installed operator scope has one projection; gateway and operator handlers
-  retain independent authentication. Six provider decoders share private bounded
-  Candid mechanics, preserving semantic checks, quota values and error ordering.
-- Preparation recovery reads its existing JSON status through a typed projection.
-  Malformed JSON remains `Binding`; valid but unprepared/invalid status remains
-  `Unprepared`. Exact signed-attempt and input checks still precede this read.
-  Setup accepts only its four operations. Permission/manifest document writers
-  and readers use one byte ceiling per document; reply/transport caps stay separate.
-- Fresh browser requests and retained gateway intents share pure target/header
-  admission. Retained canonical URL/header checks, body snapshots, authenticated
-  bindings, durable claims and no-resubmission rules remain independent.
-- Reviewed native pipe state consolidation and retained the existing model:
-  startup, an outstanding phase, stdin closure and process exit overlap. A single
-  phase enum would require additional states rather than simplify behavior.
-- Dependency guidance now describes current owners rather than old alias/import
-  migrations. Historical schemas, independent heap models, provider substitutes
-  and corruption/recovery tests remain necessary and are retained.
+Shared Tooling 0.26.21 is exported from clean committed source
+`66c91c4412856baa147482e648fc80428db8b179`. Only the baseline's changelog
+presentation guidance and its detailed rule change. Root notes use emoji category
+headings; a small entry can use one `📝 Summary` section. Versions, dates, content
+and older history remain preserved. PR #104 supplies that heading in the latest
+released entry. This governance-only adoption creates no new release draft.
 
-## Dependency and consumer boundaries
+The snapshot and this handoff remain local edits. No product implementation,
+endpoint bytes, persisted schemas, retry policy or executable tooling changes
+are part of this adoption. Shared's SDK boundary checker and Blob's installed
+SDK identity checks remain as delivered in 0.49.1.
 
-The [root catalog](../../Cargo.toml) now requires published Host/Build/Testkit
-0.68.7; the incoming [lock](../../Cargo.lock) already selected that coordinated
-release and is preserved. Rust Platform remains 0.6.18, Memory/Storage 0.51.3,
-Wire/derive 0.7.16 and Metrics 0.16.2. Browser product/test/build imports use
-published `@tokostudios/ic-platform` 0.1.0, with one Core 6.1.1 identity and the
-existing exact Caffeine override. Service-owned protocols stay on Wire; required
-external/provider and persisted Candid contracts retain their owners.
+## Dependency state
 
-[Blob #103 — Adopt the published Platform browser SDK Core boundary](https://github.com/dragginzgame/ic-blob-storage/issues/103) tracks
-browser Platform acceptance; its migration is present in the released baseline.
-[Canic #637 — Browser Platform adoption](https://github.com/dragginzgame/canic/issues/637) owns Canic's browser
-adoption. [Blob #102 — Native Agent advisory](https://github.com/dragginzgame/ic-blob-storage/issues/102)
-retains the separate native Agent advisory. This cleanup makes no new provider,
-security, production-capacity or complete Canic acceptance claim.
+The [root catalog](../../Cargo.toml) retains Host/Build/Testkit minimums 0.68.7
+and Rust Platform 0.6.18. The incoming [lock](../../Cargo.lock) selects Tooling
+0.68.8, Platform/macros 0.6.19 and openssl-probe 0.2.2. Those edits are preserved
+byte-for-byte; their adoption and runtime qualification were not requested or
+performed in this pass. Do not reuse the prior graph's evidence for them.
+Memory/Storage remain 0.51.3, Wire/derive 0.7.16 and Metrics 0.16.2. Browser
+Platform remains published `@tokostudios/ic-platform` 0.1.0 with Core 6.1.1 and
+the existing Caffeine override. Application protocols stay on Wire; required
+external/provider and persisted Candid contracts retain their existing owners.
 
-## Upstream package and Shared Tooling adoption
+## Released integration support
 
-Shared Tooling 0.26.20 is exported from clean committed source
-`a7f85d45d4212d4c39225f58597580560a333550`, with the opt-in npm SDK checker.
-Blob delegates direct SDK declaration/import admission to that owner while
-retaining its installed SDK singleton and Platform/Caffeine identity checks.
-The 0.68.7 Build and Testkit releases were verified against crates.io's sparse
-index; API queries returned HTTP 403. Unpublished Tooling 0.68.8 changes are not
-consumed. Existing features and application contracts remain unchanged.
-Normal releases start fresh from committed metadata; only explicit
-`release-resume VERSION=X.Y.Z` recovers an older attempt. Local guidance and the
-actual release-adapter recovery fixture follow that contract. Shared's compact
-baseline makes detailed accounting opt-in and reserves broad local gates for
-release or explicit full validation. Existing required CI/native lanes remain.
+- Hosts can use `workflow::funding::prepare` with
+  `ServiceWorkflow::<Host>::ACCESS`: authenticate the exact intent, release the
+  borrow for synchronous host evidence, then recheck and reserve. Canic owns its
+  adoption and removal of its private journal-access adapter.
+- Funding reads reuse validated views without removing record validation,
+  accounting obligations or restore fences. Operator scope and bounded provider
+  decode mechanics have shared owners while retaining authentication and errors.
+- CLI preparation uses typed saved status, narrowed setup operations and shared
+  document bounds. Browser request/retained-intent validation shares pure rules;
+  canonical headers, exact bytes and no-resubmission boundaries remain separate.
+- Native pipe lifecycle state remains independent because startup, pending work,
+  stdin closure and exit can overlap. No competing phase machine was added.
 
-## Validation
+## Qualification and next actions
 
-The preceding cleanup used Tooling 0.68.6: 710 native cases, seven installed
-preparation cases, four installed Chromium journeys and twelve pipe tests pass,
-as do workspace lint, Rust 1.91 native/Wasm, formatting and documentation checks.
-Logs remain at `/tmp/blob-cleanup0491-*`. The new wrong-scope fixture overflow was
-corrected before rerunning; the initial sandboxed pipe attempt exited early.
-These remain earlier-graph evidence, not qualification of changed Tooling.
+The PR's two-line insertion was reviewed against exact head `c5d00831`. Removing
+that heading and its blank line reconstructs the pre-PR changelog byte-for-byte.
+There were no review objections or enforced branch requirements. Schema and MSRV
+jobs passed before merge; optional native tooling jobs were still running.
+The [merge CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/40363210822)
+was pending at readback; pending is not passing evidence.
 
-The 0.68.7 adoption passes focused CLI all-target/all-feature and standalone-test
-Clippy, 125 CLI/probe tests, seven installed publication-session/recovery cases,
-and CLI all-target/all-feature checks on Rust 1.91. The existing unchanged service
-Wasm passes actual endpoint-surface inspection with Host 0.68.7; no new service
-artifact is claimed. Published Testkit and Build editor setup/admission pass.
-PocketIC remains 16.1.0. All installed providers are local substitutes.
+Snapshot integrity, documentation links and diff checks pass for this adoption.
+No Rust/runtime suites were rerun for the documentation-only changes. Previous
+0.68.7 qualification remains in the released handoff and
+`/tmp/blob-adopt-tooling-20261026/`: scoped CLI/standalone Clippy, 125 CLI/probe
+cases, seven installed sessions, Wasm surface inspection and CLI Rust 1.91.
+Earlier cleanup qualification remains at `/tmp/blob-cleanup0491-*`.
 
-The 129-file shared snapshot, dependency declarations/pins, standalone production
-exclusions, browser build, fifteen browser boundary results, grouped formatting,
-ShellCheck and documentation links pass. The isolated release-adapter suite and
-current 0.49.1 changelog check pass. Its obsolete dirty-source and staged-index
-fault timing were aligned with early admission; prior failures remain retained.
-Normal-versus-explicit-resume and frozen receipt/log preservation are covered.
-The incoming lock and prior cleanup implementation are unchanged. Registry records,
-source capture and logs remain at `/tmp/blob-adopt-tooling-20261026/`.
+Current review, preservation proof and refresh evidence are under
+`/tmp/blob-shared02621-pr104/`. Confirm normal merge CI separately and qualify the
+incoming dependency graph before claiming its runtime acceptance. Native macOS,
+other engines, production capacity and deployed-provider behavior have no new
+qualification here. Installed provider substitutes remain local evidence.
 
-Native macOS, other engines, full CI and deployed-provider qualification were not
-rerun. The GitHub description matches the prototype scope. No staging, commit,
-push, release, publication, deployment or sibling edit occurred in this checkout.
+[Blob #103 — Browser Platform adoption](https://github.com/dragginzgame/ic-blob-storage/issues/103),
+[Canic #637 — Browser Platform adoption](https://github.com/dragginzgame/canic/issues/637)
+and [Blob #102 — Native Agent advisory](https://github.com/dragginzgame/ic-blob-storage/issues/102)
+retain their separate ownership; no new acceptance claim or issue closure is made.
+No source commit, release, publication, deployment or sibling edit occurred for
+this adoption. The authorized PR merge is complete; local edits are unstaged.
