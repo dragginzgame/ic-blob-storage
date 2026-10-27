@@ -1,94 +1,99 @@
 # Current status — 2026-10-27
 
-Released baseline: `2d130afc`, Blob 0.49.3. The accepted storage cut is committed
-at `efb0de20`, with **0.50.0** notes and package versions still 0.49.3. The minor
-is required by changed stored formats and removal of public Candid traits. The
-handoff retained in that Git commit records the complete storage-cut qualification
-and artifact-size measurements.
+Released baseline: `d02b9277`, Blob **0.50.0**, delivered on default `main`.
+The pending adoption targets **0.51.0** because public Principal types now have
+Platform 0.7 identities. Own package versions remain 0.50.0 for the maintainer's
+release flow. Git delivery does not establish registry publication or service
+acceptance. No assistant staging, commit, push, release or deployment occurred.
 
-## Published dependency refresh
+## Published supplier adoption
 
-Adopted published Memory/Storage 0.51.6, Platform/macros 0.6.20 and the consumed
-Host/Build/Testkit 0.68.10 family. Root minimums match the selected graph; features,
-Rust 1.91 and normal deployment exclusions remain unchanged. No sibling source,
-path dependency, compatibility alias or new optional Platform capability is used.
-Persistence 0.51.7, Tooling 0.68.11 and Rust Platform 0.6.21 sibling work was not
-published at selection and is not substituted into the graph.
+Adopted published Rust Platform/macros **0.7.0**, the consumed
+Host/Build/Testkit **0.69.0** family and Shared Tooling **0.26.22** at reviewed
+commit `5fc904a935d82ad31f0fba14434b71ccb8c10345`. The canonical exporter reviewed
+impact and refreshed 129 files. Only five governance payloads changed; no shared
+executable, formatter, release helper or tool catalog changed. New guidance
+strengthens owned-Candid isolation, error derives and bounded native inspection;
+prose adoption does not install new executable guards.
 
-Browser Platform now selects published `@tokostudios/ic-platform` 0.1.1 in both
-manifests and the private browser lock. Its public tarball integrity matches
-registry metadata. SDK Core remains one canonical 6.1.1 identity shared by
-Platform and Caffeine 1.1.2 under the existing reviewed override and patch.
-New signing/expiry exports require no changes to Blob's existing callers.
-Wire remains 0.7.18, Metrics 0.16.3 and Shared Tooling 0.26.21.
+Official sparse-index metadata and cached archive SHA-256 values match for the
+selected Platform and Tooling packages. Published source inspection confirms
+Platform 0.7 removes three unused Candid compiler exports. Blob has no callers;
+required parsing/type checking stays available. Principal, codec and runtime
+sources are unchanged from 0.6.21, but Rust type identities differ across versions.
+No compatibility bridge, sibling path or patched dependency is introduced.
 
-Versions/checksums were verified against Cargo's official sparse index; critical
-cached archives also match those checksums. The crates.io HTTP API returned 403,
-so it was not used as publication proof. Published source/API review found only
-compatible additions and internal cleanup on Blob's selected paths. No caller,
-endpoint, resource-policy or stored-format change is needed for this refresh.
-The incoming staged Cargo.lock already selected these Rust versions and is
-preserved byte-for-byte, including its original index state.
+Incoming Memory/Storage **0.51.9** lock selections are preserved and included in
+this qualification; minimums now require that Platform-aligned release. Tooling
+0.69 also requires Platform 0.7. Default/all-feature metadata resolve only
+Platform **0.7.0**; the older 0.6.21 package is removed without patches or aliases.
+The standalone normal Wasm graph retains one executor 2.0.0. Native Testkit
+transport uses the common external Principal identity. Published Tooling 0.69
+and Persistence 0.51.9 source bodies match 0.68.12/0.51.8 respectively; their
+Platform requirements and package identities change, not byte contracts.
 
-## Accepted storage cut and retained installations
+The browser registry still supplies `@tokostudios/ic-platform` **0.1.1**. Both
+browser manifests/lock remain unchanged, with one SDK Core 6.1.1 and the reviewed
+Caffeine 1.1.2 patch/override. Wire 0.7.18, Metrics 0.16.3, Rust 1.91, dependency
+roles and existing feature selections remain unchanged.
 
-All 34 previously Candid-derived model types use Serde with Wire. The existing
-`model::record_codec` owner supplies 17 independently stored encodings through
-`ic_storage::adapter::Storable`, each with an explicit storage-only identity.
-Nested models add no envelopes. Installation format is
-`ic-blob-storage/installation:wire-records`. There is no Candid reader, migration,
-alternate writer or automatic reset. Host allocation keys/ledger, key ordering
-and collection bounds remain unchanged; keys do not establish payload compatibility.
-Record limits remain finite, including large-leaf/header and full-width coverage.
+## Current qualification
 
-Old Candid stores refuse the new image. Apply the
-[retirement runbook](../retiring-installations.md) with original tools, retaining
-objects, uncertain effects, balances, access and billing evidence. Reinstall is
-not deletion or settlement; never clear a ledger or activate stale state to
-bypass refusal. Public `ReadSessionLimits` loses Candid traits. External
-provider/management Candid, owned endpoint bytes, saved command documents,
-canonical content identities and exact operation/retry policy remain unchanged.
+Inputs, before-lock, official registry records/archive checksums, source-body
+comparisons, default/all-feature metadata, target graphs and focused logs:
+`/tmp/blob-tooling069-20261027.aKq0I1wW/`. Manifest/lock/snapshot input hashes remain
+unchanged across qualification. Testkit/Build setup and offline admission pass
+for 0.69.0; PocketIC retains its 16.1.0 server selection. Substitute command-
+forwarding and ordered-failure fixtures pass separately from the real tools.
 
-The replacement `standalone_record_cut` regression uses a freshly retained
-0.49.3 Wasm/hash and proves populated Candid-state refusal without losing stable
-bytes, the old heap or registered physical/billing obligations. It passes on the
-new dependency graph; other runs require their own explicit pinned input.
-Canic owns adopting the supplying release and qualifying dedicated/embedded
-services. No sibling is changed or consumer acceptance claimed here.
+Snapshot integrity, dependency pins, Platform declaration boundaries, actual
+normal deployment exclusions and their refusal fixtures pass. Grouped manifest
+ordering/release metadata checks pass against current package version 0.50.0.
+Strict all-target/all-feature Clippy passes for the affected CLI and PocketIC
+callers. A fresh release standalone Wasm builds; actual Rust 1.91 checks all
+native CLI/PocketIC targets/features and standalone Wasm.
 
-## Latest qualification
+Current-graph tests pass: seven memory/lifecycle integration, 118 native CLI and
+25 native host-support cases. Fresh installed cases pass: four lifecycle/recovery
+and three certificate/authority cases, including two signed uploaders, quotas and
+retained uncertainty. Provider replies are local substitutes; no live/paid effect
+occurs. Earlier Platform adoption evidence remains under
+`/tmp/blob-adoption-20261027.JXPj3tUX/`: Core/Contracts/Client/standalone Clippy,
+68 model, 45 external provider-codec and eight Wire boundary cases, plus
+generated TypeScript against 137 frozen frames. Source-body
+comparisons support reuse of these unchanged contracts; those older graph runs
+are not relabelled as new Tooling 0.69 executions.
 
-Evidence, metadata, selected inputs, archive checksums, setup receipts and logs:
-`/tmp/blob-upstream-20261027/`. Locked fetching and existing Testkit/Build setup
-and offline admission pass; Testkit still selects PocketIC server 16.1.0.
-Default and all-feature metadata, dependency pins, Platform boundaries, normal
-Wasm deployment exclusions and browser dependency admission pass.
+Initial Tooling 0.69 setup timed out waiting for ic-backup's installation slot;
+its subsequent offline admission correctly refused the unprepared selection.
+Both logs are retained; setup/admission retries pass after the foreign owner
+exited. No foreign lock or installation was removed. Native socket/PocketIC
+cases use explicit process permissions.
+No full CI, native macOS, Binaryen variants, current-graph Chromium journeys or
+coordinated archive qualification was rerun. Browser SDK source/graph is unchanged;
+earlier browser evidence retains its recorded scope, not a new Platform 0.7 run.
 
-Strict affected Clippy passes for Core, Contracts, Client, CLI, standalone,
-private protocol and PocketIC callers. Current-graph tests pass: 68 model cases,
-7 allocation/lifecycle integration cases, 118 native CLI cases and 25 host-support
-cases. Three CLI socket cases first hit sandbox permission errors; the exact
-failed scopes pass with process permissions, retaining the initial logs.
-Fresh default standalone Wasm and CLI builds pass; Rust 1.91 checks Core and
-standalone for Wasm and the CLI's native targets/features. Installed scopes pass:
-lifecycle (4), certificate/authority
-(3), populated old-format refusal (1), and actual Chromium/PocketIC browser
-journeys (4: upload/download/release, corrupt read, lost reply/withdrawal, two users).
+## Storage and consumer obligations
 
-Browser checks pass: dependency refusal fixtures (15), control/response tests (2),
-publication/frozen-input and worker suites, real Chromium signer/bootstrap (17),
-source-hash-checked Caffeine bundling and the single-SDK graph. The sandboxed npm
-version observation and one initial missing report-directory invocation remain
-retained as failed attempts; corrected checks pass without weakening admission.
-All provider responses are local substitutes. No paid/live provider effect occurs.
+The released 0.50 cut uses bounded Wire for 17 stored encodings through IC Storage,
+with 34 model types free of Candid traits. Installation format remains
+`ic-blob-storage/installation:wire-records`. This adoption changes no stored bytes,
+endpoint packets, decode ceilings, canonical identities or exact retry policy.
+Cross-release adoption remains retirement/reinstall; no migration, dual reader,
+automatic reset or stale-backup activation is supported. Retain provider objects,
+uncertain effects, balances, access and billing under the
+[retirement runbook](../retiring-installations.md).
 
-The earlier full storage-cut suites and size comparison retain their original
-Memory/Storage 0.51.5, Platform 0.6.19, Tooling 0.68.9 and browser 0.1.0 scope.
-They are not relabelled as measurements or full acceptance of this newer graph.
-Full CI, Binaryen variants, native macOS and live-provider qualification were not
-rerun. Unselected historical/resource profiles retain their own input requirements.
+The storage-cut evidence at `efb0de20` and released 0.50 handoff retain their
+original full suites, old-Candid-store refusal and size measurements. Current
+lifecycle checks do not relabel that older graph or repeat its size comparison.
+The native Agent [advisory #102](https://github.com/dragginzgame/ic-blob-storage/issues/102)
+remains unresolved; Platform 0.7 does not supply a crypto correction or exemption.
 
-The [native Agent advisory](https://github.com/dragginzgame/ic-blob-storage/issues/102)
-remains unresolved. External Candid and historical input tests remain intentional;
-this is not a Candid-free graph. No assistant staging, commit, push, release,
-publication, deployment or sibling edit occurred; the user's staged lock is intact.
+Canic's reviewed 2026-10-27 handoff selects Blob/contracts 0.49.3 and reports local
+managed-browser qualification. Canic owns adopting the released storage cut and
+then aligning the new public Platform identity in its composition; no sibling is
+edited or qualified here. The [application acceptance plan](../acceptance-plan.md#next-application-acceptance-run)
+already specifies remaining #31/#5/#34 evidence. The last #103 review records
+browser adoption delivered on 0.50 with its matching hosted qualification pending;
+this uncommitted 0.51 work has no hosted result and closes no acceptance issue.

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.51.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Adopt published IC Platform 0.7.0 for Blob's public Principal and runtime
+  identities. Rebuild consumers against the same Platform line; required external
+  Candid, Wire packets and stored bytes are unchanged. Apply the retirement and
+  reinstall procedure across releases, preserving uncertain effects and obligations.
+
+### 🔧 Changed
+
+- Adopt published Host/Build/Testkit 0.69.0, Memory/Storage 0.51.9 and Shared
+  Tooling 0.26.22. Align the supplied families on Platform 0.7 and remove the
+  transitive Platform 0.6 package. Retain existing features, dependency roles,
+  Rust 1.91 and deployment exclusions.
+  The shared rules strengthen external-Candid isolation, native error handling
+  and bounded input/process inspection; this snapshot adds no executable guards.
+
 ## [0.50.0] - 2026-10-27
 
 ### 📝 Summary

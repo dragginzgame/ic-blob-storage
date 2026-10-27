@@ -40,6 +40,22 @@ Testkit; [IC Persistence](https://github.com/dragginzgame/ic-persistence) owns
 Memory and Storage. Package names and ownership boundaries remain unchanged.
 Blob consumes published packages, without sibling paths or compatibility aliases.
 
+The pending 0.51 adoption uses published Rust Platform 0.7.0 throughout Blob's
+workspace catalog. Its removal of Candid JavaScript/TypeScript compiler exports
+requires no local replacement: owned clients already use Wire generation.
+Platform owns Blob's public Principal identity, so consumers must rebuild on
+the same Platform line. Required external Candid and stored/Wire bytes retain
+their existing contracts.
+
+Published Tooling 0.69.0 and Memory/Storage 0.51.9 align on Platform 0.7.0.
+Their dependency minimums keep the older Platform 0.6 package out of the resolved
+graph without a Cargo patch or type-conversion shim. Default and all-feature
+metadata resolve one Platform identity; the standalone uses one CDK executor
+2.0.0. Stable-structures retains its upstream identity through Storage/Memory,
+and native Testkit transport retains the common external Principal type. The
+dependency/deployment checks qualify the actual graph separately from the
+direct declaration boundary.
+
 The browser client declares `@tokostudios/ic-platform` as a regular dependency;
 first-party runtime, test and build sources use its explicit ESM subpaths. SDK
 Core remains transitive through Platform and the external Caffeine package.
