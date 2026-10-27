@@ -132,7 +132,10 @@ and exact callable function-export names/modes through Host artifact inspection.
 It runs in the complete gate and all three native host lanes. Inputs, output
 hashes, source diff, lock, optimizer identity and logs stay in fresh
 `target/blob-wasm-opt.*` directories on success or failure; hosted lanes upload
-them separately. Ordinary Cargo Wasm output remains unoptimized. These local
+them separately. The workspace release profile uses ThinLTO and one codegen unit, keeping
+optimization level 3 and function symbols. Ordinary Cargo Wasm output receives no
+post-link Binaryen transform. Consumers select their own root profiles; these
+settings do not transfer to downstream Canic builds. These local
 canister cases do not establish deployed provider or Canic application behavior.
 Testkit/PocketIC own client/server compatibility and managed server lifetime.
 Blob has no independent crate-version/server-version equality gate. The
@@ -212,11 +215,16 @@ Its `make/release.mk` owns standard entrypoint recipes and conflicting
 goals and delivery admission; Blob selects the same direct-only policy file for
 Make and standalone metadata commands. The
 reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
-check. Blob selects `cargo sort --workspace --grouped` in both write and check
-commands to preserve dependency-role groups. Prepared and selected committed
-release metadata checks use the matching `--manifest-order-grouped` policy. Its `scripts/ci/run-formatting.sh` companion reports one success line or
-a failing status and complete retained log. All isolated Make/hook/release fixtures
-include these inputs; product
+check. Its standard Rust driver preserves grouped dependency roles across the
+complete thirteen-member workspace without local formatter overrides. Prepared
+and selected committed release metadata checks use the matching
+`--manifest-order-grouped` policy. The `scripts/ci/run-rust-formatting.pl` driver
+shows each pass and elapsed time, retaining detailed failed logs. It can reuse a
+successful result only for unchanged inputs; prepared-tool checks still run.
+Use `make fmt-check FORMAT_RUST_ARGS=--no-cache` to force the complete sequence.
+Isolated staged hooks always run the formatters and never reuse the developer
+receipt. Custom commands retain the `scripts/ci/run-formatting.sh` wrapper.
+All isolated Make/hook/release fixtures include these inputs; product
 validation, metadata exports, tool setup and publication remain local.
 The component includes carry `make/execution.mk` and its existing behavioral probe.
 The probe rejects unsupported Make modes before recipes, including ignored

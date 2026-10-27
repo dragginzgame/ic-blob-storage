@@ -89,5 +89,18 @@ pub(in crate::native) fn configuration()
         ic_platform::candid::contract::encode_one(&value).unwrap(),
         bytes
     );
+
+    ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput {
+        service: value.service.into(),
+        operator: value.operator.into(),
+        payment_account: value.payment_account.into(),
+        namespace: value.namespace,
+        resources: project(value.resources),
+        billing: project(value.billing),
+        funding: project(value.funding),
+    }
+}
+
+fn project<T: Serialize, R: serde::de::DeserializeOwned>(value: T) -> R {
     serde_json::from_slice(&serde_json::to_vec(&value).unwrap()).unwrap()
 }

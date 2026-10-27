@@ -17,9 +17,6 @@ use thiserror::Error;
 /// A gateway observation was refused before returning any batch data.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Error)]
 pub enum GatewayCallbackError {
-    /// An active read owner is mismatched, fenced or inconsistent.
-    #[error(transparent)]
-    Reads(#[from] crate::model::service::read::session::ReadSessionError),
     /// Raw processing bounds exceeded before lookup.
     #[error(transparent)]
     Batch(#[from] ic_blob_storage_contracts::identity::batch::RootBatchError),
@@ -51,7 +48,7 @@ pub enum GatewayCallbackError {
 /// Order, duplicates and malformed positions are preserved. Unknown or cancelled
 /// roots are not permission to delete; pending exposure remains explicit. Hosts
 /// must separately qualify provider liveness/deletion mapping, evidence, callback
-/// correlation and read-session generations before exposing a provider protocol.
+/// correlation and callback replay before exposing a provider protocol.
 /// # Errors
 /// Rejects configuration/scope, caller, either fence or invalid stored bindings.
 pub fn observe_roots<G: Memory, U: Memory>(
@@ -89,7 +86,7 @@ pub fn observe_roots<G: Memory, U: Memory>(
 
 /// Public provider liveness projection. Unknown roots are conservatively protected;
 /// only a known released/cancelled lifetime can return false. No tenant metadata
-/// is disclosed. Active reservations and read sessions remain protected.
+/// is disclosed. Active reservations remain protected.
 /// # Errors
 /// Rejects mismatched service/owners, restore fences, malformed keys and limits.
 pub fn provider_liveness<M: Memory>(
@@ -98,7 +95,7 @@ pub fn provider_liveness<M: Memory>(
     scope: GatewayScope,
     roots: &[Vec<u8>],
 ) -> Result<Vec<bool>, GatewayCallbackError> {
-    let protected = provider_authority(stores, context, scope, false)?;
+    provider_authority(stores, context, scope, false)?;
     let batch = provider_batch(roots)?;
     stores
         .uploads
@@ -114,12 +111,11 @@ pub fn provider_liveness<M: Memory>(
                     use ic_blob_storage_contracts::upload::history::{
                         LifecyclePhase, UploadRootState,
                     };
-                    protected.contains(&view.request.object.root)
-                        || matches!(
-                            view.state,
-                            UploadRootState::Reserved
-                                | UploadRootState::Confirmed(LifecyclePhase::Live)
-                        )
+                    matches!(
+                        view.state,
+                        UploadRootState::Reserved
+                            | UploadRootState::Confirmed(LifecyclePhase::Live)
+                    )
                 }
             })
         })
@@ -134,14 +130,14 @@ pub fn provider_deletions<M: Memory>(
     context: GatewayCallbackContext,
     scope: GatewayScope,
 ) -> Result<Vec<Vec<u8>>, GatewayCallbackError> {
-    let protected = provider_authority(stores, context, scope, true)?;
-    Ok(stores.uploads.gateway_deletions(&protected)?)
+    provider_authority(stores, context, scope, true)?;
+    Ok(stores.uploads.gateway_deletions()?)
 }
 /// Record gateway acknowledgment without claiming physical deletion or billing
 /// settlement. Exact duplicate/late acknowledgments retain their original lifetime.
 /// Validate the full bounded batch before any write; no paid effect or await.
 /// # Errors
-/// Rejects non-gateways, fences, malformed/unknown roots and live/read-held objects.
+/// Rejects non-gateways, fences, malformed/unknown roots and live objects.
 /// # Panics
 /// Stable write traps must propagate for IC transaction rollback.
 pub fn acknowledge_provider_deletions<M: Memory>(
@@ -150,7 +146,7 @@ pub fn acknowledge_provider_deletions<M: Memory>(
     scope: GatewayScope,
     roots: &[Vec<u8>],
 ) -> Result<(), GatewayCallbackError> {
-    let protected = provider_authority(stores, context, scope, true)?;
+    provider_authority(stores, context, scope, true)?;
     let batch = provider_batch(roots)?;
     let roots = batch
         .entries()
@@ -161,9 +157,7 @@ pub fn acknowledge_provider_deletions<M: Memory>(
                 .map_err(|_| GatewayCallbackError::MalformedRoot)
         })
         .collect::<Result<std::collections::BTreeSet<_>, _>>()?;
-    Ok(stores
-        .uploads
-        .acknowledge_gateway_roots(&roots, &protected)?)
+    Ok(stores.uploads.acknowledge_gateway_roots(&roots)?)
 }
 fn provider_batch(roots: &[Vec<u8>]) -> Result<ProviderRootBatch, GatewayCallbackError> {
     use ic_blob_storage_contracts::provider::gc;
@@ -174,10 +168,7 @@ fn provider_authority<M: Memory>(
     context: GatewayCallbackContext,
     scope: GatewayScope,
     membership: bool,
-) -> Result<
-    std::collections::BTreeSet<ic_blob_storage_contracts::identity::ProviderRootHash>,
-    GatewayCallbackError,
-> {
+) -> Result<(), GatewayCallbackError> {
     let config = stores.uploads.callback_configuration();
     let current = stores.gateways.callback_view(config, scope)?;
     if context.service != scope.service() {
@@ -190,5 +181,5 @@ fn provider_authority<M: Memory>(
         return Err(GatewayStoreError::Fenced.into());
     }
     stores.uploads.check_callback_active()?;
-    Ok(stores.reads.protected_roots(config)?)
+    Ok(())
 }

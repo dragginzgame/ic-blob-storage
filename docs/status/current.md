@@ -1,99 +1,100 @@
 # Current status — 2026-10-27
 
-Released baseline: `d02b9277`, Blob **0.50.0**, delivered on default `main`.
-The pending adoption targets **0.51.0** because public Principal types now have
-Platform 0.7 identities. Own package versions remain 0.50.0 for the maintainer's
-release flow. Git delivery does not establish registry publication or service
-acceptance. No assistant staging, commit, push, release or deployment occurred.
+Released baseline: `6798a827a3dc6187a788d9c9e333d51882160acc`, Blob **0.51.0**.
+The pending batch is **0.52.0**, following explicit approval to retire journaled
+on-canister chunk reads. Package versions remain 0.51.0 until maintainer release
+preparation. Nothing staged, committed, pushed, published or deployed by this task.
 
-## Published supplier adoption
+## Accepted simplification batch
 
-Adopted published Rust Platform/macros **0.7.0**, the consumed
-Host/Build/Testkit **0.69.0** family and Shared Tooling **0.26.22** at reviewed
-commit `5fc904a935d82ad31f0fba14434b71ccb8c10345`. The canonical exporter reviewed
-impact and refreshed 129 files. Only five governance payloads changed; no shared
-executable, formatter, release helper or tool catalog changed. New guidance
-strengthens owned-Candid isolation, error derives and bounded native inspection;
-prose adoption does not install new executable guards.
+All six accepted changes are implemented using published Storage APIs.
+Funding accounting remains a map because it indexes credit receipts.
+The [qualification/migration record](../evidence/simplification0520.md) owns the
+size table, exact source/tool/artifact identities, tradeoffs and evidence limits.
 
-Official sparse-index metadata and cached archive SHA-256 values match for the
-selected Platform and Tooling packages. Published source inspection confirms
-Platform 0.7 removes three unused Candid compiler exports. Blob has no callers;
-required parsing/type checking stays available. Principal, codec and runtime
-sources are unchanged from 0.6.21, but Rust type identities differ across versions.
-No compatibility bridge, sibling path or patched dependency is introduced.
+- Certificate resolution/commit reuses freshly validated permission records,
+  retaining final actor, activation, expiry, fence and host-evidence checks.
+- One manifest collection stores independently addressable headers and leaves.
+  Descriptors skip leaf decoding; replay/inspection/restore validate both parts.
+- GC polls a derived pending-candidate index within the upload owner. Lifecycle
+  and original identities remain authoritative; acknowledgment is not physical
+  deletion or billing cessation. Restore cross-checks membership without repair.
+- Durable read-session owners, chunk transport/tickets, read budgets/status and
+  gateway read-generation invalidation are retired. Direct client downloads,
+  descriptors, body verification and independent transient source probes remain.
+  Logical-memory IO measurement remains, independently of retired sessions.
+- Configuration and gateway singleton maps now use governed cells through
+  Memory/Storage 0.51.12. Non-initializing load preserves failed-restore behavior;
+  the immutable configuration’s existing public accessors are unchanged.
+- Workspace release builds select ThinLTO and one codegen unit, retaining level 3
+  and symbols. Standalone is built separately from probes, preserving production
+  feature exclusions. Downstream Canic retains its own root build profile.
 
-Incoming Memory/Storage **0.51.9** lock selections are preserved and included in
-this qualification; minimums now require that Platform-aligned release. Tooling
-0.69 also requires Platform 0.7. Default/all-feature metadata resolve only
-Platform **0.7.0**; the older 0.6.21 package is removed without patches or aliases.
-The standalone normal Wasm graph retains one executor 2.0.0. Native Testkit
-transport uses the common external Principal identity. Published Tooling 0.69
-and Persistence 0.51.9 source bodies match 0.68.12/0.51.8 respectively; their
-Platform requirements and package identities change, not byte contracts.
+Installation now uses fifteen canonical grants and format
+`ic-blob-storage/installation:singleton-cells`. Configuration,
+local-status and install Wire identities use `0052`; other owned frames and the
+required external Candid methods retain their contracts. CLI status keeps the
+single current **schema 1**. No compatibility reader or higher schema version was
+introduced. New proposals omit retired read fields; old runs retain original tools.
 
-The browser registry still supplies `@tokostudios/ic-platform` **0.1.1**. Both
-browser manifests/lock remain unchanged, with one SDK Core 6.1.1 and the reviewed
-Caffeine 1.1.2 patch/override. Wire 0.7.18, Metrics 0.16.3, Rust 1.91, dependency
-roles and existing feature selections remain unchanged.
+Cross-release transitions remain retirement/reinstall. Preserve original uncertain
+operations, provider objects, balances and continuing bills under the
+[retirement runbook](../retiring-installations.md). No stale-backup activation,
+automatic reset or loss of obligations is authorized. Same-release interruption,
+receipt recovery and platform-history reconciliation remain supported/fenced.
+The captured pre-cut populated image refuses the new artifact without changing
+stable bytes; its original owner remains usable after rejected upgrade.
 
-## Current qualification
+## Cell ownership
 
-Inputs, before-lock, official registry records/archive checksums, source-body
-comparisons, default/all-feature metadata, target graphs and focused logs:
-`/tmp/blob-tooling069-20261027.aKq0I1wW/`. Manifest/lock/snapshot input hashes remain
-unchanged across qualification. Testkit/Build setup and offline admission pass
-for 0.69.0; PocketIC retains its 16.1.0 server selection. Substitute command-
-forwarding and ordered-failure fixtures pass separately from the real tools.
+Published Storage 0.51.12 supplies the read-only loader requested by
+[Persistence #136](https://github.com/dragginzgame/ic-persistence/issues/136).
+Blob uses it directly; no local header parser, initializing fallback or caller
+default is introduced. The upstream issue remains open for its separate macOS
+tooling acceptance under Persistence #135; Blob adoption is locally complete.
+Real pre-cell upgrade refusal retains all bytes and the
+original object, configuration and accounting observations. Schema remains 1.
 
-Snapshot integrity, dependency pins, Platform declaration boundaries, actual
-normal deployment exclusions and their refusal fixtures pass. Grouped manifest
-ordering/release metadata checks pass against current package version 0.50.0.
-Strict all-target/all-feature Clippy passes for the affected CLI and PocketIC
-callers. A fresh release standalone Wasm builds; actual Rust 1.91 checks all
-native CLI/PocketIC targets/features and standalone Wasm.
+Read-only Canic review confirms no production read-session implementation; three
+testing-internal configuration fixtures still name its retired input. Canic must
+adopt the new configuration/status/installation contract and qualify its wrapper.
+No sibling checkout was edited. Provider/application acceptance and the native
+Agent [advisory #102](https://github.com/dragginzgame/ic-blob-storage/issues/102)
+remain separate; this cleanup does not establish deployed Caffeine/Canic readiness.
 
-Current-graph tests pass: seven memory/lifecycle integration, 118 native CLI and
-25 native host-support cases. Fresh installed cases pass: four lifecycle/recovery
-and three certificate/authority cases, including two signed uploaders, quotas and
-retained uncertainty. Provider replies are local substitutes; no live/paid effect
-occurs. Earlier Platform adoption evidence remains under
-`/tmp/blob-adoption-20261027.JXPj3tUX/`: Core/Contracts/Client/standalone Clippy,
-68 model, 45 external provider-codec and eight Wire boundary cases, plus
-generated TypeScript against 137 frozen frames. Source-body
-comparisons support reuse of these unchanged contracts; those older graph runs
-are not relabelled as new Tooling 0.69 executions.
+## Graph and evidence
 
-Initial Tooling 0.69 setup timed out waiting for ic-backup's installation slot;
-its subsequent offline admission correctly refused the unprepared selection.
-Both logs are retained; setup/admission retries pass after the foreign owner
-exited. No foreign lock or installation was removed. Native socket/PocketIC
-cases use explicit process permissions.
-No full CI, native macOS, Binaryen variants, current-graph Chromium journeys or
-coordinated archive qualification was rerun. Browser SDK source/graph is unchanged;
-earlier browser evidence retains its recorded scope, not a new Platform 0.7 run.
+Require published Host/Build/Testkit **0.69.2**, already selected by the incoming
+lock; no further lock changes. Native CLI/process and managed-server APIs need
+no caller changes. Testkit and Build CLIs are explicitly prepared/admitted.
+Memory/Storage **0.51.12**, Platform 0.7.0, Wire 0.7.18 and Metrics 0.16.3 remain.
+Browser Platform 0.1.1 / SDK Core 6.1.1 / Caffeine 1.1.2 remain unchanged.
 
-## Storage and consumer obligations
+Raw evidence: `/tmp/blob-simplify052-20261027.wmcqnujw/` retains compiler inputs,
+initial/final locks/patches, raw artifacts, commands, measurements and failed/retried
+attempts. The cell
+step is retained in `/tmp/blob-cell052-20261027.qOTAMW0S/`; standalone `after.wasm` SHA-256:
+`a54edcafe0673fd381e596c0a59dfa81903355ff6a75cd5e06bda37615e68646`.
+It is 2,585,430 raw / 659,413 gzip bytes: 19.0% / 5.9% below the captured baseline.
+No endpoint IC-instruction, allocation or peak-heap gain is claimed.
 
-The released 0.50 cut uses bounded Wire for 17 stored encodings through IC Storage,
-with 34 model types free of Candid traits. Installation format remains
-`ic-blob-storage/installation:wire-records`. This adoption changes no stored bytes,
-endpoint packets, decode ceilings, canonical identities or exact retry policy.
-Cross-release adoption remains retirement/reinstall; no migration, dual reader,
-automatic reset or stale-backup activation is supported. Retain provider objects,
-uncertain effects, balances, access and billing under the
-[retirement runbook](../retiring-installations.md).
+335 current core tests, sixteen focused cell artifact/PocketIC cases, preceding
+contract/golden/CLI tests, installed certificate/descriptor/operator/
+recovery/GC/rollback/pre-cut cases, strict Clippy, native/Wasm Rust 1.91 checks,
+deployment/dependency exclusions and generated TypeScript qualification pass.
+Tooling 0.69.2: CLI 126, offline operator 25, subprocess 1 and installed lifecycle/
+CLI 6 tests pass, with strict caller Clippy and native Rust 1.91 checks. Its
+standalone deployment tree is byte-identical; evidence is retained at
+`/tmp/blob-tooling0692-20261027.XFd9u5hk/`. Full CI, native macOS, production sizing,
+deployed provider and downstream Canic qualification remain unrun.
 
-The storage-cut evidence at `efb0de20` and released 0.50 handoff retain their
-original full suites, old-Candid-store refusal and size measurements. Current
-lifecycle checks do not relabel that older graph or repeat its size comparison.
-The native Agent [advisory #102](https://github.com/dragginzgame/ic-blob-storage/issues/102)
-remains unresolved; Platform 0.7 does not supply a crypto correction or exemption.
+## Preserved Shared Tooling adoption
 
-Canic's reviewed 2026-10-27 handoff selects Blob/contracts 0.49.3 and reports local
-managed-browser qualification. Canic owns adopting the released storage cut and
-then aligning the new public Platform identity in its composition; no sibling is
-edited or qualified here. The [application acceptance plan](../acceptance-plan.md#next-application-acceptance-run)
-already specifies remaining #31/#5/#34 evidence. The last #103 review records
-browser adoption delivered on 0.50 with its matching hosted qualification pending;
-this uncommitted 0.51 work has no hosted result and closes no acceptance issue.
+Shared **0.26.25**, committed source
+`6b6bbd9c9e5798f0ecf6105637392a7a55cd450e`, remains the reviewed 130-file snapshot.
+The root formatter covers all thirteen members, preserves dependency roles and
+shows per-pass timing; unchanged-input reuse excludes staged hooks. Gitlinks stay
+opaque. Its prior hook rollback, fixture/release-command and forced-formatting
+proofs remain in `/tmp/blob-shared02625-20261027.WNse8z53/` and
+`/tmp/blob-shared02623-20261027.0DfInVjK/`. This batch preserves those pending changes;
+no mutable sibling tooling or generic producer matrix was copied or replayed.

@@ -7,15 +7,11 @@ use super::funding::StableFundingJournal;
 use super::gateways;
 use super::gateways::GatewayStoreError;
 use super::gateways::StableGatewayRegistry;
-use super::reads::ReadSessionMemories;
-use super::reads::StableReadSessions;
 use super::uploads;
 use super::uploads::StableUploads;
 use super::uploads::UploadMemories;
 use super::uploads::UploadStoreError;
 use crate::model::billing::allocation::FundingAllocation;
-use crate::model::service::read::session::ReadSessionError;
-use crate::model::service::read::session::ReadSessionLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_memory::Memory;
 use ic_memory::RuntimeMemory;
@@ -26,26 +22,19 @@ use thiserror::Error;
 pub struct ServiceStoreConfiguration {
     service: ServiceConfiguration,
     funding: FundingAllocation,
-    reads: ReadSessionLimits,
 }
 impl ServiceStoreConfiguration {
     /// Check every store's current codec/resource envelope without touching memory.
     /// # Errors
-    /// Rejects unsupported upload, gateway, funding or read-session limits.
+    /// Rejects unsupported upload, gateway or funding limits.
     pub fn new(
         service: ServiceConfiguration,
         funding: FundingAllocation,
-        reads: ReadSessionLimits,
     ) -> Result<Self, ServiceStoreError> {
         uploads::validate_envelope(&service)?;
         funding::validate_envelope(&service, funding)?;
         gateways::validate_envelope(&service)?;
-        reads.validate()?;
-        Ok(Self {
-            service,
-            funding,
-            reads,
-        })
+        Ok(Self { service, funding })
     }
     /// Shared service bindings, tenant policy and upload/billing limits.
     #[must_use]
@@ -57,28 +46,21 @@ impl ServiceStoreConfiguration {
     pub const fn funding(self) -> FundingAllocation {
         self.funding
     }
-    /// Bounded concurrent read occupancy.
-    #[must_use]
-    pub const fn reads(self) -> ReadSessionLimits {
-        self.reads
-    }
 }
 
-/// Passive bundle of sixteen service slots; it grants no memory access itself.
+/// Passive bundle of fourteen service slots; it grants no memory access itself.
 /// Store construction requires exclusive `RuntimeMemory` handles from the host.
 /// The library never chooses memory IDs or registers grants implicitly.
 pub struct ServiceMemories<M> {
-    /// Ten upload, reference and accounting memories.
+    /// Eleven upload, reference and accounting memories.
     pub uploads: UploadMemories<M>,
     /// Two funding accounting/history memories.
     pub funding: FundingMemories<M>,
     /// One gateway registry memory.
     pub gateways: M,
-    /// Three read occupancy memories.
-    pub reads: ReadSessionMemories<M>,
 }
 impl<M> ServiceMemories<M> {
-    pub(super) fn all(&self) -> [&M; 16] {
+    pub(super) fn all(&self) -> [&M; 14] {
         [
             &self.uploads.tenants,
             &self.uploads.roots,
@@ -90,12 +72,10 @@ impl<M> ServiceMemories<M> {
             &self.uploads.references,
             &self.uploads.receipts,
             &self.uploads.root_requests,
+            &self.uploads.deletions,
             &self.funding.accounting,
             &self.funding.intents,
             &self.gateways,
-            &self.reads.journal,
-            &self.reads.sessions,
-            &self.reads.tenants,
         ]
     }
 }
@@ -109,8 +89,6 @@ pub struct ServiceStores<M: Memory> {
     pub funding: StableFundingJournal<M>,
     /// Gateway membership and pending sync identity.
     pub gateways: StableGatewayRegistry<M>,
-    /// Concurrent read intents and reserved buffers.
-    pub reads: StableReadSessions<M>,
 }
 #[expect(
     clippy::large_types_passed_by_value,
@@ -121,7 +99,6 @@ impl<M: Memory> ServiceStores<M> {
         self.uploads.set_recovery_fence(fenced);
         self.funding.set_recovery_fence(fenced);
         self.gateways.set_recovery_fence(fenced);
-        self.reads.set_recovery_fence(fenced);
     }
     /// Install all owners in one synchronous IC message under validated limits.
     /// The host must grant distinct exclusive memories and propagate traps for IC
@@ -145,13 +122,10 @@ impl<M: Memory> ServiceStores<M> {
             .expect("validated fresh exclusive funding memories");
         let gateways = StableGatewayRegistry::install(memory.gateways, config.service)
             .expect("validated fresh exclusive gateway memory");
-        let reads = StableReadSessions::install(memory.reads, config.service, config.reads)
-            .expect("validated fresh exclusive read memories");
         Ok(Self {
             uploads,
             funding,
             gateways,
-            reads,
         })
     }
     /// Load every owner synchronously without initialization, repair or unfencing.
@@ -171,12 +145,10 @@ impl<M: Memory> ServiceStores<M> {
         let uploads = StableUploads::open(memory.uploads, config.service)?;
         let funding = StableFundingJournal::open(memory.funding, config.service, config.funding)?;
         let gateways = StableGatewayRegistry::open(memory.gateways, config.service)?;
-        let reads = StableReadSessions::open(memory.reads, config.service, config.reads)?;
         Ok(Self {
             uploads,
             funding,
             gateways,
-            reads,
         })
     }
 }
@@ -199,9 +171,6 @@ pub enum ServiceStoreError {
     /// Gateway envelope, binding or retained sync validation failed.
     #[error(transparent)]
     Gateways(#[from] GatewayStoreError),
-    /// Read limits, binding or retained occupancy validation failed.
-    #[error(transparent)]
-    Reads(#[from] ReadSessionError),
 }
 
 #[cfg(test)]

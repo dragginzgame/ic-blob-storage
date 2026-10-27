@@ -4,9 +4,9 @@ use crate::ops::service::uploads::exposure;
 use crate::policy::upload::exposure::UploadExposureAssessment;
 use crate::policy::upload::exposure::UploadExposureHostEvidence;
 use crate::policy::upload::exposure::assess_exposure;
-use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_memory::Memory;
 /// Result of this synchronous operation; never a reusable certificate-issuance permit.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -26,11 +26,11 @@ pub enum UploadExposureResult {
 pub fn inspect_preparation<M: Memory>(
     store: &StableUploads<M>,
     context: UploadContext,
-    input: UploadAdmissionRequest,
+    permission: UploadPermission,
     evidence: UploadExposureHostEvidence,
     now: u64,
 ) -> Result<UploadExposureAssessment, UploadExposureFailure> {
-    exposure::check(store, context, input, evidence, now)?;
+    exposure::check(store, context, permission, evidence, now)?;
     Ok(assess_exposure(evidence, now))
 }
 /// Recheck eligibility and host evidence, then record possible exposure exactly once.
@@ -44,15 +44,15 @@ pub fn inspect_preparation<M: Memory>(
 pub fn commit<M: Memory>(
     store: &mut StableUploads<M>,
     context: UploadContext,
-    input: UploadAdmissionRequest,
+    permission: UploadPermission,
     evidence: UploadExposureHostEvidence,
     now: u64,
 ) -> Result<UploadExposureResult, UploadExposureFailure> {
-    let permission = exposure::check(store, context, input, evidence, now)?;
+    let record = exposure::check(store, context, permission, evidence, now)?;
     let assessment = assess_exposure(evidence, now);
     if !assessment.blockers.is_empty() {
         return Ok(UploadExposureResult::Blocked(assessment));
     }
-    exposure::commit(store, context, permission, now)?;
+    exposure::commit(store, record)?;
     Ok(UploadExposureResult::Exposed)
 }

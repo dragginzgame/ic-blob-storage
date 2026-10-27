@@ -20,7 +20,7 @@ finish() {
 }
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
-overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh scripts/ci/run-formatting.sh scripts/ci/select-rust-formatting-sources.sh scripts/ci/fixture-lifecycle.sh make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
+overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl scripts/ci/select-rust-formatting-sources.sh scripts/ci/fixture-lifecycle.sh make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
 # Shared prepares the deliberate ordering defect; Blob selects its real inputs.
 perl "$ROOT/scripts/ci/prepare-cargo-formatting-fixture.pl" "$ROOT/Cargo.toml" \
     workspace.dependencies ic-build ic-host-artifacts > "$TEMPORARY/unsorted-Cargo.toml"

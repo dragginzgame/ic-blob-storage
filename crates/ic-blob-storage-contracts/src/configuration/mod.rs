@@ -19,7 +19,6 @@ use crate::download::scope::CaffeineDownloadScope;
 use crate::download::scope::DownloadScopeError;
 use crate::dto::configuration::ServiceConfigurationInput;
 use crate::dto::configuration::ServiceFundingInput;
-use crate::dto::configuration::ServiceReadInput;
 use ic_platform::Principal;
 use std::num::NonZeroU64;
 use std::num::NonZeroU128;
@@ -38,8 +37,6 @@ pub struct ValidatedConfiguration {
     service: ServiceConfiguration,
     /// Explicit attachment limits; no accounting journal or liquidity is inferred.
     funding: ServiceFundingInput,
-    /// Explicit occupancy limits; no session is allocated.
-    reads: ServiceReadInput,
 }
 impl ValidatedConfiguration {
     /// Checked immutable identity/resource profile, with no storage authority.
@@ -51,11 +48,6 @@ impl ValidatedConfiguration {
     #[must_use]
     pub const fn funding(&self) -> ServiceFundingInput {
         self.funding
-    }
-    /// Checked session ceilings; no occupancy or session is granted.
-    #[must_use]
-    pub const fn reads(&self) -> ServiceReadInput {
-        self.reads
     }
 }
 /// Positive scalar fields outside the model's collection-count categories.
@@ -202,11 +194,10 @@ pub fn validate_candidate(
         input.funding.reserve,
         input.funding.renewal_ceiling,
     )?;
-    validate_store_envelope(&service, attempts.get(), input.reads)?;
+    validate_store_envelope(&service, attempts.get())?;
     Ok(ValidatedConfiguration {
         service,
         funding: input.funding,
-        reads: input.reads,
     })
 }
 

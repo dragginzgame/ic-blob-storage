@@ -40,7 +40,7 @@ impl ReadCounter {
 }
 thread_local! {
     static MEASURE_READS: Cell<bool> = const { Cell::new(false) };
-    static READS: RefCell<[ReadCounter; 16]> = const { RefCell::new([ReadCounter::EMPTY; 16]) };
+    static READS: RefCell<[ReadCounter; 14]> = const { RefCell::new([ReadCounter::EMPTY; 14]) };
 }
 
 pub(crate) fn begin_read_profile(restored: bool) {

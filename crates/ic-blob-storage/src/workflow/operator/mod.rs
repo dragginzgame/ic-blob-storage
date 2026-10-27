@@ -1,8 +1,7 @@
-//! Scope/authentication and passive conversion of four synchronous local owners.
+//! Scope/authentication and passive conversion of three synchronous local owners.
 use crate::model::billing::journal::FundingJournalScope;
 use crate::model::gateway::registry::GatewayScope;
 use ic_blob_storage_contracts::dto::operator::LocalGatewayStatus;
-use ic_blob_storage_contracts::dto::operator::LocalReadStatus;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::LocalUploadStatus;
@@ -33,7 +32,6 @@ pub fn inspect<M: Memory>(
     }
     if stores.funding.inspection_configuration() != config
         || stores.gateways.inspection_configuration() != config
-        || stores.reads.inspection_configuration() != config
     {
         return Err(LocalStatusFailure::Binding);
     }
@@ -61,10 +59,6 @@ pub fn inspect<M: Memory>(
         .gateways
         .inspect(context, gateway_scope)
         .map_err(|_| LocalStatusFailure::Internal)?;
-    let reads = stores
-        .reads
-        .inspect(context)
-        .map_err(|_| LocalStatusFailure::Internal)?;
     Ok(LocalServiceStatus {
         scope,
         uploads: LocalUploadStatus {
@@ -84,12 +78,6 @@ pub fn inspect<M: Memory>(
             last_sequence: gateways.sync.last_sequence,
             pending_sequence: gateways.sync.pending_sequence,
             fenced: gateways.fenced,
-        },
-        reads: LocalReadStatus {
-            last_sequence: reads.last_sequence,
-            sessions: reads.usage.sessions,
-            reserved_bytes: reads.usage.reserved_bytes,
-            fenced: reads.fenced,
         },
     })
 }

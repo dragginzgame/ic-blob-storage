@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::Memory;
 
-/// Revoke local membership and invalidate pending sync/read observations together.
+/// Revoke local membership and invalidate pending sync observations together.
 /// The host supplies actual service/caller and commits synchronously before replying.
 /// An absent member still invalidates older observations. Future explicitly
 /// authorized additions/syncs are separate decisions; this is not a denylist.

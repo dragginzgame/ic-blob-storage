@@ -312,3 +312,34 @@ fn receipt_request(input: ReferenceInput) -> ReferenceCommand {
         },
     }
 }
+
+#[test]
+fn pending_candidate_write_trap_rolls_back_last_release_and_exact_retry() {
+    let f = Fixture::new();
+    let permission = f.exposed();
+    let release = reference(permission.request, 1, 1, false);
+    let before = f.harness.pic.get_stable_memory(f.service);
+    let error = f
+        .harness
+        .pic
+        .update_call(
+            f.service,
+            f.tenant,
+            "fixture_apply_reference_with_write_trap",
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                ReferenceFaultInput {
+                    request: receipt_request(release),
+                    fault: WriteFault::Deletions,
+                },
+            )
+            .unwrap(),
+        )
+        .unwrap_err();
+    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.receipt(release), Ok(ReferenceReceiptLookup::Absent));
+    assert_eq!(f.live(release), Ok(true));
+    assert_eq!(f.reference(release), Ok(changed(release, false)));
+    assert_eq!(f.reference(release), Ok(changed(release, true)));
+    assert_eq!(f.live(release), Ok(false));
+}

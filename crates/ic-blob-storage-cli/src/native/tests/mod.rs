@@ -177,12 +177,6 @@ fn status() -> LocalServiceStatus {
             pending_sequence: Some(u64::MAX),
             fenced: true,
         },
-        reads: LocalReadStatus {
-            last_sequence: u64::MAX,
-            sessions: 1,
-            reserved_bytes: u64::MAX,
-            fenced: true,
-        },
     }
 }
 fn encoded(s: &LocalServiceStatus) -> Vec<u8> {
@@ -206,8 +200,8 @@ fn bounded_decode_checks_scope_and_json_preserves_full_width_and_fences() {
         u128::MAX.to_string()
     );
     assert_eq!(value["funding"]["last_operation"], u128::MAX.to_string());
-    assert_eq!(value["reads"]["reserved_bytes"], u64::MAX.to_string());
-    for owner in ["uploads", "funding", "gateways", "reads"] {
+    assert_eq!(value["schema"], 1);
+    for owner in ["uploads", "funding", "gateways"] {
         assert_eq!(value[owner]["fenced"], true);
     }
     assert_eq!(

@@ -55,11 +55,7 @@ fn check<M: Memory>(
             LocalStatusFailure::Binding => AccountInspectionFailure::Binding,
             LocalStatusFailure::Internal => AccountInspectionFailure::Internal,
         })?;
-    if status.uploads.fenced
-        || status.funding.fenced
-        || status.gateways.fenced
-        || status.reads.fenced
-    {
+    if status.uploads.fenced || status.funding.fenced || status.gateways.fenced {
         return Err(AccountInspectionFailure::Fenced);
     }
     Ok(())

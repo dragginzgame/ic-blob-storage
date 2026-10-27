@@ -26,15 +26,16 @@ pub(crate) fn resolve<M: Memory>(
         .binding_for_owner(root)
         .map_err(|e| E::Permission(admission::failure(e.into())))?
         .ok_or(E::Permission(A::Denied))?;
-    let view = store
-        .indexed_permission(root, object)
+    let record = store
+        .indexed_permission_record(root, object)
         .map_err(exposure::failure)?;
+    let view = record.view().ok_or(E::Permission(A::Internal))?;
     // The root is only a locator. Neither tenant nor controller status grants issuance.
     if context.actor != view.permission.uploader {
         return Err(E::Permission(A::Denied));
     }
     store
-        .exposure_record(context, view.permission.request, now)
+        .check_exposure_record(context, &record, now)
         .map_err(exposure::failure)?;
     Ok(view.permission)
 }

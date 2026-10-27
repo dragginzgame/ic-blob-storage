@@ -89,7 +89,6 @@ struct State {
     funding: ic_blob_storage::ops::service::funding::StableFundingJournal<ProbeMemory>,
     gateways: ic_blob_storage::ops::service::gateways::StableGatewayRegistry<ProbeMemory>,
     gateway_attempts: Vec<ic_blob_storage::ops::service::gateways::reply::GatewaySyncRequest>,
-    read_sessions: ic_blob_storage::ops::service::reads::StableReadSessions<ProbeMemory>,
     resources: blob_test_protocol::storage::resources::RestorationResources,
 }
 thread_local! {
@@ -106,7 +105,6 @@ pub(crate) fn with_operator_stores<R>(
             uploads: &state.uploads,
             funding: &state.funding,
             gateways: &state.gateways,
-            reads: &state.read_sessions,
         })
     })
 }
@@ -134,7 +132,6 @@ pub(crate) fn initialize(
         uploads,
         funding,
         gateways,
-        reads: read_sessions,
     } = if restored {
         ic_blob_storage::test_support::stores::open(memory, config)
     } else {
@@ -152,7 +149,6 @@ pub(crate) fn initialize(
             funding,
             gateways,
             gateway_attempts: Vec::new(),
-            read_sessions,
             resources: blob_test_protocol::storage::resources::RestorationResources {
                 restored,
                 initialization_instructions: 0,
@@ -170,7 +166,7 @@ pub(crate) fn initialize(
             ic_platform::cdk::api::call_context_instruction_counter() - started;
     });
 }
-const MEMORY_KEYS: [&str; 16] = [
+const MEMORY_KEYS: [&str; 14] = [
     "fixture.tenants.v1",
     "fixture.roots.v1",
     "fixture.root_objects.v1",
@@ -181,12 +177,10 @@ const MEMORY_KEYS: [&str; 16] = [
     "fixture.references.v1",
     "fixture.receipts.v1",
     "fixture.root_requests.v1",
+    "fixture.pending_deletions.v1",
     "fixture.funding_accounting.v1",
     "fixture.funding_intents.v1",
     "fixture.gateways.v1",
-    "fixture.read_journal.v1",
-    "fixture.read_sessions.v1",
-    "fixture.read_tenants.v1",
 ];
 fn granted_memories() -> (
     MemoryRuntime<ProbeBackingMemory>,
@@ -224,12 +218,10 @@ fn granted_memories() -> (
         references,
         receipts,
         root_requests,
+        deletions,
         funding_accounting,
         funding_intents,
         gateways,
-        read_journal,
-        read_sessions,
-        read_tenants,
     ] = std::array::from_fn(|index| probe_memory(&mut runtime, MEMORY_KEYS[index], index));
     let uploads = UploadMemories {
         tenants,
@@ -242,6 +234,7 @@ fn granted_memories() -> (
         references,
         receipts,
         root_requests,
+        deletions,
     };
     let memory = ServiceMemories {
         uploads,
@@ -250,11 +243,6 @@ fn granted_memories() -> (
             intents: funding_intents,
         },
         gateways,
-        reads: ic_blob_storage::ops::service::reads::ReadSessionMemories {
-            journal: read_journal,
-            sessions: read_sessions,
-            tenants: read_tenants,
-        },
     };
     (runtime, memory)
 }
@@ -275,13 +263,11 @@ fn probe_memory(
             "fixture.confirmed.v1" => Some(WriteFault::Confirmed),
             "fixture.references.v1" => Some(WriteFault::References),
             "fixture.receipts.v1" => Some(WriteFault::Receipts),
+            "fixture.pending_deletions.v1" => Some(WriteFault::Deletions),
             "fixture.root_requests.v1" => Some(WriteFault::RootRequests),
             "fixture.funding_accounting.v1" => Some(WriteFault::FundingAccounting),
             "fixture.funding_intents.v1" => Some(WriteFault::FundingIntents),
             "fixture.gateways.v1" => Some(WriteFault::Gateways),
-            "fixture.read_journal.v1" => Some(WriteFault::ReadJournal),
-            "fixture.read_sessions.v1" => Some(WriteFault::ReadSessions),
-            "fixture.read_tenants.v1" => Some(WriteFault::ReadTenants),
             _ => None,
         },
     };

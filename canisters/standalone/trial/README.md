@@ -5,7 +5,7 @@ This directory owns the deliberately small
 provider defaults. The maintained
 [offline installation command](../../../docs/operator-guide.md#check-installation-inputs-offline)
 owns candidate validation and encoding. Follow that command with explicitly
-reviewed service, operator, payer, Cashier, project and verifier bindings.
+reviewed service, operator, payer, Cashier and project bindings.
 Controller status grants no tenant or payer authority; upload permissions name
 their original uploader separately.
 
@@ -16,8 +16,7 @@ their original uploader separately.
 | Retained chunks | One |
 | Headers | Four / 512 framed bytes |
 | Receipts | Two, preserving cleanup capacity |
-| Active upload / read session | One each |
-| Read buffers | 1,024 bytes per session and globally |
+| Active upload | One |
 | Billing reserve / minimum / target | 2T / 0.1T / 1T cycles; proposed local policy, not provider prices or effects |
 | Service cycle attachment allocation | One cycle, entirely reserved; no attachment offer available |
 | Gateway reply entries / unique principals | Two / one; drift refuses and needs explicit review |

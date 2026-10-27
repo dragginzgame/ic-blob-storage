@@ -77,7 +77,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     assert_eq!(initial.funding.transport_accepted, 0);
     assert_eq!(initial.funding.reserved_or_uncertain, 0);
     assert_eq!(initial.uploads.operations, 0);
-    assert_eq!(initial.reads.sessions, 0);
+
     assert_eq!(initial.gateways.members, []);
     let replicated: Result<LocalServiceStatus, LocalStatusFailure> = f
         .harness
@@ -146,7 +146,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     released.uploads.fenced = true;
     released.funding.fenced = true;
     released.gateways.fenced = true;
-    released.reads.fenced = true;
+
     assert_eq!(f.local_status(f.operator, scope), Ok(released));
     assert_eq!(
         f.local_status(f.controller, scope),

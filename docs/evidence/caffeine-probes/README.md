@@ -1128,7 +1128,7 @@ verified cached bytes, Blob revocation and zero local-shell CSP violations. That
 reported qualification was not independently rerun here; its earlier failed
 attempts and original artifacts remain with the consumer. It does not establish a
 certified registration transaction, deployed serving or final deletion/billing.
-The [current triage](../../status/current.md#current-checks-and-next-work) separates
+The [current triage](../../status/current.md) separates
 resolved upstream implementation from release/adoption/operating acceptance and
 new decoder-budget coverage #7. No GitHub write or live/paid effect occurs.
 

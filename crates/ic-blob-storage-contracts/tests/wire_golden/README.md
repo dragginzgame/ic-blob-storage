@@ -7,7 +7,12 @@ acknowledgment status amount and funding reconciliation variant. The subsequent
 0.43 Wire 0.6 cut changes only the four tenant vector files: explicit new frame
 identities and the `Binding` failure tag from one to zero. Named inputs and other
 method bytes stay unchanged; the typed tests verify all 140 cases. The old tenant
-vectors remain in released 0.42 Git history. External provider GC callbacks use Candid
+vectors remain in released 0.42 Git history. The 0.52 hard cut removes read budgets and read status from configuration,
+installation and local-status responses. Their method identities use `0052`;
+all other callable and post-upgrade frames retain their prior bytes. The five
+affected request/response files were recaptured from reviewed named inputs through
+the same typed registration table. The old files remain in released 0.51 history.
+External provider GC callbacks use Candid
 and do not enter this application-Wire inventory.
 
 The existing named inputs were reviewed before one typed recapture. Existing

@@ -163,11 +163,11 @@ macro_rules! __blob_service_catalog {
             -> Result<(), $contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
                 $workflow::resume_current_instance($context()).await
             }]
-            [BLOB_CONFIGURATION_METHOD, 0x424c_4f42_0042_0002; query, request,
+            [BLOB_CONFIGURATION_METHOD, 0x424c_4f42_0052_0002; query, request,
             fn blob_configuration() -> Result<HostConfigurationView, HostFailure> {
                 $workflow::configuration($caller())
             }]
-            [LOCAL_STATUS_METHOD, 0x424c_4f42_0042_0003; query, request,
+            [LOCAL_STATUS_METHOD, 0x424c_4f42_0052_0003; query, request,
             fn blob_local_status(
                 input: OperatorScope,
             ) -> Result<LocalServiceStatus, LocalStatusFailure> {

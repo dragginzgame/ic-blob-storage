@@ -21,11 +21,12 @@ sha2.workspace = true
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 hex.workspace = true
 ic-blob-storage-canister.workspace = true
-ic-host-artifacts = { workspace = true, features = ["wasm"] }
+ic-host-artifacts = { workspace = true, features = ["gzip", "wasm"] }
 ic-host-fs = { workspace = true, features = ["test-support"] }
 ic-host-process = { workspace = true, features = ["test-support"] }
 ic-host-tools = { workspace = true, features = ["ic-interface"] }
 ic-platform = { workspace = true, features = ["agent", "candid-parser", "certification"] }
+ic-wire.workspace = true
 reqwest.workspace = true
 serde_cbor.workspace = true
 tokio = { workspace = true, features = ["rt", "time"] }

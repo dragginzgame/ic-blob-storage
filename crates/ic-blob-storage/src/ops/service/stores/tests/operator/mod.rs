@@ -35,7 +35,7 @@ fn local_operator_snapshot_preserves_width_and_checks_every_scope_field_without_
     assert_eq!(view.funding.retained_intents, 0);
     assert_eq!(view.funding.last_operation, None);
     assert_eq!(view.uploads.operations, 0);
-    assert_eq!(view.reads.sessions, 0);
+
     assert_eq!(view.gateways.members, []);
     let roundtrip = wire::decode_response(
         "blob_local_status",
@@ -121,10 +121,6 @@ fn operator_snapshot_rejects_mixed_owners_even_with_same_service_and_operator() 
             gateways: &other.gateways,
             ..(&original).into()
         },
-        OperatorStores {
-            reads: &other.reads,
-            ..(&original).into()
-        },
     ] {
         assert_eq!(
             inspect(selected, context(), scope()),
@@ -141,21 +137,13 @@ fn operator_snapshot_preserves_each_restore_fence_independently() {
     let snapshot = memory.each_ref().map(FixtureMemory::snapshot);
     let restored = ServiceStores::open(memories(&snapshot), config).unwrap();
     let before = memory.each_ref().map(|m| m.borrow().clone());
-    let mixed = inspect(
-        OperatorStores {
-            reads: &restored.reads,
-            ..(&fresh).into()
-        },
-        context(),
-        scope(),
-    )
-    .unwrap();
-    assert!(mixed.reads.fenced);
+    let mixed = inspect(OperatorStores { ..(&fresh).into() }, context(), scope()).unwrap();
+
     assert!(!mixed.uploads.fenced);
     assert!(!mixed.funding.fenced);
     assert!(!mixed.gateways.fenced);
     let all = inspect((&restored).into(), context(), scope()).unwrap();
-    assert!(all.reads.fenced && all.uploads.fenced && all.funding.fenced && all.gateways.fenced);
+    assert!(all.uploads.fenced && all.funding.fenced && all.gateways.fenced);
     assert_eq!(
         all.funding.available_allocation,
         mixed.funding.available_allocation

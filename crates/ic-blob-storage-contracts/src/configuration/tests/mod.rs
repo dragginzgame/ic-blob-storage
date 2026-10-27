@@ -11,7 +11,6 @@ use crate::configuration::service::ServiceLimitError;
 use crate::configuration::service::ServicePrincipal;
 use crate::dto::configuration::ServiceBillingInput;
 use crate::dto::configuration::ServiceFundingInput;
-use crate::dto::configuration::ServiceReadInput;
 use crate::dto::configuration::ServiceResourceInput;
 
 fn p(n: u8) -> Principal {
@@ -53,13 +52,6 @@ pub(crate) fn candidate() -> ServiceConfigurationInput {
             renewal_ceiling: u128::MAX,
             reserve: 100,
             max_attempts: 4,
-        },
-        reads: ServiceReadInput {
-            sessions: 2,
-            tenant_sessions: 1,
-            reply_bytes: 2048,
-            bytes: 4096,
-            tenant_bytes: 2048,
         },
     }
 }
@@ -103,7 +95,6 @@ fn candid_candidate_preserves_full_width_values_and_independent_roles() {
     assert_eq!(config.limits().uploads.max_tenant_active.get(), 2);
     assert_eq!(stores, validate_candidate(p(1), input).unwrap());
     assert_eq!(stores.funding.allocated, u128::MAX);
-    assert_eq!(stores.reads.reply_bytes, 2048);
 }
 
 #[test]
@@ -324,28 +315,7 @@ fn attachment_allocation_is_separate_and_requires_positive_retained_capacity() {
 }
 
 #[test]
-fn read_limits_and_stable_codec_envelopes_are_checked_at_candidate_boundary() {
-    let invalid_reads: &[fn(&mut ServiceReadInput)] = &[
-        |r| r.sessions = 0,
-        |r| r.tenant_sessions = 0,
-        |r| r.reply_bytes = 0,
-        |r| r.bytes = 0,
-        |r| r.tenant_bytes = 0,
-        |r| r.sessions = 1025,
-        |r| r.tenant_sessions = r.sessions + 1,
-        |r| r.reply_bytes = 2049,
-        |r| r.bytes = r.tenant_bytes - 1,
-    ];
-    for change in invalid_reads {
-        let mut input = candidate();
-        change(&mut input.reads);
-        assert_eq!(
-            decoded(&input),
-            Err(ConfigurationInputError::Stores(
-                ConfigurationEnvelopeError::Reads
-            ))
-        );
-    }
+fn stable_codec_envelopes_are_checked_at_candidate_boundary() {
     let mut input = candidate();
     input.resources.max_header_bytes = 65_536;
     assert_eq!(

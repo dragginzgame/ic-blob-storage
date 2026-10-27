@@ -15,14 +15,12 @@ fn input(sequence: u64) -> GatewaySyncCancellation {
     }
 }
 #[test]
-fn cancellation_uses_retained_identity_and_preserves_membership_generations_and_history() {
+fn cancellation_uses_retained_identity_and_preserves_membership_and_history() {
     let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     let original = store.begin_sync(context(), scope()).unwrap();
-    let generation = store.registry().unwrap().read_generation;
     assert_eq!(cancel(&mut store, context(), input(1)), Ok(()));
-    assert_eq!(store.registry().unwrap().read_generation, generation);
     assert_eq!(
         store.inspect(context(), scope()).unwrap().principals,
         vec![p(4)]

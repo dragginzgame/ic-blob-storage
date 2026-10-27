@@ -44,6 +44,7 @@ fn memory() -> UploadMemories<FixtureMemory> {
         references: FixtureMemory::default(),
         receipts: FixtureMemory::default(),
         root_requests: FixtureMemory::default(),
+        deletions: FixtureMemory::default(),
     }
 }
 fn clone_memory(
@@ -60,6 +61,7 @@ fn clone_memory(
         references: m.references.lease(),
         receipts: m.receipts.lease(),
         root_requests: m.root_requests.lease(),
+        deletions: m.deletions.lease(),
     }
 }
 fn snapshot_memory(
@@ -76,6 +78,7 @@ fn snapshot_memory(
         references: m.references.snapshot(),
         receipts: m.receipts.snapshot(),
         root_requests: m.root_requests.snapshot(),
+        deletions: m.deletions.snapshot(),
     })
 }
 fn permission(id: u128) -> UploadPermission {
@@ -307,9 +310,9 @@ fn manifest_exposure_and_revocation_retain_uncertain_bytes_and_original_metadata
         ),
         Ok(LifecycleChange::Unchanged)
     );
-    let original = UploadManifestRecord::new(manifest);
+    let original = PreparedUploadManifest::new(manifest);
     assert_eq!(
-        store.manifests.get(&key(input.request)),
+        store.manifest(input.request).unwrap(),
         Some(original.clone())
     );
     store.expose(context(5), input.request, 3).unwrap();
@@ -330,7 +333,7 @@ fn manifest_exposure_and_revocation_retain_uncertain_bytes_and_original_metadata
     assert!(m.manifests.lease().size() * 65_536 <= 128 * 1024);
     let restored = StableUploads::open(clone_memory(&m), config()).unwrap();
     assert_eq!(restored.usage(), Ok(totals));
-    assert_eq!(restored.manifests.get(&key(input.request)), Some(original));
+    assert_eq!(restored.manifest(input.request).unwrap(), Some(original));
     assert!(restored.lookup(context(4), input.request).unwrap().revoked);
     assert_eq!(
         restored.lookup(context(6), input.request),
@@ -418,15 +421,15 @@ fn missing_or_substituted_manifest_is_not_repaired_on_reopen() {
             )
             .unwrap();
         if substitute {
-            store.manifests.insert(
-                key(input.request),
-                UploadManifestRecord::new(UploadManifest {
+            store.store_manifest(
+                input.request,
+                PreparedUploadManifest::new(UploadManifest {
                     chunks: built.manifest().chunks(),
                     headers: &[],
                 }),
             );
         } else {
-            store.manifests.remove(&key(input.request));
+            store.manifests.remove(&(key(input.request), 1));
         }
         drop(store);
         let before = m.manifests.borrow().clone();
@@ -493,15 +496,17 @@ fn codec_envelope_is_checked_before_installation_and_binds_reopening() {
             2,
         )
         .unwrap();
-    let record = store.manifests.get(&key(input.request)).unwrap();
-    assert_eq!(UploadManifestRecord::from_bytes(record.to_bytes()), record);
+    let record = store.manifest(input.request).unwrap().unwrap();
+    for part in record.clone().split() {
+        assert_eq!(UploadManifestPartRecord::from_bytes(part.to_bytes()), part);
+    }
     drop(store);
     assert!(matches!(
         StableUploads::open(clone_memory(&m), base),
         Err(UploadStoreError::Binding)
     ));
     let reopened = StableUploads::open(clone_memory(&m), wide).unwrap();
-    assert_eq!(reopened.manifests.get(&key(input.request)), Some(record));
+    assert_eq!(reopened.manifest(input.request).unwrap(), Some(record));
 }
 
 mod lifecycle;
@@ -510,8 +515,5 @@ mod callbacks;
 mod download;
 mod planning;
 mod read;
-mod read_authority;
-mod read_chunks;
-mod read_sessions;
 mod reference_receipts;
 mod upload_status;

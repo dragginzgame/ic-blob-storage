@@ -67,9 +67,7 @@ pub(super) fn output(
             "physical_bytes":s.uploads.physical_bytes.to_string(),"liability_bytes":s.uploads.liability_bytes.to_string(),"fenced":s.uploads.fenced},
         "funding":funding(&s.funding),
         "gateways":{"members":s.gateways.members.iter().map(Principal::to_text).collect::<Vec<_>>(),
-            "last_sequence":s.gateways.last_sequence.to_string(),"pending_sequence":s.gateways.pending_sequence.map(|n|n.to_string()),"fenced":s.gateways.fenced},
-        "reads":{"last_sequence":s.reads.last_sequence.to_string(),"sessions":s.reads.sessions.to_string(),
-            "reserved_bytes":s.reads.reserved_bytes.to_string(),"fenced":s.reads.fenced}
+            "last_sequence":s.gateways.last_sequence.to_string(),"pending_sequence":s.gateways.pending_sequence.map(|n|n.to_string()),"fenced":s.gateways.fenced}
     })
 }
 pub(super) fn funding(s: &LocalFundingStatus) -> Value {

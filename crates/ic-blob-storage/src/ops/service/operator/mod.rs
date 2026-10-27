@@ -1,7 +1,6 @@
-//! Scope/authentication and passive conversion of four synchronous local owners.
+//! Scope/authentication and passive conversion of three synchronous local owners.
 use crate::ops::service::funding::StableFundingJournal;
 use crate::ops::service::gateways::StableGatewayRegistry;
-use crate::ops::service::reads::StableReadSessions;
 use crate::ops::service::stores::ServiceStores;
 use crate::ops::service::uploads::StableUploads;
 use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
@@ -16,8 +15,6 @@ pub struct OperatorStores<'a, M: Memory> {
     pub funding: &'a StableFundingJournal<M>,
     /// Gateway membership and pending sync.
     pub gateways: &'a StableGatewayRegistry<M>,
-    /// Read session occupancy.
-    pub reads: &'a StableReadSessions<M>,
 }
 // Copy only the synchronous borrows, never the owners or their authority.
 impl<M: Memory> Copy for OperatorStores<'_, M> {}
@@ -32,7 +29,6 @@ impl<'a, M: Memory> From<&'a ServiceStores<M>> for OperatorStores<'a, M> {
             uploads: &stores.uploads,
             funding: &stores.funding,
             gateways: &stores.gateways,
-            reads: &stores.reads,
         }
     }
 }

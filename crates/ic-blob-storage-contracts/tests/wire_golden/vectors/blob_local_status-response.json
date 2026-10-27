@@ -1,6 +1,6 @@
 [
   {
-    "hex": "495703004200424f4c42010005f56a79640183feb8ef0b05bc6010510105d9f92dfd0181b18ea608aed286d2068be5eef40ceab8aa9f0ddb85efb304e6a689b90800ed9fd2b40991a8c5c1049eeabda40fd0dabdd608d7d0ffa90dab93a6d80b00e492b29c0ea7b1caa80ed6d7e4dd0d90cffcf60ad0979efe06000000998cc1cb060000b9f2adaf0197f6d5b008c486b7ef0a00",
+    "hex": "495703005200424f4c42010005f56a79640183feb8ef0b05bc6010510105d9f92dfd0181b18ea608aed286d2068be5eef40ceab8aa9f0ddb85efb304e6a689b90800ed9fd2b40991a8c5c1049eeabda40fd0dabdd608d7d0ffa90dab93a6d80b00e492b29c0ea7b1caa80ed6d7e4dd0d90cffcf60ad0979efe06000000998cc1cb060000",
     "input": {
       "Ok": {
         "funding": {
@@ -25,12 +25,6 @@
           "members": [],
           "pending_sequence": null
         },
-        "reads": {
-          "fenced": false,
-          "last_sequence": 367753529,
-          "reserved_bytes": 2918040388,
-          "sessions": 2249554711
-        },
         "scope": {
           "cashier": "4czbv-6f4ma-ifcai",
           "namespace": 3186507523,
@@ -50,7 +44,7 @@
     }
   },
   {
-    "hex": "495703004200424f4c4201000549873ff70197c18308054e6794360105cf24cf5901de8f90ee0397f8bfee03a4e8ff9606fecad2880fdee7e4aa0a8ae284d10801e2bd878b0e87eaeba103f8bd98d801bad8c9ee01b3fc9bed0ba3cdbb940c00f8f5d3ef0d8881aaf005dafa92ce09c0f1bd8a09e3e5fdec0101fe80cee708010205557f96d90105d462f20201dd8d87af0101adaa81bd0201ecc1bda008b2c7b39705c6e1a6fa0901",
+    "hex": "495703005200424f4c4201000549873ff70197c18308054e6794360105cf24cf5901de8f90ee0397f8bfee03a4e8ff9606fecad2880fdee7e4aa0a8ae284d10801e2bd878b0e87eaeba103f8bd98d801bad8c9ee01b3fc9bed0ba3cdbb940c00f8f5d3ef0d8881aaf005dafa92ce09c0f1bd8a09e3e5fdec0101fe80cee708010205557f96d90105d462f20201dd8d87af0101adaa81bd0201",
     "input": {
       "Ok": {
         "funding": {
@@ -78,12 +72,6 @@
           ],
           "pending_sequence": 664818989
         },
-        "reads": {
-          "fenced": true,
-          "last_sequence": 2215600364,
-          "reserved_bytes": 2672406726,
-          "sessions": 1391256498
-        },
         "scope": {
           "cashier": "qmiw6-qcom6-kdmai",
           "namespace": 16834711,
@@ -103,7 +91,7 @@
     }
   },
   {
-    "hex": "495703004200424f4c42010100",
+    "hex": "495703005200424f4c42010100",
     "input": {
       "Err": "Binding"
     }

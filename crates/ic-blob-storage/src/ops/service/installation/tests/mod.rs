@@ -93,11 +93,11 @@ fn input() -> ServiceInstallationCandidate<'static> {
 fn validated() -> ValidatedServiceInstallation {
     ValidatedServiceInstallation::new(candidate().service, input()).unwrap()
 }
-fn memory() -> [FixtureMemory; 17] {
+fn memory() -> [FixtureMemory; 15] {
     std::array::from_fn(|_| FixtureMemory::default())
 }
 fn memories(
-    memory: &[FixtureMemory; 17],
+    memory: &[FixtureMemory; 15],
 ) -> ServiceInstallationMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     let requests = grants::requests("installation-test").unwrap();
     ServiceInstallationMemories {
@@ -112,7 +112,7 @@ fn memories(
         .unwrap(),
     }
 }
-fn bytes(memory: &[FixtureMemory; 17]) -> [Vec<u8>; 17] {
+fn bytes(memory: &[FixtureMemory; 15]) -> [Vec<u8>; 15] {
     memory.each_ref().map(|m| m.borrow().clone())
 }
 
@@ -262,7 +262,7 @@ fn whole_candidate_rejects_invalid_bindings_project_and_release() {
 
 #[test]
 fn allocated_grant_anywhere_rejects_before_installation_or_owner_writes() {
-    for occupied in 0..17 {
+    for occupied in 0..15 {
         let memory = memory();
         assert_eq!(ic_memory::Memory::grow(&memory[occupied].lease(), 1), 0);
         memory[occupied]
@@ -288,27 +288,54 @@ fn allocated_grant_anywhere_rejects_before_installation_or_owner_writes() {
 }
 
 #[test]
-fn missing_configuration_and_wrong_row_count_refuse_without_initialization() {
+fn missing_and_foreign_configuration_refuse_without_initialization() {
     let memory = memory();
     assert!(matches!(
         ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
         Err(ServiceInstallationError::Missing)
     ));
     assert!(memory.iter().all(|m| m.lease().size() == 0));
-    drop(StableBTreeMap::<u8, ConfigurationRecord, _>::new(
-        memory[0].lease(),
+    let configuration = memory[0].lease();
+    configuration.grow(1).unwrap();
+    configuration.write(0, b"retained foreign obligation");
+    drop(configuration);
+    let before = bytes(&memory);
+    assert!(matches!(
+        ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
+        Err(ServiceInstallationError::InvalidRecord)
     ));
-    for count in [0, 2] {
-        let mut records = StableBTreeMap::<u8, ConfigurationRecord, _>::load(memory[0].lease());
-        for key in 0..count {
-            records.insert(key, configuration::record(&input()));
+    assert_eq!(bytes(&memory), before);
+}
+
+#[test]
+fn corrupt_configuration_cell_refuses_without_repairing_other_owners() {
+    for invalid_codec in [false, true] {
+        let memory = memory();
+        drop(ServiceInstallation::install(memories(&memory), validated()).unwrap());
+        if invalid_codec {
+            drop(StableCell::new(
+                memory[0].lease(),
+                b"not a configuration record".to_vec(),
+            ));
+        } else {
+            let cell = memory[0].lease();
+            // The collection's external layout byte is deliberately unsupported.
+            cell.write(3, &[u8::MAX]);
         }
-        drop(records);
         let before = bytes(&memory);
-        assert!(matches!(
-            ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
-            Err(ServiceInstallationError::RecordCount)
-        ));
+        if invalid_codec {
+            assert!(
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    ServiceInstallation::open(memories(&memory), candidate().service, RELEASE)
+                }))
+                .is_err()
+            );
+        } else {
+            assert!(matches!(
+                ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
+                Err(ServiceInstallationError::InvalidRecord)
+            ));
+        }
         assert_eq!(bytes(&memory), before);
     }
 }
@@ -337,16 +364,16 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
         assert_eq!(bytes(&memory), before);
     }
     let mut missing = memory.clone();
-    missing[16] = FixtureMemory::default();
+    missing[14] = FixtureMemory::default();
     let missing_before = bytes(&missing);
     assert!(matches!(
         ServiceInstallation::open(memories(&missing), candidate().service, RELEASE),
         Err(ServiceInstallationError::Stores(ServiceStoreError::Missing))
     ));
     assert_eq!(bytes(&missing), missing_before);
-    let mut records: StableBTreeMap<u8, ConfigurationRecord, _> =
-        StableBTreeMap::load(memory[0].lease());
-    let mut record = records.get(&0).unwrap();
+    let mut records: StableCell<ConfigurationRecord, _> =
+        StableCell::load(memory[0].lease()).unwrap();
+    let mut record = records.get().clone();
     // Both prior allocation and verifier-bearing installation formats must refuse
     // even when the host release string is unchanged. Never mutate old bytes.
     for retired in [
@@ -354,7 +381,7 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
         "ic-blob-storage/installation:project-upload-grants-platform-anchor-funding-credit-index-renewal",
     ] {
         record.format = retired.to_owned();
-        records.insert(0, record.clone());
+        records.set(record.clone());
         drop(records);
         let before = bytes(&memory);
         assert!(matches!(
@@ -364,11 +391,11 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
             ))
         ));
         assert_eq!(bytes(&memory), before);
-        records = StableBTreeMap::load(memory[0].lease());
+        records = StableCell::load(memory[0].lease()).unwrap();
     }
     record.format = ConfigurationRecord::FORMAT.to_owned();
     record.project = " invalid-project".to_owned();
-    records.insert(0, record);
+    records.set(record);
     drop(records);
     let before = bytes(&memory);
     assert!(matches!(
@@ -447,7 +474,7 @@ fn populated_installation_preserves_full_configuration_scope_and_owner_fences() 
     expected.uploads.fenced = true;
     expected.funding.fenced = true;
     expected.gateways.fenced = true;
-    expected.reads.fenced = true;
+
     assert_eq!(
         inspect(restored.stores().into(), context, scope),
         Ok(expected)

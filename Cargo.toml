@@ -33,14 +33,14 @@ hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.51.0" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.51.0", default-features = false }
-ic-build = "0.69.0"
-ic-host-artifacts = { version = "0.69.0", default-features = false }
-ic-host-fs = { version = "0.69.0", default-features = false }
-ic-host-http = { version = "0.69.0", default-features = false }
-ic-host-process = { version = "0.69.0", default-features = false }
-ic-memory = "0.51.9"
+ic-build = "0.69.2"
+ic-host-artifacts = { version = "0.69.2", default-features = false }
+ic-host-fs = { version = "0.69.2", default-features = false }
+ic-host-http = { version = "0.69.2", default-features = false }
+ic-host-process = { version = "0.69.2", default-features = false }
+ic-memory = "0.51.12"
 ic-platform = { version = "0.7.0", default-features = false }
-ic-storage = "0.51.9"
+ic-storage = "0.51.12"
 ic-wire = "0.7.18"
 libc = "0.2.191"
 percent-encoding = "2.3.2"
@@ -57,9 +57,9 @@ url = "2.5.8"
 # Tests and tooling only
 blob-test-protocol = { path = "tests/protocol" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
-ic-host-tools = { version = "0.69.0", default-features = false }
+ic-host-tools = { version = "0.69.2", default-features = false }
 ic-metrics = "0.16.3"
-ic-testkit = "0.69.0"
+ic-testkit = "0.69.2"
 
 [workspace.lints.rust]
 missing_docs = "deny"
@@ -68,3 +68,9 @@ unsafe_code = "forbid"
 [workspace.lints.clippy]
 all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
+
+# This workspace owns the standalone/probe products. Consumers keep their own
+# release profiles; linking Blob does not select their optimization policy.
+[profile.release]
+lto = "thin"
+codegen-units = 1

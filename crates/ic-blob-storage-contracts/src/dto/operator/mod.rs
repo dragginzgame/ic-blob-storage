@@ -36,8 +36,6 @@ pub struct LocalServiceStatus {
     pub funding: LocalFundingStatus,
     /// Bounded installed membership and local sync state.
     pub gateways: LocalGatewayStatus,
-    /// Retained concurrent read occupancy.
-    pub reads: LocalReadStatus,
 }
 /// Maintained upload counters, including cancelled/settled lifetime history.
 #[cfg_attr(
@@ -114,23 +112,6 @@ pub struct LocalGatewayStatus {
     /// Outstanding local read-only sync.
     pub pending_sequence: Option<u64>,
     /// Gateway owner refuses mutations after restoration.
-    pub fenced: bool,
-}
-/// Occupied read slots survive interruption; inspection does not release them.
-#[cfg_attr(
-    all(feature = "wire-schema", not(target_arch = "wasm32")),
-    derive(ic_wire::Wire)
-)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct LocalReadStatus {
-    /// Highest locally allocated session identity.
-    pub last_sequence: u64,
-    /// Occupied sessions, including abandoned callbacks.
-    pub sessions: u32,
-    /// Reserved transport response buffers.
-    pub reserved_bytes: u64,
-    /// Read owner refuses admission and completion after restoration.
     pub fenced: bool,
 }
 /// Local inspection refusal; failures never become empty or zero observations.

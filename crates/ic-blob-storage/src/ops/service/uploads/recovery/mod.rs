@@ -61,9 +61,10 @@ impl<M: Memory> StableUploads<M> {
         if count > limit.catalog.max_objects.get() as u64
             || self.roots.slots() != count
             || self.root_requests.len() != count
-            || self.manifests.len() > count
+            || self.manifests.len() > count * 2
             || self.usage.len() > limit.max_tenants.get() as u64 + 1
             || self.confirmed.len() > count
+            || self.deletions.len() > count
             || self.references.len() > count * limit.catalog.max_references_per_object.get() as u64
             || self.receipts.len() > count * limit.catalog.max_receipts_per_object.get() as u64
         {
@@ -75,6 +76,7 @@ impl<M: Memory> StableUploads<M> {
         let mut confirmed_count = 0;
         let mut reference_count = 0;
         let mut receipt_count = 0;
+        let mut deletion_count = 0;
         for entry in &self.permissions {
             if *entry.key() == metadata() {
                 continue;
@@ -115,6 +117,12 @@ impl<M: Memory> StableUploads<M> {
             let confirmed = self.validate_confirmed(input.request, view.phase)?;
             if let Some(record) = confirmed {
                 confirmed_count += 1;
+                let pending = record.phase() == LifecyclePhase::DeletionPending
+                    && !record.gateway_acknowledged();
+                if self.deletions.contains(entry.key()) != pending {
+                    return Err(UploadStoreError::InvalidRecord);
+                }
+                deletion_count += u64::from(pending);
                 reference_count += record.counts().0;
                 receipt_count += record.counts().2;
             }
@@ -133,11 +141,12 @@ impl<M: Memory> StableUploads<M> {
                 }
             }
         }
-        if manifest_count != self.manifests.len()
+        if manifest_count * 2 != self.manifests.len()
             || totals.len() as u64 + 1 != self.usage.len()
             || confirmed_count != self.confirmed.len()
             || reference_count != self.references.len()
             || receipt_count != self.receipts.len()
+            || deletion_count != self.deletions.len()
         {
             return Err(UploadStoreError::InvalidRecord);
         }
@@ -167,7 +176,7 @@ impl<M: Memory> StableUploads<M> {
         request: UploadRequest,
         state: UploadManifestState,
     ) -> Result<bool, UploadStoreError> {
-        match (state, self.manifests.get(&key(request))) {
+        match (state, self.manifest(request)?) {
             (UploadManifestState::Unprepared, None) => Ok(false),
             (UploadManifestState::Bound, Some(manifest))
                 if manifest.validate(&self.config, request) =>

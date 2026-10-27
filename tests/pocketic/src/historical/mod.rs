@@ -324,6 +324,7 @@ pub struct ServiceConfigurationInput {
     /// Frozen field.
     pub funding: ServiceFundingInput,
     /// Frozen field.
+    #[serde(default = "frozen_read_limits")]
     pub reads: ServiceReadInput,
 }
 impl Projection for ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput {
@@ -370,9 +371,6 @@ pub struct ServiceReadInput {
     pub bytes: u64,
     /// Frozen field.
     pub tenant_bytes: u64,
-}
-impl Projection for ic_blob_storage_contracts::dto::configuration::ServiceReadInput {
-    type Stored = ServiceReadInput;
 }
 /// Frozen historical schema.
 #[derive(Clone, Debug, PartialEq, CandidType, Deserialize, Serialize)]
@@ -870,4 +868,16 @@ impl Projection for String {
 
 impl<T: Projection> Projection for &T {
     type Stored = T::Stored;
+}
+
+// Supply the retired field only when constructing historical refusal fixtures.
+// This never decodes or migrates production state.
+fn frozen_read_limits() -> ServiceReadInput {
+    ServiceReadInput {
+        sessions: 1,
+        tenant_sessions: 1,
+        reply_bytes: 2048,
+        bytes: 2048,
+        tenant_bytes: 2048,
+    }
 }

@@ -49,7 +49,6 @@ use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
-use ic_blob_storage_contracts::dto::configuration::ServiceReadInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
@@ -190,13 +189,6 @@ impl Fixture {
                 renewal_ceiling: u128::from(u64::MAX) + 1,
                 reserve: 100,
                 max_attempts: 4,
-            },
-            reads: ServiceReadInput {
-                sessions: 1,
-                tenant_sessions: 1,
-                reply_bytes: 2048,
-                bytes: 2048,
-                tenant_bytes: 2048,
             },
         };
         if matches!(envelope, Envelope::Single) {

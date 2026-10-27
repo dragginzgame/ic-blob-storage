@@ -1,4 +1,4 @@
-//! The standalone host owns one ic-memory runtime and seventeen exclusive grants.
+//! The standalone host owns one ic-memory runtime and fifteen exclusive grants.
 use ic_blob_storage::ic_memory::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::GenericAllocationPolicy;
 use ic_blob_storage::ic_memory::Memory as _;

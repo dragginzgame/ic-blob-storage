@@ -1,7 +1,6 @@
 use super::*;
 use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
-use ic_blob_storage_contracts::dto::configuration::ServiceReadInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
@@ -43,13 +42,6 @@ pub(crate) fn candidate() -> ServiceConfigurationInput {
             reserve: 100,
             max_attempts: 4,
         },
-        reads: ServiceReadInput {
-            sessions: 2,
-            tenant_sessions: 1,
-            reply_bytes: 2048,
-            bytes: 4096,
-            tenant_bytes: 2048,
-        },
     }
 }
 
@@ -76,5 +68,4 @@ fn validated_fields_construct_service_accounting_and_reads() {
             input.funding.allocated - input.funding.reserve
         )
     );
-    assert_eq!(stores.reads().max_reply_bytes(), input.reads.reply_bytes);
 }

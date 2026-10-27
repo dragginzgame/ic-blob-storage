@@ -191,10 +191,9 @@ fn restored(
         [
             accounting.uploads.fenced,
             accounting.funding.fenced,
-            accounting.gateways.fenced,
-            accounting.reads.fenced
+            accounting.gateways.fenced
         ],
-        [true; 4]
+        [true; 3]
     );
     assert_eq!(
         [

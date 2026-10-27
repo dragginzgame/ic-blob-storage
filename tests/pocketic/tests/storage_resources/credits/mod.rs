@@ -65,8 +65,7 @@ fn credit_measurements_have_independent_exact_read_windows() {
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let batch = HistoryPopulationBatch {
         funding_start: 0,
-        read_start: 0,
-        reads: Vec::new(),
+
         funding: vec![FundingPopulationIntent {
             intent: intent(&f, 1),
             phase: FundingPhase::Callback(0),
@@ -156,8 +155,6 @@ fn profile(directory: &Path, count: u32) {
         max_tenants: 2,
         max_object_bytes: 10,
         max_funding_attempts: count,
-        max_read_sessions: 1,
-        max_tenant_read_sessions: 1,
     };
     let installation =
         blob_test_protocol::fixture_wire::encode_one("fixture_init", profile).unwrap();
@@ -183,8 +180,7 @@ fn profile(directory: &Path, count: u32) {
     for start in (0..count).step_by(16) {
         let batch = HistoryPopulationBatch {
             funding_start: u64::from(start),
-            read_start: 0,
-            reads: Vec::new(),
+
             funding: (start..(start + 16).min(count))
                 .map(|index| {
                     let operation = u128::from(index + 1);

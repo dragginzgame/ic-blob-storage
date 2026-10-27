@@ -19,11 +19,11 @@ use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_memory::{Memory, RuntimeMemory};
 use ic_platform::Principal;
-use ic_storage::adapter::StableBTreeMap;
+use ic_storage::adapter::StableCell;
 use thiserror::Error;
 
 /// Passive operator inspection. Membership alone is not authenticated provider
-/// authority, a read-session generation or permission to accept callbacks.
+/// authority or permission to accept callbacks.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct GatewayRegistryView {
     /// Exact installed service/namespace/Cashier scope.
@@ -41,7 +41,7 @@ pub struct GatewayRegistryView {
 /// one complete record; their cost is bounded by configured membership, not
 /// lifetime sync history. No implicit memory IDs, endpoints or lifecycle hooks.
 pub struct StableGatewayRegistry<M: Memory> {
-    records: StableBTreeMap<u8, GatewayRegistryRecord, M>,
+    record: StableCell<GatewayRegistryRecord, M>,
     config: ServiceConfiguration,
     fenced: bool,
 }
@@ -74,10 +74,9 @@ impl<M: Memory> StableGatewayRegistry<M> {
             scope,
             GatewayMembership::new(config.billing().gateway_limits()),
         );
-        let mut records = StableBTreeMap::new(memory);
-        records.insert(0, GatewayRegistryRecord::new(&config, &registry));
+        let record = StableCell::new(memory, GatewayRegistryRecord::new(&config, &registry));
         Ok(Self {
-            records,
+            record,
             config,
             fenced: false,
         })
@@ -88,7 +87,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// # Errors
     /// Rejects missing/mismatched/corrupt records or unsupported bounds.
     /// # Panics
-    /// Invalid collection/record bytes trap without initializing replacement state.
+    /// Record-codec and backing failures trap without initializing replacement state.
     pub(crate) fn open(
         memory: RuntimeMemory<M>,
         config: ServiceConfiguration,
@@ -98,7 +97,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
             return Err(GatewayStoreError::Missing);
         }
         let store = Self {
-            records: StableBTreeMap::load(memory),
+            record: StableCell::load(memory).map_err(|_| GatewayStoreError::InvalidRecord)?,
             config,
             fenced: true,
         };
@@ -186,8 +185,8 @@ impl<M: Memory> StableGatewayRegistry<M> {
         }
         let mut registry = self.registry()?;
         let result = change(&mut registry)?;
-        self.records
-            .insert(0, GatewayRegistryRecord::new(&self.config, &registry));
+        self.record
+            .set(GatewayRegistryRecord::new(&self.config, &registry));
         Ok(result)
     }
     fn authorize(
@@ -204,13 +203,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
         Ok(())
     }
     fn registry(&self) -> Result<GatewayRegistry, GatewayStoreError> {
-        if self.records.len() != 1 {
-            return Err(GatewayStoreError::InvalidRecord);
-        }
-        let record = self
-            .records
-            .get(&0)
-            .ok_or(GatewayStoreError::InvalidRecord)?;
+        let record = self.record.get();
         if !record.matches(&self.config) {
             return Err(GatewayStoreError::Binding);
         }
@@ -250,7 +243,7 @@ pub enum GatewayStoreError {
     /// The configured membership cannot fit the bounded record.
     #[error("unsupported gateway membership envelope")]
     UnsupportedEnvelope,
-    /// Missing, extra or inconsistent retained state.
+    /// Invalid cell envelope or inconsistent retained state.
     #[error("invalid gateway record")]
     InvalidRecord,
     /// Restored owners remain inspection-only.

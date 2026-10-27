@@ -3,7 +3,6 @@ use crate::model::service::installation::record::ConfigurationRecord;
 use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
-use ic_blob_storage_contracts::dto::configuration::ServiceReadInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> ConfigurationRecord {
     let input = &candidate.configuration;
@@ -41,11 +40,6 @@ pub(super) fn record(candidate: &super::ServiceInstallationCandidate<'_>) -> Con
         funding_renewal_ceiling: input.funding.renewal_ceiling,
         funding_reserve: input.funding.reserve,
         funding_max_attempts: input.funding.max_attempts,
-        read_sessions: input.reads.sessions,
-        read_tenant_sessions: input.reads.tenant_sessions,
-        read_reply_bytes: input.reads.reply_bytes,
-        read_bytes: input.reads.bytes,
-        read_tenant_bytes: input.reads.tenant_bytes,
     }
 }
 pub(super) fn input(record: &ConfigurationRecord) -> ServiceConfigurationInput {
@@ -84,13 +78,6 @@ pub(super) fn input(record: &ConfigurationRecord) -> ServiceConfigurationInput {
             renewal_ceiling: record.funding_renewal_ceiling,
             reserve: record.funding_reserve,
             max_attempts: record.funding_max_attempts,
-        },
-        reads: ServiceReadInput {
-            sessions: record.read_sessions,
-            tenant_sessions: record.read_tenant_sessions,
-            reply_bytes: record.read_reply_bytes,
-            bytes: record.read_bytes,
-            tenant_bytes: record.read_tenant_bytes,
         },
     }
 }

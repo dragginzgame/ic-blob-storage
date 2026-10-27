@@ -75,8 +75,6 @@ pub struct ServiceConfigurationInput {
     pub billing: ServiceBillingInput,
     /// Separate local attachment allocation and retained funding history bound.
     pub funding: ServiceFundingInput,
-    /// Concurrent read occupancy and response buffer budgets.
-    pub reads: ServiceReadInput,
 }
 
 /// Local attachment budget, not platform liquidity or provider credit.
@@ -96,26 +94,6 @@ pub struct ServiceFundingInput {
     pub reserve: u128,
     /// Positive lifetime journal capacity, including uncertain and completed attempts.
     pub max_attempts: u32,
-}
-
-/// Explicit concurrent read bounds; abandoned sessions continue consuming capacity.
-#[cfg_attr(
-    all(feature = "wire-schema", not(target_arch = "wasm32")),
-    derive(ic_wire::Wire)
-)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct ServiceReadInput {
-    /// Global simultaneous session slots.
-    pub sessions: u32,
-    /// Simultaneous slots per tenant.
-    pub tenant_sessions: u32,
-    /// Maximum response buffer reserved by one session.
-    pub reply_bytes: u32,
-    /// Global reserved response buffer bytes.
-    pub bytes: u64,
-    /// Reserved response buffer bytes per tenant.
-    pub tenant_bytes: u64,
 }
 
 /// Positive resource limits; conversion also checks all existing model relationships.

@@ -25,13 +25,7 @@ pub(crate) fn inspect<M: Memory>(
     evidence: UploadExposureHostEvidence,
     now: u64,
 ) -> Result<UploadCertificateAssessmentResponse, UploadExposureFailure> {
-    let assessment = exposure::inspect_preparation(
-        store,
-        context,
-        certificate::input(permission),
-        evidence,
-        now,
-    )?;
+    let assessment = exposure::inspect_preparation(store, context, permission, evidence, now)?;
     Ok(certificate::assessment(permission, now, assessment))
 }
 
@@ -57,14 +51,8 @@ pub(crate) fn issue<M: Memory>(
     evidence: UploadExposureHostEvidence,
     now: u64,
 ) -> Result<CaffeineUploadCertificateResponse, UploadCertificateFailure> {
-    match exposure::commit(
-        store,
-        context,
-        certificate::input(permission),
-        evidence,
-        now,
-    )
-    .map_err(UploadCertificateFailure::Exposure)?
+    match exposure::commit(store, context, permission, evidence, now)
+        .map_err(UploadCertificateFailure::Exposure)?
     {
         UploadExposureResult::Blocked(assessment) => {
             Err(UploadCertificateFailure::Blocked(assessment))

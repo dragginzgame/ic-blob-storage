@@ -83,6 +83,9 @@ impl<M: Memory> StableUploads<M> {
         self.receipts
             .insert((key(upload), request.id.get().get()), receipt);
         self.confirmed.insert(key(upload), lifecycle);
+        if before != lifecycle.phase() && lifecycle.phase() == LifecyclePhase::DeletionPending {
+            self.deletions.insert(key(upload));
+        }
         if before != lifecycle.phase() {
             self.usage.insert(context.actor.into(), own);
             self.usage
@@ -189,6 +192,7 @@ impl<M: Memory> StableUploads<M> {
         global.replace_lifecycle(upload.object.bytes, before, record.phase());
         own.replace_lifecycle(upload.object.bytes, before, record.phase());
         self.confirmed.insert(key(upload), record);
+        self.deletions.remove(&key(upload));
         self.usage.insert(tenant.into(), own);
         self.usage
             .insert(Principal::management_canister().into(), global);

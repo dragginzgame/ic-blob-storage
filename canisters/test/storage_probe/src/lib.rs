@@ -82,16 +82,6 @@ fn populate_histories(
 }
 
 #[ic_platform::cdk::query(
-    decode_with = "ops::decode_control",
-    encode_with = "ops::encode_control"
-)]
-fn restoration_read_page(
-    input: blob_test_protocol::storage::resources::RestorationReadPage,
-) -> Result<Vec<blob_test_protocol::storage::resources::RestorationRead>, Failure> {
-    workflow::restoration_read_page(context(), input)
-}
-
-#[ic_platform::cdk::query(
     decode_with = "ops::decode_control_unit",
     encode_with = "ops::encode_control"
 )]
@@ -603,30 +593,6 @@ fn fixture_gateway_roots(
     blob_test_protocol::storage::Failure,
 > {
     workflow::gateways::callbacks::roots(context(), &input)
-}
-
-#[ic_platform::cdk::update(
-    decode_with = "ops::decode_control",
-    encode_with = "ops::encode_control"
-)]
-async fn fixture_read_chunk(
-    input: blob_test_protocol::storage::gateways::ReadSessionInput,
-) -> Result<
-    blob_test_protocol::journey::readback::JourneyReadChunk,
-    blob_test_protocol::storage::Failure,
-> {
-    workflow::reads::run(context(), input).await
-}
-
-#[ic_platform::cdk::query(
-    decode_with = "ops::decode_control_unit",
-    encode_with = "ops::encode_control"
-)]
-fn read_sessions() -> Result<
-    blob_test_protocol::storage::gateways::ReadSessionsView,
-    blob_test_protocol::storage::Failure,
-> {
-    ops::read::sessions::inspect(context())
 }
 
 owned_endpoint! { update;

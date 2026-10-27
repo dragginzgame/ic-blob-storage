@@ -32,12 +32,11 @@ fn one_installation_prepares_exact_permissions_for_two_distinct_uploaders() {
 
 #[test]
 fn different_installation_bindings_and_invalid_models_refuse_before_output() {
-    let setters: [fn(&mut ServiceInstallationInput); 6] = [
+    let setters: [fn(&mut ServiceInstallationInput); 5] = [
         |input| input.configuration.service = Principal::self_authenticating([9]),
         |input| input.configuration.namespace = 1,
         |input| input.project = "another-project".into(),
         |input| input.configuration.operator = Principal::anonymous(),
-        |input| input.configuration.reads.tenant_sessions = 2,
         |input| input.configuration.funding.reserve = input.configuration.funding.allocated + 1,
     ];
     for change in setters {

@@ -32,7 +32,7 @@ export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE
 SHELLCHECK ?= shellcheck
 CI_TARGETS := shared-tooling-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
 CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
-	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk \
+	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
@@ -134,7 +134,7 @@ documentation-links-check:
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl ci/release-delivery-policy.txt make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/check-release-delivery.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh
+	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl ci/release-delivery-policy.txt make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/check-release-delivery.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl
 
 dependency-pins-check:
 	+@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \

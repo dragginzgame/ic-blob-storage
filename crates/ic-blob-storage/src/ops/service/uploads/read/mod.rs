@@ -25,9 +25,7 @@ use std::{
     ops::Bound::{Excluded, Included, Unbounded},
 };
 
-mod authority;
 pub(crate) mod download;
-pub mod verification;
 
 /// Owned copy of one bounded declaration, not a provider/publication capability.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -169,6 +167,15 @@ impl<M: Memory> StableUploads<M> {
         root: ProviderRootHash,
         object: ObjectBinding,
     ) -> Result<crate::model::service::upload::UploadPermissionView, UploadStoreError> {
+        self.indexed_permission_record(root, object)?
+            .view()
+            .ok_or(UploadStoreError::InvalidRecord)
+    }
+    pub(super) fn indexed_permission_record(
+        &self,
+        root: ProviderRootHash,
+        object: ObjectBinding,
+    ) -> Result<super::UploadPermissionRecord, UploadStoreError> {
         let id = self
             .root_requests
             .get(root.as_bytes())
@@ -186,7 +193,7 @@ impl<M: Memory> StableUploads<M> {
         {
             return Err(UploadStoreError::InvalidRecord);
         }
-        Ok(view)
+        Ok(record)
     }
     /// Copy the first validated metadata of a tenant's prepared operation.
     /// Loads one bounded manifest record, never the file or other operations' metadata.
@@ -268,11 +275,13 @@ impl<M: Memory> StableUploads<M> {
         }
         let record = self
             .manifests
-            .get(&key(content.request))
+            .get(&(key(content.request), 1))
             .ok_or(UploadStoreError::InvalidRecord)?;
         Ok(Some(UploadDescriptorView {
             content,
-            headers: record.into_headers(),
+            headers: record
+                .into_headers()
+                .ok_or(UploadStoreError::InvalidRecord)?,
         }))
     }
     /// Scan bounded history under tenant authority or configured operator authority.

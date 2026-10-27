@@ -1,8 +1,5 @@
 //! Bounded fixture read conversion and delegation to the durable owner.
-pub(crate) mod authority;
 pub(crate) mod download;
-pub(crate) mod sessions;
-pub(crate) mod transport;
 use super::{STATE, conversion};
 use blob_test_protocol::{
     admission::{

@@ -5,24 +5,25 @@ use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use std::collections::BTreeSet;
 
 impl<M: Memory> StableUploads<M> {
-    // Callers authenticate/scope/fence before this access. Bound by lifetime history.
-    pub(crate) fn gateway_deletions(
-        &self,
-        protected: &BTreeSet<ProviderRootHash>,
-    ) -> Result<Vec<Vec<u8>>, UploadStoreError> {
+    // Only pending candidates are traversed. The index never grants deletion authority;
+    // every returned entry is rechecked against the original lifecycle and bindings.
+    pub(crate) fn gateway_deletions(&self) -> Result<Vec<Vec<u8>>, UploadStoreError> {
         self.mutable()?;
         let mut roots = Vec::new();
-        for entry in &self.confirmed {
-            let record = entry.value();
+        for owner in &self.deletions {
+            let record = self
+                .confirmed
+                .get(&owner)
+                .ok_or(UploadStoreError::InvalidRecord)?;
             if !record.valid(self.config.limits().catalog) {
                 return Err(UploadStoreError::InvalidRecord);
             }
             if record.phase() != LifecyclePhase::DeletionPending || record.gateway_acknowledged() {
-                continue;
+                return Err(UploadStoreError::InvalidRecord);
             }
             let UploadStoreRecord::Permission(permission) = self
                 .permissions
-                .get(entry.key())
+                .get(&owner)
                 .ok_or(UploadStoreError::InvalidRecord)?
             else {
                 return Err(UploadStoreError::InvalidRecord);
@@ -31,7 +32,7 @@ impl<M: Memory> StableUploads<M> {
             let request = view.permission.request;
             self.trusted_request(request)?;
             if view.phase != super::UploadPhase::Registered
-                || key(request) != *entry.key()
+                || key(request) != owner
                 || self
                     .indexed_permission(request.object.root, request.object.first.object())?
                     .permission
@@ -40,11 +41,9 @@ impl<M: Memory> StableUploads<M> {
             {
                 return Err(UploadStoreError::InvalidRecord);
             }
-            if !protected.contains(&request.object.root) {
-                roots.push(request.object.root.as_bytes().to_vec());
-                if roots.len() == ic_blob_storage_contracts::provider::gc::MAX_ROOTS {
-                    break;
-                }
+            roots.push(request.object.root.as_bytes().to_vec());
+            if roots.len() == ic_blob_storage_contracts::provider::gc::MAX_ROOTS {
+                break;
             }
         }
         Ok(roots)
@@ -52,7 +51,6 @@ impl<M: Memory> StableUploads<M> {
     pub(crate) fn acknowledge_gateway_roots(
         &mut self,
         roots: &BTreeSet<ProviderRootHash>,
-        protected: &BTreeSet<ProviderRootHash>,
     ) -> Result<(), UploadStoreError> {
         self.mutable()?;
         let mut changes = Vec::with_capacity(roots.len());
@@ -63,15 +61,13 @@ impl<M: Memory> StableUploads<M> {
                 .binding_for_owner(*root)?
                 .ok_or(UploadStoreError::InvalidRecord)?;
             let view = self.indexed_permission(*root, object)?;
-            if protected.contains(root) {
-                return Err(UploadStoreError::InvalidRecord);
-            }
             let mut record = self.confirmed_record(view.permission.request)?;
             record.acknowledge_gateway()?;
             changes.push((key(view.permission.request), record));
         }
         for (owner, record) in changes {
             self.confirmed.insert(owner, record);
+            self.deletions.remove(&owner);
         }
         Ok(())
     }

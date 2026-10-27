@@ -2,7 +2,6 @@
 use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
-mod read_sessions;
 use super::*;
 use blob_test_protocol::{
     SourceMode, SourceObservation, source::SourceRecoveryView, storage::gateways::TransportInput,

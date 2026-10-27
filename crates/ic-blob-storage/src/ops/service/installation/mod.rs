@@ -1,4 +1,4 @@
-//! One immutable installation and its four durable owners, within host-granted memory.
+//! One immutable installation and its service owners, within host-granted memory.
 use super::configuration::ServiceConfigurationAdapterError;
 use super::stores::ServiceMemories;
 use super::stores::ServiceStoreConfiguration;
@@ -13,7 +13,7 @@ use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_memory::{Memory, RuntimeMemory};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
 use ic_platform::Principal;
-use ic_storage::adapter::StableBTreeMap;
+use ic_storage::adapter::StableCell;
 use thiserror::Error;
 
 mod configuration;
@@ -23,7 +23,7 @@ mod configuration;
 /// slot when refusing an incompatible record; never replace its retained state.
 pub const INSTALLATION_MEMORY_KEY: &str = "blob.configuration.v1";
 
-/// Build all seventeen installation memory requests under the host's authority.
+/// Build all fifteen installation memory requests under the host's authority.
 /// Configuration and store keys share one inventory; no registration, physical
 /// ID selection, bootstrap, allocation, lifecycle hook or stable write occurs.
 /// # Errors
@@ -72,11 +72,11 @@ impl ValidatedServiceInstallation {
     }
 }
 
-/// Seventeen distinct exclusive host grants; the library selects no physical IDs.
+/// Fifteen distinct exclusive host grants; the library selects no physical IDs.
 pub struct ServiceInstallationMemories<M> {
     /// Immutable current installation record, separate from all service stores.
     pub configuration: M,
-    /// Sixteen memories for the four service owners.
+    /// Fourteen memories for the three service owners.
     pub stores: ServiceMemories<M>,
 }
 
@@ -120,8 +120,10 @@ impl<M: Memory> ServiceInstallation<M> {
             0,
             "configuration grant aliases service memory"
         );
-        let mut records = StableBTreeMap::new(memories.configuration);
-        records.insert(0u8, candidate.configuration.clone());
+        drop(StableCell::new(
+            memories.configuration,
+            candidate.configuration.clone(),
+        ));
         Ok(Self {
             last_platform_version: Some(candidate.configuration.platform_installation_version),
             configuration: candidate.configuration,
@@ -136,7 +138,7 @@ impl<M: Memory> ServiceInstallation<M> {
     /// # Errors
     /// Rejects missing/invalid installation, changed bindings or inconsistent stores.
     /// # Panics
-    /// Corrupt binary state or collection headers trap; IC hosts must propagate them.
+    /// Record-codec and backing failures trap; IC hosts must propagate them.
     pub fn open(
         memories: ServiceInstallationMemories<RuntimeMemory<M>>,
         actual_service: Principal,
@@ -145,12 +147,9 @@ impl<M: Memory> ServiceInstallation<M> {
         if memories.configuration.size() == 0 {
             return Err(ServiceInstallationError::Missing);
         }
-        let records: StableBTreeMap<u8, ConfigurationRecord, M> =
-            StableBTreeMap::load(memories.configuration);
-        if records.len() != 1 {
-            return Err(ServiceInstallationError::RecordCount);
-        }
-        let record = records.get(&0).ok_or(ServiceInstallationError::Missing)?;
+        let configuration = StableCell::<ConfigurationRecord, M>::load(memories.configuration)
+            .map_err(|_| ServiceInstallationError::InvalidRecord)?;
+        let record = configuration.get().clone();
         record.check_binding(actual_service, release)?;
         let candidate = ValidatedServiceInstallation::new(
             actual_service,
@@ -272,7 +271,7 @@ impl<M: Memory> ServiceInstallation<M> {
     }
     /// Resume the exact current installation after an independently obtained IC
     /// continuity proof, in the same replicated callback and without an await.
-    /// Uncertain effects and occupied sessions remain held; this authorizes no retry.
+    /// Uncertain effects and reservations remain held; this authorizes no retry.
     /// # Errors
     /// Rejects proofs from another service, anchor or platform execution version.
     pub fn resume_current_instance(
@@ -297,9 +296,9 @@ pub enum ServiceInstallationError {
     /// Restore must not create a missing installation record or memory.
     #[error("installation memory or record missing")]
     Missing,
-    /// The current installation has exactly one immutable configuration row.
-    #[error("invalid installation record count")]
-    RecordCount,
+    /// The retained configuration cell envelope is not valid.
+    #[error("invalid installation cell")]
+    InvalidRecord,
     /// Compiled release identity is empty, unbounded or contains invalid text.
     #[error("invalid installation release identity")]
     ReleaseIdentity,

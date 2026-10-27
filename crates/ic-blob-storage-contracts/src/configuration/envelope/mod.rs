@@ -1,6 +1,5 @@
 //! Shared bounded resource admission, independent of journals and storage codecs.
 use super::service::ServiceConfiguration;
-use crate::dto::configuration::ServiceReadInput;
 use thiserror::Error;
 /// Maximum original-manifest record envelope in the frozen service contract.
 pub const MAX_MANIFEST_RECORD_BYTES: usize = 65_536;
@@ -44,9 +43,6 @@ pub enum ConfigurationEnvelopeError {
     /// Lifetime funding entries must fit the portable index range.
     #[error("unsupported funding envelope")]
     Funding,
-    /// Read occupancy or reply buffers exceed the configured bounds.
-    #[error("unsupported read envelope")]
-    Reads,
 }
 /// Validate the original-manifest record byte envelope without constructing a record.
 /// # Errors
@@ -61,24 +57,6 @@ pub fn validate_manifest_envelope(
         + 8 * limits.max_headers.get() as u128;
     if worst > MAX_MANIFEST_RECORD_BYTES as u128 {
         return Err(ConfigurationEnvelopeError::Manifest);
-    }
-    Ok(())
-}
-/// Validate explicit read occupancy without reserving a session or buffer.
-/// # Errors
-/// Rejects zero or contradictory limits and more than 1024 concurrent sessions.
-pub const fn validate_read_limits(
-    input: ServiceReadInput,
-) -> Result<(), ConfigurationEnvelopeError> {
-    if input.sessions == 0
-        || input.sessions > 1024
-        || input.tenant_sessions == 0
-        || input.tenant_sessions > input.sessions
-        || input.reply_bytes == 0
-        || input.tenant_bytes < input.reply_bytes as u64
-        || input.tenant_bytes > input.bytes
-    {
-        return Err(ConfigurationEnvelopeError::Reads);
     }
     Ok(())
 }
@@ -106,14 +84,13 @@ pub fn validate_gateway_envelope(
 }
 /// Validate every maintained store's immutable envelope before installation effects.
 /// # Errors
-/// Rejects unsupported manifest, gateway, funding or read limits.
+/// Rejects unsupported manifest, gateway or funding limits.
 pub fn validate_store_envelope(
     config: &ServiceConfiguration,
     attempts: usize,
-    reads: ServiceReadInput,
 ) -> Result<(), ConfigurationEnvelopeError> {
     validate_manifest_envelope(config)?;
     validate_funding_envelope(attempts as u128)?;
     validate_gateway_envelope(config)?;
-    validate_read_limits(reads)
+    Ok(())
 }

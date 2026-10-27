@@ -84,7 +84,7 @@ fn lifecycle_constants_remain_separate_from_callable_methods() {
     const UNKNOWN: Result<u64, Error> = identity("unknown");
     assert_eq!(
         (INSTALL, POST_UPGRADE),
-        (0x424c_4f42_0042_ff01, 0x424c_4f42_0042_ff02)
+        (0x424c_4f42_0052_ff01, 0x424c_4f42_0042_ff02)
     );
     assert_eq!(
         (INSTALL_LIMITS.bytes, RECOVERY_LIMITS.bytes),

@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.52.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Retire journaled on-canister chunk reads and their configuration/status fields.
+  Keep direct client downloads and authenticated download descriptors. Rebuild
+  adapters against the current configuration, fifteen installation grants and
+  updated configuration/status/install Wire frames. Keep one current schema (1),
+  without compatibility readers.
+- Split retained manifests into independently readable headers and leaves, and
+  index pending GC candidates beside the authoritative lifecycle records. Retire
+  and reinstall across releases; preserve provider objects, uncertain effects,
+  balances and billing obligations before replacing any installation.
+
+### 🧹 Cleanup
+
+- Use governed cells for immutable installation configuration and gateway state,
+  consuming Memory/Storage 0.51.12’s non-initializing loader. Keep funding’s
+  receipt-index map; reject invalid restored cells without reset or repair.
+- Reuse freshly validated certificate records through the synchronous commit,
+  retaining final authorization, evidence binding and replay/refusal checks.
+- Serve descriptors without decoding complete leaf vectors, and poll only pending
+  unacknowledged GC candidates. Reopen verifies both manifest parts and exact
+  candidate membership without repairing missing state.
+
+### 🔧 Changed
+
+- Adopt published Host/Build/Testkit 0.69.2 for native CLI, archive verification
+  and managed PocketIC lifetimes. Preserve feature selections and deployment
+  exclusions; this update does not change the standalone Wasm dependency graph.
+- Select ThinLTO and one codegen unit for workspace release builds, retaining
+  optimization level 3 and symbols. Consumers keep their own root profiles.
+- Adopt Shared Tooling 0.26.25. Show per-pass formatting progress and timings,
+  reuse successful checks only for unchanged inputs, and retain full staged-hook
+  formatting. Update isolated hook/release fixtures for the new driver while
+  preserving all workspace and dependency-role coverage. Keep tracked submodules
+  opaque to staged formatting; retain the shared Node prerequisite guide.
+
 ## [0.51.0] - 2026-10-27
 
 ### ⚠️ Breaking

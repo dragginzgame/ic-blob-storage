@@ -60,7 +60,7 @@ macro_rules! contracts {
                 },)*
                 // Lifecycle inputs are host-owned and are not callable service methods.
                 b"blob_install" => Ok(crate::endpoints::WireContract {
-                    id: 0x424c_4f42_0042_ff01, request: limits(16 * 1024), response: limits(MAX_MESSAGE_BYTES),
+                    id: 0x424c_4f42_0052_ff01, request: limits(16 * 1024), response: limits(MAX_MESSAGE_BYTES),
                 }),
                 b"blob_post_upgrade" => Ok(crate::endpoints::WireContract {
                     id: 0x424c_4f42_0042_ff02, request: limits(4096), response: limits(MAX_MESSAGE_BYTES),

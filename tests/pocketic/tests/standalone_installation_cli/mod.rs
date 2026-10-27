@@ -74,6 +74,19 @@ fn deployment_surface_matches_catalog_and_provider_contract() {
         !facts.exports.contains_key("get_candid_pointer"),
         "deployment Wasm must omit Candid extraction machinery"
     );
+    let mut gzip = Vec::new();
+    ic_host_artifacts::artifact::encode_gzip(&bytes, &mut gzip, 9, 64 * 1024 * 1024).unwrap();
+    let code = ic_host_artifacts::wasm::code_statistics(&bytes, 64 * 1024 * 1024).unwrap();
+    println!(
+        "BLOB_ARTIFACT {}",
+        serde_json::json!({
+            "sha256": ContentDigest::compute(&bytes).to_string(),
+            "raw_bytes":facts.raw_bytes, "code_bytes":facts.code_section_bytes,
+            "data_bytes":facts.data_section_bytes, "functions":facts.defined_functions,
+            "indirect_calls":code.call_indirect_count, "gzip9_bytes":gzip.len(),
+            "gzip9_sha256":ContentDigest::compute(&gzip).to_string(),
+        })
+    );
     let exported = interface::exported_methods(&facts)
         // This namespace is reserved by IC CDK and is not an application API.
         .filter(|method| !method.name.starts_with("<ic-cdk internal> "))

@@ -1,10 +1,6 @@
 //! Actual durable owner projection; provider effects remain separate.
 use super::*;
 use crate::model::gateway::registry::GatewayScope;
-use crate::model::service::read::{
-    ReadTarget,
-    session::{ReadChunkTarget, ReadSessionIntent},
-};
 use crate::model::service::upload::manifest::UploadManifest;
 use crate::policy::gateway::GatewayCallbackContext;
 use crate::workflow::gateways::callbacks::{
@@ -32,9 +28,9 @@ fn n(n: u128) -> NonZeroU128 {
 #[test]
 #[expect(
     clippy::too_many_lines,
-    reason = "One original root/read/reference/acknowledgment lifetime is carried through durable restoration"
+    reason = "One original root/reference/acknowledgment lifetime is carried through durable restoration"
 )]
-fn gateway_callbacks_preserve_reads_exact_replays_obligations_and_restored_fences() {
+fn gateway_callbacks_preserve_exact_replays_obligations_and_restored_fences() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
     let memory = std::array::from_fn(|_| FixtureMemory::default());
@@ -149,23 +145,6 @@ fn gateway_callbacks_preserve_reads_exact_replays_obligations_and_restored_fence
         .unwrap();
     stores.uploads.expose(uploader, upload, 3).unwrap();
     assert!(acknowledge_provider_deletions(&mut stores, gateway, scope, &roots).is_err());
-    let ticket = stores
-        .reads
-        .reserve(&ReadSessionIntent {
-            context: tenant,
-            scope,
-            chunk: ReadChunkTarget {
-                target: ReadTarget {
-                    root: upload.object.root,
-                    reference: first,
-                    gateway: gateway.actor,
-                },
-                index: 0,
-            },
-            gateway_generation: 1,
-            tenant_generation: NonZeroU64::MIN,
-        })
-        .unwrap();
     stores
         .uploads
         .apply_reference(
@@ -178,16 +157,7 @@ fn gateway_callbacks_preserve_reads_exact_replays_obligations_and_restored_fence
         )
         .unwrap();
     let obligations = stores.uploads.usage().unwrap();
-    assert_eq!(
-        provider_liveness(&stores, public, scope, &roots).unwrap(),
-        vec![true]
-    );
-    assert_eq!(
-        provider_deletions(&stores, gateway, scope).unwrap(),
-        Vec::<Vec<u8>>::new()
-    );
-    assert!(acknowledge_provider_deletions(&mut stores, gateway, scope, &roots).is_err());
-    stores.reads.complete(tenant, &ticket).unwrap();
+
     assert_eq!(
         provider_liveness(&stores, public, scope, &roots).unwrap(),
         vec![false]

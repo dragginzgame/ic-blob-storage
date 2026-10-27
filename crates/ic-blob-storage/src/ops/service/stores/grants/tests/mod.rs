@@ -19,7 +19,7 @@ fn pool(first: u8) -> MemoryAllocationPool {
             MemoryAuthority::new("test-blob", "blob.").unwrap(),
             MemoryAuthority::new("application", "application.").unwrap(),
         ],
-        (0..first).chain(first + 17..=254).collect(),
+        (0..first).chain(first + 15..=254).collect(),
     )
     .unwrap()
 }
@@ -103,7 +103,7 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
 fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
     let backing = VectorMemory::default();
     let mut runtime = runtime(backing.clone());
-    let declarations = snapshot(Some(15));
+    let declarations = snapshot(Some(13));
     runtime
         .bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
         .unwrap();
@@ -113,10 +113,10 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
     let before = backing.borrow().clone();
     assert!(matches!(
         open(|key| runtime.open_memory(key)),
-        Err(RuntimeOpenError::StableKeyNotCommitted(key)) if key == "blob.read_tenants.v1"
+        Err(RuntimeOpenError::StableKeyNotCommitted(key)) if key == "blob.gateways.v1"
     ));
     assert_eq!(*backing.borrow(), before);
-    for request in requests("test-blob").unwrap().iter().take(15) {
+    for request in requests("test-blob").unwrap().iter().take(13) {
         assert_eq!(
             runtime
                 .open_memory(request.stable_key().as_str())
@@ -194,7 +194,7 @@ fn composed_journey(first: u8) {
     expected.uploads.fenced = true;
     expected.funding.fenced = true;
     expected.gateways.fenced = true;
-    expected.reads.fenced = true;
+
     assert_eq!(
         inspect((&restored).into(), context, scope).unwrap(),
         expected

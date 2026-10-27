@@ -110,7 +110,7 @@ or provider deletion/billing guarantee follows from registration.
 ## Service configuration and host
 
 `dto::configuration::ServiceConfigurationInput` supplies explicit service, operator,
-payer, namespace, resource, billing, funding allocation and read-session candidates. The shared
+payer, namespace, resource, billing, funding allocation candidates. The shared
 `ops::service::configuration` boundary validates an already typed candidate,
 checks the actual host identity and reuses the existing model's invariants without
 defaults, clamping or allocation. It also checks every maintained stable owner's
@@ -120,8 +120,8 @@ identity from the platform. Standalone installation admits one exact `blob_insta
 Native field and variant order is frozen; there is no named-field extension or
 compatibility projection. Hosts with a larger envelope must preserve method,
 direction and complete-consumption checks at their outer boundary.
-`ops::service::stores::ServiceStores` assembles the four
-owners synchronously under these validated limits and sixteen distinct host-granted
+`ops::service::stores::ServiceStores` assembles the three
+owners synchronously under these validated limits and fourteen distinct host-granted
 memories. Fresh installation preflights the entire set before writing; aliased
 grants or later write failures must trap for IC rollback. Native memory supplies no
 transaction guarantee. Restoration validates every owner before returning the
@@ -131,10 +131,10 @@ publishing the assembly only after success. These APIs neither establish a provi
 namespace nor implement a production adapter, reconfiguration or operational
 unfencing contract. Linking the library exports no endpoint or lifecycle hook.
 
-`ops::service::installation::requests` builds all seventeen named installation
+`ops::service::installation::requests` builds all fifteen named installation
 requests, including configuration, under the supplied host authority. Hosts
 compose this passive inventory with their other application declarations before
-their own bootstrap. Store-only compositions can use the sixteen requests from
+their own bootstrap. Store-only compositions can use the fourteen requests from
 `ops::service::stores::grants::requests`. `grants::open` assembles the current store mapping using that host's
 committed-memory lookup; missing grants refuse without creating or repairing a
 store. Hosts supply `grants::open(|key| runtime.open_memory(key))` from their own
@@ -161,7 +161,7 @@ explicit project and bounded library release before allocation.
 Use `ic_blob_storage::LIBRARY_VERSION` for that compiled dependency identity;
 an embedding host's package version and Wasm/module identity are separate facts.
 `ServiceInstallation` owns the immutable current configuration record and the
-four service owners. Fresh installation preflights all seventeen exclusive grants;
+three service owners. Fresh installation preflights all fifteen exclusive grants;
 the host must propagate any subsequent trap for IC rollback. Restoration checks
 the retained schema, actual service and compiled release before opening owners,
 revalidates all installed inputs and returns only after every owner is fenced.
@@ -225,7 +225,7 @@ roles remain explicit; framework activation and controller status
 grant none of those roles. Provider request/callback contracts have one core owner,
 and clients use the service API rather than defining a provider protocol.
 
-The host declares the installation configuration key and sixteen shared service
+The host declares the installation configuration key and fourteen shared service
 requests within one allocation authority, bootstraps one ic-memory runtime, validates
 all installation inputs and calls `ServiceInstallation::install` synchronously.
 It supplies actual service identity, project and compiled release.
@@ -248,7 +248,7 @@ under `cfg(test)` without enabling the feature for production. The old public
 `model::service::upload::UploadAdmissions` path is removed, with no alias.
 
 Restoration calls `ServiceInstallation::open` synchronously before deferred work.
-All four owners remain inspection-only and fenced. Missing or corrupt grants,
+All three owners remain inspection-only and fenced. Missing or corrupt grants,
 configuration or history cannot be repaired or reset away. A framework's active
 state is not freshness evidence and cannot clear these fences. Cross-release
 transitions remain reinstall-only, after installation obligations are preserved
@@ -338,7 +338,7 @@ the current immutable record. Restoration still validates all owners synchronous
 enters their fences before any deferred work.
 
 The immutable installation record uses the frozen layout identity
-`ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal`, independently of its exact library
+`ic-blob-storage/installation:singleton-cells`, independently of its exact library
 release. The `blob.configuration.v1` grant key identifies the existing allocation
 slot, not a compatible record layout. A mismatched identity refuses before opening
 the service owners; an undecodable layout traps without initialization or repair.
@@ -529,7 +529,7 @@ same-release restoration. A typed mutation refusal is retained as refusal.
 Dropped/pending acknowledgment remains uncertain/pending if exact receipt
 inspection itself refuses; lookup error is neither original outcome nor absence
 and cannot authorize resend. Refused retain/release and passive reads preserve
-all stable bytes and the full reservation; all four owners stay fenced after
+all stable bytes and the full reservation; all three owners stay fenced after
 restore. No exposure/completion bypass was added to the standalone artifact.
 
 The existing bounded consumer probe also composes canonical admission/reference/
@@ -970,10 +970,19 @@ explicit storage-only frame identity. The frame byte ceiling retains the existin
 record bound, including the Wire header; allocation admission is 256 times that
 ceiling, nodes eight times it, and depth 32. These are codec admission units, not
 measured heap bounds or conversions of the retired Candid work quotas. Stable
-collection layout bounds, ordering and host allocation keys remain separate and
-unchanged. Variable manifest pages retain a hard 64 KiB record limit.
+collection layout bounds, ordering and host allocation keys remain separate.
+Configuration and gateway state use governed `StableCell` collections. Restore
+uses published Storage 0.51.12’s non-initializing `load`; it never supplies a
+default record or calls an initializing fallback. Gateway updates use the same
+cell and retain pending sync identity and model validation. Invalid envelopes
+return an invalid-record refusal; record-codec and backing failures still trap.
+The immutable configuration retains its existing owned snapshot and public
+accessors. Funding accounting remains a map because it also indexes credit receipts.
 
-Installation records also carry the current `ic-blob-storage/installation:wire-records`
+Each manifest part retains a hard 64 KiB record limit; the combined logical
+declaration keeps the existing admission envelope.
+
+Installation records also carry the current `ic-blob-storage/installation:singleton-cells`
 format. Earlier Candid payloads, wrong record identities, response frames,
 trailing/corrupt bytes and budget violations refuse. They never initialize a
 replacement store. There is no Candid compatibility reader or automatic migration.
@@ -1154,91 +1163,28 @@ preserving order and duplicates without tenant/request/reference details. Tenant
 suspension does not hide continuing obligations. Operator removal or a completed
 membership replacement applies on the next call. These phases are not provider
 liveness booleans, completion receipts or deletion permission. Provider semantics,
-callback correlation, read-session generations and recovery remain separate gates.
+callback correlation and recovery remain separate gates.
 The probe endpoint is explicitly a local fixture; no provider callback export,
 automatic deletion or paid effect is installed by linking the library.
 
-The pending 0.42 provider profile adds public liveness and membership-guarded
+The provider profile supplies public liveness and membership-guarded
 bounded deletion-list/acknowledgment handlers from the same durable owners.
 Unknown roots stay protected; gateway acknowledgments retain the complete root
-history and all physical/billing liabilities. Active reads prevent deletion
-listing and acknowledgment. See the [GC contract](gateway-gc-contract.md) for
+history and all physical/billing liabilities. Pending unacknowledged candidates
+have a derived index in the same upload owner; polling does not scan settled
+lifetime history. Restoration verifies exact index membership against lifecycle
+records, without repair. See the [GC contract](gateway-gc-contract.md) for
 exact wire shapes, bounds, retry behavior and deployed-evidence limitations.
 
-`workflow::reads::{capture,recheck}` adds current durable read authority. The
-opaque host-retained observation binds original caller/service, provider scope,
-selected gateway, root, full object lifetime and exact live reference. Both
-owners must share configuration and remain unfenced; enrollment must be active.
-Indexed reads avoid manifests and reference/receipt histories. Existing passive
-descriptor inspection keeps its suspension/restoration behavior.
-
-Gateway membership now owns a separate persisted read invalidation counter.
-Successful adds/removals, including no-op edits, and successful complete syncs,
-including identical lists, advance it atomically with membership. Failed writes
-roll back both. Invalid edits/replies and sync begin/cancel leave it unchanged.
-Exhaustion permanently disables new read observations without blocking revocation
-or wrapping the counter. Tenant suspension/reactivation uses the independently
-retained activation generation. Released reference identities cannot be replaced
-by another live reference or a historical retain receipt.
-
-Recheck uses the original context and target after an await, before disclosure.
-It is repeatable and read-only: it reserves no session slot, consumes no callback,
-authenticates no transport and verifies no bytes. Only the original exclusive
-owners may be used; host installation identity and stale-instance exclusion remain
-necessary. The internal v1 registry schema retains the counter on same-release
-reopen under its fence.
-Cross-release transitions remain reinstall-only, with no compatibility branch.
-
-`ops::service::reads::StableReadSessions` owns three explicitly granted memories:
-the configuration/high-water counter/global usage, one bounded row per occupied
-session, and counters for tenants with occupied sessions. Trusted limits bound
-global and per-tenant counts and reply-buffer bytes independently. At most 1024
-active rows are supported; this is a representation envelope, not production
-resource qualification. Each session reserves the full configured reply budget.
-That budget does not account for all decoder copies or total canister memory.
-Ordinary mutations touch only the exact row and maintained counters. Completion
-removes its row and any empty tenant counter, retaining the global high-water ID;
-completed read history does not accumulate. Exhaustion blocks admission without
-blocking exact completion. Operator inspection pages are limited to 64 active rows.
-
-`workflow::reads::sessions::begin` checks matching owners, all fences, current
-authority and the declared chunk range, then commits the exact intent. No call is
-sent. The original authenticated context and opaque ticket must stay with one
-host-managed call. `complete` accepts only that exact occupied identity. It checks
-all owner fences/bindings, rechecks disclosure authority and removes that returned
-call's reservation atomically. Lost authority can therefore return an error after
-releasing the slot; the host must refuse byte disclosure. A repeated or stale
-callback cannot release a newer slot. No expiry, automatic retry or cancellation
-path frees an in-flight, abandoned or interrupted reservation.
-
-Reopen validates bounded retained identities, rows and recomputed global/tenant
-totals without repair, then fences both admission and completion. A counter from
-the same backup grants no independent freshness. Native tests do not supply IC
-transactions; hosts must propagate stable traps. PocketIC verifies that admission
-traps send nothing and callback traps preserve occupancy after the remote call
-returns, including through upgrade. The fixture replaces its temporary busy flag
-with these shared handlers and three additional grants through the same ic-memory
-runtime.
-
-`workflow::reads::chunk::read_chunk` now composes admission, one host transport
-await and synchronous callback completion/verification. `ReadSessionAccess` borrows
-the same owners only within synchronous closures. `ReadChunkTransport` supplies
-normalized host-authenticated source and original request correlation, not a
-library-selected provider wire or a principal trusted from reply data. The handler
-checks source/root/index and decoded size, then the exact admitted leaf length and
-domain-separated hash. One bounded immutable manifest record is decoded; its tree
-and reference/receipt histories are not rebuilt or copied. Returned bytes are moved
-into the verified result. Lost authority rejects before hashing. Ordinary returned
-transport/binding/content errors settle their exact reservation; traps roll back
-callback writes. A verified leaf does not prove whole-file completion or durability.
-
-The local fixture now calls the existing source's `fixture_chunk` method and checks
-encoded size before bounded bulk `vec nat8` decoding. Actual IC call targeting
-authenticates its peer. This is explicitly a provider substitute; no deployed
-Caffeine chunk interface is inferred. Encoded and decoded buffers can coexist, and
-the platform/CDK initially buffers the response before the application size check.
-Session budgets therefore do not qualify peak heap, instruction or provider costs.
-Production transport, supported recovery and resource sizing remain separate work.
+The 0.52 hard cut retires journaled on-canister chunk reads, their three
+memories and gateway read-generation invalidation. Neither the standard service
+nor the reviewed Canic adapter supplied a production transport for that subsystem.
+The service retains descriptor serving; clients own bounded body transport and
+verification. No session, callback ticket or automatic recovery path remains for
+on-canister bulk reads. Same-release recovery of uploads, references, provider
+obligations, funding and gateway synchronization remains required. Cross-release
+transitions require retirement and reinstall; do not discard an old instance's
+only obligation records while an original operation or callback remains uncertain.
 
 `workflow::reads::download::handle` serves
 `dto::download::{DownloadRequest,DownloadResponse,DownloadFailure}` through the
@@ -1252,7 +1198,15 @@ payment account and tenant. Project text is bounded at 256 UTF-8 bytes before
 copying, with no empty value, controls or surrounding whitespace; this is a local
 representation bound, not a provider naming guarantee or a default assignment.
 
-The response carries the original root, length and hash headers. Clients use the
+The response carries the original root, length and hash headers. Headers and
+chunk hashes are retained as two tagged records in one manifest collection.
+Descriptors read only the header part; complete manifest inspection, preparation
+replay and restoration join both parts and validate the original declaration.
+Missing, reversed or orphaned parts refuse restoration without repair. A successful
+descriptor observes one live reference at that moment; the consumer must retain
+its reference through download and verification.
+
+ Clients use the
 canonical target builder for the relative Caffeine `/v1/blob/` request. Request
 fields are individually percent-encoded. No
 bucket or gateway origin is guessed. HTTP origin authority cannot be inferred from

@@ -32,13 +32,13 @@ use crate::model::service::upload::UploadPermissionView;
 use crate::model::service::upload::manifest;
 use crate::model::service::upload::manifest::UploadManifest;
 use crate::model::service::upload::record::UploadConfigurationRecord;
-use crate::model::service::upload::record::UploadManifestRecord;
 use crate::model::service::upload::record::UploadPermissionRecord;
 use crate::model::service::upload::record::UploadStoreRecord;
 use crate::model::service::upload::record::UploadUsageRecord;
 use crate::model::service::upload::record::lifecycle::ConfirmedLifecycleRecord;
 use crate::model::service::upload::record::lifecycle::ReferenceReceiptRecord;
 use crate::model::service::upload::record::lifecycle::ReferenceRecord;
+use crate::model::service::upload::record::{PreparedUploadManifest, UploadManifestPartRecord};
 use crate::model::service::upload::validation;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
@@ -66,7 +66,7 @@ fn metadata() -> Key {
     (Principal::management_canister().into(), 0)
 }
 
-/// Ten distinct, exclusively owned memories granted by the host's `ic-memory` runtime.
+/// Eleven distinct, exclusively owned memories granted by the host's `ic-memory` runtime.
 /// No IDs or allocations are silently registered by the library.
 pub struct UploadMemories<M> {
     /// Enrollment history.
@@ -89,6 +89,8 @@ pub struct UploadMemories<M> {
     pub receipts: M,
     /// Root-to-original-request index, committed with admission.
     pub root_requests: M,
+    /// Pending unacknowledged deletion candidates; lifecycle remains authoritative.
+    pub deletions: M,
 }
 
 /// Incremental durable upload, reference and obligation bookkeeping.
@@ -104,11 +106,12 @@ pub struct StableUploads<M: Memory> {
     roots: StableRootClaims<M>,
     permissions: StableBTreeMap<Key, UploadStoreRecord, M>,
     usage: StableBTreeMap<ExternalPrincipal, UploadUsageRecord, M>,
-    manifests: StableBTreeMap<Key, UploadManifestRecord, M>,
+    manifests: StableBTreeMap<(Key, u8), UploadManifestPartRecord, M>,
     confirmed: StableBTreeMap<Key, ConfirmedLifecycleRecord, M>,
     references: StableBTreeMap<(Key, u128), ReferenceRecord, M>,
     receipts: StableBTreeMap<(Key, u128), ReferenceReceiptRecord, M>,
     root_requests: StableBTreeMap<[u8; 32], u128, M>,
+    deletions: ic_storage::adapter::StableBTreeSet<Key, M>,
     fenced: bool,
 }
 #[expect(
@@ -142,6 +145,7 @@ impl<M: Memory> StableUploads<M> {
             &memory.references,
             &memory.receipts,
             &memory.root_requests,
+            &memory.deletions,
         ]
         .iter()
         .any(|m| m.size() != 0)
@@ -158,6 +162,7 @@ impl<M: Memory> StableUploads<M> {
         let mut usage = StableBTreeMap::new(memory.usage);
         assert_eq!(memory.manifests.size(), 0, "distinct manifest memory");
         let manifests = StableBTreeMap::new(memory.manifests);
+        let deletions = ic_storage::adapter::StableBTreeSet::new(memory.deletions);
         assert_eq!(memory.confirmed.size(), 0, "distinct confirmed memory");
         let confirmed = StableBTreeMap::new(memory.confirmed);
         assert_eq!(memory.references.size(), 0, "distinct reference memory");
@@ -189,6 +194,7 @@ impl<M: Memory> StableUploads<M> {
             references,
             receipts,
             root_requests,
+            deletions,
             fenced: false,
         })
     }
@@ -217,6 +223,7 @@ impl<M: Memory> StableUploads<M> {
             &memory.references,
             &memory.receipts,
             &memory.root_requests,
+            &memory.deletions,
         ]
         .iter()
         .any(|m| m.size() == 0)
@@ -236,6 +243,7 @@ impl<M: Memory> StableUploads<M> {
             references: StableBTreeMap::load(memory.references),
             receipts: StableBTreeMap::load(memory.receipts),
             root_requests: StableBTreeMap::load(memory.root_requests),
+            deletions: ic_storage::adapter::StableBTreeSet::load(memory.deletions),
             fenced: true,
         };
         owner.validate()?;
@@ -339,15 +347,14 @@ impl<M: Memory> StableUploads<M> {
         let mut record = self.required(request)?;
         self.uploader(context, &record, now)?;
         manifest::validate(&self.config, request, input)?;
-        if let Some(existing) = self.manifests.get(&key(request)) {
+        if let Some(existing) = self.manifest(request)? {
             if !existing.matches(input) {
                 return Err(UploadAdmissionError::PermissionConflict.into());
             }
             return Ok(LifecycleChange::Unchanged);
         }
         record.bind_manifest();
-        self.manifests
-            .insert(key(request), UploadManifestRecord::new(input));
+        self.store_manifest(request, PreparedUploadManifest::new(input));
         self.permissions
             .insert(key(request), UploadStoreRecord::Permission(record));
         Ok(LifecycleChange::Changed)
@@ -361,13 +368,27 @@ impl<M: Memory> StableUploads<M> {
     /// Rejects wrong uploader/activation/time, missing manifest, repeated exposure or fence.
     /// # Panics
     /// Stable write failures must roll back the containing IC update.
+    #[cfg(any(test, feature = "test-support"))]
     pub(crate) fn expose(
         &mut self,
         context: UploadContext,
         request: UploadRequest,
         now: u64,
     ) -> Result<(), UploadStoreError> {
-        let mut record = self.exposure_record(context, request, now)?;
+        let record = self.exposure_record(context, request, now)?;
+        self.commit_exposure(record)
+    }
+    // Supplied only by a synchronous eligibility check, without an intervening
+    // mutation, callback or retained permit.
+    fn commit_exposure(
+        &mut self,
+        mut record: UploadPermissionRecord,
+    ) -> Result<(), UploadStoreError> {
+        let request = record
+            .view()
+            .ok_or(UploadStoreError::InvalidRecord)?
+            .permission
+            .request;
         let tenant = request.object.first.object().tenant();
         let mut global = self.total(Principal::management_canister())?;
         let mut own = self.total(tenant)?;
@@ -389,6 +410,7 @@ impl<M: Memory> StableUploads<M> {
     }
     // Shared by inspection and commit; an inspection can never bypass the current
     // restore fence, current activation, original uploader/time or prepared phase.
+    #[cfg(any(test, feature = "test-support"))]
     fn exposure_record(
         &self,
         context: UploadContext,
@@ -398,11 +420,27 @@ impl<M: Memory> StableUploads<M> {
         validation::object(&self.config, context, request.object.first.object())?;
         self.mutable()?;
         let record = self.required(request)?;
-        let view = self.uploader(context, &record, now)?;
+        self.check_exposure_record(context, &record, now)?;
+        Ok(record)
+    }
+    fn check_exposure_record(
+        &self,
+        context: UploadContext,
+        record: &UploadPermissionRecord,
+        now: u64,
+    ) -> Result<(), UploadStoreError> {
+        let request = record
+            .view()
+            .ok_or(UploadStoreError::InvalidRecord)?
+            .permission
+            .request;
+        validation::object(&self.config, context, request.object.first.object())?;
+        self.mutable()?;
+        let view = self.uploader(context, record, now)?;
         if view.manifest != UploadManifestState::Bound {
             return Err(UploadAdmissionError::ManifestNotPrepared.into());
         }
-        Ok(record)
+        Ok(())
     }
 
     /// Revoke local issuance; only an unexposed reservation releases byte capacity.

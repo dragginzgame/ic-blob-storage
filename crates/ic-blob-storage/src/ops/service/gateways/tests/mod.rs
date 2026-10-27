@@ -128,12 +128,13 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
     )
     .unwrap();
     store.begin_sync(context(), scope()).unwrap();
-    let record = store.records.get(&0).unwrap();
-    let generation = store.registry().unwrap().read_generation;
-    assert_eq!(GatewayRegistryRecord::from_bytes(record.to_bytes()), record);
+    let record = store.record.get();
+    assert_eq!(
+        GatewayRegistryRecord::from_bytes(record.to_bytes()),
+        *record
+    );
     drop(store);
     let restored = StableGatewayRegistry::open(m.lease(), config).unwrap();
-    assert_eq!(restored.registry().unwrap().read_generation, generation);
     let view = restored.inspect(context(), scope()).unwrap();
     assert_eq!(view.principals, principals);
     assert_eq!(view.sync.pending_sequence, Some(2));
@@ -145,7 +146,7 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
     assert_eq!(empty.lease().size(), 0);
 }
 #[test]
-fn changed_gateway_bindings_and_extra_rows_reject_restore_without_repair() {
+fn changed_gateway_bindings_reject_restore_without_repair() {
     let m = FixtureMemory::default();
     let store = StableGatewayRegistry::install(m.lease(), config()).unwrap();
     drop(store);
@@ -178,16 +179,46 @@ fn changed_gateway_bindings_and_extra_rows_reject_restore_without_repair() {
             Err(GatewayStoreError::Binding)
         ));
     }
-    let mut store = StableGatewayRegistry::open(m.lease(), config()).unwrap();
-    store.records.insert(1, store.records.get(&0).unwrap());
-    drop(store);
     let before = m.borrow().clone();
-    assert!(matches!(
-        StableGatewayRegistry::open(m.lease(), config()),
-        Err(GatewayStoreError::InvalidRecord)
-    ));
+    drop(StableGatewayRegistry::open(m.lease(), config()).unwrap());
     assert_eq!(*m.borrow(), before);
 }
 
 mod reply;
 mod transport;
+
+#[test]
+fn gateway_cell_header_and_codec_failures_preserve_bytes_and_release_custody() {
+    for invalid_codec in [false, true] {
+        let memory = FixtureMemory::default();
+        let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
+        store.add(context(), scope(), p(4)).unwrap();
+        store.begin_sync(context(), scope()).unwrap();
+        drop(store);
+        if invalid_codec {
+            drop(StableCell::new(
+                memory.lease(),
+                b"foreign gateway payload".to_vec(),
+            ));
+        } else {
+            memory.lease().write(0, b"bad");
+        }
+        let before = memory.borrow().clone();
+        if invalid_codec {
+            assert!(
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    StableGatewayRegistry::open(memory.lease(), config())
+                }))
+                .is_err()
+            );
+        } else {
+            assert!(matches!(
+                StableGatewayRegistry::open(memory.lease(), config()),
+                Err(GatewayStoreError::InvalidRecord)
+            ));
+        }
+        assert_eq!(*memory.borrow(), before);
+        // The failed load released its checked lease; it cannot strand the owner.
+        assert!(memory.lease().size() > 0);
+    }
+}

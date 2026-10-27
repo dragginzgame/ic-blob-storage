@@ -159,7 +159,7 @@ that frozen installation and its retained history, not current library size limi
   trusted trial participants; no public uploader or shared production account.
 - One known nonempty file of at most **1,024 bytes**, with one content chunk. The
   service's lifetime object capacity is one; physical, liability and tenant logical
-  byte budgets are 1,024. One active reservation/read session and retained release
+  byte budgets are 1,024. One active upload reservation and retained release
   receipt capacity remain available. Metadata and framing have separate bounds.
 - One certificate claim, one serial transfer with no retries, at most two gateway
   fetch-dispatched PUTs, 64 KiB per request body and 128 KiB aggregate claimed request bodies. The existing

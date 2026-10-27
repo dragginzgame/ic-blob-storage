@@ -40,14 +40,17 @@ Testkit; [IC Persistence](https://github.com/dragginzgame/ic-persistence) owns
 Memory and Storage. Package names and ownership boundaries remain unchanged.
 Blob consumes published packages, without sibling paths or compatibility aliases.
 
-The pending 0.51 adoption uses published Rust Platform 0.7.0 throughout Blob's
+The released 0.51 boundary uses published Rust Platform 0.7.0 throughout Blob's
 workspace catalog. Its removal of Candid JavaScript/TypeScript compiler exports
 requires no local replacement: owned clients already use Wire generation.
 Platform owns Blob's public Principal identity, so consumers must rebuild on
 the same Platform line. Required external Candid and stored/Wire bytes retain
 their existing contracts.
 
-Published Tooling 0.69.0 and Memory/Storage 0.51.9 align on Platform 0.7.0.
+The pending 0.52 batch requires published Tooling 0.69.2 and Memory/Storage
+0.51.12, retaining Platform 0.7.0. Tooling's native process-lifecycle, cache
+admission and managed-server changes require no Blob API or feature migration;
+the standalone normal/build Wasm dependency tree is unchanged by this adoption.
 Their dependency minimums keep the older Platform 0.6 package out of the resolved
 graph without a Cargo patch or type-conversion shim. Default and all-feature
 metadata resolve one Platform identity; the standalone uses one CDK executor
@@ -84,7 +87,7 @@ selection; removing the CLI declaration does not retire simulator setup.
 Collection constructors take exclusive `RuntimeMemory<Backing>` handles from the
 host runtime. Store/workflow generic parameters name `Backing`; passive memory
 bundles carry handles without granting access. Production hosts compose all
-seventeen Blob requests before a single bootstrap. Cross-release installations
+fifteen Blob requests before a single bootstrap. Cross-release installations
 require [safe retirement](retiring-installations.md), not automatic migration.
 
 Native fixture custody uses Memory's published `testing::fixture_runtime` with
@@ -362,7 +365,7 @@ For consumer adoption of this source:
    package identity. Store/workflow type parameters now name backing memory; constructors
    take exclusive runtime leases. Freeze the application's actual lock and every
    independent fixture lock; sibling paths are not registry-delivery evidence.
-2. Include Blob's seventeen requests in the host's single declaration snapshot
+2. Include Blob's fifteen requests in the host's single declaration snapshot
    and grant the `blob.` namespace before bootstrap. Validate installation for the
    allocated Principal before opening stores. Mounting initializes nothing.
 3. Preserve the host's authenticated initializer and one synchronous lifecycle.

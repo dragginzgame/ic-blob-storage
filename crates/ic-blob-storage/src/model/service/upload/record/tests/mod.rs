@@ -68,7 +68,7 @@ fn inconsistent_permission_phases_cannot_become_valid_views() {
 fn variable_page_layout_keeps_a_hard_record_decode_bound() {
     for bytes in [vec![0; MANIFEST_BYTES + 1], b"truncated".to_vec()] {
         assert!(
-            std::panic::catch_unwind(|| UploadManifestRecord::from_bytes(Cow::Owned(bytes)))
+            std::panic::catch_unwind(|| UploadManifestPartRecord::from_bytes(Cow::Owned(bytes)))
                 .is_err()
         );
     }
@@ -87,44 +87,14 @@ fn admitted_large_leaf_and_header_envelopes_fit_the_wire_record_policy() {
             .collect::<Vec<_>>();
         let header_bytes: usize = headers.iter().map(|h| h.name.len() + h.value.len()).sum();
         assert!(1024 + 33 * chunks + header_bytes + 8 * headers.len() <= MANIFEST_BYTES);
-        let record = UploadManifestRecord {
-            version: 1,
+        let record = PreparedUploadManifest {
             chunks: vec![[255; 32]; chunks],
             headers,
         };
-        let bytes = record.to_bytes();
-        assert!(bytes.len() <= MANIFEST_BYTES);
-        assert_eq!(UploadManifestRecord::from_bytes(bytes), record);
+        for part in record.split() {
+            let bytes = part.to_bytes();
+            assert!(bytes.len() <= MANIFEST_BYTES);
+            assert_eq!(UploadManifestPartRecord::from_bytes(bytes), part);
+        }
     }
-}
-
-#[test]
-fn admitted_leaf_selection_preserves_position_and_exact_final_length() {
-    use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
-    use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange;
-    let record = UploadManifestRecord {
-        version: 1,
-        chunks: vec![[1; 32], [2; 32]],
-        headers: vec![],
-    };
-    let bytes = CAFFEINE_CHUNK_BYTES as u64 + 7;
-    for (index, offset, length, hash) in [
-        (0, 0, CAFFEINE_CHUNK_BYTES, [1; 32]),
-        (1, CAFFEINE_CHUNK_BYTES as u64, 7, [2; 32]),
-    ] {
-        assert_eq!(
-            record.read_leaf(bytes, index),
-            Some((
-                CaffeineChunkRange {
-                    index,
-                    offset,
-                    bytes: length
-                },
-                CaffeineChunkHash::try_from(hash.as_slice()).unwrap()
-            ))
-        );
-    }
-    assert_eq!(record.read_leaf(bytes, 2), None);
-    assert_eq!(record.read_leaf(bytes, u64::MAX), None);
-    assert_eq!(record.read_leaf(CAFFEINE_CHUNK_BYTES as u64, 0), None);
 }

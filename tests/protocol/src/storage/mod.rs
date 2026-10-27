@@ -34,18 +34,14 @@ pub enum WriteFault {
     Receipts,
     /// Root-to-request index, after root claim and permission insertion.
     RootRequests,
+    /// Pending deletion candidate index write.
+    Deletions,
     /// Funding accounting, after the exact intent row write.
     FundingAccounting,
     /// Funding intent/attempt/outcome row.
     FundingIntents,
     /// Whole gateway membership and sync record.
     Gateways,
-    /// Read-session row write/removal.
-    ReadSessions,
-    /// Per-tenant read occupancy, after session row mutation.
-    ReadTenants,
-    /// Aggregate read occupancy and sequence, after session/tenant mutation.
-    ReadJournal,
 }
 /// One admission that must trap at the selected stable write.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]

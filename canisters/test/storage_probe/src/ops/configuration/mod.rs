@@ -4,7 +4,6 @@ use ic_blob_storage::ops::service::stores::ServiceStoreConfiguration;
 use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
-use ic_blob_storage_contracts::dto::configuration::ServiceReadInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 
 pub(super) fn configuration(
@@ -14,9 +13,7 @@ pub(super) fn configuration(
         (1..=10_000).contains(&input.max_objects)
             && (1..=32).contains(&input.max_tenants)
             && (10..=67_108_864).contains(&input.max_object_bytes)
-            && (1..=10_000).contains(&input.max_funding_attempts)
-            && (1..=1024).contains(&input.max_read_sessions)
-            && (1..=input.max_read_sessions).contains(&input.max_tenant_read_sessions),
+            && (1..=10_000).contains(&input.max_funding_attempts),
         "bounded fixture capacity"
     );
     let objects = input.max_objects;
@@ -65,13 +62,6 @@ pub(super) fn configuration(
                 renewal_ceiling: 2000_u128.max(u128::from(input.max_funding_attempts) + 100),
                 reserve: 100,
                 max_attempts: input.max_funding_attempts,
-            },
-            reads: ServiceReadInput {
-                sessions: input.max_read_sessions,
-                tenant_sessions: input.max_tenant_read_sessions,
-                reply_bytes: 2048,
-                bytes: 2048 * u64::from(input.max_read_sessions),
-                tenant_bytes: 2048 * u64::from(input.max_tenant_read_sessions),
             },
         },
     )

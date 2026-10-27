@@ -42,7 +42,7 @@ pub fn begin_sync<M: Memory>(
 
 /// Apply a trusted transport observation to its exact original pending query.
 /// Failure preserves the attempt for explicit cancellation or a valid response;
-/// success consumes it. This does not grant callback or read-session authority.
+/// success consumes it. This does not grant callback authority.
 /// # Errors
 /// Rejects wrong authority/fence, correlation and invalid or over-budget replies.
 /// # Panics

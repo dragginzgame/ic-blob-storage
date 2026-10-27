@@ -17,13 +17,12 @@ fn request() -> GatewayRevocationRequest {
     }
 }
 #[test]
-fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_restore() {
+fn shared_revocation_invalidates_sync_even_when_absent_and_survives_restore() {
     let memory = FixtureMemory::default();
     let mut store = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     store.add(context(), scope(), p(4)).unwrap();
     for removed in [true, false] {
         let token = store.begin_sync(context(), scope()).unwrap();
-        let generation = store.registry().unwrap().read_generation.current();
         let response = revoke(&mut store, context(), request()).unwrap();
         assert_eq!(
             response,
@@ -50,10 +49,6 @@ fn shared_revocation_invalidates_sync_and_reads_even_when_absent_and_survives_re
                 .sync
                 .pending_sequence,
             None
-        );
-        assert_ne!(
-            store.registry().unwrap().read_generation.current(),
-            generation
         );
         assert_eq!(
             store.registry().unwrap().check_sync(token, scope()),

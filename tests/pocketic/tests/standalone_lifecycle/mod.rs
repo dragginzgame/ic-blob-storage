@@ -17,13 +17,12 @@ fn fences(status: &LocalServiceStatus, expected: bool) {
     assert_eq!(status.uploads.fenced, expected);
     assert_eq!(status.funding.fenced, expected);
     assert_eq!(status.gateways.fenced, expected);
-    assert_eq!(status.reads.fenced, expected);
 }
 fn normalized(mut status: LocalServiceStatus) -> LocalServiceStatus {
     status.uploads.fenced = false;
     status.funding.fenced = false;
     status.gateways.fenced = false;
-    status.reads.fenced = false;
+
     status
 }
 fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {

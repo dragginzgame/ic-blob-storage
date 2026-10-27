@@ -4,9 +4,7 @@
 //! grant a namespace in the allocation pool and bootstrap once before opening. Linking this module
 //! registers nothing. Configuration memory and lifecycle remain host-owned.
 use super::ServiceMemories;
-use crate::ops::service::{
-    funding::FundingMemories, reads::ReadSessionMemories, uploads::UploadMemories,
-};
+use crate::ops::service::{funding::FundingMemories, uploads::UploadMemories};
 use ic_memory::{Memory, RuntimeMemory};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
 
@@ -24,20 +22,16 @@ const KEYS: ServiceMemories<&str> = ServiceMemories {
         references: "blob.references.v1",
         receipts: "blob.receipts.v1",
         root_requests: "blob.root_requests.v1",
+        deletions: "blob.pending_deletions.v1",
     },
     funding: FundingMemories {
         accounting: "blob.funding_accounting.v1",
         intents: "blob.funding_intents.v1",
     },
     gateways: "blob.gateways.v1",
-    reads: ReadSessionMemories {
-        journal: "blob.read_journal.v1",
-        sessions: "blob.read_sessions.v1",
-        tenants: "blob.read_tenants.v1",
-    },
 };
 
-/// Build the sixteen current service requests under an explicit host authority.
+/// Build the fourteen current service requests under an explicit host authority.
 /// No registration, namespace grant, runtime bootstrap or stable write occurs.
 /// Hosts compose these with their configuration and other application requests
 /// before sealing; the host's policy owns placement and authority validation.
@@ -73,17 +67,13 @@ pub fn open<M: Memory, E>(
             references: lookup(KEYS.uploads.references)?,
             receipts: lookup(KEYS.uploads.receipts)?,
             root_requests: lookup(KEYS.uploads.root_requests)?,
+            deletions: lookup(KEYS.uploads.deletions)?,
         },
         funding: FundingMemories {
             accounting: lookup(KEYS.funding.accounting)?,
             intents: lookup(KEYS.funding.intents)?,
         },
         gateways: lookup(KEYS.gateways)?,
-        reads: ReadSessionMemories {
-            journal: lookup(KEYS.reads.journal)?,
-            sessions: lookup(KEYS.reads.sessions)?,
-            tenants: lookup(KEYS.reads.tenants)?,
-        },
     })
 }
 

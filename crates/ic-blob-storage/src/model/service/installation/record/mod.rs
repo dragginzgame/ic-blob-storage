@@ -40,16 +40,11 @@ pub(crate) struct ConfigurationRecord {
     pub(crate) funding_renewal_ceiling: u128,
     pub(crate) funding_reserve: u128,
     pub(crate) funding_max_attempts: u32,
-    pub(crate) read_sessions: u32,
-    pub(crate) read_tenant_sessions: u32,
-    pub(crate) read_reply_bytes: u32,
-    pub(crate) read_bytes: u64,
-    pub(crate) read_tenant_bytes: u64,
 }
 impl ConfigurationRecord {
     /// Frozen current layout, independently checked from the installation release.
     /// The host allocation key names a memory slot, not this record's layout.
-    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:wire-records";
+    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:singleton-cells";
 
     pub(crate) fn check_binding(
         &self,

@@ -11,7 +11,7 @@ use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_memory::Memory;
 
-/// Present every independent policy blocker at the Candid boundary. Conversion
+/// Present every independent policy blocker at the Wire boundary. Conversion
 /// grants no issuance authority and does not acquire or authenticate host evidence.
 #[must_use]
 pub fn blockers(
@@ -57,28 +57,47 @@ pub(crate) fn permission<M: Memory>(
 pub(crate) fn check<M: Memory>(
     store: &StableUploads<M>,
     context: UploadContext,
-    input: UploadAdmissionRequest,
+    permission: UploadPermission,
     evidence: UploadExposureHostEvidence,
     now: u64,
-) -> Result<UploadPermission, UploadExposureFailure> {
-    let permission = permission(store, context, input, true)?.permission;
+) -> Result<super::UploadPermissionRecord, UploadExposureFailure> {
+    if context.actor != permission.uploader {
+        return Err(UploadExposureFailure::Permission(
+            UploadAdmissionFailure::Denied,
+        ));
+    }
+    super::validation::object(
+        &store.config,
+        context,
+        permission.request.object.first.object(),
+    )
+    .map_err(|error| failure(error.into()))?;
+    let record = store.required(permission.request).map_err(failure)?;
+    if record
+        .view()
+        .ok_or(UploadExposureFailure::Permission(
+            UploadAdmissionFailure::Internal,
+        ))?
+        .permission
+        != permission
+    {
+        return Err(UploadExposureFailure::Permission(
+            UploadAdmissionFailure::Conflict,
+        ));
+    }
     if evidence.permission != permission {
         return Err(UploadExposureFailure::EvidenceBinding);
     }
     store
-        .exposure_record(context, permission.request, now)
+        .check_exposure_record(context, &record, now)
         .map_err(failure)?;
-    Ok(permission)
+    Ok(record)
 }
 pub(crate) fn commit<M: Memory>(
     store: &mut StableUploads<M>,
-    context: UploadContext,
-    permission: UploadPermission,
-    now: u64,
+    record: super::UploadPermissionRecord,
 ) -> Result<(), UploadExposureFailure> {
-    store
-        .expose(context, permission.request, now)
-        .map_err(failure)
+    store.commit_exposure(record).map_err(failure)
 }
 pub(super) fn failure(error: UploadStoreError) -> UploadExposureFailure {
     use UploadAdmissionError as A;

@@ -132,7 +132,7 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
         assert_eq!(pending.gateways.members, status.gateways.members);
         assert_eq!(pending.uploads, status.uploads);
         assert_eq!(pending.funding, status.funding);
-        assert_eq!(pending.reads, status.reads);
+
         let bytes = f.harness.pic.get_stable_memory(f.service);
         assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::Busy));
         assert_eq!(

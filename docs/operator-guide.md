@@ -398,7 +398,7 @@ The first live trial and its template deliberately retain their small envelope.
 | Object, tenant and manifest-leaf capacity | Lifetime unique objects/leaves across the selected release horizon, including cancelled work; capacity is not recovered by releasing a reference |
 | Physical/liability and tenant logical bytes | Overlapping releases and uncertain stored obligations; logical release does not delete provider bytes or end billing |
 | References and receipts per object | Reuse across releases, exact retain/release history and retained cleanup capacity |
-| Active upload and read limits | Explicit publisher concurrency and read-session/byte/reply budgets; these are independent of the object maximum |
+| Active upload limits | Explicit publisher concurrency, independent of the object maximum; clients separately bound download buffers |
 
 Client upload and whole-download budgets must also cover each selected object.
 The enrolled tenant approves each exact uploader permission through

@@ -306,17 +306,42 @@ pub(crate) fn chunks(bytes: u64) -> u64 {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-struct UploadHeaderRecord {
+pub(crate) struct UploadHeaderRecord {
     name: String,
     value: String,
 }
+/// One separately addressable portion of an immutable original declaration.
+/// Headers can be decoded without allocating the complete leaf vector.
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub(crate) struct UploadManifestRecord {
-    version: u8,
+pub(crate) enum UploadManifestPartRecord {
+    Chunks(Vec<[u8; 32]>),
+    Headers(Vec<UploadHeaderRecord>),
+}
+impl UploadManifestPartRecord {
+    pub(crate) fn into_headers(
+        self,
+    ) -> Option<Vec<crate::model::service::upload::download::ContentHeader>> {
+        let Self::Headers(headers) = self else {
+            return None;
+        };
+        Some(
+            headers
+                .into_iter()
+                .map(|h| crate::model::service::upload::download::ContentHeader {
+                    name: h.name,
+                    value: h.value,
+                })
+                .collect(),
+        )
+    }
+}
+/// Synchronous join for complete inspection, replay validation and restoration.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(crate) struct PreparedUploadManifest {
     chunks: Vec<[u8; 32]>,
     headers: Vec<UploadHeaderRecord>,
 }
-impl UploadManifestRecord {
+impl PreparedUploadManifest {
     pub(crate) fn into_view(self) -> manifest::UploadManifestView {
         manifest::UploadManifestView {
             chunks: self.chunks,
@@ -330,48 +355,25 @@ impl UploadManifestRecord {
                 .collect(),
         }
     }
-    /// Select from an immutable manifest already root-bound at admission and
-    /// validated on reopen. This range check does not independently authenticate
-    /// a new manifest or rebuild its tree.
-    pub(crate) fn read_leaf(
-        &self,
-        content_bytes: u64,
-        index: u64,
-    ) -> Option<(
-        ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange,
-        CaffeineChunkHash,
-    )> {
-        let chunk_bytes =
-            ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64;
-        if self.version != 1 || self.chunks.len() as u64 != content_bytes.div_ceil(chunk_bytes) {
-            return None;
-        }
-        let leaf = self.chunks.get(usize::try_from(index).ok()?)?;
-        let offset = index.checked_mul(chunk_bytes)?;
-        let bytes = usize::try_from(content_bytes.checked_sub(offset)?.min(chunk_bytes)).ok()?;
-        Some((
-            ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange {
-                index,
-                offset,
-                bytes,
-            },
-            CaffeineChunkHash::try_from(leaf.as_slice()).ok()?,
-        ))
+    pub(crate) fn split(self) -> [UploadManifestPartRecord; 2] {
+        [
+            UploadManifestPartRecord::Chunks(self.chunks),
+            UploadManifestPartRecord::Headers(self.headers),
+        ]
     }
-    pub(crate) fn into_headers(
-        self,
-    ) -> Vec<crate::model::service::upload::download::ContentHeader> {
-        self.headers
-            .into_iter()
-            .map(|h| crate::model::service::upload::download::ContentHeader {
-                name: h.name,
-                value: h.value,
-            })
-            .collect()
+    pub(crate) fn join(
+        chunks: UploadManifestPartRecord,
+        headers: UploadManifestPartRecord,
+    ) -> Option<Self> {
+        let (UploadManifestPartRecord::Chunks(chunks), UploadManifestPartRecord::Headers(headers)) =
+            (chunks, headers)
+        else {
+            return None;
+        };
+        Some(Self { chunks, headers })
     }
     pub(crate) fn new(input: manifest::UploadManifest<'_>) -> Self {
         Self {
-            version: 1,
             chunks: input.chunks.iter().map(|v| *v.as_bytes()).collect(),
             headers: input
                 .headers
@@ -392,8 +394,7 @@ impl UploadManifestRecord {
                 .all(|(a, b)| a == b.as_bytes())
     }
     pub(crate) fn validate(&self, config: &ServiceConfiguration, request: UploadRequest) -> bool {
-        if self.version != 1
-            || self.chunks.len() > config.manifest_limits().max_chunks.get()
+        if self.chunks.len() > config.manifest_limits().max_chunks.get()
             || self.headers.len() > config.limits().max_headers.get()
         {
             return false;
@@ -452,8 +453,8 @@ codec!(
 // The codec still enforces 64 KiB. Variable-size B-tree pages avoid sizing every
 // node for several maximum manifests when most objects have only a few leaves.
 codec!(
-    UploadManifestRecord,
-    b"BLUPMF01",
+    UploadManifestPartRecord,
+    b"BLUPMP01",
     MANIFEST_BYTES,
     Bound::Unbounded
 );

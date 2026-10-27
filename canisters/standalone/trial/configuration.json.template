@@ -33,12 +33,5 @@
     "renewal_ceiling": 1,
     "reserve": 1,
     "max_attempts": 1
-  },
-  "reads": {
-    "sessions": 1,
-    "tenant_sessions": 1,
-    "reply_bytes": 1024,
-    "bytes": 1024,
-    "tenant_bytes": 1024
   }
 }

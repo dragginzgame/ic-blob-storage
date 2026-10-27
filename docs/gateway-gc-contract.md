@@ -20,7 +20,7 @@ provider key is protected, never guessed to be a released file or chunk.
 
 | External method | Contract | Local behavior |
 | --- | --- | --- |
-| `_immutableObjectStorageBlobsAreLive` | `(vec blob) -> (vec bool) query` | Public, positional and duplicate-preserving. Known reservations, live references and active read sessions are protected. Unknown roots return true. Malformed batches refuse. |
+| `_immutableObjectStorageBlobsAreLive` | `(vec blob) -> (vec bool) query` | Public, positional and duplicate-preserving. Known reservations and live references are protected. Unknown roots return true. Malformed batches refuse. |
 | `_immutableObjectStorageBlobsToDelete` | `() -> (vec blob) query` | Current scoped gateway members only. Returns at most 10,000 known released tree roots, excluding read-held or already acknowledged lifetimes. |
 | `_immutableObjectStorageConfirmBlobDeletion` | `(vec blob) -> ()` | Current scoped gateway members only. Records an acknowledgment on each exact original released lifetime. It does not erase records or settle physical/billing obligations. |
 

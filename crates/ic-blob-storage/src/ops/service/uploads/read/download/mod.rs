@@ -33,7 +33,17 @@ impl<M: Memory> StableUploads<M> {
         }
         // Operational disclosure requires active enrollment and an unfenced owner.
         // Historical descriptor inspection deliberately keeps its separate contract.
-        self.active_read_generation(context, reference)?;
+        let object = reference.object();
+        super::validation::object(&self.config, context, object).map_err(UploadStoreError::from)?;
+        super::validation::tenant(
+            &self.config,
+            context,
+            object.tenant(),
+            object.identity().namespace,
+        )
+        .map_err(UploadStoreError::from)?;
+        self.mutable()?;
+        self.generation(object.tenant())?;
         self.retained_content_descriptor(context, root, reference)?
             .ok_or(DownloadDescriptorError::Unavailable)
     }

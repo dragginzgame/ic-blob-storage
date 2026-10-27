@@ -128,13 +128,12 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
 #[test]
 fn complete_validator_refuses_inconsistent_limits_bindings_and_authorities_before_output() {
     let original: ServiceConfigurationInput = serde_json::from_slice(&fixture()).unwrap();
-    let setters: [fn(&mut ServiceConfigurationInput); 6] = [
+    let setters: [fn(&mut ServiceConfigurationInput); 5] = [
         |input| input.namespace = 0,
         |input| input.operator = Principal::anonymous(),
         |input| input.payment_account = Principal::management_canister(),
         |input| input.resources.max_receipts_per_object = 2,
         |input| input.funding.reserve = input.funding.allocated + 1,
-        |input| input.reads.tenant_sessions = input.reads.sessions + 1,
     ];
     for change in setters {
         let base = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
