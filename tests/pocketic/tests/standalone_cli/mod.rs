@@ -74,7 +74,8 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
         f.config.funding.allocated.to_string()
     );
     assert_eq!(value["scope"]["namespace"], u128::MAX.to_string());
-    for owner in ["uploads", "funding", "gateways", "reads"] {
+    assert!(value.get("reads").is_none());
+    for owner in ["uploads", "funding", "gateways"] {
         assert_eq!(value[owner]["fenced"], false);
     }
     let mut wrong = args.clone();
@@ -106,7 +107,8 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     change(&mut args, "--url", &live(&mut f));
     let restored = run(&args, 0);
     funding_history(&args, true);
-    for owner in ["uploads", "funding", "gateways", "reads"] {
+    assert!(restored.get("reads").is_none());
+    for owner in ["uploads", "funding", "gateways"] {
         assert_eq!(restored[owner]["fenced"], true);
     }
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);

@@ -1138,14 +1138,14 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
 | --- | --- | --- |
 | `sync-gateways` | No guessed sequence or gateway | Persist pending identity, query installed Cashier once, then replace membership if still current |
 | `cancel-gateway-sync` | `--sequence DECIMAL` from observed pending status | Cancel only that read-only sync, preserving allocated sequence history |
-| `revoke-gateway` | `--gateway PRINCIPAL` | Remove local membership and invalidate pending sync/read observations, even if already absent |
+| `revoke-gateway` | `--gateway PRINCIPAL` | Remove local membership and invalidate pending sync observations, even if already absent |
 
 For cancellation or revocation, replace `sync-gateways` in the example, add the
 required choice and use a distinct run directory. Cancellation sequences must be
 positive canonical u64 decimals; principals must be concrete canonical identities.
 These are current operator decisions. Revocation is local membership removal;
-it does not delete provider bytes, stop billing, release read slots or permanently
-ban future re-addition. Neither cancellation nor revocation queries the provider.
+it does not delete provider bytes, stop billing or permanently ban future
+re-addition. Neither cancellation nor revocation queries the provider.
 Sync attaches no provider cycles; normal IC execution costs remain separate.
 
 Before network dispatch, the client atomically claims a private directory and

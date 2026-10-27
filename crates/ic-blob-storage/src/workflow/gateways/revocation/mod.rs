@@ -11,8 +11,8 @@ use ic_memory::Memory;
 /// The host supplies actual service/caller and commits synchronously before replying.
 /// An absent member still invalidates older observations. Future explicitly
 /// authorized additions/syncs are separate decisions; this is not a denylist.
-/// No provider call, physical deletion, billing settlement or read-slot release
-/// occurs. A missing acknowledgment does not authorize an automatic repeat.
+/// No provider call, physical deletion or billing settlement occurs. A missing
+/// acknowledgment does not authorize an automatic repeat.
 /// # Errors
 /// Rejects invalid input, scope/actor, corrupt state or restored mutation fences.
 /// # Panics

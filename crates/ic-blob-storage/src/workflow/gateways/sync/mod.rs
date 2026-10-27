@@ -55,8 +55,8 @@ pub async fn refresh<H: GatewayRegistryAccess>(
     })
 }
 /// Cancel only the observed pending read-only identity; no token comes from ingress.
-/// Retains allocated sequence history, membership and read generations. A late
-/// callback cannot apply afterward. Does not cancel payments or release read slots.
+/// Retains allocated sequence history and membership. A late callback cannot
+/// apply afterward. Does not cancel payments.
 /// # Errors
 /// Rejects malformed identity, scope/authority, restore fence or stale sequence.
 /// # Panics

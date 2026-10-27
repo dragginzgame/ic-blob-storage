@@ -8,7 +8,8 @@
   Keep direct client downloads and authenticated download descriptors. Rebuild
   adapters against the current configuration, fifteen installation grants and
   updated configuration/status/install Wire frames. Keep one current schema (1),
-  without compatibility readers.
+  without compatibility readers. Gateway revocation still invalidates pending
+  refreshes, without retaining a read-session generation counter.
 - Split retained manifests into independently readable headers and leaves, and
   index pending GC candidates beside the authoritative lifecycle records. Retire
   and reinstall across releases; preserve provider objects, uncertain effects,

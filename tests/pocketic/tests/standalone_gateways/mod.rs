@@ -81,12 +81,9 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
         );
         assert_eq!(f.local_status(f.operator, input.scope).unwrap(), status);
     }
-    // An absent revocation still advances read invalidation; it is a committed
-    // decision, not a passive query or an automatically replayed receipt.
-    assert!(
-        !f.harness.pic.get_stable_memory(f.service).eq(&before),
-        "revocation did not advance durable invalidation"
-    );
+    // No member or pending sync exists to remove. The retired read-session
+    // generation no longer makes an otherwise unchanged decision write state.
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = f.harness.pic.get_stable_memory(f.service);

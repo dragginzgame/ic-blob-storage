@@ -1,9 +1,9 @@
 # Current status — 2026-10-27
 
-Released baseline: `6798a827a3dc6187a788d9c9e333d51882160acc`, Blob **0.51.0**.
+Last tagged release: `6798a827a3dc6187a788d9c9e333d51882160acc`, Blob **0.51.0**.
 The pending batch is **0.52.0**, following explicit approval to retire journaled
 on-canister chunk reads. Package versions remain 0.51.0 until maintainer release
-preparation. Nothing staged, committed, pushed, published or deployed by this task.
+preparation; source is now `4db6333d` (maintainer commit). This fix remains unstaged.
 
 ## Accepted simplification batch
 
@@ -49,11 +49,9 @@ stable bytes; its original owner remains usable after rejected upgrade.
 
 Published Storage 0.51.12 supplies the read-only loader requested by
 [Persistence #136](https://github.com/dragginzgame/ic-persistence/issues/136).
-Blob uses it directly; no local header parser, initializing fallback or caller
-default is introduced. The upstream issue remains open for its separate macOS
-tooling acceptance under Persistence #135; Blob adoption is locally complete.
-Real pre-cell upgrade refusal retains all bytes and the
-original object, configuration and accounting observations. Schema remains 1.
+Blob uses it directly, without local parsing, fallback or defaults. The issue stays
+open for macOS tooling acceptance under Persistence #135; local adoption is complete.
+Pre-cell refusal retains bytes, original objects/configuration/accounting; schema 1.
 
 Read-only Canic review confirms no production read-session implementation; three
 testing-internal configuration fixtures still name its retired input. Canic must
@@ -67,13 +65,13 @@ remain separate; this cleanup does not establish deployed Caffeine/Canic readine
 Require published Host/Build/Testkit **0.69.2**, already selected by the incoming
 lock; no further lock changes. Native CLI/process and managed-server APIs need
 no caller changes. Testkit and Build CLIs are explicitly prepared/admitted.
-Memory/Storage **0.51.12**, Platform 0.7.0, Wire 0.7.18 and Metrics 0.16.3 remain.
+Incoming lock selects Memory/Storage **0.51.13** (minimum 0.51.12); Platform 0.7.0,
+Wire 0.7.18 and Metrics 0.16.3 remain. This fix leaves the dependency graph intact.
 Browser Platform 0.1.1 / SDK Core 6.1.1 / Caffeine 1.1.2 remain unchanged.
 
-Raw evidence: `/tmp/blob-simplify052-20261027.wmcqnujw/` retains compiler inputs,
-initial/final locks/patches, raw artifacts, commands, measurements and failed/retried
-attempts. The cell
-step is retained in `/tmp/blob-cell052-20261027.qOTAMW0S/`; standalone `after.wasm` SHA-256:
+Raw evidence `/tmp/blob-simplify052-20261027.wmcqnujw/` retains inputs, locks,
+patches, artifacts, commands, measurements and failed attempts. Cell evidence:
+`/tmp/blob-cell052-20261027.qOTAMW0S/`; standalone `after.wasm` SHA-256:
 `a54edcafe0673fd381e596c0a59dfa81903355ff6a75cd5e06bda37615e68646`.
 It is 2,585,430 raw / 659,413 gzip bytes: 19.0% / 5.9% below the captured baseline.
 No endpoint IC-instruction, allocation or peak-heap gain is claimed.
@@ -85,16 +83,18 @@ deployment/dependency exclusions and generated TypeScript qualification pass.
 Tooling 0.69.2: CLI 126, offline operator 25, subprocess 1 and installed lifecycle/
 CLI 6 tests pass, with strict caller Clippy and native Rust 1.91 checks. Its
 standalone deployment tree is byte-identical; evidence is retained at
-`/tmp/blob-tooling0692-20261027.XFd9u5hk/`. Full CI, native macOS, production sizing,
-deployed provider and downstream Canic qualification remain unrun.
+`/tmp/blob-tooling0692-20261027.XFd9u5hk/`. The subsequent full gate caught three
+stale standalone expectations for removed read status/generation; these are fixed,
+with explicit absent-field assertions and unchanged-state checks for idle revocation.
+Rerun: 75 standalone tests (8 gated skips), 2 revocation tests and strict Clippy pass;
+evidence: `/tmp/blob-retired-read-tests-20261027.t7LYiMA5/`.
+Full CI completion, native macOS, production/provider and Canic qualification remain unproven.
 
 ## Preserved Shared Tooling adoption
 
 Shared **0.26.25**, committed source
 `6b6bbd9c9e5798f0ecf6105637392a7a55cd450e`, remains the reviewed 130-file snapshot.
-The root formatter covers all thirteen members, preserves dependency roles and
-shows per-pass timing; unchanged-input reuse excludes staged hooks. Gitlinks stay
-opaque. Its prior hook rollback, fixture/release-command and forced-formatting
-proofs remain in `/tmp/blob-shared02625-20261027.WNse8z53/` and
-`/tmp/blob-shared02623-20261027.0DfInVjK/`. This batch preserves those pending changes;
-no mutable sibling tooling or generic producer matrix was copied or replayed.
+The formatter covers thirteen members/dependency roles; reuse excludes staged hooks
+and gitlinks remain opaque. Prior hook/fixture/release/forced-format proofs stay in
+`/tmp/blob-shared02625-20261027.WNse8z53/` and
+`/tmp/blob-shared02623-20261027.0DfInVjK/`. No sibling tooling was copied or edited.

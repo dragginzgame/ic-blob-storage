@@ -154,7 +154,8 @@ impl GatewayCli {
     }
     pub fn status(&self, label: &str, fenced: bool) -> Value {
         let status = self.execute(&self.base, 0);
-        for owner in ["uploads", "funding", "reads"] {
+        assert!(status.get("reads").is_none());
+        for owner in ["uploads", "funding"] {
             assert_eq!(status[owner]["fenced"], fenced);
             if !self.baseline.is_null() {
                 let mut current = status[owner].clone();
