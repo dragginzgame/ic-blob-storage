@@ -13,6 +13,8 @@
   schemas, JSON bridge and direct Core dependency. Old fixture journals require
   reinstallation and refuse without empty-state fallback. Retain required external
   provider Candid; public service packets and production record schemas are unchanged.
+- Keep the entire PocketIC support library native-only so provider-call helpers
+  do not enter Wasm builds without their native dependencies.
 
 ## [0.49.2] - 2026-10-26
 

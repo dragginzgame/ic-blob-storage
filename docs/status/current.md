@@ -1,7 +1,7 @@
-# Current status — 2026-10-26
+# Current status — 2026-10-27
 
-Source baseline: `64031753`, released 0.49.2. Package versions remain 0.49.2;
-pending compatible notes target 0.49.3. The
+Released baseline: `64031753`, released 0.49.2. Checkout `9970e754` contains the
+pending fixture cut. Package versions remain 0.49.2; compatible notes target 0.49.3. The
 [released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/64031753/docs/status/current.md)
 retains upstream qualification; [history](history.md) retains older records.
 
@@ -118,6 +118,14 @@ required. Published dependencies remain Host/Build/Testkit 0.68.9,
 Platform 0.6.19, Wire 0.7.18, Memory/Storage 0.51.5 and Metrics 0.16.3.
 Shared Tooling remains 0.26.21. Prior source/tool evidence remains at
 `/tmp/blob-upstream-20261026.CuhRRC/` with its original source scope.
+
+The reported Wasm gate failure exposed an unguarded native `provider_calls`
+module. The PocketIC support library now has one crate-level native-only guard,
+matching its target-specific dependencies and covering future modules too.
+Focused all-feature Wasm checking and native all-target/all-feature strict Clippy
+pass for `ic-blob-storage-pocketic-tests`; logs are retained at
+`/tmp/blob-provider-target-20261027/`. No dependencies or runtime behavior change.
+The full workspace Wasm/CI gates were not rerun for this scoped guard fix.
 
 ## Ownership and remaining boundaries
 
