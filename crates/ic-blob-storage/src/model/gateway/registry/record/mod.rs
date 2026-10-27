@@ -2,14 +2,13 @@
 use super::{GatewayRegistry, GatewayScope, GatewaySyncToken};
 use crate::model::gateway::membership::GatewayMembership;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 use ic_platform::principal::ExternalPrincipal;
+use serde::Deserialize;
+use serde::Serialize;
 
 pub(crate) use ic_blob_storage_contracts::configuration::envelope::MAX_GATEWAY_MEMBERS as MAX_MEMBERS;
 const MAX_BYTES: u32 = 65_536;
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct GatewayRegistryRecord {
     version: u8,
     service: ExternalPrincipal,
@@ -100,8 +99,7 @@ impl GatewayRegistryRecord {
     }
 }
 crate::model::record_codec::storable!(
-    GatewayRegistryRecord, bytes: MAX_BYTES, work: 500_000, skipping: 1000,
-    types: 32, header: MAX_BYTES,
+    GatewayRegistryRecord, id: b"BLGATE01", bytes: MAX_BYTES,
     layout: ic_storage::adapter::storable::Bound::Bounded {
         max_size: MAX_BYTES, is_fixed_size: false,
     },

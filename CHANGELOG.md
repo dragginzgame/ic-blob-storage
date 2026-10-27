@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.50.0] - Unreleased
+
+### 📝 Summary
+
+- **Breaking stored format:** encode Blob-owned installation, upload, reference,
+  funding, tenant, gateway, root and read-session records with bounded IC Wire
+  through IC Storage. Give each record its own storage frame identity and remove
+  Candid traits from the model, including public `ReadSessionLimits`. Endpoint
+  packets and required external provider/management Candid remain unchanged.
+- Retire existing installations using their original tools before reinstalling;
+  old Candid stores refuse without migration, fallback readers or automatic reset.
+  Keep same-release rollback, restore fences, original-operation retries and all
+  physical-byte, funding and billing obligations. Replace retired historical
+  compatibility tests with an explicit populated Candid-store refusal regression.
+
 ## [0.49.3] - 2026-10-27
 
 ### 📝 Summary

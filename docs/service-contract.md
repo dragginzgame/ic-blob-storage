@@ -964,6 +964,22 @@ integrating host owns bootstrap, policy, grants and bucket profile. Cross-releas
 schema transitions are reinstall-only, subject to retirement of existing obligations;
 the dependency choice does not close provider and recovery qualification gates.
 
+The 0.50 hard cut encodes these Blob-owned records with published IC Wire's
+native Serde codec. `model::record_codec` supplies finite policy to each record's
+explicit storage-only frame identity. The frame byte ceiling retains the existing
+record bound, including the Wire header; allocation admission is 256 times that
+ceiling, nodes eight times it, and depth 32. These are codec admission units, not
+measured heap bounds or conversions of the retired Candid work quotas. Stable
+collection layout bounds, ordering and host allocation keys remain separate and
+unchanged. Variable manifest pages retain a hard 64 KiB record limit.
+
+Installation records also carry the current `ic-blob-storage/installation:wire-records`
+format. Earlier Candid payloads, wrong record identities, response frames,
+trailing/corrupt bytes and budget violations refuse. They never initialize a
+replacement store. There is no Candid compatibility reader or automatic migration.
+Retain the original binary/tools for old-store inspection and retirement; an
+unchanged memory key does not make a different payload format readable.
+
 The library publicly re-exports its selected Memory dependency. Hosts must align their
 composed graph to one package identity and include all permanent Blob requests
 in one host-wide allocation pool. Key-only committed opens preserve host-owned

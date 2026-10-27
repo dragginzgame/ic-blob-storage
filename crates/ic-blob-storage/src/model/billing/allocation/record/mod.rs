@@ -1,11 +1,10 @@
 //! Persisted allocation counters; updates share reconstruction arithmetic.
 use super::{FundingAllocation, FundingAllocationError, FundingAllocationView, FundingTransfer};
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
+use serde::Serialize;
 use std::num::NonZeroU128;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct FundingAllocationRecord {
     initial_allocated: u128,
     allocated: u128,

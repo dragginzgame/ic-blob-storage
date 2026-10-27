@@ -46,8 +46,8 @@ impl ValidatedServiceInstallation {
     /// The host authenticates installation and supplies its actual platform identity.
     /// # Errors
     /// Rejects invalid limits, bindings, project or bounded release identity.
-    /// # Panics
-    /// Traps if the fixed installation schema cannot be encoded.
+    /// Candidate encoding shares the persistence codec and returns `RecordBound`
+    /// for resource violations before opening any store.
     pub fn new(
         actual_service: Principal,
         candidate: ServiceInstallationCandidate<'_>,
@@ -61,13 +61,9 @@ impl ValidatedServiceInstallation {
         let configuration = configuration::record(&candidate);
         // Candidate validation returns a typed refusal before invoking the trapping
         // Storable contract used for already-admitted durable records.
-        let bytes = ic_platform::candid::contract::encode_one(&configuration)
-            .expect("installation record encoding");
-        if bytes.len()
-            > crate::model::service::installation::record::MAX_CONFIGURATION_BYTES as usize
-        {
-            return Err(ServiceInstallationError::RecordBound);
-        }
+        configuration
+            .encode_record()
+            .map_err(|_| ServiceInstallationError::RecordBound)?;
         Ok(Self {
             configuration,
             limits,

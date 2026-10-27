@@ -1,19 +1,18 @@
 //! Bounded v1 enrollment records; independent of host memory IDs.
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 use ic_platform::principal::ExternalPrincipal;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
+use serde::Deserialize;
+use serde::Serialize;
 #[cfg(test)]
 use std::borrow::Cow;
 use std::num::NonZeroU64;
 
 const MAX_BYTES: u32 = 256;
 
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct TenantStoreMetadataRecord {
     version: u8,
     service: ExternalPrincipal,
@@ -34,8 +33,7 @@ impl TenantStoreMetadataRecord {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct TenantEnrollmentRecord {
     version: u8,
     generation: u64,
@@ -62,16 +60,14 @@ impl TenantEnrollmentRecord {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) enum TenantStoreRecord {
     Metadata(TenantStoreMetadataRecord),
     Enrollment(TenantEnrollmentRecord),
 }
 
 crate::model::record_codec::storable!(
-    TenantStoreRecord, bytes: MAX_BYTES, work: 20_000, skipping: 1000,
-    types: 32, header: MAX_BYTES,
+    TenantStoreRecord, id: b"BLTEN001", bytes: MAX_BYTES,
     layout: ic_storage::adapter::storable::Bound::Bounded {
         max_size: MAX_BYTES, is_fixed_size: false,
     },

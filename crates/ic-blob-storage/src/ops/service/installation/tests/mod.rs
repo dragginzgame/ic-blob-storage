@@ -71,10 +71,10 @@ fn compiled_library_version_binds_installation_and_reopen() {
     );
 }
 #[test]
-fn installation_record_keeps_candid_bytes_and_rejects_oversized_encoding() {
+fn installation_record_uses_current_wire_bytes_and_rejects_oversized_encoding() {
     let memory = memory();
     let installed = ServiceInstallation::install(memories(&memory), validated()).unwrap();
-    let expected = ic_platform::candid::contract::encode_one(&installed.configuration).unwrap();
+    let expected = installed.configuration.encode_record().unwrap();
     assert_eq!(installed.configuration.to_bytes().as_ref(), expected);
     assert_eq!(installed.configuration.clone().into_bytes(), expected);
     let mut oversized = installed.configuration;

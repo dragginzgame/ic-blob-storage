@@ -12,17 +12,16 @@ use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 use ic_platform::principal::ExternalPrincipal;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use ic_storage::adapter::storable::Bound;
+use serde::Deserialize;
+use serde::Serialize;
 #[cfg(test)]
 use std::borrow::Cow;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum PhaseRecord {
     Live,
     DeletionPending,
@@ -39,8 +38,7 @@ impl From<LifecyclePhase> for PhaseRecord {
         }
     }
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ConfirmedLifecycleRecord {
     version: u8,
     phase: PhaseRecord,
@@ -150,8 +148,7 @@ impl ConfirmedLifecycleRecord {
         Ok(change)
     }
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ReferenceRecord {
     version: u8,
     active: bool,
@@ -171,8 +168,7 @@ impl ReferenceRecord {
         })
     }
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum ResultRecord {
     Changed,
     Unchanged,
@@ -181,8 +177,7 @@ enum ResultRecord {
     ReferenceLimitReached,
     DeletionAlreadyQueued,
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ReferenceReceiptRecord {
     version: u8,
     actor: ExternalPrincipal,
@@ -264,6 +259,7 @@ impl ReferenceReceiptRecord {
 }
 codec!(
     ConfirmedLifecycleRecord,
+    b"BLUPCF01",
     512,
     Bound::Bounded {
         max_size: 512,
@@ -272,6 +268,7 @@ codec!(
 );
 codec!(
     ReferenceRecord,
+    b"BLUPRF01",
     64,
     Bound::Bounded {
         max_size: 64,
@@ -280,6 +277,7 @@ codec!(
 );
 codec!(
     ReferenceReceiptRecord,
+    b"BLUPRC01",
     256,
     Bound::Bounded {
         max_size: 256,

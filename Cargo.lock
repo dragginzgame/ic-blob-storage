@@ -1538,6 +1538,7 @@ dependencies = [
  "ic-memory",
  "ic-platform",
  "ic-storage",
+ "ic-wire",
  "serde",
  "thiserror 2.0.18",
 ]

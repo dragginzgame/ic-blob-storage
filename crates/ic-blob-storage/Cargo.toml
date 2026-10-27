@@ -18,6 +18,7 @@ ic-blob-storage-contracts.workspace = true
 ic-memory.workspace = true
 ic-platform = { workspace = true, features = ["candid", "runtime", "management-canister-types"] }
 ic-storage.workspace = true
+ic-wire.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 

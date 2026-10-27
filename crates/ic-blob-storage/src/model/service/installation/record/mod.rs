@@ -1,12 +1,11 @@
 //! Host-owned current configuration schema; boundary DTOs are not persisted.
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 use ic_platform::principal::ExternalPrincipal;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// One bounded immutable installation record, never a freshness authority.
-#[derive(Clone, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub(crate) struct ConfigurationRecord {
     pub(crate) format: String,
     pub(crate) release: String,
@@ -50,8 +49,7 @@ pub(crate) struct ConfigurationRecord {
 impl ConfigurationRecord {
     /// Frozen current layout, independently checked from the installation release.
     /// The host allocation key names a memory slot, not this record's layout.
-    pub(crate) const FORMAT: &str =
-        "ic-blob-storage/installation:trusted-registration-provider-acknowledgments";
+    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:wire-records";
 
     pub(crate) fn check_binding(
         &self,
@@ -71,8 +69,7 @@ impl ConfigurationRecord {
     }
 }
 crate::model::record_codec::storable!(
-    ConfigurationRecord, bytes: MAX_CONFIGURATION_BYTES, work: 100_000, skipping: 1024,
-    types: 64, header: MAX_CONFIGURATION_BYTES,
+    ConfigurationRecord, id: b"BLCONF01", bytes: MAX_CONFIGURATION_BYTES,
     layout: ic_storage::adapter::storable::Bound::Bounded {
         max_size: MAX_CONFIGURATION_BYTES, is_fixed_size: false,
     },

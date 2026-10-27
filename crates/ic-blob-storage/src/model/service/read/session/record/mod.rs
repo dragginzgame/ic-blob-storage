@@ -1,8 +1,7 @@
 //! Bounded v1 records; all persisted transition arithmetic belongs to this model.
 use super::{
-    CandidType, Deserialize, GatewayScope, NonZeroU64, ReadChunkTarget, ReadSessionError,
-    ReadSessionIntent, ReadSessionLimits, ReadSessionTicket, ReadSessionUsage, ReadTarget,
-    UploadContext,
+    Deserialize, GatewayScope, NonZeroU64, ReadChunkTarget, ReadSessionError, ReadSessionIntent,
+    ReadSessionLimits, ReadSessionTicket, ReadSessionUsage, ReadTarget, Serialize, UploadContext,
 };
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
@@ -16,8 +15,7 @@ use ic_platform::principal::ExternalPrincipal;
 use ic_storage::adapter::Storable;
 use std::num::NonZeroU128;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ReadUsageRecord {
     count: u32,
     bytes: u64,
@@ -66,8 +64,7 @@ impl ReadUsageRecord {
         }
     }
 }
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ReadJournalRecord {
     version: u8,
     service: ExternalPrincipal,
@@ -133,8 +130,7 @@ impl ReadJournalRecord {
             && u64::from(usage.sessions) <= self.last
     }
 }
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct ReadSessionRecord {
     version: u8,
     sequence: u64,
@@ -219,16 +215,15 @@ impl ReadSessionRecord {
     }
 }
 macro_rules! storable {
-    ($record:ty, $max:expr) => {
+    ($record:ty, $id:expr, $max:expr) => {
         crate::model::record_codec::storable!(
-            $record, bytes: $max, work: 100_000, skipping: 1000,
-            types: 32, header: $max, layout: ic_storage::adapter::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
+            $record, id: $id, bytes: $max, layout: ic_storage::adapter::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
         );
     };
 }
-storable!(ReadJournalRecord, 4096);
-storable!(ReadSessionRecord, 2048);
-storable!(ReadUsageRecord, 128);
+storable!(ReadJournalRecord, b"BLREADJ1", 4096);
+storable!(ReadSessionRecord, b"BLREADS1", 2048);
+storable!(ReadUsageRecord, b"BLREADU1", 128);
 
 #[cfg(test)]
 mod tests {

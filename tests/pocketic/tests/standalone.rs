@@ -32,6 +32,7 @@ mod standalone_publish_check;
 mod standalone_publish_map;
 mod standalone_publish_prepare;
 mod standalone_publish_session;
+mod standalone_record_cut;
 mod standalone_reference_capacity;
 mod standalone_reference_native_cli;
 mod standalone_reference_status;

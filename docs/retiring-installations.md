@@ -7,9 +7,20 @@ The [service contract](service-contract.md#current-persisted-boundaries) owns th
 requirements; the [operator guide](operator-guide.md) owns command syntax.
 Library publication is separate from permission to retire or deploy a service.
 
-## Memory 0.44 disposition
+## Blob 0.50 Wire-record disposition
 
-The pending Blob 0.30 family exposes Memory 0.44. Its `ICMDIRCT` checksummed allocation
+Blob-owned stable records now use bounded Wire with distinct record frame
+identities. The prior Candid stores cannot be opened by this binary, even though
+host allocation keys still identify the same slots. Old snapshots are not inputs
+to a new installation. There is no migration, dual reader or automatic reset.
+Keep each old installation's original Wasm, lock, tools, snapshots and access
+until this runbook's object, uncertain-effect, balance and billing dispositions
+are complete. Refusal is not deletion or billing settlement. Fresh-install and
+same-release recovery tests do not authorize resetting an existing service.
+
+## Historical Memory 0.44 disposition
+
+The Memory 0.44 transition introduced an `ICMDIRCT` checksummed allocation
 snapshot contains direct ledger CBOR; the previous nested envelope is incompatible.
 Hosts retain an explicit runtime; there is no default singleton facade.
 Inspect an older installation with its frozen binary and tools.
@@ -20,7 +31,7 @@ Cross-release Blob transitions remain reinstall-only under this runbook. Retain
 all provider identities, uncertain effects, balances and continuing billing
 obligations before reset. Fresh-install and same-release restore evidence on the
 new graph does not qualify an old ledger or authorize deployment/reset. The
-[Memory 0.44 evidence](evidence/memory044.md) records the current qualification;
+[Memory 0.44 evidence](evidence/memory044.md) records that transition's qualification;
 the integrating host owns its retained-installation review. Earlier
 [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
 acceptance does not qualify this new format.

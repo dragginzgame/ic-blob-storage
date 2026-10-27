@@ -20,19 +20,18 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 #[cfg(test)]
 use ic_storage::adapter::Storable;
 use ic_storage::adapter::storable::Bound;
+use serde::Deserialize;
+use serde::Serialize;
 #[cfg(test)]
 use std::borrow::Cow;
 use std::num::{NonZeroU64, NonZeroU128};
 
 use ic_blob_storage_contracts::configuration::envelope::MAX_MANIFEST_RECORD_BYTES as MANIFEST_BYTES;
 
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct UploadConfigurationRecord {
     version: u8,
     service: ExternalPrincipal,
@@ -84,15 +83,13 @@ impl UploadConfigurationRecord {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum UploadPhaseRecord {
     Reserved,
     Cancelled,
     Registered,
 }
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct UploadPermissionRecord {
     version: u8,
     service: ExternalPrincipal,
@@ -212,15 +209,13 @@ impl UploadPermissionRecord {
         LifecycleChange::Changed
     }
 }
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) enum UploadStoreRecord {
     Configuration(UploadConfigurationRecord),
     Permission(UploadPermissionRecord),
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct UploadUsageRecord {
     version: u8,
     operations: u64,
@@ -310,14 +305,12 @@ pub(crate) fn chunks(bytes: u64) -> u64 {
     bytes.div_ceil(ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64)
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 struct UploadHeaderRecord {
     name: String,
     value: String,
 }
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct UploadManifestRecord {
     version: u8,
     chunks: Vec<[u8; 32]>,
@@ -431,16 +424,16 @@ impl UploadManifestRecord {
 }
 
 macro_rules! codec {
-    ($record:ty, $bound:expr, $layout:expr) => {
+    ($record:ty, $id:expr, $bound:expr, $layout:expr) => {
         crate::model::record_codec::storable!(
-            $record, bytes: $bound, work: 2_000_000, skipping: 1000,
-            types: 64, header: 2048, layout: $layout,
+            $record, id: $id, bytes: $bound, layout: $layout,
         );
     };
 }
 pub(crate) use codec;
 codec!(
     UploadStoreRecord,
+    b"BLUPST01",
     2048,
     Bound::Bounded {
         max_size: 2048,
@@ -449,6 +442,7 @@ codec!(
 );
 codec!(
     UploadUsageRecord,
+    b"BLUPUS01",
     512,
     Bound::Bounded {
         max_size: 512,
@@ -457,7 +451,12 @@ codec!(
 );
 // The codec still enforces 64 KiB. Variable-size B-tree pages avoid sizing every
 // node for several maximum manifests when most objects have only a few leaves.
-codec!(UploadManifestRecord, MANIFEST_BYTES, Bound::Unbounded);
+codec!(
+    UploadManifestRecord,
+    b"BLUPMF01",
+    MANIFEST_BYTES,
+    Bound::Unbounded
+);
 
 #[cfg(test)]
 mod tests;

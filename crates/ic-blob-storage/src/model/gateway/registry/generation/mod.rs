@@ -1,9 +1,8 @@
 //! Monotonic local read invalidation; never an installation freshness authority.
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
+use serde::Serialize;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct GatewayReadGeneration {
     sequence: u64,
     exhausted: bool,

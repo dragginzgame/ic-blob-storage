@@ -1,143 +1,88 @@
 # Current status — 2026-10-27
 
-Released baseline: `64031753`, released 0.49.2. Checkout `9970e754` contains the
-pending fixture cut. Package versions remain 0.49.2; compatible notes target 0.49.3. The
-[released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/64031753/docs/status/current.md)
-retains upstream qualification; [history](history.md) retains older records.
+Released baseline: `2d130afc`, Blob 0.49.3. The accepted pending batch targets
+**0.50.0** because it changes persisted records and removes a public Candid trait.
+Package versions remain 0.49.3; only notes select the next release. The
+[released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/2d130afc/docs/status/current.md)
+retains the earlier private RPC/journal Wire cut and its qualification.
 
-## Private fixture Wire cut
+## Accepted storage cut
 
-The remaining private Candid RPCs, fixture lifecycle arguments, native diagnostic
-requests/replies and owned inter-canister controls now use published Wire's native
-codec through `blob-test-protocol::fixture_wire`. Frames bind method and direction;
-installation/restoration have separate identities. Explicit unit replaces missing
-inputs, positional results are exact, and old Candid packets have no fallback.
-The [dependency guide](../dependencies.md) records identities and finite budgets.
-Admission keeps its narrower input ceilings and measures total Wire decoding;
-Candid header/value profiling and type-table-only tests are retired.
+All 34 Candid-derived model types now use Serde with published Wire 0.7.18.
+The existing `model::record_codec` owner supplies the 17 independently stored
+encodings through `ic_storage::adapter::Storable`. Each has an explicit storage-only
+frame identity; nested models do not add envelopes. Installation format is now
+`ic-blob-storage/installation:wire-records`. There is one codec, with no Candid
+reader, migration, alternate writer or automatic reset.
 
-Previously migrated Wire document controls and their retained command documents
-keep their existing representation. Public Blob service frames, endpoint names,
-authentication and retry rules are unchanged. Private saved probe journals now
-use bounded Wire as described below; production record codecs are unchanged.
-Cross-release service transitions remain reinstall-only. No dual reader or
-automatic storage migration is added.
+The current record byte ceilings and collection layout bounds remain unchanged.
+Wire policy includes the complete frame: allocation allowance 256 times the byte
+ceiling, nodes eight times it, depth 32. These are finite codec admission units,
+not measured heap limits or equivalents of the retired Candid work quota. Large
+manifest profiles (1,954 leaves and 4,096 headers) round-trip within the unchanged
+public admission envelope. Full-width counters, identities and typed outcomes
+remain covered. Candidate installation uses the same fallible encoder before any
+store is opened.
 
-The private protocol retains Candid derives only for two emulated provider request
-shapes; saved-journal DTOs no longer require Candid. The duplicate journey
-certificate is deleted; it uses Contracts' canonical provider response directly.
-Emulated provider boundaries use explicitly named `provider_candid` hooks and
-`provider_calls`, while private RPC uses Wire. Private chunk requests and replies
-also use Wire. Bulk payloads use upstream `ByteBuf` / borrowed `BytesRef`, avoiding
-per-byte node admission; saved fixture leaves now use bulk bytes too. Candid
-gateway, Cashier, certificate/GC and management packets remain where they exercise external
-contracts and the library's real bounded decoders. Provider substitutes do not
-qualify Caffeine, independent credit, deletion timing or billing cessation.
+Host grants, allocation ledger, memory keys, key ordering and substrate ownership
+are unchanged. Keys identify slots, not payload compatibility. `ReadSessionLimits`
+loses its public Candid trait; consumers must remove such bounds. Required external
+provider/management Candid, application endpoint frames, saved command documents,
+canonical content identities and exact operation/retry policy remain unchanged.
+No TypeScript client regeneration or new framework adapter is introduced.
 
-## Private journal cleanup
+## Retained installations and consumers
 
-Authority, funding, gateway-source and consumer probes persist their actual models
-through `fixture_storage::FixtureJournal`, published Wire and Memory's canonical
-`testing::FixtureCell`. Their allocation keys are distinct `.wire.v1` identities;
-the storage frame binds its key under `BLOBJNL1`, separate from RPC/document frames.
-Existing byte ceilings remain; Wire adds explicit allocation, node and depth
-budgets rather than claiming equivalence to Candid work quotas. Source leaf
-payloads use `ByteBuf` to avoid per-byte node admission for a full 1 MiB leaf.
+Old Candid stores refuse the new image. Apply the
+[retirement runbook](../retiring-installations.md) using the original binary/tools;
+retain provider objects, uncertain effects, balances, access and billing evidence.
+Reinstall is not deletion or settlement. Never clear a ledger, discard an old
+snapshot or activate stale state to get past format refusal.
 
-The consumer's copied Candid persistence schemas, named JSON conversion bridge,
-custom `CONS` envelope and redundant direct Core dependency are removed. It retains its
-own models and the client/contract interfaces it actually consumes. Creation
-requires empty backing, restoration refuses missing/corrupt/foreign data, and
-same-release fences, persisted intents, uncertain callbacks and retries remain.
-Earlier private journal images require reinstall. Historical opt-in consumer
-upgrade tests now expect rejection with unchanged stable bytes and old heap,
-not migration compatibility; their pinned Wasm inputs were not available here.
-Production stable collections, record schemas and service contracts are unchanged.
+Two retired opt-in tests asserting old-format compatibility are removed. Their
+historical proof remains with the released source/evidence. The replacement
+`standalone_record_cut` regression takes an explicit old Wasm/hash, populates it
+through real endpoints, and proves upgrade refusal preserves stable bytes, the
+old heap owner and registered physical/billing obligations. A fresh 0.49.3 image
+was retained before editing and exercised here; the new test remains opt-in for
+other runs that lack that pinned input. Same-release interruption/recovery stays
+supported and independently tested.
+
+Canic owns adopting the supplying release and qualifying its dedicated/embedded
+services. No sibling is changed. This library cut does not establish application
+login, deployed-provider availability, physical deletion or billing cessation.
 
 ## Qualification
 
-Earlier RPC-cut evidence and retained failures:
-`/tmp/blob-fixture-wire-20261026/`. These checks preceded the journal cut; the
-journal-specific qualification below supersedes their saved-state scope.
+Evidence, exact inputs, failed development attempt and logs:
+`/tmp/blob-stable-wire-20261027/`. Published dependency versions are unchanged;
+the lock only adds Core's explicit edge to already-selected Wire 0.7.18.
 
-Passing: all-target compilation and strict Clippy for the six probes, private
-protocol and PocketIC package; protocol tests (11), host diagnostics (25), funding
-request-size coverage (1), and fresh probe Wasm builds. Protocol coverage includes
-malformed, method/direction, lifecycle identity, exact arity, bulk bytes and saved
-journal refusal/reopen. Rust 1.91 checks the authority probe's Wasm library,
-including the static Platform codec paths. A fresh CLI and standalone Wasm were
-prepared for installed consumers.
+Passing on Linux: 342 core unit tests; 30 selected core integration cases; strict
+Clippy for Core, standalone and PocketIC callers; fresh CLI and seven Wasm builds.
+Native record coverage rejects retired Candid, wrong identity/direction,
+truncated/trailing/oversized input and allocation/node/depth violations. Installed
+standalone (75) and storage (122) cases pass on the probe-unified artifacts,
+including callback/write rollback, references, funding, lifetime capacity,
+restoration and uncertainty. The populated old-store refusal test passes too.
+The initial unit-test compile failure was a shadowed test function, corrected
+before these passing runs; its log remains retained.
 
-Installed coverage across the scoped runs: admission (30), authority (2), content
-(2), funding (19), gateway scheduling (3), journey (49), obligations (2), operator
-(49), standalone (75), storage (122), uploads (2). Failed cases were corrected and
-rerun, reusing passing evidence for unchanged paths. Final targeted reruns also
-cover the chunked admission-upgrade refusal and current consumer installation/
-restoration. Fifteen opt-in historical/resource cases remain ignored, including
-old-image checks requiring pinned artifacts. Their original Candid initializer
-is explicit and separate from current Wire initialization; there is no format
-detection or fallback. Default deployment exclusions, dependency pins, Platform
-boundaries, formatting, documentation links and diff checks pass.
+Rust 1.91 checks Core and standalone with all features for Wasm. The default
+standalone artifact is built separately to avoid probe feature unification;
+its nine focused installed lifecycle/snapshot/certificate/refusal checks pass,
+recorded in `default-*.log`. Dependency pins, Platform boundaries, normal deployment
+exclusions, Rust/manifest formatting and documentation links pass. Full CI,
+Binaryen variants, native macOS and live provider qualification were not run.
+Historical/resource opt-in cases without their own selected inputs remain skipped.
 
-Retained failed attempts first exposed an invalid IC method-name lookup during
-updates, then per-byte node admission for large chunks and old chunked-upgrade
-arguments. Hooks now use static const-generic identities; payloads use bulk byte
-types and chunked lifecycle callers use Wire. Required Caffeine callbacks have
-explicit Candid callers rather than the private Wire caller. Corrected scopes
-pass; the earlier failures remain retained and are not relabelled as passes.
-
-Current journal-cut evidence and retained failures:
-`/tmp/blob-journal-wire-20261026/`. Passing: native tests for protocol and affected
-probe models (36), strict all-target/all-feature Clippy for protocol, four journal
-owners and their PocketIC callers, and fresh six-probe Wasm builds. Installed
-scopes pass: journey recovery (33 unique cases, with the affected six source
-cases rerun), funding (19), consumer transactions (19; two pinned old-image cases
-ignored), and storage clients (12, covering manifests, cancellation, funding,
-tenants and downloads). These cover maximum leaves, exhausted histories,
-missing/corrupt journals, upgrade rollback, callback uncertainty, fences and
-no-redispatch recovery. Native journal tests cover Candid/`CONS` refusal,
-method/direction/key mismatch, truncation, trailing data, resource admission and
-retained bytes after failed writes/creation.
-
-Initial journal tests exposed Memory's required `.vN` key suffix and a too-small
-synthetic test allocation policy. Installed maximum-leaf cases exposed
-insufficient source-journal allocation headroom under Wire's conservative
-accounting. Corrected keys and explicit policies pass; failed attempts remain
-retained. Existing byte/object ceilings are unchanged. Dependency pins, Platform
-boundaries, deployment exclusions, Rust/manifest formatting and diff checks pass.
-Rust 1.91 cross-checks the consumer Wasm library with its new Memory cell path;
-this is cross-compilation, not native macOS qualification. Removing the consumer's direct Core
-edge does not remove Core transitively: private protocol conversion adapters still
-consume real service model/policy types. JSON is absent from the consumer graph.
-
-The root lock adds already-selected Wire/Memory edges to the private probes,
-removes the consumer's Core/JSON edges, and removes the protocol's direct
-`serde_bytes` edge in favor of Wire's canonical re-export. The now-unused workspace
-`serde_bytes` declaration is removed; that package remains transitive where
-required. Published dependencies remain Host/Build/Testkit 0.68.9,
-Platform 0.6.19, Wire 0.7.18, Memory/Storage 0.51.5 and Metrics 0.16.3.
-Shared Tooling remains 0.26.21. Prior source/tool evidence remains at
-`/tmp/blob-upstream-20261026.CuhRRC/` with its original source scope.
-
-The reported Wasm gate failure exposed an unguarded native `provider_calls`
-module. The PocketIC support library now has one crate-level native-only guard,
-matching its target-specific dependencies and covering future modules too.
-Focused all-feature Wasm checking and native all-target/all-feature strict Clippy
-pass for `ic-blob-storage-pocketic-tests`; logs are retained at
-`/tmp/blob-provider-target-20261027/`. No dependencies or runtime behavior change.
-The full workspace Wasm/CI gates were not rerun for this scoped guard fix.
-
-## Ownership and remaining boundaries
-
-Blob owns tenant authority, service state, provider accounting, retention,
-deletion and recovery. Frameworks own their adapters and acceptance; no sibling
-checkout is changed. Canic owns its remaining adoption and delivery. The earlier
-read-only review found dedicated/embedded, generated-client, CLI and operator
-recovery evidence; newer Canic Auth/source closeout remains Canic-owned.
+Same compiler/profile default-artifact comparison (Rust 1.99.1, Cargo release,
+unchanged published graph except Core's Wire edge): linked standalone Wasm
+3,536,889 → 3,192,335 bytes; deterministic gzip-9 750,892 → 698,940 bytes.
+The probe-unified artifact has separate measurements. These are artifact sizes,
+not IC instruction, throughput, heap or deployed-provider measurements.
 
 The [native Agent advisory](https://github.com/dragginzgame/ic-blob-storage/issues/102)
-remains unresolved. This cleanup changes no cryptographic guarantee. Full CI,
-native macOS and live provider qualification are outside this focused pass.
-
-No staging, commit, push, release, publication, deployment or sibling edit occurs
-as part of this cleanup.
+remains unresolved. Required provider Candid and frozen historical input tests
+remain intentional; this is not a Candid-free resolved graph or deployment.
+Nothing staged, committed, pushed, released, published or deployed by this task.

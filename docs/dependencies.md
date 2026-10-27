@@ -230,8 +230,9 @@ Platform's application `Principal` is owned and has no Candid or stable-key
 trait. Application DTOs and runtime calls use it. Required provider/management
 Candid DTOs, Agent/PocketIC arguments, persisted records and stable keys retain
 `principal::ExternalPrincipal`, the original upstream identity, with explicit
-conversions at those boundaries. Stored schemas, key ordering, Wire principal
-bytes and decoder budgets stay unchanged; this is not a storage migration.
+conversions at those boundaries. Principal representations and key ordering stay
+unchanged. The separate 0.50 cut changes Blob's stored record codec to bounded
+Wire; required external Candid decoder budgets remain at their existing owners.
 Runtime calls supply separately encoded bytes, including explicit Candid unit
 arguments; reply decoders and transport/codec failure mappings remain at their
 owners. Native fixture policy and historical-image helpers use Platform's
@@ -256,7 +257,8 @@ rejects retired Platform 0.1/0.2/0.3/0.4 and full CDK across workspace features 
 including normal/build/dev edges. Its separate production normal/build Wasm
 check additionally rejects Platform 0.1/0.2/0.3/0.4, Host, Build, Testkit, PocketIC,
 Agent and the parser. Candid remains through required provider/management
-contracts and persisted schemas; this is not a Candid-free deployment claim.
+contracts; Blob-owned persisted models use Wire after the 0.50 storage cut.
+This is not a Candid-free deployment claim.
 
 Platform's PocketIC module supplies `CanisterInstallMode` and
 `common::rest::RawMessageId` for skipped-hook upgrades and pending-call recovery.
@@ -324,7 +326,9 @@ Old private fixture images require reinstall; same-release restoration, fences,
 uncertain effects and exact retries remain tested. Pinned historical consumer
 upgrades now assert refusal and preserved stable bytes, not format compatibility.
 Their old Candid initializer remains explicit and they require retained artifacts.
-No production record codec or public service format changes. Public trait
+That private fixture cut changes no production record codec or public service
+format; the separate [0.50 storage cut](service-contract.md#current-persisted-boundaries)
+owns production record changes. Public application DTO trait
 removal is the 0.38 hard cut tracked by
 [#84](https://github.com/dragginzgame/ic-blob-storage/issues/84).
 The Contracts golden vectors protect field/variant order and every owned method.

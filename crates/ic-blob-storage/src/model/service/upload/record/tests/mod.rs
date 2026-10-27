@@ -75,6 +75,30 @@ fn variable_page_layout_keeps_a_hard_record_decode_bound() {
 }
 
 #[test]
+fn admitted_large_leaf_and_header_envelopes_fit_the_wire_record_policy() {
+    // Both profiles fit the unchanged public admission formula. Exercise many
+    // fixed-array leaves and many small strings, whose traversal costs differ.
+    for (chunks, headers) in [(1954, 1), (200, 4096)] {
+        let headers = (0..headers)
+            .map(|index| UploadHeaderRecord {
+                name: format!("x-{index:04x}"),
+                value: String::new(),
+            })
+            .collect::<Vec<_>>();
+        let header_bytes: usize = headers.iter().map(|h| h.name.len() + h.value.len()).sum();
+        assert!(1024 + 33 * chunks + header_bytes + 8 * headers.len() <= MANIFEST_BYTES);
+        let record = UploadManifestRecord {
+            version: 1,
+            chunks: vec![[255; 32]; chunks],
+            headers,
+        };
+        let bytes = record.to_bytes();
+        assert!(bytes.len() <= MANIFEST_BYTES);
+        assert_eq!(UploadManifestRecord::from_bytes(bytes), record);
+    }
+}
+
+#[test]
 fn admitted_leaf_selection_preserves_position_and_exact_final_length() {
     use ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES;
     use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkRange;

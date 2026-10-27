@@ -13,21 +13,19 @@ use crate::model::billing::allocation::FundingAllocationView;
 use crate::model::billing::allocation::record::FundingAllocationRecord;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 use response::FundingResponseRecord;
+use serde::Deserialize;
+use serde::Serialize;
 use std::num::NonZeroU128;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) enum FundingPhaseRecord {
     Prepared,
     Uncertain,
     NotEnqueued,
     Callback { refunded: u128 },
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum FundingCreditRecord {
     Required,
     Confirmed {
@@ -35,13 +33,11 @@ enum FundingCreditRecord {
         receipt_digest: [u8; 32],
     },
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum FundingMethodRecord {
     AccountTopUpV1,
 }
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct FundingIntentRecord {
     version: u8,
     service: ExternalPrincipal,
@@ -253,8 +249,7 @@ impl FundingIntentRecord {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct FundingJournalRecord {
     version: u8,
     service: ExternalPrincipal,
@@ -353,8 +348,7 @@ impl FundingJournalRecord {
 }
 /// The accounting row and its bounded receipt index share one existing memory.
 /// Zero digest belongs exclusively to accounting; receipts always have nonzero keys.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[expect(
     clippy::large_enum_variant,
     reason = "One bounded persisted union keeps the sole totals row and receipt index together without heap boxing each accounting decode"
@@ -372,14 +366,13 @@ impl FundingAccountingRecord {
     }
 }
 macro_rules! codec {
-    ($record:ty, $max:expr) => {
+    ($record:ty, $id:expr, $max:expr) => {
         crate::model::record_codec::storable!(
-            $record, bytes: $max, work: 30_000, skipping: 1000,
-            types: 64, header: $max, layout: ic_storage::adapter::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
+            $record, id: $id, bytes: $max, layout: ic_storage::adapter::storable::Bound::Bounded { max_size: $max as u32, is_fixed_size: false },
         );
     };
 }
-codec!(FundingIntentRecord, 1024);
-codec!(FundingJournalRecord, 1024);
+codec!(FundingIntentRecord, b"BLFUNIN1", 1024);
+codec!(FundingJournalRecord, b"BLFUNJR1", 1024);
 
-codec!(FundingAccountingRecord, 1024);
+codec!(FundingAccountingRecord, b"BLFUNAC1", 1024);
