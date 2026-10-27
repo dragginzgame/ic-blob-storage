@@ -9,9 +9,8 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
-use ic_platform::candid::decoder;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 const OBJECTS: usize = 704;
@@ -94,7 +93,7 @@ fn capacity(
             actor,
             "blob_reference_capacity",
             input,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     result.map(|response| {
@@ -131,16 +130,23 @@ fn calls(
         .into_iter()
         .map(|command| {
             let (method, bytes) = crate::admission_wire::encode(command);
-            f.harness
-                .pic
-                .submit_call(f.service, actor, method, bytes)
-                .unwrap()
+            (
+                method,
+                f.harness
+                    .pic
+                    .submit_call(f.service, actor, method, bytes)
+                    .unwrap(),
+            )
         })
         .collect();
-    for message in messages {
+    for (method, message) in messages {
         let bytes = f.harness.pic.await_call(message).unwrap();
-        let result: Result<Outcome, Failure> =
-            decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new()).unwrap();
+        let result: Result<Outcome, Failure> = blob_test_protocol::fixture_wire::decode_one(
+            method,
+            &bytes,
+            blob_test_protocol::fixture_wire::MAX_BYTES,
+        )
+        .unwrap();
         assert_eq!(result, Ok(expected));
     }
 }
@@ -223,14 +229,14 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
             samples.push(serde_json::json!({
                 "phase":"populate", "objects":index + 1,
                 "admit_instructions":admit.after_work, "admit_before_work":admit.before_work,
-                "admit_before_decode":admit.before_decode, "admit_after_header":admit.after_header,
-                "admit_after_value":admit.after_value, "admit_after_decode":admit.after_decode,
+                "admit_before_decode":admit.before_decode,
+                 "admit_after_decode":admit.after_decode,
                 "prepare_instructions":prepare.after_work, "prepare_before_work":prepare.before_work,
-                "prepare_before_decode":prepare.before_decode, "prepare_after_header":prepare.after_header,
-                "prepare_after_value":prepare.after_value, "prepare_after_decode":prepare.after_decode,
+                "prepare_before_decode":prepare.before_decode,
+                 "prepare_after_decode":prepare.after_decode,
                 "register_instructions":register.after_work, "register_before_work":register.before_work,
-                "register_before_decode":register.before_decode, "register_after_header":register.after_header,
-                "register_after_value":register.after_value, "register_after_decode":register.after_decode,
+                "register_before_decode":register.before_decode,
+                 "register_after_decode":register.after_decode,
                 "wasm_memory_bytes":f.wasm_bytes(),
             }));
         }

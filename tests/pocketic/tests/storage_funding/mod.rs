@@ -1,5 +1,5 @@
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod admission;
 mod client;
 mod history;
@@ -27,7 +27,7 @@ impl Fixture {
                 actor,
                 "funding_summary",
                 (scope,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -61,7 +61,7 @@ impl Fixture {
                     fault: None,
                     source: None,
                 },),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -74,7 +74,7 @@ impl Fixture {
                 actor,
                 "funding_lookup",
                 (intent,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -87,7 +87,7 @@ impl Fixture {
                 self.operator,
                 "funding_allocation",
                 (),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -200,7 +200,7 @@ fn funding_journal_upgrades_preserve_every_phase_and_reject_late_outcomes() {
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                Fixture::installation(f.operator),
+                Fixture::installation("fixture_post_upgrade", f.operator),
                 Some(f.controller),
             )
             .unwrap();
@@ -253,7 +253,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
             actor,
             "funding_request",
             (intent,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -306,7 +306,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
                 fault: None,
                 source: Some(f.other.into()),
             },),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -321,7 +321,7 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

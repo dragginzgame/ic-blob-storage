@@ -13,6 +13,7 @@ crate-type = ["cdylib"]
 blob-test-protocol = { workspace = true, features = ["fixture-storage"] }
 ic-memory = { workspace = true, features = ["test-support"] }
 ic-platform = { workspace = true, features = ["candid", "cdk"] }
+ic-wire.workspace = true
 serde.workspace = true
 
 [lints]

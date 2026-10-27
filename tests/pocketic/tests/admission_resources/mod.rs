@@ -5,7 +5,6 @@ use blob_test_protocol::{
     journey::JourneyManifest,
 };
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform::candid::decoder;
 use sha2::{Digest, Sha256};
 
 mod descriptors;
@@ -111,9 +110,7 @@ impl Fixture {
 
 fn check_profile(profile: ExecutionProfile, caller: Principal) {
     assert_eq!(profile.caller, caller);
-    assert!(profile.after_header > profile.before_decode);
-    assert!(profile.after_value > profile.after_header);
-    assert!(profile.after_decode > profile.after_value);
+    assert!(profile.after_decode > profile.before_decode);
     assert!(profile.before_work >= profile.after_decode);
     assert!(profile.after_work > profile.before_work);
 }
@@ -200,6 +197,15 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
     let original = f.observe(p);
     f.sample(f.project);
     let profiles = f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).unwrap();
+    let valid = PreparationInput {
+        request: p.request,
+        manifest: v.manifest.clone(),
+    };
+    let frame = blob_test_protocol::fixture_wire::encode_one("prepare", &valid).unwrap();
+    let mut trailing = frame.clone();
+    trailing.push(0);
+    let mut truncated = frame.clone();
+    truncated.pop();
     let too_large = PreparationInput {
         request: p.request,
         manifest: JourneyManifest {
@@ -207,33 +213,16 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
             headers: vec![("X".to_owned(), "x".repeat(16 * 1024))],
         },
     };
-    f.reject_input(ic_platform::candid::contract::encode_args((too_large,)).unwrap());
-    // Fits the encoded byte limit but exceeds the decoder's work budget.
-    let excessive_work = PreparationInput {
-        request: p.request,
-        manifest: JourneyManifest {
-            chunks: v.manifest.chunks.clone(),
-            headers: vec![(String::new(), String::new()); 6000],
-        },
-    };
-    f.reject_input(ic_platform::candid::contract::encode_args((excessive_work,)).unwrap());
-    // An extra null vector occupies little wire space but exceeds the skip budget.
-    f.reject_input(
-        ic_platform::candid::contract::encode_args((
-            PreparationInput {
-                request: p.request,
-                manifest: v.manifest.clone(),
-            },
-            vec![(); 20_000],
-        ))
-        .unwrap(),
-    );
-    // Type-compatible inputs accepted by an unconstrained decoder, but exceeding
-    // this boundary's type-table and header-byte budgets respectively.
-    for bytes in large_type_headers(&PreparationInput {
-        request: p.request,
-        manifest: v.manifest.clone(),
-    }) {
+    for bytes in [
+        blob_test_protocol::fixture_wire::encode_one("prepare", too_large).unwrap(),
+        blob_test_protocol::fixture_wire::encode_one("admit", &valid).unwrap(),
+        blob_test_protocol::fixture_wire::encode_reply("prepare", &valid).unwrap(),
+        blob_test_protocol::fixture_wire::encode_args("prepare", (&valid, 7_u64)).unwrap(),
+        ic_platform::candid::contract::encode_one(7_u64).unwrap(),
+        trailing,
+        truncated,
+        vec![],
+    ] {
         f.reject_input(bytes);
     }
     assert_eq!(f.observe(p), original);
@@ -245,54 +234,6 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
     f.prepare(p, &v);
     assert_eq!(f.observe(p).manifest, ManifestState::Bound);
 }
-
-fn large_type_headers(input: &PreparationInput) -> Vec<Vec<u8>> {
-    use ic_platform::candid::contract::CandidType;
-    use ic_platform::candid::contract::types::Field;
-    use ic_platform::candid::contract::types::Label;
-    use ic_platform::candid::contract::types::Type;
-    use ic_platform::candid::contract::types::TypeInner;
-    use ic_platform::candid_parser::TypeSerialize;
-    use ic_platform::candid_parser::ValueSerializer;
-    let mut nested: Type = TypeInner::Null.into();
-    for _ in 0..129 {
-        nested = TypeInner::Opt(nested).into();
-    }
-    let wide = TypeInner::Record(
-        (0..2048)
-            .map(|id| Field {
-                id: Label::Id(id).into(),
-                ty: TypeInner::Null.into(),
-            })
-            .collect(),
-    )
-    .into();
-    [(nested, vec![0]), (wide, vec![])]
-        .into_iter()
-        .map(|(extra, value)| {
-            let mut types = TypeSerialize::new();
-            types.push_type(&PreparationInput::ty()).unwrap();
-            types.push_type(&extra).unwrap();
-            types.serialize().unwrap();
-            let mut values = ValueSerializer::new();
-            input.idl_serialize(&mut values).unwrap();
-            values.write(&value).unwrap();
-            let mut bytes = b"DIDL".to_vec();
-            bytes.extend(types.get_result());
-            bytes.extend(values.get_result());
-            assert_eq!(
-                decoder::decode_one_with_config::<PreparationInput>(
-                    &bytes,
-                    &decoder::DecoderConfig::new()
-                )
-                .unwrap(),
-                *input
-            );
-            bytes
-        })
-        .collect()
-}
-
 #[test]
 fn resource_manifest_conversion_rejects_large_collections_without_hash_work() {
     let f = Fixture::new();
@@ -367,7 +308,7 @@ fn resource_profile_ten_mib_direct_manifest_and_exposure() {
         // Headroom for normal compiler/allocator changes; bound metadata work.
         assert!(sample.after_work < 5_000_000);
         assert!(heap <= initial_heap + CHUNK as u64);
-        messages.push(serde_json::json!({"step":step,"wire_bytes":wire_bytes,"before_decode":sample.before_decode,"after_header":sample.after_header,"after_value":sample.after_value,"after_decode":sample.after_decode,"before_work":sample.before_work,"after_work":sample.after_work,"wasm_memory_bytes":heap}));
+        messages.push(serde_json::json!({"step":step,"wire_bytes":wire_bytes,"before_decode":sample.before_decode,"after_decode":sample.after_decode,"before_work":sample.before_work,"after_work":sample.after_work,"wasm_memory_bytes":heap}));
     }
     assert!(total < 10_000_000);
     let view = f.observe(p);

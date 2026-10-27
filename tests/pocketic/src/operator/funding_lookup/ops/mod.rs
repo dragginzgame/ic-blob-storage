@@ -12,13 +12,15 @@ pub(super) fn query(selection: &Selection) -> Result<Report, Failure> {
     let bytes = query_method(
         &selection.target,
         "lookup_funding",
-        ic_platform::candid::contract::encode_one(selection.request).expect("bounded exact lookup"),
+        blob_test_protocol::fixture_wire::encode_one("lookup_funding", selection.request)
+            .expect("bounded exact lookup"),
     )?;
     report(selection, &bytes)
 }
 
 fn report(selection: &Selection, bytes: &[u8]) -> Result<Report, Failure> {
-    let result: Result<FundingLookupView, FundingLookupFailure> = decode_small(bytes)?;
+    let result: Result<FundingLookupView, FundingLookupFailure> =
+        decode_small("lookup_funding", bytes)?;
     let view = result.map_err(|failure| match failure {
         FundingLookupFailure::Denied => Failure::Denied,
         FundingLookupFailure::Binding => Failure::Binding,

@@ -1,12 +1,10 @@
 //! Local readback experiment protocol, not a Caffeine HTTP contract.
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Last completed local read, overwritten in memory and visible only to the operator.
 /// Counters cover this service's call context across awaits, excluding source
 /// execution and final reply encoding. This is not a production read protocol.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReadExecutionProfile {
     /// Authenticated initiating actor, preserved across callbacks.
     pub caller: ic_platform::principal::ExternalPrincipal,
@@ -18,7 +16,7 @@ pub struct ReadExecutionProfile {
     pub replied: Option<u64>,
     /// After callback authorization and the encoded-size check.
     pub decoding: Option<u64>,
-    /// After successful bounded Candid decoding.
+    /// After successful bounded Wire decoding.
     pub decoded: Option<u64>,
     /// After manifest verification, including a hash mismatch.
     pub verified: Option<u64>,
@@ -33,20 +31,18 @@ pub struct ReadExecutionProfile {
 }
 
 /// One verified manifest leaf; no whole-file read or durable receipt is implied.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct JourneyReadChunk {
     /// Position in the reserved manifest.
     pub index: u64,
     /// Byte offset in the file.
     pub offset: u64,
     /// Exact bytes checked against that leaf.
-    pub bytes: Vec<u8>,
+    pub bytes: ic_wire::ByteBuf,
 }
 
 /// Deliberate local-source reply faults.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ReadSourceMode {
     /// Return the configured bytes.
     Valid,
@@ -56,9 +52,9 @@ pub enum ReadSourceMode {
     Truncated,
     /// Exceed the service's encoded-reply budget.
     Oversized,
-    /// Return invalid Candid.
+    /// Return invalid Wire.
     Malformed,
-    /// Return a valid Candid vector with a different element type.
+    /// Return a valid Wire frame with an incompatible value shape.
     WrongType,
     /// Declare the full blob but omit its last encoded byte.
     TruncatedEncoding,
@@ -67,15 +63,14 @@ pub enum ReadSourceMode {
 }
 
 /// Driver-controlled single-leaf substitute for provider storage.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReadSourceConfig {
     /// Root expected in the service request.
     pub root: [u8; 32],
     /// Index expected in the service request.
     pub index: u64,
     /// At most one 1 MiB leaf, never a production stored object.
-    pub bytes: Vec<u8>,
+    pub bytes: ic_wire::ByteBuf,
     /// Deliberate source behavior.
     pub mode: ReadSourceMode,
     /// Hold the reply until the driver resumes it.
@@ -83,8 +78,7 @@ pub struct ReadSourceConfig {
 }
 
 /// Driver-only observations for deterministic callback scheduling tests.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReadSourceObservation {
     /// Accepted source reads, useful for proving denial before effects.
     pub requests: u64,

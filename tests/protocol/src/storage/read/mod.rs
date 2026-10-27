@@ -1,7 +1,7 @@
 //! Bounded fixture traversal inputs; limits are installed by the host, not callers.
 use crate::admission::ContentObservation;
 use ic_platform::Principal;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 /// Explicit local test client controls, never a production service request.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct DownloadClientInput {

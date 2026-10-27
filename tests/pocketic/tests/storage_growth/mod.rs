@@ -3,7 +3,7 @@ use super::*;
 use blob_test_protocol::storage::GrowthAdmission;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 #[test]
 fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_succeeds() {
@@ -51,7 +51,7 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
                 refuse: false,
                 ..input
             },),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -65,7 +65,7 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

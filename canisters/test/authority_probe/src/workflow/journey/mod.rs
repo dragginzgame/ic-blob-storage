@@ -1,10 +1,10 @@
 //! A local protocol-shaped journey, not deployed Caffeine behavior or persistence.
 use crate::model::content::ContentRequest;
 use crate::ops;
+use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
 pub(crate) mod readback;
 use blob_test_protocol::journey::{
-    JourneyCertificate, JourneyFailure, JourneyProgress, JourneyReservation, JourneyUpload,
-    JourneyUsage,
+    JourneyFailure, JourneyProgress, JourneyReservation, JourneyUpload, JourneyUsage,
 };
 use ic_blob_storage::model::catalog::pending::PendingPageLimits;
 use ic_blob_storage::policy::catalog::assess_gateway_pending;
@@ -44,14 +44,14 @@ pub(crate) fn reserve(
 pub(crate) fn certificate(
     context: TenantAccessContext,
     text: &str,
-) -> Result<JourneyCertificate, JourneyFailure> {
+) -> Result<CaffeineUploadCertificateResponse, JourneyFailure> {
     tenant(context)?;
     let root: ProviderRootHash = text.parse().map_err(|_| JourneyFailure::InvalidInput)?;
     let request = ops::journey::lookup(root)?;
     assess_tenant_access(request.upload.object.first.object(), context)
         .map_err(|_| JourneyFailure::Denied)?;
     ops::journey::expose(context.actor, request)?;
-    Ok(JourneyCertificate {
+    Ok(CaffeineUploadCertificateResponse {
         method: "upload".to_owned(),
         blob_hash: root.to_string(),
     })

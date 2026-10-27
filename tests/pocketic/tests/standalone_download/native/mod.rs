@@ -5,7 +5,7 @@ use crate::{
     authenticated_cli::{PEM, run},
 };
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::pocket_ic::PocketIcBuilder;
@@ -77,7 +77,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
             f.tenant,
             "blob_admit_upload",
             permission.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

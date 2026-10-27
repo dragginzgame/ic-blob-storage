@@ -1,6 +1,6 @@
 //! Actual configured host: project-bound multi-user issuance, quotas and restore fences.
-use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
+use ic_blob_storage_pocketic_tests::provider_calls;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod signed;
 use super::*;
@@ -17,13 +17,7 @@ pub(super) fn inspect(
 ) -> Result<UploadCertificateAssessmentResponse, E> {
     f.harness
         .pic
-        .query_blob_as(
-            f.service,
-            actor,
-            INSPECT,
-            root.to_owned(),
-            REPLY_LIMITS.reply_bytes,
-        )
+        .query_blob_as(f.service, actor, INSPECT, root.to_owned(), REPLY_BYTES)
         .unwrap()
 }
 pub(super) fn refuses(f: &Fixture, actor: Principal, root: &str) {
@@ -64,7 +58,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -95,7 +89,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         inspect(&f, f.uploader, &root).unwrap().blockers,
         assessment.blockers
     );
-    let reply: CaffeineUploadCertificateResponse = fixture_calls::update_fixture(
+    let reply: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
         f.service,
         f.uploader,
@@ -122,7 +116,7 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
             f.tenant,
             "blob_revoke_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -192,7 +186,7 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
             .blockers,
         []
     );
-    let reply: CaffeineUploadCertificateResponse = fixture_calls::update_fixture(
+    let reply: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
         f.service,
         second.permission.uploader.into(),
@@ -236,7 +230,7 @@ fn admit(
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -254,7 +248,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -268,7 +262,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     malformed(&f, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     let mut usage = f.local_status(f.operator, f.operator_scope()).unwrap();
-    let reply: CaffeineUploadCertificateResponse = fixture_calls::update_fixture(
+    let reply: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
         f.service,
         f.uploader,
@@ -310,7 +304,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
             f.tenant,
             "blob_revoke_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

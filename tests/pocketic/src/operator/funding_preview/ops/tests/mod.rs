@@ -26,7 +26,11 @@ fn preview_decode_binds_every_request_field_and_preserves_full_width_reserve_val
     };
     let view = sample_view(request);
     let encode = |view| {
-        ic_platform::candid::contract::encode_one(Ok::<_, FundingPreviewFailure>(view)).unwrap()
+        blob_test_protocol::fixture_wire::encode_reply(
+            "preview_funding",
+            Ok::<_, FundingPreviewFailure>(view),
+        )
+        .unwrap()
     };
     let decoded = report(&selection, &encode(view.clone())).unwrap();
     assert!(decoded.blocked);

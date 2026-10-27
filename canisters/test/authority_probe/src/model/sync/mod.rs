@@ -1,11 +1,9 @@
 //! Fixture-owned admission revision; membership and callback tokens remain library-owned.
 use blob_test_protocol::SyncFailure;
 use ic_blob_storage::model::gateway::registry::{GatewayScope, GatewaySyncView};
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
-#[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Eq, PartialEq, serde::Serialize, Deserialize)]
 pub(crate) struct SyncControlRecord {
     /// Exhaustion permanently prevents new syncs but never prevents revocation.
     pub revision: Option<u64>,

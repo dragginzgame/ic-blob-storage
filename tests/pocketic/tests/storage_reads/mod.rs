@@ -1,5 +1,5 @@
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod download;
 use blob_test_protocol::{
@@ -51,7 +51,7 @@ impl Fixture {
                 actor,
                 "blob_lookup_content",
                 request,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         response.map(|response| {
@@ -72,7 +72,7 @@ impl Fixture {
                 actor,
                 "content_descriptor",
                 (input,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -89,7 +89,7 @@ impl Fixture {
                 actor,
                 "retained_content_descriptor",
                 (input,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -102,7 +102,7 @@ impl Fixture {
                 actor,
                 "blob_upload_history",
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -182,7 +182,7 @@ fn durable_descriptors_require_the_consumers_exact_live_reference_through_upgrad
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -318,7 +318,7 @@ fn bounded_cleanup_pages_reject_changed_cursors_and_require_new_sweeps() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

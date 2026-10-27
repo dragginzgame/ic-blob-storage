@@ -1,12 +1,10 @@
 //! Inspection of the local source journal; never provider reconciliation evidence.
 use crate::{SourceMode, journey::readback::ReadSourceConfig};
-use ic_platform::candid::contract::CandidType;
 use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
 /// Local service call whose intent was committed before dispatch.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum SourceAction {
     /// Ask the bound service to refresh its gateway list.
     Sync,
@@ -17,8 +15,7 @@ pub enum SourceAction {
 }
 
 /// Read-only local call history; vector position identifies the lifetime attempt.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct SourceEffectView {
     /// Exact action and payload; service binding is retained by the journal.
     pub action: SourceAction,
@@ -28,8 +25,7 @@ pub struct SourceEffectView {
 }
 
 /// Driver-only retained state. Restored instances remain permanently fenced.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct SourceRecoveryView {
     /// Restoration blocks all operational endpoints, with no reset control.
     pub fenced: bool,
@@ -54,8 +50,7 @@ pub struct SourceRecoveryView {
 }
 
 /// Retained local gateway-list schedule; never a deployed provider receipt.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct SourceHeldSyncView {
     /// Source request counter assigned before waiting.
     pub sequence: u64,

@@ -1,7 +1,7 @@
 //! Authenticated historical manifest + native byte verification, with no provider effects.
 use super::*;
 use crate::authenticated_cli::{PEM, run};
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
@@ -60,7 +60,7 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

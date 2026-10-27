@@ -4,7 +4,7 @@ use blob_test_protocol::storage::{
     funding::{CreditCommand, Intent, Phase as FundingPhase},
     resources::{FundingCreditResources, FundingPopulationIntent, HistoryPopulationBatch},
 };
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_host_fs::testing::FixtureDirectory;
 
 fn digest(operation: u128) -> [u8; 32] {
@@ -80,7 +80,7 @@ fn credit_measurements_have_independent_exact_read_windows() {
             f.operator,
             "populate_histories",
             (batch,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -150,7 +150,7 @@ fn profile(directory: &Path, count: u32) {
             ..CanisterSettings::default()
         }),
     );
-    let installation = ic_platform::candid::contract::encode_one(StorageProbeInstallation {
+    let profile = StorageProbeInstallation {
         operator,
         max_objects: 2,
         max_tenants: 2,
@@ -158,8 +158,11 @@ fn profile(directory: &Path, count: u32) {
         max_funding_attempts: count,
         max_read_sessions: 1,
         max_tenant_read_sessions: 1,
-    })
-    .unwrap();
+    };
+    let installation =
+        blob_test_protocol::fixture_wire::encode_one("fixture_init", profile).unwrap();
+    let restoration =
+        blob_test_protocol::fixture_wire::encode_one("fixture_post_upgrade", profile).unwrap();
     retain_bytes(directory, "installation.wire", &installation);
     harness.pic.install_canister(
         service,
@@ -288,7 +291,7 @@ fn profile(directory: &Path, count: u32) {
     let upgrade =
         f.harness
             .pic
-            .upgrade_canister(service, Fixture::wasm(), installation, Some(controller));
+            .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller));
     retain(
         directory,
         "upgrade.json",

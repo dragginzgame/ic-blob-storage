@@ -57,17 +57,17 @@ fn status() -> FundingOperatorStatusView {
 
 #[test]
 fn bounded_decode_preserves_exact_amounts_and_unknowns() {
-    let bytes = ic_platform::candid::contract::encode_one(Some(status())).unwrap();
+    let bytes =
+        blob_test_protocol::fixture_wire::encode_reply("operator_status", Some(status())).unwrap();
     let value = report(&target(), &bytes).unwrap().value;
-    // Ordinary reply decoding retains its bounded skipping of extra values.
+    // Private Wire replies must consume their exact positional result.
     assert_eq!(
         report(
             &target(),
-            &ic_platform::candid::contract::encode_args((Some(status()), 7_u8)).unwrap()
-        )
-        .unwrap()
-        .value,
-        value
+            &blob_test_protocol::fixture_wire::response("operator_status", (Some(status()), 7_u8))
+                .unwrap()
+        ),
+        Err(Failure::InvalidReply)
     );
     assert_eq!(value["provider_balance"], u128::MAX.to_string());
     assert_eq!(value["attempts"][0]["id"], u64::MAX.to_string());
@@ -89,7 +89,11 @@ fn bounded_decode_preserves_exact_amounts_and_unknowns() {
     assert_eq!(
         report(
             &target(),
-            &ic_platform::candid::contract::encode_one(None::<FundingOperatorStatusView>).unwrap()
+            &blob_test_protocol::fixture_wire::encode_reply(
+                "operator_status",
+                None::<FundingOperatorStatusView>
+            )
+            .unwrap()
         ),
         Err(Failure::Denied)
     );
@@ -98,7 +102,8 @@ fn bounded_decode_preserves_exact_amounts_and_unknowns() {
     assert_eq!(
         report(
             &target(),
-            &ic_platform::candid::contract::encode_one(Some(changed)).unwrap()
+            &blob_test_protocol::fixture_wire::encode_reply("operator_status", Some(changed))
+                .unwrap()
         ),
         Err(Failure::Binding)
     );
@@ -107,7 +112,8 @@ fn bounded_decode_preserves_exact_amounts_and_unknowns() {
     assert_eq!(
         report(
             &target(),
-            &ic_platform::candid::contract::encode_one(Some(changed)).unwrap()
+            &blob_test_protocol::fixture_wire::encode_reply("operator_status", Some(changed))
+                .unwrap()
         ),
         Err(Failure::Binding)
     );

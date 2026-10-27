@@ -1,17 +1,11 @@
 //! The host owns measurement windows and authority; shared arithmetic owns the aggregate.
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 fn observe(f: &Fixture, actor: Principal) -> Result<RestorationResources, Failure> {
     f.harness
         .pic
-        .query_control_as(
-            f.service,
-            actor,
-            "restoration_resources",
-            (),
-            (REPLY_LIMITS).reply_bytes,
-        )
+        .query_control_as(f.service, actor, "restoration_resources", (), REPLY_BYTES)
         .map(|(reply,)| reply)
         .unwrap()
 }
@@ -44,7 +38,7 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -93,7 +87,7 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

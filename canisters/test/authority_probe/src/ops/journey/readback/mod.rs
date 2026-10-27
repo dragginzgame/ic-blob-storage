@@ -85,10 +85,10 @@ pub(crate) async fn fetch(
 ) -> Result<Vec<u8>, JourneyFailure> {
     Call::bounded_wait(gateway, "fixture_chunk")
         .take_raw_args(
-            ic_platform::candid::contract::encode_args((
-                request.upload.object.root.as_bytes().to_vec(),
-                index,
-            ))
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_chunk",
+                (request.upload.object.root.as_bytes().to_vec(), index),
+            )
             .expect("fixture chunk arguments"),
         )
         .await
@@ -107,13 +107,10 @@ pub(crate) fn verify(
         return Err(JourneyFailure::ReplyTooLarge);
     }
     measurement.decoding();
-    let bytes =
-        decode_reply(encoded, CAFFEINE_CHUNK_BYTES + 64, 10_000_000).map_err(
-            |error| match error {
-                ChunkReplyError::TooLarge => JourneyFailure::ReplyTooLarge,
-                ChunkReplyError::Invalid => JourneyFailure::InvalidReply,
-            },
-        )?;
+    let bytes = decode_reply(encoded, CAFFEINE_CHUNK_BYTES + 64).map_err(|error| match error {
+        ChunkReplyError::TooLarge => JourneyFailure::ReplyTooLarge,
+        ChunkReplyError::Invalid => JourneyFailure::InvalidReply,
+    })?;
     measurement.decoded();
     let result = crate::ops::read(|state| {
         let entry = state
@@ -132,7 +129,7 @@ pub(crate) fn verify(
         Ok(JourneyReadChunk {
             index,
             offset: range.offset,
-            bytes,
+            bytes: bytes.into(),
         })
     });
     measurement.verified();

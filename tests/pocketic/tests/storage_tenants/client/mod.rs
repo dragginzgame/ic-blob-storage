@@ -2,7 +2,7 @@
 use super::*;
 use blob_test_protocol::consumer::{Failure as ConsumerFailure, TenantDispatch};
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
@@ -28,7 +28,7 @@ fn fixture(operator_client: bool) -> (Fixture, Principal) {
     f.harness.pic.install_canister(
         client,
         consumer_wasm(),
-        ic_platform::candid::contract::encode_args((driver, f.service)).unwrap(),
+        blob_test_protocol::fixture_wire::encode_args("fixture_init", (driver, f.service)).unwrap(),
         Some(driver),
     );
     if !operator_client {
@@ -45,7 +45,7 @@ fn saved(f: &Fixture, client: Principal) -> Option<TenantUpdateRequest> {
             f.controller,
             "fixture_tenant_command",
             (),
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap()
@@ -58,7 +58,7 @@ fn inspect(f: &Fixture, client: Principal) -> TenantEnrollmentResponse {
             f.controller,
             "fixture_inspect_tenant",
             f.tenant_scope(),
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap()
@@ -75,7 +75,7 @@ fn dispatch(
             f.controller,
             "fixture_update_tenant",
             input,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -120,10 +120,6 @@ fn tenant_control_ingress_refuses_unusable_packets_before_writes() {
 }
 
 #[test]
-#[expect(
-    clippy::too_many_lines,
-    reason = "Keep exact command retention across success, reply limits and callback traps"
-)]
 fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
     for (max_reply_bytes, trap_after_reply) in [(4096, false), (1, false), (4096, true)] {
         let (f, client) = fixture(true);
@@ -141,13 +137,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
         let denied: Result<TenantEnrollmentResponse, ConsumerFailure> = f
             .harness
             .pic
-            .update_control_as(
-                client,
-                f.other,
-                "fixture_update_tenant",
-                input,
-                REPLY_LIMITS.reply_bytes,
-            )
+            .update_control_as(client, f.other, "fixture_update_tenant", input, REPLY_BYTES)
             .unwrap();
         assert_eq!(denied, Err(ConsumerFailure::Denied));
         assert_eq!(saved(&f, client), None);
@@ -203,7 +193,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
             .upgrade_canister(
                 client,
                 consumer_wasm(),
-                ic_platform::candid::contract::encode_args(()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
                 Some(f.controller),
             )
             .unwrap();
@@ -215,7 +205,7 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                Fixture::installation(f.operator),
+                Fixture::installation("fixture_post_upgrade", f.operator),
                 Some(f.controller),
             )
             .unwrap();
@@ -250,7 +240,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
             f.controller,
             "fixture_query_tenant",
             f.tenant_scope(),
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(query, Err(ConsumerFailure::Transport));
@@ -285,7 +275,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
                 tenant: f.other.into(),
                 ..f.tenant_scope()
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(foreign, Err(ConsumerFailure::Transport));
@@ -346,7 +336,7 @@ fn tenant_client_retains_stale_command_without_overwriting_newer_enrollment() {
             .upgrade_canister(
                 client,
                 consumer_wasm(),
-                ic_platform::candid::contract::encode_args(()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
                 Some(f.controller),
             )
             .unwrap();

@@ -2,7 +2,7 @@
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestDeclaration;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 use serde::Serialize;
 /// Exact locally assigned identity and immutable declaration intent.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]

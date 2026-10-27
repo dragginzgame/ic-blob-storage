@@ -3,7 +3,7 @@ use blob_test_protocol::storage::reference::ReferenceFaultInput;
 use ic_blob_storage_contracts::dto::reference::*;
 use ic_blob_storage_contracts::protocol::REFERENCE_APPLY_METHOD;
 use ic_blob_storage_contracts::protocol::REFERENCE_RECEIPT_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod receipts;
 mod status;
@@ -32,7 +32,7 @@ impl Fixture {
                     fact,
                     fault: None,
                 },),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -48,7 +48,7 @@ impl Fixture {
                 self.tenant,
                 REFERENCE_APPLY_METHOD,
                 receipt_request(request),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -63,7 +63,7 @@ impl Fixture {
                 self.tenant,
                 REFERENCE_RECEIPT_METHOD,
                 receipt_request(request),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -83,7 +83,7 @@ impl Fixture {
                 self.tenant,
                 "blob_reference_status",
                 request,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         result.map(|response| {
@@ -254,7 +254,7 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                Fixture::installation(f.operator),
+                Fixture::installation("fixture_post_upgrade", f.operator),
                 Some(f.controller),
             )
             .unwrap();
@@ -279,7 +279,7 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
                 f.controller,
                 REFERENCE_RECEIPT_METHOD,
                 receipt_request(release),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(denied, Err(ReferenceFailure::Denied));

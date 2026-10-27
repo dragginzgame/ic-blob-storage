@@ -3,7 +3,7 @@ use blob_test_protocol::consumer::manifests::{
     ManifestDispatch, ManifestFault, ManifestIntent, ManifestIntentView,
 };
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod cancellation;
 fn uploader_fixture() -> Fixture {
     let mut f = fixture();
@@ -11,7 +11,8 @@ fn uploader_fixture() -> Fixture {
     f.harness.pic.install_canister(
         uploader,
         consumer_wasm(),
-        ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
+        blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
+            .unwrap(),
         None,
     );
     f.uploader = uploader;
@@ -35,7 +36,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
             f.operator,
             "save_manifest",
             &intent,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert!(!saved.unwrap().started);
@@ -43,13 +44,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
     let wrong: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
-        .update_control_as(
-            f.tenant,
-            f.operator,
-            "save_manifest",
-            &intent,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_control_as(f.tenant, f.operator, "save_manifest", &intent, REPLY_BYTES)
         .unwrap();
     assert_eq!(wrong, Err(ConsumerFailure::Invalid));
     let sent: Result<ManifestIntentView, ConsumerFailure> = f
@@ -65,7 +60,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
                 max_reply_bytes: 1,
                 fault: ManifestFault::None,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(sent, Err(ConsumerFailure::Transport));
@@ -78,7 +73,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
             f.operator,
             "recover_manifest",
             1u128,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(

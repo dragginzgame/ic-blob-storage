@@ -1,7 +1,7 @@
 //! Actual late uploader acknowledgment cannot undo either application's cancellation.
 use super::*;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 #[test]
 #[expect(
     clippy::too_many_lines,
@@ -24,7 +24,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                 f.operator,
                 "save_manifest",
                 &intent,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         saved.unwrap();
@@ -50,13 +50,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             let waiting: Result<bool, ConsumerFailure> = f
                 .harness
                 .pic
-                .query_control_as(
-                    f.uploader,
-                    f.operator,
-                    "waiting",
-                    (),
-                    REPLY_LIMITS.reply_bytes,
-                )
+                .query_control_as(f.uploader, f.operator, "waiting", (), REPLY_BYTES)
                 .unwrap();
             if waiting.unwrap() {
                 held = true;
@@ -77,7 +71,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                 f.operator,
                 "cancel_manifest",
                 1u128,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         let withdrawn = withdrawn.unwrap();
@@ -91,19 +85,13 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         let resumed: Result<(), ConsumerFailure> = f
             .harness
             .pic
-            .update_control_as(
-                f.uploader,
-                f.operator,
-                "resume",
-                (),
-                REPLY_LIMITS.reply_bytes,
-            )
+            .update_control_as(f.uploader, f.operator, "resume", (), REPLY_BYTES)
             .unwrap();
         resumed.unwrap();
         let late: Result<ManifestIntentView, ConsumerFailure> =
             ic_blob_storage_contracts::document::decode(
                 &f.harness.pic.await_call(call).unwrap(),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         let late = late.unwrap();
@@ -120,7 +108,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                     hold: false,
                     ..dispatch
                 },
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(retry, Err(ConsumerFailure::State));
@@ -132,7 +120,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
                 f.operator,
                 "save_manifest",
                 &intent,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(saved, Ok(late));

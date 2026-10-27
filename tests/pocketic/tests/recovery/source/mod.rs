@@ -31,7 +31,8 @@ impl Fixture {
             .upgrade_canister(
                 self.gateway,
                 self.wasm(self.gateway),
-                ic_platform::candid::contract::encode_args(()).expect("no args"),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ())
+                    .expect("no args"),
                 None,
             )
             .expect("fenced source restore");
@@ -56,7 +57,7 @@ impl Fixture {
             (ReadSourceConfig {
                 root: v.upload.root,
                 index: 0,
-                bytes: b"replacement".to_vec(),
+                bytes: b"replacement".to_vec().into(),
                 mode: ReadSourceMode::Valid,
                 hold: false,
             },),
@@ -101,8 +102,11 @@ impl Fixture {
                 self.gateway,
                 self.operator,
                 "run_deletion",
-                ic_platform::candid::contract::encode_args((vec![root(v.upload.root)],))
-                    .expect("deletion input"),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "run_deletion",
+                    (vec![root(v.upload.root)],),
+                )
+                .expect("deletion input"),
             )
             .expect_err("fenced outgoing deletion");
         assert_eq!(deletion.reject_code, RejectCode::CanisterError);
@@ -113,7 +117,11 @@ impl Fixture {
                 self.gateway,
                 self.service,
                 "fixture_gateways",
-                ic_platform::candid::contract::encode_one(self.sync_request()).expect("list input"),
+                blob_test_protocol::fixture_wire::encode_one(
+                    "fixture_gateways",
+                    self.sync_request(),
+                )
+                .expect("list input"),
             )
             .expect_err("fenced list response");
         assert_eq!(list.reject_code, RejectCode::CanisterReject);
@@ -218,7 +226,7 @@ fn source_intents_have_a_lifetime_budget_and_restore_does_not_reset_it() {
             f.gateway,
             f.operator,
             "run_deletion",
-            ic_platform::candid::contract::encode_args((roots,)).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("run_deletion", (roots,)).unwrap(),
         )
         .expect_err("lifetime capacity exhausted");
     assert_eq!(rejected.reject_code, RejectCode::CanisterError);
@@ -294,7 +302,7 @@ fn unresolved_source_call_survives_a_forced_fenced_restore() {
             f.gateway,
             f.operator,
             "run_sync",
-            ic_platform::candid::contract::encode_one(request).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("run_sync", request).unwrap(),
         )
         .expect_err("real failed call traps source callback");
     assert_eq!(failure.reject_code, RejectCode::CanisterError);

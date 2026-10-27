@@ -5,7 +5,7 @@ use blob_test_protocol::storage::funding::{
     Action as FundingAction, Command as FundingCommand, Intent, Phase as FundingPhase,
     Request as FundingRequest,
 };
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use std::{path::Path, time::Instant};
 
 fn funding_command(
@@ -79,13 +79,7 @@ fn funding_lookup(
 ) -> Result<Option<FundingPhase>, Failure> {
     f.harness
         .pic
-        .query_control_as(
-            f.service,
-            actor,
-            "funding_lookup",
-            (intent,),
-            (REPLY_LIMITS).reply_bytes,
-        )
+        .query_control_as(f.service, actor, "funding_lookup", (intent,), REPLY_BYTES)
         .map(|(reply,)| reply)
         .unwrap()
 }
@@ -98,7 +92,7 @@ fn funding_request(f: &Fixture, intent: Intent) -> FundingRequest {
             f.operator,
             "funding_request",
             (intent,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -141,7 +135,7 @@ fn occupied_history_restoration_profile() {
 )]
 fn profile_workload(directory: &Path, final_phase: Option<FundingPhase>) {
     let f = Fixture::with_gateway_source();
-    let installation = Fixture::installation(f.operator);
+    let installation = Fixture::installation("fixture_init", f.operator);
     retain_bytes(directory, "installation.candid", &installation);
     let input = f.read_input();
     let mut intents = Vec::new();

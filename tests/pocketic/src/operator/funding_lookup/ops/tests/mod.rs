@@ -33,7 +33,11 @@ fn selection() -> Selection {
     }
 }
 fn encode(view: &FundingLookupView) -> Vec<u8> {
-    ic_platform::candid::contract::encode_one(Ok::<_, FundingLookupFailure>(view)).unwrap()
+    blob_test_protocol::fixture_wire::encode_reply(
+        "lookup_funding",
+        Ok::<_, FundingLookupFailure>(view),
+    )
+    .unwrap()
 }
 
 #[test]
@@ -123,8 +127,11 @@ fn failed_or_invalid_lookup_is_never_an_absent_operation() {
             Failure::InvalidRequest,
         ),
     ] {
-        let bytes = ic_platform::candid::contract::encode_one(Err::<FundingLookupView, _>(failure))
-            .unwrap();
+        let bytes = blob_test_protocol::fixture_wire::encode_reply(
+            "lookup_funding",
+            Err::<FundingLookupView, _>(failure),
+        )
+        .unwrap();
         assert_eq!(report(&selection, &bytes), Err(expected));
     }
     assert_eq!(

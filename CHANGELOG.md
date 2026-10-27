@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.49.3] - Unreleased
+
+### 📝 Summary
+
+- Move remaining private probe RPC and lifecycle arguments to bounded Wire
+  frames, including host diagnostics and inter-canister controls. Bind frames to
+  method and direction, refuse old Candid inputs, and remove unused Candid derives
+  and the duplicate journey certificate DTO. Use Wire's bulk byte types for
+  private chunk requests/replies. Cut private saved probe journals to bounded Wire
+  through Memory's canonical fixture cell; delete the consumer's copied Candid
+  schemas, JSON bridge and direct Core dependency. Old fixture journals require
+  reinstallation and refuse without empty-state fallback. Retain required external
+  provider Candid; public service packets and production record schemas are unchanged.
+
 ## [0.49.2] - 2026-10-26
 
 ### 📝 Summary

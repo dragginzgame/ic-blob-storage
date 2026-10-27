@@ -120,7 +120,7 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

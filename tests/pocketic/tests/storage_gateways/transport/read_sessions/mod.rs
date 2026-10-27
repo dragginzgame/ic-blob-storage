@@ -1,6 +1,6 @@
 //! Real local chunks validate durable sessions, verification and callback authority.
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 mod resources;
 use super::*;
@@ -19,7 +19,7 @@ impl Fixture {
         let config = ReadSourceConfig {
             root: self.permission(1, 1).0.request.root,
             index: 0,
-            bytes: vec![1; 10],
+            bytes: vec![1; 10].into(),
             mode,
             hold,
         };
@@ -105,7 +105,7 @@ impl Fixture {
                 actor,
                 "fixture_read_chunk",
                 (input,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -115,7 +115,7 @@ impl Fixture {
                     JourneyReadChunk {
                         index: input.index,
                         offset: 0,
-                        bytes: vec![1; 10]
+                        bytes: vec![1; 10].into()
                     }
                 );
             })
@@ -129,7 +129,7 @@ impl Fixture {
             self.operator,
             "read_sessions",
             (),
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -168,7 +168,7 @@ fn read_authority_rejects_restored_instances_and_wrong_callers_before_sending() 
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -422,7 +422,7 @@ fn upgrade_preserves_upload_funding_gateway_and_interrupted_read_obligations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

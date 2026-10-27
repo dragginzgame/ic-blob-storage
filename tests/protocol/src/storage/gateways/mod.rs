@@ -1,6 +1,6 @@
 //! Labelled local registry controls; these do not authenticate a provider reply.
 use ic_platform::Principal;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 /// Durable-session local await fixture, not a provider read protocol.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReadSessionInput {

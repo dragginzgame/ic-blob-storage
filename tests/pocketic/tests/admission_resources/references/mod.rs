@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityReques
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 const REFERENCES: u64 = 256;
@@ -37,7 +37,7 @@ fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
             f.project,
             "blob_reference_capacity",
             input,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     let response = result.unwrap();
@@ -71,8 +71,8 @@ fn retain_all(f: &Fixture, input: Permission, samples: &mut Vec<serde_json::Valu
         assert_eq!(remaining.release_reserved_receipts, id);
         if [2, 16, 64, 128, REFERENCES].contains(&id) {
             samples.push(serde_json::json!({"phase":"retain", "references":id,
-                "before_decode":profile.before_decode,"after_header":profile.after_header,
-                "after_value":profile.after_value,"after_decode":profile.after_decode,
+                "before_decode":profile.before_decode,
+                "after_decode":profile.after_decode,
                 "before_work":profile.before_work,"after_work":profile.after_work,
                 "wasm_memory_bytes":f.wasm_bytes()}));
         }
@@ -98,8 +98,8 @@ fn release_all(f: &Fixture, input: Permission, samples: &mut Vec<serde_json::Val
             assert_eq!(f.call(f.project, command), Ok(changed(true)));
             samples.push(
                 serde_json::json!({"phase":"release", "released_references":id,
-                "before_decode":profile.before_decode,"after_header":profile.after_header,
-                "after_value":profile.after_value,"after_decode":profile.after_decode,
+                "before_decode":profile.before_decode,
+                "after_decode":profile.after_decode,
                 "before_work":profile.before_work,"after_work":profile.after_work,
                 "wasm_memory_bytes":f.wasm_bytes()}),
             );

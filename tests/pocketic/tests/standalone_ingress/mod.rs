@@ -1,6 +1,6 @@
 //! Provider Candid budgets and current Wire admission at actual dispatch boundaries.
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_platform::candid::contract::CandidType;
 use ic_platform::candid::contract::TypeEnv;
@@ -114,7 +114,7 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

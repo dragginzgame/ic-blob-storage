@@ -1,12 +1,10 @@
 //! Bounded fixture configuration projected through shared attachment accounting.
 use super::{FundingAttemptRecord, JournalFailure, checked_transfer};
 use ic_blob_storage::model::billing::allocation::FundingAllocation;
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 use std::num::{NonZeroU128, NonZeroUsize};
 
-#[derive(CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(serde::Serialize, Deserialize)]
 pub(crate) struct FundingBudgetRecord {
     allocated: u128,
     reserve: u128,

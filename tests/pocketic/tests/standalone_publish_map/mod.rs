@@ -7,7 +7,7 @@ use crate::{
     upload_setup_cli::uploader,
 };
 use ic_blob_storage_contracts::identity::ContentDigest;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::pocket_ic::PocketIcBuilder;
@@ -53,7 +53,7 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -163,7 +163,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
                 operation: 900,
                 action: ReferenceAction::Release,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

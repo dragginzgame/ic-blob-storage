@@ -3,7 +3,7 @@ use super::*;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure as F;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     pub(super) fn capacity(
@@ -18,7 +18,7 @@ impl Fixture {
                 actor,
                 UPLOAD_CAPACITY_METHOD,
                 scope,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -98,7 +98,7 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
             f.tenant,
             UPLOAD_CAPACITY_METHOD,
             scope,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(observed));
@@ -141,7 +141,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
                 expected: None,
                 active: true,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     enrolled.unwrap();
@@ -162,7 +162,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
                 permission.upload.tenant,
                 "blob_admit_upload",
                 permission,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         admitted.unwrap();
@@ -184,7 +184,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
                 expected: enrollment.enrollment,
                 active: false,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     suspended.unwrap();
@@ -196,7 +196,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
             f.tenant,
             "blob_revoke_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     revoked.unwrap();

@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure as SyncError;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncResponse;
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn fixture() -> Fixture {
     fixture_with_operator(Harness::new(), fake_principal(2))
@@ -23,7 +23,11 @@ pub(super) fn fixture_with_operator(harness: Harness, operator: Principal) -> Fi
     f.harness.pic.install_canister(
         cashier,
         std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-        ic_platform::candid::contract::encode_args((f.service, fake_principal(9), driver)).unwrap(),
+        blob_test_protocol::fixture_wire::encode_args(
+            "fixture_init",
+            (f.service, fake_principal(9), driver),
+        )
+        .unwrap(),
         Some(driver),
     );
     f
@@ -35,13 +39,7 @@ fn refresh(
 ) -> Result<GatewaySyncResponse, SyncError> {
     f.harness
         .pic
-        .update_blob_as(
-            f.service,
-            actor,
-            "blob_sync_gateways",
-            scope,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_blob_as(f.service, actor, "blob_sync_gateways", scope, REPLY_BYTES)
         .unwrap()
 }
 fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError> {
@@ -55,7 +53,7 @@ fn cancel(f: &Fixture, actor: Principal, sequence: u64) -> Result<(), SyncError>
                 scope: f.operator_scope(),
                 sequence,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }

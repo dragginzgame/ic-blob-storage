@@ -4,7 +4,7 @@ use crate::{
     funding::{FundingOutcome, FundingRequest},
     storage::WriteFault,
 };
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Operator control for one journal-bound call to the local Cashier substitute.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
@@ -43,16 +43,7 @@ pub struct Observation {
     pub call_cost: u128,
 }
 /// Local receiver controls; none of these fields are Cashier wire arguments.
-#[derive(
-    Clone,
-    Debug,
-    Eq,
-    PartialEq,
-    Deserialize,
-    serde::Serialize,
-    ic_platform::candid::contract::CandidType,
-)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Substitute {
     /// Exact expected canonical bytes; bounded by the fixture before storage.
     pub expected_arguments: Vec<u8>,

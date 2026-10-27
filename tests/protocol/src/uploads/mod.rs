@@ -1,11 +1,9 @@
 //! Passive outcomes of fixed local upload fixtures, not a service/provider API.
 
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Coarse local observation of a fixed fixture root; no deletion authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum UploadProbeState {
     /// Capacity reserved, no possible exposure recorded.
     Reserved,

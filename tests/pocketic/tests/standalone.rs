@@ -73,7 +73,7 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
@@ -238,13 +238,7 @@ impl Fixture {
     fn configuration(&self, actor: Principal) -> Result<HostConfigurationView, HostFailure> {
         self.harness
             .pic
-            .query_blob_as(
-                self.service,
-                actor,
-                "blob_configuration",
-                (),
-                REPLY_LIMITS.reply_bytes,
-            )
+            .query_blob_as(self.service, actor, "blob_configuration", (), REPLY_BYTES)
             .unwrap()
     }
     fn scope(&self) -> TenantScope {
@@ -266,7 +260,7 @@ impl Fixture {
                     expected: None,
                     active: true,
                 },
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -278,7 +272,7 @@ impl Fixture {
                 self.tenant,
                 "blob_tenant",
                 self.scope(),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
             .unwrap()
@@ -291,7 +285,7 @@ impl Fixture {
                 self.tenant,
                 "blob_upload_admission",
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
             .unwrap()
@@ -308,7 +302,7 @@ impl Fixture {
                 actor,
                 "blob_prepare_upload",
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -328,7 +322,7 @@ impl Fixture {
                 actor,
                 "blob_resume_current_instance",
                 (),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -452,7 +446,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
                 actor,
                 "blob_admit_upload",
                 request.permission,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(result, Err(UploadAdmissionFailure::Denied));
@@ -465,7 +459,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             f.tenant,
             "blob_admit_upload",
             request.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert!(!admitted.unwrap().replayed);
@@ -491,7 +485,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
                 operation: 5,
                 action: ReferenceAction::Retain,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(reference, Err(ReferenceFailure::Unconfirmed));
@@ -537,7 +531,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             f.uploader,
             "blob_upload_manifest",
             request.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(retained.unwrap(), prepared.observation);
@@ -555,7 +549,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             f.tenant,
             "blob_revoke_upload",
             request.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(revoked, Err(UploadAdmissionFailure::Fenced));

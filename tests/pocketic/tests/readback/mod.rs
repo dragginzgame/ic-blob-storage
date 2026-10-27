@@ -1,6 +1,5 @@
 //! Real local source calls; no deployed provider durability or HTTP claims.
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform::candid::decoder;
 
 mod resources;
 
@@ -48,7 +47,7 @@ impl Fixture {
             (ReadSourceConfig {
                 root: input.root,
                 index,
-                bytes: bytes.to_vec(),
+                bytes: bytes.to_vec().into(),
                 mode,
                 hold,
             },),
@@ -96,8 +95,11 @@ impl Fixture {
                 self.service,
                 self.first,
                 "journey_read",
-                ic_platform::candid::contract::encode_args((root(input.root), 0_u64))
-                    .expect("read args"),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "journey_read",
+                    (root(input.root), 0_u64),
+                )
+                .expect("read args"),
             )
             .expect("submit read");
         for _ in 0..30 {
@@ -120,9 +122,10 @@ impl Fixture {
         .map(|(reply,)| reply)
         .expect("resume source");
         assert!(resumed);
-        decoder::decode_one_with_config(
+        blob_test_protocol::fixture_wire::decode_one(
+            "journey_read",
             &self.harness.pic.await_call(id).expect("read callback"),
-            &decoder::DecoderConfig::new(),
+            blob_test_protocol::fixture_wire::MAX_BYTES,
         )
         .expect("typed reply")
     }
@@ -193,7 +196,7 @@ fn reads_verify_each_manifest_leaf_and_deny_unconfirmed_or_other_tenant_access()
             Ok(JourneyReadChunk {
                 index,
                 offset: u64::try_from(offset).expect("offset"),
-                bytes: bytes.to_vec()
+                bytes: bytes.to_vec().into()
             })
         );
     }
@@ -246,7 +249,11 @@ fn rejected_source_replies_return_no_bytes_and_release_the_exact_read_slot() {
             f.gateway,
             f.first,
             "fixture_chunk",
-            ic_platform::candid::contract::encode_args((root(v.upload.root), 0_u64)).expect("args"),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_chunk",
+                (root(v.upload.root), 0_u64),
+            )
+            .expect("args"),
         )
         .expect_err("source is service-only");
     assert_eq!(rejected.reject_code, RejectCode::CanisterReject);

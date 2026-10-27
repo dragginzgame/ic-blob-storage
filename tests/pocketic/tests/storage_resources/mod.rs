@@ -1,5 +1,5 @@
 //! Opt-in population/reopen measurements on normal application limits, outside default CI.
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 mod credits;
@@ -138,7 +138,7 @@ pub(super) fn resources(f: &Fixture) -> serde_json::Value {
             f.operator,
             "restoration_resources",
             (),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -250,7 +250,7 @@ fn manifest(f: &Fixture, input: &PreparationInput) -> UploadManifestResponse {
             input.request.tenant,
             "blob_upload_manifest",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     result.unwrap()
@@ -357,7 +357,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             ..CanisterSettings::default()
         }),
     );
-    let installation = ic_platform::candid::contract::encode_one(StorageProbeInstallation {
+    let profile = StorageProbeInstallation {
         operator,
         max_objects: count,
         max_tenants: workload.tenants,
@@ -365,8 +365,11 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         max_funding_attempts: 4,
         max_read_sessions: 1,
         max_tenant_read_sessions: 1,
-    })
-    .unwrap();
+    };
+    let installation =
+        blob_test_protocol::fixture_wire::encode_one("fixture_init", profile).unwrap();
+    let restoration =
+        blob_test_protocol::fixture_wire::encode_one("fixture_post_upgrade", profile).unwrap();
     harness.pic.install_canister(
         service,
         Fixture::wasm(),
@@ -409,7 +412,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
                 operator,
                 "populate_resources",
                 (batch,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply);
         if !matches!(result, Ok(Ok(()))) {
@@ -503,7 +506,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
     if let Err(error) =
         f.harness
             .pic
-            .upgrade_canister(service, Fixture::wasm(), installation, Some(controller))
+            .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller))
     {
         retain(
             directory,
@@ -542,7 +545,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
                 start: count,
                 uploads: vec![samples[0].clone()],
             },),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();

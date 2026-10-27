@@ -3,7 +3,7 @@ use super::*;
 use blob_test_protocol::storage::reference::{ReferenceProbeFailure, ReferenceStatusClientInput};
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn request(input: ReferenceInput) -> ReferenceStatusRequest {
@@ -25,7 +25,7 @@ fn inspect(
             actor,
             "blob_reference_status",
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -87,7 +87,7 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
             f.tenant,
             "blob_reference_status",
             query,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(retired));
@@ -97,7 +97,7 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -122,7 +122,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     f.harness.pic.install_canister(
         client,
         Fixture::wasm(),
-        Fixture::installation(f.operator),
+        Fixture::installation("fixture_init", f.operator),
         None,
     );
     f.tenant = client;
@@ -133,7 +133,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         max_reply_bytes: 4096,
     };
     let fetch = |input: ReferenceStatusClientInput| -> Result<ReferenceStatusResponse, ReferenceProbeFailure> {
-        f.harness.pic.update_control_as( client, f.operator, "fixture_fetch_reference_status", (input,), (REPLY_LIMITS).reply_bytes).map(|(reply,)| reply).unwrap()
+        f.harness.pic.update_control_as( client, f.operator, "fixture_fetch_reference_status", (input,), REPLY_BYTES).map(|(reply,)| reply).unwrap()
     };
     let before = f.harness.pic.get_stable_memory(f.service);
     let client_before = f.harness.pic.get_stable_memory(client);
@@ -188,7 +188,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
             f.operator,
             "fixture_nonreplicated_reference_status",
             (input,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -201,7 +201,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
             f.other,
             "fixture_fetch_reference_status",
             (input,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -215,7 +215,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -229,7 +229,7 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         .upgrade_canister(
             client,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             None,
         )
         .unwrap();

@@ -90,7 +90,7 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
             f.sender,
             f.driver,
             "fund",
-            ic_platform::candid::contract::encode_one(paid).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("fund", paid).unwrap(),
         )
         .unwrap_err();
     assert_eq!(failure.reject_code, RejectCode::CanisterError);
@@ -109,9 +109,12 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
-                trap_after_restore: false,
-            })
+            blob_test_protocol::fixture_wire::encode_one(
+                "fixture_post_upgrade",
+                FundingUpgradeArgs {
+                    trap_after_restore: false,
+                },
+            )
             .unwrap(),
             None,
         )
@@ -379,7 +382,7 @@ fn actual_zero_and_full_refund_callbacks_still_trap_and_keep_the_full_reservatio
                 f.sender,
                 f.driver,
                 "fund",
-                ic_platform::candid::contract::encode_one(attempt).unwrap(),
+                blob_test_protocol::fixture_wire::encode_one("fund", attempt).unwrap(),
             )
             .unwrap_err();
         assert_eq!(failure.reject_code, RejectCode::CanisterError);

@@ -3,12 +3,10 @@ use ic_platform::principal::ExternalPrincipal;
 
 use super::{ContentLookup, Enrollment, Request};
 use crate::journey::JourneyManifest;
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Exact consumer reference to inspect, never an allocation or retain request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct RetainedDescriptorInput {
     /// Explicit service, tenant, namespace and provider root.
     pub content: ContentLookup,
@@ -21,8 +19,7 @@ pub struct RetainedDescriptorInput {
 }
 
 /// Passive reference-qualified observation, not a publication permission.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct RetainedDescriptor {
     /// Checked reference identity, observed atomically with the descriptor.
     pub reference: RetainedDescriptorInput,
@@ -31,8 +28,7 @@ pub struct RetainedDescriptor {
 }
 
 /// Operator compare-and-set enrollment request.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct EnrollmentInput {
     /// Tenant whose admission state changes.
     pub tenant: ExternalPrincipal,
@@ -43,8 +39,7 @@ pub struct EnrollmentInput {
 }
 
 /// Uploader's bounded manifest for an existing permission.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct PreparationInput {
     /// Exact admitted operation.
     pub request: Request,
@@ -53,8 +48,7 @@ pub struct PreparationInput {
 }
 
 /// One exact tenant reference mutation, shared by retain and release.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReferenceInput {
     /// Original upload binding.
     pub object: Request,

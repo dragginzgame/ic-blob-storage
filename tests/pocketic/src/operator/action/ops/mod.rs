@@ -28,8 +28,12 @@ pub(super) fn request_json(selection: &Selection) -> Value {
 
 pub(super) fn execute(selection: &Selection) -> Result<Result<(), Value>, Failure> {
     let args = match &selection.request {
-        Request::Balance(request) => ic_platform::candid::contract::encode_one(request),
-        Request::Gateway(request) => ic_platform::candid::contract::encode_one(request),
+        Request::Balance(request) => {
+            blob_test_protocol::fixture_wire::encode_one(method(selection), request)
+        }
+        Request::Gateway(request) => {
+            blob_test_protocol::fixture_wire::encode_one(method(selection), request)
+        }
     }
     .map_err(|_| Failure::Transport)?;
     let bytes = if selection.dry_run {
@@ -43,9 +47,12 @@ pub(super) fn execute(selection: &Selection) -> Result<Result<(), Value>, Failur
     }?;
     match selection.request {
         Request::Balance(_) => {
-            decode_small::<Result<(), BalanceFailure>>(&bytes).map(|r| r.map_err(|e| json!(e)))
+            decode_small::<Result<(), BalanceFailure>>(method(selection), &bytes)
+                .map(|r| r.map_err(|e| json!(e)))
         }
-        Request::Gateway(_) => decode_small::<Result<(), blob_test_protocol::SyncFailure>>(&bytes)
-            .map(|r| r.map_err(|e| json!(e))),
+        Request::Gateway(_) => {
+            decode_small::<Result<(), blob_test_protocol::SyncFailure>>(method(selection), &bytes)
+                .map(|r| r.map_err(|e| json!(e)))
+        }
     }
 }

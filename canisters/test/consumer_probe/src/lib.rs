@@ -133,11 +133,13 @@ async fn query_manifest(
 ) -> Result<ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse, Failure> {
     workflow::manifests::inspect(ic_platform::cdk::api::msg_caller(), id).await
 }
-#[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_candid::decode_args")]
+#[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_wire::hooks::init")]
 fn init(operator: ExternalPrincipal, service: ExternalPrincipal) {
     ops::initialize(Some((operator.into(), service.into())));
 }
-#[ic_platform::cdk::post_upgrade]
+#[ic_platform::cdk::post_upgrade(
+    decode_with = "blob_test_protocol::fixture_wire::hooks::upgrade_unit"
+)]
 fn post_upgrade() {
     ops::initialize(None);
 }

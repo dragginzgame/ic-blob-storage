@@ -7,7 +7,7 @@ use crate::{
 };
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::pocket_ic::PocketIcBuilder;
@@ -198,7 +198,7 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
             f.tenant,
             "blob_admit_upload",
             p,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -246,7 +246,7 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             f.tenant,
             "blob_admit_upload",
             p,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -257,7 +257,7 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             f.tenant,
             "blob_revoke_upload",
             p,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncCancellation;
 use ic_blob_storage_contracts::dto::gateway::sync::GatewaySyncFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(principals).unwrap()
@@ -32,7 +32,7 @@ impl Fixture {
                 actor,
                 "blob_cancel_gateway_sync",
                 self.cancellation(sequence),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -76,7 +76,7 @@ impl Fixture {
                 actor,
                 GATEWAY_REVOCATION_METHOD,
                 self.revocation(gateway),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -116,7 +116,7 @@ impl Fixture {
                     action,
                     fault: false,
                 },),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -129,7 +129,7 @@ impl Fixture {
                 self.operator,
                 "gateway_registry",
                 (self.gateway_scope(),),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -326,7 +326,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
                 actor,
                 "gateway_registry",
                 (f.gateway_scope(),),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap();
@@ -354,7 +354,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
                 f.operator,
                 "gateway_registry",
                 (scope,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap();
@@ -366,7 +366,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

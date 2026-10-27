@@ -97,7 +97,8 @@ pub(crate) async fn fetch(
     // request for target/method validation when handling the resulting list.
     let response = Call::bounded_wait(request.cashier(), "fixture_gateways")
         .take_raw_args(
-            ic_platform::candid::contract::encode_one(input).expect("fixture call arguments"),
+            blob_test_protocol::fixture_wire::encode_one("fixture_gateways", input)
+                .expect("fixture call arguments"),
         )
         .await
         .map_err(|_| SyncFailure::Transport)?;

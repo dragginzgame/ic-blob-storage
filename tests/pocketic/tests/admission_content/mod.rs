@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 mod descriptor;
@@ -35,7 +35,7 @@ fn query(
             actor,
             "blob_lookup_content",
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .expect("typed content query");
     response.map(|response| {

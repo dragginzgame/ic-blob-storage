@@ -1,7 +1,7 @@
 //! Signed native assessment uses production host facts; no provider or update dispatch.
 use super::*;
 use crate::authenticated_cli::{PEM, run};
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
@@ -101,7 +101,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -133,7 +133,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
             f.tenant,
             "blob_revoke_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

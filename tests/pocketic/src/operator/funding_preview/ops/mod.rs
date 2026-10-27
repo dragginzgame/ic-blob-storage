@@ -12,14 +12,15 @@ pub(super) fn query(selection: &Selection) -> Result<Report, Failure> {
     let bytes = query_method(
         &selection.target,
         "preview_funding",
-        ic_platform::candid::contract::encode_one(selection.request)
+        blob_test_protocol::fixture_wire::encode_one("preview_funding", selection.request)
             .expect("bounded preview request"),
     )?;
     report(selection, &bytes)
 }
 
 fn report(selection: &Selection, bytes: &[u8]) -> Result<Report, Failure> {
-    let result: Result<FundingPreviewView, FundingPreviewFailure> = decode_small(bytes)?;
+    let result: Result<FundingPreviewView, FundingPreviewFailure> =
+        decode_small("preview_funding", bytes)?;
     let view = result.map_err(|e| match e {
         FundingPreviewFailure::Denied => Failure::Denied,
         FundingPreviewFailure::Binding => Failure::Binding,

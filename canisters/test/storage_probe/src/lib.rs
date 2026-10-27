@@ -50,11 +50,13 @@ fn context() -> UploadContext {
         actor: ic_platform::cdk::api::msg_caller(),
     }
 }
-#[ic_platform::cdk::init(decode_with = "ops::decode")]
+#[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_wire::hooks::init_one")]
 fn init(input: blob_test_protocol::storage::resources::StorageProbeInstallation) {
     workflow::initialize(input, false);
 }
-#[ic_platform::cdk::post_upgrade(decode_with = "ops::decode")]
+#[ic_platform::cdk::post_upgrade(
+    decode_with = "blob_test_protocol::fixture_wire::hooks::upgrade_one"
+)]
 fn post_upgrade(input: blob_test_protocol::storage::resources::StorageProbeInstallation) {
     workflow::initialize(input, true);
 }
@@ -201,8 +203,8 @@ fn configure_certificate_fixture(input: blob_test_protocol::storage::exposure::E
 }
 #[ic_platform::cdk::update(
     name = "_immutableObjectStorageCreateCertificate",
-    decode_with = "ops::decode",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode_provider",
+    encode_with = "blob_test_protocol::provider_candid::encode_one"
 )]
 fn caffeine_upload_certificate(
     root: String,

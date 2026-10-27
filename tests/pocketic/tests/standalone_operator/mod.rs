@@ -4,7 +4,7 @@ use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     pub(super) fn operator_scope(&self) -> OperatorScope {
@@ -22,13 +22,7 @@ impl Fixture {
     ) -> Result<LocalServiceStatus, LocalStatusFailure> {
         self.harness
             .pic
-            .query_blob_as(
-                self.service,
-                actor,
-                LOCAL_STATUS_METHOD,
-                scope,
-                REPLY_LIMITS.reply_bytes,
-            )
+            .query_blob_as(self.service, actor, LOCAL_STATUS_METHOD, scope, REPLY_BYTES)
             .unwrap()
     }
 }
@@ -93,7 +87,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
             f.operator,
             LOCAL_STATUS_METHOD,
             scope,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(initial.clone()));
@@ -108,7 +102,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();
@@ -139,7 +133,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
             f.tenant,
             "blob_revoke_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     revoked.unwrap();

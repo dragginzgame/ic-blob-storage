@@ -298,7 +298,7 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
             f.service,
             f.operator,
             "authority_archive",
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("authority_archive", ()).unwrap(),
         )
         .expect_err("missing archive rejects inspection");
     assert_eq!(failed.reject_code, RejectCode::CanisterError);

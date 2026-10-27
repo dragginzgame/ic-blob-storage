@@ -2,7 +2,7 @@
 use ic_blob_storage_contracts::dto::reference::ReferenceChange;
 use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceTransitionFailure;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 pub mod funding;
 pub mod manifests;

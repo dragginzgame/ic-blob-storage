@@ -1,7 +1,7 @@
 //! Local ingress update payload/rollback evidence, not gateway certificate acceptance.
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
+use ic_blob_storage_pocketic_tests::provider_calls;
 mod ingress;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD as METHOD;
@@ -27,7 +27,7 @@ fn configure(f: &Fixture, input: ExposureInput) {
             f.operator,
             "configure_certificate_fixture",
             (input,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
 }
@@ -115,7 +115,7 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
 
     // Independent wire shape mirrors official Mixin.mo; no Result wrapper is accepted.
     let reply: ProviderReply =
-        fixture_calls::update_fixture(&f.harness.pic, f.service, f.uploader, METHOD, (&root,))
+        provider_calls::update_provider(&f.harness.pic, f.service, f.uploader, METHOD, (&root,))
             .map(|(reply,)| reply)
             .unwrap();
     assert_eq!(reply.method, "upload");
@@ -191,7 +191,7 @@ fn certificate_response_traps_rollback_and_lost_committed_reply_cannot_reissue()
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

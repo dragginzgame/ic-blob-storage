@@ -10,7 +10,7 @@ use blob_test_protocol::{
         },
     },
 };
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_platform::pocket_ic::RejectResponse;
 
 #[derive(Clone, Copy)]
@@ -127,7 +127,7 @@ fn read_page(
             actor,
             "restoration_read_page",
             (page,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -164,7 +164,7 @@ fn selected_funding(
                     f.operator,
                     "funding_lookup",
                     (input.intent,),
-                    (REPLY_LIMITS).reply_bytes,
+                    REPLY_BYTES,
                 )
                 .map(|(reply,)| reply)
                 .unwrap();
@@ -177,7 +177,7 @@ fn selected_funding(
                     f.operator,
                     "funding_request",
                     (input.intent,),
-                    (REPLY_LIMITS).reply_bytes,
+                    REPLY_BYTES,
                 )
                 .map(|(reply,)| reply)
                 .unwrap();
@@ -257,7 +257,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             ..CanisterSettings::default()
         }),
     );
-    let installation = ic_platform::candid::contract::encode_one(StorageProbeInstallation {
+    let profile = StorageProbeInstallation {
         operator,
         max_objects: workload.tenants * 4,
         max_tenants: workload.tenants,
@@ -265,8 +265,11 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         max_funding_attempts: workload.funding,
         max_read_sessions: workload.reads.max(1),
         max_tenant_read_sessions: (workload.reads / workload.tenants).max(1),
-    })
-    .unwrap();
+    };
+    let installation =
+        blob_test_protocol::fixture_wire::encode_one("fixture_init", profile).unwrap();
+    let restoration =
+        blob_test_protocol::fixture_wire::encode_one("fixture_post_upgrade", profile).unwrap();
     retain_bytes(directory, "installation.wire", &installation);
     harness.pic.install_canister(
         service,
@@ -545,7 +548,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
     let result =
         f.harness
             .pic
-            .upgrade_canister(service, Fixture::wasm(), installation, Some(controller));
+            .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller));
     retain(
         directory,
         "upgrade-result.json",

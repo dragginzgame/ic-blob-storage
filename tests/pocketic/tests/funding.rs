@@ -58,8 +58,11 @@ impl Fixture {
             pic.install_canister(
                 canister,
                 wasm.clone(),
-                ic_platform::candid::contract::encode_args((peer, driver, budget))
-                    .expect("fixture init"),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "fixture_init",
+                    (peer, driver, budget),
+                )
+                .expect("fixture init"),
                 None,
             );
         }
@@ -186,9 +189,12 @@ impl Fixture {
                 .upgrade_canister(
                     canister,
                     wasm.clone(),
-                    ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
-                        trap_after_restore: false,
-                    })
+                    blob_test_protocol::fixture_wire::encode_one(
+                        "fixture_post_upgrade",
+                        FundingUpgradeArgs {
+                            trap_after_restore: false,
+                        },
+                    )
                     .expect("upgrade args"),
                     None,
                 )
@@ -436,7 +442,7 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
         fixture.sender,
         fixture.driver,
         "fund",
-        ic_platform::candid::contract::encode_one(request).expect("request"),
+        blob_test_protocol::fixture_wire::encode_one("fund", request).expect("request"),
     );
     assert_eq!(
         result.expect_err("real callback trap").reject_code,
@@ -467,9 +473,12 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
             .upgrade_canister(
                 canister,
                 wasm.clone(),
-                ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
-                    trap_after_restore: true,
-                })
+                blob_test_protocol::fixture_wire::encode_one(
+                    "fixture_post_upgrade",
+                    FundingUpgradeArgs {
+                        trap_after_restore: true,
+                    },
+                )
                 .expect("upgrade args"),
                 None,
             )
@@ -739,7 +748,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
             fixture.receiver,
             fixture.driver,
             "receive",
-            ic_platform::candid::contract::encode_one(request).expect("request"),
+            blob_test_protocol::fixture_wire::encode_one("receive", request).expect("request"),
         )
         .expect_err("driver cannot impersonate peer");
     assert_eq!(rejected.reject_code, RejectCode::CanisterError);

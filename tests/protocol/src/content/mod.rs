@@ -1,11 +1,9 @@
 //! Controls and observations for the local Wasm byte-verification experiment.
 
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Fixed independent vector and deliberate finalization conditions.
-#[derive(Clone, Copy, Debug, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Deserialize, serde::Serialize)]
 pub enum ContentProbeCase {
     /// One full 1 MiB leaf.
     FullChunk,
@@ -20,8 +18,7 @@ pub enum ContentProbeCase {
 }
 
 /// Results observed inside the installed Wasm, not a production completion receipt.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ContentProbeReport {
     /// Final raw digest as canonical text.
     pub raw_digest: String,
@@ -35,8 +32,7 @@ pub struct ContentProbeReport {
 }
 
 /// Typed expected rejections from the local probe.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ContentProbeFailure {
     /// Caller is not the explicitly configured fixture operator.
     Denied,

@@ -2,7 +2,7 @@
 use super::Allocation;
 use crate::status::FundingActivityView;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Fixed-size operator observation without scanning or paging intent history.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]

@@ -1,5 +1,5 @@
 //! Standalone operator removal delegates to the shared durable owner.
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod callbacks;
 mod funding_assessment;
@@ -26,7 +26,7 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
                 actor,
                 GATEWAY_REVOCATION_METHOD,
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     };

@@ -9,7 +9,7 @@ use ic_blob_storage_contracts::dto::upload::history::UploadHistoryPage;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryRequest;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
 use ic_blob_storage_contracts::protocol::UPLOAD_HISTORY_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 impl Fixture {
@@ -25,7 +25,7 @@ impl Fixture {
                 actor,
                 UPLOAD_HISTORY_METHOD,
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -56,7 +56,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();
@@ -81,7 +81,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
             f.tenant,
             UPLOAD_HISTORY_METHOD,
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected.clone()));
@@ -94,7 +94,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
             f.tenant,
             "blob_revoke_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     revoked.unwrap();
@@ -111,7 +111,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
                 expected: enrollment.enrollment,
                 active: false,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     suspended.unwrap();

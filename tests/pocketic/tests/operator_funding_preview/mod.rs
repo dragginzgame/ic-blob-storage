@@ -4,7 +4,6 @@ use blob_test_protocol::funding::preview::{
     FundingPreviewFailure, FundingPreviewRequest, FundingPreviewView,
 };
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform::candid::decoder;
 
 fn args(f: &Fixture, id: u64, amount: u128) -> Vec<String> {
     let status: Option<blob_test_protocol::funding::FundingOperatorStatusView> =
@@ -66,17 +65,25 @@ fn transfer(
             f.sender,
             f.driver,
             "fund",
-            ic_platform::candid::contract::encode_one(FundingRequest {
-                id,
-                offered: 1_000_000,
-                accept,
-                reply: FundingReplyMode::Success,
-                trap_callback: trap,
-            })
+            blob_test_protocol::fixture_wire::encode_one(
+                "fund",
+                FundingRequest {
+                    id,
+                    offered: 1_000_000,
+                    accept,
+                    reply: FundingReplyMode::Success,
+                    trap_callback: trap,
+                },
+            )
             .unwrap(),
         )
         .map(|bytes| {
-            decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new()).unwrap()
+            blob_test_protocol::fixture_wire::decode_one(
+                "fund",
+                &bytes,
+                blob_test_protocol::fixture_wire::MAX_BYTES,
+            )
+            .unwrap()
         })
 }
 
@@ -152,9 +159,12 @@ fn credit_uncertainty_and_identity_reuse_survive_later_refunds_and_restore() {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
-                trap_after_restore: false,
-            })
+            blob_test_protocol::fixture_wire::encode_one(
+                "fixture_post_upgrade",
+                FundingUpgradeArgs {
+                    trap_after_restore: false,
+                },
+            )
             .unwrap(),
             None,
         )

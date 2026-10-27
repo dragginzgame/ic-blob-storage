@@ -2,7 +2,6 @@
 use blob_test_protocol::authority::{ArchiveCatalog, ArchivePhase};
 use blob_test_protocol::journey::JourneyVerification;
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
@@ -15,8 +14,7 @@ pub(crate) fn release_binding() -> [u8; 32] {
     .as_bytes()
 }
 
-#[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Eq, PartialEq, serde::Serialize, Deserialize)]
 pub(crate) struct AuthorityArchiveRecord {
     pub release: [u8; 32],
     pub fenced: bool,
@@ -38,8 +36,7 @@ pub(crate) struct AuthorityArchiveRecord {
     pub balance: super::balance::BalanceJournalRecord,
 }
 
-#[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Eq, PartialEq, serde::Serialize, Deserialize)]
 pub(crate) struct ObjectRecord {
     pub catalog: ArchiveCatalog,
     pub tenant: ExternalPrincipal,
@@ -55,8 +52,7 @@ pub(crate) struct ObjectRecord {
     pub content: Option<ContentRecord>,
 }
 
-#[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Eq, PartialEq, serde::Serialize, Deserialize)]
 pub(crate) struct ContentRecord {
     pub chunks: Vec<[u8; 32]>,
     pub headers: Vec<(String, String)>,
@@ -67,8 +63,7 @@ pub(crate) struct ContentRecord {
     pub checkpoint: Vec<u8>,
 }
 
-#[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Eq, PartialEq, serde::Serialize, Deserialize)]
 pub(crate) struct ReadRecord {
     pub token: u64,
     pub valid: bool,

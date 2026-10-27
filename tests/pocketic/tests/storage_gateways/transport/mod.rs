@@ -1,6 +1,6 @@
 //! Real IC scheduling against an explicitly different local source method.
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 mod read_sessions;
 use super::*;
@@ -17,7 +17,11 @@ impl Fixture {
         f.harness.pic.install_canister(
             source,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args((f.service, f.other, f.controller)).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (f.service, f.other, f.controller),
+            )
+            .unwrap(),
             None,
         );
         f
@@ -63,7 +67,7 @@ impl Fixture {
                 actor,
                 "fixture_gateway_transport",
                 (self.transport_input(token),),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -267,7 +271,7 @@ fn gateway_callback_write_trap_keeps_pending_state_and_restoration_blocks_resend
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

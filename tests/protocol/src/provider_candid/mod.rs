@@ -1,7 +1,8 @@
-//! Explicit codecs for the existing Candid probe and provider-substitute contracts.
+//! Codec hooks only for emulated external Candid provider contracts.
 //!
 //! Preserve the former generated tuple decoder, 10,000 skipping quota, empty
-//! argument fallback and reply arity. These hooks do not select a new protocol
+//! argument fallback and reply arity. Private fixture RPC uses `fixture_wire`;
+//! these hooks do not select a new protocol
 //! or replace the narrower decoders used by bounded fixtures and Blob endpoints.
 
 use ic_platform::candid::{contract, decoder};

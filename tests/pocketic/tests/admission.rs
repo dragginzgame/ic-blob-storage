@@ -13,7 +13,6 @@ use blob_test_protocol::admission::{
     Command, Enrollment, Failure, Installation, ManifestState, Observation, Outcome, Permission,
     Phase, Request, Workload,
 };
-use ic_platform::candid::decoder;
 use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
@@ -49,8 +48,11 @@ impl Fixture {
         harness.pic.install_canister(
             service,
             Self::wasm(),
-            ic_platform::candid::contract::encode_args((Installation { operator, workload },))
-                .unwrap(),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (Installation { operator, workload },),
+            )
+            .unwrap(),
             Some(controller),
         );
         Self {
@@ -75,8 +77,12 @@ impl Fixture {
             .pic
             .update_call(self.service, caller, method, bytes)
             .expect("typed update reply, not a trap");
-        decoder::decode_one_with_config(&reply, &decoder::DecoderConfig::new())
-            .expect("typed update reply")
+        blob_test_protocol::fixture_wire::decode_one(
+            method,
+            &reply,
+            blob_test_protocol::fixture_wire::MAX_BYTES,
+        )
+        .expect("typed update reply")
     }
 
     fn inspect(&self, caller: Principal, request: Request) -> Result<Observation, Failure> {

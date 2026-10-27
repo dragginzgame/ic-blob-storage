@@ -1,7 +1,7 @@
 //! Actual IC transport/refunds through the shared journal and a labelled substitute.
 use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 mod dispatch;
@@ -68,7 +68,7 @@ impl Fixture {
             .upgrade_canister(
                 self.service,
                 Self::wasm(),
-                Self::installation(self.operator),
+                Self::installation("fixture_post_upgrade", self.operator),
                 Some(self.controller),
             )
             .unwrap();
@@ -82,16 +82,19 @@ impl Fixture {
         f.harness.pic.install_canister(
             cashier,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args((
-                f.service,
-                f.controller,
-                blob_test_protocol::funding::budget::FundingBudgetInput {
-                    allocated: 1000,
-                    reserve: 100,
-                    operating_reserve: 1_000_000_000,
-                    other_liabilities: 0,
-                },
-            ))
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (
+                    f.service,
+                    f.controller,
+                    blob_test_protocol::funding::budget::FundingBudgetInput {
+                        allocated: 1000,
+                        reserve: 100,
+                        operating_reserve: 1_000_000_000,
+                        other_liabilities: 0,
+                    },
+                ),
+            )
             .unwrap(),
             None,
         );
@@ -135,7 +138,7 @@ impl Fixture {
                 actor,
                 "fixture_funding_transport",
                 (input,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -164,7 +167,7 @@ impl Fixture {
                 actor,
                 "blob_funding_outcome",
                 outcome_request(intent),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }

@@ -4,7 +4,7 @@ use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 impl Fixture {
@@ -20,7 +20,7 @@ impl Fixture {
                 actor,
                 UPLOAD_STATUS_METHOD,
                 upload,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -47,7 +47,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();
@@ -66,7 +66,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
             f.tenant,
             UPLOAD_STATUS_METHOD,
             permission.upload,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -83,7 +83,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
                 expected: enrollment.enrollment,
                 active: false,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     suspended.unwrap();
@@ -97,7 +97,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
             f.tenant,
             "blob_revoke_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     revoked.unwrap();
@@ -133,7 +133,7 @@ fn standalone_upload_status_rejects_foreign_malformed_and_changed_original_bindi
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();

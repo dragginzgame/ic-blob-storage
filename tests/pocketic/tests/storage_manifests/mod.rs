@@ -1,5 +1,5 @@
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
@@ -27,7 +27,7 @@ fn inspect(
             actor,
             UPLOAD_MANIFEST_INSPECT_METHOD,
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -43,7 +43,7 @@ fn prepare(
             actor,
             UPLOAD_MANIFEST_PREPARE_METHOD,
             input,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -129,7 +129,7 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

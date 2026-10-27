@@ -9,7 +9,7 @@ use crate::{
     admission::{Permission, Phase, Request},
     journey::JourneyUsage,
 };
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Test-only stable write boundary; no production fault control is exported.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]

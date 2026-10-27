@@ -14,8 +14,6 @@ use blob_test_protocol::{
     storage::{Failure, Observation, Status, WriteFault},
 };
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 
 use ic_blob_storage::ic_memory::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::GenericAllocationPolicy;
@@ -303,12 +301,13 @@ fn probe_memory(
 
 #[expect(
     clippy::needless_pass_by_value,
-    reason = "CDK decoder owns the argument buffer"
+    reason = "provider ingress owns its bytes"
 )]
-pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) -> T {
-    if bytes.len() > blob_test_protocol::storage::resources::STORAGE_PROBE_INPUT_BYTES {
-        ic_platform::cdk::api::trap("fixture input byte bound");
-    }
+pub(crate) fn decode_provider<
+    T: ic_platform::candid::contract::CandidType + serde::de::DeserializeOwned,
+>(
+    bytes: Vec<u8>,
+) -> T {
     ic_platform::candid::decode_one(
         &bytes,
         ic_platform::candid::DecodeLimits {
@@ -319,8 +318,9 @@ pub(crate) fn decode<T: CandidType + for<'de> Deserialize<'de>>(bytes: Vec<u8>) 
             header_bytes: 4096,
         },
     )
-    .unwrap_or_else(|_| ic_platform::cdk::api::trap("invalid fixture input"))
+    .unwrap_or_else(|_| ic_platform::cdk::api::trap("invalid provider fixture input"))
 }
+
 pub(crate) fn admit(
     context: UploadContext,
     input: ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest,

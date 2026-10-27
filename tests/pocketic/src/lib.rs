@@ -14,3 +14,4 @@ pub mod historical;
 
 #[cfg(not(target_family = "wasm"))]
 pub mod fixture_calls;
+pub mod provider_calls;

@@ -1,6 +1,6 @@
 //! Maintained enrollment API through actual callers and IC rollback.
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 
@@ -17,7 +17,7 @@ impl Fixture {
                 actor,
                 TENANT_UPDATE_METHOD,
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -33,7 +33,7 @@ impl Fixture {
                 actor,
                 TENANT_INSPECTION_METHOD,
                 scope,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -266,7 +266,7 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

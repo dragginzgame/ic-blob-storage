@@ -6,13 +6,11 @@ pub mod lookup;
 pub mod preview;
 
 use crate::status::{FundingActivityView, OperatorBlockerView, OperatorWarningView};
-use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
 /// Read-only current journal diagnosis for the local funding experiment.
 /// No gateway/account binding, provider credit or recovery qualification is implied.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingOperatorStatusView {
     /// Actual canister answering this query.
     pub service: ExternalPrincipal,
@@ -43,8 +41,7 @@ pub struct FundingOperatorStatusView {
 }
 
 /// Exact outgoing intent and transport facts, separately from provider credit.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingAttemptStatusView {
     /// Lifetime operation identity within the bound service/peer journal.
     pub id: u64,
@@ -63,8 +60,7 @@ pub struct FundingAttemptStatusView {
 }
 
 /// Controlled response after the receiver accepts the requested cycles.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum FundingReplyMode {
     /// Replay the independent Candid success fixture.
     Success,
@@ -91,16 +87,14 @@ pub enum FundingReplyMode {
 }
 
 /// Same-release fixture lifecycle controls, not a production upgrade interface.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingUpgradeArgs {
     /// Fail the real upgrade after restoring the journal synchronously.
     pub trap_after_restore: bool,
 }
 
 /// Exact identity and parameters of a local experiment.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingRequest {
     /// Fixture operation identity; never reused or automatically retried.
     pub id: u64,
@@ -115,8 +109,7 @@ pub struct FundingRequest {
 }
 
 /// Reply classification independent of the platform's cycle refund.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum FundingOutcome {
     /// The current production decoder accepts the balance report.
     ReportedSuccess,
@@ -134,8 +127,7 @@ pub enum FundingOutcome {
 
 /// Passive projection of the library decoder's advertised top-up failures.
 /// These observations never establish refunds, credit or authority to retry.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum FundingProviderErrorView {
     /// The provider-reported principal, not inferred caller or account authority.
     NotAuthorized(ExternalPrincipal),
@@ -148,8 +140,7 @@ pub enum FundingProviderErrorView {
 }
 
 /// Original call facts; enqueue failure has no callback refund to capture.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingObservation {
     /// Exact platform refund, absent when no call was enqueued.
     pub refunded: Option<u128>,
@@ -162,8 +153,7 @@ pub struct FundingObservation {
 }
 
 /// Passive projection of shared reconciliation policy for the experiment.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum FundingReconciliationView {
     /// Matching successful provider callback, without independent credit proof.
     ProviderAcknowledged(u128),
@@ -183,8 +173,7 @@ pub enum FundingReconciliationView {
 }
 
 /// Persisted local experiment entry; not a production service schema.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingAttemptRecord {
     /// Original immutable operation.
     pub request: FundingRequest,
@@ -193,8 +182,7 @@ pub struct FundingAttemptRecord {
 }
 
 /// Independently recorded receiver-side acceptance.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingReceiptRecord {
     /// Original operation identity.
     pub id: u64,
@@ -205,8 +193,7 @@ pub struct FundingReceiptRecord {
 }
 
 /// Admission failures happen before an external effect.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum FundingFailure {
     /// Caller is not the fixture driver.
     Denied,

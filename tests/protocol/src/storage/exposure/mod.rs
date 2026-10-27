@@ -2,7 +2,7 @@
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 /// Scenario selected by the local test host, not evidence from Caffeine.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ExposureScenario {

@@ -12,7 +12,7 @@ use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 pub(super) fn install(f: &mut Fixture) {
     let consumer = f.harness.pic.create_canister_with_settings(
@@ -25,7 +25,8 @@ pub(super) fn install(f: &mut Fixture) {
     f.harness.pic.install_canister(
         consumer,
         std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap(),
-        ic_platform::candid::contract::encode_args((f.uploader, f.service)).unwrap(),
+        blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.uploader, f.service))
+            .unwrap(),
         Some(f.controller),
     );
     f.tenant = consumer;
@@ -122,11 +123,9 @@ pub(super) fn handshake(
 }
 
 fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) {
-    let denied: Result<AssetView, ConsumerFailure> = ic_blob_storage_contracts::document::decode(
-        &replies.foreign_admission,
-        REPLY_LIMITS.reply_bytes,
-    )
-    .unwrap();
+    let denied: Result<AssetView, ConsumerFailure> =
+        ic_blob_storage_contracts::document::decode(&replies.foreign_admission, REPLY_BYTES)
+            .unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
     let denied: Result<UploadAdmissionMutation, A> =
         ic_blob_storage_contracts::wire::decode_response(
@@ -153,7 +152,7 @@ fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) 
 
 fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
     let admitted: Result<AssetView, ConsumerFailure> =
-        ic_blob_storage_contracts::document::decode(bytes, REPLY_LIMITS.reply_bytes).unwrap();
+        ic_blob_storage_contracts::document::decode(bytes, REPLY_BYTES).unwrap();
     let admitted = admitted.unwrap();
     assert_eq!(admitted.registration, run.registration);
     assert!(admitted.admission_started);
@@ -167,7 +166,7 @@ fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
             f.uploader,
             "asset",
             run.registration.asset,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(stored, Ok(admitted));
@@ -196,7 +195,7 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
     let view = |bytes: &[u8]| {
         assert!(bytes.len() <= 4096);
         let result: Result<AssetView, ConsumerFailure> =
-            ic_blob_storage_contracts::document::decode(bytes, REPLY_LIMITS.reply_bytes).unwrap();
+            ic_blob_storage_contracts::document::decode(bytes, REPLY_BYTES).unwrap();
         let view = result.unwrap();
         assert_eq!(view.registration, run.registration);
         assert!(!view.published);
@@ -227,7 +226,7 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
             f.uploader,
             "asset",
             run.registration.asset,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(stored, Ok(expected));

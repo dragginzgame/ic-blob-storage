@@ -189,10 +189,32 @@ executor 2.0.0 and IC0 1.2.0 identities. Callable entrypoints select codecs
 explicitly. Blob's method emitters bind pre-copy admission to the declared
 method, not inspect-message-only APIs. Provider Candid replies remain explicit;
 no-argument management calls supply their original Candid argument bytes.
-Private Candid probe/provider substitutes retain their existing tuple decoder,
-10,000 skipping quota, empty-input handling and reply arity through the small
-`blob-test-protocol::fixture_candid` hooks. Existing narrower fixture decoders
-and method-bound Wire controls remain unchanged.
+Private probe RPCs and lifecycle inputs use
+`blob-test-protocol::fixture_wire`. Its method/direction framing uses the released
+Wire native codec; method identities are FNV-1a-64 over
+`blob.private.fixture.rpc:{method}`, bound statically through Platform's
+const-generic codec paths. No update or reply reads an inspect-message-only IC
+method-name API. These IDs are not authority. Installation and restoration
+use separate `fixture_init` / `fixture_post_upgrade` identities. Positional tuples
+are exact, including explicit unit for no arguments; old Candid, empty inputs and
+extra results refuse. The global frame ceiling is 4 MiB, allocation 64 MiB,
+262,144 nodes and depth 32; admission-probe inputs retain narrower 4/16 KiB byte
+ceilings. Decode profiling measures the complete Wire decode, without fictitious
+Candid header/type-table phases.
+Only emulated external provider contracts retain the tuple decoder, 10,000
+skipping quota, empty-input handling and reply arity through
+`blob-test-protocol::provider_candid`. Native fixture diagnostic tools use Wire;
+provider account/gateway reads and management scheduling still exercise actual
+Candid packets. Private chunk replies use Wire bulk `ByteBuf`; host append
+requests borrow `BytesRef` where no retained ownership is needed. Saved fixture
+leaf records use `ByteBuf` too. Wire's canonical re-export removes the private
+protocol's separate `serde_bytes` declaration.
+Provider scheduling aliases intentionally retain the real provider packet where
+the production decoder is the consumer: `fixture_gateways` returns a Candid
+gateway list, `fixture_balance` exchanges Cashier account packets, and
+`fixture_gateway_query` accepts the Cashier query's unit arguments. The controlled
+`receive` endpoint takes Wire input but emits source-backed Candid funding replies.
+These are explicit substitutes, never automatic format detection or fallback.
 
 Published Wire supplies the native Serde codec; generic decode
 callers explicitly choose `Deserialize<'de>` or `DeserializeOwned`. Blob's generic
@@ -281,14 +303,28 @@ and opaque browser packets use that encoder; JavaScript defines no fixture
 schemas. Actual service operations use their method-bound Wire clients.
 Private storage controls now use Wire argument/reply tuples under their existing
 4 KiB ingress bound. They reuse the same document codec and native control caller;
-provider certificate/GC callbacks and probe lifecycle arguments retain Candid.
-Application-only DTOs no longer implement Candid traits. Frozen historical inputs
-and the saved consumer-probe record use private schema projections, preserving
-their existing Candid bytes rather than changing production storage. Named,
-bounded JSON connects the Serde shapes to those frozen test schemas; it is an
-in-memory projection, not a persisted format or a current endpoint fallback.
-The private consumer probe explicitly declares the already-resolved JSON owner.
-Public trait
+provider certificate/GC callbacks retain Candid. Probe lifecycle arguments use
+the separate Wire lifecycle identities described above.
+Application-only DTOs no longer implement Candid traits. The private protocol
+retains only the two Candid Cashier request shapes used at provider boundaries.
+Authority, funding, gateway-source and consumer journals now serialize their
+actual models with Wire through `fixture_storage::FixtureJournal` and Memory's
+published `testing::FixtureCell`. The consumer no longer keeps copied persistence
+DTOs, a JSON projection, a `CONS` envelope or a direct Core dependency.
+
+These private journals use a storage-only `BLOBJNL1` identity and include their
+allocation key in the frame. Their distinct keys end in `.wire.v1`; earlier
+Candid journal keys are not reused. Creation requires empty backing; restoration
+never falls back to empty state. Byte ceilings stay 64 KiB for authority/funding,
+1,114,112 bytes for gateway-source and 16 KiB for consumer. Each has finite Wire
+allocation (eight times its byte ceiling; sixteen for gateway-source's full leaf),
+node (262,144) and depth (32) budgets.
+These are Wire resource units, not equivalents of the retired Candid work quota.
+Old private fixture images require reinstall; same-release restoration, fences,
+uncertain effects and exact retries remain tested. Pinned historical consumer
+upgrades now assert refusal and preserved stable bytes, not format compatibility.
+Their old Candid initializer remains explicit and they require retained artifacts.
+No production record codec or public service format changes. Public trait
 removal is the 0.38 hard cut tracked by
 [#84](https://github.com/dragginzgame/ic-blob-storage/issues/84).
 The Contracts golden vectors protect field/variant order and every owned method.

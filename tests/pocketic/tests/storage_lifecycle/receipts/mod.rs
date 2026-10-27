@@ -1,5 +1,5 @@
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod mutations;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
 fn consumer() -> Fixture {
@@ -8,7 +8,7 @@ fn consumer() -> Fixture {
     f.harness.pic.install_canister(
         client,
         Fixture::wasm(),
-        Fixture::installation(f.operator),
+        Fixture::installation("fixture_init", f.operator),
         None,
     );
     f.tenant = client;
@@ -25,7 +25,7 @@ fn fetch(
             f.operator,
             "fixture_fetch_reference_receipt",
             (input,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -79,7 +79,7 @@ fn replicated_receipt_preserves_historical_success_through_release_suspension_an
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -146,7 +146,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
             f.other,
             "fixture_fetch_reference_receipt",
             (selected,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -159,7 +159,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
             f.operator,
             "fixture_nonreplicated_reference_receipt",
             (selected,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();

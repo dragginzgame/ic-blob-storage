@@ -1,6 +1,6 @@
 //! Private controls for exercising the maintained reference receipt client.
 use ic_platform::Principal;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 /// Explicit local proxy controls; not a production service request.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ReferenceClientInput {

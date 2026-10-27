@@ -3,13 +3,11 @@ use ic_platform::principal::ExternalPrincipal;
 pub mod conversion;
 
 use crate::authority::{ArchiveCatalog, ArchivePhase, ArchivedReadView};
-use ic_platform::candid::contract::CandidType;
 use serde::{Deserialize, Serialize};
 
 /// Summary of one independent fixture catalog; totals never combine its quota
 /// with another catalog's independently configured capacity.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct CatalogStatusView {
     /// Owning fixture catalog.
     pub catalog: ArchiveCatalog,
@@ -28,8 +26,7 @@ pub struct CatalogStatusView {
 }
 
 /// Count within one catalog, without exposing roots or verifier state.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct PhaseCountView {
     /// Retained local phase.
     pub phase: ArchivePhase,
@@ -39,8 +36,7 @@ pub struct PhaseCountView {
 
 /// Operator-only snapshot of the current active or frozen inspection owner.
 /// None-valued economic fields mean unobserved, never zero or reconciled.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct OperatorStatusView {
     /// Actual service binding.
     pub service: ExternalPrincipal,
@@ -83,8 +79,7 @@ pub struct OperatorStatusView {
 }
 
 /// Funding journal observations are independent of available balances.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum FundingActivityView {
     /// Observed journal has no outstanding attempt; this says nothing about freshness.
     Clear,
@@ -95,8 +90,7 @@ pub enum FundingActivityView {
 }
 
 /// Existing shared billing diagnosis at the boundary.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum BillingBlockerView {
     /// Recovery is fenced.
     RecoveryFenced,
@@ -115,8 +109,7 @@ pub enum BillingBlockerView {
 }
 
 /// Preserves the shared diagnosis without interpreting it as an action permit.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum OperatorBlockerView {
     /// No authoritative recovery assessment was supplied.
     RecoveryUnknown,
@@ -143,8 +136,7 @@ pub enum OperatorBlockerView {
 }
 
 /// Warnings from the shared billing diagnosis.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum BillingWarningView {
     /// No gateway is available.
     GatewayPrincipalSetEmpty,
@@ -155,8 +147,7 @@ pub enum BillingWarningView {
 }
 
 /// Work that remains visible independently of readiness blockers.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum OperatorWarningView {
     /// A read-only gateway sync is pending.
     SyncPending,

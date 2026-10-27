@@ -11,7 +11,7 @@ fn preview_payload_bounds_every_valid_local_reply_control() {
             requested_cycles: offered,
             revision: 0,
         });
-        let maximum = ic_platform::candid::contract::encode_one(request)
+        let maximum = blob_test_protocol::fixture_wire::encode_one("receive", request)
             .unwrap()
             .len();
         for accept in [0, offered / 2, offered] {
@@ -36,7 +36,7 @@ fn preview_payload_bounds_every_valid_local_reply_control() {
                         ..request
                     };
                     assert!(
-                        ic_platform::candid::contract::encode_one(variant)
+                        blob_test_protocol::fixture_wire::encode_one("receive", variant)
                             .unwrap()
                             .len()
                             <= maximum

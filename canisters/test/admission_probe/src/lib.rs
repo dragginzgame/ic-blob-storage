@@ -28,8 +28,8 @@ fn dispatch(command: Command) -> Result<Outcome, Failure> {
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"enroll\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"enroll\") }>"
 )]
 fn enroll(input: EnrollmentInput) -> Result<Outcome, Failure> {
     dispatch(Command::Enroll {
@@ -40,40 +40,40 @@ fn enroll(input: EnrollmentInput) -> Result<Outcome, Failure> {
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"admit\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"admit\") }>"
 )]
 fn admit(input: Permission) -> Result<Outcome, Failure> {
     dispatch(Command::Admit(input))
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"prepare\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"prepare\") }>"
 )]
 fn prepare(input: PreparationInput) -> Result<Outcome, Failure> {
     dispatch(Command::Prepare(input.request, input.manifest))
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"expose\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"expose\") }>"
 )]
 fn expose(root: [u8; 32]) -> Result<Outcome, Failure> {
     dispatch(Command::Expose(root))
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"revoke\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"revoke\") }>"
 )]
 fn revoke(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::Revoke(input))
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"substitute_deletion\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"substitute_deletion\") }>"
 )]
 fn substitute_deletion(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
@@ -82,8 +82,8 @@ fn substitute_deletion(input: Request) -> Result<Outcome, Failure> {
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"substitute_settlement\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"substitute_settlement\") }>"
 )]
 fn substitute_settlement(input: Request) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(
@@ -92,8 +92,8 @@ fn substitute_settlement(input: Request) -> Result<Outcome, Failure> {
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "ops::decode::mutation",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"reference\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"reference\") }>"
 )]
 fn reference(input: ReferenceInput) -> Result<Outcome, Failure> {
     dispatch(Command::FixtureLifecycle(LifecycleCommand::Reference {
@@ -105,8 +105,8 @@ fn reference(input: ReferenceInput) -> Result<Outcome, Failure> {
 }
 
 #[ic_platform::cdk::query(
-    decode_with = "ops::decode::request",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::request::<{ blob_test_protocol::fixture_wire::identity(\"inspect\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"inspect\") }>"
 )]
 fn inspect(request: Request) -> Result<Observation, Failure> {
     workflow::inspect(context(), request)
@@ -125,8 +125,8 @@ fn blob_lookup_content(bytes: Vec<u8>) {
 }
 
 #[ic_platform::cdk::query(
-    decode_with = "ops::decode::content",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::content::<{ blob_test_protocol::fixture_wire::identity(\"content_descriptor\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"content_descriptor\") }>"
 )]
 fn content_descriptor(
     input: ContentLookup,
@@ -135,8 +135,8 @@ fn content_descriptor(
 }
 
 #[ic_platform::cdk::query(
-    decode_with = "blob_test_protocol::fixture_candid::decode_one",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "blob_test_protocol::fixture_wire::hooks::one::<_, { blob_test_protocol::fixture_wire::identity(\"resources\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"resources\") }>"
 )]
 fn resources(limit: u8) -> Result<Vec<ExecutionProfile>, Failure> {
     workflow::resources(context(), limit)
@@ -155,8 +155,8 @@ fn blob_upload_capacity(bytes: Vec<u8>) {
 }
 
 #[ic_platform::cdk::query(
-    decode_with = "ops::decode::retained_descriptor",
-    encode_with = "blob_test_protocol::fixture_candid::encode_one"
+    decode_with = "ops::decode::retained_descriptor::<{ blob_test_protocol::fixture_wire::identity(\"retained_content_descriptor\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"retained_content_descriptor\") }>"
 )]
 fn retained_content_descriptor(
     input: blob_test_protocol::admission::input::RetainedDescriptorInput,
@@ -184,7 +184,9 @@ fn pre_upgrade() {
     ic_platform::cdk::api::trap("transient admission probe cannot upgrade");
 }
 
-#[ic_platform::cdk::post_upgrade]
+#[ic_platform::cdk::post_upgrade(
+    decode_with = "blob_test_protocol::fixture_wire::hooks::upgrade_unit"
+)]
 fn post_upgrade() {
     ic_platform::cdk::api::trap("transient admission probe cannot restore");
 }

@@ -1,4 +1,4 @@
-//! Actual local IC chunk call; this wire is a labelled provider substitute.
+//! Actual local IC chunk call over the private Wire protocol.
 use blob_test_protocol::chunk::{ChunkReplyError, decode_reply};
 use blob_test_protocol::storage::Failure;
 use ic_blob_storage::ops::service::reads::transport::{
@@ -15,19 +15,23 @@ impl ReadChunkTransport for LocalChunk {
         let index = request.chunk.index;
         let response = Call::bounded_wait(source, "fixture_chunk")
             .take_raw_args(
-                ic_platform::candid::contract::encode_args((root.as_bytes().to_vec(), index))
-                    .expect("fixture chunk arguments"),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "fixture_chunk",
+                    (root.as_bytes().to_vec(), index),
+                )
+                .expect("fixture chunk arguments"),
             )
             .await
             .map_err(|_| Failure::Transport)?;
         // Bounds application decoding, not the platform/CDK's initial buffer.
         let encoded = response.as_ref();
-        let bytes = decode_reply(encoded, request.max_reply_bytes.get() as usize, 32_768).map_err(
-            |error| match error {
-                ChunkReplyError::TooLarge => Failure::Capacity,
-                ChunkReplyError::Invalid => Failure::Invalid,
-            },
-        )?;
+        let bytes =
+            decode_reply(encoded, request.max_reply_bytes.get() as usize).map_err(|error| {
+                match error {
+                    ChunkReplyError::TooLarge => Failure::Capacity,
+                    ChunkReplyError::Invalid => Failure::Invalid,
+                }
+            })?;
         // The actual call target authenticates the peer; correlation comes from
         // this captured call, never from a peer's untrusted payload claims.
         Ok(ReadChunkResponse {

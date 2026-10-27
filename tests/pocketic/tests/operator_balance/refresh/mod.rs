@@ -138,7 +138,11 @@ fn completion_survives_failed_post_status_without_repeating_update() {
     let f = Fixture::new();
     let pic = &f.harness.pic;
     let canister = pic.create_canister();
-    let reply = ic_platform::candid::contract::encode_one(Ok::<(), BalanceFailure>(())).unwrap();
+    let reply = blob_test_protocol::fixture_wire::encode_reply(
+        "refresh_balance",
+        Ok::<(), BalanceFailure>(()),
+    )
+    .unwrap();
     pic.install_canister(
         canister,
         super::super::operator_method_mode::update_wasm("refresh_balance", &reply),

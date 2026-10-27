@@ -1,5 +1,5 @@
 //! Actual signed HTTP ingress and certificate recovery against local `PocketIC` only.
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 mod browser;
@@ -207,7 +207,7 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
             h.fixture.tenant,
             "blob_revoke_upload",
             input.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);

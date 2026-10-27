@@ -3,15 +3,13 @@ use ic_platform::principal::ExternalPrincipal;
 
 use crate::journey::{JourneyManifest, JourneyUsage};
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 pub mod conversion;
 pub mod input;
 pub mod release;
 
 /// Fixed local measurement envelopes; none is a production configuration.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Workload {
     /// Small envelope for authority, metadata and leaf-capacity checks.
     Small,
@@ -24,8 +22,7 @@ pub enum Workload {
 }
 
 /// Explicit test installation; no provider or account authority is supplied.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Installation {
     /// Sole observer/enrollment operator.
     pub operator: ExternalPrincipal,
@@ -34,8 +31,7 @@ pub struct Installation {
 }
 
 /// Exact fixture operation. Object ID equals operation ID; incarnation/reference are one.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Request {
     /// Claimed service, checked against the actual canister.
     pub service: ExternalPrincipal,
@@ -52,8 +48,7 @@ pub struct Request {
 }
 
 /// Tenant-scoped discovery without a pre-existing operation identity.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ContentLookup {
     /// Explicit fixture service, checked against the running canister.
     pub service: ExternalPrincipal,
@@ -66,8 +61,7 @@ pub struct ContentLookup {
 }
 
 /// Current local content state, not a provider observation or a retain receipt.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ContentState {
     /// Admitted without exposure.
     Reserved,
@@ -84,8 +78,7 @@ pub enum ContentState {
 }
 
 /// Original upload identity and current state, visible only to its tenant.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ContentObservation {
     /// Exact request to recover; discovery does not allocate a new operation.
     pub request: Request,
@@ -94,8 +87,7 @@ pub struct ContentObservation {
 }
 
 /// Tenant-only declaration recovered from local state, not certified HTTP data.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ContentDescriptor {
     /// Exact original identity and current lifecycle; preparation is not completion.
     pub content: ContentObservation,
@@ -104,8 +96,7 @@ pub struct ContentDescriptor {
 }
 
 /// Immutable project instruction, without caller or clock overrides.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Permission {
     /// Exact local operation.
     pub request: Request,
@@ -116,8 +107,7 @@ pub struct Permission {
 }
 
 /// Passive operator compare-and-set observation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Enrollment {
     /// Positive activation generation.
     pub generation: u64,
@@ -126,8 +116,7 @@ pub struct Enrollment {
 }
 
 /// Local manifest consistency; no content verification or provider completion.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ManifestState {
     /// No manifest bound yet.
     Unprepared,
@@ -136,8 +125,7 @@ pub enum ManifestState {
 }
 
 /// Observable local catalog phase.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Phase {
     /// Capacity reserved, exposure not marked.
     Reserved,
@@ -174,8 +162,7 @@ pub enum Command {
 }
 
 /// Typed mutation outcome; errors are ordinary Candid replies, never traps.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Outcome {
     /// Original or replayed reference result, including recorded lifecycle failure.
     Reference {
@@ -197,8 +184,7 @@ pub enum Outcome {
 }
 
 /// Authenticated read-only observation, excluding bytes and hash checkpoints.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Observation {
     /// Original permission, unchanged by retries.
     pub permission: Permission,
@@ -219,8 +205,7 @@ pub const RESOURCE_SAMPLE_CAPACITY: usize = 32;
 
 /// Completed probe workflow, visible only to its configured operator.
 /// Counters are diagnostic observations, not authority or a production cost quote.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ExecutionProfile {
     /// Monotonic diagnostic sequence, used to detect missing samples in a batch.
     /// This transient counter grants no operational or restoration authority.
@@ -229,10 +214,6 @@ pub struct ExecutionProfile {
     pub caller: ExternalPrincipal,
     /// Counter at entry to the custom decoder, after CDK argument collection.
     pub before_decode: u64,
-    /// Counter after parsing the bounded Candid header/type table.
-    pub after_header: u64,
-    /// Counter after decoding the command value, before trailing arguments.
-    pub after_value: u64,
     /// Counter after bounded decoding and input-buffer disposal, before dispatch.
     pub after_decode: u64,
     /// Message instruction count after decoding and before workflow dispatch.
@@ -243,8 +224,7 @@ pub struct ExecutionProfile {
 }
 
 /// Typed categories used to assert boundary behavior without freezing error prose.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Failure {
     /// Malformed fixture identity or enrollment precondition.
     InvalidInput,

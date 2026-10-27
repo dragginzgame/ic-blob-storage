@@ -4,7 +4,7 @@ use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 pub(super) fn withdraw(
     f: &Fixture,
@@ -22,7 +22,7 @@ pub(super) fn withdraw(
                 fault,
                 max_reply_bytes,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -34,7 +34,7 @@ fn recover_withdrawal(f: &Fixture) -> Result<AssetView, ConsumerFailure> {
             f.operator,
             "recover_revocation",
             1_u128,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -155,13 +155,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         let result: Result<UploadRevocationResponse, A> = f
             .harness
             .pic
-            .update_blob_as(
-                f.service,
-                actor,
-                "blob_revoke_upload",
-                p,
-                REPLY_LIMITS.reply_bytes,
-            )
+            .update_blob_as(f.service, actor, "blob_revoke_upload", p, REPLY_BYTES)
             .unwrap();
         assert_eq!(result, Err(A::Denied));
     }
@@ -183,7 +177,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
                 f.tenant,
                 "blob_revoke_upload",
                 changed,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(result, Err(A::Conflict));
@@ -195,7 +189,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -224,7 +218,7 @@ fn consumer_upgrade_keeps_uncertain_withdrawal_and_blocks_dispatch_or_acknowledg
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

@@ -2,7 +2,7 @@ use super::*;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn permission(input: &Run) -> UploadAdmissionRequest {
     match input.registration.source {
@@ -21,7 +21,7 @@ fn inspect_permission(
             f.tenant,
             "blob_upload_admission",
             input,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -137,7 +137,7 @@ fn consumer_upgrade_retains_uncertain_admission_and_blocks_reconciliation_and_re
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

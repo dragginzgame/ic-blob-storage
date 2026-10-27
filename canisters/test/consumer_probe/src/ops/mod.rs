@@ -5,16 +5,7 @@ pub(crate) mod manifests;
 pub(crate) mod tenants;
 use crate::model::ConsumerRecord;
 use blob_test_protocol::consumer::{AssetView, Failure, Fault};
-use ic_blob_storage::ic_memory::DefaultMemoryImpl;
-use ic_blob_storage::ic_memory::GenericAllocationPolicy;
-use ic_blob_storage::ic_memory::Memory;
-use ic_blob_storage::ic_memory::MemoryAllocationPool;
-use ic_blob_storage::ic_memory::MemoryAuthority;
-use ic_blob_storage::ic_memory::MemoryManagerConfig;
-use ic_blob_storage::ic_memory::MemoryRequest;
-use ic_blob_storage::ic_memory::MemoryRuntime;
-use ic_blob_storage::ic_memory::RuntimeMemory;
-use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
+use blob_test_protocol::fixture_storage::FixtureJournal;
 use ic_blob_storage_client::admission::UploadAdmissionClientError;
 use ic_blob_storage_client::download::ReplicatedDownloadClient;
 use ic_blob_storage_client::references::ReplicatedReferenceClient;
@@ -25,14 +16,20 @@ use ic_blob_storage_contracts::dto::reference::ReferenceCommand;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
 use ic_blob_storage_contracts::upload::admission::reply::UploadAdmissionReplyError;
+use ic_memory::DefaultMemoryImpl;
 use ic_platform::Principal;
-use ic_platform::candid::decoder::DecoderConfig;
+use ic_wire::Limits;
 use std::cell::{Cell, RefCell};
-const KEY: &str = "fixture.consumer.v1";
+const KEY: &str = "fixture.consumer.wire.v1";
 const MAX: usize = 16_384;
+const LIMITS: Limits = Limits {
+    bytes: MAX,
+    allocation: MAX * 8,
+    nodes: 262_144,
+    depth: 32,
+};
 struct Host {
-    _runtime: MemoryRuntime<DefaultMemoryImpl>,
-    memory: RuntimeMemory<DefaultMemoryImpl>,
+    journal: FixtureJournal<DefaultMemoryImpl>,
     record: ConsumerRecord,
 }
 thread_local! {
@@ -40,47 +37,16 @@ thread_local! {
     static WAITING: Cell<bool> = const { Cell::new(false) };
     static READY: Cell<bool> = const { Cell::new(false) };
 }
-fn config() -> DecoderConfig {
-    let mut config = DecoderConfig::new();
-    config
-        .set_decoding_quota(1_000_000)
-        .set_skipping_quota(1024)
-        .set_max_type_len(128)
-        .set_max_header_len(MAX)
-        .set_full_error_message(false);
-    config
-}
 pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
-    let request = MemoryRequest::new("fixture", KEY).unwrap();
-    let pool = MemoryAllocationPool::new(
-        vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
-        vec![],
-    )
-    .expect("host allocation pool");
-    let declarations = SealedDeclarationSnapshot::new(vec![request]).unwrap();
-    let mut runtime = MemoryRuntime::new_with_config(
-        DefaultMemoryImpl::default(),
-        MemoryManagerConfig::new(16).unwrap(),
-    )
-    .unwrap();
-    runtime
-        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
-        .unwrap();
-    let memory = runtime.open_memory(KEY).unwrap();
+    let mut journal = if initial.is_some() {
+        FixtureJournal::create(DefaultMemoryImpl::default(), KEY, LIMITS)
+    } else {
+        FixtureJournal::open(DefaultMemoryImpl::default(), KEY, LIMITS)
+    };
     let record = if let Some((operator, service)) = initial {
-        assert_eq!(memory.size(), 0, "initialization cannot reset history");
-        assert_eq!(memory.grow(1), Ok(0), "fixture memory allocation");
         ConsumerRecord::new(operator, service, ic_platform::cdk::api::canister_self())
     } else {
-        assert!(memory.size() > 0, "missing consumer history");
-        let mut header = [0; 9];
-        memory.read(0, &mut header);
-        assert_eq!(&header[..5], b"CONS\x01", "consumer envelope");
-        let length = u32::from_le_bytes(header[5..].try_into().unwrap()) as usize;
-        assert!((1..=MAX).contains(&length), "consumer envelope length");
-        let mut bytes = vec![0; length];
-        memory.read(9, &mut bytes);
-        let mut record: ConsumerRecord = crate::model::record::decode(&bytes, &config());
+        let mut record: ConsumerRecord = journal.load();
         assert_eq!(
             record.tenant,
             ic_platform::cdk::api::canister_self(),
@@ -90,23 +56,12 @@ pub(crate) fn initialize(initial: Option<(Principal, Principal)>) {
         record.fence();
         record
     };
-    save(&memory, &record);
+    record.validate().expect("consumer invariants");
+    journal.save(&record);
     HOST.with_borrow_mut(|host| {
         assert!(host.is_none());
-        *host = Some(Host {
-            _runtime: runtime,
-            memory,
-            record,
-        });
+        *host = Some(Host { journal, record });
     });
-}
-fn save(memory: &RuntimeMemory<DefaultMemoryImpl>, record: &ConsumerRecord) {
-    record.validate().expect("consumer invariants");
-    let bytes = crate::model::record::encode(record);
-    assert!(bytes.len() <= MAX, "consumer record bound");
-    memory.write(9, &bytes);
-    memory.write(0, b"CONS\x01");
-    memory.write(5, &u32::try_from(bytes.len()).unwrap().to_le_bytes());
 }
 pub(crate) fn read<R>(
     actor: Principal,
@@ -127,7 +82,8 @@ pub(crate) fn mutate<R>(
         host.record.authorize(actor, true)?;
         let mut next = host.record.clone();
         let result = f(&mut next)?;
-        save(&host.memory, &next);
+        next.validate().expect("consumer invariants");
+        host.journal.save(&next);
         host.record = next;
         Ok(result)
     })

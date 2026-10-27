@@ -5,7 +5,7 @@ use crate::{
     reference_cli::{change_native, native_requests},
     submission_proxy::{Dispatch, Proxy, Reply},
 };
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
@@ -248,7 +248,7 @@ fn prepared(
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

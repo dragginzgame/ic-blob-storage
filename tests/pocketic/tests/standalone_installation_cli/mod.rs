@@ -3,7 +3,7 @@ use super::*;
 use crate::authenticated_cli::run;
 use ic_blob_storage_contracts::endpoints::{MethodCodec, MethodMode, SERVICE_METHODS};
 use ic_blob_storage_contracts::identity::ContentDigest;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use std::path::Path;
@@ -224,7 +224,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

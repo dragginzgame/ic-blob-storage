@@ -47,7 +47,7 @@ All owned methods use published IC Wire; passive offline Wire values have their 
 bounded projections use Serde declaration order, method/direction-bound
 frames and finite resource limits while native DTO/policy and persisted schemas
 retain their existing owners. See [the adoption state](../../docs/service-wire.md).
-The registry requirement targets Wire 0.6.10. Service/document generic decoding
+The workspace catalog selects the published Wire version. Service/document generic decoding
 requires explicit `Deserialize<'de>` and can return bounded `BytesRef`/`TextRef`
 views. Retain the input for their lifetime; use owned values across async results,
 persistence and retained retries. Borrowed tenant wire projections now take a

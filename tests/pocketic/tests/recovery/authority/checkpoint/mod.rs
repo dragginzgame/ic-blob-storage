@@ -19,7 +19,7 @@ impl Fixture {
             (CheckpointProbeInput {
                 root: upload.root,
                 index,
-                bytes: bytes.to_vec(),
+                bytes: bytes.to_vec().into(),
             },),
         )
         .map(|(reply,)| reply)

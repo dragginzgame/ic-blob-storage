@@ -1,10 +1,8 @@
 //! Installed local attachment envelope, not production spendability or account credit.
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// Explicit installation budget. No reset, replenishment or inferred balance exists.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingBudgetInput {
     /// Maximum locally allocated attachment cycles; execution fees are separate.
     pub allocated: u128,
@@ -17,8 +15,7 @@ pub struct FundingBudgetInput {
 }
 
 /// Accounting derived from the bounded exact transfer journal.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingBudgetView {
     /// Installed additional liquid-cycle slack.
     pub operating_reserve: u128,

@@ -4,7 +4,7 @@ pub mod summary;
 pub mod transport;
 use super::WriteFault;
 use ic_platform::Principal;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 
 /// Private synthetic host-credit fixture input; never a production endpoint DTO.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
@@ -104,9 +104,7 @@ pub struct Allocation {
 }
 
 /// Private fixture request for one local host-authorized budget increase.
-#[derive(
-    Clone, Copy, Debug, ic_platform::candid::contract::serde::Deserialize, serde::Serialize,
-)]
+#[derive(Clone, Copy, Debug, serde::Deserialize, serde::Serialize)]
 pub struct RenewalCommand {
     /// Exact original credited intent; not a new payment.
     pub intent: Intent,

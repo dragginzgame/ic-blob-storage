@@ -11,16 +11,19 @@ use ic_blob_storage_contracts::dto::reference::ReferenceFailure;
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptLookup;
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
 fn fixture() -> Fixture {
-    fixture_with_wasm(consumer_wasm())
+    let f = Fixture::new();
+    let arguments =
+        blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
+            .unwrap();
+    fixture_with_wasm(f, consumer_wasm(), arguments)
 }
-fn fixture_with_wasm(wasm: Vec<u8>) -> Fixture {
-    let mut f = Fixture::new();
+fn fixture_with_wasm(mut f: Fixture, wasm: Vec<u8>, arguments: Vec<u8>) -> Fixture {
     let tenant = f.harness.pic.create_canister_with_settings(
         Some(f.controller),
         Some(CanisterSettings {
@@ -28,12 +31,9 @@ fn fixture_with_wasm(wasm: Vec<u8>) -> Fixture {
             ..CanisterSettings::default()
         }),
     );
-    f.harness.pic.install_canister(
-        tenant,
-        wasm,
-        ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
-        Some(f.controller),
-    );
+    f.harness
+        .pic
+        .install_canister(tenant, wasm, arguments, Some(f.controller));
     f.tenant = tenant;
     f.enroll(None, true).unwrap();
     f
@@ -73,25 +73,19 @@ fn input(f: &Fixture, id: u8) -> Run {
 fn register(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_control_as(
-            f.tenant,
-            f.operator,
-            "register",
-            input,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_control_as(f.tenant, f.operator, "register", input, REPLY_BYTES)
         .unwrap()
 }
 fn asset(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .query_control_as(f.tenant, f.operator, "asset", id, REPLY_LIMITS.reply_bytes)
+        .query_control_as(f.tenant, f.operator, "asset", id, REPLY_BYTES)
         .unwrap()
 }
 fn cancel(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_control_as(f.tenant, f.operator, "cancel", id, REPLY_LIMITS.reply_bytes)
+        .update_control_as(f.tenant, f.operator, "cancel", id, REPLY_BYTES)
         .unwrap()
 }
 fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
@@ -105,7 +99,7 @@ fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
                 asset: id,
                 fault: Fault::None,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -117,7 +111,7 @@ fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFa
             f.operator,
             "recover",
             Recovery { asset: id, release },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -129,7 +123,7 @@ fn use_asset(f: &Fixture, attach: bool) -> Result<AssetView, ConsumerFailure> {
             f.operator,
             "use_asset",
             Use { asset: 1, attach },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -142,7 +136,7 @@ fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
             f.tenant,
             "blob_reference_receipt",
             command,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     value.unwrap()
@@ -204,13 +198,7 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
         let waiting: Result<bool, ConsumerFailure> = f
             .harness
             .pic
-            .query_control_as(
-                f.tenant,
-                f.operator,
-                "waiting",
-                (),
-                REPLY_LIMITS.reply_bytes,
-            )
+            .query_control_as(f.tenant, f.operator, "waiting", (), REPLY_BYTES)
             .unwrap();
         if waiting.unwrap() {
             held = true;
@@ -231,12 +219,12 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
     let resumed: Result<(), ConsumerFailure> = f
         .harness
         .pic
-        .update_control_as(f.tenant, f.operator, "resume", (), REPLY_LIMITS.reply_bytes)
+        .update_control_as(f.tenant, f.operator, "resume", (), REPLY_BYTES)
         .unwrap();
     resumed.unwrap();
     let result: Result<AssetView, ConsumerFailure> = ic_blob_storage_contracts::document::decode(
         &f.harness.pic.await_call(call).unwrap(),
-        REPLY_LIMITS.reply_bytes,
+        REPLY_BYTES,
     )
     .unwrap();
     assert_eq!(result, Err(ConsumerFailure::State));
@@ -344,7 +332,7 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap();
@@ -377,13 +365,7 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
     let denied: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
-        .update_control_as(
-            f.tenant,
-            f.other,
-            "register",
-            &first,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_control_as(f.tenant, f.other, "register", &first, REPLY_BYTES)
         .unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
@@ -427,7 +409,7 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap();
@@ -460,8 +442,11 @@ fn pre_trait_consumer_wasm() -> Vec<u8> {
 
 #[test]
 #[ignore = "Requires retained pre-trait consumer Wasm and its explicit SHA-256"]
-fn frozen_consumer_records_keep_published_and_cancelled_obligations_after_projection_cut() {
-    let f = fixture_with_wasm(pre_trait_consumer_wasm());
+fn retired_consumer_upgrade_refuses_without_losing_published_or_cancelled_history() {
+    let f = Fixture::new();
+    // The pinned old image still owns its original Candid initializer.
+    let arguments = ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap();
+    let f = fixture_with_wasm(f, pre_trait_consumer_wasm(), arguments);
     let mut first = input(&f, 1);
     first.registration.asset = u128::MAX;
     first.registration.release_operation = u128::MAX;
@@ -471,28 +456,33 @@ fn frozen_consumer_records_keep_published_and_cancelled_obligations_after_projec
     cancel(&f, 2).unwrap();
     let before = [asset(&f, u128::MAX).unwrap(), asset(&f, 2).unwrap()];
     let service_before = f.harness.pic.get_stable_memory(f.service);
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant);
     crate::install_code::settle_install_code_debt(&f.harness.pic);
-    f.harness
+    let error = f
+        .harness
         .pic
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
-        .unwrap();
+        .unwrap_err();
+    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(f.harness.pic.get_stable_memory(f.tenant), consumer_before);
     assert_eq!(
         [asset(&f, u128::MAX).unwrap(), asset(&f, 2).unwrap()],
         before
     );
     assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
-    assert_eq!(register(&f, &first), Err(ConsumerFailure::Fenced));
 }
 
 #[test]
 #[ignore = "Requires retained pre-trait consumer Wasm and its explicit SHA-256"]
-fn frozen_consumer_records_keep_uncertain_retain_without_recovery_or_resend() {
-    let f = fixture_with_wasm(pre_trait_consumer_wasm());
+fn retired_consumer_upgrade_refuses_without_losing_uncertain_retains() {
+    let f = Fixture::new();
+    let arguments = ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap();
+    let f = fixture_with_wasm(f, pre_trait_consumer_wasm(), arguments);
     let mut command = input(&f, 1);
     command.fault = Fault::AfterRetain;
     assert!(
@@ -514,19 +504,20 @@ fn frozen_consumer_records_keep_uncertain_retain_without_recovery_or_resend() {
         ReferenceReceiptLookup::Found(_)
     ));
     let service_before = f.harness.pic.get_stable_memory(f.service);
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant);
     crate::install_code::settle_install_code_debt(&f.harness.pic);
-    f.harness
+    let error = f
+        .harness
         .pic
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
-        .unwrap();
+        .unwrap_err();
+    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(f.harness.pic.get_stable_memory(f.tenant), consumer_before);
     assert_eq!(asset(&f, 1), Ok(pending));
-    assert_eq!(recover(&f, 1, false), Err(ConsumerFailure::Fenced));
-    assert_eq!(register(&f, &command), Err(ConsumerFailure::Fenced));
-    assert_eq!(release(&f, 1), Err(ConsumerFailure::Fenced));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
 }

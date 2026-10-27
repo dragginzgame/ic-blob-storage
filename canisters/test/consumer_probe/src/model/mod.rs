@@ -1,6 +1,5 @@
 //! Small application-owned transaction model for local integration evidence only.
 pub(crate) mod manifests;
-pub(crate) mod record;
 pub(crate) mod tenants;
 use blob_test_protocol::consumer::{AssetView, Failure, Registration, RegistrationSource};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;

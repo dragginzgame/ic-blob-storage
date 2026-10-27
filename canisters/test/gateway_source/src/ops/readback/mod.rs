@@ -103,13 +103,15 @@ pub(crate) fn reply(mut config: ReadSourceConfig) {
         }
         ReadSourceMode::WrongType => {
             super::reply(
-                ic_platform::candid::contract::encode_one(vec![0_u16]).expect("wrong-type fixture"),
+                blob_test_protocol::fixture_wire::encode_reply("fixture_chunk", ())
+                    .expect("wrong-shape fixture"),
             );
             return;
         }
         ReadSourceMode::TruncatedEncoding => {
             let mut bytes =
-                ic_platform::candid::contract::encode_one(config.bytes).expect("fixture bytes");
+                blob_test_protocol::fixture_wire::encode_reply("fixture_chunk", config.bytes)
+                    .expect("fixture bytes");
             bytes.pop();
             super::reply(bytes);
             return;
@@ -124,5 +126,8 @@ pub(crate) fn reply(mut config: ReadSourceConfig) {
         }
         ReadSourceMode::Valid => {}
     }
-    super::reply(ic_platform::candid::contract::encode_one(config.bytes).expect("fixture bytes"));
+    super::reply(
+        blob_test_protocol::fixture_wire::encode_reply("fixture_chunk", config.bytes)
+            .expect("fixture bytes"),
+    );
 }

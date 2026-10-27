@@ -30,7 +30,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
@@ -46,8 +46,9 @@ struct Fixture {
     other: Principal,
 }
 impl Fixture {
-    fn installation(operator: Principal) -> Vec<u8> {
-        ic_platform::candid::contract::encode_one(
+    fn installation(method: &str, operator: Principal) -> Vec<u8> {
+        blob_test_protocol::fixture_wire::encode_one(
+            method,
             blob_test_protocol::storage::resources::StorageProbeInstallation {
                 operator,
                 max_objects: 2,
@@ -68,7 +69,7 @@ impl Fixture {
                     namespace: 1,
                     cashier: self.operator.into(),
                     payment_account: self.service.into(),
-                }, REPLY_LIMITS.reply_bytes)
+                }, REPLY_BYTES)
             .unwrap()
             .unwrap()
     }
@@ -87,7 +88,7 @@ impl Fixture {
         harness.pic.install_canister(
             service,
             Self::wasm(),
-            Self::installation(operator),
+            Self::installation("fixture_init", operator),
             Some(controller),
         );
         Self {
@@ -171,7 +172,7 @@ impl Fixture {
                 actor,
                 "blob_admit_upload",
                 admission_input(input),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         result.map(|r| !r.replayed).map_err(admission_failure)
@@ -189,7 +190,7 @@ impl Fixture {
                 self.uploader,
                 "blob_prepare_upload",
                 self.preparation_input(input),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         result.map(|r| r.changed).map_err(|e| match e {
@@ -249,7 +250,7 @@ impl Fixture {
                     trap_write: false,
                     trap_after: false,
                 },),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap();
@@ -277,7 +278,7 @@ impl Fixture {
                 self.tenant,
                 "blob_revoke_upload",
                 admission_input(input),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         result.map(|r| r.changed).map_err(admission_failure)
@@ -285,13 +286,7 @@ impl Fixture {
     fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
         self.harness
             .pic
-            .query_control_as(
-                self.service,
-                actor,
-                "lookup",
-                (input,),
-                (REPLY_LIMITS).reply_bytes,
-            )
+            .query_control_as(self.service, actor, "lookup", (input,), REPLY_BYTES)
             .map(|(reply,)| reply)
             .unwrap()
     }
@@ -299,13 +294,7 @@ impl Fixture {
         let result: Result<Status, Failure> = self
             .harness
             .pic
-            .query_control_as(
-                self.service,
-                self.operator,
-                "status",
-                (),
-                (REPLY_LIMITS).reply_bytes,
-            )
+            .query_control_as(self.service, self.operator, "status", (), REPLY_BYTES)
             .map(|(reply,)| reply)
             .unwrap();
         result.unwrap()
@@ -334,7 +323,7 @@ impl Fixture {
                     expected,
                     active,
                 },
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         response.map(|v| {
@@ -352,7 +341,7 @@ impl Fixture {
                 self.tenant,
                 TENANT_INSPECTION_METHOD,
                 self.tenant_scope(),
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         let response = result.unwrap();
@@ -520,7 +509,7 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.other),
+            Fixture::installation("fixture_post_upgrade", f.other),
             Some(f.controller),
         )
         .unwrap_err();
@@ -532,7 +521,7 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

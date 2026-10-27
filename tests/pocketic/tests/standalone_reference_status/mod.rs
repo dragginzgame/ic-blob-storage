@@ -2,7 +2,7 @@
 use super::*;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn reference_status(
@@ -17,7 +17,7 @@ impl Fixture {
                 actor,
                 "blob_reference_status",
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -51,7 +51,7 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();
@@ -68,7 +68,7 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
             f.tenant,
             "blob_reference_status",
             input,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Err(ReferenceFailure::Unconfirmed));

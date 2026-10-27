@@ -6,13 +6,10 @@ use blob_test_protocol::admission::{
 };
 
 pub(super) fn encode(command: Command) -> (&'static str, Vec<u8>) {
-    fn input<T: ic_platform::candid::contract::CandidType>(
-        method: &'static str,
-        value: T,
-    ) -> (&'static str, Vec<u8>) {
+    fn input<T: serde::Serialize>(method: &'static str, value: T) -> (&'static str, Vec<u8>) {
         (
             method,
-            ic_platform::candid::contract::encode_one(value).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one(method, value).unwrap(),
         )
     }
     match command {

@@ -1,6 +1,6 @@
 use super::*;
 use blob_test_protocol::storage::read::{DownloadClientInput, DownloadProbeFailure};
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 fn fetch(
     f: &Fixture,
     input: DownloadClientInput,
@@ -12,7 +12,7 @@ fn fetch(
             f.operator,
             "fixture_fetch_descriptor",
             (input,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -23,7 +23,7 @@ fn consumer() -> Fixture {
     f.harness.pic.install_canister(
         client,
         Fixture::wasm(),
-        Fixture::installation(f.operator),
+        Fixture::installation("fixture_init", f.operator),
         None,
     );
     f.tenant = client;
@@ -86,7 +86,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
             f.other,
             "fixture_fetch_descriptor",
             (selection.clone(),),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -99,7 +99,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
             f.operator,
             "fixture_nonreplicated_descriptor",
             (selection.clone(),),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -115,7 +115,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

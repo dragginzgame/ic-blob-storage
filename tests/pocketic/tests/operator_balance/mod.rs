@@ -1,6 +1,5 @@
 //! Actual balance reads with independently encoded bytes and adversarial schedules.
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform::candid::decoder;
 
 mod refresh;
 use super::*;
@@ -124,7 +123,11 @@ impl Fixture {
                 self.authority,
                 self.driver,
                 "refresh_balance",
-                ic_platform::candid::contract::encode_one(self.refresh_request()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_one(
+                    "refresh_balance",
+                    self.refresh_request(),
+                )
+                .unwrap(),
             )
             .unwrap();
         for _ in 0..30 {
@@ -146,9 +149,10 @@ impl Fixture {
         .map(|(reply,)| reply)
         .unwrap();
         assert!(resumed);
-        decoder::decode_one_with_config(
+        blob_test_protocol::fixture_wire::decode_one(
+            "refresh_balance",
             &self.harness.pic.await_call(id).unwrap(),
-            &decoder::DecoderConfig::new(),
+            blob_test_protocol::fixture_wire::MAX_BYTES,
         )
         .unwrap()
     }
@@ -180,7 +184,7 @@ impl Fixture {
             canister,
             hashes,
             Sha256::digest(&wasm).to_vec(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
         )
         .unwrap();
     }
@@ -326,7 +330,7 @@ fn old_pending_journals_restore_fenced_without_replay_or_fresh_balances() {
             pic.upgrade_canister(
                 canister,
                 std::fs::read(fixture_path(variable)).unwrap(),
-                ic_platform::candid::contract::encode_args(()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
                 None
             )
             .is_err()
@@ -440,9 +444,10 @@ fn delayed_reply_ages_from_dispatch_and_restored_source_cannot_answer() {
     f.upgrade_fixture(f.gateway, true);
     assert_eq!(f.balance_source_status().pending, Some(account()));
     // The suspended source callback observes its fence before returning configured bytes.
-    let result: Result<(), BalanceFailure> = decoder::decode_one_with_config(
+    let result: Result<(), BalanceFailure> = blob_test_protocol::fixture_wire::decode_one(
+        "refresh_balance",
         &f.harness.pic.await_call(id).unwrap(),
-        &decoder::DecoderConfig::new(),
+        blob_test_protocol::fixture_wire::MAX_BYTES,
     )
     .unwrap();
     assert_eq!(result, Err(BalanceFailure::Transport));

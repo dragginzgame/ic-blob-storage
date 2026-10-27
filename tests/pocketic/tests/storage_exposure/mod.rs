@@ -1,5 +1,5 @@
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod certificate;
 mod snapshot;
 use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
@@ -20,13 +20,7 @@ fn input(f: &Fixture, permission: Permission) -> ExposureInput {
 fn expose(f: &Fixture, actor: Principal, input: ExposureInput) -> Result<ExposureOutcome, E> {
     f.harness
         .pic
-        .update_control_as(
-            f.service,
-            actor,
-            "expose",
-            (input,),
-            (REPLY_LIMITS).reply_bytes,
-        )
+        .update_control_as(f.service, actor, "expose", (input,), REPLY_BYTES)
         .map(|(reply,)| reply)
         .unwrap()
 }
@@ -38,7 +32,7 @@ fn preview(f: &Fixture, input: ExposureInput) -> Result<Vec<B>, E> {
             f.uploader,
             "exposure_preview",
             (input,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -55,7 +49,7 @@ fn inspect(
             actor,
             "exposure_status",
             (input.permission,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -201,7 +195,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

@@ -1,11 +1,9 @@
 //! Independent raw-byte source, bounded to one pending reply and 64 lifetime reads.
 use ic_platform::Principal;
-use ic_platform::candid::contract::CandidType;
 use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
-#[derive(CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(serde::Serialize, Deserialize)]
 pub(crate) struct BalanceSourceRecord {
     pub config: Option<ReplyRecord>,
     pub requests: u64,
@@ -13,8 +11,7 @@ pub(crate) struct BalanceSourceRecord {
     pub ready: bool,
 }
 
-#[derive(Clone, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, serde::Serialize, Deserialize)]
 pub(crate) struct ReplyRecord {
     pub account: ExternalPrincipal,
     pub bytes: Vec<u8>,

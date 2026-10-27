@@ -3,7 +3,7 @@ use super::*;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod inventory;
 use blob_test_protocol::admission::release::LifecycleCommand;
@@ -23,13 +23,7 @@ fn capacity(
 ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
     f.harness
         .pic
-        .query_blob_as(
-            f.service,
-            actor,
-            "blob_upload_capacity",
-            input,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .query_blob_as(f.service, actor, "blob_upload_capacity", input, REPLY_BYTES)
         .unwrap()
 }
 

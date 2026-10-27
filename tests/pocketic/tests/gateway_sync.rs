@@ -41,20 +41,21 @@ impl Fixture {
         pic.install_canister(
             service,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("probe Wasm"),
-            ic_platform::candid::contract::encode_args((
-                tenant,
-                fake_principal(2),
-                gateway,
-                source,
-            ))
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (tenant, fake_principal(2), gateway, source),
+            )
             .expect("probe init"),
             Some(driver),
         );
         pic.install_canister(
             source,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).expect("source Wasm"),
-            ic_platform::candid::contract::encode_args((service, gateway, driver))
-                .expect("source init"),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (service, gateway, driver),
+            )
+            .expect("source init"),
             Some(driver),
         );
         let released: bool =

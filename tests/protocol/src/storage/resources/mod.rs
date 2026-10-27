@@ -1,14 +1,12 @@
 //! Passive controls and observations for opt-in local resource measurements.
-use ic_platform::candid::contract::CandidType;
-use ic_platform::candid::contract::serde::Deserialize;
 use ic_platform::principal::ExternalPrincipal;
+use serde::Deserialize;
 
 /// Existing complete ingress byte ceiling of the private storage fixture.
 pub const STORAGE_PROBE_INPUT_BYTES: usize = 4096;
 
 /// The fixture's single current installation contract, also used on same-release reopen.
-#[derive(Clone, Copy, Debug, Deserialize, serde::Serialize, CandidType)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Deserialize, serde::Serialize)]
 pub struct StorageProbeInstallation {
     /// Explicit fixture operator.
     pub operator: ExternalPrincipal,

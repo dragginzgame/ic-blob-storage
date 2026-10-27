@@ -3,7 +3,6 @@ use super::*;
 use blob_test_protocol::status::OperatorStatusView;
 use blob_test_protocol::{GatewaySyncRequest, SourceMode, SourceObservation, SyncFailure};
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform::candid::decoder;
 
 fn request(f: &Fixture) -> GatewaySyncRequest {
     sync_request::read(&f.harness.pic, f.authority, f.gateway)
@@ -160,7 +159,7 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
             f.authority,
             f.gateway,
             "sync_gateway",
-            ic_platform::candid::contract::encode_one(r).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("sync_gateway", r).unwrap(),
         )
         .unwrap();
     for _ in 0..30 {
@@ -183,9 +182,10 @@ fn held_reply_cannot_override_revocation_and_overlap_does_not_dispatch() {
             .map(|(reply,)| reply)
             .unwrap();
     assert!(resumed);
-    let completed: Result<(), SyncFailure> = decoder::decode_one_with_config(
+    let completed: Result<(), SyncFailure> = blob_test_protocol::fixture_wire::decode_one(
+        "sync_gateway",
         &f.harness.pic.await_call(id).unwrap(),
-        &decoder::DecoderConfig::new(),
+        blob_test_protocol::fixture_wire::MAX_BYTES,
     )
     .unwrap();
     assert_eq!(completed, Err(SyncFailure::Stale));
@@ -206,7 +206,7 @@ fn forced_restore_during_sync_retains_pending_evidence_when_callback_arrives() {
             f.authority,
             f.gateway,
             "sync_gateway",
-            ic_platform::candid::contract::encode_one(r).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("sync_gateway", r).unwrap(),
         )
         .unwrap();
     for _ in 0..30 {
@@ -269,7 +269,7 @@ fn bindings_caller_and_restoration_are_checked_before_source_calls() {
         .upgrade_canister(
             f.authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             None,
         )
         .unwrap();
@@ -294,7 +294,11 @@ fn sync_result_survives_failed_post_status_and_preview_stays_query_only() {
     let r = request(&f);
     for (reply, code, outcome) in [
         (
-            ic_platform::candid::contract::encode_one(Ok::<(), SyncFailure>(())).unwrap(),
+            blob_test_protocol::fixture_wire::encode_reply(
+                "sync_gateway",
+                Ok::<(), SyncFailure>(()),
+            )
+            .unwrap(),
             7,
             "completed",
         ),

@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReconciliation;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
@@ -33,7 +33,7 @@ fn fixture(authorized: bool) -> (Fixture, Principal) {
     f.harness.pic.install_canister(
         client,
         consumer_wasm(),
-        ic_platform::candid::contract::encode_args((driver, f.service)).unwrap(),
+        blob_test_protocol::fixture_wire::encode_args("fixture_init", (driver, f.service)).unwrap(),
         Some(driver),
     );
     (f, client)
@@ -54,7 +54,7 @@ fn history(
                 request,
                 max_reply_bytes,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -70,7 +70,7 @@ fn outcome(
             f.controller,
             "fixture_funding_outcome",
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
@@ -180,7 +180,7 @@ fn funding_client_reads_pages_and_exact_outcomes_through_both_restorations() {
         .upgrade_canister(
             client,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap();
@@ -190,7 +190,7 @@ fn funding_client_reads_pages_and_exact_outcomes_through_both_restorations() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -216,7 +216,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
                 f.other,
                 "fixture_funding_history",
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(denied, Err(ConsumerFailure::Denied));
@@ -228,7 +228,7 @@ fn funding_client_requires_host_authentication_service_operator_and_replicated_e
                 f.controller,
                 "fixture_query_funding",
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(query, Err(ConsumerFailure::Transport));

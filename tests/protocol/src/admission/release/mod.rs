@@ -1,6 +1,5 @@
 //! Local measurement controls. Operator-supplied facts do not qualify Caffeine.
 use super::Request;
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 /// In-process dispatch for a single shared-owner mutation, never a wire envelope.
@@ -24,8 +23,7 @@ pub enum LifecycleCommand {
 }
 
 /// Typed inner lifecycle results, distinct from receipt admission errors.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum ReferenceFailure {
     /// Reference belongs to a different object binding.
     Binding,

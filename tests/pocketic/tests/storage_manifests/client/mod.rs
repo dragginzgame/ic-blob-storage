@@ -1,7 +1,7 @@
 //! The uploader is a distinct canister, separate from the admitted tenant.
 use super::*;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod cancellation;
 use blob_test_protocol::consumer::{
     Failure as C,
@@ -22,7 +22,8 @@ fn fixture() -> Fixture {
     f.harness.pic.install_canister(
         f.uploader,
         wasm(),
-        ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap(),
+        blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
+            .unwrap(),
         Some(f.controller),
     );
     f.enroll(None, true).unwrap();
@@ -31,25 +32,13 @@ fn fixture() -> Fixture {
 fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_control_as(
-            f.uploader,
-            f.operator,
-            "save_manifest",
-            input,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_control_as(f.uploader, f.operator, "save_manifest", input, REPLY_BYTES)
         .unwrap()
 }
 fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .query_control_as(
-            f.uploader,
-            f.operator,
-            "manifest_intent",
-            id,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .query_control_as(f.uploader, f.operator, "manifest_intent", id, REPLY_BYTES)
         .unwrap()
 }
 fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, C> {
@@ -60,20 +49,14 @@ fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, 
             f.operator,
             "dispatch_manifest",
             input,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
 }
 fn recover(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_control_as(
-            f.uploader,
-            f.operator,
-            "recover_manifest",
-            id,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_control_as(f.uploader, f.operator, "recover_manifest", id, REPLY_BYTES)
         .unwrap()
 }
 fn run(id: u128) -> ManifestDispatch {
@@ -143,7 +126,7 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
             .upgrade_canister(
                 f.service,
                 Fixture::wasm(),
-                Fixture::installation(f.operator),
+                Fixture::installation("fixture_post_upgrade", f.operator),
                 Some(f.controller),
             )
             .unwrap();
@@ -184,13 +167,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
     let queried: Result<UploadManifestResponse, C> = f
         .harness
         .pic
-        .query_control_as(
-            f.uploader,
-            f.operator,
-            "query_manifest",
-            1u128,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .query_control_as(f.uploader, f.operator, "query_manifest", 1u128, REPLY_BYTES)
         .unwrap();
     assert_eq!(queried, Err(C::Transport));
     let denied: Result<ManifestIntentView, C> = f
@@ -201,7 +178,7 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
             f.other,
             "dispatch_manifest",
             run(1),
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(denied, Err(C::Denied));
@@ -283,7 +260,7 @@ fn manifest_intent_capacity_conflicts_and_upgrade_preserve_uncertain_originals()
         .upgrade_canister(
             f.uploader,
             wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap();

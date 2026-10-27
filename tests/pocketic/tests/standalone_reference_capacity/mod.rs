@@ -4,7 +4,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityFailur
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
 use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityResponse;
 use ic_blob_storage_contracts::protocol::REFERENCE_CAPACITY_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn reference_capacity(
@@ -19,7 +19,7 @@ impl Fixture {
                 actor,
                 REFERENCE_CAPACITY_METHOD,
                 request,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -46,7 +46,7 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
             f.tenant,
             REFERENCE_CAPACITY_METHOD,
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -105,7 +105,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();
@@ -133,7 +133,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
                 expected: enrollment.enrollment,
                 active: false,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     suspended.unwrap();

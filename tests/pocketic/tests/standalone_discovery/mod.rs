@@ -4,7 +4,7 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure as
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn discovery(
@@ -19,7 +19,7 @@ impl Fixture {
                 actor,
                 UPLOAD_DISCOVERY_METHOD,
                 request,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -46,7 +46,7 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
             f.tenant,
             UPLOAD_DISCOVERY_METHOD,
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -109,7 +109,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();
@@ -138,7 +138,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
             f.tenant,
             UPLOAD_DISCOVERY_METHOD,
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
@@ -155,7 +155,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
                 expected: enrollment.enrollment,
                 active: false,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     suspended.unwrap();

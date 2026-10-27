@@ -57,19 +57,26 @@ impl Fixture {
         pic.install_canister(
             authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args((
-                fake_principal(1),
-                fake_principal(2),
-                gateway,
-                if source_operator { gateway } else { driver },
-            ))
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (
+                    fake_principal(1),
+                    fake_principal(2),
+                    gateway,
+                    if source_operator { gateway } else { driver },
+                ),
+            )
             .unwrap(),
             None,
         );
         pic.install_canister(
             gateway,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args((authority, gateway, driver)).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (authority, gateway, driver),
+            )
+            .unwrap(),
             None,
         );
         let funding = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap();
@@ -77,16 +84,19 @@ impl Fixture {
             pic.install_canister(
                 canister,
                 funding.clone(),
-                ic_platform::candid::contract::encode_args((
-                    peer,
-                    driver,
-                    blob_test_protocol::funding::budget::FundingBudgetInput {
-                        operating_reserve: 1_000_000_000,
-                        other_liabilities: 0,
-                        allocated: 100_000_000_000_000,
-                        reserve: 1_000_000_000_000,
-                    },
-                ))
+                blob_test_protocol::fixture_wire::encode_args(
+                    "fixture_init",
+                    (
+                        peer,
+                        driver,
+                        blob_test_protocol::funding::budget::FundingBudgetInput {
+                            operating_reserve: 1_000_000_000,
+                            other_liabilities: 0,
+                            allocated: 100_000_000_000_000,
+                            reserve: 1_000_000_000_000,
+                        },
+                    ),
+                )
                 .unwrap(),
                 None,
             );
@@ -188,7 +198,7 @@ fn status_and_check_preserve_journals_unknowns_and_instance_ownership() {
         .upgrade_canister(
             f.authority,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             None,
         )
         .unwrap();
@@ -247,9 +257,12 @@ fn funding_report_keeps_accepted_cycles_separate_from_credit_after_restore() {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args((FundingUpgradeArgs {
-                trap_after_restore: false,
-            },))
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_post_upgrade",
+                (FundingUpgradeArgs {
+                    trap_after_restore: false,
+                },),
+            )
             .unwrap(),
             None,
         )
@@ -327,9 +340,12 @@ fn funding_provider_failures_reach_json_without_becoming_refunds_or_credit() {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_args((FundingUpgradeArgs {
-                trap_after_restore: false,
-            },))
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_post_upgrade",
+                (FundingUpgradeArgs {
+                    trap_after_restore: false,
+                },),
+            )
             .unwrap(),
             None,
         )

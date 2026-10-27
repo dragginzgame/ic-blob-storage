@@ -1,16 +1,10 @@
 use super::*;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 fn cancel(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
-        .update_control_as(
-            f.uploader,
-            f.operator,
-            "cancel_manifest",
-            id,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_control_as(f.uploader, f.operator, "cancel_manifest", id, REPLY_BYTES)
         .unwrap()
 }
 #[test]
@@ -24,13 +18,7 @@ fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and
         let denied: Result<ManifestIntentView, C> = f
             .harness
             .pic
-            .update_control_as(
-                f.uploader,
-                f.other,
-                "cancel_manifest",
-                1u128,
-                REPLY_LIMITS.reply_bytes,
-            )
+            .update_control_as(f.uploader, f.other, "cancel_manifest", 1u128, REPLY_BYTES)
             .unwrap();
         assert_eq!(denied, Err(C::Denied));
         assert!(!view(&f, 1).unwrap().cancelled);
@@ -79,7 +67,7 @@ fn uploader_cancellation_keeps_unsent_and_uncertain_history_through_recovery_and
             .upgrade_canister(
                 f.uploader,
                 wasm(),
-                ic_platform::candid::contract::encode_args(()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
                 Some(f.controller),
             )
             .unwrap();

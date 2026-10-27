@@ -7,11 +7,11 @@ use std::cell::Cell;
 
 thread_local! {
     // Decoder checkpoints for the currently executing message only.
-    static DECODE: Cell<Option<(u64, u64, u64, u64)>> = const { Cell::new(None) };
+    static DECODE: Cell<Option<(u64, u64)>> = const { Cell::new(None) };
 }
 
-pub(crate) fn decoded(before: u64, header: u64, value: u64, after: u64) {
-    DECODE.set(Some((before, header, value, after)));
+pub(crate) fn decoded(before: u64, after: u64) {
+    DECODE.set(Some((before, after)));
 }
 
 pub(crate) fn instructions() -> u64 {
@@ -20,8 +20,7 @@ pub(crate) fn instructions() -> u64 {
 
 pub(crate) fn record(context: UploadContext, before_work: u64) {
     let after_work = instructions();
-    let (before_decode, after_header, after_value, after_decode) =
-        DECODE.take().expect("command decoder observation");
+    let (before_decode, after_decode) = DECODE.take().expect("command decoder observation");
     STATE.with_borrow_mut(|state| {
         let profiles = &mut state.as_mut().expect("initialized probe").profiles;
         let sequence = profiles.back().map_or(1, |last| {
@@ -34,8 +33,6 @@ pub(crate) fn record(context: UploadContext, before_work: u64) {
             sequence,
             caller: context.actor.into(),
             before_decode,
-            after_header,
-            after_value,
             after_decode,
             before_work,
             after_work,

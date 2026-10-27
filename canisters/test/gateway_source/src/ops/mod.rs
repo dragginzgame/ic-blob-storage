@@ -164,12 +164,14 @@ pub(crate) async fn sync(
     let id = mutate(|state| state.begin_effect(ActionRecord::Sync));
     let response = Call::bounded_wait(service, "sync_gateway")
         .take_raw_args(
-            ic_platform::candid::contract::encode_one(input).expect("fixture call arguments"),
+            blob_test_protocol::fixture_wire::encode_one("sync_gateway", input)
+                .expect("fixture call arguments"),
         )
         .await
         .expect("local probe sync transport");
     let result: Result<(), SyncFailure> =
-        ic_platform::candid::decoder::decode_one(response.as_ref()).expect("typed probe reply");
+        blob_test_protocol::fixture_wire::decode_one("sync_gateway", response.as_ref(), 4096)
+            .expect("typed probe reply");
     mutate(|state| state.finish_effect(id, result.is_ok()));
     result
 }
@@ -178,12 +180,14 @@ pub(crate) async fn revoke(service: Principal) {
     let id = mutate(|state| state.begin_effect(ActionRecord::Revoke));
     let response = Call::bounded_wait(service, "revoke_gateway")
         .take_raw_args(
-            ic_platform::candid::contract::encode_args(()).expect("fixture scheduling arguments"),
+            blob_test_protocol::fixture_wire::encode_args("revoke_gateway", ())
+                .expect("fixture scheduling arguments"),
         )
         .await
         .expect("local revoke transport");
     let revoked: bool =
-        ic_platform::candid::decoder::decode_one(response.as_ref()).expect("revoke reply");
+        blob_test_protocol::fixture_wire::decode_one("revoke_gateway", response.as_ref(), 4096)
+            .expect("revoke reply");
     mutate(|state| state.finish_effect(id, revoked));
     assert!(revoked, "source is the explicit fixture operator");
 }

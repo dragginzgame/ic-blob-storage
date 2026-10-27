@@ -1,5 +1,5 @@
 use super::*;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn mutate(
     f: &Fixture,
@@ -12,7 +12,7 @@ fn mutate(
             f.operator,
             "fixture_mutate_reference",
             (input,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap()
@@ -90,7 +90,7 @@ fn committed_mutation_with_unusable_reply_recovers_exact_receipt_and_cleanup_at_
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -152,7 +152,7 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
                 actor,
                 REFERENCE_APPLY_METHOD,
                 selected.request,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(denied, Err(ReferenceFailure::Denied));
@@ -197,7 +197,7 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
             f.operator,
             "fixture_nonreplicated_reference_mutation",
             (selected,),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();

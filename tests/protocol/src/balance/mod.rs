@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 /// Independent local receiver shape for the maintained balance request encoder.
 /// This fixture endpoint is a substitute, not a production Cashier implementation.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct BalanceSourceRequest {
     /// Account selected by the sender's request, checked by the controlled source.
@@ -13,7 +13,7 @@ pub struct BalanceSourceRequest {
 }
 
 /// Independent receiver shape for a local Cashier relationship-query experiment.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, serde::Serialize)]
 #[candid_path("ic_platform::candid::contract")]
 pub struct RelationshipSourceRequest {
     /// Usage owner selected by the encoded request, not the expected payer.
@@ -21,8 +21,7 @@ pub struct RelationshipSourceRequest {
 }
 
 /// Explicit local observation binding; no default project/account is inferred.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct BalanceScope {
     /// Authority fixture answering status.
     pub service: ExternalPrincipal,
@@ -35,8 +34,7 @@ pub struct BalanceScope {
 }
 
 /// Exact local read admission. Reusing a consumed sequence cannot dispatch again.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct BalanceRefreshRequest {
     /// All expected observation bindings.
     pub scope: BalanceScope,
@@ -47,8 +45,7 @@ pub struct BalanceRefreshRequest {
 }
 
 /// Admission or observation failure; errors never stand in for zero cycles.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum BalanceFailure {
     /// Caller lacks explicit operator authority.
     Denied,
@@ -81,8 +78,7 @@ pub enum BalanceFailure {
 }
 
 /// All independently reported components; total is not recomputed.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct BalanceAmountsView {
     /// Reported total cycles.
     pub total: u128,
@@ -95,8 +91,7 @@ pub struct BalanceAmountsView {
 }
 
 /// Retained outcome; reports do not prove payment credit or provider freshness.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum BalanceOutcomeView {
     /// Exact validated response and local receive time in nanoseconds.
     Reported(BalanceAmountsView, u64),
@@ -105,8 +100,7 @@ pub enum BalanceOutcomeView {
 }
 
 /// One immutable intent and its optional terminal result.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct BalanceAttemptView {
     /// Lifetime read identity, never reused.
     pub sequence: u64,
@@ -121,8 +115,7 @@ pub struct BalanceAttemptView {
 }
 
 /// Why the latest retained report is or is not usable for local display.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize, Serialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub enum BalanceUsability {
     /// No attempt under this configuration.
     Unobserved,
@@ -141,8 +134,7 @@ pub enum BalanceUsability {
 }
 
 /// Read-only bounded history of simulated balance observations.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct BalanceStatusView {
     /// Current explicit configuration, if any.
     pub configured: Option<BalanceScope>,
@@ -157,8 +149,7 @@ pub struct BalanceStatusView {
 }
 
 /// Driver-installed raw response, independent of the production decoder schema.
-#[derive(Clone, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct BalanceSourceConfig {
     /// Account the incoming request must explicitly name.
     pub account: ExternalPrincipal,
@@ -171,8 +162,7 @@ pub struct BalanceSourceConfig {
 }
 
 /// Driver-only source scheduling evidence.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct BalanceSourceView {
     /// Restored source cannot answer or resume.
     pub fenced: bool,

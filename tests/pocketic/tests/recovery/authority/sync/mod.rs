@@ -2,7 +2,6 @@
 use super::*;
 use blob_test_protocol::{SourceObservation, source::SourceHeldSyncView};
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform::candid::decoder;
 
 use ic_platform::pocket_ic::common::rest::RawMessageId;
 
@@ -25,7 +24,8 @@ impl Fixture {
                 self.gateway,
                 self.operator,
                 "run_sync",
-                ic_platform::candid::contract::encode_one(self.sync_request()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_one("run_sync", self.sync_request())
+                    .unwrap(),
             )
             .unwrap();
         for _ in 0..30 {
@@ -53,9 +53,10 @@ impl Fixture {
         .map(|(reply,)| reply)
         .unwrap();
         assert!(resumed);
-        decoder::decode_one_with_config(
+        blob_test_protocol::fixture_wire::decode_one(
+            "run_sync",
             &self.harness.pic.await_call(id).unwrap(),
-            &decoder::DecoderConfig::new(),
+            blob_test_protocol::fixture_wire::MAX_BYTES,
         )
         .unwrap()
     }
@@ -205,9 +206,10 @@ fn exhausted_local_hold_releases_exact_read_only_attempt_without_automatic_retry
         }
     }
     assert!(f.source_recovery(f.operator).unwrap().held_sync.is_none());
-    let result: Result<(), SyncFailure> = decoder::decode_one_with_config(
+    let result: Result<(), SyncFailure> = blob_test_protocol::fixture_wire::decode_one(
+        "run_sync",
         &f.harness.pic.await_call(id).unwrap(),
-        &decoder::DecoderConfig::new(),
+        blob_test_protocol::fixture_wire::MAX_BYTES,
     )
     .unwrap();
     assert_eq!(result, Err(SyncFailure::Transport));

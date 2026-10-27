@@ -69,8 +69,11 @@ fn actual_callers_cannot_claim_tenant_or_controller_authority_and_revocation_tak
     pic.install_canister(
         canister,
         std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("fixture Wasm"),
-        ic_platform::candid::contract::encode_args((first, second, gateway, controller))
-            .expect("init"),
+        blob_test_protocol::fixture_wire::encode_args(
+            "fixture_init",
+            (first, second, gateway, controller),
+        )
+        .expect("init"),
         Some(controller),
     );
     assert_eq!(usage(pic, canister, first), Some(100));

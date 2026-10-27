@@ -63,6 +63,6 @@ pub(crate) async fn run(
     Ok(JourneyReadChunk {
         index: chunk.index,
         offset: chunk.offset,
-        bytes: chunk.bytes,
+        bytes: chunk.bytes.into(),
     })
 }

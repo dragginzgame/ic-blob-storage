@@ -1,6 +1,7 @@
 //! Connected local upload/deletion journey; completion and billing facts are substitutes.
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
 use ic_blob_storage_pocketic_tests::fixture_calls;
 mod chunks;
 mod content_vectors;
@@ -10,8 +11,8 @@ mod support;
 mod sync_request;
 mod vectors;
 use blob_test_protocol::journey::{
-    JourneyCertificate, JourneyFailure, JourneyManifest, JourneyProgress, JourneyReservation,
-    JourneyUpload, JourneyUsage, JourneyVerification,
+    JourneyFailure, JourneyManifest, JourneyProgress, JourneyReservation, JourneyUpload,
+    JourneyUsage, JourneyVerification,
 };
 use ic_platform::candid::decoder;
 use ic_platform::principal::ExternalPrincipal as Principal;
@@ -58,20 +59,21 @@ impl Fixture {
         pic.install_canister(
             service,
             std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("service Wasm"),
-            ic_platform::candid::contract::encode_args((
-                first,
-                second,
-                gateway,
-                authority_operator,
-            ))
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (first, second, gateway, authority_operator),
+            )
             .expect("service init"),
             Some(operator),
         );
         pic.install_canister(
             gateway,
             std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).expect("gateway Wasm"),
-            ic_platform::candid::contract::encode_args((service, gateway, operator))
-                .expect("gateway init"),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (service, gateway, operator),
+            )
+            .expect("gateway init"),
             None,
         );
         Self {
@@ -156,7 +158,12 @@ impl Fixture {
             self.service,
             caller,
             "journey_append",
-            (root(input.root), index, bytes.to_vec()),
+            (
+                root(input.root),
+                index,
+                ic_blob_storage_contracts::wire::BytesRef::<{ 4 * 1024 * 1024 }>::new(bytes)
+                    .unwrap(),
+            ),
         )
         .map(|(reply,)| reply)
         .expect("verification reply")
@@ -165,7 +172,7 @@ impl Fixture {
         &self,
         caller: Principal,
         seed: [u8; 32],
-    ) -> Result<JourneyCertificate, RejectCode> {
+    ) -> Result<CaffeineUploadCertificateResponse, RejectCode> {
         self.harness
             .pic
             .update_call(
@@ -197,7 +204,7 @@ impl Fixture {
         .expect("root control")
     }
     fn pending(&self) -> Vec<Vec<u8>> {
-        fixture_calls::query_fixture(
+        ic_blob_storage_pocketic_tests::provider_calls::query_provider(
             &self.harness.pic,
             self.service,
             self.gateway,
@@ -209,7 +216,7 @@ impl Fixture {
     }
     fn live(&self, seeds: &[[u8; 32]]) -> Vec<bool> {
         let roots: Vec<_> = seeds.iter().map(|seed| root(*seed)).collect();
-        fixture_calls::query_fixture(
+        ic_blob_storage_pocketic_tests::provider_calls::query_provider(
             &self.harness.pic,
             self.service,
             self.gateway,
@@ -285,7 +292,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     assert_eq!(f.append(f.first, a, 0, &[21; 100]), Ok(()));
     assert_eq!(
         f.certificate(f.first, a.root),
-        Ok(JourneyCertificate {
+        Ok(CaffeineUploadCertificateResponse {
             method: "upload".to_owned(),
             blob_hash: root_text(a.root)
         })
@@ -403,7 +410,8 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
             f.gateway,
             f.first,
             "run_deletion",
-            ic_platform::candid::contract::encode_one(vec![root(a.root)]).expect("callback roots"),
+            blob_test_protocol::fixture_wire::encode_one("run_deletion", vec![root(a.root)])
+                .expect("callback roots"),
         )
         .expect_err("tenant cannot command the gateway fixture");
     assert_eq!(denied.reject_code, RejectCode::CanisterError);

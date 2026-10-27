@@ -1,7 +1,6 @@
 //! Actual lifecycle recovery preserves obligations but cannot resume authority.
 use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform::candid::contract::encode_args;
 
 impl Fixture {
     pub(in crate::recovery) fn upgrade_authority(&self) {
@@ -10,7 +9,7 @@ impl Fixture {
             .upgrade_canister(
                 self.service,
                 self.wasm(self.service),
-                encode_args(()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
                 Some(self.operator),
             )
             .expect("same-release fenced restore");
@@ -33,63 +32,102 @@ impl Fixture {
         .map(|(reply,)| reply)
         .unwrap();
         assert_eq!(sync, Err(SyncFailure::Fenced));
-        let args = |root: [u8; 32]| encode_args((root.to_vec(),)).unwrap();
+        self.assert_updates_fenced(upload);
+        self.assert_gateway_queries_fenced(upload);
+        assert_eq!(self.archive(), before);
+    }
+
+    fn assert_updates_fenced(&self, upload: JourneyUpload) {
+        let args = |method: &str, root: [u8; 32]| {
+            blob_test_protocol::fixture_wire::encode_one(method, root.to_vec()).unwrap()
+        };
         let updates = [
             (
                 self.first,
                 "journey_reserve",
-                encode_args((JourneyReservation {
-                    upload,
-                    manifest: blob_test_protocol::journey::JourneyManifest {
-                        chunks: vec![],
-                        headers: vec![],
-                    },
-                },))
+                blob_test_protocol::fixture_wire::encode_args(
+                    "journey_reserve",
+                    (JourneyReservation {
+                        upload,
+                        manifest: blob_test_protocol::journey::JourneyManifest {
+                            chunks: vec![],
+                            headers: vec![],
+                        },
+                    },),
+                )
                 .unwrap(),
             ),
             (
                 self.first,
                 "journey_append",
-                encode_args((root(upload.root), 0_u64, vec![1_u8])).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "journey_append",
+                    (root(upload.root), 0_u64, vec![1_u8]),
+                )
+                .unwrap(),
             ),
             (
                 self.first,
                 "journey_cancel",
-                encode_args((upload,)).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("journey_cancel", (upload,)).unwrap(),
             ),
-            (self.first, "journey_release", args(upload.root)),
-            (self.authority_operator, "journey_settle", args(upload.root)),
+            (
+                self.first,
+                "journey_release",
+                args("journey_release", upload.root),
+            ),
+            (
+                self.authority_operator,
+                "journey_settle",
+                args("journey_settle", upload.root),
+            ),
             (
                 self.first,
                 "_immutableObjectStorageCreateCertificate",
-                encode_args((root_text(upload.root),)).unwrap(),
+                ic_platform::candid::contract::encode_args((root_text(upload.root),)).unwrap(),
             ),
             (
                 self.gateway,
                 "_immutableObjectStorageConfirmBlobDeletion",
-                encode_args((vec![root(upload.root)],)).unwrap(),
+                ic_platform::candid::contract::encode_args((vec![root(upload.root)],)).unwrap(),
             ),
             (
                 self.first,
                 "journey_read",
-                encode_args((root(upload.root), 0_u64)).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "journey_read",
+                    (root(upload.root), 0_u64),
+                )
+                .unwrap(),
             ),
             (
                 self.authority_operator,
                 "journey_arm_read_callback_trap",
-                args(upload.root),
+                args("journey_arm_read_callback_trap", upload.root),
             ),
             (
                 self.authority_operator,
                 "revoke_gateway",
-                encode_args(()).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("revoke_gateway", ()).unwrap(),
             ),
-            (self.first, "cancel_upload", encode_args((11_u8,)).unwrap()),
-            (self.first, "release", encode_args((1_u8,)).unwrap()),
+            (
+                self.first,
+                "cancel_upload",
+                blob_test_protocol::fixture_wire::encode_args("cancel_upload", (11_u8,)).unwrap(),
+            ),
+            (
+                self.first,
+                "release",
+                blob_test_protocol::fixture_wire::encode_args("release", (1_u8,)).unwrap(),
+            ),
             (
                 self.authority_operator,
                 "confirm_obligation",
-                encode_args((1_u8, ObligationProbeFact::Deleted)).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "confirm_obligation",
+                    (1_u8, ObligationProbeFact::Deleted),
+                )
+                .unwrap(),
             ),
         ];
         for (actor, method, input) in updates {
@@ -100,22 +138,26 @@ impl Fixture {
                 .expect_err(method);
             assert_eq!(failure.reject_code, RejectCode::CanisterError, "{method}");
         }
-        self.assert_gateway_queries_fenced(upload);
-        assert_eq!(self.archive(), before);
     }
 
     fn assert_gateway_queries_fenced(&self, upload: JourneyUpload) {
         for (method, input) in [
             (
                 "_immutableObjectStorageBlobsAreLive",
-                encode_args((vec![root(upload.root)],)).unwrap(),
+                ic_platform::candid::contract::encode_args((vec![root(upload.root)],)).unwrap(),
             ),
             (
                 "_immutableObjectStorageBlobsToDelete",
-                encode_args(()).unwrap(),
+                ic_platform::candid::contract::encode_args(()).unwrap(),
             ),
-            ("pending", encode_args(()).unwrap()),
-            ("upload_roots", encode_args(()).unwrap()),
+            (
+                "pending",
+                blob_test_protocol::fixture_wire::encode_args("pending", ()).unwrap(),
+            ),
+            (
+                "upload_roots",
+                blob_test_protocol::fixture_wire::encode_args("upload_roots", ()).unwrap(),
+            ),
         ] {
             let failure = self
                 .harness
@@ -207,7 +249,11 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
             f.service,
             f.first,
             "journey_read",
-            encode_args((root(v.upload.root), 0_u64)).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args(
+                "journey_read",
+                (root(v.upload.root), 0_u64),
+            )
+            .unwrap(),
         )
         .unwrap_err();
     assert_eq!(failure.reject_code, RejectCode::CanisterError);

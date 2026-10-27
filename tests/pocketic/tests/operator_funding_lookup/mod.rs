@@ -65,9 +65,12 @@ fn upgrade(f: &Fixture) {
         .upgrade_canister(
             f.sender,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            ic_platform::candid::contract::encode_one(FundingUpgradeArgs {
-                trap_after_restore: false,
-            })
+            blob_test_protocol::fixture_wire::encode_one(
+                "fixture_post_upgrade",
+                FundingUpgradeArgs {
+                    trap_after_restore: false,
+                },
+            )
             .unwrap(),
             None,
         )
@@ -82,7 +85,7 @@ fn submit_and_discard_reply(f: &Fixture, request: FundingRequest) {
             f.sender,
             f.driver,
             "fund",
-            ic_platform::candid::contract::encode_one(request).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("fund", request).unwrap(),
         )
         .unwrap();
 }
@@ -182,7 +185,7 @@ fn callback_trap_remains_pending_through_lookup_and_restore() {
             f.sender,
             f.driver,
             "fund",
-            ic_platform::candid::contract::encode_one(original).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("fund", original).unwrap(),
         )
         .unwrap_err();
     assert_eq!(
@@ -220,7 +223,7 @@ fn live_lookup_observes_pending_then_original_completion_without_repeating_it() 
             f.sender,
             f.driver,
             "fund",
-            ic_platform::candid::contract::encode_one(original).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("fund", original).unwrap(),
         )
         .unwrap();
     let mut pending = false;

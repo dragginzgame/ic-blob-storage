@@ -3,10 +3,10 @@ use super::*;
 use ic_blob_storage_contracts::dto::gateway::sync::{GatewaySyncFailure, GatewaySyncResponse};
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
 use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
-use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::provider_calls;
 
 fn live(f: &Fixture, roots: Vec<Vec<u8>>) -> Result<Vec<bool>, Box<dyn std::error::Error>> {
-    fixture_calls::query_fixture::<(Vec<bool>,), _>(
+    provider_calls::query_provider::<(Vec<bool>,), _>(
         &f.harness.pic,
         f.service,
         Principal::anonymous(),
@@ -16,7 +16,7 @@ fn live(f: &Fixture, roots: Vec<Vec<u8>>) -> Result<Vec<bool>, Box<dyn std::erro
     .map(|r| r.0)
 }
 fn deletions(f: &Fixture, actor: Principal) -> Result<Vec<Vec<u8>>, Box<dyn std::error::Error>> {
-    fixture_calls::query_fixture::<(Vec<Vec<u8>>,), _>(
+    provider_calls::query_provider::<(Vec<Vec<u8>>,), _>(
         &f.harness.pic,
         f.service,
         actor,
@@ -30,7 +30,7 @@ fn acknowledge(
     actor: Principal,
     roots: Vec<Vec<u8>>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    fixture_calls::update_fixture::<(), _>(
+    provider_calls::update_provider::<(), _>(
         &f.harness.pic,
         f.service,
         actor,
@@ -54,7 +54,7 @@ fn mounted_gc_callbacks_protect_references_and_retain_acknowledgments_without_se
             f.operator,
             "blob_sync_gateways",
             f.operator_scope(),
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     synced.unwrap();
@@ -69,7 +69,7 @@ fn mounted_gc_callbacks_protect_references_and_retain_acknowledgments_without_se
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -79,7 +79,7 @@ fn mounted_gc_callbacks_protect_references_and_retain_acknowledgments_without_se
         ic_blob_storage_contracts::identity::ProviderRootHash::try_from(upload.root.as_slice())
             .unwrap()
             .to_string();
-    fixture_calls::update_fixture::<(CaffeineUploadCertificateResponse,), _>(
+    provider_calls::update_provider::<(CaffeineUploadCertificateResponse,), _>(
         &f.harness.pic,
         f.service,
         f.uploader,
@@ -119,7 +119,7 @@ fn mounted_gc_callbacks_protect_references_and_retain_acknowledgments_without_se
                         reference,
                         action,
                     },
-                    REPLY_LIMITS.reply_bytes,
+                    REPLY_BYTES,
                 )
                 .unwrap()
         };

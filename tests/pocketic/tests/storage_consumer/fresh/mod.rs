@@ -3,7 +3,7 @@ use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
 use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod admission;
 mod manifests;
@@ -50,7 +50,7 @@ fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
             f.operator,
             "prepare",
             &input.registration,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(view.unwrap().upload_state, None);
@@ -69,13 +69,7 @@ fn inspect(
 ) -> Result<UploadStatusResponse, UploadStatusFailure> {
     f.harness
         .pic
-        .query_blob_as(
-            f.service,
-            actor,
-            "blob_upload_status",
-            upload,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .query_blob_as(f.service, actor, "blob_upload_status", upload, REPLY_BYTES)
         .unwrap()
 }
 #[test]
@@ -128,7 +122,7 @@ fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt
         .upgrade_canister(
             f.tenant,
             consumer_wasm(),
-            ic_platform::candid::contract::encode_args(()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap();
@@ -245,7 +239,7 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -259,12 +253,6 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
 fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
-        .update_control_as(
-            f.tenant,
-            f.operator,
-            "admit",
-            input,
-            REPLY_LIMITS.reply_bytes,
-        )
+        .update_control_as(f.tenant, f.operator, "admit", input, REPLY_BYTES)
         .unwrap()
 }

@@ -1,6 +1,6 @@
 //! Passive preparation diagnosis; no host evidence can be supplied through ingress.
 use super::Intent;
-use ic_platform::candid::contract::serde::Deserialize;
+use serde::Deserialize;
 /// Independent reasons a new intent cannot be reserved.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Blocker {

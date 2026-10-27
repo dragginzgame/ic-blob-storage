@@ -10,7 +10,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
 use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 #[test]
@@ -38,7 +38,7 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
                 actor,
                 FUNDING_OUTCOME_METHOD,
                 request,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     };
@@ -94,7 +94,7 @@ fn standalone_exact_funding_outcome_checks_authority_even_for_absent_history() {
             f.operator,
             FUNDING_OUTCOME_METHOD,
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(None));
@@ -133,13 +133,7 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
      -> Result<FundingHistoryPage, FundingHistoryFailure> {
         f.harness
             .pic
-            .query_blob_as(
-                f.service,
-                actor,
-                FUNDING_HISTORY_METHOD,
-                input,
-                REPLY_LIMITS.reply_bytes,
-            )
+            .query_blob_as(f.service, actor, FUNDING_HISTORY_METHOD, input, REPLY_BYTES)
             .unwrap()
     };
     let before = f.harness.pic.get_stable_memory(f.service);
@@ -216,7 +210,7 @@ fn standalone_funding_history_is_scoped_passive_and_stays_fenced_after_restore()
             f.operator,
             FUNDING_HISTORY_METHOD,
             request,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected.clone()));

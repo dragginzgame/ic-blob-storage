@@ -1,7 +1,7 @@
 //! Operational descriptor delivery uses the installed scope and the shared live-reference gate.
 //! Verified serving and withheld delivery are exercised by standalone browser journeys.
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt as _;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod native;
 use super::*;
@@ -14,13 +14,7 @@ impl Fixture {
     fn download(&self, actor: Principal, request: DownloadRequest) -> Result<DownloadResponse, F> {
         self.harness
             .pic
-            .update_blob_as(
-                self.service,
-                actor,
-                DOWNLOAD_METHOD,
-                request,
-                REPLY_LIMITS.reply_bytes,
-            )
+            .update_blob_as(self.service, actor, DOWNLOAD_METHOD, request, REPLY_BYTES)
             .unwrap()
     }
 }
@@ -114,7 +108,7 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     admitted.unwrap();
@@ -135,7 +129,7 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
                 expected: enrolled.enrollment,
                 active: false,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     suspended.unwrap();
@@ -210,7 +204,8 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
     f.harness.pic.install_canister(
         client,
         std::fs::read(fixture_path("BLOB_STORAGE_PROBE_WASM")).unwrap(),
-        ic_platform::candid::contract::encode_one(
+        blob_test_protocol::fixture_wire::encode_one(
+            "fixture_init",
             blob_test_protocol::storage::resources::StorageProbeInstallation {
                 operator: f.operator,
                 max_objects: 2,
@@ -239,7 +234,7 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
                 f.operator,
                 "fixture_fetch_descriptor",
                 (input.clone(),),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()

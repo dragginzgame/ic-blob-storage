@@ -2,8 +2,8 @@
 use super::*;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::UploadStatusFailure;
-use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
+use ic_blob_storage_pocketic_tests::provider_calls;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
@@ -14,7 +14,7 @@ fn admit(f: &Fixture, permission: UploadAdmissionRequest) {
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -35,7 +35,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
     f.resume(f.operator).unwrap();
     let root = super::standalone_certificate::root(&manifest);
     let _: ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse =
-        fixture_calls::update_fixture(
+        provider_calls::update_provider(
             pic,
             f.service,
             f.uploader,
@@ -50,7 +50,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
         f.tenant,
         "blob_revoke_upload",
         permission,
-        REPLY_LIMITS.reply_bytes,
+        REPLY_BYTES,
     )
     .unwrap()
     .unwrap();
@@ -98,7 +98,7 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
             f.tenant,
             "blob_admit_upload",
             permission,
-            REPLY_LIMITS.reply_bytes
+            REPLY_BYTES
         )
         .unwrap(),
         Err(UploadAdmissionFailure::Fenced)
@@ -158,7 +158,7 @@ fn owned_principal_adoption_reads_existing_records_and_retains_restore_fences() 
             f.uploader,
             "blob_upload_manifest",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(retained.unwrap(), prepared.observation);
@@ -223,7 +223,7 @@ fn borrowed_codecs_preserve_existing_records_and_retained_request_bytes() {
             f.uploader,
             "blob_upload_manifest",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(retained.unwrap(), prepared.observation);
@@ -239,7 +239,7 @@ fn borrowed_codecs_preserve_existing_records_and_retained_request_bytes() {
                 .pic
                 .update_call(f.service, f.uploader, "blob_prepare_upload", request)
                 .unwrap(),
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(

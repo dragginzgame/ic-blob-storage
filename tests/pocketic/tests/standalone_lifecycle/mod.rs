@@ -9,8 +9,8 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::dto::operator::LocalServiceStatus;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
-use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
+use ic_blob_storage_pocketic_tests::provider_calls;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 fn fences(status: &LocalServiceStatus, expected: bool) {
@@ -44,7 +44,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
                 scope: f.operator_scope(),
                 gateway: fake_principal(9).into(),
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(removed, Err(GatewayRevocationFailure::Fenced));
@@ -59,7 +59,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
                 scope: f.operator_scope(),
                 kind: AccountInspectionKind::Balance,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(account, Err(AccountInspectionFailure::Fenced));
@@ -77,7 +77,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
@@ -148,7 +148,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
                 f.uploader,
                 "blob_upload_manifest",
                 manifest.permission,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         assert_eq!(retained.unwrap(), prepared);
@@ -249,12 +249,12 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
             f.tenant,
             "blob_admit_upload",
             manifest.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
-    let _: CaffeineUploadCertificateResponse = fixture_calls::update_fixture(
+    let _: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
         f.service,
         f.uploader,
@@ -276,7 +276,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
                 operation: 2,
                 action: ReferenceAction::Release,
             },
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

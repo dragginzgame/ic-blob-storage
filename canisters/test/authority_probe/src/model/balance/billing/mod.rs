@@ -2,18 +2,15 @@
 use super::{BalanceJournalRecord, ScopeRecord};
 use blob_test_protocol::balance::BalanceFailure;
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;
-use ic_platform::candid::contract::CandidType;
 use serde::Deserialize;
 
 // Required wrapper: a missing record cannot default an older schema to no limits.
-#[derive(Clone, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Eq, PartialEq, serde::Serialize, Deserialize)]
 pub(crate) struct BillingRecord {
     pub configured: Option<LimitsRecord>,
 }
 
-#[derive(Clone, Copy, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Eq, PartialEq, serde::Serialize, Deserialize)]
 pub(crate) struct LimitsRecord {
     pub scope: ScopeRecord,
     pub revision: u64,

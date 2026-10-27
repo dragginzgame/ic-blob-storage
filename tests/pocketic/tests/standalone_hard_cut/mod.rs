@@ -1,8 +1,8 @@
 //! Actual old allocation bytes must refuse upgrade without losing the old owner.
 use super::*;
 use ic_blob_storage_contracts::identity::ContentDigest;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
 use ic_blob_storage_pocketic_tests::historical;
+use ic_blob_storage_pocketic_tests::provider_calls::REPLY_LIMITS;
 use ic_platform::candid::decoder;
 use std::path::PathBuf;
 

@@ -1,6 +1,6 @@
 use super::*;
 use blob_test_protocol::storage::funding::admission::{Attempt, Blocker as B, Preparation, View};
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 impl Fixture {
     fn inspect_attempt(&self, actor: Principal, intent: Intent) -> Result<View, Failure> {
@@ -11,7 +11,7 @@ impl Fixture {
                 actor,
                 "funding_attempt",
                 (intent,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -24,7 +24,7 @@ impl Fixture {
                 actor,
                 "mark_funding_attempt",
                 (intent,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -37,7 +37,7 @@ impl Fixture {
                 actor,
                 "funding_preparation",
                 (intent,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -50,7 +50,7 @@ impl Fixture {
                 actor,
                 "prepare_funding",
                 (intent,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -137,7 +137,7 @@ fn guarded_first_attempt_preserves_unknowns_and_exact_reservation_through_restor
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -287,7 +287,7 @@ fn funding_preparation_reports_history_limits_and_restoration_without_clearing_u
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

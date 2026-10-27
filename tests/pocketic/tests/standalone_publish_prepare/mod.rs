@@ -6,7 +6,7 @@ use crate::{
     standalone_publish_check::{freeze, setup},
     submission_proxy::{Dispatch, Proxy, Reply},
 };
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use serde_json::{Value, json};
@@ -414,7 +414,7 @@ fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_p
             fixture.tenant,
             "blob_revoke_upload",
             permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap()
         .unwrap();

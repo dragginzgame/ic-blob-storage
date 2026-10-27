@@ -1,5 +1,5 @@
 //! Full restricted standalone/browser/native journey with a local provider substitute.
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 mod multi_user;
@@ -141,7 +141,7 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
             trial.f.tenant,
             "blob_revoke_upload",
             input.permission,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);
@@ -197,7 +197,7 @@ fn chromium_registration_preserves_lost_transfer_reply_and_withdrawal_obligation
                         trial.f.tenant,
                         "blob_revoke_upload",
                         input.permission,
-                        REPLY_LIMITS.reply_bytes,
+                        REPLY_BYTES,
                     )
                     .unwrap();
             assert!(withdrawn.unwrap().admission.revoked);

@@ -151,7 +151,7 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

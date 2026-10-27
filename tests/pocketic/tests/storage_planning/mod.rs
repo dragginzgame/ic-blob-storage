@@ -13,7 +13,7 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 impl Fixture {
@@ -36,7 +36,7 @@ impl Fixture {
                 actor,
                 "blob_upload_capacity",
                 input,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap()
     }
@@ -61,7 +61,7 @@ impl Fixture {
                 actor,
                 "blob_reference_capacity",
                 request,
-                REPLY_LIMITS.reply_bytes,
+                REPLY_BYTES,
             )
             .unwrap();
         result.map(|response| {
@@ -77,13 +77,7 @@ impl Fixture {
     ) -> Result<Vec<RootObservation>, Failure> {
         self.harness
             .pic
-            .query_control_as(
-                self.service,
-                actor,
-                "observe_roots",
-                (input,),
-                (REPLY_LIMITS).reply_bytes,
-            )
+            .query_control_as(self.service, actor, "observe_roots", (input,), REPLY_BYTES)
             .map(|(reply,)| reply)
             .unwrap()
     }
@@ -227,7 +221,7 @@ fn durable_headroom_preserves_cleanup_slots_and_billing_until_settlement() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();
@@ -321,7 +315,7 @@ fn operator_root_batches_are_bounded_authorized_and_preserved_after_upgrade() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

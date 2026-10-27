@@ -7,7 +7,7 @@ use blob_test_protocol::{
         gateways::{RootView, RootsInput},
     },
 };
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 impl Fixture {
     fn gateway_roots(
         &self,
@@ -21,7 +21,7 @@ impl Fixture {
                 actor,
                 "fixture_gateway_roots",
                 (input,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -187,7 +187,7 @@ fn gateway_root_reads_use_current_membership_and_refuse_restored_instances() {
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

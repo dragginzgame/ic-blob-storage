@@ -6,7 +6,6 @@ use ic_blob_storage_pocketic_tests::fixture_calls;
 mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
-use ic_platform::candid::contract::encode_args;
 use ic_platform::pocket_ic::CanisterSettings;
 use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
@@ -27,7 +26,11 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
     pic.install_canister(
         canister,
         std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("Wasm"),
-        encode_args((tenant, fake_principal(2), fake_principal(3), operator)).expect("init"),
+        blob_test_protocol::fixture_wire::encode_args(
+            "fixture_init",
+            (tenant, fake_principal(2), fake_principal(3), operator),
+        )
+        .expect("init"),
         Some(operator),
     );
     let denied: Result<ContentProbeReport, ContentProbeFailure> = fixture_calls::update_fixture(

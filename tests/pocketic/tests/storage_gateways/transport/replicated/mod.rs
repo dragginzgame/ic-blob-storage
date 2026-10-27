@@ -1,7 +1,7 @@
 //! Canonical query-only entry point exercised through the shared replicated caller.
 use super::*;
 use blob_test_protocol::storage::gateways::ReplicatedInput;
-use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_LIMITS;
+use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
     fn replicated_input(&self, token: u64) -> ReplicatedInput {
@@ -20,7 +20,7 @@ impl Fixture {
                 actor,
                 "fixture_replicated_gateway_transport",
                 (input,),
-                (REPLY_LIMITS).reply_bytes,
+                REPLY_BYTES,
             )
             .map(|(reply,)| reply)
             .unwrap()
@@ -42,7 +42,7 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
             f.operator,
             "blob_sync_gateways",
             f.revocation(f.other).scope,
-            REPLY_LIMITS.reply_bytes,
+            REPLY_BYTES,
         )
         .unwrap();
     assert_eq!(refreshed.unwrap().sequence, 1);
@@ -101,7 +101,7 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
             f.operator,
             "fixture_nonreplicated_gateway_transport",
             (f.replicated_input(token),),
-            (REPLY_LIMITS).reply_bytes,
+            REPLY_BYTES,
         )
         .map(|(reply,)| reply)
         .unwrap();
@@ -158,7 +158,7 @@ fn replicated_query_callback_trap_preserves_pending_and_restored_transport_stays
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            Fixture::installation(f.operator),
+            Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
         .unwrap();

@@ -1,12 +1,10 @@
 //! Exact local intent lookup, never a provider completion query or retry permit.
 use super::{FundingObservation, FundingRequest};
-use ic_platform::candid::contract::CandidType;
 use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
 /// Caller-supplied original request and explicit journal bindings.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingLookupRequest {
     /// Actual service whose retained journal is queried.
     pub service: ExternalPrincipal,
@@ -17,8 +15,7 @@ pub struct FundingLookupRequest {
 }
 
 /// A failed lookup exposes no retained outcome.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum FundingLookupFailure {
     /// Caller lacks explicit driver authority.
     Denied,
@@ -31,8 +28,7 @@ pub enum FundingLookupFailure {
 }
 
 /// Current retained evidence; none of these states authorizes another effect.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum FundingLookupState {
     /// No entry in this journal. Old backups can omit paid operations.
     Absent,
@@ -43,8 +39,7 @@ pub enum FundingLookupState {
 }
 
 /// Query-time projection; recovery and provider credit remain unqualified.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, CandidType, Deserialize)]
-#[candid_path("ic_platform::candid::contract")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct FundingLookupView {
     /// Exact query binding, echoed even for absent/pending results.
     pub request: FundingLookupRequest,
