@@ -4,6 +4,9 @@
 
 ### 📝 Summary
 
+- Adopt published Memory/Storage 0.51.6, Platform 0.6.20 and Host/Build/Testkit
+  0.68.10. Update browser Platform to 0.1.1 while retaining one SDK Core 6.1.1
+  identity, the reviewed Caffeine integration and existing feature selections.
 - **Breaking stored format:** encode Blob-owned installation, upload, reference,
   funding, tenant, gateway, root and read-session records with bounded IC Wire
   through IC Storage. Give each record its own storage frame identity and remove

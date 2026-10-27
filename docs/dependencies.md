@@ -44,7 +44,7 @@ The browser client declares `@tokostudios/ic-platform` as a regular dependency;
 first-party runtime, test and build sources use its explicit ESM subpaths. SDK
 Core remains transitive through Platform and the external Caffeine package.
 The maintained workspace overrides Caffeine's SDK selection to 6.1.1, matching
-Platform 0.1.0. Browser prerequisites enforce that graph and reject direct SDK
+Platform 0.1.1. Browser prerequisites enforce that graph and reject direct SDK
 declarations/imports and aliases through Shared's opt-in SDK boundary checker.
 Blob additionally rejects separate installed Agent identities. External
 Caffeine Candid remains on Platform's `/candid` boundary; application bytes stay
