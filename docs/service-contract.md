@@ -388,9 +388,19 @@ was an active owner, it independently checks IC continuity once before delegatio
 Successful continuity preserves that active instance without modifying journals.
 Already-fenced upgrade restoration never activates through this preflight and
 requires the installed operator's explicit recovery. Callback completion also
-retains the version checkpoint on provider-reply refusals. The request-to-callback
-version must advance exactly once; intervening execution or management changes
-invalidate potentially stale history. Certificate exposure and reply still commit
+retains the version checkpoint on provider-reply refusals. During history acquisition,
+the same live installation may account for an uninterrupted sequence of observed
+Blob updates, including denied callers. A volatile request observation is invalidated
+by every missed/reversed version or reopened heap owner; later observations cannot
+revive it. The callback still requires independently obtained complete IC history
+and a sealed proof consumed in that exact execution. Unobserved application work,
+management changes and arbitrary platform version jumps conservatively refuse;
+they do not trigger automatic retry or rotate the installation anchor. Direct
+`prove_current_instance` callers without the installed observation chain retain
+the strict single-step version check. These are platform execution counters,
+not management-history completeness evidence; see the
+[IC version contract](https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/#canister-version).
+Certificate exposure and reply still commit
 synchronously in one callback, with no await after exposure. Stop/start preserves
 records and uses the same continuity checks. Actual
 PocketIC loads restore old heaps without upgrade hooks, yet enter this fence

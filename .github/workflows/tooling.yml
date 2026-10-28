@@ -82,6 +82,30 @@ jobs:
           RUSTUP_AUTO_INSTALL: '0'
         run: make msrv-check
 
+  library-tests:
+    name: Core and client library regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+      - name: Prepare the declared compiler and locked Cargo dependencies
+        run: |
+          rustup show active-toolchain
+          make deps
+      - name: Run core and client library regressions
+        id: library-tests
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+        run: |
+          bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage --lib --all-features
+          bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-client --lib --all-features
+
   tooling:
     permissions:
       contents: read

@@ -21,7 +21,7 @@ provider key is protected, never guessed to be a released file or chunk.
 | External method | Contract | Local behavior |
 | --- | --- | --- |
 | `_immutableObjectStorageBlobsAreLive` | `(vec blob) -> (vec bool) query` | Public, positional and duplicate-preserving. Known reservations and live references are protected. Unknown roots return true. Malformed batches refuse. |
-| `_immutableObjectStorageBlobsToDelete` | `() -> (vec blob) query` | Current scoped gateway members only. Returns at most 10,000 known released tree roots, excluding read-held or already acknowledged lifetimes. |
+| `_immutableObjectStorageBlobsToDelete` | `() -> (vec blob) query` | Current scoped gateway members only. Returns at most 10,000 known released tree roots, excluding already acknowledged lifetimes. |
 | `_immutableObjectStorageConfirmBlobDeletion` | `(vec blob) -> ()` | Current scoped gateway members only. Records an acknowledgment on each exact original released lifetime. It does not erase records or settle physical/billing obligations. |
 
 The explicit public liveness query follows the provider mixin's access pattern;
@@ -31,10 +31,11 @@ listing or acknowledgment. The registry remains the existing durable owner,
 refreshed from the configured Cashier; no second membership cache is introduced.
 
 All three operations bind the actual service and the installation's namespace
-and Cashier. Registry, upload and read owners must share the same configuration
-and be unfenced. Suspension, expired permissions and a revoked uploader do not
+and Cashier. Registry and upload owners must share the same configuration and
+be unfenced. Suspension, expired permissions and a revoked uploader do not
 erase registered retention or escaped upload authority. Releasing the final
-reference queues logical deletion; an outstanding local read still protects it.
+reference queues logical deletion. On-canister read sessions were retired in
+0.52; client-owned downloads do not create a retained read hold in this service.
 
 ## Bounds, acknowledgments and recovery
 
@@ -44,14 +45,15 @@ are explicit. The no-argument query has its own 1,024-byte decoding envelope.
 The endpoint guard bounds ingress before the Platform argument-buffer copy.
 Malformed keys, extra arguments and excess batches refuse before root mutation.
 
-Deletion selection traverses the bounded lifetime lifecycle history in its stable
-key order. Acknowledged entries disappear from this projection, so subsequent
-polls can reach later entries without a new cursor or durable deletion index.
-The work bound is the installed lifetime history; this is not a constant-time
-scan and no history slots are reclaimed by acknowledgment.
+Deletion selection traverses the upload owner's pending-candidate index in stable
+key order, rechecking each candidate against its original lifecycle, permission
+and root binding. Acknowledgment removes the candidate while retaining its
+lifecycle record, so subsequent polls reach later entries without a new cursor
+or scanning acknowledged history. Same-release restore checks exact index
+membership without repair. No lifetime history slots are reclaimed by acknowledgment.
 
 An acknowledgment validates the complete batch before writes, including native
-backing. Live/read-held, malformed and unknown roots refuse the whole batch.
+backing. Live, malformed and unknown roots refuse the whole batch.
 Duplicates are deduplicated for mutation. Exact retries after a lost reply remain
 idempotent, including after later independently established physical deletion or
 billing settlement. Acknowledgment cannot release another incarnation: permanent

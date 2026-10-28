@@ -14,6 +14,7 @@ use ic_memory::{Memory, RuntimeMemory};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
 use ic_platform::Principal;
 use ic_storage::adapter::StableCell;
+use std::sync::Arc;
 use thiserror::Error;
 
 mod configuration;
@@ -95,6 +96,7 @@ pub struct ServiceInstallationMemories<M> {
 /// ```
 pub struct ServiceInstallation<M: Memory> {
     last_platform_version: Option<u64>,
+    observation_epoch: Arc<()>,
     configuration: ConfigurationRecord,
     download_scope: CaffeineDownloadScope,
     stores: ServiceStores<M>,
@@ -126,6 +128,7 @@ impl<M: Memory> ServiceInstallation<M> {
         ));
         Ok(Self {
             last_platform_version: Some(candidate.configuration.platform_installation_version),
+            observation_epoch: Arc::new(()),
             configuration: candidate.configuration,
             download_scope: candidate.download_scope,
             stores,
@@ -163,6 +166,7 @@ impl<M: Memory> ServiceInstallation<M> {
         let stores = ServiceStores::open(memories.stores, candidate.limits)?;
         Ok(Self {
             last_platform_version: None,
+            observation_epoch: Arc::new(()),
             configuration: record,
             download_scope: candidate.download_scope,
             stores,
@@ -237,6 +241,9 @@ impl<M: Memory> ServiceInstallation<M> {
     /// Enter an inspection-only fence for every owner. This never changes
     /// reservations, pending work, history, accounting or external obligations.
     pub fn fence(&mut self) {
+        // An outstanding observation keeps the old identity allocated. Neither
+        // later contiguous versions nor reopening this owner can revive it.
+        self.observation_epoch = Arc::new(());
         self.stores.set_recovery_fence(true);
     }
     /// Observe the host's actual platform version against its retained heap
@@ -250,6 +257,25 @@ impl<M: Memory> ServiceInstallation<M> {
             self.fence();
         }
         self.last_platform_version = Some(current);
+    }
+    pub(crate) fn begin_history_observation(&mut self, current: u64) -> ContinuityObservation {
+        self.observe_platform_version(current);
+        ContinuityObservation {
+            epoch: Arc::clone(&self.observation_epoch),
+            request_version: current,
+        }
+    }
+    pub(crate) fn check_history_observation(
+        &mut self,
+        observation: ContinuityObservation,
+        request_version: u64,
+        current: u64,
+    ) -> bool {
+        self.observe_platform_version(current);
+        let current = observation.request_version == request_version
+            && Arc::ptr_eq(&observation.epoch, &self.observation_epoch);
+        drop(observation);
+        current
     }
     /// Fence a version gap before mutation and request independent IC history
     /// only when the installation was active before this observation. Already-
@@ -285,6 +311,13 @@ impl<M: Memory> ServiceInstallation<M> {
         self.stores.set_recovery_fence(false);
         Ok(())
     }
+}
+
+/// One live heap owner's uninterrupted platform observations, not a persisted
+/// freshness proof. Only independently acquired IC history can authorize recovery.
+pub(crate) struct ContinuityObservation {
+    epoch: Arc<()>,
+    request_version: u64,
 }
 
 /// Installation/restore rejection. Platform binary corruption and stable writes trap separately.

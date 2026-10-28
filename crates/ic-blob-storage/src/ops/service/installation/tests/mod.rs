@@ -1,4 +1,5 @@
 use super::*;
+mod continuity;
 use crate::model::billing::journal::FundingIntent;
 use crate::ops::service::configuration::tests::candidate;
 use crate::ops::service::stores::grants;

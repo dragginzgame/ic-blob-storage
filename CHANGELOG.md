@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.52.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Shared Tooling 0.27.3 with independently verified snapshot provenance,
+  automatic formatting-fixture companions and corrected formatter reuse.
+  Retain optional compiler-cache catalog support without enabling a new cache.
+
+### 🩹 Fixed
+
+- Keep authorized upgrade recovery live when observed Blob updates, including
+  denied callers, arrive during the history lookup. Preserve refusal on missed
+  executions, changed heap owners and unqualified history without retrying effects
+  ([#105](https://github.com/dragginzgame/ic-blob-storage/issues/105)).
+- Include a regular copy of the canonical MIT license text in the client archive,
+  checking it against the root license during packaging and retaining MIT metadata
+  ([#107](https://github.com/dragginzgame/ic-blob-storage/issues/107)).
+
+### 🧪 Testing
+
+- Run core and client library regressions explicitly in one hosted Linux job,
+  refusing empty selections and propagating either library's test failures
+  ([#106](https://github.com/dragginzgame/ic-blob-storage/issues/106)).
+
+### 📚 Documentation
+
+- Clarify Canic adoption of the 0.52 hard cut, covering retired read fields,
+  canonical grants, regenerated Wire clients and installation retirement.
+  Correct GC guidance to describe pending-candidate indexing and remove retired
+  read-hold claims; acknowledgment still proves neither deletion nor billing cessation.
+
 ## [0.52.0] - 2026-10-27
 
 ### ⚠️ Breaking

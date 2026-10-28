@@ -134,6 +134,18 @@ impl CurrentInstanceProof {
 pub async fn prove_current_instance(
     installation_version: u64,
 ) -> Result<CurrentInstanceProof, CurrentInstanceRecoveryError> {
+    prove_observed_current_instance(installation_version, |request, execution| {
+        request.checked_add(1) == Some(execution)
+    })
+    .await
+}
+
+// The installed workflow may account for intervening observed executions. Direct
+// callers retain the conservative one-request/one-callback check above.
+pub(crate) async fn prove_observed_current_instance(
+    installation_version: u64,
+    observation_is_current: impl FnOnce(u64, u64) -> bool,
+) -> Result<CurrentInstanceProof, CurrentInstanceRecoveryError> {
     use CurrentInstanceRecoveryError as Error;
     if !ic_platform::cdk::api::in_replicated_execution() {
         return Err(Error::Execution);
@@ -206,11 +218,10 @@ pub async fn prove_current_instance(
             .collect(),
     };
     let execution_version = ic_platform::ic0::canister_version();
-    // The request commits once before this callback. Any additional replicated
-    // execution or management change makes the returned history potentially
-    // stale, even if it reached installation when the IC answered. Reacquire
-    // through a new explicit read-only call; never reuse or rotate this proof.
-    if request_version.checked_add(1) != Some(execution_version) {
+    // Only a continuous same-owner observation chain may account for ordinary
+    // intervening updates. A missed execution or changed heap owner still makes
+    // this response stale; never rotate the installation anchor or retry here.
+    if !observation_is_current(request_version, execution_version) {
         return Err(Error::Binding);
     }
     assess_instance_continuity(installation_version, execution_version, &history)?;

@@ -2,7 +2,7 @@
 use crate::ops::service::recovery::ContinuityInstallationAccess;
 use crate::ops::service::recovery::CurrentInstanceRecoveryError;
 use crate::ops::service::recovery::RecoveryInstallationAccess;
-use crate::ops::service::recovery::prove_current_instance;
+use crate::ops::service::recovery::prove_observed_current_instance;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 /// Check a previously active owner's continuity once before an update. The host
@@ -11,7 +11,7 @@ use ic_blob_storage_contracts::upload::binding::UploadContext;
 /// This never automatically resumes an already-fenced restoration or retries work.
 pub async fn before_update(host: &impl ContinuityInstallationAccess) {
     if let Some(request) = host.prepare_active_continuity() {
-        if let Ok(proof) = prove_current_instance(request.installation_version).await {
+        if let Ok(proof) = prove_observed_instance(host, request.installation_version).await {
             let _ =
                 host.with_installation(|installation| installation.resume_current_instance(proof));
         }
@@ -56,7 +56,7 @@ pub async fn resume_current_instance(
         }
         Ok(installation.platform_installation_version())
     })?;
-    let proof = prove_current_instance(anchor).await?;
+    let proof = prove_observed_instance(host, anchor).await?;
     host.with_installation(|installation| {
         let input = installation.configuration();
         if input.service != context.service
@@ -69,4 +69,19 @@ pub async fn resume_current_instance(
         }
         installation.resume_current_instance(proof)
     })
+}
+
+async fn prove_observed_instance(
+    host: &impl RecoveryInstallationAccess,
+    anchor: u64,
+) -> Result<crate::ops::service::recovery::CurrentInstanceProof, CurrentInstanceRecoveryError> {
+    let observation = host.with_installation(|installation| {
+        installation.begin_history_observation(ic_platform::ic0::canister_version())
+    });
+    prove_observed_current_instance(anchor, |request, execution| {
+        host.with_installation(|installation| {
+            installation.check_history_observation(observation, request, execution)
+        })
+    })
+    .await
 }

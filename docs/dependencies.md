@@ -47,7 +47,7 @@ Platform owns Blob's public Principal identity, so consumers must rebuild on
 the same Platform line. Required external Candid and stored/Wire bytes retain
 their existing contracts.
 
-The pending 0.52 batch requires published Tooling 0.69.2 and Memory/Storage
+Released Blob 0.52 requires published Tooling 0.69.2 and Memory/Storage
 0.51.12, retaining Platform 0.7.0. Tooling's native process-lifecycle, cache
 admission and managed-server changes require no Blob API or feature migration;
 the standalone normal/build Wasm dependency tree is unchanged by this adoption.
@@ -104,8 +104,11 @@ Do not infer production feature admission from a workspace-wide unified build.
 
 ## Open native Agent advisory
 
-[Blob #102](https://github.com/dragginzgame/ic-blob-storage/issues/102) tracks
-RUSTSEC-2026-0387. The 2026-10-24 working lock at released source `dcbb881`
+[Platform #50](https://github.com/dragginzgame/ic-platform/issues/50) is the canonical
+RUSTSEC-2026-0387 remediation owner. [Blob #102](https://github.com/dragginzgame/ic-blob-storage/issues/102)
+is closed as superseded tracking, not a fix or exemption. The dated consumer
+evidence below remains historical; no fresh advisory scan is claimed by snapshot adoption.
+The 2026-10-24 working lock at released source `dcbb881`
 (SHA-256 `da403d6db61b72a1f635bff19e7c9f3d1dfaf49629dac9d5f0fd6cfaf5dda8e2`)
 selects Platform 0.6.11 and Agent 0.49.3, whose elliptic-curve 0.13.8 paths
 select crypto-bigint 0.5.5. RustSec revision
@@ -125,8 +128,7 @@ and Agent. The existing `make contracts-boundary-check` rejects deployed Agent
 and other native owners. This target-specific graph evidence is distinct from a
 linked-Wasm scan and does not qualify downstream host feature selections.
 
-[Platform #50](https://github.com/dragginzgame/ic-platform/issues/50) owns the
-supplying correction. The older elliptic-curve requirement cannot accept the
+The older elliptic-curve requirement cannot accept the
 patched crypto-bigint line through a lock-only update. Retain the supported
 identity contract until a compatible supplier correction is available; do not
 force a crypto override, implement local arithmetic or suppress the advisory.
@@ -359,6 +361,13 @@ simple local HTTP fixtures use Host's absolute-deadline `accept_tcp_until` and
 blocking accepted streams. The multi-request fault proxy keeps its distinct
 cancellation/backpressure policy.
 
+## Canic integration
+
+Canic owns its adapter and dedicated/embedded integration tests. Blob owns the
+service contract, method catalogue and memory request factory. Consume published
+core and Contracts from the same release line in the host workspace and each
+independent consumer workspace; this guide does not authorize sibling edits.
+
 For consumer adoption of this source:
 
 1. Select compatible Blob core/Contracts packages and the host's matching Memory
@@ -384,6 +393,29 @@ For consumer adoption of this source:
    lost-result, metrics and same-image recovery cases in Canic. Apply the
    [retirement contract](retiring-installations.md) before a cross-release reinstall.
    Same-release recovery never authorizes upgrading a retained installation.
+
+### Adopt the 0.52 hard cut
+
+| Consumer boundary | Required change |
+| --- | --- |
+| Installation/configuration | Remove `ServiceReadInput` and `ServiceConfigurationInput.reads` from authored inputs and test constructors. Preserve the remaining explicit limits and provider bindings. |
+| Status and CLI projections | Remove read-session status, budgets and fence assertions. Current CLI output remains schema 1; upload, funding and gateway fences remain. |
+| Memory composition | Use `ops::service::installation::requests` and `ops::service::stores::grants::open`, rather than a copied key roster. The installation has fifteen requests, including its configuration and pending-deletion index. |
+| Wire callers and generated clients | Regenerate from the selected Contracts catalogue. Configuration, local-status and installation frames changed identity with their DTOs; method names/modes and the required external provider Candid are retained. Do not reuse old encoded installation inputs. |
+| Gateway decisions | Revocation still removes membership and invalidates pending syncs. An absent member with no pending sync no longer advances a retired read-generation counter; it may leave stable bytes unchanged. |
+| Stored state | The manifest/index and singleton-cell layouts are a cross-release hard cut. Retire the old installation with its original tools, preserving uncertain effects and obligations, before reinstalling. No in-place conversion or fallback reader exists. |
+
+Keep descriptor-based downloads and client-owned bounded body verification;
+retiring on-canister chunk sessions does not retire those paths. Requalify both
+Canic compositions using newly generated artifacts: initialization and exports,
+caller/scope refusals, upload/registration/reference/descriptor operations,
+gateway sync races, funding, public metrics and same-release restore/recovery.
+The host retains its one synchronous lifecycle and its own release profile.
+Blob's standalone size measurements do not predict a composed Canic artifact.
+
+Use the [0.52 implementation/evidence record](evidence/simplification0520.md)
+for the exact cut and measured limits. Previous-release test results establish
+their recorded graph, not acceptance of a regenerated 0.52 adapter.
 
 The [2026-10-16 receipt](evidence/canic-issues0310.md) retains its historical
 source, stale fixture-lock failures and proposed caller repairs. It does not

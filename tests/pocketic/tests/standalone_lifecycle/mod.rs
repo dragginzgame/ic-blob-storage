@@ -237,6 +237,54 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
     assert!(!f.configuration(f.operator).unwrap().fenced);
 }
 
+#[test]
+fn recovery_survives_denied_updates_during_history_without_losing_obligations() {
+    use ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure;
+    let f = Fixture::small(Harness::new(), fake_principal(4));
+    confirm_and_release_locally(&f);
+    let before = f.local_status(f.operator, f.operator_scope()).unwrap();
+    assert_eq!(before.uploads.physical_bytes, 1024);
+    assert_eq!(before.uploads.liability_bytes, 1024);
+    let admission = f.admission(f.small_manifest().permission);
+    f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .unwrap();
+    let submit = |actor| {
+        f.harness
+            .pic
+            .submit_call(
+                f.service,
+                actor,
+                "blob_resume_current_instance",
+                ic_blob_storage_contracts::wire::encode_request("blob_resume_current_instance", ())
+                    .unwrap(),
+            )
+            .unwrap()
+    };
+    let recovery = submit(f.operator);
+    f.harness.pic.tick();
+    // Queue repeated unauthorized updates alongside the history request. They
+    // must reach the canister (not merely be rejected by ingress inspection).
+    let denied: Vec<_> = (0..16).map(|_| submit(f.uploader)).collect();
+    let decode = |bytes: &[u8]| {
+        ic_blob_storage_contracts::wire::decode_response::<
+            Result<(), CurrentInstanceRecoveryFailure>,
+        >("blob_resume_current_instance", bytes, REPLY_BYTES)
+        .unwrap()
+    };
+    assert_eq!(decode(&f.harness.pic.await_call(recovery).unwrap()), Ok(()));
+    for message in denied {
+        assert_eq!(
+            decode(&f.harness.pic.await_call(message).unwrap()),
+            Err(CurrentInstanceRecoveryFailure::Denied)
+        );
+    }
+    assert_eq!(
+        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        before
+    );
+    assert_eq!(f.admission(f.small_manifest().permission), admission);
+}
+
 pub(super) fn confirm_and_release_locally(f: &Fixture) {
     use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
     f.enroll(f.operator).unwrap();

@@ -337,6 +337,8 @@ package-verifier:
 	+cargo build --offline --locked -p ic-blob-storage-cli --features package-verification --bin blob-package-verify
 
 package: package-verifier
+	@test -f crates/ic-blob-storage-client/LICENSE && test ! -L crates/ic-blob-storage-client/LICENSE
+	cmp LICENSE crates/ic-blob-storage-client/LICENSE
 	+bash scripts/ci/test-library-packages.sh
 	+bash scripts/ci/verify-library-packages.sh
 
