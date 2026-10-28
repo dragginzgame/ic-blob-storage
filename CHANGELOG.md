@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.53.1]
+
+### 🩹 Fixed
+
+- Adopt published Memory and Storage 0.53.1, releasing backing claims before their
+  identity allocations are freed, including failed construction and unwinding.
+  Preserve live-owner refusal, detached-handle custody and existing stored formats
+  ([Persistence #137 — Fail closed when multiple memory runtimes alias one stable backing](https://github.com/dragginzgame/ic-persistence/issues/137)).
+
+### 🧪 Testing
+
+- Exercise a real bounded client timeout after the remote mutation commits,
+  preserving the original unknown-outcome code, saved intent and no-resend rule
+  after a late reply. Run tenant-client qualification in Linux and both macOS
+  native lanes
+  ([#108 — Converge replicated ICC transports on Platform-owned execution](https://github.com/dragginzgame/ic-blob-storage/issues/108)).
+
 ## [0.53.0] - 2026-10-28
 
 ### ⚠️ Breaking

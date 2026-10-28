@@ -239,10 +239,17 @@ fn lookup(input: Request) -> Result<Observation, Failure> {
     decode_with = "ops::decode_tenant_update",
     encode_with = "ops::encode_tenant_update"
 )]
-fn blob_update_tenant(
+async fn blob_update_tenant(
     input: TenantUpdateRequest,
 ) -> Result<TenantEnrollmentResponse, TenantFailure> {
-    workflow::update_tenant(context(), input, None)
+    workflow::update_tenant_with_reply_hold(context(), input).await
+}
+#[ic_platform::cdk::update(
+    decode_with = "ops::decode_control",
+    encode_with = "ops::encode_control"
+)]
+fn fixture_tenant_reply_hold(hold: Option<bool>) -> Result<u64, Failure> {
+    workflow::tenant_reply_hold(context(), hold)
 }
 #[ic_platform::cdk::update(
     decode_with = "ops::decode_control",

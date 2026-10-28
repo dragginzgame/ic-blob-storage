@@ -216,6 +216,30 @@ qualify
 EXPECTED
 tail -4 "$TESTKIT_COMMAND_LOG" > "$fixture/optimizer-actual"
 cmp "$fixture/optimizer-expected" "$fixture/optimizer-actual"
+# Native CI must build both real participants and propagate the client cases.
+cat > "$consumer/scripts/ci/run-nonempty-cargo-test.sh" <<'RUN'
+#!/usr/bin/env bash
+set -euo pipefail
+printf 'test' >> "$TESTKIT_COMMAND_LOG"
+printf ' <%s>' "$@" >> "$TESTKIT_COMMAND_LOG"
+printf '\n' >> "$TESTKIT_COMMAND_LOG"
+for argument; do
+    if [[ "$argument" == storage_tenants::client:: ]]; then
+        exit "${TESTKIT_CLIENT_TEST_STATUS:-0}"
+    fi
+done
+RUN
+: > "$TESTKIT_COMMAND_LOG"
+PATH="$fixture/bin:$PATH" make --no-print-directory -C "$consumer" test-native-host \
+    > "$fixture/native-host.log" 2>&1
+grep -Fx 'cargo <build> <--offline> <--locked> <--release> <--target> <wasm32-unknown-unknown> <-p> <blob-storage-probe> <-p> <blob-consumer-probe> <--lib>' "$TESTKIT_COMMAND_LOG" >/dev/null
+client_command='test <--offline> <--locked> <-p> <ic-blob-storage-pocketic-tests> <--test> <storage> <storage_tenants::client::> <--> <--test-threads=1>'
+grep -Fx "$client_command" "$TESTKIT_COMMAND_LOG" >/dev/null
+: > "$TESTKIT_COMMAND_LOG"
+if TESTKIT_CLIENT_TEST_STATUS=37 PATH="$fixture/bin:$PATH" \
+    make --no-print-directory -C "$consumer" test-native-host \
+    > "$fixture/native-client-refusal.log" 2>&1; then exit 1; fi
+grep -Fx "$client_command" "$TESTKIT_COMMAND_LOG" >/dev/null
 # Shared's Cargo installer fixture owns registry selection, source identity,
 # interrupted builds and retained generations. This fixture owns Blob's adapter
 # forwarding, server handoff and ordered refusal; explicit real setup qualifies

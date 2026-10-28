@@ -147,6 +147,23 @@ pub(crate) fn update_tenant(
 ) -> Result<TenantEnrollmentResponse, TenantFailure> {
     ops::update_tenant(context, input, fault)
 }
+pub(crate) async fn update_tenant_with_reply_hold(
+    context: UploadContext,
+    input: TenantUpdateRequest,
+) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    ops::tenant_reply::received();
+    let result = update_tenant(context, input, None);
+    if result.is_ok() {
+        ops::tenant_reply::wait().await;
+    }
+    result
+}
+pub(crate) fn tenant_reply_hold(
+    context: UploadContext,
+    hold: Option<bool>,
+) -> Result<u64, Failure> {
+    ops::tenant_reply::control(context, hold)
+}
 pub(crate) fn tenant(
     context: UploadContext,
     scope: TenantScope,

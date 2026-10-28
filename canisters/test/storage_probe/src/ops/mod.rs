@@ -9,6 +9,7 @@ pub(crate) mod planning;
 pub(crate) mod read;
 pub(crate) mod references;
 pub(crate) mod resources;
+pub(crate) mod tenant_reply;
 use blob_test_protocol::{
     admission::{Permission, Request},
     storage::{Failure, Observation, Status, WriteFault},

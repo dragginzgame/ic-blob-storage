@@ -1,6 +1,6 @@
 //! Actual replicated transport using the shared tenant client.
 use blob_test_protocol::consumer::Failure;
-use ic_blob_storage_client::tenants::ReplicatedTenantClient;
+use ic_blob_storage_client::tenants::{ReplicatedTenantClient, TenantClientError};
 use ic_blob_storage_contracts::dto::tenant::TenantEnrollmentResponse;
 use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
@@ -37,7 +37,7 @@ pub(crate) async fn update(
     client(input.scope)
         .update(input, max)
         .await
-        .map_err(|_| Failure::Transport)
+        .map_err(failure)
 }
 pub(crate) async fn inspect(
     actor: Principal,
@@ -47,5 +47,12 @@ pub(crate) async fn inspect(
     client(scope)
         .inspect(4096.try_into().unwrap())
         .await
-        .map_err(|_| Failure::Transport)
+        .map_err(failure)
+}
+
+fn failure(error: TenantClientError) -> Failure {
+    match error {
+        TenantClientError::Rejected(code) => Failure::Rejected(code),
+        _ => Failure::Transport,
+    }
 }

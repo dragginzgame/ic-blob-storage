@@ -115,8 +115,8 @@ offline. Both lock-selected Tooling CLIs require explicit `--features cli` durin
 setup and admission; this feature belongs to tool selections, not the application
 library graph. Tool installation may compile and use the
 network; it stays explicit and separate from ordinary validation.
-`make test-native-host` is the focused CLI/example/PocketIC installation and
-Metrics restoration-read check used by
+`make test-native-host` is the focused CLI/example/PocketIC installation,
+Metrics restoration-read and replicated tenant-client check used by
 the native host CI matrix, separate from the complete gate.
 Each native lane also runs `make package`, including real same-version/refusal
 regressions and exact coordinated archive tests. Hosted archive qualification

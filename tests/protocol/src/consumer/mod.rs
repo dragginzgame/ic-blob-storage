@@ -132,6 +132,8 @@ pub enum Failure {
     Fenced,
     /// Transport or response validation failed; intent remains retained.
     Transport,
+    /// Original IC rejection code, including an unknown bounded-wait outcome.
+    Rejected(u32),
 }
 
 /// Exact asset selected for release and an optional test interruption.

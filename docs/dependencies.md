@@ -68,7 +68,14 @@ for owned dynamic method names. Existing raw callers remain supported; Blob's
 prepared funding method is static and its other calls borrow names in scope.
 No extra custody package or local call layer is needed for those bindings.
 Retain protocol adapters and qualify installed timeout/uncertainty behavior
-separately from native rejection classification.
+separately from native rejection classification. The installed tenant-client
+case holds a reply after the real mutation commits, advances beyond the client's
+bounded wait and observes original `SysUnknown` code 6. Saved intent blocks another
+dispatch before and after the late reply; an independent inspection sees the
+committed enrollment. The private probe control requires its installed operator
+and adds no production endpoint. `test-native-host` selects the tenant-client
+cases for Linux and both macOS lanes; local execution does not establish hosted
+qualification of the pending source.
 The raw runtime is codec-free, but the client package's current resolved graph is
 not Candid-free: Contracts selects Platform's `candid` feature for external provider
 GC/onboarding codecs, certificate DTOs and account integer types. That is distinct
@@ -431,8 +438,14 @@ For consumer adoption of this source:
 
 ### Adopt the 0.53 memory boundary
 
-The pending 0.53.0 batch selects published Memory/Storage 0.53.0. Blob publicly
-re-exports Memory, so every embedding host must use that same package identity.
+Released Blob 0.53.0 adopted Memory/Storage 0.53.0; the compatible pending patch
+selects published **Memory/Storage 0.53.1**. That correction releases backing
+claims before freeing their identity allocations during final teardown,
+construction refusal and unwinding. It addresses the stale-claim lifetime defect
+reported through [Persistence #137](https://github.com/dragginzgame/ic-persistence/issues/137),
+without changing public signatures, stored formats or checkpoint validation.
+Native macOS archive acceptance remains distinct from Linux qualification.
+Blob publicly re-exports Memory, so every embedding host must use that same package identity.
 Standard `VectorMemory` and canister stable backing already implement the new
 `MemoryBacking` contract. Custom wrappers delegate their underlying identity;
 aliases must retain the same identity and its allocation for every runtime/handle
