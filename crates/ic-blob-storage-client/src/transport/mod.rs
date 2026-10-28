@@ -58,3 +58,6 @@ pub(super) fn failure<E>(error: ClientCallError, not_enqueued: E, rejected: fn(u
         ) => not_enqueued,
     }
 }
+
+#[cfg(test)]
+mod tests;

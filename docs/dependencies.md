@@ -40,6 +40,40 @@ Testkit; [IC Persistence](https://github.com/dragginzgame/ic-persistence) owns
 Memory and Storage. Package names and ownership boundaries remain unchanged.
 Blob consumes published packages, without sibling paths or compatibility aliases.
 
+### Replicated call execution
+
+Published Platform **0.7.1**, selected in the current lockfile, supplies the raw
+`cdk::call::Call`, `Response`, `CallFailed` and `WaitPolicy` API used by every
+production replicated transport. There is no Blob executor or generic dispatch
+engine to replace. The remaining adapters have distinct domain responsibilities:
+
+| Consumer | Platform selection | Responsibility retained in Blob |
+| --- | --- | --- |
+| [Role clients](../crates/ic-blob-storage-client/src/transport/mod.rs) | Borrowed raw bytes, explicit bounded timeout, no attached cycles | Method-bound Wire encoding and projection of original reject codes versus local non-submission; callers retain intent and recovery |
+| [Cashier funding](../crates/ic-blob-storage/src/ops/caffeine/funding/transport/mod.rs) | Owned prepared arguments, unbounded wait, complete attachment and current call cost | Exact persisted attempt binding, liquidity policy, matching-callback refund capture before decoding or another await, and provider reply interpretation |
+| [Provider queries](../crates/ic-blob-storage/src/ops/caffeine/query/transport/replicated/mod.rs) | Borrowed raw arguments and explicit bounded timeout | Service/Cashier/method authority, replicated execution and response-byte limits |
+| [Installation recovery](../crates/ic-blob-storage/src/ops/service/recovery/mod.rs) | One bounded management call with owned external Candid arguments | History decoder limits, installation/actor binding, independent continuity evidence and same-execution proof consumption |
+
+All four dispatch once, without automatic retry or fallback. The Platform call
+cost includes attached cycles, so funding observes cost before adding its separately
+accounted attachment. Only an actual unbounded callback supplies a matching refund;
+construction, cancellation, enqueue failure and ambient callback state do not.
+An invalid reply or unknown bounded-wait outcome never proves that no effect occurred.
+Application reply limits apply after Platform's initial response buffering.
+
+[Blob #108](https://github.com/dragginzgame/ic-blob-storage/issues/108) tracks consumer
+qualification and any replacement justified by
+[Platform #75](https://github.com/dragginzgame/ic-platform/issues/75). The reviewed
+published API already supplies Blob's current mechanics; a future owner contract
+must be published and inspected before adoption. Do not invent another local call
+layer, remove protocol adapters, or copy Canic's owned dynamic-method requirement:
+Blob's prepared funding method is static and its other calls borrow names in scope.
+The raw runtime is codec-free, but the client package's current resolved graph is
+not Candid-free: Contracts selects Platform's `candid` feature for external provider
+GC/onboarding codecs, certificate DTOs and account integer types. That is distinct
+from dispatch ownership; removing this graph edge would require a separately
+reviewed Contracts feature/public-API cut, not another transport implementation.
+
 The released 0.51 boundary uses published Rust Platform 0.7.0 throughout Blob's
 workspace catalog. Its removal of Candid JavaScript/TypeScript compiler exports
 requires no local replacement: owned clients already use Wire generation.

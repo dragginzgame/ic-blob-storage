@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.52.2]
+
+### 🧪 Testing
+
+- Cover replicated-client failure classification, retaining unknown and future
+  reject codes separately from local non-submission
+  ([#108](https://github.com/dragginzgame/ic-blob-storage/issues/108)).
+
+### 📚 Documentation
+
+- Record Platform's existing replicated-call ownership and the domain adapters
+  retained in Blob.
+- Complete the coordinated application acceptance checklist with media-map
+  recovery and reference/deletion/billing evidence
+  ([#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
+  [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6)).
+
 ## [0.52.1] - 2026-10-28
 
 ### 🔧 Changed

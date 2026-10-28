@@ -1,100 +1,104 @@
 # Current status — 2026-10-28
 
-## Released baseline and pending work
+## Delivered baseline
 
-Blob **0.52.0** is tagged at `be64a7e371c9d1b120162182008348fb46c3f389`;
-its receipt names validated source `74c07658df6ceb8fbab54d9dfca1ddd9a931bb8e`.
-The pending compatible **0.52.1** batch implements #105/#106/#107 and the prior
-Canic/GC documentation corrections. Package versions remain 0.52.0. Nothing was
-committed, pushed, published or deployed by the agent; maintainer-staged work is preserved.
-Existing incoming Cargo.lock edits are preserved byte-for-byte.
+Blob **0.52.1** is on default main/tag at
+`3513b5b0faeae57f554e2430e9c3a92ad3b109c7`; its release receipt names validated
+source `5aec5468aa7b2a7791c9871a837a38ba41065b5d`. The checkout was clean at
+inspection. The agent performed no commit, push, release, publication or deployment.
+The published client archive's VCS metadata names the exact release commit.
+Pending compatible notes are **0.52.2**; package versions and lockfile are unchanged.
 
-## Implemented issue fixes
+## Issue reconciliation
 
-- **#105:** reproduced authorized history recovery returning Binding while sixteen
-  denied updates arrive during its await. A released object's 1024 physical and
-  liability bytes remain outstanding in that fixture. The installed workflow now
-  accepts uninterrupted platform observations from the same live owner, while
-  still obtaining complete independent IC history and consuming a sealed proof
-  in the exact callback. An Arc-backed transient identity is invalidated by every
-  version gap, explicit fence or reopened heap owner. Later observations cannot
-  revive it; stored schemas, anchors, journals and obligations are unchanged.
-  Direct `prove_current_instance` callers retain the strict single-step guard.
-  Unobserved application executions/arbitrary platform jumps still refuse safely;
-  composed hosts must observe their relevant executions. No ingress filter,
-  compatibility reader, automatic retry, backup activation or effect replay was added.
-- **#106:** one Linux hosted job runs core and client library tests separately
-  through the existing nonempty runner. The actual extracted job body passes on
-  two tiny real libraries; deliberately failing either test exits the job with 101.
-  Existing contracts/native-host matrices are retained. The job is not yet hosted.
-- **#107:** the published 0.52.0 client archive really lacks license text. The initial
-  package LICENSE symlink passed Cargo but violated the shared no-symlink rule and
-  blocked the maintainer's commit. It is replaced with a regular MIT copy; packaging
-  checks regular-file status and equality against root LICENSE. SPDX stays MIT.
-  The published 0.52.0 archive remains unchanged; this is a pending package fix.
-  Hook/archive proof: `/tmp/blob-license-hook-fix.KoY5miUj/`; real index unchanged.
+- **#107 closed:** the published 0.52.1 client archive includes a regular LICENSE,
+  byte-identical to root MIT text, with matching MIT metadata. Its official index
+  checksum is `fa8ab6b1c76e0ae0622fdcaf7442735c1390ec0e68195a999798036c344057bd`.
+  Readback: `/tmp/blob521-issues.7XiLpB8r/`. The old 0.52.0 archive remains
+  immutable and missing that file. Packaging checks regular-file status and equality;
+  the original symlink attempt violated shared policy and was corrected before release.
+- **#105 delivered, open for complete hosted qualification:** interrupted history
+  recovery now accepts uninterrupted platform observations from the same live owner.
+  A private Arc identity is invalidated by a missed/reversed version, explicit fence
+  or reopened heap. Complete independent IC history, post-await authority/anchor
+  checks and exact-callback sealed-proof consumption remain mandatory. Stored
+  schemas, journals and obligations are unchanged; the public low-level proof API
+  retains its strict single-step guard. Unobserved host executions refuse safely.
+- **#106 delivered:** the hosted core/client job actually passes **339 + 4 tests**,
+  with separate nonempty selections. Deliberately failing either library failed the
+  extracted real job body locally. Existing contracts/native-host matrices remain.
+  It stays open for the containing required matrix; no synchronous publication wait
+  was introduced.
+- **#108 open:** converge generic replicated-call mechanics on Platform's selected
+  canonical ICC API. Preserve method codecs, authority, explicit wait policies,
+  single-attempt dispatch, attachment/refund accounting and uncertain-effect journals.
+  [Platform #75](https://github.com/dragginzgame/ic-platform/issues/75) owns the
+  shared contract. Published 0.7.1 already supplies all four raw execution paths;
+  the remaining adapters carry domain policy. No competing Blob executor was found.
+  New regressions preserve SysUnknown/future rejection codes versus non-submission.
+  All six client tests, strict client Clippy, Rust 1.91 builds of four probe Wasms
+  and 25 installed tenant/query/funding cases pass. Evidence (including initial
+  sandbox bind failures): `/tmp/blob108-qualification.9lvipGpf/`.
+  Direct and runtime/deployment boundaries pass with unchanged Cargo inputs.
+  Final owner API selection/publication and installed bounded-timeout/unknown-response
+  qualification remain; native classification is not an installed timeout proof.
+  No new macOS transport execution is claimed. The client still gets Candid through
+  Contracts' provider codecs/certificate/account types, independently of raw execution.
 
-The [Canic checklist](../dependencies.md#canic-integration) and GC guide now reflect
-retired read fields, canonical grants, regenerated clients and pending GC indexing.
-All three issues remain open until their fixes are verified on default main.
+Eight issues remain; no open PRs were found. #4/#5/#6/#31/#34 still require actual
+application/provider acceptance: media-map transactions, browser serving, reference
+lifetimes/deletion/billing, two authenticated users and payer linkage/reconciliation.
+Local substitutes and framework publication do not close those outcomes. Reuse the
+[coordinated acceptance run](../acceptance-plan.md#next-application-acceptance-run).
+That checklist now includes explicit #4 media-map recovery and #6 reference/deletion/
+billing steps. These are prepared procedures, not new live acceptance evidence.
 
-## Current qualification
+## Qualification and limits
 
-Evidence: `/tmp/blob-issues105-107.zRpGdxat/` retains failed attempts and final checks.
-Pre-fix artifact: `/tmp/blob-cell052-20261027.qOTAMW0S/after.wasm` (before version bump).
-Final source/graph: 339 core and 4 client tests, strict affected-package Clippy,
-5 installed lifecycle cases, real snapshot-rollback refusal and exact deployment
-exports pass. Four new native observation tests cover continuous execution,
-missed versions, explicit fences and reopened owners without changing stable bytes.
-Rust 1.91 native/core/client and standalone Wasm checks pass. The real prepared
-client archive has matching MIT metadata/text; its local filename still says 0.52.0.
-Workflow extraction and deliberate failure checks use actual Cargo in a disposable
-workspace, not mocked success. actionlint, formatting, dependency/deployment
-boundaries and documentation links pass; no full CI or new macOS run is claimed.
+At inspection, [0.52.1 tooling CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/40672576194)
+has passing Linux, core/client, MSRV and generated-client jobs; both macOS
+qualification jobs are still running. Published example installation run 40672576197
+passes. Do not call the incomplete matrix green or poll solely to wait for completion.
+Revisit #105/#106 on the next requested inspection if the complete matrix passes.
 
-Testkit 0.69.3 setup was initially refused based on its earlier unpublished state.
-Public registry/checksum verification resolved this; canonical setup/admission
-succeeded without sibling source or an alternate installation mechanism.
+Local source evidence: `/tmp/blob-issues105-107.zRpGdxat/` retains failed attempts,
+339 core/4 client tests, strict affected-package Clippy, five installed lifecycle
+cases, real snapshot-rollback refusal, exact exports and Rust 1.91 native/Wasm checks.
+The installed interleaving reproduction queues sixteen denied updates during history
+lookup and preserves 1024 physical/1024 liability bytes. Four native observation
+regressions cover gaps, fences and reopened owners without changing stable bytes.
+Hook/archive correction evidence: `/tmp/blob-license-hook-fix.KoY5miUj/`.
 
-## Released contracts and Canic
+## Contracts and Canic
 
-The [0.52 record](../evidence/simplification0520.md) owns the released simplifications,
-exact measurements and proofs for manifests, GC indexing, retired sessions and cells.
-Funding accounting remains a multirow receipt-index map. Installation uses fifteen
-canonical grants and `ic-blob-storage/installation:singleton-cells`; owned schemas
-and CLI status remain 1. Descriptor/client downloads remain supported.
-Cross-release transitions require [retirement/reinstall](../retiring-installations.md),
-preserving original uncertain operations, provider objects, balances and billing.
-Same-release interruption/recovery and exact receipts remain required.
+The [0.52 record](../evidence/simplification0520.md) owns source-bound simplifications,
+measurements and proofs. Funding uses a multirow receipt-index map; installation uses
+fifteen canonical grants and its singleton-cell owner. Owned schemas/CLI status stay 1.
+Descriptor/client downloads remain supported. Cross-release transitions require
+[retirement/reinstall](../retiring-installations.md), retaining uncertain operations,
+provider objects, balances and billing. Same-release recovery and exact receipts remain.
 
-Canic **0.112.0** main/tag is `5c236ab130c0d63892ef281b45bdc3fa353e012f`,
-selecting Blob/Contracts **0.51.0**. Its complete release and family publication
-passed; retained dedicated/embedded and funding-profile tests pass. Read-only
-source inspection still finds two internal constructors using ServiceReadInput.
-Canic needs 0.52 adoption and its own composition qualification; no copied grant
-roster or production chunk-read transport was found.
-[Canic CI 40659441082](https://github.com/dragginzgame/canic/actions/runs/40659441082)
-was running at the last inspection. #444/#622/#494 record delivered source and
-remaining hosted/independent-credit acceptance. No synchronous CI wait was performed.
-Live users/provider uploads/serving, payer linkage, deletion and billing acceptance
-remain separate under Blob #4/#5/#6/#31/#34. Acknowledged funding does not require
-independent credit after every success; do not fabricate stronger evidence.
+Last reviewed Canic **0.112.0** main/tag is `5c236ab130c0d63892ef281b45bdc3fa353e012f`,
+selecting Blob/Contracts 0.51.0. Its release/publication and retained dedicated/embedded
+and funding-profile tests pass. Two internal constructors still use ServiceReadInput;
+Canic needs 0.52 adoption and its own composition qualification. No copied grant roster
+or production chunk-read transport was found. Its CI 40659441082 was incomplete at
+that earlier inspection; no new Canic CI result is claimed here. #444/#622/#494 retain
+their framework/hosted/independent-credit scopes. Acknowledged funding does not require
+independent credit after every success; registration does not prove stored bytes.
 
-## Graph and retained evidence
+## Dependencies and retained evidence
 
-Minima remain Tooling 0.69.2, Memory/Storage 0.51.12, Platform 0.7.0. The preserved
-lock selects Tooling 0.69.3, Memory/Storage 0.51.13, Platform 0.7.1, Wire 0.7.18,
+Minima remain Tooling 0.69.2, Memory/Storage 0.51.12 and Platform 0.7.0. The released
+lock selects Tooling 0.69.4, Memory/Storage 0.51.13, Platform 0.7.1, Wire 0.7.18 and
 Metrics 0.16.3. Browser Platform 0.1.1/Core 6.1.1/Caffeine 1.1.2 are unchanged.
 [Platform #50](https://github.com/dragginzgame/ic-platform/issues/50) and
-[Persistence #136](https://github.com/dragginzgame/ic-persistence/issues/136)
-retain their supplying acceptance scopes; no closure occurred in this batch.
-Older source-bound captures remain in `/tmp/blob-simplify052-20261027.wmcqnujw/`,
-`/tmp/blob-cell052-20261027.qOTAMW0S/`, `/tmp/blob-tooling0692-20261027.XFd9u5hk/`
-and `/tmp/blob-retired-read-tests-20261027.t7LYiMA5/`.
-Released Blob 0.52 hosted runs 40563993222 and 40563993188 passed Linux, both macOS
-architectures, MSRV/generated-client and example lanes. #103 is closed as adopted.
-Those runs do not qualify this dirty patch or establish live-provider readiness.
+[Persistence #136](https://github.com/dragginzgame/ic-persistence/issues/136) retain
+their supplying acceptance scopes. No sibling files were edited.
 
 Shared **0.27.3**, revision `cc81a58a5b2dd287c577cbffd2c576c178b6785c`: 131 payloads.
-Source comparison, offline integrity, formatting/pins and hook/release/Testkit callers pass.
-Evidence: `/tmp/blob-shared0273.Q4qkZ1zY/`. Index/lock unchanged; re-stage refreshed files and new RustSource.pm.
+Canonical source comparison, offline integrity, formatting/pins and hook/release/Testkit
+callers pass; evidence `/tmp/blob-shared0273.Q4qkZ1zY/`. Older implementation captures
+remain in `/tmp/blob-simplify052-20261027.wmcqnujw/`,
+`/tmp/blob-cell052-20261027.qOTAMW0S/`, `/tmp/blob-tooling0692-20261027.XFd9u5hk/`
+and `/tmp/blob-retired-read-tests-20261027.t7LYiMA5/`. No evidence was overwritten.
