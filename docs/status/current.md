@@ -8,6 +8,9 @@ The pending **0.53.0** hard cut adopts published upstream packages. Blob package
 versions remain 0.52.2; no staging, commit, push, release, publication or deployment
 was performed. Incoming Tooling/Platform/Wire lock edits and prior handoff work
 were preserved; the narrow resolver operation additionally updated Memory/Storage.
+The maintainer committed that batch locally as `1adfd337` before the release gate.
+Its test stage failed; no 0.53 release is established by that commit label.
+The journal-custody repair below is uncommitted.
 
 Selected published graph: **Memory/Storage 0.53.0, Wire 0.7.19, Platform 0.7.3,
 Tooling/Host/Build/Testkit 0.69.6**. Metrics 0.16.3 and browser Platform 0.1.1 are
@@ -65,6 +68,25 @@ standalone lifecycle recovery and exact exports. Generated TypeScript passes all
 Public memory docs build with warnings denied. Initial failed and empty-filter
 attempts remain alongside corrected nonempty runs; no known failing case remains.
 No full release gate, native macOS or deployed-provider run is claimed for this graph.
+
+## Release-gate journal repair
+
+The full test gate at local source `1adfd337` exposed 21 failing journey cases:
+authority archive inspection reopened a FixtureJournal before dropping its old
+backing owner. Memory correctly returned BackingAlreadyClaimed. The failed log
+remains `.git/release-state/validation-failures/20261028T131735Z-780359-15-test.log`.
+
+Authority, gateway-source and funding journal reopen paths now explicitly drop
+the old store before constructing its replacement. Archive queries still reread
+retained stable evidence; no cached-read substitution, guard bypass, format
+change or record reset was introduced. The consumer initializer already requires
+an empty host and needs no replacement path.
+
+All **49 journey cases** now pass, including all 21 reported failures, along with
+six funding-recovery cases. Strict Clippy for the three changed probes and their
+Rust 1.91 Wasm builds pass; Cargo inputs stayed fixed. Evidence:
+`/tmp/blob-journal-custody.TEliOFmZ/`. No full gate or release command was rerun.
+Commit this repair before the maintainer restarts the normal release gate.
 
 ## Issues and hosted CI
 

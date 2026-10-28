@@ -26,6 +26,8 @@ pub(super) fn create() {
 }
 pub(super) fn open() {
     STORE.with_borrow_mut(|store| {
+        // Archive queries must reread stable evidence after releasing live custody.
+        drop(store.take());
         *store = Some(FixtureJournal::open(
             DefaultMemoryImpl::default(),
             JOURNAL_KEY,

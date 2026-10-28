@@ -18,6 +18,11 @@
   selected Testkit and release-editor executables. Keep the existing framed
   protocol, endpoint identities and callback/retry policy.
 
+### 🩹 Fixed
+
+- Release probe journal leases before reopening stable evidence, preserving
+  repeated archive queries and recovery under Memory's exclusive-custody contract.
+
 ### 🧪 Testing
 
 - Qualify composed memory custody and exact reopening after the final lease
