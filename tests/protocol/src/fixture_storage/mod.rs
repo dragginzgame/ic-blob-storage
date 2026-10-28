@@ -1,5 +1,5 @@
 //! Bounded Wire journals over Memory's canonical test cell; no product storage codec.
-use ic_memory::{Memory, MemoryManagerConfig, testing::FixtureCell};
+use ic_memory::{Memory, MemoryBacking, MemoryManagerConfig, testing::FixtureCell};
 use ic_wire::{Limits, native};
 use serde::{Serialize, de::DeserializeOwned};
 
@@ -18,7 +18,10 @@ impl<M: Memory> FixtureJournal<M> {
     /// Create only on empty backing, before allocating the canonical cell.
     /// # Panics
     /// Refuses populated backing, invalid policy or storage failure.
-    pub fn create(memory: M, key: &str, limits: Limits) -> Self {
+    pub fn create(memory: M, key: &str, limits: Limits) -> Self
+    where
+        M: MemoryBacking,
+    {
         validate(limits);
         assert_eq!(memory.size(), 0, "fresh fixture backing required");
         let cell = FixtureCell::create_bounded(
@@ -39,7 +42,10 @@ impl<M: Memory> FixtureJournal<M> {
     /// Open only an existing cell under the selected allocation and byte ceiling.
     /// # Panics
     /// Refuses missing, incompatible, oversized or corrupt cell metadata.
-    pub fn open(memory: M, key: &str, limits: Limits) -> Self {
+    pub fn open(memory: M, key: &str, limits: Limits) -> Self
+    where
+        M: MemoryBacking,
+    {
         validate(limits);
         let cell = FixtureCell::open_bounded(
             memory,

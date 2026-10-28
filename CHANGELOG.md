@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.53.0]
+
+### ⚠️ Breaking
+
+- Adopt Memory and Storage 0.53.0 through Blob's public memory boundary.
+  Embedding hosts must align their Memory identity, provide `MemoryBacking` for
+  custom backings, and release every component lease before recreating a runtime.
+  Retire/reinstall across Blob releases; owned schemas and Wire formats stay unchanged.
+- Rely on exclusive backing custody between Memory's full validation checkpoints.
+  Ordinary reads/writes no longer scan manager metadata; prohibited raw edits need
+  not be detected until construction, initial bootstrap, lease opening or growth.
+
+### 🔧 Changed
+
+- Adopt published Wire 0.7.19, Platform 0.7.3 and Tooling 0.69.6, including the
+  selected Testkit and release-editor executables. Keep the existing framed
+  protocol, endpoint identities and callback/retry policy.
+
+### 🧪 Testing
+
+- Qualify composed memory custody and exact reopening after the final lease
+  drops. Keep corruption fixtures exercising decoding after releasing old owners.
+
 ## [0.52.2] - 2026-10-28
 
 ### 🧪 Testing

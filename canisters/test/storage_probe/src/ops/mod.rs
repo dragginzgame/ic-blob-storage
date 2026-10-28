@@ -20,6 +20,7 @@ use ic_blob_storage::ic_memory::GenericAllocationPolicy;
 use ic_blob_storage::ic_memory::Memory;
 use ic_blob_storage::ic_memory::MemoryAllocationPool;
 use ic_blob_storage::ic_memory::MemoryAuthority;
+use ic_blob_storage::ic_memory::MemoryBacking;
 use ic_blob_storage::ic_memory::MemoryManagerConfig;
 use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
@@ -36,6 +37,7 @@ use ic_blob_storage_contracts::dto::tenant::TenantScope;
 use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use std::cell::{Cell, RefCell};
+use std::rc::Rc;
 
 #[derive(Clone, Default)]
 pub(crate) struct ProbeBackingMemory(DefaultMemoryImpl);
@@ -57,11 +59,23 @@ impl Memory for ProbeBackingMemory {
         self.0.write(offset, src);
     }
 }
+impl MemoryBacking for ProbeBackingMemory {
+    fn backing_identity(&self) -> ic_blob_storage::ic_memory::BackingIdentity {
+        self.0.backing_identity()
+    }
+}
 
 pub(crate) struct ProbeMemory {
-    memory: RuntimeMemory<ProbeBackingMemory>,
+    memory: Rc<RuntimeMemory<ProbeBackingMemory>>,
     fault: Option<WriteFault>,
     index: usize,
+}
+impl MemoryBacking for ProbeMemory {
+    fn backing_identity(&self) -> ic_blob_storage::ic_memory::BackingIdentity {
+        // The non-clone outer allocation lease owns this nested backing. Every
+        // alias retains that same lease/identity; a raw backing alias cannot mint it.
+        ic_blob_storage::ic_memory::BackingIdentity::of_rc(&self.memory)
+    }
 }
 impl Memory for ProbeMemory {
     fn size(&self) -> u64 {
@@ -252,7 +266,7 @@ fn probe_memory(
     index: usize,
 ) -> RuntimeMemory<ProbeMemory> {
     let backing = ProbeMemory {
-        memory: runtime.open_memory(key).unwrap(),
+        memory: Rc::new(runtime.open_memory(key).unwrap()),
         index,
         fault: match key {
             "fixture.tenants.v1" => Some(WriteFault::Tenants),
@@ -284,6 +298,9 @@ fn probe_memory(
     .open_memory("probe.collection.v1")
     .unwrap()
 }
+
+#[cfg(test)]
+mod tests;
 
 #[expect(
     clippy::needless_pass_by_value,

@@ -58,7 +58,9 @@ pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// constructors require this runtime's exclusive allocation leases. Store and
 /// workflow type parameters name the backing memory, not `RuntimeMemory<Backing>`.
 /// Hosts should use this re-export or align a direct Memory dependency with
-/// this crate's selected release line.
+/// this crate's selected release line. Runtime construction requires
+/// [`ic_memory::MemoryBacking`]; custom backing aliases share a retained identity.
+/// Every component lease must drop before the host recreates its runtime.
 pub use ic_memory;
 
 /// Probe-only reference models and fault-injection access.

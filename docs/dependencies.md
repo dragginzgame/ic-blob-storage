@@ -42,7 +42,7 @@ Blob consumes published packages, without sibling paths or compatibility aliases
 
 ### Replicated call execution
 
-Published Platform **0.7.1**, selected in the current lockfile, supplies the raw
+Published Platform **0.7.3**, selected in the current lockfile, supplies the raw
 `cdk::call::Call`, `Response`, `CallFailed` and `WaitPolicy` API used by every
 production replicated transport. There is no Blob executor or generic dispatch
 engine to replace. The remaining adapters have distinct domain responsibilities:
@@ -62,12 +62,13 @@ An invalid reply or unknown bounded-wait outcome never proves that no effect occ
 Application reply limits apply after Platform's initial response buffering.
 
 [Blob #108](https://github.com/dragginzgame/ic-blob-storage/issues/108) tracks consumer
-qualification and any replacement justified by
-[Platform #75](https://github.com/dragginzgame/ic-platform/issues/75). The reviewed
-published API already supplies Blob's current mechanics; a future owner contract
-must be published and inspected before adoption. Do not invent another local call
-layer, remove protocol adapters, or copy Canic's owned dynamic-method requirement:
-Blob's prepared funding method is static and its other calls borrow names in scope.
+qualification of the [Platform #75](https://github.com/dragginzgame/ic-platform/issues/75)
+ownership contract. Platform 0.7.2 also publishes the optional `ic-call` package
+for owned dynamic method names. Existing raw callers remain supported; Blob's
+prepared funding method is static and its other calls borrow names in scope.
+No extra custody package or local call layer is needed for those bindings.
+Retain protocol adapters and qualify installed timeout/uncertainty behavior
+separately from native rejection classification.
 The raw runtime is codec-free, but the client package's current resolved graph is
 not Candid-free: Contracts selects Platform's `candid` feature for external provider
 GC/onboarding codecs, certificate DTOs and account integer types. That is distinct
@@ -427,6 +428,35 @@ For consumer adoption of this source:
    lost-result, metrics and same-image recovery cases in Canic. Apply the
    [retirement contract](retiring-installations.md) before a cross-release reinstall.
    Same-release recovery never authorizes upgrading a retained installation.
+
+### Adopt the 0.53 memory boundary
+
+The pending 0.53.0 batch selects published Memory/Storage 0.53.0. Blob publicly
+re-exports Memory, so every embedding host must use that same package identity.
+Standard `VectorMemory` and canister stable backing already implement the new
+`MemoryBacking` contract. Custom wrappers delegate their underlying identity;
+aliases must retain the same identity and its allocation for every runtime/handle
+lifetime. Never derive an identity from persisted bytes or mint one per raw alias.
+
+Use one host runtime and release all component collections and detached handles
+before replacing it. Memory rejects a second owner while any lease remains live.
+The private storage probe's nested instrumentation retains an exclusive outer
+grant in an Rc and shares that grant's identity across its aliases; it does not
+create independent identities for raw stable-memory wrappers.
+
+Memory validates its bounded manager metadata image at construction, initial
+bootstrap, lease-open and growth checkpoints. Ordinary size/read/write operations
+check poisoning and bounds without rescanning manager metadata. Full checkpoints
+still poison detected stale owners without repair; raw edits during a live lease
+need not be detected before its next read or write. Hosts must retain exclusive
+custody between checkpoints. This narrows 0.52's per-access detection guarantee
+and removes its repeated scans, without an unchecked mode or an endpoint speed claim.
+It is not isolation from arbitrary raw IO, dishonest identities or separately linked
+Memory copies.
+MGR, ledger, cell, Blob record and Wire bytes are unchanged by these dependency
+updates. Blob's cross-release retirement/reinstall rule still applies; there is no
+automatic migration or alias-guard bypass. Requalify the actual Canic composition
+and its selected limits independently of standalone/local-substitute evidence.
 
 ### Adopt the 0.52 hard cut
 

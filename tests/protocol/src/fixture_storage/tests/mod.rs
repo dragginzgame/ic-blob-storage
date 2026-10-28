@@ -99,12 +99,29 @@ fn custom_consumer_envelope_and_missing_or_oversized_cells_never_seed_empty_stat
     memory.write(9, &body);
     let mut original = vec![0; 9 + body.len()];
     memory.read(0, &mut original);
+    // Release custody so the next open reaches envelope validation rather than
+    // merely refusing a second owner of the same backing.
+    drop(memory);
     assert!(
         catch_unwind(AssertUnwindSafe(|| FixtureJournal::open(
-            backing, KEY, LIMITS
+            backing.clone(),
+            KEY,
+            LIMITS
         )))
         .is_err()
     );
+    // Inspect the damaged cell through its canonical grant, without asking the
+    // journal to accept it. Runtime ledger admission is separate from cell bytes.
+    let memory = ic_memory::testing::fixture_runtime(
+        backing,
+        "fixture",
+        "fixture.",
+        &[KEY],
+        MemoryManagerConfig::new(16).unwrap(),
+    )
+    .unwrap()
+    .open_memory(KEY)
+    .unwrap();
     let mut retained = vec![0; original.len()];
     memory.read(0, &mut retained);
     assert_eq!(retained, original);

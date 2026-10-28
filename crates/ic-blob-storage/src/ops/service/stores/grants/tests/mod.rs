@@ -183,6 +183,7 @@ fn composed_journey(first: u8) {
     assert_eq!(before.funding.last_operation, Some(u128::MAX));
     assert_eq!(before.funding.reserved_or_uncertain, 10);
     drop(stores);
+    drop(neighbor);
     drop(host);
 
     let mut host = runtime(backing.clone());

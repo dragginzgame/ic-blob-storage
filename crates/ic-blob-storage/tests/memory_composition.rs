@@ -5,7 +5,8 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_memory::VectorMemory;
 use ic_memory::{
     GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRequest, MemoryRuntime, RuntimeMemory, RuntimeOpenError, SealedDeclarationSnapshot,
+    MemoryRequest, MemoryRuntime, RuntimeConstructionError, RuntimeMemory, RuntimeOpenError,
+    SealedDeclarationSnapshot,
 };
 use ic_storage::adapter::StableCell;
 
@@ -63,8 +64,9 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
     )
     .expect("host allocation pool");
     let declarations = SealedDeclarationSnapshot::new(requests).expect("snapshot");
+    let backing = VectorMemory::default();
     let mut host = MemoryRuntime::new_with_config(
-        VectorMemory::default(),
+        backing.clone(),
         MemoryManagerConfig::new(16).expect("host profile"),
     )
     .expect("host runtime");
@@ -114,4 +116,30 @@ fn exported_collections_use_host_grants_and_preserve_the_hosts_bucket_profile() 
         host.open_memory("fixture.ungranted.data.v1"),
         Err(RuntimeOpenError::StableKeyNotCommitted(_))
     ));
+    // A composed host must not replace its runtime while either component still
+    // owns a collection, even after the runtime itself is dropped.
+    drop(host);
+    let before = backing.borrow().clone();
+    assert!(matches!(
+        MemoryRuntime::new(backing.clone()),
+        Err(RuntimeConstructionError::BackingAlreadyClaimed)
+    ));
+    drop(database);
+    assert!(matches!(
+        MemoryRuntime::new(backing.clone()),
+        Err(RuntimeConstructionError::BackingAlreadyClaimed)
+    ));
+    assert_eq!(*backing.borrow(), before);
+    drop(reopened);
+    let mut restored = MemoryRuntime::new(backing).expect("all component leases released");
+    restored
+        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
+        .expect("same declaration and retained ledger");
+    assert_eq!(
+        *open_blob_cell(restored.open_memory("fixture.blob.data.v1").unwrap()).get(),
+        37
+    );
+    let database: StableCell<u64, VectorMemory> =
+        StableCell::init(restored.open_memory("fixture.database.data.v1").unwrap(), 0);
+    assert_eq!(*database.get(), 91);
 }
