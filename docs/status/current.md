@@ -2,8 +2,9 @@
 
 ## Current batch and source identity
 
-HEAD and tag remain **Release 0.57.0**, `3865668c`; workspace package versions
-remain 0.57.0. Pending **0.58.0** adopts published **Memory/Storage 0.56.0**,
+HEAD is the maintainer's checkpoint `18602ee3` (message `0.58.0`), not a new
+release tag. Last released source is **0.57.0**, `3865668c`; workspace package
+versions remain 0.57.0. Pending **0.58.0** adopts published **Memory/Storage 0.56.0**,
 superseding the unpublished 0.57.1 minimum-only notes. Official crates.io index
 entries and both publication archive checksums were verified. Published APIs,
 error contracts and the producer's Wire-ledger migration guidance were inspected.
@@ -54,6 +55,21 @@ was rerun. Earlier evidence remains `/tmp/blob-tooling-wire-next/`,
 `/tmp/blob-platform-latest/` and `/tmp/blob-persistence-next/`, on their captured
 graphs. #4/#5/#6/#31/#34 retain separate application/provider acceptance; this
 adoption does not close them or qualify Canic's changed composition.
+
+Release-CI follow-up: the retained 20261029T185636 test log reports one journey
+failure out of 49: `operator_query_denies_controller_and_reports_missing_economics_without_effects`
+received `CanisterInstallCodeRateLimited` at its fixture upgrade, not a ledger
+or state assertion. `upgrade_authority` now uses Testkit's existing
+`retry_install_code` with two total attempts and a 300-second simulated cooldown,
+only for that exact error. Wasm/init bytes and sender are retained unchanged;
+traps and other rejections still fail immediately. No production retry or recovery
+policy was changed and no real-time sleep or replica-limit bypass was added.
+
+Evidence: `/tmp/blob-install-cooldown/`. Focused journey strict Clippy passes;
+the exact reported case and all **49** journey cases together pass. Retained
+fixture Wasms and manifest/lock hashes stayed fixed. The original full failure
+log remains under `.git/release-state/validation-failures/`. Formatting, links and
+diff checks pass. The full release gate was not rerun by the agent.
 
 Persistence's Metrics Stable codec cut is separate; Blob has no stable metrics
 store. Hosts selecting that optional adapter follow its explicit metrics-map

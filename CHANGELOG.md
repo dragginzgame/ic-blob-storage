@@ -18,6 +18,12 @@
   lifecycle input, and compare historical responses without projecting retired
   states into current DTOs. Preserve exact old bytes, owner access and obligations.
 
+### 🩹 Fixed
+
+- Honor replica install-code cooldowns in the journey restoration fixture using
+  bounded Testkit retry for the exact rate-limit error; other upgrade failures
+  remain fatal. Service retry and recovery policy are unchanged.
+
 ## [0.57.0] - 2026-10-29
 
 ### ⚠️ Breaking

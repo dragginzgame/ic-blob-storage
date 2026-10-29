@@ -1,16 +1,30 @@
 //! Actual lifecycle recovery preserves obligations but cannot resume authority.
 use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_testkit::pic::{CanisterInstallExt, RetryPolicy};
+use std::{num::NonZeroUsize, time::Duration};
 
 impl Fixture {
     pub(in crate::recovery) fn upgrade_authority(&self) {
+        let wasm = self.wasm(self.service);
+        let args =
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap();
+        // Replica install budgets apply to fixtures too; retry only definite rate-limit refusals.
         self.harness
             .pic
-            .upgrade_canister(
-                self.service,
-                self.wasm(self.service),
-                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
-                Some(self.operator),
+            .retry_install_code(
+                RetryPolicy {
+                    max_attempts: NonZeroUsize::new(2).unwrap(),
+                    cooldown: Duration::from_secs(300),
+                },
+                || {
+                    self.harness.pic.upgrade_canister(
+                        self.service,
+                        wasm.clone(),
+                        args.clone(),
+                        Some(self.operator),
+                    )
+                },
             )
             .expect("same-release fenced restore");
     }
