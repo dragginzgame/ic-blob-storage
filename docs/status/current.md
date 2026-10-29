@@ -2,70 +2,60 @@
 
 ## Current batch and source identity
 
-HEAD is the maintainer's **Release 0.54.0** commit `12a397e3`; package versions
-and local tag are 0.54.0. Registry publication and remote hosted acceptance were
-not rechecked during this task. Pending **0.55.0** combines simplification with published
-**Host/Build/Testkit 0.69.11**, with matching root minimums and lock-selected
-Testkit CLI/server and Build release editor. The incoming lock already selected
-the family; its unrelated **Platform 0.7.5** selection was preserved.
+HEAD is the maintainer's **Release 0.55.0** commit `1d814479`; workspace package
+versions remain 0.55.0. Pending **0.55.1** adopts published **IC Platform 0.7.6**
+and its matching macros, raising the root minimum from 0.7.3. The incoming lockfile
+already selected 0.7.6 and was preserved. The official crates.io sparse index
+confirms it is the latest non-yanked release; both cached publication archives
+match their registry/lock checksums. The crates.io API returned HTTP 403, so index
+metadata was used instead. No unpublished/path overrides or sibling edits.
 
-Official archives match crates.io index checksums. No unpublished/path overrides
-were used. Root/package versions, endpoint identities, stored formats and recovery
-contracts are unchanged by the host-tool adoption. The cleanup removes public Rust
-certificate policy/error wrappers; use the installed-owner workflows. It changes
-no service Wire shapes, provider replies or stored formats. The agent did not stage,
-commit, push, release, deploy or perform paid effects. Sibling checkouts stayed
-read-only. Evidence is `/tmp/blob-host-audit.Wi2ibe/`.
-
-Current graph: **Memory/Storage 0.54.0**, **Metrics 0.17.0**, **Platform 0.7.5**,
+Current graph: **Memory/Storage 0.54.0**, **Metrics 0.17.0**, **Platform 0.7.6**,
 **Tooling/Host/Build/Testkit 0.69.11**, **Wire/derive 0.7.21**. Browser Platform
 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
 (`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files) remain unchanged.
+Platform's patch shares endpoint generation and bounded reply-decoder mechanics;
+published signatures, features, caller-selected arity and nesting guard remain.
+No local adapter, protocol, persisted format or lifecycle change was required.
+No new blocker or upstream issue was found. The agent did not stage, commit, push,
+release, deploy or perform paid effects. Registry publication of Blob and remote
+hosted acceptance were not rechecked.
 
-## Latest focused qualification and audit
+## Latest focused qualification
 
-Host adoption: strict native CLI Clippy (all targets/features), seven filesystem
-and retained-publication-source tests, Rust **1.91.0** checks for native CLI bins,
-locked command-forwarding/failure fixtures, actual tool admission, and direct/
-deployment boundaries pass. Fresh standalone release Wasm and CLI build. Three
-installed cases pass: operator metrics and exact replay/lifecycle behavior,
-actual signed CLI with scope refusal, and snapshot rollback fencing. Manifests
-and lock stayed fixed through validation. Formatting, local links and diff checks
-pass. No full gate, native macOS or installed-IC/provider qualification was run.
+Evidence: `/tmp/blob-platform076/`. Strict Clippy passes for standalone and native
+CLI across their targets/features. Four provider codec tests pass. Fresh release
+standalone Wasm, actual CLI build and Rust **1.91.0** standalone Wasm check pass.
+Nine installed standalone cases pass: exported surface, malformed/old/wrong-method
+Wire refusal without mutation, project/uploader authority, exact provider certificate
+reply, signed native assessment, stop/start/restore and retained uncertainty.
+Direct dependency boundaries and deployment checks pass: no retired CDK/Platform,
+native-only tooling, schema/provider-JSON or test-support deployment features.
+Manifest/lock hashes stayed fixed. Formatting, local documentation links and diff
+checks pass. No full gate, native macOS, browser, live IC or provider qualification
+was rerun; no performance or size gain is claimed.
 
-The accepted cleanup removes manufactured certificate host-evidence objects,
-policy/result wrappers, substitution scenarios and a private preview endpoint.
-One current-state lookup validates uploader, exact permission, manifest, namespace,
-phase, expiry, revocation and fence before synchronous atomic commit. Read-only
-assessment grants no future issuance authority. The existing passive Wire blocker
-field is retained to avoid an unrelated protocol cut. CLI upload/reference names,
-retained-root planning labels and native HTTP defaults now use existing local
-owners; current dependency prose delegates release history to the changelog.
+## Released simplification
 
-Evidence: `/tmp/blob-simplify.7hFZcO/`. Strict focused Clippy passes for the core,
-probe, native CLI and affected installed suites, including default standalone.
-58 upload unit cases, 19 selected native CLI cases, 12 inventory planning cases,
-the frozen Wire vector, seven installed storage cases and seven installed
-standalone cases pass. Installed cases cover real caller/permission authority,
-write/reply trap rollback, lost acknowledgments, signed CLI, stop/start/restore,
-snapshot fencing and metrics. Two initial HTTP cases could not bind a local port
-in the sandbox; their loopback-enabled rerun passed. Release standalone/probe
-Wasm builds and Rust 1.91 standalone Wasm/native CLI checks pass. Input hashes
-stayed fixed. The Chromium case remains ignored; no full gate, macOS, live IC or
-provider qualification was rerun. No performance or size gain is claimed.
+0.55.0 removed manufactured certificate host-evidence objects, policy/result
+wrappers, substitution scenarios and a private preview endpoint. Installed-owner
+state owns current eligibility; synchronous commit preserves authority, expiry,
+revocation, phase, rollback and restoration fences. Passive service Wire shapes,
+provider replies and stored formats remained unchanged. CLI names, root-planning
+labels and HTTP defaults use existing owners. Earlier qualification remains
+`/tmp/blob-simplify.7hFZcO/` (58 upload, 19 native CLI, 12 planning and 14 installed
+cases) and `/tmp/blob-host-audit.Wi2ibe/` (Host adoption).
 
-Conditional audit candidates were traced rather than forcibly removed. Private
-Rust/browser handoff checks validate independent trust boundaries; adding a schema
-generator would add machinery. Historical DTOs still drive six frozen-image and
-malformed-ingress suites. Feature-gated heap models remain independent differential
-oracles. Concrete client/reply errors retain useful public distinctions while
-transport/decoding mechanics are already shared. Replacing these with generic
-wrappers would add migration cost without a demonstrated simplification.
+Conditional candidates remain intentionally: cross-language checks guard separate
+trust boundaries, historical DTOs serve six frozen-image/malformed-input suites,
+heap models provide independent differential oracles, and concrete errors retain
+useful public distinctions. Transport/decoding already share mechanics. No new
+schema generator or generic error wrapper was added to hide apparent duplication.
 
 ## Retained Blob boundary and evidence
 
 Memory is publicly re-exported, so hosts must align their direct Memory/Storage
-identity with Blob 0.54.0. Published implementation sources match 0.53.1; schemas,
+identity with the selected Blob release. Published implementation sources match 0.53.1; schemas,
 stored formats and allocation custody are unchanged. Persistence's published
 `ic-metrics-stable` 0.54.0 now uses Metrics 0.17; Blob itself adds no stable
 metrics store. Previous qualification remains
@@ -82,8 +72,12 @@ Metrics owns numeric transport/validation; Blob owns attribution, authority,
 units and lifecycle. See [the guide](../metrics.md). Only lifecycle init resets
 totals. Platform versions advance on ordinary updates/callbacks too; versions
 and timestamps do not prove snapshot continuity. Metrics never authorize retries,
-clear fences or replace financial records. #109 closure still requires verified
-default-branch delivery and remaining acceptance, beyond this local tag.
+clear fences or replace financial records. [#109 is closed](https://github.com/dragginzgame/ic-blob-storage/issues/109#issuecomment-6495725447)
+after verifying default-main delivery and successful [0.54.0 hosted qualification](https://github.com/dragginzgame/ic-blob-storage/actions/runs/40847579158)
+at `12a397e361ee92b5281194cdb552367cb1809e50` (all six jobs, including both macOS
+architectures and MSRV). The delivered metrics implementation/tests are unchanged
+through current 0.55.0 main. The 0.55.0 hosted run was still in progress during
+this issue review; it is not passing evidence.
 
 ## Canic provider policy and owner integration
 
@@ -137,6 +131,21 @@ application/provider acceptance under [the coordinated run](../acceptance-plan.m
 Registration proves no stored bytes/availability; GC acknowledgment proves no
 remote deletion/billing cessation; funding acknowledgment is not independent
 account-credit evidence. No target, credentials or paid budget was selected.
+
+The 2026-10-29 acceptance follow-up corrected stale current guidance in
+`service-gaps.md` and `funding-consumer-qualification.md`: Canic 0.112 delivered
+the adapter; current 0.113 working-tree selections are not released/current-graph
+installed qualification. IC Crates still has verifier configuration, attestation
+publication and retired worker commands at local base `3c67db3`; the concrete
+migration and checksum/availability/retry acceptance were recorded in its existing
+[IC Crates #1 tracker](https://github.com/dragginzgame/ic-crates/issues/1#issuecomment-6495954765). No sibling edits or builds. The trusted-registration guide now assigns
+remaining deployed deletion/billing evidence to #6, rather than completed #32.
+The five acceptance issues remain open. The public application URL, current Blob
+service principal and selected deployment configuration were requested; none was
+available in the reviewed current handoffs. Historical deployed principals are
+not authority for a fresh run. No deployment, paid effect, live-provider query or
+new substitute run occurred. Documentation links and diff checks pass; existing
+code qualification is reused because this follow-up changes guidance only.
 
 ## Recovery invariants
 

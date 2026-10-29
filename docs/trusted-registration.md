@@ -32,10 +32,12 @@ reply must be inspected using the original signed request and retained journals.
 Registration alone cannot reconstruct the certificate reply or authorize a resend.
 
 Releasing the final reference queues logical deletion. Provider deletion and
-billing cessation remain separate, authenticated host facts. The unresolved
-provider gateway semantics in [#32](https://github.com/dragginzgame/ic-blob-storage/issues/32)
-and funding acquisition in [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34)
-are not supplied by this trust-model change.
+billing cessation remain separate, authenticated host facts. The released [gateway acknowledgment profile](gateway-gc-contract.md) completed
+[#32](https://github.com/dragginzgame/ic-blob-storage/issues/32); it proves neither
+physical deletion nor billing cessation. That deployed acceptance remains
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6), while payer/funding
+evidence remains [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34).
+This trust-model change supplies none of those stronger provider guarantees.
 
 ## Consumer changes
 

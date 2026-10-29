@@ -27,7 +27,33 @@ Existing account-link preparation/inspection interfaces remain the integration
 boundary; hosts must establish the selected relationship and authority. No
 undocumented account authorization or automatic external-payer setup is invented.
 
-## Current Canic qualification report — 2026-10-24
+## Current Canic qualification report — 2026-10-29
+
+The guarded adapter is delivered in published Canic/canic-blob-service 0.112.0,
+source `5c236ab130c0d63892ef281b45bdc3fa353e012f`, selecting Blob 0.51.0.
+[Canic #494's delivery record](https://github.com/dragginzgame/canic/issues/494#issuecomment-6465141588)
+confirms that its complete local release validation included the installed embedded
+funding profiles. This supersedes the earlier undelivered-adapter status below;
+it does not establish real-provider linkage, credit or spendability.
+
+Read-only inspection of Canic's working tree based on `b9ed7f298` finds Blob/contracts
+and Memory/Storage 0.54.0 and Wire 0.7.21 in the root and both private consumer
+locks. Root Platform is 0.7.6; the private consumers retain 0.7.5. The owner reports
+focused adoption checks, not complete installed qualification of its changing
+0.113 batch. These mutable selections are not a released graph or proof of Blob
+0.55's adoption. Keep current graph/qualification with Canic's handoff rather than
+inferring it from a version bump or older passing profiles.
+
+No missing Blob funding API was identified. Ordinary acknowledged funding does
+not require independent credit after each success. Positive independently
+authenticated credit/immutable-receipt acceptance remains separately tracked by
+Canic #494; lack of that evidence never permits an unresolved accepted payment to
+be resent. Blob #34 retains actual payer linkage, competing activity and
+reconciliation/spendability. Use the [coordinated application run](acceptance-plan.md#next-application-acceptance-run)
+with an explicitly selected target and budget. No account query, transfer or
+consumer test was executed by this review.
+
+## Historical Canic qualification report — 2026-10-24
 
 [Canic #494](https://github.com/dragginzgame/canic/issues/494) now records installed
 Blob 0.43.1/Testkit 0.65 coverage for two acknowledged payments with partial

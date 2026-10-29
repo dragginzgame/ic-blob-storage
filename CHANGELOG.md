@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.55.1]
+
+### 🔧 Changed
+
+- Adopt published IC Platform 0.7.6 for external endpoint generation and bounded
+  reply decoding, preserving endpoint identities, wire formats and runtime behavior.
+
+### 🧹 Cleanup
+
+- Correct consumer qualification guidance to distinguish the delivered Canic funding
+  adapter from remaining application/provider acceptance, and identify the archive
+  consumer's retired-verifier migration without restoring obsolete Blob APIs.
+
 ## [0.55.0] - 2026-10-29
 
 ### ⚠️ Breaking

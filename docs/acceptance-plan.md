@@ -106,6 +106,18 @@ any provider effect; the checklist itself grants no deployment or payment author
 | [#6: reference lifecycle and provider settlement](https://github.com/dragginzgame/ic-blob-storage/issues/6) | Reuse an object in overlapping application releases. Interrupt retain/release and recover the exact receipts; remove media and exercise supported same-release restoration. Record lifetime capacity, remaining references, provider-object custody and continuing liabilities. Separately retain authenticated deployed deletion and billing-cessation evidence. | A logical release or GC acknowledgment clears neither physical bytes nor billing liability. Exhausted lifetime capacity and permanently claimed retired roots must refuse rather than reset history. Missing/trapping callbacks or lost confirmations require original-object reconciliation; cross-release changes use retirement/reinstall. |
 | [#34: payer and funding](https://github.com/dragginzgame/ic-blob-storage/issues/34) | Establish authenticated project-payer/service linkage, limits and expiry; retain provider relationship and activity evidence. Under an explicit budget, inspect two distinct acknowledged payments and their original callback refunds, spent totals and remaining allowance. | An unresolved accepted payment stops further dispatch. A lost host reply requires original-outcome inspection, never resend. Independent credit confirmation requires attributable provider evidence, not a balance delta. Complete only when real linkage, competing activity and spendability are established. |
 
+A concrete #4 consumer still needs its own protocol migration before this run:
+read-only IC Crates review at local base `3c67db3` finds `completion_verifier` in
+`RegistryConfiguration`, attestation-based catalog publication, and worker calls
+to retired `observe-upload`/`submit-attestation` commands. That is consumer work
+under [IC Crates #1](https://github.com/dragginzgame/ic-crates/issues/1), not a
+missing Blob completion API. Follow [the trusted-registration migration](trusted-registration.md#consumer-changes):
+retain exact permissions and live references, verify actual archive bytes and the
+consumer's Cargo checksum, then perform the authenticated catalog transaction.
+Neither registration nor a live reference substitutes for that checksum/availability
+check. Preserve historical jobs with their original tools; add no dual reader or
+automatic cross-release migration. This source review executes no consumer run.
+
 Existing tooling is sufficient for preparation: the operator guide describes
 [offline account-link inputs](operator-guide.md#generate-account-link-inputs-offline),
 `inspect-account --kind relationship`, `funding-history` and `funding-outcome`.

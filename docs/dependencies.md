@@ -88,7 +88,7 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Pending Blob 0.55.0 selects published Tooling/Host/Build/Testkit 0.69.11,
+The selected Tooling/Host/Build/Testkit family is published 0.69.11,
 including matching Testkit server CLI and Build release editor identities.
 Testkit repairs cached timer/hook snapshots under
 [Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses
