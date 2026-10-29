@@ -101,8 +101,9 @@ and native Testkit transport retains the common external Principal type. The
 dependency/deployment checks qualify the actual graph separately from the
 direct declaration boundary.
 
-Pending Blob 0.53.2 requires published Tooling/Host/Build/Testkit 0.69.9. The
-locked Testkit server CLI and Build release editor use that same release.
+Pending Blob 0.54.0 keeps a Tooling/Host/Build/Testkit minimum of 0.69.9; the
+current lock selects published 0.69.10, including the Testkit server CLI and Build
+release editor.
 Testkit repairs cached timer/hook snapshots under
 [Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses
 direct snapshot fencing tests rather than the baseline pool or capture-set
@@ -444,10 +445,17 @@ For consumer adoption of this source:
    [retirement contract](retiring-installations.md) before a cross-release reinstall.
    Same-release recovery never authorizes upgrading a retained installation.
 
-### Adopt the 0.53 memory boundary
+### Adopt the 0.54 memory boundary
 
-Released Blob 0.53.0 adopted Memory/Storage 0.53.0; the compatible pending patch
-selects published **Memory/Storage 0.53.1**. That correction releases backing
+Pending Blob 0.54.0 selects published **Memory/Storage 0.54.0**. Blob publicly
+re-exports Memory types, so embedding hosts must align their direct dependencies
+with this package identity and rebuild. The published Memory/Storage implementation
+sources match 0.53.1; stored formats and allocation custody are unchanged. The
+coordinated Persistence release also makes `ic-metrics-stable` use Metrics 0.17,
+removing the earlier type-identity obstacle for Canic's optional stable provider
+policy. Blob does not gain a stable metrics store dependency.
+
+Released Blob 0.53.1 already adopted Persistence's lifetime correction, releasing backing
 claims before freeing their identity allocations during final teardown,
 construction refusal and unwinding. It addresses the stale-claim lifetime defect
 reported through [Persistence #137](https://github.com/dragginzgame/ic-persistence/issues/137),

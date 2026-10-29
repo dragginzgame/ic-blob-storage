@@ -1,6 +1,13 @@
 # Changelog
 
-## [0.53.2]
+## [0.54.0]
+
+### ⚠️ Breaking
+
+- Adopt published Memory and Storage 0.54.0 through Blob's public Memory boundary.
+  Embedding hosts must align their Memory/Storage dependencies with this release.
+  Stored formats remain unchanged; Blob's cross-release retirement/reinstall
+  requirement still applies.
 
 ### ➕ Added
 
@@ -15,7 +22,7 @@
 
 ### 🔧 Changed
 
-- Adopt Tooling 0.69.9, including Testkit's corrected cached-snapshot timer and
+- Select Tooling 0.69.10, retaining Testkit's corrected cached-snapshot timer and
   low-memory-hook state. Align native tools with the selected libraries while
   preserving Blob's recovery contracts.
 
