@@ -27,6 +27,7 @@ mod standalone_history_cli;
 mod standalone_ingress;
 mod standalone_installation_cli;
 mod standalone_lifecycle;
+mod standalone_metrics;
 mod standalone_operator;
 mod standalone_publish_check;
 mod standalone_publish_map;

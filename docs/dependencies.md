@@ -28,7 +28,7 @@ from the workspace and deployment.
 | IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Platform browser package | Published `@tokostudios/ic-platform` owns SDK Core selection, canonical Principal admission, checked identity restoration and explicit Agent construction; Blob retains trust, intents and effect policy |
 | IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
-| IC Metrics | Private probe measurement arithmetic; not a public Blob API |
+| IC Metrics | Standalone report numeric types/transport and heap telemetry plus private probe arithmetic; no core storage owner or Canic dependency |
 | IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
 | IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Host HTTP | Bounded native probe response accumulation; request policy, error projection and evidence custody stay with Blob |
@@ -100,6 +100,14 @@ metadata resolve one Platform identity; the standalone uses one CDK executor
 and native Testkit transport retains the common external Principal type. The
 dependency/deployment checks qualify the actual graph separately from the
 direct declaration boundary.
+
+Pending Blob 0.53.2 requires published Tooling/Host/Build/Testkit 0.69.9. The
+locked Testkit server CLI and Build release editor use that same release.
+Testkit repairs cached timer/hook snapshots under
+[Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses
+direct snapshot fencing tests rather than the baseline pool or capture-set
+helpers, so no custom cache recipe needs migration here. This does not qualify
+Canic's separate recipes or change Blob's backup/restore guarantees.
 
 The browser client declares `@tokostudios/ic-platform` as a regular dependency;
 first-party runtime, test and build sources use its explicit ESM subpaths. SDK

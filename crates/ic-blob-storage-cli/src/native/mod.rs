@@ -13,6 +13,7 @@ mod history;
 mod http;
 mod installation_check;
 mod local_body;
+mod metrics;
 mod parsing;
 mod provenance;
 mod provider_download;
@@ -220,6 +221,9 @@ async fn observe(
     options: &arguments::Options,
 ) -> Result<serde_json::Value, Failure> {
     match command {
+        arguments::Command::Metrics { service, namespace } => {
+            metrics::run(options, *service, *namespace).await
+        }
         arguments::Command::PublishSession(input) => publish_session::run(options, input).await,
         arguments::Command::PublishMap(input) => publish_map::run(options, input).await,
         arguments::Command::UploadSetup(input) => upload_setup::run(options, input)

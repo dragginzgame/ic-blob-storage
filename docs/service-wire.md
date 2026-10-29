@@ -2,6 +2,9 @@
 
 All 27 owned methods use one IC Wire request/response contract. Standalone
 installation and same-release post-upgrade inputs also use method-bound Wire.
+The optional standalone `blob_metrics` operator query has its own bounded contract
+under `ic_blob_storage_contracts::standalone`; it is not added to embedding hosts'
+shared mount. See [standalone telemetry](metrics.md) for its request, report and limits.
 The 0.43.0 hard cut moves the two tenant methods from the retired finite codec
 to native Serde framing, with identities `0043/001a` and `0043/001b`. Other
 service/lifecycle frames retain their `0042` identities and bytes. Old tenant frames refuse. The

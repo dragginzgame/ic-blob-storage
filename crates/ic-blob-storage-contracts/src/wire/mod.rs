@@ -54,6 +54,7 @@ macro_rules! contracts {
     ($emit:ident; $([$constant:ident, $id:tt; $($entry:tt)*])*) => {
         pub(crate) const fn selected_contract(method: &str) -> Result<crate::endpoints::WireContract, Error> {
             $(const $constant: &[u8] = crate::protocol::$constant.as_bytes();)*
+            const STANDALONE_METRICS: &[u8] = crate::standalone::METRICS_METHOD.name.as_bytes();
             match method.as_bytes() {
                 $($constant => match contract!($id; $($entry)*) {
                     Some(value) => Ok(value), None => Err(Error::Identity),
@@ -65,6 +66,7 @@ macro_rules! contracts {
                 b"blob_post_upgrade" => Ok(crate::endpoints::WireContract {
                     id: 0x424c_4f42_0042_ff02, request: limits(4096), response: limits(MAX_MESSAGE_BYTES),
                 }),
+                STANDALONE_METRICS => Ok(crate::standalone::METRICS_WIRE),
                 _ => Err(Error::Identity),
             }
         }

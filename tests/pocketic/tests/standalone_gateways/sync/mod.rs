@@ -126,6 +126,17 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
     {
         mode(&f, selected);
         assert_eq!(refresh(&f, f.operator, scope), Err(error));
+        let telemetry = crate::standalone_metrics::report(&f, f.operator).unwrap();
+        let metrics = telemetry
+            .operations
+            .iter()
+            .find(|row| {
+                row.operation == ic_blob_storage_contracts::standalone::MetricOperation::GatewaySync
+            })
+            .unwrap();
+        assert_eq!(metrics.provider_failed.total(), index as u128 + 1);
+        assert_eq!(metrics.acknowledged.total(), 1);
+        assert_eq!(metrics.applied.total(), 0);
         let pending = f.local_status(f.operator, scope).unwrap();
         let sequence = pending.gateways.pending_sequence.unwrap();
         assert_eq!(sequence, index as u64 + 2);

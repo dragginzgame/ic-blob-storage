@@ -143,6 +143,17 @@ fn mounted_gc_callbacks_protect_references_and_retain_acknowledgments_without_se
     )
     .unwrap();
     acknowledge(&f, gateway, roots.clone()).unwrap();
+    let telemetry = crate::standalone_metrics::report(&f, f.operator).unwrap();
+    let callbacks = telemetry
+        .operations
+        .iter()
+        .find(|row| {
+            row.operation
+                == ic_blob_storage_contracts::standalone::MetricOperation::GatewayAcknowledgment
+        })
+        .unwrap();
+    assert_eq!(callbacks.acknowledged.total(), 2);
+    assert_eq!(callbacks.applied.total(), 0); // A successful callback cannot prove a new deletion.
     assert_eq!(deletions(&f, gateway).unwrap(), Vec::<Vec<u8>>::new());
     assert_eq!(
         f.local_status(f.operator, f.operator_scope())

@@ -22,7 +22,8 @@ Wasm builds omit the Candid extraction pointer and type-export machinery. Use
 the native example above to export the provider declaration; no extraction-only
 Wasm build is needed. The former `provider-candid-export` feature is removed.
 The interface test compares the provider declaration with `service.did` and
-checks every production method name/mode against the shared endpoint catalog.
+checks every production method name/mode against the shared endpoint catalog
+plus the standalone-owned `blob_metrics` query.
 It also rejects the extraction export in production Wasm.
 
 Production endpoints use the published Platform selected by the workspace lockfile,
@@ -55,6 +56,11 @@ There are no deployment defaults, provider namespace provisioning or account cha
 Operator-only `blob_configuration` returns the installed values, package release
 and restore fence, including the retained project; an unfenced owner does not imply
 provider readiness. Future upload dispatch must use this same provisioned mapping.
+
+Operator-only `blob_metrics` reports six fixed heap operation rows without
+provider reads, stable writes or reset authority. The shared service mount does
+not acquire this endpoint. See [standalone metrics](../../docs/metrics.md) for
+measurement scope, comparison windows and the signed native command.
 
 `blob_upload_certificate_assessment(root)` is an uploader-only query over the
 original retained permission. The canonical root locates that permission; it grants

@@ -13,6 +13,8 @@ pub mod identity;
 pub mod protocol;
 pub mod provider;
 pub mod reference;
+/// Optional standalone host contracts, separate from the shared mounted service.
+pub mod standalone;
 pub mod tenant;
 pub mod upload;
 pub mod wire;

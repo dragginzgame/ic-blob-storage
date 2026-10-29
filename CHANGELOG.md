@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.53.2]
+
+### ➕ Added
+
+- Add fixed, heap-only standalone operation metrics and an operator-authenticated
+  `blob_metrics` Wire report plus `blob-storage metrics`. Separate fresh mutations,
+  replays, refusals, provider-query failures and acknowledgments, retaining wide
+  event/byte totals and instruction sample quality through published IC Metrics
+  0.17 numeric transport, replacing local counter/aggregate DTOs. Keep the CLI
+  JSON format and all persisted formats unchanged.
+  Reports identify their heap/platform window; traps and old snapshots do not
+  establish complete telemetry or business authority ([#109](https://github.com/dragginzgame/ic-blob-storage/issues/109)).
+
+### 🔧 Changed
+
+- Adopt Tooling 0.69.9, including Testkit's corrected cached-snapshot timer and
+  low-memory-hook state. Align native tools with the selected libraries while
+  preserving Blob's recovery contracts.
+
 ## [0.53.1] - 2026-10-28
 
 ### 🩹 Fixed

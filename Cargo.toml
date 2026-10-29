@@ -33,14 +33,15 @@ hex = "0.4.3"
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.53.1" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.53.1", default-features = false }
-ic-build = "0.69.6"
-ic-host-artifacts = { version = "0.69.6", default-features = false }
-ic-host-fs = { version = "0.69.6", default-features = false }
-ic-host-http = { version = "0.69.6", default-features = false }
-ic-host-process = { version = "0.69.6", default-features = false }
-ic-memory = "0.53.1"
+ic-build = "0.69.9"
+ic-host-artifacts = { version = "0.69.9", default-features = false }
+ic-host-fs = { version = "0.69.9", default-features = false }
+ic-host-http = { version = "0.69.9", default-features = false }
+ic-host-process = { version = "0.69.9", default-features = false }
+ic-memory = "0.54.0"
+ic-metrics = "0.17.0"
 ic-platform = { version = "0.7.3", default-features = false }
-ic-storage = "0.53.1"
+ic-storage = "0.54.0"
 ic-wire = "0.7.19"
 libc = "0.2.191"
 percent-encoding = "2.3.2"
@@ -57,9 +58,8 @@ url = "2.5.8"
 # Tests and tooling only
 blob-test-protocol = { path = "tests/protocol" }
 ic-blob-storage-canister = { path = "canisters/standalone" }
-ic-host-tools = { version = "0.69.6", default-features = false }
-ic-metrics = "0.16.3"
-ic-testkit = "0.69.6"
+ic-host-tools = { version = "0.69.9", default-features = false }
+ic-testkit = "0.69.9"
 
 [workspace.lints.rust]
 missing_docs = "deny"

@@ -41,6 +41,9 @@ fn deployment_surface_matches_catalog_and_provider_contract() {
         .collect::<BTreeSet<_>>();
     let expected = SERVICE_METHODS
         .iter()
+        .chain(std::iter::once(
+            &ic_blob_storage_contracts::standalone::METRICS_METHOD,
+        ))
         .map(|method| interface::ExportedMethod {
             name: method.name,
             mode: match method.mode {

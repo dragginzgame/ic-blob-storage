@@ -15,6 +15,10 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
+    Metrics {
+        service: Principal,
+        namespace: u128,
+    },
     PublishSession(super::publish_session::Input),
     PublishMap(super::publish_map::Input),
     PublishPrepareBatch(super::publish_prepare::Input),
@@ -127,6 +131,7 @@ fn parse_command(
     flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
     match command {
+        "metrics" => Ok(Command::Metrics { service, namespace }),
         "publish-session" => parse_publish_session(service, namespace, network, flags),
         "publish-check" => Ok(Command::PublishCheck(parse_publish_check(
             service,

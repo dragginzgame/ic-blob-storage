@@ -20,6 +20,9 @@ fn command(name: &'static str, required: &'static str, optional: &'static str) -
 
 fn help(name: &str) -> &'static str {
     match name {
+        "metrics" => {
+            "Standalone heap telemetry only. Queries do not record; traps can roll observations back. Compare only matching lifecycle windows with no intervening snapshot restore. Counts prove neither stored bytes nor provider billing."
+        }
         "account-link-inputs" => {
             "Offline provider terms only; no signing, linking, funding or financial-cap proof."
         }
@@ -178,6 +181,7 @@ fn tenant(mut cli: Command) -> Command {
 }
 
 fn operator(mut cli: Command) -> Command {
+    cli = cli.subcommand(online("metrics", true, "", ""));
     for (name, required, optional) in [
         ("status", "", ""),
         ("funding-history", "", "--cursor"),

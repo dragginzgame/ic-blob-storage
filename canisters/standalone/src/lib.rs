@@ -1,6 +1,7 @@
 //! Explicit standalone canister host for shared blob-storage workflows.
 mod api;
 mod ops;
+mod workflow;
 
 /// Export the external provider certificate Candid contract for deployment tooling.
 #[cfg(not(target_arch = "wasm32"))]
