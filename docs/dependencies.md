@@ -88,7 +88,7 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-The selected Tooling/Host/Build/Testkit family is published 0.69.11,
+The root catalog and lock select the published Tooling/Host/Build/Testkit family,
 including matching Testkit server CLI and Build release editor identities.
 Testkit repairs cached timer/hook snapshots under
 [Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses
@@ -440,6 +440,12 @@ must also align its Memory/Storage and Metrics types. Blob does not create that
 store merely by being linked. Release-specific adoption history belongs in the
 [changelog](../CHANGELOG.md); allocation custody and same-release recovery remain
 part of the current integration contract.
+
+Memory/Storage 0.55 preserve their allocation and collection formats. Persistence's
+0.55 Metrics Stable codec cut is separate; Blob has no `ic-metrics-stable`
+dependency and requires no metrics-map reset. A host adopting that optional
+adapter follows its [explicit upgrade disposition](https://github.com/dragginzgame/ic-persistence/tree/v0.55.0/crates/ic-metrics-stable#upgrade-disposition)
+without clearing Blob state or allocation history.
 
 Standard `VectorMemory` and canister stable backing already implement the new
 `MemoryBacking` contract. Custom wrappers delegate their underlying identity;

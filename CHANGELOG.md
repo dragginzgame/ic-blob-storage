@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.56.0]
+
+### ⚠️ Breaking
+
+- Adopt published Memory and Storage 0.55.0 through Blob's public Memory boundary.
+  Embedding hosts must align their Memory/Storage identities and rebuild together.
+  Allocation, collection and Blob record formats are unchanged; cross-release
+  retirement/reinstall still applies. Blob does not consume Metrics Stable and
+  requires no metrics-map reset for this adoption.
+
 ## [0.55.1] - 2026-10-29
 
 ### 🔧 Changed

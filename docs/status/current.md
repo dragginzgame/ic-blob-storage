@@ -2,38 +2,48 @@
 
 ## Current batch and source identity
 
-HEAD is the maintainer's **Release 0.55.0** commit `1d814479`; workspace package
-versions remain 0.55.0. Pending **0.55.1** adopts published **IC Platform 0.7.6**
-and its matching macros, raising the root minimum from 0.7.3. The incoming lockfile
-already selected 0.7.6 and was preserved. The official crates.io sparse index
-confirms it is the latest non-yanked release; both cached publication archives
-match their registry/lock checksums. The crates.io API returned HTTP 403, so index
-metadata was used instead. No unpublished/path overrides or sibling edits.
+HEAD is the maintainer's **Release 0.55.1** commit `c2d05182`; workspace package
+versions remain 0.55.1. Pending **0.56.0** adopts published **Memory/Storage
+0.55.0**. The official crates.io sparse index confirms both latest non-yanked
+releases; cached archives match index/lock checksums. Their implementation sources
+match 0.54.0. Allocation, collection and Blob record formats are unchanged, but
+Blob publicly re-exports Memory: embedding hosts must align package identities
+and rebuild. This public Rust identity change requires minor notes, without
+changing the repository's package version during preparation.
 
-Current graph: **Memory/Storage 0.54.0**, **Metrics 0.17.0**, **Platform 0.7.6**,
-**Tooling/Host/Build/Testkit 0.69.11**, **Wire/derive 0.7.21**. Browser Platform
+Current graph: **Memory/Storage 0.55.0**, **Metrics 0.17.2**, **Platform 0.7.6**,
+**Tooling/Host/Build/Testkit 0.69.13**, **Wire/derive 0.7.21**. Incoming Host-family
+lock updates were preserved; root Host minimums were not broadened. Browser Platform
 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
 (`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files) remain unchanged.
-Platform's patch shares endpoint generation and bounded reply-decoder mechanics;
-published signatures, features, caller-selected arity and nesting guard remain.
-No local adapter, protocol, persisted format or lifecycle change was required.
-No new blocker or upstream issue was found. The agent did not stage, commit, push,
-release, deploy or perform paid effects. Registry publication of Blob and remote
-hosted acceptance were not rechecked.
+No unpublished/path overrides, sibling edits, staging, commits, push, release,
+deployment or paid effects. Memory and Storage use the one workspace catalog.
+
+Persistence 0.55's persisted-format cut is in `ic-metrics-stable`, which is absent
+from Blob's graph. Blob's heap metrics require no map reset. Hosts separately
+adopting that stable adapter must follow its explicit metrics-map disposition;
+never clear Blob collections or allocation state as a side effect.
 
 ## Latest focused qualification
 
-Evidence: `/tmp/blob-platform076/`. Strict Clippy passes for standalone and native
-CLI across their targets/features. Four provider codec tests pass. Fresh release
-standalone Wasm, actual CLI build and Rust **1.91.0** standalone Wasm check pass.
-Nine installed standalone cases pass: exported surface, malformed/old/wrong-method
-Wire refusal without mutation, project/uploader authority, exact provider certificate
-reply, signed native assessment, stop/start/restore and retained uncertainty.
-Direct dependency boundaries and deployment checks pass: no retired CDK/Platform,
-native-only tooling, schema/provider-JSON or test-support deployment features.
-Manifest/lock hashes stayed fixed. Formatting, local documentation links and diff
-checks pass. No full gate, native macOS, browser, live IC or provider qualification
-was rerun; no performance or size gain is claimed.
+Evidence: `/tmp/blob-persistence-next/`. Strict Clippy passes for core and
+standalone across their targets/features. Two public memory-composition tests
+pass on Rust **1.91.0**, including host bucket-profile custody and no implicit
+bootstrap. Fresh release standalone Wasm and Rust 1.91 standalone Wasm checks
+pass. Nine installed cases pass: stop/start/repeated restoration, expired or
+changing independent history, denied concurrent updates, retained physical/billing
+obligations, tenant/global capacity, snapshot rollback fencing and heap metrics.
+Direct dependency/deployment checks pass, including no native-only schema or
+test-support in deployment. Lock-selected Testkit 0.69.13 required explicit
+setup; cached-tool admission/setup then passed. Manifest/lock hashes stayed fixed.
+Formatting, documentation links and diff checks pass. No full gate, native macOS,
+browser, live IC or provider qualification was rerun; no performance or size gain
+is claimed. Earlier Platform qualification remains `/tmp/blob-platform076/`.
+
+Issue review finds no new open issues or PRs. #109 remains closed; #4/#5/#6/#31/#34
+still lack the application/provider observations below, so none was closed merely
+for this dependency adoption. Hosted 0.55.0 passed; the 0.55.1 run was still in
+progress at this review and is not claimed passing.
 
 ## Released simplification
 
@@ -55,10 +65,9 @@ schema generator or generic error wrapper was added to hide apparent duplication
 ## Retained Blob boundary and evidence
 
 Memory is publicly re-exported, so hosts must align their direct Memory/Storage
-identity with the selected Blob release. Published implementation sources match 0.53.1; schemas,
-stored formats and allocation custody are unchanged. Persistence's published
-`ic-metrics-stable` 0.54.0 now uses Metrics 0.17; Blob itself adds no stable
-metrics store. Previous qualification remains
+identity with the selected Blob release. Current implementation sources, schemas,
+stored formats and allocation custody are unchanged. Stable metrics remain a
+separate Persistence capability; Blob itself adds no stable metrics store. Previous qualification remains
 `/tmp/blob-persistence-refresh.YSJYAU/`: 339 core tests, two public composition
 cases on Rust 1.91, fresh Wasm/MSRV checks and nine installed lifecycle/growth/
 metrics cases. Earlier evidence remains `/tmp/blob-tooling0699.ZMrc8f/`,
@@ -76,8 +85,8 @@ clear fences or replace financial records. [#109 is closed](https://github.com/d
 after verifying default-main delivery and successful [0.54.0 hosted qualification](https://github.com/dragginzgame/ic-blob-storage/actions/runs/40847579158)
 at `12a397e361ee92b5281194cdb552367cb1809e50` (all six jobs, including both macOS
 architectures and MSRV). The delivered metrics implementation/tests are unchanged
-through current 0.55.0 main. The 0.55.0 hosted run was still in progress during
-this issue review; it is not passing evidence.
+through current 0.55.0 main. The subsequent [0.55.0 hosted run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/40861696292)
+also passed; the newer 0.55.1 run remains separate.
 
 ## Canic provider policy and owner integration
 
@@ -93,8 +102,11 @@ Its isolated clone is `/tmp/canic-metrics-storage-policy`, topic branch
 based on verified Canic 0.112 main `5c236ab130c0d63892ef281b45bdc3fa353e012f`.
 Its original graph uses Metrics 0.16.3 and Persistence 0.51.13, not this adoption.
 Owner integration must preserve relocation to `crates/canic-blob-service`, align
-Memory/Storage and Metrics Stable 0.54 with Metrics 0.17, and preserve #599 quality work. Never
-replace the newer owner's locks with the older isolated contribution's locks.
+Memory/Storage with Blob's selected public identity and preserve #599 quality
+work. Optional Metrics Stable 0.55 has a separate persisted-format cut: its owner
+must explicitly disposition the old metrics map or supply a fresh one, rather
+than silently clearing it during Blob adoption. Never replace the newer owner's
+locks with the older isolated contribution's locks.
 
 Original provider/configuration, strict Clippy, Rust 1.91 library/Wasm and dedicated
 heap/embedded stable composition evidence belongs to that clone and its PR;
