@@ -241,8 +241,9 @@ are not echoed; generated help documents syntax without dispatching an operation
 Clap is excluded from canister targets.
 
 Blob has no direct Ciborium dependency or local CBOR implementation. The adopted
-Memory codec removes the former Ciborium tree; its ledger codec and byte
-contract stay Memory-owned. Native test `serde_cbor` remains
+Memory 0.56 ledger uses IC Wire and removes `serde_cbor`/`half` from the
+standalone normal/build Wasm graph; its codec and retained-byte contract remain
+Memory-owned. Native test `serde_cbor` remains
 for IC transport envelopes and certificates. Provider/management Candid and
 stored records retain their external/persisted contracts. Platform owns the
 supported parser/decoder/runtime APIs. The fixed provider DID is parsed through
@@ -450,9 +451,11 @@ store merely by being linked. Release-specific adoption history belongs in the
 [changelog](../CHANGELOG.md); allocation custody and same-release recovery remain
 part of the current integration contract.
 
-Memory/Storage 0.55 preserve their allocation and collection formats. Persistence's
-0.55 Metrics Stable codec cut is separate; Blob has no `ic-metrics-stable`
-dependency and requires no metrics-map reset. A host adopting that optional
+Memory/Storage 0.56 change the allocation-ledger/Cell-value codec to IC Wire.
+Earlier CBOR ledgers are incompatible; follow the [retirement disposition](retiring-installations.md#memory-056-wire-ledger-disposition)
+before a cross-release reinstall. Never clear only allocation metadata over
+retained collections. Persistence's 0.55 Metrics Stable cut is separate; Blob has
+no `ic-metrics-stable` dependency and adds no metrics-map reset. A host adopting that optional
 adapter follows its [explicit upgrade disposition](https://github.com/dragginzgame/ic-persistence/tree/v0.55.0/crates/ic-metrics-stable#upgrade-disposition)
 without clearing Blob state or allocation history.
 
@@ -476,9 +479,10 @@ custody between checkpoints. This narrows 0.52's per-access detection guarantee
 and removes its repeated scans, without an unchecked mode or an endpoint speed claim.
 It is not isolation from arbitrary raw IO, dishonest identities or separately linked
 Memory copies.
-MGR, ledger, cell, Blob record and Wire bytes are unchanged by these dependency
-updates. Blob's cross-release retirement/reinstall rule still applies; there is no
-automatic migration or alias-guard bypass. Requalify the actual Canic composition
+Manager/Cell container headers, collection formats and Blob-owned record/endpoint
+bytes remain unchanged. Memory's ledger and Cell value now use the incompatible
+Wire format described above. Blob's cross-release retirement/reinstall rule still
+applies; there is no automatic migration or alias-guard bypass. Requalify the actual Canic composition
 and its selected limits independently of standalone/local-substitute evidence.
 
 ### Adopt the 0.52 hard cut

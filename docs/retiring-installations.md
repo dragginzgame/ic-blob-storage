@@ -18,6 +18,22 @@ until this runbook's object, uncertain-effect, balance and billing dispositions
 are complete. Refusal is not deletion or billing settlement. Fresh-install and
 same-release recovery tests do not authorize resetting an existing service.
 
+## Memory 0.56 Wire-ledger disposition
+
+Pending Blob 0.58.0 selects Memory/Storage 0.56.0. Memory's allocation ledger and
+its enclosing Cell value now use bounded IC Wire (`ICML` and the protected
+`ICMWIRE1` marker). Earlier CBOR bytes are incompatible. Manager and Cell container
+headers, numeric grants and Blob's application record schemas do not make those
+old ledgers readable. Align embedding hosts on the same Memory/Storage identity.
+
+Apply this retirement runbook before a cross-release reinstall, preserving the
+old image, tools, provider-object inventory, uncertain operations, balances and
+continuing billing obligations. Do not clear only the allocation ledger or select
+new grants over retained collection bytes. The adoption performs no reset and
+supplies no converter, fallback or automatic migration. Same-release reopening
+and recovery continue under the new frozen format. A rejected upgrade must leave
+the old owner and all its bytes intact.
+
 ## Historical Memory 0.44 disposition
 
 The Memory 0.44 transition introduced an `ICMDIRCT` checksummed allocation

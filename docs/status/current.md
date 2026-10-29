@@ -2,66 +2,62 @@
 
 ## Current batch and source identity
 
-HEAD is the maintainer's checkpoint `a7bc9607` (message `0.57.0`), not a new
-release tag; workspace package versions remain 0.56.0. Last released source is
-0.56.0 at `7362d497`. Pending **0.57.0** combines the public Platform 0.8.1
-Principal cut with published **Tooling/Host/Build/Testkit 0.70.0** and
-**Wire/derive 0.7.22**. Official crates.io sparse-index records and all nine
-publication archives were verified. Wire 0.7.23 was only an unpublished sibling
-draft at selection; no unpublished source or override was adopted.
+HEAD and tag remain **Release 0.57.0**, `3865668c`; workspace package versions
+remain 0.57.0. Pending **0.58.0** adopts published **Memory/Storage 0.56.0**,
+superseding the unpublished 0.57.1 minimum-only notes. Official crates.io index
+entries and both publication archive checksums were verified. Published APIs,
+error contracts and the producer's Wire-ledger migration guidance were inspected.
+No source override, sibling edit, staging, commit, push, release or paid effect.
 
-Root dependency minimums select the coordinated Tooling family and Wire version.
-Published Tooling's migration keeps external encodings/hashes while changing
-ledger/Registry Rust identities to Platform 0.8. Blob's selected uses require no
-new adapter or local source migration; all tools remain below their existing
-interfaces. Wire 0.7.22 runtime sources match 0.7.21. Canonical protocol bytes,
-limits, endpoint identities, provider accounting and exact retry custody remain.
+Memory's allocation ledger and enclosing Cell value now use IC Wire with `ICML`
+and `ICMWIRE1` framing. Earlier CBOR values are retired. Blob supports
+retirement/reinstall across releases, with objects, balances, uncertain effects
+and continuing liabilities retained before reset. Never clear only the ledger
+while leaving collection bytes behind. No reset, legacy reader, converter or
+migration was introduced. Blob-owned schemas remain 1 and endpoint/record bytes
+are unchanged; manager and collection headers do not imply old-ledger compatibility.
+Embedding hosts must align the public Memory/Storage 0.56 identities and rebuild.
 
-Current graph: **Platform 0.8.1**, **Memory/Storage 0.55.2**, **Metrics 0.17.3**,
-**Tooling/Host/Build/Testkit 0.70.0**, **Wire/derive 0.7.22**. Incoming
-Memory/Storage and Wire lock edits were preserved. The complete feature/target
-normal/build/dev graph now contains one Platform version; 0.7.6 is removed.
-Deployment retains one CDK executor 2.0.0. No registry ICRC ledger/CBOR family is
-present. Other required CBOR and external Principal/hash dependencies remain;
-no transitive-Candid-free or measured size/performance claim follows.
-
-Platform's public Principal identity still requires embedding hosts to align
-Platform 0.8 types and rebuild. Principal hashing stays explicit in development
-dependencies; required Candid/Agent features provide external conversion. Owned
-application protocols remain Wire. No persisted-format migration, automatic reset,
-compatibility facade or lifecycle owner was added.
-
-Browser Platform 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
-(`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files) remain unchanged.
-No sibling edits, staging, commits, push, release, deployment or paid effects.
+Current graph: **Memory/Storage 0.56.0**, **Platform 0.8.2**, **Metrics 0.17.4**,
+**Tooling/Host/Build/Testkit 0.70.2**, **Wire/derive 0.7.23**. Incoming selections
+outside Memory/Storage were preserved. There is one Platform identity/executor;
+normal/build standalone Wasm now excludes `serde_cbor` and `half`. Native IC
+transport/certificate tests still need their external CBOR. No size or performance
+gain is claimed. Browser Platform 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared
+Tooling 0.27.3 (`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files) are unchanged.
 
 ## Latest focused qualification
 
-Evidence: `/tmp/blob-tooling-wire-next/`. CLI all-target/all-feature strict Clippy
-and the selected standalone suite's strict Clippy pass. Eleven Wire/schema cases,
-the frozen method/lifecycle frames and five retained signed-intent/recovery cases
-pass. Native CLI bins pass Rust **1.91.0** with all features. Fresh release
-standalone/storage-probe Wasm and actual CLI builds pass. Six installed cases
-pass: export surface, CLI installation carrier and wrong target refusal, signed
-inspection/trust/scope, signed metrics, snapshot fencing and replicated download
-refusals. One initial case stopped because its storage-probe path was omitted;
-the fixture was then built and that case passed without source changes.
+Evidence: `/tmp/blob-memory056/`. Core/standalone all-target/all-feature strict
+Clippy and selected standalone-test Clippy pass. Two public memory-composition
+cases pass on Rust **1.91.0**; five upload restoration/integrity unit cases pass.
+Fresh release standalone Wasm and Rust 1.91 standalone Wasm check pass. Nine
+installed cases pass: fresh installation, stop/start/repeated restore, independent
+history refusals, concurrent denied updates, preserved physical/billing obligations,
+tenant/global capacity, snapshot fencing and heap metrics.
 
-Direct/deployment boundary checks and the locked Testkit/editor forwarding and
-failure fixtures pass. Published Testkit 0.70.0 CLI/server and Build metadata editor
-are prepared and admitted. The first setup timed out waiting for an active
-ic-jobs shared-store installation; the ordinary retry reused its completed
-admitted artifact. Both attempts remain in evidence; no lock was removed.
-Manifest/lock hashes stayed fixed. Formatting, documentation links and diff checks
-pass. No full gate, native macOS, browser, fresh Wasm MSRV lane, live IC or provider
-qualification was rerun. Earlier Platform-specific qualification, including Wasm
-MSRV, remains `/tmp/blob-platform-latest/`; prior Memory/Storage checks remain
-`/tmp/blob-persistence-next/`, on their captured graphs.
+The explicit pinned 0.14.9/Memory 0.25.5 and single-uploader 0.18.4 cases also
+pass, with exact before/after bytes, old owner readback and obligations preserved.
+The first now submits the current lifecycle frame and asserts actual memory
+admission refusal (`host memory bootstrap: StableCellLedger(Record(Malformed))`).
+It no longer passes on malformed lifecycle input. Historical admissions are
+validated in their frozen schema and compared as exact reply bytes rather than
+converting retired `Confirmed` to current `Registered`. A first run caught that
+obsolete projection; its failed log/report is retained beside the passing fresh
+report. These older fixtures are not a claim covering every retired format.
+No production compatibility reader was added.
 
-Persistence's Metrics Stable codec cut remains separate: Blob has no
-`ic-metrics-stable` dependency and requires no map reset. Hosts adopting that
-optional adapter follow its own explicit metrics-map disposition, never clearing
-Blob collections or allocation history as a side effect.
+Direct/deployment boundaries, formatting, documentation links and diff checks
+pass. Lock-selected Testkit 0.70.2 setup/admission completed. Manifest/lock hashes
+stayed fixed. No full gate, native macOS, browser, live IC or provider qualification
+was rerun. Earlier evidence remains `/tmp/blob-tooling-wire-next/`,
+`/tmp/blob-platform-latest/` and `/tmp/blob-persistence-next/`, on their captured
+graphs. #4/#5/#6/#31/#34 retain separate application/provider acceptance; this
+adoption does not close them or qualify Canic's changed composition.
+
+Persistence's Metrics Stable codec cut is separate; Blob has no stable metrics
+store. Hosts selecting that optional adapter follow its explicit metrics-map
+disposition without resetting Blob state or allocation history.
 
 ## Released simplification
 
@@ -83,8 +79,8 @@ schema generator or generic error wrapper was added to hide apparent duplication
 ## Retained Blob boundary and evidence
 
 Memory is publicly re-exported, so hosts must align their direct Memory/Storage
-identity with the selected Blob release. Current implementation sources, schemas,
-stored formats and allocation custody are unchanged. Stable metrics remain a
+identity with the selected Blob release. Allocation custody and Blob-owned
+schemas are unchanged; Memory's retained format now has the Wire hard cut above. Stable metrics remain a
 separate Persistence capability; Blob itself adds no stable metrics store. Previous qualification remains
 `/tmp/blob-persistence-refresh.YSJYAU/`: 339 core tests, two public composition
 cases on Rust 1.91, fresh Wasm/MSRV checks and nine installed lifecycle/growth/

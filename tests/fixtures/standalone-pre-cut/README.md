@@ -23,7 +23,10 @@ The test reinstalls only an empty local fixture before creating old obligations:
 a released 1 KiB object and a pending 10 MiB manifest. It tries the new image,
 requires typed canister rejection, compares every stable byte and checks old
 configuration, exact admissions and conservative accounting remain accessible.
-The raw trap identifies the failing bootstrap stage; prose is not a test oracle.
+The upgrade uses the current lifecycle frame and must reach the memory boundary;
+malformed arguments cannot satisfy the refusal assertion. The retained raw trap
+identifies memory opening/bootstrap, while exact byte and old-owner checks prove
+rollback. This older pinned image does not cover every later retired format.
 Failed reports are retained and retries require new directories. Same-release
 recovery remains covered separately. No live owner or provider effect is used.
 

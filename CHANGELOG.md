@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.58.0]
+
+### ⚠️ Breaking
+
+- Adopt published Memory/Storage 0.56.0 and its IC Wire allocation-ledger format.
+  Earlier CBOR ledgers are incompatible. Retire and reinstall across releases,
+  retaining provider objects, balances, uncertain effects and billing obligations;
+  never clear only the ledger while retaining collection bytes. No legacy reader,
+  automatic reset or migration is supplied. Embedding hosts must align their
+  Memory/Storage identities and rebuild. Blob-owned schemas and endpoint bytes
+  remain unchanged.
+
+### 🧪 Testing
+
+- Require the frozen-image upgrade refusal to reach memory admission using valid
+  lifecycle input, and compare historical responses without projecting retired
+  states into current DTOs. Preserve exact old bytes, owner access and obligations.
+
 ## [0.57.0] - 2026-10-29
 
 ### ⚠️ Breaking

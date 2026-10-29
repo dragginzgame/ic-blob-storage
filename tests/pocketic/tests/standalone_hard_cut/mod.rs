@@ -104,18 +104,22 @@ fn frozen_update<T: historical::Projection + serde::Serialize + serde::de::Deser
     .map(|(reply,)| reply)
     .unwrap()
 }
-fn frozen_admission(f: &Fixture, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
-    historical::query_args::<(Result<UploadAdmissionResponse, UploadAdmissionFailure>,), _>(
-        &f.harness.pic,
-        f.service,
-        f.tenant,
-        "blob_upload_admission",
-        (input,),
-        REPLY_LIMITS,
-    )
-    .map(|(reply,)| reply)
-    .unwrap()
-    .unwrap()
+// Keep retired state variants in their frozen schema; compare the exact old reply.
+fn frozen_admission(f: &Fixture, input: UploadAdmissionRequest) -> Vec<u8> {
+    let reply = f
+        .harness
+        .pic
+        .query_call(
+            f.service,
+            f.tenant,
+            "blob_upload_admission",
+            historical::encode(input).unwrap(),
+        )
+        .unwrap();
+    let decoded: Result<historical::UploadAdmissionResponse, historical::UploadAdmissionFailure> =
+        ic_platform::candid::decode_one(&reply, REPLY_LIMITS).unwrap();
+    assert!(decoded.is_ok(), "{decoded:?}");
+    reply
 }
 
 fn obligations(f: &Fixture) -> (UploadAdmissionRequest, UploadAdmissionRequest) {
@@ -240,10 +244,8 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
     )
     .unwrap()
     .unwrap();
-    assert_eq!(
-        installed.release,
-        pinned["compiled_release"].as_str().unwrap()
-    );
+    let expected_release = pinned["compiled_release"].as_str().unwrap();
+    assert_eq!(installed.release, expected_release);
     let (released, pending) = obligations(&f);
     let raw = raw_status(&f);
     let status = historical::decode::<
@@ -274,14 +276,8 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
             "pending-permission.candid",
             historical::encode(pending).unwrap(),
         ),
-        (
-            "released-admission.candid",
-            historical::encode(released_before).unwrap(),
-        ),
-        (
-            "pending-admission.candid",
-            historical::encode(pending_before).unwrap(),
-        ),
+        ("released-admission.candid", released_before.clone()),
+        ("pending-admission.candid", pending_before.clone()),
     ] {
         std::fs::write(report.join(name), bytes).unwrap();
     }
@@ -293,12 +289,14 @@ fn older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal() 
         .upgrade_canister(
             f.service,
             target,
-            ic_blob_storage_contracts::document::encode(()).unwrap(),
+            ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
         .unwrap_err();
     std::fs::write(report.join("upgrade-refusal.txt"), &failure.reject_message).unwrap();
     assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    let memory_refused = failure.reject_message.contains("host memory");
+    assert!(memory_refused, "{failure:?}");
     let after = f.harness.pic.get_stable_memory(f.service);
     std::fs::write(report.join("after.bin"), &after).unwrap();
     unchanged(&after, &before);
