@@ -2,48 +2,60 @@
 
 ## Current batch and source identity
 
-HEAD is the maintainer's **Release 0.55.1** commit `c2d05182`; workspace package
-versions remain 0.55.1. Pending **0.56.0** adopts published **Memory/Storage
-0.55.0**. The official crates.io sparse index confirms both latest non-yanked
-releases; cached archives match index/lock checksums. Their implementation sources
-match 0.54.0. Allocation, collection and Blob record formats are unchanged, but
-Blob publicly re-exports Memory: embedding hosts must align package identities
-and rebuild. This public Rust identity change requires minor notes, without
-changing the repository's package version during preparation.
+HEAD is the maintainer's **Release 0.56.0** commit `7362d497`; workspace package
+versions remain 0.56.0. Pending **0.57.0** adopts published **IC Platform 0.8.1**
+through the one root catalog. The official crates.io sparse index confirms the
+latest non-yanked release; its archive matches the registry checksum. Published
+APIs and the Principal/selected-ICRC migration contract were inspected, with the
+sibling used read-only. No source override or local platform shim was added.
 
-Current graph: **Memory/Storage 0.55.0**, **Metrics 0.17.2**, **Platform 0.7.6**,
-**Tooling/Host/Build/Testkit 0.69.13**, **Wire/derive 0.7.21**. Incoming Host-family
-lock updates were preserved; root Host minimums were not broadened. Browser Platform
-0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
+Platform's new Principal identity is public through Blob; embedding hosts must
+align their direct Platform types and rebuild. Self-authenticating Principal
+hashing is now selected explicitly in core/contracts/CLI development dependencies,
+where existing tests use it. Required Candid/Agent features already provide the
+external conversions. No owned protocol moved off Wire, and no ledger DTO or
+storage migration is needed. Endpoint identities, canonical bytes, limits,
+provider replies, executor identity and lifecycle contracts are preserved.
+
+Current graph: direct **Platform 0.8.1**, **Memory/Storage 0.55.1**, **Metrics
+0.17.3**, **Tooling/Host/Build/Testkit 0.69.14**, **Wire/derive 0.7.21**. Incoming
+Memory/Storage/Metrics/Host-family patch selections were preserved. Browser
+Platform 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
 (`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files) remain unchanged.
-No unpublished/path overrides, sibling edits, staging, commits, push, release,
-deployment or paid effects. Memory and Storage use the one workspace catalog.
+No staging, commits, push, release, deployment or paid effects.
 
-Persistence 0.55's persisted-format cut is in `ic-metrics-stable`, which is absent
-from Blob's graph. Blob's heap metrics require no map reset. Hosts separately
-adopting that stable adapter must follow its explicit metrics-map disposition;
-never clear Blob collections or allocation state as a side effect.
+Transitive Platform **0.7.6** remains below published Memory/Storage and native
+Host/Testkit requirements. In standalone normal/build Wasm it supplies only
+`stable-structures`; deployed execution uses Platform 0.8.1 and one registry CDK
+executor **2.0.0**. The new direct `principal-self-authenticating` feature is absent
+from deployment, but upstream Principal hashing remains transitively enabled by
+other packages. Direct dependency removal is not transitive absence. No forced
+patch or unnecessary conversion wrapper was introduced. No producer API blocker
+or new issue was found.
 
 ## Latest focused qualification
 
-Evidence: `/tmp/blob-persistence-next/`. Strict Clippy passes for core and
-standalone across their targets/features. Two public memory-composition tests
-pass on Rust **1.91.0**, including host bucket-profile custody and no implicit
-bootstrap. Fresh release standalone Wasm and Rust 1.91 standalone Wasm checks
-pass. Nine installed cases pass: stop/start/repeated restoration, expired or
-changing independent history, denied concurrent updates, retained physical/billing
-obligations, tenant/global capacity, snapshot rollback fencing and heap metrics.
-Direct dependency/deployment checks pass, including no native-only schema or
-test-support in deployment. Lock-selected Testkit 0.69.13 required explicit
-setup; cached-tool admission/setup then passed. Manifest/lock hashes stayed fixed.
-Formatting, documentation links and diff checks pass. No full gate, native macOS,
-browser, live IC or provider qualification was rerun; no performance or size gain
-is claimed. Earlier Platform qualification remains `/tmp/blob-platform076/`.
+Evidence: `/tmp/blob-platform-latest/`. Strict focused Clippy passes for core,
+contracts, CLI, standalone and the selected consumer suite. Six replicated-client
+tests, the frozen Wire vector, five retained signed-request/recovery cases and two
+public memory-composition tests on Rust **1.91.0** pass. Fresh release standalone
+Wasm, native CLI build and Rust 1.91 standalone Wasm check pass. Nine installed
+cases pass: exported surface, malformed/old/wrong-identity Wire refusal, project
+and uploader authority, provider certificate replies, signed CLI, stop/start and
+restoration with retained uncertainty. Direct/deployment boundary checks pass;
+no retired CDK, native-only schema/provider-JSON or test-support deployment features.
 
-Issue review finds no new open issues or PRs. #109 remains closed; #4/#5/#6/#31/#34
-still lack the application/provider observations below, so none was closed merely
-for this dependency adoption. Hosted 0.55.0 passed; the 0.55.1 run was still in
-progress at this review and is not claimed passing.
+Testkit 0.69.14 required explicit CLI/server preparation, which completed and was
+used by installed checks. Manifest/lock hashes stayed fixed. Formatting,
+documentation links and diff checks pass. No full gate, native macOS, browser,
+live IC or provider qualification was rerun; no performance or size gain is
+claimed. Earlier Memory/Storage qualification remains `/tmp/blob-persistence-next/`;
+earlier Platform 0.7 evidence remains `/tmp/blob-platform076/`.
+
+Persistence's Metrics Stable codec cut remains separate: Blob has no
+`ic-metrics-stable` dependency and requires no map reset. Hosts adopting that
+optional adapter follow its own explicit metrics-map disposition, never clearing
+Blob collections or allocation history as a side effect.
 
 ## Released simplification
 

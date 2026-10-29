@@ -32,6 +32,7 @@ thiserror.workspace = true
 
 [dev-dependencies]
 hex.workspace = true
+ic-platform = { workspace = true, features = ["principal-self-authenticating"] }
 serde_json.workspace = true
 
 [[example]]

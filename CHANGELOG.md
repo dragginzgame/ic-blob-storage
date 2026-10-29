@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.57.0]
+
+### ⚠️ Breaking
+
+- Adopt published IC Platform 0.8.1 through Blob's public Principal boundary.
+  Embedding hosts must align their Platform types and rebuild. Keep Principal
+  hashing explicit in development dependencies; endpoint identities, wire bytes,
+  storage formats and the retirement/reinstall contract remain unchanged.
+
 ## [0.56.0] - 2026-10-29
 
 ### ⚠️ Breaking

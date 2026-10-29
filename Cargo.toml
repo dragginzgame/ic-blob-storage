@@ -40,7 +40,7 @@ ic-host-http = { version = "0.69.11", default-features = false }
 ic-host-process = { version = "0.69.11", default-features = false }
 ic-memory = "0.55.0"
 ic-metrics = "0.17.0"
-ic-platform = { version = "0.7.6", default-features = false }
+ic-platform = { version = "0.8.1", default-features = false }
 ic-storage = "0.55.0"
 ic-wire = "0.7.19"
 libc = "0.2.191"
