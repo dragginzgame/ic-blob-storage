@@ -67,3 +67,16 @@ pub fn filter(input: UploadHistoryFilter) -> UploadScanFilter {
         UploadHistoryFilter::Outstanding => UploadScanFilter::Outstanding,
     }
 }
+
+/// Passive planning label for a retained root. This grants no retry, retain or deletion authority.
+#[must_use]
+pub const fn content_plan_status(
+    state: crate::dto::upload::history::UploadContentState,
+) -> &'static str {
+    use crate::dto::upload::history::UploadContentState as S;
+    match state {
+        S::Reserved => "recover_existing_operation",
+        S::Live => "live_requires_retain",
+        S::Cancelled | S::DeletionPending | S::ProviderDeleted | S::Settled => "retired_root",
+    }
+}

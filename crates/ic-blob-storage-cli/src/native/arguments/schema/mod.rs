@@ -148,20 +148,16 @@ fn offline(mut cli: Command) -> Command {
 }
 
 fn tenant(mut cli: Command) -> Command {
-    for name in [
-        "admit-upload",
-        "prepare-upload",
-        "revoke-upload",
-        "submit-reference",
-    ] {
-        cli = cli.subcommand(online(name, false, "--request --run-dir", ""));
+    for (name, kind) in crate::native::upload_setup::Kind::COMMANDS {
+        let required = if kind.mutation() {
+            "--request --run-dir"
+        } else {
+            "--request"
+        };
+        cli = cli.subcommand(online(name, false, required, ""));
     }
-    for name in [
-        "upload-permission",
-        "upload-manifest",
-        "reference-receipt",
-        "reference-status",
-    ] {
+    cli = cli.subcommand(online("submit-reference", false, "--request --run-dir", ""));
+    for (name, _) in crate::native::references::Kind::COMMANDS {
         cli = cli.subcommand(online(name, false, "--request", ""));
     }
     cli.subcommand(online(

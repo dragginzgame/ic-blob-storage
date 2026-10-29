@@ -13,7 +13,7 @@
 //!
 //! Hosts construct and restore the complete owner through
 //! [`ops::service::installation::ServiceInstallation`]. Component constructors
-//! and evidence-taking certificate issuance are internal. The non-default
+//! are internal; certificate issuance uses the installed owner. The non-default
 //! `test-support` feature exists only for isolated probes and reference-model
 //! comparisons; production integrations must leave it disabled. Heap catalog,
 //! lifecycle and receipt owners and their read-policy adapters are available only
@@ -31,14 +31,6 @@
 //! {
 //!     ServiceStores::install(memory, config)
 //! }
-//! ```
-//! Certificate issuance derives evidence from the installed owner:
-//! ```compile_fail
-//! use ic_blob_storage::workflow::uploads::certificate::issue;
-//! ```
-//! Direct evidence-taking exposure commit is internal as well:
-//! ```compile_fail
-//! use ic_blob_storage::workflow::uploads::exposure::commit;
 //! ```
 
 pub mod model;

@@ -1,67 +1,34 @@
-//! Shared Caffeine root-only issuance boundary. Linking exports no IC endpoint.
-use crate::policy::upload::exposure::UploadExposureAssessment;
-use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
-use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
-use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
-use ic_blob_storage_contracts::upload::binding::UploadContext;
+//! Installed-owner certificate issuance; linking exports no endpoint.
+use crate::ops::service::{installation::ServiceInstallation, uploads::certificate};
+use ic_blob_storage_contracts::{
+    dto::upload::{
+        certificate::{CaffeineUploadCertificateResponse, UploadCertificateAssessmentResponse},
+        exposure::UploadExposureFailure,
+    },
+    upload::binding::UploadContext,
+};
 use ic_memory::Memory;
 
-/// Assess installed-owner eligibility and evidence through an immutable borrow.
-/// Resolves actual uploader authority before deriving the installation's facts;
-/// a positive assessment neither reserves issuance nor grants mutation authority.
+/// Inspect actual installed state. A successful observation grants no later authority.
 /// # Errors
-/// Retains the existing local permission, evidence and recovery-fence refusals.
+/// Refuses wrong actors/roots, expiry, revocation, phase or recovery fences.
 pub fn inspect_installation<M: Memory>(
-    installation: &crate::ops::service::installation::ServiceInstallation<M>,
+    installation: &ServiceInstallation<M>,
     context: UploadContext,
     root: &str,
     now: u64,
 ) -> Result<UploadCertificateAssessmentResponse, UploadExposureFailure> {
-    let permission = resolve(&installation.stores().uploads, context, root, now)?;
-    inspect(
-        &installation.stores().uploads,
-        context,
-        permission,
-        installation.certificate_evidence(permission, now),
-        now,
-    )
+    certificate::inspect(&installation.stores().uploads, context, root, now)
 }
-
-/// Issue through the installed evidence owner in one synchronous replicated update.
-/// The host returns the plain reply and propagates traps so exposure and reply
-/// commit together. No await, deferred reply or query issuance is authorized.
-/// Resolution precedes evidence acquisition; the final transition rechecks both.
-/// These local facts do not qualify deployed provider billing or replay behavior.
+/// Commit exposure synchronously before returning the plain provider response.
+/// The host must propagate traps and return in this update so writes/reply are atomic.
 /// # Errors
-/// Retains the existing local permission, evidence and recovery-fence refusals.
+/// Refuses wrong actors/roots, expiry, revocation, phase or recovery fences.
 pub fn issue_installation<M: Memory>(
-    installation: &mut crate::ops::service::installation::ServiceInstallation<M>,
+    installation: &mut ServiceInstallation<M>,
     context: UploadContext,
     root: &str,
     now: u64,
-) -> Result<CaffeineUploadCertificateResponse, UploadCertificateFailure> {
-    let permission = resolve(&installation.stores().uploads, context, root, now)
-        .map_err(UploadCertificateFailure::Exposure)?;
-    let evidence = installation.certificate_evidence(permission, now);
-    issue(
-        &mut installation.stores_mut().uploads,
-        context,
-        permission,
-        evidence,
-        now,
-    )
+) -> Result<CaffeineUploadCertificateResponse, UploadExposureFailure> {
+    certificate::issue(&mut installation.stores_mut().uploads, context, root, now)
 }
-
-/// Local refusal. Adapters must reject/trap the ingress update, never encode this
-/// error as a successful provider reply or replace it with a certificate response.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum UploadCertificateFailure {
-    /// Local identity, permission, preparation, phase or recovery fence rejected issuance.
-    Exposure(UploadExposureFailure),
-    /// Independent host prerequisites are missing; no exposure was written.
-    Blocked(UploadExposureAssessment),
-}
-
-pub(crate) mod boundary;
-use crate::ops::service::uploads::certificate::resolve;
-use boundary::{inspect, issue};

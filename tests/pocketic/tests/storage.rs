@@ -227,11 +227,12 @@ impl Fixture {
         }
     }
     fn expose(&self, input: Request) -> Result<(), Failure> {
-        use blob_test_protocol::storage::exposure::{
-            ExposureInput, ExposureOutcome, ExposureScenario,
-        };
+        use blob_test_protocol::storage::exposure::ExposureInput;
         use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
-        let result: Result<ExposureOutcome, E> = self
+        use ic_blob_storage_contracts::dto::upload::{
+            UploadState, admission::UploadAdmissionResponse,
+        };
+        let result: Result<UploadAdmissionResponse, E> = self
             .harness
             .pic
             .update_control_as(
@@ -244,7 +245,6 @@ impl Fixture {
                         uploader: self.uploader,
                         expires_at_ns: u64::MAX,
                     }),
-                    scenario: ExposureScenario::QualifiedSubstitute,
                     trap_write: false,
                     trap_after: false,
                 },),
@@ -254,7 +254,7 @@ impl Fixture {
             .unwrap();
         result
             .map(|r| {
-                assert!(matches!(r, ExposureOutcome::Exposed(_)));
+                assert_eq!(r.state, UploadState::Registered);
             })
             .map_err(|e| match e {
                 E::Permission(e) => admission_failure(e),

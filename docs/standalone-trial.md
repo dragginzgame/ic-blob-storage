@@ -37,7 +37,7 @@ verifier-based commands below are historical, not current instructions.
 | Local namespace | Original service owner/root and explicit installed project/local namespace | Select and provision the actual payer/project/bucket relationship; local matching does not prove provider provisioning |
 | Current owner/durability | One synchronous exposure commit/reply; stop/start and inspection-only upgrade restoration | Keep the original owner active without snapshot loading; old-backup activation is unsupported and can restore lost authority |
 
-The current local blockers are `NamespaceBinding`,
+The historical trial blockers were `NamespaceBinding`,
 `CurrentOwner`, `Durability` and `StaleObservation`. Provider pre-charge, duplicate
 charging, provisioning and backup-freshness guarantees are outside this contract;
 they are not facts set true from local success. No ingress qualification flags or

@@ -215,16 +215,12 @@ fn parse_scoped_command(
                     None
                 },
             })
-        } else if matches!(command, "reference-receipt" | "reference-status") {
+        } else if let Some(kind) = super::references::Kind::parse(command) {
             Command::Reference(super::references::Input {
                 service,
                 namespace,
                 request: PathBuf::from(take("--request")?),
-                kind: if command == "reference-receipt" {
-                    super::references::Kind::Receipt
-                } else {
-                    super::references::Kind::Status
-                },
+                kind,
             })
         } else if command == "submit-reference" {
             Command::SubmitReference(super::submit_reference::Input {

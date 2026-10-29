@@ -94,12 +94,9 @@ fn capture(directory: &Path) -> Result<(), String> {
     })
 }
 fn client_builder() -> reqwest::ClientBuilder {
-    reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
-        .retry(reqwest::retry::never())
-        .timeout(Duration::from_secs(30))
-        .user_agent("ic-blob-storage-caffeine-probe")
+    crate::http::client_builder("ic").user_agent("ic-blob-storage-caffeine-probe")
 }
+
 fn commit(bytes: &[u8]) -> Result<String, String> {
     let value: serde_json::Value = serde_json::from_slice(bytes).map_err(|_| "commit_json")?;
     let sha = value

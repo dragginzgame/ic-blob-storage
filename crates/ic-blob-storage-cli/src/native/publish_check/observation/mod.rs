@@ -8,7 +8,6 @@ use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryFailure;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryRequest;
 use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
-use ic_blob_storage_contracts::dto::upload::history::UploadContentState;
 use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
 use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
 use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
@@ -210,14 +209,7 @@ fn existing(
     if content.request.bytes != bytes {
         return Err(Failure::Binding);
     }
-    let status = match content.state {
-        UploadContentState::Reserved => "recover_existing_operation",
-        UploadContentState::Live => "live_requires_retain",
-        UploadContentState::Cancelled
-        | UploadContentState::DeletionPending
-        | UploadContentState::ProviderDeleted
-        | UploadContentState::Settled => "retired_root",
-    };
+    let status = ic_blob_storage_contracts::upload::history::content_plan_status(content.state);
     blockers.insert(status);
     Ok((status, content.request))
 }

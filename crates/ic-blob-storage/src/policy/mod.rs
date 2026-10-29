@@ -9,4 +9,3 @@ pub mod installation;
 pub mod liveness;
 pub mod recovery;
 pub mod tenant;
-pub mod upload;

@@ -2,65 +2,88 @@
 
 ## Current batch and source identity
 
-HEAD is the maintainer's commit **d04efc4d** (message `0.53.2`), which arrived
-during adoption. Cargo package versions still say **0.53.1**; no later release or
-publication was verified. Pending notes now target **0.54.0**, because publicly
-re-exported Memory types change package identity. Keep the prior telemetry work
-in this minor batch; the agent did not stage, commit, bump versions or release.
+HEAD is the maintainer's **Release 0.54.0** commit `12a397e3`; package versions
+and local tag are 0.54.0. Registry publication and remote hosted acceptance were
+not rechecked during this task. Pending **0.55.0** combines simplification with published
+**Host/Build/Testkit 0.69.11**, with matching root minimums and lock-selected
+Testkit CLI/server and Build release editor. The incoming lock already selected
+the family; its unrelated **Platform 0.7.5** selection was preserved.
 
-Published **Memory/Storage 0.54.0** are selected with root-owned minimums. Official
-archive checksums match crates.io, and their implementation sources match 0.53.1.
-Stored formats, allocation custody and Blob schemas are unchanged. Embedding
-hosts must align their direct Memory/Storage dependencies with Blob's identity.
-Cross-release retirement/reinstall remains required; no migration or reset was
-added. Persistence's published `ic-metrics-stable` 0.54.0 now uses Metrics 0.17,
-removing the earlier numeric-type mismatch for Canic's optional stable backend.
-Blob itself gains no stable metrics store dependency.
+Official archives match crates.io index checksums. No unpublished/path overrides
+were used. Root/package versions, endpoint identities, stored formats and recovery
+contracts are unchanged by the host-tool adoption. The cleanup removes public Rust
+certificate policy/error wrappers; use the installed-owner workflows. It changes
+no service Wire shapes, provider replies or stored formats. The agent did not stage,
+commit, push, release, deploy or perform paid effects. Sibling checkouts stayed
+read-only. Evidence is `/tmp/blob-host-audit.Wi2ibe/`.
 
-The pending telemetry slice remains under
-[#109](https://github.com/dragginzgame/ic-blob-storage/issues/109): six fixed
-heap rows, operator-only standalone Wire report and signed `blob-storage metrics`.
-Metrics 0.17 owns numeric transport/validation, replacing local numeric DTOs.
-Blob retains attribution, authority, units and lifecycle; Canic owns its adapter
-and storage policy. See [the metrics guide](../metrics.md). Only lifecycle init
-resets totals. Platform versions also advance on ordinary updates/callbacks;
-neither versions nor timestamps detect snapshot rollback or prove continuity.
-Metrics never authorize retries, clear fences or replace financial records.
-#109 remains open pending verified delivery and remaining acceptance.
+Current graph: **Memory/Storage 0.54.0**, **Metrics 0.17.0**, **Platform 0.7.5**,
+**Tooling/Host/Build/Testkit 0.69.11**, **Wire/derive 0.7.21**. Browser Platform
+0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
+(`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files) remain unchanged.
 
-Current graph: **Memory/Storage 0.54.0**, **Metrics 0.17.0**, **Platform 0.7.4**,
-**Tooling/Host/Build/Testkit 0.69.10**, **Wire/derive 0.7.21**. Tooling 0.69.10
-arrived in the maintainer's lock; it was preserved and explicitly fetched.
-Matching Testkit CLI/server and Build release editor are prepared. Root Tooling
-minimums remain 0.69.9. Browser Platform 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2
-and Shared Tooling 0.27.3 (`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files)
-remain unchanged. Sibling checkouts stayed read-only; no paid effects occurred.
+## Latest focused qualification and audit
 
-## Latest focused qualification
+Host adoption: strict native CLI Clippy (all targets/features), seven filesystem
+and retained-publication-source tests, Rust **1.91.0** checks for native CLI bins,
+locked command-forwarding/failure fixtures, actual tool admission, and direct/
+deployment boundaries pass. Fresh standalone release Wasm and CLI build. Three
+installed cases pass: operator metrics and exact replay/lifecycle behavior,
+actual signed CLI with scope refusal, and snapshot rollback fencing. Manifests
+and lock stayed fixed through validation. Formatting, local links and diff checks
+pass. No full gate, native macOS or installed-IC/provider qualification was run.
 
-Evidence is `/tmp/blob-persistence-refresh.YSJYAU/`: published source/checksum
-review, scoped update/fetch logs, native Clippy for core/standalone/storage probe
-and CLI (including package verification), **339 core tests**, and both public
-memory-composition cases on actual **Rust 1.91.0** pass. The native core graph is
-unchanged by the incoming host-tool update. Fresh release standalone/storage-probe
-Wasms build, and Rust 1.91 checks the standalone Wasm graph.
+The accepted cleanup removes manufactured certificate host-evidence objects,
+policy/result wrappers, substitution scenarios and a private preview endpoint.
+One current-state lookup validates uploader, exact permission, manifest, namespace,
+phase, expiry, revocation and fence before synchronous atomic commit. Read-only
+assessment grants no future issuance authority. The existing passive Wire blocker
+field is retained to avoid an unrelated protocol cut. CLI upload/reference names,
+retained-root planning labels and native HTTP defaults now use existing local
+owners; current dependency prose delegates release history to the changelog.
 
-Nine installed PocketIC cases pass: five lifecycle/recovery cases retaining all
-owner fences and physical/billing obligations; snapshot rollback refusal; two
-metrics/actual signed-CLI cases; and backing-growth refusal with neighbor/admission
-rollback followed by exact retry. These use the current Testkit selection and
-fresh Wasms; provider substitutes remain separate from deployed evidence.
-Direct/deployment boundaries pass, including one Memory identity and exclusion
-of host/schema/Testkit features from deployed Wasm. Manifests/lock stayed fixed
-through the final installed checks. Formatting, local links and diff checks pass.
-No full gate, native macOS or installed-IC/provider qualification was run.
+Evidence: `/tmp/blob-simplify.7hFZcO/`. Strict focused Clippy passes for the core,
+probe, native CLI and affected installed suites, including default standalone.
+58 upload unit cases, 19 selected native CLI cases, 12 inventory planning cases,
+the frozen Wire vector, seven installed storage cases and seven installed
+standalone cases pass. Installed cases cover real caller/permission authority,
+write/reply trap rollback, lost acknowledgments, signed CLI, stop/start/restore,
+snapshot fencing and metrics. Two initial HTTP cases could not bind a local port
+in the sandbox; their loopback-enabled rerun passed. Release standalone/probe
+Wasm builds and Rust 1.91 standalone Wasm/native CLI checks pass. Input hashes
+stayed fixed. The Chromium case remains ignored; no full gate, macOS, live IC or
+provider qualification was rerun. No performance or size gain is claimed.
 
-The initial offline boundary attempt refused missing incoming Build 0.69.10;
-its log is retained. Explicit locked fetch/setup resolved preparation without
-changing selections; the boundary subsequently passes. Earlier evidence remains
-`/tmp/blob-tooling0699.ZMrc8f/`, `/tmp/blob-metrics017.0ia0hl/` and
-`/tmp/blob109.cvHNQx/`, scoped to their original graphs. The prior handoff is
-retained with current adoption evidence. No build or recovery evidence was deleted.
+Conditional audit candidates were traced rather than forcibly removed. Private
+Rust/browser handoff checks validate independent trust boundaries; adding a schema
+generator would add machinery. Historical DTOs still drive six frozen-image and
+malformed-ingress suites. Feature-gated heap models remain independent differential
+oracles. Concrete client/reply errors retain useful public distinctions while
+transport/decoding mechanics are already shared. Replacing these with generic
+wrappers would add migration cost without a demonstrated simplification.
+
+## Retained Blob boundary and evidence
+
+Memory is publicly re-exported, so hosts must align their direct Memory/Storage
+identity with Blob 0.54.0. Published implementation sources match 0.53.1; schemas,
+stored formats and allocation custody are unchanged. Persistence's published
+`ic-metrics-stable` 0.54.0 now uses Metrics 0.17; Blob itself adds no stable
+metrics store. Previous qualification remains
+`/tmp/blob-persistence-refresh.YSJYAU/`: 339 core tests, two public composition
+cases on Rust 1.91, fresh Wasm/MSRV checks and nine installed lifecycle/growth/
+metrics cases. Earlier evidence remains `/tmp/blob-tooling0699.ZMrc8f/`,
+`/tmp/blob-metrics017.0ia0hl/` and `/tmp/blob109.cvHNQx/`, on their captured graphs.
+No artifacts were deleted; the pre-update handoff remains with current evidence.
+
+Released source includes six fixed heap operation rows, an operator-only
+standalone report and signed `blob-storage metrics`, under
+[#109](https://github.com/dragginzgame/ic-blob-storage/issues/109).
+Metrics owns numeric transport/validation; Blob owns attribution, authority,
+units and lifecycle. See [the guide](../metrics.md). Only lifecycle init resets
+totals. Platform versions advance on ordinary updates/callbacks too; versions
+and timestamps do not prove snapshot continuity. Metrics never authorize retries,
+clear fences or replace financial records. #109 closure still requires verified
+default-branch delivery and remaining acceptance, beyond this local tag.
 
 ## Canic provider policy and owner integration
 

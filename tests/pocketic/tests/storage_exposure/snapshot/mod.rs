@@ -3,7 +3,7 @@ use super::*;
 use crate::snapshots;
 
 #[test]
-fn snapshot_rollback_forgets_exposure_and_simulated_freshness_allows_reexposure() {
+fn bare_fixture_snapshot_rollback_cannot_supply_installation_continuity() {
     let f = Fixture::new();
     let pic = &f.harness.pic;
     f.enroll(None, true).unwrap();
@@ -13,7 +13,7 @@ fn snapshot_rollback_forgets_exposure_and_simulated_freshness_allows_reexposure(
     let before = snapshots::take(pic, f.service, f.controller);
     let yes = input(&f, permission);
     let first = expose(&f, f.uploader, yes).unwrap();
-    assert!(matches!(first, ExposureOutcome::Exposed(_)));
+    assert_eq!(first.state, UploadState::Registered);
     assert_eq!(
         inspect(&f, f.uploader, yes).unwrap().state,
         UploadState::Registered
@@ -27,9 +27,9 @@ fn snapshot_rollback_forgets_exposure_and_simulated_freshness_allows_reexposure(
     assert_eq!(rolled_back.state, UploadState::Reserved);
     assert!(!f.local_status().uploads.fenced);
 
-    // The simulated host claims current-owner eligibility again. The shared owner cannot
-    // recover the first exposure from this backup. This is why production must
-    // never derive that fact from a clear fence or locally valid journal.
+    // This bare fixture intentionally bypasses installation continuity observations.
+    // The old journal alone cannot reveal the first exposure. Production integrations
+    // must use the installed owner, whose actual snapshot fence is tested separately.
     assert_eq!(expose(&f, f.uploader, yes).unwrap(), first);
     assert_eq!(expose(&f, f.uploader, yes), Err(E::Phase));
     snapshots::delete(pic, f.service, f.controller, before);

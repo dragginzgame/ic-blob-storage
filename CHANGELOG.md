@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.55.0]
+
+### ⚠️ Breaking
+
+- Remove the certificate host-evidence policy types and evidence-taking test APIs.
+  Issuance and assessment now derive eligibility directly from the installed
+  owner; integrations use the installed workflows. Service Wire shapes, provider
+  replies and stored formats are unchanged. Cross-release retirement/reinstall
+  still applies.
+
+### 🧹 Cleanup
+
+- Remove manufactured certificate prerequisite states and their test-only control
+  paths while retaining actual authority, expiry, revocation, rollback and lost-reply
+  checks. Share upload/reference command names, retained-root planning labels and
+  native HTTP defaults through their existing local owners.
+
+### 🔧 Changed
+
+- Adopt published Host, Build and Testkit 0.69.11, preserving native command and
+  recovery contracts while taking the directory-diagnostic fix and upstream
+  tooling simplifications.
+
 ## [0.54.0] - 2026-10-29
 
 ### ⚠️ Breaking

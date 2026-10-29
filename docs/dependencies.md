@@ -82,28 +82,14 @@ GC/onboarding codecs, certificate DTOs and account integer types. That is distin
 from dispatch ownership; removing this graph edge would require a separately
 reviewed Contracts feature/public-API cut, not another transport implementation.
 
-The released 0.51 boundary uses published Rust Platform 0.7.0 throughout Blob's
-workspace catalog. Its removal of Candid JavaScript/TypeScript compiler exports
-requires no local replacement: owned clients already use Wire generation.
-Platform owns Blob's public Principal identity, so consumers must rebuild on
-the same Platform line. Required external Candid and stored/Wire bytes retain
-their existing contracts.
+The [root catalog](../Cargo.toml) owns dependency minimums and
+[Cargo.lock](../Cargo.lock) records the resolved identities. Embedding hosts must
+match Blob's public Platform and Memory type identities. Direct-declaration and
+resolved deployment checks independently verify ownership and feature isolation;
+removing a manifest entry alone does not prove an external crate is absent.
 
-Released Blob 0.52 requires published Tooling 0.69.2 and Memory/Storage
-0.51.12, retaining Platform 0.7.0. Tooling's native process-lifecycle, cache
-admission and managed-server changes require no Blob API or feature migration;
-the standalone normal/build Wasm dependency tree is unchanged by this adoption.
-Their dependency minimums keep the older Platform 0.6 package out of the resolved
-graph without a Cargo patch or type-conversion shim. Default and all-feature
-metadata resolve one Platform identity; the standalone uses one CDK executor
-2.0.0. Stable-structures retains its upstream identity through Storage/Memory,
-and native Testkit transport retains the common external Principal type. The
-dependency/deployment checks qualify the actual graph separately from the
-direct declaration boundary.
-
-Pending Blob 0.54.0 keeps a Tooling/Host/Build/Testkit minimum of 0.69.9; the
-current lock selects published 0.69.10, including the Testkit server CLI and Build
-release editor.
+Pending Blob 0.55.0 selects published Tooling/Host/Build/Testkit 0.69.11,
+including matching Testkit server CLI and Build release editor identities.
 Testkit repairs cached timer/hook snapshots under
 [Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses
 direct snapshot fencing tests rather than the baseline pool or capture-set
@@ -445,23 +431,16 @@ For consumer adoption of this source:
    [retirement contract](retiring-installations.md) before a cross-release reinstall.
    Same-release recovery never authorizes upgrading a retained installation.
 
-### Adopt the 0.54 memory boundary
+### Compose the Memory boundary
 
-Pending Blob 0.54.0 selects published **Memory/Storage 0.54.0**. Blob publicly
-re-exports Memory types, so embedding hosts must align their direct dependencies
-with this package identity and rebuild. The published Memory/Storage implementation
-sources match 0.53.1; stored formats and allocation custody are unchanged. The
-coordinated Persistence release also makes `ic-metrics-stable` use Metrics 0.17,
-removing the earlier type-identity obstacle for Canic's optional stable provider
-policy. Blob does not gain a stable metrics store dependency.
+Blob publicly re-exports Memory. Embedding hosts must use that same package
+identity and rebuild together; use the root catalog/lock for the selected release.
+The stable-metrics package belongs to Persistence, not Blob. Hosts selecting it
+must also align its Memory/Storage and Metrics types. Blob does not create that
+store merely by being linked. Release-specific adoption history belongs in the
+[changelog](../CHANGELOG.md); allocation custody and same-release recovery remain
+part of the current integration contract.
 
-Released Blob 0.53.1 already adopted Persistence's lifetime correction, releasing backing
-claims before freeing their identity allocations during final teardown,
-construction refusal and unwinding. It addresses the stale-claim lifetime defect
-reported through [Persistence #137](https://github.com/dragginzgame/ic-persistence/issues/137),
-without changing public signatures, stored formats or checkpoint validation.
-Native macOS archive acceptance remains distinct from Linux qualification.
-Blob publicly re-exports Memory, so every embedding host must use that same package identity.
 Standard `VectorMemory` and canister stable backing already implement the new
 `MemoryBacking` contract. Custom wrappers delegate their underlying identity;
 aliases must retain the same identity and its allocation for every runtime/handle

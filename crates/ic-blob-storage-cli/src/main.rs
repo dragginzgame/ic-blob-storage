@@ -1,5 +1,7 @@
 //! Offline upload inputs and explicitly authenticated service operations.
 #[cfg(not(target_family = "wasm"))]
+mod http;
+#[cfg(not(target_family = "wasm"))]
 mod native;
 
 #[cfg(not(target_family = "wasm"))]

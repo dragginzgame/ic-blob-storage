@@ -1,37 +1,13 @@
-//! Labelled host-evidence substitutes for exposure tests. Never accept these controls in production.
+//! Exact-operation fault controls for private atomic-commit fixtures.
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
-use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
-use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker;
 use serde::Deserialize;
-/// Scenario selected by the local test host, not evidence from Caffeine.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub enum ExposureScenario {
-    /// Every provider/recovery/durability fact is unknown.
-    Unknown,
-    /// All facts are explicitly simulated as established in this execution.
-    QualifiedSubstitute,
-    /// Established substitute facts from an earlier execution.
-    StaleSubstitute,
-    /// Established substitute facts for a changed permission.
-    ForeignSubstitute,
-}
 /// Private exposure control, also used for operator-only certificate test setup.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct ExposureInput {
     /// Exact original permission.
     pub permission: UploadAdmissionRequest,
-    /// Labelled substitute host facts.
-    pub scenario: ExposureScenario,
     /// Trap during the permission write.
     pub trap_write: bool,
     /// Trap after the shared handler returns; the whole IC update must roll back.
     pub trap_after: bool,
-}
-/// Simulated exposure or missing prerequisites; never a provider certificate.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub enum ExposureOutcome {
-    /// No mutation took place.
-    Blocked(Vec<UploadExposureBlocker>),
-    /// Durable possible-exposure state, without any provider effect.
-    Exposed(Box<UploadAdmissionResponse>),
 }

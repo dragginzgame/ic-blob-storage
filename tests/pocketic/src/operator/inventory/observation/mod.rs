@@ -199,16 +199,10 @@ fn existing(
                 (available.fresh_retains < blob.assets.len() as u64).then_some("reference_capacity")
             }
         }
-        UploadContentState::Reserved => {
-            entry["status"] = json!("recover_existing_operation");
-            Some("recover_existing_operation")
-        }
-        UploadContentState::Cancelled
-        | UploadContentState::DeletionPending
-        | UploadContentState::ProviderDeleted
-        | UploadContentState::Settled => {
-            entry["status"] = json!("retired_root");
-            Some("retired_root")
+        state => {
+            let status = ic_blob_storage_contracts::upload::history::content_plan_status(state);
+            entry["status"] = json!(status);
+            Some(status)
         }
     };
     Ok((entry, blocker))

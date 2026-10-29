@@ -81,8 +81,12 @@ Admission reserves those resources; preparation validates the exact manifest;
 issuance rechecks the retained reservation and permission. Exhaustion still refuses.
 The policy requires the exact retained project-approved uploader permission, an exact local
 service/namespace mapping, a current owner and atomic exposure commit.
-The uploader must also hold the exact original tenant permission and
-prepared manifest. Controller/operator status grants none of that authority.
+Issuance derives those facts directly from the installed owner in one synchronous
+operation. There is no independently supplied host-evidence object or configurable
+durability assertion. Assessment retains its existing Wire shape; eligible current
+state returns an empty blocker list, while authority/phase/fence failures remain
+typed refusals. The original permission and prepared manifest are still required.
+Controller/operator status grants none of that authority.
 No public uploader, automatic paid retry, provider spending-cap/replay guarantee
 or operational old-backup activation is supported. Stop/start preserves the owner;
 same-release upgrade restoration starts fenced. Explicit current-instance recovery
@@ -638,30 +642,28 @@ identity allocation and implements no provider upload or browser delivery policy
 
 `workflow::uploads::exposure::inspect` retains exact tenant/uploader history.
 Historical inspection survives revocation and restore but cannot authorize issuance
-or an uncertain retry. Preparation inspection and exposure commit are internal
-steps of the installed-owner certificate workflow. Its evidence binds the full
-original permission, installed namespace, current-owner eligibility and synchronous
-atomic commit; production callers cannot submit these facts. Commit rechecks the
-uploader, bound manifest, activation, expiry, phase and restore fence, then writes
-possible exposure before constructing a reply. A committed exposure rejects
-repetition even after a lost reply. No state schema or memory grant is added.
+or an uncertain retry. Certificate issuance validates the full original permission,
+installed namespace, uploader, bound manifest, activation, expiry, phase and restore
+fence against current owner state, then synchronously writes possible exposure
+before constructing a reply. A committed exposure rejects repetition even after
+a lost reply. No state schema or memory grant is added.
 
 `workflow::uploads::certificate::issue_installation` resolves the actual uploader
-and complete original permission through bounded index reads, derives evidence
-from the installation, rechecks current facts and commits exposure before constructing
-the plain `{ method = "upload"; blob_hash }` response. The adapter returns that
-record from a synchronous ingress update, rejects/traps failures and propagates
-write traps. It must never wrap the provider reply in Result, await after exposure
-or issue through a query. The IC supplies the ingress response certificate.
-Linking exports no endpoint and sends no provider request. The old public
-`resolve`, evidence-taking `inspect` and `issue` paths are removed.
+and complete original permission through bounded index reads and commits that
+validated record before constructing the plain `{ method = "upload"; blob_hash }`
+response. The adapter returns that record from a synchronous ingress update,
+rejects/traps failures and propagates write traps. It must never wrap the provider
+reply in Result, await after exposure or issue through a query. The IC supplies
+the ingress response certificate. Linking exports no endpoint and sends no
+provider request.
 
-`inspect_installation` returns the original permission, assessment time and missing
-prerequisites as passive DTOs, applying the same local authority and phase checks
-without exposure writes. An empty blocker list is a snapshot, not issuance authority.
-The explicitly selected test-support boundary retains simulated evidence and
-component-only response/rollback checks. Those local substitutes do not prove
-gateway acceptance, certificate replay/lifetime, namespace or pre-charge enforcement.
+`inspect_installation` returns the original permission and assessment time,
+applying the same local authority and phase checks without exposure writes. The
+existing Wire blocker field remains empty for eligible state; typed refusals
+report ineligible state. An empty list is a snapshot, not issuance authority.
+Test-support retains component-only response/rollback checks and write/reply fault
+injection. These local checks do not prove gateway acceptance, certificate
+replay/lifetime, namespace or pre-charge enforcement.
 
 Native `blob-storage certificate-assessment` uses the uploader's signing identity
 and explicit replica trust to query this boundary once. Its saved binary permission

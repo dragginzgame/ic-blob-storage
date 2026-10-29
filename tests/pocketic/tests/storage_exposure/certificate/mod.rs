@@ -48,14 +48,14 @@ fn refused(f: &Fixture, actor: Principal, root: &str) {
 }
 
 #[test]
-fn certificate_ingress_requires_local_permission_and_independent_host_evidence() {
+fn certificate_ingress_derives_authority_without_host_fact_substitution() {
     let f = Fixture::new();
     f.enroll(None, true).unwrap();
     let (permission, declaration) = f.permission(u128::MAX, 8);
     f.admit(f.tenant, permission).unwrap();
     let yes = input(&f, permission);
     let root = root(permission);
-    refused(&f, f.uploader, &root); // No configured fixture evidence by default.
+    refused(&f, f.uploader, &root); // Unprepared before any fault configuration.
     let rejection = f
         .harness
         .pic
@@ -70,14 +70,6 @@ fn certificate_ingress_requires_local_permission_and_independent_host_evidence()
     configure(&f, yes);
     refused(&f, f.uploader, &root); // Still unprepared.
     f.prepare(&declaration).unwrap();
-    for scenario in [
-        ExposureScenario::Unknown,
-        ExposureScenario::StaleSubstitute,
-        ExposureScenario::ForeignSubstitute,
-    ] {
-        configure(&f, ExposureInput { scenario, ..yes });
-        refused(&f, f.uploader, &root);
-    }
     configure(&f, yes);
     for actor in [
         f.tenant,

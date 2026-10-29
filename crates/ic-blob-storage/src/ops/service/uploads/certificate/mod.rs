@@ -1,6 +1,5 @@
 //! Bounded root resolution with actual uploader authority and retained index checks.
-use super::{StableUploads, admission, exposure};
-use crate::policy::upload::exposure::UploadExposureAssessment;
+use super::{StableUploads, UploadPermissionRecord, admission, exposure};
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
@@ -16,7 +15,7 @@ pub(crate) fn resolve<M: Memory>(
     context: UploadContext,
     root: &str,
     now: u64,
-) -> Result<UploadPermission, E> {
+) -> Result<UploadPermissionRecord, E> {
     if context.service != store.config.bindings().service {
         return Err(E::Permission(A::Binding));
     }
@@ -37,7 +36,7 @@ pub(crate) fn resolve<M: Memory>(
     store
         .check_exposure_record(context, &record, now)
         .map_err(exposure::failure)?;
-    Ok(view.permission)
+    Ok(record)
 }
 
 pub(crate) fn input(permission: UploadPermission) -> UploadAdmissionRequest {
@@ -58,11 +57,35 @@ pub(crate) fn response(permission: UploadPermission) -> CaffeineUploadCertificat
 pub(crate) fn assessment(
     permission: UploadPermission,
     now: u64,
-    assessment: UploadExposureAssessment,
 ) -> UploadCertificateAssessmentResponse {
     UploadCertificateAssessmentResponse {
         permission: input(permission),
         assessed_at_ns: now,
-        blockers: exposure::blockers(assessment),
+        blockers: Vec::new(),
     }
+}
+
+/// Inspect current uploader eligibility without creating a reusable issuance permit.
+pub(crate) fn inspect<M: Memory>(
+    store: &StableUploads<M>,
+    context: UploadContext,
+    root: &str,
+    now: u64,
+) -> Result<UploadCertificateAssessmentResponse, E> {
+    let record = resolve(store, context, root, now)?;
+    let permission = record.view().ok_or(E::Permission(A::Internal))?.permission;
+    Ok(assessment(permission, now))
+}
+/// Resolve current authority and commit exposure before returning the provider payload.
+/// No borrow or authorization crosses an await; traps retain IC atomic rollback.
+pub(crate) fn issue<M: Memory>(
+    store: &mut StableUploads<M>,
+    context: UploadContext,
+    root: &str,
+    now: u64,
+) -> Result<CaffeineUploadCertificateResponse, E> {
+    let record = resolve(store, context, root, now)?;
+    let permission = record.view().ok_or(E::Permission(A::Internal))?.permission;
+    exposure::commit(store, record)?;
+    Ok(response(permission))
 }

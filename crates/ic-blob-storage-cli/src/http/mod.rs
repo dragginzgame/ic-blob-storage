@@ -1,7 +1,7 @@
 //! Native transport policy; callers retain SDK and response-body handling.
 use std::time::Duration;
 
-pub(super) fn client_builder(network: &str) -> reqwest::ClientBuilder {
+pub(crate) fn client_builder(network: &str) -> reqwest::ClientBuilder {
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
         .retry(reqwest::retry::never())

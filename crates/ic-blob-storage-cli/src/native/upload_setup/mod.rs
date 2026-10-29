@@ -58,15 +58,17 @@ pub(super) enum Kind {
     Manifest,
 }
 impl Kind {
+    pub const COMMANDS: [(&'static str, Self); 5] = [
+        ("admit-upload", Self::Admit),
+        ("prepare-upload", Self::Prepare),
+        ("revoke-upload", Self::Revoke),
+        ("upload-permission", Self::Permission),
+        ("upload-manifest", Self::Manifest),
+    ];
     pub fn parse(command: &str) -> Option<Self> {
-        Some(match command {
-            "admit-upload" => Self::Admit,
-            "prepare-upload" => Self::Prepare,
-            "revoke-upload" => Self::Revoke,
-            "upload-permission" => Self::Permission,
-            "upload-manifest" => Self::Manifest,
-            _ => return None,
-        })
+        Self::COMMANDS
+            .into_iter()
+            .find_map(|(name, kind)| (name == command).then_some(kind))
     }
     pub const fn mutation(self) -> bool {
         matches!(self, Self::Admit | Self::Prepare | Self::Revoke)

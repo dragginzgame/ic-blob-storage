@@ -104,19 +104,10 @@ pub(crate) fn expose(
     context: UploadContext,
     input: blob_test_protocol::storage::exposure::ExposureInput,
 ) -> Result<
-    blob_test_protocol::storage::exposure::ExposureOutcome,
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse,
     ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure,
 > {
     ops::exposure::commit(context, input)
-}
-pub(crate) fn exposure_preview(
-    context: UploadContext,
-    input: blob_test_protocol::storage::exposure::ExposureInput,
-) -> Result<
-    Vec<ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker>,
-    ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure,
-> {
-    ops::exposure::preview(context, input)
 }
 pub(crate) fn exposure_status(
     context: UploadContext,

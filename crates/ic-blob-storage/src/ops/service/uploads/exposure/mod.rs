@@ -2,34 +2,15 @@
 use super::{StableUploads, UploadStoreError, admission};
 use crate::model::service::upload::UploadAdmissionError;
 use crate::model::service::upload::UploadPermissionView;
-use crate::policy::upload::exposure::UploadExposureHostEvidence;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
+#[cfg(any(test, feature = "test-support"))]
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_memory::Memory;
 
-/// Present every independent policy blocker at the Wire boundary. Conversion
-/// grants no issuance authority and does not acquire or authenticate host evidence.
-#[must_use]
-pub fn blockers(
-    assessment: crate::policy::upload::exposure::UploadExposureAssessment,
-) -> Vec<ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker> {
-    use crate::policy::upload::exposure::UploadExposureBlocker as P;
-    use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as D;
-    assessment
-        .blockers
-        .into_iter()
-        .map(|blocker| match blocker {
-            P::StaleObservation => D::StaleObservation,
-            P::NamespaceBinding => D::NamespaceBinding,
-            P::CurrentOwner => D::CurrentOwner,
-            P::Durability => D::Durability,
-        })
-        .collect()
-}
 pub(crate) fn permission<M: Memory>(
     store: &StableUploads<M>,
     context: UploadContext,
@@ -54,11 +35,11 @@ pub(crate) fn permission<M: Memory>(
     }
     Ok(retained)
 }
+#[cfg(any(test, feature = "test-support"))]
 pub(crate) fn check<M: Memory>(
     store: &StableUploads<M>,
     context: UploadContext,
     permission: UploadPermission,
-    evidence: UploadExposureHostEvidence,
     now: u64,
 ) -> Result<super::UploadPermissionRecord, UploadExposureFailure> {
     if context.actor != permission.uploader {
@@ -84,9 +65,6 @@ pub(crate) fn check<M: Memory>(
         return Err(UploadExposureFailure::Permission(
             UploadAdmissionFailure::Conflict,
         ));
-    }
-    if evidence.permission != permission {
-        return Err(UploadExposureFailure::EvidenceBinding);
     }
     store
         .check_exposure_record(context, &record, now)

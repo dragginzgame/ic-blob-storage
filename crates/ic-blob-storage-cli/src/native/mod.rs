@@ -10,7 +10,7 @@ mod funding_assessment;
 mod funding_outcome;
 mod gateway_controls;
 mod history;
-mod http;
+use crate::http;
 mod installation_check;
 mod local_body;
 mod metrics;

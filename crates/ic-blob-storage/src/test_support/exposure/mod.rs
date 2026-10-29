@@ -1,7 +1,5 @@
 //! Direct exposure access for isolated interruption, resource and rollback fixtures.
 use crate::ops::service::uploads::{StableUploads, UploadStoreError};
-use crate::policy::upload::exposure::{UploadExposureAssessment, UploadExposureHostEvidence};
-pub use crate::workflow::uploads::exposure::boundary::UploadExposureResult;
 pub use crate::workflow::uploads::exposure::inspect;
 use ic_blob_storage_contracts::dto::upload::{
     admission::UploadAdmissionRequest, exposure::UploadExposureFailure,
@@ -9,36 +7,19 @@ use ic_blob_storage_contracts::dto::upload::{
 use ic_blob_storage_contracts::upload::binding::{UploadContext, UploadRequest};
 use ic_memory::Memory;
 
-/// Inspect fixture boundary data with the production eligibility checks.
+/// Commit the exact current permission through the production eligibility checks.
 /// # Errors
-/// Preserves permission, evidence and restoration refusals.
-pub fn inspect_preparation<M: Memory>(
-    store: &StableUploads<M>,
-    context: UploadContext,
-    input: UploadAdmissionRequest,
-    evidence: UploadExposureHostEvidence,
-    now: u64,
-) -> Result<UploadExposureAssessment, UploadExposureFailure> {
-    let permission =
-        crate::ops::service::uploads::exposure::permission(store, context, input, true)?.permission;
-    crate::workflow::uploads::exposure::boundary::inspect_preparation(
-        store, context, permission, evidence, now,
-    )
-}
-
-/// Submit fixture data through the synchronous production exposure transition.
-/// # Errors
-/// Preserves permission, evidence and restoration refusals.
+/// Preserves authority, original permission, phase and restoration refusals.
 pub fn commit<M: Memory>(
     store: &mut StableUploads<M>,
     context: UploadContext,
     input: UploadAdmissionRequest,
-    evidence: UploadExposureHostEvidence,
     now: u64,
-) -> Result<UploadExposureResult, UploadExposureFailure> {
-    let permission =
-        crate::ops::service::uploads::exposure::permission(store, context, input, true)?.permission;
-    crate::workflow::uploads::exposure::boundary::commit(store, context, permission, evidence, now)
+) -> Result<(), UploadExposureFailure> {
+    use crate::ops::service::uploads::exposure;
+    let permission = exposure::permission(store, context, input, true)?.permission;
+    let record = exposure::check(store, context, permission, now)?;
+    exposure::commit(store, record)
 }
 
 /// Record exposure bookkeeping without minting a certificate, for resource fixtures.

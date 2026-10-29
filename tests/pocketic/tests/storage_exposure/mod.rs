@@ -2,38 +2,27 @@ use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod certificate;
 mod snapshot;
-use blob_test_protocol::storage::exposure::{ExposureInput, ExposureOutcome, ExposureScenario};
+use blob_test_protocol::storage::exposure::ExposureInput;
 use ic_blob_storage_contracts::dto::upload::UploadState;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
-use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as B;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
 fn input(f: &Fixture, permission: Permission) -> ExposureInput {
     assert_eq!(permission.uploader, f.uploader);
     ExposureInput {
         permission: admission_input(permission),
-        scenario: ExposureScenario::QualifiedSubstitute,
         trap_write: false,
         trap_after: false,
     }
 }
-fn expose(f: &Fixture, actor: Principal, input: ExposureInput) -> Result<ExposureOutcome, E> {
+fn expose(
+    f: &Fixture,
+    actor: Principal,
+    input: ExposureInput,
+) -> Result<UploadAdmissionResponse, E> {
     f.harness
         .pic
         .update_control_as(f.service, actor, "expose", (input,), REPLY_BYTES)
-        .map(|(reply,)| reply)
-        .unwrap()
-}
-fn preview(f: &Fixture, input: ExposureInput) -> Result<Vec<B>, E> {
-    f.harness
-        .pic
-        .query_control_as(
-            f.service,
-            f.uploader,
-            "exposure_preview",
-            (input,),
-            REPLY_BYTES,
-        )
         .map(|(reply,)| reply)
         .unwrap()
 }
@@ -55,7 +44,7 @@ fn inspect(
         .unwrap()
 }
 #[test]
-fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_authority() {
+fn exposure_checks_preparation_permission_and_actual_authority() {
     let f = Fixture::new();
     let enrolled = f.enroll(None, true).unwrap();
     let (permission, declaration) = f.permission(u128::MAX, 8);
@@ -64,38 +53,6 @@ fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_author
     assert_eq!(expose(&f, f.uploader, yes), Err(E::Unprepared));
     f.prepare(&declaration).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    let missing = ExposureInput {
-        scenario: ExposureScenario::Unknown,
-        ..yes
-    };
-    let expected = vec![B::NamespaceBinding, B::CurrentOwner, B::Durability];
-    assert_eq!(preview(&f, missing), Ok(expected.clone()));
-    assert_eq!(
-        expose(&f, f.uploader, missing),
-        Ok(ExposureOutcome::Blocked(expected))
-    );
-    assert_eq!(
-        expose(
-            &f,
-            f.uploader,
-            ExposureInput {
-                scenario: ExposureScenario::StaleSubstitute,
-                ..yes
-            }
-        ),
-        Ok(ExposureOutcome::Blocked(vec![B::StaleObservation]))
-    );
-    assert_eq!(
-        expose(
-            &f,
-            f.uploader,
-            ExposureInput {
-                scenario: ExposureScenario::ForeignSubstitute,
-                ..yes
-            }
-        ),
-        Err(E::EvidenceBinding)
-    );
     for actor in [f.tenant, f.controller, f.operator, f.other] {
         assert_eq!(expose(&f, actor, yes), Err(E::Permission(A::Denied)));
     }
@@ -109,7 +66,6 @@ fn exposure_missing_host_facts_and_stale_previews_cannot_mutate_or_bypass_author
         inspect(&f, f.tenant, changed),
         Err(E::Permission(A::Conflict))
     );
-    assert_eq!(preview(&f, yes), Ok(vec![]));
     assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
     f.enroll(Some(enrolled), false).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);

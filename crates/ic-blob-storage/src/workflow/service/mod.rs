@@ -203,7 +203,7 @@ impl<H: ServiceHost> ServiceWorkflow<H> {
         now: u64,
     ) -> Result<
         ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse,
-        crate::workflow::uploads::certificate::UploadCertificateFailure,
+        ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure,
     > {
         Self::with_certificate(|installation| {
             crate::workflow::uploads::certificate::issue_installation(

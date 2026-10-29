@@ -155,22 +155,10 @@ fn blob_upload_manifest(
 fn expose(
     input: blob_test_protocol::storage::exposure::ExposureInput,
 ) -> Result<
-    blob_test_protocol::storage::exposure::ExposureOutcome,
+    ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse,
     ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure,
 > {
     workflow::expose(context(), input)
-}
-#[ic_platform::cdk::query(
-    decode_with = "ops::decode_control",
-    encode_with = "ops::encode_control"
-)]
-fn exposure_preview(
-    input: blob_test_protocol::storage::exposure::ExposureInput,
-) -> Result<
-    Vec<ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker>,
-    ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure,
-> {
-    workflow::exposure_preview(context(), input)
 }
 #[ic_platform::cdk::query(
     decode_with = "ops::decode_control",
