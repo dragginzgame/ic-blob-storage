@@ -2,55 +2,61 @@
 
 ## Current batch and source identity
 
-HEAD is the maintainer's **Release 0.56.0** commit `7362d497`; workspace package
-versions remain 0.56.0. Pending **0.57.0** adopts published **IC Platform 0.8.1**
-through the one root catalog. The official crates.io sparse index confirms the
-latest non-yanked release; its archive matches the registry checksum. Published
-APIs and the Principal/selected-ICRC migration contract were inspected, with the
-sibling used read-only. No source override or local platform shim was added.
+HEAD is the maintainer's checkpoint `a7bc9607` (message `0.57.0`), not a new
+release tag; workspace package versions remain 0.56.0. Last released source is
+0.56.0 at `7362d497`. Pending **0.57.0** combines the public Platform 0.8.1
+Principal cut with published **Tooling/Host/Build/Testkit 0.70.0** and
+**Wire/derive 0.7.22**. Official crates.io sparse-index records and all nine
+publication archives were verified. Wire 0.7.23 was only an unpublished sibling
+draft at selection; no unpublished source or override was adopted.
 
-Platform's new Principal identity is public through Blob; embedding hosts must
-align their direct Platform types and rebuild. Self-authenticating Principal
-hashing is now selected explicitly in core/contracts/CLI development dependencies,
-where existing tests use it. Required Candid/Agent features already provide the
-external conversions. No owned protocol moved off Wire, and no ledger DTO or
-storage migration is needed. Endpoint identities, canonical bytes, limits,
-provider replies, executor identity and lifecycle contracts are preserved.
+Root dependency minimums select the coordinated Tooling family and Wire version.
+Published Tooling's migration keeps external encodings/hashes while changing
+ledger/Registry Rust identities to Platform 0.8. Blob's selected uses require no
+new adapter or local source migration; all tools remain below their existing
+interfaces. Wire 0.7.22 runtime sources match 0.7.21. Canonical protocol bytes,
+limits, endpoint identities, provider accounting and exact retry custody remain.
 
-Current graph: direct **Platform 0.8.1**, **Memory/Storage 0.55.1**, **Metrics
-0.17.3**, **Tooling/Host/Build/Testkit 0.69.14**, **Wire/derive 0.7.21**. Incoming
-Memory/Storage/Metrics/Host-family patch selections were preserved. Browser
-Platform 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
+Current graph: **Platform 0.8.1**, **Memory/Storage 0.55.2**, **Metrics 0.17.3**,
+**Tooling/Host/Build/Testkit 0.70.0**, **Wire/derive 0.7.22**. Incoming
+Memory/Storage and Wire lock edits were preserved. The complete feature/target
+normal/build/dev graph now contains one Platform version; 0.7.6 is removed.
+Deployment retains one CDK executor 2.0.0. No registry ICRC ledger/CBOR family is
+present. Other required CBOR and external Principal/hash dependencies remain;
+no transitive-Candid-free or measured size/performance claim follows.
+
+Platform's public Principal identity still requires embedding hosts to align
+Platform 0.8 types and rebuild. Principal hashing stays explicit in development
+dependencies; required Candid/Agent features provide external conversion. Owned
+application protocols remain Wire. No persisted-format migration, automatic reset,
+compatibility facade or lifecycle owner was added.
+
+Browser Platform 0.1.1, SDK Core 6.1.1/Caffeine 1.1.2 and Shared Tooling 0.27.3
 (`cc81a58a5b2dd287c577cbffd2c576c178b6785c`, 131 files) remain unchanged.
-No staging, commits, push, release, deployment or paid effects.
-
-Transitive Platform **0.7.6** remains below published Memory/Storage and native
-Host/Testkit requirements. In standalone normal/build Wasm it supplies only
-`stable-structures`; deployed execution uses Platform 0.8.1 and one registry CDK
-executor **2.0.0**. The new direct `principal-self-authenticating` feature is absent
-from deployment, but upstream Principal hashing remains transitively enabled by
-other packages. Direct dependency removal is not transitive absence. No forced
-patch or unnecessary conversion wrapper was introduced. No producer API blocker
-or new issue was found.
+No sibling edits, staging, commits, push, release, deployment or paid effects.
 
 ## Latest focused qualification
 
-Evidence: `/tmp/blob-platform-latest/`. Strict focused Clippy passes for core,
-contracts, CLI, standalone and the selected consumer suite. Six replicated-client
-tests, the frozen Wire vector, five retained signed-request/recovery cases and two
-public memory-composition tests on Rust **1.91.0** pass. Fresh release standalone
-Wasm, native CLI build and Rust 1.91 standalone Wasm check pass. Nine installed
-cases pass: exported surface, malformed/old/wrong-identity Wire refusal, project
-and uploader authority, provider certificate replies, signed CLI, stop/start and
-restoration with retained uncertainty. Direct/deployment boundary checks pass;
-no retired CDK, native-only schema/provider-JSON or test-support deployment features.
+Evidence: `/tmp/blob-tooling-wire-next/`. CLI all-target/all-feature strict Clippy
+and the selected standalone suite's strict Clippy pass. Eleven Wire/schema cases,
+the frozen method/lifecycle frames and five retained signed-intent/recovery cases
+pass. Native CLI bins pass Rust **1.91.0** with all features. Fresh release
+standalone/storage-probe Wasm and actual CLI builds pass. Six installed cases
+pass: export surface, CLI installation carrier and wrong target refusal, signed
+inspection/trust/scope, signed metrics, snapshot fencing and replicated download
+refusals. One initial case stopped because its storage-probe path was omitted;
+the fixture was then built and that case passed without source changes.
 
-Testkit 0.69.14 required explicit CLI/server preparation, which completed and was
-used by installed checks. Manifest/lock hashes stayed fixed. Formatting,
-documentation links and diff checks pass. No full gate, native macOS, browser,
-live IC or provider qualification was rerun; no performance or size gain is
-claimed. Earlier Memory/Storage qualification remains `/tmp/blob-persistence-next/`;
-earlier Platform 0.7 evidence remains `/tmp/blob-platform076/`.
+Direct/deployment boundary checks and the locked Testkit/editor forwarding and
+failure fixtures pass. Published Testkit 0.70.0 CLI/server and Build metadata editor
+are prepared and admitted. The first setup timed out waiting for an active
+ic-jobs shared-store installation; the ordinary retry reused its completed
+admitted artifact. Both attempts remain in evidence; no lock was removed.
+Manifest/lock hashes stayed fixed. Formatting, documentation links and diff checks
+pass. No full gate, native macOS, browser, fresh Wasm MSRV lane, live IC or provider
+qualification was rerun. Earlier Platform-specific qualification, including Wasm
+MSRV, remains `/tmp/blob-platform-latest/`; prior Memory/Storage checks remain
+`/tmp/blob-persistence-next/`, on their captured graphs.
 
 Persistence's Metrics Stable codec cut remains separate: Blob has no
 `ic-metrics-stable` dependency and requires no map reset. Hosts adopting that

@@ -90,13 +90,12 @@ removing a manifest entry alone does not prove an external crate is absent.
 
 Blob's direct Platform boundary is 0.8.1. Its split Principal hashing feature is
 explicitly development-only here; Candid/Agent consumers retain their required
-external conversions. Published Memory/Storage and native tools still select
-Platform 0.7 transitively. The standalone normal/build graph uses that older
-facade only for the shared stable-structures substrate, not a second executor.
-Do not force those producer requirements through an override or introduce a
-legacy public facade. Embedding hosts exchange Blob's direct Platform identities.
-Upstream Candid/Principal hashing can remain transitively enabled even when the
-new direct hashing feature is absent; no deployment-size saving is implied.
+external conversions. Tooling 0.70 and the selected Memory/Storage now align the
+full resolved feature/target graph on that Platform identity. No older Platform
+facade, conversion shim or dependency override is required. Embedding hosts must
+align Blob's public Principal and Memory identities. Upstream Candid/Principal
+hashing can remain transitively enabled even when the direct hashing feature is
+absent; no deployment-size saving is implied.
 
 The root catalog and lock select the published Tooling/Host/Build/Testkit family,
 including matching Testkit server CLI and Build release editor identities.

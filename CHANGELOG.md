@@ -9,6 +9,12 @@
   hashing explicit in development dependencies; endpoint identities, wire bytes,
   storage formats and the retirement/reinstall contract remain unchanged.
 
+### 🔧 Changed
+
+- Adopt published Host, Build and Testkit 0.70.0 with matching local tools, and
+  Wire/derive 0.7.22. Align the resolved graph on Platform 0.8.1 while preserving
+  protocol bytes, decoder limits, provider accounting and exact retry custody.
+
 ## [0.56.0] - 2026-10-29
 
 ### ⚠️ Breaking
