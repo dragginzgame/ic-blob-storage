@@ -102,7 +102,7 @@ installation scope and original saved requests.
 | Find upload identities | `upload-history` | Signed service query |
 | Recover reference results or inspect liveness | `reference-receipt`, `reference-status` | Signed service query |
 | Retain or release a saved tenant reference | `submit-reference` | One signed service update and local intent writes |
-| Inspect issuance blockers | `certificate-assessment` | Signed service query |
+| Inspect current issuance eligibility | `certificate-assessment` | Signed service query |
 | Check a local body against its declaration | `verify-upload` | Signed service query and local file read |
 | Save a verified tenant file | `download` | One replicated descriptor update, then one provider GET and private file writes |
 
@@ -1560,7 +1560,7 @@ consumer adoption and actual deletion/final billing remain open under
 
 ## Certificate assessment
 
-`certificate-assessment` inspects missing issuance prerequisites for a saved permission:
+`certificate-assessment` inspects current issuance eligibility for a saved permission:
 
 ```sh
 cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
@@ -1573,15 +1573,14 @@ The input is one binary Wire document `UploadAdmissionRequest` (4 KiB maximum). 
 namespace and original uploader must match before transport. The command signs one
 `blob_upload_certificate_assessment` query, verifies query signatures and decodes
 at most 4 KiB against the complete saved permission, including independent object
-identities and expiry. JSON preserves decimal-string integers, host assessment time
-and every blocker. Assessment reports `namespace_binding`,
-`current_owner`, `durability` or `stale_observation` when a local
-prerequisite fails. These are not provider charge/provisioning guarantees.
+identities and expiry. JSON preserves decimal-string integers and host assessment
+time. Successful replies have no blocker field; authority, phase and recovery
+failures refuse. This is not a provider charge/provisioning guarantee.
 Object and release capacity follow the validated installation configuration;
 admission and preparation enforce quotas before certificate assessment or issuance.
 
-Exit 0 means an assessment was observed, including blocked uploads; it never
-authorizes issuance or retry. Even an empty list cannot reserve a later update.
+Exit 0 means current eligibility was observed; it never authorizes issuance or
+retry and cannot reserve a later update.
 Unprepared, expired, revoked and restored permissions refuse with distinct JSON
 error codes and exit 3. The same explicit IC/local root trust, 30-second deadline
 and 256 KiB HTTP ceiling apply. No certificate update, provider request, file

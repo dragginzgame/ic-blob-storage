@@ -83,9 +83,10 @@ The policy requires the exact retained project-approved uploader permission, an 
 service/namespace mapping, a current owner and atomic exposure commit.
 Issuance derives those facts directly from the installed owner in one synchronous
 operation. There is no independently supplied host-evidence object or configurable
-durability assertion. Assessment retains its existing Wire shape; eligible current
-state returns an empty blocker list, while authority/phase/fence failures remain
-typed refusals. The original permission and prepared manifest are still required.
+durability assertion. Assessment returns only the exact permission and observation
+time for eligible current state; authority/phase/fence failures remain typed
+refusals. The 0.59 Wire identity rejects retired blocker-bearing frames without a
+fallback reader. The original permission and prepared manifest are still required.
 Controller/operator status grants none of that authority.
 No public uploader, automatic paid retry, provider spending-cap/replay guarantee
 or operational old-backup activation is supported. Stop/start preserves the owner;
@@ -659,8 +660,8 @@ provider request.
 
 `inspect_installation` returns the original permission and assessment time,
 applying the same local authority and phase checks without exposure writes. The
-existing Wire blocker field remains empty for eligible state; typed refusals
-report ineligible state. An empty list is a snapshot, not issuance authority.
+0.59 Wire response has no blocker field; typed refusals report ineligible state.
+A successful assessment is a snapshot, not issuance authority.
 Test-support retains component-only response/rollback checks and write/reply fault
 injection. These local checks do not prove gateway acceptance, certificate
 replay/lifetime, namespace or pre-charge enforcement.
@@ -669,9 +670,9 @@ Native `blob-storage certificate-assessment` uses the uploader's signing identit
 and explicit replica trust to query this boundary once. Its saved binary permission
 must match the expected service/namespace/uploader before transport; the shared
 bounded codec compares every original field in the reply and retains typed
-refusals. Duplicate blockers, oversized or malformed replies reject. Full-width
-identity and host assessment time survive in JSON. Neither a blocked nor an empty
-assessment permits issuance, retry or recovery activation, and the command makes
+refusals. Oversized, malformed and retired-identity replies reject. Full-width
+identity and host assessment time survive in JSON. No successful assessment
+permits issuance, retry or recovery activation, and the command makes
 no update or provider request.
 
 Standalone exports the canonical certificate update and the uploader-only

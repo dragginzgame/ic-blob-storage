@@ -79,19 +79,10 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
     let options = Options::parse(&arguments(p, std::path::Path::new("unused")))
         .unwrap()
         .1;
-    for blockers in [
-        vec![],
-        vec![
-            B::StaleObservation,
-            B::NamespaceBinding,
-            B::CurrentOwner,
-            B::Durability,
-        ],
-    ] {
+    {
         let response = UploadCertificateAssessmentResponse {
             permission: p,
             assessed_at_ns: u64::MAX,
-            blockers,
         };
         let bytes = ic_blob_storage_contracts::wire::encode_response(
             "blob_upload_certificate_assessment",
@@ -104,19 +95,7 @@ fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority(
         assert_eq!(value["assessed_at_ns"], u64::MAX.to_string());
         assert_eq!(value["issuance_authorized"], false);
         assert_eq!(value["retry_authorized"], false);
-        if response.blockers.is_empty() {
-            assert_eq!(value["blockers"], json!([]));
-        } else {
-            assert_eq!(
-                value["blockers"],
-                json!([
-                    "stale_observation",
-                    "namespace_binding",
-                    "current_owner",
-                    "durability"
-                ])
-            );
-        }
+        assert!(value.get("blockers").is_none());
     }
     let denied: Result<UploadCertificateAssessmentResponse, _> = Err(E::Revoked);
     assert_eq!(

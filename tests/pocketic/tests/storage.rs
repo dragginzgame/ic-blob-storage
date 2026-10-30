@@ -261,7 +261,6 @@ impl Fixture {
                 E::Unprepared => Failure::Unprepared,
                 E::Revoked => Failure::Revoked,
                 E::Phase => Failure::Phase,
-                E::EvidenceBinding => Failure::Binding,
             })
     }
     fn revoke(&self, input: Permission) -> Result<bool, Failure> {

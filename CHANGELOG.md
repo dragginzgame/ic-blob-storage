@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.59.0]
+
+### ⚠️ Breaking
+
+- Remove retired certificate-assessment blocker fields and host-evidence error
+  states. Rebuild clients against the new method-bound Wire identity; old frames
+  refuse. Successful assessments report the original permission and time, while
+  authority, expiry, revocation and recovery failures still refuse. Provider
+  certificate replies and persistent record formats are unchanged.
+
+### 🧹 Cleanup
+
+- Reuse validated publication requests directly within preparation instead of
+  reopening their files through the CLI loader. External and recovery inputs
+  remain validated; exact signed-operation journals and no-resend behavior remain.
+- Decode retained preparation summaries directly into their typed view, preserving
+  malformed-input and unprepared-result classifications.
+
+### 🧪 Testing
+
+- Share successful journey fixture restoration and its bounded Testkit cooldown
+  across authority and source canisters. Deliberate upgrade refusals remain direct.
+
 ## [0.58.0] - 2026-10-29
 
 ### ⚠️ Breaking

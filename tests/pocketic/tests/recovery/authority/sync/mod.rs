@@ -123,7 +123,7 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     f.upgrade_skipping_outgoing_hook(f.service, true);
     authority.fenced = true;
     assert_eq!(f.archive(), authority);
-    f.upgrade_authority();
+    f.restore(f.service);
     assert_eq!(f.archive(), authority);
     f.assert_authority_fenced(upload(1, b"fenced"));
     assert_eq!(f.list_observation().requests, 1);
@@ -187,7 +187,7 @@ fn revocation_while_list_is_held_survives_stale_reply_and_fenced_upgrade() {
             .succeeded,
         Some(false)
     );
-    f.upgrade_authority();
+    f.restore(f.service);
     revoked.fenced = true;
     assert_eq!(f.archive(), revoked);
     f.assert_authority_fenced(upload(1, b"revoked"));

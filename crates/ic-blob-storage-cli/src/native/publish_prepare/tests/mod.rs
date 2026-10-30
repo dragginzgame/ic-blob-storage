@@ -13,6 +13,15 @@ fn preparation_summary_preserves_shape_and_refusal_classification() {
         PreparationSummaryView::validate(b"{"),
         Err(Failure::Binding)
     );
+    for malformed in [
+        br#"{"prepared":"true"} trailing"#.as_slice(),
+        br#"{"prepared":true,"state":"prepared"} trailing"#.as_slice(),
+    ] {
+        assert_eq!(
+            PreparationSummaryView::validate(malformed),
+            Err(Failure::Binding)
+        );
+    }
     for report in [
         json!(null),
         json!([]),

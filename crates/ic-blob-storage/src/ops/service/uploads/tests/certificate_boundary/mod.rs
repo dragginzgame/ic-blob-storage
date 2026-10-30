@@ -159,7 +159,6 @@ fn certificate_assessment_reports_current_permission_without_mutation() {
     let result = certificate::inspect(&store, context(5), &root, 2).unwrap();
     assert_eq!(result.permission, manifest_boundary::input().permission);
     assert_eq!(result.assessed_at_ns, 2);
-    assert_eq!(result.blockers, []);
     assert_eq!(
         wire::decode_response::<UploadCertificateAssessmentResponse>(
             "blob_upload_certificate_assessment",
@@ -188,8 +187,8 @@ fn successful_certificate_assessment_never_reserves_or_survives_permission_chang
     assert_eq!(
         certificate::inspect(&store, context(5), &root, 2)
             .unwrap()
-            .blockers,
-        []
+            .permission,
+        manifest_boundary::input().permission
     );
     assert_eq!(*m.permissions.borrow(), before);
     assert_eq!(

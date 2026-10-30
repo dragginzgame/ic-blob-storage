@@ -27,13 +27,21 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
         Kind::Permission => Payload::Permission(permission()?),
         Kind::Manifest => Payload::Manifest(permission()?),
     };
+    validate(input.service, input.namespace, actor, payload)
+}
+
+fn validate(
+    service: Principal,
+    namespace: u128,
+    actor: Principal,
+    payload: Payload,
+) -> Result<Request, Failure> {
     let permission = payload.permission();
     admission::validate_request(permission).map_err(admission_error)?;
-    if permission.upload.service != input.service || permission.upload.namespace != input.namespace
-    {
+    if permission.upload.service != service || permission.upload.namespace != namespace {
         return Err(Failure::Binding);
     }
-    let allowed = match input.kind {
+    let allowed = match payload.kind() {
         Kind::Prepare => actor == permission.uploader,
         Kind::Manifest => actor == permission.upload.tenant || actor == permission.uploader,
         Kind::Admit | Kind::Revoke | Kind::Permission => actor == permission.upload.tenant,
@@ -58,4 +66,26 @@ pub(super) fn load(input: &Input, actor: Principal) -> Result<Request, Failure> 
     }
     .map_err(|_| Failure::Arguments)?;
     Ok(Request { payload, argument })
+}
+
+impl Request {
+    /// In-process publication input; external files still pass through `load`.
+    pub(in crate::native) fn prepared(
+        kind: Kind,
+        input: &crate::native::upload_inputs::PreparedInput,
+        directory: Option<std::path::PathBuf>,
+        service: Principal,
+        namespace: u128,
+        actor: Principal,
+    ) -> Result<Self, Failure> {
+        let claim = || directory.ok_or(Failure::Arguments);
+        let payload = match kind {
+            Kind::Admit => Payload::Admit(input.permission, claim()?),
+            Kind::Revoke => Payload::Revoke(input.permission, claim()?),
+            Kind::Prepare => Payload::Prepare(input.request().clone(), claim()?),
+            Kind::Permission => Payload::Permission(input.permission),
+            Kind::Manifest => Payload::Manifest(input.permission),
+        };
+        validate(service, namespace, actor, payload)
+    }
 }

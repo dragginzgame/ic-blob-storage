@@ -80,7 +80,7 @@ fn rejects_changed_permission_and_trust(
 }
 
 #[test]
-fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refusals() {
+fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
     let mut f = Fixture::with_harness(Harness::with_builder(
         PocketIcBuilder::new()
             .with_nns_subnet()
@@ -120,7 +120,7 @@ fn standalone_certificate_cli_preserves_blockers_exact_intent_and_lifecycle_refu
         permission.upload.object.to_string()
     );
     assert_eq!(value["expires_at_ns"], permission.expires_at_ns.to_string());
-    assert_eq!(value["blockers"], serde_json::json!([]));
+    assert!(value.get("blockers").is_none());
     assert_eq!(value["issuance_authorized"], false);
     assert_eq!(value["retry_authorized"], false);
     rejects_changed_permission_and_trust(&args, dir.path(), permission);

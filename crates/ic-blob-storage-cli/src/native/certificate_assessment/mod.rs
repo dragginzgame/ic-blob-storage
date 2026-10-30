@@ -2,7 +2,6 @@
 use super::{Failure, arguments::Options, query, read, references::upload_json};
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure as A;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
-use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureBlocker as B;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
 use ic_blob_storage_contracts::protocol::UPLOAD_CERTIFICATE_ASSESSMENT_METHOD;
 use ic_blob_storage_contracts::upload::certificate::reply;
@@ -55,22 +54,12 @@ fn output(
         R::Binding => Failure::Binding,
         R::Remote(error) => Failure::AssessmentRefused(error),
     })?;
-    let blockers: Vec<_> = response
-        .blockers
-        .into_iter()
-        .map(|blocker| match blocker {
-            B::StaleObservation => "stale_observation",
-            B::NamespaceBinding => "namespace_binding",
-            B::CurrentOwner => "current_owner",
-            B::Durability => "durability",
-        })
-        .collect();
     Ok(json!({
         "schema":1,"observation":"certificate_assessment","actor":options.actor.to_text(),
         "network":options.network,"url":options.url.as_str(),"authentication":"query_signatures",
         "upload":upload_json(permission.upload),
         "uploader":permission.uploader.to_text(),"expires_at_ns":permission.expires_at_ns.to_string(),
-        "assessed_at_ns":response.assessed_at_ns.to_string(),"blockers":blockers,
+        "assessed_at_ns":response.assessed_at_ns.to_string(),
         "issuance_authorized":false,"retry_authorized":false,
     }))
 }
@@ -80,7 +69,6 @@ pub(super) const fn refusal_code(error: E) -> &'static str {
         E::Unprepared => "unprepared",
         E::Revoked => "assessment_revoked",
         E::Phase => "assessment_phase",
-        E::EvidenceBinding => "assessment_evidence_binding",
         E::Permission(error) => match error {
             A::Invalid => "assessment_permission_invalid",
             A::Denied => "assessment_permission_denied",

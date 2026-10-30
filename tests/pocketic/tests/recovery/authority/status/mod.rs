@@ -111,7 +111,7 @@ fn operator_query_denies_controller_and_reports_missing_economics_without_effect
         ),
         (0, 0, 0, 0)
     );
-    f.upgrade_authority();
+    f.restore(f.service);
     assert_eq!(f.status(f.operator), None);
     let restored = f.status_unchanged();
     assert!(restored.fenced);
@@ -185,7 +185,7 @@ fn diagnostic_counts_keep_logical_physical_and_billing_release_separate() {
     );
     assert_eq!(phase(entry, ArchivePhase::Settled), 1);
     assert!(!settled.warnings.contains(&Warning::BillingCessationPending));
-    f.upgrade_authority();
+    f.restore(f.service);
     assert_eq!(f.status_unchanged().catalogs, settled.catalogs);
 }
 

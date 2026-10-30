@@ -134,3 +134,97 @@ fn mutations_require_a_journal_while_inspections_do_not() {
         assert!(saved.payload.directory().is_none());
     }
 }
+
+#[test]
+fn prepared_requests_preserve_external_loader_bytes_roles_and_claims_without_files() {
+    use crate::native::upload_inputs::{InputFiles, PreparedInput, tests as fixture};
+    let temp = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    let selected = PreparedInput::load(InputFiles {
+        binding: serde_json::to_vec(&fixture::binding()).unwrap(),
+        manifest: serde_json::to_vec(&fixture::manifest()).unwrap(),
+        installation: crate::native::upload_inputs::installation::Installation::decode(
+            ic_blob_storage_contracts::wire::encode_request(
+                "blob_install",
+                fixture::installation(&fixture::binding()),
+            )
+            .unwrap(),
+            10.try_into().unwrap(),
+        )
+        .unwrap(),
+        body: temp.path().join("body.bin").into(),
+    })
+    .unwrap();
+    let (permission, manifest) = selected.setup_requests();
+    for kind in [
+        Kind::Admit,
+        Kind::Prepare,
+        Kind::Revoke,
+        Kind::Permission,
+        Kind::Manifest,
+    ] {
+        let actor = if kind == Kind::Prepare {
+            selected.permission.uploader
+        } else {
+            selected.permission.upload.tenant
+        };
+        let claim = kind.mutation().then(|| temp.path().join("claim"));
+        let prepared = Request::prepared(
+            kind,
+            &selected,
+            claim.clone(),
+            selected.permission.upload.service,
+            selected.permission.upload.namespace,
+            actor,
+        )
+        .unwrap();
+        let input = Input {
+            kind,
+            service: selected.permission.upload.service,
+            namespace: selected.permission.upload.namespace,
+            request: temp.path().join("request.wire"),
+            directory: claim,
+        };
+        std::fs::write(
+            &input.request,
+            if kind == Kind::Prepare {
+                manifest
+            } else {
+                permission
+            },
+        )
+        .unwrap();
+        let loaded = request::load(&input, actor).unwrap();
+        assert_eq!(prepared.argument, loaded.argument);
+        assert_eq!(prepared.payload.directory(), loaded.payload.directory());
+        std::fs::remove_file(&input.request).unwrap();
+        assert!(
+            Request::prepared(
+                kind,
+                &selected,
+                input.directory,
+                input.service,
+                input.namespace,
+                actor
+            )
+            .is_ok()
+        );
+        assert!(matches!(
+            Request::prepared(
+                kind,
+                &selected,
+                None,
+                input.service,
+                input.namespace,
+                Principal::anonymous()
+            ),
+            Err(Failure::Binding | Failure::Arguments)
+        ));
+        if kind.mutation() {
+            assert!(matches!(
+                Request::prepared(kind, &selected, None, input.service, input.namespace, actor),
+                Err(Failure::Arguments)
+            ));
+        }
+    }
+    assert!(!temp.path().join("claim").exists());
+}

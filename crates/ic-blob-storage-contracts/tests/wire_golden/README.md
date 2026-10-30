@@ -1,6 +1,11 @@
 # Frozen Blob Wire vectors
 
-These 140 cases in 56 JSON files cover all 27 owned method request/reply pairs
+The 0.59 cut removes retired certificate-assessment blocker states and assigns
+that method identity `0x424c_4f42_0059_0009` in both directions. Only its two
+vector files change; other method identities and persistent records are unchanged.
+Retired assessment frames refuse. The old vectors remain in 0.58 Git history.
+
+These frozen cases cover all owned method request/reply pairs
 and standalone install/post-upgrade inputs. The approved 0.42 hard cut changes
 native frame identities from `0041` to `0042`, adds the disjoint provider
 acknowledgment status amount and funding reconciliation variant. The subsequent

@@ -1,34 +1,8 @@
 //! Actual lifecycle recovery preserves obligations but cannot resume authority.
 use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_testkit::pic::{CanisterInstallExt, RetryPolicy};
-use std::{num::NonZeroUsize, time::Duration};
 
 impl Fixture {
-    pub(in crate::recovery) fn upgrade_authority(&self) {
-        let wasm = self.wasm(self.service);
-        let args =
-            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap();
-        // Replica install budgets apply to fixtures too; retry only definite rate-limit refusals.
-        self.harness
-            .pic
-            .retry_install_code(
-                RetryPolicy {
-                    max_attempts: NonZeroUsize::new(2).unwrap(),
-                    cooldown: Duration::from_secs(300),
-                },
-                || {
-                    self.harness.pic.upgrade_canister(
-                        self.service,
-                        wasm.clone(),
-                        args.clone(),
-                        Some(self.operator),
-                    )
-                },
-            )
-            .expect("same-release fenced restore");
-    }
-
     pub(in crate::recovery) fn assert_authority_fenced(&self, upload: JourneyUpload) {
         let before = self.archive();
         assert!(before.fenced);
@@ -197,7 +171,7 @@ fn partial_verifier_and_all_catalogs_survive_repeated_and_skipped_hook_upgrades(
         if skip {
             f.upgrade_skipping_outgoing_hook(f.service, true);
         } else {
-            f.upgrade_authority();
+            f.restore(f.service);
         }
         before.fenced = true;
         assert_eq!(f.archive(), before);
@@ -277,7 +251,7 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
     f.upgrade_skipping_outgoing_hook(f.service, true);
     retained.fenced = true;
     assert_eq!(f.archive(), retained);
-    f.upgrade_authority();
+    f.restore(f.service);
     assert_eq!(f.archive(), retained);
     f.assert_authority_fenced(v.upload);
     assert_eq!(f.source_observation().requests, 1);

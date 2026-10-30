@@ -12,7 +12,7 @@ pub enum UploadCertificateAssessmentReplyError {
     /// Encoded reply exceeds the caller's budget.
     #[error("assessment reply exceeds limit")]
     Limit,
-    /// Malformed permission, reply or duplicate blockers.
+    /// Malformed permission or reply.
     #[error("invalid assessment")]
     Invalid,
     /// Returned permission differs from the saved original intent.
@@ -39,9 +39,9 @@ pub fn assessment_request(
 }
 
 /// Decode one independently authenticated assessment of the exact saved permission.
-/// An empty blocker list is a snapshot, never an issuance reservation or lease.
+/// A successful assessment is a snapshot, never an issuance reservation or lease.
 /// # Errors
-/// Rejects oversized, malformed, duplicate-blocker, foreign or refused replies.
+/// Rejects oversized, malformed, foreign or refused replies.
 pub fn assessment(
     permission: UploadAdmissionRequest,
     bytes: &[u8],
@@ -58,11 +58,6 @@ pub fn assessment(
     let response = response.map_err(UploadCertificateAssessmentReplyError::Remote)?;
     if response.permission != permission {
         return Err(UploadCertificateAssessmentReplyError::Binding);
-    }
-    for (index, blocker) in response.blockers.iter().enumerate() {
-        if response.blockers[..index].contains(blocker) {
-            return Err(UploadCertificateAssessmentReplyError::Invalid);
-        }
     }
     Ok(response)
 }

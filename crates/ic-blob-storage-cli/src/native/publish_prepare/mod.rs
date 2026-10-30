@@ -33,8 +33,13 @@ struct PreparationSummaryView {
 }
 impl PreparationSummaryView {
     fn validate(bytes: &[u8]) -> Result<(), Failure> {
-        let report: Value = serde_json::from_slice(bytes).map_err(|_| Failure::Binding)?;
-        let report: Self = serde_json::from_value(report).map_err(|_| Failure::Unprepared)?;
+        let report: Self = serde_json::from_slice(bytes).map_err(|error| {
+            if error.is_data() && serde_json::from_slice::<serde::de::IgnoredAny>(bytes).is_ok() {
+                Failure::Unprepared
+            } else {
+                Failure::Binding
+            }
+        })?;
         if !report.prepared || report.state != PreparationState::Prepared {
             return Err(Failure::Unprepared);
         }

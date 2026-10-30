@@ -236,8 +236,8 @@ impl Trial {
                 &crate::standalone_certificate::root(input)
             )
             .unwrap()
-            .blockers,
-            []
+            .permission,
+            input.permission
         );
     }
     pub fn transfer_inputs(&self) -> serde_json::Value {

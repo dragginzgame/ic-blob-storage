@@ -25,19 +25,6 @@ impl Fixture {
         .expect("journal inspection")
     }
 
-    fn upgrade_source(&self) {
-        self.harness
-            .pic
-            .upgrade_canister(
-                self.gateway,
-                self.wasm(self.gateway),
-                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ())
-                    .expect("no args"),
-                None,
-            )
-            .expect("fenced source restore");
-    }
-
     fn assert_source_fenced(&self, v: &content_vectors::Vector) {
         let before = self.source_recovery(self.operator).expect("driver journal");
         assert!(before.fenced);
@@ -176,7 +163,7 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     );
     let reads = f.source_observation();
     let usage = f.usage(f.first);
-    f.upgrade_source();
+    f.restore(f.gateway);
     let after = f
         .source_recovery(f.operator)
         .expect("restored driver journal");
@@ -195,7 +182,7 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     f.assert_source_fenced(&v);
     f.restart(f.gateway);
     f.harness.pic.advance_time(Duration::from_hours(24));
-    f.upgrade_source();
+    f.restore(f.gateway);
     f.upgrade_skipping_outgoing_hook(f.gateway, true);
     f.assert_source_fenced(&v);
     assert_eq!(f.source_observation(), reads);
@@ -234,7 +221,7 @@ fn source_intents_have_a_lifetime_budget_and_restore_does_not_reset_it() {
         f.source_recovery(f.operator).unwrap().effects,
         before.effects
     );
-    f.upgrade_source();
+    f.restore(f.gateway);
     assert_eq!(
         f.source_recovery(f.operator).unwrap().effects,
         before.effects
@@ -262,7 +249,7 @@ fn missing_journal_rejects_upgrade_without_discarding_the_old_heap() {
         .pic
         .set_stable_memory(f.gateway, saved, BlobCompression::NoCompression);
     assert_eq!(f.read_chunk(f.first, v.upload, 0).unwrap().bytes, v.bytes);
-    f.upgrade_source();
+    f.restore(f.gateway);
     f.assert_source_fenced(&v);
 }
 

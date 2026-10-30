@@ -2,24 +2,6 @@
 use crate::dto::upload::admission::UploadAdmissionFailure;
 use serde::Deserialize;
 
-/// A missing independent prerequisite for exposure or certificate issuance.
-/// A successful inspection with blockers is not upload authorization.
-#[cfg_attr(
-    all(feature = "wire-schema", not(target_arch = "wasm32")),
-    derive(ic_wire::Wire)
-)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-#[serde(deny_unknown_fields)]
-pub enum UploadExposureBlocker {
-    /// Host facts were not established in the current execution.
-    StaleObservation,
-    /// Explicit installed local namespace does not match the permission.
-    NamespaceBinding,
-    /// Owner is inspection-only after restoration; no backup freshness claim.
-    CurrentOwner,
-    /// Atomic intent-before-effect durability is not established.
-    Durability,
-}
 /// Refused local exposure or historical permission inspection.
 #[cfg_attr(
     all(feature = "wire-schema", not(target_arch = "wasm32")),
@@ -36,6 +18,4 @@ pub enum UploadExposureFailure {
     Revoked,
     /// Exposure already happened or the operation/clock no longer allows it.
     Phase,
-    /// Host evidence does not bind the entire original permission.
-    EvidenceBinding,
 }

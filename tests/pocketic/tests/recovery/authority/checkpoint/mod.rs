@@ -190,7 +190,7 @@ fn controller_status_cannot_use_an_operator_checkpoint_probe() {
         f.progress(f.first, v.upload).unwrap().verification,
         JourneyVerification::Pending
     );
-    f.upgrade_authority();
+    f.restore(f.service);
     assert_eq!(
         f.checkpoint_probe(f.operator, v.upload, 0, &v.bytes),
         Err(CheckpointProbeFailure::Denied)

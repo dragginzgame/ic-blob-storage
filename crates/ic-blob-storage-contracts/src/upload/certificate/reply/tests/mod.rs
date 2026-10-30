@@ -1,6 +1,5 @@
 use crate::dto::reference::ReferenceUpload;
 use crate::dto::upload::admission::UploadAdmissionFailure as A;
-use crate::dto::upload::exposure::UploadExposureBlocker as B;
 use crate::upload::certificate::reply::*;
 fn encode<T: serde::Serialize>(value: T) -> Result<Vec<u8>, crate::wire::Error> {
     crate::wire::encode_response("blob_upload_certificate_assessment", value)
@@ -39,7 +38,6 @@ fn assessment_validates_the_full_permission_before_root_lookup_and_after_reply()
     let response = UploadCertificateAssessmentResponse {
         permission,
         assessed_at_ns: u64::MAX,
-        blockers: vec![B::CurrentOwner],
     };
     let bytes = encode(Ok::<_, UploadExposureFailure>(&response)).unwrap();
     let maximum = 4096.try_into().unwrap();
@@ -99,12 +97,11 @@ fn assessment_validates_the_full_permission_before_root_lookup_and_after_reply()
 }
 
 #[test]
-fn assessments_preserve_empty_snapshots_refusals_and_decoder_limits() {
+fn assessments_preserve_snapshots_refusals_and_decoder_limits() {
     let p = permission();
-    let mut response = UploadCertificateAssessmentResponse {
+    let response = UploadCertificateAssessmentResponse {
         permission: p,
         assessed_at_ns: 1,
-        blockers: vec![],
     };
     let maximum = 4096.try_into().unwrap();
     let bytes = encode(Ok::<_, UploadExposureFailure>(&response)).unwrap();
@@ -115,15 +112,6 @@ fn assessments_preserve_empty_snapshots_refusals_and_decoder_limits() {
     );
     assert_eq!(
         assessment(p, &encode(true).unwrap(), maximum),
-        Err(UploadCertificateAssessmentReplyError::Invalid)
-    );
-    response.blockers = vec![B::CurrentOwner, B::CurrentOwner];
-    assert_eq!(
-        assessment(
-            p,
-            &encode(Ok::<_, UploadExposureFailure>(response)).unwrap(),
-            maximum
-        ),
         Err(UploadCertificateAssessmentReplyError::Invalid)
     );
     for error in [
@@ -137,4 +125,30 @@ fn assessments_preserve_empty_snapshots_refusals_and_decoder_limits() {
             Err(UploadCertificateAssessmentReplyError::Remote(error))
         );
     }
+}
+
+#[test]
+fn assessment_hard_cut_rejects_retired_identity_and_trailing_blocker_bytes() {
+    let p = permission();
+    let response = UploadCertificateAssessmentResponse {
+        permission: p,
+        assessed_at_ns: 1,
+    };
+    let bytes = encode(Ok::<_, UploadExposureFailure>(response)).unwrap();
+    let mut retired = bytes.clone();
+    retired[2..10].copy_from_slice(&0x424c_4f42_0042_0009u64.to_le_bytes());
+    let mut trailing = bytes;
+    trailing.push(0); // The retired success layout ended with an empty blocker vector.
+    for invalid in [retired, trailing] {
+        assert_eq!(
+            assessment(p, &invalid, 4096.try_into().unwrap()),
+            Err(UploadCertificateAssessmentReplyError::Invalid)
+        );
+    }
+    let mut request = assessment_request(p).unwrap();
+    request[2..10].copy_from_slice(&0x424c_4f42_0042_0009u64.to_le_bytes());
+    assert!(
+        crate::wire::decode_request::<String>("blob_upload_certificate_assessment", &request, 4096)
+            .is_err()
+    );
 }

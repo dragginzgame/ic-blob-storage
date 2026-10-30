@@ -43,29 +43,27 @@ fn preflight_allows(
     Ok(!recovery && observation.recoverable_upload.is_none() && observation.setup_allowed)
 }
 impl Context<'_> {
-    fn setup(&self, step: SetupStep) -> upload_setup::Input {
+    fn setup(&self, step: SetupStep) -> Result<upload_setup::Request, Failure> {
         use upload_setup::Kind;
-        let (kind, request, claim) = match step {
-            SetupStep::Permission => (Kind::Permission, "permission.wire", None),
-            SetupStep::Admission => (
-                Kind::Admit,
-                "permission.wire",
-                Some(journal::Step::Admission),
-            ),
-            SetupStep::Manifest => (Kind::Manifest, "permission.wire", None),
-            SetupStep::Preparation => (
-                Kind::Prepare,
-                "manifest.wire",
-                Some(journal::Step::Preparation),
-            ),
+        let (kind, claim) = match step {
+            SetupStep::Permission => (Kind::Permission, None),
+            SetupStep::Admission => (Kind::Admit, Some(journal::Step::Admission)),
+            SetupStep::Manifest => (Kind::Manifest, None),
+            SetupStep::Preparation => (Kind::Prepare, Some(journal::Step::Preparation)),
         };
-        upload_setup::Input {
+        let agent = if matches!(kind, Kind::Prepare) {
+            self.uploader
+        } else {
+            self.tenant
+        };
+        upload_setup::Request::prepared(
             kind,
-            service: self.input.service,
-            namespace: self.input.namespace,
-            request: self.origin.join(request),
-            directory: claim.map(|step| self.origin.join(journal::name(step))),
-        }
+            self.selected,
+            claim.map(|step| self.origin.join(journal::name(step))),
+            self.input.service,
+            self.input.namespace,
+            agent.get_principal().map_err(|_| Failure::Identity)?.into(),
+        )
     }
     fn report(
         &self,
@@ -94,7 +92,7 @@ impl Context<'_> {
         let permission = if recovery {
             let SetupObservation::Permission(permission) = upload_setup::inspect_recorded(
                 self.tenant,
-                &self.setup(SetupStep::Permission),
+                &self.setup(SetupStep::Permission)?,
                 self.run,
                 "permission",
             )
@@ -104,9 +102,9 @@ impl Context<'_> {
             };
             permission
         } else {
-            let result = upload_setup::with_agent(
+            let result = upload_setup::execute(
                 self.options,
-                &self.setup(SetupStep::Admission),
+                &self.setup(SetupStep::Admission)?,
                 self.tenant,
             )
             .await?;
@@ -134,7 +132,7 @@ impl Context<'_> {
             response: manifest, ..
         } = upload_setup::inspect_recorded(
             self.tenant,
-            &self.setup(SetupStep::Manifest),
+            &self.setup(SetupStep::Manifest)?,
             self.run,
             "manifest",
         )
@@ -172,9 +170,9 @@ impl Context<'_> {
                 &preflight.report,
             ));
         }
-        let result = upload_setup::with_agent(
+        let result = upload_setup::execute(
             self.options,
-            &self.setup(SetupStep::Preparation),
+            &self.setup(SetupStep::Preparation)?,
             self.uploader,
         )
         .await?;

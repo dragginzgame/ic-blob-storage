@@ -165,7 +165,7 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
         );
     }
     let mut retained = f.archive();
-    f.upgrade_authority();
+    f.restore(f.service);
     retained.fenced = true;
     assert_eq!(f.archive(), retained);
     f.assert_authority_fenced(partial.upload);
@@ -363,7 +363,7 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
     assert_eq!(f.reserve(f.first, next), Err(JourneyFailure::Limit));
     assert_eq!(f.archive(), full);
     let mut full = full;
-    f.upgrade_authority();
+    f.restore(f.service);
     full.fenced = true;
     assert_eq!(f.archive(), full);
 }

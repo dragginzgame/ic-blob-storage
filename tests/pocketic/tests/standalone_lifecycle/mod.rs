@@ -168,7 +168,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
     );
     let root = super::standalone_certificate::root(&manifest);
     let assessment = super::standalone_certificate::inspect(&f, f.uploader, &root).unwrap();
-    assert_eq!(assessment.blockers, []);
+    assert_eq!(assessment.permission, manifest.permission);
 }
 
 #[test]

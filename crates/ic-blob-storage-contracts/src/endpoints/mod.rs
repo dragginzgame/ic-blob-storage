@@ -224,7 +224,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::prepare(call_context, &input, $clock())
             }]
-            [UPLOAD_CERTIFICATE_ASSESSMENT_METHOD, 0x424c_4f42_0042_0009; query, request,
+            [UPLOAD_CERTIFICATE_ASSESSMENT_METHOD, 0x424c_4f42_0059_0009; query, request,
             fn blob_upload_certificate_assessment(
                 root: String,
             ) -> Result<

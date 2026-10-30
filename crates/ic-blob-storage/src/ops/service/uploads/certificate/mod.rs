@@ -61,7 +61,6 @@ pub(crate) fn assessment(
     UploadCertificateAssessmentResponse {
         permission: input(permission),
         assessed_at_ns: now,
-        blockers: Vec::new(),
     }
 }
 

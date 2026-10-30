@@ -64,15 +64,15 @@ measurement scope, comparison windows and the signed native command.
 
 `blob_upload_certificate_assessment(root)` is an uploader-only query over the
 original retained permission. The canonical root locates that permission; it grants
-no authority. Prepared, locally eligible uploads return the exact permission,
-assessment time and all missing prerequisites. Unknown roots, wrong callers,
+no authority. Prepared, locally eligible uploads return the exact permission
+and assessment time. Unknown roots, wrong callers,
 unprepared, expired, revoked or restored work refuse. Inspection changes no state
 and never reserves a later issuance attempt.
 
 The native [`blob-storage certificate-assessment`](../../docs/operator-guide.md#certificate-assessment) command signs
 this query as the original uploader and binds the reply to a saved binary Wire document
-permission. It reports all missing prerequisites and distinct refusal codes without
-calling the certificate update or a provider. An empty blocker list remains only
+permission. It reports current eligibility or distinct refusal codes without
+calling the certificate update or a provider. A successful assessment remains only
 an observation; issuance always rechecks current authority.
 
 `_immutableObjectStorageCreateCertificate(root)` is the matching synchronous update.

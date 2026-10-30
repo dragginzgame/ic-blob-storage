@@ -69,7 +69,6 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     let assessment = inspect(&f, f.uploader, &root).unwrap();
     assert_eq!(assessment.permission, manifest.permission);
     assert!(assessment.assessed_at_ns <= f.harness.pic.get_time().as_nanos_since_unix_epoch());
-    assert_eq!(assessment.blockers, []);
     check_authority(&f, &root);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     assert_eq!(
@@ -86,8 +85,8 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         .unwrap();
     f.resume(f.operator).unwrap();
     assert_eq!(
-        inspect(&f, f.uploader, &root).unwrap().blockers,
-        assessment.blockers
+        inspect(&f, f.uploader, &root).unwrap().permission,
+        assessment.permission
     );
     let reply: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
@@ -183,8 +182,8 @@ fn second_upload_at_capacity(f: &Fixture, first: &UploadManifestRequest) -> Uplo
     assert_eq!(
         inspect(f, second.permission.uploader.into(), &second_root)
             .unwrap()
-            .blockers,
-        []
+            .permission,
+        second.permission
     );
     let reply: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
@@ -254,7 +253,10 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
     let before = f.harness.pic.get_stable_memory(f.service);
-    assert_eq!(inspect(&f, f.uploader, &root).unwrap().blockers, []);
+    assert_eq!(
+        inspect(&f, f.uploader, &root).unwrap().permission,
+        manifest.permission
+    );
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     for actor in [f.controller, f.operator, f.tenant, Principal::anonymous()] {
         refuses(&f, actor, &root);
@@ -363,7 +365,6 @@ fn malformed(f: &Fixture, root: &str) {
             assert_eq!(error.reject_code, RejectCode::CanisterError);
             let current = inspect(f, f.uploader, root).unwrap();
             assert_eq!(current.permission, assessment.permission);
-            assert_eq!(current.blockers, assessment.blockers);
             unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
         }
     }
@@ -381,6 +382,5 @@ fn malformed(f: &Fixture, root: &str) {
     );
     let current = inspect(f, f.uploader, root).unwrap();
     assert_eq!(current.permission, assessment.permission);
-    assert_eq!(current.blockers, assessment.blockers);
     unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
 }

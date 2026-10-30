@@ -234,18 +234,8 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<SetupOutcome
     execute(options, &saved, &agent).await
 }
 
-/// Reuse the invocation's authenticated role; request binding is still checked.
-pub(super) async fn with_agent(
-    options: &Options,
-    input: &Input,
-    agent: &Agent,
-) -> Result<SetupOutcome, Failure> {
-    let actor = agent.get_principal().map_err(|_| Failure::Identity)?;
-    let saved = request::load(input, actor.into())?;
-    execute(options, &saved, agent).await
-}
-
-async fn execute(
+/// Execute a request already validated for the invocation's authenticated role.
+pub(super) async fn execute(
     options: &Options,
     saved: &Request,
     agent: &Agent,
@@ -273,17 +263,13 @@ async fn execute(
 /// Retain exact query arguments and raw replies through the same setup decoder.
 pub(super) async fn inspect_recorded(
     agent: &Agent,
-    input: &Input,
+    saved: &Request,
     run: &crate::native::artifacts::Run,
     label: &str,
 ) -> Result<SetupObservation, Failure> {
-    if input.kind.mutation() {
+    if saved.payload.kind().mutation() {
         return Err(Failure::Arguments);
     }
-    let saved = request::load(
-        input,
-        agent.get_principal().map_err(|_| Failure::Identity)?.into(),
-    )?;
     let intent = json!({"method":saved.payload.kind().method(),
         "argument_sha256":crate::native::upload_inputs::digest(&saved.argument),"updates":0});
     let bytes = query::recorded(run, label, saved.argument.clone(), &intent, |args| {
@@ -295,7 +281,7 @@ pub(super) async fn inspect_recorded(
         )
     })
     .await?;
-    observation(&saved, &bytes)
+    observation(saved, &bytes)
 }
 fn admission_error(error: admission_reply::UploadAdmissionReplyError) -> Failure {
     use admission_reply::UploadAdmissionReplyError as R;

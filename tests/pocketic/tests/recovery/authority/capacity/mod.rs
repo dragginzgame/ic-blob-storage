@@ -112,7 +112,7 @@ fn restoration_retains_large_reused_capacity_and_exhausted_lifetime_slots() {
         let entry = object(&retained, ArchiveCatalog::Journey, root);
         assert_eq!((entry.phase, entry.release_receipt), (phase, receipt));
     }
-    f.upgrade_authority();
+    f.restore(f.service);
     retained.fenced = true;
     assert_eq!(f.archive(), retained);
     f.upgrade_skipping_outgoing_hook(f.service, true);

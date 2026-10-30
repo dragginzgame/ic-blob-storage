@@ -5,11 +5,35 @@ mod source;
 use super::*;
 use blob_test_protocol::journey::readback::ReadSourceMode;
 use ic_platform::pocket_ic::CanisterInstallMode;
-use std::time::Duration;
+use ic_testkit::pic::{CanisterInstallExt, RetryPolicy};
+use std::{num::NonZeroUsize, time::Duration};
 
 const CHUNK: usize = 1024 * 1024;
 
 impl Fixture {
+    fn restore(&self, canister: Principal) {
+        let wasm = self.wasm(canister);
+        let args =
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap();
+        self.harness
+            .pic
+            .retry_install_code(
+                RetryPolicy {
+                    max_attempts: NonZeroUsize::new(2).unwrap(),
+                    cooldown: Duration::from_secs(300),
+                },
+                || {
+                    self.harness.pic.upgrade_canister(
+                        canister,
+                        wasm.clone(),
+                        args.clone(),
+                        self.controller(canister),
+                    )
+                },
+            )
+            .expect("same-release fenced fixture restore");
+    }
+
     fn controller(&self, canister: Principal) -> Option<Principal> {
         (canister == self.service).then_some(self.operator)
     }
@@ -214,7 +238,7 @@ fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
         exposed.bytes
     );
     let mut retained = f.archive();
-    f.upgrade_authority();
+    f.restore(f.service);
     retained.fenced = true;
     assert_eq!(f.archive(), retained);
     f.assert_authority_fenced(exposed.upload);
