@@ -120,7 +120,7 @@ impl Failure {
 }
 
 pub(super) fn run() -> ExitCode {
-    let args: Vec<_> = std::env::args().skip(1).collect();
+    let args: Vec<_> = std::env::args_os().skip(1).collect();
     let result = match arguments::invocation(&args) {
         Ok(None) => return ExitCode::SUCCESS,
         Ok(Some(matches)) => execute_matches(&matches),

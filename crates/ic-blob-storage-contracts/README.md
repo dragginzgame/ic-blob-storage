@@ -19,7 +19,14 @@ Provider Candid and hashes remain. Cross-release transitions remain reinstall-on
 ```sh
 cargo run -p ic-blob-storage-contracts --example prepare_upload -- --help
 cargo run -p ic-blob-storage-contracts --example verify_download -- --help
+cargo run -p ic-blob-storage-contracts --features wire-schema --example wire_schema -- --help
 ```
+
+The examples use Clap to validate their complete invocation before opening files
+or reading stdin. `prepare_upload --inventory INVENTORY.json [--snapshot PARENT]`
+is separate from its declaration/stdin form. `wire_schema` requires exactly one
+of `metadata`, `client`, `adapter` or `runtime`; surplus arguments refuse. Clap
+is a native development dependency and is excluded from deployed canisters.
 
 See the repository's [migration and qualification record](../../docs/evidence/contracts-0180.md).
 

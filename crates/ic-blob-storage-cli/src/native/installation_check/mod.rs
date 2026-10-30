@@ -1,41 +1,35 @@
 //! Offline complete candidate validation and init encoding; no platform or provider effect.
 
-use super::parsing::principal;
+use super::arguments::value;
 use super::{Failure, artifacts::Run, exact_wire, read};
 use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::configuration::ValidatedInstallationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use serde_json::{Value, json};
-use std::path::Path;
+use std::path::PathBuf;
 
 const CONFIGURATION_BYTES: usize = exact_wire::INSTALLATION_BYTES;
 
 pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let take = |key| {
-        flags
-            .get_one::<String>(key)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
-    let path = Path::new(take("--configuration")?);
-    let service = principal(take("--service")?)?;
-    let project = take("--project")?;
-    let release = take("--release")?;
-    let directory = Path::new(take("--run-dir")?);
-    let bytes = read(path, CONFIGURATION_BYTES as u64)?;
+    let path = value::<PathBuf>(flags, "--configuration");
+    let service = value(flags, "--service");
+    let project = value::<String>(flags, "--project");
+    let release = value::<String>(flags, "--release");
+    let directory = value::<PathBuf>(flags, "--run-dir");
+    let bytes = read(&path, CONFIGURATION_BYTES as u64)?;
     let configuration = serde_json::from_slice(&bytes).map_err(|_| Failure::Arguments)?;
     let candidate = ServiceInstallationCandidate {
         configuration,
-        project,
-        release,
+        project: &project,
+        release: &release,
         platform_installation_version: 0,
     };
     // This is a proposed platform identity, not an authenticated actual host.
     ValidatedInstallationInput::new(service, candidate).map_err(|_| Failure::Arguments)?;
     let input = ServiceInstallationInput {
         configuration,
-        project: project.into(),
+        project: project.clone(),
     };
     let configuration_bytes =
         ic_blob_storage_contracts::document::encode(configuration).map_err(|_| Failure::File)?;
@@ -56,7 +50,7 @@ pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
         "installation_dispatched":false,"provider_dispatched":false,"funding_dispatched":false,
         "namespace_provisioned":false,"provider_qualified":false,
         "operational_recovery_qualified":false,"retry_authorized":false});
-    let output = Run::create(directory)?;
+    let output = Run::create(&directory)?;
     output.bytes("configuration.json", &bytes)?;
     output.bytes("configuration.wire", &configuration_bytes)?;
     output.bytes("installation.wire", &installation)?;

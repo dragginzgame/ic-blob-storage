@@ -1,7 +1,7 @@
 //! Freeze a bounded, caller-allocated inventory without service/provider effects.
 mod capacity;
 mod paths;
-use super::parsing::positive;
+use super::arguments::value;
 use super::upload_inputs::installation::Installation;
 use super::{
     Failure,
@@ -158,29 +158,20 @@ fn metadata(
 }
 
 pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
-    let inventory_path = Path::new(take("--inventory")?);
-    let root = paths::Root::new(Path::new(take("--root")?))?;
-    let installation_path = Path::new(take("--installation")?);
-    let maximum: NonZeroU64 = positive(take("--max-bytes")?)?;
-    let total_maximum: NonZeroU64 = positive(take("--max-total-bytes")?)?;
-    let directory = Path::new(take("--run-dir")?);
-    if maximum.get() > MAX_FILE_BYTES || total_maximum.get() > MAX_TOTAL_BYTES {
-        return Err(Failure::Arguments);
-    }
-    let inventory_bytes = read(inventory_path, INVENTORY_BYTES)?;
+    let inventory_path = value::<std::path::PathBuf>(flags, "--inventory");
+    let root = paths::Root::new(&value::<std::path::PathBuf>(flags, "--root"))?;
+    let installation_path = value::<std::path::PathBuf>(flags, "--installation");
+    let maximum: NonZeroU64 = value(flags, "--max-bytes");
+    let total_maximum: NonZeroU64 = value(flags, "--max-total-bytes");
+    let directory = value::<std::path::PathBuf>(flags, "--run-dir");
+    let inventory_bytes = read(&inventory_path, INVENTORY_BYTES)?;
     let inventory = Inventory::decode(&inventory_bytes)?;
     let installation = Installation::decode(
-        read(installation_path, exact_wire::INSTALLATION_BYTES as u64)?,
+        read(&installation_path, exact_wire::INSTALLATION_BYTES as u64)?,
         maximum,
     )?;
     let (prepared, capacity) = preflight(&inventory, &root, &installation, total_maximum)?;
-    let run = Run::create(directory)?;
+    let run = Run::create(&directory)?;
     run.bytes("inventory.json", &inventory_bytes)?;
     run.bytes("installation.wire", &installation.bytes)?;
     run.json("plan.json", &capacity.summary())?;

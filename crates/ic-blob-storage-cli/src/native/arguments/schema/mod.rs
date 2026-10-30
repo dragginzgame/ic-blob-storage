@@ -1,21 +1,147 @@
-//! CLI grammar. Clap owns required/unknown/duplicate flags; handlers own domain policy.
+//! CLI grammar and typed admission; handlers retain request and trust policy.
+use clap::builder::{PossibleValuesParser, StringValueParser, TypedValueParser};
 use clap::{Arg, ArgAction, Command};
+use ic_platform::Principal;
+use std::{
+    fmt::Display,
+    num::{NonZeroU64, NonZeroU128},
+    path::PathBuf,
+    str::FromStr,
+};
+use url::Url;
 
-fn arguments(names: &'static str, required: bool) -> impl Iterator<Item = Arg> {
-    names.split_ascii_whitespace().map(move |name| {
-        Arg::new(name)
-            .long(&name[2..])
-            .value_name("VALUE")
-            .required(required)
-            .action(ArgAction::Set)
+// Canonical spelling is product policy; Clap owns invocation, storage and errors.
+fn positive<T>(maximum: T) -> impl TypedValueParser<Value = T>
+where
+    T: FromStr + Display + Ord + Clone + Send + Sync + 'static,
+{
+    StringValueParser::new().try_map(move |text| {
+        let value = crate::native::parsing::positive::<T>(&text)
+            .map_err(|_| "invalid canonical positive integer")?;
+        if value > maximum {
+            Err("value exceeds command limit")
+        } else {
+            Ok(value)
+        }
     })
+}
+fn principal(text: &str) -> Result<Principal, &'static str> {
+    crate::native::parsing::principal(text).map_err(|_| "invalid canonical principal")
+}
+fn ordinary_principal(text: &str) -> Result<Principal, &'static str> {
+    let value = principal(text)?;
+    if value == Principal::anonymous() || value == Principal::management_canister() {
+        Err("ordinary principal required")
+    } else {
+        Ok(value)
+    }
+}
+fn file_index(text: &str) -> Result<usize, &'static str> {
+    let index = text.parse::<usize>().map_err(|_| "invalid file index")?;
+    if index.to_string() != text || index >= crate::native::publish_inputs::MAX_FILES {
+        Err("invalid file index")
+    } else {
+        Ok(index)
+    }
+}
+fn argument(command: &str, name: &'static str, required: bool) -> Arg {
+    use crate::native::publish_inputs::{
+        MAX_FILE_BYTES, MAX_FILES, MAX_TIMEOUT_SECONDS, MAX_TOTAL_BYTES,
+    };
+    let arg = Arg::new(name)
+        .long(&name[2..])
+        .required(required)
+        .action(ArgAction::Set);
+    match name {
+        "--identity"
+        | "--root-key"
+        | "--run-dir"
+        | "--inputs"
+        | "--request"
+        | "--permission"
+        | "--body"
+        | "--cursor"
+        | "--configuration"
+        | "--inventory"
+        | "--root"
+        | "--installation"
+        | "--binding"
+        | "--manifest"
+        | "--uploader-identity"
+        | "--operator-identity"
+        | "--source-run"
+        | "--source-session"
+        | "--browser-selection" => arg.value_parser(clap::value_parser!(PathBuf)),
+        "--network" => arg.value_parser(
+            PossibleValuesParser::new(["ic", "local"])
+                .map(|value| if value == "ic" { "ic" } else { "local" }),
+        ),
+        "--url" => arg.value_parser(clap::value_parser!(Url)),
+        "--gateway" if command != "revoke-gateway" => arg.value_parser(clap::value_parser!(Url)),
+        "--service" | "--operator" | "--actor" | "--cashier" | "--payer" | "--caller"
+        | "--owner" | "--gateway" => {
+            if matches!(command, "account-link-inputs" | "installation-check") {
+                arg.value_parser(principal)
+            } else {
+                arg.value_parser(ordinary_principal)
+            }
+        }
+        "--namespace" | "--operation" | "--offered" | "--reference" | "--target-balance" => {
+            arg.value_parser(positive(u128::MAX))
+        }
+        "--daily-limit" => arg.value_parser(positive(NonZeroU128::MAX)),
+        "--expiry" => arg.value_parser(positive(NonZeroU64::MAX)),
+        "--sequence" => arg.value_parser(positive(u64::MAX)),
+        "--max-bytes" => arg.value_parser(positive(
+            NonZeroU64::new(MAX_FILE_BYTES).expect("positive ceiling"),
+        )),
+        "--max-total-bytes" => arg.value_parser(positive(
+            NonZeroU64::new(MAX_TOTAL_BYTES).expect("positive ceiling"),
+        )),
+        "--timeout-seconds" => arg.value_parser(positive(MAX_TIMEOUT_SECONDS)),
+        "--file-index" => arg.value_parser(file_index),
+        "--max-queries" => arg.value_parser(positive(match command {
+            "publish-file-status" => 4,
+            "publish-map" => 2 * MAX_FILES as u64 + 2,
+            _ => MAX_FILES as u64 + 1,
+        })),
+        "--max-steps" => arg.value_parser(positive(
+            crate::native::publish_session::budget::step_limit(MAX_FILES)
+                .expect("bounded file ceiling"),
+        )),
+        "--kind" => arg.value_parser(|text: &str| {
+            crate::native::account::kind(text).map_err(|_| "invalid account observation kind")
+        }),
+        "--filter" => arg.value_parser(|text: &str| {
+            crate::native::upload_history::filter(text).map_err(|_| "invalid upload filter")
+        }),
+        "--action" => arg.value_parser(PossibleValuesParser::new(["retain", "release"]).map(
+            |value| {
+                if value == "retain" {
+                    ic_blob_storage_contracts::dto::reference::ReferenceAction::Retain
+                } else {
+                    ic_blob_storage_contracts::dto::reference::ReferenceAction::Release
+                }
+            },
+        )),
+        _ => arg.value_name("VALUE"),
+    }
+}
+fn arguments(
+    command: &'static str,
+    names: &'static str,
+    required: bool,
+) -> impl Iterator<Item = Arg> {
+    names
+        .split_ascii_whitespace()
+        .map(move |name| argument(command, name, required))
 }
 
 fn command(name: &'static str, required: &'static str, optional: &'static str) -> Command {
     Command::new(name)
         .after_long_help(help(name))
-        .args(arguments(required, true))
-        .args(arguments(optional, false))
+        .args(arguments(name, required, true))
+        .args(arguments(name, optional, false))
 }
 
 fn help(name: &str) -> &'static str {
@@ -57,7 +183,7 @@ fn help(name: &str) -> &'static str {
             "Compare a local body with the saved declaration. This does not establish provider retention or issue a certificate."
         }
         "certificate-assessment" => {
-            "Inspect missing prerequisites without issuing a certificate. Even an unblocked assessment is not retry authority."
+            "Inspect current issuance eligibility without issuing a certificate. A successful assessment is not retry authority."
         }
         "upload-history" | "funding-history" => {
             "One bounded page. Retain a non-null cursor for explicit continuation, including empty filtered pages; no automatic pagination or provider calls."
@@ -94,15 +220,16 @@ fn online(
 ) -> Command {
     command(name, required, optional)
         .args(arguments(
+            name,
             "--network --url --identity --service --namespace",
             true,
         ))
         .args(arguments(
+            name,
             if operator { "--operator" } else { "--actor" },
             true,
         ))
-        .args(arguments("--root-key", false))
-        .mut_arg("--network", |arg| arg.value_parser(["ic", "local"]))
+        .args(arguments(name, "--root-key", false))
 }
 
 pub(super) fn cli() -> Command {
@@ -196,9 +323,11 @@ fn operator(mut cli: Command) -> Command {
         ("cancel-gateway-sync", "--run-dir --sequence", ""),
         ("revoke-gateway", "--run-dir --gateway", ""),
     ] {
-        cli = cli.subcommand(
-            online(name, true, required, optional).args(arguments("--cashier --payer", true)),
-        );
+        cli = cli.subcommand(online(name, true, required, optional).args(arguments(
+            name,
+            "--cashier --payer",
+            true,
+        )));
     }
     cli
 }
@@ -220,6 +349,7 @@ fn publishing(mut cli: Command) -> Command {
             "",
         );
         selected = selected.args(arguments(
+            name,
             if matches!(
                 name,
                 "publish-check" | "publish-map" | "publish-file-status"
@@ -234,21 +364,25 @@ fn publishing(mut cli: Command) -> Command {
             name,
             "publish-map" | "publish-file-status" | "publish-session"
         ) {
-            selected = selected.args(arguments("--gateway --operator-identity", true));
+            selected = selected.args(arguments(name, "--gateway --operator-identity", true));
         }
         if matches!(
             name,
             "publish-prepare" | "publish-prepare-resume" | "publish-file-status"
         ) {
-            selected = selected.args(arguments("--file-index", true));
+            selected = selected.args(arguments(name, "--file-index", true));
         }
         if name == "publish-prepare-resume" {
-            selected = selected.args(arguments("--source-run", true));
+            selected = selected.args(arguments(name, "--source-run", true));
         }
         if name == "publish-session" {
             selected = selected
-                .args(arguments("--max-steps", true))
-                .args(arguments("--source-session --browser-selection", false));
+                .args(arguments(name, "--max-steps", true))
+                .args(arguments(
+                    name,
+                    "--source-session --browser-selection",
+                    false,
+                ));
         }
         cli = cli.subcommand(selected);
     }

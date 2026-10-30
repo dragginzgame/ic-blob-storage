@@ -204,34 +204,26 @@ fn validate_namespaces(
 }
 
 pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
-    let binding_path = Path::new(take("--binding")?);
-    let installation_path = Path::new(take("--installation")?);
-    let manifest_path = Path::new(take("--manifest")?);
-    let maximum: NonZeroU64 = positive(take("--max-bytes")?)?;
-    let directory = Path::new(take("--run-dir")?);
-    let body_path = Path::new(take("--body")?);
-    if maximum.get() > 1024 * 1024 * 1024 {
-        return Err(Failure::Arguments);
-    }
+    use super::arguments::value;
+    let binding_path = value::<std::path::PathBuf>(flags, "--binding");
+    let installation_path = value::<std::path::PathBuf>(flags, "--installation");
+    let manifest_path = value::<std::path::PathBuf>(flags, "--manifest");
+    let maximum: NonZeroU64 = value(flags, "--max-bytes");
+    let directory = value::<std::path::PathBuf>(flags, "--run-dir");
+    let body_path = value::<std::path::PathBuf>(flags, "--body");
     PreparedInput::load(InputFiles {
-        binding: read(binding_path, BINDING_BYTES)?,
-        manifest: read(manifest_path, MANIFEST_BYTES)?,
+        binding: read(&binding_path, BINDING_BYTES)?,
+        manifest: read(&manifest_path, MANIFEST_BYTES)?,
         installation: installation::Installation::decode(
             read(
-                installation_path,
+                &installation_path,
                 super::exact_wire::INSTALLATION_BYTES as u64,
             )?,
             maximum,
         )?,
-        body: body_path.to_owned().into(),
+        body: body_path.into(),
     })?
-    .publish(directory, None)
+    .publish(&directory, None)
 }
 
 impl PreparedInput {

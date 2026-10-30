@@ -236,3 +236,37 @@ fn staged_buffers_handle_short_writes_and_reject_write_or_flush_failure() {
         matches!(prepare_to(&b"abc"[..], declaration(), limits(), &mut output), Err(PreparationError::Io(error)) if error.kind() == io::ErrorKind::Other)
     );
 }
+
+#[test]
+fn command_grammar_selects_inventory_or_streaming_before_effects() {
+    cli().debug_assert();
+    for args in [
+        vec!["prepare_upload", "--inventory", "missing.json"],
+        vec![
+            "prepare_upload",
+            "--inventory",
+            "missing.json",
+            "--snapshot",
+            "out",
+        ],
+        vec!["prepare_upload", "missing.json", "3", "1"],
+    ] {
+        assert!(cli().try_get_matches_from(args).is_ok());
+    }
+    for args in [
+        vec!["prepare_upload"],
+        vec!["prepare_upload", "--snapshot", "out"],
+        vec!["prepare_upload", "--inventory", "missing.json", "extra"],
+        vec!["prepare_upload", "missing.json", "0", "1"],
+        vec!["prepare_upload", "missing.json", "3", "1", "extra"],
+    ] {
+        assert!(cli().try_get_matches_from(args).is_err());
+    }
+    assert_eq!(
+        cli()
+            .try_get_matches_from(["prepare_upload", "--help"])
+            .unwrap_err()
+            .kind(),
+        clap::error::ErrorKind::DisplayHelp
+    );
+}

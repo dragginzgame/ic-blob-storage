@@ -22,6 +22,12 @@ Use `blob-storage --help` to select a command and
 recovery procedures below remain authoritative; a missing reply or partial run
 never grants permission to repeat an update.
 
+Clap supplies typed filesystem paths, principals, URLs, choices and bounded
+numbers before command execution. Decimal IDs and limits retain canonical
+spelling; file indices permit canonical zero. Trust-root/URL policy and request
+authority remain with their command owners. Argument refusals retain the existing
+redacted JSON and exit 2; help succeeds without opening identity or input files.
+
 ## Choose a task
 
 | Goal | Start here |

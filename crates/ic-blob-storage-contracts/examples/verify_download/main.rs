@@ -72,21 +72,25 @@ fn verify_body(
     }
 }
 
+fn cli() -> clap::Command {
+    use clap::{Arg, Command, value_parser};
+    use std::path::PathBuf;
+    Command::new("verify_download")
+        .about("Verify stdin against an application-trusted local claim; optionally publish verified output")
+        .arg(Arg::new("claim").value_name("CLAIM.json").required(true).value_parser(value_parser!(PathBuf)))
+        .arg(Arg::new("maximum").value_name("MAX_BYTES").required(true).value_parser(value_parser!(NonZeroU64)))
+        .arg(Arg::new("output").value_name("OUTPUT").value_parser(value_parser!(PathBuf)))
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut args = std::env::args_os().skip(1);
+    let args = cli().get_matches();
     let claim_path = args
-        .next()
-        .ok_or("usage: verify_download CLAIM.json MAX_BYTES [OUTPUT] < body")?;
-    let maximum: NonZeroU64 = args
-        .next()
-        .ok_or("missing MAX_BYTES")?
-        .to_str()
-        .ok_or("MAX_BYTES must be UTF-8")?
-        .parse()?;
-    let destination = args.next();
-    if args.next().is_some() {
-        return Err("unexpected argument".into());
-    }
+        .get_one::<std::path::PathBuf>("claim")
+        .expect("required claim");
+    let maximum = *args
+        .get_one::<NonZeroU64>("maximum")
+        .expect("required maximum");
+    let destination = args.get_one::<std::path::PathBuf>("output");
     let claim = read_claim(File::open(claim_path)?)?;
     let headers: Vec<_> = claim
         .headers

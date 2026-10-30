@@ -152,3 +152,28 @@ fn successful_eof_is_required_after_the_last_expected_byte() {
         ))
     ));
 }
+
+#[test]
+fn command_grammar_admits_native_paths_and_refuses_bad_limits_or_extra_output() {
+    cli().debug_assert();
+    for args in [
+        vec!["verify_download", "missing.json", "3"],
+        vec!["verify_download", "missing.json", "3", "out"],
+    ] {
+        assert!(cli().try_get_matches_from(args).is_ok());
+    }
+    for args in [
+        vec!["verify_download"],
+        vec!["verify_download", "missing.json", "0"],
+        vec!["verify_download", "missing.json", "3", "out", "extra"],
+    ] {
+        assert!(cli().try_get_matches_from(args).is_err());
+    }
+    assert_eq!(
+        cli()
+            .try_get_matches_from(["verify_download", "--help"])
+            .unwrap_err()
+            .kind(),
+        clap::error::ErrorKind::DisplayHelp
+    );
+}

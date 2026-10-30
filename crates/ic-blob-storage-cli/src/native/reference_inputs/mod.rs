@@ -1,6 +1,6 @@
 //! Offline exact-reference inputs; supplied identities never allocate authority.
 
-use super::parsing::positive;
+use super::arguments::value;
 use super::{Failure, artifacts::Run, read, references};
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
@@ -12,7 +12,7 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::reference::reply;
 use ic_blob_storage_contracts::upload::admission::reply::validate_request;
 use serde_json::{Value, json};
-use std::path::Path;
+use std::path::PathBuf;
 
 /// Both read requests name the same exact reference and original object binding.
 pub(super) struct ReferenceFiles {
@@ -49,22 +49,12 @@ impl ReferenceFiles {
     }
 }
 pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
-    let path = Path::new(take("--permission")?);
-    let action = match take("--action")? {
-        "retain" => ReferenceAction::Retain,
-        "release" => ReferenceAction::Release,
-        _ => return Err(Failure::Arguments),
-    };
-    let reference = positive(take("--reference")?)?;
-    let operation = positive(take("--operation")?)?;
-    let directory = Path::new(take("--run-dir")?);
-    let permission_bytes = read(path, 4096)?;
+    let path = value::<PathBuf>(flags, "--permission");
+    let action = value(flags, "--action");
+    let reference = value(flags, "--reference");
+    let operation = value(flags, "--operation");
+    let directory = value::<PathBuf>(flags, "--run-dir");
+    let permission_bytes = read(&path, 4096)?;
     let permission: UploadAdmissionRequest =
         crate::native::exact_wire::decode(&permission_bytes, 4096)?;
     validate_request(permission).map_err(|_| Failure::Arguments)?;
@@ -79,7 +69,7 @@ pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
         ic_blob_storage_contracts::document::encode(request).map_err(|_| Failure::Arguments)?;
     let files = ReferenceFiles::new(permission.upload, reference)?;
     // Validation precedes the durable claim. Exact input is retained, never renewed.
-    let run = Run::create(directory)?;
+    let run = Run::create(&directory)?;
     run.bytes("permission.wire", &permission_bytes)?;
     run.bytes("reference.wire", &command)?;
     files.save(&run)?;

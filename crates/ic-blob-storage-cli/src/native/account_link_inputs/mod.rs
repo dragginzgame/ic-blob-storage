@@ -5,31 +5,20 @@ use ic_blob_storage_contracts::provider::onboarding::AccountLinkBinding;
 use ic_blob_storage_contracts::provider::onboarding::AccountLinkRequest;
 use ic_blob_storage_contracts::provider::onboarding::AccountLinkTerms;
 use serde_json::{Value, json};
-use std::{
-    num::{NonZeroU64, NonZeroU128},
-    path::Path,
-};
 
-use super::parsing::positive;
-use super::parsing::principal;
+use super::arguments::value;
 pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let take = |key| {
-        flags
-            .get_one::<String>(key)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
     let binding = AccountLinkBinding {
-        cashier: principal(take("--cashier")?)?,
-        caller: principal(take("--caller")?)?,
-        paid_canister: principal(take("--owner")?)?,
-        payment_account: principal(take("--payer")?)?,
+        cashier: value(flags, "--cashier"),
+        caller: value(flags, "--caller"),
+        paid_canister: value(flags, "--owner"),
+        payment_account: value(flags, "--payer"),
     };
     let terms = AccountLinkTerms {
-        daily_limit: positive::<NonZeroU128>(take("--daily-limit")?)?,
-        expiration_timestamp: positive::<NonZeroU64>(take("--expiry")?)?,
+        daily_limit: value(flags, "--daily-limit"),
+        expiration_timestamp: value(flags, "--expiry"),
     };
-    let directory = Path::new(take("--run-dir")?);
+    let directory = value::<std::path::PathBuf>(flags, "--run-dir");
     let request = AccountLinkRequest::new(binding, terms).map_err(|_| Failure::Arguments)?;
     let report = json!({"schema":1,"observation":"local_account_link_inputs",
         "cashier":binding.cashier.to_text(),"caller":binding.caller.to_text(),
@@ -40,7 +29,7 @@ pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
         "authenticated":false,"identities_allocated":false,"provider_dispatched":false,
         "funding_dispatched":false,"retry_authorized":false,"units_interpreted":false,
         "spending_guarantee":"not_established"});
-    let output = Run::create(directory)?;
+    let output = Run::create(&directory)?;
     output.bytes("account-link.candid", request.arguments())?;
     output.json("summary.json", &report)?;
     Ok(report)

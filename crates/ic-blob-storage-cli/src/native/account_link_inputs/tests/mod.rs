@@ -1,5 +1,6 @@
 use super::*;
 use ic_host_fs::testing::FixtureDirectory;
+use std::path::Path;
 
 fn args(base: &Path) -> Vec<String> {
     [

@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.59.1]
+
+### 🩹 Fixed
+
+- Use Clap help and argument admission for the maintained upload, download and
+  Wire-schema tools. Invalid, conflicting and surplus arguments refuse before
+  file or stdin access; existing command forms and output bytes are preserved.
+  Keep the parser host-only and reject it from deployment dependency graphs.
+  [#111](https://github.com/dragginzgame/ic-blob-storage/issues/111)
+
+### 🧹 Cleanup
+
+- Let Clap produce typed paths, principals, URLs, choices and bounded numbers
+  for the native CLI, removing the second string-conversion pass. Preserve
+  canonical identifiers, limits, trust policy and redacted JSON errors; native
+  paths no longer require UTF-8 argument conversion.
+  [#110](https://github.com/dragginzgame/ic-blob-storage/issues/110)
+
 ## [0.59.0] - 2026-10-30
 
 ### ⚠️ Breaking

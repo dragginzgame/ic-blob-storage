@@ -1,6 +1,7 @@
 use super::*;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
+use std::path::Path;
 
 fn permission() -> UploadAdmissionRequest {
     UploadAdmissionRequest {

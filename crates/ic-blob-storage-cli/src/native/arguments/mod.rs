@@ -1,6 +1,5 @@
 mod schema;
 use super::Failure;
-use super::parsing::positive;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_platform::Principal;
 use std::path::PathBuf;
@@ -52,12 +51,12 @@ pub(super) enum Command {
     },
 }
 
-fn principal(value: &str) -> Result<Principal, Failure> {
-    let principal = super::parsing::principal(value)?;
-    if principal == Principal::anonymous() || principal == Principal::management_canister() {
-        return Err(Failure::Arguments);
-    }
-    Ok(principal)
+/// Retrieve a value already admitted by Clap; no reparsing or default substitution.
+pub(super) fn value<T: Clone + Send + Sync + 'static>(flags: &clap::ArgMatches, name: &str) -> T {
+    flags
+        .get_one::<T>(name)
+        .expect("required typed CLI argument")
+        .clone()
 }
 
 impl Options {
@@ -67,62 +66,38 @@ impl Options {
         let (command, flags) = matches.subcommand().ok_or(Failure::Arguments)?;
         Self::from_matches(command, flags)
     }
-
     pub fn from_matches(
         command: &str,
         flags: &clap::ArgMatches,
     ) -> Result<(Command, Self), Failure> {
-        let take = |name| {
-            flags
-                .get_one::<String>(name)
-                .map(String::as_str)
-                .ok_or(Failure::Arguments)
-        };
-        let network = match take("--network")? {
-            "ic" => "ic",
-            "local" => "local",
-            _ => return Err(Failure::Arguments),
-        };
-        let url = Url::parse(take("--url")?).map_err(|_| Failure::Arguments)?;
-        let identity = PathBuf::from(take("--identity")?);
-        let service = principal(take("--service")?)?;
-        let namespace = positive::<u128>(take("--namespace")?)?;
-        let command = parse_command(command, service, namespace, network, flags)?;
-        let actor = principal(
-            flags
-                .get_one::<String>(if flags.try_contains_id("--operator").unwrap_or(false) {
-                    "--operator"
-                } else {
-                    "--actor"
-                })
-                .map(String::as_str)
-                .ok_or(Failure::Arguments)?,
-        )?;
-        let root_key = flags
-            .get_one::<String>("--root-key")
-            .map(String::as_str)
-            .map(PathBuf::from);
+        let network = value(flags, "--network");
+        let url = value(flags, "--url");
+        let root_key = flags.get_one::<PathBuf>("--root-key").cloned();
         validate_url(&url, network, root_key.is_some())?;
+        let service = value(flags, "--service");
+        let namespace = value(flags, "--namespace");
+        let command = parse_command(command, service, namespace, network, flags)?;
+        let actor = value(
+            flags,
+            if flags.try_contains_id("--operator").unwrap_or(false) {
+                "--operator"
+            } else {
+                "--actor"
+            },
+        );
         Ok((
             command,
             Self {
                 network,
                 url,
-                identity,
-                actor,
                 root_key,
+                actor,
+                identity: value(flags, "--identity"),
             },
         ))
     }
 }
 
-fn maximum(value: &str) -> Result<std::num::NonZeroU64, Failure> {
-    let maximum: std::num::NonZeroU64 = positive(value)?;
-    if maximum.get() > super::publish_inputs::MAX_FILE_BYTES {
-        return Err(Failure::Arguments);
-    }
-    Ok(maximum)
-}
 fn parse_command(
     command: &str,
     service: Principal,
@@ -132,85 +107,72 @@ fn parse_command(
 ) -> Result<Command, Failure> {
     match command {
         "metrics" => Ok(Command::Metrics { service, namespace }),
-        "publish-session" => parse_publish_session(service, namespace, network, flags),
-        "publish-check" => Ok(Command::PublishCheck(parse_publish_check(
-            service,
-            namespace,
-            flags,
-            super::publish_inputs::MAX_FILES as u128 + 1,
-        )?)),
+        "publish-session" => {
+            let gateway = value(flags, "--gateway");
+            validate_url(&gateway, network, network == "local")?;
+            Ok(Command::PublishSession(super::publish_session::Input {
+                source_session: flags.get_one::<PathBuf>("--source-session").cloned(),
+                browser_selection: flags.get_one::<PathBuf>("--browser-selection").cloned(),
+                operator_identity: value(flags, "--operator-identity"),
+                prepare: prepare_input(service, namespace, 0, flags),
+                gateway,
+                max_steps: value(flags, "--max-steps"),
+            }))
+        }
+        "publish-check" => Ok(Command::PublishCheck(check_input(
+            service, namespace, flags,
+        ))),
         "publish-map" | "publish-file-status" => {
             let selection = if command == "publish-file-status" {
-                let text = flags
-                    .get_one::<String>("--file-index")
-                    .map(String::as_str)
-                    .ok_or(Failure::Arguments)?;
-                let index: usize = text.parse().map_err(|_| Failure::Arguments)?;
-                if index.to_string() != text || index >= super::publish_inputs::MAX_FILES {
-                    return Err(Failure::Arguments);
-                }
-                super::publish_map::Selection::File(index)
+                super::publish_map::Selection::File(value(flags, "--file-index"))
             } else {
                 super::publish_map::Selection::Batch
             };
-            let gateway = Url::parse(
-                flags
-                    .get_one::<String>("--gateway")
-                    .map(String::as_str)
-                    .ok_or(Failure::Arguments)?,
-            )
-            .map_err(|_| Failure::Arguments)?;
+            let gateway = value(flags, "--gateway");
             validate_url(&gateway, network, network == "local")?;
             Ok(Command::PublishMap(super::publish_map::Input {
                 selection,
-                operator_identity: PathBuf::from(
-                    flags
-                        .get_one::<String>("--operator-identity")
-                        .map(String::as_str)
-                        .ok_or(Failure::Arguments)?,
-                ),
-                checks: parse_publish_check(
-                    service,
-                    namespace,
-                    flags,
-                    if command == "publish-file-status" {
-                        4
-                    } else {
-                        2 * super::publish_inputs::MAX_FILES as u128 + 2
-                    },
-                )?,
+                operator_identity: value(flags, "--operator-identity"),
+                checks: check_input(service, namespace, flags),
                 gateway,
             }))
         }
         "publish-prepare" | "publish-prepare-resume" | "publish-prepare-batch" => {
-            parse_publish_prepare(command, service, namespace, flags)
+            let index = if command == "publish-prepare-batch" {
+                0
+            } else {
+                value(flags, "--file-index")
+            };
+            let mut input = prepare_input(service, namespace, index, flags);
+            if command == "publish-prepare-resume" {
+                input.source = Some(value(flags, "--source-run"));
+            }
+            Ok(if command == "publish-prepare-batch" {
+                Command::PublishPrepareBatch(input)
+            } else {
+                Command::PublishPrepare(input)
+            })
         }
-        _ => parse_scoped_command(command, service, namespace, network, flags),
+        _ => scoped_command(command, service, namespace, network, flags),
     }
 }
 
-fn parse_scoped_command(
+fn scoped_command(
     command: &str,
     service: Principal,
     namespace: u128,
     network: &str,
     flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
     Ok(
         if let Some(kind) = super::upload_setup::Kind::parse(command) {
             Command::UploadSetup(super::upload_setup::Input {
                 kind,
                 service,
                 namespace,
-                request: PathBuf::from(take("--request")?),
+                request: value(flags, "--request"),
                 directory: if kind.mutation() {
-                    Some(PathBuf::from(take("--run-dir")?))
+                    Some(value(flags, "--run-dir"))
                 } else {
                     None
                 },
@@ -219,214 +181,89 @@ fn parse_scoped_command(
             Command::Reference(super::references::Input {
                 service,
                 namespace,
-                request: PathBuf::from(take("--request")?),
+                request: value(flags, "--request"),
                 kind,
             })
-        } else if command == "submit-reference" {
-            Command::SubmitReference(super::submit_reference::Input {
-                service,
-                namespace,
-                request: PathBuf::from(take("--request")?),
-                directory: PathBuf::from(take("--run-dir")?),
-            })
-        } else if command == "upload-history" {
-            Command::UploadHistory(super::upload_history::Input {
-                service,
-                namespace,
-                filter: super::upload_history::filter(take("--filter")?)?,
-                cursor: flags
-                    .get_one::<String>("--cursor")
-                    .map(String::as_str)
-                    .map(PathBuf::from),
-            })
-        } else if command == "certificate-assessment" {
-            Command::CertificateAssessment(super::certificate_assessment::Input {
-                service,
-                namespace,
-                permission: PathBuf::from(take("--permission")?),
-            })
-        } else if command == "download" {
-            let gateway = Url::parse(take("--gateway")?).map_err(|_| Failure::Arguments)?;
-            validate_url(&gateway, network, network == "local")?;
-            Command::Download(super::download::Input {
-                service,
-                namespace,
-                request: PathBuf::from(take("--request")?),
-                project: take("--project")?.to_owned(),
-                gateway,
-                directory: PathBuf::from(take("--run-dir")?),
-                max_bytes: maximum(take("--max-bytes")?)?,
-            })
-        } else if command == "verify-upload" {
-            let permission = PathBuf::from(take("--permission")?);
-            let body = PathBuf::from(take("--body")?);
-            let max_bytes = maximum(take("--max-bytes")?)?;
-            Command::VerifyUpload {
-                service,
-                namespace,
-                permission,
-                body,
-                max_bytes,
-            }
         } else {
-            parse_operator_command(command, service, namespace, flags)?
+            match command {
+                "submit-reference" => Command::SubmitReference(super::submit_reference::Input {
+                    service,
+                    namespace,
+                    request: value(flags, "--request"),
+                    directory: value(flags, "--run-dir"),
+                }),
+                "upload-history" => Command::UploadHistory(super::upload_history::Input {
+                    service,
+                    namespace,
+                    filter: value(flags, "--filter"),
+                    cursor: flags.get_one::<PathBuf>("--cursor").cloned(),
+                }),
+                "certificate-assessment" => {
+                    Command::CertificateAssessment(super::certificate_assessment::Input {
+                        service,
+                        namespace,
+                        permission: value(flags, "--permission"),
+                    })
+                }
+                "download" => {
+                    let gateway = value(flags, "--gateway");
+                    validate_url(&gateway, network, network == "local")?;
+                    Command::Download(super::download::Input {
+                        service,
+                        namespace,
+                        request: value(flags, "--request"),
+                        project: value(flags, "--project"),
+                        gateway,
+                        directory: value(flags, "--run-dir"),
+                        max_bytes: value(flags, "--max-bytes"),
+                    })
+                }
+                "verify-upload" => Command::VerifyUpload {
+                    service,
+                    namespace,
+                    permission: value(flags, "--permission"),
+                    body: value(flags, "--body"),
+                    max_bytes: value(flags, "--max-bytes"),
+                },
+                _ => operator_command(command, service, namespace, flags)?,
+            }
         },
     )
 }
-
-fn parse_publish_check(
+fn check_input(
     service: Principal,
     namespace: u128,
     flags: &clap::ArgMatches,
-    query_limit: u128,
-) -> Result<super::publish_check::Input, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
-    let max_bytes = maximum(take("--max-bytes")?)?;
-    let max_total_bytes = positive::<u128>(take("--max-total-bytes")?)?;
-    let max_queries = positive::<u128>(take("--max-queries")?)?;
-    let timeout_seconds = positive::<u128>(take("--timeout-seconds")?)?;
-    if max_total_bytes > u128::from(super::publish_inputs::MAX_TOTAL_BYTES)
-        || max_queries > query_limit
-        || timeout_seconds > u128::from(super::publish_inputs::MAX_TIMEOUT_SECONDS)
-    {
-        return Err(Failure::Arguments);
-    }
-    Ok(super::publish_check::Input {
+) -> super::publish_check::Input {
+    super::publish_check::Input {
         service,
         namespace,
-        inputs: PathBuf::from(take("--inputs")?),
-        directory: PathBuf::from(take("--run-dir")?),
-        max_bytes,
-        max_total_bytes: std::num::NonZeroU64::new(
-            max_total_bytes.try_into().map_err(|_| Failure::Arguments)?,
-        )
-        .ok_or(Failure::Arguments)?,
-        max_queries: max_queries.try_into().map_err(|_| Failure::Arguments)?,
-        timeout_seconds: timeout_seconds.try_into().map_err(|_| Failure::Arguments)?,
-    })
-}
-
-fn parse_publish_prepare(
-    command: &str,
-    service: Principal,
-    namespace: u128,
-    flags: &clap::ArgMatches,
-) -> Result<Command, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
-    let index_text = if command == "publish-prepare-batch" {
-        "0"
-    } else {
-        take("--file-index")?
-    };
-    let index: usize = index_text.parse().map_err(|_| Failure::Arguments)?;
-    if index.to_string() != index_text || index >= super::publish_inputs::MAX_FILES {
-        return Err(Failure::Arguments);
+        inputs: value(flags, "--inputs"),
+        directory: value(flags, "--run-dir"),
+        max_bytes: value(flags, "--max-bytes"),
+        max_total_bytes: value(flags, "--max-total-bytes"),
+        max_queries: value(flags, "--max-queries"),
+        timeout_seconds: value(flags, "--timeout-seconds"),
     }
-    let source = if command == "publish-prepare-resume" {
-        Some(PathBuf::from(take("--source-run")?))
-    } else {
-        None
-    };
-    let mut input = parse_prepare_input(service, namespace, index, flags)?;
-    input.source = source;
-    Ok(if command == "publish-prepare-batch" {
-        Command::PublishPrepareBatch(input)
-    } else {
-        Command::PublishPrepare(input)
-    })
 }
-
-fn parse_prepare_input(
+fn prepare_input(
     service: Principal,
     namespace: u128,
     index: usize,
     flags: &clap::ArgMatches,
-) -> Result<super::publish_prepare::Input, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
-    };
-    let max_bytes = maximum(take("--max-bytes")?)?;
-    let total = positive::<u128>(take("--max-total-bytes")?)?;
-    let timeout = positive::<u128>(take("--timeout-seconds")?)?;
-    if total > u128::from(super::publish_inputs::MAX_TOTAL_BYTES)
-        || timeout > u128::from(super::publish_inputs::MAX_TIMEOUT_SECONDS)
-    {
-        return Err(Failure::Arguments);
-    }
-    Ok(super::publish_prepare::Input {
+) -> super::publish_prepare::Input {
+    super::publish_prepare::Input {
         service,
         namespace,
         index,
-        max_bytes,
-        max_total_bytes: std::num::NonZeroU64::new(
-            total.try_into().map_err(|_| Failure::Arguments)?,
-        )
-        .ok_or(Failure::Arguments)?,
-        timeout_seconds: timeout.try_into().map_err(|_| Failure::Arguments)?,
-        inputs: PathBuf::from(take("--inputs")?),
-        directory: PathBuf::from(take("--run-dir")?),
-        uploader_identity: PathBuf::from(take("--uploader-identity")?),
+        max_bytes: value(flags, "--max-bytes"),
+        max_total_bytes: value(flags, "--max-total-bytes"),
+        timeout_seconds: value(flags, "--timeout-seconds"),
+        inputs: value(flags, "--inputs"),
+        directory: value(flags, "--run-dir"),
+        uploader_identity: value(flags, "--uploader-identity"),
         source: None,
-    })
-}
-
-fn parse_publish_session(
-    service: Principal,
-    namespace: u128,
-    network: &str,
-    flags: &clap::ArgMatches,
-) -> Result<Command, Failure> {
-    let gateway = Url::parse(
-        flags
-            .get_one::<String>("--gateway")
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)?,
-    )
-    .map_err(|_| Failure::Arguments)?;
-    validate_url(&gateway, network, network == "local")?;
-    let max_steps = positive::<u64>(
-        flags
-            .get_one::<String>("--max-steps")
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)?,
-    )?;
-    if super::publish_session::budget::step_limit(super::publish_inputs::MAX_FILES)
-        .is_none_or(|limit| max_steps > limit)
-    {
-        return Err(Failure::Arguments);
     }
-    Ok(Command::PublishSession(super::publish_session::Input {
-        source_session: flags
-            .get_one::<String>("--source-session")
-            .map(String::as_str)
-            .map(PathBuf::from),
-        browser_selection: flags
-            .get_one::<String>("--browser-selection")
-            .map(String::as_str)
-            .map(PathBuf::from),
-        operator_identity: PathBuf::from(
-            flags
-                .get_one::<String>("--operator-identity")
-                .map(String::as_str)
-                .ok_or(Failure::Arguments)?,
-        ),
-        prepare: parse_prepare_input(service, namespace, 0, flags)?,
-        gateway,
-        max_steps,
-    }))
 }
 
 pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {
@@ -453,90 +290,61 @@ pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Res
     }
     Ok(())
 }
-
-fn parse_operator_command(
+fn operator_command(
     command: &str,
     service: Principal,
     namespace: u128,
     flags: &clap::ArgMatches,
 ) -> Result<Command, Failure> {
-    let take = |name| {
-        flags
-            .get_one::<String>(name)
-            .map(String::as_str)
-            .ok_or(Failure::Arguments)
+    let scope = OperatorScope {
+        service,
+        namespace,
+        cashier: value(flags, "--cashier"),
+        payment_account: value(flags, "--payer"),
     };
-    Ok({
-        let scope = OperatorScope {
-            service,
-            namespace,
-            cashier: principal(take("--cashier")?)?,
-            payment_account: principal(take("--payer")?)?,
-        };
-        if matches!(
-            command,
-            "sync-gateways" | "cancel-gateway-sync" | "revoke-gateway"
-        ) {
+    Ok(match command {
+        "sync-gateways" | "cancel-gateway-sync" | "revoke-gateway" => {
             let action = match command {
                 "sync-gateways" => super::gateway_controls::Action::Sync,
-                "cancel-gateway-sync" => super::gateway_controls::Action::Cancel(
-                    positive::<u128>(take("--sequence")?)?
-                        .try_into()
-                        .map_err(|_| Failure::Arguments)?,
-                ),
-                _ => super::gateway_controls::Action::Revoke(principal(take("--gateway")?)?),
+                "cancel-gateway-sync" => {
+                    super::gateway_controls::Action::Cancel(value(flags, "--sequence"))
+                }
+                _ => super::gateway_controls::Action::Revoke(value(flags, "--gateway")),
             };
             Command::GatewayControl(super::gateway_controls::Input {
                 scope,
                 action,
-                directory: PathBuf::from(take("--run-dir")?),
+                directory: value(flags, "--run-dir"),
             })
-        } else if command == "inspect-account" {
-            Command::InspectAccount(
-                ic_blob_storage_contracts::dto::account::AccountInspectionRequest {
-                    scope,
-                    kind: super::account::kind(take("--kind")?)?,
-                },
-            )
-        } else if matches!(command, "funding-outcome" | "funding-assessment") {
-            let operation = positive::<u128>(take("--operation")?)?;
-            let offered = positive::<u128>(take("--offered")?)?;
-            let target_balance = flags
-                .get_one::<String>("--target-balance")
-                .map(String::as_str)
-                .map(positive::<u128>)
-                .transpose()?;
-            if command == "funding-assessment" {
-                return Ok(Command::FundingAssessment(
-                    ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest {
-                        scope,
-                        operation,
-                        offered,
-                        target_balance,
-                    },
-                ));
-            }
-            Command::FundingOutcome(
-                ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest {
-                    scope,
-                    operation,
-                    offered,
-                    target_balance,
-                },
-            )
-        } else if command == "funding-history" {
-            Command::FundingHistory {
-                scope,
-                cursor: flags
-                    .get_one::<String>("--cursor")
-                    .map(String::as_str)
-                    .map(PathBuf::from),
-            }
-        } else if command == "status" {
-            Command::Status { scope }
-        } else {
-            return Err(Failure::Arguments);
         }
+        "inspect-account" => Command::InspectAccount(
+            ic_blob_storage_contracts::dto::account::AccountInspectionRequest {
+                scope,
+                kind: value(flags, "--kind"),
+            },
+        ),
+        "funding-assessment" => Command::FundingAssessment(
+            ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest {
+                scope,
+                operation: value(flags, "--operation"),
+                offered: value(flags, "--offered"),
+                target_balance: flags.get_one::<u128>("--target-balance").copied(),
+            },
+        ),
+        "funding-outcome" => Command::FundingOutcome(
+            ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest {
+                scope,
+                operation: value(flags, "--operation"),
+                offered: value(flags, "--offered"),
+                target_balance: flags.get_one::<u128>("--target-balance").copied(),
+            },
+        ),
+        "funding-history" => Command::FundingHistory {
+            scope,
+            cursor: flags.get_one::<PathBuf>("--cursor").cloned(),
+        },
+        "status" => Command::Status { scope },
+        _ => return Err(Failure::Arguments),
     })
 }
 
@@ -551,9 +359,10 @@ pub(super) fn parse(args: &[String]) -> Result<clap::ArgMatches, Failure> {
 }
 
 /// Clap owns help and syntax errors; refusal never echoes sensitive arguments.
-pub(super) fn invocation(args: &[String]) -> Result<Option<clap::ArgMatches>, Failure> {
+pub(super) fn invocation(args: &[std::ffi::OsString]) -> Result<Option<clap::ArgMatches>, Failure> {
     match schema::cli().try_get_matches_from(
-        std::iter::once("blob-storage").chain(args.iter().map(String::as_str)),
+        std::iter::once(std::ffi::OsStr::new("blob-storage"))
+            .chain(args.iter().map(std::ffi::OsString::as_os_str)),
     ) {
         Ok(matches) => Ok(Some(matches)),
         Err(error) if error.kind() == clap::error::ErrorKind::DisplayHelp => {

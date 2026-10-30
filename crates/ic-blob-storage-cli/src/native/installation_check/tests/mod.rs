@@ -2,6 +2,7 @@ use super::*;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::Principal;
+use std::path::Path;
 
 fn fixture() -> Vec<u8> {
     let value = crate::native::tests::historical_configuration::configuration();

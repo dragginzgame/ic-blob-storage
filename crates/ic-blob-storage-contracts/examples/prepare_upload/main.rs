@@ -132,42 +132,66 @@ fn prepare_to(
     })
 }
 
+fn cli() -> clap::Command {
+    use clap::{Arg, Command, value_parser};
+    use std::path::PathBuf;
+    Command::new("prepare_upload")
+        .about("Prepare a local upload from a declaration and stdin, or an explicit inventory")
+        .arg(
+            Arg::new("inventory")
+                .long("inventory")
+                .value_parser(value_parser!(PathBuf))
+                .conflicts_with_all(["declaration", "maximum", "chunks"]),
+        )
+        .arg(
+            Arg::new("snapshot")
+                .long("snapshot")
+                .value_parser(value_parser!(PathBuf))
+                .requires("inventory"),
+        )
+        .arg(
+            Arg::new("declaration")
+                .value_name("DECLARATION.json")
+                .value_parser(value_parser!(PathBuf))
+                .required_unless_present("inventory"),
+        )
+        .arg(
+            Arg::new("maximum")
+                .value_name("MAX_BYTES")
+                .value_parser(value_parser!(NonZeroU64))
+                .required_unless_present("inventory"),
+        )
+        .arg(
+            Arg::new("chunks")
+                .value_name("MAX_CHUNKS")
+                .value_parser(value_parser!(NonZeroUsize))
+                .required_unless_present("inventory"),
+        )
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut args = std::env::args_os().skip(1);
-    let input = args
-        .next()
-        .ok_or("usage: prepare_upload DECLARATION.json MAX_BYTES MAX_CHUNKS < body")?;
-    if input == "--inventory" {
-        let path = args.next().ok_or("missing inventory file")?;
-        if let Some(option) = args.next() {
-            if option != "--snapshot" {
-                return Err("expected --snapshot PARENT_DIRECTORY".into());
-            }
-            let parent = args.next().ok_or("missing snapshot parent directory")?;
-            if args.next().is_some() {
-                return Err("unexpected snapshot argument".into());
-            }
-            let saved = snapshot::run(path.as_ref(), parent.as_ref())?;
-            let mut output = io::stdout().lock();
-            serde_json::to_writer(&mut output, &saved)?;
-            writeln!(output)?;
-            return Ok(());
-        }
-        let report = inventory::run(path.as_ref())?;
+    let args = cli().get_matches();
+    if let Some(path) = args.get_one::<std::path::PathBuf>("inventory") {
         let mut output = io::stdout().lock();
-        serde_json::to_writer(&mut output, &report)?;
+        if let Some(parent) = args.get_one::<std::path::PathBuf>("snapshot") {
+            serde_json::to_writer(&mut output, &snapshot::run(path, parent)?)?;
+        } else {
+            serde_json::to_writer(&mut output, &inventory::run(path)?)?;
+        }
         writeln!(output)?;
         return Ok(());
     }
-    let maximum = args.next().ok_or("missing MAX_BYTES")?;
-    let chunks = args.next().ok_or("missing MAX_CHUNKS")?;
-    if args.next().is_some() {
-        return Err("unexpected argument".into());
-    }
     let limits = PreparationLimits {
-        bytes: maximum.to_str().ok_or("MAX_BYTES must be UTF-8")?.parse()?,
-        chunks: chunks.to_str().ok_or("MAX_CHUNKS must be UTF-8")?.parse()?,
+        bytes: *args
+            .get_one::<NonZeroU64>("maximum")
+            .expect("required maximum"),
+        chunks: *args
+            .get_one::<NonZeroUsize>("chunks")
+            .expect("required chunks"),
     };
+    let input = args
+        .get_one::<std::path::PathBuf>("declaration")
+        .expect("required declaration");
     let declaration = read_declaration(File::open(input)?)?;
     let prepared = prepare(io::stdin().lock(), declaration, limits)?;
     let mut output = io::stdout().lock();
