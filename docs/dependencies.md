@@ -14,9 +14,9 @@ lockfiles; local qualification does not cover every future resolution.
 
 The root catalog and lockfile own version selections; the capability table below
 is not a second version catalog. The [current handoff](status/current.md) records
-source-bound qualification and its limits. Testkit shares Platform's decoder-limit
-identity without an old-family alias; retired Platform families remain excluded
-from the workspace and deployment.
+source-bound qualification and its limits. Native Testkit retains its published
+Platform dependency; explicit provider decoding uses Blob's direct Platform
+boundary. Foreign Candid identities stay upstream, without a local dependency alias.
 
 | Owner | Responsibility |
 | --- | --- |
@@ -88,14 +88,27 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Blob's direct Platform boundary is 0.8.1. Its split Principal hashing feature is
-explicitly development-only here; Candid/Agent consumers retain their required
-external conversions. Tooling 0.70 and the selected Memory/Storage now align the
-full resolved feature/target graph on that Platform identity. No older Platform
-facade, conversion shim or dependency override is required. Embedding hosts must
-align Blob's public Principal and Memory identities. Upstream Candid/Principal
-hashing can remain transitively enabled even when the direct hashing feature is
-absent; no deployment-size saving is implied.
+Blob's direct Platform boundary is 0.9.1. Platform now owns the executor and
+IC0 implementation; the standalone deployment gate refuses the old external
+executor and raw-IC0 packages, upstream management DTOs and native Candid service
+export. Wasm uses Platform's maintained management DTO
+subset, while native tooling keeps upstream management types and Candid bytes.
+Embedding hosts must align public Platform and Memory identities and rebuild;
+other runtime users (including Timers) must align before embedding. Never bridge
+runtime handles between executors.
+
+Platform 0.9.1 scopes its singleton check to executor/runtime features through
+its exact-version internal runtime guard. Non-runtime consumers do not claim an
+executor. Blob selects the published facade, never that internal helper directly.
+
+Published Memory/Storage 0.56.4 and Tooling 0.70.5 still require Platform 0.8.1
+compatibly, resolving to the latest published compatible 0.8.3. The deployment
+selects only its stable-structures feature; native Testkit also needs its foreign
+protocol/PocketIC capabilities. This is a supplier-owned non-runtime facade,
+not a second executor. Full facade unification needs supplying releases; no
+source patch, compatibility alias or dependency override is used. Principal
+hashing remains explicitly development-only in Blob. No size or performance
+gain is inferred from the graph reduction.
 
 The root catalog and lock select the published Tooling/Host/Build/Testkit family,
 including matching Testkit server CLI and Build release editor identities.

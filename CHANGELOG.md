@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.60.0]
+
+### ⚠️ Breaking
+
+- Adopt published Platform 0.9.1 and Metrics 0.18.1. Public Principal and Metrics
+  Rust types require consumers to align their dependency identities and rebuild.
+  Platform owns the production executor and IC0 implementation, with maintained
+  management DTOs on Wasm. Existing Blob endpoint identities and stored record
+  formats remain unchanged; cross-release deployment remains retirement/reinstall.
+
+### ⬆️ Dependencies
+
+- Select published Memory/Storage 0.56.4, Host/Build/Testkit 0.70.5 and Wire 0.7.25.
+  Preserve current memory codecs, custody, exact retries and recovery fences.
+- Include Platform's executor-only singleton guard fix and Metrics' aligned Wire
+  dependency. Public APIs and encoded data are unchanged by these patch updates.
+
+### 🔧 Changed
+
+- Adopt reviewed Shared Tooling 0.27.11, including captured validation checkpoint
+  companions, coordinated Cargo admission and updated engineering rules. Keep
+  Blob's publication policy local; the new shared publication adapter remains opt-in.
+- Enforce the embedded runtime boundary by refusing external IC0 and executor
+  packages and native management/service-export tooling in the standalone
+  deployment graph. Older Platform remains transitive
+  only for supplier-required non-runtime capabilities.
+
 ## [0.59.1] - 2026-10-30
 
 ### 🩹 Fixed

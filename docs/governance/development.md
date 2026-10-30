@@ -238,8 +238,9 @@ and their declared companion closure, then install their product-specific
 substitutes. Release fixtures live outside the checkout under
 `${TMPDIR:-/tmp}/blob-release-tests.*`; failed fixtures remain there and the
 tooling evidence collector includes that prefix.
-The [snapshot adoption record](../evidence/shared01500270.md) qualifies the
-current direct-delivery adapter and changed shared helpers. The
+The [original snapshot adoption record](../evidence/shared01500270.md) retains
+its direct-delivery adapter qualification. The [current handoff](../status/current.md)
+records the selected snapshot and source-bound follow-up checks. The
 [fixture ownership map](../evidence/release-fixture-ownership.md) records
 the shared runner matrix and the retained Blob adapter obligations.
 

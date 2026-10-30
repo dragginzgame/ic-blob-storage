@@ -1,67 +1,110 @@
 # Current status — 2026-10-30
 
-## Source and pending batch
+## Source and active adoption
 
-Released source is **0.59.0**, `cd0ce5bd`. Pending **0.59.1** implements local
-CLI cleanup for [#111](https://github.com/dragginzgame/ic-blob-storage/issues/111)
-and [#110](https://github.com/dragginzgame/ic-blob-storage/issues/110). Package
-versions remain 0.59.0. No staging, commit, push, release, deployment, paid effect
-or sibling edit. Keep the issues open until delivered source meets acceptance.
+Released source is **0.59.1**, `70eeb697`. The maintainer requested the latest
+published Metrics, Platform, Persistence, Tooling/Host and Wire packages plus
+Shared Tooling. Pending **0.60.0** reflects the public Platform/Metrics Rust type
+identity cut. Workspace package versions remain 0.59.1. No staging, commit,
+push, release, publication, deployment, paid effect or sibling edit occurred.
 
-The maintained `prepare_upload`, `verify_download` and `wire_schema` examples
-use Clap before opening files, writing outputs or reading stdin. Existing
-inventory/snapshot and declaration/claim command forms remain. Help succeeds;
-missing, conflicting, malformed or extra arguments are Clap errors. Streaming,
-bounds, source custody, verification and create-only output owners are unchanged.
-The schema generator's four modes emit the exact previously retained output.
-Clap is a native-only development dependency of Contracts, not its runtime.
+Official crates.io sparse-index entries select **Platform 0.9.1**, **Metrics
+0.18.1**, **Memory/Storage 0.56.4**, **Host/Build/Testkit 0.70.5** and **Wire/derive
+0.7.25**. Direct minimums and the lockfile match these selections. Published
+Platform, Metrics, Memory, Storage and Wire archives were downloaded and their
+registry checksums verified before API/source review. Existing incoming compatible
+lockfile updates were preserved or superseded by the explicitly requested newer
+minor. No source override or unpublished supplier is used.
 
-The native CLI grammar supplies typed paths, principals, URLs, choices and bounded
-numbers. Request builders and offline handlers no longer reparse string matches.
-Canonical decimal/principal syntax remains with the existing parsers via Clap
-extension points. File index zero, command-specific ceilings, role exclusions,
-local/mainnet trust policy, secret-redacted JSON errors and exit codes survive.
-Production argument acquisition uses `args_os`; paths need no UTF-8 conversion.
-Domain parsing of untrusted JSON and request validation remain separate boundaries.
-No generic CLI framework, new user mode or fallback was introduced.
+Platform 0.9 embeds IC0 and the executor and owns selected management DTOs on
+Wasm. Public Principal and Metrics type identities require embedding hosts to
+align and rebuild. The production graph has one executor, no registry executor,
+raw IC0, upstream management DTO package or implicit Candid printer. Blob's owned
+Wire identities, record layouts and all schemas remain unchanged. No local
+adapter/shim, migration, reset or dual reader was introduced.
 
-Deployment admission now explicitly rejects `clap`, `clap_builder` and
-`clap_derive`, with refusal fixtures. The actual standalone normal/build Wasm
-graph contains none. Other dependency policy and RPC/storage contracts are unchanged.
+Published Persistence/Tooling still require Platform 0.8.1 compatibly, selecting
+published **0.8.3** alongside direct 0.9.1. In the deployment graph that older
+facade enables only stable structures. Native Testkit additionally needs foreign
+Candid/PocketIC facilities. It is not another executor. Full facade unification
+awaits supplying releases; no lock/source override bypasses their constraints.
+Other runtime consumers, including Timers, must align with Platform 0.9 before
+embedding; runtime handles must never cross executors. Deployment admission now
+explicitly refuses external `ic0`, `ic-cdk-executor`, upstream management DTOs
+and native Candid service export, with rejection fixtures.
 
-## Validation and evidence
+Metrics 0.18 adds summary/histogram transport while preserving existing aggregate/
+counter transport. Blob consumes no Logging checkpoint or stable metrics store,
+so Logging's separate retained-budget cut creates no local storage migration.
+Memory/Storage's 0.56 patch series preserves the current Wire ledger and custody.
 
-Evidence: `/tmp/blob-cli-cleanup/`. All **122** native CLI tests pass, including
-local HTTP fixtures. The restricted first run passed 117 and refused local socket
-binding in three tests; the subsequent run with local socket access passes all
-122, including the two added typed-boundary/native-path cases. Original failed
-logs remain. All **24** example cases pass, including help/argument relationships,
-streaming verification and retained-output safety. Actual binary invocations pass
-help, early refusal before missing-file access, preparation/verification of stdin,
-and exact comparison of all four generator outputs against retained artifacts.
+## Shared Tooling
 
-Strict Clippy passes for CLI and Contracts across targets/features. Rust **1.91.0**
-checks pass for the CLI binary and all three example binaries. Fresh release
-standalone Wasm, actual runtime/deployment boundary checks, new deployment refusal
-fixtures and shell lint pass. All **13** selected installed CLI cases pass:
-upload setup/lost replies, seven preparation cases, account inspection, gateway
-controls, funding and two installation cases. The initial account attempt lacked
-the explicitly selected gateway-source Wasm; that failure is retained, and the
-remaining runs pass after building and supplying the existing fixture. Manifest,
-lockfile, CLI and both fixture Wasm hashes stayed fixed. No full gate, macOS, deployed
-IC or actual provider/browser upload qualification was run.
+Adopted reviewed **0.27.11**, source
+`62edfbd43087a718bf0283e9040676a49211976d`, verified against the remote HEAD;
+the clean committed exporter selected **136** files. Impact and exact refresh
+receipts are retained. Captured validation checkpoints, coordinated Cargo
+admission, structured graph observations and updated engineering rules are
+included. Existing grouped dependency formatting/release policy remains active.
+The newly supplied publication adapter is opt-in; Blob's existing publication
+roster, validation and recovery policy remain local. No Rust `#[path]` wiring or
+attribute lint allowances were found in maintained Rust sources. Scoped existing
+expectations remain checked by strict lint; no blanket conversion was needed.
 
-The incoming Metrics **0.17.6** lockfile selection was preserved; the only added
-lockfile dependency edge is Contracts' existing workspace Clap for native examples.
-The captured graph uses Platform 0.8.3, Tooling/Host/Build/Testkit 0.70.3,
-Memory/Storage 0.56.0 and Wire 0.7.23. This is not a broad upstream adoption.
+Published browser Platform remains **0.1.1**, selecting SDK Core **6.1.1**;
+Caffeine **1.1.2**, Node/npm selections and browser package files are unchanged.
 
-Prior release evidence and the certificate hard cut are retained in
-[the released 0.59 handoff](https://github.com/dragginzgame/ic-blob-storage/blob/cd0ce5bd/docs/status/current.md)
-and `/tmp/blob-hardcut059/`, `/tmp/blob059-setup-followup/`. Historical evidence
-remains bound to its captured source/graph. Formatting, links and diff checks pass.
+## Qualification
 
-## Remaining acceptance and boundaries
+Prior adoption evidence: `/tmp/blob-upstream-refresh/`, captured with direct
+Platform 0.9.0 / Metrics 0.18.0. Focused strict Clippy passes for core,
+Contracts, client, CLI and standalone across targets/features, plus standalone,
+journey and storage integration targets. Native tests pass: core **338**,
+Contracts **125** plus frozen owned Wire vectors, client **6**, public memory
+composition **2**, and CLI **122** including local HTTP cases. Rust **1.91.0**
+native library and standalone Wasm checks pass. Fresh standalone, authority,
+gateway-source and funding release Wasm and native CLI builds pass. Testkit server and Build
+release editor setup/admission select locked 0.70.5.
+
+Actual Testkit/Make forwarding, runtime/deployment graph checks and new forbidden-
+runtime fixture cases pass. Hook preservation and grouped formatting checks pass.
+The first release-adapter attempt could not inspect a shared tool lock in the
+sandbox; its fixture and logs remain. The retry uses normal access to the same
+prepared tool store, without deleting a lock. All isolated release-adapter cases
+pass, without real commits, pushes or publication. Installed tests pass: **14**
+standalone lifecycle, metrics, certificate, gateway, account and upload cases;
+**33** journey/recovery cases; and **3** funding refund/trap cases. These **50**
+cases use local IC/provider substitutes, not deployed provider acceptance.
+Two standalone heap-metrics unit cases also pass. Generated TypeScript checks
+cover **27 methods / 137 frames**, including malformed packets, identity,
+direction, limits and decimal handling. Captured input hashes remain unchanged;
+formatting, snapshot integrity, documentation links and diff checks pass.
+No complete repository gate, new native macOS run, deployed IC or live provider
+qualification is claimed. No size/performance gain is inferred.
+
+Latest patch qualification: `/tmp/blob-metrics-platform-refresh/`. Published
+Platform 0.9.1 and Metrics 0.18.1 archive checksums match the official index;
+both packaged runtime source trees are identical to the preceding patches.
+Platform moves the executor singleton guard into an exact-version optional
+helper, while Metrics aligns its Wire minimum. The incoming lockfile already
+selected both patches and was preserved; direct minimums now match. Strict
+standalone Clippy, two heap-metrics unit cases, Rust 1.91 standalone Wasm check,
+fresh release Wasm builds and both dependency-boundary checks pass. Six installed
+cases pass against the fresh standalone Wasm: metrics authentication/replays/
+heap reset and five lifecycle/recovery/fence cases. Formatting, documentation
+links and diff checks pass; captured manifests, lockfile, snapshot and Wasm hashes
+remain unchanged during qualification. Earlier broader evidence above belongs
+to its captured graph; full CI/macOS and live deployment were not rerun.
+
+## Issue reconciliation and remaining acceptance
+
+[#110](https://github.com/dragginzgame/ic-blob-storage/issues/110) and
+[#111](https://github.com/dragginzgame/ic-blob-storage/issues/111) are closed from
+delivered 0.59.1 after all six [hosted jobs](https://github.com/dragginzgame/ic-blob-storage/actions/runs/41047479232)
+passed: core/client, MSRV, Linux, both macOS architectures and generated clients.
+That CI result qualifies its captured release, not this pending dependency cut.
+Prior CLI evidence remains `/tmp/blob-cli-cleanup/` and in the
+[released handoff](https://github.com/dragginzgame/ic-blob-storage/blob/70eeb697/docs/status/current.md).
 
 [#4](https://github.com/dragginzgame/ic-blob-storage/issues/4),
 [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
@@ -69,14 +112,12 @@ remains bound to its captured source/graph. Formatting, links and diff checks pa
 [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31) and
 [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34) retain application/
 provider acceptance under [the coordinated run](../acceptance-plan.md#next-application-acceptance-run).
-A current target URL, deployed Blob principal, configuration and paid budget have
-not been selected. Registration proves no stored bytes; GC acknowledgment proves
-no deletion/billing cessation; funding acknowledgment is not independent credit.
-Canic owns its adapter and composition qualification; no sibling was newly reviewed.
+No current application origin, deployed service/configuration or paid trial budget
+is selected. Registration proves no stored bytes; gateway acknowledgment proves no
+physical deletion/billing cessation; funding acknowledgment is not independent
+credit. Canic owns its adapter/composition and adopts public dependency cuts there.
 
-Owned schemas remain 1. Cross-release transitions use
-[retirement/reinstall](../retiring-installations.md), retaining objects, balances,
-uncertain effects and continuing billing. Same-release interruption recovery and
-exact retries remain supported. Restoration fences, independent component binding
-checks, heap oracles and frozen-image tests remain. This CLI batch changes no
-Wire identity, record codec, memory allocation or recovery policy.
+Cross-release transitions remain [retirement/reinstall](../retiring-installations.md),
+retaining provider objects, balances, uncertain effects and continuing billing.
+Same-release interruption recovery, exact retries and restoration fences remain.
+Never clear an allocation ledger while leaving collection bytes behind.
