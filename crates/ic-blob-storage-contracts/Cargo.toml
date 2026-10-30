@@ -19,7 +19,7 @@ ic-platform = { workspace = true, features = ["candid-service"] }
 # Provider JSON codecs are opt-in; the default contract graph stays minimal.
 provider-json = ["dep:serde_json"]
 # Host metadata is never required by mounted canisters.
-wire-schema = ["ic-wire/typescript", "ic-platform/wire-schema", "dep:serde_json"]
+wire-schema = ["ic-wire/platform-types", "dep:serde_json"]
 
 [dependencies]
 ic-metrics.workspace = true

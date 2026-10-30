@@ -56,6 +56,14 @@ done
 export FIXTURE_FEATURE_LINE='ic-blob-storage-contracts v1.0.0|other-provider-json'
 bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1
 printf 'Deployment provider JSON feature refusals: PASS\n'
+for features in platform-types 'platform-types,typescript' 'default,platform-types'; do
+    export FIXTURE_FEATURE_LINE="ic-wire v0.10.0|$features (*)"
+    if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/result" 2>&1; then
+        echo "Deployment accepted Platform identity schema tooling: $features" >&2; exit 1
+    fi
+    rg -F 'Deployment enables host-only schema or provider JSON tooling' "$fixture/result" >/dev/null
+done
+printf 'Deployment Platform identity schema feature refusals: PASS\n'
 for features in candid-service 'candid,candid-service' 'candid-service,stable-structures'; do
     export FIXTURE_FEATURE_LINE="ic-platform v0.9.0|$features (*)"
     if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then

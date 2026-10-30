@@ -4,21 +4,31 @@
 
 ### ⚠️ Breaking
 
-- Adopt published Platform 0.9.1 and Metrics 0.18.1. Public Principal and Metrics
-  Rust types require consumers to align their dependency identities and rebuild.
+- Adopt published Platform 0.11.1, Metrics 0.21.0 and Wire 0.10.0. Public Principal,
+  Memory, Metrics and Wire schema identities require consumers to align dependencies
+  and rebuild.
   Platform owns the production executor and IC0 implementation, with maintained
   management DTOs on Wasm. Existing Blob endpoint identities and stored record
   formats remain unchanged; cross-release deployment remains retirement/reinstall.
 
 ### ⬆️ Dependencies
 
-- Select published Memory/Storage 0.56.4, Host/Build/Testkit 0.70.5 and Wire 0.7.25.
-  Preserve current memory codecs, custody, exact retries and recovery fences.
-- Include Platform's executor-only singleton guard fix and Metrics' aligned Wire
-  dependency. Public APIs and encoded data are unchanged by these patch updates.
+- Select published Memory/Storage 0.58.0 and Host/Build/Testkit 0.72.0.
+  Consolidate the graph on one Platform and Wire version. Preserve current memory codecs, custody,
+  exact retries and recovery fences.
+- Tooling's Platform adoption removes the raw IC0 supplier from the lockfile.
+  Align published Principal and Metrics schema suppliers with Wire 0.10, restoring
+  generated-client compatibility without local schema bridges
+  ([Platform #105](https://github.com/dragginzgame/ic-platform/issues/105),
+  [Observability #103](https://github.com/dragginzgame/ic-observability/issues/103)).
 
 ### 🔧 Changed
 
+- Select Principal/Account metadata through Wire's `platform-types` feature,
+  replacing Platform's retired schema feature. Reject this host-only integration
+  from deployed graphs while preserving existing generated types and frames.
+- Copy the validation runner's declared companion files into nested CI fixtures,
+  keeping input-drift and failure-log checks executable after tooling updates.
 - Adopt reviewed Shared Tooling 0.27.11, including captured validation checkpoint
   companions, coordinated Cargo admission and updated engineering rules. Keep
   Blob's publication policy local; the new shared publication adapter remains opt-in.

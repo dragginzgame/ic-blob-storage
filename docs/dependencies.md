@@ -88,7 +88,7 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Blob's direct Platform boundary is 0.9.1. Platform now owns the executor and
+Blob's direct Platform boundary is 0.11.1. Platform owns the executor and
 IC0 implementation; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
@@ -97,18 +97,28 @@ Embedding hosts must align public Platform and Memory identities and rebuild;
 other runtime users (including Timers) must align before embedding. Never bridge
 runtime handles between executors.
 
-Platform 0.9.1 scopes its singleton check to executor/runtime features through
+Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-Published Memory/Storage 0.56.4 and Tooling 0.70.5 still require Platform 0.8.1
-compatibly, resolving to the latest published compatible 0.8.3. The deployment
-selects only its stable-structures feature; native Testkit also needs its foreign
-protocol/PocketIC capabilities. This is a supplier-owned non-runtime facade,
-not a second executor. Full facade unification needs supplying releases; no
-source patch, compatibility alias or dependency override is used. Principal
+Published Memory/Storage 0.58.0 and Tooling 0.72.0 share Blob's Platform 0.11.1
+boundary and Wire 0.10 codec. Native Testkit provider/PocketIC types and deployed
+stable structures now use that same published facade. The lockfile contains one
+Platform and one Wire version; raw IC0 is absent. No source patch, compatibility
+alias or dependency override is used. Principal
 hashing remains explicitly development-only in Blob. No size or performance
 gain is inferred from the graph reduction.
+
+Wire 0.10 owns Principal/Account schemas through its opt-in `platform-types`
+feature. Contracts' native `wire-schema` feature selects that integration;
+Platform's retired `wire-schema` selection is removed. Metrics 0.21 implements
+the same Wire metadata trait, resolving the supplier identity blockers in
+[Platform #105](https://github.com/dragginzgame/ic-platform/issues/105) and
+[Observability #103](https://github.com/dragginzgame/ic-observability/issues/103).
+There is no local schema bridge or metric mirror. This native integration does
+not select endpoints or runtime ownership; deployment admission rejects its
+feature alongside TypeScript tooling. Direct Blob and Persistence protocols
+share unchanged frames, identities, limits and exact retry bytes.
 
 The root catalog and lock select the published Tooling/Host/Build/Testkit family,
 including matching Testkit server CLI and Build release editor identities.

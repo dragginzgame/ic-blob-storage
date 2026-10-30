@@ -89,9 +89,9 @@ for input_case in stable drift deleted; do
     mkdir -p "$gate/make" "$gate/scripts/ci" "$gate/scripts/release"
     cp "$ROOT/Makefile" "$ROOT/Cargo.toml" "$ROOT/Cargo.lock" "$gate/"
     cp "$ROOT"/make/{consumer,tools,release,rust-format,execution}.mk "$gate/make/"
-    cp "$ROOT/scripts/ci/run-validation-targets.sh" \
-        "$ROOT/scripts/ci/check-make-execution.sh" \
-        "$ROOT/scripts/ci/verify-file-checksum.sh" "$gate/scripts/ci/"
+    # Keep the actual runner and its declared companion closure together.
+    bash "$ROOT/scripts/ci/prepare-script-fixture.sh" "$ROOT" "$gate" \
+        scripts/ci/run-validation-targets.sh
     cp "$ROOT/scripts/release/release-data.pl" "$gate/scripts/release/"
     cat >> "$gate/Makefile" <<'MAKE'
 CI_INPUTS := Cargo.toml Cargo.lock

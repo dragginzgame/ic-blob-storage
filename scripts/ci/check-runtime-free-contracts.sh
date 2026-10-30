@@ -42,7 +42,7 @@ echo 'Standalone deployment excludes legacy CDK/Platform and native-only owners'
 
 cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
     --prefix none --format '{p}|{f}' -p ic-blob-storage-canister > "$contract_graph"
-if rg '^ic-(wire|platform|blob-storage-contracts) v[^|]*\|([^,]*,)*(typescript|wire-schema|provider-json|candid-service)(,| |$)' "$contract_graph"; then
+if rg '^ic-(wire|platform|blob-storage-contracts) v[^|]*\|([^,]*,)*(typescript|platform-types|wire-schema|provider-json|candid-service)(,| |$)' "$contract_graph"; then
     echo 'Deployment enables host-only schema or provider JSON tooling' >&2
     exit 1
 fi
