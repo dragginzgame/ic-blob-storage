@@ -61,11 +61,26 @@ IC, real browser upload or provider qualification was run. The preceding handoff
 qualification records are retained in [the 2026-10-29 handoff](handoff-2026-10-29.md).
 Historical evidence proves only its captured source/graph, not this pending cut.
 
-The current dependency graph remains Memory/Storage 0.56.0, Platform 0.8.2,
+The preceding batch qualification used Memory/Storage 0.56.0, Platform 0.8.2,
 Metrics 0.17.4, Tooling/Host/Build/Testkit 0.70.2 and Wire/derive 0.7.23.
-Shared Tooling remains 0.27.3. Browser Platform 0.1.1 and SDK Core 6.1.1/Caffeine
+The incoming lockfile now selects Tooling/Host/Build/Testkit 0.70.3; it was
+preserved for the focused CI follow-up below. Shared Tooling remains 0.27.3. Browser Platform 0.1.1 and SDK Core 6.1.1/Caffeine
 1.1.2 are unchanged. Native transport/certificate tests retain required external
 CBOR; application protocols remain Wire.
+
+## Release-CI follow-up
+
+The retained 20261030T094843 test log reports 77 standalone cases passing and
+one failure at `upload_setup_cli/phases`: an untyped JSON assertion still expected
+`blockers: []` after the approved removal. It now requires the field to be absent.
+This completes the test migration; production behavior and retry policy are unchanged.
+Original failure: `.git/release-state/validation-failures/20261030T094843Z-3955412-15-test.log`;
+its failed fixture and raw output remain retained.
+
+Evidence: `/tmp/blob059-setup-followup/`. Explicit Testkit 0.70.3 setup/admission,
+locked CLI build, standalone strict Clippy and the exact failed installed journey
+pass. Manifest, lockfile, standalone Wasm and CLI hashes stayed fixed through the
+run. Formatting, links and diff checks pass. The full release gate was not rerun.
 
 ## Remaining acceptance and owner work
 
