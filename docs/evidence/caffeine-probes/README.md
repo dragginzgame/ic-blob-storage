@@ -14,6 +14,61 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Pending 0.61 deployment preparation — 2026-10-31
+
+Intent recorded before execution:
+`/tmp/blob-acceptance-1031.QfEhzI/intent.json`. The selected pending cohort is
+Platform 0.15.2, Wire 0.13, Metrics 0.24.1, Memory/Storage 0.60.1,
+Build/Host Foundation 0.73.1 and Host Tools/Testkit 0.75. Source diff, graph/tool
+input hashes and prior Wasm/CLI hashes are retained in the same directory.
+Preflight found that the incoming patch lock no longer matched the preceding
+batch receipt, before any browser/provider execution. Published patch archives
+match registry checksums; production `src/` trees are identical to their prior
+releases. Manifest diffs change package versions and Storage's Memory requirement.
+Keep the incoming lock and rebuild artifacts; retain that refused receipt and
+the source/manifest comparisons alongside the intent.
+Select the four maintained standalone Chromium cases and three control tests,
+with six fixed 1 KiB uploads, fixture signing identities and an ephemeral local
+TLS provider/PocketIC service. Zero deployed requests, deployment or paid cycles
+are selected. Retain every result and failure; harnesses own local cleanup.
+Reports use its private `browser-reports/` directory. All four cases pass
+(23.61s), plus all three control tests. Fresh Wasm/CLI/browser bundle hashes,
+request/result files and final unchanged input/artifact readbacks are retained.
+The six 1 KiB uploads cover two fixture signers, verified reads, corruption
+refusal, lost-final-reply and withdrawal recovery. Harness-owned local processes
+completed; no remote cleanup or billing exists. This is preparation for #31/#5,
+not actual application sessions, real provider or production acceptance.
+
+Read-only Canic review still finds Blob 0.60/Platform 0.11/Wire 0.10 in its root
+and consumer catalogs and only local Blob deployment environments. IC Crates
+still retains retired verifier/attestation flows. No sibling was edited or built.
+Canic's existing [#622 owner handoff](https://github.com/dragginzgame/canic/issues/622#issuecomment-6546806175)
+now records matched released adoption and a bounded service deployment recipe.
+The maintainer confirmed Caffeine but has no application/fleet configuration.
+The integration/application owner supplies that recipe; do not reuse old trial
+services. A provider-only trial may precede the frontend, keeping its narrower
+evidence separate from application acceptance. No issue is closed by this run.
+
+## Current browser rehearsal — 2026-10-31
+
+Intent: `/tmp/blob-metrics-platform-1031/browser-intent.json`; fixed inputs:
+`/tmp/blob-metrics-platform-1031/browser-inputs.sha256`. Exercise the four maintained
+standalone browser cases against ephemeral loopback PocketIC and its local TLS
+provider with fixed 1 KiB files, two fixture uploaders, corruption and interruption.
+Base source is `7fe95703` plus the pending Tooling 0.72.1 / Metrics 0.21.1 patch;
+Platform remains 0.11.1 and Wire 0.10. Browser prerequisites pass with existing
+Node 24.21.0/npm 12.2.0; no package installation is selected. The run is local
+substitute evidence only, with zero deployed provider/account/payment effects.
+Harnesses own ephemeral process cleanup; reports and failed attempts remain under
+`/tmp/blob-metrics-platform-1031/`. All four browser cases pass (28.34s), plus
+three browser-control cases: six 1 KiB uploads cover two distinct fixture
+uploaders, verified reads and independent releases, corrupt-body refusal, lost
+final replies and withdrawal recovery. `browser-summary.json`, report directories,
+`browser-artifacts.sha256` and `browser-report-files.sha256` retain outcomes and
+fresh artifact/request/result identities. Input hashes remain unchanged and the
+fixture-owned processes/instances completed. No production login, current
+deployed provider, deletion, billing or spendability acceptance is established.
+
 ## Complete standalone browser selection — 2026-10-24
 
 Routine local qualification found that the Make target's former name-prefix

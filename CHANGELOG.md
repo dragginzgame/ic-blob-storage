@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.61.0]
+
+### ⚠️ Breaking
+
+- Adopt the published compatible Platform 0.15.2, Wire 0.13 and Metrics 0.24.1
+  identities alongside Memory/Storage 0.60.1 and Testkit/Host Tools 0.75.
+  Consumers must align exposed Rust types and rebuild together.
+  Existing endpoint identities, wire/storage bytes and exact retries remain
+  unchanged; cross-release deployment remains retirement/reinstall.
+
+### ⬆️ Dependencies
+
+- Adopt reviewed Shared Tooling 0.27.22, including release-group checks and a
+  complete workspace crate catalog.
+  Keep Blob's coordinated release and publication policy local.
+- Adopt Build/Host Foundation 0.73.1 and Host Tools/Testkit 0.75.0, respecting
+  their independent release groups. Keep matching archive-verifier process
+  types, the selected release editor and the admitted Testkit server.
+- Adopt Memory/Storage 0.60.1, unifying the graph on Platform 0.15 and Wire 0.13.
+  Preserve stored bytes, admission bounds, allocation custody and restore fences.
+- Disable Metrics' default features for arithmetic and validated Serde transport;
+  Contracts' existing `wire-schema` feature explicitly enables native Wire
+  metadata. Normal callers retain their minimal feature selection while
+  generated Principal/Account and Metrics schemas share one Wire trait.
+- Consume Platform's canonical Types identities through the facade, resolving
+  the previous native schema integration blocker without local bridges
+  ([#37 — Supply compatible Platform integrations](https://github.com/dragginzgame/ic-wire/issues/37)).
+
 ## [0.60.0] - 2026-10-30
 
 ### ⚠️ Breaking

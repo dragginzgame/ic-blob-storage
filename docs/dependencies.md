@@ -88,7 +88,7 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Blob's direct Platform boundary is 0.11.1. Platform owns the executor and
+Blob's direct Platform boundary is 0.15.2. Platform owns the executor and
 IC0 implementation; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
@@ -101,17 +101,18 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-Published Memory/Storage 0.58.0 and Tooling 0.72.0 share Blob's Platform 0.11.1
-boundary and Wire 0.10 codec. Native Testkit provider/PocketIC types and deployed
-stable structures now use that same published facade. The lockfile contains one
-Platform and one Wire version; raw IC0 is absent. No source patch, compatibility
-alias or dependency override is used. Principal
+Memory/Storage 0.60.1 and Host Tools/Testkit 0.75.0 share Blob's Platform 0.15.2
+and Wire 0.13 identities. This removes the older Platform 0.11/0.12 and Wire 0.10
+copies. Testkit still selects arithmetic-only Metrics 0.23.2 alongside Blob's
+0.24.1; its disabled defaults introduce no older Wire metadata. Blob's sole
+deployed executor is Platform 0.15.2. Raw IC0 is absent. No source patch,
+compatibility alias or dependency override is used. Principal
 hashing remains explicitly development-only in Blob. No size or performance
 gain is inferred from the graph reduction.
 
-Wire 0.10 owns Principal/Account schemas through its opt-in `platform-types`
+Wire 0.13 owns Principal/Account schemas through its opt-in `platform-types`
 feature. Contracts' native `wire-schema` feature selects that integration;
-Platform's retired `wire-schema` selection is removed. Metrics 0.21 implements
+Platform's retired `wire-schema` selection is removed. Metrics 0.24 implements
 the same Wire metadata trait, resolving the supplier identity blockers in
 [Platform #105](https://github.com/dragginzgame/ic-platform/issues/105) and
 [Observability #103](https://github.com/dragginzgame/ic-observability/issues/103).
@@ -120,8 +121,28 @@ not select endpoints or runtime ownership; deployment admission rejects its
 feature alongside TypeScript tooling. Direct Blob and Persistence protocols
 share unchanged frames, identities, limits and exact retry bytes.
 
-The root catalog and lock select the published Tooling/Host/Build/Testkit family,
-including matching Testkit server CLI and Build release editor identities.
+The root disables Metrics' default features. Arithmetic and validated Serde
+remain available; Contracts' existing `wire-schema` feature enables
+`ic-metrics/native-wire` explicitly. Normal contract graphs exclude that feature
+and native schema graphs select it without introducing a runtime owner.
+
+Platform 0.15.2 reexports canonical Principal/Account identities from published
+`ic-platform-types` 0.15.1. Wire 0.13's schema implementation selects that same
+Types owner, resolving the previous facade/schema version blocker tracked in
+[Wire #37 — Supply compatible Platform integrations](https://github.com/dragginzgame/ic-wire/issues/37). Blob continues to
+import through Platform; there are no schema bridges or copied DTOs. Required
+external Candid conversions stay explicit. Memory/Storage's Wire codec update
+preserves retained bytes, bounds and custody; no local data migration is added.
+
+Shared Tooling 0.27.22 adds independent release-group support and
+complete crate catalogs. Blob retains one coordinated version, root changelog
+and development workspace; no release-group policy or package moves are needed.
+Its root catalog lists all thirteen members at their existing full version.
+The snapshot records reviewed commit `f4f431627290e18f0ccc1e5f8525d16b197cf7c3`.
+
+The root catalog and lock select published Build/Host Foundation 0.73.1 and
+Host Tools/Testkit 0.75.0. These are independent supplier release groups;
+matching Testkit server CLI and Build release editor identities come from the lock.
 Testkit repairs cached timer/hook snapshots under
 [Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses
 direct snapshot fencing tests rather than the baseline pool or capture-set
@@ -225,7 +246,8 @@ contract. HTTP has empty defaults and is selected only by the native CLI target.
 Neither HTTP nor Reqwest enters the CLI or standalone Wasm graph.
 
 The optional archive verifier exchanges Host process limits and typed errors
-with Build, requiring the same Host package identity. Build and direct Host share the coordinated Tooling release line.
+with Build, requiring the same Host package identity. Build and direct Host
+Process share Foundation 0.73.1, independently of the Testkit integration version.
 The [earlier mismatch](https://github.com/dragginzgame/ic-build/issues/9#issuecomment-6269225053)
 retains its original reproduction. Keep the actual output limits and exit/signal
 propagation; no copied process types or version bridge is used. Archive-verifier qualification is reported separately in the current handoff.

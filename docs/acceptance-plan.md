@@ -90,6 +90,59 @@ here does not waive provider, recovery, accounting or retirement requirements.
 
 ## Next application acceptance run
 
+### Before the acceptance deployment
+
+The 2026-10-31 read-only review is **not ready for the pending 0.61 coordinated
+Canic deployment**. Blob's pending cohort uses Platform 0.15/Wire 0.13 and
+Memory/Storage 0.60. Canic at `247ba9d3` still declares Blob 0.60, Platform 0.11,
+Wire 0.10 and Memory/Storage 0.58 in its root and Blob consumer workspaces.
+Its dedicated and embedded `icp.yaml` files select only local environments;
+`apps/demo/canic.toml` and `apps/test/canic.toml` select no Blob role. These are
+verified source/configuration findings, not an observation of deployed services.
+
+Deployment becomes the next step after:
+
+1. The maintainer releases and publishes the selected Blob 0.61 batch through
+   its normal release gates. A local build or draft heading is not publication.
+2. Canic adopts that release with matching public/runtime dependency identities
+   in the root and both independent consumer locks, then qualifies its actual
+   dedicated or embedded mounting/lifecycle path. Canic owns those changes and
+   the application integration; do not copy a framework adapter into Blob.
+3. Canic/the consuming application's owner supplies a bounded acceptance-service
+   configuration and its network/role binding, including finite limits, namespace,
+   project/payer relationship and operator. The maintainer has confirmed Caffeine
+   as provider; that does not select a deployed Blob instance. Resolve its service
+   principal from the selected fleet's registry after deployment. Historical trial
+   principals, fixture keys and fixture limits are not production defaults.
+
+At that point deploy the selected acceptance installation and record its actual
+module hash and configuration before provider traffic. Use a fresh installation
+for this cross-release cut; preserve any previous installation's provider objects,
+balances, uncertain effects and billing until its retirement contract is satisfied.
+Existing local fixture limits are not an approved production capacity profile.
+The separate probe intent records the exact provider operations and approved
+spending allowance before uploads or top-ups; deployment readiness does not
+authorize those paid effects automatically.
+
+Do not wait for #5/#31 live evidence before this deployment: that would make
+acceptance circular. Deployment enables their run below. Deletion/billing (#6)
+and payer reconciliation (#34) remain separate observations afterward, rather
+than a requirement to invent a new receipt API before the supported happy path.
+Record unknown provider outcomes as unknown and retain their obligations.
+
+A provider-only trial can use the prepared service before an application frontend
+is selected. It can establish provider-side upload/read/funding/callback evidence;
+it does not qualify application login, CSP or media-map publication. The full
+#31/#5 run below additionally records the real application origin, two signed-in
+users and a frozen media inventory. Do not make that later UI selection an
+artificial prerequisite for an otherwise prepared provider trial.
+
+The [Canic #622 handoff](https://github.com/dragginzgame/canic/issues/622#issuecomment-6546806175)
+records the matched dependency adoption and configuration work with its existing
+owner. No Canic source or deployment configuration was changed from this repo.
+
+### Execute against the recorded installation
+
 Use one released graph and the application's real mounted service. Record the
 application commit, three Canic lock hashes where applicable, installed Wasm hash,
 Blob version, service/tenant/namespace, payer and public actor principals before
@@ -101,12 +154,13 @@ any provider effect; the checklist itself grants no deployment or payment author
 | Owning issue | Smallest useful run and evidence | Stop/refusal and completion condition |
 | --- | --- | --- |
 | [#31: two application users](https://github.com/dragginzgame/ic-blob-storage/issues/31) | Two distinct signed-in users obtain separate project-authorized permissions and upload distinct files to the same service. Retain original operation, root, uploader and first-reference identities; verify downloaded bytes against each original file. | Wrong user, tenant/service, expired and revoked permissions must refuse before exposure. Recover lost output from the original operation; never issue another certificate to repair uncertainty. Complete only with actual application-session and deployed-provider evidence. |
-| [#4: application media-map transaction](https://github.com/dragginzgame/ic-blob-storage/issues/4) | Use a frozen media inventory and the same exact file/reference identities. Retain the complete map and the application's authenticated asset-registration outcome. Interrupt transfer, host process and frontend mapping publication separately; recover original outcomes before publishing the complete map. | Missing files or unresolved publication prevent advertising the map. A live first reference does not prove provider bytes, and sequential observations are not an atomic publication lease. Retrying the application transaction must not repeat an uncertain upload or create a duplicate asset effect. |
+| [#5: application media-map transaction](https://github.com/dragginzgame/ic-blob-storage/issues/5) (consolidated from #4) | Use a frozen media inventory and the same exact file/reference identities. Retain the complete map and the application's authenticated asset-registration outcome. Interrupt transfer, host process and frontend mapping publication separately; recover original outcomes before publishing the complete map. | Missing files or unresolved publication prevent advertising the map. A live first reference does not prove provider bytes, and sequential observations are not an atomic publication lease. Retrying the application transaction must not repeat an uncertain upload or create a duplicate asset effect. |
 | [#5: serving and integrity](https://github.com/dragginzgame/ic-blob-storage/issues/5) | Use those files from the real application origin with its CSP. Retain final URL, MIME, CORS/cache headers, cold/warm reads, byte length and verified content result. Exercise representative image/model loading and bounded corrupt/truncated/failing responses in a local substitute. | Do not advertise an asset solely because registration succeeded. Public URL accessibility after logical release must not be described as authenticated access or deletion. Local failure injection and deployed successful reads remain separately labelled. |
 | [#6: reference lifecycle and provider settlement](https://github.com/dragginzgame/ic-blob-storage/issues/6) | Reuse an object in overlapping application releases. Interrupt retain/release and recover the exact receipts; remove media and exercise supported same-release restoration. Record lifetime capacity, remaining references, provider-object custody and continuing liabilities. Separately retain authenticated deployed deletion and billing-cessation evidence. | A logical release or GC acknowledgment clears neither physical bytes nor billing liability. Exhausted lifetime capacity and permanently claimed retired roots must refuse rather than reset history. Missing/trapping callbacks or lost confirmations require original-object reconciliation; cross-release changes use retirement/reinstall. |
 | [#34: payer and funding](https://github.com/dragginzgame/ic-blob-storage/issues/34) | Establish authenticated project-payer/service linkage, limits and expiry; retain provider relationship and activity evidence. Under an explicit budget, inspect two distinct acknowledged payments and their original callback refunds, spent totals and remaining allowance. | An unresolved accepted payment stops further dispatch. A lost host reply requires original-outcome inspection, never resend. Independent credit confirmation requires attributable provider evidence, not a balance delta. Complete only when real linkage, competing activity and spendability are established. |
 
-A concrete #4 consumer still needs its own protocol migration before this run:
+A concrete consumer of #5's publication transaction (formerly #4) still needs its
+own protocol migration before this run:
 read-only IC Crates review at local base `3c67db3` finds `completion_verifier` in
 `RegistryConfiguration`, attestation-based catalog publication, and worker calls
 to retired `observe-upload`/`submit-attestation` commands. That is consumer work

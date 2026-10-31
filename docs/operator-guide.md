@@ -982,7 +982,7 @@ binaries and journals; a mismatch stops the job rather than authorizing re-uploa
 
 This recipe composes existing Blob commands; the consumer owns application
 transaction and deployed-provider acceptance under
-[#4](https://github.com/dragginzgame/ic-blob-storage/issues/4).
+[#5](https://github.com/dragginzgame/ic-blob-storage/issues/5).
 
 ## Download a verified file
 
