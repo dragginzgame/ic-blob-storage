@@ -52,18 +52,25 @@ async fn body(
     sink: &mut impl Write,
     received: &mut u64,
 ) -> Result<ContentDigest, Failure> {
-    let mut verifier = super::local_body::verifier(
+    let verification = ic_blob_storage_client::native::Verification::new(
         expected.root,
         expected.bytes,
         expected.headers,
-        expected.maximum,
-    )?;
+        None,
+        ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits {
+            max_content_bytes: expected.maximum,
+            max_append_bytes: super::local_body::FRAME.try_into().expect("positive frame"),
+            max_headers: 16.try_into().expect("positive header count"),
+            max_header_bytes: 4096.try_into().expect("positive header bytes"),
+        },
+    )
+    .map_err(|_| Failure::InvalidReply)?;
     let client = super::http::client_builder(network)
         .no_gzip()
         .no_brotli()
         .no_deflate()
         .no_zstd();
-    let mut response = client
+    let response = client
         .build()
         .map_err(|_| Failure::Transport)?
         .get(url.clone())
@@ -83,41 +90,20 @@ async fn body(
         "http-response-headers.json",
         &headers::record(response.headers()),
     )?;
-    if response.status() != reqwest::StatusCode::OK
-        || response
-            .headers()
-            .contains_key(reqwest::header::CONTENT_RANGE)
-        || response
-            .headers()
-            .get_all(reqwest::header::CONTENT_ENCODING)
-            .iter()
-            .any(|h| h != "identity")
-    {
-        return Err(Failure::ProviderResponse);
-    }
-    if response
-        .content_length()
-        .is_some_and(|size| size != expected.bytes)
-    {
-        return Err(Failure::Content);
-    }
-    while let Some(chunk) = response.chunk().await.map_err(|_| Failure::Transport)? {
-        *received = received
-            .checked_add(chunk.len().try_into().map_err(|_| Failure::Content)?)
-            .ok_or(Failure::Content)?;
-        if *received > expected.bytes {
-            return Err(Failure::Content);
-        }
-        for frame in chunk.chunks(super::local_body::FRAME) {
-            verifier
-                .append(verifier.received_bytes(), frame)
-                .map_err(|_| Failure::Content)?;
-            sink.write_all(frame).map_err(|_| Failure::File)?;
-        }
-    }
-    sink.flush().map_err(|_| Failure::File)?;
-    verifier
-        .finish()
-        .map(|h| h.content_digest)
-        .map_err(|_| Failure::Content)
+    verification
+        .read_response(response, sink, received)
+        .await
+        .map(|hashes| hashes.content_digest)
+        .map_err(|error| match error {
+            ic_blob_storage_client::native::DownloadError::Response => Failure::ProviderResponse,
+            ic_blob_storage_client::native::DownloadError::Transport(_) => Failure::Transport,
+            ic_blob_storage_client::native::DownloadError::Io(_)
+            | ic_blob_storage_client::native::DownloadError::Directory(_)
+            | ic_blob_storage_client::native::DownloadError::Publication(_) => Failure::File,
+            ic_blob_storage_client::native::DownloadError::Timeout => Failure::Timeout,
+            ic_blob_storage_client::native::DownloadError::Input => Failure::Arguments,
+            ic_blob_storage_client::native::DownloadError::Length
+            | ic_blob_storage_client::native::DownloadError::Checksum
+            | ic_blob_storage_client::native::DownloadError::Integrity(_) => Failure::Content,
+        })
 }

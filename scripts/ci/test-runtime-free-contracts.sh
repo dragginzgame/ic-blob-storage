@@ -8,6 +8,10 @@ cat > "$fixture/cargo" <<'CARGO'
 set -euo pipefail
 if [[ "$*" == *'{p}|{f}'* ]]; then
     printf '%s\n' "${FIXTURE_FEATURE_LINE:-}"
+elif [[ "$*" == *'wasm32-unknown-unknown'* && "$*" == *'ic-blob-storage-client'* ]]; then
+    printf '%s\n' "${FIXTURE_NATIVE_CLIENT_LINE:-}"
+elif [[ "$*" == *'ic-blob-storage-client'* ]]; then
+    printf '%s\n' "${FIXTURE_DEFAULT_CLIENT_LINE:-}"
 elif [[ "$*" == *'wasm32-unknown-unknown'* && "$*" == *'ic-blob-storage-canister'* ]]; then
     printf '%s\n' "${FIXTURE_PACKAGE_LINE:-}"
 fi
@@ -74,3 +78,24 @@ done
 export FIXTURE_FEATURE_LINE='ic-platform v0.9.0|candid,management-canister-types'
 bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1
 printf 'Deployment native Candid service feature refusals: PASS\n'
+
+unset FIXTURE_FEATURE_LINE FIXTURE_PACKAGE_LINE
+for package in reqwest tokio ic-host-fs; do
+    export FIXTURE_NATIVE_CLIENT_LINE="$package v1.0.0"
+    if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
+        echo "Wasm client accepted native transport: $package" >&2; exit 1
+    fi
+    rg -q 'Wasm client depends on native download transport' "$fixture/output"
+done
+unset FIXTURE_NATIVE_CLIENT_LINE
+printf 'Native download Wasm dependency refusals: PASS\n'
+
+for package in reqwest tokio ic-host-fs; do
+    export FIXTURE_DEFAULT_CLIENT_LINE="$package v1.0.0"
+    if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
+        echo "Default client accepted optional transport: $package" >&2; exit 1
+    fi
+    rg -q 'Client default graph depends on optional native download transport' "$fixture/output"
+done
+unset FIXTURE_DEFAULT_CLIENT_LINE
+printf 'Default client optional dependency refusals: PASS\n'

@@ -11,6 +11,7 @@ libc.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 clap.workspace = true
+ic-blob-storage-client = { workspace = true, features = ["native-download"] }
 ic-blob-storage-contracts = { workspace = true, features = ["provider-json"] }
 ic-build = { workspace = true, optional = true }
 ic-host-artifacts.workspace = true

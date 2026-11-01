@@ -9,11 +9,25 @@ publish.workspace = true
 description = "Bounded replicated IC Blob calls without service storage dependencies"
 readme = "README.md"
 
+[features]
+# Native transport and private staging are excluded from every Wasm target.
+native-download = ["dep:reqwest", "dep:ic-host-fs", "dep:tokio"]
+
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+ic-host-fs = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true, features = ["rustls", "http2"] }
+tokio = { workspace = true, optional = true, features = ["time"] }
+
 [dependencies]
 ic-blob-storage-contracts.workspace = true
 ic-platform = { workspace = true, features = ["runtime"] }
 serde.workspace = true
 thiserror.workspace = true
+
+[target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
+ic-host-fs = { workspace = true, features = ["test-support"] }
+ic-host-process = { workspace = true, features = ["test-support"] }
+tokio = { workspace = true, features = ["rt", "time"] }
 
 [lints]
 workspace = true

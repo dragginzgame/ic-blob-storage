@@ -21,7 +21,7 @@ boundary. Foreign Candid identities stay upstream, without a local dependency al
 | Owner | Responsibility |
 | --- | --- |
 | Blob core | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
-| Blob client | Explicit replicated role clients; no service storage, endpoints or lifecycle |
+| Blob client | Explicit replicated role clients; optional native-only verified HTTP downloads and private staging; no service storage, endpoints or lifecycle |
 | Blob Contracts | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
 | IC Memory | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
 | IC Storage | Governed stable collections and codec traits; the stable-structures dependency stays upstream; Memory/Storage share the IC Persistence release line |
@@ -42,7 +42,7 @@ Blob consumes published packages, without sibling paths or compatibility aliases
 
 ### Replicated call execution
 
-Published Platform **0.7.3**, selected in the current lockfile, supplies the raw
+Published Platform supplies the raw
 `cdk::call::Call`, `Response`, `CallFailed` and `WaitPolicy` API used by every
 production replicated transport. There is no Blob executor or generic dispatch
 engine to replace. The remaining adapters have distinct domain responsibilities:

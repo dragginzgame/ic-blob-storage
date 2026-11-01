@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.62.1]
+
+### ➕ Added
+
+- Add optional native verified downloads to the published client: bounded streaming,
+  original-root and optional raw-checksum verification, and private create-only
+  output. Reuse the verification path in the CLI; applications retain publication
+  policy without a verifier identity or attestation service. Canister graphs gain
+  no native transport dependencies.
+
+### ⬆️ Dependencies
+
+- Adopt published Memory/Storage 0.60.5 and Metrics 0.24.3, with matching
+  Platform 0.15.3 and Wire 0.13.2 minimums. Keep the existing stable formats,
+  growth/refusal behavior, bounded codecs and telemetry feature isolation.
+
 ## [0.62.0] - 2026-11-01
 
 ### ⚠️ Breaking

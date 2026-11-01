@@ -1559,6 +1559,7 @@ name = "ic-blob-storage-cli"
 version = "0.62.0"
 dependencies = [
  "clap",
+ "ic-blob-storage-client",
  "ic-blob-storage-contracts",
  "ic-build",
  "ic-host-artifacts",
@@ -1580,9 +1581,13 @@ name = "ic-blob-storage-client"
 version = "0.62.0"
 dependencies = [
  "ic-blob-storage-contracts",
+ "ic-host-fs",
+ "ic-host-process",
  "ic-platform",
+ "reqwest",
  "serde",
  "thiserror 2.0.18",
+ "tokio",
 ]
 
 [[package]]
@@ -1757,9 +1762,9 @@ dependencies = [
 
 [[package]]
 name = "ic-memory"
-version = "0.60.4"
+version = "0.60.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc4635eed921758ee5924680cda95bb140072cc7f19eca85da2a28b7a0703e19"
+checksum = "dae10e138a758c1290c328799393af1177f80d02eb5c34d553487ffd7e032db9"
 dependencies = [
  "ic-platform",
  "ic-wire",
@@ -1842,9 +1847,9 @@ dependencies = [
 
 [[package]]
 name = "ic-storage"
-version = "0.60.4"
+version = "0.60.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d90a88bbad8ea6830ccbc46c9d48fd0cb37dcd5d4c8fe800e40e5792000e71d"
+checksum = "1ab658f2a14ebcebb91442091b20586e36f88aa544b1619e27c836d2259fec02"
 dependencies = [
  "ic-memory",
  "ic-platform",
