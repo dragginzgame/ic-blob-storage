@@ -19,7 +19,7 @@ members = [
 resolver = "3"
 
 [workspace.package]
-version = "0.64.0"
+version = "0.65.0"
 edition = "2024"
 rust-version = "1.91.0"
 license = "MIT"
@@ -30,11 +30,11 @@ publish = ["crates-io"]
 # Production dependencies
 clap = { version = "4.6.7", default-features = false, features = ["std", "help", "usage", "error-context"] }
 hex = "0.4.3"
-ic-blob-storage = { path = "crates/ic-blob-storage", version = "0.64.0" }
-ic-blob-storage-canister = { path = "canisters/standalone", version = "0.64.0" }
-ic-blob-storage-cli = { path = "crates/ic-blob-storage-cli", version = "0.64.0" }
-ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.64.0" }
-ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.64.0", default-features = false }
+ic-blob-storage = { path = "crates/ic-blob-storage", version = "0.65.0" }
+ic-blob-storage-canister = { path = "canisters/standalone", version = "0.65.0" }
+ic-blob-storage-cli = { path = "crates/ic-blob-storage-cli", version = "0.65.0" }
+ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.65.0" }
+ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.65.0", default-features = false }
 ic-build = "0.73.5"
 ic-host-artifacts = { version = "0.73.5", default-features = false }
 ic-host-fs = { version = "0.73.5", default-features = false }
@@ -58,14 +58,14 @@ tokio = "1.54.1"
 url = "2.5.8"
 
 # Tests and tooling only
-blob-admission-probe = { path = "canisters/test/admission_probe", version = "0.64.0" }
-blob-authority-probe = { path = "canisters/test/authority_probe", version = "0.64.0" }
-blob-consumer-probe = { path = "canisters/test/consumer_probe", version = "0.64.0" }
-blob-funding-probe = { path = "canisters/test/funding_probe", version = "0.64.0" }
-blob-gateway-source = { path = "canisters/test/gateway_source", version = "0.64.0" }
-blob-storage-probe = { path = "canisters/test/storage_probe", version = "0.64.0" }
-blob-test-protocol = { path = "tests/protocol", version = "0.64.0" }
-ic-blob-storage-pocketic-tests = { path = "tests/pocketic", version = "0.64.0" }
+blob-admission-probe = { path = "canisters/test/admission_probe", version = "0.65.0" }
+blob-authority-probe = { path = "canisters/test/authority_probe", version = "0.65.0" }
+blob-consumer-probe = { path = "canisters/test/consumer_probe", version = "0.65.0" }
+blob-funding-probe = { path = "canisters/test/funding_probe", version = "0.65.0" }
+blob-gateway-source = { path = "canisters/test/gateway_source", version = "0.65.0" }
+blob-storage-probe = { path = "canisters/test/storage_probe", version = "0.65.0" }
+blob-test-protocol = { path = "tests/protocol", version = "0.65.0" }
+ic-blob-storage-pocketic-tests = { path = "tests/pocketic", version = "0.65.0" }
 ic-host-tools = { version = "0.76.0", default-features = false }
 ic-testkit = "0.76.0"
 
