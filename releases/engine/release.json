@@ -1,6 +1,25 @@
 {
+   "date" : "2026-11-01",
+   "files" : {
+      "Cargo.lock" : "c8cc140bee4b844ad5d85d9b8b29f3587a75dd9b07152286dcb15051aa3d2fbf",
+      "Cargo.toml" : "41ac3c084b508a61ab678a77562ef5c732ae265d1c64274accf8e5dc4aa463cb",
+      "canisters/standalone/Cargo.toml" : "6ea4274d95c1faa98d987639f8dcfdcee88412557820143200d92c2cc18acd34",
+      "canisters/test/admission_probe/Cargo.toml" : "c45f78bebb328b62475cdf0cae8cd4c0e0aacebcedee7d37755f52fb55330393",
+      "canisters/test/authority_probe/Cargo.toml" : "2e980c1af3aa6e1fde2f947a76d82dcb7fb30357501eb6f8b7c852323be58760",
+      "canisters/test/consumer_probe/Cargo.toml" : "740dcb9f45d5104559e8e15386c8675185040ad7047dced3a3693cba8d42b626",
+      "canisters/test/funding_probe/Cargo.toml" : "5c5e90d6cf87c9fefe690aeea5d7e8e124d882dae8bab60ead29b626c28af863",
+      "canisters/test/gateway_source/Cargo.toml" : "5f92e1438b84cf597a033820eefc42290fa01ab683b0ade2ab593c7a4b1eccab",
+      "canisters/test/storage_probe/Cargo.toml" : "4db4ba3653c464db509c62f2b94b4f7983848cf93397d4f5701e0ca810cea39d",
+      "crates/ic-blob-storage/Cargo.toml" : "cd58f58321db40bdd06c899c09c9a247fc28226727e11419ede80c149906c617",
+      "releases/engine/CHANGELOG.md" : "6b71a9a4489c07d48320055d4a7f877fbdfb81241cdda317cc436d5d72af0724",
+      "tests/pocketic/Cargo.toml" : "7e9d3a86191b1f6495cdaf60efcef9ef30fd10601652a5d63379fc7157d8cc58",
+      "tests/protocol/Cargo.toml" : "68305967bdcc39fb47a49e8e00caee5987c98a6122846bb8982d9fddb874f8a7"
+   },
+   "gate" : "release-verify",
    "group" : "engine",
-   "inherited_release" : "v0.65.0",
+   "policy" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
    "schema" : 1,
-   "status" : "inherited"
+   "source" : "91338590db5778fe437ff1d53cdc79b6ba31e836",
+   "status" : "released",
+   "version" : "0.66.0"
 }
