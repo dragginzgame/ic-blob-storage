@@ -14,9 +14,11 @@ lockfiles; local qualification does not cover every future resolution.
 
 The root catalog and lockfile own version selections; the capability table below
 is not a second version catalog. The [current handoff](status/current.md) records
-source-bound qualification and its limits. Native Testkit retains its published
-Platform dependency; explicit provider decoding uses Blob's direct Platform
-boundary. Foreign Candid identities stay upstream, without a local dependency alias.
+source-bound qualification and its limits. Native Testkit and deployed components
+share the selected Platform generation. Explicit provider decoding uses Blob's
+direct Platform boundary. Agent verification consumes Platform's explicit
+`agent::ExternalCertificate`; owned certificate trees use `certification`.
+Foreign Candid identities stay upstream, without a local dependency alias.
 
 | Owner | Responsibility |
 | --- | --- |
@@ -88,8 +90,7 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Blob's direct Platform minimum is 0.15.2; Memory/Storage 0.60.3 requires the
-resolved 0.15.3 pairing. Platform owns the executor and
+The selected Platform generation owns the executor and
 IC0 implementation; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
@@ -102,12 +103,10 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-Memory/Storage minimums are 0.60.3. Build/Host Foundation minimums are 0.73.3,
-and Host Tools/Testkit minimums are 0.75.2, matching the pending lock. Its existing
-Platform 0.15.3 and Wire 0.13.2 selections remain intact; Testkit requires that
-Wire patch. Testkit shares arithmetic-only Metrics 0.24.1 with Blob,
-removing the older native Metrics copy. The graph retains one Platform/Wire
-identity and Blob's sole deployed executor is Platform 0.15.3. Raw IC0 is absent. No source patch,
+The graph retains one Platform executor and one Wire identity. Testkit shares
+arithmetic-only Metrics with Blob, without a second native Metrics copy.
+The current version selections and qualification belong in the root catalog,
+lock and handoff above. The external raw-IC0 package is absent. No source patch,
 compatibility alias or dependency override is used. Principal
 hashing remains explicitly development-only in Blob. No size or performance
 gain is inferred from the graph reduction.
@@ -128,7 +127,7 @@ remain available; Contracts' existing `wire-schema` feature enables
 `ic-metrics/native-wire` explicitly. Normal contract graphs exclude that feature
 and native schema graphs select it without introducing a runtime owner.
 
-Platform 0.15 reexports canonical Principal/Account identities from published
+Platform reexports canonical Principal/Account identities from published
 `ic-platform-types` 0.15.1. Wire 0.13's schema implementation selects that same
 Types owner, resolving the previous facade/schema version blocker tracked in
 [Wire #37 — Supply compatible Platform integrations](https://github.com/dragginzgame/ic-wire/issues/37). Blob continues to
@@ -142,8 +141,7 @@ and development workspace; no release-group policy or package moves are needed.
 Its root catalog lists all thirteen members at their existing full version.
 The snapshot records reviewed commit `f4f431627290e18f0ccc1e5f8525d16b197cf7c3`.
 
-The root catalog and lock select Build/Host Foundation 0.73.3 and Host Tools /
-Testkit 0.75.2. These are independent supplier release groups;
+Build/Host Foundation and Host Tools/Testkit are independent supplier release groups;
 matching Testkit server CLI and Build release editor identities come from the lock.
 Testkit repairs cached timer/hook snapshots under
 [Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses

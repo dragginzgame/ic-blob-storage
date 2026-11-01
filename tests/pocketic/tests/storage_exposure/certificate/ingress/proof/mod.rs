@@ -50,7 +50,9 @@ pub(super) fn extract(
     if to_request_id(&envelope.content).map_err(|_| ProofError::Intent)? != intent.request_id {
         return Err(ProofError::Intent);
     }
-    let cert: ic_platform::certification::Certificate =
+    // Agent verification consumes its external certificate identity. Keep the
+    // provider bytes and authenticated tree together without a tree conversion.
+    let cert: ic_platform::agent::ExternalCertificate =
         serde_cbor::from_slice(bytes).map_err(|_| ProofError::Encoding)?;
     agent
         .verify(&cert, expected.service)

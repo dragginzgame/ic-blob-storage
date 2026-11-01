@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.63.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Adopt Platform 0.16.0 with Host Tools/Testkit 0.76.0. Embedding hosts must
+  align their Platform executor identity and rebuild together. Native Agent
+  certificate verification uses Platform's explicit external certificate type;
+  endpoint identities, encoded bytes and retained-data formats are unchanged.
+
+### ⬆️ Dependencies
+
+- Adopt published Build/Host Foundation 0.73.4, Memory/Storage 0.60.6 and
+  Wire 0.13.3. Preserve incoming Metrics 0.24.4 and the existing private-download,
+  storage, retry and decoder-budget contracts. Keep current byte-array encoding;
+  this update does not opt into Wire's new bulk fixed-array representation.
+
 ## [0.62.1] - 2026-11-01
 
 ### ➕ Added
