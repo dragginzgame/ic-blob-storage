@@ -32,8 +32,6 @@ pub enum WriteFault {
     References,
     /// Exact reference receipt write.
     Receipts,
-    /// Root-to-request index, after root claim and permission insertion.
-    RootRequests,
     /// Pending deletion candidate index write.
     Deletions,
     /// Funding accounting, after the exact intent row write.

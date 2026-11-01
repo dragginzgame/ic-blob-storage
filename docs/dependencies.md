@@ -177,7 +177,7 @@ selection; removing the CLI declaration does not retire simulator setup.
 Collection constructors take exclusive `RuntimeMemory<Backing>` handles from the
 host runtime. Store/workflow generic parameters name `Backing`; passive memory
 bundles carry handles without granting access. Production hosts compose all
-fifteen Blob requests before a single bootstrap. Cross-release installations
+fourteen Blob requests before a single bootstrap. Cross-release installations
 require [safe retirement](retiring-installations.md), not automatic migration.
 
 Native fixture custody uses Memory's published `testing::fixture_runtime` with
@@ -471,7 +471,7 @@ For consumer adoption of this source:
    package identity. Store/workflow type parameters now name backing memory; constructors
    take exclusive runtime leases. Freeze the application's actual lock and every
    independent fixture lock; sibling paths are not registry-delivery evidence.
-2. Include Blob's fifteen requests in the host's single declaration snapshot
+2. Include Blob's fourteen requests in the host's single declaration snapshot
    and grant the `blob.` namespace before bootstrap. Validate installation for the
    allocated Principal before opening stores. Mounting initializes nothing.
 3. Preserve the host's authenticated initializer and one synchronous lifecycle.
@@ -535,13 +535,29 @@ Wire format described above. Blob's cross-release retirement/reinstall rule stil
 applies; there is no automatic migration or alias-guard bypass. Requalify the actual Canic composition
 and its selected limits independently of standalone/local-substitute evidence.
 
+### Adopt the 0.64 simplification cut
+
+Use the current installation request factory rather than a copied allocation
+roster: it returns fourteen memories including configuration (thirteen store
+grants). `UploadMemories` no longer has `root_requests`; each immutable root claim
+also retains its exact upload operation. Keep both forward root and reverse
+object uniqueness. Retire the old installation with its original tools before
+reinstalling; dropping the old allocation alone cannot erase provider obligations.
+
+Regenerate sync/cancellation Wire callers from the current catalogue. Explicit
+refresh supersedes an older read token, whose late reply or cancellation refuses;
+this introduces no automatic retry. Other owned endpoint identities are unchanged.
+Native session provenance now stores a list of per-file setup/transfer sources;
+old session documents require their original tools and are not automatically read
+or converted by the new CLI.
+
 ### Adopt the 0.52 hard cut
 
 | Consumer boundary | Required change |
 | --- | --- |
 | Installation/configuration | Remove `ServiceReadInput` and `ServiceConfigurationInput.reads` from authored inputs and test constructors. Preserve the remaining explicit limits and provider bindings. |
 | Status and CLI projections | Remove read-session status, budgets and fence assertions. Current CLI output remains schema 1; upload, funding and gateway fences remain. |
-| Memory composition | Use `ops::service::installation::requests` and `ops::service::stores::grants::open`, rather than a copied key roster. The installation has fifteen requests, including its configuration and pending-deletion index. |
+| Memory composition | Use `ops::service::installation::requests` and `ops::service::stores::grants::open`, rather than a copied key roster. The installation has fourteen requests, including its configuration and pending-deletion index. |
 | Wire callers and generated clients | Regenerate from the selected Contracts catalogue. Configuration, local-status and installation frames changed identity with their DTOs; method names/modes and the required external provider Candid are retained. Do not reuse old encoded installation inputs. |
 | Gateway decisions | Revocation still removes membership and invalidates pending syncs. An absent member with no pending sync no longer advances a retired read-generation counter; it may leave stable bytes unchanged. |
 | Stored state | The manifest/index and singleton-cell layouts are a cross-release hard cut. Retire the old installation with its original tools, preserving uncertain effects and obligations, before reinstalling. No in-place conversion or fallback reader exists. |

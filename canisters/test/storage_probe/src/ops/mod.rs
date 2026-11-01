@@ -181,7 +181,7 @@ pub(crate) fn initialize(
             ic_platform::cdk::api::call_context_instruction_counter() - started;
     });
 }
-const MEMORY_KEYS: [&str; 14] = [
+const MEMORY_KEYS: [&str; 13] = [
     "fixture.tenants.v1",
     "fixture.roots.v1",
     "fixture.root_objects.v1",
@@ -191,7 +191,6 @@ const MEMORY_KEYS: [&str; 14] = [
     "fixture.confirmed.v1",
     "fixture.references.v1",
     "fixture.receipts.v1",
-    "fixture.root_requests.v1",
     "fixture.pending_deletions.v1",
     "fixture.funding_accounting.v1",
     "fixture.funding_intents.v1",
@@ -232,7 +231,6 @@ fn granted_memories() -> (
         confirmed,
         references,
         receipts,
-        root_requests,
         deletions,
         funding_accounting,
         funding_intents,
@@ -248,7 +246,6 @@ fn granted_memories() -> (
         confirmed,
         references,
         receipts,
-        root_requests,
         deletions,
     };
     let memory = ServiceMemories {
@@ -279,7 +276,6 @@ fn probe_memory(
             "fixture.references.v1" => Some(WriteFault::References),
             "fixture.receipts.v1" => Some(WriteFault::Receipts),
             "fixture.pending_deletions.v1" => Some(WriteFault::Deletions),
-            "fixture.root_requests.v1" => Some(WriteFault::RootRequests),
             "fixture.funding_accounting.v1" => Some(WriteFault::FundingAccounting),
             "fixture.funding_intents.v1" => Some(WriteFault::FundingIntents),
             "fixture.gateways.v1" => Some(WriteFault::Gateways),

@@ -231,11 +231,11 @@ fn exact_wire_arguments_and_typed_refusals_preserve_current_contract() {
             &sync,
             &ic_blob_storage_contracts::wire::encode_response(
                 "blob_sync_gateways",
-                Err::<GatewaySyncResponse, _>(SyncError::Busy)
+                Err::<GatewaySyncResponse, _>(SyncError::Exhausted)
             )
             .unwrap()
         ),
-        Err(Failure::GatewaySyncRefused(SyncError::Busy))
+        Err(Failure::GatewaySyncRefused(SyncError::Exhausted))
     );
     let revoke = input(Action::Revoke(Principal::self_authenticating([4])));
     assert_eq!(

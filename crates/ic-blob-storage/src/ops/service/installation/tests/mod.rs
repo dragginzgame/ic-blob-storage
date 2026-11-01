@@ -94,11 +94,11 @@ fn input() -> ServiceInstallationCandidate<'static> {
 fn validated() -> ValidatedServiceInstallation {
     ValidatedServiceInstallation::new(candidate().service, input()).unwrap()
 }
-fn memory() -> [FixtureMemory; 15] {
+fn memory() -> [FixtureMemory; 14] {
     std::array::from_fn(|_| FixtureMemory::default())
 }
 fn memories(
-    memory: &[FixtureMemory; 15],
+    memory: &[FixtureMemory; 14],
 ) -> ServiceInstallationMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     let requests = grants::requests("installation-test").unwrap();
     ServiceInstallationMemories {
@@ -113,7 +113,7 @@ fn memories(
         .unwrap(),
     }
 }
-fn bytes(memory: &[FixtureMemory; 15]) -> [Vec<u8>; 15] {
+fn bytes(memory: &[FixtureMemory; 14]) -> [Vec<u8>; 14] {
     memory.each_ref().map(|m| m.borrow().clone())
 }
 
@@ -263,7 +263,7 @@ fn whole_candidate_rejects_invalid_bindings_project_and_release() {
 
 #[test]
 fn allocated_grant_anywhere_rejects_before_installation_or_owner_writes() {
-    for occupied in 0..15 {
+    for occupied in 0..14 {
         let memory = memory();
         assert_eq!(ic_memory::Memory::grow(&memory[occupied].lease(), 1), 0);
         memory[occupied]
@@ -365,7 +365,7 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
         assert_eq!(bytes(&memory), before);
     }
     let mut missing = memory.clone();
-    missing[14] = FixtureMemory::default();
+    missing[13] = FixtureMemory::default();
     let missing_before = bytes(&missing);
     assert!(matches!(
         ServiceInstallation::open(memories(&missing), candidate().service, RELEASE),

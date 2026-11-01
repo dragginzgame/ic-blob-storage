@@ -125,16 +125,14 @@ fn certificate_root_is_a_locator_and_never_caller_or_evidence_authority() {
 }
 
 #[test]
-fn certificate_resolution_rejects_corrupt_root_request_indexes_without_writes() {
+fn certificate_resolution_rejects_corrupt_root_operations_without_writes() {
     for replacement in [None, Some(7)] {
         let m = memory();
         let mut store = prepared(clone_memory(&m));
         let root = permission().request.object.root;
-        if let Some(id) = replacement {
-            store.root_requests.insert(*root.as_bytes(), id);
-        } else {
-            store.root_requests.remove(root.as_bytes());
-        }
+        store
+            .roots
+            .damage_operation(*root.as_bytes(), Some(replacement.unwrap_or(0)));
         let before = m.permissions.borrow().clone();
         assert_eq!(
             crate::ops::service::uploads::certificate::resolve(

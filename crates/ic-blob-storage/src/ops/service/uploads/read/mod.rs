@@ -148,11 +148,20 @@ impl<M: Memory> StableUploads<M> {
         execution: UploadContext,
         input: ContentLookup,
     ) -> Result<Option<TenantContentView>, UploadStoreError> {
+        self.lookup_permission(execution, input)?
+            .map(|view| self.content_view(view.permission.request, view.phase))
+            .transpose()
+    }
+    fn lookup_permission(
+        &self,
+        execution: UploadContext,
+        input: ContentLookup,
+    ) -> Result<Option<crate::model::service::upload::UploadPermissionView>, UploadStoreError> {
         validation::tenant(&self.config, execution, input.tenant, input.namespace)?;
         let Some(object) = self.roots.lookup(execution, input.root)? else {
             return Ok(None);
         };
-        Ok(Some(self.indexed_content(input.root, object)?))
+        self.indexed_permission(input.root, object).map(Some)
     }
     fn indexed_content(
         &self,
@@ -176,10 +185,7 @@ impl<M: Memory> StableUploads<M> {
         root: ProviderRootHash,
         object: ObjectBinding,
     ) -> Result<super::UploadPermissionRecord, UploadStoreError> {
-        let id = self
-            .root_requests
-            .get(root.as_bytes())
-            .ok_or(UploadStoreError::InvalidRecord)?;
+        let id = self.roots.operation_for_owner(root)?.get().get();
         let Some(UploadStoreRecord::Permission(record)) =
             self.permissions.get(&(object.tenant().into(), id))
         else {
@@ -204,10 +210,11 @@ impl<M: Memory> StableUploads<M> {
         execution: UploadContext,
         input: ContentLookup,
     ) -> Result<Option<UploadDescriptorView>, UploadStoreError> {
-        let Some(content) = self.lookup_content(execution, input)? else {
+        let Some(view) = self.lookup_permission(execution, input)? else {
             return Ok(None);
         };
-        self.descriptor(content)
+        let content = self.content_view(view.permission.request, view.phase)?;
+        self.descriptor(content, view.manifest)
     }
     /// Observe a declaration only with confirmed completion and the exact live reference.
     /// Released/unknown references and changed object lifetimes return `None` even if
@@ -220,11 +227,11 @@ impl<M: Memory> StableUploads<M> {
         root: ProviderRootHash,
         reference: ReferenceKey,
     ) -> Result<Option<RetainedUploadDescriptorView>, UploadStoreError> {
-        let Some(content) = self.retained_content(execution, root, reference)? else {
+        let Some((content, manifest)) = self.retained_content(execution, root, reference)? else {
             return Ok(None);
         };
         let descriptor = self
-            .descriptor(content)?
+            .descriptor(content, manifest)?
             .ok_or(UploadStoreError::InvalidRecord)?;
         Ok(Some(RetainedUploadDescriptorView {
             descriptor,
@@ -236,10 +243,10 @@ impl<M: Memory> StableUploads<M> {
         execution: UploadContext,
         root: ProviderRootHash,
         reference: ReferenceKey,
-    ) -> Result<Option<TenantContentView>, UploadStoreError> {
+    ) -> Result<Option<(TenantContentView, UploadManifestState)>, UploadStoreError> {
         let object = reference.object();
         validation::object(&self.config, execution, object)?;
-        let Some(content) = self.lookup_content(
+        let Some(view) = self.lookup_permission(
             execution,
             ContentLookup {
                 tenant: object.tenant(),
@@ -250,6 +257,7 @@ impl<M: Memory> StableUploads<M> {
         else {
             return Ok(None);
         };
+        let content = self.content_view(view.permission.request, view.phase)?;
         if content.request.object.first.object() != object
             || content.state != UploadRootState::Confirmed(LifecyclePhase::Live)
         {
@@ -260,17 +268,14 @@ impl<M: Memory> StableUploads<M> {
         {
             return Ok(None);
         }
-        Ok(Some(content))
+        Ok(Some((content, view.manifest)))
     }
     fn descriptor(
         &self,
         content: TenantContentView,
+        manifest: UploadManifestState,
     ) -> Result<Option<UploadDescriptorView>, UploadStoreError> {
-        let permission = self
-            .required(content.request)?
-            .view()
-            .ok_or(UploadStoreError::InvalidRecord)?;
-        if permission.manifest == UploadManifestState::Unprepared {
+        if manifest == UploadManifestState::Unprepared {
             return Ok(None);
         }
         let record = self

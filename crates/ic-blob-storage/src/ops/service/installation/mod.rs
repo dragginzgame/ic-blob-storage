@@ -24,7 +24,7 @@ mod configuration;
 /// slot when refusing an incompatible record; never replace its retained state.
 pub const INSTALLATION_MEMORY_KEY: &str = "blob.configuration.v1";
 
-/// Build all fifteen installation memory requests under the host's authority.
+/// Build all fourteen installation memory requests under the host's authority.
 /// Configuration and store keys share one inventory; no registration, physical
 /// ID selection, bootstrap, allocation, lifecycle hook or stable write occurs.
 /// # Errors

@@ -1,106 +1,121 @@
 # Current status — 2026-11-01
 
-## Delivered baseline and pending adoption
+## Delivered baseline and pending cleanup
 
-Git main/tag `v0.62.1` identifies release **0.62.1** at
-`a7be19ea8fd7064b97120744a8ff286f0358c6f7`; see
-[the release receipt](../release.json). This pass did not repeat registry
-publication/provenance or hosted-CI readback. Earlier evidence must not be
-reported as qualification of the pending dependency graph.
+Git main/tag `v0.63.0` identifies release **0.63.0** at
+`6be5c1d2ab45d8383835f945183a872296d59383`; see
+[the release receipt](../release.json). Registry publication and hosted checks
+were not reread during this cleanup. The preceding dependency-adoption handoff
+is preserved in `/tmp/blob-simplify064.1L5ZdK/previous-handoff.md`.
 
-The pending notes target **0.63.0**, because Platform's executor/guard identity
-changes to 0.16 and embedding hosts must align and rebuild together. All thirteen
-own package versions stay 0.62.1 for maintainer release preparation. No staging,
-commit, push, release, registry publication, deployment, sibling edit or paid
-provider effect was performed. Existing incoming lockfile updates, including
-Metrics 0.24.4, were preserved.
+Pending notes target **0.64.0**: the memory composition, gateway reply vocabulary/
+frame identities and saved session provenance change intentionally. Own Cargo
+versions stay 0.63.0 for maintainer preparation. No staging, commit, push, release, registry publication,
+deployment, sibling edit or paid provider effect was performed.
 
-## Published dependency adoption — 0.63.0
+## Published dependency adoption
 
-Official crates.io index records and archive SHA-256 values were verified for:
+Adopt **Build/Host Foundation 0.73.5** and **Memory/Storage 0.60.7**. Official
+crates.io index records and cached archive checksums establish publication;
+sibling Unreleased notes do not. Align all seven root declaration minimums with
+the incoming lockfile, preserving that lockfile byte-for-byte. Host Tools remains
+at the latest published **0.76.0**. Own package versions remain unchanged.
 
-| Capability | Selected release |
-| --- | --- |
-| Build / Host Artifacts, FS, HTTP and Process | 0.73.4 |
-| Host Tools / Testkit | 0.76.0 |
-| Memory / Storage | 0.60.6 |
-| Platform / macros / executor guard | 0.16.0 |
-| Wire / Derive | 0.13.3 |
+Host Foundation and Memory/Storage have no Rust source changes from the prior
+locked patches. Build adds qualification of existing archives; Blob retains its
+supported archive-producing API and actual adapter regression. No memory layout,
+stored bytes, decoder budget or recovery policy changes arise from these patches.
+The lock-selected Build 0.73.5 release editor is explicitly installed and admitted.
 
-Canonical Platform Types stays 0.15.1; incoming Metrics stays 0.24.4. Browser
-Platform stays 0.1.1 and Shared Tooling stays at reviewed 0.27.22. No sibling path,
-patch, compatibility alias, storage migration or versioned reader was added.
-Testkit's sibling 0.76.1 notes were marked Unreleased at inspection; registry
-0.76.0 was selected instead.
+## Completed complexity reductions
 
-Root minimums and lock now agree, with one Platform/runtime identity. Read-only
-source comparison of the actual published archives finds no Rust source changes
-in Build, Host Foundation, Memory, Storage or Testkit from their prior selected
-releases. Platform 0.16 introduces owned certification/BLS identities and native
-macro symbol isolation; its crypto feature upgrades remain opt-in. Native Agent
-retains its upstream certificate identity. The headless certificate proof test
-now decodes `agent::ExternalCertificate` directly at that boundary, avoiding
-unnecessary tree conversion while retaining verification and exact-byte checks.
+1. **Root/operation correlation:** the immutable forward root claim now includes
+   the exact nonzero upload operation. Remove the separate root_requests map and
+   grant while retaining reverse object uniqueness, exact replay and complete
+   restore validation. There are thirteen store grants and fourteen installation
+   memories including configuration. The root-correlation Wire record has a new
+   identity with schema 1; no old reader, metadata-only reset or migration exists.
+2. **Shared fixture ownership:** remove the generic Cargo metadata matrix from
+   Blob's Make roster and snapshot selection through the canonical exporter at
+   the same reviewed revision. Narrow local logging checks to Blob's actual
+   nested stable/drift/deleted-input gates. Shared owns diagnostic/highlighting,
+   parser and generic inheritance matrices. Snapshot 0.27.22 remains revision
+   f4f431627290e18f0ccc1e5f8525d16b197cf7c3, with 138 files.
+3. **Permission validation:** manifests and exposure use one exact retained
+   permission lookup. Preserve uploader-only mutation, tenant/uploader historical
+   inspection, binding/error precedence, complete permission equality and all
+   freshness/activation checks at their effect owners.
+4. **Descriptor reads:** carry the resolved permission's manifest state into
+   descriptor construction, avoiding another permission lookup. Historical
+   inspection and active live-reference serving retain their distinct gates.
+5. **Session provenance:** save per-file setup/transfer records instead of two
+   parallel arrays. Require both explicit optional fields, reject wrong counts,
+   unknown/missing fields and the old format. Original source paths and signed
+   claims still own retry decisions. Older runs retain their original tools.
+6. **Capacity errors:** keep explicit public binding/denial classifications and
+   one conservative Internal fallback instead of enumerating unrelated mutation
+   errors. No authority or disclosure policy changes.
+7. **Gateway refresh:** an explicit operator refresh supersedes an older pending
+   read token. Late replies/cancellation cannot overwrite its successor; revocation
+   and restore fences still win. Explicit cancellation remains available. Remove
+   the obsolete Busy refusal and change only sync/cancellation Wire identities
+   to 0x424c_4f42_0064_0012 / 0x424c_4f42_0064_0013. Four frozen vector files are
+   reviewed for these header changes and the shifted ReplyTooLarge error tag;
+   a regression rejects retired identities. Other endpoint bytes remain frozen.
 
-Wire's new ByteArray representation is not adopted. Existing field types,
-endpoint identities, encoded bytes, decoder limits, stored records, exact retry
-bytes and lifecycle/accounting fences remain unchanged. Cross-release deployment
-still follows [retirement/reinstall](../retiring-installations.md); unchanged
-formats do not authorize an in-place cross-release upgrade.
+Hosts must rebuild their memory declarations using Blob's request factory and
+regenerate the two affected Wire callers. Follow
+[retirement/reinstall](../retiring-installations.md) with the old installation's
+original tools; removing allocation source cannot erase provider objects,
+uncertain effects, balances or continuing billing.
 
-The optional native-download helper delivered in 0.62.1 remains shared by the
-client and CLI: trusted original metadata, bounded one-shot body verification,
-optional raw SHA-256 and private create-only publication. It adds no verifier
-identity, attestation, receipt or background worker. Applications retain their
-publication and uncertain-outcome policy. Default and Wasm client graphs exclude
-native HTTP/filesystem dependencies. The README no longer calls 0.62.1 pending.
-See [the client guide](../../crates/ic-blob-storage-client/README.md) and
-[trusted registration](../trusted-registration.md).
+## Archive candidate retained after coverage review
 
-Evidence is retained in `/tmp/blob-adopt-1101/`, including original dirty inputs,
-registry records/checksums, source comparisons, lock delta, exact commands and
-input hashes. The preceding detailed handoff is preserved there as
-`previous-handoff.md`; earlier helper evidence remains at
-`/tmp/blob-native-helper-1101/` and dependency evidence at
-`/tmp/blob-upstream-1101/`. Those earlier runs qualify their own inputs only.
+The eighth audit candidate did not justify removal. Authority-probe archive
+recovery uses disposable shared model transitions to validate a permanently
+fenced inspection record; it never installs a second live service owner.
+Its unique cases cover partial hash checkpoints, rejected wrong raw digests,
+trapped/in-flight source reads, and billing obligations after physical deletion.
+StableUploads does not own those consumer hash/read states. Replacing this
+validator would require another fixture model and lose independent coverage.
+Keep these bounded non-default test-support cases until their actual scenarios
+are retired. The exact coverage map is `archive-disposition.txt` in this run's
+retained evidence. Production standalone restoration remains separately tested.
 
-Qualification on fixed source/manifest/lock inputs passes:
+## Validation and evidence
 
-- Full locked offline metadata, declaration/pin boundaries and their refusal
-  fixtures. Separate native and deployed graph observations confirm singleton
-  Platform, Wire and relevant storage/process identities. Deployment and default/
-  all-feature Wasm client graphs exclude native transport and tooling.
-- Strict all-target/all-feature Clippy for Core, Contracts, Client, CLI,
-  standalone and PocketIC support. Core 295, Contracts 131, Client 10 plus its
-  compiled README, CLI 122 plus eight artifact/boundary tests, and both memory
-  composition cases pass. The frozen Wire contract surface passes.
-- Rust 1.91 native all-target/all-feature CLI/PocketIC checks and standalone/
-  client Wasm checks. Fresh release standalone/storage/gateway Wasms and native
-  CLI builds pass, with exact artifact hashes retained in `artifacts.json`.
-- Canonical setup and offline admission of Testkit 0.76.0 and Build 0.73.4
-  executables. PocketIC remains 16.1.0. Fourteen selected installed checks pass:
-  two signed-ingress certificate/recovery cases, exact endpoint/provider-Candid
-  exports, every owned method's malformed/identity/direction refusal, growth
-  rollback, five lifecycle/recovery cases, two metrics cases, replicated-client
-  refusals and native-download refusals before HTTP.
-- The generated TypeScript client passes 27 methods and 137 frozen Rust frames,
-  including malformed/direction/identity/limit/decimal checks. Prepared browser
-  dependency admission passes; this is codec qualification, not live browser
-  application/provider acceptance. Scoped formatting and documentation links pass.
+The cleanup's earlier evidence is isolated in `/tmp/blob-simplify064.1L5ZdK/`,
+bound to its source/input/artifact hashes and exact commands. It predates this
+dependency adoption. Initial execution reused
+`/tmp/blob-cleanup-1101`, already referenced by historical 0.62 evidence, and
+overwrote some temporary logs there. Do not use overwritten files to qualify the
+old release. Only this run's explicit case roster was copied to the new directory;
+tracked historical evidence was not changed. See `evidence-custody.txt`.
 
-Initial native download tests could not bind loopback under the sandbox; the
-affected retry passes with local-network permission. The sandbox also returned
-empty npm-version subprocess output; the canonical generated-client target
-passes outside it with the unchanged installed Node/npm selection. Initial
-failure logs are retained. They do not indicate a product regression.
-The documented optional Shared graph helper is not included in this snapshot;
-singleton observations use direct locked Cargo trees instead, retained alongside
-their commands and required identities. No snapshot-owned implementation was copied.
+That earlier roster passes Core 297, Contracts 132, CLI 122 plus eight boundary
+cases, frozen Wire and TypeScript vectors, memory composition, docs, scoped
+Clippy/MSRV/Wasm, snapshot/logging checks and 36 distinct installed cases. Initial
+fixture-slot and retired-Busy failures and corrected runs remain separate.
+See its exact case roster and custody note; those results are not reattributed
+to the newly selected dependencies.
 
-No full workspace/release gate, native macOS/Windows execution, actual registry
-consumer installation of pending source or deployed-provider qualification was
-performed. The selected pending version remains documentation only; release and
-publication remain maintainer actions.
+Fresh adoption evidence is `/tmp/blob-deps-adopt.ZKYN6N/`: published versions,
+checksums, source comparisons, preserved incoming inputs and exact commands.
+Offline locked metadata, pins, direct/deployment/default-client boundaries and
+their refusal fixtures pass. Scoped strict Clippy, Core 297, both memory-composition
+cases, client ten plus one documentation case, and CLI 122 plus eight boundary
+cases pass. Rust 1.91 native CLI all-target/all-feature and standalone Wasm checks,
+native CLI and three release Wasm builds, scoped formatting and documentation
+links pass. Build's actual archive adapter passes warm-cache/current-payload,
+graph admission and final byte/source/manifest/lock drift refusals. Its disposable
+fixture remains at `target/package-fixture.mbD3Z4`; no real release was executed.
+Fresh local PocketIC qualification passes nine cases: backing-growth rollback,
+gateway refresh supersession, five lifecycle/recovery cases, signed gateway CLI
+decisions and native download refusal before provider GET. Exact selections and
+artifact hashes are retained in `installed-results.json` and `artifacts.json`.
+No full workspace/release gate, native macOS/Windows run, actual registry-consumer
+installation of pending source or deployed-provider qualification is claimed.
+No performance improvement or production Wasm saving is inferred from this cleanup.
 
 ## Next: Canic adoption and bounded provider acceptance
 

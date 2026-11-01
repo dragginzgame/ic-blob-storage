@@ -20,7 +20,7 @@ use std::{
 
 struct Host {
     stores: RefCell<Option<ServiceStores<ic_memory::VectorMemory>>>,
-    memory: [FixtureMemory; 14],
+    memory: [FixtureMemory; 13],
     config: ServiceStoreConfiguration,
 }
 impl AccountInspectionAccess for Host {

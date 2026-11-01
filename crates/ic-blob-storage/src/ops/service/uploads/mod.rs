@@ -64,7 +64,7 @@ fn metadata() -> Key {
     (Principal::management_canister().into(), 0)
 }
 
-/// Eleven distinct, exclusively owned memories granted by the host's `ic-memory` runtime.
+/// Ten distinct, exclusively owned memories granted by the host's `ic-memory` runtime.
 /// No IDs or allocations are silently registered by the library.
 pub struct UploadMemories<M> {
     /// Enrollment history.
@@ -85,8 +85,6 @@ pub struct UploadMemories<M> {
     pub references: M,
     /// Individual exact reference operation receipts.
     pub receipts: M,
-    /// Root-to-original-request index, committed with admission.
-    pub root_requests: M,
     /// Pending unacknowledged deletion candidates; lifecycle remains authoritative.
     pub deletions: M,
 }
@@ -108,7 +106,6 @@ pub struct StableUploads<M: Memory> {
     confirmed: StableBTreeMap<Key, ConfirmedLifecycleRecord, M>,
     references: StableBTreeMap<(Key, u128), ReferenceRecord, M>,
     receipts: StableBTreeMap<(Key, u128), ReferenceReceiptRecord, M>,
-    root_requests: StableBTreeMap<[u8; 32], u128, M>,
     deletions: ic_storage::adapter::StableBTreeSet<Key, M>,
     fenced: bool,
 }
@@ -142,7 +139,6 @@ impl<M: Memory> StableUploads<M> {
             &memory.confirmed,
             &memory.references,
             &memory.receipts,
-            &memory.root_requests,
             &memory.deletions,
         ]
         .iter()
@@ -167,12 +163,6 @@ impl<M: Memory> StableUploads<M> {
         let references = StableBTreeMap::new(memory.references);
         assert_eq!(memory.receipts.size(), 0, "distinct receipt memory");
         let receipts = StableBTreeMap::new(memory.receipts);
-        assert_eq!(
-            memory.root_requests.size(),
-            0,
-            "distinct root request memory"
-        );
-        let root_requests = StableBTreeMap::new(memory.root_requests);
         permissions.insert(
             metadata(),
             UploadStoreRecord::Configuration(UploadConfigurationRecord::new(&config)),
@@ -191,7 +181,6 @@ impl<M: Memory> StableUploads<M> {
             confirmed,
             references,
             receipts,
-            root_requests,
             deletions,
             fenced: false,
         })
@@ -220,7 +209,6 @@ impl<M: Memory> StableUploads<M> {
             &memory.confirmed,
             &memory.references,
             &memory.receipts,
-            &memory.root_requests,
             &memory.deletions,
         ]
         .iter()
@@ -240,7 +228,6 @@ impl<M: Memory> StableUploads<M> {
             confirmed: StableBTreeMap::load(memory.confirmed),
             references: StableBTreeMap::load(memory.references),
             receipts: StableBTreeMap::load(memory.receipts),
-            root_requests: StableBTreeMap::load(memory.root_requests),
             deletions: ic_storage::adapter::StableBTreeSet::load(memory.deletions),
             fenced: true,
         };
@@ -314,14 +301,11 @@ impl<M: Memory> StableUploads<M> {
                 context,
                 input.request.object.root,
                 input.request.object.first.object(),
+                input.request.id,
             )
             .map_err(root_admission)?;
         self.permissions
             .insert(key(input.request), UploadStoreRecord::Permission(record));
-        self.root_requests.insert(
-            *input.request.object.root.as_bytes(),
-            input.request.id.get().get(),
-        );
         self.usage.insert(context.actor.into(), tenant);
         self.usage
             .insert(Principal::management_canister().into(), global);

@@ -197,7 +197,6 @@ pub(super) const fn sync_code(error: SyncError) -> &'static str {
         SyncError::Binding => "gateway_binding",
         SyncError::Denied => "gateway_denied",
         SyncError::Fenced => "gateway_fenced",
-        SyncError::Busy => "gateway_busy",
         SyncError::Exhausted => "gateway_exhausted",
         SyncError::Conflict => "gateway_conflict",
         SyncError::ReplyTooLarge => "gateway_reply_too_large",

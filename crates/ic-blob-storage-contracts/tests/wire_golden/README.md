@@ -1,5 +1,11 @@
 # Frozen Blob Wire vectors
 
+The 0.64 cut removes the gateway refresh Busy refusal: a new authorized refresh
+supersedes an earlier read. Sync and cancellation use method identities
+`0x424c_4f42_0064_0012` and `0x424c_4f42_0064_0013`. Their four vector files
+change frame identities; the sync ReplyTooLarge variant shifts from 7 to 6.
+Retired frames refuse instead of decoding under the new error vocabulary.
+
 The 0.59 cut removes retired certificate-assessment blocker states and assigns
 that method identity `0x424c_4f42_0059_0009` in both directions. Only its two
 vector files change; other method identities and persistent records are unchanged.

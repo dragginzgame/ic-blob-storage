@@ -145,7 +145,6 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
         assert_eq!(pending.funding, status.funding);
 
         let bytes = f.harness.pic.get_stable_memory(f.service);
-        assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::Busy));
         assert_eq!(
             cancel(&f, f.operator, sequence - 1),
             Err(SyncError::Conflict)
@@ -183,4 +182,31 @@ fn standalone_restore_preserves_failed_sync_and_blocks_refresh_and_cancellation(
     assert_eq!(active.pending_sequence, None);
     assert_eq!(active.last_sequence, pending.last_sequence);
     assert_eq!(active.members, pending.members);
+}
+
+#[test]
+fn explicit_refresh_recovers_a_failed_read_without_separate_cancellation() {
+    let f = fixture();
+    let scope = f.operator_scope();
+    mode(&f, SourceMode::Malformed);
+    assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::InvalidReply));
+    assert_eq!(
+        f.local_status(f.operator, scope)
+            .unwrap()
+            .gateways
+            .pending_sequence,
+        Some(1)
+    );
+    mode(&f, SourceMode::Valid);
+    assert_eq!(refresh(&f, f.operator, scope).unwrap().sequence, 2);
+    let before = f.harness.pic.get_stable_memory(f.service);
+    assert_eq!(cancel(&f, f.operator, 1), Err(SyncError::Conflict));
+    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    assert_eq!(
+        f.local_status(f.operator, scope)
+            .unwrap()
+            .gateways
+            .pending_sequence,
+        None
+    );
 }

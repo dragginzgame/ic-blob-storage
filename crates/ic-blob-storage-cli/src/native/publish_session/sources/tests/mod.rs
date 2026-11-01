@@ -123,25 +123,34 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
     let provenance = std::fs::read(status_only.join("source-session.json")).unwrap();
     assert_eq!(
         serde_json::from_slice::<serde_json::Value>(&provenance).unwrap(),
-        json!({"format":"ic-blob-storage/publication-session-sources:trusted-registration",
-            "source_session":source,"setup":[setup.canonicalize().unwrap()],
-            "transfers":[transfer.canonicalize().unwrap()]}),
+        json!({"format":"ic-blob-storage/publication-session-sources:per-file",
+            "source_session":source,"files":[{"setup":setup.canonicalize().unwrap(),
+            "transfer":transfer.canonicalize().unwrap()}]}),
     );
-    for field in ["setup", "transfers"] {
-        for invalid in [json!([]), json!([null, null])] {
-            let mut changed: serde_json::Value = serde_json::from_slice(&provenance).unwrap();
-            changed[field] = invalid;
-            std::fs::write(
-                status_only.join("source-session.json"),
-                serde_json::to_vec(&changed).unwrap(),
-            )
-            .unwrap();
-            assert!(matches!(
-                Sources::load(Some(&status_only), &expected, &batch),
-                Err(Failure::Binding)
-            ));
-        }
+    for invalid in [json!([]), json!([null, null]), json!([{"setup": null}])] {
+        let mut changed: serde_json::Value = serde_json::from_slice(&provenance).unwrap();
+        changed["files"] = invalid;
+        std::fs::write(
+            status_only.join("source-session.json"),
+            serde_json::to_vec(&changed).unwrap(),
+        )
+        .unwrap();
+        assert!(matches!(
+            Sources::load(Some(&status_only), &expected, &batch),
+            Err(Failure::Binding)
+        ));
     }
+    let retired = json!({"format":"ic-blob-storage/publication-session-sources:trusted-registration",
+        "source_session":source, "setup":[setup], "transfers":[transfer]});
+    std::fs::write(
+        status_only.join("source-session.json"),
+        serde_json::to_vec(&retired).unwrap(),
+    )
+    .unwrap();
+    assert!(matches!(
+        Sources::load(Some(&status_only), &expected, &batch),
+        Err(Failure::Binding)
+    ));
     std::fs::remove_file(status_only.join("source-session.json")).unwrap();
     assert!(matches!(
         Sources::load(Some(&status_only), &expected, &batch),

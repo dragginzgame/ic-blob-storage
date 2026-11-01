@@ -64,6 +64,29 @@ fn exact_method_direction_canonicality_and_bounds() {
 mod manifest;
 
 #[test]
+fn gateway_refresh_cut_rejects_the_retired_reply_identity() {
+    use crate::dto::gateway::sync::{GatewaySyncFailure, GatewaySyncResponse};
+    let old_sync = hex::decode("495712004200424f4c42010107").unwrap();
+    let old_cancel = hex::decode("495713004200424f4c42010101").unwrap();
+    assert_eq!(
+        decode_response::<Result<GatewaySyncResponse, GatewaySyncFailure>>(
+            "blob_sync_gateways",
+            &old_sync,
+            4096
+        ),
+        Err(Error::Identity)
+    );
+    assert_eq!(
+        decode_response::<Result<(), GatewaySyncFailure>>(
+            "blob_cancel_gateway_sync",
+            &old_cancel,
+            4096
+        ),
+        Err(Error::Identity)
+    );
+}
+
+#[test]
 fn lifecycle_constants_remain_separate_from_callable_methods() {
     const INSTALL: u64 = match identity("blob_install") {
         Ok(id) => id,

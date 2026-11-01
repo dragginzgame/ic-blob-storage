@@ -280,10 +280,6 @@ impl GatewayCli {
             "3"
         );
         assert_eq!(
-            self.send("sync-gateways", "busy", None, Reply::Pass, "refused")["error"],
-            "gateway_busy"
-        );
-        assert_eq!(
             self.send(
                 "cancel-gateway-sync",
                 "stale-cancel",

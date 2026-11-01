@@ -35,6 +35,28 @@ fn memories() -> (FixtureMemory, FixtureMemory) {
 }
 
 #[test]
+fn operation_is_immutable_with_its_root_even_for_the_same_object() {
+    let (a, b) = memories();
+    let mut store = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
+    let first = UploadRequestId::new(NonZeroU128::MIN);
+    store
+        .claim(context(4), root(1), object(4, 1), first)
+        .unwrap();
+    let before = (a.borrow().clone(), b.borrow().clone());
+    assert_eq!(
+        store.claim(
+            context(4),
+            root(1),
+            object(4, 1),
+            UploadRequestId::new(NonZeroU128::MAX)
+        ),
+        Err(RootStoreError::Claim(RootClaimError::RootAlreadyClaimed))
+    );
+    assert_eq!(store.operation_for_owner(root(1)), Ok(first));
+    assert_eq!((&*a.borrow(), &*b.borrow()), (&before.0, &before.1));
+}
+
+#[test]
 fn heap_and_stable_claims_agree_and_full_history_keeps_exact_replays() {
     let (a, b) = memories();
     let mut stable = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
@@ -57,6 +79,7 @@ fn heap_and_stable_claims_agree_and_full_history_keeps_exact_replays() {
             },
             r,
             o,
+            UploadRequestId::new(NonZeroU128::MIN),
         );
         assert_eq!(actual, expected.map_err(RootStoreError::Claim));
         if actual != Ok(RootClaimOutcome::Claimed) {
@@ -70,7 +93,12 @@ fn heap_and_stable_claims_agree_and_full_history_keeps_exact_replays() {
     assert_eq!(reopened.lookup(context(4), root(1)), Ok(Some(object(4, 1))));
     assert_eq!(reopened.lookup(context(5), root(1)), Ok(None));
     assert_eq!(
-        reopened.claim(context(4), root(1), object(4, 1)),
+        reopened.claim(
+            context(4),
+            root(1),
+            object(4, 1),
+            UploadRequestId::new(NonZeroU128::MIN)
+        ),
         Err(RootStoreError::Fenced)
     );
 }
@@ -81,7 +109,12 @@ fn caller_service_namespace_and_full_object_identity_are_checked() {
     let mut store = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
     let before = (a.borrow().clone(), b.borrow().clone());
     assert_eq!(
-        store.claim(context(2), root(1), object(4, 1)),
+        store.claim(
+            context(2),
+            root(1),
+            object(4, 1),
+            UploadRequestId::new(NonZeroU128::MIN)
+        ),
         Err(RootStoreError::Denied)
     );
     let wrong = UploadContext {
@@ -89,7 +122,12 @@ fn caller_service_namespace_and_full_object_identity_are_checked() {
         ..context(4)
     };
     assert_eq!(
-        store.claim(wrong, root(1), object(4, 1)),
+        store.claim(
+            wrong,
+            root(1),
+            object(4, 1),
+            UploadRequestId::new(NonZeroU128::MIN)
+        ),
         Err(RootClaimError::WrongService.into())
     );
     let other_namespace = ObjectBinding::new(
@@ -102,11 +140,23 @@ fn caller_service_namespace_and_full_object_identity_are_checked() {
     )
     .unwrap();
     assert_eq!(
-        store.claim(context(4), root(1), other_namespace),
+        store.claim(
+            context(4),
+            root(1),
+            other_namespace,
+            UploadRequestId::new(NonZeroU128::MIN)
+        ),
         Err(RootStoreError::WrongNamespace)
     );
     assert_eq!((&*a.borrow(), &*b.borrow()), (&before.0, &before.1));
-    store.claim(context(4), root(1), object(4, 1)).unwrap();
+    store
+        .claim(
+            context(4),
+            root(1),
+            object(4, 1),
+            UploadRequestId::new(NonZeroU128::MIN),
+        )
+        .unwrap();
     let next_lifetime = ObjectBinding::new(
         p(1),
         p(4),
@@ -117,7 +167,12 @@ fn caller_service_namespace_and_full_object_identity_are_checked() {
     )
     .unwrap();
     assert_eq!(
-        store.claim(context(4), root(1), next_lifetime),
+        store.claim(
+            context(4),
+            root(1),
+            next_lifetime,
+            UploadRequestId::new(NonZeroU128::MIN)
+        ),
         Err(RootClaimError::RootAlreadyClaimed.into())
     );
 }
@@ -130,7 +185,14 @@ fn missing_indexes_or_configuration_changes_never_reset_retained_claims() {
         Err(RootStoreError::Missing)
     ));
     let mut store = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
-    store.claim(context(4), root(1), object(4, 1)).unwrap();
+    store
+        .claim(
+            context(4),
+            root(1),
+            object(4, 1),
+            UploadRequestId::new(NonZeroU128::MIN),
+        )
+        .unwrap();
     drop(store);
     let before = (a.borrow().clone(), b.borrow().clone());
     assert!(matches!(
@@ -165,7 +227,14 @@ fn every_incomplete_or_conflicting_index_pair_is_rejected_without_repair() {
         let (a, b) = memories();
         let mut store = StableRootClaims::install(a.lease(), b.lease(), config()).unwrap();
         let key = RootObjectKeyRecord::new(object(4, 1));
-        store.claim(context(4), root(1), object(4, 1)).unwrap();
+        store
+            .claim(
+                context(4),
+                root(1),
+                object(4, 1),
+                UploadRequestId::new(NonZeroU128::MIN),
+            )
+            .unwrap();
         match damage {
             0 => {
                 store.objects.remove(&key);
@@ -183,9 +252,13 @@ fn every_incomplete_or_conflicting_index_pair_is_rejected_without_repair() {
                 store.roots.remove(&root_key(root(1)));
             }
             _ => {
-                store
-                    .roots
-                    .insert(root_key(root(2)), RootClaimRecord::Claim(key));
+                store.roots.insert(
+                    root_key(root(2)),
+                    RootClaimRecord::Claim {
+                        object: key,
+                        operation: 1,
+                    },
+                );
             }
         }
         drop(store);

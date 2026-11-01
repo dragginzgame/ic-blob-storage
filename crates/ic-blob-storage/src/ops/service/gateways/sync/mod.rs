@@ -54,7 +54,6 @@ fn sync_failure(error: GatewaySyncError) -> Failure {
     match error {
         GatewaySyncError::WrongScope => Failure::Binding,
         GatewaySyncError::StaleSync => Failure::Conflict,
-        GatewaySyncError::SyncInProgress => Failure::Busy,
         GatewaySyncError::SequenceExhausted => Failure::Exhausted,
         GatewaySyncError::InvalidList(_) => Failure::InvalidReply,
     }

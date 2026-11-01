@@ -17,23 +17,8 @@ pub(crate) fn permission<M: Memory>(
     input: UploadAdmissionRequest,
     exposing: bool,
 ) -> Result<UploadPermissionView, UploadExposureFailure> {
-    let uploader = context.actor == input.uploader;
-    let tenant_observer = !exposing && context.actor == input.upload.tenant;
-    if !uploader && !tenant_observer {
-        return Err(UploadExposureFailure::Permission(
-            UploadAdmissionFailure::Denied,
-        ));
-    }
-    let permission =
-        ic_blob_storage_contracts::upload::admission::parse_binding(context.service, input)
-            .map_err(UploadExposureFailure::Permission)?;
-    let retained = store.lookup(context, permission.request).map_err(failure)?;
-    if retained.permission != permission {
-        return Err(UploadExposureFailure::Permission(
-            UploadAdmissionFailure::Conflict,
-        ));
-    }
-    Ok(retained)
+    admission::permission(store, context, input, exposing)
+        .map_err(UploadExposureFailure::Permission)
 }
 #[cfg(any(test, feature = "test-support"))]
 pub(crate) fn check<M: Memory>(

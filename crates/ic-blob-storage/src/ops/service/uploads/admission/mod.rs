@@ -14,6 +14,27 @@ use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
 
+/// Resolve the exact retained permission under uploader or historical tenant authority.
+pub(crate) fn permission<M: ic_memory::Memory>(
+    store: &super::StableUploads<M>,
+    context: ic_blob_storage_contracts::upload::binding::UploadContext,
+    input: UploadAdmissionRequest,
+    mutation: bool,
+) -> Result<UploadPermissionView, UploadAdmissionFailure> {
+    let uploader = context.actor == input.uploader;
+    let tenant_observer = !mutation && context.actor == input.upload.tenant;
+    if !uploader && !tenant_observer {
+        return Err(UploadAdmissionFailure::Denied);
+    }
+    let permission =
+        ic_blob_storage_contracts::upload::admission::parse_binding(context.service, input)?;
+    let view = store.lookup(context, permission.request).map_err(failure)?;
+    if view.permission != permission {
+        return Err(UploadAdmissionFailure::Conflict);
+    }
+    Ok(view)
+}
+
 pub(crate) fn revocation(
     admission: UploadAdmissionResponse,
     change: crate::model::lifecycle::LifecycleChange,

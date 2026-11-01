@@ -9,9 +9,10 @@ use crate::model::lifecycle::roots::record::RootStoreMetadataRecord;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
-use ic_blob_storage_contracts::upload::binding::UploadContext;
+use ic_blob_storage_contracts::upload::binding::{UploadContext, UploadRequestId};
 use ic_memory::{Memory, RuntimeMemory};
 use ic_storage::adapter::StableBTreeMap;
+use std::num::NonZeroU128;
 use thiserror::Error;
 
 const METADATA: [u8; 33] = [0; 33];
@@ -145,6 +146,7 @@ impl<M: Memory> StableRootClaims<M> {
         context: UploadContext,
         root: ProviderRootHash,
         object: ObjectBinding,
+        operation: UploadRequestId,
     ) -> Result<RootClaimOutcome, RootStoreError> {
         self.check_service(context)?;
         if object.service() != context.service {
@@ -160,11 +162,15 @@ impl<M: Memory> StableRootClaims<M> {
             return Err(RootStoreError::Fenced);
         }
         let key = root_key(root);
-        let existing = self
-            .roots
-            .get(&key)
+        let record = self.roots.get(&key);
+        let existing = record
+            .clone()
             .map(|record| self.binding(record))
             .transpose()?;
+        if matches!(record, Some(RootClaimRecord::Claim { operation: saved, .. }) if saved != operation.get().get())
+        {
+            return Err(RootClaimError::RootAlreadyClaimed.into());
+        }
         let object_key = RootObjectKeyRecord::new(object);
         let outcome = plan_claim(
             context.service,
@@ -174,8 +180,13 @@ impl<M: Memory> StableRootClaims<M> {
             self.slots() < self.config.limits().catalog.max_objects.get() as u64,
         )?;
         if outcome == RootClaimOutcome::Claimed {
-            self.roots
-                .insert(key, RootClaimRecord::Claim(object_key.clone()));
+            self.roots.insert(
+                key,
+                RootClaimRecord::Claim {
+                    object: object_key.clone(),
+                    operation: operation.get().get(),
+                },
+            );
             self.objects.insert(object_key, *root.as_bytes());
         }
         Ok(outcome)
@@ -205,6 +216,49 @@ impl<M: Memory> StableRootClaims<M> {
             .transpose()
     }
 
+    // Correlation belongs to the same immutable row as root ownership.
+    pub(super) fn operation_for_owner(
+        &self,
+        root: ProviderRootHash,
+    ) -> Result<UploadRequestId, RootStoreError> {
+        let record = self
+            .roots
+            .get(&root_key(root))
+            .ok_or(RootStoreError::InvalidRecord)?;
+        self.binding(record.clone())?;
+        let RootClaimRecord::Claim { operation, .. } = record else {
+            return Err(RootStoreError::InvalidRecord);
+        };
+        Ok(UploadRequestId::new(
+            NonZeroU128::new(operation).ok_or(RootStoreError::InvalidRecord)?,
+        ))
+    }
+
+    #[cfg(test)]
+    pub(crate) fn damage_operation(&mut self, root: [u8; 32], operation: Option<u128>) {
+        let key = root_key(ProviderRootHash::try_from(root.as_slice()).expect("fixed root"));
+        let Some(operation) = operation else {
+            self.roots.remove(&key);
+            return;
+        };
+        let mut record = self.roots.get(&key).unwrap_or_else(|| {
+            self.roots
+                .iter()
+                .find_map(|entry| match entry.value() {
+                    record @ RootClaimRecord::Claim { .. } => Some(record),
+                    RootClaimRecord::Metadata(_) => None,
+                })
+                .expect("fixture claim")
+        });
+        if let RootClaimRecord::Claim {
+            operation: saved, ..
+        } = &mut record
+        {
+            *saved = operation;
+        }
+        self.roots.insert(key, record);
+    }
+
     /// Lifetime count for trusted host accounting, not a tenant-authorized endpoint.
     #[must_use]
     pub fn slots(&self) -> u64 {
@@ -229,9 +283,16 @@ impl<M: Memory> StableRootClaims<M> {
     }
 
     fn binding(&self, record: RootClaimRecord) -> Result<ObjectBinding, RootStoreError> {
-        let RootClaimRecord::Claim(key) = record else {
+        let RootClaimRecord::Claim {
+            object: key,
+            operation,
+        } = record
+        else {
             return Err(RootStoreError::InvalidRecord);
         };
+        if operation == 0 {
+            return Err(RootStoreError::InvalidRecord);
+        }
         let binding = key
             .binding(self.config.bindings().service)
             .ok_or(RootStoreError::InvalidRecord)?;

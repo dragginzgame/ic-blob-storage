@@ -42,7 +42,6 @@ fn memory() -> UploadMemories<FixtureMemory> {
         confirmed: FixtureMemory::default(),
         references: FixtureMemory::default(),
         receipts: FixtureMemory::default(),
-        root_requests: FixtureMemory::default(),
         deletions: FixtureMemory::default(),
     }
 }
@@ -59,7 +58,6 @@ fn clone_memory(
         confirmed: m.confirmed.lease(),
         references: m.references.lease(),
         receipts: m.receipts.lease(),
-        root_requests: m.root_requests.lease(),
         deletions: m.deletions.lease(),
     }
 }
@@ -76,7 +74,6 @@ fn snapshot_memory(
         confirmed: m.confirmed.snapshot(),
         references: m.references.snapshot(),
         receipts: m.receipts.snapshot(),
-        root_requests: m.root_requests.snapshot(),
         deletions: m.deletions.snapshot(),
     })
 }

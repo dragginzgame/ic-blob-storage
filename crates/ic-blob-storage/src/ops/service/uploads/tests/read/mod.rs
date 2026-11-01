@@ -315,33 +315,27 @@ fn tenant_ranges_do_not_consume_other_tenants_scan_budget() {
     assert_eq!(page.entries[0].request, permission(1).request);
 }
 #[test]
-fn missing_changed_or_orphaned_root_request_index_rejects_reopen_without_repair() {
+fn missing_changed_or_orphaned_root_claim_rejects_reopen_without_repair() {
     for damage in 0..3 {
         let m = memory();
         let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
         let input = prepared(&mut store, u128::MAX);
         match damage {
-            0 => {
-                store
-                    .root_requests
-                    .remove(input.request.object.root.as_bytes());
-            }
-            1 => {
-                store
-                    .root_requests
-                    .insert(*input.request.object.root.as_bytes(), 1);
-            }
-            _ => {
-                store.root_requests.insert([7; 32], 4);
-            }
+            0 => store
+                .roots
+                .damage_operation(*input.request.object.root.as_bytes(), None),
+            1 => store
+                .roots
+                .damage_operation(*input.request.object.root.as_bytes(), Some(1)),
+            _ => store.roots.damage_operation([7; 32], Some(4)),
         }
         drop(store);
-        let before = m.root_requests.borrow().clone();
+        let before = m.roots.borrow().clone();
         assert!(matches!(
             StableUploads::open(clone_memory(&m), config()),
-            Err(UploadStoreError::InvalidRecord)
+            Err(UploadStoreError::InvalidRecord | UploadStoreError::Roots(_))
         ));
-        assert_eq!(*m.root_requests.borrow(), before);
+        assert_eq!(*m.roots.borrow(), before);
     }
 }
 

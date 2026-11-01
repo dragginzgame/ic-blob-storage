@@ -49,7 +49,6 @@ revision	f4f431627290e18f0ccc1e5f8525d16b197cf7c3
 # entrypoint	scripts/ci/check-formatting-hooks.sh
 # entrypoint	docs/tag-maintenance.md
 # entrypoint	scripts/ci/read-cargo-workspace-version.sh
-# entrypoint	scripts/ci/test-cargo-metadata.sh
 # entrypoint	scripts/ci/check-format-tools.sh
 # entrypoint	scripts/distribution/governance-files.txt
 # entrypoint	scripts/dev/gh-ci.sh
@@ -154,7 +153,6 @@ file	dcf4585f8794b2158259054f550dbabea64fadd7d4f07161388ea49a0dfa3d80	x	scripts/
 file	6aa2bc7443a75883c023e6f6336c82a3984896b148409fdb454858db14bb96ab	x	scripts/ci/check-formatting-hooks.sh
 file	1063002468575e2f821cfec71524bde06a64634bf30455d64d2d9fed872969d6	-	docs/tag-maintenance.md
 file	40f31a19d6115411ebffe7c26e3ed30b8af7eead10dd4830de8d5a9312291222	x	scripts/ci/read-cargo-workspace-version.sh
-file	a37905355c8606327be4ea0af48b9032b2be7e3c1bbb2d2eb73bb5e1f65a7fc3	x	scripts/ci/test-cargo-metadata.sh
 file	a52db278800a9f02d85a6b8a780a9b1eed860c49d5442cef9db1f7f9d7ddee0a	x	scripts/ci/check-format-tools.sh
 file	0783ea58a6cee35779890f67474820f3b4b740e6c15ec210bb2948616f695a7b	-	scripts/distribution/governance-files.txt
 file	6eb261f79ff2780422a75e018b091bb119f552a1d155504acacefb7e2e290ba0	x	scripts/dev/gh-ci.sh

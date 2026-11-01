@@ -21,7 +21,6 @@ const KEYS: ServiceMemories<&str> = ServiceMemories {
         confirmed: "blob.confirmed.v1",
         references: "blob.references.v1",
         receipts: "blob.receipts.v1",
-        root_requests: "blob.root_requests.v1",
         deletions: "blob.pending_deletions.v1",
     },
     funding: FundingMemories {
@@ -31,7 +30,7 @@ const KEYS: ServiceMemories<&str> = ServiceMemories {
     gateways: "blob.gateways.v1",
 };
 
-/// Build the fourteen current service requests under an explicit host authority.
+/// Build the thirteen current service requests under an explicit host authority.
 /// No registration, namespace grant, runtime bootstrap or stable write occurs.
 /// Hosts compose these with their configuration and other application requests
 /// before sealing; the host's policy owns placement and authority validation.
@@ -66,7 +65,6 @@ pub fn open<M: Memory, E>(
             confirmed: lookup(KEYS.uploads.confirmed)?,
             references: lookup(KEYS.uploads.references)?,
             receipts: lookup(KEYS.uploads.receipts)?,
-            root_requests: lookup(KEYS.uploads.root_requests)?,
             deletions: lookup(KEYS.uploads.deletions)?,
         },
         funding: FundingMemories {

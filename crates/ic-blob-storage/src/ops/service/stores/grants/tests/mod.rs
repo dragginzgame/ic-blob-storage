@@ -103,7 +103,7 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
 fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
     let backing = VectorMemory::default();
     let mut runtime = runtime(backing.clone());
-    let declarations = snapshot(Some(13));
+    let declarations = snapshot(Some(requests("test-blob").unwrap().len() - 1));
     runtime
         .bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
         .unwrap();
@@ -116,7 +116,11 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
         Err(RuntimeOpenError::StableKeyNotCommitted(key)) if key == "blob.gateways.v1"
     ));
     assert_eq!(*backing.borrow(), before);
-    for request in requests("test-blob").unwrap().iter().take(13) {
+    for request in requests("test-blob")
+        .unwrap()
+        .iter()
+        .filter(|r| r.stable_key().as_str() != "blob.gateways.v1")
+    {
         assert_eq!(
             runtime
                 .open_memory(request.stable_key().as_str())

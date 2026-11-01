@@ -361,7 +361,6 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
     for fault in [
         WriteFault::Objects,
         WriteFault::Permissions,
-        WriteFault::RootRequests,
         WriteFault::Usage,
     ] {
         let f = Fixture::new();

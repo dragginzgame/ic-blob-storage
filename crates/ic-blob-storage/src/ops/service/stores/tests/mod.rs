@@ -6,7 +6,7 @@ use crate::ops::service::configuration::{tests::candidate, validate_candidate};
 use crate::test_support::memory::FixtureMemory;
 
 fn memories(
-    m: &[FixtureMemory; 14],
+    m: &[FixtureMemory; 13],
 ) -> ServiceMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
     let requests = grants::requests("store-test").unwrap();
     grants::open::<_, std::convert::Infallible>(|key| {
@@ -23,8 +23,8 @@ fn memories(
 fn allocated_grant_anywhere_rejects_before_other_memories_are_written() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    for occupied in 0..14 {
-        let m: [FixtureMemory; 14] = std::array::from_fn(|_| FixtureMemory::default());
+    for occupied in 0..13 {
+        let m: [FixtureMemory; 13] = std::array::from_fn(|_| FixtureMemory::default());
         assert_eq!(ic_memory::Memory::grow(&m[occupied].lease(), 1), 0);
         m[occupied].lease().write(0, b"retained obligation");
         let before = m.each_ref().map(|m| m.borrow().clone());
@@ -40,8 +40,8 @@ fn allocated_grant_anywhere_rejects_before_other_memories_are_written() {
 fn missing_grant_anywhere_rejects_without_loading_or_initializing_any_store() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    for missing in 0..14 {
-        let m: [FixtureMemory; 14] = std::array::from_fn(|i| {
+    for missing in 0..13 {
+        let m: [FixtureMemory; 13] = std::array::from_fn(|i| {
             let memory = FixtureMemory::default();
             if i != missing {
                 assert_eq!(ic_memory::Memory::grow(&memory.lease(), 1), 0);
@@ -63,7 +63,7 @@ fn missing_grant_anywhere_rejects_without_loading_or_initializing_any_store() {
 fn changed_funding_limits_reject_without_repairing_other_stores() {
     let input = candidate();
     let config = validate_candidate(input.service, input).unwrap();
-    let m: [FixtureMemory; 14] = std::array::from_fn(|_| FixtureMemory::default());
+    let m: [FixtureMemory; 13] = std::array::from_fn(|_| FixtureMemory::default());
     drop(ServiceStores::install(memories(&m), config).unwrap());
     let before = m.each_ref().map(|m| m.borrow().clone());
 

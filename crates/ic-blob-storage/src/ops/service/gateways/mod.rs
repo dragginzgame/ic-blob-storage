@@ -123,7 +123,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
     }
     /// Persist one pending read-only sync before any host effect.
     /// # Errors
-    /// Rejects scope/operator/fence, overlapping sync or sequence exhaustion.
+    /// Rejects scope/operator/fence or sequence exhaustion; a newer sync supersedes the old token.
     /// # Panics
     /// Stable writes must propagate IC rollback.
     pub fn begin_sync(

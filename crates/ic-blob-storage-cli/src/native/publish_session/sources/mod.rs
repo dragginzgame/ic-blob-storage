@@ -16,10 +16,13 @@ pub(super) struct Sources {
     pub files: Vec<FileSources>,
 }
 
-// One file owns its three optional original paths; it grants no replay authority.
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+// One file owns its original phase paths; it grants no replay authority.
+#[derive(Clone, Debug, Default, Deserialize, Serialize, Eq, PartialEq)]
+#[serde(deny_unknown_fields)]
 pub(super) struct FileSources {
+    #[serde(deserialize_with = "Option::deserialize")]
     pub setup: Option<PathBuf>,
+    #[serde(deserialize_with = "Option::deserialize")]
     pub transfer: Option<PathBuf>,
 }
 
@@ -30,11 +33,10 @@ pub(super) struct FileSources {
 struct SessionSourcesRecord {
     format: String,
     source_session: PathBuf,
-    setup: Vec<Option<PathBuf>>,
-    transfers: Vec<Option<PathBuf>>,
+    files: Vec<FileSources>,
 }
 impl SessionSourcesRecord {
-    const FORMAT: &'static str = "ic-blob-storage/publication-session-sources:trusted-registration";
+    const FORMAT: &'static str = "ic-blob-storage/publication-session-sources:per-file";
     const MAX_BYTES: u64 = 8 * 1024 * 1024;
 }
 
@@ -159,12 +161,7 @@ impl Sources {
         let record = SessionSourcesRecord {
             format: SessionSourcesRecord::FORMAT.into(),
             source_session: directory(source)?,
-            setup: self.files.iter().map(|file| file.setup.clone()).collect(),
-            transfers: self
-                .files
-                .iter()
-                .map(|file| file.transfer.clone())
-                .collect(),
+            files: self.files.clone(),
         };
         let bytes = serde_json::to_vec_pretty(&record).map_err(|_| Failure::File)?;
         if bytes.len() as u64 > SessionSourcesRecord::MAX_BYTES {
@@ -193,33 +190,25 @@ impl Sources {
         if record.format != SessionSourcesRecord::FORMAT
             || Some(record.source_session.as_path()) != parent
             || !record.source_session.is_absolute()
-            || record.setup.len() != files
-            || record.transfers.len() != files
+            || record.files.len() != files
         {
             return Err(Failure::Binding);
         }
         // Do not follow the source-session pointer: each surviving path is direct.
         // Phase owners still validate exact original contents before executing.
-        for path in record
-            .setup
-            .iter_mut()
-            .chain(&mut record.transfers)
-            .flatten()
-        {
-            if !path.is_absolute() {
-                return Err(Failure::Binding);
+        for file in &mut record.files {
+            for path in [&mut file.setup, &mut file.transfer].into_iter().flatten() {
+                if !path.is_absolute() {
+                    return Err(Failure::Binding);
+                }
+                *path = directory(path)?;
             }
-            *path = directory(path)?;
         }
         Ok(Self {
-            files: record
-                .setup
-                .into_iter()
-                .zip(record.transfers)
-                .map(|(setup, transfer)| FileSources { setup, transfer })
-                .collect(),
+            files: record.files,
         })
     }
+
     pub fn load(
         source: Option<&Path>,
         expected: &SessionIntentRecord,

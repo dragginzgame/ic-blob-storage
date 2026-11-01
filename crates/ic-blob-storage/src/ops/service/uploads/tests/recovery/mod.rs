@@ -88,7 +88,6 @@ fn reopening_preserves_independent_activations_and_rejects_a_later_future_genera
             &m.confirmed,
             &m.references,
             &m.receipts,
-            &m.root_requests,
             &m.deletions,
         ];
         let before = memories.map(|memory| memory.borrow().clone());
@@ -166,7 +165,6 @@ fn reopening_binds_each_root_to_one_exact_tenant_and_request() {
             &m.confirmed,
             &m.references,
             &m.receipts,
-            &m.root_requests,
             &m.deletions,
         ];
         let before = memories.map(|memory| memory.borrow().clone());

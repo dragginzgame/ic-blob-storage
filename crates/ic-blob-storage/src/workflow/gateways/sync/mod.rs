@@ -22,7 +22,7 @@ use std::num::NonZeroU32;
 ///
 /// No attached cycles, retries, timers or fallback transport. IC fees still apply.
 /// Failed transport/decoding leaves the exact pending sync visible in local status;
-/// cancel it explicitly before choosing another refresh. Success does not qualify
+/// a new explicit refresh may supersede it, or cancel it exactly. Success does not qualify
 /// deployed Caffeine semantics, callback authority, provider credit or recovery.
 /// # Errors
 /// Rejects configuration/authority/fence/overlap, transport and invalidated replies.

@@ -13,6 +13,52 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(principals).unwrap()
 }
+
+#[test]
+fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_cancel() {
+    let f = Fixture::new();
+    let old = f.gateway_begin();
+    assert_eq!(
+        f.gateways(
+            f.operator,
+            Action::Apply {
+                token: old,
+                source: f.gateway_scope(),
+                reply: gateway_reply(&[]),
+            }
+        ),
+        Err(Failure::Invalid)
+    );
+    let current = f.gateway_begin();
+    let before = f.harness.pic.get_stable_memory(f.service);
+    assert_eq!(
+        f.gateways(
+            f.operator,
+            Action::Apply {
+                token: old,
+                source: f.gateway_scope(),
+                reply: gateway_reply(&[f.other]),
+            }
+        ),
+        Err(Failure::Conflict)
+    );
+    assert_eq!(
+        f.cancel_gateway_sync(f.operator, old),
+        Err(GatewaySyncFailure::Conflict)
+    );
+    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    f.gateways(
+        f.operator,
+        Action::Apply {
+            token: current,
+            source: f.gateway_scope(),
+            reply: gateway_reply(&[f.other]),
+        },
+    )
+    .unwrap();
+    assert_eq!(f.gateway_view().members, [f.other.into()]);
+    assert_eq!(f.gateway_view().pending_sequence, None);
+}
 impl Fixture {
     fn cancellation(&self, sequence: u64) -> GatewaySyncCancellation {
         GatewaySyncCancellation {

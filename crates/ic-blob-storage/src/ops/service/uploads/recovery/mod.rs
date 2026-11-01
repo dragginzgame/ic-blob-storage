@@ -60,7 +60,6 @@ impl<M: Memory> StableUploads<M> {
         let count = self.permissions.len() - 1;
         if count > limit.catalog.max_objects.get() as u64
             || self.roots.slots() != count
-            || self.root_requests.len() != count
             || self.manifests.len() > count * 2
             || self.usage.len() > limit.max_tenants.get() as u64 + 1
             || self.confirmed.len() > count
@@ -94,13 +93,9 @@ impl<M: Memory> StableUploads<M> {
             if key(input.request) != *entry.key() {
                 return Err(UploadStoreError::InvalidRecord);
             }
-            // The opened root owner binds each root to one exact object/tenant.
-            // This index binds it to one request ID, and the permission key binds
-            // that tenant/ID pair. Together they rule out duplicate roots without
-            // retaining another per-object heap index during restoration.
-            if self.root_requests.get(input.request.object.root.as_bytes())
-                != Some(input.request.id.get().get())
-            {
+            // The immutable root row binds both object/tenant and operation;
+            // the permission key binds the matching tenant/operation pair.
+            if self.roots.operation_for_owner(input.request.object.root)? != input.request.id {
                 return Err(UploadStoreError::InvalidRecord);
             }
             validation::object(&self.config, context, object)

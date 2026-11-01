@@ -126,7 +126,7 @@ Native field and variant order is frozen; there is no named-field extension or
 compatibility projection. Hosts with a larger envelope must preserve method,
 direction and complete-consumption checks at their outer boundary.
 `ops::service::stores::ServiceStores` assembles the three
-owners synchronously under these validated limits and fourteen distinct host-granted
+owners synchronously under these validated limits and thirteen distinct host-granted
 memories. Fresh installation preflights the entire set before writing; aliased
 grants or later write failures must trap for IC rollback. Native memory supplies no
 transaction guarantee. Restoration validates every owner before returning the
@@ -136,10 +136,10 @@ publishing the assembly only after success. These APIs neither establish a provi
 namespace nor implement a production adapter, reconfiguration or operational
 unfencing contract. Linking the library exports no endpoint or lifecycle hook.
 
-`ops::service::installation::requests` builds all fifteen named installation
+`ops::service::installation::requests` builds all fourteen named installation
 requests, including configuration, under the supplied host authority. Hosts
 compose this passive inventory with their other application declarations before
-their own bootstrap. Store-only compositions can use the fourteen requests from
+their own bootstrap. Store-only compositions can use the thirteen requests from
 `ops::service::stores::grants::requests`. `grants::open` assembles the current store mapping using that host's
 committed-memory lookup; missing grants refuse without creating or repairing a
 store. Hosts supply `grants::open(|key| runtime.open_memory(key))` from their own
@@ -166,7 +166,7 @@ explicit project and bounded library release before allocation.
 Use `ic_blob_storage::LIBRARY_VERSION` for that compiled dependency identity;
 an embedding host's package version and Wasm/module identity are separate facts.
 `ServiceInstallation` owns the immutable current configuration record and the
-three service owners. Fresh installation preflights all fifteen exclusive grants;
+three service owners. Fresh installation preflights all fourteen exclusive grants;
 the host must propagate any subsequent trap for IC rollback. Restoration checks
 the retained schema, actual service and compiled release before opening owners,
 revalidates all installed inputs and returns only after every owner is fenced.
@@ -230,7 +230,7 @@ roles remain explicit; framework activation and controller status
 grant none of those roles. Provider request/callback contracts have one core owner,
 and clients use the service API rather than defining a provider protocol.
 
-The host declares the installation configuration key and fourteen shared service
+The host declares the installation configuration key and thirteen shared service
 requests within one allocation authority, bootstraps one ic-memory runtime, validates
 all installation inputs and calls `ServiceInstallation::install` synchronously.
 It supplies actual service identity, project and compiled release.
@@ -1039,7 +1039,8 @@ propagate that trap for IC message rollback. The upload owner below incorporates
 this store together with pending and confirmed lifecycle bookkeeping.
 
 `StableRootClaims` uses two distinct host-granted memories for immutable root
-claims and their reverse object index. Metadata binds service, namespace and the
+claims, exact original upload operations and their reverse object index.
+There is no separate root-to-operation index. Metadata binds service, namespace and the
 lifetime root count; bounded v1 records preserve full-width identities. Claim
 rules are shared with the heap model. Exact replay at capacity allocates nothing;
 there is no deletion/reassignment API. Reopen validates the forward/reverse

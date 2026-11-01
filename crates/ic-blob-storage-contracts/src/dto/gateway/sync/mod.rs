@@ -45,8 +45,6 @@ pub enum GatewaySyncFailure {
     Denied,
     /// Restored registry remains inspection-only.
     Fenced,
-    /// Another sync is already pending.
-    Busy,
     /// Local sync sequence cannot advance.
     Exhausted,
     /// The original pending sync was cancelled, revoked, completed or replaced.

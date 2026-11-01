@@ -22,7 +22,7 @@ use ic_memory::Memory;
 /// Returning a request authorizes no paid effect. A host must not dispatch before
 /// this synchronous transaction commits; lost output leaves a pending sync.
 /// # Errors
-/// Rejects authority, request construction, fencing or overlapping/exhausted sync.
+/// Rejects authority, request construction, fencing or sequence exhaustion.
 /// # Panics
 /// Stable write failures must propagate for IC rollback.
 pub fn begin_sync<M: Memory>(

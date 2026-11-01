@@ -166,7 +166,7 @@ continuous evidence recording and separates source/local/live observations.
 `make documentation-links-check` selects root Markdown and all Markdown under
 docs, audits and rules; it verifies supported local targets, not anchors or remote
 URLs. `make shared-tooling-tests` exercises consumer fixture completion, evidence
-archive, local lockfile, Cargo metadata and actual Testkit/Make forwarding
+archive, local lockfile and actual Testkit/Make forwarding
 with offline substitutes. Dependency changes follow the
 [focused adoption contract](../cargo-graph-checks.md#focused-dependency-adoption-contract):
 admit each actual locked graph and policy before lint and artifact checks,

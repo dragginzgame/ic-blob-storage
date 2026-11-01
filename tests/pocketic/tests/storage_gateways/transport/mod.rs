@@ -162,10 +162,15 @@ fn delayed_gateway_reply_cannot_overwrite_edits_or_a_newer_pending_attempt() {
             )
             .unwrap();
         f.wait_source();
-        assert_eq!(f.gateways(f.operator, Action::Begin), Err(Failure::Phase));
-        assert_eq!(f.gateway_view().pending_sequence, Some(1));
+        let replacement = f.gateway_begin();
+        assert_ne!(replacement, old);
+        assert_eq!(f.gateway_view().pending_sequence, Some(replacement));
+        assert_eq!(
+            f.cancel_gateway_sync(f.operator, old),
+            Err(GatewaySyncFailure::Conflict)
+        );
         if cancel {
-            f.cancel_gateway_sync(f.operator, old).unwrap();
+            f.cancel_gateway_sync(f.operator, replacement).unwrap();
         } else {
             f.revoke_gateway(f.operator, f.other).unwrap();
         }

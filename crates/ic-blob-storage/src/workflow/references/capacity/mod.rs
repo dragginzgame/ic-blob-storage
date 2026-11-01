@@ -11,44 +11,13 @@ use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 fn failure(error: UploadStoreError) -> F {
-    use UploadAdmissionError as A;
     match error {
         UploadStoreError::Binding
         | UploadStoreError::Admission(
             UploadAdmissionError::WrongService | UploadAdmissionError::WrongNamespace,
         ) => F::Binding,
         UploadStoreError::Admission(UploadAdmissionError::NotProject) => F::Denied,
-        UploadStoreError::AlreadyAllocated
-        | UploadStoreError::Missing
-        | UploadStoreError::InvalidRecord
-        | UploadStoreError::UnsupportedEnvelope
-        | UploadStoreError::Fenced
-        | UploadStoreError::Tenants(_)
-        | UploadStoreError::Roots(_)
-        | UploadStoreError::Reference(_)
-        | UploadStoreError::Lifecycle(_)
-        | UploadStoreError::CursorScope
-        | UploadStoreError::Admission(
-            A::ManifestCapacity(_)
-            | A::ManifestNotPrepared
-            | A::Manifest(_)
-            | A::Metadata(_)
-            | A::EmptyObject
-            | A::NotOperator
-            | A::Reference(_)
-            | A::InvalidUploader
-            | A::UnknownPermission
-            | A::PermissionConflict
-            | A::NotUploader
-            | A::NotObserver
-            | A::Revoked
-            | A::Expired
-            | A::ClockReversed
-            | A::ObjectTooLarge
-            | A::NotReserved(_)
-            | A::Catalog(_)
-            | A::Tenant(_),
-        ) => F::Internal,
+        _ => F::Internal,
     }
 }
 fn present(view: ReferenceCapacityView) -> Result<ReferenceHeadroom, F> {

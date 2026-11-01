@@ -122,7 +122,6 @@ shared-tooling-tests:
 	+bash scripts/ci/check-validation-logging.sh
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
-	+bash scripts/ci/test-cargo-metadata.sh
 	+bash scripts/ci/test-testkit-commands.sh
 
 tooling-evidence-check:

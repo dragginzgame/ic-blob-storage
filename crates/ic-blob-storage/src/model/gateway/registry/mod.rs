@@ -132,11 +132,9 @@ impl GatewayRegistry {
 
     /// Reserve one uniquely sequenced local synchronization attempt.
     /// # Errors
-    /// Rejects a second outstanding attempt or exhausted sequence space; no wrap.
+    /// Rejects exhausted sequence space; no wrap. A new authorized read replaces
+    /// any older pending token, which can no longer apply or cancel.
     pub fn begin_sync(&mut self) -> Result<GatewaySyncToken, GatewaySyncError> {
-        if self.pending.is_some() {
-            return Err(GatewaySyncError::SyncInProgress);
-        }
         let sequence = self
             .last_sequence
             .checked_add(1)
@@ -157,7 +155,7 @@ impl GatewayRegistry {
     /// re-add a removed member; only attempts begun before the edit are invalidated.
     /// # Errors
     /// Scope mismatch, stale/cancelled/replayed attempts and malformed lists leave
-    /// membership and pending state unchanged. Cancel an unusable attempt explicitly.
+    /// membership and pending state unchanged. A fresh explicit sync may replace it.
     pub fn apply_sync(
         &mut self,
         token: GatewaySyncToken,
@@ -270,9 +268,6 @@ pub enum GatewaySyncError {
     /// Token was cancelled, invalidated, consumed or replaced by a later attempt.
     #[error("stale gateway sync")]
     StaleSync,
-    /// Another attempt must complete or be explicitly cancelled first.
-    #[error("gateway sync already in progress")]
-    SyncInProgress,
     /// No more local attempt identities can be allocated safely.
     #[error("gateway sync sequence exhausted")]
     SequenceExhausted,
@@ -309,6 +304,25 @@ mod tests {
     }
 
     #[test]
+    fn explicit_refresh_supersedes_pending_read_without_accepting_its_reply_or_cancel() {
+        let mut registry = registry();
+        let old = registry.begin_sync().unwrap();
+        let current = registry.begin_sync().unwrap();
+        let before = registry.clone();
+        assert_eq!(
+            registry.apply_sync(old, scope(1, 1, 2), &[p(4)]),
+            Err(GatewaySyncError::StaleSync)
+        );
+        assert_eq!(registry.cancel_sync(old), Err(GatewaySyncError::StaleSync));
+        assert_eq!(registry, before);
+        registry
+            .apply_sync(current, scope(1, 1, 2), &[p(5)])
+            .unwrap();
+        assert_eq!(registry.gateways().principals(), &[p(5)]);
+        assert_eq!(registry.sync_view().pending_sequence, None);
+    }
+
+    #[test]
     fn cancelled_and_replayed_responses_cannot_replace_newer_membership() {
         let mut registry = registry();
         let old = registry.begin_sync().expect("old attempt");
@@ -319,9 +333,6 @@ mod tests {
                 pending_sequence: Some(1),
             }
         );
-        let before = registry.clone();
-        assert_eq!(registry.begin_sync(), Err(GatewaySyncError::SyncInProgress));
-        assert_eq!(registry, before);
         registry.cancel_sync(old).expect("cancel old read");
         assert_eq!(
             registry.sync_view(),

@@ -12,40 +12,10 @@ use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestResponse;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_blob_storage_contracts::upload::manifests::bounds;
 use ic_blob_storage_contracts::upload::manifests::headers;
 
 use ic_memory::Memory;
-fn parse(
-    context: UploadContext,
-    input: UploadAdmissionRequest,
-    mutation: bool,
-) -> Result<UploadPermission, UploadManifestFailure> {
-    let uploader = context.actor == input.uploader;
-    let tenant_observer = !mutation && context.actor == input.upload.tenant;
-    if !uploader && !tenant_observer {
-        return Err(UploadManifestFailure::Permission(
-            UploadAdmissionFailure::Denied,
-        ));
-    }
-    ic_blob_storage_contracts::upload::admission::parse_binding(context.service, input)
-        .map_err(UploadManifestFailure::Permission)
-}
-fn exact<M: Memory>(
-    store: &StableUploads<M>,
-    context: UploadContext,
-    permission: UploadPermission,
-) -> Result<crate::model::service::upload::UploadPermissionView, UploadManifestFailure> {
-    let view = store.lookup(context, permission.request).map_err(failure)?;
-    if view.permission != permission {
-        return Err(UploadManifestFailure::Permission(
-            UploadAdmissionFailure::Conflict,
-        ));
-    }
-    Ok(view)
-}
-
 /// Prepare as the actual admitted uploader after bounding ingress decoding. Raw
 /// declaration budgets precede conversion; the shared owner checks activation,
 /// time, phase and root/metadata consistency. Persist intent before dispatch and
@@ -60,8 +30,9 @@ pub fn prepare<M: Memory>(
     input: &UploadManifestRequest,
     now: u64,
 ) -> Result<UploadManifestMutation, UploadManifestFailure> {
-    let permission = parse(context, input.permission, true)?;
-    exact(store, context, permission)?;
+    let view = admission::permission(store, context, input.permission, true)
+        .map_err(UploadManifestFailure::Permission)?;
+    let permission = view.permission;
     bounds(
         &input.declaration,
         store.callback_configuration().manifest_limits(),
@@ -100,8 +71,8 @@ pub fn inspect<M: Memory>(
     context: UploadContext,
     input: UploadAdmissionRequest,
 ) -> Result<UploadManifestResponse, UploadManifestFailure> {
-    let permission = parse(context, input, false)?;
-    let view = exact(store, context, permission)?;
+    let view = admission::permission(store, context, input, false)
+        .map_err(UploadManifestFailure::Permission)?;
     manifests::observation(store, input, &view)
 }
 fn failure(error: UploadStoreError) -> UploadManifestFailure {

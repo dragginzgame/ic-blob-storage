@@ -71,7 +71,10 @@ impl RootStoreMetadataRecord {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) enum RootClaimRecord {
     Metadata(RootStoreMetadataRecord),
-    Claim(RootObjectKeyRecord),
+    Claim {
+        object: RootObjectKeyRecord,
+        operation: u128,
+    },
 }
 
 // Both schemas are small fixed-shape records. Bound the encoded input before
@@ -84,7 +87,7 @@ macro_rules! bounded_record {
     };
 }
 bounded_record!(RootObjectKeyRecord, b"BLROOTK1", 256);
-bounded_record!(RootClaimRecord, b"BLROOTC1", 512);
+bounded_record!(RootClaimRecord, b"BLCORR01", 512);
 
 #[cfg(test)]
 mod tests;

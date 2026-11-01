@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.64.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Fold upload-operation correlation into immutable root claims, removing one
+  stable index and memory grant. Hosts must rebuild their declared memory roster
+  using Blob’s request factory, retire existing installations with their original
+  tools and reinstall. No retained records or obligations are migrated or erased.
+- An explicit gateway refresh supersedes an earlier pending read. Late replies
+  and cancellation remain bound to the exact current token; revoke and restore
+  fences still win. Remove the Busy refusal and change sync/cancellation Wire
+  identities; regenerate both sides of those calls.
+- Save publication recovery sources as per-file records. Old provenance documents
+  refuse; retain their original tools to finish or inspect earlier runs.
+
+### 🧹 Cleanup
+
+- Share exact upload-permission validation across manifest and exposure flows,
+  carry resolved permission state through descriptor construction, and narrow
+  reference-capacity error projection without changing authority or disclosures.
+- Stop selecting Shared’s generic Cargo metadata matrix and narrow logger
+  coverage to Blob’s actual nested input-checkpoint wiring. Refresh the snapshot
+  selection at its existing reviewed revision; producer matrices remain upstream.
+
+### ⬆️ Dependencies
+
+- Adopt published Build/Host Foundation 0.73.5 and Memory/Storage 0.60.7,
+  aligning declared minimums with the incoming lock. Preserve stored formats,
+  allocation custody, decoder bounds and existing archive-verification behavior.
+
 ## [0.63.0] - 2026-11-01
 
 ### ⚠️ Breaking

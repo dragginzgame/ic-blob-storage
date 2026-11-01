@@ -316,7 +316,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::revoke_gateway(call_context, input)
             }]
-            [GATEWAY_SYNC_METHOD, 0x424c_4f42_0042_0012; update, request,
+            [GATEWAY_SYNC_METHOD, 0x424c_4f42_0064_0012; update, request,
             async fn blob_sync_gateways(
                 input: OperatorScope,
             ) -> Result<
@@ -327,7 +327,7 @@ macro_rules! __blob_service_catalog {
                 $workflow::before_update().await;
                 $workflow::sync_gateways(call_context, input).await
             }]
-            [GATEWAY_SYNC_CANCEL_METHOD, 0x424c_4f42_0042_0013; update, request,
+            [GATEWAY_SYNC_CANCEL_METHOD, 0x424c_4f42_0064_0013; update, request,
             async fn blob_cancel_gateway_sync(
                 input: $contracts::dto::gateway::sync::GatewaySyncCancellation,
             ) -> Result<(), $contracts::dto::gateway::sync::GatewaySyncFailure> {

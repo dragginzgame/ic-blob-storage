@@ -869,6 +869,10 @@ original intent and checks namespace, identity, root and inputs before Chromium.
 The launcher accepts only the complete current intent/ready shapes; it never
 reconstructs partial native history.
 
+From 0.64, saved session provenance uses per-file setup/transfer records. The
+new CLI refuses the previous parallel-array format; keep earlier runs with their
+original tools. There is no automatic conversion or new authority from a restart.
+
 On native restart, pass the same selection file plus `--source-session` and a new
 `--run-dir`. The original profile/session directories must survive, and saved
 source intent must match the selection exactly. The browser reopens with
@@ -1149,6 +1153,11 @@ cargo run --offline --locked -p ic-blob-storage-cli --bin blob-storage -- \
 | `sync-gateways` | No guessed sequence or gateway | Persist pending identity, query installed Cashier once, then replace membership if still current |
 | `cancel-gateway-sync` | `--sequence DECIMAL` from observed pending status | Cancel only that read-only sync, preserving allocated sequence history |
 | `revoke-gateway` | `--gateway PRINCIPAL` | Remove local membership and invalidate pending sync observations, even if already absent |
+
+A new explicit `sync-gateways` may supersede an earlier failed or pending read;
+no cancel-then-refresh sequence is required. Only the latest token may apply or
+be cancelled. Revocation invalidates existing tokens, and restored state stays
+fenced. Each command still sends once; there is no automatic refresh or retry.
 
 For cancellation or revocation, replace `sync-gateways` in the example, add the
 required choice and use a distinct run directory. Cancellation sequences must be

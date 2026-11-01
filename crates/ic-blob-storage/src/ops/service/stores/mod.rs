@@ -48,7 +48,7 @@ impl ServiceStoreConfiguration {
     }
 }
 
-/// Passive bundle of fourteen service slots; it grants no memory access itself.
+/// Passive bundle of thirteen service slots; it grants no memory access itself.
 /// Store construction requires exclusive `RuntimeMemory` handles from the host.
 /// The library never chooses memory IDs or registers grants implicitly.
 pub struct ServiceMemories<M> {
@@ -60,7 +60,7 @@ pub struct ServiceMemories<M> {
     pub gateways: M,
 }
 impl<M> ServiceMemories<M> {
-    pub(super) fn all(&self) -> [&M; 14] {
+    pub(super) fn all(&self) -> [&M; 13] {
         [
             &self.uploads.tenants,
             &self.uploads.roots,
@@ -71,7 +71,6 @@ impl<M> ServiceMemories<M> {
             &self.uploads.confirmed,
             &self.uploads.references,
             &self.uploads.receipts,
-            &self.uploads.root_requests,
             &self.uploads.deletions,
             &self.funding.accounting,
             &self.funding.intents,

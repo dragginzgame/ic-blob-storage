@@ -43,7 +43,6 @@ pub(crate) fn failure(error: GatewayStoreError) -> Failure {
         }
         GatewayStoreError::Fenced => Failure::Fenced,
         GatewayStoreError::Sync(GatewaySyncError::StaleSync) => Failure::Conflict,
-        GatewayStoreError::Sync(GatewaySyncError::SyncInProgress) => Failure::Phase,
         GatewayStoreError::List(
             GatewayListError::TooManyEntries { .. } | GatewayListError::TooManyUnique { .. },
         )

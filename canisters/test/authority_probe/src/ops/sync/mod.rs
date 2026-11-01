@@ -161,7 +161,6 @@ pub(crate) fn cancel(token: GatewaySyncToken) {
 
 fn sync_error(error: GatewaySyncError) -> SyncFailure {
     match error {
-        GatewaySyncError::SyncInProgress => SyncFailure::InProgress,
         GatewaySyncError::StaleSync => SyncFailure::Stale,
         GatewaySyncError::InvalidList(_) => SyncFailure::InvalidReply,
         GatewaySyncError::WrongScope | GatewaySyncError::SequenceExhausted => {

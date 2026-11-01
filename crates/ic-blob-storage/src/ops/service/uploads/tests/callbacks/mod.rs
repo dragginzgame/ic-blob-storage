@@ -132,11 +132,11 @@ fn gateway_callbacks_fail_closed_on_missing_root_request_index() {
             UploadRootStatus::Known(UploadRootState::Reserved)
         ])
     );
-    uploads.root_requests.remove(&[1; 32]);
+    uploads.roots.damage_operation([1; 32], Some(0));
     assert_eq!(
         observe_roots(&registry, &uploads, caller(p(6)), scope(), &roots),
-        Err(GatewayCallbackError::Uploads(
-            UploadStoreError::InvalidRecord
-        ))
+        Err(GatewayCallbackError::Uploads(UploadStoreError::Roots(
+            crate::ops::service::roots::RootStoreError::InvalidRecord
+        )))
     );
 }
