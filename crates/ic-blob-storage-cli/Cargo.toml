@@ -9,12 +9,6 @@ publish = false
 [target.'cfg(unix)'.dependencies]
 libc.workspace = true
 
-[target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
-hex.workspace = true
-ic-host-fs = { workspace = true, features = ["test-support"] }
-ic-host-process = { workspace = true, features = ["test-support"] }
-ic-platform = { workspace = true, features = ["candid", "principal-self-authenticating"] }
-
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 clap.workspace = true
 ic-blob-storage-contracts = { workspace = true, features = ["provider-json"] }
@@ -49,6 +43,11 @@ package-verification = ["dep:ic-build"]
 
 [build-dependencies]
 ic-build.workspace = true
+
+[target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
+ic-host-fs = { workspace = true, features = ["test-support"] }
+ic-host-process = { workspace = true, features = ["test-support"] }
+ic-platform = { workspace = true, features = ["principal-self-authenticating"] }
 
 [lints]
 workspace = true

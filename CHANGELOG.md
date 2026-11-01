@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.62.0]
+
+### ⚠️ Breaking
+
+- Remove the test-only `UploadAdmissions` service, its borrowed descriptor views,
+  and the upload/reference discovery-capacity source traits. The admission probe
+  and shared inspection workflows now use the durable `StableUploads` owner;
+  native regressions assert exact outcomes, accounting and restoration directly.
+- Remove the unused public Caffeine ledger-notification decoder. Ordinary top-up
+  accounting and uncertain-payment recovery remain unchanged.
+- Retire the historical Candid projection/client framework, optional old-image
+  drivers and `test-hard-cut` command. Current codec rejection uses frozen Candid
+  input; durable release/format refusal, byte preservation and same-release
+  recovery remain covered. No compatibility reader or storage migration is added.
+
+### ♻️ Refactoring
+
+- Replace the CLI's historical Candid installation loader with a current JSON
+  fixture, removing its mirrored DTOs, JSON conversions, Hex development
+  dependency and explicit Candid test feature. Keep external provider test
+  contracts local and typed. Give upload setup one manifest reply ceiling.
+
+### ⬆️ Dependencies
+
+- Adopt Build/Host Foundation 0.73.3 and Host Tools/Testkit 0.75.2, retaining
+  matching process-error identities, bounded command evidence and managed-server
+  admission. Testkit shares the selected Wire 0.13.2 codec.
+- Require published Memory/Storage 0.60.3 with their Platform 0.15.3 pairing.
+  Preserve durable codecs, allocation custody and restore fences; no stored-data
+  migration or endpoint change is introduced.
+
 ## [0.61.0] - 2026-10-31
 
 ### ⚠️ Breaking

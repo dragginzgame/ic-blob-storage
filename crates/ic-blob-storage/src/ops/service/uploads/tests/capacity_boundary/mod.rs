@@ -106,25 +106,13 @@ fn capacity_boundary_checks_scope_actor_and_enrollment_before_disclosing_counter
 }
 
 #[test]
-fn capacity_boundary_preserves_heap_parity_and_reports_durable_restore_fence() {
+fn capacity_boundary_preserves_cancellation_headroom_and_reports_durable_restore_fence() {
     let memory = memory();
     let mut store = StableUploads::install(clone_memory(&memory), config()).unwrap();
-    let mut heap = UploadAdmissions::new(config());
     let enrollment = enroll(&mut store);
-    heap.update_tenant(
-        context(2),
-        TenantUpdate {
-            tenant: p(4),
-            expected: None,
-            active: true,
-        },
-    )
-    .unwrap();
     let permission = permission(1);
     store.admit(context(4), permission, 1).unwrap();
-    heap.admit(context(4), permission, 1).unwrap();
     let reserved = inspect(&store, context(4), scope()).unwrap();
-    assert_eq!(inspect(&heap, context(4), scope()), Ok(reserved));
     assert!(!reserved.fenced);
     let suspension = TenantUpdate {
         tenant: p(4),
@@ -132,11 +120,8 @@ fn capacity_boundary_preserves_heap_parity_and_reports_durable_restore_fence() {
         active: false,
     };
     store.revoke(context(4), permission.request).unwrap();
-    heap.revoke(context(4), permission.request).unwrap();
     store.update_tenant(context(2), suspension).unwrap();
-    heap.update_tenant(context(2), suspension).unwrap();
     let cancelled = inspect(&store, context(4), scope()).unwrap();
-    assert_eq!(inspect(&heap, context(4), scope()), Ok(cancelled));
     assert!(!cancelled.enrollment.active);
     assert_eq!(cancelled.remaining_objects, reserved.remaining_objects);
     assert_eq!(

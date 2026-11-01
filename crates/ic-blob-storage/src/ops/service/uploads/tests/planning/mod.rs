@@ -25,23 +25,6 @@ fn content(input: UploadPermission) -> ContentLookup {
         root: input.request.object.root,
     }
 }
-pub(super) fn parity(
-    store: &StableUploads<ic_memory::VectorMemory>,
-    heap: &UploadAdmissions,
-    input: UploadPermission,
-) {
-    assert_eq!(
-        store.admission_capacity(context(4), scope()).unwrap(),
-        heap.admission_capacity(context(4), scope()).unwrap()
-    );
-    assert_eq!(
-        store
-            .reference_capacity(context(4), content(input))
-            .unwrap(),
-        heap.reference_capacity(context(4), content(input)).unwrap()
-    );
-}
-
 #[test]
 fn capacity_scope_suspension_and_fenced_inspection_do_not_reserve_or_refund_history() {
     let m = memory();

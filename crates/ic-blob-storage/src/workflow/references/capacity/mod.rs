@@ -10,8 +10,6 @@ use ic_blob_storage_contracts::dto::reference::capacity::ReferenceHeadroom;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 
-use crate::ops::service::references::capacity::ReferenceCapacitySource;
-
 fn failure(error: UploadStoreError) -> F {
     use UploadAdmissionError as A;
     match error {
@@ -70,8 +68,8 @@ fn present(view: ReferenceCapacityView) -> Result<ReferenceHeadroom, F> {
 /// Rejects invalid/foreign scope, unrelated callers or inconsistent retained counters.
 /// # Panics
 /// Panics if the fixed-width root type no longer matches the request contract.
-pub fn inspect<S: ReferenceCapacitySource>(
-    source: &S,
+pub fn inspect<M: ic_memory::Memory>(
+    source: &crate::ops::service::uploads::StableUploads<M>,
     context: UploadContext,
     request: ReferenceCapacityRequest,
 ) -> Result<ReferenceCapacityResponse, F> {
@@ -93,12 +91,10 @@ pub fn inspect<S: ReferenceCapacitySource>(
         namespace,
         root: ProviderRootHash::try_from(request.root.as_slice()).expect("fixed root width"),
     };
-    let observed = source
-        .reference_capacity_view(context, input)
-        .map_err(failure)?;
+    let observed = source.reference_capacity(context, input).map_err(failure)?;
     Ok(ReferenceCapacityResponse {
         request,
-        headroom: observed.headroom.map(present).transpose()?,
-        fenced: observed.fenced,
+        headroom: observed.map(present).transpose()?,
+        fenced: source.is_fenced(),
     })
 }

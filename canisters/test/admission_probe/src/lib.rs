@@ -1,4 +1,4 @@
-//! Local IC boundary for the transient shared admission owner. No provider effects.
+//! Local IC boundary over the maintained durable admission owner. No provider effects.
 
 mod ops;
 mod workflow;
@@ -181,12 +181,12 @@ fn blob_reference_capacity(bytes: Vec<u8>) {
 // Controller-driven reinstall/snapshot replacement remains outside its contract.
 #[ic_platform::cdk::pre_upgrade]
 fn pre_upgrade() {
-    ic_platform::cdk::api::trap("transient admission probe cannot upgrade");
+    ic_platform::cdk::api::trap("admission measurement probe cannot upgrade");
 }
 
 #[ic_platform::cdk::post_upgrade(
     decode_with = "blob_test_protocol::fixture_wire::hooks::upgrade_unit"
 )]
 fn post_upgrade() {
-    ic_platform::cdk::api::trap("transient admission probe cannot restore");
+    ic_platform::cdk::api::trap("admission measurement probe cannot restore");
 }

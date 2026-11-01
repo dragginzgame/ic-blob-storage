@@ -88,7 +88,8 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Blob's direct Platform boundary is 0.15.2. Platform owns the executor and
+Blob's direct Platform minimum is 0.15.2; Memory/Storage 0.60.3 requires the
+resolved 0.15.3 pairing. Platform owns the executor and
 IC0 implementation; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
@@ -101,11 +102,12 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-Memory/Storage 0.60.1 and Host Tools/Testkit 0.75.0 share Blob's Platform 0.15.2
-and Wire 0.13 identities. This removes the older Platform 0.11/0.12 and Wire 0.10
-copies. Testkit still selects arithmetic-only Metrics 0.23.2 alongside Blob's
-0.24.1; its disabled defaults introduce no older Wire metadata. Blob's sole
-deployed executor is Platform 0.15.2. Raw IC0 is absent. No source patch,
+Memory/Storage minimums are 0.60.3. Build/Host Foundation minimums are 0.73.3,
+and Host Tools/Testkit minimums are 0.75.2, matching the pending lock. Its existing
+Platform 0.15.3 and Wire 0.13.2 selections remain intact; Testkit requires that
+Wire patch. Testkit shares arithmetic-only Metrics 0.24.1 with Blob,
+removing the older native Metrics copy. The graph retains one Platform/Wire
+identity and Blob's sole deployed executor is Platform 0.15.3. Raw IC0 is absent. No source patch,
 compatibility alias or dependency override is used. Principal
 hashing remains explicitly development-only in Blob. No size or performance
 gain is inferred from the graph reduction.
@@ -126,7 +128,7 @@ remain available; Contracts' existing `wire-schema` feature enables
 `ic-metrics/native-wire` explicitly. Normal contract graphs exclude that feature
 and native schema graphs select it without introducing a runtime owner.
 
-Platform 0.15.2 reexports canonical Principal/Account identities from published
+Platform 0.15 reexports canonical Principal/Account identities from published
 `ic-platform-types` 0.15.1. Wire 0.13's schema implementation selects that same
 Types owner, resolving the previous facade/schema version blocker tracked in
 [Wire #37 — Supply compatible Platform integrations](https://github.com/dragginzgame/ic-wire/issues/37). Blob continues to
@@ -140,8 +142,8 @@ and development workspace; no release-group policy or package moves are needed.
 Its root catalog lists all thirteen members at their existing full version.
 The snapshot records reviewed commit `f4f431627290e18f0ccc1e5f8525d16b197cf7c3`.
 
-The root catalog and lock select published Build/Host Foundation 0.73.1 and
-Host Tools/Testkit 0.75.0. These are independent supplier release groups;
+The root catalog and lock select Build/Host Foundation 0.73.3 and Host Tools /
+Testkit 0.75.2. These are independent supplier release groups;
 matching Testkit server CLI and Build release editor identities come from the lock.
 Testkit repairs cached timer/hook snapshots under
 [Tooling #263](https://github.com/dragginzgame/ic-tooling/issues/263); Blob uses
@@ -184,11 +186,13 @@ Native fixture custody uses Memory's published `testing::fixture_runtime` with
 retained backing and explicit leases. Raw bytes remain available only to native
 corruption/restore fixtures. Memory fixture support is selected by core unit tests
 and isolated probes; the default standalone build must exclude those selections.
-The core's non-default `test-support` feature exposes independent heap reference
-owners and their read-policy adapters for probes and parity tests. Default
-production consumers use the durable installed owner. The authority probe and
-reference integration suites select the feature explicitly; shared domain types,
-capacity checks and pure lifecycle transitions are available without it.
+The core's non-default `test-support` feature exposes component factories,
+explicit exposure/fault access and pure reference models used by the authority
+probe. The admission probe now uses the maintained durable upload owner; the
+parallel `UploadAdmissions` owner, heap manifest/enrollment bookkeeping and its
+three read-source adapters have been removed. Production consumers use the durable
+installed owner. Shared domain types, capacity checks and pure lifecycle
+transitions remain available without test support.
 
 Do not infer production feature admission from a workspace-wide unified build.
 
@@ -247,7 +251,10 @@ Neither HTTP nor Reqwest enters the CLI or standalone Wasm graph.
 
 The optional archive verifier exchanges Host process limits and typed errors
 with Build, requiring the same Host package identity. Build and direct Host
-Process share Foundation 0.73.1, independently of the Testkit integration version.
+Process share the Foundation generation, independently of the Testkit integration version.
+Its existing `PackageCommandError` handling retains execution separately from
+diagnostic-write failures. Build's bounded capture API owns that mechanism;
+this adoption adds no local process wrapper or second log-retention flow.
 The [earlier mismatch](https://github.com/dragginzgame/ic-build/issues/9#issuecomment-6269225053)
 retains its original reproduction. Keep the actual output limits and exit/signal
 propagation; no copied process types or version bridge is used. Archive-verifier qualification is reported separately in the current handoff.

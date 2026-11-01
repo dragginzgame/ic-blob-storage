@@ -10,7 +10,6 @@ mod reference_capacity_boundary;
 mod reference_status_boundary;
 mod revocation;
 use crate::ops::service::tenant::tests::config;
-use crate::test_support::admission::UploadAdmissions;
 use crate::test_support::memory::FixtureMemory;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
@@ -123,34 +122,34 @@ fn enroll(store: &mut StableUploads<ic_memory::VectorMemory>) -> TenantEnrollmen
 }
 
 #[test]
-fn exact_admission_and_cancellation_match_heap_and_survive_fenced_reopen() {
+fn exact_admission_and_cancellation_preserve_totals_and_survive_fenced_reopen() {
     let m = memory();
     let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
-    let mut heap = UploadAdmissions::new(config());
-    let command = TenantUpdate {
-        tenant: p(4),
-        expected: None,
-        active: true,
-    };
-    store.update_tenant(context(2), command).unwrap();
-    heap.update_tenant(context(2), command).unwrap();
-    for input in [permission(1), permission(1), permission(2)] {
-        assert_eq!(
-            store.admit(context(4), input, 1),
-            heap.admit(context(4), input, 1)
-                .map_err(UploadStoreError::Admission)
-        );
-        assert_eq!(store.usage().unwrap(), heap.catalog().usage());
-        planning::parity(&store, &heap, input);
+    enroll(&mut store);
+    for (input, expected, operations) in [
+        (permission(1), UploadAdmission::Reserved, 1),
+        (
+            permission(1),
+            UploadAdmission::Existing(UploadPhase::Reserved),
+            1,
+        ),
+        (permission(2), UploadAdmission::Reserved, 2),
+    ] {
+        assert_eq!(store.admit(context(4), input, 1), Ok(expected));
+        let usage = store.usage().unwrap();
+        assert_eq!(usage.operations, operations);
+        assert_eq!(usage.active_reservations, operations);
+        assert_eq!(usage.reserved_bytes, operations as u128 * 10);
     }
     let input = permission(1);
     assert_eq!(
         store.revoke(context(4), input.request),
-        heap.revoke(context(4), input.request)
-            .map_err(UploadStoreError::Admission)
+        Ok(LifecycleChange::Changed)
     );
-    assert_eq!(store.usage().unwrap(), heap.catalog().usage());
-    planning::parity(&store, &heap, input);
+    let usage = store.usage().unwrap();
+    assert_eq!(usage.operations, 2);
+    assert_eq!(usage.active_reservations, 1);
+    assert_eq!(usage.reserved_bytes, 10);
     assert_eq!(
         store.admit(context(4), input, 101),
         Ok(UploadAdmission::Existing(UploadPhase::Cancelled))

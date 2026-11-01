@@ -41,7 +41,7 @@ pub(crate) fn execute(
             operation,
             retain,
         })?;
-        let result = mutate(|owner| owner.apply_reference(context, object.object.root, operation))
+        let result = mutate(|owner| owner.apply_reference(context, object, operation))
             .map_err(reference_error)?;
         let (replayed, result) = match result {
             ReferenceRequestOutcome::Recorded { result } => (false, result),
@@ -88,10 +88,10 @@ pub(crate) fn execute(
             .map_err(failure)?;
         let result = match command {
             LifecycleCommand::SubstituteDeletion(_) => owner
-                .confirm_provider_deleted(object.object.root, object.object.first.object())
+                .confirm_provider_deleted(object)
                 .map_err(|_| Failure::Catalog),
             LifecycleCommand::SubstituteSettlement(_) => owner
-                .confirm_billing_stopped(object.object.root, object.object.first.object())
+                .confirm_billing_stopped(object)
                 .map_err(|_| Failure::Catalog),
             LifecycleCommand::Reference { .. } => unreachable!("reference handled above"),
         };
@@ -122,12 +122,22 @@ fn number(n: u128) -> Result<NonZeroU128, Failure> {
     NonZeroU128::new(n).ok_or(Failure::InvalidInput)
 }
 
-fn reference_error(error: UploadAdmissionError) -> Failure {
+fn reference_error(error: ic_blob_storage::ops::service::uploads::UploadStoreError) -> Failure {
+    use ic_blob_storage::ops::service::uploads::UploadStoreError;
+    match error {
+        UploadStoreError::Reference(error) => reference_admission_error(
+            UploadAdmissionError::Reference(CatalogError::Request(error)),
+        ),
+        UploadStoreError::Admission(error) => reference_admission_error(error),
+        _ => Failure::Catalog,
+    }
+}
+fn reference_admission_error(error: UploadAdmissionError) -> Failure {
     match error {
         UploadAdmissionError::Reference(CatalogError::Request(
             ReferenceRequestError::ReceiptLimitReached,
         )) => Failure::Capacity,
-        other => failure(other),
+        other => super::conversion::admission_failure(other),
     }
 }
 

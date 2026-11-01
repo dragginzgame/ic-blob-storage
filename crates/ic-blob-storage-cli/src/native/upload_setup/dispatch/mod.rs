@@ -2,7 +2,7 @@
 use super::{Failure, Request, SetupOutcome, observation, permission_json};
 use crate::native::{
     arguments::Options,
-    signed_update::{MANIFEST_REPLY_BYTES, PreparedUpdate, UpdateInput},
+    signed_update::{PreparedUpdate, UpdateInput},
 };
 use ic_blob_storage_contracts::identity::ContentDigest;
 use serde_json::json;
@@ -23,7 +23,7 @@ pub(super) async fn run(
             argument: &saved.argument,
             argument_file: "request.wire",
             directory,
-            reply_limit: MANIFEST_REPLY_BYTES,
+            reply_limit: super::MANIFEST_REPLY_BYTES,
         },
         || {
             let binding = super::record::SetupIntentRecord {

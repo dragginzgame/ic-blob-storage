@@ -1,6 +1,5 @@
 use super::*;
 use ic_host_fs::testing::FixtureDirectory;
-pub(in crate::native) mod historical_configuration;
 mod http;
 use ic_blob_storage_contracts::dto::operator::*;
 
@@ -381,4 +380,13 @@ fn status_refuses_inconsistent_budget_grants_and_overflowing_spent_totals() {
             Err(Failure::InvalidReply)
         );
     }
+}
+
+/// Current passive configuration; no historical codec or projection participates.
+pub(in crate::native) fn configuration()
+-> ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput {
+    serde_json::from_str(include_str!(
+        "../../../tests/fixtures/installation/configuration.json"
+    ))
+    .unwrap()
 }

@@ -26,8 +26,6 @@ fn discovery_boundary_checks_authority_before_absence_and_reports_restored_absen
         fenced: false,
     };
     assert_eq!(inspect(&store, context(4), request), Ok(empty));
-    let heap = UploadAdmissions::new(config());
-    assert_eq!(inspect(&heap, context(4), request), Ok(empty));
     for actor in [2, 5, 6] {
         assert_eq!(inspect(&store, context(actor), request), Err(F::Denied));
     }
@@ -101,14 +99,12 @@ fn discovery_boundary_preserves_independent_full_width_identities_and_cancelled_
     use ic_blob_storage_contracts::dto::upload::history::UploadHistoryEntry;
     let memory = memory();
     let mut store = StableUploads::install(clone_memory(&memory), config()).unwrap();
-    let mut heap = UploadAdmissions::new(config());
     let command = TenantUpdate {
         tenant: p(4),
         expected: None,
         active: true,
     };
     store.update_tenant(context(2), command).unwrap();
-    heap.update_tenant(context(2), command).unwrap();
     let mut input = permission(1);
     input.request.id = UploadRequestId::new(NonZeroU128::new(u128::MAX).unwrap());
     input.request.object.first = ReferenceKey::new(
@@ -125,7 +121,6 @@ fn discovery_boundary_preserves_independent_full_width_identities_and_cancelled_
         ReferenceId::new(NonZeroU128::new(u128::MAX - 3).unwrap()),
     );
     store.admit(context(4), input, 1).unwrap();
-    heap.admit(context(4), input, 1).unwrap();
     let request = request(*input.request.object.root.as_bytes());
     let mut expected = UploadDiscoveryResponse {
         request,
@@ -146,7 +141,6 @@ fn discovery_boundary_preserves_independent_full_width_identities_and_cancelled_
         }),
     };
     assert_eq!(inspect(&store, context(4), request), Ok(expected));
-    assert_eq!(inspect(&heap, context(4), request), Ok(expected));
     let foreign = UploadDiscoveryRequest {
         scope: TenantScope {
             tenant: p(6),
@@ -155,12 +149,9 @@ fn discovery_boundary_preserves_independent_full_width_identities_and_cancelled_
         ..request
     };
     assert_eq!(inspect(&store, context(6), foreign).unwrap().content, None);
-    assert_eq!(inspect(&heap, context(6), foreign).unwrap().content, None);
     store.revoke(context(4), input.request).unwrap();
-    heap.revoke(context(4), input.request).unwrap();
     expected.content.as_mut().unwrap().state = UploadContentState::Cancelled;
     assert_eq!(inspect(&store, context(4), request), Ok(expected));
-    assert_eq!(inspect(&heap, context(4), request), Ok(expected));
     drop(store);
     let restored = StableUploads::open(clone_memory(&(memory)), config()).unwrap();
     expected.fenced = true;

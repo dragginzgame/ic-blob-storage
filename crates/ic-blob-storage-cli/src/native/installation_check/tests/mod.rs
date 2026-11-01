@@ -5,7 +5,7 @@ use ic_platform::Principal;
 use std::path::Path;
 
 fn fixture() -> Vec<u8> {
-    let value = crate::native::tests::historical_configuration::configuration();
+    let value = crate::native::tests::configuration();
     serde_json::to_vec(&value).unwrap()
 }
 

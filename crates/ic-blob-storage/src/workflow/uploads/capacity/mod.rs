@@ -9,8 +9,6 @@ use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse;
 use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 
-use crate::ops::service::uploads::capacity::{UploadCapacitySource, UploadCapacityView};
-
 fn failure(error: UploadStoreError) -> UploadCapacityFailure {
     use UploadAdmissionError as A;
     use UploadCapacityFailure as F;
@@ -29,8 +27,8 @@ fn failure(error: UploadStoreError) -> UploadCapacityFailure {
 /// Suspension and restore preserve inspection and are reported independently.
 /// # Errors
 /// Rejects invalid inputs, foreign scope/caller, missing enrollment or inconsistent state.
-pub fn inspect<S: UploadCapacitySource>(
-    source: &S,
+pub fn inspect<M: ic_memory::Memory>(
+    source: &crate::ops::service::uploads::StableUploads<M>,
     context: UploadContext,
     scope: TenantScope,
 ) -> Result<UploadCapacityResponse, UploadCapacityFailure> {
@@ -47,11 +45,8 @@ pub fn inspect<S: UploadCapacitySource>(
         crate::policy::tenant::TenantScopeError::Denied => F::Denied,
         crate::policy::tenant::TenantScopeError::Invalid => F::Invalid,
     })?;
-    let UploadCapacityView {
-        headroom: view,
-        fenced,
-    } = source
-        .capacity_view(
+    let view = source
+        .admission_capacity(
             context,
             AdmissionCapacityLookup {
                 tenant: scope.tenant,
@@ -76,6 +71,6 @@ pub fn inspect<S: UploadCapacitySource>(
         remaining_physical_bytes: view.remaining_physical_bytes,
         remaining_liability_bytes: view.remaining_liability_bytes,
         remaining_bytes: view.remaining_bytes,
-        fenced,
+        fenced: source.is_fenced(),
     })
 }

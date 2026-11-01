@@ -42,7 +42,7 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
-.PHONY: test-hard-cut test-native-host test-wasm-opt msrv-check tasks
+.PHONY: test-native-host test-wasm-opt msrv-check tasks
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 .PHONY: install-testkit testkit-check
 .PHONY: install-release-editor release-editor-check
@@ -72,7 +72,6 @@ help:
 	@echo "check / clippy / test         Workspace aggregates; release or explicit validation only"
 	@echo "test-native / test-pocketic   Native core tests or local IC fixtures"
 	@echo "build-standalone / test-standalone   Standalone host Wasm or focused local IC tests"
-	@echo "test-hard-cut                Old-ledger refusal; explicit pinned Wasm and fresh BLOB_HARD_CUT_REPORT"
 	@echo "test-browser                  Opt-in Chromium certificate/IndexedDB evidence"
 	@echo "test-browser-store            Opt-in Chromium journal persistence without Rust builds"
 	@echo "test-browser-publication      Opt-in offline frozen-file checks; BLOB_PUBLICATION_REPORT=NEW_DIRECTORY"
@@ -227,13 +226,6 @@ test-wasm-opt:
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	+cargo build --offline --locked -p ic-blob-storage-cli
 	+bash scripts/ci/qualify-blob-wasm-opt.sh
-
-test-hard-cut:
-	@test -n "$(BLOB_PRE_CUT_STANDALONE_WASM)" -a -n "$(BLOB_HARD_CUT_REPORT)" || { echo 'Set BLOB_PRE_CUT_STANDALONE_WASM and a fresh BLOB_HARD_CUT_REPORT'; exit 1; }
-	+$(MAKE) --no-print-directory testkit-check
-	+$(MAKE) --no-print-directory build-standalone
-	+BLOB_PRE_CUT_STANDALONE_WASM="$(BLOB_PRE_CUT_STANDALONE_WASM)" BLOB_HARD_CUT_REPORT="$(BLOB_HARD_CUT_REPORT)" \
-		bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_hard_cut::older_allocation_ledger_upgrade_preserves_bytes_and_obligations_on_refusal -- --ignored --exact --test-threads=1
 
 test-standalone:
 	+$(MAKE) --no-print-directory testkit-check

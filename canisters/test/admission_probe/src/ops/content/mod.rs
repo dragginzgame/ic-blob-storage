@@ -7,7 +7,7 @@ use blob_test_protocol::admission::{
     input::{RetainedDescriptor, RetainedDescriptorInput},
 };
 use ic_blob_storage::model::service::upload::content::ContentLookup as ModelLookup;
-use ic_blob_storage::model::service::upload::download::ContentDescriptorView;
+use ic_blob_storage::ops::service::uploads::read::UploadDescriptorView;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
@@ -75,13 +75,13 @@ pub(crate) fn retained_descriptor(
     })
 }
 
-fn descriptor_view(view: ContentDescriptorView<'_>) -> ContentDescriptor {
+fn descriptor_view(view: UploadDescriptorView) -> ContentDescriptor {
     ContentDescriptor {
         content: observation(view.content),
         headers: view
             .headers
-            .iter()
-            .map(|header| (header.name.clone(), header.value.clone()))
+            .into_iter()
+            .map(|header| (header.name, header.value))
             .collect(),
     }
 }

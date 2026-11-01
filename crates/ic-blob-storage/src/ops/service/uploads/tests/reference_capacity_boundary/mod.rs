@@ -30,8 +30,6 @@ fn reference_capacity_boundary_checks_authority_before_absence_and_reports_resto
         fenced: false,
     };
     assert_eq!(inspect(&store, context(4), request), Ok(empty));
-    let heap = UploadAdmissions::new(config());
-    assert_eq!(inspect(&heap, context(4), request), Ok(empty));
     for actor in [2, 5, 6] {
         assert_eq!(inspect(&store, context(actor), request), Err(F::Denied));
     }

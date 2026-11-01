@@ -1,6 +1,10 @@
 //! Actual IC caller/time composition of the shared owner, without provider effects.
 #![cfg(not(target_family = "wasm"))]
 
+use ic_blob_storage_contracts::dto::upload::{
+    admission::UploadAdmissionFailure as AdmissionFailure,
+    exposure::UploadExposureFailure as ExposureFailure,
+};
 use ic_blob_storage_pocketic_tests::fixture_calls;
 mod admission_cases;
 mod admission_content;
@@ -270,7 +274,9 @@ fn actual_uploader_and_observer_roles_gate_manifest_and_exposure() {
         );
         assert_eq!(
             f.call(caller, Command::Expose(p.request.root)),
-            Err(Failure::NotUploader)
+            Err(Failure::Exposure(ExposureFailure::Permission(
+                AdmissionFailure::Denied
+            )))
         );
     }
     for caller in [f.controller, f.operator, f.other, Principal::anonymous()] {
@@ -282,7 +288,7 @@ fn actual_uploader_and_observer_roles_gate_manifest_and_exposure() {
     }
     assert_eq!(
         f.call(f.uploader, Command::Expose(p.request.root)),
-        Err(Failure::Unprepared)
+        Err(Failure::Exposure(ExposureFailure::Unprepared))
     );
     assert_eq!(f.observe(p), original);
     assert!(f.inspect(f.uploader, p.request).unwrap().usage.is_none());
@@ -293,7 +299,7 @@ fn actual_uploader_and_observer_roles_gate_manifest_and_exposure() {
     );
     assert_eq!(
         f.call(f.uploader, Command::Expose(p.request.root)),
-        Err(Failure::Phase)
+        Err(Failure::Exposure(ExposureFailure::Phase))
     );
     assert_eq!(
         f.call(f.project, Command::Revoke(p.request)),
@@ -323,7 +329,9 @@ fn suspension_reactivation_and_real_time_do_not_renew_authority() {
     );
     assert_eq!(
         f.call(f.uploader, Command::Expose(p.request.root)),
-        Err(Failure::Suspended)
+        Err(Failure::Exposure(ExposureFailure::Permission(
+            AdmissionFailure::Inactive
+        )))
     );
     assert_eq!(
         f.call(f.project, Command::Admit(p)),
@@ -353,7 +361,9 @@ fn suspension_reactivation_and_real_time_do_not_renew_authority() {
     f.harness.pic.advance_time(Duration::from_secs(601));
     assert_eq!(
         f.call(f.uploader, Command::Expose(q.request.root)),
-        Err(Failure::Expired)
+        Err(Failure::Exposure(ExposureFailure::Permission(
+            AdmissionFailure::Expired
+        )))
     );
     assert_eq!(
         f.call(f.project, Command::Admit(q)),

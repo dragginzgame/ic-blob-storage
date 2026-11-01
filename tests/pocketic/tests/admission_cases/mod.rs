@@ -193,7 +193,7 @@ fn ten_mib_manifest_authorizes_local_exposure_without_claiming_completion() {
     assert_eq!(f.observe(p), exposed);
     assert_eq!(
         f.call(f.uploader, Command::Expose(p.request.root)),
-        Err(Failure::Phase)
+        Err(Failure::Exposure(ExposureFailure::Phase))
     );
     assert_eq!(
         f.call(f.project, Command::Revoke(p.request)),

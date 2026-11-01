@@ -162,7 +162,7 @@ fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
         ("register", unknown),
         (
             "prepare",
-            ic_blob_storage_pocketic_tests::historical::encode(&input.registration).unwrap(),
+            ic_blob_storage_pocketic_tests::retired_packets::candid_scope(),
         ),
     ] {
         let error = f

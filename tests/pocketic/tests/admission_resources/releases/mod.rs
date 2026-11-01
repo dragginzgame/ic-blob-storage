@@ -436,7 +436,7 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
     let final_heap = f.wasm_bytes();
     assert!(final_heap <= initial_heap + 16 * CHUNK as u64);
     let report = serde_json::json!({
-        "scope":"Local transient owner; synthetic 640 x 256 KiB and 64 x 2 MiB files, 768 retained leaves, four reference generations. Operator-only completion/deletion/billing facts are substitutes, not Caffeine evidence. No file bytes enter the canister. Instructions exclude diagnostic writes/reply encoding; memory is allocated Wasm pages. No persistence or read sessions.",
+        "scope":"Local durable owner; synthetic 640 x 256 KiB and 64 x 2 MiB files, 768 retained leaves, four reference generations. Operator-only completion/deletion/billing facts are substitutes, not Caffeine evidence. No file bytes enter the canister. Instructions exclude diagnostic writes/reply encoding; memory is allocated Wasm pages. Stable bookkeeping is included; no upgrade/restore or read sessions.",
         "wasm_sha256":wasm_hash(), "objects":OBJECTS, "declared_bytes":DECLARED_BYTES,
         "driver":"Independent IC messages queued per phase: at most two active uploads, then up to 32 distinct objects. Every reply and contiguous diagnostic sample is checked; milestone objects run alone.",
         "diagnostic_window":RESOURCE_SAMPLE_CAPACITY,

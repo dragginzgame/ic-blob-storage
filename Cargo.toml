@@ -35,15 +35,15 @@ ic-blob-storage-canister = { path = "canisters/standalone", version = "0.61.0" }
 ic-blob-storage-cli = { path = "crates/ic-blob-storage-cli", version = "0.61.0" }
 ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.61.0" }
 ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.61.0", default-features = false }
-ic-build = "0.73.1"
-ic-host-artifacts = { version = "0.73.1", default-features = false }
-ic-host-fs = { version = "0.73.1", default-features = false }
-ic-host-http = { version = "0.73.1", default-features = false }
-ic-host-process = { version = "0.73.1", default-features = false }
-ic-memory = "0.60.0"
+ic-build = "0.73.3"
+ic-host-artifacts = { version = "0.73.3", default-features = false }
+ic-host-fs = { version = "0.73.3", default-features = false }
+ic-host-http = { version = "0.73.3", default-features = false }
+ic-host-process = { version = "0.73.3", default-features = false }
+ic-memory = "0.60.3"
 ic-metrics = { version = "0.24.0", default-features = false }
 ic-platform = { version = "0.15.2", default-features = false }
-ic-storage = "0.60.0"
+ic-storage = "0.60.3"
 ic-wire = "0.13.0"
 libc = "0.2.191"
 percent-encoding = "2.3.2"
@@ -66,8 +66,8 @@ blob-gateway-source = { path = "canisters/test/gateway_source", version = "0.61.
 blob-storage-probe = { path = "canisters/test/storage_probe", version = "0.61.0" }
 blob-test-protocol = { path = "tests/protocol", version = "0.61.0" }
 ic-blob-storage-pocketic-tests = { path = "tests/pocketic", version = "0.61.0" }
-ic-host-tools = { version = "0.75.0", default-features = false }
-ic-testkit = "0.75.0"
+ic-host-tools = { version = "0.75.2", default-features = false }
+ic-testkit = "0.75.2"
 
 [workspace.lints.rust]
 missing_docs = "deny"

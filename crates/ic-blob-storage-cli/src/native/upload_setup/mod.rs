@@ -29,7 +29,7 @@ mod tests;
 // CLI policy: saved documents and received service frames have separate ceilings.
 use super::exact_wire::{MANIFEST_DOCUMENT_BYTES, PERMISSION_DOCUMENT_BYTES};
 const SMALL_REPLY_BYTES: usize = 4096;
-const MANIFEST_REPLY_BYTES: usize = 64 * 1024;
+pub(super) const MANIFEST_REPLY_BYTES: usize = 64 * 1024;
 const MAX_CONTENT_BYTES: u64 = 1024 * 1024 * 1024;
 
 /// Shared native upload-metadata envelope; each caller supplies its own body bound.

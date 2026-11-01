@@ -23,7 +23,7 @@ pub(in crate::native) fn manifest() -> Value {
         "tree":{"hash":ROOT}, "headers":["Content-Length: 3", "Content-Type: text/plain"]})
 }
 pub(in crate::native) fn installation(binding: &Value) -> ServiceInstallationInput {
-    let mut configuration = crate::native::tests::historical_configuration::configuration();
+    let mut configuration = crate::native::tests::configuration();
     configuration.service = principal(binding["service"].as_str().unwrap()).unwrap();
     configuration.namespace = u128::MAX;
     ServiceInstallationInput {

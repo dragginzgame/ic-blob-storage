@@ -2,9 +2,7 @@
 use ic_platform::principal::ExternalPrincipal;
 pub mod admission;
 pub(crate) mod callbacks;
-pub mod capacity;
 pub mod certificate;
-pub mod discovery;
 pub mod exposure;
 pub mod history;
 mod lifecycle;

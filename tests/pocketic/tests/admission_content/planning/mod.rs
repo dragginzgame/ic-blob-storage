@@ -70,7 +70,7 @@ fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observa
             document::encode(scope).unwrap(),
             wire::encode_request("blob_configuration", ()).unwrap(),
             wire::encode_response(method, ()).unwrap(),
-            ic_blob_storage_pocketic_tests::historical::encode(scope).unwrap(),
+            ic_blob_storage_pocketic_tests::retired_packets::candid_scope(),
             vec![0xf6],
             request[..request.len() - 1].to_vec(),
             trailing,

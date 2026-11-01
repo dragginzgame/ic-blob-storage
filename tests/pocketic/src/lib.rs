@@ -7,7 +7,7 @@ pub mod service_calls;
 
 pub mod control_calls;
 
-pub mod historical;
+pub mod retired_packets;
 
 pub mod fixture_calls;
 pub mod provider_calls;

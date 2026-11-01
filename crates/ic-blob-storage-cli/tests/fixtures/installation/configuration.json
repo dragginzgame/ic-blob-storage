@@ -1,0 +1,37 @@
+{
+  "service": "rrkah-fqaaa-aaaaa-aaaaq-cai",
+  "operator": "r7inp-6aaaa-aaaaa-aaabq-cai",
+  "payment_account": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+  "namespace": 340282366920938463463374607431768211455,
+  "resources": {
+    "max_tenants": 1,
+    "max_object_bytes": 1024,
+    "max_headers": 4,
+    "max_header_bytes": 512,
+    "max_chunks": 2,
+    "max_tenant_chunks": 2,
+    "max_objects": 2,
+    "max_tenant_objects": 2,
+    "max_physical_bytes": 2048,
+    "max_liability_bytes": 2048,
+    "max_tenant_logical_bytes": 2048,
+    "max_references_per_object": 2,
+    "max_receipts_per_object": 3,
+    "max_active": 1,
+    "max_tenant_active": 1
+  },
+  "billing": {
+    "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+    "reserve": 100,
+    "minimum_balance": 100,
+    "target_balance": 200,
+    "max_gateway_entries": 2,
+    "max_gateway_unique": 1
+  },
+  "funding": {
+    "allocated": 1000,
+    "renewal_ceiling": 1000,
+    "reserve": 100,
+    "max_attempts": 1
+  }
+}

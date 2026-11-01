@@ -1,5 +1,4 @@
 use super::*;
-use crate::test_support::admission::UploadAdmissions;
 use crate::test_support::memory::FixtureMemory;
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;
@@ -110,32 +109,60 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
 }
 
 #[test]
-fn stable_and_heap_owners_share_compare_and_set_generation_and_capacity_rules() {
-    let mut heap = UploadAdmissions::new(config());
+fn compare_and_set_generation_and_capacity_have_explicit_outcomes() {
     let mut stable =
         StableTenantEnrollments::install(FixtureMemory::default().lease(), config()).unwrap();
-    for (tenant, active) in [
-        (4, true),
-        (4, false),
-        (4, true),
-        (5, false),
-        (6, true),
-        (5, true),
+    for (tenant, active, expected) in [
+        (
+            4,
+            true,
+            Ok(TenantEnrollmentView {
+                generation: NonZeroU64::new(1).unwrap(),
+                active: true,
+            }),
+        ),
+        (
+            4,
+            false,
+            Ok(TenantEnrollmentView {
+                generation: NonZeroU64::new(1).unwrap(),
+                active: false,
+            }),
+        ),
+        (
+            4,
+            true,
+            Ok(TenantEnrollmentView {
+                generation: NonZeroU64::new(2).unwrap(),
+                active: true,
+            }),
+        ),
+        (
+            5,
+            false,
+            Ok(TenantEnrollmentView {
+                generation: NonZeroU64::new(1).unwrap(),
+                active: false,
+            }),
+        ),
+        (
+            6,
+            true,
+            Err(TenantStoreError::Tenant(TenantError::Capacity)),
+        ),
+        (
+            5,
+            true,
+            Ok(TenantEnrollmentView {
+                generation: NonZeroU64::new(2).unwrap(),
+                active: true,
+            }),
+        ),
     ] {
-        let current = heap.tenant(context(2), p(tenant)).unwrap();
-        let command = update(tenant, current, active);
-        let expected = heap.update_tenant(context(2), command);
-        let actual = stable.update(context(2), command);
-        match expected {
-            Ok(view) => assert_eq!(actual, Ok(view)),
-            Err(crate::model::service::upload::UploadAdmissionError::Tenant(error)) => {
-                assert_eq!(actual, Err(TenantStoreError::Tenant(error)));
-            }
-            other => panic!("unexpected heap result: {other:?}"),
-        }
+        let current = stable.inspect(context(2), p(tenant)).unwrap();
         assert_eq!(
-            stable.inspect(context(2), p(tenant)).unwrap(),
-            heap.tenant(context(2), p(tenant)).unwrap()
+            stable.update(context(2), update(tenant, current, active)),
+            expected
         );
     }
     assert_eq!(

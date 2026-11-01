@@ -211,7 +211,7 @@ fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() 
     let final_heap = f.wasm_bytes();
     assert!(final_heap <= initial_heap + 2 * CHUNK as u64);
     let report = serde_json::json!({
-        "scope":"One transient object with 256 simultaneous references and 511 receipts. Stop/start, exact retries, saturation and separate deletion/billing cleanup. Operator completion facts are substitutes. Counters exclude diagnostics/replies; allocated memory includes allocator headroom. No persistence or provider calls.",
+        "scope":"One durable object with 256 simultaneous references and 511 receipts. Stop/start, exact retries, saturation and separate deletion/billing cleanup. Operator completion facts are substitutes. Counters exclude diagnostics/replies; allocated memory includes allocator headroom. Stable bookkeeping is included; no upgrade/restore or provider calls.",
         "wasm_sha256":wasm_hash(), "references":REFERENCES,"receipts":2 * REFERENCES - 1,
         "initial_wasm_memory_bytes":initial_heap,"final_wasm_memory_bytes":final_heap,
         "max_retain_instructions":max_retain,"max_release_instructions":max_release,

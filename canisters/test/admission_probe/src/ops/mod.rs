@@ -14,11 +14,15 @@ use blob_test_protocol::{
     journey::{JourneyManifest, JourneyUsage},
 };
 use conversion::{failure, phase, request};
+use ic_blob_storage::ic_memory::{
+    DefaultMemoryImpl, GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority,
+    MemoryManagerConfig, MemoryRuntime, SealedDeclarationSnapshot,
+};
 use ic_blob_storage::model::catalog::admission::UploadAdmission;
 use ic_blob_storage::model::lifecycle::LifecycleChange;
 use ic_blob_storage::model::service::upload::UploadManifestState;
 use ic_blob_storage::model::service::upload::manifest::UploadManifest;
-use ic_blob_storage::test_support::admission::UploadAdmissions;
+use ic_blob_storage::ops::service::{stores::grants, uploads::StableUploads};
 use ic_blob_storage_contracts::configuration::billing::BillingConfiguration;
 use ic_blob_storage_contracts::configuration::funding::FundingLimits;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
@@ -46,7 +50,8 @@ thread_local! {
 }
 
 struct State {
-    owner: UploadAdmissions,
+    owner: StableUploads<DefaultMemoryImpl>,
+    _runtime: MemoryRuntime<DefaultMemoryImpl>,
     config: ServiceConfiguration,
     profiles: VecDeque<ExecutionProfile>,
 }
@@ -107,17 +112,48 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
         .unwrap(),
     )
     .expect("valid local envelope");
+    STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
+    let mut runtime = MemoryRuntime::new_with_config(
+        DefaultMemoryImpl::default(),
+        MemoryManagerConfig::new(16).unwrap(),
+    )
+    .unwrap();
+    let declarations =
+        SealedDeclarationSnapshot::new(grants::requests("admission").unwrap()).unwrap();
+    let pool = MemoryAllocationPool::new(
+        vec![MemoryAuthority::new("admission", "blob.").unwrap()],
+        vec![],
+    )
+    .unwrap();
+    runtime
+        .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
+        .unwrap();
+    let memories = grants::open(|key| runtime.open_memory(key)).unwrap();
     STATE.with_borrow_mut(|state| {
-        assert!(state.is_none(), "initialization is not reset");
         *state = Some(State {
-            owner: UploadAdmissions::new(config),
+            owner: ic_blob_storage::test_support::stores::install(
+                memories,
+                ic_blob_storage::ops::service::stores::ServiceStoreConfiguration::new(
+                    config,
+                    ic_blob_storage::model::billing::allocation::FundingAllocation::new(
+                        1000,
+                        number(1),
+                        count(1),
+                    )
+                    .unwrap(),
+                )
+                .unwrap(),
+            )
+            .expect("fresh exclusive service memories")
+            .uploads,
+            _runtime: runtime,
             config,
             profiles: VecDeque::with_capacity(RESOURCE_SAMPLE_CAPACITY),
         });
     });
 }
 
-fn mutate<T>(f: impl FnOnce(&mut UploadAdmissions) -> T) -> T {
+fn mutate<T>(f: impl FnOnce(&mut StableUploads<DefaultMemoryImpl>) -> T) -> T {
     // Ordinary typed failures preserve the owner; never reconstruct it on error.
     STATE.with_borrow_mut(|state| f(&mut state.as_mut().expect("initialized probe").owner))
 }
@@ -225,9 +261,11 @@ pub(crate) fn prepare(
 
 pub(crate) fn expose(context: UploadContext, root: [u8; 32], now: u64) -> Result<Outcome, Failure> {
     let root = ProviderRootHash::try_from(root.as_slice()).expect("fixed hash width");
-    mutate(|owner| owner.expose_root(context, root, now))
-        .map(|_| Outcome::Exposed)
-        .map_err(failure)
+    mutate(|owner| {
+        ic_blob_storage::test_support::certificate::issue(owner, context, &root.to_string(), now)
+    })
+    .map(|_| Outcome::Exposed)
+    .map_err(Failure::Exposure)
 }
 
 pub(crate) fn revoke(context: UploadContext, input: Request) -> Result<Outcome, Failure> {
@@ -246,14 +284,18 @@ pub(crate) fn inspect(context: UploadContext, input: Request) -> Result<Observat
     STATE.with_borrow(|state| {
         let owner = &state.as_ref().expect("initialized probe").owner;
         let view = owner.lookup(context, request).map_err(failure)?;
-        let usage = (context.actor == input.tenant.into()).then(|| {
-            let usage = owner.catalog().tenant_usage(input.tenant.into());
-            JourneyUsage {
-                logical: usage.logical_bytes,
-                physical: usage.physical_bytes,
-                liability: usage.liability_bytes,
-            }
-        });
+        let usage = if context.actor == input.tenant.into() {
+            let usage = owner.tenant_usage(input.tenant.into()).map_err(failure)?;
+            Some({
+                JourneyUsage {
+                    logical: usage.logical_bytes,
+                    physical: usage.physical_bytes,
+                    liability: usage.liability_bytes,
+                }
+            })
+        } else {
+            None
+        };
         Ok(Observation {
             permission: Permission {
                 request: input,

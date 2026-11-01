@@ -8,8 +8,6 @@ use ic_blob_storage_contracts::dto::upload::discovery::UploadDiscoveryResponse;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 
-use crate::ops::service::uploads::discovery::UploadDiscoverySource;
-
 fn failure(error: UploadStoreError) -> F {
     match error {
         UploadStoreError::Binding
@@ -27,8 +25,8 @@ fn failure(error: UploadStoreError) -> F {
 /// Rejects invalid/foreign scope, unrelated callers or inconsistent retained state.
 /// # Panics
 /// Panics if the fixed-width root type no longer matches the request contract.
-pub fn inspect<S: UploadDiscoverySource>(
-    source: &S,
+pub fn inspect<M: ic_memory::Memory>(
+    source: &crate::ops::service::uploads::StableUploads<M>,
     context: UploadContext,
     request: UploadDiscoveryRequest,
 ) -> Result<UploadDiscoveryResponse, F> {
@@ -50,12 +48,10 @@ pub fn inspect<S: UploadDiscoverySource>(
         namespace,
         root: ProviderRootHash::try_from(request.root.as_slice()).expect("fixed root width"),
     };
-    let observed = source.discovery_view(context, input).map_err(failure)?;
+    let observed = source.lookup_content(context, input).map_err(failure)?;
     Ok(UploadDiscoveryResponse {
         request,
-        content: observed
-            .content
-            .map(crate::ops::service::uploads::history::present),
-        fenced: observed.fenced,
+        content: observed.map(crate::ops::service::uploads::history::present),
+        fenced: source.is_fenced(),
     })
 }

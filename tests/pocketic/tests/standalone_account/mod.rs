@@ -38,8 +38,22 @@ enum BalanceError {
 }
 #[derive(CandidType)]
 #[candid_path("ic_platform::candid::contract")]
+struct Relationship {
+    paid_canister: Principal,
+    payment_account: Principal,
+    spending_limit_per_day: Int,
+    current_period_spent: Int,
+    current_period_start: u64,
+    added_timestamp: u64,
+    expiration_timestamp: Option<u64>,
+    bandwidth_baseline_uploaded: Nat,
+    bandwidth_baseline_downloaded: Nat,
+    bandwidth_baseline_ts_ns: u64,
+}
+#[derive(CandidType)]
+#[candid_path("ic_platform::candid::contract")]
 struct RelationshipReport {
-    relationship: Option<ic_blob_storage_pocketic_tests::historical::AccountRelationshipView>,
+    relationship: Option<Relationship>,
 }
 #[derive(CandidType)]
 #[candid_path("ic_platform::candid::contract")]
@@ -136,7 +150,18 @@ fn relation(f: &Fixture) -> AccountRelationshipView {
 }
 fn relationship(value: Option<AccountRelationshipView>) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(Ok::<_, RelationshipError>(RelationshipReport {
-        relationship: ic_blob_storage_pocketic_tests::historical::project(value),
+        relationship: value.map(|value| Relationship {
+            paid_canister: value.paid_canister.into(),
+            payment_account: value.payment_account.into(),
+            spending_limit_per_day: value.spending_limit_per_day,
+            current_period_spent: value.current_period_spent,
+            current_period_start: value.current_period_start,
+            added_timestamp: value.added_timestamp,
+            expiration_timestamp: value.expiration_timestamp,
+            bandwidth_baseline_uploaded: value.bandwidth_baseline_uploaded,
+            bandwidth_baseline_downloaded: value.bandwidth_baseline_downloaded,
+            bandwidth_baseline_ts_ns: value.bandwidth_baseline_ts_ns,
+        }),
     }))
     .unwrap()
 }
@@ -200,7 +225,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
                 f.service,
                 f.operator,
                 "blob_inspect_account",
-                ic_blob_storage_pocketic_tests::historical::encode(input).unwrap()
+                ic_blob_storage_pocketic_tests::retired_packets::candid_scope()
             )
             .is_err()
     );

@@ -19,7 +19,24 @@ pub(super) const fn phase(phase: UploadPhase) -> Phase {
     }
 }
 
-pub(super) const fn failure(error: UploadAdmissionError) -> Failure {
+pub(super) fn failure(error: ic_blob_storage::ops::service::uploads::UploadStoreError) -> Failure {
+    use ic_blob_storage::ops::service::uploads::UploadStoreError;
+    match error {
+        UploadStoreError::Admission(error) => admission_failure(error),
+        UploadStoreError::Tenants(error) => {
+            use ic_blob_storage::ops::service::tenant::TenantStoreError as T;
+            match error {
+                T::NotOperator => Failure::NotOperator,
+                T::NotObserver => Failure::NotObserver,
+                T::WrongService => Failure::WrongService,
+                T::Tenant(error) => admission_failure(UploadAdmissionError::Tenant(error)),
+                _ => Failure::Catalog,
+            }
+        }
+        _ => Failure::Catalog,
+    }
+}
+pub(super) const fn admission_failure(error: UploadAdmissionError) -> Failure {
     match error {
         UploadAdmissionError::NotOperator => Failure::NotOperator,
         UploadAdmissionError::NotProject => Failure::NotProject,

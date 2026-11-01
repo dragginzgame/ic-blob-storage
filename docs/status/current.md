@@ -1,177 +1,206 @@
-# Current status — 2026-10-31
+# Current status — 2026-11-01
 
-## Active batch and published graph
+## Delivered baseline
 
-The maintainer explicitly delegated **0.61.0 release and crates.io publication**
-on 2026-10-31, following the dependency/adoption preparation below. The source
-base before preparation is **`7fe95703`**, tagged **v0.60.0**. The common runner
-owns version preparation, release commit/tag, validation, push and recovery;
-publication is a separate step under this delegation. This handoff is written
-before execution: inspect `docs/release.json`, the matching tag/remote and registry
-readback for its actual outcome, rather than interpreting intent as delivery.
-Preserve the Tooling update and acceptance/tracker cleanup. Deployment, paid
-provider effects and sibling source edits remain outside this release task.
+**Blob 0.61.0 is released and published.** Default main and annotated tag
+`v0.61.0` resolve to **`df66622064584cdfd32b1230ee387adf93829b4d`**.
+Contracts, Client and Core registry archives were independently checked against
+their index checksums, exact Git source and package paths. The receipt is
+[docs/release.json](../release.json). No deployment or paid provider effect occurred.
 
-Adopted published **Platform 0.15.2 / Wire 0.13.0 / Metrics 0.24.1**, verified
-against official registry index entries and release archive checksums. Platform
-reexports canonical **Types 0.15.1**, and Wire supplies schemas for that exact
-identity. This resolves Blob's former Principal/Account schema blocker tracked in
-[Wire #37 — Supply compatible Platform integrations](https://github.com/dragginzgame/ic-wire/issues/37). Existing imports
-remain through Platform; no direct Types dependency, aliases, schema bridge,
-mirrored DTOs or dual reader was added. Metrics defaults remain disabled;
-Contracts' native `wire-schema` explicitly selects `ic-metrics/native-wire` and
-Wire's `platform-types`. No owned endpoint or persisted representation changed.
+The complete local release gate passed in an isolated checkout, including native
+and PocketIC tests, all four original/O3/Os/Oz Wasm installation/restoration
+selections and real package verification. Evidence and publication readback:
+`/tmp/blob-release-061-20261031/`. The first attempt stopped on a concurrent
+Cargo.lock change; it did not create a release. The fixed committed cohort passed
+on retry. The original checkout was fast-forwarded afterward, and every incoming
+lockfile change was verified preserved with only the thirteen local package
+versions advanced to 0.61.0. Nothing was force-pushed or cleaned.
 
-Adopted published **Build/Host Foundation 0.73.1**, **Host Tools/Testkit 0.75.0**
-and **Memory/Storage 0.60.1**. Foundation and IC integration have independent
-supplier versions; Blob retains matching Build/Host Process identities. Official
-index entries, archive checksums and migration guidance were reviewed. Memory's
-public Wire error identity aligns with direct Wire 0.13; stored bytes, bounds,
-stable-structures 0.7.2 and allocation custody remain unchanged. No data reset or
-automatic migration was introduced. Incoming unrelated lock updates are preserved.
+[Published example installation](https://github.com/dragginzgame/ic-blob-storage/actions/runs/41228721444)
+and the [release/native workflow](https://github.com/dragginzgame/ic-blob-storage/actions/runs/41228721315)
+are successful for that exact commit. The latter's core/client, Linux, both
+native macOS architectures, MSRV and generated-Wire-client jobs passed. This
+qualifies delivered 0.61.0, not the pending dependency graph below.
 
-The graph now has one **Platform 0.15.2 / Types 0.15.1 / Wire 0.13.0** pairing.
-Older Platform 0.11/0.12 and Wire 0.10 copies are removed. Testkit's published
-requirement retains arithmetic-only Metrics 0.23.2 alongside Blob's 0.24.0;
-its disabled defaults introduce no older metadata/Wire dependency. Deployment
-contains only Metrics 0.24.1. Blob's deployed executor and exact runtime guard
-are solely **Platform 0.15.2**. Embedding runtime users must coordinate that identity, including Timers;
-never bridge task handles between executors. External provider Candid remains
-required behind Platform. No external IC0 or registry CDK executor is introduced.
+## Pending hard cut — 0.62.0
 
-Shared Tooling **0.27.22**, revision
-**`f4f431627290e18f0ccc1e5f8525d16b197cf7c3`**, is adopted with **139 files**.
-Reviewed impact and immutable-source export retain the new release-group
-companions. Blob keeps one coordinated workspace version and root changelog;
-no independent groups or package moves were introduced. The root catalog now
-lists all thirteen members with their existing full versions, including unused
-catalog entries; these add no dependency edges. Publication policy remains local,
-and the shared publication adapter is still opt-in. The local restriction on
-autonomous releases remains the ordinary-maintenance default; the latest explicit
-request delegates this one 0.61 release/publication. Normal Cargo cleanup is unchanged.
-The first reviewed Shared commit had a 0.27.22 title but committed VERSION
-0.27.21; the subsequent published VERSION-only correction was reviewed and
-adopted before finishing. Both impact/export attempts remain in the evidence.
+The maintainer authorized the complexity cleanup as a hard cut. Cargo package
+versions remain at released 0.61.0; only the next changelog heading is 0.62.0.
+Pending dependency edits are preserved, including incoming Memory/Storage 0.60.4
+lock selections. No commit, release, publication, deployment or provider probe
+is authorized by this cleanup.
 
-Browser Platform **0.1.1** is still npm's latest published release; SDK Core
-**6.1.1**, Caffeine **1.1.2** and browser package files are unchanged.
-Sibling checkouts remain read-only; exports came
-from clean isolated committed sources rather than their pending work.
+Removed the parallel `test_support::admission::UploadAdmissions` service and
+its manifest/enrollment/accounting adapters. The admission canister now grants
+exclusive memories through Memory and canonical Blob grants and executes
+`StableUploads`; it retains the runtime and uses production certificate gates.
+Its explicit provider deletion/settlement inputs remain labelled substitutes.
+Removed three single-implementation read-source traits and their fence wrappers;
+shared workflows read the same durable owner under one synchronous borrow.
+Native regressions assert specific admissions, receipts, headroom, accounting,
+activation generations and reopened fences instead of comparing two services.
 
-## Current acceptance preparation
+Removed the unconsumed public ledger-notification decoder. Ordinary top-ups,
+exact signed retries, uncertain funding, durable receipts and recovery are intact.
+Removed historical Candid DTO projections and old-image clients/drivers, including
+`test-hard-cut`; current release/format refusal still compares retained memory
+bytes. A frozen valid Candid scope packet exercises current ingress rejection.
+External provider response fixtures keep necessary Candid wire types locally.
+The CLI's current configuration fixture is JSON, with no historical decoder,
+mirror types, Hex dev dependency or explicit Candid test feature.
 
-The incoming lock advanced Memory/Storage from 0.60.0 to 0.60.1 and Metrics from
-0.24.0 to 0.24.1 after the preceding batch. These published archives match index
-checksums. Production `src/` trees are byte-identical; their manifests change
-package versions and Storage's Memory requirement. Preserve those updates;
-minimum declarations remain 0.60.0/0.24.0. Earlier receipts describe their earlier
-graph, not the new artifact hashes. New standalone Wasm and all-feature native CLI
-builds pass. Rehearsal intent, exact inputs, source comparisons, artifact hashes
-and reports are under `/tmp/blob-acceptance-1031.QfEhzI/`. All **4** maintained
-Chromium/CLI/PocketIC cases and **3** browser controls pass on the current patch
-graph with six fixed 1 KiB uploads, two fixture signing identities, verified reads,
-corruption refusal, lost-final-reply and withdrawal recovery. Input/artifact
-readbacks stayed fixed. This is local-substitute evidence with zero deployment,
-deployed-provider requests or paid effects; it proves no production login or serving.
+The remaining pure catalog/lifecycle reference models and authority probe still
+have independent caller and recovery scenarios; they were not deleted as unused.
+CLI grammar construction and typed command dispatch also remain: replacing them
+with another registry/framework would add churn without removing a demonstrated
+competing policy owner. Further retirement must first map and migrate unique
+coverage. Source-owned durable records, boundaries and retry journals remain.
 
-Read-only Canic at `247ba9d3` still selects Blob 0.60, Platform 0.11/Wire 0.10
-and Memory/Storage 0.58 across its root/consumer catalogs. Both Blob deployment
-environments are local-only; its demo/test configs select no Blob role. IC Crates
-at `3c67db3` still has retired completion-verifier/attestation flows. No sibling
-was edited or built. The maintainer confirmed Caffeine and has no application/fleet
-configuration to supply. Canic/the consuming application owns that configuration;
-do not ask the maintainer to invent a service principal or reuse trial identities.
-For pending 0.61 deployment, first release/publish Blob through maintainer gates,
-then have Canic adopt/qualify its matching graph and mount the selected application
-role. A provider-only trial can precede the final application frontend, without
-claiming application login or media-publication acceptance. The concrete owner
-actions were posted to [Canic #622](https://github.com/dragginzgame/canic/issues/622#issuecomment-6546806175).
-[The existing acceptance plan](../acceptance-plan.md#before-the-acceptance-deployment)
-now separates pre-deployment prerequisites from observations that require the
-deployment. No issue is closed or production acceptance claimed by this preparation.
+Focused validation and migration evidence is retained in `/tmp/blob-cleanup-1101/`.
+Final strict all-target/all-feature Clippy passes for Core, CLI, admission probe,
+protocol and PocketIC support. Core **295**, CLI **122** and private protocol **12**
+native tests pass. The installed admission run passed **29** cases and found one
+stale probe-specific error assertion; the corrected exact production-refusal case
+passes separately. All resource ceilings remain unchanged. Additional installed
+checks pass: malformed standalone ingress **4**, external account/provider replies
+and native account CLI **4**, consumer codec admission **1**, and repeated
+stop/start/upgrade fencing **1**. This is **30 admission + 10 other distinct cases**;
+the initial failed run and focused retry are both retained.
 
-## Preceding Build/Host/Persistence/Testkit qualification
+Fresh release Wasms were built for admission, storage, consumer and gateway probes,
+and separately for the default standalone. Rust **1.91** CLI all-target/all-feature
+and standalone Wasm checks pass. Core rustdoc with warnings denied, formatting,
+direct/deployment dependency boundaries, pins, documentation links and release
+command checks pass. Critical manifest/lock/compiler-pin hashes stayed fixed.
+The new private exposure error wraps the production `UploadExposureFailure`
+directly; it does not reproduce the old fixture-specific classification.
+Published application frames, persisted record formats and same-release retry/
+recovery behavior are unchanged. No full release gate, browser run, native macOS
+or deployed-provider qualification is claimed. Historical dependency-adoption
+qualification below remains evidence for its original source only.
 
-Evidence is retained under **`/tmp/blob-bhms-1031/`**, including previous inputs,
-official indexes and verified release archives. Shared Tooling remains the latest
-published revision already adopted above; its unchanged snapshot/runner proofs
-are reused. The lock-selected Testkit 0.75.0 CLI/server and Build 0.73.1 release
-editor were prepared through canonical setup, then admitted offline. Cached
-payloads were reused; setup did not remove earlier tool generations. The server
-remains PocketIC 16.1.0. Actual Make routing, admitted-server forwarding and
-ordered failure propagation pass with substitute tools. Direct dependency and
-resolved deployment boundary checks pass.
+## Preserved dependency update
 
-Strict Clippy passes for core, Contracts, client, CLI and standalone across all
-targets/features, plus selected standalone/journey/storage integration targets.
-Native tests pass: core **338**, Contracts **121** under the selected default
-test graph, standalone heap metrics **2**, memory composition **2**, CLI **122**
-and private probe-tool controls **7**. Rust **1.91** checks pass for standalone
-Wasm and all-feature CLI binaries. Fresh standalone/six-probe release Wasms and
-all-feature native CLI/archive-verifier binaries build successfully.
 
-Installed tests pass **50** cases: metrics **2**, lifecycle **5**, malformed
-ingress **4**, certificates **3**, gateway synchronization **2**, recovery **33**
-and restoration-read attribution **1**. These are local IC/provider substitutes.
-The Build-backed package regression passes same-version changed archives,
-warm-cache execution and archive graph/byte/source/manifest/lock drift refusals.
-Its retained fixture is `target/package-fixture.93JnuE`; explicit Cargo cleanup
-can remove it, while this batch's logs and input/artifact hashes are outside target.
-Formatting, snapshot integrity, dependency pins, documentation links and diff
-checks pass. Input and artifact readbacks remain fixed. The complete
-release-adapter fixture passes against the newly admitted Build editor, including
-refusal, retry, rollback, exact-index and failed guard-read cases with isolated
-Git/Cargo effects; no real commits, pushes or publication occurred.
+The maintainer requested the latest Memory/Storage adoption and next steps.
+Root minimums are now **Memory/Storage 0.60.3**; they were already selected in the
+incoming lock. Official index entries and both published archive checksums were
+verified. Production `src/` trees are identical to 0.60.1; the supplying releases
+change dependency/CI tooling, including Platform 0.15.3 selection. Stored bytes,
+codec bounds, allocation custody and restore fences are unchanged. No migration,
+reset, compatibility layer, new schema number or endpoint change was introduced.
 
-These preceding focused checks supply no complete repository gate, hosted result, native macOS qualification, fresh
-Chromium application journey, deployed provider acceptance or performance
-improvement claim. They ran before release metadata preparation, with package
-versions 0.60.0 and draft notes 0.61.0. Endpoint identities, frames, limits, record layouts, schema numbers
-and exact retry bytes remain unchanged; cross-release adoption still requires
-retirement/reinstall.
+The subsequent Build/Host/Testkit request adopts published Foundation **0.73.3**
+and Host Tools/Testkit **0.75.2** minimums, matching incoming lock selections.
+Testkit requires **Wire 0.13.2**, also already selected in the lock; the direct
+Wire minimum stays 0.13.0. Platform **0.15.3**, Types **0.15.1**, Metrics **0.24.1**
+and Memory/Storage **0.60.3** are preserved. There is one Platform, Wire and
+Metrics version. No broad dependency update or lock regeneration was run.
+Shared Tooling remains **0.27.22**, reviewed revision `f4f431627290e18f0ccc1e5f8525d16b197cf7c3`.
 
-## Previous Platform/Wire/Metrics qualification
+## Current Build/Host/Testkit qualification
 
-Previous graph evidence remains at **`/tmp/blob-latest-1031/`**; its complete
-handoff is copied to `/tmp/blob-bhms-1031/previous-handoff.md`. It includes
-**27 methods / 137 frozen Rust/TypeScript frames**, malformed/identity/direction/
-limit/decimal checks and native schema MSRV qualification. Blob's protocol and
-schema sources and their Platform/Wire/Metrics identities are unchanged in this
-batch; that focused proof is reused. Previous installed artifacts remain
-historical; the current graph has its own fresh builds and installed tests above.
-Earlier `/tmp/blob-mpw-next-1031/` and `/tmp/blob-metrics-platform-1031/`
-records and failed attempts remain with their existing evidence owners.
+Evidence: `/tmp/blob-tooling-1101/`, including prior inputs and verified official
+release indexes/archives. Foundation 0.73.3 exposes bounded package-command
+capture; Blob already uses Build's qualifier and `PackageCommandError` execution/
+retention projection, so no local wrapper or import migration was needed. Testkit
+0.75.2 preserves codec behavior/budgets, reuses Host's bounded startup port reader
+and selects Wire 0.13.2. Published Build release-metadata/CLI implementation
+sources match the earlier qualified supplying version; its captured-process and
+Wasm-cache code changes have their own producer coverage and consumer checks here.
 
-The [probe ledger](../evidence/caffeine-probes/README.md#current-browser-rehearsal--2026-10-31)
-retains the earlier local browser rehearsal's exact graph and scope. Do not claim
-it on the current graph. Optional unresolved Observability comment approval
-remains outstanding; no new Observability post occurred.
+Strict all-target/all-feature CLI Clippy and selected standalone/journey PocketIC
+Clippy pass, along with Rust **1.91** all-feature CLI checking. CLI **122** and
+private probe-control **7** tests pass. The real archive-verifier regression
+passes same-version changed archives, warm-cache execution and graph/byte/source/
+manifest/lock drift refusals (`target/package-fixture.ZnDAyT`). Fresh standalone,
+authority and gateway release Wasms and all-feature CLI/verifier builds pass.
+Formatting and direct/deployment dependency checks pass.
 
-## Remaining application acceptance
+Canonical Testkit/editor setup initially timed out waiting 60s for an active
+shared installer owned by IC Query. The lock was not removed. The supported
+300s-wait retry reused the completed cache and passed; exact Testkit 0.75.2 and
+Build editor 0.73.3 admission and actual command-forwarding/failure-order fixtures
+pass. Both attempts are retained. Server remains PocketIC 16.1.0. All **13**
+selected installed cases pass: lifecycle/restoration **5**, malformed ingress
+**4**, signed metrics **2**, gateway synchronization/restore fencing **2**.
+Input hashes stayed fixed; artifact hashes and logs are retained. No full gate, native macOS or deployed
+provider qualification is claimed for this pending graph.
 
-Four Blob issues remain: [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
-[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6),
-[#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
-[#34](https://github.com/dragginzgame/ic-blob-storage/issues/34). #4 closed as
-superseded/not-planned tracking after its publication criteria moved into #5;
-no production criterion was marked passed. IC Crates
-[#1](https://github.com/dragginzgame/ic-crates/issues/1) owns the catalog
-migration/transaction, Canic [#622](https://github.com/dragginzgame/canic/issues/622)
-its composition and [#494](https://github.com/dragginzgame/canic/issues/494) funding.
-See [the coordinated run](../acceptance-plan.md#next-application-acceptance-run).
+## Preceding Memory/Storage qualification
 
-Caffeine is the only provider. Existing Canic resolves environment/fleet/role
-registry targets, not one global Blob ID. Its last-reviewed Blob configurations
-were local-only and production application configs selected no Blob role. The
-remaining live target is a deployed consuming application/fleet, whose registry
-supplies the service binding. Do not substitute historical trial identities,
-fixture identities or an assumed paid budget. No provider probe was run here.
+Evidence: `/tmp/blob-persistence-next/`, including prior files,
+release indexes/archives, source comparisons and input hashes. Strict core and
+standalone Clippy across targets/features passes, as do **338** core unit tests,
+**2** memory-composition tests, Rust **1.91** standalone Wasm checking and fresh
+standalone/authority/gateway release Wasm builds. The current lock-selected
+Testkit CLI/server was prepared/admitted through canonical setup; no older tool
+or artifact generation was removed. All **11** selected installed cases pass:
+lifecycle/restoration **5**, malformed ingress **4**, gateway synchronization and
+restore fencing **2**. Input hashes stayed fixed. Formatting and direct/deployment
+boundaries pass. No full gate, fresh browser run, native macOS or live-provider
+qualification is claimed for this pending patch graph.
 
-Delivered 0.60.0 main has passing [six-job validation](https://github.com/dragginzgame/ic-blob-storage/actions/runs/41111873111)
-and [three published-example jobs](https://github.com/dragginzgame/ic-blob-storage/actions/runs/41111873249),
-including both macOS architectures; pending 0.61 has no hosted result.
-Registration proves no stored bytes, gateway acknowledgment no deletion/billing
-cessation, funding acknowledgment no independent credit. Retain provider objects,
-balances, uncertain effects and continuing billing through
-[retirement](../retiring-installations.md). Same-release exact recovery and restore
-fences remain required. Never clear an allocation ledger over retained bytes.
+The dependency-only notes initially targeted 0.61.1. The subsequently authorized
+hard cut now targets **0.62.0** as described above; workspace/package versions stay
+**0.61.0**. No staging, commit, release, publication or deployment was performed.
+The previous detailed handoff is retained at
+`/tmp/blob-persistence-next/previous-handoff.md`; historical evidence stays with
+its existing owner.
+
+## Next: Canic adoption and bounded Caffeine trial
+
+Canic can adopt the **already published Blob 0.61.0 now**. That release's
+compatible requirements already allow Memory/Storage 0.60.3; this local minimum
+update does not require another Blob publication before consumer work begins.
+The read-only Canic checkout remains at `247ba9d3`, with Blob 0.60, Platform 0.11,
+Wire 0.10 and Memory/Storage 0.58 declared in its root/consumer catalogs. Its
+Blob dedicated/embedded deployment configs are local-only. No sibling was edited
+or built in this pass.
+
+The framework/integration owner should adopt Blob 0.61 across the root and both
+independent consumer catalogs/locks, align public/runtime identities, and qualify
+the existing dedicated/embedded mounting, synchronous lifecycle and generated
+client paths. It then supplies a finite, bounded acceptance-service configuration
+and network/role binding. The maintainer knows Caffeine is the provider; do not
+ask them to invent an application/fleet or infer a service from historical trial
+principals. Caffeine needs no new selection mechanism or receipt API for the
+supported acknowledged happy path.
+
+The concrete handoff is on
+[Canic #622 — Mounted Blob composition](https://github.com/dragginzgame/canic/issues/622#issuecomment-6546806175).
+Once its matching configuration is qualified, deployment of the bounded service
+is the next step. A provider-only trial may precede a finished frontend; it does
+not qualify application login, CSP or catalog publication. Exact provider intent,
+target and approved spending remain separate from deployment preparation.
+Use [the acceptance plan](../acceptance-plan.md#before-the-acceptance-deployment).
+
+Four Blob acceptance issues remain open:
+[#5 — Consumer publication and serving](https://github.com/dragginzgame/ic-blob-storage/issues/5),
+[#31 — Application multi-user uploads](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+[#6 — Reference lifecycle and deployed deletion/billing](https://github.com/dragginzgame/ic-blob-storage/issues/6),
+[#34 — Project-payer linkage and funding evidence](https://github.com/dragginzgame/ic-blob-storage/issues/34).
+IC Crates #1 owns its actual catalog transaction/migration; its last-reviewed
+source still uses retired verifier flows. No downstream application acceptance
+or issue closure follows from these library dependency updates.
+
+## Preserved evidence and operating boundaries
+
+`/tmp/blob-acceptance-1031.QfEhzI/` records four passing Chromium/CLI/PocketIC cases
+and three controls on the preceding patch graph: six 1 KiB uploads, two fixture
+signers, verified reads, corruption refusal and lost-reply/withdrawal recovery.
+It is a local substitute, not deployed Caffeine or application-session evidence.
+The [probe ledger](../evidence/caffeine-probes/README.md) retains intent, failed
+preflight receipt, source/manifest comparisons, reports and exact graph scope.
+Earlier release/fixture/browser/MSRV proof remains at the paths in the preserved
+previous handoff. Optional Observability comment approval remains unresolved;
+no new Observability post occurred.
+
+Cross-release service transitions remain retirement/reinstall only. Same-release
+recovery and restore fences remain required. Retain provider objects, balances,
+uncertain effects, exact retry bytes and continuing billing through
+[retirement](../retiring-installations.md). Registration proves no stored bytes;
+gateway acknowledgment proves no physical deletion/billing cessation; funding
+acknowledgment is no independent account-credit proof. Never clear an allocation
+ledger over retained bytes or retry an uncertain paid effect automatically.

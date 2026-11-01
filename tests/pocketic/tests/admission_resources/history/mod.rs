@@ -47,14 +47,16 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
     let original = f.inspect(f.other, last.request).unwrap();
     assert_eq!(
         f.call(f.uploader, Command::Expose(last.request.root)),
-        Err(Failure::Unprepared)
+        Err(Failure::Exposure(ExposureFailure::Unprepared))
     );
     f.prepare(last, &vector);
     f.restart();
     for caller in [f.project, f.other, f.operator, f.controller] {
         assert_eq!(
             f.call(caller, Command::Expose(last.request.root)),
-            Err(Failure::NotUploader)
+            Err(Failure::Exposure(ExposureFailure::Permission(
+                AdmissionFailure::Denied
+            )))
         );
     }
     assert_eq!(
@@ -62,7 +64,7 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
             f.uploader,
             Command::Expose(permission(&f, f.project, 1).request.root)
         ),
-        Err(Failure::Revoked)
+        Err(Failure::Exposure(ExposureFailure::Revoked))
     );
     let unknown = permission(&f, f.other, 1000);
     assert_eq!(
@@ -71,7 +73,9 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
     );
     assert_eq!(
         f.call(f.uploader, Command::Expose(unknown.request.root)),
-        Err(Failure::Unknown)
+        Err(Failure::Exposure(ExposureFailure::Permission(
+            AdmissionFailure::Denied
+        )))
     );
     assert_eq!(
         f.call(f.uploader, Command::Expose(last.request.root)),
@@ -84,7 +88,7 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
     assert_eq!(exposed.usage, original.usage);
     assert_eq!(
         f.call(f.uploader, Command::Expose(last.request.root)),
-        Err(Failure::Phase)
+        Err(Failure::Exposure(ExposureFailure::Phase))
     );
     assert_eq!(f.inspect(f.other, last.request).unwrap(), exposed);
 }
@@ -166,7 +170,7 @@ fn resource_history_saturation_keeps_retries_cleanup_and_other_tenant_available(
     let final_heap = f.wasm_bytes();
     assert!(final_heap <= initial_heap + 2 * CHUNK as u64);
     let report = serde_json::json!({
-        "scope": "Local transient release Wasm, two tenants and 256 cancelled one-byte admissions. No manifests, provider calls, persistence or confirmed-object history. Instructions exclude diagnostic storage and reply encoding; memory is allocated Wasm pages.",
+        "scope": "Local durable release Wasm, two tenants and 256 cancelled one-byte admissions. No manifests, provider calls, upgrade/restore or confirmed-object history. Stable bookkeeping is included. Instructions exclude diagnostic storage and reply encoding; memory is allocated Wasm pages.",
         "wasm_sha256": wasm_hash(),
         "initial_wasm_memory_bytes": initial_heap,
         "final_wasm_memory_bytes": final_heap,

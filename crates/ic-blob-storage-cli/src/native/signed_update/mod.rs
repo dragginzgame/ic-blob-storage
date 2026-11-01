@@ -14,7 +14,6 @@ mod tests;
 pub(super) const INGRESS_SECONDS: u64 = 120;
 pub(super) const DEADLINE_SECONDS: u8 = 30;
 pub(super) const SMALL_REPLY_BYTES: usize = 4096;
-pub(super) const MANIFEST_REPLY_BYTES: usize = 65536;
 
 /// Classify an observation only; the operation owns its authenticated refusal predicate.
 pub(super) fn outcome<T>(

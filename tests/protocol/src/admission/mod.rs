@@ -226,6 +226,8 @@ pub struct ExecutionProfile {
 /// Typed categories used to assert boundary behavior without freezing error prose.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Failure {
+    /// Exact refusal from the maintained production certificate gate.
+    Exposure(ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure),
     /// Malformed fixture identity or enrollment precondition.
     InvalidInput,
     /// Caller is not the configured operator.

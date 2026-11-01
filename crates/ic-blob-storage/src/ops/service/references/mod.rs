@@ -1,5 +1,4 @@
 //! Canonical receipt conversion over the installed service.
-pub mod capacity;
 use crate::model::catalog::admission::UploadError;
 use crate::model::lifecycle::LifecycleChange;
 use crate::model::lifecycle::LifecycleError;

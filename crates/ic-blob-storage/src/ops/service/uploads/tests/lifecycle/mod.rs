@@ -42,58 +42,33 @@ pub(super) fn exposed(store: &mut StableUploads<ic_memory::VectorMemory>) -> Upl
     input
 }
 #[test]
-#[expect(
-    clippy::too_many_lines,
-    reason = "One ordered heap/stable comparison through settlement and fenced restoration"
-)]
-fn confirmed_reference_and_settlement_journey_matches_heap_accounting() {
+fn confirmed_reference_and_settlement_journey_preserves_exact_accounting() {
     let m = memory();
     let mut store = StableUploads::install(clone_memory(&m), config()).unwrap();
     let input = exposed(&mut store);
-    let mut heap = UploadAdmissions::new(config());
-    heap.update_tenant(
-        context(2),
-        TenantUpdate {
-            tenant: p(4),
-            expected: None,
-            active: true,
-        },
-    )
-    .unwrap();
-    heap.admit(context(4), input, 1).unwrap();
-    let built = built();
-    heap.prepare_manifest(
-        context(5),
-        input.request,
-        UploadManifest {
-            chunks: built.manifest().chunks(),
-            headers: &HEADERS,
-        },
-        2,
-    )
-    .unwrap();
-    heap.expose(context(5), input.request, 3).unwrap();
     // Withdrawal after exposure cannot discard verified provider completion.
     store.revoke(context(4), input.request).unwrap();
-    heap.revoke(context(4), input.request).unwrap();
-    assert_eq!(store.usage().unwrap(), heap.catalog().usage());
-    planning::parity(&store, &heap, input);
     let retained = command(input.request, u128::MAX, 2, true);
-    for request in [
-        retained,
-        retained,
-        command(input.request, 2, 1, false),
-        command(input.request, 3, 2, false),
+    for (request, replayed) in [
+        (retained, false),
+        (retained, true),
+        (command(input.request, 2, 1, false), false),
+        (command(input.request, 3, 2, false), false),
     ] {
         assert_eq!(
             store
                 .apply_reference(context(4), input.request, request)
                 .unwrap(),
-            heap.apply_reference(context(4), input.request.object.root, request)
-                .unwrap()
+            if replayed {
+                ReferenceRequestOutcome::Replayed {
+                    result: Ok(LifecycleChange::Changed),
+                }
+            } else {
+                ReferenceRequestOutcome::Recorded {
+                    result: Ok(LifecycleChange::Changed),
+                }
+            }
         );
-        assert_eq!(store.usage().unwrap(), heap.catalog().usage());
-        planning::parity(&store, &heap, input);
     }
     assert_eq!(store.usage().unwrap().logical_bytes, 0);
     assert_eq!(store.usage().unwrap().physical_bytes, 10);
@@ -102,23 +77,17 @@ fn confirmed_reference_and_settlement_journey_matches_heap_accounting() {
         LifecyclePhase::DeletionPending
     );
     store.confirm_provider_deleted(input.request).unwrap();
-    heap.confirm_provider_deleted(
-        input.request.object.root,
-        input.request.object.first.object(),
-    )
-    .unwrap();
-    assert_eq!(store.usage().unwrap(), heap.catalog().usage());
-    planning::parity(&store, &heap, input);
     assert_eq!(store.usage().unwrap().liability_bytes, 10);
     store.confirm_billing_stopped(input.request).unwrap();
-    heap.confirm_billing_stopped(
-        input.request.object.root,
-        input.request.object.first.object(),
-    )
-    .unwrap();
-    assert_eq!(store.usage().unwrap(), heap.catalog().usage());
-    planning::parity(&store, &heap, input);
     let before = store.usage().unwrap();
+    assert_eq!(
+        (
+            before.logical_bytes,
+            before.physical_bytes,
+            before.liability_bytes
+        ),
+        (0, 0, 0)
+    );
     assert_eq!(store.usage(), Ok(before));
     assert_eq!(
         store.apply_reference(context(4), input.request, retained),
