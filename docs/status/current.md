@@ -1,21 +1,34 @@
 # Current status — 2026-11-01
 
-## Released baseline and pending scope
+## Released baseline and scope
 
-The maintainer reports **0.65.0** live. Tag `v0.65.0` is
-`5b91fe7006c1132bcf8e89605201d9ba2645c1f4`; its unchanged
-[historical receipt](../release.json) binds validated source
-`ebd0903889f9400b90055a42518a4980a10e6804`. Publication/hosted CI was not reread.
-[Coordinated history](../../releases/history.md) preserves earlier notes once.
+All three groups are released, pushed and published at **0.66.0** on crates.io:
 
-Pending local work includes the accepted independent Contracts/Client/Engine
-release groups, explicit native host pin and the supplier adoption below.
-All thirteen own Cargo versions remain **0.65.0**. Each group now has
-**0.66.0 Unreleased** notes because its public supplied Rust identities change;
-these matching candidates do not restore coordinated workspace versioning.
-No real source staging, commit, tag, push, release, publication, deployment,
-sibling edit or paid provider effect was performed. Disposable fixtures alone
-create private local Git commits/tags/remotes.
+| Group | Release tag | Release commit |
+| --- | --- | --- |
+| Contracts | `contracts-v0.66.0` | `5dad462b0c2674a561276d00b57e00f2d0823df6` |
+| Client | `client-v0.66.0` | `91338590db5778fe437ff1d53cdc79b6ba31e836` |
+| Engine | `engine-v0.66.0` | `67d28b05b190fa06cb4af5e241baa60aa51b5247` |
+
+The maintainer explicitly authorized this delivery, including an exception to
+the agent release-command restriction. That exception applies to this delivery;
+the standing rule in AGENTS.md is unchanged. Source implementation commit is
+`fbe0cbb5a398f4b904b065031b979015e495af8e`. Each standard runner validated,
+prepared and atomically pushed its own group. Matching release numbers reflect
+three public supplier-identity cuts, not coordinated workspace versioning.
+All thirteen own Cargo versions are now **0.66.0**. No pending product batch is
+prepared. No deployment, sibling edit or paid provider effect was performed.
+
+Official non-yanked registry metadata, downloaded archive checksums and embedded
+VCS commit/package paths match all three exact release tags. Evidence is retained
+in `/tmp/blob066-delivery.rI1Gu8/`; publication attempts are
+`target/publication.iLVkbX` (Contracts), `target/publication.qp9JMH` (Client) and
+`target/publication.Rx6e18` (Engine). The generic preliminary registry request
+returned 403; the canonical helper returned 404 before upload and 200 afterward.
+No registry guard was relaxed. Hosted CI was not reread.
+
+Tag `v0.65.0`, its unchanged [historical receipt](../release.json) and
+[coordinated history](../../releases/history.md) retain the previous baseline.
 
 ## Published supplier adoption
 
@@ -63,16 +76,17 @@ independent consumer workspace to update.
 [Group policy](../../ci/cargo-release-groups.json) owns Contracts alone, Client
 with CLI, and Engine with standalone, six probes, protocol and PocketIC support.
 Members have literal group versions and inherit the common dependency catalog.
-[Root notes](../../CHANGELOG.md) index the group ledgers. Initial receipts explicitly
-record inherited0.65.0, not completed group releases. Historical receipts remain
-unchanged; no dual reader reinterprets old coordinated plans.
+[Root notes](../../CHANGELOG.md) index the group ledgers. Each group's receipt
+now records its completed 0.66.0 release, validated parent and exact file hashes.
+Read receipts at their selected group tag: later groups change shared Cargo
+metadata and cannot stand in for an earlier release checkout. Historical receipts
+remain unchanged; no dual reader reinterprets old coordinated plans.
 
 Release/version/plan/resume/publication require explicit `RELEASE_GROUP`. Group
 tags/plans have group prefixes. Shared owns selective rendering and transactional
 rollback; Blob owns source receipts and checksum/VCS publication readback. Full
-release validation remains workspace-wide. Release Contracts first for this
-identity cut; inherited requirements then select it for Client/Engine publication.
-See [release commands](../releasing.md). Real release targets remain maintainer-only.
+release validation remains workspace-wide. Contracts was released and published
+first, then Client, then Engine. See [release commands](../releasing.md).
 
 Native `publish-map`, `publish-file-status` and `publish-session` require approved
 `BLOB_EXPECTED_HOST_RELEASE`, captured once before file/Agent setup and matched
@@ -110,8 +124,19 @@ qualification. Focused native Clippy, Rust1.91, tooling admission and installed
 stop/start/repeated-upgrade fencing all pass. The server and retained Wasm hashes
 are unchanged. No runtime/public API shim is needed.
 
-Full workspace CI/release gates, native macOS, live IC/provider acceptance and
-endpoint performance were not rerun. No size/performance gain is claimed. Service
+Each actual group release passed its full workspace CI/release gate: 1223s for
+Contracts, 1210s for Client and 1154s for Engine. Each ran 687 passing native tests,
+380 passing PocketIC tests and 10 explicitly ignored cases, plus strict Clippy,
+snapshot/tool/pin and deployment boundaries, shell/hooks/formatting, Rustdoc,
+Wasm compilation, original/O3/Os/Oz installation/restoration, release adapters
+and exact extracted archive tests/integrity checks. No gate failed or was skipped.
+Each publication also passed its own Clippy and Cargo packaged-crate verification.
+Plans remain under Git's `release-state/<group>-0.66.0.plan` paths.
+
+Release gates validate pre-version source. Retained canister builds can still
+report Engine 0.65.0; rebuild at the released Engine tag before any deployment.
+Native macOS, live IC/provider acceptance and endpoint performance were not rerun.
+No size/performance gain is claimed. Service
 transitions remain retirement/reinstall-only; retain provider objects, uncertain
 effects, balances, released physical bytes and continuing billing obligations.
 The frozen archive-inspection candidate remains permanently fenced, as recorded

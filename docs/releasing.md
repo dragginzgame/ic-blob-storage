@@ -32,19 +32,19 @@ Contracts/Client version or relaxed comparison is introduced. Both current and
 retained authenticated configuration replies must match the selected release;
 changing this pin cannot authorize old session recovery across a reinstall.
 Saved intent/control/installation formats and Wire packets are unchanged.
-The pending Client batch is **0.66.0**. The new Platform/Wire/Memory public Rust
-identities also require **0.66.0** Contracts and Engine batches; these are
-independent impact decisions, not a workspace-wide version rule. All current
-Cargo package versions remain **0.65.0**. Release Contracts first so the inherited
-requirements select its new public identities before Client/Engine publication.
+The first independent Client, Contracts and Engine releases are **0.66.0**.
+Platform/Wire/Memory public Rust identities required these independent minor
+releases; matching numbers do not impose a workspace-wide version rule. All
+current Cargo package versions are **0.66.0**. Contracts was released and
+published first so Client/Engine publication could select its new identities.
 
 All members enter this layout at **0.65.0**, without a conversion bump. The
 [root changelog](../CHANGELOG.md) indexes group ledgers. Coordinated history is
 preserved once in [releases/history.md](../releases/history.md); the existing
 [0.65.0 receipt](release.json) and `v0.65.0` tag remain historical evidence.
-Group `release.json` files initially contain explicit inherited-baseline markers,
-not release receipts. They cannot authorize publication. The first actual group
-release replaces only its own marker with source-bound evidence. Resume or publish
+Group `release.json` files initially contained explicit inherited-baseline markers,
+which could not authorize publication. Each 0.66.0 group release replaced only its
+own marker with source-bound evidence. Resume or publish
 old coordinated releases with their original checkout/tools; no dual reader is
 introduced.
 
