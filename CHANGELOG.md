@@ -23,6 +23,8 @@
 - Stop selecting Shared’s generic Cargo metadata matrix and narrow logger
   coverage to Blob’s actual nested input-checkpoint wiring. Refresh the snapshot
   selection at its existing reviewed revision; producer matrices remain upstream.
+  Assert input-drift diagnostics from retained logs so these checks also work
+  inside a parent CI gate.
 
 ### ⬆️ Dependencies
 

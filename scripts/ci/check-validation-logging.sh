@@ -47,13 +47,15 @@ MAKE
         [[ "$status" == 0 && -f "$gate/late-dispatched" ]] || exit 1
     else
         [[ "$status" != 0 && ! -e "$gate/late-dispatched" ]] || exit 1
+        # Nested runners retain diagnostics even when console excerpts are omitted.
+        failure_log="$gate/failures/latest-combined.log"
+        [[ -s "$failure_log" ]] || exit 1
         if [[ "$input_case" == drift ]]; then
-            rg -F 'validation input changed: Cargo.lock' "$gate/result.log" >/dev/null
+            rg -F 'validation input changed: Cargo.lock' "$failure_log" >/dev/null
         else
-            rg -F 'cannot observe validation input Cargo.lock' "$gate/result.log" >/dev/null
+            rg -F 'cannot observe validation input Cargo.lock' "$failure_log" >/dev/null
         fi
-        rg -F 'Restart preparation and the full gate' "$gate/result.log" >/dev/null
-        [[ -s "$gate/failures/latest-combined.log" ]] || exit 1
+        rg -F 'Restart preparation and the full gate' "$failure_log" >/dev/null
         rg --files "$gate/logs" | rg '/inputs.json$' >/dev/null
     fi
 done

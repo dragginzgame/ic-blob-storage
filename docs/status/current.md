@@ -2,7 +2,7 @@
 
 ## Delivered baseline and pending cleanup
 
-Git main/tag `v0.63.0` identifies release **0.63.0** at
+Tag `v0.63.0` identifies release **0.63.0** at
 `6be5c1d2ab45d8383835f945183a872296d59383`; see
 [the release receipt](../release.json). Registry publication and hosted checks
 were not reread during this cleanup. The preceding dependency-adoption handoff
@@ -71,18 +71,23 @@ uncertain effects, balances or continuing billing.
 
 ## Archive candidate retained after coverage review
 
-The eighth audit candidate did not justify removal. Authority-probe archive
-recovery uses disposable shared model transitions to validate a permanently
-fenced inspection record; it never installs a second live service owner.
-Its unique cases cover partial hash checkpoints, rejected wrong raw digests,
-trapped/in-flight source reads, and billing obligations after physical deletion.
-StableUploads does not own those consumer hash/read states. Replacing this
-validator would require another fixture model and lose independent coverage.
-Keep these bounded non-default test-support cases until their actual scenarios
-are retired. The exact coverage map is `archive-disposition.txt` in this run's
-retained evidence. Production standalone restoration remains separately tested.
+The eighth candidate remains: authority-probe archive recovery uses disposable
+model transitions to inspect a permanently fenced record, never a second live
+service owner. Unique cases cover partial hashes, wrong raw digests, trapped/
+in-flight reads and billing after physical deletion. StableUploads does not own
+those consumer states; replacing the validator would recreate a fixture model
+and lose independent coverage. Keep these bounded non-default cases until their
+scenarios retire. See `archive-disposition.txt` in the cleanup evidence below;
+production standalone restoration remains separately tested.
 
 ## Validation and evidence
+
+Source `95fa5cae` failed the consumer completion fixture because nested CI omits
+console excerpts. The correction checks retained diagnostics, preserving drift/
+deletion refusal. The parent-logged `shared-tooling-tests` stage passes (28s),
+as do Bash syntax/ShellCheck. `/tmp/blob-nested-logging-fix.AwXAaL/` retains all
+runs, including the initial loopback sandbox refusal. No full CI or release was
+rerun; the correction remains uncommitted.
 
 The cleanup's earlier evidence is isolated in `/tmp/blob-simplify064.1L5ZdK/`,
 bound to its source/input/artifact hashes and exact commands. It predates this
