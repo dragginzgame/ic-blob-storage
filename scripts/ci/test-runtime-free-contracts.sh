@@ -8,6 +8,8 @@ cat > "$fixture/cargo" <<'CARGO'
 set -euo pipefail
 if [[ "$*" == *'{p}|{f}'* ]]; then
     printf '%s\n' "${FIXTURE_FEATURE_LINE:-}"
+elif [[ "$*" == *'ic-blob-storage-contracts'* ]]; then
+    printf '%s\n' "${FIXTURE_CONTRACTS_LINE:-}"
 elif [[ "$*" == *'wasm32-unknown-unknown'* && "$*" == *'ic-blob-storage-client'* ]]; then
     printf '%s\n' "${FIXTURE_NATIVE_CLIENT_LINE:-}"
 elif [[ "$*" == *'ic-blob-storage-client'* ]]; then
@@ -31,7 +33,7 @@ for package in ic-blob-storage ic-memory ic-storage; do
 done
 printf 'Deployment fixture feature refusals: PASS\n'
 unset FIXTURE_FEATURE_LINE
-for package in clap clap_builder clap_derive ic0 ic-cdk-executor ic-management-canister-types; do
+for package in clap clap_builder clap_derive ic0 ic-cdk-executor ic-management-canister-types ic-platform-pocket-ic; do
     export FIXTURE_PACKAGE_LINE="$package v4.6.7"
     if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
         echo "Deployment accepted forbidden package $package" >&2; exit 1
@@ -99,3 +101,13 @@ for package in reqwest tokio ic-host-fs; do
 done
 unset FIXTURE_DEFAULT_CLIENT_LINE
 printf 'Default client optional dependency refusals: PASS\n'
+
+for package in ic-platform-runtime ic-platform-runtime-guard ic-platform-macros; do
+    export FIXTURE_CONTRACTS_LINE="$package v0.17.1"
+    if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
+        echo "Contracts accepted runtime owner: $package" >&2; exit 1
+    fi
+    rg -q 'Contracts depend on a Platform execution owner' "$fixture/output"
+done
+unset FIXTURE_CONTRACTS_LINE
+printf 'Independent Runtime contract exclusions: PASS\n'

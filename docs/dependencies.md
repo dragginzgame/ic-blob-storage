@@ -90,8 +90,8 @@ match Blob's public Platform and Memory type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-The selected Platform generation owns the executor and
-IC0 implementation; the standalone deployment gate refuses the old external
+Platform 0.17 delegates executor and IC0 implementation to its independent
+Runtime 0.17.1 owner; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
 subset, while native tooling keeps upstream management types and Candid bytes.
@@ -103,20 +103,26 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The graph retains one Platform executor and one Wire identity. Testkit shares
-arithmetic-only Metrics with Blob, without a second native Metrics copy.
+The selected graph retains one Runtime/guard 0.17.1, Platform 0.17.0,
+Types 0.16.0 and Wire 0.14 identity. Blob and Testkit 0.78 share Metrics 0.25.0;
+Testkit disables its native metadata defaults. The older Metrics 0.24 lane is
+removed without an override. Optional Testkit Wire transport now also selects 0.14.
+Contracts alone exclude Runtime. The native CLI also links the replicated
+client's public transport types and therefore includes Runtime in its package
+graph, while still excluding service state and stable storage.
 The current version selections and qualification belong in the root catalog,
 lock and handoff above. The external raw-IC0 package is absent. No source patch,
 compatibility alias or dependency override is used. Principal
 hashing remains explicitly development-only in Blob. No size or performance
 gain is inferred from the graph reduction.
 
-Wire 0.13 owns Principal/Account schemas through its opt-in `platform-types`
+Wire 0.14 owns Principal/Account schemas through its opt-in `platform-types`
 feature. Contracts' native `wire-schema` feature selects that integration;
-Platform's retired `wire-schema` selection is removed. Metrics 0.24 implements
-the same Wire metadata trait, resolving the supplier identity blockers in
-[Platform #105](https://github.com/dragginzgame/ic-platform/issues/105) and
-[Observability #103](https://github.com/dragginzgame/ic-observability/issues/103).
+Platform's retired `wire-schema` selection is removed. Metrics 0.25 implements
+the matching Wire 0.14 metadata trait. Published Wire 0.14 and Testkit 0.78
+resolve the adoption blockers tracked under
+[Platform #131](https://github.com/dragginzgame/ic-platform/issues/131) and
+[Wire #41](https://github.com/dragginzgame/ic-wire/pull/41).
 There is no local schema bridge or metric mirror. This native integration does
 not select endpoints or runtime ownership; deployment admission rejects its
 feature alongside TypeScript tooling. Direct Blob and Persistence protocols
@@ -128,18 +134,18 @@ remain available; Contracts' existing `wire-schema` feature enables
 and native schema graphs select it without introducing a runtime owner.
 
 Platform reexports canonical Principal/Account identities from published
-`ic-platform-types` 0.15.1. Wire 0.13's schema implementation selects that same
-Types owner, resolving the previous facade/schema version blocker tracked in
-[Wire #37 — Supply compatible Platform integrations](https://github.com/dragginzgame/ic-wire/issues/37). Blob continues to
+`ic-platform-types` 0.16.0. Wire 0.14's schema implementation selects that same
+Types owner; Testkit 0.78 and Host Tools 0.77 select the matching Platform facade and
+owned native PocketIC client. Blob continues to
 import through Platform; there are no schema bridges or copied DTOs. Required
 external Candid conversions stay explicit. Memory/Storage's Wire codec update
 preserves retained bytes, bounds and custody; no local data migration is added.
 
-Shared Tooling 0.27.22 adds independent release-group support and
-complete crate catalogs. Blob retains one coordinated version, root changelog
-and development workspace; no release-group policy or package moves are needed.
-Its root catalog lists all thirteen members at their existing full version.
-The snapshot records reviewed commit `f4f431627290e18f0ccc1e5f8525d16b197cf7c3`.
+Shared Tooling 0.27.26 remains the latest reviewed committed snapshot at
+`022480c1aae2ed28a7b37247bab0a55d6dcf9ca6`. Blob has independent Contracts,
+Client and Engine release groups in one development workspace and lockfile,
+with all thirteen literal member versions visible in the root catalog.
+The [release guide](releasing.md) owns explicit selection, order and recovery.
 
 Build/Host Foundation and Host Tools/Testkit are independent supplier release groups;
 matching Testkit server CLI and Build release editor identities come from the lock.
@@ -633,7 +639,7 @@ pinned separately by [ci/ic-tools.tsv](../ci/ic-tools.tsv).
 ## Release and formatting host checks
 
 The [tooling workflow](../.github/workflows/tooling.yml) qualifies setup/admission,
-formatting/hooks, exact-ID tooling archive upload/readback, coordinated package
+formatting/hooks, exact-ID tooling archive upload/readback, mixed-version package
 archives, native CLI/PocketIC and original/optimized Wasms on Linux, Apple Silicon
 and Intel macOS. Rust 1.91 has its separate minimum-version lane. Declaring those
 jobs is not a passing result; require matching native execution on the actual source.
@@ -659,6 +665,8 @@ for remote calls. The old Core client paths are removed in the released 0.35.0
 public cut. Core owns installed service state and workflows; consumers retain
 intent, retry decisions, application publication and uncertain-outcome recovery.
 The client package installs no endpoints, lifecycle hooks, stores or timers.
-Publishing proceeds Contracts, Client, Core. Only maintainer release preparation advances their
-coherent workspace version; registry publication does not qualify consumer
-runtime composition or provider behavior.
+Contracts, Client (with CLI) and Engine release independently in one workspace.
+Explicit RELEASE_GROUP selects one group; publish Contracts before a Client/Engine
+version only when its selected Contracts dependency is not already available.
+Maintainer preparation updates only selected versions and their root requirements.
+Registry publication does not qualify consumer runtime composition or provider behavior.

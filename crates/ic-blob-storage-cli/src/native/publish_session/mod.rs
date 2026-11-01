@@ -12,10 +12,12 @@ use crate::native::{
 use ic_platform::agent::Agent;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use sources::Sources;
 use std::{path::PathBuf, time::Duration};
 use url::Url;
 
 pub(super) struct Input {
+    pub host_release: String,
     pub prepare: publish_prepare::Input,
     pub operator_identity: PathBuf,
     pub source_session: Option<PathBuf>,
@@ -123,7 +125,8 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
         automatic_retries: 0,
         input_verification: "one_complete_startup_pass_and_selected_body_before_setup".into(),
     };
-    let sources = sources::Sources::load(input.source_session.as_deref(), &intent, &batch)?;
+    let source = input.source_session.as_deref();
+    let sources = Sources::load(source, &intent, &batch, &input.host_release)?;
     let intent_bytes = serde_json::to_vec_pretty(&intent).map_err(|_| Failure::File)?;
     if intent_bytes.len() as u64 > SessionIntentRecord::MAX_BYTES {
         return Err(Failure::ReplyLimit);
@@ -132,12 +135,12 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
     run.bytes("inventory.json", &batch.inventory)?;
     run.bytes("installation.wire", &batch.installation.bytes)?;
     run.bytes("intent.json", &intent_bytes)?;
-    if let Some(source) = &input.source_session {
+    if let Some(source) = source {
         sources.record(&run, source)?;
     }
     let result = tokio::time::timeout(Duration::from_secs(input.prepare.timeout_seconds), async {
         let preflight = Run::create(&input.prepare.directory.join("configuration"))?;
-        let host = publish_map::configuration(&batch, &preflight, &mut |method,args| publish_map::query(&actors.tenant,&actors.operator,scope.service,method,args)).await?;
+        let host = publish_map::configuration(&batch, &input.host_release, &preflight, &mut |method,args| publish_map::query(&actors.tenant,&actors.operator,scope.service,method,args)).await?;
         if host.fenced { return Err(Failure::Denied); }
         let ready = json!({"schema":1,"operation":"publish_session","event":"ready",
             "files":batch.files.len(),"inventory_sha256":digest(&batch.inventory),"installation_sha256":digest(&batch.installation.bytes),

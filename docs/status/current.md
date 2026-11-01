@@ -2,107 +2,129 @@
 
 ## Released baseline and pending scope
 
-Release **0.64.0**, tag `v0.64.0`, is at
-`8f33b9645ae57e9103962f09a8da91a7e655070b`. Its
-[receipt](../release.json) identifies validated source
-`f0115b4a725d5b5b72ebd46916e7d3bbe783deea`. The maintainer reports it live;
-registry publication and hosted CI were not independently reread during adoption.
-The root-claim consolidation, gateway supersession cut, saved-source format and
-nested logger fixture fix are included in [0.64 notes](../../CHANGELOG.md).
+The maintainer reports **0.65.0** live. Tag `v0.65.0` is
+`5b91fe7006c1132bcf8e89605201d9ba2645c1f4`; its unchanged
+[historical receipt](../release.json) binds validated source
+`ebd0903889f9400b90055a42518a4980a10e6804`. Publication/hosted CI was not reread.
+[Coordinated history](../../releases/history.md) preserves earlier notes once.
 
-Pending notes target **0.65.0** because Memory's public identity and grant lookup
-callback change. Own Cargo versions stay **0.64.0** for maintainer preparation.
-No staging, commit, tag, push, release, publication, deployment, sibling edit or
-paid provider effect was performed in this adoption.
+Pending local work includes the accepted independent Contracts/Client/Engine
+release groups, explicit native host pin and the supplier adoption below.
+All thirteen own Cargo versions remain **0.65.0**. Each group now has
+**0.66.0 Unreleased** notes because its public supplied Rust identities change;
+these matching candidates do not restore coordinated workspace versioning.
+No real source staging, commit, tag, push, release, publication, deployment,
+sibling edit or paid provider effect was performed. Disposable fixtures alone
+create private local Git commits/tags/remotes.
 
-## Memory/Storage and Wire adoption
+## Published supplier adoption
 
-Official crates.io sparse-index records and cached archive checksums verify
-published **Memory/Storage 0.61.0** and **Wire 0.13.5**. Persistence's sibling
-0.61.1 draft is not a published selection. All three root minimums are updated;
-the narrow resolution changed only Memory/Storage from the incoming lockfile.
-Preserve its existing Build/Host Foundation 0.73.6, Host Tools/Testkit 0.76.2,
-Metrics 0.24.5 and Wire/Derive 0.13.5 selections. Other declaration minimums and
-own package versions are unchanged.
+Official crates.io index records and checksummed published archives establish:
 
-- Fresh owning collections use Storage's `create`; retained collections use
-  `load`. The substrate composition test no longer uses initialize-or-load.
-  Only two deliberate corruption fixtures call `reset`; production restore has
-  no reset, initialization fallback, repair or automatic migration.
-- `stores::grants::open` now takes a lookup over `&ic_memory::StableKey`.
-  Blob parses its canonical built-in keys during grant opening; hosts use the
-  same published Memory identity and its checked-key runtime API. Bucket setup
-  uses `NonZeroU16` without the old fallible configuration constructor.
-- Durable keys, fourteen installation grants, record/frame identities, canonical
-  bytes, decoder budgets, authority and exact retry bindings are unchanged.
-  Wire's upstream cost measurements do not establish Blob endpoint savings.
+| Supplier | Selected version |
+| --- | --- |
+| Build / Host Foundation | 0.73.6 (already locked; catalog minimums aligned) |
+| Host Tools | 0.77.0 |
+| Testkit | 0.78.0 |
+| Memory / Storage | 0.62.0 |
+| Metrics | 0.25.0 |
+| Platform / owned native PocketIC client | 0.17.0 |
+| Runtime / macros / exact guard | 0.17.1 through Platform |
+| Canonical Types | 0.16.0 through Platform |
+| Wire / Derive | 0.14.1 incoming lock; minimum0.14.0 |
 
-Hosts must align Memory/Storage and rebuild their grant and bucket setup; see
-[dependency ownership](../dependencies.md) and
-[service composition](../service-contract.md). Valid byte compatibility in the
-supplier does not authorize a cross-release service upgrade. Complete
-[retirement/reinstall](../retiring-installations.md) while preserving provider
-objects, balances, uncertain effects and continuing billing obligations.
+Shared **0.27.26**, commit `022480c1aae2ed28a7b37247bab0a55d6dcf9ca6`, is
+still the latest committed source reviewed in the sibling. The existing canonical
+144-file snapshot already selects it; no new exporter refresh or store reclamation
+was needed. Dirty sibling source is read-only and is not a consumer dependency.
 
-## Validation and evidence
+Published Wire and Testkit now resolve the former Principal/schema and PocketIC
+client blockers under [Platform#131](https://github.com/dragginzgame/ic-platform/issues/131#issuecomment-6560257932)
+and [Wire PR41](https://github.com/dragginzgame/ic-wire/pull/41). All affected
+callers compile without bridges, copied helpers, aliases or source patches.
+The root continues to import through Platform. Native tooling uses its owned
+PocketIC client; the old registry `pocket-ic` package leaves this graph.
 
-This adoption's evidence is `/tmp/blob-memory-storage-wire.eu8QNC/`: official
-index records, original incoming manifests/lock/handoff, narrow lock diff,
-source diffs, exact commands, results and artifact hashes. Failed lint and the
-initial corruption-fixture run remain separate from corrected passes.
+The resolved graph admits one Runtime/guard, Types, Wire and Metrics identity.
+Testkit0.78 selects Wire0.14 and arithmetic-only Metrics0.25, removing the older
+Metrics0.24.6 lane without overrides. Contracts alone exclude Runtime. The native CLI links
+the replicated client's runtime transport types, while excluding Engine/storage.
+Boundary checks now reject the extracted Runtime from Contracts and the owned
+native PocketIC package from deployment, with mutation coverage.
 
-Locked offline metadata, pins, direct/deployment/default-client boundaries and
-their refusal fixtures pass. Strict Clippy passes for affected Core/Contracts/
-Client/CLI/standalone/probe/protocol/PocketIC selections. Core 297, both memory
-composition cases, Contracts unit/integration/frozen-vector cases, twelve fixture
-journal cases, five storage-probe cases, CLI 122 plus eight boundary cases and
-Client ten plus one documentation case pass. Core's two documentation cases pass.
+The maintainer confirmed the incoming **thiserror2.0.21** lock edit is settled.
+It is preserved with its derive version; the root's compatible minimum remains
+2.0.18. The obsolete registry-PocketIC exact-pin comment is removed. All other
+unrelated package identities were preserved. There is one workspace/lock and no
+independent consumer workspace to update.
 
-Rust 1.91 native Core/Client/protocol and standalone Wasm checks pass. Fresh native
-CLI and four release Wasms build. Generated TypeScript passes all 27 methods and
-137 frozen Rust frames, including malformed/identity/direction/limit checks.
-Scoped formatting passes. The lock-selected Testkit 0.76.2 CLI is explicitly
-prepared and admitted with PocketIC 16.1.0 before installed checks.
+## Release groups and integration contracts
 
-Fresh PocketIC qualification passes twelve cases: backing-growth and write
-rollback, manifest atomicity, gateway supersession, admission bindings, five
-lifecycle/recovery cases, corrupt restoration and signed gateway CLI decisions.
-Exact commands, `installed-results.tsv` and `artifacts.sha256` retain that proof.
+[Group policy](../../ci/cargo-release-groups.json) owns Contracts alone, Client
+with CLI, and Engine with standalone, six probes, protocol and PocketIC support.
+Members have literal group versions and inherit the common dependency catalog.
+[Root notes](../../CHANGELOG.md) index the group ledgers. Initial receipts explicitly
+record inherited0.65.0, not completed group releases. Historical receipts remain
+unchanged; no dual reader reinterprets old coordinated plans.
 
-The release gate, native macOS/Windows, deployed IC/Caffeine, registry consumer
-installation and endpoint performance were not qualified by this focused pass.
-Fresh qualification artifacts still carry source package version 0.64.0; they
-are not a released 0.65 deployment image.
+Release/version/plan/resume/publication require explicit `RELEASE_GROUP`. Group
+tags/plans have group prefixes. Shared owns selective rendering and transactional
+rollback; Blob owns source receipts and checksum/VCS publication readback. Full
+release validation remains workspace-wide. Release Contracts first for this
+identity cut; inherited requirements then select it for Client/Engine publication.
+See [release commands](../releasing.md). Real release targets remain maintainer-only.
 
-Prior evidence remains with its owners: `/tmp/blob-deps-adopt.ZKYN6N/` for the
-preceding dependency adoption, `/tmp/blob-nested-logging-fix.AwXAaL/` for the
-parent-logged tooling stage, and `/tmp/blob-simplify064.1L5ZdK/` for the cleanup.
-Its `evidence-custody.txt` records overwritten older temporary logs in
-`/tmp/blob-cleanup-1101`; do not use those to qualify the historical release.
-The archive-probe candidate remains: disposable permanently fenced inspection
-retains unique hash/read/billing cases, not a second live service owner. See the
-cleanup's `archive-disposition.txt`; standalone restoration is separately tested.
+Native `publish-map`, `publish-file-status` and `publish-session` require approved
+`BLOB_EXPECTED_HOST_RELEASE`, captured once before file/Agent setup and matched
+against fresh and retained replies. Make selects the Engine host catalog version;
+direct CLI/launcher callers select their deployment. No saved field, default to
+Client/Contracts, weaker release check or new read lane was added. CLI `--version`
+reports its own package. The earlier group batch's source/qualification evidence
+remains `/tmp/blob-release-groups.sC6joH/`, including its complete `groups-final.log`.
 
-## Next: Canic adoption and bounded acceptance
+## Qualification and evidence
 
-The last read-only Canic review found released 0.114.0 (`e75378595`) selecting
-Blob 0.61, with local edits selecting 0.63. Its gateway fixture still expected
-the retired Busy refusal. Its owner must adopt the released catalog/memory cut
-across the root and both consumer graphs, then qualify dedicated/embedded mounts,
-generated clients and recovery under
-[#622 — Mounted Blob acceptance](https://github.com/dragginzgame/canic/issues/622).
-No sibling build or edit was performed during this adoption.
+Current evidence: `/tmp/blob-upstream-adopt.EGqoV3/` contains before-state,
+official index/archive/source receipts, exact lock deltas, commands and logs.
+The accepted graph was rechecked after the incoming thiserror edit. Affected
+public/CLI/PocketIC native Clippy and seven canister Wasm Clippy profiles pass.
+Contracts132, Engine297, replicated Client6, memory composition2 and frozen Wire
+surface tests pass. Generated TypeScript passes27 methods/137 frozen Rust frames
+plus malformed, identity, direction, limit and decimal checks. Rust1.91 native
+public libraries and standalone Wasm pass. No frozen vectors were regenerated.
 
-Four Blob acceptance issues remain:
-[#5 — Publication and serving](https://github.com/dragginzgame/ic-blob-storage/issues/5),
-[#31 — Multi-user uploads](https://github.com/dragginzgame/ic-blob-storage/issues/31),
-[#6 — Deletion/billing](https://github.com/dragginzgame/ic-blob-storage/issues/6),
-[#34 — Payer linkage and funding](https://github.com/dragginzgame/ic-blob-storage/issues/34).
-The last GitHub readback found no open PRs. This adoption closes none of their
-provider/application acceptance criteria. The maintainer identifies Caffeine as
-the provider; select the actual application/service/network and bounded budget
-under [the acceptance plan](../acceptance-plan.md#before-the-acceptance-deployment)
-and [probe ledger](../evidence/caffeine-probes/README.md). Historical trial
-principals and fixture identities are not production targets. A provider-only
-trial may precede a finished frontend; deployment and paid effects need their
-own established authorization. No new provider probe was run.
+The preceding Testkit0.77 managed CLI was explicitly prepared/admitted; the PocketIC16.1.0
+server SHA-256 is unchanged. Eight installed cases pass: five lifecycle/history/
+obligation checks, native session recovery/tampering, refused backing growth with
+exact retry, and replicated consumer trap/recovery. All seven linked canister
+artifacts remain byte-identical after the final settled-graph build. Failed
+sandbox Node/npm observation is retained; its native prerequisite/schema rerun
+passes without installing/updating npm packages. No live provider was contacted.
+
+The follow-up Testkit-only adoption is `/tmp/blob-testkit-adopt.wkYYEK/`:
+official non-yanked0.78.0 index/archive checksum, unchanged Rust source compared
+with0.77, and exact lock comparison. Only Testkit advances and Metrics0.24.6 is
+removed. The pre-existing Wire/Derive0.14.1 selection and all other identities
+are preserved; broader Wire0.14.0 qualification above is not a fresh0.14.1 Wasm
+qualification. Focused native Clippy, Rust1.91, tooling admission and installed
+stop/start/repeated-upgrade fencing all pass. The server and retained Wasm hashes
+are unchanged. No runtime/public API shim is needed.
+
+Full workspace CI/release gates, native macOS, live IC/provider acceptance and
+endpoint performance were not rerun. No size/performance gain is claimed. Service
+transitions remain retirement/reinstall-only; retain provider objects, uncertain
+effects, balances, released physical bytes and continuing billing obligations.
+The frozen archive-inspection candidate remains permanently fenced, as recorded
+in `/tmp/blob-simplify064.1L5ZdK/archive-disposition.txt`; its custody record marks
+older overwritten logs that cannot qualify a historical release.
+
+Last Canic review: released0.114 selects Blob0.61, local edits select0.63 and still
+expect the retired gateway Busy refusal. Its owner retains
+[Canic#622](https://github.com/dragginzgame/canic/issues/622) adoption/acceptance.
+Last GitHub readback found Blob issues [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
+[#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) and
+[#34](https://github.com/dragginzgame/ic-blob-storage/issues/34), no open PRs.
+No acceptance criterion was closed. Select real targets/budgets through the
+[acceptance plan](../acceptance-plan.md) and
+[probe ledger](../evidence/caffeine-probes/README.md); fixtures are not production.

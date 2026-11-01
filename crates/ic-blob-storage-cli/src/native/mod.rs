@@ -195,9 +195,7 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 
 fn execute_matches(matches: &clap::ArgMatches) -> Result<serde_json::Value, Failure> {
     if matches.get_flag("version") {
-        return Ok(
-            json!({"tool":"blob-storage","version":ic_blob_storage_contracts::CONTRACT_VERSION}),
-        );
+        return Ok(json!({"tool":"blob-storage","version":env!("CARGO_PKG_VERSION")}));
     }
     let (name, flags) = matches.subcommand().ok_or(Failure::Arguments)?;
     match name {

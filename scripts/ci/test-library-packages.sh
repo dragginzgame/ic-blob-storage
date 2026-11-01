@@ -34,13 +34,11 @@ cat > Cargo.toml <<'TOML'
 [workspace]
 resolver = "3"
 members = ["contracts", "client", "service"]
-[workspace.package]
-version = "0.17.2"
 TOML
 cat > contracts/Cargo.toml <<TOML
 [package]
 name = "ic-blob-storage-contracts"
-version.workspace = true
+version = "0.17.2"
 edition = "2024"
 [dependencies]
 cfg-if = "=$fixture_dependency_version"
@@ -48,7 +46,7 @@ TOML
 cat > client/Cargo.toml <<'TOML'
 [package]
 name = "ic-blob-storage-client"
-version.workspace = true
+version = "0.22.1"
 edition = "2024"
 [dependencies]
 ic-blob-storage-contracts = { path = "../contracts", version = "0.17.2" }
@@ -57,7 +55,7 @@ printf 'pub fn observed() -> u32 { 7 }\n' > client/src/lib.rs
 cat > service/Cargo.toml <<'TOML'
 [package]
 name = "ic-blob-storage"
-version.workspace = true
+version = "0.31.4"
 edition = "2024"
 [dependencies]
 ic-blob-storage-contracts = { path = "../contracts", version = "0.17.2" }
@@ -91,7 +89,7 @@ if [[ "$value" != 2 ]]; then
     echo "New archive executed stale contract value: $value" >&2
     exit 1
 fi
-echo 'Same-version archive regression passed (warm shared target; current contract executed).'
+echo 'Mixed-version archive regression passed (warm shared target; current contract executed).'
 real_cargo="$(command -v cargo)"
 # Alter actual Cargo observations or post-build bytes in independent consumers.
 # Admission must stop before tests; final drift must retain a failed attempt.
@@ -148,7 +146,7 @@ CARGO
     [[ "$failure" != metadata-signal || "$status" == 143 ]] || exit 1
     retained="$(sed -n 's/^Package verification failed; evidence retained: //p' "$case_root/result.log")"
     [[ -f "$retained/metadata.json" && -f "$retained/entry-Cargo.lock" ]] || exit 1
-    if grep -F 'Coordinated archive graph, tests and final integrity checks passed.' "$case_root/result.log" >/dev/null; then exit 1; fi
+    if grep -F 'Package archive graph, tests and final integrity checks passed.' "$case_root/result.log" >/dev/null; then exit 1; fi
     case "$failure" in
         path|source|version)
             [[ ! -e "$case_root/effects" ]] || exit 1

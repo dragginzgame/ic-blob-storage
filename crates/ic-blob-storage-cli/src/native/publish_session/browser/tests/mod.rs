@@ -9,6 +9,7 @@ fn selection_binds_fresh_paths_batch_and_original_recovery_without_allocating_ou
     let batch = fixture::batch(&directory);
     let path = directory.path().join("browser.json");
     let mut input = Input {
+        host_release: "0.77.0".into(),
         prepare: publish_prepare::Input {
             service: batch.files[0].input.permission.upload.service,
             namespace: 1,

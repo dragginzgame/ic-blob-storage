@@ -1,29 +1,30 @@
 #!/usr/bin/env bash
-# Shared companions: scripts/release/release-data.pl ci/release-delivery-policy.txt scripts/ci/check-release-delivery.sh scripts/ci/check-release-source.sh scripts/ci/cargo-release-metadata.sh scripts/ci/check-release-tag.sh scripts/ci/check-crates-io-version.sh scripts/ci/next-release-version.sh
+# Shared companions: scripts/release/group.sh scripts/release/release-data.pl ci/release-delivery-policy.txt scripts/ci/check-release-delivery.sh scripts/ci/check-release-source.sh scripts/ci/cargo-release-metadata.sh scripts/ci/check-release-tag.sh scripts/ci/check-crates-io-version.sh scripts/ci/next-release-version.sh scripts/ci/check-release-changelog.sh scripts/ci/release-metadata-transaction.sh scripts/ci/cargo-release-preflight.sh
 set -euo pipefail
-
-# Consumer metadata and qualification only. Shared Tooling owns every Git effect.
-script_file="${BASH_SOURCE[0]}"
-[[ "$script_file" == /* ]] || script_file="$PWD/$script_file"
-script_directory="${script_file%/*}"
-case "$script_directory" in
-    *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;;
-esac
-ROOT="$(cd -P "$script_directory/../.." && printf '%s/.' "$PWD")"
-ROOT="${ROOT%/.}"
-case "$ROOT" in
-    *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;;
-esac
+root_file="${BASH_SOURCE[0]}"
+[[ "$root_file" == /* ]] || root_file="$PWD/$root_file"
+case "$root_file" in *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;; esac
+ROOT="$(cd -P "${root_file%/*}/../.." && pwd -P)"
+case "$ROOT" in *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;; esac
 cd "$ROOT"
 export CARGO_TARGET_DIR="$ROOT/target"
+export RELEASE_GROUP
+case "${RELEASE_GROUP:-}" in contracts|client|engine) ;; *) echo 'Select RELEASE_GROUP=contracts, client or engine' >&2; exit 2 ;; esac
 DATA="$ROOT/scripts/release/release-data.pl"
-RELEASE_FILES=(Cargo.toml Cargo.lock CHANGELOG.md docs/release.json)
-
 fail() { echo "release metadata refused: $*" >&2; exit 1; }
-version() { perl "$DATA" version; }
+command="${1:-}"
+shift || true
+bash scripts/ci/check-release-delivery.sh ci/release-delivery-policy.txt "${RELEASE_DELIVERY-direct}"
+plan="$(bash scripts/release/group.sh plan)"
+primary="$(jq -er .primary <<< "$plan")"
+changelog="$(jq -er .changelog <<< "$plan")"
+paths="$(jq -er '.files[]' <<< "$plan")"
+RELEASE_FILES=()
+while IFS= read -r path; do RELEASE_FILES+=("$path"); done <<< "$paths"
+version() { bash scripts/release/group.sh version; }
 ensure_clean() {
     git rev-parse --verify HEAD >/dev/null || fail 'cannot resolve release HEAD'
-    bash scripts/ci/check-release-source.sh || fail 'commit the implementation and notes before releasing'
+    bash scripts/ci/check-release-source.sh || fail 'commit the implementation and group notes before releasing'
 }
 allowed_changes() {
     local path allowed=()
@@ -31,74 +32,64 @@ allowed_changes() {
     bash scripts/ci/check-release-source.sh "${allowed[@]}" || fail 'non-release paths changed'
 }
 preflight() {
-    local head previous
+    local head previous state tool_prepare="${BLOB_RELEASE_PREPARE:-0}"
     ensure_clean
     head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
     previous="$(version)" || fail 'cannot read previous version'
-    [[ "$head" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
-    [[ "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
-    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_PREVIOUS:?}" "${RELEASE_DATE:?}"
-    # Only the admitted source/candidate reaches explicit selected-tool setup.
-    # Keep this out of Make entrypoint prerequisites and saved-release recovery.
-    make --no-print-directory deps
-    make --no-print-directory install-tools
-    make --no-print-directory tools-check
-    # Setup may take time; never validate a source or selection changed meanwhile.
-    head="$(git rev-parse HEAD)" || fail 'cannot resolve release source after tool preparation'
-    [[ "$head" == "$RELEASE_SOURCE" ]] || fail 'source commit changed during tool preparation'
+    [[ "$head" == "${RELEASE_SOURCE:?}" && "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'source/version does not match release intent'
+    bash scripts/ci/check-release-changelog.sh "${RELEASE_VERSION:?}" "$previous" "${RELEASE_DATE:?}" "$changelog"
+    # The runner repeats preflight after saving preparation intent. Setup belongs
+    # only to fresh admission, never that second check or saved-attempt recovery.
+    state="$(git rev-parse --git-path release-state)" || fail 'cannot resolve saved intent'
+    if [[ -e "$state/$RELEASE_GROUP-$RELEASE_VERSION.plan" || -L "$state/$RELEASE_GROUP-$RELEASE_VERSION.plan" ]]; then tool_prepare=0; fi
+    bash scripts/ci/cargo-release-preflight.sh "$ROOT" "$tool_prepare" \
+        --pin Cargo.toml --pin Cargo.lock --pin ci/tool-versions.env --pin ci/ic-tools.tsv \
+        --check tools-check --check release-tools-check \
+        --prepare install-tools --prepare tools-check --prepare release-tools-check
+    [[ "$(git rev-parse HEAD)" == "$RELEASE_SOURCE" ]] || fail 'source changed during tool preparation'
     ensure_clean
-    make --no-print-directory release-tools-check
-    # The standalone gate retains its own admission/cache preparation. Do not
-    # repeat setup during post-validation metadata preparation or recovery.
+}
+# Shared owns installation/rollback of the exact selected roster. Render the
+# group and its source-bound receipt in disposable committed source first.
+# shellcheck source=scripts/ci/release-metadata-transaction.sh
+source scripts/ci/release-metadata-transaction.sh
+# shellcheck disable=SC2329 # Invoked by the shared metadata transaction.
+render_metadata() {
+    local original="$1" candidate="$2" workspace path
+    workspace="${original%/original}/workspace"
+    mkdir "$workspace" || return
+    git archive HEAD | tar -xf - -C "$workspace" || return
+    for path in "${RELEASE_FILES[@]}"; do
+        mkdir -p "$workspace/$(dirname "$path")" || return
+        cp -p "$original/$path" "$workspace/$path" || return
+    done
+    (
+        cd "$workspace" || exit
+        bash scripts/ci/cargo-release-metadata.sh prepare "$primary" || exit
+        make --no-print-directory fmt-check || exit
+        perl scripts/release/release-data.pl receipt "$RELEASE_SOURCE" "$RELEASE_DATE" || exit
+        perl scripts/release/release-data.pl verify "$RELEASE_SOURCE" "$RELEASE_VERSION" "$RELEASE_DATE"
+    ) || return
+    for path in "${RELEASE_FILES[@]}"; do cp -p "$workspace/$path" "$candidate/$path" || return; done
+}
+# shellcheck disable=SC2329 # Invoked by the shared metadata transaction.
+check_metadata() {
+    perl "$DATA" verify "$RELEASE_SOURCE" "$RELEASE_VERSION" "$RELEASE_DATE" || return
+    bash scripts/ci/cargo-release-metadata.sh check "$primary" --manifest-order-grouped
 }
 prepare() {
-    local head previous
-    head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
-    [[ "$head" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
+    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
+    if [[ "$(version)" == "${RELEASE_VERSION:?}" ]]; then verify_prepared; return; fi
     ensure_clean
-    previous="$(version)" || fail 'cannot read previous version'
-    [[ "$previous" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
-    perl "$DATA" changelog-check "${RELEASE_VERSION:?}" "${RELEASE_PREVIOUS:?}" "${RELEASE_DATE:?}"
-    mkdir -p "$CARGO_TARGET_DIR"
-    RELEASE_BACKUP_DIR="$(mktemp -d "$CARGO_TARGET_DIR/release-backup.XXXXXX")"
-    cp Cargo.toml Cargo.lock CHANGELOG.md "$RELEASE_BACKUP_DIR/"
-    RELEASE_HAD_RECEIPT=no
-    if [[ -f docs/release.json ]]; then
-        cp docs/release.json "$RELEASE_BACKUP_DIR/release.json"
-        RELEASE_HAD_RECEIPT=yes
-    fi
-    # The canonical runner has already persisted exact intent. Roll back a
-    # failed bounded metadata transaction, retaining its input/evidence for retry.
-    trap 'cp "$RELEASE_BACKUP_DIR/Cargo.toml" Cargo.toml
-          cp "$RELEASE_BACKUP_DIR/Cargo.lock" Cargo.lock
-          cp "$RELEASE_BACKUP_DIR/CHANGELOG.md" CHANGELOG.md
-          if [[ "$RELEASE_HAD_RECEIPT" == yes ]]; then
-              cp "$RELEASE_BACKUP_DIR/release.json" docs/release.json
-          else
-              rm -f docs/release.json
-          fi
-          echo "Failed preparation restored; inputs retained: $RELEASE_BACKUP_DIR" >&2' EXIT
-    local editor
-    editor="$(make --no-print-directory --silent release-editor-check)" || fail 'prepare the selected IC Build release editor with make install-release-editor'
-    CARGO_RELEASE_METADATA_EDITOR="$editor" CARGO_RELEASE_METADATA_MAX_BYTES=8388608 \
-        bash scripts/ci/cargo-release-metadata.sh prepare ic-blob-storage
-    make --no-print-directory fmt-check
-    perl "$DATA" receipt "$RELEASE_SOURCE" "$RELEASE_DATE"
-    perl "$DATA" verify
-    trap - EXIT
-    rm -rf "$RELEASE_BACKUP_DIR"
+    [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
+    CARGO_RELEASE_METADATA_EDITOR="$(make --no-print-directory --silent release-editor-check)" || fail 'prepare the selected editor with make install-release-editor'
+    export CARGO_RELEASE_METADATA_EDITOR CARGO_RELEASE_METADATA_MAX_BYTES=8388608
+    release_metadata_prepare "${TMPDIR:-/tmp}/blob-group-metadata.XXXXXX" render_metadata check_metadata "${RELEASE_FILES[@]}"
 }
 verify_prepared() {
-    local current source head
-    perl "$DATA" verify "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
-    current="$(version)" || fail 'cannot read prepared version'
-    source="$(perl "$DATA" source)" || fail 'cannot read receipt source'
-    head="$(git rev-parse HEAD)" || fail 'cannot resolve release source'
-    [[ "$current" == "${RELEASE_VERSION:?}" ]] || fail 'prepared version does not match release intent'
-    [[ "$source" == "${RELEASE_SOURCE:?}" ]] || fail 'receipt source does not match release intent'
-    [[ "$head" == "$RELEASE_SOURCE" ]] || fail 'source commit does not match release intent'
+    [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
     allowed_changes
-    bash scripts/ci/cargo-release-metadata.sh check ic-blob-storage --manifest-order-grouped
+    check_metadata
     make --no-print-directory fmt-check
 }
 commit_check() {
@@ -107,36 +98,28 @@ commit_check() {
     local paths
     paths="$(mktemp "${TMPDIR:-/tmp}/blob-release-index.XXXXXX")"
     git diff --cached --name-only -z -- > "$paths"
-    if ! perl "$DATA" index-check "$paths"; then
-        rm -f "$paths"
-        fail 'index must contain exactly the declared release files'
-    fi
+    if ! perl "$DATA" index-check "$paths"; then rm -f "$paths"; fail 'index must contain exactly the selected group release files'; fi
     rm -f "$paths"
 }
 committed_check() {
     ensure_clean
     local commit="${RELEASE_COMMIT:?}" parent
-    [[ "$commit" =~ ^[0-9a-f]{40,64}$ ]] || fail 'release commit must be an exact Git identity'
+    [[ "$commit" =~ ^[0-9a-f]{40,64}$ ]] || fail 'release commit must be exact'
     perl "$DATA" verify-commit "$commit" "${RELEASE_SOURCE:?}" "${RELEASE_VERSION:?}" "${RELEASE_DATE:?}"
-    parent="$(git log -1 --format=%P "$commit")" || fail 'cannot read release parent'
+    parent="$(git log -1 --format=%P "$commit")"
     [[ "$parent" == "$RELEASE_SOURCE" ]] || fail 'release parent does not match validated source'
-    RELEASE_COMMIT="$commit" bash scripts/ci/cargo-release-metadata.sh check ic-blob-storage --manifest-order-grouped
+    RELEASE_COMMIT="$commit" bash scripts/ci/cargo-release-metadata.sh check "$primary" --manifest-order-grouped
 }
-verify_tag() {
-    bash scripts/ci/check-release-tag.sh "$1" "$2" || fail 'release tag does not match exact release identity'
-}
+verify_tag() { bash scripts/ci/check-release-tag.sh "$1" "$2" "$RELEASE_GROUP" || fail 'tag does not match selected group'; }
 tag_check() {
     ensure_clean
     perl "$DATA" verify
     local current source parent head
-    current="$(version)" || fail 'cannot read published version'
-    source="$(perl "$DATA" source)" || fail 'cannot read receipt source'
-    parent="$(git log -1 --format=%P HEAD)" || fail 'cannot read release parent'
-    head="$(git rev-parse HEAD)" || fail 'cannot resolve publication HEAD'
+    current="$(version)"; source="$(perl "$DATA" source)"
+    parent="$(git log -1 --format=%P HEAD)"; head="$(git rev-parse HEAD)"
     [[ "$parent" == "$source" ]] || fail 'release parent does not match validated source'
     verify_tag "$head" "$current"
 }
-# Shared owns bounded registry facts; Blob owns whether those facts permit upload.
 publication_checksum() {
     local metadata status=0
     metadata="$(bash scripts/ci/check-crates-io-version.sh --metadata "$1" "$2" "$3")" || status=$?
@@ -148,6 +131,7 @@ publication_checksum() {
 }
 publish() {
     case "${1:-}" in ''|--dry-run) ;; *) fail 'expected publish [--dry-run]' ;; esac
+    [[ -z "${PUBLISH_PACKAGE:-}" || "$PUBLISH_PACKAGE" == "$primary" ]] || fail 'publication package is outside selected group'
     # Separate registry authority still shares the release lock: never publish
     # while another process may be changing this package's release metadata.
     PUBLICATION_STATE_ROOT="$(git rev-parse --git-path release-state)" || fail 'cannot resolve publication lock path'
@@ -157,17 +141,12 @@ publish() {
     printf '%s\n' "$$" > "$PUBLICATION_STATE_ROOT/lock/owner"
     trap 'rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"' EXIT
     tag_check
-    local packages=(ic-blob-storage-contracts ic-blob-storage-client ic-blob-storage)
-    case "${PUBLISH_PACKAGE:-}" in
-        '') ;;
-        ic-blob-storage-contracts|ic-blob-storage-client|ic-blob-storage) packages=("$PUBLISH_PACKAGE") ;;
-        *) fail 'unknown publication package' ;;
-    esac
+    local packages=("$primary")
     # Use the same full lint gate as release validation before archive builds or
     # new registry effects. Keep dependency preparation ahead of offline lint.
     make --no-print-directory deps
     make --no-print-directory clippy
-    local current head package checksum run registry_user_agent
+    local current head package checksum run registry_user_agent contracts_version
     current="$(version)" || fail 'cannot read publication version'
     registry_user_agent="ic-blob-storage-release/$current (+https://github.com/dragginzgame/ic-blob-storage)"
     head="$(git rev-parse HEAD)" || fail 'cannot resolve publication source'
@@ -193,24 +172,19 @@ publish() {
             fi
         fi
         if [[ "${1:-}" == --dry-run && "$package" != ic-blob-storage-contracts ]]; then
-            # Both runtime libraries need their exact Contracts version indexed.
-            checksum="$(publication_checksum "$run/$package-contracts-dependency-observation" ic-blob-storage-contracts "$current")" || fail 'contracts dependency readback refused'
-            [[ "$checksum" != missing ]] || fail 'runtime-library dry-run requires this contracts version on crates.io; run make package for coordinated local payload verification'
+            contracts_version="$(perl "$DATA" package-version ic-blob-storage-contracts)"
+            checksum="$(publication_checksum "$run/$package-contracts-dependency-observation" ic-blob-storage-contracts "$contracts_version")" || fail 'contracts dependency readback refused'
+            [[ "$checksum" != missing ]] || fail 'dry-run requires the selected Contracts dependency on crates.io; run make package for local payload verification'
         fi
         cargo publish --locked --registry crates-io -p "$package" ${1:+"$1"}
     done
 }
-command="${1:-}"
-shift || true
-bash scripts/ci/check-release-delivery.sh ci/release-delivery-policy.txt "${RELEASE_DELIVERY-direct}"
 case "$command" in
     version) version ;;
     plan)
-        previous="$(version)" || fail 'cannot read previous version'
-        candidate="$(bash scripts/ci/next-release-version.sh "$previous" "${1:-patch}")" || fail 'cannot derive release version'
-        printf 'Current: %s\nTarget: %s\nRemote: %s\nBranch: %s\n' "$previous" "$candidate" "${RELEASE_REMOTE:-origin}" "${RELEASE_BRANCH:-main}"
-        echo 'Maintainer workflow: preflight, complete validation, prepare, stage, commit/tag, exact atomic push.'
-        echo 'Committed unfinished releases reconcile first; newer fixes or a different increment receive fresh validation. Publication and cleanup are separate.'
+        previous="$(version)"
+        candidate="$(bash scripts/ci/next-release-version.sh "$previous" "${1:-patch}")"
+        printf 'Group: %s\nCurrent: %s\nTarget: %s\nRemote: %s\nBranch: %s\n' "$RELEASE_GROUP" "$previous" "$candidate" "${RELEASE_REMOTE:-origin}" "${RELEASE_BRANCH:-main}"
         ;;
     ensure-clean) ensure_clean ;;
     preflight) preflight ;;
@@ -222,5 +196,5 @@ case "$command" in
     tagged-check) committed_check; verify_tag "$RELEASE_COMMIT" "$RELEASE_VERSION" ;;
     tag-check) tag_check ;;
     publish) publish "${1:-}" ;;
-    *) fail 'expected a metadata/check operation; use the common Make release targets for Git effects' ;;
+    *) fail 'expected a metadata/check operation; use the standard release targets for Git effects' ;;
 esac

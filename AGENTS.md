@@ -108,7 +108,9 @@ it does not override shared rules or depend on a mutable sibling checkout.
   support in `tests/pocketic/` and `tests/protocol/`. The maintainer explicitly
   reversed the crates-only moves. Do not relocate these packages during routine
   adoption; a future redesign requires separate explicit approval. All 13 members
-  still share one virtual root, lockfile and inherited versions/dependencies.
+  still share one virtual root, lockfile and inherited dependency catalog. Their
+  literal versions are coordinated within the Contracts, Client and Engine
+  groups in `ci/cargo-release-groups.json`; releases require `RELEASE_GROUP`.
   Formatters and source/release inventories cover Cargo's complete member roster.
   Ordinary browser tests and frozen inputs remain under `tests/`.
 - Document public types and meaningful invariants. Prefer expect over allow

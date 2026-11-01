@@ -62,6 +62,7 @@ impl<'a> Session<'a> {
             self.batch,
             self.options.actor,
             &self.input.gateway,
+            &self.input.host_release,
             selection,
             run,
             |method, args| {

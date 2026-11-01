@@ -32,7 +32,7 @@ fn history(path: &Path, batch: &PreparedBatch, expected: &SessionIntentRecord) -
     let host = HostConfigurationView {
         configuration: installation.configuration,
         project: installation.project.clone(),
-        release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
+        release: "0.77.0".into(),
         fenced: false,
     };
     let configuration = Run::create(&path.join("configuration")).unwrap();
@@ -112,13 +112,17 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
     expected.max_steps = 1;
     expected.max_service_queries = 10;
     expected.timeout_seconds = 60;
-    let mut sources = Sources::load(Some(&source), &expected, &batch).unwrap();
+    assert!(matches!(
+        Sources::load(Some(&source), &expected, &batch, "0.78.0"),
+        Err(Failure::Binding)
+    ));
+    let mut sources = Sources::load(Some(&source), &expected, &batch, "0.77.0").unwrap();
     let status_only = directory.path().join("status-only");
     expected.source_session = Some(source.clone());
     let resumed = history(&status_only, &batch, &expected);
     sources.record(&resumed, &source).unwrap();
     request(&status_only, 0, &Frame::Status { index: 0 });
-    let carried = Sources::load(Some(&status_only), &expected, &batch).unwrap();
+    let carried = Sources::load(Some(&status_only), &expected, &batch, "0.77.0").unwrap();
     assert_eq!(carried.files, sources.files);
     let provenance = std::fs::read(status_only.join("source-session.json")).unwrap();
     assert_eq!(
@@ -136,7 +140,7 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
         )
         .unwrap();
         assert!(matches!(
-            Sources::load(Some(&status_only), &expected, &batch),
+            Sources::load(Some(&status_only), &expected, &batch, "0.77.0"),
             Err(Failure::Binding)
         ));
     }
@@ -148,12 +152,12 @@ fn reopened_sources_keep_original_setup_and_observation_without_following_report
     )
     .unwrap();
     assert!(matches!(
-        Sources::load(Some(&status_only), &expected, &batch),
+        Sources::load(Some(&status_only), &expected, &batch, "0.77.0"),
         Err(Failure::Binding)
     ));
     std::fs::remove_file(status_only.join("source-session.json")).unwrap();
     assert!(matches!(
-        Sources::load(Some(&status_only), &expected, &batch),
+        Sources::load(Some(&status_only), &expected, &batch, "0.77.0"),
         Err(Failure::Binding)
     ));
     std::fs::write(status_only.join("source-session.json"), provenance).unwrap();
@@ -207,7 +211,7 @@ fn retained_history_admits_its_own_budget_before_replacing_restart_controls() {
             serde_json::to_vec(&original).unwrap(),
         )
         .unwrap();
-        let loaded = Sources::load(Some(&source), &expected, &batch);
+        let loaded = Sources::load(Some(&source), &expected, &batch, "0.77.0");
         if accepted {
             assert!(loaded.is_ok());
         } else {
@@ -246,7 +250,7 @@ fn source_history_refuses_changed_scope_content_roles_gateway_root_and_release()
         changed[key] = json!("changed");
         let changed = serde_json::from_value(changed).unwrap();
         assert!(matches!(
-            Sources::load(Some(&source), &changed, &batch),
+            Sources::load(Some(&source), &changed, &batch, "0.77.0"),
             Err(Failure::Binding)
         ));
     }
@@ -266,7 +270,7 @@ fn source_history_refuses_changed_scope_content_roles_gateway_root_and_release()
     )
     .unwrap();
     assert!(matches!(
-        Sources::load(Some(&source), &expected, &batch),
+        Sources::load(Some(&source), &expected, &batch, "0.77.0"),
         Err(Failure::Binding)
     ));
     std::fs::write(&reply, original).unwrap();
@@ -274,7 +278,7 @@ fn source_history_refuses_changed_scope_content_roles_gateway_root_and_release()
     inventory[0] ^= 1;
     std::fs::write(source.join("inventory.json"), inventory).unwrap();
     assert!(matches!(
-        Sources::load(Some(&source), &expected, &batch),
+        Sources::load(Some(&source), &expected, &batch, "0.77.0"),
         Err(Failure::Binding)
     ));
 }
@@ -292,7 +296,7 @@ fn source_history_preserves_exact_browser_selection_and_refuses_switch_to_unboun
         "worker_sha256":"3".repeat(64),"database":"original","max_slots":1,
     })).unwrap());
     history(&source, &batch, &expected);
-    assert!(Sources::load(Some(&source), &expected, &batch).is_ok());
+    assert!(Sources::load(Some(&source), &expected, &batch, "0.77.0").is_ok());
     for (key, value) in [
         ("profile", json!(directory.path().join("other"))),
         ("asset_port", json!(45001)),
@@ -304,13 +308,13 @@ fn source_history_preserves_exact_browser_selection_and_refuses_switch_to_unboun
         changed["browser"][key] = value;
         let changed = serde_json::from_value(changed).unwrap();
         assert!(matches!(
-            Sources::load(Some(&source), &changed, &batch),
+            Sources::load(Some(&source), &changed, &batch, "0.77.0"),
             Err(Failure::Binding)
         ));
     }
     expected.browser = None;
     assert!(matches!(
-        Sources::load(Some(&source), &expected, &batch),
+        Sources::load(Some(&source), &expected, &batch, "0.77.0"),
         Err(Failure::Binding)
     ));
 }
@@ -356,7 +360,7 @@ fn partial_or_discontinuous_control_history_never_selects_fresh_phase_sources() 
             std::fs::create_dir(source.join("step-0000")).unwrap();
         }
         assert!(matches!(
-            Sources::load(Some(&source), &expected, &batch),
+            Sources::load(Some(&source), &expected, &batch, "0.77.0"),
             Err(Failure::Binding)
         ));
     }
@@ -404,7 +408,7 @@ fn only_exact_unattempted_facts_distinguish_ordering_refusals_from_missing_claim
         )
         .unwrap();
     }
-    let sources = Sources::load(Some(&source), &expected, &batch).unwrap();
+    let sources = Sources::load(Some(&source), &expected, &batch, "0.77.0").unwrap();
     assert!(sources.files[0].setup.is_none());
     assert!(sources.files[0].transfer.is_none());
     for invalid in [
@@ -418,7 +422,7 @@ fn only_exact_unattempted_facts_distinguish_ordering_refusals_from_missing_claim
         )
         .unwrap();
         assert!(matches!(
-            Sources::load(Some(&source), &expected, &batch),
+            Sources::load(Some(&source), &expected, &batch, "0.77.0"),
             Err(Failure::Binding)
         ));
     }

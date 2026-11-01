@@ -20,7 +20,7 @@ fn args(base: &Path, bytes: &[u8]) -> Vec<String> {
         "--project",
         "isolated local fixture/β",
         "--release",
-        env!("CARGO_PKG_VERSION"),
+        "0.12.3", // Explicit host release, independent of this CLI package.
         "--run-dir",
         &base.join("output").display().to_string(),
     ]
@@ -56,7 +56,7 @@ fn complete_offline_check_preserves_proposal_without_allocating_or_replacing() {
     assert_eq!(report["service"], "rrkah-fqaaa-aaaaa-aaaaq-cai");
     assert_eq!(report["payment_account"], "ryjl3-tyaaa-aaaaa-aaaba-cai");
     assert_eq!(report["project"], "isolated local fixture/β");
-    assert_eq!(report["expected_host_release"], env!("CARGO_PKG_VERSION"));
+    assert_eq!(report["expected_host_release"], "0.12.3");
     assert_eq!(report["configuration_validated"], true);
     assert_eq!(report["host_init_encoded"], true);
     let installation = std::fs::read(output.join("installation.wire")).unwrap();

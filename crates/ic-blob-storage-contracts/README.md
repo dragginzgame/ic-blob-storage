@@ -11,10 +11,14 @@ provider behavior or authorize an effect. Hosts and the service retain those own
 
 Use `ic_blob_storage_contracts::{dto, identity, protocol}` for wire/client data.
 Use `ic_blob_storage` for service workflows, policy and durable owners. Both library
-packages inherit one workspace version. The 0.18.0 extraction removes the
+packages release independently in one workspace: Contracts owns this package's
+version; Engine owns the service, and Client owns replicated/native callers.
+The 0.18.0 extraction removes the
 former service Rust paths without compatibility reexports; that extraction preserved
 wire/hash identities. The current service uses bounded IC Wire for all owned methods and standalone lifecycle; see [the protocol](../../docs/service-wire.md).
 Provider Candid and hashes remain. Cross-release transitions remain reinstall-only.
+Verifier checkpoints bind the Contracts package release. Their existing byte
+namespace is unchanged; an Engine-only release does not change those bytes.
 
 ```sh
 cargo run -p ic-blob-storage-contracts --example prepare_upload -- --help

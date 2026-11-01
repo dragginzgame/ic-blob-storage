@@ -364,7 +364,9 @@ fn publishing(mut cli: Command) -> Command {
             name,
             "publish-map" | "publish-file-status" | "publish-session"
         ) {
-            selected = selected.args(arguments(name, "--gateway --operator-identity", true));
+            selected = selected
+                .args(arguments(name, "--gateway --operator-identity", true))
+                .after_help("Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.");
         }
         if matches!(
             name,

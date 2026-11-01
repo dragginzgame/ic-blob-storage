@@ -458,6 +458,11 @@ directory and the complete `publish-session` arguments, including your original
 native PEM paths, input/output paths and browser-selection file. The
 helper discovers no identity and parses no key. The separate browser bootstrap
 still takes explicitly selected SDK identity JSON.
+Native publication requires `BLOB_EXPECTED_HOST_RELEASE`, selected from the
+approved Engine deployment rather than the CLI or Contracts version. The child
+inherits it, or the existing `env` option supplies it explicitly as below. Both
+fresh and retained authenticated host replies must match; changing the selection
+cannot rebind a source session from another Engine release.
 
 ```js
 import { startPublicationSession } from './native.mjs';
@@ -465,6 +470,7 @@ import { startPublicationSession } from './native.mjs';
 const native = await startPublicationSession({
   binary: selectedAbsoluteCli, cwd: selectedAbsoluteWorkingDirectory,
   args: selectedPublishSessionArguments, // begins with 'publish-session'
+  env: { BLOB_EXPECTED_HOST_RELEASE: selectedEngineRelease },
   timeoutSeconds: 120,
 });
 let browser;

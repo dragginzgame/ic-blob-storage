@@ -20,7 +20,11 @@ finish() {
 }
 trap finish EXIT
 selected=crates/ic-blob-storage/src/lib.rs
-overlays=(ci/tool-versions.env scripts/ci/check-format-tools.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl scripts/ci/select-rust-formatting-sources.sh scripts/ci/fixture-lifecycle.sh make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
+overlays=(scripts/release/release-data.pl ci/tool-versions.env scripts/ci/check-format-tools.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl scripts/ci/select-rust-formatting-sources.sh scripts/ci/fixture-lifecycle.sh make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk Cargo.lock)
+cargo metadata --offline --locked --no-deps --format-version 1 > "$TEMPORARY/members.json"
+jq -r --arg root "$ROOT/" '. as $m | .packages[] | select(.id as $id | $m.workspace_members | index($id)) | .manifest_path | ltrimstr($root)' \
+    "$TEMPORARY/members.json" > "$TEMPORARY/manifests"
+while IFS= read -r manifest; do overlays+=("$manifest"); done < "$TEMPORARY/manifests"
 # Shared prepares the deliberate ordering defect; Blob selects its real inputs.
 perl "$ROOT/scripts/ci/prepare-cargo-formatting-fixture.pl" "$ROOT/Cargo.toml" \
     workspace.dependencies ic-build ic-host-artifacts > "$TEMPORARY/unsorted-Cargo.toml"

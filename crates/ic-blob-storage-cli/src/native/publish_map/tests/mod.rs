@@ -8,6 +8,7 @@ use ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure;
 enum Replies {
     Valid,
     WrongProject,
+    WrongRelease,
     Inactive,
     Fenced,
     Transport,
@@ -25,14 +26,18 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
     )
     .unwrap();
     let input = batch.installation();
+    let release = format!("{}-engine", ic_blob_storage_contracts::CONTRACT_VERSION);
     let mut host = HostConfigurationView {
         configuration: input.configuration,
         project: input.project.clone(),
-        release: ic_blob_storage_contracts::CONTRACT_VERSION.into(),
+        release: release.clone(),
         fenced: matches!(replies, Replies::Fenced),
     };
     if matches!(replies, Replies::WrongProject) {
         host.project.push_str("-wrong");
+    }
+    if matches!(replies, Replies::WrongRelease) {
+        host.release = ic_blob_storage_contracts::CONTRACT_VERSION.into();
     }
     let run = Run::create(&directory.path().join("map")).unwrap();
     tokio::runtime::Builder::new_current_thread()
@@ -43,6 +48,7 @@ fn observe(replies: &Replies) -> Result<Value, Failure> {
             &batch,
             permission.upload.tenant,
             &Url::parse("https://gateway.example/").unwrap(),
+            &release,
             Selection::Batch,
             &run,
             |method, args| {
@@ -104,6 +110,7 @@ fn map_requires_exact_installed_project_live_reference_and_no_fence() {
     assert_eq!(passed["publication_lease"], false);
     assert_eq!(passed["provider_upload_verified"], false);
     assert_eq!(observe(&Replies::WrongProject), Err(Failure::Binding));
+    assert_eq!(observe(&Replies::WrongRelease), Err(Failure::Binding));
     for (replies, code) in [
         (Replies::Inactive, "reference_inactive"),
         (Replies::Fenced, "fenced"),

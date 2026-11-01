@@ -20,6 +20,7 @@ use url::Url;
 mod tests;
 
 pub(super) struct Input {
+    pub host_release: String,
     pub checks: publish_check::Input,
     pub gateway: Url,
     pub operator_identity: PathBuf,
@@ -113,6 +114,7 @@ pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failu
             &batch,
             options.actor,
             &input.gateway,
+            &input.host_release,
             input.selection,
             &run,
             |method, args| query(&agent, &operator, scope.service, method, args),
@@ -140,6 +142,7 @@ pub(in crate::native) async fn inspect<Q, F>(
     batch: &publish_inputs::PreparedBatch,
     actor: Principal,
     gateway: &Url,
+    host_release: &str,
     selection: Selection,
     run: &Run,
     mut query: Q,
@@ -157,7 +160,7 @@ where
         .upload;
     let scope =
         publish_check::observation::scope(&batch.files, first.service, first.namespace, actor)?;
-    let host = configuration(batch, run, &mut query).await?;
+    let host = configuration(batch, host_release, run, &mut query).await?;
     let capacity = publish_check::observation::capacity(
         scope,
         &super::query::observe(
@@ -217,6 +220,7 @@ where
 
 pub(in crate::native) async fn configuration<Q, F>(
     batch: &publish_inputs::PreparedBatch,
+    host_release: &str,
     run: &Run,
     query: &mut Q,
 ) -> Result<HostConfigurationView, Failure>
@@ -233,12 +237,13 @@ where
         query,
     )
     .await?;
-    decode_configuration(batch, &bytes)
+    decode_configuration(batch, host_release, &bytes)
 }
 
 /// Shared immutable installation/release check for fresh and retained host replies.
 pub(in crate::native) fn decode_configuration(
     batch: &publish_inputs::PreparedBatch,
+    host_release: &str,
     bytes: &[u8],
 ) -> Result<HostConfigurationView, Failure> {
     let installation = batch.installation();
@@ -255,7 +260,7 @@ pub(in crate::native) fn decode_configuration(
     let host = host.map_err(|_| Failure::Denied)?;
     if host.configuration != installation.configuration
         || host.project != installation.project
-        || host.release != ic_blob_storage_contracts::CONTRACT_VERSION
+        || host.release != host_release
     {
         return Err(Failure::Binding);
     }

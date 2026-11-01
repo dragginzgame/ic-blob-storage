@@ -5,6 +5,15 @@ use ic_platform::Principal;
 use std::path::PathBuf;
 use url::{Host, Url};
 
+// The caller selects the deployed Engine independently of Client/Contracts.
+// Capture once before file/Agent setup; fresh and retained replies use this pin.
+fn host_release() -> Result<String, Failure> {
+    std::env::var("BLOB_EXPECTED_HOST_RELEASE")
+        .ok()
+        .filter(|release| !release.is_empty())
+        .ok_or(Failure::Arguments)
+}
+
 pub(super) struct Options {
     pub network: &'static str,
     pub url: Url,
@@ -111,6 +120,7 @@ fn parse_command(
             let gateway = value(flags, "--gateway");
             validate_url(&gateway, network, network == "local")?;
             Ok(Command::PublishSession(super::publish_session::Input {
+                host_release: host_release()?,
                 source_session: flags.get_one::<PathBuf>("--source-session").cloned(),
                 browser_selection: flags.get_one::<PathBuf>("--browser-selection").cloned(),
                 operator_identity: value(flags, "--operator-identity"),
@@ -131,6 +141,7 @@ fn parse_command(
             let gateway = value(flags, "--gateway");
             validate_url(&gateway, network, network == "local")?;
             Ok(Command::PublishMap(super::publish_map::Input {
+                host_release: host_release()?,
                 selection,
                 operator_identity: value(flags, "--operator-identity"),
                 checks: check_input(service, namespace, flags),

@@ -71,6 +71,10 @@ pub(super) fn command(args: &[String], roots: Option<&Path>) -> Command {
     let mut command = Command::new(executable);
     command
         .args(args)
+        .env(
+            "BLOB_EXPECTED_HOST_RELEASE",
+            ic_blob_storage::LIBRARY_VERSION,
+        )
         // Local mode must bypass ambient proxies, even without NO_PROXY exclusions.
         .env("HTTP_PROXY", "http://127.0.0.1:9")
         .env("http_proxy", "http://127.0.0.1:9")

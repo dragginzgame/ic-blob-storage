@@ -15,6 +15,8 @@ use std::fmt;
 use thiserror::Error;
 
 const MAGIC: &[u8; 8] = b"ICBV\0\0\0\x01";
+// Keep the existing byte namespace. This is the owning Contracts package's
+// release, independently of Engine and Client versions.
 const RELEASE: &str = concat!(
     "ic-blob-storage/",
     env!("CARGO_PKG_VERSION"),

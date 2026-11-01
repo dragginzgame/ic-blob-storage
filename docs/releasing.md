@@ -1,231 +1,195 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
-</p>
-
 # Releasing
 
-The [common release contract](releases.md) owns the standard commands, exact
-Git effects and interruption recovery. This repository supplies the validation
-gate, Cargo metadata and source-bound receipt. Registry publication is a separate
-maintainer action; a library release does not qualify the storage service.
+Blob keeps one workspace and lockfile with three independently released groups.
+The [Shared release contract](releases.md) owns Git delivery/recovery mechanics;
+Blob owns its group policy, full validation gate, receipts and registry admission.
+Release commands remain maintainer-operated under [AGENTS.md](../AGENTS.md).
+Publication neither deploys nor qualifies the storage service.
 
-## Setup and preview
+## Groups and history
 
-Prepare the pinned compiler/components and bootstrap tools from
-[dependency setup](dependencies.md), then run `make install-tools` and
-`make tools-check`. This includes the lock-selected Testkit CLI/server. Run
-`make deps` after dependency edits or cache removal. Offline checks never install
-missing executables or change dependency selections; older tool/evidence
-generations remain retained.
+| `RELEASE_GROUP` | Published package | Other coordinated members |
+| --- | --- | --- |
+| `contracts` | `ic-blob-storage-contracts` | None |
+| `client` | `ic-blob-storage-client` | Native CLI |
+| `engine` | `ic-blob-storage` | Standalone host, six probes, test protocol and PocketIC support |
 
-`make/consumer.mk` owns common setup, checks, formatting/hooks and release routing.
-Blob supplies product validation, ordered Testkit extensions and direct-delivery
-admission. Inspect the [snapshot](../.shared-tooling.snapshot) and review canonical
-`--preview` before refresh. Required companions are derived from the selected
-committed source; include every directly used helper as an entrypoint. Never patch
-vendored bytes or use mutable sibling tools. See
-[Shared snapshot adoption](consuming-snapshots.md) and
-[the current adoption](status/current.md).
+[ci/cargo-release-groups.json](../ci/cargo-release-groups.json) is authoritative.
+Every member has a literal version; dependencies inherit the root catalog. A
+release updates only the selected group's versions and its catalog requirements.
+For example, an Engine Memory API change leaves Contracts and Client versions
+unchanged. A Contracts release updates their inherited Contracts requirement,
+without claiming those consumers have themselves been released. Decide whether
+consumer republication is required from the changed contract, not supplier age.
+Breaking public changes before 1.0 require the affected group's next minor.
 
-Prepare ShellCheck separately; `SHELLCHECK=/absolute/path` selects an existing
-binary. Release preparation uses the published IC Build editor selected from
-Cargo.lock.
-`make install-release-editor` prepares it explicitly; `make release-editor-check`
-admits its absolute executable offline. Both are included in the complete tool
-setup/checks. The adapter selects the editor automatically and supplies an 8 MiB
-per-document input allowance; no manual environment export is needed.
-`make release-tools-check` admits that editor, ShellCheck and the reviewed
-Cargo sort/rustfmt without compilation. Both `fmt` and `fmt-check` use that same offline owner.
-`make install-hooks` activates the reviewed hook; hook and formatting qualification
-remain independent checks. Commands and package/version effects follow
-[development governance](governance/development.md); release targets are
-maintainer-operated here.
+Native `publish-map`, `publish-file-status` and `publish-session` require
+`BLOB_EXPECTED_HOST_RELEASE` to select the deployed Engine release explicitly.
+Make exports the current standalone package selection; direct CLI callers and
+native launcher parents must set their approved deployment's version themselves.
+The existing launcher `env` option can carry it. No discovery, default to a
+Contracts/Client version or relaxed comparison is introduced. Both current and
+retained authenticated configuration replies must match the selected release;
+changing this pin cannot authorize old session recovery across a reinstall.
+Saved intent/control/installation formats and Wire packets are unchanged.
+The pending Client batch is **0.66.0**. The new Platform/Wire/Memory public Rust
+identities also require **0.66.0** Contracts and Engine batches; these are
+independent impact decisions, not a workspace-wide version rule. All current
+Cargo package versions remain **0.65.0**. Release Contracts first so the inherited
+requirements select its new public identities before Client/Engine publication.
 
-## Maintainer release and recovery
+All members enter this layout at **0.65.0**, without a conversion bump. The
+[root changelog](../CHANGELOG.md) indexes group ledgers. Coordinated history is
+preserved once in [releases/history.md](../releases/history.md); the existing
+[0.65.0 receipt](release.json) and `v0.65.0` tag remain historical evidence.
+Group `release.json` files initially contain explicit inherited-baseline markers,
+not release receipts. They cannot authorize publication. The first actual group
+release replaces only its own marker with source-bound evidence. Resume or publish
+old coordinated releases with their original checkout/tools; no dual reader is
+introduced.
 
-From committed clean source on the selected branch:
+## Tools and preview
 
-```bash
-make release-patch # Select the increment from the complete pending batch.
-# For another batch, select patch/minor/major from its complete compatibility.
+Prepare the compiler/components from [dependency setup](dependencies.md), then
+run `make install-tools` and offline `make tools-check`. Explicit setup includes
+the lock-selected Testkit/server and IC Build release editor. After dependency
+edits/cache removal use `make deps`; checks never update the graph or install
+missing tools. `make release-editor-check` admits the prepared absolute editor,
+with an 8 MiB per-document allowance. `make release-tools-check` additionally
+admits ShellCheck and the pinned Cargo sort/rustfmt. An existing ShellCheck may
+be selected with `SHELLCHECK=/absolute/path`.
+
+Use the [canonical exporter](consuming-snapshots.md) for snapshot adoption, preview
+its impact and include every directly invoked helper as an entrypoint. Never
+patch shared files or route to mutable sibling tools. The hook, `fmt-check` and
+committed metadata checks all use grouped manifest ordering across all members.
+
+Preview without effects:
+
+```sh
+make version RELEASE_GROUP=engine
+make release-plan RELEASE_GROUP=engine VERSION=minor
 ```
 
-All three invoke the same pinned runner. This repository's
-`ci/release-delivery-policy.txt` admits only `RELEASE_DELIVERY=direct`. The shared
-checker enforces the same file at Make's standard release-command/metadata-hook
-boundary and in standalone metadata commands; unsupported or explicitly empty
-selections refuse before effects. The shared PR
-helper is included with the baseline, but Blob has not adopted merged-source
-receipt adapters. Default destination inputs are `RELEASE_REMOTE=origin`
-and `RELEASE_BRANCH=main`; an explicit override is saved with the exact push URL.
-It preflights, validates, prepares Cargo/version/notes/receipt, stages only
-Cargo.toml, Cargo.lock, CHANGELOG.md and docs/release.json, creates the release
-commit and annotated tag, then atomically pushes exactly that branch and tag.
-`--no-follow-tags` prevents configuration from adding other annotated tags.
-The runner rechecks the saved destination after validation and before push,
-and dispatches to the captured URL with an explicit option terminator.
-Publication, deployment and cleanup are separate. The publication adapter also prepares
-locked dependencies and runs the same Clippy gate after release/tag admission,
-before creating publication archives or contacting the registry.
-After confirmed delivery or completed resume, the runner refreshes the matching
-configured upstream tracking ref from exact remote observation. It preserves
-unrelated, newer, divergent, symbolic or concurrently changed refs; a local
-tracking failure reports a fetch remedy without repeating delivery.
-The shared runner, validation logger and formatting hook qualify actual GNU
-Make recipe execution and failure propagation before their guarded effects.
-Inherited ignore-errors, dry-run, question, touch or version-only modes refuse;
-remove those modes before retrying. The isolated admission recipe loads no
-consumer Makefile and preserves legitimate release variables and parallel settings.
+Missing, empty or unknown group selections refuse at Make and direct adapter
+entrypoints before setup or release effects. There is no default group, inferred
+selection, all-groups release or automatic dependent release.
 
-The complete gate is `make release-verify` (also `make ci` / `make validate`). It
-verifies the shared snapshot, local executables and dependency declarations, then
-fetches the selected lock with `make deps` and runs the existing full-workspace
-Clippy gate before other validation stages. Failure stops later compilation,
-tests and packaging, including under parallel Make. The remaining gate retains
-dependency boundaries, documentation links, shared fixtures, shell/helper checks,
-hook regressions, formatting, compilation, probe/docs checks, native/PocketIC
-tests, Wasm and packaging.
-Prerequisite or fetch failure stops before compilation or version mutation. Offline
-checks never select newer dependencies. The reviewed `scripts/ci/cargo-release-metadata.sh` owns coordinated Cargo
-version/lock/changelog preparation through the selected IC Build editor.
-Blob keeps source admission, its four-file rollback and receipt generation.
-The helper checks the complete inherited member/lock roster with locked offline
-Cargo metadata; external lock selections stay fixed. A later formatter or receipt
-failure still restores the original manifest, lock, changelog and prior receipt.
-Prepared metadata must pass formatting before its receipt is written or staged.
-Numbered `## [X.Y.Z] - Unreleased` notes are accepted at preflight and finalized
-with the saved UTC release date during preparation. Duplicate or competing
-candidates still refuse; published history and exact-date recovery stay unchanged.
+## Maintainer delivery and recovery
 
-The release gate uses the reviewed validation logger around the same `ci` target.
-Failed attempts retain unique raw logs under Git's
-`release-state/validation-failures`; retries preserve earlier logs. If that
-destination is unavailable, the logger preserves and reports its temporary logs.
+From clean committed source and notes, choose the selected group's increment:
 
-Normal release commands start fresh from current clean committed metadata. They
-do not scan historical plans, finish an older push or reuse saved validation.
-After a failed gate, fix and commit the inputs, then rerun the normal target.
-Uncommitted preparation must be restored, committed deliberately or recovered
-through its exact saved attempt:
-
-```bash
-make release-resume VERSION=VERSION_FROM_SAVED_PLAN
+```sh
+make release-patch RELEASE_GROUP=engine
+# Or release-minor / release-major, according to the affected public contract.
 ```
 
-Resume preserves that plan's source, version, date, destination and payload
-checks. A fresh release clears only stale intent for its selected candidate;
-other historical plans remain untouched. For example, committed metadata at
-`0.15.0` makes `release-patch` validate and prepare `0.15.1`, without claiming
-delivery of an older attempt. Blob's failed metadata transactions retain their
-backup and restore their inputs. Never rewrite receipts or delete evidence to
-trigger restart. See the [shared restart contract](releases.md#source-changes-after-saved-preparation-intent).
+`ci/release-delivery-policy.txt` admits direct delivery only. Branch and remote
+default to main/origin; explicit selections and exact destination URL are saved.
+Preflight checks the selected ledger's numbered `Unreleased` candidate before
+setup. Authorized one-shot commands prepare the locked sources/tools, then admit
+them offline and recheck pins, source identity and cleanliness. Post-validation
+preparation and recovery do not repeat installation. Direct preflight is offline
+unless preparation authority was supplied by the standard one-shot command.
 
-Late checks receive `RELEASE_COMMIT` separately from `RELEASE_SOURCE`. They read
-Cargo files, notes and the receipt from that exact commit and bind its sole parent
-and annotated tag to the saved identity. New draft notes do not invalidate the
-older receipt. Both prepared-source checks and these committed-source checks use
-Shared metadata validation with `--manifest-order-grouped`; committed checks
-export the selected commit rather than sorting or inspecting current draft files.
-The hook and independent `fmt-check` use the same grouped policy. These checks
-do not enforce deployment dependency exclusions; see
-[dependency admission](dependencies.md#dependency-roles-and-deployment-admission).
-Recovery pushes the selected release commit; a verified remote
-descendant is preserved when only its tag is missing. New fixes need their own
-complete validation before their next release push.
+The full `release-verify` / `ci` / `validate` gate remains workspace-wide. It covers
+snapshot/tools/pins, Clippy, dependency boundaries, docs, consumer tooling, shell,
+hooks, formatting, builds, native/PocketIC tests, Wasm and all public archives.
+Group selection narrows metadata/delivery, not the validation gate. Ordinary
+implementation uses [focused validation](governance/development.md).
 
-A lost push reply does not prove failure. Matching remote branch and tag complete
-the saved release without another push; failed readback or conflicting identity
-stops recovery. Never force-push, overwrite tags, increment prepared metadata
-again or remove the only retained evidence. Plans live in Git's `release-state`
-directory. An occupied lock requires inspecting its owner before manual removal.
+Shared's group helper and the published IC Build editor render the selected
+literal manifests, root catalog, lock entries and ledger; external lock selections
+stay fixed. Blob renders in disposable committed source, checks formatting, then
+writes its group receipt. Shared's transaction installs/checks that exact roster
+and restores all original files after failure, retaining failed preparation inputs.
+This includes the prior receipt. The receipt binds the group, version, validated
+source, date, group policy hash and every other staged release file's bytes.
 
-The former manual staging/commit/push sequence and exact-version one-shot are
-retired. Use the standard semantic release target and its saved recovery, rather
-than creating a second release workflow. `make release-tag-check` remains a
-read-only check of an already completed source/receipt/tag. `make release-check`
-uses isolated Git/Cargo substitutes: no real commit, tag, push or publication.
-It also invokes `make release-commands-check`, which exercises all entry points
-and conflicting selections against a substitute runner in a private Makefile
-copy. The repository's exact metadata, receipts and interrupted effects remain
-covered by its own fixtures.
-Failed local fixtures and preparation inputs remain at the printed paths.
+The exact roster comes from `make release-files RELEASE_GROUP=engine`: root
+manifest and lock, selected member manifests, ledger and receipt. The root
+changelog index and other group ledgers/receipts are not release files. Staging
+must contain exactly the admitted roster, with no unrelated staged/unstaged work.
+The runner creates `Release engine X.Y.Z`, annotated `engine-vX.Y.Z`, then pushes
+exactly that branch and tag atomically, with implicit tag following disabled.
+It retains configured-destination and exact remote readback guards. No force push.
+Make ignore-errors/dry-run/question/touch modes refuse before guarded effects.
+
+Normal targets always validate fresh clean source; they do not finish old intent.
+After fixing/committing a gate failure rerun the normal command. To recover one
+saved attempt, retain its original group and version:
+
+```sh
+make release-resume RELEASE_GROUP=engine VERSION=0.65.1
+```
+
+Plans use Git's `release-state/engine-0.65.1.plan` namespace. Source, date,
+increment, destination and payload remain bound. Later descendant notes or another
+group's release cannot substitute for the selected older receipt: late checks
+read `RELEASE_COMMIT`, bind its sole parent to `RELEASE_SOURCE` and verify its
+group tag. Matching remote readback reconciles a lost push reply; inconclusive or
+conflicting observations refuse. Never rewrite receipts/tags, force-push or erase
+the only evidence. Inspect occupied lock ownership before any manual removal.
+
+`release-tag-check` is read-only. `release-check` exercises disposable Git
+repositories, real selected metadata/editor/receipt checks and substituted expensive
+build/registry effects. It creates no real checkout commit/tag, upload or push.
+`release-commands-check` exercises all standard Make routes for each group with a
+substitute runner. Failed fixture/preparation paths are printed and retained.
+Validation logs remain in unique Git `release-state/validation-failures` entries;
+successful retries do not replace failures.
 
 ## Publication and deployment
 
-Publication remains an explicit maintainer action after the clean release,
-receipt, exact parent and annotated tag checks:
+Publish from the selected group's clean release commit/tag checkout:
 
 ```sh
-make publish
+make publish RELEASE_GROUP=contracts
+make publish RELEASE_GROUP=client
+make publish RELEASE_GROUP=engine
 ```
 
-The default calls standard Cargo for Contracts first, then Client, then Core, under one release
-lock. Cargo owns uploading and waiting for index visibility. A failed package
-publication stops before later packages. Retry the same command after investigating any
-failure: an exact version already on crates.io is skipped only after its archive
-checksum and Git source match the selected release. Failed readback, yanked rows,
-malformed responses or a different source refuse instead of authorizing an upload.
-Readback inputs and a fresh Cargo target remain under the printed
-`target/publication.*` path, preventing stale same-version verification artifacts. No local
-publication progress journal or additional polling loop is introduced.
-API and dry-run dependency reads use the reviewed
-[Shared metadata helper](verification-helpers.md#exact-cratesio-version-observation),
-requiring jq and curl 8.4.0 or newer for bounded responses. Each observation has
-its own new directory retaining request, response, HTTP/transport status and
-diagnostics, including failed reads. Shared owns exact metadata validation and
-the identifying API User-Agent; Blob refuses yanked versions and authenticates
-archive checksum, release source and package path before skipping an upload.
-Archive reads identify Blob's version and repository. Both transport owners
-disable implicit curl configuration.
-A 403 remains an inconclusive fatal response; it never authorizes uploading.
+Each command publishes only that group's public package. Publish Contracts first
+when a Client/Engine version requires a newly released Contracts version. There
+is no requirement to republish an unchanged group. `PUBLISH_PACKAGE` is optional
+and may only name the selected group's primary package; foreign selections refuse
+before lock/setup. Separate publication requires its completed receipt, exact
+parent and annotated tag. A later group release changes shared metadata; switch
+to the selected group's tag for publication/readback rather than rewriting receipts.
 
-`PUBLISH_PACKAGE=ic-blob-storage-contracts`, `ic-blob-storage-client` or `ic-blob-storage`
-selects one package when needed; it is optional. `make publish-dry-run` never
-uploads and still runs Cargo verification for already-published packages. Before
-contracts is published, the default dry-run verifies Contracts then refuses Client
-with dependency guidance: a dry-run cannot make that registry dependency exist.
-Use `make package` for coordinated local payload verification, or select contracts for
-its individual dry-run. Publishing neither deploys nor qualifies the service.
-Older completed releases need no runner plan for this separate publication check.
+Publication holds the shared release lock, prepares locked sources and runs the
+same Clippy gate before archive creation or registry contact. Cargo owns uploading
+and index visibility. A retry skips an existing version only after non-yanked
+registry metadata, archive checksum, VCS source and package path match this release.
+403, failed transport, malformed metadata or foreign bytes/source are fatal and
+cannot authorize upload. API reads use Shared's exact metadata helper with jq and
+curl 8.4.0+; archive reads also disable implicit curl configuration. Request,
+response, status and failures stay in fresh `target/publication.*` evidence.
 
-`make package` builds the opt-in native `blob-package-verify` contributor helper,
-then qualifies all three exact `.crate` payloads through IC Build. The helper's
-`package-verification` feature is disabled for ordinary CLI builds; public
-libraries/contracts and production Wasm have no IC Build dependency. Run
-`make package-verifier` to prepare only that executable. An explicit
-`BLOB_PACKAGE_VERIFIER` must name an existing absolute executable.
+`publish-dry-run` never uploads and still invokes Cargo verification for an
+already-published version. Client/Engine dry-runs require the **Contracts catalog
+version**, which may differ from their own version, to be indexed. Use `make
+package` for local mixed-version verification before that supplier publication.
 
-Blob selects the three package identities, contracts-only temporary registry patch,
-archive location and fresh retained evidence directory. IC Build owns packaging,
-exact extracted graph admission, frozen external selections, isolated compilation,
-all-target/Rustdoc tests and final integrity checks. Each source/metadata/archive
-file and each command's stdout/stderr has a 64 MiB ceiling, with at most 100,000
-source entries and depth 64. Build duration has no implicit deadline.
+`make package-verifier` builds the opt-in native CLI contributor binary. `make
+package` uses it to qualify all three exact `.crate` payloads at their independently
+observed versions through IC Build, with only Contracts temporarily registry-patched
+inside extracted verification. Normal CLI/product Wasm does not enable IC Build.
+IC Build owns exact extracted graph admission, frozen external selections, fresh
+compilation, all-target/Rustdoc tests and final source/archive/manifest/lock hashes.
+Limits are 64 MiB per file/command stream, 100,000 entries, depth64, no implicit
+build deadline. Nonzero/signal statuses and partial evidence propagate. Blob's
+mixed-version warm-cache regression executes changed current payloads. Verification
+never rewrites package manifests for publication or qualifies deployed service use.
 
-The real same-version regression and graph/byte/source/manifest/lock refusal
-cases remain consumer checks. Ordinary nonzero and signal termination statuses
-propagate through the thin wrapper; original command diagnostics and partial
-attempts remain under the printed `target/package/blob-verification.*` root.
-No package manifest is rewritten and no override enters publication. IC Build's
-fresh target prevents fixed archive timestamps from admitting stale same-version
-builds, while avoiding Cargo's
-[local-registry checksum failure](https://github.com/rust-lang/cargo/issues/14396).
-Package assembly needs Cargo 1.90 or newer; Blob's supported compiler floor is
-Rust 1.91. Package qualification never publishes or qualifies a deployed service.
+Validation builds precede version preparation, so retained binaries may report the
+previous version. Rebuild standalone Wasm at the released **Engine** version before
+deployment; freeze its bytes and run the maintained installation carrier with
+`BLOB_EXPECTED_HOST_RELEASE` independently selected. Default Make attribution comes
+from the standalone package's catalog version, never the Client/CLI version.
 
-Validation builds use the source version before release preparation. Preserved
-binaries may report that earlier version after a successful release. Before
-standalone deployment, rebuild at the selected released version, freeze its
-bytes and run the maintained PocketIC installation carrier case with
-`BLOB_EXPECTED_HOST_RELEASE` set independently to that version. Its compiled
-readback and reviewed module hash must match; a tag, receipt or filename does
-not establish the Wasm's compiled release.
-
-Before a hard-cut reinstall, complete the
-[retirement runbook](retiring-installations.md). It preserves exact provider,
-reference, uncertainty, balance and billing obligations independently of the
-new allocation ledger. Passing release validation does not authorize reset.
-
-No release command cleans consumer build or evidence artifacts. `make clean`
-is a separately authorized action. Native macOS qualification must be recorded
-for the selected source; Linux fixture passes do not establish it.
+Complete the [retirement runbook](retiring-installations.md) before hard-cut
+reinstallation; preserve provider objects, balances, uncertainty and billing
+obligations. Release/publication does not authorize reset or deployment. No release
+command cleans consumer artifacts; `make clean` is separate. Linux/cross-build
+checks do not establish native macOS or live provider qualification.

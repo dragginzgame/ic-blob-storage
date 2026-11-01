@@ -87,6 +87,7 @@ fn history_binding(
     source: &Path,
     expected: &SessionIntentRecord,
     batch: &PreparedBatch,
+    host_release: &str,
 ) -> Result<(u64, Option<PathBuf>), Failure> {
     let mut original: SessionIntentRecord = serde_json::from_slice(&packet(
         &source.join("intent.json"),
@@ -122,6 +123,7 @@ fn history_binding(
     let configuration = directory(&source.join("configuration"))?;
     let host = publish_map::decode_configuration(
         batch,
+        host_release,
         &packet(
             &configuration.join("query-0000-reply.wire"),
             exact_wire::INSTALLATION_BYTES as u64,
@@ -213,6 +215,7 @@ impl Sources {
         source: Option<&Path>,
         expected: &SessionIntentRecord,
         batch: &PreparedBatch,
+        host_release: &str,
     ) -> Result<Self, Failure> {
         let Some(source) = source else {
             return Ok(Self {
@@ -220,7 +223,7 @@ impl Sources {
             });
         };
         let source = directory(source)?;
-        let (max_steps, parent) = history_binding(&source, expected, batch)?;
+        let (max_steps, parent) = history_binding(&source, expected, batch, host_release)?;
         let mut sources = Self::seed(&source, parent.as_deref(), batch.files.len())?;
         for (expected_step, (step, action)) in steps(&source, max_steps, batch.files.len())?
             .into_iter()

@@ -1,5 +1,11 @@
 # Release fixture ownership
 
+Historical 0.16.1 review. The independent-group adapter now uses actual disposable
+Git source and the canonical Shared metadata editor; see the current
+[release guide](../releasing.md#maintainer-delivery-and-recovery) and
+[handoff](../status/current.md) for its retained consumer proofs. The scenario
+map below records the previous coordinated adapter, not the current command roster.
+
 Reviewed 2026-10-07 for pending 0.16.1, against released Blob source
 `49d6ba76964668a6835c63784a892af905ce10b1` and canonical Shared Tooling 0.1.15
 `bfb50bd0884b5e6c5ee9592056531c6108f96d73`. This map addresses

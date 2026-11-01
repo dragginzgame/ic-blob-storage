@@ -36,6 +36,10 @@ impl BrowserDriver {
         let node = std::env::var_os("BLOB_BROWSER_NODE").unwrap_or_else(|| "node".into());
         let mut command = Command::new(node);
         command
+            .env(
+                "BLOB_EXPECTED_HOST_RELEASE",
+                ic_blob_storage::LIBRARY_VERSION,
+            )
             .arg(repo.join("tests/browser").join(script))
             .arg(config_path)
             .current_dir(&repo)

@@ -1,0 +1,6 @@
+{
+   "group" : "client",
+   "inherited_release" : "v0.65.0",
+   "schema" : 1,
+   "status" : "inherited"
+}

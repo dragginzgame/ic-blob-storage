@@ -206,13 +206,13 @@ jobs:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
         run: make clippy
-      - name: Qualify coordinated library archives on this host
+      - name: Qualify mixed-version library archives on this host
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
           TMPDIR: ${{ runner.temp }}
         run: make package
-      - name: Retain coordinated archive qualification
+      - name: Retain mixed-version archive qualification
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

@@ -1,4 +1,4 @@
-//! Contributor-only coordinated package qualification; never a publication command.
+//! Contributor-only mixed-version package qualification; never a publication command.
 fn main() {
     #[cfg(not(target_family = "wasm"))]
     {
@@ -10,32 +10,27 @@ fn main() {
         use ic_host_process::tool::{OutputLimit, OutputLimits, ToolError};
         use std::{path::PathBuf, process::Command};
         let args = clap::Command::new("blob-package-verify")
-            .about("Qualify coordinated package archives without publication")
+            .about("Qualify independently versioned package archives without publication")
             .args(["workspace", "archives", "evidence"].map(|name| {
                 clap::Arg::new(name)
                     .required(true)
                     .value_parser(clap::value_parser!(PathBuf))
             }))
-            .arg(clap::Arg::new("version").required(true))
+            .args(
+                ["contracts-version", "client-version", "engine-version"]
+                    .map(|name| clap::Arg::new(name).required(true)),
+            )
             .get_matches();
-        let version = args.get_one::<String>("version").expect("required version");
         let packages = [
-            PackageArchiveSpec {
-                name: "ic-blob-storage-contracts",
-                version,
-                patch_registry: true,
-            },
-            PackageArchiveSpec {
-                name: "ic-blob-storage-client",
-                version,
-                patch_registry: false,
-            },
-            PackageArchiveSpec {
-                name: "ic-blob-storage",
-                version,
-                patch_registry: false,
-            },
-        ];
+            ("ic-blob-storage-contracts", "contracts-version", true),
+            ("ic-blob-storage-client", "client-version", false),
+            ("ic-blob-storage", "engine-version", false),
+        ]
+        .map(|(name, version, patch_registry)| PackageArchiveSpec {
+            name,
+            version: args.get_one::<String>(version).expect("required version"),
+            patch_registry,
+        });
         let result = qualify_package_archives(
             args.get_one::<PathBuf>("workspace")
                 .expect("required workspace"),
@@ -92,6 +87,6 @@ fn main() {
             };
             std::process::exit(status);
         }
-        println!("Coordinated archive graph, tests and final integrity checks passed.");
+        println!("Package archive graph, tests and final integrity checks passed.");
     }
 }

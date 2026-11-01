@@ -20,7 +20,7 @@ export BLOB_FUNDING_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/rel
 export BLOB_STANDALONE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm
 export BLOB_CLI_BIN := $(CARGO_TARGET_DIR)/debug/blob-storage
 export BLOB_PACKAGE_VERIFIER := $(CARGO_TARGET_DIR)/debug/blob-package-verify
-export BLOB_EXPECTED_HOST_RELEASE := $(shell perl scripts/release/release-data.pl version)
+export BLOB_EXPECTED_HOST_RELEASE := $(shell perl scripts/release/release-data.pl package-version ic-blob-storage-canister)
 export BLOB_BROWSER_NODE ?= node
 export BLOB_BROWSER_NPM ?= npm
 BLOB_SDK_INPUTS_BYTES ?= 10485760
@@ -28,13 +28,23 @@ VERSION ?=
 RELEASE := bash scripts/release/release.sh
 export RELEASE_DELIVERY ?= direct
 export PUBLISH_PACKAGE
+export RELEASE_GROUP
+ifneq ($(filter version ensure-clean release-plan release-tag-check publish publish-dry-run $(SHARED_RELEASE_TARGETS),$(MAKECMDGOALS)),)
+ifeq ($(filter contracts client engine,$(RELEASE_GROUP)),)
+$(error Select RELEASE_GROUP=contracts, client or engine)
+endif
+ifneq ($(words $(RELEASE_GROUP)),1)
+$(error Select exactly one RELEASE_GROUP)
+endif
+endif
+release-patch release-minor release-major release-resume: export BLOB_RELEASE_PREPARE := 1
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
 CI_TARGETS := shared-tooling-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
-CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
+CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-release-groups.json ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
-	$(wildcard crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
+	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package package-verifier clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
@@ -91,7 +101,8 @@ help:
 	@echo "evidence-check               Check retained evidence hashes without Rust builds"
 	@echo "ci / validate                Fetch locked dependencies, then validate"
 	@echo "release-check                Test release tooling without publication"
-	@echo "release-plan VERSION=minor   Preview patch/minor/major without effects"
+	@echo "Release/publication requires RELEASE_GROUP=contracts, client or engine"
+	@echo "release-plan VERSION=minor   Preview the selected group without effects"
 	@echo "release-{patch,minor,major}   Maintainer: prepare, commit, tag, push"
 	@echo "release-resume VERSION=x.y.z Maintainer: reconcile a saved release"
 	@echo "install-hooks                Enable the repository-local formatting hook"
@@ -128,11 +139,12 @@ tooling-evidence-check:
 	bash scripts/ci/test-tooling-evidence.sh
 
 documentation-links-check:
-	@set -o pipefail; find docs audits rules -type f -name '*.md' -print0 | \
+	@set -o pipefail; find docs audits rules releases -type f -name '*.md' -print0 | \
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
-	bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl ci/release-delivery-policy.txt make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/check-release-delivery.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl
+	@for group in contracts client engine; do \
+		RELEASE_GROUP="$$group" bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl ci/release-delivery-policy.txt make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/check-release-delivery.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl || exit $$?; done
 
 dependency-pins-check:
 	+@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \

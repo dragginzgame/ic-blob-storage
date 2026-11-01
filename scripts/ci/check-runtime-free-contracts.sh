@@ -8,7 +8,16 @@ if rg '^(ic-blob-storage |ic-cdk|ic-memory |ic-storage |ic-stable-structures )' 
     echo 'Contracts/native CLI depend on a service runtime owner' >&2
     exit 1
 fi
-echo 'Contracts and native CLI normal graphs are runtime-free across targets'
+echo 'Contracts and native CLI exclude the service engine and storage across targets'
+
+# Observe Contracts separately: CLI also links the replicated client's public
+# transport types. A combined selection unifies its Platform runtime features.
+cargo tree --offline --locked --target all --edges normal --prefix none --format '{p}' \
+    -p ic-blob-storage-contracts > "$contract_graph"
+if rg '^ic-platform-(runtime(-guard)?|macros) ' "$contract_graph"; then
+    echo 'Contracts depend on a Platform execution owner' >&2; exit 1
+fi
+echo 'Contracts alone exclude Platform execution'
 
 # Replicated callers need Platform execution, but never the installed service or stores.
 cargo tree --offline --locked --target all --edges normal --prefix none --format '{p}' \
@@ -34,7 +43,7 @@ echo 'Workspace feature/target selections exclude retired Platform/CDK'
 # Native interface inspection never enables a deployed parser or tooling runtime.
 cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
     --prefix none --format '{p}' -p ic-blob-storage-canister > "$contract_graph"
-if rg '^((ic-cdk|ic-cdk-macros|ic-cdk-executor|ic0|ic-management-canister-types|ic-testkit|pocket-ic|ic-build|ic-agent|candid_parser|clap|clap_builder|clap_derive|reqwest|tokio) v|ic-platform v0\.[12345]\.|ic-host-)' "$contract_graph"; then
+if rg '^((ic-cdk|ic-cdk-macros|ic-cdk-executor|ic0|ic-management-canister-types|ic-testkit|pocket-ic|ic-platform-pocket-ic|ic-build|ic-agent|candid_parser|clap|clap_builder|clap_derive|reqwest|tokio) v|ic-platform v0\.[12345]\.|ic-host-)' "$contract_graph"; then
     echo 'Deployment depends on a legacy runtime or native-only owner' >&2
     exit 1
 fi

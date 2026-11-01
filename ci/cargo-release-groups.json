@@ -1,0 +1,70 @@
+{
+   "groups" : [
+      {
+         "changelog" : "releases/contracts/CHANGELOG.md",
+         "dependencies" : [
+            "ic-blob-storage-contracts"
+         ],
+         "members" : [
+            "ic-blob-storage-contracts"
+         ],
+         "metadata_files" : [
+            "releases/contracts/release.json"
+         ],
+         "name" : "contracts",
+         "primary" : "ic-blob-storage-contracts",
+         "version" : "package"
+      },
+      {
+         "changelog" : "releases/client/CHANGELOG.md",
+         "dependencies" : [
+            "ic-blob-storage-cli",
+            "ic-blob-storage-client"
+         ],
+         "members" : [
+            "ic-blob-storage-client",
+            "ic-blob-storage-cli"
+         ],
+         "metadata_files" : [
+            "releases/client/release.json"
+         ],
+         "name" : "client",
+         "primary" : "ic-blob-storage-client",
+         "version" : "package"
+      },
+      {
+         "changelog" : "releases/engine/CHANGELOG.md",
+         "dependencies" : [
+            "blob-admission-probe",
+            "blob-authority-probe",
+            "blob-consumer-probe",
+            "blob-funding-probe",
+            "blob-gateway-source",
+            "blob-storage-probe",
+            "blob-test-protocol",
+            "ic-blob-storage",
+            "ic-blob-storage-canister",
+            "ic-blob-storage-pocketic-tests"
+         ],
+         "members" : [
+            "ic-blob-storage",
+            "ic-blob-storage-canister",
+            "blob-admission-probe",
+            "blob-authority-probe",
+            "blob-consumer-probe",
+            "blob-funding-probe",
+            "blob-gateway-source",
+            "blob-storage-probe",
+            "blob-test-protocol",
+            "ic-blob-storage-pocketic-tests"
+         ],
+         "metadata_files" : [
+            "releases/engine/release.json"
+         ],
+         "name" : "engine",
+         "primary" : "ic-blob-storage",
+         "version" : "package"
+      }
+   ],
+   "schema" : 1
+}

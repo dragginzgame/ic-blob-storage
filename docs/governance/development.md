@@ -233,16 +233,18 @@ the release-command checker binds its tooling root to the disposable checkout.
 The actual Testkit/Make routing fixture runs in `make shared-tooling-tests`.
 Actual hook, release and parallel Testkit fixtures export `make/consumer.mk`
 with all parsed companions; none may fall back to the real checkout's adapters.
-Release and Testkit fixtures use `prepare-script-fixture.sh` for explicit roots
-and their declared companion closure, then install their product-specific
-substitutes. Release fixtures live outside the checkout under
+Hook/Testkit fixtures use `prepare-script-fixture.sh` for explicit roots and
+their companion closure. The group release fixture exports visible regular
+source into a disposable repository, exercises the actual thirteen-member graph
+and installs only its build/registry substitutes. Release fixtures live under
 `${TMPDIR:-/tmp}/blob-release-tests.*`; failed fixtures remain there and the
 tooling evidence collector includes that prefix.
 The [original snapshot adoption record](../evidence/shared01500270.md) retains
 its direct-delivery adapter qualification. The [current handoff](../status/current.md)
 records the selected snapshot and source-bound follow-up checks. The
-[fixture ownership map](../evidence/release-fixture-ownership.md) records
-the shared runner matrix and the retained Blob adapter obligations.
+[historical fixture ownership map](../evidence/release-fixture-ownership.md)
+records the previous coordinated adapter; current group proofs are described
+in [the release guide](../releasing.md#maintainer-delivery-and-recovery).
 
 Keep implementation, relevant success/rejection/recovery evidence and cleanup
 in one coherent batch. Tests assert typed failures or observable behavior;
@@ -265,7 +267,9 @@ crate publication. Public/exposed dependency types, runtime behavior, product
 CLI/output, supported consumer builds and stored contracts still need review.
 Do not version each implementation slice or bump Cargo during routine coding.
 
-Maintain CHANGELOG.md for meaningful behavior and maintained tooling changes.
+Maintain `releases/<group>/CHANGELOG.md` for meaningful behavior and maintained
+tooling changes; root `CHANGELOG.md` is the group index. Groups are explicit in
+`ci/cargo-release-groups.json`.
 Follow [the shared changelog rules](../../rules/changelogs.md). Keep one numbered,
 undated next release at the top, automatically selected from the latest finalized
 release and the complete pending batch. Compatible pre-1.0 work uses the next
@@ -280,8 +284,11 @@ Never claim that changing the version establishes service or provider safety.
 
 ## Publication and recovery
 
-Release preparation requires committed clean input and full current validation.
-It updates only Cargo.toml, Cargo.lock, CHANGELOG.md and docs/release.json.
+Release preparation requires an explicit `RELEASE_GROUP=contracts`, `client` or
+`engine`, committed clean input and full current validation. It updates root
+Cargo.toml/Cargo.lock, the selected literal member manifests,
+`releases/<group>/CHANGELOG.md` and that group's `release.json`. Other groups retain
+their versions and ledgers; coordinated history remains in `releases/history.md`.
 Failed metadata preparation restores these files and retains its failed inputs.
 The receipt binds exact release-file hashes to the validated source commit.
 Release staging/commit reject unrelated changes. Push requires a clean selected
@@ -295,18 +302,19 @@ saved inputs. Before preparation, a failed gate starts fresh through the same
 target. Uncommitted preparation stays bound to the saved source and increment.
 Normal targets use current clean committed metadata and always run fresh gates;
 they do not inspect historical plans or finish earlier delivery. Use explicit
-`release-resume VERSION=X.Y.Z` for one saved attempt with its original bindings.
+`release-resume RELEASE_GROUP=engine VERSION=X.Y.Z` for one saved attempt with its original bindings.
 A fresh attempt replaces stale intent only for its selected candidate. An uncertain push
 requires remote readback. The local
 adapter owns workspace metadata and the receipt, not another release state
 machine. Formatter prerequisites are prepared before validation; `fmt-check`
 and `hooks-check` run independently in the complete gate.
-After clean source/candidate admission, release preflight runs locked `make deps`,
-the consumer's existing `make install-tools` and offline `make tools-check`,
-then rechecks source identity/cleanliness and runs `make release-tools-check`
-for the selected ShellCheck
-executable, reviewed cargo-sort version and rustfmt availability before entering
-full validation. Both formatting targets delegate formatter prerequisites to
+After clean source/candidate admission, the canonical Cargo preflight fetches
+locked sources, runs `make install-tools`, then offline `make tools-check` and
+`make release-tools-check` when entered through an authorized one-shot command.
+Direct preflight defaults to offline source/tool admission. It rechecks pins,
+source identity and cleanliness before full validation. Tool admission covers
+the selected ShellCheck executable, reviewed cargo-sort and rustfmt availability.
+Both formatting targets delegate formatter prerequisites to
 the shared offline checker; setup and CI retain the same consumer pin.
 Missing or unusable tools refuse with setup guidance before release-file mutation;
 the prerequisite check never installs or compiles. Setup is confined to preflight;
