@@ -1,6 +1,16 @@
 {
+   "date" : "2026-11-01",
+   "files" : {
+      "Cargo.lock" : "ba43944f5317ca15e23ad0dc8de799f3f656d62935c8e3196dd9f403af241bb1",
+      "Cargo.toml" : "5a1f83d3e9e449ac4cfcf5bd72202a7a02f2eb76800322ee171dfa2be697ea86",
+      "crates/ic-blob-storage-contracts/Cargo.toml" : "acde6256797cc656ee39a7a8c159591889a02777960b786d03618496247c8970",
+      "releases/contracts/CHANGELOG.md" : "8e4cda5960492eb7392d9ddf4cb74079bdbb27aad5a3641ad233ebb7b4040ab5"
+   },
+   "gate" : "release-verify",
    "group" : "contracts",
-   "inherited_release" : "v0.65.0",
+   "policy" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
    "schema" : 1,
-   "status" : "inherited"
+   "source" : "fbe0cbb5a398f4b904b065031b979015e495af8e",
+   "status" : "released",
+   "version" : "0.66.0"
 }
