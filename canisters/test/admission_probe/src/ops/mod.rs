@@ -115,7 +115,7 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
     STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
     let mut runtime = MemoryRuntime::new_with_config(
         DefaultMemoryImpl::default(),
-        MemoryManagerConfig::new(16).unwrap(),
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
     )
     .unwrap();
     let declarations =

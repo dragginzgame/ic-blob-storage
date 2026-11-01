@@ -52,7 +52,7 @@ impl ServiceStoreConfiguration {
 /// Store construction requires exclusive `RuntimeMemory` handles from the host.
 /// The library never chooses memory IDs or registers grants implicitly.
 pub struct ServiceMemories<M> {
-    /// Eleven upload, reference and accounting memories.
+    /// Ten upload, reference and accounting memories.
     pub uploads: UploadMemories<M>,
     /// Two funding accounting/history memories.
     pub funding: FundingMemories<M>,

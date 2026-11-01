@@ -117,10 +117,10 @@ fn custom_consumer_envelope_and_missing_or_oversized_cells_never_seed_empty_stat
         "fixture",
         "fixture.",
         &[KEY],
-        MemoryManagerConfig::new(16).unwrap(),
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
     )
     .unwrap()
-    .open_memory(KEY)
+    .open_memory(&ic_memory::StableKey::parse(KEY).unwrap())
     .unwrap();
     let mut retained = vec![0; original.len()];
     memory.read(0, &mut retained);

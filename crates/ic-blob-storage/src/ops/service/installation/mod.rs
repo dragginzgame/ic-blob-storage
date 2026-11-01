@@ -122,7 +122,7 @@ impl<M: Memory> ServiceInstallation<M> {
             0,
             "configuration grant aliases service memory"
         );
-        drop(StableCell::new(
+        drop(StableCell::create(
             memories.configuration,
             candidate.configuration.clone(),
         ));

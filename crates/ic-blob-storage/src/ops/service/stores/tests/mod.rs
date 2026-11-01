@@ -12,7 +12,7 @@ fn memories(
     grants::open::<_, std::convert::Infallible>(|key| {
         let index = requests
             .iter()
-            .position(|request| request.stable_key().as_str() == key)
+            .position(|request| request.stable_key() == key)
             .unwrap();
         Ok(m[index].lease())
     })

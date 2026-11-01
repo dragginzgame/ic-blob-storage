@@ -5,7 +5,7 @@
 //! registers nothing. Configuration memory and lifecycle remain host-owned.
 use super::ServiceMemories;
 use crate::ops::service::{funding::FundingMemories, uploads::UploadMemories};
-use ic_memory::{Memory, RuntimeMemory};
+use ic_memory::{Memory, RuntimeMemory, StableKey};
 use ic_memory::{MemoryDeclarationError, MemoryRequest};
 
 // Logical identities are independent of host-selected physical IDs. Keep this
@@ -51,9 +51,13 @@ pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclaration
 /// independent freshness or permission to activate a restored installation.
 /// # Errors
 /// Preserves the host lookup's errors for an unbootstrapped runtime or missing grant.
+/// # Panics
+/// A built-in allocation key violates Memory's canonical key grammar.
 pub fn open<M: Memory, E>(
-    mut lookup: impl FnMut(&str) -> Result<RuntimeMemory<M>, E>,
+    mut lookup: impl FnMut(&StableKey) -> Result<RuntimeMemory<M>, E>,
 ) -> Result<ServiceMemories<RuntimeMemory<M>>, E> {
+    let mut lookup =
+        |key: &str| lookup(&StableKey::parse(key).expect("canonical service allocation key"));
     Ok(ServiceMemories {
         uploads: UploadMemories {
             tenants: lookup(KEYS.uploads.tenants)?,

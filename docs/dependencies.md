@@ -179,6 +179,10 @@ host runtime. Store/workflow generic parameters name `Backing`; passive memory
 bundles carry handles without granting access. Production hosts compose all
 fourteen Blob requests before a single bootstrap. Cross-release installations
 require [safe retirement](retiring-installations.md), not automatic migration.
+Memory/Storage 0.61 uses checked `StableKey` references for runtime lookup and
+`NonZeroU16` for bucket configuration. Blob creates only fresh owning collections
+and loads retained ones explicitly; it never resets them or falls back to creation
+after a failed load. Valid retained record bytes and durable keys are unchanged.
 
 Native fixture custody uses Memory's published `testing::fixture_runtime` with
 retained backing and explicit leases. Raw bytes remain available only to native

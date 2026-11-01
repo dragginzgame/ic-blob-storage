@@ -78,9 +78,9 @@ impl<M: Memory> StableFundingJournal<M> {
         if memory.accounting.size() != 0 || memory.intents.size() != 0 {
             return Err(FundingJournalError::AlreadyAllocated);
         }
-        let mut accounting = StableBTreeMap::new(memory.accounting);
+        let mut accounting = StableBTreeMap::create(memory.accounting);
         assert_eq!(memory.intents.size(), 0, "distinct funding memories");
-        let intents = StableBTreeMap::new(memory.intents);
+        let intents = StableBTreeMap::create(memory.intents);
         accounting.insert([0; 32], FundingAccountingRecord::Totals(record));
         Ok(Self {
             accounting,

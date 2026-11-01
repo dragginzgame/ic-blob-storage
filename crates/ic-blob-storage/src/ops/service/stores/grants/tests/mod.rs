@@ -32,7 +32,11 @@ fn snapshot(missing: Option<usize>) -> SealedDeclarationSnapshot {
     SealedDeclarationSnapshot::new(service).unwrap()
 }
 fn runtime(backing: VectorMemory) -> MemoryRuntime<VectorMemory> {
-    MemoryRuntime::new_with_config(backing, MemoryManagerConfig::new(1).unwrap()).unwrap()
+    MemoryRuntime::new_with_config(
+        backing,
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
+    )
+    .unwrap()
 }
 
 #[test]
@@ -59,7 +63,11 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
     let declarations = snapshot(None);
     host.bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
         .unwrap();
-    let neighbor = host.open_memory("application.settings.v1").unwrap();
+    let neighbor = host
+        .open_memory(
+            &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+        )
+        .unwrap();
     neighbor.grow(1).unwrap();
     neighbor.write(0, b"retained neighbor");
     drop(neighbor);
@@ -93,9 +101,11 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
     host.bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
         .unwrap();
     let mut retained = [0; 17];
-    host.open_memory("application.settings.v1")
-        .unwrap()
-        .read(0, &mut retained);
+    host.open_memory(
+        &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+    )
+    .unwrap()
+    .read(0, &mut retained);
     assert_eq!(&retained, b"retained neighbor");
 }
 
@@ -107,7 +117,11 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
     runtime
         .bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
         .unwrap();
-    let neighbor = runtime.open_memory("application.settings.v1").unwrap();
+    let neighbor = runtime
+        .open_memory(
+            &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+        )
+        .unwrap();
     neighbor.grow(1).expect("neighbor memory growth");
     neighbor.write(0, b"application-owned data");
     let before = backing.borrow().clone();
@@ -121,13 +135,7 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
         .iter()
         .filter(|r| r.stable_key().as_str() != "blob.gateways.v1")
     {
-        assert_eq!(
-            runtime
-                .open_memory(request.stable_key().as_str())
-                .unwrap()
-                .size(),
-            0
-        );
+        assert_eq!(runtime.open_memory(request.stable_key()).unwrap().size(), 0);
     }
 }
 
@@ -144,7 +152,11 @@ fn composed_journey(first: u8) {
     let mut host = runtime(backing.clone());
     host.bootstrap(&declarations, &pool(first), &GenericAllocationPolicy)
         .unwrap();
-    let neighbor = host.open_memory("application.settings.v1").unwrap();
+    let neighbor = host
+        .open_memory(
+            &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+        )
+        .unwrap();
     assert_eq!(neighbor.grow(1), Ok(0));
     neighbor.write(0, b"application-owned data");
 
@@ -209,9 +221,11 @@ fn composed_journey(first: u8) {
         Ok(Some(enrollment))
     );
     let mut retained = [0; 22];
-    host.open_memory("application.settings.v1")
-        .unwrap()
-        .read(0, &mut retained);
+    host.open_memory(
+        &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+    )
+    .unwrap()
+    .read(0, &mut retained);
     assert_eq!(&retained, b"application-owned data");
     assert_eq!(*backing.borrow(), bytes);
 }

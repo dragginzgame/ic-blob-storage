@@ -142,8 +142,9 @@ compose this passive inventory with their other application declarations before
 their own bootstrap. Store-only compositions can use the thirteen requests from
 `ops::service::stores::grants::requests`. `grants::open` assembles the current store mapping using that host's
 committed-memory lookup; missing grants refuse without creating or repairing a
-store. Hosts supply `grants::open(|key| runtime.open_memory(key))` from their own
-retained, bootstrapped Memory runtime; there is no default-runtime adapter.
+store. Hosts supply `grants::open(|key| runtime.open_memory(key))` with checked
+`&ic_memory::StableKey` inputs from their own retained, bootstrapped Memory
+runtime; there is no default-runtime adapter.
 Opening cannot silently choose a bucket policy or create a second manager.
 The runtime owns exclusive leases; the host assigns them to one storage owner.
 Standalone uses the shared mapping with its configuration grant and host-owned

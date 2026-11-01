@@ -29,7 +29,7 @@ impl<M: Memory> FixtureJournal<M> {
             "fixture",
             "fixture.",
             key,
-            MemoryManagerConfig::new(16).expect("host bucket profile"),
+            MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
             limits.bytes,
         )
         .expect("fresh bounded fixture journal");
@@ -52,7 +52,7 @@ impl<M: Memory> FixtureJournal<M> {
             "fixture",
             "fixture.",
             key,
-            MemoryManagerConfig::new(16).expect("host bucket profile"),
+            MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
             limits.bytes,
         )
         .expect("retained bounded fixture journal");

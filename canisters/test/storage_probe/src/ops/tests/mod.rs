@@ -7,10 +7,14 @@ fn nested_probe_backings_share_identity_only_for_aliases_of_the_same_grant() {
         "probe",
         "probe.",
         &["probe.first.v1", "probe.second.v1"],
-        MemoryManagerConfig::new(1).unwrap(),
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
     )
     .unwrap();
-    let memory = Rc::new(runtime.open_memory("probe.first.v1").unwrap());
+    let memory = Rc::new(
+        runtime
+            .open_memory(&StableKey::parse("probe.first.v1").expect("valid allocation key"))
+            .unwrap(),
+    );
     let wrap = |memory| ProbeMemory {
         memory,
         fault: None,
@@ -18,7 +22,11 @@ fn nested_probe_backings_share_identity_only_for_aliases_of_the_same_grant() {
     };
     let first = wrap(Rc::clone(&memory));
     let alias = wrap(memory);
-    let second = wrap(Rc::new(runtime.open_memory("probe.second.v1").unwrap()));
+    let second = wrap(Rc::new(
+        runtime
+            .open_memory(&StableKey::parse("probe.second.v1").expect("valid allocation key"))
+            .unwrap(),
+    ));
     assert_eq!(first.backing_identity(), alias.backing_identity());
     assert_eq!(first.backing_identity(), first.backing_identity());
     assert_ne!(first.backing_identity(), second.backing_identity());

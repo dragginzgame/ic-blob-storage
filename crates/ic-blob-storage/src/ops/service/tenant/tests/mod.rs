@@ -75,12 +75,19 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
     .expect("host allocation pool");
     let declarations = SealedDeclarationSnapshot::new(vec![request]).unwrap();
     let raw = ic_memory::VectorMemory::default();
-    let mut runtime =
-        MemoryRuntime::new_with_config(raw.clone(), MemoryManagerConfig::new(16).unwrap()).unwrap();
+    let mut runtime = MemoryRuntime::new_with_config(
+        raw.clone(),
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
+    )
+    .unwrap();
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
-    let memory = runtime.open_memory("fixture.tenants.v1").unwrap();
+    let memory = runtime
+        .open_memory(
+            &ic_memory::StableKey::parse("fixture.tenants.v1").expect("valid allocation key"),
+        )
+        .unwrap();
     let mut store = StableTenantEnrollments::install(memory, config()).unwrap();
     let active = store.update(context(2), update(4, None, true)).unwrap();
     let suspended = store
@@ -88,12 +95,19 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
         .unwrap();
     drop(store);
     drop(runtime);
-    let mut runtime =
-        MemoryRuntime::new_with_config(raw, MemoryManagerConfig::new(16).unwrap()).unwrap();
+    let mut runtime = MemoryRuntime::new_with_config(
+        raw,
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
+    )
+    .unwrap();
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
-    let memory = runtime.open_memory("fixture.tenants.v1").unwrap();
+    let memory = runtime
+        .open_memory(
+            &ic_memory::StableKey::parse("fixture.tenants.v1").expect("valid allocation key"),
+        )
+        .unwrap();
     let mut store = StableTenantEnrollments::open(memory, config()).unwrap();
     assert!(store.is_fenced());
     assert_eq!(store.inspect(context(4), p(4)), Ok(Some(suspended)));

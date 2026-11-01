@@ -1,4 +1,4 @@
-//! The standalone host owns one ic-memory runtime and fifteen exclusive grants.
+//! The standalone host owns one ic-memory runtime and fourteen exclusive grants.
 use ic_blob_storage::ic_memory::DefaultMemoryImpl;
 use ic_blob_storage::ic_memory::GenericAllocationPolicy;
 use ic_blob_storage::ic_memory::Memory as _;
@@ -8,6 +8,7 @@ use ic_blob_storage::ic_memory::MemoryManagerConfig;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
+use ic_blob_storage::ic_memory::StableKey;
 use ic_blob_storage::ops::service::installation;
 use ic_blob_storage::ops::service::installation::INSTALLATION_MEMORY_KEY;
 use ic_blob_storage::ops::service::stores::ServiceMemories;
@@ -30,14 +31,14 @@ pub(super) fn open(fresh: bool) -> Grants {
     let declarations = SealedDeclarationSnapshot::new(requests).expect("host declarations");
     let mut runtime = MemoryRuntime::new_with_config(
         backing,
-        MemoryManagerConfig::new(16).expect("host bucket policy"),
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
     )
     .expect("host memory runtime");
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .expect("host memory bootstrap");
     let configuration = runtime
-        .open_memory(INSTALLATION_MEMORY_KEY)
+        .open_memory(&StableKey::parse(INSTALLATION_MEMORY_KEY).expect("configuration key"))
         .expect("exclusive configuration grant");
     let stores = grants::open(|key| runtime.open_memory(key)).expect("exclusive service grants");
     Grants {

@@ -196,7 +196,8 @@ fn gateway_cell_header_and_codec_failures_preserve_bytes_and_release_custody() {
         store.begin_sync(context(), scope()).unwrap();
         drop(store);
         if invalid_codec {
-            drop(StableCell::new(
+            // Deliberate fixture corruption, never a restoration fallback.
+            drop(StableCell::reset(
                 memory.lease(),
                 b"foreign gateway payload".to_vec(),
             ));

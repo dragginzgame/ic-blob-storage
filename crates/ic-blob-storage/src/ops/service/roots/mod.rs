@@ -57,13 +57,13 @@ impl<M: Memory> StableRootClaims<M> {
         if roots.size() != 0 || objects.size() != 0 {
             return Err(RootStoreError::AlreadyAllocated);
         }
-        let mut roots = StableBTreeMap::new(roots);
+        let mut roots = StableBTreeMap::create(roots);
         assert_eq!(
             objects.size(),
             0,
             "root and object memories must be distinct"
         );
-        let objects = StableBTreeMap::new(objects);
+        let objects = StableBTreeMap::create(objects);
         roots.insert(
             METADATA,
             RootClaimRecord::Metadata(RootStoreMetadataRecord::new(&config)),

@@ -104,10 +104,7 @@ fn memories(
     ServiceInstallationMemories {
         configuration: memory[0].lease(),
         stores: grants::open::<_, std::convert::Infallible>(|key| {
-            let index = requests
-                .iter()
-                .position(|r| r.stable_key().as_str() == key)
-                .unwrap();
+            let index = requests.iter().position(|r| r.stable_key() == key).unwrap();
             Ok(memory[index + 1].lease())
         })
         .unwrap(),
@@ -314,7 +311,8 @@ fn corrupt_configuration_cell_refuses_without_repairing_other_owners() {
         let memory = memory();
         drop(ServiceInstallation::install(memories(&memory), validated()).unwrap());
         if invalid_codec {
-            drop(StableCell::new(
+            // Deliberate fixture corruption, never a restoration fallback.
+            drop(StableCell::reset(
                 memory[0].lease(),
                 b"not a configuration record".to_vec(),
             ));

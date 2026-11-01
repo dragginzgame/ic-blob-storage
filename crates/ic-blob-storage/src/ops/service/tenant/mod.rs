@@ -52,7 +52,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
         if memory.size() != 0 {
             return Err(TenantStoreError::AlreadyAllocated);
         }
-        let mut entries = StableBTreeMap::new(memory);
+        let mut entries = StableBTreeMap::create(memory);
         entries.insert(
             Principal::management_canister().into(),
             TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config)),

@@ -151,18 +151,18 @@ impl<M: Memory> StableUploads<M> {
         let roots = StableRootClaims::install(memory.roots, memory.objects, config)
             .expect("fresh distinct root memories");
         assert_eq!(memory.permissions.size(), 0, "distinct permission memory");
-        let mut permissions = StableBTreeMap::new(memory.permissions);
+        let mut permissions = StableBTreeMap::create(memory.permissions);
         assert_eq!(memory.usage.size(), 0, "distinct usage memory");
-        let mut usage = StableBTreeMap::new(memory.usage);
+        let mut usage = StableBTreeMap::create(memory.usage);
         assert_eq!(memory.manifests.size(), 0, "distinct manifest memory");
-        let manifests = StableBTreeMap::new(memory.manifests);
-        let deletions = ic_storage::adapter::StableBTreeSet::new(memory.deletions);
+        let manifests = StableBTreeMap::create(memory.manifests);
+        let deletions = ic_storage::adapter::StableBTreeSet::create(memory.deletions);
         assert_eq!(memory.confirmed.size(), 0, "distinct confirmed memory");
-        let confirmed = StableBTreeMap::new(memory.confirmed);
+        let confirmed = StableBTreeMap::create(memory.confirmed);
         assert_eq!(memory.references.size(), 0, "distinct reference memory");
-        let references = StableBTreeMap::new(memory.references);
+        let references = StableBTreeMap::create(memory.references);
         assert_eq!(memory.receipts.size(), 0, "distinct receipt memory");
-        let receipts = StableBTreeMap::new(memory.receipts);
+        let receipts = StableBTreeMap::create(memory.receipts);
         permissions.insert(
             metadata(),
             UploadStoreRecord::Configuration(UploadConfigurationRecord::new(&config)),

@@ -27,6 +27,7 @@ use ic_blob_storage::ic_memory::MemoryRequest;
 use ic_blob_storage::ic_memory::MemoryRuntime;
 use ic_blob_storage::ic_memory::RuntimeMemory;
 use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
+use ic_blob_storage::ic_memory::StableKey;
 use ic_blob_storage::model::service::upload::UploadManifestState;
 use ic_blob_storage::ops::service::stores::ServiceMemories;
 use ic_blob_storage::ops::service::stores::ServiceStores;
@@ -133,7 +134,9 @@ pub(crate) fn initialize(
     let config = configuration::configuration(input);
     STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
     let (runtime, memory) = granted_memories();
-    let neighbor = runtime.open_memory("neighbor.data.v1").unwrap();
+    let neighbor = runtime
+        .open_memory(&StableKey::parse("neighbor.data.v1").expect("valid allocation key"))
+        .unwrap();
     if !restored {
         assert_eq!(neighbor.grow(1), Ok(0));
         neighbor.write(0, b"neighbor");
@@ -215,7 +218,7 @@ fn granted_memories() -> (
     let declarations = SealedDeclarationSnapshot::new(requests).unwrap();
     let mut runtime = MemoryRuntime::new_with_config(
         ProbeBackingMemory::default(),
-        MemoryManagerConfig::new(16).unwrap(),
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
     )
     .unwrap();
     runtime
@@ -264,7 +267,11 @@ fn probe_memory(
     index: usize,
 ) -> RuntimeMemory<ProbeMemory> {
     let backing = ProbeMemory {
-        memory: Rc::new(runtime.open_memory(key).unwrap()),
+        memory: Rc::new(
+            runtime
+                .open_memory(&StableKey::parse(key).unwrap())
+                .unwrap(),
+        ),
         index,
         fault: match key {
             "fixture.tenants.v1" => Some(WriteFault::Tenants),
@@ -289,10 +296,10 @@ fn probe_memory(
         "probe",
         "probe.",
         &["probe.collection.v1"],
-        MemoryManagerConfig::new(1).unwrap(),
+        MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
     )
     .unwrap()
-    .open_memory("probe.collection.v1")
+    .open_memory(&StableKey::parse("probe.collection.v1").expect("valid allocation key"))
     .unwrap()
 }
 
@@ -358,7 +365,7 @@ pub(crate) fn admit_with_growth(
             .as_ref()
             .unwrap()
             .runtime
-            .open_memory("neighbor.data.v1")
+            .open_memory(&StableKey::parse("neighbor.data.v1").expect("valid allocation key"))
             .unwrap();
         let before = memory.size();
         REFUSE_GROWTH.set(input.refuse);

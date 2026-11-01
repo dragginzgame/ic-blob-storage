@@ -17,7 +17,11 @@ pub(crate) struct FixtureMemory {
 }
 impl FixtureMemory {
     pub(crate) fn lease(&self) -> RuntimeMemory<VectorMemory> {
-        self.runtime.open_memory("fixture.store.v1").unwrap()
+        self.runtime
+            .open_memory(
+                &ic_memory::StableKey::parse("fixture.store.v1").expect("valid allocation key"),
+            )
+            .unwrap()
     }
     pub(crate) fn snapshot(&self) -> Self {
         Self::from_backing(Rc::new(RefCell::new(self.bytes.borrow().clone())))
@@ -28,7 +32,7 @@ impl FixtureMemory {
             "fixture",
             "fixture.",
             &["fixture.store.v1"],
-            MemoryManagerConfig::new(1).unwrap(),
+            MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
         )
         .unwrap();
         Self {

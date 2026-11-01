@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.65.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Adopt Memory/Storage 0.61.0 across the public Memory boundary and host grants.
+  Grant lookup callbacks now receive checked `StableKey` references; hosts must
+  align their Memory identity and use nonzero bucket configuration. Fresh stores
+  use explicit creation and retained stores use load, with no initialize-or-load
+  fallback. Durable keys, record bytes, budgets and recovery fences are unchanged.
+  Cross-release service transitions retain the retirement/reinstall contract.
+
+### ⬆️ Dependencies
+
+- Adopt Wire 0.13.5 while preserving endpoint identities, canonical bytes,
+  decoder limits and exact retry inputs. Its codec measurements do not establish
+  Blob endpoint performance gains.
+
 ## [0.64.0] - 2026-11-01
 
 ### ⚠️ Breaking

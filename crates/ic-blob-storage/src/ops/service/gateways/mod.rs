@@ -74,7 +74,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
             scope,
             GatewayMembership::new(config.billing().gateway_limits()),
         );
-        let record = StableCell::new(memory, GatewayRegistryRecord::new(&config, &registry));
+        let record = StableCell::create(memory, GatewayRegistryRecord::new(&config, &registry));
         Ok(Self {
             record,
             config,
