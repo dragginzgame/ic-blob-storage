@@ -31,7 +31,7 @@ Official registry metadata and checksummed published archives establish:
 | Host Tools | **0.78.0**, only `ic-interface`; optional Platform 0.18 disabled |
 | Testkit | **0.80.0**; PocketIC server **16.1.0** unchanged |
 | Wire / Derive | **0.15.0** |
-| Platform / Runtime / exact guard / Types | **0.18.0 / 0.18.0 / 0.18.0 / 0.17.0** |
+| Platform / Runtime / exact guard / Types | **0.18.0 / 0.18.1 / 0.18.1 / 0.17.0** |
 | Shared Tooling | **0.27.28**, committed `8c7fae6605c69a930e3b1f14e1ff5c4c9dafbcb7`, **150 files** |
 | Browser package manager | npm **12.2.1**; Node **24.21.0** unchanged |
 
@@ -89,6 +89,10 @@ requires the checksum rejection, unchanged damaged bytes and preserved live stat
 then successful recovery from the original bytes. Its four checkpoint cases and
 the 250 installed cases not reached by that gate pass. Failure evidence remains
 under Git's `release-state/validation-failures/20261102T180048Z-1566564-16-test.log`.
+A second attempt correctly refused an incoming lock change to Runtime/macros/guard
+0.18.1 during Shared fixtures. Its published checksums and additive stable-IO
+exports are verified; preserve that edit and freeze delivery in an isolated
+checkout. The prior sources and all failure logs remain retained.
 Restart complete normal gates from the corrected committed source; partial stages
 and the older family's installed results do not substitute for that gate.
 

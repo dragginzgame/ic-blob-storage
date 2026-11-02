@@ -78,7 +78,7 @@ committed enrollment. The private probe control requires its installed operator
 and adds no production endpoint. `test-native-host` selects the tenant-client
 cases for Linux and both macOS lanes; local execution does not establish hosted
 qualification of the pending source.
-Client now selects `ic-platform-types` 0.17 and `ic-platform-runtime` 0.18
+Client now selects `ic-platform-types` 0.17 and `ic-platform-runtime` 0.18.1
 directly. These are the same canonical identities previously re-exported by the
 facade; method signatures, Wire bytes and wait/retry policy remain unchanged.
 The raw runtime is codec-free, but the client package's current resolved graph is
@@ -94,7 +94,7 @@ resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
 Platform 0.18 delegates executor and IC0 implementation to its independent
-Runtime 0.18 owner; the standalone deployment gate refuses the old external
+Runtime 0.18.1 owner; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
 subset, while native tooling keeps upstream management types and Candid bytes.
@@ -106,7 +106,7 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The selected production graph has one Runtime/guard 0.18, Platform 0.18,
+The selected production graph has one Runtime/guard 0.18.1, Platform 0.18,
 Types 0.17 and Wire 0.15 identity. Contracts selects Metrics 0.27. Testkit 0.80
 still uses arithmetic-only Metrics 0.26.1 in the native test graph; no metric
 values cross that boundary. Host Foundation now has one 0.74.1 identity.

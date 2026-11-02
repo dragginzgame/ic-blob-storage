@@ -14,7 +14,7 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 🔧 Changed
 
-- Select published Types 0.17 and Runtime 0.18 directly for replicated clients.
+- Select published Types 0.17 and Runtime 0.18.1 directly for replicated clients.
   Align public Principal/call identities with Platform 0.18 and preserve Wire bytes
   and dispatch policy while removing the client's direct dependency on the
   Platform facade. Contracts

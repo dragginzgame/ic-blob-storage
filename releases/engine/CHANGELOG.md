@@ -20,7 +20,7 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 ### 🔧 Changed
 
 - Adopt Metrics 0.27, Build 0.74, Host Foundation 0.74.1 and Host Tools 0.78,
-  with Platform/Runtime 0.18, Types 0.17, Wire 0.15 and Testkit 0.80.
+  with Platform 0.18/Runtime 0.18.1, Types 0.17, Wire 0.15 and Testkit 0.80.
   Public identities require matching consumers; the PocketIC server is unchanged.
 - Adopt Shared Tooling 0.27.28's reviewed snapshot and retain the complete release
   gate. Retired Memory and stable-structures owners are refused at deployment.
