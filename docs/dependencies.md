@@ -106,9 +106,9 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The selected production graph has one Runtime/guard 0.18.1, Platform 0.18,
+The delivered 0.68.0 graph has one Runtime/guard 0.18.1, Platform 0.18,
 Types 0.17 and Wire 0.15 identity. Contracts selects Metrics 0.27. Testkit 0.80
-still uses arithmetic-only Metrics 0.26.1 in the native test graph; no metric
+uses arithmetic-only Metrics 0.26.1 in that frozen native test graph; no metric
 values cross that boundary. Host Foundation now has one 0.74.1 identity.
 Deployment has no Testkit or native Host dependencies. Host Tools 0.78 uses
 only its interface feature here, leaving optional Platform features disabled.

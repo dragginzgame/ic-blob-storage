@@ -18,7 +18,7 @@ reply can leave an uncertain effect. Recovery and publication remain caller-owne
 
 ## Optional native verified downloads
 
-Enable `ic-blob-storage-client = { version = "0.67.0", features = ["native-download"] }`
+Enable `ic-blob-storage-client = { version = "0.68.0", features = ["native-download"] }`
 for a native publisher. Default clients and Wasm builds gain no HTTP/filesystem
 dependencies. Linux and macOS support private create-only file publication. Run the helper
 inside a caller-owned Tokio runtime with I/O and time enabled; it starts no runtime.
