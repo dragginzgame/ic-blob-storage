@@ -145,6 +145,7 @@ publish() {
     # Use the same full lint gate as release validation before archive builds or
     # new registry effects. Keep dependency preparation ahead of offline lint.
     make --no-print-directory deps
+    make --no-print-directory compiler-check
     make --no-print-directory clippy
     local current head package checksum run registry_user_agent contracts_version
     current="$(version)" || fail 'cannot read publication version'

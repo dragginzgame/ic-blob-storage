@@ -43,7 +43,7 @@ release-editor-check:
 fmt-check:
 	@echo formatter >> "$$TEST_EVENTS"
 	@test "$${TEST_FORMAT_FAIL:-0}" != 1
-deps tools-check install-tools release-tools-check clippy:
+deps tools-check install-tools release-tools-check compiler-check clippy:
 	@echo "$@" >> "$$TEST_EVENTS"
 MAKE
 export TEST_EVENTS="$TEMPORARY/events"

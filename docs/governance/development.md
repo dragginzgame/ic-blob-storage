@@ -43,7 +43,7 @@ Separate release, publication, deployment and issue-specific acceptance gates
 still apply. This cadence grants no additional merge or release authority.
 Primitive Make targets do only their named operation. The complete current
 gate is make ci (also make validate and make release-verify).
-`make check`, `make clippy`, `make test`, `make test-native`, `make msrv-check`
+`make check`, `make clippy`, `make test`, `make test-native`, `make compiler-graphs-check`
 and `make docs-check` are workspace aggregates, reserved for explicitly authorized
 release/full validation. Ordinary changes select affected packages and test
 filters directly, for example `cargo clippy --offline --locked -p
@@ -151,10 +151,14 @@ Make `POCKET_IC_BIN` overrides remain caller-owned byte admission; the harness
 receives them unchanged, including empty values that it refuses. Tests never
 silently replace a caller selection or download a missing server.
 The test harness retains its separate owned server per instance and drop order.
-`make msrv-check` explicitly selects Rust 1.91, checks the public libraries
-separately, all native workspace targets/features and the supported Wasm libraries.
-CI prepares that compiler and locked cache in its own minimum-version lane;
-the development compiler still owns formatting and Clippy.
+Rust 1.99.1 is the supported minimum and pinned development/release compiler.
+`make compiler-check` reads the toolchain pin, records actual Cargo/rustc identities
+and refuses a different compiler or member support floor. It runs offline after
+dependency preparation in CI/release validation and before registry publication.
+`make compiler-graphs-check` checks default-feature public libraries separately
+and the supported Wasm libraries. The library-test job owns these isolated proofs;
+the tooling matrix owns all-target/all-feature native Clippy, archives and native
+installation/restoration. There is no separate old-compiler lane.
 Opt-in browser/SDK targets check the exact prepared Node/npm selections and
 manifest/lock declarations with `make browser-tools-check`; setup and version
 ownership stay in the private browser build root under

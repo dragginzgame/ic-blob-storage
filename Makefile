@@ -40,9 +40,9 @@ endif
 release-patch release-minor release-major release-resume: export BLOB_RELEASE_PREPARE := 1
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
+CI_TARGETS := shared-tooling-check compiler-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
 CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-release-groups.json ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
-	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl \
+	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl scripts/ci/check-rust-compiler.sh \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
@@ -52,7 +52,7 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
-.PHONY: test-native-host test-wasm-opt msrv-check tasks
+.PHONY: test-native-host test-wasm-opt compiler-check compiler-graphs-check tasks
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 .PHONY: install-testkit testkit-check
 .PHONY: install-release-editor release-editor-check
@@ -60,7 +60,8 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 help:
 	@echo "release-tools-check          Check ShellCheck, pinned cargo-sort and rustfmt without building"
 	@echo "test-native-host             CLI/examples and local installation/restoration probe checks"
-	@echo "msrv-check                   Check public native/Wasm consumers on Rust 1.91 offline"
+	@echo "compiler-check               Admit the declared Rust/Cargo pin and all member support floors offline"
+	@echo "compiler-graphs-check        Check isolated public native/Wasm graphs on the declared compiler offline"
 	@echo "tasks                        Show the shared maintenance task catalog"
 	@echo "browser-tools-check          Offline exact browser Node/npm and manifest/lock checks"
 	@echo "install-tools / tools-check   Explicit local tool installation / offline verification"
@@ -130,6 +131,7 @@ release-editor-check:
 # Blob retains actual Make/hook/tool admission and archive/retention callers below.
 shared-tooling-tests:
 	+bash scripts/ci/test-consumer-fixture-completion.sh
+	+bash scripts/ci/test-rust-compiler.sh
 	+bash scripts/ci/check-validation-logging.sh
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
@@ -193,15 +195,17 @@ test:
 test-native:
 	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-client -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
 
-msrv-check:
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 --version
-	RUSTUP_AUTO_INSTALL=0 rustc +1.91.0 --version
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage-contracts --lib
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage --lib
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked -p ic-blob-storage-client --lib
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --workspace --all-targets --all-features
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --target wasm32-unknown-unknown -p ic-blob-storage-contracts --lib
-	+RUSTUP_AUTO_INSTALL=0 cargo +1.91.0 check --offline --locked --target wasm32-unknown-unknown --workspace --exclude ic-blob-storage-cli --exclude ic-blob-storage-pocketic-tests --exclude blob-test-protocol --lib --all-features
+compiler-check:
+	+bash scripts/ci/check-rust-compiler.sh
+
+# The tooling job's all-target/all-feature Clippy covers the full native roster.
+# These checks keep default features and supported Wasm libraries independent.
+compiler-graphs-check: compiler-check
+	+cargo check --offline --locked -p ic-blob-storage-contracts --lib
+	+cargo check --offline --locked -p ic-blob-storage --lib
+	+cargo check --offline --locked -p ic-blob-storage-client --lib
+	+cargo check --offline --locked --target wasm32-unknown-unknown -p ic-blob-storage-contracts --lib
+	+cargo check --offline --locked --target wasm32-unknown-unknown --workspace --exclude ic-blob-storage-cli --exclude ic-blob-storage-pocketic-tests --exclude blob-test-protocol --lib --all-features
 
 tasks:
 	@cat tasks/README.md

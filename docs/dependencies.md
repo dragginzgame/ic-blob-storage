@@ -7,7 +7,8 @@
 ## Current dependency owners
 
 The root [Cargo catalog](../Cargo.toml) owns all direct dependency requirements;
-all thirteen members inherit package versions and dependencies. The root
+all thirteen members inherit common package metadata and dependencies while
+declaring literal versions within their release groups. The root
 [lockfile](../Cargo.lock) owns this checkout's selected graph. Member manifests
 select features and targets. Registry consumers resolve their own compatible
 lockfiles; local qualification does not cover every future resolution.
@@ -146,6 +147,32 @@ Shared Tooling 0.27.26 remains the latest reviewed committed snapshot at
 Client and Engine release groups in one development workspace and lockfile,
 with all thirteen literal member versions visible in the root catalog.
 The [release guide](releasing.md) owns explicit selection, order and recovery.
+
+### Supported compiler
+
+Rust **1.99.1** is both the minimum supported compiler in the root manifest and
+the exact development/release pin in `rust-toolchain.toml`. All thirteen members
+inherit the floor; there are no independent Cargo workspaces or member overrides.
+`make compiler-check` records actual Cargo/rustc verbose identities and admits
+every effective member floor against the pin, with offline locked metadata.
+Prepare the dependency cache before running it. This local policy implements the
+maintainer's approved [#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112);
+the reviewed Shared snapshot is unchanged.
+
+| Retained proof | Owning check/job |
+| --- | --- |
+| Three public libraries with independent default features | `compiler-graphs-check`, in the existing library-test job |
+| Contracts default Wasm and supported service/client/canister all-feature Wasm libraries | `compiler-graphs-check`, in the same library-test job |
+| Complete native workspace, all targets/features, including CLI/package verifier and proc macros | Existing tooling matrix's strict Clippy |
+| Contracts codecs, frozen bytes and generated schemas/clients | Existing Wire-schema job |
+| Core/client regressions | Existing library-test job |
+| Linux, Apple Silicon and Intel macOS archives, CLI and installed original/optimized Wasm | Existing tooling matrix |
+| Frozen registry-only example installation | Existing published-example matrix, with its original package graph |
+
+The old 1.91 job and compiler installation are removed, not replaced by a second
+same-compiler matrix. No protected required-check contexts or branch rules were
+configured at the time of the consolidation review. A declared hosted check is
+not a completed native execution.
 
 Build/Host Foundation and Host Tools/Testkit are independent supplier release groups;
 matching Testkit server CLI and Build release editor identities come from the lock.
@@ -641,7 +668,8 @@ pinned separately by [ci/ic-tools.tsv](../ci/ic-tools.tsv).
 The [tooling workflow](../.github/workflows/tooling.yml) qualifies setup/admission,
 formatting/hooks, exact-ID tooling archive upload/readback, mixed-version package
 archives, native CLI/PocketIC and original/optimized Wasms on Linux, Apple Silicon
-and Intel macOS. Rust 1.91 has its separate minimum-version lane. Declaring those
+and Intel macOS. Isolated compiler graphs share the library-test job under the
+[single compiler policy](#supported-compiler). Declaring those
 jobs is not a passing result; require matching native execution on the actual source.
 Cancelled or earlier-source results do not qualify new inputs.
 

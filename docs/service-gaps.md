@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
 </p>
 
-# Service qualification gaps — 2026-10-29
+# Service qualification gaps — 2026-11-02
 
 This review stays within this repository. The core and standalone host have no
 Canic dependency, endpoint registration or lifecycle ownership on linkage.
@@ -20,11 +20,11 @@ active release and implementation handoff.
 
 The released 0.42 acknowledgment/GC profile is described in
 [current status](status/current.md). Canic working-tree adoption was reviewed
-on 2026-10-29; current working-tree qualification is distinct from released delivery.
+on 2026-11-02; current local qualification is distinct from released delivery.
 
 | Gap | Repository result | Remaining acceptance and owner |
 | --- | --- | --- |
-| Framework adapter and composition | Canic 0.112.0 delivered the adapter with Blob 0.51.0. The changing 0.113 working tree selects Blob/contracts and Memory/Storage 0.54.0, Wire 0.7.21, root Platform 0.7.6 and private consumer Platform 0.7.5. Source review and the owner's focused checks are not installed qualification of that whole graph. See the [current qualification report](funding-consumer-qualification.md#current-canic-qualification-report--2026-10-29). | Canic: adopt the selected released Blob cut, align and qualify its dedicated/embedded release graph, and complete its application-owned publication/session flow. Independent-credit receipt qualification remains Canic #494's separate outcome; ordinary acknowledged funding is already supported. No Blob compatibility shim or extra funding engine is needed. |
+| Framework adapter and composition | Canic's recorded 0.114.0-based batch selects published Blob/contracts 0.66.0. Dedicated installation/recovery, all five embedded funding profiles, both generated-client compositions, dependency admission, private-consumer Clippy and allocation peer pass for those inputs. Later committed source/root-lock changes need current delivery admission. See the [current qualification report](funding-consumer-qualification.md#current-canic-qualification-report--2026-11-02). | Canic #622: deliver the coherent batch and satisfy applicable CI/publication requirements; the recorded local Blob composition checks are complete. The application owns actual publication/session acceptance. Canic #494 retains deferred independent credit/receipt evidence; it does not block ordinary acknowledged funding. |
 | Complete live upload/download | The [fresh frozen 0.7.0 record](evidence/caffeine-probes/deployed/2026-10-02-trial-v070-live-01/summary.json) completes 1 KiB and 10 MiB uploads, independent verification, accepted attestations and matching tenant downloads. | Consumer owner: qualify distinct real media, complete publication batches, interruption, serving and CSP. These samples do not prove retention or itemized billing. |
 | Current-instance restoration | Released 0.8.0 adds operator-only recovery from an independent replicated IC `canister_info` call, checked against the immutable platform installation version. PocketIC qualifies activation with retained obligations and rejection of stale/incomplete history. | Consumer owner: qualify the released contract in its composition and operating policy. Frozen live 0.7.0 does not acquire this endpoint. |
 | Older snapshot/backup restoration | Snapshot loads and history that cannot reach installation refuse active recovery. The standalone guard fences management-version gaps, including old heap restoration. | Operator: retain the surviving complete inventory of provider objects, uncertain effects, balances and billing outside any rolled-back installation. Active older-backup recovery remains unsupported. |

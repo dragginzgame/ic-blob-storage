@@ -27,7 +27,39 @@ Existing account-link preparation/inspection interfaces remain the integration
 boundary; hosts must establish the selected relationship and authority. No
 undocumented account authorization or automatic external-payer setup is invented.
 
-## Current Canic qualification report — 2026-10-29
+## Current Canic qualification report — 2026-11-02
+
+The owner has locally qualified published Blob/contracts 0.66.0 with Platform 0.17,
+Memory/Storage 0.62.1, Metrics 0.25.1, Wire 0.14.2 and Testkit 0.78 in its maintained
+graphs. Dedicated installation/recovery and all five embedded funding profiles
+pass, including Malformed, ProviderError, CallbackTrap, Liquidity and Budget.
+Generated clients for both compositions, dependency admission, private-consumer
+Clippy and allocation-peer verification also pass. The held-reply fixture's
+aggregate method-name budget was corrected before the successful rerun.
+
+Read-only evidence is retained with Canic in
+`target/integrations/checks/blob66-20261102/results.json` and
+`docs/audits/working/blob-0411-adoption.md`. The recorded three lock hashes stay
+unchanged through those runs. This is reviewed local framework evidence on the
+then-uncommitted batch based on Canic 0.114.0 `e7537859`. Subsequent source
+`e683f331a` is committed and its root lock differs from that record; the two
+consumer locks and three recorded check-log hashes still match. Current delivery
+must admit its current source/graph. No new run here or delivered/hosted/live-provider
+qualification is claimed. [Canic #622](https://github.com/dragginzgame/canic/issues/622)
+owns current composition delivery; [Canic #494](https://github.com/dragginzgame/canic/issues/494)
+retains funding delivery and deferred independently attributable credit/receipt
+evidence. Historical descriptions of a current confirmation wrapper are
+superseded; the adapter exposes no unqualified independent-credit protocol.
+
+No additional Blob funding API is demonstrated as necessary. Matching successful
+callbacks already permit distinct bounded acknowledged payments; independent
+credit proof is not a prerequisite for that happy path. Blob #34 remains open
+for actual payer linkage, competing account activity and provider spendability.
+Use the [coordinated application run](acceptance-plan.md#next-application-acceptance-run)
+after owner delivery and target/budget selection. No provider query or paid
+operation was performed by this review.
+
+## Historical Canic qualification report — 2026-10-29
 
 The guarded adapter is delivered in published Canic/canic-blob-service 0.112.0,
 source `5c236ab130c0d63892ef281b45bdc3fa353e012f`, selecting Blob 0.51.0.

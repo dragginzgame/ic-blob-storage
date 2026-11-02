@@ -44,6 +44,8 @@ jobs:
       - name: Prepare the assessment compiler and host tools
         run: |
           rustup toolchain install --profile minimal --no-self-update
+          cargo -vV
+          rustc -vV
           make --no-print-directory install-host-tools host-tools-check
           echo "$GITHUB_WORKSPACE/.tools/host/bin" >> "$GITHUB_PATH"
       - name: Check adapter rejection and retained evidence

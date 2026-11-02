@@ -1,4 +1,4 @@
-# Current status — 2026-11-01
+# Current status — 2026-11-02
 
 ## Released baseline and scope
 
@@ -16,8 +16,10 @@ the standing rule in AGENTS.md is unchanged. Source implementation commit is
 `fbe0cbb5a398f4b904b065031b979015e495af8e`. Each standard runner validated,
 prepared and atomically pushed its own group. Matching release numbers reflect
 three public supplier-identity cuts, not coordinated workspace versioning.
-All thirteen own Cargo versions are now **0.66.0**. No pending product batch is
-prepared. No deployment, sibling edit or paid provider effect was performed.
+All thirteen own Cargo versions remain **0.66.0**. The pending compiler-floor
+adoption below has **0.67.0 Unreleased** notes in each affected group; no package
+release version was changed. No deployment, sibling edit or paid provider effect
+was performed.
 
 Official non-yanked registry metadata, downloaded archive checksums and embedded
 VCS commit/package paths match all three exact release tags. Evidence is retained
@@ -30,7 +32,54 @@ No registry guard was relaxed. Hosted CI was not reread.
 Tag `v0.65.0`, its unchanged [historical receipt](../release.json) and
 [coordinated history](../../releases/history.md) retain the previous baseline.
 
-## Published supplier adoption
+## Pending compiler policy and readiness corrections
+
+[#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112)
+is implemented locally: every member inherits Rust 1.99.1, matching the existing
+toolchain pin. Compiler admission reads that pin, prints actual Cargo/rustc
+verbose identities and rejects mismatched binaries or effective member floors.
+CI/release validation and publication invoke it. The old 1.91 job is removed;
+its isolated public native/Wasm proofs share the library-test job, while existing
+Clippy, proc-macro, frozen-Wire, three-host archives/CLI/installed-Wasm and
+published-example coverage remains. No protected check contexts or branch rules
+were configured at review. The shared snapshot stays unchanged under the explicit
+maintainer compiler-policy exception in AGENTS.md.
+
+Focused Linux checks pass on actual Cargo/rustc 1.99.1: three public default-feature
+libraries, Contracts default Wasm, all supported Wasm libraries/features, CLI and
+PocketIC-support all-target/all-feature strict Clippy, and the frozen Wire golden
+test. Compiler rejection tests, premature-fixture-exit injection, evidence
+collection, complete shell lint, formatting, three-group release routing,
+documentation links and snapshot integrity pass. Partial-input ShellCheck needed
+its existing sourced companions; the complete shell-check passed. No product
+runtime behavior changed. No full CI/release gate, fresh macOS or installed-IC
+qualification was run for this pending batch; issue closure awaits delivery and
+its applicable acceptance. That preparation pass staged, committed, pushed and
+released nothing.
+
+The maintainer has now explicitly requested delivery and closure of #112. The
+affected Contracts, Client and Engine groups target0.67.0 in supplier-first order,
+using the normal full release gates and separate publication adapters. This
+delivery-specific release-command authorization does not alter the standing
+maintainer boundary. Work runs in `/tmp/blob112-delivery.ffJg3y/repo`; the original
+checkout and its unrelated incoming lock edits are preserved. The delivery uses
+the committed0.66 lock's supplier identities, not those pending upgrades. No
+application deployment, provider request or paid effect is selected.
+
+The incoming Cargo.lock edits are preserved separately (Memory/Storage 0.62.1,
+Metrics 0.25.1, Wire/Derive 0.14.2 and CRC 1.5.4). The compiler checks used that
+working graph without selecting new dependencies; its unchanged lock SHA-256 is
+`02a9b29d6621aab8f1456f81576b317db5ea613b6dfe6d72a46c1f30797fa663`.
+The supplier table below describes the delivered 0.66.0 graph.
+
+The acceptance plan, service gaps and funding report now reflect Canic's recorded
+0.66 qualification instead of the stale 0.61 prerequisite. Its three check-log
+hashes and two private-consumer locks match the retained results. Canic advanced
+during inspection to committed source `e683f331a`; its current root lock hash
+differs from the retained record, so owner delivery still needs current source/
+graph admission. No previous result was relabelled as current delivery evidence.
+
+## Published supplier adoption — delivered 0.66.0
 
 Official crates.io index records and checksummed published archives establish:
 
@@ -143,10 +192,17 @@ The frozen archive-inspection candidate remains permanently fenced, as recorded
 in `/tmp/blob-simplify064.1L5ZdK/archive-disposition.txt`; its custody record marks
 older overwritten logs that cannot qualify a historical release.
 
-Last Canic review: released0.114 selects Blob0.61, local edits select0.63 and still
-expect the retired gateway Busy refusal. Its owner retains
-[Canic#622](https://github.com/dragginzgame/canic/issues/622) adoption/acceptance.
-Last GitHub readback found Blob issues [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
+Current Canic review: its released baseline remains0.114.0. The recorded local
+Blob0.66 family passes dedicated installation/recovery, all five embedded funding
+profiles and generated clients for both shapes, with the corrected held-reply
+fixture budget. Source, locks and logs stay with Canic at
+`target/integrations/checks/blob66-20261102/results.json` and its working Blob audit.
+[Canic #622](https://github.com/dragginzgame/canic/issues/622) owns current delivery;
+[#494](https://github.com/dragginzgame/canic/issues/494) retains funding delivery and
+deferred independent-credit evidence, not a happy-path payment prerequisite.
+Current root-lock drift and committed source are noted above.
+Latest GitHub readback also found the new compiler issue #112, plus Blob
+issues [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5),
 [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31),
 [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6) and
 [#34](https://github.com/dragginzgame/ic-blob-storage/issues/34), no open PRs.

@@ -20,7 +20,7 @@ trap finish EXIT
 # No production test hook, Git mutation, build or publication is involved.
 # The archive wrapper delegates directly; its real failure/status/evidence
 # checks remain in test-library-packages.sh beside the same-version regression.
-for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/collect-tooling-evidence.sh; do
+for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-rust-compiler.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/collect-tooling-evidence.sh; do
     owner=fixture
     boundary='trap finish_fixture EXIT'
     failures=(nounset zero nonzero command comparison)

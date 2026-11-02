@@ -4,6 +4,15 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.67.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Require Rust 1.99.1 or newer for Engine and its coordinated canister/test
+  packages. Admit the actual compiler in CI/release validation and publication,
+  and remove the duplicate old-compiler job while preserving native hosts,
+  archives and installed Wasm checks. [#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112).
+
 ## [0.66.0] - 2026-11-01
 
 ### ⚠️ Breaking

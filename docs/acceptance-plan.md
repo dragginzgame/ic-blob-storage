@@ -92,22 +92,35 @@ here does not waive provider, recovery, accounting or retirement requirements.
 
 ### Before the acceptance deployment
 
-The 2026-10-31 read-only review is **not ready for the pending 0.61 coordinated
-Canic deployment**. Blob's pending cohort uses Platform 0.15/Wire 0.13 and
-Memory/Storage 0.60. Canic at `247ba9d3` still declares Blob 0.60, Platform 0.11,
-Wire 0.10 and Memory/Storage 0.58 in its root and Blob consumer workspaces.
-Its dedicated and embedded `icp.yaml` files select only local environments;
-`apps/demo/canic.toml` and `apps/test/canic.toml` select no Blob role. These are
-verified source/configuration findings, not an observation of deployed services.
+Blob's Contracts, Client and Engine **0.66.0** groups are released and published.
+The 2026-11-02 read-only Canic review confirms recorded local qualification of
+that family in its root and both independent consumer locks. Results cover dedicated
+installation/recovery, all five embedded funding profiles, generated clients for
+both compositions, dependency admission, private-consumer Clippy and allocation
+peer verification. The corrected held-reply fixture budget is included; these
+are local framework results, not deployed-provider or application evidence.
 
-Deployment becomes the next step after:
+[Canic #622 — Mounted Blob adoption](https://github.com/dragginzgame/canic/issues/622)
+owns delivery of the adoption first qualified on `e7537859` (Canic 0.114.0), its
+remaining non-Blob qualification and applicable CI/publication acceptance. Its
+`target/integrations/checks/blob66-20261102/results.json` and owning audit retain
+the exact source, three lock hashes, managed artifacts and logs. Blob does not
+copy those fixtures or infer a deployed service from a passing local composition.
+During review Canic advanced to committed source `e683f331a`, while its released
+baseline remains 0.114.0. The retained check-log hashes and two consumer locks
+match; its current root lock differs from the recorded qualification hash.
+Owner delivery must admit the current source and graph. The earlier passes are
+preserved evidence, not a fresh gate for that later source.
 
-1. The maintainer releases and publishes the selected Blob 0.61 batch through
-   its normal release gates. A local build or draft heading is not publication.
-2. Canic adopts that release with matching public/runtime dependency identities
-   in the root and both independent consumer locks, then qualifies its actual
-   dedicated or embedded mounting/lifecycle path. Canic owns those changes and
-   the application integration; do not copy a framework adapter into Blob.
+Deployment becomes the next step after the remaining owner actions:
+
+1. Canic delivers its qualified 0.66 adoption with its applicable release/CI and
+   publication requirements satisfied. Blob's supplying release and the local
+   Canic Blob checks are complete; they need not be redesigned or repeated merely
+   because the broader Canic batch has separate work outstanding.
+2. The application selects that delivered graph and dedicated or embedded
+   mounting/lifecycle path. Framework and application changes remain with their
+   owners; do not copy an adapter or application transaction into Blob.
 3. Canic/the consuming application's owner supplies a bounded acceptance-service
    configuration and its network/role binding, including finite limits, namespace,
    project/payer relationship and operator. The maintainer has confirmed Caffeine
@@ -137,9 +150,12 @@ it does not qualify application login, CSP or media-map publication. The full
 users and a frozen media inventory. Do not make that later UI selection an
 artificial prerequisite for an otherwise prepared provider trial.
 
-The [Canic #622 handoff](https://github.com/dragginzgame/canic/issues/622#issuecomment-6546806175)
-records the matched dependency adoption and configuration work with its existing
-owner. No Canic source or deployment configuration was changed from this repo.
+[Canic #494 — Guarded funding](https://github.com/dragginzgame/canic/issues/494)
+separately retains delivery and deferred independent-credit/receipt acceptance.
+Independent credit proof is not required after each matching acknowledged
+payment. Missing, malformed or accepted-error outcomes keep their original
+uncertainty and cannot be repaired by resending. No Canic source or deployment
+configuration was changed from this repo.
 
 ### Execute against the recorded installation
 

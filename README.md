@@ -168,9 +168,10 @@ make deps
 make test-native
 ```
 
-The [toolchain file](rust-toolchain.toml) pins development Rust **1.99.0**, rustfmt,
-Clippy and the Wasm target. The library's minimum supported Rust version is
-**1.91.0**, including the local PocketIC harness.
+The [toolchain file](rust-toolchain.toml) pins Rust **1.99.1**, rustfmt, Clippy and
+the Wasm target. Rust **1.99.1** is also the minimum supported compiler for every
+workspace package, including the local PocketIC harness. `make compiler-check`
+admits the actual Cargo/rustc identities and each member's support floor.
 `make deps` fetches locked Rust dependencies; validation then uses offline Cargo
 and this repository's `target/` directory.
 `make install-tools` explicitly provisions checksum-pinned host and IC executables

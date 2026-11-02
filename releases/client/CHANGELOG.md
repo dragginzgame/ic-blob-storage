@@ -4,6 +4,14 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.67.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Require Rust 1.99.1 or newer to build Client and CLI. The repository admits
+  the pinned compiler and retains isolated default-feature and Wasm checks in
+  its existing CI jobs. [#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112).
+
 ## [0.66.0] - 2026-11-01
 
 ### ⚠️ Breaking

@@ -100,6 +100,10 @@ it does not override shared rules or depend on a mutable sibling checkout.
 
 ## Style and checks
 
+- Maintainer-approved compiler policy (2026-11-02, issue #112): Rust 1.99.1 is
+  both the supported minimum and pinned development/release compiler. This
+  supersedes the older minimum-version search policy in the reviewed snapshot;
+  do not lower the floor or restore a second old-compiler qualification lane.
 - Use Rust edition 2024, directory modules with mod.rs and named boundary types.
   Do not use path attributes to work around module layout.
 - Maintainer-approved physical-layout exception (2026-10-07), under

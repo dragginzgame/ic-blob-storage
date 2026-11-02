@@ -4,6 +4,14 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.67.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Require Rust 1.99.1 or newer to build Contracts. Repository development and
+  release checks use the exact 1.99.1 pin; wire bytes and decoder limits are
+  unchanged. [#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112).
+
 ## [0.66.0] - 2026-11-01
 
 ### ⚠️ Breaking
