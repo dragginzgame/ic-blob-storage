@@ -13,6 +13,12 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
   and remove the duplicate old-compiler job while preserving native hosts,
   archives and installed Wasm checks. [#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112).
 
+### 🩹 Fixed
+
+- Prepare the locked workspace dependencies before offline metadata and release
+  fixtures on every native CI host, including fresh runners without a prewarmed
+  Metrics index/cache.
+
 ## [0.66.0] - 2026-11-01
 
 ### ⚠️ Breaking

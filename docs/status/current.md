@@ -66,6 +66,15 @@ checkout and its unrelated incoming lock edits are preserved. The delivery uses
 the committed0.66 lock's supplier identities, not those pending upgrades. No
 application deployment, provider request or paid effect is selected.
 
+The exact0.66 baseline hosted run41343104502 failed tooling on all three hosts:
+offline dependency/group metadata and release fixtures ran before `make deps`,
+so fresh runners could not find `ic-metrics`. The workflow now prepares the
+workspace cache and admits the compiler before those offline steps. Empty
+failed-step/full-job CLI reads were recovered through the adopted exact-attempt
+CI helper; retained raw job observations are `/tmp/gh-ci-logs.Ht57eP/`. The first
+0.67 local validation was deliberately stopped before versioning to correct the
+workflow, with its log/disposition retained in the isolated delivery directory.
+
 The incoming Cargo.lock edits are preserved separately (Memory/Storage 0.62.1,
 Metrics 0.25.1, Wire/Derive 0.14.2 and CRC 1.5.4). The compiler checks used that
 working graph without selecting new dependencies; its unchanged lock SHA-256 is

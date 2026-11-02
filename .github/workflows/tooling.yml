@@ -170,6 +170,10 @@ jobs:
           echo "$GITHUB_WORKSPACE/.tools/host/bin" >> "$GITHUB_PATH"
           echo "$GITHUB_WORKSPACE/.tools/ic/bin" >> "$GITHUB_PATH"
           echo "$GITHUB_WORKSPACE/.tools/rust/common/bin" >> "$GITHUB_PATH"
+      - name: Prepare the locked workspace cache before offline admission
+        run: |
+          make deps
+          make compiler-check
       - name: Check the snapshot, formatter and release/hook fixtures
         timeout-minutes: 45
         env:
@@ -184,10 +188,6 @@ jobs:
             if make "$target"; then :; else failed=1; fi
           done
           exit "$failed"
-      - name: Prepare the locked native dependency cache
-        run: |
-          make deps
-          make compiler-check
       - name: Run the existing Clippy gate before archive qualification
         env:
           CARGO_NET_OFFLINE: 'true'
