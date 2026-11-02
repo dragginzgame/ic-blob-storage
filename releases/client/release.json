@@ -1,17 +1,17 @@
 {
-   "date" : "2026-11-01",
+   "date" : "2026-11-02",
    "files" : {
-      "Cargo.lock" : "d0d0de4fe442d18f86c683660abee6da1a312e19c0a3513b3d1ec1fa78139aa3",
-      "Cargo.toml" : "79777d3881bfb4cebf83614e13df60fc1f862f6256beaa61580301f18f97ec70",
-      "crates/ic-blob-storage-cli/Cargo.toml" : "1e7f16a0f252f07029caef93e8ede7106f83bae05a8f8e634f6142e17ee58050",
-      "crates/ic-blob-storage-client/Cargo.toml" : "d9963593d86628e2fb0e5d7c9e65121904548515fee0b55f41f8cb90fc4218a2",
-      "releases/client/CHANGELOG.md" : "13647cff50fa78fb152ec2fed6228ce01b442025a01fbcf2d8d1ea709c3b6597"
+      "Cargo.lock" : "187548287860576f6119f40ef0fbdcd6dcb303ab95a7ffc05c98b16e217f24d7",
+      "Cargo.toml" : "d8a58f568055bacace0b1fb914e8b849456b418d84c444cb43cc88a437c35dfa",
+      "crates/ic-blob-storage-cli/Cargo.toml" : "c68001c958b2228d6a5156d2dfc9d1c1f1d30c2f93ced0a0a6bccf7c0a61096d",
+      "crates/ic-blob-storage-client/Cargo.toml" : "bada3dcd89cf3b4be10b0ea88df5d1b1238acec0d867e187c75f721cc21a3b38",
+      "releases/client/CHANGELOG.md" : "3deaf233d84657f7eb90ce1120dfc18a01fa6fd9945ffb1c627e6df4582c622a"
    },
    "gate" : "release-verify",
    "group" : "client",
    "policy" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
    "schema" : 1,
-   "source" : "5dad462b0c2674a561276d00b57e00f2d0823df6",
+   "source" : "430cc5cb9c6adfc4d9729d93e11e7259c0cc4811",
    "status" : "released",
-   "version" : "0.66.0"
+   "version" : "0.67.0"
 }
