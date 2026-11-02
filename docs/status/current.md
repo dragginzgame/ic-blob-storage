@@ -75,6 +75,15 @@ CI helper; retained raw job observations are `/tmp/gh-ci-logs.Ht57eP/`. The firs
 0.67 local validation was deliberately stopped before versioning to correct the
 workflow, with its log/disposition retained in the isolated delivery directory.
 
+Contracts0.67.0 is published from `430cc5cb`; Client0.67.0 is published from
+`3613147d`. Checksummed registry archives and official metadata confirm the
+Rust1.99.1 floor and exact source for both. Their complete local gates pass
+(1316s/1216s). Hosted schema/library jobs pass on the Contracts source, but Apple
+Silicon tooling exposed bare mandatory `[[ ... ]]` tests in the compiler fixture:
+Bash3.2 does not reliably apply `set -e` to them. The fixture now uses explicit
+failure exits, as required by the existing comparison-injection test. No
+published library source/runtime changed. Engine0.67.0 follows this correction.
+
 The incoming Cargo.lock edits are preserved separately (Memory/Storage 0.62.1,
 Metrics 0.25.1, Wire/Derive 0.14.2 and CRC 1.5.4). The compiler checks used that
 working graph without selecting new dependencies; its unchanged lock SHA-256 is
