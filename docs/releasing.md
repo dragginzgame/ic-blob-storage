@@ -34,9 +34,10 @@ changing this pin cannot authorize old session recovery across a reinstall.
 Saved intent/control/installation formats and Wire packets are unchanged.
 The first independent Client, Contracts and Engine releases are **0.66.0**.
 Platform/Wire/Memory public Rust identities required these independent minor
-releases; matching numbers do not impose a workspace-wide version rule. All
-current Cargo package versions are **0.66.0**. Contracts was released and
-published first so Client/Engine publication could select its new identities.
+releases; matching numbers do not impose a workspace-wide version rule. The Rust support-floor change is delivered at **0.67.0** in each affected group;
+all thirteen current Cargo package versions are 0.67.0. Contracts was released
+and published first. Each group retains its own ledger, tag and receipt; future
+changes do not require synchronized releases.
 
 All members enter this layout at **0.65.0**, without a conversion bump. The
 [root changelog](../CHANGELOG.md) indexes group ledgers. Coordinated history is

@@ -2,106 +2,81 @@
 
 ## Released baseline and scope
 
-All three groups are released, pushed and published at **0.66.0** on crates.io:
+The compiler-floor change in [#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112)
+is delivered on main. All three affected groups are released and published at
+**0.67.0**, with Rust **1.99.1** as their consumer minimum and exact repository
+compiler pin:
 
 | Group | Release tag | Release commit |
 | --- | --- | --- |
-| Contracts | `contracts-v0.66.0` | `5dad462b0c2674a561276d00b57e00f2d0823df6` |
-| Client | `client-v0.66.0` | `91338590db5778fe437ff1d53cdc79b6ba31e836` |
-| Engine | `engine-v0.66.0` | `67d28b05b190fa06cb4af5e241baa60aa51b5247` |
+| Contracts | `contracts-v0.67.0` | `430cc5cb9c6adfc4d9729d93e11e7259c0cc4811` |
+| Client | `client-v0.67.0` | `3613147d5982389f5dee19aaa9476c27d9c5a5e4` |
+| Engine | `engine-v0.67.0` | `7a0272121cfb593ed0dcf6f5f254036dc7d8a592` |
 
-The maintainer explicitly authorized this delivery, including an exception to
-the agent release-command restriction. That exception applies to this delivery;
-the standing rule in AGENTS.md is unchanged. Source implementation commit is
-`fbe0cbb5a398f4b904b065031b979015e495af8e`. Each standard runner validated,
-prepared and atomically pushed its own group. Matching release numbers reflect
-three public supplier-identity cuts, not coordinated workspace versioning.
-All thirteen own Cargo versions remain **0.66.0**. The pending compiler-floor
-adoption below has **0.67.0 Unreleased** notes in each affected group; no package
-release version was changed. No deployment, sibling edit or paid provider effect
-was performed.
+Each normal group runner validated, prepared, committed/tagged and atomically
+pushed its own release. Registry metadata and checksummed archives match the
+exact release tags, package paths and Rust floor. Matching group numbers reflect
+three consumer support-floor cuts; future groups remain independent. No service
+installation, application deployment, provider request or paid effect occurred.
 
-Official non-yanked registry metadata, downloaded archive checksums and embedded
-VCS commit/package paths match all three exact release tags. Evidence is retained
-in `/tmp/blob066-delivery.rI1Gu8/`; publication attempts are
-`target/publication.iLVkbX` (Contracts), `target/publication.qp9JMH` (Client) and
-`target/publication.Rx6e18` (Engine). The generic preliminary registry request
-returned 403; the canonical helper returned 404 before upload and 200 afterward.
-No registry guard was relaxed. Hosted CI was not reread.
+## Compiler qualification and remaining acceptance
 
-Tag `v0.65.0`, its unchanged [historical receipt](../release.json) and
-[coordinated history](../../releases/history.md) retain the previous baseline.
+All thirteen members inherit the same support floor. Compiler admission reads
+the owned exact pin and checks actual verbose Cargo/rustc identities plus every
+member's effective floor. CI/release validation and publication invoke it;
+negative fixtures cover mismatches and moving/duplicate pins. The old 1.91 job
+was removed while retaining isolated public native/Wasm graphs, Clippy, frozen
+Wire, three native hosts, archives and installed-runtime obligations.
 
-## Pending compiler policy and readiness corrections
+All three complete local release gates passed: Contracts **1316s**, Client
+**1216s**, Engine **1310s**. Each ran **687 native** and **380 PocketIC** passing
+tests, with **10 explicit ignores**, plus strict Clippy, boundary/tool/pin checks,
+release/hook fixtures, formatting, Rustdoc, Wasm, original/O3/Os/Oz installation
+and restoration, and extracted package/archive integrity checks. Each separate
+publication ran compiler admission, Clippy and packaged-crate verification.
 
-[#112 — Adopt Rust 1.99.1 and consolidate compiler qualification](https://github.com/dragginzgame/ic-blob-storage/issues/112)
-is implemented locally: every member inherits Rust 1.99.1, matching the existing
-toolchain pin. Compiler admission reads that pin, prints actual Cargo/rustc
-verbose identities and rejects mismatched binaries or effective member floors.
-CI/release validation and publication invoke it. The old 1.91 job is removed;
-its isolated public native/Wasm proofs share the library-test job, while existing
-Clippy, proc-macro, frozen-Wire, three-host archives/CLI/installed-Wasm and
-published-example coverage remains. No protected check contexts or branch rules
-were configured at review. The shared snapshot stays unchanged under the explicit
-maintainer compiler-policy exception in AGENTS.md.
+Fresh native CI on source `ede2241e` passed Linux and Apple Silicon, including
+archive/native CLI and original/optimized Wasm qualification; library and Wire
+schema jobs passed too. Intel macOS had reached archive qualification at the last
+observation. The Engine release starts a new hosted run. **Issue #112 remains
+open until its latest applicable native acceptance is complete**; pending or
+cancelled runs are not passes. Follow the current issue for the latest run links.
+The published-example installation run
+[41426291724](https://github.com/dragginzgame/ic-blob-storage/actions/runs/41426291724)
+passed at the Contracts release source. No live-provider qualification is claimed.
 
-Focused Linux checks pass on actual Cargo/rustc 1.99.1: three public default-feature
-libraries, Contracts default Wasm, all supported Wasm libraries/features, CLI and
-PocketIC-support all-target/all-feature strict Clippy, and the frozen Wire golden
-test. Compiler rejection tests, premature-fixture-exit injection, evidence
-collection, complete shell lint, formatting, three-group release routing,
-documentation links and snapshot integrity pass. Partial-input ShellCheck needed
-its existing sourced companions; the complete shell-check passed. No product
-runtime behavior changed. No full CI/release gate, fresh macOS or installed-IC
-qualification was run for this pending batch; issue closure awaits delivery and
-its applicable acceptance. That preparation pass staged, committed, pushed and
-released nothing.
+Two CI defects found during delivery were fixed: prepare the locked cache before
+offline fixtures on fresh runners; make compiler-fixture assertions explicit on
+macOS Bash 3.2. Failure collection now includes the completion harness's parent
+directory. Historical failure/source observations remain distinct from subsequent
+passes. The first local Contracts attempt was stopped before version preparation
+to fix the cache ordering; no partial result was reused.
 
-The maintainer has now explicitly requested delivery and closure of #112. The
-affected Contracts, Client and Engine groups target0.67.0 in supplier-first order,
-using the normal full release gates and separate publication adapters. This
-delivery-specific release-command authorization does not alter the standing
-maintainer boundary. Work runs in `/tmp/blob112-delivery.ffJg3y/repo`; the original
-checkout and its unrelated incoming lock edits are preserved. The delivery uses
-the committed0.66 lock's supplier identities, not those pending upgrades. No
-application deployment, provider request or paid effect is selected.
+## Evidence custody and preserved pending work
 
-The exact0.66 baseline hosted run41343104502 failed tooling on all three hosts:
-offline dependency/group metadata and release fixtures ran before `make deps`,
-so fresh runners could not find `ic-metrics`. The workflow now prepares the
-workspace cache and admits the compiler before those offline steps. Empty
-failed-step/full-job CLI reads were recovered through the adopted exact-attempt
-CI helper; retained raw job observations are `/tmp/gh-ci-logs.Ht57eP/`. The first
-0.67 local validation was deliberately stopped before versioning to correct the
-workflow, with its log/disposition retained in the isolated delivery directory.
+The original checkout's pending supplier upgrades and direct Client Types/Runtime
+migration were excluded from 0.67.0. Their files and hashes are backed up under
+`.tmp/issue112-delivery-recovery.8cQudg/`; delivery uses the committed 0.66 supplier
+graph below. Those pending changes have no release qualification of their own.
+The original working copy is reconciled separately without staging that work;
+its Client notes belong after the published 0.67.0 entry.
 
-Contracts0.67.0 is published from `430cc5cb`; Client0.67.0 is published from
-`3613147d`. Checksummed registry archives and official metadata confirm the
-Rust1.99.1 floor and exact source for both. Their complete local gates pass
-(1316s/1216s). Hosted schema/library jobs pass on the Contracts source, but Apple
-Silicon tooling exposed bare mandatory `[[ ... ]]` tests in the compiler fixture:
-Bash3.2 does not reliably apply `set -e` to them. The fixture now uses explicit
-failure exits, as required by the existing comparison-injection test. No
-published library source/runtime changed. Engine0.67.0 follows this correction.
-The checksum-verified macOS failure archive omitted its parent completion-harness
-directory; the collector now retains that owned prefix, with a byte round-trip
-regression. The new assertion fix is source/local-Bash evidence until the native
-macOS job runs again; no fresh Mac pass is claimed.
+The earlier `/tmp/blob112-delivery.ffJg3y` checkout and detailed local logs became
+unavailable after a runtime transition. Contracts/Client immutable delivery and
+registry archives survived and were independently reverified. Engine used a
+fresh full gate in `.tmp/issue112-delivery-recovery.8cQudg/repo`, with release and
+publication logs beside it and a retained standard Engine plan under `.git`.
+No lost partial Engine validation was reconstructed or claimed as a pass.
 
-The incoming Cargo.lock edits are preserved separately (Memory/Storage 0.62.1,
-Metrics 0.25.1, Wire/Derive 0.14.2 and CRC 1.5.4). The compiler checks used that
-working graph without selecting new dependencies; its unchanged lock SHA-256 is
-`02a9b29d6621aab8f1456f81576b317db5ea613b6dfe6d72a46c1f30797fa663`.
-The supplier table below describes the delivered 0.66.0 graph.
+The revision-bound Shared policy is `e84252f5740bacd708359580455ea2b6fd67df38`.
+The executable Shared **0.27.26 / 144-file** snapshot is unchanged. Sibling
+repositories remain read-only. Canic's recorded 0.66 local integration evidence
+is retained by its owner; it does not qualify a new source/graph automatically.
+Current application/provider acceptance remains with Blob #5/#31/#6/#34 and
+Canic #622/#494. Preserve all provider objects, uncertain effects, balances and
+continuing-billing obligations across retirement/reinstall boundaries.
 
-The acceptance plan, service gaps and funding report now reflect Canic's recorded
-0.66 qualification instead of the stale 0.61 prerequisite. Its three check-log
-hashes and two private-consumer locks match the retained results. Canic advanced
-during inspection to committed source `e683f331a`; its current root lock hash
-differs from the retained record, so owner delivery still needs current source/
-graph admission. No previous result was relabelled as current delivery evidence.
-
-## Published supplier adoption — delivered 0.66.0
+## Supplier graph retained from 0.66.0
 
 Official crates.io index records and checksummed published archives establish:
 
@@ -148,7 +123,7 @@ independent consumer workspace to update.
 with CLI, and Engine with standalone, six probes, protocol and PocketIC support.
 Members have literal group versions and inherit the common dependency catalog.
 [Root notes](../../CHANGELOG.md) index the group ledgers. Each group's receipt
-now records its completed 0.66.0 release, validated parent and exact file hashes.
+now records its completed 0.67.0 release, validated parent and exact file hashes.
 Read receipts at their selected group tag: later groups change shared Cargo
 metadata and cannot stand in for an earlier release checkout. Historical receipts
 remain unchanged; no dual reader reinterprets old coordinated plans.
@@ -167,7 +142,7 @@ Client/Contracts, weaker release check or new read lane was added. CLI `--versio
 reports its own package. The earlier group batch's source/qualification evidence
 remains `/tmp/blob-release-groups.sC6joH/`, including its complete `groups-final.log`.
 
-## Qualification and evidence
+## Historical 0.66.0 qualification and evidence
 
 Current evidence: `/tmp/blob-upstream-adopt.EGqoV3/` contains before-state,
 official index/archive/source receipts, exact lock deltas, commands and logs.

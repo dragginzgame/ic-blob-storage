@@ -1,5 +1,13 @@
 # AGENTS.md
 
+For scope, delegated delivery, validation, compiler support and reporting, use
+[Shared policy at e84252f](https://github.com/dragginzgame/shared-tooling/blob/e84252f5740bacd708359580455ea2b6fd67df38/DRAGGINZGAME.md)
+and its revision-bound references over older snapshot or local-guide wording.
+This includes Rust 1.99.1 as minimum and pinned development/release compiler;
+check local declarations and qualification before claiming adoption is complete.
+Product-specific safeguards and scoped permissions below remain binding.
+This policy reference does not refresh executable snapshots.
+
 This file is normative for automated contributors.
 Read and apply [the shared engineering baseline](DRAGGINZGAME.md) first.
 [The snapshot manifest](.shared-tooling.snapshot) records its reviewed revision
@@ -23,12 +31,12 @@ it does not override shared rules or depend on a mutable sibling checkout.
 
 - Follow [development governance](docs/governance/development.md) for command
   authority, validation, batch cadence, changelog and release policy.
-- Read [the release guide](docs/releasing.md) before version or publication work.
-  Agents may inspect plans and test helpers, but must not execute
-  release-patch, release-minor, release-major or release-resume: the common
-  runner owns commit creation, including interruption recovery.
-- Registry publication is enabled for crates.io and remains an explicit
-  maintainer action. B1 ownership and service qualification do not gate library
+- Read [the release guide](docs/releasing.md) before authorized delivery. An
+  explicit scoped release request delegates the existing runner, including its
+  Git effects and recovery. This supersedes the older agent-release ban in local
+  governance; ordinary work does not execute those commands.
+- Registry publication is enabled for crates.io and requires publication/delivery
+  authority. B1 ownership and service qualification do not gate library
   publication; publishing the package does not qualify the service.
 
 ## Service hard-cut disposition
