@@ -16,7 +16,7 @@ use crate::policy::billing::admission::journal::FundingJournalAdmissionObservati
 use crate::policy::billing::admission::journal::FundingPreparationAssessment;
 use crate::policy::billing::admission::journal::assess_journal_preparation;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Authenticate the exact installed intent before asking the host for fresh evidence.
 /// Journal accesses are synchronous; the first borrow ends before `observe`.

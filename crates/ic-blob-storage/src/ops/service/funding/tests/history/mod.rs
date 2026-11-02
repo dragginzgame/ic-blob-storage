@@ -14,7 +14,7 @@ fn scope() -> FundingJournalScope {
     }
 }
 fn finish(
-    store: &mut StableFundingJournal<ic_memory::VectorMemory>,
+    store: &mut StableFundingJournal<ic_storage::VectorMemory>,
     intent: FundingIntent,
     outcome: FundingTransportOutcome,
 ) {
@@ -257,7 +257,10 @@ fn pages_check_only_returned_rows_and_reject_invalid_identity_or_scope() {
             ..input(1, 20)
         },
     ] {
-        store.intents.insert(1, FundingIntentRecord::new(bad));
+        store
+            .intents
+            .insert(1, FundingIntentRecord::new(bad))
+            .expect("stable collection operation");
         let first = store
             .history(execution(), scope(), None, NonZeroUsize::MIN)
             .unwrap();

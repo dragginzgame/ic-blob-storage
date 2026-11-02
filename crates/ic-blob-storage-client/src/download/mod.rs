@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_blob_storage_contracts::dto::download::DownloadResponse;
 use ic_blob_storage_contracts::protocol::DOWNLOAD_METHOD;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use std::num::NonZeroU32;
 use thiserror::Error;
 /// Explicit tenant/service selection. Construction installs nothing and sends nothing.
@@ -73,12 +73,12 @@ impl ReplicatedDownloadClient {
     ) -> Result<DownloadResponse, DownloadClientError> {
         if request.service != self.service
             || request.tenant != self.tenant
-            || ic_platform::cdk::api::canister_self() != self.tenant
+            || ic_platform_runtime::cdk::api::canister_self() != self.tenant
         {
             return Err(DownloadClientError::Binding);
         }
         reply::check_request(request, scope)?;
-        if !ic_platform::cdk::api::in_replicated_execution() {
+        if !ic_platform_runtime::cdk::api::in_replicated_execution() {
             return Err(DownloadClientError::Execution);
         }
         let response = client::call(self.service, DOWNLOAD_METHOD, self.timeout, request)

@@ -1,7 +1,7 @@
 //! Probe-owned journal identity and budgets; shared plumbing owns the bounded Wire payload.
 use crate::model::archive::AuthorityArchiveRecord;
 use blob_test_protocol::fixture_storage::FixtureJournal;
-use ic_memory::DefaultMemoryImpl;
+use ic_storage::DefaultMemoryImpl;
 use ic_wire::Limits;
 use std::cell::RefCell;
 const JOURNAL_KEY: &str = "fixture.authority.archive.wire.v1";

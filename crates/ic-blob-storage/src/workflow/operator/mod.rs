@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::dto::operator::LocalStatusFailure;
 use ic_blob_storage_contracts::dto::operator::LocalUploadStatus;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 use crate::ops::service::operator::{OperatorStores, funding_status};
 /// Inspect one explicit service/provider/account scope as its configured operator.

@@ -7,6 +7,18 @@ The [service contract](service-contract.md#current-persisted-boundaries) owns th
 requirements; the [operator guide](operator-guide.md) owns command syntax.
 Library publication is separate from permission to retire or deploy a service.
 
+## Pending Blob 0.68 / Storage 0.65 disposition
+
+Storage 0.65 replaces both Memory and stable-structures, including allocation,
+collection and private Blob key images. The 0.65 B-tree map format also refuses
+0.64 AVL maps, sets and regions. The new binary cannot open old backing.
+Preserve its original tools and all obligations below, retire the whole old
+installation, then use fresh whole backing. Do not reset a ledger or one
+collection over retained bytes, invent new allocation IDs, or treat a failed
+restore as initialization authority. No legacy reader or automatic converter is
+provided. Same-release backup/reopen/recovery remains supported only under its
+frozen image contract; current local tests do not authorize a production reset.
+
 ## Blob 0.50 Wire-record disposition
 
 Blob-owned stable records now use bounded Wire with distinct record frame
@@ -20,7 +32,7 @@ same-release recovery tests do not authorize resetting an existing service.
 
 ## Memory 0.56 Wire-ledger disposition
 
-Pending Blob 0.58.0 selects Memory/Storage 0.56.0. Memory's allocation ledger and
+Released Blob 0.58.0 selected Memory/Storage 0.56.0. Memory's allocation ledger and
 its enclosing Cell value now use bounded IC Wire (`ICML` and the protected
 `ICMWIRE1` marker). Earlier CBOR bytes are incompatible. Manager and Cell container
 headers, numeric grants and Blob's application record schemas do not make those
@@ -65,7 +77,7 @@ matching CLI/browser tools and their hashes. Record the actual service principal
 namespace, provider owner/project, tenant bindings, operator, uploader, payer and
 cashier, plus the verifier identity for older verifier-bearing releases. Keep
 secrets under their existing access controls, separate
-from public evidence. Current Memory tools refuse incompatible earlier ledger
+from public evidence. Current Storage tools refuse incompatible earlier ledger
 formats; use the frozen old contract for inspection. A failed upgrade is not a
 migration.
 

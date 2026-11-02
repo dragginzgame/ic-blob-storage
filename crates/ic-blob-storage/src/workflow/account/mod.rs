@@ -5,7 +5,7 @@ use crate::ops::caffeine::query::transport::replicated::ReplicatedQueryError;
 use crate::ops::service::account;
 use crate::ops::service::account::AccountInspectionAccess;
 use crate::ops::service::operator::OperatorStores;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 use ic_blob_storage_contracts::dto::account::AccountInspectionFailure;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;

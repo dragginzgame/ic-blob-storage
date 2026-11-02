@@ -5,7 +5,7 @@ use crate::policy::installation::may_inspect;
 use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Inspect exact retained configuration as the installed operator, including after restore.
 /// This neither calls a provider nor clears any owner fence.

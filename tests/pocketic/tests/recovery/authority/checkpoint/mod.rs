@@ -143,7 +143,7 @@ fn damaged_checkpoint_rejects_reconstruction_without_resetting_live_state() {
     let before = f.archive();
     let memory = f.harness.pic.get_stable_memory(f.service);
     let mut corrupted = memory.clone();
-    // Locate the protected versioned envelope, not an ic-memory implementation offset.
+    // Locate the protected versioned envelope, not an ic-storage implementation offset.
     let at = corrupted
         .windows(8)
         .position(|bytes| bytes == b"ICBV\0\0\0\x01")

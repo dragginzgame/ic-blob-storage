@@ -29,19 +29,29 @@ macro_rules! storable {
             }
         }
         impl ic_storage::adapter::Storable for $record {
-            fn to_bytes(&self) -> std::borrow::Cow<'_, [u8]> {
-                std::borrow::Cow::Owned(self.encode_record().expect("bounded Wire stable record"))
+            fn to_bytes(
+                &self,
+            ) -> Result<std::borrow::Cow<'_, [u8]>, ic_storage::adapter::CodecError> {
+                self.encode_record()
+                    .map(std::borrow::Cow::Owned)
+                    .map_err(|_| {
+                        ic_storage::adapter::CodecError::Invalid("bounded Wire stable record")
+                    })
             }
-            fn into_bytes(self) -> Vec<u8> {
-                self.encode_record().expect("bounded Wire stable record")
+            fn into_bytes(self) -> Result<Vec<u8>, ic_storage::adapter::CodecError> {
+                self.encode_record().map_err(|_| {
+                    ic_storage::adapter::CodecError::Invalid("bounded Wire stable record")
+                })
             }
-            fn from_bytes(bytes: std::borrow::Cow<'_, [u8]>) -> Self {
+            fn from_bytes(
+                bytes: std::borrow::Cow<'_, [u8]>,
+            ) -> Result<Self, ic_storage::adapter::CodecError> {
                 ic_wire::native::decode_request(
                     u64::from_le_bytes(*$id),
                     &bytes,
                     $crate::model::record_codec::limits($bytes as usize),
                 )
-                .expect("current Wire stable record")
+                .map_err(|_| ic_storage::adapter::CodecError::Invalid("current Wire stable record"))
             }
             const BOUND: ic_storage::adapter::storable::Bound = $layout;
         }

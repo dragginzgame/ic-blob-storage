@@ -1,6 +1,6 @@
 //! Single-call mechanics shared by the role-specific replicated clients.
-use ic_platform::Principal;
-use ic_platform::cdk::call::{Call, CallFailed, Response, WaitPolicy};
+use ic_platform_runtime::cdk::call::{Call, CallFailed, Response, WaitPolicy};
+use ic_platform_types::Principal;
 use std::num::NonZeroU32;
 
 /// Admit ordinary identities and the platform's bounded-wait timeout range.

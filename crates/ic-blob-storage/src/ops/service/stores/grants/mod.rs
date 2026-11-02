@@ -1,12 +1,12 @@
-//! Named service grants within the host's existing `ic-memory` runtime.
+//! Named service grants within the host's existing `ic-storage` runtime.
 //!
 //! Hosts explicitly include these requests in their composed declaration snapshot,
 //! grant a namespace in the allocation pool and bootstrap once before opening. Linking this module
 //! registers nothing. Configuration memory and lifecycle remain host-owned.
 use super::ServiceMemories;
 use crate::ops::service::{funding::FundingMemories, uploads::UploadMemories};
-use ic_memory::{Memory, RuntimeMemory, StableKey};
-use ic_memory::{MemoryDeclarationError, MemoryRequest};
+use ic_storage::{AdmissionError, MemoryRequest};
+use ic_storage::{Memory, RuntimeMemory, StableKey};
 
 // Logical identities are independent of host-selected physical IDs. Keep this
 // mapping shared so an adapter cannot accidentally swap accounting and history.
@@ -35,8 +35,8 @@ const KEYS: ServiceMemories<&str> = ServiceMemories {
 /// Hosts compose these with their configuration and other application requests
 /// before sealing; the host's policy owns placement and authority validation.
 /// # Errors
-/// Rejects an authority unsupported by `ic-memory`.
-pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclarationError> {
+/// Rejects an authority unsupported by `ic-storage`.
+pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, AdmissionError> {
     KEYS.all()
         .into_iter()
         .map(|key| MemoryRequest::new(authority, key))

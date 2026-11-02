@@ -1,6 +1,8 @@
 use super::*;
 use crate::tenants::TenantClientError;
-use ic_platform::cdk::call::{CallPerformFailed, CallRejected, InsufficientLiquidCycleBalance};
+use ic_platform_runtime::cdk::call::{
+    CallPerformFailed, CallRejected, InsufficientLiquidCycleBalance,
+};
 
 #[test]
 fn remote_rejections_preserve_raw_codes_including_unknown_outcomes() {

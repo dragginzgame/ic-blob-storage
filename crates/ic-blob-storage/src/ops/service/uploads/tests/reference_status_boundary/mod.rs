@@ -26,7 +26,7 @@ fn request() -> ReferenceStatusRequest {
     }
 }
 fn reserved() -> (
-    StableUploads<ic_memory::VectorMemory>,
+    StableUploads<ic_storage::VectorMemory>,
     UploadMemories<FixtureMemory>,
     UploadPermission,
 ) {

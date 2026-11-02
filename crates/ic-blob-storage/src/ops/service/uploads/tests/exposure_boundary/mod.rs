@@ -16,8 +16,8 @@ pub(super) fn permission() -> UploadPermission {
     .unwrap()
 }
 pub(super) fn prepared(
-    m: UploadMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>>,
-) -> StableUploads<ic_memory::VectorMemory> {
+    m: UploadMemories<ic_storage::RuntimeMemory<ic_storage::VectorMemory>>,
+) -> StableUploads<ic_storage::VectorMemory> {
     let mut store = StableUploads::install(m, config()).unwrap();
     enroll(&mut store);
     let input = manifest_boundary::input();

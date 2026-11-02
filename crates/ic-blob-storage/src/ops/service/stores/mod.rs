@@ -13,8 +13,8 @@ use super::uploads::UploadMemories;
 use super::uploads::UploadStoreError;
 use crate::model::billing::allocation::FundingAllocation;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
-use ic_memory::Memory;
-use ic_memory::RuntimeMemory;
+use ic_storage::Memory;
+use ic_storage::RuntimeMemory;
 use thiserror::Error;
 
 /// Validated limits for all maintained stable owners; no deployment or effect authority.

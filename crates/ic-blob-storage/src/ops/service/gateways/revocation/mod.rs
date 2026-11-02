@@ -4,8 +4,8 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationFailure;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::Memory;
 use ic_platform::Principal;
+use ic_storage::Memory;
 
 pub(crate) fn revoke<M: Memory>(
     store: &mut StableGatewayRegistry<M>,

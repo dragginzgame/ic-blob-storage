@@ -4,7 +4,7 @@ use crate::ops::service::gateways::StableGatewayRegistry;
 use crate::ops::service::stores::ServiceStores;
 use crate::ops::service::uploads::StableUploads;
 use ic_blob_storage_contracts::dto::operator::LocalFundingStatus;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Borrowed owners from one installed service, held only for synchronous inspection.
 /// Full configurations are checked before any accounting is returned.

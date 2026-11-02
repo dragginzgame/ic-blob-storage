@@ -28,8 +28,10 @@ host. Downstream frameworks own their wrappers and integration tests externally.
 Their dependencies, fixtures and tests are removed here. Older managed test
 captures remain historical evidence; they do not qualify a current wrapper.
 The root workspace owns dependency versions; consumers must use one compatible
-ic-memory identity/runtime. [Current status](status/current.md) owns the released
-baseline and active batch. The earlier
+ic-storage identity/runtime. [Current status](status/current.md) owns the released
+baseline and active batch. Pending Storage 0.65 requires a new host composition
+and fresh backing after retirement; Canic's recorded Blob 0.66 tests do not qualify
+this new graph. The earlier
 [framework-removal evidence](evidence/core-primitives.md#independent-library-and-memory-015--2026-10-02)
 retains its original 0.15-era dependency identity.
 

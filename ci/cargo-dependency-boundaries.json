@@ -1,5 +1,9 @@
 [
   {
+    "dependency": "ic-memory",
+    "allowed_packages": []
+  },
+  {
     "dependency": "ic-stable-structures",
     "allowed_packages": []
   },

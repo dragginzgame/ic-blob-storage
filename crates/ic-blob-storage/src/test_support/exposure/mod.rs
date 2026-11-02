@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::upload::{
     admission::UploadAdmissionRequest, exposure::UploadExposureFailure,
 };
 use ic_blob_storage_contracts::upload::binding::{UploadContext, UploadRequest};
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Commit the exact current permission through the production eligibility checks.
 /// # Errors

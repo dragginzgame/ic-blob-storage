@@ -15,7 +15,7 @@ use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
 
 /// Resolve the exact retained permission under uploader or historical tenant authority.
-pub(crate) fn permission<M: ic_memory::Memory>(
+pub(crate) fn permission<M: ic_storage::Memory>(
     store: &super::StableUploads<M>,
     context: ic_blob_storage_contracts::upload::binding::UploadContext,
     input: UploadAdmissionRequest,

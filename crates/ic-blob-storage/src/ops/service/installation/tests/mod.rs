@@ -76,11 +76,17 @@ fn installation_record_uses_current_wire_bytes_and_rejects_oversized_encoding() 
     let memory = memory();
     let installed = ServiceInstallation::install(memories(&memory), validated()).unwrap();
     let expected = installed.configuration.encode_record().unwrap();
-    assert_eq!(installed.configuration.to_bytes().as_ref(), expected);
-    assert_eq!(installed.configuration.clone().into_bytes(), expected);
+    assert_eq!(
+        installed.configuration.to_bytes().unwrap().as_ref(),
+        expected
+    );
+    assert_eq!(
+        installed.configuration.clone().into_bytes().unwrap(),
+        expected
+    );
     let mut oversized = installed.configuration;
     oversized.project = "x".repeat(16_384);
-    assert!(std::panic::catch_unwind(|| oversized.into_bytes()).is_err());
+    assert!(std::panic::catch_unwind(|| oversized.into_bytes().unwrap()).is_err());
 }
 
 fn input() -> ServiceInstallationCandidate<'static> {
@@ -99,7 +105,7 @@ fn memory() -> [FixtureMemory; 14] {
 }
 fn memories(
     memory: &[FixtureMemory; 14],
-) -> ServiceInstallationMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
+) -> ServiceInstallationMemories<ic_storage::RuntimeMemory<ic_storage::VectorMemory>> {
     let requests = grants::requests("installation-test").unwrap();
     ServiceInstallationMemories {
         configuration: memory[0].lease(),
@@ -262,7 +268,7 @@ fn whole_candidate_rejects_invalid_bindings_project_and_release() {
 fn allocated_grant_anywhere_rejects_before_installation_or_owner_writes() {
     for occupied in 0..14 {
         let memory = memory();
-        assert_eq!(ic_memory::Memory::grow(&memory[occupied].lease(), 1), 0);
+        assert_eq!(ic_storage::Memory::grow(&memory[occupied].lease(), 1), 0);
         memory[occupied]
             .lease()
             .write(0, b"retained installation obligation");
@@ -312,29 +318,20 @@ fn corrupt_configuration_cell_refuses_without_repairing_other_owners() {
         drop(ServiceInstallation::install(memories(&memory), validated()).unwrap());
         if invalid_codec {
             // Deliberate fixture corruption, never a restoration fallback.
-            drop(StableCell::reset(
-                memory[0].lease(),
-                b"not a configuration record".to_vec(),
-            ));
+            drop(
+                StableCell::reset(memory[0].lease(), b"not a configuration record".to_vec())
+                    .expect("write deliberate fixture corruption"),
+            );
         } else {
             let cell = memory[0].lease();
             // The collection's external layout byte is deliberately unsupported.
             cell.write(3, &[u8::MAX]);
         }
         let before = bytes(&memory);
-        if invalid_codec {
-            assert!(
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    ServiceInstallation::open(memories(&memory), candidate().service, RELEASE)
-                }))
-                .is_err()
-            );
-        } else {
-            assert!(matches!(
-                ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
-                Err(ServiceInstallationError::InvalidRecord)
-            ));
-        }
+        assert!(matches!(
+            ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
+            Err(ServiceInstallationError::InvalidRecord)
+        ));
         assert_eq!(bytes(&memory), before);
     }
 }
@@ -371,7 +368,7 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
     ));
     assert_eq!(bytes(&missing), missing_before);
     let mut records: StableCell<ConfigurationRecord, _> =
-        StableCell::load(memory[0].lease()).unwrap();
+        StableCell::load(memory[0].lease(), 16_384).unwrap();
     let mut record = records.get().clone();
     // Both prior allocation and verifier-bearing installation formats must refuse
     // even when the host release string is unchanged. Never mutate old bytes.
@@ -380,7 +377,7 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
         "ic-blob-storage/installation:project-upload-grants-platform-anchor-funding-credit-index-renewal",
     ] {
         record.format = retired.to_owned();
-        records.set(record.clone());
+        records.set(record.clone()).unwrap();
         drop(records);
         let before = bytes(&memory);
         assert!(matches!(
@@ -390,11 +387,11 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
             ))
         ));
         assert_eq!(bytes(&memory), before);
-        records = StableCell::load(memory[0].lease()).unwrap();
+        records = StableCell::load(memory[0].lease(), 16_384).unwrap();
     }
     record.format = ConfigurationRecord::FORMAT.to_owned();
     record.project = " invalid-project".to_owned();
-    records.set(record);
+    records.set(record).unwrap();
     drop(records);
     let before = bytes(&memory);
     assert!(matches!(
@@ -487,12 +484,12 @@ fn shared_funding_access_releases_borrows_and_observes_version_gaps() {
     use crate::workflow::service::{ServiceExecutionLimits, ServiceHost, ServiceWorkflow};
     use std::cell::{Cell, RefCell};
     thread_local! {
-        static OWNER: RefCell<Option<ServiceInstallation<ic_memory::VectorMemory>>> = const { RefCell::new(None) };
+        static OWNER: RefCell<Option<ServiceInstallation<ic_storage::VectorMemory>>> = const { RefCell::new(None) };
         static VERSION: Cell<u64> = const { Cell::new(0) };
     }
     struct Host;
     impl ServiceHost for Host {
-        type Memory = ic_memory::VectorMemory;
+        type Memory = ic_storage::VectorMemory;
         fn with_installation<R>(
             operation: impl FnOnce(&mut ServiceInstallation<Self::Memory>) -> R,
         ) -> R {

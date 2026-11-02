@@ -17,7 +17,7 @@ fn bounded_codecs_preserve_maximum_receipt_identity_and_typed_outcomes() {
             result,
         };
         assert_eq!(
-            ReferenceReceiptRecord::from_bytes(record.to_bytes()),
+            ReferenceReceiptRecord::from_bytes(record.to_bytes().unwrap()).unwrap(),
             record
         );
     }
@@ -30,20 +30,25 @@ fn bounded_codecs_preserve_maximum_receipt_identity_and_typed_outcomes() {
         gateway_acknowledged: false,
     };
     assert_eq!(
-        ConfirmedLifecycleRecord::from_bytes(record.to_bytes()),
+        ConfirmedLifecycleRecord::from_bytes(record.to_bytes().unwrap()).unwrap(),
         record
     );
     for state in [ReferenceState::Active, ReferenceState::Released] {
         let record = ReferenceRecord::new(state);
-        assert_eq!(ReferenceRecord::from_bytes(record.to_bytes()), record);
+        assert_eq!(
+            ReferenceRecord::from_bytes(record.to_bytes().unwrap()).unwrap(),
+            record
+        );
     }
 }
 #[test]
 fn oversized_or_malformed_receipts_trap_instead_of_losing_history() {
     for bytes in [vec![0; 257], b"truncated".to_vec()] {
         assert!(
-            std::panic::catch_unwind(|| ReferenceReceiptRecord::from_bytes(Cow::Owned(bytes)))
-                .is_err()
+            std::panic::catch_unwind(
+                || ReferenceReceiptRecord::from_bytes(Cow::Owned(bytes)).unwrap()
+            )
+            .is_err()
         );
     }
 }

@@ -23,8 +23,8 @@ use crate::model::billing::journal::record::FundingJournalRecord;
 use crate::ops::caffeine::funding::request::{CashierTopUpRequest, TopUpRequestError};
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::{Memory, RuntimeMemory};
 use ic_storage::adapter::StableBTreeMap;
+use ic_storage::{Memory, RuntimeMemory};
 use thiserror::Error;
 
 /// Two distinct, exclusively owned memories granted by the integrating host.
@@ -78,10 +78,13 @@ impl<M: Memory> StableFundingJournal<M> {
         if memory.accounting.size() != 0 || memory.intents.size() != 0 {
             return Err(FundingJournalError::AlreadyAllocated);
         }
-        let mut accounting = StableBTreeMap::create(memory.accounting);
+        let mut accounting =
+            StableBTreeMap::create(memory.accounting).expect("current stable collection");
         assert_eq!(memory.intents.size(), 0, "distinct funding memories");
-        let intents = StableBTreeMap::create(memory.intents);
-        accounting.insert([0; 32], FundingAccountingRecord::Totals(record));
+        let intents = StableBTreeMap::create(memory.intents).expect("current stable collection");
+        accounting
+            .insert([0; 32], FundingAccountingRecord::Totals(record))
+            .expect("stable collection operation");
         Ok(Self {
             accounting,
             intents,
@@ -107,8 +110,8 @@ impl<M: Memory> StableFundingJournal<M> {
             return Err(FundingJournalError::Missing);
         }
         let store = Self {
-            accounting: StableBTreeMap::load(memory.accounting),
-            intents: StableBTreeMap::load(memory.intents),
+            accounting: StableBTreeMap::load(memory.accounting).expect("current stable collection"),
+            intents: StableBTreeMap::load(memory.intents).expect("current stable collection"),
             config,
             fenced: true,
         };
@@ -120,8 +123,12 @@ impl<M: Memory> StableFundingJournal<M> {
             return Err(FundingJournalError::InvalidRecord);
         }
         let mut receipts = 0_u64;
-        for entry in &store.intents {
-            let record = entry.value();
+        for entry in store
+            .intents
+            .iter()
+            .map(|entry| entry.expect("stable collection traversal"))
+        {
+            let record = entry.value().expect("stable record");
             let view = record.view().ok_or(FundingJournalError::InvalidRecord)?;
             if *entry.key() != view.intent.operation.get() || !recorded.scope_matches(view.intent) {
                 return Err(FundingJournalError::InvalidRecord);
@@ -130,7 +137,10 @@ impl<M: Memory> StableFundingJournal<M> {
             reconstructed = reconstructed
                 .resolve(view.transfer().ok_or(FundingJournalError::InvalidRecord)?)?;
             if let Some(credit) = record.credit() {
-                if store.accounting.get(&credit.receipt_digest())
+                if store
+                    .accounting
+                    .get(&credit.receipt_digest())
+                    .expect("stable collection operation")
                     != Some(FundingAccountingRecord::Receipt {
                         operation: view.intent.operation.get(),
                     })
@@ -177,7 +187,8 @@ impl<M: Memory> StableFundingJournal<M> {
         }
         let next = totals.reserve(input)?;
         self.intents
-            .insert(input.operation.get(), FundingIntentRecord::new(input));
+            .insert(input.operation.get(), FundingIntentRecord::new(input))
+            .expect("stable collection operation");
         self.write_totals(&next);
         Ok(FundingIntentAdmission::Created)
     }
@@ -198,7 +209,9 @@ impl<M: Memory> StableFundingJournal<M> {
         Self::scope(&self.totals()?, input)?;
         let record = self.required(input)?.attempted()?;
         let request = Self::encode_request(input)?;
-        self.intents.insert(input.operation.get(), record);
+        self.intents
+            .insert(input.operation.get(), record)
+            .expect("stable collection operation");
         Ok(request)
     }
     /// Retain exact host-authenticated transport evidence and release only its return.
@@ -307,18 +320,24 @@ impl<M: Memory> StableFundingJournal<M> {
     fn totals(&self) -> Result<FundingJournalRecord, FundingJournalError> {
         self.accounting
             .get(&[0; 32])
+            .expect("stable collection operation")
             .and_then(FundingAccountingRecord::totals)
             .ok_or(FundingJournalError::InvalidRecord)
     }
     fn write_totals(&mut self, totals: &FundingJournalRecord) {
         self.accounting
-            .insert([0; 32], FundingAccountingRecord::Totals(*totals));
+            .insert([0; 32], FundingAccountingRecord::Totals(*totals))
+            .expect("stable collection operation");
     }
     fn exact(
         &self,
         input: FundingIntent,
     ) -> Result<Option<(FundingIntentRecord, FundingIntentView)>, FundingJournalError> {
-        let Some(record) = self.intents.get(&input.operation.get()) else {
+        let Some(record) = self
+            .intents
+            .get(&input.operation.get())
+            .expect("stable collection operation")
+        else {
             return Ok(None);
         };
         let view = record.view().ok_or(FundingJournalError::InvalidRecord)?;

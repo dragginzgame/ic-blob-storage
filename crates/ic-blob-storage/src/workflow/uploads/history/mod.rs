@@ -15,7 +15,7 @@ use ic_blob_storage_contracts::dto::upload::history::UploadHistoryScope;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_blob_storage_contracts::upload::history::filter;
-use ic_memory::Memory;
+use ic_storage::Memory;
 use std::num::NonZeroU128;
 
 fn number(value: u128) -> Result<NonZeroU128, UploadHistoryFailure> {

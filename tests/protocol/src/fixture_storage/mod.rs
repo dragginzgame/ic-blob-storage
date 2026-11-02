@@ -1,5 +1,7 @@
-//! Bounded Wire journals over Memory's canonical test cell; no product storage codec.
-use ic_memory::{Memory, MemoryBacking, MemoryManagerConfig, testing::FixtureCell};
+//! Bounded Wire journals over Storage's governed cell; no product storage codec.
+use ic_storage::{
+    Memory, MemoryBacking, RuntimeMemory, StableKey, StorageConfig, adapter::StableCell,
+};
 use ic_wire::{Limits, native};
 use serde::{Serialize, de::DeserializeOwned};
 
@@ -10,7 +12,7 @@ const JOURNAL_ID: u64 = 0x424c_4f42_4a4e_4c31;
 /// Earlier Candid payloads and custom consumer envelopes are deliberately unreadable.
 /// Initialization and restoration never substitute empty state for retained bytes.
 pub struct FixtureJournal<M: Memory> {
-    cell: FixtureCell<M>,
+    cell: StableCell<Vec<u8>, M>,
     key: String,
     limits: Limits,
 }
@@ -24,15 +26,8 @@ impl<M: Memory> FixtureJournal<M> {
     {
         validate(limits);
         assert_eq!(memory.size(), 0, "fresh fixture backing required");
-        let cell = FixtureCell::create_bounded(
-            memory,
-            "fixture",
-            "fixture.",
-            key,
-            MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
-            limits.bytes,
-        )
-        .expect("fresh bounded fixture journal");
+        let cell = StableCell::create(Self::memory(memory, key), Vec::new())
+            .expect("fresh bounded fixture journal");
         Self {
             cell,
             key: key.to_owned(),
@@ -47,15 +42,8 @@ impl<M: Memory> FixtureJournal<M> {
         M: MemoryBacking,
     {
         validate(limits);
-        let cell = FixtureCell::open_bounded(
-            memory,
-            "fixture",
-            "fixture.",
-            key,
-            MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
-            limits.bytes,
-        )
-        .expect("retained bounded fixture journal");
+        let cell = StableCell::load(Self::memory(memory, key), limits.bytes)
+            .expect("retained bounded fixture journal");
         Self {
             cell,
             key: key.to_owned(),
@@ -68,7 +56,7 @@ impl<M: Memory> FixtureJournal<M> {
     pub fn save<T: Serialize>(&mut self, state: &T) {
         let bytes = native::encode_request(JOURNAL_ID, &(&self.key, state), self.limits)
             .expect("bounded Wire fixture journal");
-        self.cell.try_set(bytes).expect("journal byte budget");
+        self.cell.set(bytes).expect("journal byte budget");
     }
     /// Decode retained state; no Candid reader, migration or initialization fallback.
     /// # Panics
@@ -76,10 +64,26 @@ impl<M: Memory> FixtureJournal<M> {
     #[must_use]
     pub fn load<T: DeserializeOwned>(&self) -> T {
         let (key, state): (String, T) =
-            native::decode_request(JOURNAL_ID, self.cell.bytes(), self.limits)
+            native::decode_request(JOURNAL_ID, self.cell.get(), self.limits)
                 .expect("same-release Wire journal");
         assert_eq!(key, self.key, "fixture journal binding");
         state
+    }
+
+    fn memory(memory: M, key: &str) -> RuntimeMemory<M>
+    where
+        M: MemoryBacking,
+    {
+        ic_storage::testing::fixture_runtime(
+            memory,
+            "fixture",
+            "fixture.",
+            &[key],
+            StorageConfig::default(),
+        )
+        .expect("fixture namespace admission")
+        .open_memory(&StableKey::parse(key).expect("fixture journal key"))
+        .expect("exclusive fixture journal lease")
     }
 }
 fn validate(limits: Limits) {

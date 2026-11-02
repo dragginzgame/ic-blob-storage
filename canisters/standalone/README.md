@@ -1,7 +1,7 @@
 # Standalone host
 
 `ic-blob-storage-canister` explicitly owns the canister endpoints, lifecycle and
-ic-memory grants. The shared library still exports no endpoints or lifecycle hooks.
+ic-storage grants. The shared library still exports no endpoints or lifecycle hooks.
 This is an initial host, not yet a qualified Caffeine-backed storage service.
 
 Build with `make build-standalone`; run its local lifecycle cases with

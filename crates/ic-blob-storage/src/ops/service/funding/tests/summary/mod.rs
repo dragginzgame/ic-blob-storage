@@ -136,7 +136,8 @@ fn summary_checks_empty_scope_authority_and_count_consistency_without_mutating()
     store = StableFundingJournal::open(copy(&m), config(), allocation()).unwrap();
     store
         .intents
-        .insert(1, FundingIntentRecord::new(input(1, 1)));
+        .insert(1, FundingIntentRecord::new(input(1, 1)))
+        .expect("stable collection operation");
     assert_eq!(
         store.summary(execution(), scope()),
         Err(FundingJournalError::InvalidRecord)

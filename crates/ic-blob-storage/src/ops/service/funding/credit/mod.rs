@@ -50,19 +50,27 @@ impl<M: Memory> StableFundingJournal<M> {
         if prior == next {
             return Ok(false);
         }
-        if self.accounting.contains_key(&confirmation.receipt_digest) {
+        if self
+            .accounting
+            .contains_key(&confirmation.receipt_digest)
+            .expect("stable collection operation")
+        {
             return Err(FundingCreditError::ReceiptReused.into());
         }
         let totals = self
             .totals()?
             .confirm_credit(confirmation.accepted_cycles)?;
-        self.intents.insert(input.operation.get(), next);
-        self.accounting.insert(
-            confirmation.receipt_digest,
-            super::FundingAccountingRecord::Receipt {
-                operation: input.operation.get(),
-            },
-        );
+        self.intents
+            .insert(input.operation.get(), next)
+            .expect("stable collection operation");
+        self.accounting
+            .insert(
+                confirmation.receipt_digest,
+                super::FundingAccountingRecord::Receipt {
+                    operation: input.operation.get(),
+                },
+            )
+            .expect("stable collection operation");
         self.write_totals(&totals);
         Ok(true)
     }

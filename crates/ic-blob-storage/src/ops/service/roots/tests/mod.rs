@@ -237,28 +237,44 @@ fn every_incomplete_or_conflicting_index_pair_is_rejected_without_repair() {
             .unwrap();
         match damage {
             0 => {
-                store.objects.remove(&key);
-            }
-            1 => {
-                store.objects.insert(key, *root(2).as_bytes());
-            }
-            2 => {
-                store.objects.remove(&key);
                 store
                     .objects
-                    .insert(RootObjectKeyRecord::new(object(4, 2)), *root(1).as_bytes());
+                    .remove(&key)
+                    .expect("stable collection operation");
+            }
+            1 => {
+                store
+                    .objects
+                    .insert(key, *root(2).as_bytes())
+                    .expect("stable collection operation");
+            }
+            2 => {
+                store
+                    .objects
+                    .remove(&key)
+                    .expect("stable collection operation");
+                store
+                    .objects
+                    .insert(RootObjectKeyRecord::new(object(4, 2)), *root(1).as_bytes())
+                    .expect("stable collection operation");
             }
             3 => {
-                store.roots.remove(&root_key(root(1)));
+                store
+                    .roots
+                    .remove(&root_key(root(1)))
+                    .expect("stable collection operation");
             }
             _ => {
-                store.roots.insert(
-                    root_key(root(2)),
-                    RootClaimRecord::Claim {
-                        object: key,
-                        operation: 1,
-                    },
-                );
+                store
+                    .roots
+                    .insert(
+                        root_key(root(2)),
+                        RootClaimRecord::Claim {
+                            object: key,
+                            operation: 1,
+                        },
+                    )
+                    .expect("stable collection operation");
             }
         }
         drop(store);

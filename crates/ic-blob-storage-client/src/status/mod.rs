@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::upload::UploadStatusResponse;
 use ic_blob_storage_contracts::protocol::UPLOAD_STATUS_METHOD;
 use ic_blob_storage_contracts::upload::status::reply;
 use ic_blob_storage_contracts::upload::status::reply::UploadStatusReplyError;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 /// Explicit actual tenant/service selection; construction sends nothing.
@@ -69,12 +69,12 @@ impl ReplicatedUploadStatusClient {
     ) -> Result<UploadStatusResponse, UploadStatusClientError> {
         if upload.service != self.service
             || upload.tenant != self.tenant
-            || ic_platform::cdk::api::canister_self() != self.tenant
+            || ic_platform_runtime::cdk::api::canister_self() != self.tenant
         {
             return Err(UploadStatusClientError::Binding);
         }
         reply::check(upload)?;
-        if !ic_platform::cdk::api::in_replicated_execution() {
+        if !ic_platform_runtime::cdk::api::in_replicated_execution() {
             return Err(UploadStatusClientError::Execution);
         }
         let response = client::call(self.service, UPLOAD_STATUS_METHOD, self.timeout, upload)

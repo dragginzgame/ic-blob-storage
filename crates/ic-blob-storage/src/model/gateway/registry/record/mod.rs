@@ -7,7 +7,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 pub(crate) use ic_blob_storage_contracts::configuration::envelope::MAX_GATEWAY_MEMBERS as MAX_MEMBERS;
-const MAX_BYTES: u32 = 65_536;
+pub(crate) const MAX_BYTES: u32 = 65_536;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub(crate) struct GatewayRegistryRecord {
     version: u8,

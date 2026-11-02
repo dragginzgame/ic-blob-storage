@@ -3,7 +3,7 @@
 Blob keeps one workspace and lockfile with three independently released groups.
 The [Shared release contract](releases.md) owns Git delivery/recovery mechanics;
 Blob owns its group policy, full validation gate, receipts and registry admission.
-Release commands remain maintainer-operated under [AGENTS.md](../AGENTS.md).
+Release authority follows [AGENTS.md](../AGENTS.md), including explicit delegated delivery.
 Publication neither deploys nor qualifies the storage service.
 
 ## Groups and history
@@ -17,7 +17,7 @@ Publication neither deploys nor qualifies the storage service.
 [ci/cargo-release-groups.json](../ci/cargo-release-groups.json) is authoritative.
 Every member has a literal version; dependencies inherit the root catalog. A
 release updates only the selected group's versions and its catalog requirements.
-For example, an Engine Memory API change leaves Contracts and Client versions
+For example, an Engine Storage API change leaves Contracts and Client versions
 unchanged. A Contracts release updates their inherited Contracts requirement,
 without claiming those consumers have themselves been released. Decide whether
 consumer republication is required from the changed contract, not supplier age.
@@ -35,8 +35,8 @@ Saved intent/control/installation formats and Wire packets are unchanged.
 The first independent Client, Contracts and Engine releases are **0.66.0**.
 Platform/Wire/Memory public Rust identities required these independent minor
 releases; matching numbers do not impose a workspace-wide version rule. The Rust support-floor change is delivered at **0.67.0** in each affected group;
-all thirteen current Cargo package versions are 0.67.0. Contracts was released
-and published first. Each group retains its own ledger, tag and receipt; future
+Contracts was released and published first. The root manifests own current
+package versions. Each group retains its own ledger, tag and receipt; future
 changes do not require synchronized releases.
 
 All members enter this layout at **0.65.0**, without a conversion bump. The

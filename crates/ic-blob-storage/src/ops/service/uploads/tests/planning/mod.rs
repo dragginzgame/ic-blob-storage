@@ -149,7 +149,7 @@ fn root_observations_preserve_order_uncertainty_cleanup_and_fenced_history() {
         },
     )
     .unwrap();
-    let observe = |store: &StableUploads<ic_memory::VectorMemory>| {
+    let observe = |store: &StableUploads<ic_storage::VectorMemory>| {
         store
             .observe_roots(context(2), NonZeroU128::MIN, &batch)
             .unwrap()

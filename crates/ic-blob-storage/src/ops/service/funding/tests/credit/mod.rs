@@ -27,7 +27,7 @@ pub(super) fn receipt(
     }
 }
 pub(super) fn paid(
-    store: &mut StableFundingJournal<ic_memory::VectorMemory>,
+    store: &mut StableFundingJournal<ic_storage::VectorMemory>,
     intent: FundingIntent,
     refunded: u128,
 ) {
@@ -284,7 +284,10 @@ fn restoration_refuses_inconsistent_credit_totals_and_duplicate_receipts_without
                 .unwrap()
                 .confirm_credit(receipt(second, 100, 1))
                 .unwrap();
-            store.intents.insert(second.operation.get(), forged);
+            store
+                .intents
+                .insert(second.operation.get(), forged)
+                .expect("stable collection operation");
             let totals = store.totals().unwrap().confirm_credit(n(100)).unwrap();
             store.write_totals(&totals);
         } else {
@@ -315,17 +318,22 @@ fn restoration_refuses_missing_misdirected_and_orphan_receipt_index_rows_without
             .unwrap();
         match corruption {
             0 => {
-                store.accounting.remove(&[1; 32]);
+                store
+                    .accounting
+                    .remove(&[1; 32])
+                    .expect("stable collection operation");
             }
             1 => {
                 store
                     .accounting
-                    .insert([1; 32], FundingAccountingRecord::Receipt { operation: 2 });
+                    .insert([1; 32], FundingAccountingRecord::Receipt { operation: 2 })
+                    .expect("stable collection operation");
             }
             _ => {
                 store
                     .accounting
-                    .insert([2; 32], FundingAccountingRecord::Receipt { operation: 1 });
+                    .insert([2; 32], FundingAccountingRecord::Receipt { operation: 1 })
+                    .expect("stable collection operation");
             }
         }
         drop(store);

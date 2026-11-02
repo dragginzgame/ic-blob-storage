@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 pub(crate) fn resolve<M: Memory>(
     store: &StableUploads<M>,

@@ -177,7 +177,7 @@ caller assertion or locally renamed operation.
 
 ## Consumer-owned acceptance
 
-1. Select the current published blob contract and one matching ic-memory runtime.
+1. Select the current published blob contract and one matching ic-storage runtime.
    Update the wrapper, method-bound Wire request/reply codecs, required external
    provider Candid and every affected independent lockfile. A Candid service
    export alone does not describe Blob's application endpoints.

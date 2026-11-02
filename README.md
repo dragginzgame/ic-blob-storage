@@ -10,7 +10,7 @@
   &nbsp;&middot;&nbsp;
   <a href="https://github.com/dragginzgame/ic-timers"><img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/icons/ic-timers.svg" width="18" height="18" alt=""> <strong>ic-timers</strong></a>
   &nbsp;&middot;&nbsp;
-  <a href="https://github.com/dragginzgame/ic-persistence"><img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/icons/ic-memory.svg" width="18" height="18" alt=""> <strong>ic-memory</strong></a>
+  <a href="https://github.com/dragginzgame/ic-storage"><img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/icons/ic-memory.svg" width="18" height="18" alt=""> <strong>ic-storage</strong></a>
   &nbsp;&middot;&nbsp;
   <a href="https://github.com/dragginzgame/ic-query"><img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/icons/ic-query.svg" width="18" height="18" alt=""> <strong>ic-query</strong></a>
   &nbsp;&middot;&nbsp;
@@ -119,8 +119,9 @@ open integration work and retained trial obligations are recorded in the
 [current status](docs/status/current.md). Earlier live trials remain frozen and
 do not establish production readiness for the current release.
 
-Stable collections use IC Storage; public memory types and allocation leases use
-IC Memory. The workspace manifests and lockfile select their supported versions. Hosts compose one memory package identity and one allocation pool. Owner
+Stable collections, public backing types and allocation leases use IC Storage.
+The workspace manifests and lockfile select its supported version. Hosts compose
+one Storage identity, bounded configuration and explicit allocation grants. Owner
 type parameters name the backing memory; construction takes exclusive runtime
 leases. Cross-release installations require safe obligation
 disposition before reinstall, as described in the
@@ -217,7 +218,7 @@ certificate workflows. Component factories, evidence substitution and the transi
 reference owner are available only through the non-default core `test-support`
 feature for isolated probes; production builds must leave it disabled.
 
-The host owns one `ic-memory` runtime and its allocation policy. Linking a library registers no endpoints or lifecycle hooks.
+The host owns one `ic-storage` runtime and its allocation policy. Linking a library registers no endpoints or lifecycle hooks.
 See [memory composition](docs/dependencies.md#memory-composition)
 for the integration details.
 

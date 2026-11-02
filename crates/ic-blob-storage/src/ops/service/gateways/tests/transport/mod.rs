@@ -19,12 +19,12 @@ use std::{
     num::NonZeroUsize,
     task::{Context, Poll, Waker},
 };
-struct Host(RefCell<StableGatewayRegistry<ic_memory::VectorMemory>>);
+struct Host(RefCell<StableGatewayRegistry<ic_storage::VectorMemory>>);
 impl GatewayRegistryAccess for Host {
-    type Memory = ic_memory::VectorMemory;
+    type Memory = ic_storage::VectorMemory;
     fn with_gateway_registry<R>(
         &self,
-        op: impl FnOnce(&mut StableGatewayRegistry<ic_memory::VectorMemory>) -> R,
+        op: impl FnOnce(&mut StableGatewayRegistry<ic_storage::VectorMemory>) -> R,
     ) -> R {
         op(&mut self.0.borrow_mut())
     }

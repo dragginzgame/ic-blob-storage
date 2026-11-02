@@ -198,7 +198,7 @@ impl Fixture {
                     .expect("upgrade args"),
                     None,
                 )
-                .expect("restore fixture through host-owned ic-memory");
+                .expect("restore fixture through host-owned ic-storage");
         }
     }
 

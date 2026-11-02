@@ -16,18 +16,18 @@ use blob_test_protocol::{
 };
 use ic_platform::Principal;
 
-use ic_blob_storage::ic_memory::DefaultMemoryImpl;
-use ic_blob_storage::ic_memory::GenericAllocationPolicy;
-use ic_blob_storage::ic_memory::Memory;
-use ic_blob_storage::ic_memory::MemoryAllocationPool;
-use ic_blob_storage::ic_memory::MemoryAuthority;
-use ic_blob_storage::ic_memory::MemoryBacking;
-use ic_blob_storage::ic_memory::MemoryManagerConfig;
-use ic_blob_storage::ic_memory::MemoryRequest;
-use ic_blob_storage::ic_memory::MemoryRuntime;
-use ic_blob_storage::ic_memory::RuntimeMemory;
-use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
-use ic_blob_storage::ic_memory::StableKey;
+use ic_blob_storage::ic_storage::AllocationGrants;
+use ic_blob_storage::ic_storage::DefaultMemoryImpl;
+use ic_blob_storage::ic_storage::GenericAllocationPolicy;
+use ic_blob_storage::ic_storage::Memory;
+use ic_blob_storage::ic_storage::MemoryAuthority;
+use ic_blob_storage::ic_storage::MemoryBacking;
+use ic_blob_storage::ic_storage::MemoryRequest;
+use ic_blob_storage::ic_storage::MemoryRuntime;
+use ic_blob_storage::ic_storage::RuntimeMemory;
+use ic_blob_storage::ic_storage::SealedDeclarationSnapshot;
+use ic_blob_storage::ic_storage::StableKey;
+use ic_blob_storage::ic_storage::StorageConfig;
 use ic_blob_storage::model::service::upload::UploadManifestState;
 use ic_blob_storage::ops::service::stores::ServiceMemories;
 use ic_blob_storage::ops::service::stores::ServiceStores;
@@ -62,7 +62,7 @@ impl Memory for ProbeBackingMemory {
     }
 }
 impl MemoryBacking for ProbeBackingMemory {
-    fn backing_identity(&self) -> ic_blob_storage::ic_memory::BackingIdentity {
+    fn backing_identity(&self) -> ic_blob_storage::ic_storage::BackingIdentity {
         self.0.backing_identity()
     }
 }
@@ -73,10 +73,10 @@ pub(crate) struct ProbeMemory {
     index: usize,
 }
 impl MemoryBacking for ProbeMemory {
-    fn backing_identity(&self) -> ic_blob_storage::ic_memory::BackingIdentity {
+    fn backing_identity(&self) -> ic_blob_storage::ic_storage::BackingIdentity {
         // The non-clone outer allocation lease owns this nested backing. Every
         // alias retains that same lease/identity; a raw backing alias cannot mint it.
-        ic_blob_storage::ic_memory::BackingIdentity::of_rc(&self.memory)
+        ic_blob_storage::ic_storage::BackingIdentity::of_rc(&self.memory)
     }
 }
 impl Memory for ProbeMemory {
@@ -207,20 +207,15 @@ fn granted_memories() -> (
         .map(|key| MemoryRequest::new("fixture", key).unwrap())
         .to_vec();
     requests.push(MemoryRequest::new("neighbor", "neighbor.data.v1").unwrap());
-    let pool = MemoryAllocationPool::new(
-        vec![
-            MemoryAuthority::new("fixture", "fixture.").unwrap(),
-            MemoryAuthority::new("neighbor", "neighbor.").unwrap(),
-        ],
-        vec![],
-    )
+    let pool = AllocationGrants::new(vec![
+        MemoryAuthority::new("fixture", "fixture.").unwrap(),
+        MemoryAuthority::new("neighbor", "neighbor.").unwrap(),
+    ])
     .unwrap();
     let declarations = SealedDeclarationSnapshot::new(requests).unwrap();
-    let mut runtime = MemoryRuntime::new_with_config(
-        ProbeBackingMemory::default(),
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
-    )
-    .unwrap();
+    let mut runtime =
+        MemoryRuntime::new_with_config(ProbeBackingMemory::default(), StorageConfig::default())
+            .unwrap();
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
@@ -291,12 +286,12 @@ fn probe_memory(
     };
     // Fixture-only nested governance keeps per-allocation fault/read instrumentation
     // below Storage's governed handle. Counts include this local manager's reads.
-    ic_blob_storage::ic_memory::testing::fixture_runtime(
+    ic_blob_storage::ic_storage::testing::fixture_runtime(
         backing,
         "probe",
         "probe.",
         &["probe.collection.v1"],
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
+        StorageConfig::default(),
     )
     .unwrap()
     .open_memory(&StableKey::parse("probe.collection.v1").expect("valid allocation key"))
@@ -373,7 +368,7 @@ pub(crate) fn admit_with_growth(
         if input.refuse {
             if !matches!(
                 grown,
-                Err(ic_blob_storage::ic_memory::RuntimeGrowError::BackingRefused { .. })
+                Err(ic_blob_storage::ic_storage::RuntimeGrowError::BackingRefused { .. })
             ) {
                 REFUSE_GROWTH.set(false);
                 return Err(

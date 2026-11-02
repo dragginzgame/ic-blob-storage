@@ -11,11 +11,10 @@ readme = "../../README.md"
 
 [features]
 # Non-default heap reference owners and isolated probe/fault-injection access.
-test-support = ["ic-memory/test-support"]
+test-support = ["ic-storage/test-support"]
 
 [dependencies]
 ic-blob-storage-contracts.workspace = true
-ic-memory.workspace = true
 ic-platform = { workspace = true, features = ["candid", "runtime", "management-canister-types"] }
 ic-storage.workspace = true
 ic-wire.workspace = true
@@ -24,8 +23,8 @@ thiserror.workspace = true
 
 [dev-dependencies]
 hex.workspace = true
-ic-memory = { workspace = true, features = ["test-support"] }
 ic-platform = { workspace = true, features = ["principal-self-authenticating"] }
+ic-storage = { workspace = true, features = ["test-support"] }
 
 [lints]
 workspace = true

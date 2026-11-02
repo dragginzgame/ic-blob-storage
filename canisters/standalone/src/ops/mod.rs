@@ -1,8 +1,8 @@
 //! Synchronous host lifecycle and borrowing of the shared installation owner.
 mod memory;
 pub(crate) mod metrics;
-use ic_blob_storage::ic_memory::DefaultMemoryImpl;
-use ic_blob_storage::ic_memory::MemoryRuntime;
+use ic_blob_storage::ic_storage::DefaultMemoryImpl;
+use ic_blob_storage::ic_storage::MemoryRuntime;
 use ic_blob_storage::ops::service::installation::ServiceInstallation;
 use ic_blob_storage::ops::service::installation::ServiceInstallationMemories;
 use ic_blob_storage::ops::service::installation::ValidatedServiceInstallation;

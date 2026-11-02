@@ -3,7 +3,7 @@
 //! This component does not persist uploads, references or provider obligations.
 //! Hosts own memory grants and lifecycle. Reopening is always inspection-only;
 //! it cannot establish freshness after an older backup or qualify service recovery.
-use ic_platform::principal::ExternalPrincipal;
+use crate::model::service::storage_key::TenantKeyRecord;
 
 use crate::model::service::tenant::record::TenantEnrollmentRecord;
 use crate::model::service::tenant::record::TenantStoreMetadataRecord;
@@ -14,9 +14,9 @@ use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::tenant::next_enrollment;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::{Memory, RuntimeMemory};
 use ic_platform::Principal;
 use ic_storage::adapter::StableBTreeMap;
+use ic_storage::{Memory, RuntimeMemory};
 use thiserror::Error;
 
 /// One host-granted memory holding a bounded lifetime enrollment map.
@@ -26,7 +26,7 @@ use thiserror::Error;
 /// IC message transaction. Storage traps must propagate, never be caught and
 /// converted into successful updates. Memory must have one live owning handle.
 pub struct StableTenantEnrollments<M: Memory> {
-    entries: StableBTreeMap<ExternalPrincipal, TenantStoreRecord, M>,
+    entries: StableBTreeMap<TenantKeyRecord, TenantStoreRecord, M>,
     config: ServiceConfiguration,
     fenced: bool,
 }
@@ -52,11 +52,13 @@ impl<M: Memory> StableTenantEnrollments<M> {
         if memory.size() != 0 {
             return Err(TenantStoreError::AlreadyAllocated);
         }
-        let mut entries = StableBTreeMap::create(memory);
-        entries.insert(
-            Principal::management_canister().into(),
-            TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config)),
-        );
+        let mut entries = StableBTreeMap::create(memory).expect("current stable collection");
+        entries
+            .insert(
+                Principal::management_canister().into(),
+                TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config)),
+            )
+            .expect("stable collection operation");
         Ok(Self {
             entries,
             config,
@@ -83,10 +85,14 @@ impl<M: Memory> StableTenantEnrollments<M> {
         if memory.size() == 0 {
             return Err(TenantStoreError::Missing);
         }
-        // `init` can overwrite unrecognized memory; restoration must use `load`.
-        let entries = StableBTreeMap::load(memory);
+        // Restoration only loads; creation and reset are never fallbacks.
+        let entries = StableBTreeMap::load(memory).expect("current stable collection");
         let expected = TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config));
-        if entries.get(&ExternalPrincipal::management_canister()) != Some(expected) {
+        if entries
+            .get(&TenantKeyRecord::management_canister())
+            .expect("stable collection operation")
+            != Some(expected)
+        {
             return Err(TenantStoreError::Binding);
         }
         if entries.len() - 1 > config.limits().max_tenants.get() as u64 {
@@ -99,9 +105,13 @@ impl<M: Memory> StableTenantEnrollments<M> {
         };
         // Bounded by the configured lifetime tenant count. Restore validates every
         // enrollment before exposing even inspection, without copying the map.
-        for entry in &store.entries {
+        for entry in store
+            .entries
+            .iter()
+            .map(|entry| entry.expect("stable collection traversal"))
+        {
             if *entry.key() != Principal::management_canister().into() {
-                enrollment((*entry.key()).into(), entry.value())?;
+                enrollment((*entry.key()).into(), entry.value().expect("stable record"))?;
             }
         }
         Ok(store)
@@ -152,10 +162,12 @@ impl<M: Memory> StableTenantEnrollments<M> {
             current,
             self.entries.len() - 1 < self.config.limits().max_tenants.get() as u64,
         )?;
-        self.entries.insert(
-            update.tenant.into(),
-            TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(next)),
-        );
+        self.entries
+            .insert(
+                update.tenant.into(),
+                TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(next)),
+            )
+            .expect("stable collection operation");
         Ok(next)
     }
 
@@ -172,6 +184,7 @@ impl<M: Memory> StableTenantEnrollments<M> {
         }
         self.entries
             .get(&tenant.into())
+            .expect("stable collection operation")
             .map(|record| enrollment(tenant, record))
             .transpose()
     }

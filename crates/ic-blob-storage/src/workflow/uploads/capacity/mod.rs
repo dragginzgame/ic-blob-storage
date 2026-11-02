@@ -27,7 +27,7 @@ fn failure(error: UploadStoreError) -> UploadCapacityFailure {
 /// Suspension and restore preserve inspection and are reported independently.
 /// # Errors
 /// Rejects invalid inputs, foreign scope/caller, missing enrollment or inconsistent state.
-pub fn inspect<M: ic_memory::Memory>(
+pub fn inspect<M: ic_storage::Memory>(
     source: &crate::ops::service::uploads::StableUploads<M>,
     context: UploadContext,
     scope: TenantScope,

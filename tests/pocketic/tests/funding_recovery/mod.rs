@@ -148,7 +148,7 @@ fn restored_receiver_rejects_real_attached_cycles_before_acceptance() {
     f.assert_sender_fenced(paid);
     let receiver_status = f.status_as(f.receiver, f.driver);
     f.upgrade_skipping_outgoing_hook(f.receiver);
-    // ic-memory bootstrap metadata can change during a real upgrade; the bound
+    // ic-storage bootstrap metadata can change during a real upgrade; the bound
     // journal and its fence, not allocator bytes, must remain the same.
     assert_eq!(f.status_as(f.receiver, f.driver), receiver_status);
 }

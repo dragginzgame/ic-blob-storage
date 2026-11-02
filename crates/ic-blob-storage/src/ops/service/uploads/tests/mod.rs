@@ -1,4 +1,5 @@
 use super::*;
+use crate::model::service::storage_key::ManifestKeyRecord;
 mod admission_boundary;
 mod capacity_boundary;
 mod certificate_boundary;
@@ -47,7 +48,7 @@ fn memory() -> UploadMemories<FixtureMemory> {
 }
 fn clone_memory(
     m: &UploadMemories<FixtureMemory>,
-) -> UploadMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
+) -> UploadMemories<ic_storage::RuntimeMemory<ic_storage::VectorMemory>> {
     UploadMemories {
         tenants: m.tenants.lease(),
         roots: m.roots.lease(),
@@ -63,7 +64,7 @@ fn clone_memory(
 }
 fn snapshot_memory(
     m: &UploadMemories<FixtureMemory>,
-) -> UploadMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
+) -> UploadMemories<ic_storage::RuntimeMemory<ic_storage::VectorMemory>> {
     clone_memory(&UploadMemories {
         tenants: m.tenants.snapshot(),
         roots: m.roots.snapshot(),
@@ -105,7 +106,7 @@ fn permission(id: u128) -> UploadPermission {
         expires_at_ns: 100,
     }
 }
-fn enroll(store: &mut StableUploads<ic_memory::VectorMemory>) -> TenantEnrollmentView {
+fn enroll(store: &mut StableUploads<ic_storage::VectorMemory>) -> TenantEnrollmentView {
     store
         .update_tenant(
             context(2),
@@ -220,13 +221,22 @@ fn inconsistent_counters_or_missing_claims_are_rejected_without_repair() {
         store.admit(context(4), permission(1), 1).unwrap();
         match damage {
             0 => {
-                store.usage.insert(p(4).into(), UploadUsageRecord::empty());
+                store
+                    .usage
+                    .insert(p(4).into(), UploadUsageRecord::empty())
+                    .expect("stable collection operation");
             }
             1 => {
-                store.usage.remove(&p(4).into());
+                store
+                    .usage
+                    .remove(&p(4).into())
+                    .expect("stable collection operation");
             }
             _ => {
-                store.permissions.remove(&key(permission(1).request));
+                store
+                    .permissions
+                    .remove(&key(permission(1).request))
+                    .expect("stable collection operation");
             }
         }
         drop(store);
@@ -425,7 +435,10 @@ fn missing_or_substituted_manifest_is_not_repaired_on_reopen() {
                 }),
             );
         } else {
-            store.manifests.remove(&(key(input.request), 1));
+            store
+                .manifests
+                .remove(&ManifestKeyRecord(key(input.request), 1))
+                .expect("stable collection operation");
         }
         drop(store);
         let before = m.manifests.borrow().clone();
@@ -494,7 +507,10 @@ fn codec_envelope_is_checked_before_installation_and_binds_reopening() {
         .unwrap();
     let record = store.manifest(input.request).unwrap().unwrap();
     for part in record.clone().split() {
-        assert_eq!(UploadManifestPartRecord::from_bytes(part.to_bytes()), part);
+        assert_eq!(
+            UploadManifestPartRecord::from_bytes(part.to_bytes().unwrap()).unwrap(),
+            part
+        );
     }
     drop(store);
     assert!(matches!(

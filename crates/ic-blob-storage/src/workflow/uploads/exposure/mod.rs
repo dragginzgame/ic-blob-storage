@@ -5,7 +5,7 @@ use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionRequest;
 use ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionResponse;
 use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Recover exact historical permission state as tenant or original uploader,
 /// including after expiry, revocation and restore. Performs no policy override,

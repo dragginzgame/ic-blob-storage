@@ -9,7 +9,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use std::num::NonZeroU32;
 use thiserror::Error;
 #[cfg(test)]
@@ -71,10 +71,14 @@ impl ReplicatedUploadManifestClient {
         input: UploadAdmissionRequest,
         preparing: bool,
     ) -> Result<(), UploadManifestClientError> {
-        self.binding(ic_platform::cdk::api::canister_self(), input, preparing)?;
+        self.binding(
+            ic_platform_runtime::cdk::api::canister_self(),
+            input,
+            preparing,
+        )?;
         ic_blob_storage_contracts::upload::admission::parse_binding(self.service, input)
             .map_err(|_| UploadManifestReplyError::Invalid)?;
-        if !ic_platform::cdk::api::in_replicated_execution() {
+        if !ic_platform_runtime::cdk::api::in_replicated_execution() {
             return Err(UploadManifestClientError::Execution);
         }
         Ok(())

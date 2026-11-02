@@ -1,14 +1,14 @@
-//! The standalone host owns one ic-memory runtime and fourteen exclusive grants.
-use ic_blob_storage::ic_memory::DefaultMemoryImpl;
-use ic_blob_storage::ic_memory::GenericAllocationPolicy;
-use ic_blob_storage::ic_memory::Memory as _;
-use ic_blob_storage::ic_memory::MemoryAllocationPool;
-use ic_blob_storage::ic_memory::MemoryAuthority;
-use ic_blob_storage::ic_memory::MemoryManagerConfig;
-use ic_blob_storage::ic_memory::MemoryRuntime;
-use ic_blob_storage::ic_memory::RuntimeMemory;
-use ic_blob_storage::ic_memory::SealedDeclarationSnapshot;
-use ic_blob_storage::ic_memory::StableKey;
+//! The standalone host owns one ic-storage runtime and fourteen exclusive grants.
+use ic_blob_storage::ic_storage::AllocationGrants;
+use ic_blob_storage::ic_storage::DefaultMemoryImpl;
+use ic_blob_storage::ic_storage::GenericAllocationPolicy;
+use ic_blob_storage::ic_storage::Memory as _;
+use ic_blob_storage::ic_storage::MemoryAuthority;
+use ic_blob_storage::ic_storage::MemoryRuntime;
+use ic_blob_storage::ic_storage::RuntimeMemory;
+use ic_blob_storage::ic_storage::SealedDeclarationSnapshot;
+use ic_blob_storage::ic_storage::StableKey;
+use ic_blob_storage::ic_storage::StorageConfig;
 use ic_blob_storage::ops::service::installation;
 use ic_blob_storage::ops::service::installation::INSTALLATION_MEMORY_KEY;
 use ic_blob_storage::ops::service::stores::ServiceMemories;
@@ -23,17 +23,13 @@ pub(super) fn open(fresh: bool) -> Grants {
     let backing = DefaultMemoryImpl::default();
     assert_eq!(backing.size() == 0, fresh, "installation memory state");
     let requests = installation::requests("blob").expect("host installation requests");
-    let pool = MemoryAllocationPool::new(
-        vec![MemoryAuthority::new("blob", "blob.").expect("host namespace grant")],
-        vec![],
-    )
+    let pool = AllocationGrants::new(vec![
+        MemoryAuthority::new("blob", "blob.").expect("host namespace grant"),
+    ])
     .expect("host allocation pool");
     let declarations = SealedDeclarationSnapshot::new(requests).expect("host declarations");
-    let mut runtime = MemoryRuntime::new_with_config(
-        backing,
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
-    )
-    .expect("host memory runtime");
+    let mut runtime = MemoryRuntime::new_with_config(backing, StorageConfig::default())
+        .expect("host memory runtime");
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .expect("host memory bootstrap");

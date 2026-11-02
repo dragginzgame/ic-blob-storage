@@ -8,6 +8,7 @@ use crate::model::lifecycle::ReferenceState;
 use crate::model::lifecycle::requests::ReferenceReceiptView;
 use crate::model::lifecycle::requests::ReferenceRequestError;
 use crate::model::lifecycle::requests::ReferenceRequestOutcome;
+use crate::model::service::storage_key::ReferenceKeyRecord;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
@@ -75,21 +76,34 @@ impl<M: Memory> StableUploads<M> {
         global.replace_lifecycle(upload.object.bytes, before, lifecycle.phase());
         own.replace_lifecycle(upload.object.bytes, before, lifecycle.phase());
         if let Some(m) = mutation {
-            self.references.insert(
-                (key(upload), m.reference.get().get()),
-                ReferenceRecord::new(m.state),
-            );
+            self.references
+                .insert(
+                    ReferenceKeyRecord(key(upload), m.reference.get().get()),
+                    ReferenceRecord::new(m.state),
+                )
+                .expect("stable collection operation");
         }
         self.receipts
-            .insert((key(upload), request.id.get().get()), receipt);
-        self.confirmed.insert(key(upload), lifecycle);
+            .insert(
+                ReferenceKeyRecord(key(upload), request.id.get().get()),
+                receipt,
+            )
+            .expect("stable collection operation");
+        self.confirmed
+            .insert(key(upload), lifecycle)
+            .expect("stable collection operation");
         if before != lifecycle.phase() && lifecycle.phase() == LifecyclePhase::DeletionPending {
-            self.deletions.insert(key(upload));
+            self.deletions
+                .insert(key(upload))
+                .expect("stable collection operation");
         }
         if before != lifecycle.phase() {
-            self.usage.insert(context.actor.into(), own);
             self.usage
-                .insert(Principal::management_canister().into(), global);
+                .insert(context.actor.into(), own)
+                .expect("stable collection operation");
+            self.usage
+                .insert(Principal::management_canister().into(), global)
+                .expect("stable collection operation");
         }
         Ok(ReferenceRequestOutcome::Recorded { result })
     }
@@ -191,11 +205,18 @@ impl<M: Memory> StableUploads<M> {
         let mut own = self.total(tenant)?;
         global.replace_lifecycle(upload.object.bytes, before, record.phase());
         own.replace_lifecycle(upload.object.bytes, before, record.phase());
-        self.confirmed.insert(key(upload), record);
-        self.deletions.remove(&key(upload));
-        self.usage.insert(tenant.into(), own);
+        self.confirmed
+            .insert(key(upload), record)
+            .expect("stable collection operation");
+        self.deletions
+            .remove(&key(upload))
+            .expect("stable collection operation");
         self.usage
-            .insert(Principal::management_canister().into(), global);
+            .insert(tenant.into(), own)
+            .expect("stable collection operation");
+        self.usage
+            .insert(Principal::management_canister().into(), global)
+            .expect("stable collection operation");
         Ok(change)
     }
     pub(super) fn trusted_request(&self, request: UploadRequest) -> Result<(), UploadStoreError> {
@@ -222,6 +243,7 @@ impl<M: Memory> StableUploads<M> {
         }
         self.confirmed
             .get(&key(upload))
+            .expect("stable collection operation")
             .filter(|r| r.valid(self.config.limits().catalog))
             .ok_or(UploadStoreError::InvalidRecord)
     }
@@ -243,7 +265,8 @@ impl<M: Memory> StableUploads<M> {
         reference: u128,
     ) -> Result<Option<ReferenceState>, UploadStoreError> {
         self.references
-            .get(&(owner, reference))
+            .get(&ReferenceKeyRecord(owner, reference))
+            .expect("stable collection operation")
             .map(|r| r.state().ok_or(UploadStoreError::InvalidRecord))
             .transpose()
     }
@@ -253,7 +276,11 @@ impl<M: Memory> StableUploads<M> {
         actor: Principal,
         request: ReferenceRequest,
     ) -> Result<Option<ReferenceReceiptView>, UploadStoreError> {
-        let Some(record) = self.receipts.get(&(owner, request.id.get().get())) else {
+        let Some(record) = self
+            .receipts
+            .get(&ReferenceKeyRecord(owner, request.id.get().get()))
+            .expect("stable collection operation")
+        else {
             return Ok(None);
         };
         if !record.matches(actor, request) {

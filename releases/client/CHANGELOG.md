@@ -4,6 +4,25 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.68.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Align the public Contracts dependency with its Metrics 0.27 release family.
+  Rebuild callers exchanging Contracts values across the client boundary;
+  application frames, limits, dispatch and exact retry policy are unchanged.
+
+### 🔧 Changed
+
+- Select published Types 0.17 and Runtime 0.18 directly for replicated clients.
+  Align public Principal/call identities with Platform 0.18 and preserve Wire bytes
+  and dispatch policy while removing the client's direct dependency on the
+  Platform facade. Contracts
+  retains its external Candid boundary.
+
+- Adopt Build 0.74 and Host Foundation 0.74.1 for native tooling, and npm 12.2.1
+  for browser qualification. The provider SDK override stays unchanged.
+
 ## [0.67.0] - 2026-11-02
 
 ### ⚠️ Breaking

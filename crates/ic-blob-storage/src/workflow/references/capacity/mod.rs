@@ -37,7 +37,7 @@ fn present(view: ReferenceCapacityView) -> Result<ReferenceHeadroom, F> {
 /// Rejects invalid/foreign scope, unrelated callers or inconsistent retained counters.
 /// # Panics
 /// Panics if the fixed-width root type no longer matches the request contract.
-pub fn inspect<M: ic_memory::Memory>(
+pub fn inspect<M: ic_storage::Memory>(
     source: &crate::ops::service::uploads::StableUploads<M>,
     context: UploadContext,
     request: ReferenceCapacityRequest,

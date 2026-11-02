@@ -53,15 +53,20 @@ it does not override shared rules or depend on a mutable sibling checkout.
   Do not declare or import SDK Core directly in first-party product, test or
   build code. Keep the external Caffeine dependency/patch, its explicit SDK
   override, and application trust, budgets, intents and retry policy local.
-- Use published `ic-platform` for Principal, Candid contracts/decoding/service
+- Replicated Client selects published `ic-platform-types` for Principal and
+  `ic-platform-runtime` for IC calls/execution directly. Other existing facade
+  paths retain the same canonical identities. Use published `ic-platform` for
+  Candid contracts/decoding/service
   export, management-history DTOs and supported native Agent/certification APIs;
   keep application protocols on `ic-wire`. Native dynamic fixtures, Agent
   responses, native Testkit decoder limits, entrypoint macros and supported CDK
   call/system APIs also use Platform. Direct Candid, CDK-family, raw ic0 and internal
   Platform macro dependencies are forbidden by `ci/cargo-dependency-boundaries.json`.
-- Stable collections and record codecs use `ic_storage::adapter`; host backing
-  types and allocation leases use `ic_memory`. Do not declare a direct or renamed
-  `ic-stable-structures` dependency in this workspace.
+- Storage 0.65 owns stable collections, record codecs, host backing and allocation
+  leases. Use `ic_storage::adapter` and `ic_storage`; the former Memory package
+  is retired. Do not declare direct or renamed `ic-memory` or
+  `ic-stable-structures` dependencies in this workspace. Old backing images need
+  whole-installation retirement and fresh backing, never automatic reset.
 - Prefer one authoritative storage owner and its local durable journals. Defer
   external journals, recovery-controller canisters and extra metadata calls until
   a clear consumer/recovery use case justifies them. This preference does not

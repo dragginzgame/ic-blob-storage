@@ -22,7 +22,7 @@
 //!
 //! Component stores cannot be installed independently through the production API:
 //! ```compile_fail
-//! use ic_memory::{Memory, RuntimeMemory};
+//! use ic_storage::{Memory, RuntimeMemory};
 //! use ic_blob_storage::ops::service::stores::{
 //!     ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores,
 //! };
@@ -44,16 +44,16 @@ pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Shared allocation governance for host-owned memory.
 ///
-/// The integrating host owns memory bootstrap, policy, bucket configuration and
+/// The integrating host owns storage bootstrap, policy, resource ceilings and
 /// allocation grants. Linking this crate does not register stores, initialize a
 /// memory manager or export lifecycle hooks. IC Storage owns stable collections;
 /// constructors require this runtime's exclusive allocation leases. Store and
 /// workflow type parameters name the backing memory, not `RuntimeMemory<Backing>`.
 /// Hosts should use this re-export or align a direct Memory dependency with
 /// this crate's selected release line. Runtime construction requires
-/// [`ic_memory::MemoryBacking`]; custom backing aliases share a retained identity.
+/// [`ic_storage::MemoryBacking`]; custom backing aliases share a retained identity.
 /// Every component lease must drop before the host recreates its runtime.
-pub use ic_memory;
+pub use ic_storage;
 
 /// Probe-only reference models and fault-injection access.
 /// Never enable this feature in a production host; it deliberately bypasses the

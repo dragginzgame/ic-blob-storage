@@ -38,6 +38,8 @@ impl<M: Memory> StableFundingJournal<M> {
     /// establishes freshness, provider credit or safe operational restoration.
     /// # Errors
     /// Rejects caller/service/scope, changed cursor scope or invalid retained rows.
+    /// # Panics
+    /// Corrupt retained storage traps; callers must propagate IC rollback.
     pub fn history(
         &self,
         execution: UploadContext,
@@ -51,11 +53,17 @@ impl<M: Memory> StableFundingJournal<M> {
         }
         let totals = self.totals()?;
         let end = cursor.map_or(Unbounded, |value| Excluded(value.before_operation.get()));
-        let mut rows = self.intents.range((Unbounded, end)).rev().peekable();
+        let mut rows = self
+            .intents
+            .range((Unbounded, end))
+            .map(|entry| entry.expect("stable collection traversal"))
+            .rev()
+            .peekable();
         let mut entries = Vec::new();
         for entry in rows.by_ref().take(limit.get()) {
             let view = entry
                 .value()
+                .expect("stable record")
                 .view()
                 .ok_or(FundingJournalError::InvalidRecord)?;
             if view.intent.operation.get() != *entry.key() || !totals.scope_matches(view.intent) {

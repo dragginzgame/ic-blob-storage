@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::{
     },
     upload::binding::UploadContext,
 };
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Inspect actual installed state. A successful observation grants no later authority.
 /// # Errors

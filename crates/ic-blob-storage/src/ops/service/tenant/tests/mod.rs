@@ -7,9 +7,9 @@ use ic_blob_storage_contracts::configuration::limits::UploadLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceBindings;
 use ic_blob_storage_contracts::configuration::service::ServiceLimits;
 use ic_blob_storage_contracts::configuration::service::ServiceManifestLimits;
-use ic_memory::{
-    GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRequest, MemoryRuntime, SealedDeclarationSnapshot,
+use ic_storage::{
+    AllocationGrants, GenericAllocationPolicy, MemoryAuthority, MemoryRequest, MemoryRuntime,
+    SealedDeclarationSnapshot, StorageConfig,
 };
 use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 
@@ -68,24 +68,20 @@ fn update(tenant: u8, expected: Option<TenantEnrollmentView>, active: bool) -> T
 #[test]
 fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
     let request = MemoryRequest::new("fixture", "fixture.tenants.v1").unwrap();
-    let pool = MemoryAllocationPool::new(
-        vec![MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant")],
-        vec![],
-    )
+    let pool = AllocationGrants::new(vec![
+        MemoryAuthority::new("fixture", "fixture.").expect("host namespace grant"),
+    ])
     .expect("host allocation pool");
     let declarations = SealedDeclarationSnapshot::new(vec![request]).unwrap();
-    let raw = ic_memory::VectorMemory::default();
-    let mut runtime = MemoryRuntime::new_with_config(
-        raw.clone(),
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
-    )
-    .unwrap();
+    let raw = ic_storage::VectorMemory::default();
+    let mut runtime =
+        MemoryRuntime::new_with_config(raw.clone(), StorageConfig::default()).unwrap();
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
     let memory = runtime
         .open_memory(
-            &ic_memory::StableKey::parse("fixture.tenants.v1").expect("valid allocation key"),
+            &ic_storage::StableKey::parse("fixture.tenants.v1").expect("valid allocation key"),
         )
         .unwrap();
     let mut store = StableTenantEnrollments::install(memory, config()).unwrap();
@@ -95,17 +91,13 @@ fn host_granted_memory_reopens_with_retained_state_and_an_enforced_fence() {
         .unwrap();
     drop(store);
     drop(runtime);
-    let mut runtime = MemoryRuntime::new_with_config(
-        raw,
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
-    )
-    .unwrap();
+    let mut runtime = MemoryRuntime::new_with_config(raw, StorageConfig::default()).unwrap();
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();
     let memory = runtime
         .open_memory(
-            &ic_memory::StableKey::parse("fixture.tenants.v1").expect("valid allocation key"),
+            &ic_storage::StableKey::parse("fixture.tenants.v1").expect("valid allocation key"),
         )
         .unwrap();
     let mut store = StableTenantEnrollments::open(memory, config()).unwrap();
@@ -261,10 +253,13 @@ fn invalid_records_and_over_capacity_state_fail_restoration_without_repair() {
     for invalid_tenant in [p(4), Principal::anonymous()] {
         let memory = FixtureMemory::default();
         let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
-        store.entries.insert(
-            invalid_tenant.into(),
-            TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config())),
-        );
+        store
+            .entries
+            .insert(
+                invalid_tenant.into(),
+                TenantStoreRecord::Metadata(TenantStoreMetadataRecord::new(&config())),
+            )
+            .expect("stable collection operation");
         drop(store);
         let before = memory.borrow().clone();
         assert!(matches!(
@@ -276,13 +271,16 @@ fn invalid_records_and_over_capacity_state_fail_restoration_without_repair() {
     let memory = FixtureMemory::default();
     let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     for tenant in [4, 5, 6] {
-        store.entries.insert(
-            p(tenant).into(),
-            TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(TenantEnrollmentView {
-                generation: NonZeroU64::MIN,
-                active: true,
-            })),
-        );
+        store
+            .entries
+            .insert(
+                p(tenant).into(),
+                TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(TenantEnrollmentView {
+                    generation: NonZeroU64::MIN,
+                    active: true,
+                })),
+            )
+            .expect("stable collection operation");
     }
     drop(store);
     assert!(matches!(
@@ -299,10 +297,13 @@ fn exhausted_generations_preserve_suspension_and_stable_history() {
         generation: NonZeroU64::MAX,
         active: true,
     };
-    store.entries.insert(
-        p(4).into(),
-        TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(last)),
-    );
+    store
+        .entries
+        .insert(
+            p(4).into(),
+            TenantStoreRecord::Enrollment(TenantEnrollmentRecord::new(last)),
+        )
+        .expect("stable collection operation");
     let suspended = store
         .update(context(2), update(4, Some(last), false))
         .unwrap();
@@ -320,7 +321,7 @@ fn exhausted_generations_preserve_suspension_and_stable_history() {
 #[test]
 fn unrecognized_memory_and_missing_metadata_never_seed_a_fresh_store() {
     let memory = FixtureMemory::default();
-    ic_memory::Memory::grow(&memory.lease(), 1);
+    ic_storage::Memory::grow(&memory.lease(), 1);
     memory.lease().write(0, b"unrecognized stable data");
     let before = memory.borrow().clone();
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -336,7 +337,8 @@ fn unrecognized_memory_and_missing_metadata_never_seed_a_fresh_store() {
     let mut store = StableTenantEnrollments::install(memory.lease(), config()).unwrap();
     store
         .entries
-        .remove(&ExternalPrincipal::management_canister());
+        .remove(&TenantKeyRecord::management_canister())
+        .expect("stable collection operation");
     drop(store);
     let before = memory.borrow().clone();
     assert!(matches!(

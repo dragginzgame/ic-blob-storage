@@ -34,7 +34,9 @@ impl<M: Memory> StableFundingJournal<M> {
             return Err(FundingRenewalError::Unreconciled.into());
         }
         let totals = totals.renew(input.additional)?;
-        self.intents.insert(input.intent.operation.get(), next);
+        self.intents
+            .insert(input.intent.operation.get(), next)
+            .expect("stable collection operation");
         self.write_totals(&totals);
         Ok(true)
     }

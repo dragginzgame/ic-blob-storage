@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::{
     },
     upload::binding::UploadContext,
 };
-use ic_memory::Memory;
+use ic_storage::Memory;
 /// Inspect actual stored eligibility without substituting host facts.
 /// # Errors
 /// Preserves authority, phase and restore refusals.

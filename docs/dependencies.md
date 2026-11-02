@@ -26,8 +26,7 @@ Foreign Candid identities stay upstream, without a local dependency alias.
 | Blob core | Tenant authority, references, quotas, records, provider accounting, retention, deletion and recovery workflows |
 | Blob client | Explicit replicated role clients; optional native-only verified HTTP downloads and private staging; no service storage, endpoints or lifecycle |
 | Blob Contracts | Runtime-free DTOs, method catalog, Blob codec projections, content identities and verification |
-| IC Memory | Allocation ledger, grants and exclusive runtime leases; the host supplies backing and one allocation pool |
-| IC Storage | Governed stable collections and codec traits; the stable-structures dependency stays upstream; Memory/Storage share the IC Persistence release line |
+| IC Storage | Allocation ledger, grants, exclusive runtime leases, governed stable collections and codec traits; the host supplies backing and bounded StorageConfig. Memory and stable-structures are retired. |
 | IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Platform browser package | Published `@tokostudios/ic-platform` owns SDK Core selection, canonical Principal admission, checked identity restoration and explicit Agent construction; Blob retains trust, intents and effect policy |
 | IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
@@ -39,8 +38,8 @@ Foreign Candid identities stay upstream, without a local dependency alias.
 | PocketIC | Testkit-selected local IC execution through Platform; no separate Blob dependency or server catalog |
 
 [IC Tooling](https://github.com/dragginzgame/ic-tooling) now owns Host, Build and
-Testkit; [IC Persistence](https://github.com/dragginzgame/ic-persistence) owns
-Memory and Storage. Package names and ownership boundaries remain unchanged.
+Testkit; [IC Storage](https://github.com/dragginzgame/ic-storage) owns the published
+Storage 0.65 replacement for both allocation and collection capabilities.
 Blob consumes published packages, without sibling paths or compatibility aliases.
 
 ### Replicated call execution
@@ -79,6 +78,9 @@ committed enrollment. The private probe control requires its installed operator
 and adds no production endpoint. `test-native-host` selects the tenant-client
 cases for Linux and both macOS lanes; local execution does not establish hosted
 qualification of the pending source.
+Client now selects `ic-platform-types` 0.17 and `ic-platform-runtime` 0.18
+directly. These are the same canonical identities previously re-exported by the
+facade; method signatures, Wire bytes and wait/retry policy remain unchanged.
 The raw runtime is codec-free, but the client package's current resolved graph is
 not Candid-free: Contracts selects Platform's `candid` feature for external provider
 GC/onboarding codecs, certificate DTOs and account integer types. That is distinct
@@ -87,16 +89,16 @@ reviewed Contracts feature/public-API cut, not another transport implementation.
 
 The [root catalog](../Cargo.toml) owns dependency minimums and
 [Cargo.lock](../Cargo.lock) records the resolved identities. Embedding hosts must
-match Blob's public Platform and Memory type identities. Direct-declaration and
+match Blob's public Platform and Storage type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Platform 0.17 delegates executor and IC0 implementation to its independent
-Runtime 0.17.1 owner; the standalone deployment gate refuses the old external
+Platform 0.18 delegates executor and IC0 implementation to its independent
+Runtime 0.18 owner; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
 subset, while native tooling keeps upstream management types and Candid bytes.
-Embedding hosts must align public Platform and Memory identities and rebuild;
+Embedding hosts must align public Platform and Storage identities and rebuild;
 other runtime users (including Timers) must align before embedding. Never bridge
 runtime handles between executors.
 
@@ -104,49 +106,34 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The selected graph retains one Runtime/guard 0.17.1, Platform 0.17.0,
-Types 0.16.0 and Wire 0.14 identity. Blob and Testkit 0.78 share Metrics 0.25.0;
-Testkit disables its native metadata defaults. The older Metrics 0.24 lane is
-removed without an override. Optional Testkit Wire transport now also selects 0.14.
-Contracts alone exclude Runtime. The native CLI also links the replicated
-client's public transport types and therefore includes Runtime in its package
-graph, while still excluding service state and stable storage.
-The current version selections and qualification belong in the root catalog,
-lock and handoff above. The external raw-IC0 package is absent. No source patch,
-compatibility alias or dependency override is used. Principal
-hashing remains explicitly development-only in Blob. No size or performance
-gain is inferred from the graph reduction.
+The selected production graph has one Runtime/guard 0.18, Platform 0.18,
+Types 0.17 and Wire 0.15 identity. Contracts selects Metrics 0.27. Testkit 0.80
+still uses arithmetic-only Metrics 0.26.1 in the native test graph; no metric
+values cross that boundary. Host Foundation now has one 0.74.1 identity.
+Deployment has no Testkit or native Host dependencies. Host Tools 0.78 uses
+only its interface feature here, leaving optional Platform features disabled.
 
-Wire 0.14 owns Principal/Account schemas through its opt-in `platform-types`
-feature. Contracts' native `wire-schema` feature selects that integration;
-Platform's retired `wire-schema` selection is removed. Metrics 0.25 implements
-the matching Wire 0.14 metadata trait. Published Wire 0.14 and Testkit 0.78
-resolve the adoption blockers tracked under
-[Platform #131](https://github.com/dragginzgame/ic-platform/issues/131) and
-[Wire #41](https://github.com/dragginzgame/ic-wire/pull/41).
-There is no local schema bridge or metric mirror. This native integration does
-not select endpoints or runtime ownership; deployment admission rejects its
-feature alongside TypeScript tooling. Direct Blob and Persistence protocols
-share unchanged frames, identities, limits and exact retry bytes.
+Published Storage 0.65 now selects Runtime 0.18 directly, resolving
+[Storage #152](https://github.com/dragginzgame/ic-storage/issues/152).
+Published Wire 0.15 supports canonical Types 0.17 Principal/Account metadata,
+resolving the supplying gap in [Wire #43](https://github.com/dragginzgame/ic-wire/issues/43).
+Consumers rebuild against those exact public identities without a source patch,
+second executor, schema mirror or trait bridge. This does not migrate old backing.
 
-The root disables Metrics' default features. Arithmetic and validated Serde
-remain available; Contracts' existing `wire-schema` feature enables
-`ic-metrics/native-wire` explicitly. Normal contract graphs exclude that feature
-and native schema graphs select it without introducing a runtime owner.
+Wire's optional native `platform-types` schema and Metrics' optional
+`native-wire` feature are selected only by Contracts' `wire-schema` feature.
+Normal contracts exclude schema generation; deployment refuses schema/JSON tooling,
+retired Memory/stable-structures, native Testkit and Host owners. Required external
+Candid stays on Platform. The replicated client selects Types/Runtime directly.
+Application frames, method identities, limits and exact retry bytes are unchanged.
 
-Platform reexports canonical Principal/Account identities from published
-`ic-platform-types` 0.16.0. Wire 0.14's schema implementation selects that same
-Types owner; Testkit 0.78 and Host Tools 0.77 select the matching Platform facade and
-owned native PocketIC client. Blob continues to
-import through Platform; there are no schema bridges or copied DTOs. Required
-external Candid conversions stay explicit. Memory/Storage's Wire codec update
-preserves retained bytes, bounds and custody; no local data migration is added.
-
-Shared Tooling 0.27.26 remains the latest reviewed committed snapshot at
-`022480c1aae2ed28a7b37247bab0a55d6dcf9ca6`. Blob has independent Contracts,
-Client and Engine release groups in one development workspace and lockfile,
-with all thirteen literal member versions visible in the root catalog.
-The [release guide](releasing.md) owns explicit selection, order and recovery.
+Shared Tooling **0.27.28** is captured at committed source
+`8c7fae6605c69a930e3b1f14e1ff5c4c9dafbcb7` (150 verified files). Its optional
+release-group validation plan is not activated: Blob retains its complete release
+gate. The workspace retains thirteen independently grouped members and one lock.
+The canonical companion closure now includes the validation-runner guide, fixing
+[Shared #346](https://github.com/dragginzgame/shared-tooling/issues/346) without an
+extra consumer entrypoint. See [release ownership](releasing.md).
 
 ### Supported compiler
 
@@ -212,15 +199,22 @@ host runtime. Store/workflow generic parameters name `Backing`; passive memory
 bundles carry handles without granting access. Production hosts compose all
 fourteen Blob requests before a single bootstrap. Cross-release installations
 require [safe retirement](retiring-installations.md), not automatic migration.
-Memory/Storage 0.61 uses checked `StableKey` references for runtime lookup and
-`NonZeroU16` for bucket configuration. Blob creates only fresh owning collections
-and loads retained ones explicitly; it never resets them or falls back to creation
-after a failed load. Valid retained record bytes and durable keys are unchanged.
+Storage 0.65 owns allocation, backing, codecs and collections. Hosts use
+`AllocationGrants`, checked `StableKey` names, opaque allocation IDs and bounded
+`StorageConfig`; numeric pools and bucket configuration are retired. Collections
+consume exclusive `RuntimeMemory` leases. Cell loading has an explicit owner
+byte ceiling; codec, collection and iterator errors are handled explicitly.
 
-Native fixture custody uses Memory's published `testing::fixture_runtime` with
-retained backing and explicit leases. Raw bytes remain available only to native
-corruption/restore fixtures. Memory fixture support is selected by core unit tests
-and isolated probes; the default standalone build must exclude those selections.
+This changes persisted directory/collection/key formats and public Storage types.
+Retire the complete old installation and use fresh whole backing. Preserve old
+provider objects, uncertain effects, balances, history and continuing billing
+under their original tools. There is no legacy reader, automatic migration or
+reset on load failure. Logical service allocation keys remain unchanged.
+
+Native fixtures use Storage's published `testing::fixture_runtime` and governed
+`StableCell` with bounded Wire journals. The removed Memory fixture cell is not
+recreated. Raw backing is retained only for explicit corruption/restore tests;
+production standalone builds exclude test support.
 The core's non-default `test-support` feature exposes component factories,
 explicit exposure/fault access and pure reference models used by the authority
 probe. The admission probe now uses the maintained durable upload owner; the
@@ -327,10 +321,9 @@ validation. Blob and probe argument errors remain sanitized so identity/path inp
 are not echoed; generated help documents syntax without dispatching an operation.
 Clap is excluded from canister targets.
 
-Blob has no direct Ciborium dependency or local CBOR implementation. The adopted
-Memory 0.56 ledger uses IC Wire and removes `serde_cbor`/`half` from the
-standalone normal/build Wasm graph; its codec and retained-byte contract remain
-Memory-owned. Native test `serde_cbor` remains
+Blob has no direct Ciborium dependency or local CBOR implementation. Storage 0.65 owns the Wire-encoded allocation ledger and collections; neither
+`serde_cbor` nor `half` is in the standalone normal/build Wasm graph. Its codec
+and retained-byte contract remain Storage-owned. Native test `serde_cbor` remains
 for IC transport envelopes and certificates. Provider/management Candid and
 stored records retain their external/persisted contracts. Platform owns the
 supported parser/decoder/runtime APIs. The fixed provider DID is parsed through
@@ -465,8 +458,8 @@ the separate Wire lifecycle identities described above.
 Application-only DTOs no longer implement Candid traits. The private protocol
 retains only the two Candid Cashier request shapes used at provider boundaries.
 Authority, funding, gateway-source and consumer journals now serialize their
-actual models with Wire through `fixture_storage::FixtureJournal` and Memory's
-published `testing::FixtureCell`. The consumer no longer keeps copied persistence
+actual models with Wire through `fixture_storage::FixtureJournal` and Storage
+`adapter::StableCell`, with explicit byte limits and exclusive fixture grants. The consumer no longer keeps copied persistence
 DTOs, a JSON projection, a `CONS` envelope or a direct Core dependency.
 
 These private journals use a storage-only `BLOBJNL1` identity and include their
@@ -504,7 +497,7 @@ independent consumer workspace; this guide does not authorize sibling edits.
 
 For consumer adoption of this source:
 
-1. Select compatible Blob core/Contracts packages and the host's matching Memory
+1. Select compatible Blob core/Contracts packages and the host's matching Storage
    package identity. Store/workflow type parameters now name backing memory; constructors
    take exclusive runtime leases. Freeze the application's actual lock and every
    independent fixture lock; sibling paths are not registry-delivery evidence.
@@ -528,49 +521,39 @@ For consumer adoption of this source:
    [retirement contract](retiring-installations.md) before a cross-release reinstall.
    Same-release recovery never authorizes upgrading a retained installation.
 
-### Compose the Memory boundary
+### Compose the Storage boundary
 
-Blob publicly re-exports Memory. Embedding hosts must use that same package
-identity and rebuild together; use the root catalog/lock for the selected release.
-The stable-metrics package belongs to Persistence, not Blob. Hosts selecting it
-must also align its Memory/Storage and Metrics types. Blob does not create that
-store merely by being linked. Release-specific adoption history belongs in the
-[changelog](../CHANGELOG.md); allocation custody and same-release recovery remain
-part of the current integration contract.
+Blob publicly re-exports `ic_storage`. Embedding hosts must use that same
+published package identity and rebuild together. Storage 0.65 owns allocation
+admission, backing custody, collection codecs and typed fallible operations.
+Hosts supply one runtime, bounded `StorageConfig`, sealed declarations and
+explicit `AllocationGrants`; Blob contributes fourteen installation requests.
+The old Memory re-export, numeric allocation-pool reservation and bucket profile
+are removed. Opaque allocation IDs are not application policy.
 
-Memory/Storage 0.56 change the allocation-ledger/Cell-value codec to IC Wire.
-Earlier CBOR ledgers are incompatible; follow the [retirement disposition](retiring-installations.md#memory-056-wire-ledger-disposition)
-before a cross-release reinstall. Never clear only allocation metadata over
-retained collections. Persistence's 0.55 Metrics Stable cut is separate; Blob has
-no `ic-metrics-stable` dependency and adds no metrics-map reset. A host adopting that optional
-adapter follows its [explicit upgrade disposition](https://github.com/dragginzgame/ic-persistence/tree/v0.55.0/crates/ic-metrics-stable#upgrade-disposition)
-without clearing Blob state or allocation history.
+This is a whole-backing hard cut: previous manager, ledger, collection and private
+Blob key images are incompatible. Follow the [retirement contract](retiring-installations.md)
+before installing fresh backing. Preserve provider objects, uncertain effects,
+balances and continuing billing independently; reinstall is not their deletion.
+Never reset allocation metadata over retained collections. There is no legacy
+reader, automatic reset or migration. Endpoint frames and retry bytes remain
+unchanged. A host's optional stable-metrics adapter must independently match the
+new Storage/Metrics identities; Blob creates no stable metrics store by linking.
 
-Standard `VectorMemory` and canister stable backing already implement the new
-`MemoryBacking` contract. Custom wrappers delegate their underlying identity;
-aliases must retain the same identity and its allocation for every runtime/handle
-lifetime. Never derive an identity from persisted bytes or mint one per raw alias.
+Standard vector and canister backing implement `MemoryBacking`. Custom wrappers
+must preserve the underlying identity across aliases and the entire allocation
+lifetime. Release every component collection and detached handle before replacing
+the runtime. The storage probe keeps its exclusive outer grant alive across its
+instrumented aliases. Linked code still owns custody: identities do not isolate
+arbitrary raw IO or dishonest independently linked owners.
 
-Use one host runtime and release all component collections and detached handles
-before replacing it. Memory rejects a second owner while any lease remains live.
-The private storage probe's nested instrumentation retains an exclusive outer
-grant in an Rc and shares that grant's identity across its aliases; it does not
-create independent identities for raw stable-memory wrappers.
-
-Memory validates its bounded manager metadata image at construction, initial
-bootstrap, lease-open and growth checkpoints. Ordinary size/read/write operations
-check poisoning and bounds without rescanning manager metadata. Full checkpoints
-still poison detected stale owners without repair; raw edits during a live lease
-need not be detected before its next read or write. Hosts must retain exclusive
-custody between checkpoints. This narrows 0.52's per-access detection guarantee
-and removes its repeated scans, without an unchecked mode or an endpoint speed claim.
-It is not isolation from arbitrary raw IO, dishonest identities or separately linked
-Memory copies.
-Manager/Cell container headers, collection formats and Blob-owned record/endpoint
-bytes remain unchanged. Memory's ledger and Cell value now use the incompatible
-Wire format described above. Blob's cross-release retirement/reinstall rule still
-applies; there is no automatic migration or alias-guard bypass. Requalify the actual Canic composition
-and its selected limits independently of standalone/local-substitute evidence.
+Collection and record operations now handle typed errors explicitly. Private
+mutations trap at the IC transaction boundary so partial writes roll back;
+native memory has no equivalent transaction guarantee. Configuration and gateway
+cell loading returns the existing invalid-record refusal for malformed values,
+without resetting or overwriting them. Cell byte limits come from the owning
+records. Requalify Canic's actual new composition and production limits: its
+recorded Blob 0.66 integration results do not qualify Storage 0.65.
 
 ### Adopt the 0.64 simplification cut
 
@@ -594,7 +577,7 @@ or converted by the new CLI.
 | --- | --- |
 | Installation/configuration | Remove `ServiceReadInput` and `ServiceConfigurationInput.reads` from authored inputs and test constructors. Preserve the remaining explicit limits and provider bindings. |
 | Status and CLI projections | Remove read-session status, budgets and fence assertions. Current CLI output remains schema 1; upload, funding and gateway fences remain. |
-| Memory composition | Use `ops::service::installation::requests` and `ops::service::stores::grants::open`, rather than a copied key roster. The installation has fourteen requests, including its configuration and pending-deletion index. |
+| Storage composition | Use `ops::service::installation::requests` and `ops::service::stores::grants::open`, rather than a copied key roster. The installation has fourteen requests, including its configuration and pending-deletion index. |
 | Wire callers and generated clients | Regenerate from the selected Contracts catalogue. Configuration, local-status and installation frames changed identity with their DTOs; method names/modes and the required external provider Candid are retained. Do not reuse old encoded installation inputs. |
 | Gateway decisions | Revocation still removes membership and invalidates pending syncs. An absent member with no pending sync no longer advances a retired read-generation counter; it may leave stable bytes unchanged. |
 | Stored state | The manifest/index and singleton-cell layouts are a cross-release hard cut. Retire the old installation with its original tools, preserving uncertain effects and obligations, before reinstalling. No in-place conversion or fallback reader exists. |

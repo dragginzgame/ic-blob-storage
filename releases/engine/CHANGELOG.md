@@ -4,6 +4,27 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.68.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Replace the retired Memory dependency and public re-export with Storage 0.65.
+  Hosts rebuild against Storage's backing, named grants and bounded configuration.
+  Allocation directories, collections and private storage keys require fresh whole
+  backing after safe installation retirement; no old reader, migration or reset
+  fallback is provided. Preserve provider objects, uncertainty and billing custody.
+- Handle fallible storage codecs and collections explicitly. Malformed installation
+  and gateway cells return the existing invalid-record refusal without repair;
+  mutation and backing failures still require the host's IC rollback boundary.
+
+### 🔧 Changed
+
+- Adopt Metrics 0.27, Build 0.74, Host Foundation 0.74.1 and Host Tools 0.78,
+  with Platform/Runtime 0.18, Types 0.17, Wire 0.15 and Testkit 0.80.
+  Public identities require matching consumers; the PocketIC server is unchanged.
+- Adopt Shared Tooling 0.27.28's reviewed snapshot and retain the complete release
+  gate. Retired Memory and stable-structures owners are refused at deployment.
+
 ## [0.67.0] - 2026-11-02
 
 ### ⚠️ Breaking

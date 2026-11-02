@@ -1,5 +1,7 @@
 //! One durable upload/lifecycle owner. Provider evidence is a trusted-host input.
-use ic_platform::principal::ExternalPrincipal;
+use crate::model::service::storage_key::{
+    ManifestKeyRecord, ReferenceKeyRecord, TenantKeyRecord, UploadKeyRecord,
+};
 pub mod admission;
 pub(crate) mod callbacks;
 pub mod certificate;
@@ -45,26 +47,26 @@ use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use ic_blob_storage_contracts::upload::binding::UploadRequest;
-use ic_memory::{Memory, RuntimeMemory};
 use ic_platform::Principal;
 use ic_storage::adapter::StableBTreeMap;
+use ic_storage::{Memory, RuntimeMemory};
 pub use lifecycle::ConfirmedUploadView;
 pub(crate) mod gateway;
 use std::num::NonZeroU64;
 use thiserror::Error;
 
-type Key = (ExternalPrincipal, u128);
+type Key = UploadKeyRecord;
 fn key(request: UploadRequest) -> Key {
-    (
+    UploadKeyRecord(
         request.object.first.object().tenant().into(),
         request.id.get().get(),
     )
 }
 fn metadata() -> Key {
-    (Principal::management_canister().into(), 0)
+    UploadKeyRecord(Principal::management_canister().into(), 0)
 }
 
-/// Ten distinct, exclusively owned memories granted by the host's `ic-memory` runtime.
+/// Ten distinct, exclusively owned memories granted by the host's `ic-storage` runtime.
 /// No IDs or allocations are silently registered by the library.
 pub struct UploadMemories<M> {
     /// Enrollment history.
@@ -101,11 +103,11 @@ pub struct StableUploads<M: Memory> {
     tenants: StableTenantEnrollments<M>,
     roots: StableRootClaims<M>,
     permissions: StableBTreeMap<Key, UploadStoreRecord, M>,
-    usage: StableBTreeMap<ExternalPrincipal, UploadUsageRecord, M>,
-    manifests: StableBTreeMap<(Key, u8), UploadManifestPartRecord, M>,
+    usage: StableBTreeMap<TenantKeyRecord, UploadUsageRecord, M>,
+    manifests: StableBTreeMap<ManifestKeyRecord, UploadManifestPartRecord, M>,
     confirmed: StableBTreeMap<Key, ConfirmedLifecycleRecord, M>,
-    references: StableBTreeMap<(Key, u128), ReferenceRecord, M>,
-    receipts: StableBTreeMap<(Key, u128), ReferenceReceiptRecord, M>,
+    references: StableBTreeMap<ReferenceKeyRecord, ReferenceRecord, M>,
+    receipts: StableBTreeMap<ReferenceKeyRecord, ReferenceReceiptRecord, M>,
     deletions: ic_storage::adapter::StableBTreeSet<Key, M>,
     fenced: bool,
 }
@@ -151,26 +153,35 @@ impl<M: Memory> StableUploads<M> {
         let roots = StableRootClaims::install(memory.roots, memory.objects, config)
             .expect("fresh distinct root memories");
         assert_eq!(memory.permissions.size(), 0, "distinct permission memory");
-        let mut permissions = StableBTreeMap::create(memory.permissions);
+        let mut permissions =
+            StableBTreeMap::create(memory.permissions).expect("current stable collection");
         assert_eq!(memory.usage.size(), 0, "distinct usage memory");
-        let mut usage = StableBTreeMap::create(memory.usage);
+        let mut usage = StableBTreeMap::create(memory.usage).expect("current stable collection");
         assert_eq!(memory.manifests.size(), 0, "distinct manifest memory");
-        let manifests = StableBTreeMap::create(memory.manifests);
-        let deletions = ic_storage::adapter::StableBTreeSet::create(memory.deletions);
+        let manifests =
+            StableBTreeMap::create(memory.manifests).expect("current stable collection");
+        let deletions = ic_storage::adapter::StableBTreeSet::create(memory.deletions)
+            .expect("current stable collection");
         assert_eq!(memory.confirmed.size(), 0, "distinct confirmed memory");
-        let confirmed = StableBTreeMap::create(memory.confirmed);
+        let confirmed =
+            StableBTreeMap::create(memory.confirmed).expect("current stable collection");
         assert_eq!(memory.references.size(), 0, "distinct reference memory");
-        let references = StableBTreeMap::create(memory.references);
+        let references =
+            StableBTreeMap::create(memory.references).expect("current stable collection");
         assert_eq!(memory.receipts.size(), 0, "distinct receipt memory");
-        let receipts = StableBTreeMap::create(memory.receipts);
-        permissions.insert(
-            metadata(),
-            UploadStoreRecord::Configuration(UploadConfigurationRecord::new(&config)),
-        );
-        usage.insert(
-            Principal::management_canister().into(),
-            UploadUsageRecord::empty(),
-        );
+        let receipts = StableBTreeMap::create(memory.receipts).expect("current stable collection");
+        permissions
+            .insert(
+                metadata(),
+                UploadStoreRecord::Configuration(UploadConfigurationRecord::new(&config)),
+            )
+            .expect("stable collection operation");
+        usage
+            .insert(
+                Principal::management_canister().into(),
+                UploadUsageRecord::empty(),
+            )
+            .expect("stable collection operation");
         Ok(Self {
             config,
             tenants,
@@ -222,13 +233,15 @@ impl<M: Memory> StableUploads<M> {
             config,
             tenants,
             roots,
-            permissions: StableBTreeMap::load(memory.permissions),
-            usage: StableBTreeMap::load(memory.usage),
-            manifests: StableBTreeMap::load(memory.manifests),
-            confirmed: StableBTreeMap::load(memory.confirmed),
-            references: StableBTreeMap::load(memory.references),
-            receipts: StableBTreeMap::load(memory.receipts),
-            deletions: ic_storage::adapter::StableBTreeSet::load(memory.deletions),
+            permissions: StableBTreeMap::load(memory.permissions)
+                .expect("current stable collection"),
+            usage: StableBTreeMap::load(memory.usage).expect("current stable collection"),
+            manifests: StableBTreeMap::load(memory.manifests).expect("current stable collection"),
+            confirmed: StableBTreeMap::load(memory.confirmed).expect("current stable collection"),
+            references: StableBTreeMap::load(memory.references).expect("current stable collection"),
+            receipts: StableBTreeMap::load(memory.receipts).expect("current stable collection"),
+            deletions: ic_storage::adapter::StableBTreeSet::load(memory.deletions)
+                .expect("current stable collection"),
             fenced: true,
         };
         owner.validate()?;
@@ -305,10 +318,14 @@ impl<M: Memory> StableUploads<M> {
             )
             .map_err(root_admission)?;
         self.permissions
-            .insert(key(input.request), UploadStoreRecord::Permission(record));
-        self.usage.insert(context.actor.into(), tenant);
+            .insert(key(input.request), UploadStoreRecord::Permission(record))
+            .expect("stable collection operation");
         self.usage
-            .insert(Principal::management_canister().into(), global);
+            .insert(context.actor.into(), tenant)
+            .expect("stable collection operation");
+        self.usage
+            .insert(Principal::management_canister().into(), global)
+            .expect("stable collection operation");
         Ok(UploadAdmission::Reserved)
     }
 
@@ -338,7 +355,8 @@ impl<M: Memory> StableUploads<M> {
         record.bind_manifest();
         self.store_manifest(request, PreparedUploadManifest::new(input));
         self.permissions
-            .insert(key(request), UploadStoreRecord::Permission(record));
+            .insert(key(request), UploadStoreRecord::Permission(record))
+            .expect("stable collection operation");
         Ok(LifecycleChange::Changed)
     }
 
@@ -378,16 +396,23 @@ impl<M: Memory> StableUploads<M> {
         own.finish_reservation(request.object.bytes);
         record.expose();
         self.confirmed
-            .insert(key(request), ConfirmedLifecycleRecord::new());
-        self.references.insert(
-            (key(request), request.object.first.reference().get().get()),
-            ReferenceRecord::new(crate::model::lifecycle::ReferenceState::Active),
-        );
+            .insert(key(request), ConfirmedLifecycleRecord::new())
+            .expect("stable collection operation");
+        self.references
+            .insert(
+                ReferenceKeyRecord(key(request), request.object.first.reference().get().get()),
+                ReferenceRecord::new(crate::model::lifecycle::ReferenceState::Active),
+            )
+            .expect("stable collection operation");
         self.permissions
-            .insert(key(request), UploadStoreRecord::Permission(record));
-        self.usage.insert(tenant.into(), own);
+            .insert(key(request), UploadStoreRecord::Permission(record))
+            .expect("stable collection operation");
         self.usage
-            .insert(Principal::management_canister().into(), global);
+            .insert(tenant.into(), own)
+            .expect("stable collection operation");
+        self.usage
+            .insert(Principal::management_canister().into(), global)
+            .expect("stable collection operation");
         Ok(())
     }
     // Shared by inspection and commit; an inspection can never bypass the current
@@ -451,10 +476,14 @@ impl<M: Memory> StableUploads<M> {
             tenant.cancel(request.object.bytes);
         }
         self.permissions
-            .insert(key(request), UploadStoreRecord::Permission(record));
-        self.usage.insert(context.actor.into(), tenant);
+            .insert(key(request), UploadStoreRecord::Permission(record))
+            .expect("stable collection operation");
         self.usage
-            .insert(Principal::management_canister().into(), global);
+            .insert(context.actor.into(), tenant)
+            .expect("stable collection operation");
+        self.usage
+            .insert(Principal::management_canister().into(), global)
+            .expect("stable collection operation");
         Ok(change)
     }
 
@@ -504,7 +533,11 @@ impl<M: Memory> StableUploads<M> {
         &self,
         request: UploadRequest,
     ) -> Result<Option<UploadPermissionRecord>, UploadStoreError> {
-        match self.permissions.get(&key(request)) {
+        match self
+            .permissions
+            .get(&key(request))
+            .expect("stable collection operation")
+        {
             None => Ok(None),
             Some(UploadStoreRecord::Permission(record)) => {
                 let view = record.view().ok_or(UploadStoreError::InvalidRecord)?;
@@ -521,7 +554,11 @@ impl<M: Memory> StableUploads<M> {
             .ok_or(UploadAdmissionError::UnknownPermission.into())
     }
     fn total(&self, tenant: Principal) -> Result<UploadUsageRecord, UploadStoreError> {
-        match self.usage.get(&tenant.into()) {
+        match self
+            .usage
+            .get(&tenant.into())
+            .expect("stable collection operation")
+        {
             Some(record) if record.view().is_some() => Ok(record),
             None if tenant != Principal::management_canister() => Ok(UploadUsageRecord::empty()),
             _ => Err(UploadStoreError::InvalidRecord),

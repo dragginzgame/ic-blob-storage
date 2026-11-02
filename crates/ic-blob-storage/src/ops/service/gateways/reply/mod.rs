@@ -6,7 +6,7 @@ use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 use crate::ops::caffeine::query::{
     CashierQueryError, CashierQueryRequest, reply::BoundGatewayReplyError,
 };
-use ic_memory::Memory;
+use ic_storage::Memory;
 use thiserror::Error;
 
 /// Host-retained correlation for one durably pending read-only query.

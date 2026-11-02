@@ -20,7 +20,8 @@ tokio = { workspace = true, optional = true, features = ["time"] }
 
 [dependencies]
 ic-blob-storage-contracts.workspace = true
-ic-platform = { workspace = true, features = ["runtime"] }
+ic-platform-runtime = { workspace = true, features = ["runtime"] }
+ic-platform-types.workspace = true
 serde.workspace = true
 thiserror.workspace = true
 

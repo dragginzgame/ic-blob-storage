@@ -27,7 +27,7 @@ fn request(intent: FundingIntent) -> FundingOutcomeRequest {
     }
 }
 fn check_boundary(
-    store: &StableFundingJournal<ic_memory::VectorMemory>,
+    store: &StableFundingJournal<ic_storage::VectorMemory>,
     intent: FundingIntent,
     response: FundingResponse,
     fenced: bool,
@@ -123,7 +123,7 @@ fn exact_outcome_boundary_rejects_changed_intent_and_preserves_absence_without_w
     );
 }
 fn check_scope(
-    store: &StableFundingJournal<ic_memory::VectorMemory>,
+    store: &StableFundingJournal<ic_storage::VectorMemory>,
     query: FundingOutcomeRequest,
 ) {
     let foreign = Principal::anonymous();
@@ -286,7 +286,10 @@ fn structured_outcomes_roundtrip_without_converting_reports_or_errors_to_credit(
         );
         assert_eq!(store.allocation(execution()), Ok(totals));
         let row = store.required(intent).unwrap();
-        assert_eq!(FundingIntentRecord::from_bytes(row.to_bytes()), row);
+        assert_eq!(
+            FundingIntentRecord::from_bytes(row.to_bytes().unwrap()).unwrap(),
+            row
+        );
         drop(store);
         let mut restored = StableFundingJournal::open(copy(&m), config(), allocation()).unwrap();
         check_boundary(&restored, intent, expected, true);

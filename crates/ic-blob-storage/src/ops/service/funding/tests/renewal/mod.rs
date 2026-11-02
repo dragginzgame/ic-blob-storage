@@ -220,13 +220,19 @@ fn restoration_refuses_grants_moved_past_original_offer_without_repair() {
         .unwrap()
         .confirm_credit(receipt(first, 900, 1))
         .unwrap();
-    store.intents.insert(1, original);
+    store
+        .intents
+        .insert(1, original)
+        .expect("stable collection operation");
     let moved = store
         .required(second)
         .unwrap()
         .renew(grant(second, 900))
         .unwrap();
-    store.intents.insert(2, moved);
+    store
+        .intents
+        .insert(2, moved)
+        .expect("stable collection operation");
     drop(store);
     let before = (m.accounting.borrow().clone(), m.intents.borrow().clone());
     assert!(StableFundingJournal::open(copy(&m), config(), bounded()).is_err());

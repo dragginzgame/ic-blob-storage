@@ -15,9 +15,9 @@ fn maximal_records_fit_the_bound_and_round_trip_without_narrowing() {
             active: true,
         }));
     for record in [metadata, enrollment] {
-        let bytes = record.to_bytes();
+        let bytes = record.to_bytes().unwrap();
         assert!(bytes.len() <= MAX_BYTES as usize);
-        assert_eq!(TenantStoreRecord::from_bytes(bytes), record);
+        assert_eq!(TenantStoreRecord::from_bytes(bytes).unwrap(), record);
     }
 }
 
@@ -34,7 +34,8 @@ fn malformed_records_cannot_become_valid_enrollments() {
     );
     for bytes in [vec![0; MAX_BYTES as usize + 1], b"truncated".to_vec()] {
         assert!(
-            std::panic::catch_unwind(|| TenantStoreRecord::from_bytes(Cow::Owned(bytes))).is_err()
+            std::panic::catch_unwind(|| TenantStoreRecord::from_bytes(Cow::Owned(bytes)).unwrap())
+                .is_err()
         );
     }
 }

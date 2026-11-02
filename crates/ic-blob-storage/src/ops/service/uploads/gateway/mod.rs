@@ -10,10 +10,15 @@ impl<M: Memory> StableUploads<M> {
     pub(crate) fn gateway_deletions(&self) -> Result<Vec<Vec<u8>>, UploadStoreError> {
         self.mutable()?;
         let mut roots = Vec::new();
-        for owner in &self.deletions {
+        for owner in self
+            .deletions
+            .iter()
+            .map(|entry| entry.expect("stable collection traversal"))
+        {
             let record = self
                 .confirmed
                 .get(&owner)
+                .expect("stable collection operation")
                 .ok_or(UploadStoreError::InvalidRecord)?;
             if !record.valid(self.config.limits().catalog) {
                 return Err(UploadStoreError::InvalidRecord);
@@ -24,6 +29,7 @@ impl<M: Memory> StableUploads<M> {
             let UploadStoreRecord::Permission(permission) = self
                 .permissions
                 .get(&owner)
+                .expect("stable collection operation")
                 .ok_or(UploadStoreError::InvalidRecord)?
             else {
                 return Err(UploadStoreError::InvalidRecord);
@@ -66,8 +72,12 @@ impl<M: Memory> StableUploads<M> {
             changes.push((key(view.permission.request), record));
         }
         for (owner, record) in changes {
-            self.confirmed.insert(owner, record);
-            self.deletions.remove(&owner);
+            self.confirmed
+                .insert(owner, record)
+                .expect("stable collection operation");
+            self.deletions
+                .remove(&owner)
+                .expect("stable collection operation");
         }
         Ok(())
     }

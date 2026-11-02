@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 use ic_blob_storage_contracts::reference::status::parse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Inspect current local liveness under one synchronous owner borrow.
 /// The adapter authenticates actual service/caller and bounds ingress separately.

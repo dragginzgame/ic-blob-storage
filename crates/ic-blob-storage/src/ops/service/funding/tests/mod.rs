@@ -37,7 +37,7 @@ fn memories() -> FundingMemories<FixtureMemory> {
 }
 fn copy(
     m: &FundingMemories<FixtureMemory>,
-) -> FundingMemories<ic_memory::RuntimeMemory<ic_memory::VectorMemory>> {
+) -> FundingMemories<ic_storage::RuntimeMemory<ic_storage::VectorMemory>> {
     FundingMemories {
         accounting: m.accounting.lease(),
         intents: m.intents.lease(),
@@ -305,7 +305,10 @@ fn scope_authority_stale_identity_and_corrupt_history_cannot_reset_obligations()
         store.prepare(execution(), input(8, 1)),
         Err(FundingJournalError::StaleIdentity)
     );
-    store.intents.remove(&9);
+    store
+        .intents
+        .remove(&9)
+        .expect("stable collection operation");
     drop(store);
     let before = m.accounting.borrow().clone();
     assert!(matches!(
@@ -326,10 +329,13 @@ fn full_width_records_roundtrip_and_changed_allocation_rejects_restoration() {
     let request = input(u128::MAX, u128::MAX - 1);
     store.prepare(execution(), request).unwrap();
     let record = store.required(request).unwrap();
-    assert_eq!(FundingIntentRecord::from_bytes(record.to_bytes()), record);
+    assert_eq!(
+        FundingIntentRecord::from_bytes(record.to_bytes().unwrap()).unwrap(),
+        record
+    );
     let metadata = store.totals().unwrap();
     assert_eq!(
-        FundingJournalRecord::from_bytes(metadata.to_bytes()),
+        FundingJournalRecord::from_bytes(metadata.to_bytes().unwrap()).unwrap(),
         metadata
     );
     drop(store);
@@ -351,20 +357,26 @@ fn orphaned_changed_and_omitted_history_rejects_without_repair() {
             0 => {
                 store
                     .intents
-                    .insert(2, FundingIntentRecord::new(input(2, 1)));
+                    .insert(2, FundingIntentRecord::new(input(2, 1)))
+                    .expect("stable collection operation");
             }
             1 => {
                 store
                     .intents
-                    .insert(1, FundingIntentRecord::new(input(2, 400)));
+                    .insert(1, FundingIntentRecord::new(input(2, 400)))
+                    .expect("stable collection operation");
             }
             2 => {
                 store
                     .intents
-                    .insert(1, FundingIntentRecord::new(input(1, 399)));
+                    .insert(1, FundingIntentRecord::new(input(1, 399)))
+                    .expect("stable collection operation");
             }
             _ => {
-                store.accounting.remove(&[0; 32]);
+                store
+                    .accounting
+                    .remove(&[0; 32])
+                    .expect("stable collection operation");
             }
         }
         drop(store);
@@ -421,13 +433,19 @@ fn wide_principals_and_amounts_fit_bounded_v1_codecs() {
             },
         )
         .unwrap();
-    assert_eq!(FundingIntentRecord::from_bytes(row.to_bytes()), row);
+    assert_eq!(
+        FundingIntentRecord::from_bytes(row.to_bytes().unwrap()).unwrap(),
+        row
+    );
     let record = FundingJournalRecord::new(&wide, allocation)
         .reserve(intent)
         .unwrap()
         .resolve(row.transfer().unwrap())
         .unwrap();
-    assert_eq!(FundingJournalRecord::from_bytes(record.to_bytes()), record);
+    assert_eq!(
+        FundingJournalRecord::from_bytes(record.to_bytes().unwrap()).unwrap(),
+        record
+    );
 }
 
 fn source() -> crate::model::billing::journal::FundingTransportContext {

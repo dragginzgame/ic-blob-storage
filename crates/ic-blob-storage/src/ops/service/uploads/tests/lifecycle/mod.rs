@@ -3,6 +3,7 @@ use crate::model::lifecycle::LifecycleError;
 use crate::model::lifecycle::ReferenceState;
 use crate::model::lifecycle::requests::ReferenceRequestError;
 use crate::model::lifecycle::requests::ReferenceRequestOutcome;
+use crate::model::service::storage_key::ReferenceKeyRecord;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
@@ -21,7 +22,7 @@ fn command(upload: UploadRequest, id: u128, reference: u128, retain: bool) -> Re
         },
     }
 }
-pub(super) fn exposed(store: &mut StableUploads<ic_memory::VectorMemory>) -> UploadPermission {
+pub(super) fn exposed(store: &mut StableUploads<ic_storage::VectorMemory>) -> UploadPermission {
     enroll(store);
     let built = built();
     let mut input = permission(1);
@@ -294,22 +295,37 @@ fn missing_or_orphaned_reference_receipt_and_lifecycle_rows_reject_restore() {
             .unwrap();
         match damage {
             0 => {
-                store.references.remove(&(key(input.request), 1));
+                store
+                    .references
+                    .remove(&ReferenceKeyRecord(key(input.request), 1))
+                    .expect("stable collection operation");
             }
             1 => {
-                store.receipts.remove(&(key(input.request), 1));
+                store
+                    .receipts
+                    .remove(&ReferenceKeyRecord(key(input.request), 1))
+                    .expect("stable collection operation");
             }
             2 => {
-                store.confirmed.remove(&key(input.request));
+                store
+                    .confirmed
+                    .remove(&key(input.request))
+                    .expect("stable collection operation");
             }
             3 => {
-                store.references.insert(
-                    ((p(4).into(), 99), 1),
-                    ReferenceRecord::new(ReferenceState::Active),
-                );
+                store
+                    .references
+                    .insert(
+                        ReferenceKeyRecord(UploadKeyRecord(p(4).into(), 99), 1),
+                        ReferenceRecord::new(ReferenceState::Active),
+                    )
+                    .expect("stable collection operation");
             }
             _ => {
-                store.usage.insert(p(4).into(), UploadUsageRecord::empty());
+                store
+                    .usage
+                    .insert(p(4).into(), UploadUsageRecord::empty())
+                    .expect("stable collection operation");
             }
         }
         drop(store);

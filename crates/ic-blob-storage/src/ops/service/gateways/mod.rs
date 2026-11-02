@@ -13,13 +13,14 @@ use crate::model::gateway::registry::GatewaySyncError;
 use crate::model::gateway::registry::GatewaySyncToken;
 use crate::model::gateway::registry::GatewaySyncView;
 use crate::model::gateway::registry::record::GatewayRegistryRecord;
+use crate::model::gateway::registry::record::MAX_BYTES;
 #[cfg(test)]
 use crate::model::gateway::registry::record::MAX_MEMBERS;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::{Memory, RuntimeMemory};
 use ic_platform::Principal;
 use ic_storage::adapter::StableCell;
+use ic_storage::{Memory, RuntimeMemory};
 use thiserror::Error;
 
 /// Passive operator inspection. Membership alone is not authenticated provider
@@ -74,7 +75,8 @@ impl<M: Memory> StableGatewayRegistry<M> {
             scope,
             GatewayMembership::new(config.billing().gateway_limits()),
         );
-        let record = StableCell::create(memory, GatewayRegistryRecord::new(&config, &registry));
+        let record = StableCell::create(memory, GatewayRegistryRecord::new(&config, &registry))
+            .expect("fresh gateway cell");
         Ok(Self {
             record,
             config,
@@ -87,7 +89,7 @@ impl<M: Memory> StableGatewayRegistry<M> {
     /// # Errors
     /// Rejects missing/mismatched/corrupt records or unsupported bounds.
     /// # Panics
-    /// Record-codec and backing failures trap without initializing replacement state.
+    /// Backing failures trap without initializing replacement state.
     pub(crate) fn open(
         memory: RuntimeMemory<M>,
         config: ServiceConfiguration,
@@ -97,7 +99,8 @@ impl<M: Memory> StableGatewayRegistry<M> {
             return Err(GatewayStoreError::Missing);
         }
         let store = Self {
-            record: StableCell::load(memory).map_err(|_| GatewayStoreError::InvalidRecord)?,
+            record: StableCell::load(memory, MAX_BYTES as usize)
+                .map_err(|_| GatewayStoreError::InvalidRecord)?,
             config,
             fenced: true,
         };
@@ -186,7 +189,8 @@ impl<M: Memory> StableGatewayRegistry<M> {
         let mut registry = self.registry()?;
         let result = change(&mut registry)?;
         self.record
-            .set(GatewayRegistryRecord::new(&self.config, &registry));
+            .set(GatewayRegistryRecord::new(&self.config, &registry))
+            .expect("stable cell write");
         Ok(result)
     }
     fn authorize(

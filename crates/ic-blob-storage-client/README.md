@@ -5,8 +5,9 @@ references, tenant administration, funding observations and download descriptors
 
 Import the role module, for example
 `ic_blob_storage_client::admission::ReplicatedUploadAdmissionClient`.
-Contracts owns exact method-bound Wire codecs and reply validation; Platform supplies IC
-calls. This package does not depend on the service, Memory or Storage.
+Contracts owns exact method-bound Wire codecs and reply validation.
+`ic-platform-types` supplies Principal; `ic-platform-runtime` supplies IC calls
+and execution APIs directly, with the same identities exposed by Platform. This package does not depend on the service, Memory or Storage.
 Client and native CLI share a release group; Contracts and Engine have independent
 versions in the same workspace. Service release identity comes from the host,
 not the client package version.
@@ -17,7 +18,7 @@ reply can leave an uncertain effect. Recovery and publication remain caller-owne
 
 ## Optional native verified downloads
 
-Enable `ic-blob-storage-client = { version = "0.62.1", features = ["native-download"] }`
+Enable `ic-blob-storage-client = { version = "0.67.0", features = ["native-download"] }`
 for a native publisher. Default clients and Wasm builds gain no HTTP/filesystem
 dependencies. Linux and macOS support private create-only file publication. Run the helper
 inside a caller-owned Tokio runtime with I/O and time enabled; it starts no runtime.

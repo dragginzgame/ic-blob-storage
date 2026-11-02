@@ -2,12 +2,12 @@ use super::*;
 
 #[test]
 fn nested_probe_backings_share_identity_only_for_aliases_of_the_same_grant() {
-    let runtime = ic_blob_storage::ic_memory::testing::fixture_runtime(
+    let runtime = ic_blob_storage::ic_storage::testing::fixture_runtime(
         ProbeBackingMemory::default(),
         "probe",
         "probe.",
         &["probe.first.v1", "probe.second.v1"],
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
+        StorageConfig::default(),
     )
     .unwrap();
     let memory = Rc::new(

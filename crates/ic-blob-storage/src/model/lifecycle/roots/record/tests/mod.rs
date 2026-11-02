@@ -13,12 +13,18 @@ fn largest_identity_round_trips_and_invalid_identity_never_binds() {
     )
     .unwrap();
     let key = RootObjectKeyRecord::new(binding);
-    assert_eq!(RootObjectKeyRecord::from_bytes(key.to_bytes()), key);
+    assert_eq!(
+        RootObjectKeyRecord::from_bytes(key.to_bytes().unwrap()).unwrap(),
+        key
+    );
     let claim = RootClaimRecord::Claim {
         object: key.clone(),
         operation: u128::MAX,
     };
-    assert_eq!(RootClaimRecord::from_bytes(claim.to_bytes()), claim);
+    assert_eq!(
+        RootClaimRecord::from_bytes(claim.to_bytes().unwrap()).unwrap(),
+        claim
+    );
     assert_eq!(key.binding(binding.service()), Some(binding));
     let mut invalid = key;
     invalid.incarnation = 0;

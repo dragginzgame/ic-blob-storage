@@ -1,5 +1,5 @@
 use super::*;
-use ic_memory::DefaultMemoryImpl;
+use ic_storage::DefaultMemoryImpl;
 use std::panic::{AssertUnwindSafe, catch_unwind};
 
 const KEY: &str = "fixture.journal.wire.v1";
@@ -16,7 +16,7 @@ fn retained_wire_bytes_reopen_and_failed_writes_or_creation_never_reset_them() {
     let mut journal = FixtureJournal::create(backing.clone(), KEY, LIMITS);
     assert!(catch_unwind(AssertUnwindSafe(|| journal.load::<u64>())).is_err());
     journal.save(&42_u64);
-    let original = journal.cell.bytes().to_vec();
+    let original = journal.cell.get().clone();
     assert_eq!(
         original,
         native::encode_request(JOURNAL_ID, &(KEY, 42_u64), LIMITS).unwrap()
@@ -32,7 +32,7 @@ fn retained_wire_bytes_reopen_and_failed_writes_or_creation_never_reset_them() {
         );
     }
     assert!(catch_unwind(AssertUnwindSafe(|| journal.save(&vec![1_u8; 512]))).is_err());
-    assert_eq!(journal.cell.bytes(), original);
+    assert_eq!(journal.cell.get(), &original);
     drop(journal);
     let reopened = FixtureJournal::open(backing.clone(), KEY, LIMITS);
     assert_eq!(reopened.load::<u64>(), 42);
@@ -58,9 +58,9 @@ fn candid_foreign_direction_key_and_corrupt_data_refuse_without_replacement() {
         trailing,
         vec![0],
     ] {
-        journal.cell.try_set(bytes.clone()).unwrap();
+        journal.cell.set(bytes.clone()).unwrap();
         assert!(catch_unwind(AssertUnwindSafe(|| journal.load::<u64>())).is_err());
-        assert_eq!(journal.cell.bytes(), bytes);
+        assert_eq!(journal.cell.get(), &bytes);
     }
     journal.save(&42_u64);
     assert_eq!(journal.load::<u64>(), 42);
@@ -92,7 +92,8 @@ fn custom_consumer_envelope_and_missing_or_oversized_cells_never_seed_empty_stat
         .is_err()
     );
     let journal = FixtureJournal::open(backing.clone(), KEY, LIMITS);
-    let memory = journal.cell.into_memory();
+    drop(journal);
+    let memory = FixtureJournal::memory(backing.clone(), KEY);
     let body = ic_platform::candid::contract::encode_one(42_u64).unwrap();
     memory.write(0, b"CONS\x01");
     memory.write(5, &u32::try_from(body.len()).unwrap().to_le_bytes());
@@ -112,15 +113,15 @@ fn custom_consumer_envelope_and_missing_or_oversized_cells_never_seed_empty_stat
     );
     // Inspect the damaged cell through its canonical grant, without asking the
     // journal to accept it. Runtime ledger admission is separate from cell bytes.
-    let memory = ic_memory::testing::fixture_runtime(
+    let memory = ic_storage::testing::fixture_runtime(
         backing,
         "fixture",
         "fixture.",
         &[KEY],
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
+        StorageConfig::default(),
     )
     .unwrap()
-    .open_memory(&ic_memory::StableKey::parse(KEY).unwrap())
+    .open_memory(&ic_storage::StableKey::parse(KEY).unwrap())
     .unwrap();
     let mut retained = vec![0; original.len()];
     memory.read(0, &mut retained);

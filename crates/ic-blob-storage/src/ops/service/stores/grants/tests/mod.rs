@@ -7,20 +7,17 @@ use crate::workflow::operator::inspect;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::tenant::TenantUpdate;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::VectorMemory;
-use ic_memory::{
-    GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority, MemoryManagerConfig,
-    MemoryRuntime, RuntimeOpenError, SealedDeclarationSnapshot,
+use ic_storage::VectorMemory;
+use ic_storage::{
+    AllocationGrants, GenericAllocationPolicy, MemoryAuthority, MemoryRuntime, RuntimeOpenError,
+    SealedDeclarationSnapshot, StorageConfig,
 };
 
-fn pool(first: u8) -> MemoryAllocationPool {
-    MemoryAllocationPool::new(
-        vec![
-            MemoryAuthority::new("test-blob", "blob.").unwrap(),
-            MemoryAuthority::new("application", "application.").unwrap(),
-        ],
-        (0..first).chain(first + 15..=254).collect(),
-    )
+fn pool() -> AllocationGrants {
+    AllocationGrants::new(vec![
+        MemoryAuthority::new("test-blob", "blob.").unwrap(),
+        MemoryAuthority::new("application", "application.").unwrap(),
+    ])
     .unwrap()
 }
 fn snapshot(missing: Option<usize>) -> SealedDeclarationSnapshot {
@@ -32,11 +29,7 @@ fn snapshot(missing: Option<usize>) -> SealedDeclarationSnapshot {
     SealedDeclarationSnapshot::new(service).unwrap()
 }
 fn runtime(backing: VectorMemory) -> MemoryRuntime<VectorMemory> {
-    MemoryRuntime::new_with_config(
-        backing,
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
-    )
-    .unwrap()
+    MemoryRuntime::new_with_config(backing, StorageConfig::default()).unwrap()
 }
 
 #[test]
@@ -49,10 +42,10 @@ fn opening_without_committed_grants_preserves_backing_memory() {
         Err(RuntimeOpenError::NotBootstrapped)
     ));
     assert!(!runtime.is_bootstrapped());
-    assert_eq!(
-        runtime.committed_allocations(),
+    assert!(matches!(
+        runtime.committed_generation(),
         Err(RuntimeOpenError::NotBootstrapped)
-    );
+    ));
     assert_eq!(*backing.borrow(), before);
 }
 
@@ -61,11 +54,11 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
     let backing = VectorMemory::default();
     let mut host = runtime(backing.clone());
     let declarations = snapshot(None);
-    host.bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
+    host.bootstrap(&declarations, &pool(), &GenericAllocationPolicy)
         .unwrap();
     let neighbor = host
         .open_memory(
-            &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+            &ic_storage::StableKey::parse("application.settings.v1").expect("valid allocation key"),
         )
         .unwrap();
     neighbor.grow(1).unwrap();
@@ -73,21 +66,16 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
     drop(neighbor);
     drop(host);
     let mut host = runtime(backing.clone());
-    let wrong_owner = MemoryAllocationPool::new(
-        vec![
-            MemoryAuthority::new("another-service", "blob.").unwrap(),
-            MemoryAuthority::new("application", "application.").unwrap(),
-        ],
-        vec![],
-    )
+    let wrong_owner = AllocationGrants::new(vec![
+        MemoryAuthority::new("another-service", "blob.").unwrap(),
+        MemoryAuthority::new("application", "application.").unwrap(),
+    ])
     .unwrap();
     let before = backing.borrow().clone();
     assert!(matches!(
         host.bootstrap(&declarations, &wrong_owner, &GenericAllocationPolicy),
-        Err(ic_memory::RuntimeBootstrapError::Resolution(
-            ic_memory::MemoryResolutionError::Pool(
-                ic_memory::MemoryAllocationPoolError::AuthorityMismatch { .. }
-            )
+        Err(ic_storage::RuntimeBootstrapError::Admission(
+            ic_storage::AdmissionError::Unauthorized
         ))
     ));
     assert!(matches!(
@@ -98,11 +86,11 @@ fn host_namespace_mismatch_preserves_existing_allocations() {
         *backing.borrow() == before,
         "rejected ownership must retain bytes"
     );
-    host.bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
+    host.bootstrap(&declarations, &pool(), &GenericAllocationPolicy)
         .unwrap();
     let mut retained = [0; 17];
     host.open_memory(
-        &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+        &ic_storage::StableKey::parse("application.settings.v1").expect("valid allocation key"),
     )
     .unwrap()
     .read(0, &mut retained);
@@ -115,11 +103,11 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
     let mut runtime = runtime(backing.clone());
     let declarations = snapshot(Some(requests("test-blob").unwrap().len() - 1));
     runtime
-        .bootstrap(&declarations, &pool(40), &GenericAllocationPolicy)
+        .bootstrap(&declarations, &pool(), &GenericAllocationPolicy)
         .unwrap();
     let neighbor = runtime
         .open_memory(
-            &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+            &ic_storage::StableKey::parse("application.settings.v1").expect("valid allocation key"),
         )
         .unwrap();
     neighbor.grow(1).expect("neighbor memory growth");
@@ -127,7 +115,7 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
     let before = backing.borrow().clone();
     assert!(matches!(
         open(|key| runtime.open_memory(key)),
-        Err(RuntimeOpenError::StableKeyNotCommitted(key)) if key == "blob.gateways.v1"
+        Err(RuntimeOpenError::NotAdmitted(key)) if key.as_str() == "blob.gateways.v1"
     ));
     assert_eq!(*backing.borrow(), before);
     for request in requests("test-blob")
@@ -140,21 +128,15 @@ fn incomplete_composed_grants_reject_without_allocating_or_repairing() {
 }
 
 #[test]
-fn shared_grants_preserve_populated_owners_and_neighbor_under_host_selected_placement() {
-    // Physical placement is host-owned. Both layouts use the same logical mapping.
-    for first in [40, 120] {
-        composed_journey(first);
-    }
-}
-fn composed_journey(first: u8) {
+fn shared_grants_preserve_populated_owners_and_neighbor() {
     let backing = VectorMemory::default();
     let declarations = snapshot(None);
     let mut host = runtime(backing.clone());
-    host.bootstrap(&declarations, &pool(first), &GenericAllocationPolicy)
+    host.bootstrap(&declarations, &pool(), &GenericAllocationPolicy)
         .unwrap();
     let neighbor = host
         .open_memory(
-            &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+            &ic_storage::StableKey::parse("application.settings.v1").expect("valid allocation key"),
         )
         .unwrap();
     assert_eq!(neighbor.grow(1), Ok(0));
@@ -203,7 +185,7 @@ fn composed_journey(first: u8) {
     drop(host);
 
     let mut host = runtime(backing.clone());
-    host.bootstrap(&declarations, &pool(first), &GenericAllocationPolicy)
+    host.bootstrap(&declarations, &pool(), &GenericAllocationPolicy)
         .unwrap();
     let bytes = backing.borrow().clone();
     let restored = ServiceStores::open(open(|key| host.open_memory(key)).unwrap(), config).unwrap();
@@ -222,7 +204,7 @@ fn composed_journey(first: u8) {
     );
     let mut retained = [0; 22];
     host.open_memory(
-        &ic_memory::StableKey::parse("application.settings.v1").expect("valid allocation key"),
+        &ic_storage::StableKey::parse("application.settings.v1").expect("valid allocation key"),
     )
     .unwrap()
     .read(0, &mut retained);

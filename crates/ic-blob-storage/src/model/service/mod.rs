@@ -7,3 +7,4 @@ pub mod upload;
 
 #[cfg(test)]
 mod configuration_tests;
+pub(crate) mod storage_key;

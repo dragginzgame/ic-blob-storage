@@ -143,12 +143,12 @@ their own bootstrap. Store-only compositions can use the thirteen requests from
 `ops::service::stores::grants::requests`. `grants::open` assembles the current store mapping using that host's
 committed-memory lookup; missing grants refuse without creating or repairing a
 store. Hosts supply `grants::open(|key| runtime.open_memory(key))` with checked
-`&ic_memory::StableKey` inputs from their own retained, bootstrapped Memory
+`&ic_storage::StableKey` inputs from their own retained, bootstrapped Storage
 runtime; there is no default-runtime adapter.
-Opening cannot silently choose a bucket policy or create a second manager.
+Opening cannot silently choose storage limits or create a second manager.
 The runtime owns exclusive leases; the host assigns them to one storage owner.
 Standalone uses the shared mapping with its configuration grant and host-owned
-bucket policy.
+StorageConfig limits.
 Framework consumers own their generic lifecycle wrapper and endpoint adapter.
 Only the current allocation ledger is supported. Earlier images require
 [installation retirement](retiring-installations.md) and fresh reinstall, preserving
@@ -232,7 +232,7 @@ grant none of those roles. Provider request/callback contracts have one core own
 and clients use the service API rather than defining a provider protocol.
 
 The host declares the installation configuration key and thirteen shared service
-requests within one allocation authority, bootstraps one ic-memory runtime, validates
+requests within one allocation authority, bootstraps one ic-storage runtime, validates
 all installation inputs and calls `ServiceInstallation::install` synchronously.
 It supplies actual service identity, project and compiled release.
 Publishing a partially constructed owner or initializing through deferred work
@@ -971,10 +971,10 @@ does not establish billing cessation or fix loss of history after an old backup.
 
 The installed owners below use the current v1 records. Their exclusive memory
 grants remain independent of a consumer framework's memory IDs and store layout.
-The maintainer selected `ic-memory` as the sole allocation owner shared with hosts
-and IcyDB. IC Storage owns the stable collections and record codec traits; the
+The maintainer selected `ic-storage` as the sole allocation owner shared with hosts
+and IcyDB. IC Storage also owns the stable collections and record codec traits; the
 core consumes them through `ic_storage::adapter`. The
-integrating host owns bootstrap, policy, grants and bucket profile. Cross-release
+integrating host owns bootstrap, policy, grants and StorageConfig limits. Cross-release
 schema transitions are reinstall-only, subject to retirement of existing obligations;
 the dependency choice does not close provider and recovery qualification gates.
 
@@ -1003,16 +1003,16 @@ replacement store. There is no Candid compatibility reader or automatic migratio
 Retain the original binary/tools for old-store inspection and retirement; an
 unchanged memory key does not make a different payload format readable.
 
-The library publicly re-exports its selected Memory dependency. Hosts must align their
-composed graph to one package identity and include all permanent Blob requests
-in one host-wide allocation pool. Key-only committed opens preserve host-owned
-placement and authority; linking the library registers nothing. See
-[the current memory composition](dependencies.md#memory-composition).
+The library publicly re-exports its selected Storage dependency. Hosts align
+one package identity, bounded configuration and explicit allocation grants, and
+include all permanent Blob requests in their sealed declarations. Key-only opens
+preserve host-owned allocation and authority; linking registers nothing. See
+[the current Storage composition](dependencies.md#compose-the-storage-boundary).
 
 Only the current allocation ledger and stored schemas are supported. The envelope's
 version-1 marker does not make earlier logical layouts compatible. There is no
-dual reader, migration or automatic reset; never clear allocation ID 0 to bypass
-failed recovery. Funding records retain successful callback acknowledgments separately from credit
+dual reader, migration or automatic reset; never clear allocation metadata to
+bypass failed recovery. Funding records retain successful callback acknowledgments separately from credit
 attribution and confirmed-cycle accounting; absent current fields refuse. Frozen prior Wasms and records keep
 their original tools and identities until their obligations are dispositioned.
 

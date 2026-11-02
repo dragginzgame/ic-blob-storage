@@ -130,7 +130,7 @@ fn maximum_gateway_record_roundtrips_with_pending_identity_and_rejects_oversized
     store.begin_sync(context(), scope()).unwrap();
     let record = store.record.get();
     assert_eq!(
-        GatewayRegistryRecord::from_bytes(record.to_bytes()),
+        GatewayRegistryRecord::from_bytes(record.to_bytes().unwrap()).unwrap(),
         *record
     );
     drop(store);
@@ -197,27 +197,18 @@ fn gateway_cell_header_and_codec_failures_preserve_bytes_and_release_custody() {
         drop(store);
         if invalid_codec {
             // Deliberate fixture corruption, never a restoration fallback.
-            drop(StableCell::reset(
-                memory.lease(),
-                b"foreign gateway payload".to_vec(),
-            ));
+            drop(
+                StableCell::reset(memory.lease(), b"foreign gateway payload".to_vec())
+                    .expect("write deliberate fixture corruption"),
+            );
         } else {
             memory.lease().write(0, b"bad");
         }
         let before = memory.borrow().clone();
-        if invalid_codec {
-            assert!(
-                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    StableGatewayRegistry::open(memory.lease(), config())
-                }))
-                .is_err()
-            );
-        } else {
-            assert!(matches!(
-                StableGatewayRegistry::open(memory.lease(), config()),
-                Err(GatewayStoreError::InvalidRecord)
-            ));
-        }
+        assert!(matches!(
+            StableGatewayRegistry::open(memory.lease(), config()),
+            Err(GatewayStoreError::InvalidRecord)
+        ));
         assert_eq!(*memory.borrow(), before);
         // The failed load released its checked lease; it cannot strand the owner.
         assert!(memory.lease().size() > 0);

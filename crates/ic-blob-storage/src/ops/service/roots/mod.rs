@@ -10,8 +10,8 @@ use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::upload::binding::{UploadContext, UploadRequestId};
-use ic_memory::{Memory, RuntimeMemory};
 use ic_storage::adapter::StableBTreeMap;
+use ic_storage::{Memory, RuntimeMemory};
 use std::num::NonZeroU128;
 use thiserror::Error;
 
@@ -43,7 +43,7 @@ impl<M: Memory> StableRootClaims<M> {
     pub(crate) fn set_recovery_fence(&mut self, fenced: bool) {
         self.fenced = fenced;
     }
-    /// Install only in two fresh memories supplied by the host's `ic-memory` runtime.
+    /// Install only in two fresh memories supplied by the host's `ic-storage` runtime.
     /// # Errors
     /// Rejects either allocated memory, never overwriting existing obligations.
     /// # Panics
@@ -57,17 +57,19 @@ impl<M: Memory> StableRootClaims<M> {
         if roots.size() != 0 || objects.size() != 0 {
             return Err(RootStoreError::AlreadyAllocated);
         }
-        let mut roots = StableBTreeMap::create(roots);
+        let mut roots = StableBTreeMap::create(roots).expect("current stable collection");
         assert_eq!(
             objects.size(),
             0,
             "root and object memories must be distinct"
         );
-        let objects = StableBTreeMap::create(objects);
-        roots.insert(
-            METADATA,
-            RootClaimRecord::Metadata(RootStoreMetadataRecord::new(&config)),
-        );
+        let objects = StableBTreeMap::create(objects).expect("current stable collection");
+        roots
+            .insert(
+                METADATA,
+                RootClaimRecord::Metadata(RootStoreMetadataRecord::new(&config)),
+            )
+            .expect("stable collection operation");
         Ok(Self {
             roots,
             objects,
@@ -94,9 +96,9 @@ impl<M: Memory> StableRootClaims<M> {
         if roots.size() == 0 || objects.size() == 0 {
             return Err(RootStoreError::Missing);
         }
-        let roots = StableBTreeMap::load(roots);
-        let objects = StableBTreeMap::load(objects);
-        if roots.get(&METADATA)
+        let roots = StableBTreeMap::load(roots).expect("current stable collection");
+        let objects = StableBTreeMap::load(objects).expect("current stable collection");
+        if roots.get(&METADATA).expect("stable collection operation")
             != Some(RootClaimRecord::Metadata(RootStoreMetadataRecord::new(
                 &config,
             )))
@@ -114,7 +116,11 @@ impl<M: Memory> StableRootClaims<M> {
             config,
             fenced: true,
         };
-        for entry in &store.roots {
+        for entry in store
+            .roots
+            .iter()
+            .map(|entry| entry.expect("stable collection traversal"))
+        {
             let key = entry.key();
             if *key == METADATA {
                 continue;
@@ -122,8 +128,11 @@ impl<M: Memory> StableRootClaims<M> {
             if key[0] != 1 {
                 return Err(RootStoreError::InvalidRecord);
             }
-            let object = store.binding(entry.value())?;
-            let reverse = store.objects.get(&RootObjectKeyRecord::new(object));
+            let object = store.binding(entry.value().expect("stable record"))?;
+            let reverse = store
+                .objects
+                .get(&RootObjectKeyRecord::new(object))
+                .expect("stable collection operation");
             if reverse.as_ref().map(<[u8; 32]>::as_slice) != Some(&key[1..]) {
                 return Err(RootStoreError::InvalidRecord);
             }
@@ -162,7 +171,7 @@ impl<M: Memory> StableRootClaims<M> {
             return Err(RootStoreError::Fenced);
         }
         let key = root_key(root);
-        let record = self.roots.get(&key);
+        let record = self.roots.get(&key).expect("stable collection operation");
         let existing = record
             .clone()
             .map(|record| self.binding(record))
@@ -176,18 +185,24 @@ impl<M: Memory> StableRootClaims<M> {
             context.service,
             object,
             existing,
-            self.objects.contains_key(&object_key),
+            self.objects
+                .contains_key(&object_key)
+                .expect("stable collection operation"),
             self.slots() < self.config.limits().catalog.max_objects.get() as u64,
         )?;
         if outcome == RootClaimOutcome::Claimed {
-            self.roots.insert(
-                key,
-                RootClaimRecord::Claim {
-                    object: object_key.clone(),
-                    operation: operation.get().get(),
-                },
-            );
-            self.objects.insert(object_key, *root.as_bytes());
+            self.roots
+                .insert(
+                    key,
+                    RootClaimRecord::Claim {
+                        object: object_key.clone(),
+                        operation: operation.get().get(),
+                    },
+                )
+                .expect("stable collection operation");
+            self.objects
+                .insert(object_key, *root.as_bytes())
+                .expect("stable collection operation");
         }
         Ok(outcome)
     }
@@ -212,6 +227,7 @@ impl<M: Memory> StableRootClaims<M> {
     ) -> Result<Option<ObjectBinding>, RootStoreError> {
         self.roots
             .get(&root_key(root))
+            .expect("stable collection operation")
             .map(|record| self.binding(record))
             .transpose()
     }
@@ -224,6 +240,7 @@ impl<M: Memory> StableRootClaims<M> {
         let record = self
             .roots
             .get(&root_key(root))
+            .expect("stable collection operation")
             .ok_or(RootStoreError::InvalidRecord)?;
         self.binding(record.clone())?;
         let RootClaimRecord::Claim { operation, .. } = record else {
@@ -238,25 +255,34 @@ impl<M: Memory> StableRootClaims<M> {
     pub(crate) fn damage_operation(&mut self, root: [u8; 32], operation: Option<u128>) {
         let key = root_key(ProviderRootHash::try_from(root.as_slice()).expect("fixed root"));
         let Some(operation) = operation else {
-            self.roots.remove(&key);
+            self.roots
+                .remove(&key)
+                .expect("stable collection operation");
             return;
         };
-        let mut record = self.roots.get(&key).unwrap_or_else(|| {
-            self.roots
-                .iter()
-                .find_map(|entry| match entry.value() {
-                    record @ RootClaimRecord::Claim { .. } => Some(record),
-                    RootClaimRecord::Metadata(_) => None,
-                })
-                .expect("fixture claim")
-        });
+        let mut record = self
+            .roots
+            .get(&key)
+            .expect("stable collection operation")
+            .unwrap_or_else(|| {
+                self.roots
+                    .iter()
+                    .map(|entry| entry.expect("stable collection traversal"))
+                    .find_map(|entry| match entry.value().expect("stable record") {
+                        record @ RootClaimRecord::Claim { .. } => Some(record),
+                        RootClaimRecord::Metadata(_) => None,
+                    })
+                    .expect("fixture claim")
+            });
         if let RootClaimRecord::Claim {
             operation: saved, ..
         } = &mut record
         {
             *saved = operation;
         }
-        self.roots.insert(key, record);
+        self.roots
+            .insert(key, record)
+            .expect("stable collection operation");
     }
 
     /// Lifetime count for trusted host accounting, not a tenant-authorized endpoint.
@@ -266,7 +292,9 @@ impl<M: Memory> StableRootClaims<M> {
     }
 
     pub(super) fn contains(&self, root: ProviderRootHash) -> bool {
-        self.roots.contains_key(&root_key(root))
+        self.roots
+            .contains_key(&root_key(root))
+            .expect("stable collection operation")
     }
 
     /// Reopening fences mutation; this store cannot independently clear its fence.

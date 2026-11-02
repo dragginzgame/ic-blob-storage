@@ -5,6 +5,8 @@ use super::{
 };
 use crate::model::catalog::admission::read::UploadPageLimits;
 use crate::model::lifecycle::ReferenceState;
+use crate::model::service::storage_key::ManifestKeyRecord;
+use crate::model::service::storage_key::UploadKeyRecord;
 use crate::model::service::upload::UploadAdmissionError;
 use crate::model::service::upload::UploadManifestState;
 use crate::model::service::upload::content::ContentLookup;
@@ -186,8 +188,10 @@ impl<M: Memory> StableUploads<M> {
         object: ObjectBinding,
     ) -> Result<super::UploadPermissionRecord, UploadStoreError> {
         let id = self.roots.operation_for_owner(root)?.get().get();
-        let Some(UploadStoreRecord::Permission(record)) =
-            self.permissions.get(&(object.tenant().into(), id))
+        let Some(UploadStoreRecord::Permission(record)) = self
+            .permissions
+            .get(&UploadKeyRecord(object.tenant().into(), id))
+            .expect("stable collection operation")
         else {
             return Err(UploadStoreError::InvalidRecord);
         };
@@ -280,7 +284,8 @@ impl<M: Memory> StableUploads<M> {
         }
         let record = self
             .manifests
-            .get(&(key(content.request), 1))
+            .get(&ManifestKeyRecord(key(content.request), 1))
+            .expect("stable collection operation")
             .ok_or(UploadStoreError::InvalidRecord)?;
         Ok(Some(UploadDescriptorView {
             content,
@@ -295,6 +300,8 @@ impl<M: Memory> StableUploads<M> {
     /// find insertions/phase changes behind a cursor. Restored reads confer no unfence.
     /// # Errors
     /// Rejects scope/authority/cursor mismatch before traversal, or invalid retained rows.
+    /// # Panics
+    /// Corrupt retained storage traps; callers must propagate IC rollback.
     pub fn scan(
         &self,
         execution: UploadContext,
@@ -319,15 +326,22 @@ impl<M: Memory> StableUploads<M> {
         }
         let (initial, end) = match scope {
             UploadScanScope::Tenant { tenant, .. } => (
-                Included((tenant.into(), 1)),
-                Included((tenant.into(), u128::MAX)),
+                Included(UploadKeyRecord(tenant.into(), 1)),
+                Included(UploadKeyRecord(tenant.into(), u128::MAX)),
             ),
             UploadScanScope::Service { .. } => (Excluded(metadata()), Unbounded),
         };
         let start = cursor.map_or(initial, |c| {
-            Excluded((c.after_tenant.into(), c.after_request.get().get()))
+            Excluded(UploadKeyRecord(
+                c.after_tenant.into(),
+                c.after_request.get().get(),
+            ))
         });
-        let mut rows = self.permissions.range((start, end)).peekable();
+        let mut rows = self
+            .permissions
+            .range((start, end))
+            .map(|entry| entry.expect("stable collection traversal"))
+            .peekable();
         let mut page = UploadScanPage {
             entries: Vec::new(),
             next: None,
@@ -339,7 +353,8 @@ impl<M: Memory> StableUploads<M> {
             let Some(entry) = rows.next() else {
                 break;
             };
-            let UploadStoreRecord::Permission(record) = entry.value() else {
+            let UploadStoreRecord::Permission(record) = entry.value().expect("stable record")
+            else {
                 return Err(UploadStoreError::InvalidRecord);
             };
             let view = record.view().ok_or(UploadStoreError::InvalidRecord)?;
@@ -398,6 +413,7 @@ impl<M: Memory> StableUploads<M> {
             UploadPhase::Registered => UploadRootState::Confirmed(
                 self.confirmed
                     .get(&key(request))
+                    .expect("stable collection operation")
                     .filter(|r| r.valid(self.config.limits().catalog))
                     .ok_or(UploadStoreError::InvalidRecord)?
                     .phase(),

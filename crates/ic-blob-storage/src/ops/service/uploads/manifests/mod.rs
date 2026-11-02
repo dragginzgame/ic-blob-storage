@@ -1,5 +1,6 @@
 //! Retained declaration projection from the stable owner.
 use super::{Memory, PreparedUploadManifest, StableUploads, UploadRequest, UploadStoreError};
+use crate::model::service::storage_key::ManifestKeyRecord;
 use crate::model::service::upload::UploadManifestState;
 use ic_blob_storage_contracts::dto::upload::{
     admission::{UploadAdmissionFailure, UploadAdmissionRequest},
@@ -51,7 +52,9 @@ impl<M: Memory> StableUploads<M> {
         manifest: PreparedUploadManifest,
     ) {
         for (part, record) in [0_u8, 1].into_iter().zip(manifest.split()) {
-            self.manifests.insert((super::key(request), part), record);
+            self.manifests
+                .insert(ManifestKeyRecord(super::key(request), part), record)
+                .expect("stable collection operation");
         }
     }
     pub(super) fn manifest(
@@ -59,8 +62,12 @@ impl<M: Memory> StableUploads<M> {
         request: UploadRequest,
     ) -> Result<Option<PreparedUploadManifest>, UploadStoreError> {
         match (
-            self.manifests.get(&(super::key(request), 0)),
-            self.manifests.get(&(super::key(request), 1)),
+            self.manifests
+                .get(&ManifestKeyRecord(super::key(request), 0))
+                .expect("stable collection operation"),
+            self.manifests
+                .get(&ManifestKeyRecord(super::key(request), 1))
+                .expect("stable collection operation"),
         ) {
             (None, None) => Ok(None),
             (Some(chunks), Some(headers)) => PreparedUploadManifest::join(chunks, headers)

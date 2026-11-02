@@ -4,6 +4,15 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.68.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Adopt Metrics 0.27 for public measurement types. Consumers exchanging those
+  Rust values must align Metrics and Platform 0.18/Types 0.17 identities.
+  Native schema uses published Wire 0.15. Wire bytes, endpoint identities and
+  decoder limits remain unchanged.
+
 ## [0.67.0] - 2026-11-02
 
 ### ⚠️ Breaking

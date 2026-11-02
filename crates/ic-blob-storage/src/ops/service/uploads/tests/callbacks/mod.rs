@@ -32,7 +32,7 @@ fn batch(roots: &[Vec<u8>]) -> ProviderRootBatch {
     )
     .unwrap()
 }
-fn registry(memory: &FixtureMemory) -> StableGatewayRegistry<ic_memory::VectorMemory> {
+fn registry(memory: &FixtureMemory) -> StableGatewayRegistry<ic_storage::VectorMemory> {
     let mut registry = StableGatewayRegistry::install(memory.lease(), config()).unwrap();
     registry.add(context(2), scope(), p(6)).unwrap();
     registry

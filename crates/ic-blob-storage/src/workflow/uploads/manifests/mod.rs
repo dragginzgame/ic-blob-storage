@@ -15,7 +15,7 @@ use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_blob_storage_contracts::upload::manifests::bounds;
 use ic_blob_storage_contracts::upload::manifests::headers;
 
-use ic_memory::Memory;
+use ic_storage::Memory;
 /// Prepare as the actual admitted uploader after bounding ingress decoding. Raw
 /// declaration budgets precede conversion; the shared owner checks activation,
 /// time, phase and root/metadata consistency. Persist intent before dispatch and

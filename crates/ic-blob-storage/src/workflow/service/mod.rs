@@ -36,7 +36,7 @@ pub struct ServiceExecutionLimits {
 /// Explicit access to a host's sole installed service, without lifecycle ownership.
 pub trait ServiceHost {
     /// Backing of the host's retained memory runtime.
-    type Memory: ic_memory::Memory;
+    type Memory: ic_storage::Memory;
     /// Invoke exactly once and release the borrow before returning. Propagate traps.
     /// Every invocation must access the same installation; never initialize or reset it.
     fn with_installation<R>(

@@ -2,8 +2,8 @@
 //! One runtime is retained across openings. Drop each collection before reopening;
 //! the raw backing never grants a second allocation lease.
 //! This owner is not itself backing memory; collections use `VectorMemory`.
-use ic_memory::{
-    MemoryManagerConfig, MemoryRuntime, RuntimeMemory, VectorMemory, testing::fixture_runtime,
+use ic_storage::{
+    MemoryRuntime, RuntimeMemory, StorageConfig, VectorMemory, testing::fixture_runtime,
 };
 use std::{
     cell::{Ref, RefCell},
@@ -19,7 +19,7 @@ impl FixtureMemory {
     pub(crate) fn lease(&self) -> RuntimeMemory<VectorMemory> {
         self.runtime
             .open_memory(
-                &ic_memory::StableKey::parse("fixture.store.v1").expect("valid allocation key"),
+                &ic_storage::StableKey::parse("fixture.store.v1").expect("valid allocation key"),
             )
             .unwrap()
     }
@@ -32,7 +32,7 @@ impl FixtureMemory {
             "fixture",
             "fixture.",
             &["fixture.store.v1"],
-            MemoryManagerConfig::new(std::num::NonZeroU16::new(1).expect("nonzero bucket pages")),
+            StorageConfig::default(),
         )
         .unwrap();
         Self {

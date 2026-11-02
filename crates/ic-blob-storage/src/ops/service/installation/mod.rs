@@ -10,10 +10,10 @@ use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::download::scope::CaffeineDownloadScope;
 use ic_blob_storage_contracts::download::scope::DownloadScopeError;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
-use ic_memory::{Memory, RuntimeMemory};
-use ic_memory::{MemoryDeclarationError, MemoryRequest};
 use ic_platform::Principal;
 use ic_storage::adapter::StableCell;
+use ic_storage::{AdmissionError, MemoryRequest};
+use ic_storage::{Memory, RuntimeMemory};
 use std::sync::Arc;
 use thiserror::Error;
 
@@ -29,7 +29,7 @@ pub const INSTALLATION_MEMORY_KEY: &str = "blob.configuration.v1";
 /// ID selection, bootstrap, allocation, lifecycle hook or stable write occurs.
 /// # Errors
 /// Rejects an invalid authority using the memory runtime's declaration error.
-pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, MemoryDeclarationError> {
+pub fn requests(authority: &str) -> Result<Vec<MemoryRequest>, AdmissionError> {
     let mut requests = vec![MemoryRequest::new(authority, INSTALLATION_MEMORY_KEY)?];
     requests.extend(super::stores::grants::requests(authority)?);
     Ok(requests)
@@ -73,11 +73,11 @@ impl ValidatedServiceInstallation {
     }
 }
 
-/// Fifteen distinct exclusive host grants; the library selects no physical IDs.
+/// Fourteen distinct exclusive host grants; the library selects no physical IDs.
 pub struct ServiceInstallationMemories<M> {
     /// Immutable current installation record, separate from all service stores.
     pub configuration: M,
-    /// Fourteen memories for the three service owners.
+    /// Thirteen memories for the three service owners.
     pub stores: ServiceMemories<M>,
 }
 
@@ -88,7 +88,7 @@ pub struct ServiceInstallationMemories<M> {
 /// `M` names the runtime's backing; construction accepts only governed leases.
 /// Raw memory bundles cannot construct a production installation:
 /// ```compile_fail
-/// use ic_blob_storage::{ic_memory::VectorMemory, ops::service::installation::{
+/// use ic_blob_storage::{ic_storage::VectorMemory, ops::service::installation::{
 ///     ServiceInstallation, ServiceInstallationMemories, ValidatedServiceInstallation,
 /// }};
 /// let install: fn(ServiceInstallationMemories<VectorMemory>, ValidatedServiceInstallation) -> _ =
@@ -122,10 +122,10 @@ impl<M: Memory> ServiceInstallation<M> {
             0,
             "configuration grant aliases service memory"
         );
-        drop(StableCell::create(
-            memories.configuration,
-            candidate.configuration.clone(),
-        ));
+        drop(
+            StableCell::create(memories.configuration, candidate.configuration.clone())
+                .expect("fresh configuration cell"),
+        );
         Ok(Self {
             last_platform_version: Some(candidate.configuration.platform_installation_version),
             observation_epoch: Arc::new(()),
@@ -141,7 +141,8 @@ impl<M: Memory> ServiceInstallation<M> {
     /// # Errors
     /// Rejects missing/invalid installation, changed bindings or inconsistent stores.
     /// # Panics
-    /// Record-codec and backing failures trap; IC hosts must propagate them.
+    /// Backing failures and corrupt store rows trap; IC hosts must propagate them.
+    /// Invalid configuration-cell bytes return `InvalidRecord` without repair.
     pub fn open(
         memories: ServiceInstallationMemories<RuntimeMemory<M>>,
         actual_service: Principal,
@@ -150,8 +151,11 @@ impl<M: Memory> ServiceInstallation<M> {
         if memories.configuration.size() == 0 {
             return Err(ServiceInstallationError::Missing);
         }
-        let configuration = StableCell::<ConfigurationRecord, M>::load(memories.configuration)
-            .map_err(|_| ServiceInstallationError::InvalidRecord)?;
+        let configuration = StableCell::<ConfigurationRecord, M>::load(
+            memories.configuration,
+            crate::model::service::installation::record::MAX_CONFIGURATION_BYTES as usize,
+        )
+        .map_err(|_| ServiceInstallationError::InvalidRecord)?;
         let record = configuration.get().clone();
         record.check_binding(actual_service, release)?;
         let candidate = ValidatedServiceInstallation::new(

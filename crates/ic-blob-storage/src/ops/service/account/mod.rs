@@ -22,7 +22,7 @@ use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::account::AccountObservation;
 use ic_blob_storage_contracts::dto::account::AccountRelationshipView;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 /// Synchronous host borrowing across independent stages; never retain borrows over await.
 /// Host configuration must remain immutable during the invocation. No cached reports

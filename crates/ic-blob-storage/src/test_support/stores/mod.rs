@@ -2,8 +2,8 @@
 use crate::ops::service::stores::{
     ServiceMemories, ServiceStoreConfiguration, ServiceStoreError, ServiceStores,
 };
-use ic_memory::Memory;
-use ic_memory::RuntimeMemory;
+use ic_storage::Memory;
+use ic_storage::RuntimeMemory;
 
 /// Construct fixture owners in fresh exclusive memories.
 /// # Errors

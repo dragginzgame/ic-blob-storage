@@ -14,7 +14,7 @@ use ic_platform::management_canister_types::{
 /// its borrow before returning; no saved handle crosses the platform await.
 pub trait RecoveryInstallationAccess {
     /// Backing memory of the host's sole runtime; owners consume its exclusive leases.
-    type Memory: ic_memory::Memory;
+    type Memory: ic_storage::Memory;
     /// Borrow the same installation for an authenticated synchronous operation.
     fn with_installation<R>(
         &self,

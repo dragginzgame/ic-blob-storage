@@ -130,7 +130,9 @@ impl<M: Memory> StableFundingJournal<M> {
         } else {
             totals
         };
-        self.intents.insert(input.operation.get(), next);
+        self.intents
+            .insert(input.operation.get(), next)
+            .expect("stable collection operation");
         self.write_totals(&totals);
         Ok(true)
     }

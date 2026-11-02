@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeFailure;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
-use ic_memory::Memory;
+use ic_storage::Memory;
 /// Inspect as the configured operator with actual caller/service supplied by the host.
 /// A missing intent never authorizes a new payment. Transport-only observations
 /// preserve missing structured replies; reported balances never establish credit.

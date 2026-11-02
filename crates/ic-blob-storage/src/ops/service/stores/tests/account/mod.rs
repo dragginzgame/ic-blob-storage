@@ -19,12 +19,12 @@ use std::{
 };
 
 struct Host {
-    stores: RefCell<Option<ServiceStores<ic_memory::VectorMemory>>>,
+    stores: RefCell<Option<ServiceStores<ic_storage::VectorMemory>>>,
     memory: [FixtureMemory; 13],
     config: ServiceStoreConfiguration,
 }
 impl AccountInspectionAccess for Host {
-    type Memory = ic_memory::VectorMemory;
+    type Memory = ic_storage::VectorMemory;
     fn with_account_stores<R>(&self, f: impl FnOnce(OperatorStores<'_, Self::Memory>) -> R) -> R {
         f(OperatorStores::from(self.stores.borrow().as_ref().unwrap()))
     }

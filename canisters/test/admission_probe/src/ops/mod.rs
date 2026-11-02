@@ -14,9 +14,9 @@ use blob_test_protocol::{
     journey::{JourneyManifest, JourneyUsage},
 };
 use conversion::{failure, phase, request};
-use ic_blob_storage::ic_memory::{
-    DefaultMemoryImpl, GenericAllocationPolicy, MemoryAllocationPool, MemoryAuthority,
-    MemoryManagerConfig, MemoryRuntime, SealedDeclarationSnapshot,
+use ic_blob_storage::ic_storage::{
+    AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, MemoryAuthority, MemoryRuntime,
+    SealedDeclarationSnapshot, StorageConfig,
 };
 use ic_blob_storage::model::catalog::admission::UploadAdmission;
 use ic_blob_storage::model::lifecycle::LifecycleChange;
@@ -113,18 +113,13 @@ pub(crate) fn initialize(service: Principal, installation: Installation) {
     )
     .expect("valid local envelope");
     STATE.with_borrow(|state| assert!(state.is_none(), "initialization is not reset"));
-    let mut runtime = MemoryRuntime::new_with_config(
-        DefaultMemoryImpl::default(),
-        MemoryManagerConfig::new(std::num::NonZeroU16::new(16).expect("nonzero bucket pages")),
-    )
-    .unwrap();
+    let mut runtime =
+        MemoryRuntime::new_with_config(DefaultMemoryImpl::default(), StorageConfig::default())
+            .unwrap();
     let declarations =
         SealedDeclarationSnapshot::new(grants::requests("admission").unwrap()).unwrap();
-    let pool = MemoryAllocationPool::new(
-        vec![MemoryAuthority::new("admission", "blob.").unwrap()],
-        vec![],
-    )
-    .unwrap();
+    let pool =
+        AllocationGrants::new(vec![MemoryAuthority::new("admission", "blob.").unwrap()]).unwrap();
     runtime
         .bootstrap(&declarations, &pool, &GenericAllocationPolicy)
         .unwrap();

@@ -17,6 +17,7 @@ use super::key;
 use super::metadata;
 use super::validation;
 use crate::model::lifecycle::ReferenceState;
+use crate::model::service::storage_key::ReferenceKeyRecord;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use std::{
     collections::{BTreeMap as HeapMap, btree_map::Entry},
@@ -48,8 +49,15 @@ pub(super) fn manifest_capacity(
     )
 }
 impl<M: Memory> StableUploads<M> {
+    #[expect(
+        clippy::too_many_lines,
+        reason = "one bounded restoration pass checks cross-store invariants with explicit fallible storage operations"
+    )]
     pub(super) fn validate(&self) -> Result<(), UploadStoreError> {
-        if self.permissions.get(&metadata())
+        if self
+            .permissions
+            .get(&metadata())
+            .expect("stable collection operation")
             != Some(UploadStoreRecord::Configuration(
                 UploadConfigurationRecord::new(&self.config),
             ))
@@ -76,11 +84,16 @@ impl<M: Memory> StableUploads<M> {
         let mut reference_count = 0;
         let mut receipt_count = 0;
         let mut deletion_count = 0;
-        for entry in &self.permissions {
+        for entry in self
+            .permissions
+            .iter()
+            .map(|entry| entry.expect("stable collection traversal"))
+        {
             if *entry.key() == metadata() {
                 continue;
             }
-            let UploadStoreRecord::Permission(record) = entry.value() else {
+            let UploadStoreRecord::Permission(record) = entry.value().expect("stable record")
+            else {
                 return Err(UploadStoreError::InvalidRecord);
             };
             let view = record.view().ok_or(UploadStoreError::InvalidRecord)?;
@@ -114,7 +127,12 @@ impl<M: Memory> StableUploads<M> {
                 confirmed_count += 1;
                 let pending = record.phase() == LifecyclePhase::DeletionPending
                     && !record.gateway_acknowledged();
-                if self.deletions.contains(entry.key()) != pending {
+                if self
+                    .deletions
+                    .contains(entry.key())
+                    .expect("stable collection operation")
+                    != pending
+                {
                     return Err(UploadStoreError::InvalidRecord);
                 }
                 deletion_count += u64::from(pending);
@@ -193,7 +211,12 @@ impl<M: Memory> StableUploads<M> {
                 .map(|(tenant, total)| (tenant, total.usage)),
         );
         for (tenant, expected) in totals {
-            if self.usage.get(&tenant.into()) != Some(expected) {
+            if self
+                .usage
+                .get(&tenant.into())
+                .expect("stable collection operation")
+                != Some(expected)
+            {
                 return Err(UploadStoreError::InvalidRecord);
             }
             let view = expected.view().ok_or(UploadStoreError::InvalidRecord)?;
@@ -221,7 +244,10 @@ impl<M: Memory> StableUploads<M> {
         phase: UploadPhase,
     ) -> Result<Option<ConfirmedLifecycleRecord>, UploadStoreError> {
         let owner = key(upload);
-        let retained = self.confirmed.get(&owner);
+        let retained = self
+            .confirmed
+            .get(&owner)
+            .expect("stable collection operation");
         if phase != UploadPhase::Registered {
             return if retained.is_none() {
                 Ok(None)
@@ -234,12 +260,17 @@ impl<M: Memory> StableUploads<M> {
             .ok_or(UploadStoreError::InvalidRecord)?;
         let mut references = 0;
         let mut active = 0;
-        for entry in self.references.range((owner, 0)..=(owner, u128::MAX)) {
+        for entry in self
+            .references
+            .range(ReferenceKeyRecord(owner, 0)..=ReferenceKeyRecord(owner, u128::MAX))
+            .map(|entry| entry.expect("stable collection traversal"))
+        {
             if entry.key().1 == 0 {
                 return Err(UploadStoreError::InvalidRecord);
             }
             let state = entry
                 .value()
+                .expect("stable record")
                 .state()
                 .ok_or(UploadStoreError::InvalidRecord)?;
             references += 1;
@@ -252,8 +283,12 @@ impl<M: Memory> StableUploads<M> {
             return Err(UploadStoreError::InvalidRecord);
         }
         let mut receipts = 0;
-        for entry in self.receipts.range((owner, 0)..=(owner, u128::MAX)) {
-            let receipt = entry.value();
+        for entry in self
+            .receipts
+            .range(ReferenceKeyRecord(owner, 0)..=ReferenceKeyRecord(owner, u128::MAX))
+            .map(|entry| entry.expect("stable collection traversal"))
+        {
+            let receipt = entry.value().expect("stable record");
             if entry.key().1 == 0
                 || !receipt.valid(
                     owner.0.into(),

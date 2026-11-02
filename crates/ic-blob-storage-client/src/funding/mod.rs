@@ -10,7 +10,7 @@ use ic_blob_storage_contracts::funding::reply::FundingHistoryReplyLimits;
 use ic_blob_storage_contracts::funding::reply::FundingReplyError;
 use ic_blob_storage_contracts::protocol::FUNDING_HISTORY_METHOD;
 use ic_blob_storage_contracts::protocol::FUNDING_OUTCOME_METHOD;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 
@@ -69,8 +69,8 @@ impl ReplicatedFundingClient {
         Ok(())
     }
     fn check(&self, scope: OperatorScope) -> Result<(), FundingClientError> {
-        self.binding(ic_platform::cdk::api::canister_self(), scope)?;
-        if !ic_platform::cdk::api::in_replicated_execution() {
+        self.binding(ic_platform_runtime::cdk::api::canister_self(), scope)?;
+        if !ic_platform_runtime::cdk::api::in_replicated_execution() {
             return Err(FundingClientError::Execution);
         }
         Ok(())

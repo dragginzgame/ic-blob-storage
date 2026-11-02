@@ -9,7 +9,7 @@ use ic_blob_storage_contracts::tenant::TenantError;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 #[cfg(any(test, feature = "test-support"))]
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
-use ic_memory::Memory;
+use ic_storage::Memory;
 
 pub(crate) fn permission<M: Memory>(
     store: &StableUploads<M>,

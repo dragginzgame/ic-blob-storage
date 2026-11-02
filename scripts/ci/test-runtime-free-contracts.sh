@@ -33,7 +33,7 @@ for package in ic-blob-storage ic-memory ic-storage; do
 done
 printf 'Deployment fixture feature refusals: PASS\n'
 unset FIXTURE_FEATURE_LINE
-for package in clap clap_builder clap_derive ic0 ic-cdk-executor ic-management-canister-types ic-platform-pocket-ic; do
+for package in ic-memory ic-stable-structures clap clap_builder clap_derive ic0 ic-cdk-executor ic-management-canister-types ic-platform-pocket-ic; do
     export FIXTURE_PACKAGE_LINE="$package v4.6.7"
     if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
         echo "Deployment accepted forbidden package $package" >&2; exit 1

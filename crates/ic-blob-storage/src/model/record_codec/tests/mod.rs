@@ -1,7 +1,7 @@
 use super::*;
 use ic_storage::adapter::{Storable, storable::Bound};
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, panic::catch_unwind};
+use std::borrow::Cow;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 struct Record {
@@ -26,9 +26,12 @@ fn value() -> Record {
 #[test]
 fn full_width_records_round_trip_and_refuse_foreign_or_retired_bytes() {
     let record = value();
-    let original = record.to_bytes().into_owned();
-    assert_eq!(Record::from_bytes(Cow::Borrowed(&original)), record);
-    assert_eq!(value().into_bytes(), original);
+    let original = record.to_bytes().unwrap().into_owned();
+    assert_eq!(
+        Record::from_bytes(Cow::Borrowed(&original)).unwrap(),
+        record
+    );
+    assert_eq!(value().into_bytes().unwrap(), original);
     let mut trailing = original.clone();
     trailing.push(0);
     let mut changed_id = original.clone();
@@ -41,7 +44,8 @@ fn full_width_records_round_trip_and_refuse_foreign_or_retired_bytes() {
             counter: u128::MAX,
             bytes: vec![7; 80].into(),
         }
-        .into_bytes(),
+        .into_bytes()
+        .unwrap(),
         original[..original.len() - 1].to_vec(),
         trailing,
         changed_id,
@@ -49,9 +53,12 @@ fn full_width_records_round_trip_and_refuse_foreign_or_retired_bytes() {
         Vec::new(),
         vec![0; 129],
     ] {
-        assert!(catch_unwind(|| Record::from_bytes(Cow::Borrowed(&bytes))).is_err());
+        assert!(Record::from_bytes(Cow::Borrowed(&bytes)).is_err());
     }
-    assert_eq!(Record::from_bytes(Cow::Borrowed(&original)), record);
+    assert_eq!(
+        Record::from_bytes(Cow::Borrowed(&original)).unwrap(),
+        record
+    );
 }
 
 #[test]
@@ -61,8 +68,8 @@ fn writes_and_reads_obey_wire_byte_allocation_node_and_depth_policy() {
         bytes: vec![0; 128].into(),
     };
     assert_eq!(oversized.encode_record(), Err(ic_wire::Error::Limit));
-    assert!(catch_unwind(|| oversized.into_bytes()).is_err());
-    let bytes = value().into_bytes();
+    assert!(oversized.into_bytes().is_err());
+    let bytes = value().into_bytes().unwrap();
     for policy in [
         ic_wire::Limits {
             bytes: bytes.len() - 1,

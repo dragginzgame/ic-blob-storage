@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
 use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
 use ic_blob_storage_contracts::tenant::reply;
 use ic_blob_storage_contracts::tenant::reply::TenantReplyError;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use std::num::{NonZeroU32, NonZeroUsize};
 use thiserror::Error;
 
@@ -60,8 +60,8 @@ impl ReplicatedTenantClient {
         })
     }
     fn check(&self, scope: TenantScope) -> Result<(), TenantClientError> {
-        self.binding(ic_platform::cdk::api::canister_self(), scope)?;
-        if !ic_platform::cdk::api::in_replicated_execution() {
+        self.binding(ic_platform_runtime::cdk::api::canister_self(), scope)?;
+        if !ic_platform_runtime::cdk::api::in_replicated_execution() {
             return Err(TenantClientError::Execution);
         }
         Ok(())

@@ -34,7 +34,10 @@ fn maximal_permission_and_usage_round_trip_without_narrowing() {
     let permission = permission();
     assert!(permission.view().is_some());
     let record = UploadStoreRecord::Permission(permission);
-    assert_eq!(UploadStoreRecord::from_bytes(record.to_bytes()), record);
+    assert_eq!(
+        UploadStoreRecord::from_bytes(record.to_bytes().unwrap()).unwrap(),
+        record
+    );
     let usage = UploadUsageRecord {
         version: 1,
         operations: u64::MAX,
@@ -45,7 +48,10 @@ fn maximal_permission_and_usage_round_trip_without_narrowing() {
         physical: u128::MAX,
         liability: u128::MAX,
     };
-    assert_eq!(UploadUsageRecord::from_bytes(usage.to_bytes()), usage);
+    assert_eq!(
+        UploadUsageRecord::from_bytes(usage.to_bytes().unwrap()).unwrap(),
+        usage
+    );
 }
 #[test]
 fn inconsistent_permission_phases_cannot_become_valid_views() {
@@ -68,8 +74,10 @@ fn inconsistent_permission_phases_cannot_become_valid_views() {
 fn variable_page_layout_keeps_a_hard_record_decode_bound() {
     for bytes in [vec![0; MANIFEST_BYTES + 1], b"truncated".to_vec()] {
         assert!(
-            std::panic::catch_unwind(|| UploadManifestPartRecord::from_bytes(Cow::Owned(bytes)))
-                .is_err()
+            std::panic::catch_unwind(
+                || UploadManifestPartRecord::from_bytes(Cow::Owned(bytes)).unwrap()
+            )
+            .is_err()
         );
     }
 }
@@ -92,9 +100,9 @@ fn admitted_large_leaf_and_header_envelopes_fit_the_wire_record_policy() {
             headers,
         };
         for part in record.split() {
-            let bytes = part.to_bytes();
+            let bytes = part.to_bytes().unwrap();
             assert!(bytes.len() <= MANIFEST_BYTES);
-            assert_eq!(UploadManifestPartRecord::from_bytes(bytes), part);
+            assert_eq!(UploadManifestPartRecord::from_bytes(bytes).unwrap(), part);
         }
     }
 }
