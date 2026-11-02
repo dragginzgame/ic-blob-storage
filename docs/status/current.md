@@ -82,8 +82,15 @@ compiler, snapshot, dependency-role/pin, direct and deployment boundaries with
 negative fixtures, documentation and formatting. Testkit 0.80 was explicitly
 prepared/admitted using the unchanged server identity. The standalone was built
 in isolation from probe features; all six probe Wasms and native CLI also built.
-No frozen vectors were regenerated. Installed qualification follows in the
-authorized full release gates; the older family's installed results are not reused.
+No frozen vectors were regenerated. The first Contracts gate stopped before
+version/ref effects at a checkpoint-corruption test that expected an inner error;
+Storage now refuses its damaged outer cell earlier. The corrected installed test
+requires the checksum rejection, unchanged damaged bytes and preserved live state,
+then successful recovery from the original bytes. Its four checkpoint cases and
+the 250 installed cases not reached by that gate pass. Failure evidence remains
+under Git's `release-state/validation-failures/20261102T180048Z-1566564-16-test.log`.
+Restart complete normal gates from the corrected committed source; partial stages
+and the older family's installed results do not substitute for that gate.
 
 Evidence for this continuation is `.tmp/upstream-platform018.ZS89rK/`:
 before-state, sparse-index records, checksummed published sources, committed Shared

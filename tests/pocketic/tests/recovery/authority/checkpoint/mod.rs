@@ -149,13 +149,32 @@ fn damaged_checkpoint_rejects_reconstruction_without_resetting_live_state() {
         .position(|bytes| bytes == b"ICBV\0\0\0\x01")
         .expect("stored verifier record");
     corrupted[at + 72] ^= 1;
-    f.replace_archive_bytes(corrupted);
+    f.replace_archive_bytes(corrupted.clone());
     f.reject_upgrade(f.service);
     f.upgrade_skipping_outgoing_hook(f.service, false);
-    assert_eq!(
-        f.checkpoint_probe(f.operator, v.upload, 1, &v.bytes[CHUNK..]),
-        Err(CheckpointProbeFailure::InvalidCheckpoint)
-    );
+    // The enclosing Storage cell checks these bytes before the inner
+    // checkpoint decoder runs. Refuse the damaged journal without repairing it.
+    let rejected = f
+        .harness
+        .pic
+        .query_call(
+            f.service,
+            f.operator,
+            "probe_checkpoint",
+            blob_test_protocol::fixture_wire::encode_args(
+                "probe_checkpoint",
+                (CheckpointProbeInput {
+                    root: v.upload.root,
+                    index: 1,
+                    bytes: v.bytes[CHUNK..].to_vec().into(),
+                },),
+            )
+            .expect("bounded checkpoint probe"),
+        )
+        .expect_err("damaged outer journal must refuse reconstruction");
+    assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+    assert!(rejected.reject_message.contains("Checksum"));
+    assert_eq!(f.harness.pic.get_stable_memory(f.service), corrupted);
     assert_eq!(f.progress(f.first, v.upload).unwrap().next_chunk, 1);
     assert_eq!(
         f.certificate(f.first, v.upload.root),
