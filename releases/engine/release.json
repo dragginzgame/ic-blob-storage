@@ -1,25 +1,25 @@
 {
    "date" : "2026-11-02",
    "files" : {
-      "Cargo.lock" : "06ff02b9d850a286a1738f613464d86848ba6901df4ee9c8a4eb0c1aa071de8f",
-      "Cargo.toml" : "a01d67123d16a7becd91b610fcce7939a6168f509a49a5908e0c120205020d42",
-      "canisters/standalone/Cargo.toml" : "d188a0ab63ec633655fe3d62775fe8d2711eac3a1eab219edb66f03b4063f0c0",
-      "canisters/test/admission_probe/Cargo.toml" : "5b5fcbdfd7adef8d7d4c9cdad554659d5f0b94b8a2446967367c0611b7c0fdf5",
-      "canisters/test/authority_probe/Cargo.toml" : "cdc421b10de23cbf567912a731cfbd6e42f1443f9562a22f2a81868cfdedab9a",
-      "canisters/test/consumer_probe/Cargo.toml" : "b87f56096d9d16199a2aec6754ec053e7750ddf24f2924b78009006b475b209a",
-      "canisters/test/funding_probe/Cargo.toml" : "41837b2834e5f7b0ad1bc4d42ae4d69f4f1b412e078ec2b3ab9cb79b26af4cca",
-      "canisters/test/gateway_source/Cargo.toml" : "a9e3ec1e9f27709c8325db177a4d82d53b637561c6abec37c90c9f7f08ccf0c2",
-      "canisters/test/storage_probe/Cargo.toml" : "29b7c609b516f97025f2f6a614efbc356032d85d4a6110e44d8758282461d2fc",
-      "crates/ic-blob-storage/Cargo.toml" : "10bae83f9eb827cf3a7d9344f76a3e6842a8db8514b5dd3c2d00df3e340d08eb",
-      "releases/engine/CHANGELOG.md" : "dd7f437f8dc61b07d1e4b19d5f1b7009c1eab32236d796e290915edebd14d942",
-      "tests/pocketic/Cargo.toml" : "22ff0c3f9abe4a8c17d03ffc3c4c7cd302481560db4bafd40a4dd6833bc413c9",
-      "tests/protocol/Cargo.toml" : "e5c1b9e9eda998b127a54849655dcece7c137430cb92c5ce0e3b2b40cc3b15af"
+      "Cargo.lock" : "10bcd873fc4b1919236896fbf4e8ae80183b51d6db652a753a76991245256e1e",
+      "Cargo.toml" : "71eb71be477a8edafe1f433b44fd3cc2634c26aeb46b6cc27db7f3f847cb530c",
+      "canisters/standalone/Cargo.toml" : "4ae4f913fbf5e20f8c02a7f1fe9a63dccba340a3a86a4a9e6a633501e9bd7bb2",
+      "canisters/test/admission_probe/Cargo.toml" : "75707db2926995277be2ad7359bd1363fee7c88a23d8b742806fc5c747d4bcc9",
+      "canisters/test/authority_probe/Cargo.toml" : "4deb91c1fea6b29303b38b0b7080822d9c860e19502611412bd392faf2f3958a",
+      "canisters/test/consumer_probe/Cargo.toml" : "3e15501a227fb9634bf3922dc414a377e10e705f94250afe069849f7aa5b47dd",
+      "canisters/test/funding_probe/Cargo.toml" : "16eb5427220c77f10685f07560a745215a42ddc1126b14776263c3012e0d5572",
+      "canisters/test/gateway_source/Cargo.toml" : "a338865d7b376b5603f46be29dfd84d902539d29e384a6df0cbd60ca57512eb1",
+      "canisters/test/storage_probe/Cargo.toml" : "683cabf7ba69a643a3d5aaf47e1bc29848fb34c06d9dcf85993e45a291d77aa4",
+      "crates/ic-blob-storage/Cargo.toml" : "d928c31f8ed7a6a7c3581f177d250bcc6fa2c3cf4109520f543f4b592a51d6f5",
+      "releases/engine/CHANGELOG.md" : "bd375482d87ead3b5d20e96ee7778e71e6aa783a634ca87ba92ac6b03fc934d4",
+      "tests/pocketic/Cargo.toml" : "a0162160aed70a9a5703f3c5c4561bfc90c00b63590b861e1cb7a471da11971f",
+      "tests/protocol/Cargo.toml" : "9fc619b8961a19bf99f9b9cf6df79696f94ca3374a6d4eed0de14164f23550bb"
    },
    "gate" : "release-verify",
    "group" : "engine",
    "policy" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
    "schema" : 1,
-   "source" : "ede2241ef309d5069d6699874c6e62c9df250390",
+   "source" : "c2ad414e7502be868372ceded3eb67ef853c607a",
    "status" : "released",
-   "version" : "0.67.0"
+   "version" : "0.68.0"
 }
