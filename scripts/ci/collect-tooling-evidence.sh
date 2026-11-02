@@ -42,7 +42,7 @@ for prefix in blob-format-hooks. formatting-adoption. blob-evidence-checksums. \
     shared-tooling-cloc-siblings-test. shared-tooling-cloc-test. \
     blob-validation-logging. evidence-archive. tool-evidence-test. \
     blob-tooling-evidence-test. blob-tooling-evidence-proof. \
-    blob-tooling-evidence-downloaded. blob-testkit-commands. blob-compiler-admission. blob-release-tests. blob-group-metadata. cargo-release-group. cargo-group-backup.; do
+    blob-tooling-evidence-downloaded. blob-testkit-commands. blob-compiler-admission. blob-fixture-completion. blob-release-tests. blob-group-metadata. cargo-release-group. cargo-group-backup.; do
     for path in "$temporary/$prefix"*; do
         [[ -e "$path" || -L "$path" ]] || continue
         inputs+=("$temporary" "${path#"$temporary/"}")

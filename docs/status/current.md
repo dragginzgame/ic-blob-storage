@@ -83,6 +83,10 @@ Silicon tooling exposed bare mandatory `[[ ... ]]` tests in the compiler fixture
 Bash3.2 does not reliably apply `set -e` to them. The fixture now uses explicit
 failure exits, as required by the existing comparison-injection test. No
 published library source/runtime changed. Engine0.67.0 follows this correction.
+The checksum-verified macOS failure archive omitted its parent completion-harness
+directory; the collector now retains that owned prefix, with a byte round-trip
+regression. The new assertion fix is source/local-Bash evidence until the native
+macOS job runs again; no fresh Mac pass is claimed.
 
 The incoming Cargo.lock edits are preserved separately (Memory/Storage 0.62.1,
 Metrics 0.25.1, Wire/Derive 0.14.2 and CRC 1.5.4). The compiler checks used that

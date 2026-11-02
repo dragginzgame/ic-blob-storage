@@ -49,7 +49,8 @@ mkdir -p "$repository/.tools/host-set.failed/.git" "$repository/.tools/ic-set.fa
     "$repository/.tools/testkit-server/failed-candidate" "$repository/target/release-tests.failed" \
     "$temporary/file-digests.failed/.git" "$temporary/host-tools-test.failed/Linux:x86_64" \
     "$temporary/blob-validation-logging.failed" "$temporary/evidence-archive.failed" \
-    "$temporary/tool-evidence-test.failed" "$temporary/blob-release-tests.failed" "$temporary/unrelated"
+    "$temporary/tool-evidence-test.failed" "$temporary/blob-release-tests.failed" \
+    "$temporary/blob-fixture-completion.failed" "$temporary/unrelated"
 printf 'candidate_status=23\n' > "$repository/.tools/host-set.failed/.hidden"
 printf 'not uploaded\n' > "$repository/.tools/host-set.failed/.git/config"
 printf 'ic candidate\n' > "$repository/.tools/ic-set.failed/payload"
@@ -60,6 +61,7 @@ printf 'common Cargo selection\n' > "$repository/.tools/rust/common-tool-slot/in
 printf 'original server download failure\n' > "$repository/.tools/testkit-server/failed-candidate/download.stderr"
 printf 'original_status=9\n' > "$repository/target/release-tests.failed/outcome"
 printf 'original_status=17\n' > "$temporary/blob-release-tests.failed/outcome"
+printf 'injected-comparison-status=99\n' > "$temporary/blob-fixture-completion.failed/outcome"
 printf 'portable bytes\n' > "$temporary/file-digests.failed/"$'line\nbreak:payload'
 chmod 640 "$temporary/file-digests.failed/"$'line\nbreak:payload'
 printf '#!/bin/sh\nexit 23\n' > "$temporary/host-tools-test.failed/Linux:x86_64/executable"
@@ -101,6 +103,7 @@ ln -s "$fixture/unrelated-checkout" "$repository/.tools/host-set.unknown"
 archive="$(bash "$collector" "$repository" "$temporary" "$fixture/evidence.tar.gz")"
 [[ "$archive" == "$fixture/evidence.tar.gz" ]] || exit 1
 tar -xzf "$archive" -C "$fixture/unpacked"
+cmp "$temporary/blob-fixture-completion.failed/outcome" "$fixture/unpacked/blob-fixture-completion.failed/outcome"
 for path in .tools/host-set.failed/.hidden .tools/ic-set.failed/payload \
     .tools/rust/build/build.log .tools/rust/ic-testkit-fixture/receipt \
     .tools/rust/common-tool-slot/installed/selection.json \

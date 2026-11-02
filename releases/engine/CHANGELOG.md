@@ -20,6 +20,7 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
   Metrics index/cache.
 - Keep compiler-fixture assertions mandatory on macOS Bash 3.2 with explicit
   failure exits, including the premature-completion regression checks.
+- Retain the fixture-completion harness's failure evidence in native CI archives.
 
 ## [0.66.0] - 2026-11-01
 
