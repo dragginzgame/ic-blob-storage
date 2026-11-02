@@ -32,8 +32,8 @@ ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version
 
 # Client
 # Changelog : releases/client/CHANGELOG.md
-ic-blob-storage-cli = { path = "crates/ic-blob-storage-cli", version = "0.67.0" }
-ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.67.0" }
+ic-blob-storage-cli = { path = "crates/ic-blob-storage-cli", version = "0.68.0" }
+ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.68.0" }
 
 # Engine
 # Changelog : releases/engine/CHANGELOG.md
