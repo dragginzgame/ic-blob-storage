@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -110,6 +111,17 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           persist-credentials: false
+          fetch-depth: 0
+      - name: Select Linux compatibility checks against the complete release delta
+        if: runner.os == 'Linux'
+        id: compatibility
+        env:
+          RELEASE_GROUP: client
+        run: |
+          export RELEASE_SOURCE="$(git rev-parse HEAD)"
+          mkdir -p .tmp/compatibility
+          perl scripts/release/validation.pl plan .tmp/compatibility/plan.json
+          jq -r '"release=" + ((.scope == "workspace") | tostring), "optimizer=" + ([.stages[] | select(.target == "test-pocketic-engine") | .required][0] | tostring)' .tmp/compatibility/plan.json >> "$GITHUB_OUTPUT"
       - name: Prepare fixture utilities on Linux
         if: runner.os == 'Linux'
         run: |
@@ -184,10 +196,17 @@ jobs:
           /bin/bash --version
           make shared-tooling-check
           failed=0
-          for target in tools-check release-tools-check dependency-pins-check documentation-links-check shared-tooling-tests evidence-check fmt-check release-check hooks-check; do
+          for target in tools-check release-tools-check dependency-pins-check documentation-links-check shared-tooling-tests evidence-check fmt-check release-metadata-check hooks-check; do
             if make "$target"; then :; else failed=1; fi
           done
           exit "$failed"
+      - name: Qualify changed or uncertain release infrastructure on Linux
+        if: runner.os == 'Linux' && (steps.compatibility.outputs.release == 'true' || github.event_name == 'workflow_dispatch')
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+          TMPDIR: ${{ runner.temp }}
+        run: make release-check
       - name: Run the existing Clippy gate before archive qualification
         env:
           CARGO_NET_OFFLINE: 'true'
@@ -225,17 +244,20 @@ jobs:
           TMPDIR: ${{ runner.temp }}
         run: make test-native-host
       - name: Qualify original and optimized Blob Wasm installation and restoration
+        if: runner.os == 'Linux' && (steps.compatibility.outputs.optimizer == 'true' || github.event_name == 'workflow_dispatch')
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
           TMPDIR: ${{ runner.temp }}
         run: make test-wasm-opt
       - name: Retain Blob Wasm optimizer qualification
-        if: always()
+        if: always() && runner.os == 'Linux'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: blob-wasm-opt-${{ matrix.os }}-${{ github.run_attempt }}
-          path: target/blob-wasm-opt.*
+          path: |
+            target/blob-wasm-opt.*
+            .tmp/compatibility/
           if-no-files-found: ignore
           retention-days: 30
       - name: Archive failed tooling fixtures

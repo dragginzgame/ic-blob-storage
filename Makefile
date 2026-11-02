@@ -40,8 +40,9 @@ endif
 release-patch release-minor release-major release-resume: export BLOB_RELEASE_PREPARE := 1
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check compiler-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-check hooks-check fmt-check check probe-check docs-check test test-wasm-opt wasm-check package
+CI_TARGETS := shared-tooling-check compiler-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-metadata-check release-check hooks-check fmt-check check probe-check docs-check test-native test-pocketic-client test-pocketic-engine wasm-check package
 CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-release-groups.json ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
+	ci/release-validation.json scripts/release/validation.pl scripts/release/validate.sh scripts/ci/test-release-validation.sh \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl scripts/ci/check-rust-compiler.sh \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
@@ -52,7 +53,8 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
 	release-tag-check publish publish-dry-run install-hooks release-tools-check hooks-check evidence-check
-.PHONY: test-native-host test-wasm-opt compiler-check compiler-graphs-check tasks
+.PHONY: test-native-host test-wasm-opt test-pocketic-client test-pocketic-engine test-pocketic-prepare compiler-check compiler-graphs-check tasks
+.PHONY: release-metadata-check release-validation-check
 .PHONY: contracts-boundary-check documentation-links-check release-commands-check shared-tooling-tests tooling-evidence-check
 .PHONY: install-testkit testkit-check
 .PHONY: install-release-editor release-editor-check
@@ -102,6 +104,7 @@ help:
 	@echo "evidence-check               Check retained evidence hashes without Rust builds"
 	@echo "ci / validate                Fetch locked dependencies, then validate"
 	@echo "release-check                Test release tooling without publication"
+	@echo "release-metadata-check       Focused real group renderer/rollback checks without publication"
 	@echo "Release/publication requires RELEASE_GROUP=contracts, client or engine"
 	@echo "release-plan VERSION=minor   Preview the selected group without effects"
 	@echo "release-{patch,minor,major}   Maintainer: prepare, commit, tag, push"
@@ -136,6 +139,7 @@ shared-tooling-tests:
 	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
 	+bash scripts/ci/test-testkit-commands.sh
+	+$(MAKE) --no-print-directory release-validation-check
 
 tooling-evidence-check:
 	bash scripts/ci/test-tooling-evidence.sh
@@ -225,12 +229,26 @@ test-native-host: contracts-boundary-check
 test-fixture:
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
 
-test-pocketic:
+test-pocketic-prepare:
 	+$(MAKE) --no-print-directory testkit-check
 	+$(MAKE) --no-print-directory test-fixture
 	+$(MAKE) --no-print-directory build-standalone
 	+cargo build --offline --locked -p ic-blob-storage-cli
-	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests
+
+# These disjoint selections exhaust Cargo's test roster (checked by the plan
+# fixture). Client keeps its installed host, CLI and replicated-client boundary;
+# the remaining Engine scenarios never run twice in a complete gate.
+test-pocketic:
+	+$(MAKE) --no-print-directory test-pocketic-client
+	+$(MAKE) --no-print-directory test-pocketic-engine
+
+test-pocketic-client: test-pocketic-prepare
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_tenants::client::
+
+test-pocketic-engine: test-pocketic-prepare
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --lib --bins --test admission --test authority --test content --test funding --test gateway_sync --test journey --test obligations --test operator --test storage --test uploads -- --skip storage_tenants::client::
+	+cargo test --offline --locked -p ic-blob-storage-pocketic-tests --doc
 
 build-standalone:
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p ic-blob-storage-canister --lib
@@ -357,10 +375,17 @@ shell-check:
 	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
 	"$(SHELLCHECK)" scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
 	perl -c scripts/release/release-data.pl
+	perl -c scripts/release/validation.pl
 	perl -c scripts/ci/check-documentation-links.pl
 
 release-check: release-commands-check
 	bash scripts/release/test-release.sh
+
+release-metadata-check: release-commands-check
+	bash scripts/release/test-release.sh --metadata-only "$(if $(RELEASE_GROUP),$(RELEASE_GROUP),engine)"
+
+release-validation-check:
+	bash scripts/ci/test-release-validation.sh
 
 ci:
 	+@bash scripts/ci/run-validation-targets.sh --fail-fast \
@@ -370,8 +395,7 @@ validate: ci
 
 release-verify:
 	+VALIDATION_FAILURE_LOG_DIR="$$(git rev-parse --git-path release-state)/validation-failures" \
-		bash scripts/ci/run-validation-targets.sh --fail-fast \
-			$(foreach input,$(CI_INPUTS),--input "$(input)") ci
+		bash scripts/release/validate.sh
 
 release-plan:
 	@$(RELEASE) plan "$(if $(VERSION),$(VERSION),patch)"

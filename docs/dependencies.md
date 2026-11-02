@@ -128,9 +128,11 @@ Candid stays on Platform. The replicated client selects Types/Runtime directly.
 Application frames, method identities, limits and exact retry bytes are unchanged.
 
 Shared Tooling **0.27.28** is captured at committed source
-`8c7fae6605c69a930e3b1f14e1ff5c4c9dafbcb7` (150 verified files). Its optional
-release-group validation plan is not activated: Blob retains its complete release
-gate. The workspace retains thirteen independently grouped members and one lock.
+`8075b3fd4803d560a1be04768f76701ada3ae8fe` (150 verified files). Blob consumes
+its strict release-group plan admission/checkpoint runner with a local conservative
+selector and source-bound receipts. The first plan-based delivery keeps the full
+roster; later omissions require an admitted baseline and unchanged infrastructure.
+The workspace retains thirteen independently grouped members and one lock.
 The canonical companion closure now includes the validation-runner guide, fixing
 [Shared #346](https://github.com/dragginzgame/shared-tooling/issues/346) without an
 extra consumer entrypoint. See [release ownership](releasing.md).

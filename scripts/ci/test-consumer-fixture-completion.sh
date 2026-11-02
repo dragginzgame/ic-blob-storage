@@ -20,7 +20,7 @@ trap finish EXIT
 # No production test hook, Git mutation, build or publication is involved.
 # The archive wrapper delegates directly; its real failure/status/evidence
 # checks remain in test-library-packages.sh beside the same-version regression.
-for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-rust-compiler.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/collect-tooling-evidence.sh; do
+for script in scripts/release/test-release.sh scripts/ci/test-release-validation.sh scripts/ci/test-tooling-evidence.sh scripts/ci/test-testkit-commands.sh scripts/ci/test-rust-compiler.sh scripts/ci/test-library-packages.sh scripts/ci/check-validation-logging.sh scripts/ci/check-format-hooks.sh scripts/ci/collect-tooling-evidence.sh; do
     owner=fixture
     boundary='trap finish_fixture EXIT'
     failures=(nounset zero nonzero command comparison)
@@ -29,9 +29,9 @@ for script in scripts/release/test-release.sh scripts/ci/test-tooling-evidence.s
         boundary="      exit \"\$status\"' EXIT"
         failures=(nounset zero nonzero command)
     fi
-    if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/check-validation-logging.sh || "$script" == scripts/ci/check-format-hooks.sh ]]; then
+    if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/test-release-validation.sh || "$script" == scripts/ci/check-validation-logging.sh || "$script" == scripts/ci/check-format-hooks.sh ]]; then
         owner=FIXTURE
-        if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/check-format-hooks.sh ]]; then owner=TEMPORARY; fi
+        if [[ "$script" == scripts/release/test-release.sh || "$script" == scripts/ci/test-release-validation.sh || "$script" == scripts/ci/check-format-hooks.sh ]]; then owner=TEMPORARY; fi
         boundary='trap finish EXIT'
     fi
     for failure in "${failures[@]}"; do

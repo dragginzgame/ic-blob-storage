@@ -4,6 +4,17 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.68.1] - Unreleased
+
+### 🔧 Changed
+
+- Qualify published Build 0.74.1, Host Foundation 0.74.2 and Host Tools 0.78.1,
+  alongside the compatible Wire/Derive 0.15.1 and Metrics 0.27.2 selections.
+- Adopt the committed Shared Tooling 0.27.28 refresh and source-bound release
+  plans. Qualified tenant-client implementation changes retain installed Client,
+  CLI and host checks while omitting unrelated Engine scenarios and unchanged
+  publication/recovery fixtures. The first plan-based release keeps the full gate.
+
 ## [0.68.0] - 2026-11-02
 
 ### ⚠️ Breaking

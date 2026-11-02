@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+mode="${1:-full}"
+case "$mode" in full|--metadata-only) ;; *) exit 2 ;; esac
+groups=(contracts client engine)
+if [[ "$mode" == --metadata-only ]]; then
+    case "${2:-engine}" in
+        contracts|client|engine) groups=("${2:-engine}") ;;
+        all) ;; # Adoption qualification only; never a real all-group delivery.
+        *) exit 2 ;;
+    esac
+fi
 # Qualify Blob's actual group policy/receipt/publication adapters. Shared owns
 # generic runner recovery, version arithmetic and metadata editor regressions.
 unset MAKEFLAGS MFLAGS MAKEOVERRIDES GNUMAKEFLAGS MAKEFILES
@@ -35,7 +45,6 @@ git config core.hooksPath /dev/null
 # setup, network and publication are substitutes recorded outside this checkout.
 cat >> Makefile <<'MAKE'
 .PHONY: fixture-validation
-CI_TARGETS := fixture-validation
 fixture-validation:
 	@echo validation >> "$$TEST_EVENTS"
 release-editor-check:
@@ -46,6 +55,10 @@ fmt-check:
 deps tools-check install-tools release-tools-check compiler-check clippy:
 	@echo "$@" >> "$$TEST_EVENTS"
 MAKE
+# Keep the fixture's admitted full roster explicit, rather than bypassing the
+# actual plan/receipt path or weakening source admission with an environment flag.
+perl -0pi -e 's/^CI_TARGETS := .*$/CI_TARGETS := fixture-validation/m' Makefile
+printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["fixture-validation"]}' > ci/release-validation.json
 export TEST_EVENTS="$TEMPORARY/events"
 : > "$TEST_EVENTS"
 # Fixture-owned candidates follow actual member versions, independently of
@@ -87,7 +100,7 @@ for selection in '' unknown '%' 'client engine'; do
     refuse env RELEASE_GROUP="$selection" bash scripts/release/release.sh prepare
     [[ ! -s "$TEST_EVENTS" ]] || exit 1
 done
-for group in contracts client engine; do
+for group in "${groups[@]}"; do
     reset_source
     export RELEASE_GROUP="$group"
     echo "Group adapter: $group"
@@ -102,12 +115,16 @@ for group in contracts client engine; do
     [[ "$(cat "$TEST_EVENTS")" == $'tools-check\nrelease-tools-check' ]] || exit 1
     : > "$TEST_EVENTS"
     fingerprint > "$TEMPORARY/before"
+    refuse bash scripts/release/release.sh prepare
+    make --no-print-directory release-verify > "$TEMPORARY/$group-validation.log" 2>&1
     TEST_FORMAT_FAIL=1 refuse bash scripts/release/release.sh prepare
     fingerprint > "$TEMPORARY/after"
     cmp "$TEMPORARY/before" "$TEMPORARY/after"
     bash scripts/release/release.sh prepare > "$TEMPORARY/$group-prepare.log" 2>&1
     # Reconciliation of prepared metadata must neither render nor bump twice.
-    bash scripts/release/release.sh prepare > "$TEMPORARY/$group-reconcile.log" 2>&1
+    if [[ "$mode" == full ]]; then
+        bash scripts/release/release.sh prepare > "$TEMPORARY/$group-reconcile.log" 2>&1
+    fi
     perl scripts/release/release-data.pl verify "$base" "$RELEASE_VERSION" 2040-01-02
     cargo metadata --offline --locked --format-version 1 > "$TEMPORARY/$group-metadata.json"
     jq -e --arg version "$RELEASE_VERSION" --slurpfile before "$TEMPORARY/initial-versions.json" --slurpfile plan "$TEMPORARY/$group-plan.json" \
@@ -121,6 +138,7 @@ for group in contracts client engine; do
         [[ "$other" != "$group" ]] || continue
         git diff --quiet "$base" -- "releases/$other" || exit 1
     done
+    if [[ "$mode" == --metadata-only ]]; then continue; fi
     # Exact real index roster, including every literal member manifest.
     paths=()
     while IFS= read -r path; do paths+=("$path"); done < <(jq -r '.files[]' "$TEMPORARY/$group-plan.json")
@@ -153,6 +171,11 @@ for group in contracts client engine; do
     # Preserve a real tagged Contracts release for the registry boundary cases.
     if [[ "$group" == contracts ]]; then contracts_commit="$release_commit"; fi
 done
+if [[ "$mode" == --metadata-only ]]; then
+    fixture_complete=true
+    echo 'Group metadata/rollback checks passed (real editor, complete member graph, unchanged suppliers and other groups).'
+    exit 0
+fi
 # Publication has one selected public package. The substitute registry retains
 # exact checksum/source readback and exercises no external upload or network.
 git reset --hard -q "$contracts_commit"

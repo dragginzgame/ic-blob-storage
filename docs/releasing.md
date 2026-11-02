@@ -2,7 +2,7 @@
 
 Blob keeps one workspace and lockfile with three independently released groups.
 The [Shared release contract](releases.md) owns Git delivery/recovery mechanics;
-Blob owns its group policy, full validation gate, receipts and registry admission.
+Blob owns its group policy, validation selection, receipts and registry admission.
 Release authority follows [AGENTS.md](../AGENTS.md), including explicit delegated delivery.
 Publication neither deploys nor qualifies the storage service.
 
@@ -93,11 +93,62 @@ them offline and recheck pins, source identity and cleanliness. Post-validation
 preparation and recovery do not repeat installation. Direct preflight is offline
 unless preparation authority was supplied by the standard one-shot command.
 
-The full `release-verify` / `ci` / `validate` gate remains workspace-wide. It covers
+The full `ci` / `validate` gate remains workspace-wide. It covers
 snapshot/tools/pins, Clippy, dependency boundaries, docs, consumer tooling, shell,
 hooks, formatting, builds, native/PocketIC tests, Wasm and all public archives.
-Group selection narrows metadata/delivery, not the validation gate. Ordinary
-implementation uses [focused validation](governance/development.md).
+`release-verify` uses Blob's [stage policy](../ci/release-validation.json) and
+[selector](../scripts/release/validation.pl) with Shared's
+[plan runner](release-group-validation.md). Ordinary implementation uses
+[focused validation](governance/development.md).
+
+### Validation scope
+
+The selector reviews the entire source delta since the selected group's annotated
+release tag. The tag's receipt must already use structured plan evidence. The
+first delivery of this mapping therefore runs the full roster. Missing history,
+old receipts, changed manifests/locks, compiler, tooling, recipes, generators,
+policy or unclassified files select the full roster. Ambient Cargo configuration
+or build/compiler flag overrides also keep the full roster. Renames include both paths.
+The selected baseline commit is recorded in the plan's reasons; moving its tag
+invalidates that proof. A shallow checkout cannot establish a narrow scope.
+
+| Classified change | Required checks |
+| --- | --- |
+| Replicated tenant-client implementation only | All common guards, whole-workspace Clippy/build/native/docs/archive checks; installed standalone/CLI and replicated tenant-client scenarios |
+| Other Client/CLI implementation | Every integration scenario: funding, manifests, references and downloads also have Engine probe consumers |
+| Contracts or Engine implementation | The same guards and every installed integration scenario, including reverse consumers |
+| Release machinery unchanged in either case | Real selected-group metadata rendering/rollback and preservation of other groups; omit the full publication/recovery fixture matrix |
+| Shared or uncertain inputs | Every stage, including the full release-adapter matrix |
+
+Only numbered group notes and the current status handoff are separately admitted
+documentation changes. This deliberately conservative mapping does not infer scope
+from a selected group alone or an unchanged supplier version. New stages must
+update both the full roster and policy; mismatch refuses before execution.
+The two installed-test partitions are disjoint and exhaust Cargo's test roster.
+`make test-pocketic` still runs both. No test results are reused.
+
+Original/O3/Os/Oz qualification is an explicit `make test-wasm-opt` compatibility
+check, outside the normal release roster. Linux hosted CI runs it for Engine/shared
+changes and uncertainty; manual workflow dispatch forces it. Routine builds ship
+untransformed Cargo Wasm. Their installation, carrier rejection, corruption,
+restoration and fencing scenarios stay in the required integration tests. Native
+Linux and both macOS lanes retain actual installation/CLI/archive/reopen checks;
+they no longer each repeat the Binaryen matrix. The complete release-adapter
+fixture matrix similarly runs on Linux when infrastructure changed or is uncertain;
+all native hosts retain a real Engine metadata/rollback smoke check.
+
+Each release attempt retains its plan, policy, checkpoints, per-stage logs,
+exclusion reasons and timings in `.tmp/blob-release-validation.*`. Only a completed
+attempt writes `.git/release-state/validation/<group>-<source>.json`. A fresh attempt
+invalidates that selectable record first, preserving prior logs. Missing, failed,
+blocked or drifted obligations cannot authorize preparation. The new
+`release-verify-plan-v1` receipt embeds source/group/host/compiler, plan/policy,
+input hashes, hashed build configuration and executed log identities/timings.
+Configuration values are hashed rather than retaining credentials or file contents;
+the generated configuration input is checkpointed with the plan, re-observed after
+execution and compared again before preparation. Prepared/committed/published
+checks re-admit the same selection against its immutable source. Historical
+whole-gate receipts retain their original tools; they are not upgraded or reused.
 
 Shared's group helper and the published IC Build editor render the selected
 literal manifests, root catalog, lock entries and ledger; external lock selections
@@ -105,7 +156,8 @@ stay fixed. Blob renders in disposable committed source, checks formatting, then
 writes its group receipt. Shared's transaction installs/checks that exact roster
 and restores all original files after failure, retaining failed preparation inputs.
 This includes the prior receipt. The receipt binds the group, version, validated
-source, date, group policy hash and every other staged release file's bytes.
+source, date, group policy hash, structured validation proof and every other
+staged release file's bytes.
 
 The exact roster comes from `make release-files RELEASE_GROUP=engine`: root
 manifest and lock, selected member manifests, ledger and receipt. The root

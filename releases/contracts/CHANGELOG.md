@@ -4,6 +4,16 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.68.1] - Unreleased
+
+### 🔧 Changed
+
+- Refresh Wire/Derive 0.15.1 and Metrics 0.27.2 within their compatible release
+  families; retain application frames, limits and public type identities.
+- Adopt Shared Tooling's committed 0.27.28 refresh and source-bound release plans.
+  Contracts retains installed reverse-consumer checks; uncertain scope keeps the
+  full roster. Binaryen compatibility runs move to Linux hosted qualification.
+
 ## [0.68.0] - 2026-11-02
 
 ### ⚠️ Breaking

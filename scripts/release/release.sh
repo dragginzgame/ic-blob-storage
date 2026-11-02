@@ -8,6 +8,7 @@ ROOT="$(cd -P "${root_file%/*}/../.." && pwd -P)"
 case "$ROOT" in *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;; esac
 cd "$ROOT"
 export CARGO_TARGET_DIR="$ROOT/target"
+unset BLOB_RELEASE_SOURCE_ROOT BLOB_RELEASE_VALIDATION_RECORD
 export RELEASE_GROUP
 case "${RELEASE_GROUP:-}" in contracts|client|engine) ;; *) echo 'Select RELEASE_GROUP=contracts, client or engine' >&2; exit 2 ;; esac
 DATA="$ROOT/scripts/release/release-data.pl"
@@ -55,7 +56,9 @@ preflight() {
 source scripts/ci/release-metadata-transaction.sh
 # shellcheck disable=SC2329 # Invoked by the shared metadata transaction.
 render_metadata() {
-    local original="$1" candidate="$2" workspace path
+    local original="$1" candidate="$2" workspace path validation_record
+    validation_record="$(git rev-parse --git-path release-state)/validation/$RELEASE_GROUP-$RELEASE_SOURCE.json"
+    [[ "$validation_record" == /* ]] || validation_record="$ROOT/$validation_record"
     workspace="${original%/original}/workspace"
     mkdir "$workspace" || return
     git archive HEAD | tar -xf - -C "$workspace" || return
@@ -65,6 +68,7 @@ render_metadata() {
     done
     (
         cd "$workspace" || exit
+        export BLOB_RELEASE_SOURCE_ROOT="$ROOT" BLOB_RELEASE_VALIDATION_RECORD="$validation_record"
         bash scripts/ci/cargo-release-metadata.sh prepare "$primary" || exit
         make --no-print-directory fmt-check || exit
         perl scripts/release/release-data.pl receipt "$RELEASE_SOURCE" "$RELEASE_DATE" || exit
@@ -82,6 +86,7 @@ prepare() {
     if [[ "$(version)" == "${RELEASE_VERSION:?}" ]]; then verify_prepared; return; fi
     ensure_clean
     [[ "$(version)" == "${RELEASE_PREVIOUS:?}" ]] || fail 'previous version does not match release intent'
+    perl scripts/release/validation.pl check "$(git rev-parse --git-path release-state)/validation/$RELEASE_GROUP-$RELEASE_SOURCE.json" || fail 'complete the current source-bound release validation first'
     CARGO_RELEASE_METADATA_EDITOR="$(make --no-print-directory --silent release-editor-check)" || fail 'prepare the selected editor with make install-release-editor'
     export CARGO_RELEASE_METADATA_EDITOR CARGO_RELEASE_METADATA_MAX_BYTES=8388608
     release_metadata_prepare "${TMPDIR:-/tmp}/blob-group-metadata.XXXXXX" render_metadata check_metadata "${RELEASE_FILES[@]}"

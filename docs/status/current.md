@@ -1,5 +1,46 @@
 # Current status — 2026-11-02
 
+## Delegated 0.68.1 delivery
+
+Contracts, Client and Engine patch delivery is authorized. The isolated checkout
+freezes Build **0.74.1**, Host Foundation **0.74.2**, Host Tools **0.78.1**,
+Metrics **0.27.2**, Storage **0.65.3**, Testkit **0.80.2** and Wire/Derive **0.15.1**.
+The full release gates must qualify this graph; the earlier focused results below
+used its predecessors. Original user edits remain in the main checkout until
+delivery reconciliation. New attempts/readback stay in `.tmp/blob0681.cgzub5/`.
+
+## Pending release-validation change
+
+Shared Tooling **0.27.28** is canonically refreshed to committed
+`8075b3fd4803d560a1be04768f76701ada3ae8fe` (**150 files**); its dirty sibling
+VERSION/notes were excluded. Blob now selects Shared's strict plan runner through
+`ci/release-validation.json` and `scripts/release/validation.pl`. The first
+plan-based release of each group retains the full roster. Only a prior structured
+receipt and a completely classified source delta can enable omissions. Shared,
+manifest/lock, compiler, recipe, unknown or ambient build-configuration changes
+keep every stage. Configuration hashes are checkpointed and re-admitted before
+preparation; receipts retain actual source/group/host/compiler/log identities.
+
+Routine releases omit the redundant original/O3/Os/Oz matrix. Linux compatibility
+CI retains it for Engine/shared or uncertain changes and manual dispatch. All
+three native hosts keep original-artifact CLI/install/archive/reopen proof and
+real metadata rollback checks. Unchanged release machinery can omit the full
+publication/recovery fixture matrix; only tenant-client-only changes may omit
+the remaining Engine IC scenarios. Other Client APIs/CLI have broader consumers.
+See [selection and evidence](../releasing.md#validation-scope).
+
+Focused checks pass: **380 installed tests / 10 ignores** across the disjoint
+partitions, compiler **1.99.1 / 13 members**, source/role/pin/snapshot admission,
+ShellCheck/Perl, documentation and Make/Testkit routing. The full disposable
+release/publication/resume fixture passes; the final configuration binding then
+passes selector/failure/drift fixtures and the actual Engine renderer/rollback
+check (**83s**). Completion/retention fixtures pass. Evidence, exact source hashes,
+patches and logs: `.tmp/release-validation-scope.saFK5a/`. An earlier metadata run
+was invalidated by editing its active script; its failure remains retained and
+was not counted as passing. No final whole-repository gate, new optimizer matrix
+or native macOS qualification was run. Numbered **0.68.1 Unreleased** notes are
+open in all groups; package versions are unchanged at source preparation.
+
 ## Published baseline
 
 The authorized upstream adoption is delivered. Contracts, Client and Engine
@@ -77,12 +118,13 @@ own `target`; provenance outside it survives `cargo clean`. Global npm is unchan
 
 ## Preserved incoming work and next acceptance
 
-The original checkout is fast-forwarded to the delivered Engine source. Incoming
-**Metrics 0.27.1 / Testkit 0.80.1** lock edits were backed up, temporarily stashed,
-restored and checked for exact preservation of all external package selections.
-They remain **unstaged and unqualified**, outside the frozen 0.68.0 delivery.
-The recovery stash SHA and pre/post comparison are retained with the evidence.
-Review/qualify those compatible follow-up edits before claiming their adoption.
+Before the delegated 0.68.1 snapshot, the original checkout contained pending
+**Metrics 0.27.1 / Testkit 0.80.1 / Storage 0.65.1 / Host Artifacts 0.74.2** were
+already selected when the release-validation work began. Cargo.lock remains
+byte-identical to that captured before-state. The installed tests above use this
+graph; Testkit setup explicitly reused its prepared CLI/server. This is focused
+evidence, not a complete new dependency-adoption/release gate. Earlier restoration
+and recovery-stash evidence remains with the original delivery records.
 
 **Old installations require safe retirement and fresh whole backing.** Storage's
 map/region/collection and private key formats are incompatible; no legacy reader,
@@ -94,7 +136,6 @@ remain unchanged. Same-release recovery remains required.
 Canic owns its adapter, dedicated/embedded proof and production limits; its old
 Blob 0.66 results do not qualify this new composition. Blob #5/#31/#6/#34 and
 Canic #622/#494 retain application/provider acceptance. No live service reset,
-provider call, paid effect or sibling edit occurred. Shared's optional group
-validation plans remain inactive. Future group delivery stays explicit under
+provider call, paid effect or sibling edit occurred. Future group delivery stays explicit under
 [the release guide](../releasing.md); later source cannot replace an older tag's
 receipt or publication evidence.

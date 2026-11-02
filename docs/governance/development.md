@@ -42,7 +42,8 @@ follow-up; do not wait solely for the full matrix. Pending is not passing eviden
 Separate release, publication, deployment and issue-specific acceptance gates
 still apply. This cadence grants no additional merge or release authority.
 Primitive Make targets do only their named operation. The complete current
-gate is make ci (also make validate and make release-verify).
+gate is `make ci` (also `make validate`). `make release-verify` uses the
+conservative, source-bound [release selection](../releasing.md#validation-scope).
 `make check`, `make clippy`, `make test`, `make test-native`, `make compiler-graphs-check`
 and `make docs-check` are workspace aggregates, reserved for explicitly authorized
 release/full validation. Ordinary changes select affected packages and test
@@ -65,9 +66,10 @@ compilation/tests use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
 The shared logger owns stage dispatch and prepared-input checkpoints. Blob's
 `CI_INPUTS` declares the root and all thirteen member manifests, Cargo.lock,
-compiler/tool pins, snapshot/Make inputs and browser selectors. Both `ci` and
-`release-verify` pass them through `--input`; nested gates in this checkout keep
-the same baseline. Changed, deleted or unreadable inputs stop subsequent stages
+compiler/tool pins, snapshot/Make inputs and browser selectors. `ci` passes them
+through `--input`; release plans additionally checkpoint all tracked recipe,
+CI, group, manifest, lock and selection inputs against their immutable source.
+Nested gates in this checkout keep the same baseline. Changed, deleted or unreadable inputs stop subsequent stages
 with restart guidance and retained hashes/logs. Checks do not refetch or restart
 automatically and do not claim isolation from edits inside a running command.
 Provision the reviewed jq/yq, ripgrep with PCRE2, cloc and common IC executables
@@ -129,7 +131,10 @@ with explicit `--enable-bulk-memory-opt`. Fixtures drain installation debt with
 bounded real PocketIC rounds, keeping platform rate limits enabled.
 Each selected standalone artifact also passes canonical Candid type equality
 and exact callable function-export names/modes through Host artifact inspection.
-It runs in the complete gate and all three native host lanes. Inputs, output
+It is outside the routine release/full-gate roster. Linux hosted compatibility
+checks run it for Engine/shared changes and uncertainty; manual workflow dispatch
+forces it. The three native lanes keep original-artifact installation/reopen
+proof. Inputs, output
 hashes, source diff, lock, optimizer identity and logs stay in fresh
 `target/blob-wasm-opt.*` directories on success or failure; hosted lanes upload
 them separately. The workspace release profile uses ThinLTO and one codegen unit, keeping
@@ -327,8 +332,10 @@ Focused PocketIC/standalone qualifications run offline Testkit admission before
 their first build; native-host qualification checks the complete prepared toolset.
 These ordered recipes preserve that sequencing with parallel Make.
 
-`release-verify` runs that same complete `ci` gate through the reviewed validation
-logger. Actual failed commands retain unique raw logs under Git's
+`release-verify` selects and records the complete applicable stage roster through
+Shared's strict plan runner; old/missing baseline evidence or uncertain scope
+keeps every stage. See [selection and receipt ownership](../releasing.md#validation-scope).
+Actual failed commands retain unique raw logs under Git's
 `release-state/validation-failures`, and successful retries preserve them. If the
 retention destination fails, the logger reports and preserves its temporary logs.
 

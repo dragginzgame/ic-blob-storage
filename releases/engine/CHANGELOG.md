@@ -4,6 +4,22 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.68.1] - Unreleased
+
+### 🔧 Changed
+
+- Qualify compatible Storage 0.65.3, Metrics 0.27.2, Testkit 0.80.2, Build 0.74.1,
+  Host Foundation 0.74.2, Host Tools 0.78.1 and Wire/Derive 0.15.1 selections.
+  Keep one public identity per selected release family and exact retry bytes.
+- Refresh Shared Tooling 0.27.28 to committed revision `8075b3f`, including the
+  private path-only development-edge admission fix. Preserve the existing catalog.
+- Use Shared's strict release-plan runner with Blob-owned scope selection and
+  source-bound execution receipts. Shared/unknown changes keep every stage;
+  unchanged release machinery uses a real selected-group metadata/rollback check.
+- Keep every installed Engine scenario and native host proof. Move the repeated
+  original/O3/Os/Oz matrix out of routine local releases and the macOS lanes;
+  Linux compatibility CI and explicit/manual checks retain the full matrix.
+
 ## [0.68.0] - 2026-11-02
 
 ### ⚠️ Breaking
