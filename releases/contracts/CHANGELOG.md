@@ -4,7 +4,7 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
-## [0.69.0] - Unreleased
+## [0.69.0] - 2026-11-03
 
 ### 💥 Breaking
 
