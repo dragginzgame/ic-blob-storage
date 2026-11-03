@@ -19,8 +19,8 @@ use blob_test_protocol::admission::{
     Command, Enrollment, Failure, Installation, ManifestState, Observation, Outcome, Permission,
     Phase, Request, Workload,
 };
-use ic_platform::pocket_ic::RejectCode;
 use ic_platform::principal::ExternalPrincipal as Principal;
+use ic_platform_pocket_ic::RejectCode;
 use ic_testkit::fake_principal;
 use std::time::Duration;
 use support::{Harness, fixture_path};

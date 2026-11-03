@@ -11,7 +11,7 @@ mod sync_request;
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform::pocket_ic::PocketIc;
+use ic_platform_pocket_ic::PocketIc;
 use ic_testkit::fake_principal;
 use support::Harness;
 

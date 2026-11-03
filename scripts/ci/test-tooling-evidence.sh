@@ -47,6 +47,8 @@ cmp "$repository/.tools/host-set.failed/.hidden" "$fixture/early-unpacked/.tools
 mkdir -p "$repository/.tools/host-set.failed/.git" "$repository/.tools/ic-set.failed" \
     "$repository/.tools/rust/build" "$repository/.tools/rust/ic-testkit-fixture" \
     "$repository/.tools/testkit-server/failed-candidate" "$repository/target/release-tests.failed" \
+    "$repository/target/blob-release-validation.failed" "$repository/target/blob-release-selection.failed" \
+    "$repository/.tmp/blob-release-validation.historical" \
     "$temporary/file-digests.failed/.git" "$temporary/host-tools-test.failed/Linux:x86_64" \
     "$temporary/blob-validation-logging.failed" "$temporary/evidence-archive.failed" \
     "$temporary/tool-evidence-test.failed" "$temporary/blob-release-tests.failed" \
@@ -60,6 +62,9 @@ mkdir -p "$repository/.tools/rust/common-tool-slot/installed"
 printf 'common Cargo selection\n' > "$repository/.tools/rust/common-tool-slot/installed/selection.json"
 printf 'original server download failure\n' > "$repository/.tools/testkit-server/failed-candidate/download.stderr"
 printf 'original_status=9\n' > "$repository/target/release-tests.failed/outcome"
+printf 'original_status=8\n' > "$repository/target/blob-release-validation.failed/outcome"
+printf 'original_status=7\n' > "$repository/target/blob-release-selection.failed/outcome"
+printf 'original historical proof\n' > "$repository/.tmp/blob-release-validation.historical/plan.json"
 printf 'original_status=17\n' > "$temporary/blob-release-tests.failed/outcome"
 printf 'injected-comparison-status=99\n' > "$temporary/blob-fixture-completion.failed/outcome"
 printf 'portable bytes\n' > "$temporary/file-digests.failed/"$'line\nbreak:payload'
@@ -107,7 +112,9 @@ cmp "$temporary/blob-fixture-completion.failed/outcome" "$fixture/unpacked/blob-
 for path in .tools/host-set.failed/.hidden .tools/ic-set.failed/payload \
     .tools/rust/build/build.log .tools/rust/ic-testkit-fixture/receipt \
     .tools/rust/common-tool-slot/installed/selection.json \
-    .tools/testkit-server/failed-candidate/download.stderr target/release-tests.failed/outcome; do
+    .tools/testkit-server/failed-candidate/download.stderr target/release-tests.failed/outcome \
+    target/blob-release-validation.failed/outcome target/blob-release-selection.failed/outcome \
+    .tmp/blob-release-validation.historical/plan.json; do
     cmp "$repository/$path" "$fixture/unpacked/$path"
 done
 cmp "$rust_candidate/download.stderr" "$fixture/unpacked/$rust_relative/download.stderr"

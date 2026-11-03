@@ -62,7 +62,10 @@ it does not override shared rules or depend on a mutable sibling checkout.
   responses, native Testkit decoder limits, entrypoint macros and supported CDK
   call/system APIs also use Platform. Direct Candid, CDK-family, raw ic0 and internal
   Platform macro dependencies are forbidden by `ci/cargo-dependency-boundaries.json`.
-- Storage 0.65 owns stable collections, record codecs, host backing and allocation
+- Native simulator types use the independent `ic-platform-pocket-ic` owner,
+  aligned with Testkit's published client identity. Facade adoption does not
+  advance that independently versioned client or Types/Runtime automatically.
+- Storage owns stable collections, record codecs, host backing and allocation
   leases. Use `ic_storage::adapter` and `ic_storage`; the former Memory package
   is retired. Do not declare direct or renamed `ic-memory` or
   `ic-stable-structures` dependencies in this workspace. Old backing images need

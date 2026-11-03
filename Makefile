@@ -40,9 +40,9 @@ endif
 release-patch release-minor release-major release-resume: export BLOB_RELEASE_PREPARE := 1
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
-CI_TARGETS := shared-tooling-check compiler-check tools-check dependency-pins-check clippy platform-boundary-check documentation-links-check shared-tooling-tests contracts-boundary-check shell-check release-metadata-check release-check hooks-check fmt-check check probe-check docs-check test-native test-pocketic-client test-pocketic-engine wasm-check package
+override CI_TARGETS = $(shell perl scripts/release/validation.pl stages)
 CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-release-groups.json ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
-	ci/release-validation.json scripts/release/validation.pl scripts/release/validate.sh scripts/ci/test-release-validation.sh \
+	ci/release-validation.json ci/release-package-scopes.json scripts/release/validation.pl scripts/release/validate.sh scripts/ci/test-release-validation.sh \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl scripts/ci/check-rust-compiler.sh \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
@@ -173,10 +173,12 @@ contracts-boundary-check:
 	+bash scripts/ci/test-runtime-free-contracts.sh
 
 check:
-	+cargo check --offline --locked --workspace --all-targets --all-features
+	+@packages="$$(perl scripts/release/validation.pl packages check)" || exit $$?; \
+		cargo check --offline --locked $$packages --all-targets --all-features
 
 clippy:
-	+cargo clippy --offline --locked --workspace --all-targets --all-features -- -D warnings
+	+@packages="$$(perl scripts/release/validation.pl packages clippy)" || exit $$?; \
+		cargo clippy --offline --locked $$packages --all-targets --all-features -- -D warnings
 
 probe-check:
 	+cargo build --offline --locked -p ic-blob-storage-cli --bin caffeine-probe
@@ -190,14 +192,16 @@ evidence-check:
 	bash scripts/ci/verify-evidence-checksums.sh docs/evidence/caffeine-probes/local/SHA256SUMS docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
 docs-check:
-	+RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked -p ic-blob-storage -p ic-blob-storage-client -p ic-blob-storage-contracts -p ic-blob-storage-canister --all-features --no-deps
+	+@packages="$$(perl scripts/release/validation.pl packages docs-check)" || exit $$?; \
+		RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked $$packages --all-features --no-deps
 
 test:
 	+$(MAKE) --no-print-directory test-native
 	+$(MAKE) --no-print-directory test-pocketic
 
 test-native:
-	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage -p ic-blob-storage-client -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features
+	+@packages="$$(perl scripts/release/validation.pl packages test-native)" || exit $$?; \
+		bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked $$packages --all-features
 
 compiler-check:
 	+bash scripts/ci/check-rust-compiler.sh
@@ -354,7 +358,8 @@ test-read-resources:
 	@echo "Local read report: .tmp/read-resources.json (not a production read protocol or provider pricing)"
 
 wasm-check:
-	+cargo check --offline --locked --workspace --all-features --target wasm32-unknown-unknown
+	+@packages="$$(perl scripts/release/validation.pl packages wasm-check)" || exit $$?; \
+		cargo check --offline --locked $$packages --all-features --target wasm32-unknown-unknown
 
 build:
 	+cargo build --offline --locked -p ic-blob-storage --all-features
@@ -388,8 +393,10 @@ release-validation-check:
 	bash scripts/ci/test-release-validation.sh
 
 ci:
-	+@bash scripts/ci/run-validation-targets.sh --fail-fast \
-		$(foreach input,$(CI_INPUTS),--input "$(input)") $(CI_TARGETS)
+	+@targets="$(CI_TARGETS)"; \
+		[[ -n "$$targets" ]] || { echo 'Cannot read the full CI stage roster' >&2; exit 1; }; \
+		env -u BLOB_RELEASE_VALIDATION_PLAN bash scripts/ci/run-validation-targets.sh --fail-fast \
+		$(foreach input,$(CI_INPUTS),--input "$(input)") $$targets
 
 validate: ci
 

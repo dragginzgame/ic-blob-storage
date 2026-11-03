@@ -18,7 +18,7 @@ use blob_test_protocol::funding::{
 use blob_test_protocol::status::{FundingActivityView, OperatorBlockerView};
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform::pocket_ic::RejectCode;
+use ic_platform_pocket_ic::RejectCode;
 use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 

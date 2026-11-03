@@ -26,7 +26,9 @@ trap 'status=$?; [[ "$selection_complete" == true || "$status" != 0 ]] || status
       else printf "Tooling evidence selection retained: %s\n" "$selection" >&2; fi;
       exit "$status"' EXIT
 for path in \
-    "$repository/.tools/testkit-server" "$repository"/target/release-tests.* "$repository"/.tmp/blob-release-validation.*; do
+    "$repository/.tools/testkit-server" "$repository"/target/release-tests.* \
+    "$repository"/target/blob-release-validation.* "$repository"/target/blob-release-selection.* \
+    "$repository"/.tmp/blob-release-validation.*; do
     [[ -e "$path" || -L "$path" ]] || continue
     inputs+=("$repository" "${path#"$repository/"}")
 done

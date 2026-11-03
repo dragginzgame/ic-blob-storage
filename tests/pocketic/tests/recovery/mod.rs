@@ -4,7 +4,7 @@ mod authority;
 mod source;
 use super::*;
 use blob_test_protocol::journey::readback::ReadSourceMode;
-use ic_platform::pocket_ic::CanisterInstallMode;
+use ic_platform_pocket_ic::CanisterInstallMode;
 use ic_testkit::pic::{CanisterInstallExt, RetryPolicy};
 use std::{num::NonZeroUsize, time::Duration};
 

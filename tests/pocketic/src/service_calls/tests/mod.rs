@@ -1,5 +1,5 @@
 use super::*;
-use ic_platform::pocket_ic::{ClientError, ErrorCode, RejectCode, RejectResponse};
+use ic_platform_pocket_ic::{ClientError, ErrorCode, RejectCode, RejectResponse};
 
 #[test]
 fn typed_canister_refusal_retains_its_exact_diagnostics() {

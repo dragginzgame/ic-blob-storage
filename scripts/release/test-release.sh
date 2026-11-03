@@ -16,7 +16,8 @@ unset MAKEFLAGS MFLAGS MAKEOVERRIDES GNUMAKEFLAGS MAKEFILES
 unset RELEASE_COMMIT RELEASE_SOURCE RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 export PATH="$ROOT/.tools/host/bin:$ROOT/.tools/rust/common/bin:$PATH"
-TEMPORARY="$(mktemp -d "${TMPDIR:-/tmp}/blob-release-tests.XXXXXX")"
+mkdir -p "$ROOT/target"
+TEMPORARY="$(mktemp -d "$ROOT/target/release-tests.XXXXXX")"
 fixture_complete=false
 finish() {
     local status=$?
@@ -57,7 +58,6 @@ deps tools-check install-tools release-tools-check compiler-check clippy:
 MAKE
 # Keep the fixture's admitted full roster explicit, rather than bypassing the
 # actual plan/receipt path or weakening source admission with an environment flag.
-perl -0pi -e 's/^CI_TARGETS := .*$/CI_TARGETS := fixture-validation/m' Makefile
 printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["fixture-validation"]}' > ci/release-validation.json
 export TEST_EVENTS="$TEMPORARY/events"
 : > "$TEST_EVENTS"

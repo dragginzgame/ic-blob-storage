@@ -20,16 +20,17 @@ unset VALIDATION_LOG_DIR VALIDATION_FAILURE_LOG_DIR GITHUB_STEP_SUMMARY
 # checkpoint. Only disposable inputs change; no product build or release runs.
 for input_case in stable drift deleted; do
     gate="$FIXTURE/gate-$input_case"
-    mkdir -p "$gate/make" "$gate/scripts/ci" "$gate/scripts/release"
+    mkdir -p "$gate/make" "$gate/ci" "$gate/scripts/ci" "$gate/scripts/release"
     cp "$ROOT/Makefile" "$ROOT/Cargo.toml" "$ROOT/Cargo.lock" "$gate/"
     cp "$ROOT"/make/{consumer,tools,release,rust-format,execution}.mk "$gate/make/"
     # Keep the actual runner and its declared companion closure together.
     bash "$ROOT/scripts/ci/prepare-script-fixture.sh" "$ROOT" "$gate" \
-        scripts/ci/run-validation-targets.sh
-    cp "$ROOT/scripts/release/release-data.pl" "$gate/scripts/release/"
+        scripts/ci/run-validation-targets.sh scripts/ci/validation-evidence.pl
+    cp "$ROOT/ci/cargo-release-groups.json" "$gate/ci/"
+    cp "$ROOT/scripts/release/release-data.pl" "$ROOT/scripts/release/validation.pl" "$gate/scripts/release/"
+    printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["fixture-pass","fixture-change","fixture-late"]}' > "$gate/ci/release-validation.json"
     cat >> "$gate/Makefile" <<'MAKE'
 CI_INPUTS := Cargo.toml Cargo.lock
-CI_TARGETS := fixture-pass fixture-change fixture-late
 .PHONY: fixture-pass fixture-change fixture-late
 fixture-pass:
 	@echo first-stage

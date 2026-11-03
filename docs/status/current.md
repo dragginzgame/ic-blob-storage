@@ -1,143 +1,104 @@
 # Current status — 2026-11-03
 
-## Delivery preparation requested
+## 0.69.0 delivery requested; direct-push destination needs approval
 
-Prepare Contracts, Client and Engine **0.69.0** in the normal checkout on `main`,
-in supplier-first order, for Git release and crates.io publication. Local source
-commits, prerequisites and full release validation are authorized. Shared 0.27.29
-requires separate explicit approval before direct delivery to `origin/main`;
-obtain it after preparation. No alternate checkout, sibling delivery, service
-reset or live canister deployment is selected. Preserve all release evidence.
+Prepare Contracts, Client and Engine **0.69.0** in this checkout. All thirteen
+package versions remain **0.68.1**; three draft changelogs select 0.69.0.
+Source `984a4c81838fa270a1d016d18a90739e7ad3ad89` was committed locally and
+historically passed all 22 release stages; it was not pushed, tagged or published.
+The user requested the latest Shared adoption followed by delivery. The selected
+scope is Contracts, Client, then Engine 0.69.0 from this checkout on local `main`,
+using their existing direct-release runner and crates.io publisher. Direct delivery
+to `origin/main` still needs explicit approval under Shared's destination rule.
+Prepare the coherent supplier/group-CI/#114 source commit locally; do not start
+remote mutations or substitute a PR. No alternate checkout, sibling delivery or
+live service deployment is selected. Final full gates belong to the normal runner.
 
-## Pending 0.69.0 adoption — Contracts, Client and Engine
+## Selected published suppliers
 
-The Wire publication unblocks the requested family. Selected published graph:
-Wire/Derive **0.16.0**, Platform/Runtime/macros/exact guard/PocketIC **0.19.0**,
-Types **0.18.0**, Tools **0.79.0**, Testkit **0.81.0**. Build **0.74.1**, Host
-Foundation **0.74.2**, Metrics **0.27.2**, Storage **0.65.5**, Pest **2.9.5** and
-Syn **3.0.9** retain their prior selections. Canonical index/archive checksum
-and exact Wire tag/VCS readbacks are retained in `target/wire016-adoption/`.
-Shared Tooling stays **0.27.29**, committed `18e727032237e4a6540fefce66bb1b90beb31644`
-(150 verified files). All thirteen package versions remain **0.68.1**; only the
-three draft changelog headings select **0.69.0** for changed public Rust identities.
-Dependency adoption itself performed no Git delivery or publication. Delivery
-preparation now proceeds under the request above, preserving the selected graph.
+Host Tools **0.80.0**, Metrics **0.28.1**, Platform and independent native PocketIC
+client **0.20.0**, Testkit **0.83.0**, Runtime/macros/guard **0.19.0**, Types
+**0.18.0**, Wire/Derive **0.16.0**, Storage **0.66.0**. Build **0.74.1**, Host
+Foundation **0.74.2**, Pest **2.9.5** and Syn **3.0.9** retain prior selections.
+Canonical registry records and checksum-verified published archives are under
+`target/upstream-refresh-20261103/`. Metrics 0.28.1 and Host Tools 0.80 have identical
+Rust sources to their preceding selections; the Metrics minimum stays 0.28.0.
 
-[Wire #44](https://github.com/dragginzgame/ic-wire/issues/44) tracks the now-published
-supplying schema integration; the former native-startup/Principal-schema blockers
-are gone. New typed PocketIC operations preserve ClientError and uncertainty.
-Installed refusal assertions explicitly require Canister errors rather than
-misclassifying protocol/transport failures. No uncertain update gets an automatic
-retry. Generated schemas and all 137 frozen shared-service Rust frames are exact.
-Blob's application contracts do not embed the changed owned Platform Account;
-Principal bytes, method IDs, bounds, trust and exact retry packets are unchanged.
+Shared Tooling **0.28.2**, committed
+`5cf67f81c50c56ac17389ae71a3a87d46e86e8a2`, is exported and verified (154 files).
+This released revision changes no exported executable bytes from the qualified
+9815bbf snapshot. Adoption/readback: `target/shared0282-release/`.
+Native fixtures use the independent `ic-platform-pocket-ic` owner directly,
+aligned with Testkit 0.83; the facade PocketIC feature stays disabled. The older
+native facade is gone. Native/deployment graphs retain single canonical
+Types/Runtime/guard/Wire identities; deployment excludes native tooling and
+retired Memory/stable-structures. PocketIC server **16.1.0** is unchanged.
+Rust **1.99.1** remains both minimum and pinned development/release compiler.
 
-[Blob #113](https://github.com/dragginzgame/ic-blob-storage/issues/113) is implemented
-locally: standalone recording stays on canonical Metrics; report-time projection
-uses passive CounterMetrics/AggregateMetrics DTOs. Numeric decoding delegates to
-Metrics. Exact prior report bytes, quality flags and JSON fields remain covered.
-Contracts no longer forwards Metrics/native-wire, and a native schema graph guard
-plus negative fixtures enforce that ownership. CLI uses Metrics directly only in
-tests. Do not close #113 until these changes are present on the default branch.
-[Observability #128](https://github.com/dragginzgame/ic-observability/issues/128)
-owns removal of the supplier's metadata surface; Blob no longer relies on it.
+Preserve the Engine funding-progress consolidation and fresh `BLFUPR01` record /
+`ic-blob-storage/installation:singleton-cells:funding-progress` format. Retire
+obligations with original tools before fresh whole backing; no migration,
+fallback reader or reset. Same-release recovery and exact retries remain required.
+Six private operator CLIs are retired; typed scenarios retain meaningful coverage.
 
-One deliberate residual: Storage 0.65.5 privately uses Wire **0.15.1**, so both
-codec releases occur in the installed/deployed graph. No Wire types cross that
-owner boundary. Types/Runtime/guard are single identities. Storage owns its codec
-upgrade; do not invent a source patch or claim the old codec is merely unselected.
+[Blob #113](https://github.com/dragginzgame/ic-blob-storage/issues/113) is locally
+implemented: Metrics owns recording/numeric validation, Contracts owns passive
+report DTOs, and previous report bytes remain fixed. CLI's Metrics edge is dev-only;
+Contracts schema generation excludes supplier-owned Wire metadata. Keep #113 open
+until default-branch delivery. [Observability #128](https://github.com/dragginzgame/ic-observability/issues/128)
+owns supplier metadata removal. Published Wire 0.16 resolves
+[Wire #44](https://github.com/dragginzgame/ic-wire/issues/44); Storage and Testkit now
+share that identity. Storage's formats are unchanged by supplier adoption.
 
-## Preserved accepted simplification
+## Group CI and #114
 
-Engine funding records now keep transport progress and matching diagnostics in
-one bounded state; credit attribution and renewal accounting remain separate.
-Fresh `BLFUPR01` and installation format
-`ic-blob-storage/installation:singleton-cells:funding-progress` refuse old backing.
-Retire obligations with original tools before fresh whole backing; no migration,
-fallback reader or automatic reset. Same-release recovery, refund conservation,
-credit receipts and exact operation identity remain required.
+Blob owns product selection and reverse-consumer policy in
+`ci/release-package-scopes.json`; `ci/release-validation.json` is the one full-stage
+roster. Shared admits roster/baseline/run evidence and executes plans. Cargo observes
+member names/paths without version projection. New attempt/selector/proof scratch
+uses `target/`; the collector retains both new and historical locations.
 
-The six private operator CLIs/parser/report application are retired; typed
-installed scenarios preserve their meaningful authority, funding, sync and
-uncertainty coverage. Shared fixture mechanics keep controllers/cycles/init bytes
-explicit. Tenant tests use typed codecs. The supported CLI uses typed Clap command
-and flag groups without string dispatch or ArgMatches handlers. Its syntax,
-limits, offline documents and authority checks remain. Core guidance names Storage.
-All these pending changes and incoming selections were preserved.
+Five Cargo stages select source-bound package roots: Contracts includes all groups;
+Client includes Client+Engine; Engine includes Engine. Features/targets stay fixed.
+Common CLI/probe/archive guards and applicable installed partitions remain required.
+Tenant-client-only changes may omit Engine IC; unchanged release machinery may omit
+its regression matrix, never real selected-group metadata admission. Normal CI and
+individual targets remain full. Group workflow dispatch retains all three native
+hosts plus independent Wire/schema, library and native CLI/restoration obligations.
+First delivery, unknown/shared/dependency/compiler/feature/generator/policy changes
+stay full; no results are reused. See [validation scope](../releasing.md#validation-scope).
 
-## Current qualification and remaining delivery checks
+For [#114](https://github.com/dragginzgame/ic-blob-storage/issues/114), Shared's
+[evidence interface](../group-validation-adoption.md) replaces local event/timing
+and Git-baseline parsing. Host/compiler observations are checkpointed before
+execution; its protected writer cannot replace success with failed capture.
+Blob's self-contained receipt re-admits source/configuration/product obligations
+after preparation and in fresh publication checkouts. Raw runner paths are never
+rewritten. Original-location `check` detects changed logs. Keep #114 open until
+consumer delivery; [Shared #349](https://github.com/dragginzgame/shared-tooling/issues/349)
+owns generic parser regressions.
 
-Linux/Rust **1.99.1** evidence: `target/wire016-adoption/`. Contracts tests/examples/
-doctests and frozen vectors pass; Core **300**, standalone **2**, CLI **122**,
-Client **10**, native call-error **2** unit tests pass. The affected PocketIC
-package passes **353** tests with **10** existing opt-in ignores. All six probes
-and standalone build for Wasm; CLI is rebuilt. Generated TypeScript passes **27
-methods / 137 frozen frames**; metadata compares byte-for-byte with the prior
-output. Direct boundaries, native schema/deployment exclusions and their refusal
-fixtures pass. Prior graph checks remain historical in `target/complexity-cleanup/`.
-Strict affected-package Clippy, formatting, shell checks, documentation links and
-compiler admission all pass. The final metrics decoder tests also reject impossible
-Wire numeric states through canonical Metrics validation. No full release gate,
-native macOS, Chromium/live-provider or new optimizer matrix is claimed.
+## Qualification and retained evidence
 
-Explicit `make install-testkit` and offline `make testkit-check` now pass for the
-lock-selected **0.81.0** CLI; the canonical store reused authenticated source/build
-receipts. Default PocketIC **16.1.0** is admitted. Installed tests selected the
-independently authenticated retained server with the identical SHA256
-`b44e1eccd66e02328146b3e209e3403e3a3428a25d25555aca2f67500e5ae9db`,
-from the retained release checkout named in
-`target/qualification-cleanup/pocketic-binary.txt`. The newly admitted default
-server has exactly those same bytes; no redundant installed rerun was needed.
-The browser check used Node **24.21.0** and npm **12.2.1**, explicitly prepared
-under `.tools/browser-npm`; browser dependencies/lock were not changed. Select
-`BLOB_BROWSER_NPM=$PWD/.tools/browser-npm/node_modules/.bin/npm` when using that setup.
-Deferred work belongs in owning issues; source/PR work stays in durable checkouts.
-No temporary proposal replaces an issue or holds unique implementation.
+Current focused results belong to `target/upstream-refresh-20261103/`: strict
+CLI/PocketIC Clippy, dependency/deployment/compiler guards, standalone Wasm,
+five Metrics report-contract tests and five installed surface/carrier/Metrics/
+snapshot cases all pass. Actual consumer receipt/fixture checks and all three
+real group metadata/rollback checks pass, preserving suppliers and other groups.
+Canonical Testkit 0.83 setup/check passed. No full release gate, macOS/hosted
+qualification, optimizer comparison or live provider probe is claimed for this graph.
 
-## Published 0.68.1 — retained historical evidence
+Earlier target and `.tmp` evidence directories are no longer present after disk
+recovery. Prior reports (558 native tests, 24 installed cases, seven Wasm builds,
+27 methods/137 frames) describe the earlier graph, not newly retained proof.
+Historical source/details remain in `git show 984a4c81:docs/status/current.md`.
+Do not synthesize missing logs or treat old results as a current release receipt.
+Browser inputs are unchanged; prior setup selected Node **24.21.0**, npm **12.2.1**
+via `BLOB_BROWSER_NPM=$PWD/.tools/browser-npm/node_modules/.bin/npm`.
 
-Contracts, Client and Engine 0.68.1 are indexed/non-yanked on crates.io; archive
-checksums, VCS commits and package paths match their independent release tags.
-
-| Group | Tag | Release commit |
-| --- | --- | --- |
-| Contracts | `contracts-v0.68.1` | `dc506009f0bf4d5edeadb01b2308297f6088551e` |
-| Client | `client-v0.68.1` | `7449b6ac9e06f1b663d16e7b774ea7ab030928d5` |
-| Engine | `engine-v0.68.1` | `2ff86ef40f3e4aeca17772c877a26c8762825505` |
-
-Frozen delivery graph: Platform 0.18.0 / Runtime and guard 0.18.1 / Types 0.17.0;
-Wire/Derive 0.15.1; Storage 0.65.3; Metrics 0.27.2; Testkit 0.80.2 / PocketIC
-16.1.0; Build 0.74.1 / Host Foundation 0.74.2 / Host Tools 0.78.1; Shared Tooling
-0.27.28 (`8075b3fd4803d560a1be04768f76701ada3ae8fe`, 150 files). Rust 1.99.1,
-Node 24.21.0 / npm 12.2.1. Caffeine SDK override, application trust and retry
-policy remain local. Later Storage 0.65.4 and current 0.65.5 are separate work.
-
-Each first-plan release ran its full roster: 688 native tests, 380 PocketIC cases /
-10 documented ignores, strict compiler/boundary/hook/metadata/recovery checks,
-formatting, Rustdoc, Wasm and mixed-version archives. Generated TypeScript passed
-27 methods / 137 frozen Rust frames. Exact Engine-tag Wasms/CLI passed five
-lifecycle/fencing/obligation cases and the signed installation-carrier case.
-This is historical local installed-IC evidence, not native macOS/live acceptance.
-Evidence: `.tmp/blob0681.cgzub5/` (source/lock, group logs, publication archive/VCS
-readbacks, artifacts, `release-checkout.current`); retained release plans under
-Git release-state and `.tmp/blob-release-validation.*` in that frozen checkout.
-Prior 0.68.0 evidence: `.tmp/upstream-platform018.ZS89rK/`. Do not clean them.
-
-## Validation selection and service boundary
-
-Blob owns `ci/release-validation.json` and `scripts/release/validation.pl`;
-Shared admits/checkpoints/executes the complete plan. First deliveries established
-`release-verify-plan-v1` baselines. Fully classified changes may omit unchanged
-publication/recovery fixtures; only tenant-client-only changes may omit Engine
-IC scenarios. CLI, shared, graph, compiler, recipe and unknown changes retain
-wider checks. Missing/failed/source-changed proof cannot pass. Routine releases
-retain original-artifact installation/recovery; hosted Linux/manual checks keep
-the optimizer matrix. See [release validation scope](../releasing.md#validation-scope).
-
-Library publication does not deploy or qualify a live service. Resolve provider
-objects, uncertain effects, balances and billing custody under the
-[retirement contract](../retiring-installations.md) before fresh installation.
-Same-release recovery remains required. Canic owns its adapter, production limits
-and rollout. Blob #5/#31/#6/#34 and Canic #622/#494 retain application/provider
-acceptance. No live provider call, paid effect, service reset or sibling edit was
-performed in this batch. This cleanup does not close those acceptance issues.
+Library publication does not deploy or qualify a live service. Apply the
+[retirement contract](../retiring-installations.md) before fresh backing; preserve
+provider objects, uncertain effects, balances and billing custody. Canic owns its
+adapter, production limits and rollout. Blob #5/#31/#6/#34 and Canic #622/#494 retain
+application/provider acceptance. No paid effect, reset, sibling edit or live
+provider call occurred here; CI adoption does not close those acceptance issues.

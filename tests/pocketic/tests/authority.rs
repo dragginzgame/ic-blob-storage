@@ -9,8 +9,8 @@ mod support;
 
 use support::Harness;
 
-use ic_platform::pocket_ic::PocketIc;
 use ic_platform::principal::ExternalPrincipal as Principal;
+use ic_platform_pocket_ic::PocketIc;
 use ic_testkit::fake_principal;
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {

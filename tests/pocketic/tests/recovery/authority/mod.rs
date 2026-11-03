@@ -12,7 +12,7 @@ use blob_test_protocol::{
     authority::{ArchiveCatalog, ArchivePhase, ArchivedObjectView, AuthorityArchiveView},
     obligations::ObligationProbeFact,
 };
-use ic_platform::pocket_ic::common::rest::BlobCompression;
+use ic_platform_pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
     pub(super) fn archive(&self) -> AuthorityArchiveView {

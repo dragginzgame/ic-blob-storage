@@ -11,7 +11,7 @@ use blob_test_protocol::obligations::{
 };
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform::pocket_ic::{CanisterSettings, PocketIc};
+use ic_platform_pocket_ic::{CanisterSettings, PocketIc};
 use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 

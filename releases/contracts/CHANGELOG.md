@@ -8,14 +8,16 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 💥 Breaking
 
-- Adopt published Wire/Derive 0.16 and Platform 0.19 / canonical Types 0.18.
+- Adopt published Wire/Derive 0.16 and Platform 0.20 / canonical Types 0.18.
   Rust consumers must align those public identities. Blob's endpoint identities,
   Principal bytes, budgets and retained retry packets remain unchanged; its
   application contracts do not embed the changed Platform Account representation.
 - Give standalone reports service-owned `CounterMetrics` and `AggregateMetrics`
   DTOs. Project canonical Metrics values at report time and delegate numeric
   decoding to Metrics. Remove `native-wire` forwarding; frozen report frames and
-  JSON fields remain unchanged. [#113](https://github.com/dragginzgame/ic-blob-storage/issues/113)
+  JSON fields remain unchanged. Adopt Metrics 0.28's arithmetic/Serde-only boundary;
+  report schemas no longer rely on the removed supplier metadata feature.
+  [#113](https://github.com/dragginzgame/ic-blob-storage/issues/113)
 
 ## [0.68.1] - 2026-11-02
 

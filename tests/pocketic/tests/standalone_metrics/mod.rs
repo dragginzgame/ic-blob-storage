@@ -154,7 +154,7 @@ fn standalone_metrics_native_command_uses_signed_query_and_exact_scope() {
     use ic_host_fs::testing::FixtureDirectory;
     let mut f = Fixture::with_cashier_and_operator(
         Harness::with_builder(
-            ic_platform::pocket_ic::PocketIcBuilder::new()
+            ic_platform_pocket_ic::PocketIcBuilder::new()
                 .with_nns_subnet()
                 .with_application_subnet(),
         ),

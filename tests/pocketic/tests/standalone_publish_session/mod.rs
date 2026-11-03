@@ -64,7 +64,7 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
     // browser suite keeps tenant/verifier independent of the uploader/operator.
     let mut f = Fixture::with_profile(
         Harness::with_builder(
-            ic_platform::pocket_ic::PocketIcBuilder::new()
+            ic_platform_pocket_ic::PocketIcBuilder::new()
                 .with_nns_subnet()
                 .with_application_subnet(),
         ),

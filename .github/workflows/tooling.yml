@@ -5,6 +5,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      release_group:
+        description: Source-bound validation scope (normal main/PR CI stays full)
+        type: choice
+        default: workspace
+        options: [workspace, contracts, client, engine]
 
 permissions:
   contents: read
@@ -93,6 +99,8 @@ jobs:
           bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-client --lib --all-features
 
   tooling:
+    env:
+      BLOB_GROUP_CI: ${{ github.event_name == 'workflow_dispatch' && inputs.release_group != 'workspace' }}
     permissions:
       contents: read
       actions: read
@@ -116,7 +124,7 @@ jobs:
         if: runner.os == 'Linux'
         id: compatibility
         env:
-          RELEASE_GROUP: client
+          RELEASE_GROUP: ${{ inputs.release_group != 'workspace' && inputs.release_group || 'client' }}
         run: |
           export RELEASE_SOURCE="$(git rev-parse HEAD)"
           mkdir -p .tmp/compatibility
@@ -186,7 +194,30 @@ jobs:
         run: |
           make deps
           make compiler-check
+      - name: Run the selected source-bound group plan on this native host
+        if: env.BLOB_GROUP_CI == 'true'
+        env:
+          RELEASE_GROUP: ${{ inputs.release_group }}
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+          TMPDIR: ${{ runner.temp }}
+        run: |
+          export RELEASE_SOURCE="$(git rev-parse HEAD)"
+          make release-verify
+      - name: Retain group plans, package scopes and stage execution evidence
+        if: always() && env.BLOB_GROUP_CI == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: blob-group-${{ inputs.release_group }}-${{ matrix.os }}-${{ github.run_attempt }}
+          path: |
+            target/blob-release-validation.*/
+            .git/release-state/validation/
+            .git/release-state/validation-failures/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
       - name: Check the snapshot, formatter and release/hook fixtures
+        if: env.BLOB_GROUP_CI != 'true'
         timeout-minutes: 45
         env:
           CARGO_NET_OFFLINE: 'true'
@@ -201,18 +232,20 @@ jobs:
           done
           exit "$failed"
       - name: Qualify changed or uncertain release infrastructure on Linux
-        if: runner.os == 'Linux' && (steps.compatibility.outputs.release == 'true' || github.event_name == 'workflow_dispatch')
+        if: env.BLOB_GROUP_CI != 'true' && runner.os == 'Linux' && (steps.compatibility.outputs.release == 'true' || github.event_name == 'workflow_dispatch')
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
           TMPDIR: ${{ runner.temp }}
         run: make release-check
       - name: Run the existing Clippy gate before archive qualification
+        if: env.BLOB_GROUP_CI != 'true'
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
         run: make clippy
       - name: Qualify mixed-version library archives on this host
+        if: env.BLOB_GROUP_CI != 'true'
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
@@ -244,7 +277,7 @@ jobs:
           TMPDIR: ${{ runner.temp }}
         run: make test-native-host
       - name: Qualify original and optimized Blob Wasm installation and restoration
-        if: runner.os == 'Linux' && (steps.compatibility.outputs.optimizer == 'true' || github.event_name == 'workflow_dispatch')
+        if: runner.os == 'Linux' && (steps.compatibility.outputs.optimizer == 'true' || (github.event_name == 'workflow_dispatch' && env.BLOB_GROUP_CI != 'true'))
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'

@@ -16,7 +16,8 @@ lockfiles; local qualification does not cover every future resolution.
 The root catalog and lockfile own version selections; the capability table below
 is not a second version catalog. The [current handoff](status/current.md) records
 source-bound qualification and its limits. Native Testkit and deployed components
-share the selected Platform generation. Explicit provider decoding uses Blob's
+share canonical Types/Runtime identities; facade versions can differ in native
+tool graphs. Explicit provider decoding uses Blob's
 direct Platform boundary. Agent verification consumes Platform's explicit
 `agent::ExternalCertificate`; owned certificate trees use `certification`.
 Foreign Candid identities stay upstream, without a local dependency alias.
@@ -30,16 +31,16 @@ Foreign Candid identities stay upstream, without a local dependency alias.
 | IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Platform browser package | Published `@tokostudios/ic-platform` owns SDK Core selection, canonical Principal admission, checked identity restoration and explicit Agent construction; Blob retains trust, intents and effect policy |
 | IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
-| IC Metrics | Standalone report numeric types/transport and heap telemetry plus private probe arithmetic; no core storage owner or Canic dependency |
+| IC Metrics | Validated numeric Serde, heap telemetry and private probe arithmetic; Blob owns report schemas, with no core storage owner or Canic dependency |
 | IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
 | IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Host HTTP | Bounded native probe response accumulation; request policy, error projection and evidence custody stay with Blob |
 | IC Build | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
-| PocketIC | Testkit-selected local IC execution through Platform; no separate Blob dependency or server catalog |
+| Platform PocketIC client | Native simulator types selected directly to match Testkit; Testkit owns lifecycle/server policy, with no separate Blob server catalog |
 
 [IC Tooling](https://github.com/dragginzgame/ic-tooling) now owns Host, Build and
 Testkit; [IC Storage](https://github.com/dragginzgame/ic-storage) owns the published
-Storage 0.65 replacement for both allocation and collection capabilities.
+Storage replacement for both allocation and collection capabilities.
 Blob consumes published packages, without sibling paths or compatibility aliases.
 
 ### Replicated call execution
@@ -78,7 +79,7 @@ committed enrollment. The private probe control requires its installed operator
 and adds no production endpoint. `test-native-host` selects the tenant-client
 cases for Linux and both macOS lanes; local execution does not establish hosted
 qualification of the pending source.
-Client now selects `ic-platform-types` 0.17 and `ic-platform-runtime` 0.18.1
+Client now selects `ic-platform-types` 0.18 and `ic-platform-runtime` 0.19
 directly. These are the same canonical identities previously re-exported by the
 facade; method signatures, Wire bytes and wait/retry policy remain unchanged.
 The raw runtime is codec-free, but the client package's current resolved graph is
@@ -93,7 +94,7 @@ match Blob's public Platform and Storage type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Platform 0.19 delegates executor and IC0 implementation to its independent
+Platform delegates executor and IC0 implementation to its independent
 Runtime 0.19 owner; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
@@ -106,12 +107,25 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The pending 0.69 graph selects Platform/Runtime/guard 0.19, canonical Types 0.18,
-Wire/Derive 0.16, Tools 0.79 and Testkit 0.81. Storage 0.65.5's raw Runtime edge
-unifies with the same executor-capable identity. Metrics remains 0.27.2 and owns
-recording and numeric validation; it no longer supplies Blob's transport schema.
+The pending 0.69 graph selects Platform 0.20, Runtime/guard 0.19, canonical Types 0.18,
+Wire/Derive 0.16, Tools 0.80 and Testkit 0.83. Storage 0.66's raw Runtime edge
+unifies with the same executor-capable identity. Metrics 0.28 owns recording and
+numeric validation; it no longer has a Wire dependency or supplies transport schema.
+The selected 0.28.1 patch has identical Rust sources to 0.28.0, so the compatible
+manifest minimum stays 0.28.0.
 Build 0.74.1 and Host Foundation 0.74.2 retain their prior selections. Deployment
 contains no Testkit, host tools, retired Memory or stable-structures owner.
+
+Native fixtures select published `ic-platform-pocket-ic` 0.20 directly, matching
+the client, DTO and error identities exposed by Testkit 0.83. They no longer
+enable the facade's `pocket-ic` feature. This follows Testkit's released API and
+lets the facade and independently released simulator client advance deliberately.
+Testkit now also selects facade 0.20, removing the older native facade generation.
+Canonical Types, Runtime, guard, Wire and simulator client identities remain single.
+The server stays PocketIC 16.1.0. Native snapshot-transfer helpers and the new
+`ResponseTooLarge` failure remain upstream capabilities; Blob does not introduce
+another transfer lifecycle or infer retry permission from client failures.
+No aliases, compatibility bridge or unpublished sibling dependency is used.
 
 Published Wire 0.16 resolves [Wire #44](https://github.com/dragginzgame/ic-wire/issues/44).
 Contracts' native `wire-schema` feature selects Wire's `platform-types` schemas
@@ -130,26 +144,33 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.27.29** is captured at committed source
-`18e727032237e4a6540fefce66bb1b90beb31644` (150 verified files). It refuses partial
+Shared Tooling **0.28.2** is captured at committed source
+`5cf67f81c50c56ac17389ae71a3a87d46e86e8a2` (154 verified files). It refuses partial
 owned-tree inventories after traversal warnings and clarifies delivery checkout
-and direct-push authorization. Blob consumes
-its strict release-group plan admission/checkpoint runner with a local conservative
-selector and source-bound receipts. The first plan-based delivery keeps the full
-roster; later omissions require an admitted baseline and unchanged infrastructure.
+and direct-push authorization, and keeps release coordination out of waiting
+issues. Blob consumes its strict release-group plan admission/checkpoint runner
+and common roster/baseline/evidence verifier with a local conservative selector
+and source-bound receipts. Blob's qualified self-contained receipt supports
+preparation and fresh-checkout publication without rewriting raw runner paths.
+The first delivery
+of the package-scope mapping keeps the full
+roster; later package narrowing and stage omissions require an admitted baseline,
+reviewed reverse-consumer coverage and unchanged infrastructure.
 The workspace retains thirteen independently grouped members and one lock.
 The canonical companion closure now includes the validation-runner guide, fixing
 [Shared #346](https://github.com/dragginzgame/shared-tooling/issues/346) without an
 extra consumer entrypoint. See [release ownership](releasing.md).
 
-The published-family adoption and retained checks live in `target/wire016-adoption/`.
-Historical failed preparation remains in `target/upstream-adoption-20261103/` and
-`target/platform019-adoption/`; it is not current qualification. Storage 0.65.5
-still uses Wire 0.15.1 for its own private codecs; Blob uses Wire 0.16.0. Both
-appear in the deployment graph, without exchanged Wire error/schema/limit types
-or a second Types/Runtime identity. Supplier-owned codec adoption remains with
-Storage; no local dependency patch or compatibility bridge is installed. Actual
-normal/feature deployment graphs, not mere lockfile presence, establish exposure.
+Current published archive/index readbacks and focused caller qualification live
+in `target/upstream-refresh-20261103/`. Earlier target-based qualification was
+removed during disk recovery; the handoff distinguishes those historical reports
+from current retained evidence. Storage 0.66 and Testkit 0.83 select Wire 0.16,
+removing the previous Wire/Derive 0.15 generation.
+Native installed-test and standalone deployment graphs each have one selected
+Wire, Types and Runtime identity. Storage's stored bytes and reopening contract
+are unchanged by this supplier cut; the pending Blob funding-record cut still
+requires retirement and fresh backing. Actual target/feature graphs, not mere
+lockfile presence, establish exposure.
 
 ### Supported compiler
 
@@ -215,7 +236,7 @@ host runtime. Store/workflow generic parameters name `Backing`; passive memory
 bundles carry handles without granting access. Production hosts compose all
 fourteen Blob requests before a single bootstrap. Cross-release installations
 require [safe retirement](retiring-installations.md), not automatic migration.
-Storage 0.65 owns allocation, backing, codecs and collections. Hosts use
+Storage owns allocation, backing, codecs and collections. Hosts use
 `AllocationGrants`, checked `StableKey` names, opaque allocation IDs and bounded
 `StorageConfig`; numeric pools and bucket configuration are retired. Collections
 consume exclusive `RuntimeMemory` leases. Cell loading has an explicit owner
@@ -337,7 +358,7 @@ validation. Blob and probe argument errors remain sanitized so identity/path inp
 are not echoed; generated help documents syntax without dispatching an operation.
 Clap is excluded from canister targets.
 
-Blob has no direct Ciborium dependency or local CBOR implementation. Storage 0.65 owns the Wire-encoded allocation ledger and collections; neither
+Blob has no direct Ciborium dependency or local CBOR implementation. Storage owns the Wire-encoded allocation ledger and collections; neither
 `serde_cbor` nor `half` is in the standalone normal/build Wasm graph. Its codec
 and retained-byte contract remain Storage-owned. Native test `serde_cbor` remains
 for IC transport envelopes and certificates. Provider/management Candid and

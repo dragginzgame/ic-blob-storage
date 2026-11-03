@@ -5,7 +5,7 @@ use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
-use ic_platform::pocket_ic::PocketIcBuilder;
+use ic_platform_pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;
 

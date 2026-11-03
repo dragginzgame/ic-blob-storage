@@ -30,11 +30,11 @@ pub enum ControlCallError {
     /// Request encoding refused before dispatch.
     Encoding(ic_blob_storage_contracts::document::Error),
     /// Typed client failure, preserving rejection and uncertain execution context.
-    Platform(ic_platform::pocket_ic::ClientError),
+    Platform(ic_platform_pocket_ic::ClientError),
     /// Reply admission or decoding refused after dispatch.
     Decoding(ic_blob_storage_contracts::document::Error),
 }
-impl ControlCallExt for ic_platform::pocket_ic::PocketIc {
+impl ControlCallExt for ic_platform_pocket_ic::PocketIc {
     fn query_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,

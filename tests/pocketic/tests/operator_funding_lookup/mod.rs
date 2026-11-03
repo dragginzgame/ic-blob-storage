@@ -5,7 +5,7 @@ use blob_test_protocol::funding::lookup::{
 };
 use ic_blob_storage_pocketic_tests::fixture_calls;
 
-use ic_platform::pocket_ic::common::rest::BlobCompression;
+use ic_platform_pocket_ic::common::rest::BlobCompression;
 
 fn request() -> FundingRequest {
     FundingRequest {
@@ -182,7 +182,7 @@ fn callback_trap_remains_pending_through_lookup_and_restore() {
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&failure).reject_code,
-        ic_platform::pocket_ic::RejectCode::CanisterError
+        ic_platform_pocket_ic::RejectCode::CanisterError
     );
     for restored in [false, true] {
         if restored {

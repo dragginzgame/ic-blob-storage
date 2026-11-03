@@ -8,10 +8,18 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 💥 Breaking
 
-- Align the published Wire 0.16 / Platform and Runtime 0.19 / Types 0.18 family,
-  with Tools 0.79 and Testkit 0.81. Preserve endpoint bytes and the single executor
+- Align the published Wire 0.16 / Platform 0.20 / Runtime 0.19 / Types 0.18 family,
+  with Tools 0.80 and Testkit 0.83. Preserve endpoint bytes and the single executor
   identity. Testkit callers handle typed client failures, preserving uncertainty
   and distinguishing real canister rejections from failed transport.
+- Adopt Storage 0.66's public Wire 0.16 codec identity, removing the remaining
+  Wire/Derive 0.15 dependency. Storage's ledger/collection bytes and reopening
+  contract are unchanged. Adopt Metrics 0.28 with Blob-owned report schemas;
+  recording, numeric validation, report bytes and heap lifecycle are unchanged.
+- Select native simulator types directly from the independent Platform PocketIC
+  0.20 client, matching published Testkit 0.83 without coupling the facade's
+  version or feature selection to that client. Keep one simulator/runtime/type
+  identity and preserve typed failures and uncertain-submission handling.
 - Store funding transport progress and its permitted diagnostic in one bounded
   state, removing the independently persisted phase/response combination. The
   fresh `BLFUPR01` record identity and installation format reject old backing;
@@ -27,9 +35,24 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 🔧 Changed
 
-- Adopt committed Shared Tooling 0.27.29, including refusal of incomplete
+- Adopt committed Shared Tooling 0.28.2, including refusal of incomplete
   owned-tree inventories and explicit delivery checkout/direct-push authority.
-  Preserve local release groups, compiler pin and consumer validation selection.
+  Keep deferred engineering work in owning issues rather than release requests.
+  Preserve local release groups and compiler pin.
+- Extend source-bound group validation to package-scoped Clippy, build, native,
+  Rustdoc and Wasm checks, including explicit reverse consumers. Add opt-in group
+  CI on all three native hosts; keep normal CI full. Unknown/shared inputs and
+  the first delivery of this mapping retain the full gate. Required stage or
+  input failures cannot authorize narrower validation.
+- Simplify the Blob-owned release selection for
+  [#114](https://github.com/dragginzgame/ic-blob-storage/issues/114): share one
+  declarative CI/release stage roster, observe member paths through Cargo metadata
+  instead of parsing the catalog, and keep new validation/proof scratch under
+  `target/`. Preserve existing release evidence and collect both old and new
+  failure locations. Delegate roster/baseline observation and run evidence parsing
+  to Shared's verifier; keep Blob's product selection and self-contained receipt
+  for preparation and fresh-checkout publication. Refuse malformed runs without
+  replacing successful receipts or rewriting retained log paths.
 - Project heap measurements into Contracts-owned report DTOs without changing
   recording, authorization, reset windows or report bytes. Enforce that native
   Contracts schema generation does not enable Metrics-owned Wire metadata.

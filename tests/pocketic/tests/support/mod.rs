@@ -10,7 +10,7 @@ use ic_host_process::{
     child::OwnedChild,
     tool::{OutputLimit, OutputLimits, drain_child_output},
 };
-use ic_platform::pocket_ic::{PocketIc, PocketIcBuilder};
+use ic_platform_pocket_ic::{PocketIc, PocketIcBuilder};
 use ic_testkit::pic::{PocketIcManagedServer, PocketIcStartupConfig};
 
 /// Drain caller-owned pipes while Host waits and cleans the child group.

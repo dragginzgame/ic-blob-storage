@@ -8,7 +8,7 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 💥 Breaking
 
-- Align public Wire 0.16, Platform/Runtime 0.19 and Types 0.18 identities with
+- Align public Wire 0.16, Platform 0.20 / Runtime 0.19 and Types 0.18 identities with
   Contracts. Existing application packets, method IDs, limits and exact signed
   retries remain unchanged.
 

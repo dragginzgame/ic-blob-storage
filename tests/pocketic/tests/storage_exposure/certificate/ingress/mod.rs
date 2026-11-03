@@ -6,7 +6,7 @@ mod browser;
 mod proof;
 use super::*;
 use ic_platform::agent::{Agent, BasicIdentity, Identity, RequestStatusResponse, SignedUpdate};
-use ic_platform::pocket_ic::PocketIcBuilder;
+use ic_platform_pocket_ic::PocketIcBuilder;
 use proof::{ProofError, extract, submit};
 use std::time::Duration;
 

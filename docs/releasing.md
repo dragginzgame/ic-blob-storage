@@ -93,7 +93,11 @@ them offline and recheck pins, source identity and cleanliness. Post-validation
 preparation and recovery do not repeat installation. Direct preflight is offline
 unless preparation authority was supplied by the standard one-shot command.
 
-The full `ci` / `validate` gate remains workspace-wide. It covers
+The full `ci` / `validate` gate remains workspace-wide. Its ordered stage roster
+comes from [one policy](../ci/release-validation.json), also consumed by release
+plans; Make does not maintain another target list. An unreadable/empty roster
+refuses full CI, and command-line target-list overrides cannot narrow it.
+Primitive targets do not load the full-stage roster. The gate covers
 snapshot/tools/pins, Clippy, dependency boundaries, docs, consumer tooling, shell,
 hooks, formatting, builds, native/PocketIC tests, Wasm and all public archives.
 `release-verify` uses Blob's [stage policy](../ci/release-validation.json) and
@@ -104,8 +108,9 @@ hooks, formatting, builds, native/PocketIC tests, Wasm and all public archives.
 ### Validation scope
 
 The selector reviews the entire source delta since the selected group's annotated
-release tag. The tag's receipt must already use structured plan evidence. The
-first delivery of this mapping therefore runs the full roster. Missing history,
+release tag. The tag's receipt must already use structured plan evidence and
+checkpoint the same [package-scope policy](../ci/release-package-scopes.json).
+The first delivery of the package mapping therefore runs the full roster. Missing history,
 old receipts, changed manifests/locks, compiler, tooling, recipes, generators,
 policy or unclassified files select the full roster. Ambient Cargo configuration
 or build/compiler flag overrides also keep the full roster. Renames include both paths.
@@ -114,22 +119,47 @@ invalidates that proof. A shallow checkout cannot establish a narrow scope.
 
 | Classified change | Required checks |
 | --- | --- |
-| Replicated tenant-client implementation only | All common guards, whole-workspace Clippy/build/native/docs/archive checks; installed standalone/CLI and replicated tenant-client scenarios |
-| Other Client/CLI implementation | Every integration scenario: funding, manifests, references and downloads also have Engine probe consumers |
-| Contracts or Engine implementation | The same guards and every installed integration scenario, including reverse consumers |
+| Replicated tenant-client implementation only | Common guards and all archives; Client and Engine package roots for Clippy/build/native/docs/Wasm checks; installed standalone/CLI and replicated tenant-client scenarios |
+| Other Client/CLI implementation | The same Client and Engine roots plus every installed integration scenario; storage and consumer probes depend on Client |
+| Contracts implementation | All thirteen package roots and every installed integration scenario, covering public identities and reverse consumers |
+| Engine implementation | Engine roots for the five Cargo stages; common CLI/probe/archive boundaries and both installed partitions remain required |
 | Release machinery unchanged in either case | Real selected-group metadata rendering/rollback and preservation of other groups; omit the full publication/recovery fixture matrix |
 | Shared or uncertain inputs | Every stage, including the full release-adapter matrix |
 
 Only numbered group notes and the current status handoff are separately admitted
 documentation changes. This deliberately conservative mapping does not infer scope
-from a selected group alone or an unchanged supplier version. New stages must
-update both the full roster and policy; mismatch refuses before execution.
+from a selected group alone or an unchanged supplier version. New stages update
+the policy and their actual Make recipe; both full CI and release plans consume
+that same roster. A missing recipe fails as a required obligation.
+The package policy records the reviewed reverse-consumer closure; fixtures compare
+it with every Cargo local dependency, including dev/build/optional and target-specific
+edges. Every scoped Cargo stage keeps its existing features, targets and flags;
+only package roots change. Native test and Rustdoc roots retain their original
+full-gate rosters. Package flags are bound into stage reasons, re-derived from the
+exact source and configuration before execution, and checkpointed with the policy.
+Normal Make targets remain full; `make ci` removes any ambient active-plan setting.
+
+Cargo's locked/offline metadata supplies member names and manifest paths, including
+aliases, globbed members and table-form dependency declarations. The bounded
+name/path projection is recorded in the checkpointed configuration input and
+embedded receipt; verification uses that observation rather than parsing a root
+manifest or consulting mutable paths for an old source. Package versions are not
+part of this path projection, so authorized version preparation leaves it unchanged.
+This inventory query uses `--no-deps`; complete lock/graph admission remains with
+the existing release preflight and group renderer, not this projection.
+
 The two installed-test partitions are disjoint and exhaust Cargo's test roster.
 `make test-pocketic` still runs both. No test results are reused.
 
 Original/O3/Os/Oz qualification is an explicit `make test-wasm-opt` compatibility
 check, outside the normal release roster. Linux hosted CI runs it for Engine/shared
-changes and uncertainty; manual workflow dispatch forces it. Routine builds ship
+changes and uncertainty; manual workspace dispatch forces it. An explicit
+`workflow_dispatch` group selection runs `release-verify` on Linux, Apple Silicon
+macOS and Intel macOS. Main/PR and manual workspace CI retain the existing full
+checks. Group dispatch retains source-bound plans, package reasons, receipts and
+stage logs on each host; it does not force an otherwise excluded Engine optimizer
+matrix. Wire-schema and isolated library jobs and native CLI/installation/Metrics
+restoration checks remain independent hosted obligations. Routine builds ship
 untransformed Cargo Wasm. Their installation, carrier rejection, corruption,
 restoration and fencing scenarios stay in the required integration tests. Native
 Linux and both macOS lanes retain actual installation/CLI/archive/reopen checks;
@@ -138,7 +168,7 @@ fixture matrix similarly runs on Linux when infrastructure changed or is uncerta
 all native hosts retain a real Engine metadata/rollback smoke check.
 
 Each release attempt retains its plan, policy, checkpoints, per-stage logs,
-exclusion reasons and timings in `.tmp/blob-release-validation.*`. Only a completed
+exclusion reasons and timings in `target/blob-release-validation.*`. Only a completed
 attempt writes `.git/release-state/validation/<group>-<source>.json`. A fresh attempt
 invalidates that selectable record first, preserving prior logs. Missing, failed,
 blocked or drifted obligations cannot authorize preparation. The new
@@ -149,6 +179,24 @@ the generated configuration input is checkpointed with the plan, re-observed aft
 execution and compared again before preparation. Prepared/committed/published
 checks re-admit the same selection against its immutable source. Historical
 whole-gate receipts retain their original tools; they are not upgraded or reused.
+Historical `.tmp/` attempts remain untouched and are still selected by failure
+evidence collection. New selector/proof scratch also lives under `target/`.
+
+For [Blob #114](https://github.com/dragginzgame/ic-blob-storage/issues/114), Shared's
+[evidence interface](group-validation-adoption.md) now admits the full-stage roster,
+observes annotated Git baselines and verifies each actual retained run. Blob no
+longer parses runner events or timings. The checkpointed context observes the
+host/compiler before execution; Shared binds it with plan, policy, inputs and logs.
+Its protected receipt writer publishes only a successful capture.
+
+The self-contained Blob receipt retains that Shared proof plus product selection
+and source/configuration bindings. Blob re-admits these after version preparation
+and in a fresh publication checkout; original absolute runner paths are never
+rewritten or treated as portable execution evidence. Shared's `check` command
+re-admits raw logs only at their original physical source location. The three-group
+reverse-consumer mapping, installed obligations, receipt custody and publication
+admission remain local. [Shared #349](https://github.com/dragginzgame/shared-tooling/issues/349)
+owns the common verifier; #114 remains open until consumer delivery.
 
 Shared's group helper and the published IC Build editor render the selected
 literal manifests, root catalog, lock entries and ledger; external lock selections

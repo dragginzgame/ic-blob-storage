@@ -44,6 +44,12 @@ still apply. This cadence grants no additional merge or release authority.
 Primitive Make targets do only their named operation. The complete current
 gate is `make ci` (also `make validate`). `make release-verify` uses the
 conservative, source-bound [release selection](../releasing.md#validation-scope).
+An explicit hosted workflow group selection uses that same plan on all three
+native hosts. Only its admitted plan can narrow the five Cargo-stage package
+rosters; normal `make ci`, individual Make targets and main/PR CI remain full.
+Normal CI and release plans share `ci/release-validation.json` as their only
+stage roster. Cargo observes member paths; new validation attempts and their
+temporary proof checks use `target/`, retaining historical release evidence.
 `make check`, `make clippy`, `make test`, `make test-native`, `make compiler-graphs-check`
 and `make docs-check` are workspace aggregates, reserved for explicitly authorized
 release/full validation. Ordinary changes select affected packages and test
@@ -57,7 +63,7 @@ runs offline `make tools-check` and `make dependency-pins-check`. Prepare the
 selected dependency cache explicitly with `make deps` (`cargo fetch --locked`)
 before validation; fresh release preflight already does so. Fetching may use the
 network and never selects new versions; the validation aggregate does not fetch.
-The unchanged workspace Clippy gate runs next, before dependency boundaries,
+The full CI Clippy gate (or the admitted release package scope) runs next, before dependency boundaries,
 documentation/shared fixtures,
 compilation, tests and packaging. The sequential validation runner stops on lint
 failure under parallel Make too. Publication uses that same gate after source/tag
@@ -246,8 +252,8 @@ Hook/Testkit fixtures use `prepare-script-fixture.sh` for explicit roots and
 their companion closure. The group release fixture exports visible regular
 source into a disposable repository, exercises the actual thirteen-member graph
 and installs only its build/registry substitutes. Release fixtures live under
-`${TMPDIR:-/tmp}/blob-release-tests.*`; failed fixtures remain there and the
-tooling evidence collector includes that prefix.
+`target/release-tests.*`; failed fixtures remain there and the tooling evidence
+collector includes that prefix and historical locations.
 The [original snapshot adoption record](../evidence/shared01500270.md) retains
 its direct-delivery adapter qualification. The [current handoff](../status/current.md)
 records the selected snapshot and source-bound follow-up checks. The

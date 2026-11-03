@@ -12,7 +12,8 @@ Recording uses published IC Metrics `MeasurementCounter` and
 `MeasurementAggregate`. The report boundary projects them once into Contracts'
 passive `CounterMetrics` and `AggregateMetrics` fields; it does not mirror live
 recording state. DTO decoding delegates to Metrics' validated Serde readers.
-Contracts owns Wire metadata without enabling Metrics' `native-wire` feature.
+Contracts owns Wire metadata; Metrics 0.28 supplies arithmetic and validated Serde
+without a Wire dependency or the retired `native-wire` feature.
 The 0.69 Rust API change preserves the frozen report frame, JSON representation,
 exact-cap versus overflow flags and empty versus measured-zero maximum. See
 [#113](https://github.com/dragginzgame/ic-blob-storage/issues/113) and

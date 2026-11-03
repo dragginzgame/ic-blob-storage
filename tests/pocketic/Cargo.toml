@@ -10,7 +10,8 @@ autobins = false
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 blob-test-protocol.workspace = true
 ic-blob-storage-contracts = { workspace = true, features = ["provider-json"] }
-ic-platform = { workspace = true, features = ["candid", "pocket-ic"] }
+ic-platform = { workspace = true, features = ["candid"] }
+ic-platform-pocket-ic.workspace = true
 ic-testkit.workspace = true
 serde.workspace = true
 

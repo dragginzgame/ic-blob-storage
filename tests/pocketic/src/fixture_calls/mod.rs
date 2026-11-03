@@ -1,5 +1,5 @@
 //! Bounded Wire calls to private local fixtures, separate from Blob Wire endpoints.
-use ic_platform::pocket_ic::PocketIc;
+use ic_platform_pocket_ic::PocketIc;
 
 /// Finite decoding budgets for replies from Blob's installed local fixtures.
 /// These cover bounded status/history pages and byte-bearing probe replies;

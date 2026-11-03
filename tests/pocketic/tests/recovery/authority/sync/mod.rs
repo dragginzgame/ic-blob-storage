@@ -3,7 +3,7 @@ use super::*;
 use blob_test_protocol::{SourceObservation, source::SourceHeldSyncView};
 use ic_blob_storage_pocketic_tests::fixture_calls;
 
-use ic_platform::pocket_ic::common::rest::RawMessageId;
+use ic_platform_pocket_ic::common::rest::RawMessageId;
 
 impl Fixture {
     pub(super) fn hold_sync(&self) -> RawMessageId {

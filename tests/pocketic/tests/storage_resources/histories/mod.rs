@@ -22,7 +22,7 @@ fn send(
     actor: Principal,
     method: &str,
     packet: Vec<u8>,
-) -> Result<Vec<u8>, ic_platform::pocket_ic::ClientError> {
+) -> Result<Vec<u8>, ic_platform_pocket_ic::ClientError> {
     retain_bytes(directory, &format!("{name}.cbor"), &packet);
     assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
     let result = f.harness.pic.update_call(f.service, actor, method, packet);
