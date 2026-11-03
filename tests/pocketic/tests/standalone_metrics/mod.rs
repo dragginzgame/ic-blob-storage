@@ -76,7 +76,7 @@ fn standalone_metrics_authenticate_replays_and_heap_reset_without_stable_writes(
         assert_eq!(report(&f, actor), Err(HostFailure::Denied));
     }
     let initial = report(&f, f.operator).unwrap();
-    assert_eq!(row(&initial, Op::Admission).instructions.maximum(), None);
+    assert_eq!(row(&initial, Op::Admission).instructions.maximum, None);
     f.enroll(f.operator).unwrap();
     assert_eq!(admit(&f, f.uploader), Err(UploadAdmissionFailure::Denied));
     assert!(!admit(&f, f.tenant).unwrap().replayed);
@@ -91,29 +91,29 @@ fn standalone_metrics_authenticate_replays_and_heap_reset_without_stable_writes(
     let admission = row(&measured, Op::Admission);
     assert_eq!(
         (
-            admission.attempts.total(),
-            admission.applied.total(),
-            admission.replayed.total(),
-            admission.refused.total()
+            admission.attempts.total,
+            admission.applied.total,
+            admission.replayed.total,
+            admission.refused.total
         ),
         (3, 1, 1, 1)
     );
-    assert_eq!(admission.instructions.samples(), 3);
-    assert!(admission.instructions.total() > 0);
-    assert!(admission.request_bytes.total() > 0);
-    assert_eq!(row(&measured, Op::Manifest).applied.total(), 1);
-    assert_eq!(row(&measured, Op::Manifest).replayed.total(), 1);
-    assert_eq!(row(&measured, Op::Registration).applied.total(), 1);
+    assert_eq!(admission.instructions.samples, 3);
+    assert!(admission.instructions.total > 0);
+    assert!(admission.request_bytes.total > 0);
+    assert_eq!(row(&measured, Op::Manifest).applied.total, 1);
+    assert_eq!(row(&measured, Op::Manifest).replayed.total, 1);
+    assert_eq!(row(&measured, Op::Registration).applied.total, 1);
     let references = row(&measured, Op::Reference);
     assert_eq!(
         (
-            references.applied.total(),
-            references.replayed.total(),
-            references.refused.total()
+            references.applied.total,
+            references.replayed.total,
+            references.refused.total
         ),
         (1, 2, 1)
     );
-    let stable = f.harness.pic.get_stable_memory(f.service);
+    let stable = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert!(
         f.harness
             .pic
@@ -130,7 +130,10 @@ fn standalone_metrics_authenticate_replays_and_heap_reset_without_stable_writes(
         report(&f, f.operator).unwrap().operations,
         measured.operations
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &stable);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &stable,
+    );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let reset = report(&f, f.operator).unwrap();
@@ -140,7 +143,7 @@ fn standalone_metrics_authenticate_replays_and_heap_reset_without_stable_writes(
         reset
             .operations
             .iter()
-            .all(|row| row.attempts.total() == 0 && row.instructions.maximum().is_none())
+            .all(|row| row.attempts.total == 0 && row.instructions.maximum.is_none())
     );
     assert!(f.configuration(f.operator).unwrap().fenced);
 }
@@ -162,11 +165,12 @@ fn standalone_metrics_native_command_uses_signed_query_and_exact_scope() {
     let identity = files.path().join("identity.pem");
     let root = files.path().join("root.der");
     std::fs::write(&identity, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     let mut args = arguments(
         "metrics",
@@ -189,5 +193,5 @@ fn standalone_metrics_native_command_uses_signed_query_and_exact_scope() {
         .unwrap();
     args[namespace + 1] = "1".into();
     assert_eq!(run(&args, 3)["error"], "binding");
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }

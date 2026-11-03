@@ -12,13 +12,7 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .update_blob_as(
-                self.service,
-                actor,
-                TENANT_UPDATE_METHOD,
-                input,
-                REPLY_BYTES,
-            )
+            .update_tenant_as(self.service, actor, input, REPLY_BYTES)
             .unwrap()
     }
     fn inspect_enrollment(
@@ -28,13 +22,7 @@ impl Fixture {
     ) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .query_blob_as(
-                self.service,
-                actor,
-                TENANT_INSPECTION_METHOD,
-                scope,
-                REPLY_BYTES,
-            )
+            .query_tenant_as(self.service, actor, scope, REPLY_BYTES)
             .unwrap()
     }
 }
@@ -48,7 +36,7 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
         expected: None,
         active: true,
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [
         f.controller,
         f.tenant,
@@ -127,7 +115,7 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
         ),
         Err(TenantFailure::Invalid)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 
 #[test]
@@ -230,7 +218,7 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
     let f = Fixture::new();
     let scope = f.tenant_scope();
     let trap = |expected, active| {
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         let error = f
             .harness
             .pic
@@ -248,8 +236,11 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     };
     trap(None, true);
     assert_eq!(f.tenant(), None);

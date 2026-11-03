@@ -33,7 +33,7 @@ fn setup(directory: &Path) -> (Fixture, Vec<UploadAdmissionRequest>) {
     std::fs::write(directory.join("tenant.pem"), PEM).unwrap();
     std::fs::write(
         directory.join("root.der"),
-        f.harness.pic.root_key().unwrap(),
+        f.harness.pic.root_key().unwrap().unwrap(),
     )
     .unwrap();
     (f, permissions)
@@ -70,10 +70,11 @@ pub(super) fn confirm(f: &Fixture, manifest: &UploadManifestRequest) {
         .unwrap();
 }
 fn args(f: &mut Fixture, directory: &Path, label: &str) -> Vec<String> {
-    let mut url =
-        f.harness
-            .pic
-            .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None);
+    let mut url = f
+        .harness
+        .pic
+        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap();
     // PocketIC's already-live URL getter uses localhost even when started with
     // a literal domain. Preserve the maintained local CLI's literal-only policy.
     url.set_host(Some("127.0.0.1")).unwrap();
@@ -136,9 +137,9 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
     assert_eq!(incomplete["all_references_live"], false);
     assert_eq!(incomplete["blockers"][0]["code"], "registration_unmatched");
     assert!(!directory.path().join("incomplete/media-map.json").exists());
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     confirm(&f, &manifest(directory.path(), 1));
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let complete = run(&args(&mut f, directory.path(), "complete"), 0);
     assert_eq!(complete["all_references_live"], true);
     assert_eq!(read_map(directory.path(), "complete"), complete);
@@ -149,8 +150,11 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
             .to_string()
             .trim_start_matches("sha256:")
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     f.harness
         .pic
         .update_blob_as::<Result<ReferenceMutationResponse, ReferenceFailure>, _>(
@@ -174,7 +178,7 @@ fn standalone_publish_map_requires_every_completed_live_reference_and_preserves_
         json!({"index":1,"code":"reference_inactive"})
     );
     assert!(!directory.path().join("released/media-map.json").exists());
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     let restored = run(&args(&mut f, directory.path(), "restored"), 0);

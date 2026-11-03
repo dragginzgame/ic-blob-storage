@@ -56,7 +56,7 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
         state: UploadState::Reserved,
         revoked: false,
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.upload_status(f.tenant, permission.upload), Ok(expected));
     let replicated: Result<UploadStatusResponse, UploadStatusFailure> = f
         .harness
@@ -70,14 +70,16 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_tenant_as(
             f.service,
             f.operator,
-            "blob_update_tenant",
             TenantUpdateRequest {
                 scope: f.scope(),
                 expected: enrollment.enrollment,
@@ -106,14 +108,17 @@ fn standalone_upload_status_preserves_exact_history_through_suspension_and_resto
     assert_eq!(f.upload_status(f.tenant, permission.upload), Ok(expected));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
     assert_eq!(f.upload_status(f.tenant, permission.upload), Ok(expected));
     assert_eq!(
         f.upload_status(f.operator, permission.upload),
         Err(UploadStatusFailure::Denied)
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }
 
 #[test]
@@ -138,7 +143,7 @@ fn standalone_upload_status_rejects_foreign_malformed_and_changed_original_bindi
         .unwrap();
     admitted.unwrap();
     let upload = permission.upload;
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.operator, f.uploader, Principal::anonymous()] {
         assert_eq!(
             f.upload_status(actor, upload),
@@ -231,7 +236,13 @@ fn standalone_upload_status_rejects_foreign_malformed_and_changed_original_bindi
             .pic
             .query_call(f.service, f.tenant, UPLOAD_STATUS_METHOD, bytes)
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }

@@ -21,17 +21,6 @@ pub(super) enum Kind {
     Receipt,
     Status,
 }
-impl Kind {
-    pub const COMMANDS: [(&'static str, Self); 2] = [
-        ("reference-receipt", Self::Receipt),
-        ("reference-status", Self::Status),
-    ];
-    pub fn parse(command: &str) -> Option<Self> {
-        Self::COMMANDS
-            .into_iter()
-            .find_map(|(name, kind)| (name == command).then_some(kind))
-    }
-}
 pub(super) struct Input {
     pub service: Principal,
     pub namespace: u128,

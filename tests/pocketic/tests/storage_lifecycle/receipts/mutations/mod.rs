@@ -40,9 +40,9 @@ fn committed_mutation_with_unusable_reply_recovers_exact_receipt_and_cleanup_at_
         fetch(&f, &selected),
         Ok(ReferenceReceiptLookup::Found(expected.receipt))
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(mutate(&f, &selected), Ok(changed(retain, true)));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     let conflicting = ReferenceClientInput {
         request: ReferenceCommand {
             action: ReferenceAction::Release,
@@ -116,7 +116,7 @@ fn replicated_mutation_preserves_recorded_failure_and_does_not_treat_it_as_relea
         Err(ReferenceTransitionFailure::UnknownReference)
     );
     assert_eq!(result.receipt.request, selected.request);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         mutate(&f, &selected),
         Ok(ReferenceMutationResponse {
@@ -124,7 +124,7 @@ fn replicated_mutation_preserves_recorded_failure_and_does_not_treat_it_as_relea
             ..result
         })
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     let release = reference(permission.request, 2, 1, false);
     assert_eq!(
         mutate(&f, &selection(&f, release)),
@@ -142,7 +142,7 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
     let permission = f.exposed();
     let retain = reference(permission.request, 1, 2, true);
     let selected = selection(&f, retain);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.operator, f.uploader, f.other] {
         let denied: Result<ReferenceMutationResponse, ReferenceFailure> = f
             .harness
@@ -203,5 +203,5 @@ fn mutation_rejects_foreign_callers_invalid_intent_and_nonreplicated_execution_w
         .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));
     assert_eq!(fetch(&f, &selected), Ok(ReferenceReceiptLookup::Absent));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }

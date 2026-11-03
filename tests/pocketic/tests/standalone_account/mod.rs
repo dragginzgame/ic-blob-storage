@@ -68,18 +68,21 @@ fn fixture() -> Fixture {
     fixture_with_operator(Harness::new(), fake_principal(2))
 }
 fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
-    let cashier = harness.pic.create_canister();
+    let cashier = harness.pic.create_canister().unwrap();
     let f = Fixture::with_cashier_and_operator(harness, cashier, operator);
-    f.harness.pic.install_canister(
-        cashier,
-        std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-        blob_test_protocol::fixture_wire::encode_args(
-            "fixture_init",
-            (f.service, fake_principal(9), f.controller),
+    f.harness
+        .pic
+        .install_canister(
+            cashier,
+            std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (f.service, fake_principal(9), f.controller),
+            )
+            .unwrap(),
+            None,
         )
-        .unwrap(),
-        None,
-    );
+        .unwrap();
     f
 }
 fn request(f: &Fixture, kind: AccountInspectionKind) -> AccountInspectionRequest {
@@ -175,8 +178,12 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
         input.kind,
         balance(f.config.payment_account.into(), u128::MAX.into()),
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let source_before = f.harness.pic.get_stable_memory(input.scope.cashier.into());
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let source_before = f
+        .harness
+        .pic
+        .get_stable_memory(input.scope.cashier.into())
+        .unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
             inspect(&f, actor, input),
@@ -235,11 +242,20 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
             .pic
             .update_call(f.service, f.operator, "blob_inspect_account", bytes)
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
     unchanged(
-        &f.harness.pic.get_stable_memory(input.scope.cashier.into()),
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    unchanged(
+        &f.harness
+            .pic
+            .get_stable_memory(input.scope.cashier.into())
+            .unwrap(),
         &source_before,
     );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
@@ -249,7 +265,10 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
         Err(AccountInspectionFailure::Fenced)
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(input.scope.cashier.into()),
+        &f.harness
+            .pic
+            .get_stable_memory(input.scope.cashier.into())
+            .unwrap(),
         &source_before,
     );
 }
@@ -258,7 +277,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
 fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
     let f = fixture();
     let input = request(&f, AccountInspectionKind::Balance);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for (bytes, failure) in [
         (
             balance(f.tenant, 1.into()),
@@ -321,7 +340,10 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
         inspect(&f, f.operator, input),
         Err(AccountInspectionFailure::Rejected(4))
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 
 #[test]
@@ -341,7 +363,7 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
     let input = request(&f, AccountInspectionKind::PaymentRelationship);
     let expected = relation(&f);
     configure(&f, input.kind, relationship(Some(expected.clone())));
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         inspect(&f, f.operator, input),
         Ok(AccountInspectionResponse {
@@ -415,7 +437,10 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
         inspect(&f, f.operator, balance_input).unwrap().observation,
         AccountObservation::Balance(_)
     ));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     assert_eq!(

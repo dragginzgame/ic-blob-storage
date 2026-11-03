@@ -12,20 +12,27 @@ fn wasm() -> Vec<u8> {
 }
 fn fixture() -> Fixture {
     let mut f = Fixture::new();
-    f.uploader = f.harness.pic.create_canister_with_settings(
-        Some(f.controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![f.controller]),
-            ..CanisterSettings::default()
-        }),
-    );
-    f.harness.pic.install_canister(
-        f.uploader,
-        wasm(),
-        blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
-            .unwrap(),
-        Some(f.controller),
-    );
+    f.uploader = f
+        .harness
+        .pic
+        .create_canister_with_settings(
+            Some(f.controller),
+            Some(CanisterSettings {
+                controllers: Some(vec![f.controller]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
+    f.harness
+        .pic
+        .install_canister(
+            f.uploader,
+            wasm(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
+                .unwrap(),
+            Some(f.controller),
+        )
+        .unwrap();
     f.enroll(None, true).unwrap();
     f
 }
@@ -84,9 +91,9 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
         let f = fixture();
         let (permission, input) = intent(&f, 1, 7);
         f.admit(f.tenant, permission).unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         assert!(!save(&f, &input).unwrap().started);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
         if trap {
             let rejected = f
                 .harness
@@ -102,7 +109,10 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
                     .unwrap(),
                 )
                 .unwrap_err();
-            assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+            assert_eq!(
+                crate::canister_rejection(&rejected).reject_code,
+                RejectCode::CanisterError
+            );
         } else {
             assert_eq!(
                 dispatch(
@@ -130,14 +140,14 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
                 Some(f.controller),
             )
             .unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         let recovered = recover(&f, 1).unwrap();
         assert_eq!(
             recovered.result,
             Some(Ok(input.request.declaration.clone()))
         );
         assert_eq!(dispatch(&f, run(1)), Ok(recovered));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     }
 }
 #[test]
@@ -146,8 +156,8 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
     let (permission, input) = intent(&f, 1, 1);
     f.admit(f.tenant, permission).unwrap();
     save(&f, &input).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let local = f.harness.pic.get_stable_memory(f.uploader);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let local = f.harness.pic.get_stable_memory(f.uploader).unwrap();
     let rejected = f
         .harness
         .pic
@@ -162,7 +172,10 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&rejected).reject_code,
+        RejectCode::CanisterError
+    );
     assert!(!view(&f, 1).unwrap().started);
     let queried: Result<UploadManifestResponse, C> = f
         .harness
@@ -182,8 +195,8 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
         )
         .unwrap();
     assert_eq!(denied, Err(C::Denied));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert_eq!(f.harness.pic.get_stable_memory(f.uploader), local);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.uploader).unwrap(), local);
     assert_eq!(
         dispatch(&f, run(1)).unwrap().result,
         Some(Ok(input.request.declaration))
@@ -215,7 +228,7 @@ fn manifest_refusal_is_retained_and_unprepared_inspection_cannot_clear_uncertain
             );
         }
         f.enroll(Some(suspended), true).unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         if lose_reply {
             assert_eq!(dispatch(&f, run(1)), Err(C::Pending));
         } else {
@@ -224,7 +237,7 @@ fn manifest_refusal_is_retained_and_unprepared_inspection_cannot_clear_uncertain
                 Some(Err(F::Permission(A::Inactive)))
             );
         }
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     }
 }
 #[test]

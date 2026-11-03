@@ -1,6 +1,4 @@
 //! Offline exact-reference inputs; supplied identities never allocate authority.
-
-use super::arguments::value;
 use super::{Failure, artifacts::Run, read, references};
 use ic_blob_storage_contracts::dto::download::DownloadRequest;
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
@@ -12,7 +10,6 @@ use ic_blob_storage_contracts::identity::ContentDigest;
 use ic_blob_storage_contracts::reference::reply;
 use ic_blob_storage_contracts::upload::admission::reply::validate_request;
 use serde_json::{Value, json};
-use std::path::PathBuf;
 
 /// Both read requests name the same exact reference and original object binding.
 pub(super) struct ReferenceFiles {
@@ -48,12 +45,12 @@ impl ReferenceFiles {
             "download_sha256":ContentDigest::compute(&self.download).to_string()})
     }
 }
-pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let path = value::<PathBuf>(flags, "--permission");
-    let action = value(flags, "--action");
-    let reference = value(flags, "--reference");
-    let operation = value(flags, "--operation");
-    let directory = value::<PathBuf>(flags, "--run-dir");
+pub(super) fn run(input: super::arguments::schema::ReferenceInputs) -> Result<Value, Failure> {
+    let path = input.permission;
+    let action = input.action;
+    let reference = input.reference;
+    let operation = input.operation;
+    let directory = input.run_dir;
     let permission_bytes = read(&path, 4096)?;
     let permission: UploadAdmissionRequest =
         crate::native::exact_wire::decode(&permission_bytes, 4096)?;

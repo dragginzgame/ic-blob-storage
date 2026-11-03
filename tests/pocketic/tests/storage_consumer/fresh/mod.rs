@@ -90,14 +90,14 @@ fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt
     let pending = register(&f, &input).unwrap();
     assert_eq!(pending.upload_state, Some(UploadState::Registered));
     assert!(pending.published); // Consumer publishes retention intent, not verified provider bytes.
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let published = register(&f, &input).unwrap();
     assert!(published.published);
     assert!(!published.retain_started);
     assert_eq!(published.retain_result, None);
     assert_eq!(published.upload_state, Some(UploadState::Registered));
     assert_eq!(register(&f, &input), Ok(published));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     cancel(&f, 1).unwrap();
     assert_eq!(
         release(&f, 1).unwrap().release_result,
@@ -173,7 +173,7 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
     f.prepare(&manifest).unwrap();
     f.expose(permission.request).unwrap();
     input.fault = Fault::AfterUploadObservation;
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let error = f
         .harness
         .pic
@@ -184,14 +184,17 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
             ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(
         asset(&f, 1).unwrap().upload_state,
         Some(UploadState::Reserved)
     );
     input.fault = Fault::None;
     assert!(register(&f, &input).unwrap().published);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     let f = fixture();
     let (input, _, _) = prepared(&f);
     admit(&f, &input).unwrap();

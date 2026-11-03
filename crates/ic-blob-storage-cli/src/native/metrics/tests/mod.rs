@@ -1,9 +1,11 @@
 use super::*;
 use ic_blob_storage_contracts::standalone::OperationMetrics;
-use ic_metrics::MeasurementAggregate;
+use ic_metrics::{MeasurementAggregate, MeasurementCounter};
 
 fn report() -> MetricsReport {
-    let exact = MeasurementCounter::from_parts(u128::MAX, false).unwrap();
+    let exact = MeasurementCounter::from_parts(u128::MAX, false)
+        .unwrap()
+        .into();
     MetricsReport {
         service: Principal::from_slice(&[1; 29]),
         namespace: u128::MAX,
@@ -20,7 +22,7 @@ fn report() -> MetricsReport {
             provider_failed: exact,
             acknowledged: exact,
             request_bytes: exact,
-            instructions: MeasurementAggregate::EMPTY,
+            instructions: MeasurementAggregate::EMPTY.into(),
         }),
     }
 }

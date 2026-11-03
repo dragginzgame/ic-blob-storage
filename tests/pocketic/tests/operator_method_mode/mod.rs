@@ -78,16 +78,13 @@ pub(super) fn update_wasm(method: &str, reply: &[u8]) -> Vec<u8> {
 fn update_only_status_is_rejected_without_executing_it() {
     let f = Fixture::new();
     let pic = &f.harness.pic;
-    let canister = pic.create_canister();
-    pic.install_canister(canister, update_wasm("operator_status", &[]), vec![], None);
-    let args = f.args(canister, f.driver, "authority", "--namespace", "1");
-    assert_eq!(pic.get_stable_memory(canister), Vec::<u8>::new());
-    let (code, result) = command(&args);
-    assert_eq!(code, 3);
-    assert_eq!(result["error"], "query_rejected");
-    assert_eq!(pic.get_stable_memory(canister), Vec::<u8>::new());
+    let canister = pic.create_canister().unwrap();
+    pic.install_canister(canister, update_wasm("operator_status", &[]), vec![], None)
+        .unwrap();
+    assert!(fixture_calls::query_fixture::<(Option<blob_test_protocol::status::OperatorStatusView>,), _>(pic, canister, f.driver, "operator_status", ()).is_err());
+    assert_eq!(pic.get_stable_memory(canister).unwrap(), Vec::<u8>::new());
     // Positive control proves this is executable mutation, not an inert/missing export.
     pic.update_call(canister, f.driver, "operator_status", vec![])
         .unwrap();
-    assert_eq!(pic.get_stable_memory(canister).len(), 65_536);
+    assert_eq!(pic.get_stable_memory(canister).unwrap().len(), 65_536);
 }

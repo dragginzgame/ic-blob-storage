@@ -12,13 +12,16 @@ fn consumer_wasm() -> Vec<u8> {
 fn fixture(operator_client: bool) -> (Fixture, Principal) {
     let harness = Harness::new();
     let driver = fake_principal(2);
-    let client = harness.pic.create_canister_with_settings(
-        Some(driver),
-        Some(CanisterSettings {
-            controllers: Some(vec![driver]),
-            ..CanisterSettings::default()
-        }),
-    );
+    let client = harness
+        .pic
+        .create_canister_with_settings(
+            Some(driver),
+            Some(CanisterSettings {
+                controllers: Some(vec![driver]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
     let mut f = Fixture::with_operator(
         harness,
         if operator_client {
@@ -27,12 +30,16 @@ fn fixture(operator_client: bool) -> (Fixture, Principal) {
             fake_principal(1)
         },
     );
-    f.harness.pic.install_canister(
-        client,
-        consumer_wasm(),
-        blob_test_protocol::fixture_wire::encode_args("fixture_init", (driver, f.service)).unwrap(),
-        Some(driver),
-    );
+    f.harness
+        .pic
+        .install_canister(
+            client,
+            consumer_wasm(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_init", (driver, f.service))
+                .unwrap(),
+            Some(driver),
+        )
+        .unwrap();
     if !operator_client {
         f.tenant = client;
         f.enroll(None, true).unwrap();
@@ -98,8 +105,8 @@ fn tenant_control_ingress_refuses_unusable_packets_before_writes() {
     let mut trailing = valid.clone();
     trailing.push(0);
     let unknown = ic_blob_storage_contracts::document::encode((input, true)).unwrap();
-    let consumer_before = f.harness.pic.get_stable_memory(client);
-    let service_before = f.harness.pic.get_stable_memory(f.service);
+    let consumer_before = f.harness.pic.get_stable_memory(client).unwrap();
+    let service_before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for packet in [
         Vec::new(),
         valid[..valid.len() - 1].to_vec(),
@@ -112,10 +119,19 @@ fn tenant_control_ingress_refuses_unusable_packets_before_writes() {
             .pic
             .update_call(client, f.controller, "fixture_update_tenant", packet)
             .unwrap_err();
-        assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&rejected).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(saved(&f, client), None);
-        assert_eq!(f.harness.pic.get_stable_memory(client), consumer_before);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
+        assert_eq!(
+            f.harness.pic.get_stable_memory(client).unwrap(),
+            consumer_before
+        );
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).unwrap(),
+            service_before
+        );
     }
     assert_eq!(dispatch(&f, client, input).unwrap(), inspect(&f, client));
     assert_eq!(saved(&f, client), Some(input.command));
@@ -154,7 +170,10 @@ fn tenant_client_retains_command_after_success_small_reply_or_callback_trap() {
                     ic_blob_storage_contracts::document::encode(input).unwrap(),
                 )
                 .unwrap_err();
-            assert_eq!(failure.reject_code, RejectCode::CanisterError);
+            assert_eq!(
+                crate::canister_rejection(&failure).reject_code,
+                RejectCode::CanisterError
+            );
         } else if max_reply_bytes == 1 {
             assert_eq!(dispatch(&f, client, input), Err(ConsumerFailure::Transport));
         } else {
@@ -233,7 +252,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
             active: true
         })
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let query: Result<TenantEnrollmentResponse, ConsumerFailure> = f
         .harness
         .pic
@@ -265,7 +284,7 @@ fn tenant_client_observation_does_not_grant_operator_or_query_dispatch_authority
     );
     assert_eq!(saved(&f, client), Some(command));
     assert_eq!(inspect(&f, client), observed);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     let foreign: Result<TenantEnrollmentResponse, ConsumerFailure> = f
         .harness
         .pic
@@ -303,7 +322,7 @@ fn tenant_client_retains_stale_command_without_overwriting_newer_enrollment() {
         };
         // Reject both a stale active flag within one generation and an old
         // generation whose active flag once again matches the saved observation.
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         assert_eq!(
             f.update_enrollment(f.operator, command),
             Err(TenantFailure::Conflict)
@@ -331,7 +350,7 @@ fn tenant_client_retains_stale_command_without_overwriting_newer_enrollment() {
             ),
             Err(ConsumerFailure::Conflict)
         );
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 
         f.harness
             .pic
@@ -345,6 +364,6 @@ fn tenant_client_retains_stale_command_without_overwriting_newer_enrollment() {
         assert_eq!(saved(&f, client), Some(command));
         assert_eq!(inspect(&f, client).enrollment, Some(current));
         assert_eq!(dispatch(&f, client, input), Err(ConsumerFailure::Fenced));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     }
 }

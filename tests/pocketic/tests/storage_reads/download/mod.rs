@@ -47,7 +47,7 @@ fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_bod
         Err(DownloadFailure::Unavailable)
     );
     f.expose(permission.request).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let view = f.download(f.tenant, input).unwrap();
     assert_eq!(view.owner, f.service.into());
     assert_ne!(view.owner, ic_platform::Principal::from(f.operator));
@@ -104,7 +104,7 @@ fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_bod
     let mut foreign = input;
     foreign.content.service = f.other;
     assert_eq!(f.download(f.tenant, foreign), Err(DownloadFailure::Binding));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 #[test]
 fn operational_download_rejects_released_suspended_and_restored_content() {

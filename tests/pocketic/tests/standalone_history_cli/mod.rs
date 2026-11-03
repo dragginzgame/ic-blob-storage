@@ -13,7 +13,8 @@ fn live(f: &mut Fixture, args: &mut [String]) {
     let url = f
         .harness
         .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None);
+        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap();
     change(args, "--url", url.as_str());
 }
 fn change(args: &mut [String], flag: &str, value: &str) {
@@ -24,7 +25,7 @@ fn arguments(f: &Fixture, directory: &Path) -> Vec<String> {
     let key = directory.join("operator.pem");
     let root = directory.join("root.der");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
     [
         "upload-history",
         "--network",
@@ -164,7 +165,7 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let saved = dir.path().join("cursor.json");
     let mut args = arguments(&f, dir.path());
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     live(&mut f, &mut args);
     let empty = run(&args, 0);
     assert_eq!(empty["entries"], json!([]));
@@ -187,17 +188,23 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
     change(&mut wrong, "--namespace", &f.config.namespace.to_string());
     change(&mut wrong, "--operator", &f.controller.to_text());
     assert_eq!(run(&wrong, 3)["error"], "identity_binding");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     live(&mut f, &mut args);
     let restored = run(&cursor(&args, &saved, &empty["next"]), 0);
     assert_eq!(restored["entries"], resumed["entries"]);
     assert_eq!(restored["fenced"], true);
     assert_eq!(restored["retry_authorized"], false);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
 }

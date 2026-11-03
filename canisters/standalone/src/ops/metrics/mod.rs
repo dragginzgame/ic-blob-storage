@@ -20,14 +20,14 @@ impl Row {
     fn view(self, operation: MetricOperation) -> OperationMetrics {
         OperationMetrics {
             operation,
-            attempts: self.attempts,
-            applied: self.outcomes[0],
-            replayed: self.outcomes[1],
-            refused: self.outcomes[2],
-            provider_failed: self.outcomes[3],
-            acknowledged: self.outcomes[4],
-            request_bytes: self.bytes,
-            instructions: self.instructions,
+            attempts: self.attempts.into(),
+            applied: self.outcomes[0].into(),
+            replayed: self.outcomes[1].into(),
+            refused: self.outcomes[2].into(),
+            provider_failed: self.outcomes[3].into(),
+            acknowledged: self.outcomes[4].into(),
+            request_bytes: self.bytes.into(),
+            instructions: self.instructions.into(),
         }
     }
 }

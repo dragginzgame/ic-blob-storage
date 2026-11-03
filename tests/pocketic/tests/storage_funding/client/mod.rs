@@ -15,13 +15,16 @@ fn consumer_wasm() -> Vec<u8> {
 fn fixture(authorized: bool) -> (Fixture, Principal) {
     let harness = Harness::new();
     let driver = fake_principal(2);
-    let client = harness.pic.create_canister_with_settings(
-        Some(driver),
-        Some(CanisterSettings {
-            controllers: Some(vec![driver]),
-            ..CanisterSettings::default()
-        }),
-    );
+    let client = harness
+        .pic
+        .create_canister_with_settings(
+            Some(driver),
+            Some(CanisterSettings {
+                controllers: Some(vec![driver]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
     let f = Fixture::with_operator(
         harness,
         if authorized {
@@ -30,12 +33,16 @@ fn fixture(authorized: bool) -> (Fixture, Principal) {
             fake_principal(1)
         },
     );
-    f.harness.pic.install_canister(
-        client,
-        consumer_wasm(),
-        blob_test_protocol::fixture_wire::encode_args("fixture_init", (driver, f.service)).unwrap(),
-        Some(driver),
-    );
+    f.harness
+        .pic
+        .install_canister(
+            client,
+            consumer_wasm(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_init", (driver, f.service))
+                .unwrap(),
+            Some(driver),
+        )
+        .unwrap();
     (f, client)
 }
 fn history(
@@ -106,8 +113,8 @@ fn observe(f: &Fixture, client: Principal, fenced: bool) {
         scope: f.funding_scope(),
         cursor: None,
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let client_before = f.harness.pic.get_stable_memory(client);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let client_before = f.harness.pic.get_stable_memory(client).unwrap();
     let first = history(f, client, input, 16_384).unwrap();
     assert_eq!(first.fenced, fenced);
     assert_eq!(
@@ -162,11 +169,19 @@ fn observe(f: &Fixture, client: Principal, fenced: bool) {
         Err(ConsumerFailure::Transport)
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.service).eq(&before),
+        f.harness
+            .pic
+            .get_stable_memory(f.service)
+            .unwrap()
+            .eq(&before),
         "inspection changed service bytes"
     );
     assert!(
-        f.harness.pic.get_stable_memory(client).eq(&client_before),
+        f.harness
+            .pic
+            .get_stable_memory(client)
+            .unwrap()
+            .eq(&client_before),
         "inspection changed client bytes"
     );
 }

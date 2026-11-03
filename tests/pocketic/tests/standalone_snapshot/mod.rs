@@ -73,12 +73,12 @@ fn standalone_snapshot_rollback_stays_fenced_and_refuses_current_instance_recove
             )
         )
     );
-    let before = pic.get_stable_memory(f.service);
+    let before = pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.resume(f.operator),
         Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::SnapshotRestored)
     );
-    unchanged(&pic.get_stable_memory(f.service), &before);
+    unchanged(&pic.get_stable_memory(f.service).unwrap(), &before);
 
     // An even older snapshot forgets the entire operation and its reservation.
     snapshots::load(pic, f.service, f.controller, &empty);

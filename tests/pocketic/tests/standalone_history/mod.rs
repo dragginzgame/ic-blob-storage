@@ -61,7 +61,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
         .unwrap();
     admitted.unwrap();
     let request = f.history_request();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut expected = UploadHistoryPage {
         request,
         entries: vec![UploadHistoryEntry {
@@ -85,7 +85,10 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected.clone()));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
         .harness
         .pic
@@ -102,10 +105,9 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_tenant_as(
             f.service,
             f.operator,
-            "blob_update_tenant",
             TenantUpdateRequest {
                 scope: f.scope(),
                 expected: enrollment.enrollment,
@@ -127,7 +129,7 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     expected.fenced = true;
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.history(f.tenant, request), Ok(expected.clone()));
     let operator = UploadHistoryRequest {
         scope: UploadHistoryScope::Service,
@@ -135,14 +137,17 @@ fn standalone_history_preserves_distinct_full_width_ids_and_fenced_suspended_ins
     };
     expected.request = operator;
     assert_eq!(f.history(f.operator, operator), Ok(expected));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }
 
 #[test]
 fn standalone_history_rejects_scope_and_cursor_errors_even_without_records() {
     let f = Fixture::new();
     let request = f.history_request();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.uploader, f.operator, f.controller, Principal::anonymous()] {
         assert_eq!(f.history(actor, request), Err(UploadHistoryFailure::Denied));
     }
@@ -217,5 +222,8 @@ fn standalone_history_rejects_scope_and_cursor_errors_even_without_records() {
     assert_eq!(page.entries, []);
     assert_eq!(page.scanned, 0);
     assert_eq!(page.next, None);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }

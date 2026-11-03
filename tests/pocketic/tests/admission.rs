@@ -10,14 +10,16 @@ mod admission_cases;
 mod admission_content;
 mod admission_resources;
 mod admission_wire;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
+use ic_blob_storage_pocketic_tests::service_calls::canister_rejection;
 mod vectors;
 
 use blob_test_protocol::admission::{
     Command, Enrollment, Failure, Installation, ManifestState, Observation, Outcome, Permission,
     Phase, Request, Workload,
 };
-use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
+use ic_platform::pocket_ic::RejectCode;
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
 use std::time::Duration;
@@ -42,23 +44,20 @@ impl Fixture {
         let harness = Harness::new();
         let operator = fake_principal(1);
         let controller = fake_principal(2);
-        let service = harness.pic.create_canister_with_settings(
-            Some(controller),
-            Some(CanisterSettings {
-                controllers: Some(vec![controller]),
-                ..CanisterSettings::default()
-            }),
-        );
-        harness.pic.install_canister(
-            service,
-            Self::wasm(),
-            blob_test_protocol::fixture_wire::encode_args(
-                "fixture_init",
-                (Installation { operator, workload },),
+        let service = installation::controlled_canister(&harness.pic, controller);
+        harness
+            .pic
+            .install_canister(
+                service,
+                Self::wasm(),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "fixture_init",
+                    (Installation { operator, workload },),
+                )
+                .unwrap(),
+                Some(controller),
             )
-            .unwrap(),
-            Some(controller),
-        );
+            .unwrap();
         Self {
             harness,
             service,
@@ -122,7 +121,12 @@ impl Fixture {
     }
 
     fn permission(&self, vector: &vectors::Vector) -> Permission {
-        let nanos = self.harness.pic.get_time().as_nanos_since_unix_epoch();
+        let nanos = self
+            .harness
+            .pic
+            .get_time()
+            .unwrap()
+            .as_nanos_since_unix_epoch();
         Permission {
             request: Request {
                 service: self.service,
@@ -358,7 +362,10 @@ fn suspension_reactivation_and_real_time_do_not_renew_authority() {
     let q = f.permission(&second);
     f.admit(q);
     f.prepare(q, &second);
-    f.harness.pic.advance_time(Duration::from_secs(601));
+    f.harness
+        .pic
+        .advance_time(Duration::from_secs(601))
+        .unwrap();
     assert_eq!(
         f.call(f.uploader, Command::Expose(q.request.root)),
         Err(Failure::Exposure(ExposureFailure::Permission(

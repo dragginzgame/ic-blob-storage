@@ -9,20 +9,23 @@ use blob_test_protocol::{
 impl Fixture {
     fn with_gateway_source() -> Self {
         let harness = Harness::new();
-        let source = harness.pic.create_canister();
+        let source = harness.pic.create_canister().unwrap();
         // Existing fixture binds operator and Cashier to the same explicit input.
         // PocketIC acts for that operator; source controls remain driver-only.
         let f = Self::with_operator(harness, source);
-        f.harness.pic.install_canister(
-            source,
-            std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-            blob_test_protocol::fixture_wire::encode_args(
-                "fixture_init",
-                (f.service, f.other, f.controller),
+        f.harness
+            .pic
+            .install_canister(
+                source,
+                std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "fixture_init",
+                    (f.service, f.other, f.controller),
+                )
+                .unwrap(),
+                None,
             )
-            .unwrap(),
-            None,
-        );
+            .unwrap();
         f
     }
     fn source_mode(&self, mode: SourceMode) {
@@ -73,7 +76,7 @@ impl Fixture {
     }
     fn wait_source(&self) {
         for _ in 0..30 {
-            self.harness.pic.tick();
+            self.harness.pic.tick().unwrap();
             let view: Option<SourceRecoveryView> = fixture_calls::query_fixture(
                 &self.harness.pic,
                 self.operator,
@@ -107,12 +110,12 @@ impl Fixture {
 fn durable_gateway_transport_preserves_failed_attempts_and_refuses_unsendable_requests() {
     let f = Fixture::with_gateway_source();
     let old = f.gateway_begin();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
         assert_eq!(f.query_gateways(actor, old), Err(Failure::Denied));
     }
     assert_eq!(f.source_requests(), 0);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     for (mode, expected) in [
         (SourceMode::Reject, Failure::Transport),
         (SourceMode::Malformed, Failure::Invalid),
@@ -121,7 +124,7 @@ fn durable_gateway_transport_preserves_failed_attempts_and_refuses_unsendable_re
     ] {
         f.source_mode(mode);
         assert_eq!(f.query_gateways(f.operator, old), Err(expected));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     }
     f.cancel_gateway_sync(f.operator, old).unwrap();
     let requests = f.source_requests();
@@ -267,7 +270,10 @@ fn gateway_callback_write_trap_keeps_pending_state_and_restoration_blocks_resend
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.source_requests(), 1);
     assert_eq!(f.gateway_view(), before);
     f.harness

@@ -17,6 +17,7 @@ fn live(f: &mut Fixture) -> String {
     f.harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string()
 }
 fn refused(args: &[String], code: &str) {
@@ -71,7 +72,7 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
         },
         reply,
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut args = submission(receipt, &directory);
     change_native(&mut args, "--url", &proxy.url);
     let value = run(&args, if reply == Reply::Pending { 0 } else { 3 });
@@ -119,7 +120,10 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
         intent
     );
     assert_eq!(proxy.calls(), 1);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 fn phase_submission(
     f: &Fixture,
@@ -130,17 +134,20 @@ fn phase_submission(
     code: &str,
 ) {
     let directory = report.join(label);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let args = submission(receipt, &directory);
     let value = run(&args, 3);
     assert_eq!(value["error"], code);
     save(report, &format!("{label}-submission.json"), &value);
     response(&directory, failure);
     refused(&args, "submission_already_claimed");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 fn authority(f: &Fixture, receipt: &[String], directory: &Path) {
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut wrong = receipt.to_vec();
     change_native(&mut wrong, "--namespace", "1");
     refused(&wrong, "binding");
@@ -153,7 +160,10 @@ fn authority(f: &Fixture, receipt: &[String], directory: &Path) {
     wrong.clone_from_slice(receipt);
     change_native(&mut wrong, "--root-key", untrusted.to_str().unwrap());
     refused(&wrong, "transport");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 fn restored(
     f: &mut Fixture,
@@ -163,10 +173,10 @@ fn restored(
     report: &Path,
     mut current: ReferenceCommand,
 ) -> ReferenceCommand {
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let url = live(f);
     for args in [&mut *receipt, status] {
         change_native(args, "--url", &url);
@@ -204,8 +214,11 @@ fn restored(
         ],
         [u128::from(current.upload.bytes); 4]
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
     current
 }
@@ -228,7 +241,7 @@ fn report_directory(f: &Fixture, temporary: &Path, label: &str, bytes: u64) -> P
     );
     std::fs::write(
         report.join("fixture-root.der"),
-        f.harness.pic.root_key().unwrap(),
+        f.harness.pic.root_key().unwrap().unwrap(),
     )
     .unwrap();
     report
@@ -239,7 +252,7 @@ fn prepared(
     receipt: &mut [String],
     status: &mut [String],
 ) {
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     f.harness
         .pic
         .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
@@ -258,6 +271,10 @@ fn prepared(
         refused(args, "reference_unconfirmed");
     }
 }
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn journey(reply: Reply, label: &str) {
     let mut f = Fixture::with_harness(Harness::with_builder(
         PocketIcBuilder::new()
@@ -282,14 +299,17 @@ fn journey(reply: Reply, label: &str) {
     let report = report_directory(&f, dir.path(), label, permission.upload.bytes);
     let url = live(&mut f);
     let (mut receipt, mut status) = native_requests(&f.harness.pic, input, dir.path(), &url);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for args in [&receipt, &status] {
         refused(args, "reference_unknown");
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     unknown_submission(&f, &receipt, &report, &url, reply);
     prepared(&mut f, &manifest, &mut receipt, &mut status);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut current = input;
     current.operation -= 1;
     std::fs::write(
@@ -321,7 +341,10 @@ fn journey(reply: Reply, label: &str) {
         "reference_unconfirmed",
     );
     authority(&f, &receipt, dir.path());
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     current = restored(
         &mut f,
         &mut receipt,
@@ -343,14 +366,17 @@ fn journey(reply: Reply, label: &str) {
         "restored_fenced":true,"reservation_bytes":permission.upload.bytes.to_string(),
         "provider_content":"not_observed","retry_authorized":false}),
     );
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
         let failure = f
             .harness
             .pic
             .query_call(f.service, f.tenant, "blob_reference_receipt", bytes)
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
     }
 }
 

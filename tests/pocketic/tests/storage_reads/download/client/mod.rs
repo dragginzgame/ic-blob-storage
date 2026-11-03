@@ -19,13 +19,16 @@ fn fetch(
 }
 fn consumer() -> Fixture {
     let mut f = Fixture::new();
-    let client = f.harness.pic.create_canister();
-    f.harness.pic.install_canister(
-        client,
-        Fixture::wasm(),
-        Fixture::installation("fixture_init", f.operator),
-        None,
-    );
+    let client = f.harness.pic.create_canister().unwrap();
+    f.harness
+        .pic
+        .install_canister(
+            client,
+            Fixture::wasm(),
+            Fixture::installation("fixture_init", f.operator),
+            None,
+        )
+        .unwrap();
     f.tenant = client;
     f
 }
@@ -41,7 +44,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
         project: "fixture project/β?&=".into(),
         max_reply_bytes: 4096,
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let response = fetch(&f, selection.clone()).unwrap();
     assert_eq!(response.request.tenant, client.into());
     assert_eq!(response.request, selection.request);
@@ -104,7 +107,7 @@ fn actual_tenant_canister_fetches_bound_descriptor_and_refuses_wrong_contexts() 
         .map(|(reply,)| reply)
         .unwrap();
     assert_eq!(query, Err(DownloadProbeFailure::Execution));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.enroll(Some(f.tenant().unwrap()), false).unwrap();
     assert_eq!(
         fetch(&f, selection.clone()),

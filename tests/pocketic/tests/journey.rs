@@ -7,7 +7,9 @@ mod chunks;
 mod content_vectors;
 mod readback;
 mod recovery;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
+use ic_blob_storage_pocketic_tests::service_calls::canister_rejection;
 mod sync_request;
 mod vectors;
 use blob_test_protocol::journey::{
@@ -17,7 +19,7 @@ use blob_test_protocol::journey::{
 use ic_platform::candid::decoder;
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
+use ic_platform::pocket_ic::RejectCode;
 use ic_testkit::fake_principal;
 use sha2::{Digest, Sha256};
 use support::{Harness, fixture_path};
@@ -47,18 +49,13 @@ impl Fixture {
         let first = fake_principal(1);
         let second = fake_principal(2);
         let operator = fake_principal(4);
-        let service = pic.create_canister_with_settings(
-            Some(operator),
-            Some(CanisterSettings {
-                controllers: Some(vec![operator]),
-                ..CanisterSettings::default()
-            }),
-        );
-        let gateway = pic.create_canister();
+        let service = installation::controlled_canister(pic, operator);
+        let gateway = pic.create_canister().unwrap();
         let authority_operator = if source_operator { gateway } else { operator };
-        pic.install_canister(
+        installation::install_fixture(
+            pic,
             service,
-            std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("service Wasm"),
+            "BLOB_AUTHORITY_PROBE_WASM",
             blob_test_protocol::fixture_wire::encode_args(
                 "fixture_init",
                 (first, second, gateway, authority_operator),
@@ -66,9 +63,10 @@ impl Fixture {
             .expect("service init"),
             Some(operator),
         );
-        pic.install_canister(
+        installation::install_fixture(
+            pic,
             gateway,
-            std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).expect("gateway Wasm"),
+            "BLOB_GATEWAY_SOURCE_WASM",
             blob_test_protocol::fixture_wire::encode_args(
                 "fixture_init",
                 (service, gateway, operator),
@@ -185,7 +183,7 @@ impl Fixture {
                 decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
                     .expect("current certificate shape")
             })
-            .map_err(|error| error.reject_code)
+            .map_err(|error| crate::canister_rejection(&error).reject_code)
     }
     fn root_control(
         &self,
@@ -388,7 +386,10 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
             ic_platform::candid::contract::encode_args(()).expect("empty args"),
         )
         .expect_err("revoked gateway");
-    assert_eq!(denied.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&denied).reject_code,
+        RejectCode::CanisterError
+    );
 }
 
 #[test]
@@ -414,7 +415,10 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                 .expect("callback roots"),
         )
         .expect_err("tenant cannot command the gateway fixture");
-    assert_eq!(denied.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&denied).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.reserve(f.first, a), Ok(()));
     assert_eq!(f.reserve(f.second, upload(1, &[32; 100])), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", a), Ok(()));
@@ -437,7 +441,10 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                     .expect("empty batch"),
             )
             .expect_err("gateway-only even for empty batch");
-        assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&rejected).reject_code,
+            RejectCode::CanisterError
+        );
     }
     for batch in [vec![vec![1; 31]], vec![root(a.root); 9]] {
         let rejected = f
@@ -450,7 +457,10 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                 ic_platform::candid::contract::encode_one(batch).expect("invalid batch"),
             )
             .expect_err("bounded valid binary roots required");
-        assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&rejected).reject_code,
+            RejectCode::CanisterError
+        );
     }
     assert_eq!(
         f.reserve(

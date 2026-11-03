@@ -9,23 +9,6 @@ publish = false
 [target.'cfg(unix)'.dependencies]
 libc.workspace = true
 
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-clap.workspace = true
-ic-blob-storage-client = { workspace = true, features = ["native-download"] }
-ic-blob-storage-contracts = { workspace = true, features = ["provider-json"] }
-ic-build = { workspace = true, optional = true }
-ic-host-artifacts.workspace = true
-ic-host-fs.workspace = true
-ic-host-http.workspace = true
-ic-host-process.workspace = true
-ic-metrics.workspace = true
-ic-platform = { workspace = true, features = ["agent"] }
-reqwest = { workspace = true, features = ["rustls", "http2"] }
-serde.workspace = true
-serde_json.workspace = true
-tokio = { workspace = true, features = ["rt", "time", "sync"] }
-url.workspace = true
-
 [[bin]]
 name = "blob-storage"
 path = "src/main.rs"
@@ -42,12 +25,29 @@ required-features = ["package-verification"]
 [features]
 package-verification = ["dep:ic-build"]
 
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+clap = { workspace = true, features = ["derive"] }
+ic-blob-storage-client = { workspace = true, features = ["native-download"] }
+ic-blob-storage-contracts = { workspace = true, features = ["provider-json"] }
+ic-build = { workspace = true, optional = true }
+ic-host-artifacts.workspace = true
+ic-host-fs.workspace = true
+ic-host-http.workspace = true
+ic-host-process.workspace = true
+ic-platform = { workspace = true, features = ["agent"] }
+reqwest = { workspace = true, features = ["rustls", "http2"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["rt", "time", "sync"] }
+url.workspace = true
+
 [build-dependencies]
 ic-build.workspace = true
 
 [target.'cfg(not(target_family = "wasm"))'.dev-dependencies]
 ic-host-fs = { workspace = true, features = ["test-support"] }
 ic-host-process = { workspace = true, features = ["test-support"] }
+ic-metrics.workspace = true
 ic-platform = { workspace = true, features = ["principal-self-authenticating"] }
 
 [lints]

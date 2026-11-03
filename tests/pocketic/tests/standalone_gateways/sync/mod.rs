@@ -12,24 +12,30 @@ fn fixture() -> Fixture {
 }
 pub(super) fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
     let driver = fake_principal(1);
-    let cashier = harness.pic.create_canister_with_settings(
-        Some(driver),
-        Some(CanisterSettings {
-            controllers: Some(vec![driver]),
-            ..CanisterSettings::default()
-        }),
-    );
-    let f = Fixture::with_cashier_and_operator(harness, cashier, operator);
-    f.harness.pic.install_canister(
-        cashier,
-        std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
-        blob_test_protocol::fixture_wire::encode_args(
-            "fixture_init",
-            (f.service, fake_principal(9), driver),
+    let cashier = harness
+        .pic
+        .create_canister_with_settings(
+            Some(driver),
+            Some(CanisterSettings {
+                controllers: Some(vec![driver]),
+                ..CanisterSettings::default()
+            }),
         )
-        .unwrap(),
-        Some(driver),
-    );
+        .unwrap();
+    let f = Fixture::with_cashier_and_operator(harness, cashier, operator);
+    f.harness
+        .pic
+        .install_canister(
+            cashier,
+            std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args(
+                "fixture_init",
+                (f.service, fake_principal(9), driver),
+            )
+            .unwrap(),
+            Some(driver),
+        )
+        .unwrap();
     f
 }
 fn refresh(
@@ -74,7 +80,7 @@ pub(super) fn mode(f: &Fixture, selected: SourceMode) {
 fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() {
     let f = fixture();
     let scope = f.operator_scope();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(refresh(&f, actor, scope), Err(SyncError::Denied));
         assert_eq!(cancel(&f, actor, 1), Err(SyncError::Denied));
@@ -99,8 +105,15 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
     ] {
         assert_eq!(refresh(&f, f.operator, changed), Err(SyncError::Binding));
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    let source_before = f.harness.pic.get_stable_memory(scope.cashier.into());
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    let source_before = f
+        .harness
+        .pic
+        .get_stable_memory(scope.cashier.into())
+        .unwrap();
     assert_eq!(
         refresh(&f, f.operator, scope),
         Ok(GatewaySyncResponse { scope, sequence: 1 })
@@ -112,7 +125,10 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
     );
     assert_eq!(status.gateways.pending_sequence, None);
     unchanged(
-        &f.harness.pic.get_stable_memory(scope.cashier.into()),
+        &f.harness
+            .pic
+            .get_stable_memory(scope.cashier.into())
+            .unwrap(),
         &source_before,
     );
     for (index, (selected, error)) in [
@@ -134,9 +150,9 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
                 row.operation == ic_blob_storage_contracts::standalone::MetricOperation::GatewaySync
             })
             .unwrap();
-        assert_eq!(metrics.provider_failed.total(), index as u128 + 1);
-        assert_eq!(metrics.acknowledged.total(), 1);
-        assert_eq!(metrics.applied.total(), 0);
+        assert_eq!(metrics.provider_failed.total, index as u128 + 1);
+        assert_eq!(metrics.acknowledged.total, 1);
+        assert_eq!(metrics.applied.total, 0);
         let pending = f.local_status(f.operator, scope).unwrap();
         let sequence = pending.gateways.pending_sequence.unwrap();
         assert_eq!(sequence, index as u64 + 2);
@@ -144,12 +160,12 @@ fn standalone_refresh_is_scoped_and_failed_queries_require_exact_cancellation() 
         assert_eq!(pending.uploads, status.uploads);
         assert_eq!(pending.funding, status.funding);
 
-        let bytes = f.harness.pic.get_stable_memory(f.service);
+        let bytes = f.harness.pic.get_stable_memory(f.service).unwrap();
         assert_eq!(
             cancel(&f, f.operator, sequence - 1),
             Err(SyncError::Conflict)
         );
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
+        unchanged(&f.harness.pic.get_stable_memory(f.service).unwrap(), &bytes);
         assert_eq!(cancel(&f, f.operator, sequence), Ok(()));
         assert_eq!(cancel(&f, f.operator, sequence), Err(SyncError::Conflict));
     }
@@ -166,7 +182,7 @@ fn standalone_restore_preserves_failed_sync_and_blocks_refresh_and_cancellation(
     assert_eq!(pending.pending_sequence, Some(1));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(refresh(&f, f.operator, scope), Err(SyncError::Fenced));
     assert_eq!(cancel(&f, f.operator, 1), Err(SyncError::Fenced));
     let restored = f.local_status(f.operator, scope).unwrap().gateways;
@@ -174,7 +190,10 @@ fn standalone_restore_preserves_failed_sync_and_blocks_refresh_and_cancellation(
     assert_eq!(restored.pending_sequence, pending.pending_sequence);
     assert_eq!(restored.last_sequence, pending.last_sequence);
     assert_eq!(restored.members, pending.members);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     f.resume(f.operator).unwrap();
     assert_eq!(f.local_status(f.operator, scope).unwrap().gateways, pending);
     assert_eq!(cancel(&f, f.operator, 1), Ok(()));
@@ -199,9 +218,12 @@ fn explicit_refresh_recovers_a_failed_read_without_separate_cancellation() {
     );
     mode(&f, SourceMode::Valid);
     assert_eq!(refresh(&f, f.operator, scope).unwrap().sequence, 2);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(cancel(&f, f.operator, 1), Err(SyncError::Conflict));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     assert_eq!(
         f.local_status(f.operator, scope)
             .unwrap()

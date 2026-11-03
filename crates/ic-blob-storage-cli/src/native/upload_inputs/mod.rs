@@ -203,14 +203,13 @@ fn validate_namespaces(
     Ok(())
 }
 
-pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    use super::arguments::value;
-    let binding_path = value::<std::path::PathBuf>(flags, "--binding");
-    let installation_path = value::<std::path::PathBuf>(flags, "--installation");
-    let manifest_path = value::<std::path::PathBuf>(flags, "--manifest");
-    let maximum: NonZeroU64 = value(flags, "--max-bytes");
-    let directory = value::<std::path::PathBuf>(flags, "--run-dir");
-    let body_path = value::<std::path::PathBuf>(flags, "--body");
+pub(super) fn run(input: super::arguments::schema::UploadInputs) -> Result<Value, Failure> {
+    let binding_path = input.binding;
+    let installation_path = input.installation;
+    let manifest_path = input.manifest;
+    let maximum: NonZeroU64 = input.max_bytes;
+    let directory = input.run_dir;
+    let body_path = input.body;
     PreparedInput::load(InputFiles {
         binding: read(&binding_path, BINDING_BYTES)?,
         manifest: read(&manifest_path, MANIFEST_BYTES)?,

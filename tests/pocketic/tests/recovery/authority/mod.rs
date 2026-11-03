@@ -43,7 +43,8 @@ impl Fixture {
     fn replace_archive_bytes(&self, bytes: Vec<u8>) {
         self.harness
             .pic
-            .set_stable_memory(self.service, bytes, BlobCompression::NoCompression);
+            .set_stable_memory(self.service, bytes, BlobCompression::NoCompression)
+            .unwrap();
         // Direct PocketIC memory injection does not invalidate the IC query
         // cache. A real stateless update advances the instance version without
         // touching the archive, so the following query executes against the fault.
@@ -229,7 +230,10 @@ fn callback_trap_preserves_exact_stable_read_intent_and_revocation_marks_it_stal
         .pic
         .await_call(id)
         .expect_err("actual read callback trap");
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.archive(), before);
     let (revoked,): (bool,) =
         fixture_calls::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
@@ -278,11 +282,11 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
     assert!(initial.is_some());
     let f = Fixture::new();
     let initial = f.archive();
-    let old = f.harness.pic.get_stable_memory(f.service);
+    let old = f.harness.pic.get_stable_memory(f.service).unwrap();
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     let current = f.archive();
-    let saved = f.harness.pic.get_stable_memory(f.service);
+    let saved = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.replace_archive_bytes(old);
     assert_eq!(f.archive(), initial);
     assert_eq!(
@@ -301,7 +305,10 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
             blob_test_protocol::fixture_wire::encode_args("authority_archive", ()).unwrap(),
         )
         .expect_err("missing archive rejects inspection");
-    assert_eq!(failed.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&failed).reject_code,
+        RejectCode::CanisterError
+    );
     // Repair external fault injection before any legitimate mutation.
     f.replace_archive_bytes(saved);
     assert_eq!(f.archive(), current);

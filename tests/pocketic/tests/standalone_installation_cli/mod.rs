@@ -194,7 +194,7 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
     if let Ok(expected) = std::env::var("BLOB_EXPECTED_HOST_RELEASE") {
         assert_eq!(before.release, expected);
     }
-    let stable = f.harness.pic.get_stable_memory(f.service);
+    let stable = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.config = trial_configuration(&f);
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     f.uploader = fake_principal(91);
@@ -210,9 +210,16 @@ fn standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_servic
         .pic
         .reinstall_canister(f.service, wasm(), wrong, Some(f.controller))
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError, "{error:?}");
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError,
+        "{error:?}"
+    );
     assert_eq!(f.configuration(f.operator).unwrap(), before);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &stable);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &stable,
+    );
 
     f.config.service = f.service.into();
     let correct = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();

@@ -344,7 +344,7 @@ the current immutable record. Restoration still validates all owners synchronous
 enters their fences before any deferred work.
 
 The immutable installation record uses the frozen layout identity
-`ic-blob-storage/installation:singleton-cells`, independently of its exact library
+`ic-blob-storage/installation:singleton-cells:funding-progress`, independently of its exact library
 release. The `blob.configuration.v1` grant key identifies the existing allocation
 slot, not a compatible record layout. A mismatched identity refuses before opening
 the service owners; an undecodable layout traps without initialization or repair.
@@ -996,7 +996,7 @@ accessors. Funding accounting remains a map because it also indexes credit recei
 Each manifest part retains a hard 64 KiB record limit; the combined logical
 declaration keeps the existing admission envelope.
 
-Installation records also carry the current `ic-blob-storage/installation:singleton-cells`
+Installation records also carry the current `ic-blob-storage/installation:singleton-cells:funding-progress`
 format. Earlier Candid payloads, wrong record identities, response frames,
 trailing/corrupt bytes and budget violations refuse. They never initialize a
 replacement store. There is no Candid compatibility reader or automatic migration.
@@ -1361,9 +1361,16 @@ liquidity refusal, receiver traps and callback-write rollback after acceptance.
 `record_observation` retains the shared transport's structured result together with
 its transport phase and allocation update. It independently checks the call's
 original account, offer and optional target; service/Cashier checks still apply.
-The bounded v1 intent record now stores normalized balance components, supported
-provider errors, decode failure categories or the raw reject code, without wire
-buffers or diagnostic strings. Response/phase mismatches reject; exact replay is
+The bounded v1 intent record stores one transport-progress state: prepared,
+uncertain, not enqueued with optional unsent evidence, or callback with its exact
+refund and optional normalized diagnostic. Callback diagnostics contain balance
+components, provider errors, decode failure categories or the raw reject code,
+without wire buffers or diagnostic strings. Credit receipts and budget-renewal
+accounting remain separate. The 0.69 hard cut selects fresh record identity
+`BLFUPR01` and a new installation format; the old independent phase/response
+layout is refused even when the host release string is unchanged. Retire old
+obligations with their original tools before installing fresh whole backing.
+No fallback reader or migration is provided. Response/phase mismatches reject; exact replay is
 unchanged and conflicting observations cannot overwrite history. Recording a
 response for already retained matching transport cannot release its return twice.
 Transport-only evidence remains explicitly distinguishable from a retained reply.

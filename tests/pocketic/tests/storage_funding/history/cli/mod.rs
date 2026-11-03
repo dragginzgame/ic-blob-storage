@@ -26,6 +26,7 @@ fn unchanged(f: &Fixture, before: &[u8]) {
         f.harness
             .pic
             .get_stable_memory(f.service)
+            .unwrap()
             .iter()
             .eq(before.iter())
     );
@@ -112,11 +113,12 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
     let root = dir.path().join("root.der");
     let cursor = dir.path().join("cursor.json");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     let args = arguments(
         "funding-history",
@@ -126,7 +128,7 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
         &key,
         &root,
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let first = run(&args, 0);
     assert_eq!(first["entries"][0]["operation"], u128::MAX.to_string());
     assert_eq!(first["entries"][0]["phase"]["state"], "uncertain");
@@ -145,7 +147,7 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
     assert_eq!(last["next"], Value::Null);
     let observed = outcomes(&f, &args, uncertain, &first);
     unchanged(&f, &before);
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -155,11 +157,12 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
             Some(f.controller),
         )
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     let index = tail.iter().position(|s| s == "--url").unwrap();
     tail[index + 1] = url.clone();
@@ -176,5 +179,5 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
     assert_eq!(run(&exact_args, 0), expected);
     unchanged(&f, &before);
     assert_eq!(f.funding_allocation().uncertain, 30);
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }

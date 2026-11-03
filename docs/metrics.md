@@ -2,17 +2,23 @@
 
 The standalone host records a fixed heap roster: Admission, Manifest, Registration,
 Reference, GatewayAcknowledgment and GatewaySync. IC Metrics owns scalar arithmetic,
-measurement aggregates, overflow quality and validated numeric transport. Blob owns attribution, platform reads,
+measurement aggregates, overflow quality and numeric admission. Blob owns report
+DTOs, schemas, attribution, platform reads,
 reset windows and operator authorization. There are no dynamic labels or stable
 allocations. The service core remains framework-independent; Canic owns its
 separate adapter, reporting and optional persistence policy.
 
-The report uses published IC Metrics **0.17.0** `MeasurementCounter` and
-`MeasurementAggregate` directly. Their Serde readers enforce numeric invariants;
-native Wire metadata describes the same fields. Blob owns only the report roster,
-units, scope and codec budgets. Recording remains fixed heap state; no optional
-recording feature or stable store is enabled. Native metadata support does not
-bring TypeScript/schema tooling into the deployment graph.
+Recording uses published IC Metrics `MeasurementCounter` and
+`MeasurementAggregate`. The report boundary projects them once into Contracts'
+passive `CounterMetrics` and `AggregateMetrics` fields; it does not mirror live
+recording state. DTO decoding delegates to Metrics' validated Serde readers.
+Contracts owns Wire metadata without enabling Metrics' `native-wire` feature.
+The 0.69 Rust API change preserves the frozen report frame, JSON representation,
+exact-cap versus overflow flags and empty versus measured-zero maximum. See
+[#113](https://github.com/dragginzgame/ic-blob-storage/issues/113) and
+[Observability #128](https://github.com/dragginzgame/ic-observability/issues/128).
+Recording remains fixed heap state; no optional recording feature or stable store
+is enabled. Native schema tooling stays outside deployed canisters.
 
 ## Operator report
 

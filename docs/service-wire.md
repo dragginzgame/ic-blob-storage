@@ -134,8 +134,9 @@ Blob's local substitutes do not qualify
 Canic or the deployed provider. The 0.38 application trait cut removes public
 application DTO Candid implementations without changing Wire bytes. External
 provider types retain Candid; historical inputs and persisted private probe
-records use frozen local schemas. The 0.41 registration record and installation
-format changes are separate from these codec ownership choices.
+records use frozen local schemas. The 0.41 registration record, later installation formats and 0.69 funding-
+progress record cut are separate from these codec ownership choices. The latter
+changes private persisted state, not application method identities or bytes.
 
 Cross-release transitions remain retirement and reinstall only. Resolve provider
 objects, uncertain effects, balances and continuing billing under

@@ -16,50 +16,43 @@ fn request() -> FundingRequest {
         trap_callback: false,
     }
 }
-fn args(f: &Fixture, request: FundingRequest) -> Vec<String> {
-    let mut args = f.args(
-        f.sender,
-        f.driver,
-        "funding",
-        "--peer",
-        &f.receiver.to_text(),
-    );
-    args[0] = "lookup".into();
-    args.extend([
-        "--id".into(),
-        request.id.to_string(),
-        "--amount".into(),
-        request.offered.to_string(),
-        "--accept".into(),
-        request.accept.to_string(),
-        "--reply".into(),
-        format!("{:?}", request.reply),
-        "--trap-callback".into(),
-        request.trap_callback.to_string(),
-    ]);
-    args
+fn lookup(
+    f: &Fixture,
+    input: FundingLookupRequest,
+    caller: Principal,
+) -> Result<FundingLookupView, FundingLookupFailure> {
+    fixture_calls::query_fixture(&f.harness.pic, f.sender, caller, "lookup_funding", (input,))
+        .map(|(reply,)| reply)
+        .unwrap()
 }
-fn lookup(args: &[String]) -> (i32, Value) {
-    let output = Command::new(env!("CARGO_BIN_EXE_blob-fixture-funding-lookup"))
-        .args(args)
-        .output()
-        .unwrap();
-    assert!(output.stderr.is_empty(), "lookup failures belong in JSON");
-    (
-        output.status.code().unwrap(),
-        serde_json::from_slice(&output.stdout).unwrap(),
-    )
-}
-fn unchanged(f: &Fixture, request: FundingRequest) -> (i32, Value) {
+fn unchanged(
+    f: &Fixture,
+    request: FundingRequest,
+) -> Result<FundingLookupView, FundingLookupFailure> {
     let before = f.journals();
-    let result = lookup(&args(f, request));
-    assert!(
-        f.journals() == before,
+    let result = lookup(
+        f,
+        FundingLookupRequest {
+            service: f.sender,
+            peer: f.receiver,
+            attempt: request,
+        },
+        f.driver,
+    );
+    assert_eq!(
+        f.journals(),
+        before,
         "lookup cannot mutate either side of a transfer"
     );
     result
 }
-fn upgrade(f: &Fixture) {
+fn observed(view: &FundingLookupView) -> FundingObservation {
+    let FundingLookupState::Observed(value) = view.state else {
+        panic!("expected retained observation: {view:?}")
+    };
+    value
+}
+pub(super) fn upgrade(f: &Fixture) {
     f.harness
         .pic
         .upgrade_canister(
@@ -94,22 +87,25 @@ fn submit_and_discard_reply(f: &Fixture, request: FundingRequest) {
 fn lost_ingress_result_is_recovered_exactly_and_conflicting_inputs_cannot_read_it() {
     let f = Fixture::new();
     let original = request();
-    let (code, absent) = unchanged(&f, original);
-    assert_eq!(code, 4);
-    assert_eq!(absent["lookup"]["state"], "Absent");
+    let absent = unchanged(&f, original).unwrap();
+    assert_eq!(absent.state, FundingLookupState::Absent);
     submit_and_discard_reply(&f, original);
-    let (code, result) = unchanged(&f, original);
-    assert_eq!(code, 0);
-    assert_eq!(result["method"], "lookup_funding");
-    assert_eq!(result["mode"], "query");
-    assert_eq!(result["lookup"]["state"], "Observed");
-    assert_eq!(result["lookup"]["request"]["id"], u64::MAX.to_string());
-    let observed = &result["lookup"]["observation"];
-    assert_eq!(observed["transport_accepted"], "400000");
-    assert_eq!(observed["refunded"], "600000");
-    assert_eq!(observed["outcome"]["ProviderError"], "InternalError");
-    assert_eq!(observed["reconciliation"]["kind"], "CreditRequired");
-    assert_eq!(unchanged(&f, original).1, result);
+    let result = unchanged(&f, original).unwrap();
+    assert_eq!(result.request.attempt.id, u64::MAX);
+    let observation = observed(&result);
+    assert_eq!(observation.transport_accepted, Some(400_000));
+    assert_eq!(observation.refunded, Some(600_000));
+    assert_eq!(
+        observation.outcome,
+        blob_test_protocol::funding::FundingOutcome::ProviderError(
+            blob_test_protocol::funding::FundingProviderErrorView::InternalError
+        )
+    );
+    assert_eq!(
+        observation.reconciliation,
+        blob_test_protocol::funding::FundingReconciliationView::CreditRequired(400_000)
+    );
+    assert_eq!(unchanged(&f, original).unwrap(), result);
     for changed in [
         FundingRequest {
             offered: 1_000_001,
@@ -128,45 +124,41 @@ fn lost_ingress_result_is_recovered_exactly_and_conflicting_inputs_cannot_read_i
             ..original
         },
     ] {
-        let (code, failure) = unchanged(&f, changed);
-        assert_eq!(code, 3);
-        assert_eq!(failure["error"], "request_conflict");
+        assert_eq!(unchanged(&f, changed), Err(FundingLookupFailure::Conflict));
     }
     upgrade(&f);
-    let (code, frozen) = unchanged(&f, original);
-    assert_eq!(code, 0);
-    assert_eq!(frozen["lookup"]["fenced"], true);
-    assert_eq!(
-        frozen["lookup"]["observation"],
-        result["lookup"]["observation"]
-    );
+    let frozen = unchanged(&f, original).unwrap();
+    assert!(frozen.fenced);
+    assert_eq!(frozen.state, result.state);
 }
 
 #[test]
 fn old_backup_absence_cannot_erase_a_receipt_or_authorize_another_transfer() {
     let f = Fixture::new();
-    let old = f.harness.pic.get_stable_memory(f.sender);
+    let old = f.harness.pic.get_stable_memory(f.sender).unwrap();
     let original = request();
     submit_and_discard_reply(&f, original);
-    let receiver = f.harness.pic.get_stable_memory(f.receiver);
+    let receiver = f.harness.pic.get_stable_memory(f.receiver).unwrap();
     f.harness
         .pic
-        .set_stable_memory(f.sender, old, BlobCompression::NoCompression);
+        .set_stable_memory(f.sender, old, BlobCompression::NoCompression)
+        .unwrap();
     // Until an actual restore, diagnosis uses the active owner, not old stable bytes.
-    assert_eq!(unchanged(&f, original).1["lookup"]["state"], "Observed");
+    assert!(matches!(
+        unchanged(&f, original).unwrap().state,
+        FundingLookupState::Observed(_)
+    ));
     upgrade(&f);
-    let (code, absent) = unchanged(&f, original);
-    assert_eq!(code, 4);
-    assert_eq!(absent["lookup"]["state"], "Absent");
-    assert_eq!(absent["lookup"]["fenced"], true);
-    assert!(absent["lookup"]["observation"].is_null());
+    let absent = unchanged(&f, original).unwrap();
+    assert_eq!(absent.state, FundingLookupState::Absent);
+    assert!(absent.fenced);
     let result: Result<FundingObservation, FundingFailure> =
         fixture_calls::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (original,))
             .map(|(reply,)| reply)
             .unwrap();
     assert_eq!(result, Err(FundingFailure::Fenced));
     assert!(
-        f.harness.pic.get_stable_memory(f.receiver) == receiver,
+        f.harness.pic.get_stable_memory(f.receiver).unwrap() == receiver,
         "lookup cannot erase the receiver receipt"
     );
 }
@@ -189,18 +181,16 @@ fn callback_trap_remains_pending_through_lookup_and_restore() {
         )
         .unwrap_err();
     assert_eq!(
-        failure.reject_code,
+        crate::canister_rejection(&failure).reject_code,
         ic_platform::pocket_ic::RejectCode::CanisterError
     );
     for restored in [false, true] {
         if restored {
             upgrade(&f);
         }
-        let (code, result) = unchanged(&f, original);
-        assert_eq!(code, 4);
-        assert_eq!(result["lookup"]["state"], "Pending");
-        assert_eq!(result["lookup"]["fenced"], restored);
-        assert!(result["lookup"]["observation"].is_null());
+        let result = unchanged(&f, original).unwrap();
+        assert_eq!(result.state, FundingLookupState::Pending);
+        assert_eq!(result.fenced, restored);
     }
 }
 
@@ -228,7 +218,7 @@ fn live_lookup_observes_pending_then_original_completion_without_repeating_it() 
         .unwrap();
     let mut pending = false;
     for _ in 0..20 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         let result: Result<FundingLookupView, FundingLookupFailure> = fixture_calls::query_fixture(
             &f.harness.pic,
             f.sender,
@@ -244,54 +234,64 @@ fn live_lookup_observes_pending_then_original_completion_without_repeating_it() 
         }
     }
     assert!(pending, "observe committed intent before completion");
-    let (code, result) = unchanged(&f, original);
-    assert_eq!(code, 4);
-    assert_eq!(result["lookup"]["state"], "Pending");
+    let result = unchanged(&f, original).unwrap();
+    assert_eq!(result.state, FundingLookupState::Pending);
     f.harness.pic.await_call(call).unwrap();
-    let (code, result) = unchanged(&f, original);
-    assert_eq!(code, 0);
-    assert_eq!(
-        result["lookup"]["observation"]["transport_accepted"],
-        "400000"
-    );
+    let result = unchanged(&f, original).unwrap();
+    assert_eq!(observed(&result).transport_accepted, Some(400_000));
 }
 
 #[test]
 fn lookup_denies_wrong_callers_and_bindings_and_never_falls_back_to_update() {
     let f = Fixture::new();
     let before = f.journals();
-    for (flag, value, error) in [
-        ("--caller", Principal::anonymous().to_text(), "denied"),
-        ("--peer", fake_principal(99).to_text(), "binding_mismatch"),
-        ("--amount", "10000000000001".into(), "invalid_request"),
+    let input = FundingLookupRequest {
+        service: f.sender,
+        peer: f.receiver,
+        attempt: request(),
+    };
+    for (caller, query, failure) in [
+        (Principal::anonymous(), input, FundingLookupFailure::Denied),
+        (
+            f.driver,
+            FundingLookupRequest {
+                peer: fake_principal(99),
+                ..input
+            },
+            FundingLookupFailure::Binding,
+        ),
+        (
+            f.driver,
+            FundingLookupRequest {
+                attempt: FundingRequest {
+                    offered: 10_000_000_000_001,
+                    ..request()
+                },
+                ..input
+            },
+            FundingLookupFailure::InvalidRequest,
+        ),
     ] {
-        let mut args = args(&f, request());
-        let i = args.iter().position(|a| a == flag).unwrap();
-        args[i + 1] = value;
-        let (code, result) = lookup(&args);
-        assert_eq!(code, 3);
-        assert_eq!(result["error"], error);
+        assert_eq!(lookup(&f, query, caller), Err(failure));
     }
     assert!(
         f.journals() == before,
         "failed lookups preserve every journal"
     );
     let pic = &f.harness.pic;
-    let canister = pic.create_canister();
+    let canister = pic.create_canister().unwrap();
     pic.install_canister(
         canister,
         super::operator_method_mode::update_wasm("lookup_funding", &[]),
         vec![],
         None,
-    );
-    let mut args = args(&f, request());
-    let i = args.iter().position(|a| a == "--canister").unwrap();
-    args[i + 1] = canister.to_text();
-    let (code, result) = lookup(&args);
-    assert_eq!(code, 3);
-    assert_eq!(result["error"], "query_rejected");
-    assert_eq!(pic.get_stable_memory(canister), Vec::<u8>::new());
+    )
+    .unwrap();
+    let result: Result<(Result<FundingLookupView, FundingLookupFailure>,), _> =
+        fixture_calls::query_fixture(pic, canister, f.driver, "lookup_funding", (input,));
+    assert!(result.is_err());
+    assert_eq!(pic.get_stable_memory(canister).unwrap(), Vec::<u8>::new());
     pic.update_call(canister, f.driver, "lookup_funding", vec![])
         .unwrap();
-    assert_eq!(pic.get_stable_memory(canister).len(), 65_536);
+    assert_eq!(pic.get_stable_memory(canister).unwrap().len(), 65_536);
 }

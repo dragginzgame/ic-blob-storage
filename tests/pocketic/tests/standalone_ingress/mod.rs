@@ -78,7 +78,7 @@ fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
     let f = Fixture::new();
     let enrollment = f.enroll(f.operator).unwrap();
     let configuration = f.configuration(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
         "blob_install",
         &installation(&f.config),
@@ -98,7 +98,10 @@ fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
         );
         assert_eq!(f.configuration(f.operator).unwrap(), configuration);
         assert_eq!(f.tenant(), enrollment);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+        unchanged(
+            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &before,
+        );
     }
 }
 
@@ -120,7 +123,7 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
     let admission = f.admission(manifest.permission);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     manifest.declaration.headers = vec![
         UploadManifestHeader {
             name: String::new(),
@@ -144,7 +147,10 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
         Err(UploadManifestFailure::Limit)
     );
     assert_eq!(f.admission(manifest.permission), admission);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     assert!(
         f.harness
             .pic
@@ -156,7 +162,10 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
             )
             .is_err()
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 
 #[test]
@@ -171,7 +180,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         active: true,
     };
     let query = wire::inspection_request(f.scope()).unwrap();
-    let original = pic.get_stable_memory(f.service);
+    let original = pic.get_stable_memory(f.service).unwrap();
     let mut trailing = wire::update_request(command).unwrap();
     trailing.push(0);
     let mut retired = wire::update_request(command).unwrap();
@@ -188,8 +197,11 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         let rejected = pic
             .update_call(f.service, f.operator, "blob_update_tenant", bytes)
             .unwrap_err();
-        assert_eq!(rejected.reject_code, RejectCode::CanisterError);
-        unchanged(&pic.get_stable_memory(f.service), &original);
+        assert_eq!(
+            crate::canister_rejection(&rejected).reject_code,
+            RejectCode::CanisterError
+        );
+        unchanged(&pic.get_stable_memory(f.service).unwrap(), &original);
     }
     assert!(
         pic.query_call(
@@ -200,7 +212,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         )
         .is_err()
     );
-    unchanged(&pic.get_stable_memory(f.service), &original);
+    unchanged(&pic.get_stable_memory(f.service).unwrap(), &original);
     let bytes = pic
         .query_call(f.service, f.tenant, "blob_tenant", query)
         .unwrap();
@@ -220,7 +232,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         ic_blob_storage_contracts::wire::tenant::decode_update_response(&denied).unwrap(),
         Err(TenantFailure::Denied)
     );
-    unchanged(&pic.get_stable_memory(f.service), &original);
+    unchanged(&pic.get_stable_memory(f.service).unwrap(), &original);
     let accepted = pic
         .update_call(
             f.service,
@@ -261,7 +273,7 @@ fn every_owned_method_refuses_old_wrong_identity_and_response_packets_without_st
     use ic_blob_storage_contracts::wire;
     let f = Fixture::new();
     f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for method in SERVICE_METHODS
         .iter()
         .filter(|m| m.codec == MethodCodec::IcWire)
@@ -288,5 +300,8 @@ fn every_owned_method_refuses_old_wrong_identity_and_response_packets_without_st
             assert!(result.is_err(), "{} accepted a foreign packet", method.name);
         }
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }

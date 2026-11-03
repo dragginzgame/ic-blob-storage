@@ -24,13 +24,13 @@ pub trait ControlCallExt {
         max_reply_bytes: usize,
     ) -> Result<R, ControlCallError>;
 }
-/// Codec failures and platform rejection remain distinct.
+/// Codec failures and typed platform failures remain distinct.
 #[derive(Debug)]
 pub enum ControlCallError {
     /// Request encoding refused before dispatch.
     Encoding(ic_blob_storage_contracts::document::Error),
-    /// Platform rejection from this call.
-    Rejected(ic_platform::pocket_ic::RejectResponse),
+    /// Typed client failure, preserving rejection and uncertain execution context.
+    Platform(ic_platform::pocket_ic::ClientError),
     /// Reply admission or decoding refused after dispatch.
     Decoding(ic_blob_storage_contracts::document::Error),
 }
@@ -47,7 +47,7 @@ impl ControlCallExt for ic_platform::pocket_ic::PocketIc {
             .map_err(ControlCallError::Encoding)?;
         let reply = self
             .query_call(canister.into(), caller.into(), method, args)
-            .map_err(ControlCallError::Rejected)?;
+            .map_err(ControlCallError::Platform)?;
         ic_blob_storage_contracts::document::decode(&reply, max_reply_bytes)
             .map_err(ControlCallError::Decoding)
     }
@@ -63,7 +63,7 @@ impl ControlCallExt for ic_platform::pocket_ic::PocketIc {
             .map_err(ControlCallError::Encoding)?;
         let reply = self
             .update_call(canister.into(), caller.into(), method, args)
-            .map_err(ControlCallError::Rejected)?;
+            .map_err(ControlCallError::Platform)?;
         ic_blob_storage_contracts::document::decode(&reply, max_reply_bytes)
             .map_err(ControlCallError::Decoding)
     }
@@ -73,12 +73,19 @@ impl std::fmt::Display for ControlCallError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Encoding(e) => write!(f, "request: {e}"),
-            Self::Rejected(e) => write!(f, "platform rejection: {e:?}"),
+            Self::Platform(e) => write!(f, "platform: {e}"),
             Self::Decoding(e) => write!(f, "reply: {e}"),
         }
     }
 }
-impl std::error::Error for ControlCallError {}
+impl std::error::Error for ControlCallError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::Platform(e) => Some(e),
+            _ => None,
+        }
+    }
+}
 
 /// Encode a single private storage-control argument in its tuple envelope.
 /// # Errors

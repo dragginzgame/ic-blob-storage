@@ -65,6 +65,10 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() {
     let f = Fixture::new();
     f.enroll(f.operator).unwrap();
@@ -89,7 +93,7 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
         status.uploads.reserved_bytes,
         u128::from(manifest.permission.upload.bytes)
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.harness
         .pic
         .stop_canister(f.service, Some(f.controller))
@@ -112,11 +116,13 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         status
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     // Supplied replacement settings must not publish a partially restored host.
     assert_eq!(
-        f.upgrade(super::installation(&f.config))
-            .unwrap_err()
+        crate::canister_rejection(&f.upgrade(super::installation(&f.config)).unwrap_err())
             .reject_code,
         RejectCode::CanisterError
     );
@@ -125,13 +131,16 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         status
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     for _ in 0..2 {
         f.upgrade(
             ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
         )
         .unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         let mut expected = installation.clone();
         expected.fenced = true;
         assert_eq!(f.configuration(f.operator).unwrap(), expected);
@@ -152,7 +161,10 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
             .unwrap();
         assert_eq!(retained.unwrap(), prepared);
         refuses(&f, &manifest);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+        unchanged(
+            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &before,
+        );
     }
     // A fresh replicated IC history read proves this was an ordinary same-release
     // upgrade, while all original permissions, manifests and reservations survive.
@@ -185,7 +197,7 @@ fn current_instance_recovery_refuses_expired_platform_history_without_rotating_a
             .set_controllers(f.service, Some(f.controller), vec![f.controller])
             .unwrap();
     }
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.resume(f.operator),
         Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::IncompleteHistory)
@@ -197,7 +209,10 @@ fn current_instance_recovery_refuses_expired_platform_history_without_rotating_a
         &f.local_status(f.operator, f.operator_scope()).unwrap(),
         true,
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 
 #[test]
@@ -217,7 +232,7 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
                 .unwrap(),
         )
         .unwrap();
-    f.harness.pic.tick();
+    f.harness.pic.tick().unwrap();
     f.harness
         .pic
         .set_controllers(f.service, Some(f.controller), vec![f.controller])
@@ -261,7 +276,7 @@ fn recovery_survives_denied_updates_during_history_without_losing_obligations() 
             .unwrap()
     };
     let recovery = submit(f.operator);
-    f.harness.pic.tick();
+    f.harness.pic.tick().unwrap();
     // Queue repeated unauthorized updates alongside the history request. They
     // must reach the canister (not merely be rejected by ingress inspection).
     let denied: Vec<_> = (0..16).map(|_| submit(f.uploader)).collect();

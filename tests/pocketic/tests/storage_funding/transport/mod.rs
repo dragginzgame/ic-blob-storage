@@ -75,29 +75,32 @@ impl Fixture {
     }
     fn with_cashier() -> Self {
         let harness = Harness::new();
-        let cashier = harness.pic.create_canister();
+        let cashier = harness.pic.create_canister().unwrap();
         // The test controller acts for this configured canister operator through
         // PocketIC ingress. Both operator and Cashier bindings remain explicit.
         let f = Self::with_operator(harness, cashier);
-        f.harness.pic.install_canister(
-            cashier,
-            std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            blob_test_protocol::fixture_wire::encode_args(
-                "fixture_init",
-                (
-                    f.service,
-                    f.controller,
-                    blob_test_protocol::funding::budget::FundingBudgetInput {
-                        allocated: 1000,
-                        reserve: 100,
-                        operating_reserve: 1_000_000_000,
-                        other_liabilities: 0,
-                    },
-                ),
+        f.harness
+            .pic
+            .install_canister(
+                cashier,
+                std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args(
+                    "fixture_init",
+                    (
+                        f.service,
+                        f.controller,
+                        blob_test_protocol::funding::budget::FundingBudgetInput {
+                            allocated: 1000,
+                            reserve: 100,
+                            operating_reserve: 1_000_000_000,
+                            other_liabilities: 0,
+                        },
+                    ),
+                )
+                .unwrap(),
+                None,
             )
-            .unwrap(),
-            None,
-        );
+            .unwrap();
         f
     }
     fn configure_cashier(&self, intent: Intent, accepted: u128, reply: FundingReplyMode) {
@@ -406,7 +409,10 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(
         f.incoming(),
         vec![FundingReceiptRecord {

@@ -59,7 +59,7 @@ fn retain(f: &Fixture, name: &str) {
         std::fs::create_dir(&dir).unwrap();
         std::fs::write(
             dir.join("stable.bin"),
-            f.harness.pic.get_stable_memory(f.service),
+            f.harness.pic.get_stable_memory(f.service).unwrap(),
         )
         .unwrap();
         std::fs::write(
@@ -147,7 +147,7 @@ fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay
     f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let input = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(CreditCommand {
         fault: Some(WriteFault::FundingAccounting),
         ..credit(first, 300, 1)
@@ -165,8 +165,11 @@ fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay
         )
         .unwrap_err();
     retain_packet("credit-trap-result", format!("{error:?}").as_bytes());
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(
         f.retained_outcome(f.operator, first)
             .unwrap()
@@ -217,9 +220,9 @@ fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_withou
         (f.operator, credit(first, 299, 1), Failure::Invalid),
         (f.operator, credit(first, 300, 0), Failure::Invalid),
     ] {
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         assert_eq!(f.confirm_credit(actor, input), Err(failure));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     }
     f.confirm_credit(f.operator, credit(first, 300, 1)).unwrap();
     let next = f.funding_intent(2, 400);
@@ -227,9 +230,9 @@ fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_withou
     f.funding(f.operator, next, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(next)));
     for input in [credit(first, 300, 2), credit(next, 200, 1)] {
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         assert_eq!(f.confirm_credit(f.operator, input), Err(Failure::Conflict));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     }
     assert_eq!(f.local_status().funding.uncredited_accepted, 200);
     retain(&f, "refusals");
@@ -260,12 +263,12 @@ fn same_release_restoration_preserves_credit_receipts_and_fences_even_exact_repl
         }
     );
     assert_eq!(f.local_status().funding.uncredited_accepted, 0);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.confirm_credit(f.operator, credit(first, 300, 1)),
         Err(Failure::Fenced)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(f.incoming().len(), 1);
     retain(&f, "restore");
 }

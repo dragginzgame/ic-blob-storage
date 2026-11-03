@@ -1,22 +1,19 @@
 //! Offline complete candidate validation and init encoding; no platform or provider effect.
-
-use super::arguments::value;
 use super::{Failure, artifacts::Run, exact_wire, read};
 use ic_blob_storage_contracts::configuration::ServiceInstallationCandidate;
 use ic_blob_storage_contracts::configuration::ValidatedInstallationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::identity::ContentDigest;
 use serde_json::{Value, json};
-use std::path::PathBuf;
 
 const CONFIGURATION_BYTES: usize = exact_wire::INSTALLATION_BYTES;
 
-pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let path = value::<PathBuf>(flags, "--configuration");
-    let service = value(flags, "--service");
-    let project = value::<String>(flags, "--project");
-    let release = value::<String>(flags, "--release");
-    let directory = value::<PathBuf>(flags, "--run-dir");
+pub(super) fn run(input: super::arguments::schema::Installation) -> Result<Value, Failure> {
+    let path = input.configuration;
+    let service = input.service;
+    let project = input.project;
+    let release = input.release;
+    let directory = input.run_dir;
     let bytes = read(&path, CONFIGURATION_BYTES as u64)?;
     let configuration = serde_json::from_slice(&bytes).map_err(|_| Failure::Arguments)?;
     let candidate = ServiceInstallationCandidate {

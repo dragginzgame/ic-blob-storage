@@ -104,7 +104,10 @@ impl Fixture {
             .pic
             .update_call(self.service, self.uploader, "prepare", bytes)
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
     }
 }
 

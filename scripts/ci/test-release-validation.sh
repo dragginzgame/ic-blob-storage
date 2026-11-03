@@ -31,7 +31,7 @@ perl -e '
     local $/; open my $f,"<","Makefile" or die $!; my $m=<$f>;
     $m =~ /^test-pocketic-client:.*?\n(.*?)(?=^\S|\z)/ms or die "missing Client partition\n"; my $c=$1;
     $m =~ /^test-pocketic-engine:.*?\n(.*?)(?=^\S|\z)/ms or die "missing Engine partition\n"; my $e=$1;
-    $e =~ /--lib --bins/ && $e =~ /--doc/ && $e =~ /--skip storage_tenants::client::/ or die "incomplete Engine partition\n";
+    $e =~ /--lib/ && $e =~ /--doc/ && $e =~ /--skip storage_tenants::client::/ or die "incomplete Engine partition\n";
     $c =~ /--test standalone/ && $c =~ /--test storage storage_tenants::client::/ or die "incomplete Client boundary\n";
     my %seen; my @all=grep {!$seen{$_}++} ($c =~ /--test ([a-z_]+)/g, $e =~ /--test ([a-z_]+)/g);
     print "$_\n" for sort @all;

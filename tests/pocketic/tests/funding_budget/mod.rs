@@ -19,7 +19,7 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
     let initial = f.status_unchanged().budget;
     let mut too_large = request(1, 0, FundingReplyMode::Success);
     too_large.offered += 1;
-    let bytes = [f.sender, f.receiver].map(|id| f.harness.pic.get_stable_memory(id));
+    let bytes = [f.sender, f.receiver].map(|id| f.harness.pic.get_stable_memory(id).unwrap());
     assert_eq!(
         f.fund(f.driver, too_large),
         Err(FundingFailure::ReserveWouldBeViolated)
@@ -27,7 +27,7 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
     assert_eq!(f.receipts(), []);
     assert_eq!(f.status_unchanged().budget, initial);
     assert!(
-        [f.sender, f.receiver].map(|id| f.harness.pic.get_stable_memory(id)) == bytes,
+        [f.sender, f.receiver].map(|id| f.harness.pic.get_stable_memory(id).unwrap()) == bytes,
         "rejection must save no partial intent"
     );
     f.fund(f.driver, request(1, 40_000_000, FundingReplyMode::Success))
@@ -59,7 +59,10 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
         f.fund(f.driver, refund),
         Err(FundingFailure::AlreadyAdmitted)
     );
-    f.harness.pic.add_cycles(f.sender, 1_000_000_000_000);
+    f.harness
+        .pic
+        .add_cycles(f.sender, 1_000_000_000_000)
+        .unwrap();
     let incoming: Result<FundingObservation, FundingFailure> = fixture_calls::update_fixture(
         &f.harness.pic,
         f.receiver,
@@ -93,7 +96,10 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
             blob_test_protocol::fixture_wire::encode_one("fund", paid).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&failure).reject_code,
+        RejectCode::CanisterError
+    );
     let pending = f.assert_unknown_status(paid).budget;
     assert_eq!(
         (
@@ -154,6 +160,10 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revision() {
     let f = Fixture::with_budget(FundingBudgetInput {
         allocated: 200_000_000,
@@ -224,7 +234,10 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
         ..proposed
     };
     let before_top_up = preview(proposed);
-    f.harness.pic.add_cycles(f.sender, 3_000_000_000_000);
+    f.harness
+        .pic
+        .add_cycles(f.sender, 3_000_000_000_000)
+        .unwrap();
     // A repeated query may be cached independently of cycle top-ups. Observe a
     // different proposed operation; the update must still recheck its own funds.
     let after_top_up = preview(FundingPreviewRequest { id: 3, ..proposed });
@@ -385,7 +398,10 @@ fn actual_zero_and_full_refund_callbacks_still_trap_and_keep_the_full_reservatio
                 blob_test_protocol::fixture_wire::encode_one("fund", attempt).unwrap(),
             )
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
         let status = f.assert_unknown_status(attempt);
         assert_eq!(status.budget.reserved_or_uncertain, attempt.offered);
         assert_eq!(f.receipts()[0].accepted, accepted);

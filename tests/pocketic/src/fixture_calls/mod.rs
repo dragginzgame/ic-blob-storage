@@ -22,10 +22,7 @@ where
     A: serde::Serialize,
 {
     let arguments = blob_test_protocol::fixture_wire::encode_args(method, arguments)?;
-    let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
-        pic.query_call(service, caller, method, arguments)
-    })?
-    .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+    let reply = pic.query_call(service, caller, method, arguments)?;
     blob_test_protocol::fixture_wire::decode_args(method, &reply, REPLY_BYTES).map_err(Into::into)
 }
 
@@ -45,9 +42,6 @@ where
     A: serde::Serialize,
 {
     let arguments = blob_test_protocol::fixture_wire::encode_args(method, arguments)?;
-    let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
-        pic.update_call(service, caller, method, arguments)
-    })?
-    .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+    let reply = pic.update_call(service, caller, method, arguments)?;
     blob_test_protocol::fixture_wire::decode_args(method, &reply, REPLY_BYTES).map_err(Into::into)
 }

@@ -7,7 +7,7 @@ fn fixed_roster_keeps_units_outcomes_empty_zero_and_actual_overflow() {
         state.rows[0]
             .view(MetricOperation::Admission)
             .instructions
-            .maximum(),
+            .maximum,
         None
     );
     state.begin(MetricOperation::Admission, u128::MAX);
@@ -15,7 +15,7 @@ fn fixed_roster_keeps_units_outcomes_empty_zero_and_actual_overflow() {
         !state.rows[0]
             .view(MetricOperation::Admission)
             .request_bytes
-            .total_overflowed()
+            .total_overflowed
     );
     state.complete(MetricOperation::Admission, 7, 0, Outcome::Applied);
     state.begin(MetricOperation::Admission, 1);
@@ -23,18 +23,18 @@ fn fixed_roster_keeps_units_outcomes_empty_zero_and_actual_overflow() {
     state.begin(MetricOperation::Reference, 9);
     state.complete(MetricOperation::Reference, 7, 0, Outcome::Refused);
     let row = state.rows[0].view(MetricOperation::Admission);
-    assert_eq!(row.attempts.total(), 2);
-    assert_eq!(row.applied.total(), 1);
-    assert_eq!(row.replayed.total(), 1);
-    assert_eq!(row.request_bytes.total(), u128::MAX);
-    assert!(row.request_bytes.total_overflowed());
-    assert_eq!(row.instructions.samples(), 2);
-    assert_eq!(row.instructions.total(), 12);
-    assert_eq!(row.instructions.maximum(), Some(12));
+    assert_eq!(row.attempts.total, 2);
+    assert_eq!(row.applied.total, 1);
+    assert_eq!(row.replayed.total, 1);
+    assert_eq!(row.request_bytes.total, u128::MAX);
+    assert!(row.request_bytes.total_overflowed);
+    assert_eq!(row.instructions.samples, 2);
+    assert_eq!(row.instructions.total, 12);
+    assert_eq!(row.instructions.maximum, Some(12));
     let refusal = state.rows[3].view(MetricOperation::Reference);
-    assert_eq!(refusal.refused.total(), 1);
-    assert_eq!(refusal.instructions.maximum(), Some(0));
-    assert_eq!(refusal.request_bytes.total(), 9);
+    assert_eq!(refusal.refused.total, 1);
+    assert_eq!(refusal.instructions.maximum, Some(0));
+    assert_eq!(refusal.request_bytes.total, 9);
     assert_eq!(state.rows.len(), MetricOperation::ALL.len());
 }
 

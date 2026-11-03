@@ -48,8 +48,8 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
     assert_eq!(refreshed.unwrap().sequence, 1);
     let token = f.gateway_begin();
     assert_eq!(token, 2);
-    let source_memory = f.harness.pic.get_stable_memory(f.operator);
-    let service_memory = f.harness.pic.get_stable_memory(f.service);
+    let source_memory = f.harness.pic.get_stable_memory(f.operator).unwrap();
+    let service_memory = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
         assert_eq!(
             f.replicated_gateways(actor, f.replicated_input(token)),
@@ -71,7 +71,10 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
             Err(Failure::Binding)
         );
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), service_memory);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        service_memory
+    );
     f.replicated_gateways(f.operator, f.replicated_input(token))
         .unwrap();
     assert_eq!(
@@ -79,7 +82,10 @@ fn canonical_query_endpoint_accepts_replicated_execution_without_attached_cycles
         vec![ic_platform::Principal::from(f.other)]
     );
     assert_eq!(f.gateway_view().pending_sequence, None);
-    assert_eq!(f.harness.pic.get_stable_memory(f.operator), source_memory);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.operator).unwrap(),
+        source_memory
+    );
     assert_eq!(f.source_requests(), 0); // The scripted update endpoint was not used.
     assert_eq!(
         f.replicated_gateways(f.operator, f.replicated_input(token)),
@@ -92,7 +98,7 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
     f.gateways(f.operator, Action::Add(f.tenant.into()))
         .unwrap();
     let token = f.gateway_begin();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let rejected: Result<(), Failure> = f
         .harness
         .pic
@@ -121,7 +127,7 @@ fn replicated_query_refuses_query_execution_and_preserves_pending_on_rejection_o
         f.replicated_gateways(f.operator, f.replicated_input(token)),
         Err(Failure::Transport)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.cancel_gateway_sync(f.operator, token).unwrap();
     f.source_mode(SourceMode::Valid);
     let next = f.gateway_begin();
@@ -151,7 +157,10 @@ fn replicated_query_callback_trap_preserves_pending_and_restored_transport_stays
             ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.gateway_view(), before);
     f.harness
         .pic

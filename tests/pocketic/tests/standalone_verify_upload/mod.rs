@@ -11,6 +11,7 @@ fn live(f: &mut Fixture) -> String {
     f.harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string()
 }
 fn change(args: &mut [String], flag: &str, value: &str) {
@@ -71,7 +72,7 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     let body = dir.path().join("body");
     let original = vec![42; 10 * 1024 * 1024];
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
     std::fs::write(
         &saved,
         ic_blob_storage_contracts::document::encode(permission).unwrap(),
@@ -106,9 +107,9 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     .map(str::to_owned)
     .collect();
     assert_eq!(run(&args, 3)["error"], "unprepared");
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     change(&mut args, "--url", &live(&mut f));
     let report = run(&args, 0);
     assert_eq!(report["observation"], "local_upload_bytes");
@@ -134,17 +135,23 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     )
     .unwrap();
     rejects_wrong_root(&args, &root);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     change(&mut args, "--url", &live(&mut f));
     let restored = run(&args, 0);
     assert_eq!(restored["content_digest"], report["content_digest"]);
     assert_eq!(restored["retry_authorized"], false);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
     assert_eq!(
         f.admission(permission).state,

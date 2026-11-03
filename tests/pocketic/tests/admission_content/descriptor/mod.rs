@@ -72,7 +72,10 @@ fn check_authority(f: &Fixture, input: ContentLookup) {
         .pic
         .query_call(f.service, f.project, "content_descriptor", vec![0; 4097])
         .unwrap_err();
-    assert_eq!(oversized.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&oversized).reject_code,
+        RejectCode::CanisterError
+    );
     for actor in [
         f.operator,
         f.controller,

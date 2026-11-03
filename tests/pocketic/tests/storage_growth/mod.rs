@@ -10,7 +10,7 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
     let f = Fixture::new();
     f.enroll(None, true).unwrap();
     let (permission, _) = f.permission(1, 1);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let status = f.local_status();
     let input = GrowthAdmission {
         permission: admission_input(permission),
@@ -26,15 +26,18 @@ fn refused_backing_growth_rolls_back_admission_and_neighbor_then_exact_retry_suc
             ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert!(
-        error
+        crate::canister_rejection(&error)
             .reject_message
             .contains("fixture backing growth refused"),
         "expected actual backing refusal: {error:?}"
     );
     // Includes the populated independent neighbor and all manager/ledger metadata.
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(f.local_status(), status);
     assert_eq!(
         f.lookup(f.tenant, permission.request),

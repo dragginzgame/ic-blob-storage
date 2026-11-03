@@ -14,6 +14,7 @@ fn live(f: &mut Fixture) -> String {
     f.harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string()
 }
 
@@ -62,10 +63,10 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     let key = directory.path().join("identity.pem");
     let root = directory.path().join("root.der");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
     let url = live(&mut f);
     let args = arguments("status", f.operator_scope(), f.operator, &url, &key, &root);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let value = run(&args, 0);
     funding_history(&args, false);
     assert_eq!(value["operator"], f.operator.to_text());
@@ -98,11 +99,14 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     std::fs::write(&root, untrusted).unwrap();
     assert_eq!(run(&args, 3)["error"], "transport");
     std::fs::write(&root, root_bytes).unwrap();
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut args = args;
     change(&mut args, "--url", &live(&mut f));
     let restored = run(&args, 0);
@@ -111,8 +115,11 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     for owner in ["uploads", "funding", "gateways"] {
         assert_eq!(restored[owner]["fenced"], true);
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     // A valid signing identity is still refused when it is not the installed operator.
     f.config.operator = f.controller.into();
     f.harness

@@ -420,18 +420,15 @@ fn wide_principals_and_amounts_fit_bounded_v1_codecs() {
     let row = FundingIntentRecord::new(intent)
         .attempted()
         .unwrap()
-        .complete(FundingTransportOutcome::Callback {
+        .complete(crate::model::billing::journal::record::progress::FundingProgressRecord::Callback {
             refunded: u128::MAX - 1,
-        })
-        .unwrap()
-        .with_response(
-            crate::model::billing::journal::record::response::FundingResponseRecord::Balance {
+            response: Some(crate::model::billing::journal::record::response::FundingResponseRecord::Balance {
                 total: u128::MAX,
                 prepaid: u128::MAX,
                 promotional: u128::MAX,
                 ledger: u128::MAX,
-            },
-        )
+            }),
+        })
         .unwrap();
     assert_eq!(
         FundingIntentRecord::from_bytes(row.to_bytes().unwrap()).unwrap(),

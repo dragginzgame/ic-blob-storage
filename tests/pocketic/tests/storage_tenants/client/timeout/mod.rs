@@ -51,7 +51,7 @@ fn bounded_timeout_keeps_committed_remote_effect_and_original_intent_without_res
         )
         .unwrap();
     for _ in 0..20 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         if reply_hold(&f, None) == 1 {
             break;
         }
@@ -65,8 +65,8 @@ fn bounded_timeout_keeps_committed_remote_effect_and_original_intent_without_res
             active: true,
         })
     );
-    let committed = f.harness.pic.get_stable_memory(f.service);
-    f.harness.pic.advance_time(Duration::from_secs(31));
+    let committed = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.harness.pic.advance_time(Duration::from_secs(31)).unwrap();
     let outcome: Result<TenantEnrollmentResponse, ConsumerFailure> =
         ic_blob_storage_contracts::document::decode(
             &f.harness.pic.await_call(call).unwrap(),
@@ -81,11 +81,14 @@ fn bounded_timeout_keeps_committed_remote_effect_and_original_intent_without_res
     // Deliver the original late reply, then exercise the same client executor.
     assert_eq!(reply_hold(&f, Some(false)), 1);
     for _ in 0..4 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
     }
     assert_eq!(inspect(&f, client), observed);
     assert_eq!(saved(&f, client), Some(input.command));
     assert_eq!(dispatch(&f, client, input), Err(ConsumerFailure::Pending));
     assert_eq!(reply_hold(&f, None), 1);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), committed);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        committed
+    );
 }

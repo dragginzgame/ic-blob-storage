@@ -8,6 +8,6 @@ use ic_platform::pocket_ic::PocketIc;
 /// drain this platform-owned instruction debt.
 pub(super) fn settle_install_code_debt(pic: &PocketIc) {
     for _ in 0..150 {
-        pic.tick();
+        pic.tick().unwrap();
     }
 }

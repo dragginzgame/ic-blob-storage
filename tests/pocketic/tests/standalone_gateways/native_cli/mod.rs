@@ -30,33 +30,48 @@ fn standalone_signed_gateway_decisions_preserve_uncertainty_and_occupied_restore
         .unwrap();
     f.prepare(f.uploader, &request).unwrap();
     let scope = f.operator_scope();
-    let root = f.harness.pic.root_key().unwrap();
+    let root = f.harness.pic.root_key().unwrap().unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     let cli = GatewayCli::new(scope, fake_principal(9), url, &root, "standalone");
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let source = f.harness.pic.get_stable_memory(scope.cashier.into());
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let source = f
+        .harness
+        .pic
+        .get_stable_memory(scope.cashier.into())
+        .unwrap();
     cli.refusals();
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(
-        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        f.harness
+            .pic
+            .get_stable_memory(scope.cashier.into())
+            .unwrap(),
         source
     );
     let pending = cli.decisions(|mode| sync::mode(&f, mode));
-    f.harness.pic.stop_progress();
+    f.harness.pic.stop_progress().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let source = f.harness.pic.get_stable_memory(scope.cashier.into());
-    f.harness.pic.auto_progress();
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let source = f
+        .harness
+        .pic
+        .get_stable_memory(scope.cashier.into())
+        .unwrap();
+    f.harness.pic.auto_progress().unwrap();
     cli.fenced(&pending);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(
-        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        f.harness
+            .pic
+            .get_stable_memory(scope.cashier.into())
+            .unwrap(),
         source
     );
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }

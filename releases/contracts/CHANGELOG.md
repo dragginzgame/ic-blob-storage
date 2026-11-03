@@ -4,6 +4,19 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.69.0] - Unreleased
+
+### 💥 Breaking
+
+- Adopt published Wire/Derive 0.16 and Platform 0.19 / canonical Types 0.18.
+  Rust consumers must align those public identities. Blob's endpoint identities,
+  Principal bytes, budgets and retained retry packets remain unchanged; its
+  application contracts do not embed the changed Platform Account representation.
+- Give standalone reports service-owned `CounterMetrics` and `AggregateMetrics`
+  DTOs. Project canonical Metrics values at report time and delegate numeric
+  decoding to Metrics. Remove `native-wire` forwarding; frozen report frames and
+  JSON fields remain unchanged. [#113](https://github.com/dragginzgame/ic-blob-storage/issues/113)
+
 ## [0.68.1] - 2026-11-02
 
 ### 🔧 Changed

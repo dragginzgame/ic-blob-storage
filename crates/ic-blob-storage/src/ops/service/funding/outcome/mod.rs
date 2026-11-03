@@ -6,7 +6,6 @@ use super::{
     FundingTransportOutcome, Memory, StableFundingJournal, UploadContext,
 };
 use crate::model::billing::journal::FundingIntentState;
-use crate::model::billing::journal::record::response::FundingResponseRecord;
 use crate::ops::caffeine::funding::transport::CashierTopUpObservation;
 use crate::ops::caffeine::funding::transport::CashierTopUpStatus;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
@@ -61,7 +60,7 @@ impl<M: Memory> StableFundingJournal<M> {
             input,
             observation.source(),
             observation.outcome(),
-            Some(conversion::record(observation.status())),
+            Some(observation.status()),
         )
     }
 
@@ -82,7 +81,7 @@ impl<M: Memory> StableFundingJournal<M> {
                 Ok(FundingOutcomeView {
                     intent: view.intent,
                     state: view.state,
-                    response: conversion::view(record.response()),
+                    response: conversion::view(record.progress()),
                     transfer,
                     credit: record.credit(),
                     acknowledged: record.acknowledged(),
@@ -98,7 +97,7 @@ impl<M: Memory> StableFundingJournal<M> {
         input: FundingIntent,
         source: FundingTransportContext,
         outcome: FundingTransportOutcome,
-        response: Option<FundingResponseRecord>,
+        response: Option<CashierTopUpStatus>,
     ) -> Result<bool, FundingJournalError> {
         self.authorize(execution)?;
         self.mutable()?;
@@ -108,16 +107,12 @@ impl<M: Memory> StableFundingJournal<M> {
         let totals = self.totals()?;
         Self::scope(&totals, input)?;
         let prior = self.required(input)?;
-        let transport = prior.complete(outcome)?;
-        let next = match response {
-            Some(response) => transport.with_response(response)?,
-            None => transport,
-        };
+        let next = prior.complete(conversion::record(outcome, response)?)?;
         if prior == next {
             return Ok(false);
         }
         // Enriching already retained transport must not release its refund twice.
-        let totals = if prior == transport {
+        let totals = if prior.progress().state() == next.progress().state() {
             totals
         } else {
             totals.resolve(next.transfer().ok_or(FundingJournalError::InvalidRecord)?)?

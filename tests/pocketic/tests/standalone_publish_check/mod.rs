@@ -141,7 +141,11 @@ pub(super) fn freeze_bodies(
 }
 fn args(f: &Fixture, d: &Path, url: &str, label: &str) -> Vec<String> {
     std::fs::write(d.join("tenant.pem"), PEM).unwrap();
-    std::fs::write(d.join("root.der"), f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(
+        d.join("root.der"),
+        f.harness.pic.root_key().unwrap().unwrap(),
+    )
+    .unwrap();
     [
         "publish-check",
         "--network",
@@ -184,13 +188,17 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let absent = run(&args(&f, d.path(), &url, "absent"), 0);
     assert_eq!(absent["blocked"], false);
     assert_eq!(absent["files"][0]["status"], "not_visible");
     assert_eq!(absent["not_visible_demand"]["objects"], 1);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     f.harness
         .pic
         .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
@@ -202,7 +210,7 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
         )
         .unwrap()
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let pending = run(&args(&f, d.path(), &url, "pending"), 0);
     assert_eq!(pending["blocked"], true);
     assert_eq!(pending["files"][0]["status"], "recover_existing_operation");
@@ -211,14 +219,17 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
         p.upload.upload.to_string()
     );
     assert_eq!(pending["capacity_reserved"], false);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let repeated = run(&args(&f, d.path(), &url, "pending"), 3);
     assert_eq!(repeated["error"], "new_run_required");
-    f.harness.pic.stop_progress();
+    f.harness.pic.stop_progress().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    f.harness.pic.auto_progress();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    f.harness.pic.auto_progress().unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let restored = run(&args(&f, d.path(), &url, "restored"), 0);
     assert_eq!(restored["capacity"]["fenced"], true);
     assert!(
@@ -228,8 +239,11 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
             .contains(&json!("service_fenced"))
     );
     assert_eq!(restored["files"][0]["status"], "recover_existing_operation");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
 }
 #[test]
 fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellation() {
@@ -265,8 +279,9 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let report = run(&args(&f, d.path(), &url, "capacity"), 0);
     assert_eq!(report["files"][0]["status"], "not_visible");
     assert_eq!(report["capacity"]["remaining_objects"], 0);
@@ -276,6 +291,9 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             .unwrap()
             .contains(&json!("object_history_capacity"))
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
 }

@@ -31,7 +31,10 @@ pub(super) fn refuses(f: &Fixture, actor: Principal, root: &str) {
             ic_platform::candid::contract::encode_one(root).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
 }
 pub(super) fn root(input: &UploadManifestRequest) -> String {
     ic_blob_storage_contracts::identity::ProviderRootHash::try_from(
@@ -41,6 +44,10 @@ pub(super) fn root(input: &UploadManifestRequest) -> String {
     .to_string()
 }
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quotas_and_authority() {
     use ic_blob_storage_contracts::dto::upload::UploadState;
     let f = Fixture::new();
@@ -65,12 +72,22 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
     assert_eq!(inspect(&f, f.uploader, &root), Err(E::Unprepared));
     refuses(&f, f.uploader, &root);
     f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let assessment = inspect(&f, f.uploader, &root).unwrap();
     assert_eq!(assessment.permission, manifest.permission);
-    assert!(assessment.assessed_at_ns <= f.harness.pic.get_time().as_nanos_since_unix_epoch());
+    assert!(
+        assessment.assessed_at_ns
+            <= f.harness
+                .pic
+                .get_time()
+                .unwrap()
+                .as_nanos_since_unix_epoch()
+    );
     check_authority(&f, &root);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     assert_eq!(
         f.admission(manifest.permission).state,
         ic_blob_storage_contracts::dto::upload::UploadState::Reserved
@@ -131,14 +148,17 @@ fn standalone_certificate_issues_configured_multifile_uploads_and_preserves_quot
         inspect(&f, f.uploader, &root),
         Err(E::Permission(UploadAdmissionFailure::Fenced))
     );
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     refuses(&f, f.uploader, &root);
     refuses(&f, second.permission.uploader.into(), &second_root);
     assert_eq!(
         f.admission(second.permission).state,
         UploadState::Registered
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }
 
 fn check_authority(f: &Fixture, root: &str) {
@@ -235,6 +255,10 @@ fn admit(
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_stop_and_restore() {
     let f = Fixture::small(Harness::new(), fake_principal(4));
     f.enroll(f.operator).unwrap();
@@ -252,17 +276,23 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         .unwrap()
         .unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         inspect(&f, f.uploader, &root).unwrap().permission,
         manifest.permission
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     for actor in [f.controller, f.operator, f.tenant, Principal::anonymous()] {
         refuses(&f, actor, &root);
     }
     malformed(&f, &root);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let mut usage = f.local_status(f.operator, f.operator_scope()).unwrap();
     let reply: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
@@ -285,10 +315,13 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
         f.local_status(f.operator, f.operator_scope()).unwrap(),
         usage
     );
-    let exposed = f.harness.pic.get_stable_memory(f.service);
+    let exposed = f.harness.pic.get_stable_memory(f.service).unwrap();
     refuses(&f, f.uploader, &root);
     assert_eq!(inspect(&f, f.uploader, &root), Err(E::Phase));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &exposed);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &exposed,
+    );
     f.harness
         .pic
         .stop_canister(f.service, Some(f.controller))
@@ -320,13 +353,16 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     assert_eq!(f.admission(manifest.permission), retained);
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     refuses(&f, f.uploader, &root);
     assert_eq!(
         inspect(&f, f.uploader, &root),
         Err(E::Permission(UploadAdmissionFailure::Fenced))
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
     f.resume(f.operator).unwrap();
     assert_eq!(f.admission(manifest.permission), retained);
     assert_eq!(
@@ -339,7 +375,7 @@ fn standalone_small_configuration_issues_once_and_retains_uncertainty_across_sto
 
 fn malformed(f: &Fixture, root: &str) {
     // Oversized ingress and type confusion must never create provider reply bytes.
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let assessment = inspect(f, f.uploader, root).unwrap();
     for argument in [
         ic_platform::candid::contract::encode_one("x".repeat(4097)).unwrap(),
@@ -362,10 +398,16 @@ fn malformed(f: &Fixture, root: &str) {
                     .query_call(f.service, f.uploader, method, argument.clone())
                     .unwrap_err()
             };
-            assert_eq!(error.reject_code, RejectCode::CanisterError);
+            assert_eq!(
+                crate::canister_rejection(&error).reject_code,
+                RejectCode::CanisterError
+            );
             let current = inspect(f, f.uploader, root).unwrap();
             assert_eq!(current.permission, assessment.permission);
-            unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+            unchanged(
+                &f.harness.pic.get_stable_memory(f.service).unwrap(),
+                &before,
+            );
         }
     }
     // The owned assessment no longer accepts Candid subtyping or extra arguments.
@@ -382,5 +424,8 @@ fn malformed(f: &Fixture, root: &str) {
     );
     let current = inspect(f, f.uploader, root).unwrap();
     assert_eq!(current.permission, assessment.permission);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }

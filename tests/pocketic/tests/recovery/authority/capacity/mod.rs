@@ -140,7 +140,7 @@ fn physical_deletion_keeps_billing_capacity_reserved_across_old_archive_restore(
         f.usage(f.first),
         Ok(usage(0, 0, u128::from(deleted.upload.bytes)))
     );
-    let memory = f.harness.pic.get_stable_memory(f.service);
+    let memory = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut retained = f.archive();
     let entry = object(&retained, ArchiveCatalog::Journey, deleted.upload.root);
     assert_eq!(

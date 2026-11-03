@@ -45,7 +45,7 @@ fn args(
     std::fs::write(directory.join("uploader.pem"), OUTSIDER_PEM).unwrap();
     std::fs::write(
         directory.join("root.der"),
-        fixture.harness.pic.root_key().unwrap(),
+        fixture.harness.pic.root_key().unwrap().unwrap(),
     )
     .unwrap();
     let mut args = [
@@ -129,6 +129,7 @@ fn live(fixture: &mut Fixture) -> String {
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string()
 }
 
@@ -205,7 +206,7 @@ fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both_manif
     }
     assert_eq!(run(&args, 3)["error"], "new_run_required");
     assert_eq!(proxy.calls(), 4);
-    fixture.harness.pic.stop_live();
+    fixture.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -235,7 +236,7 @@ fn standalone_batch_prepare_stops_after_lost_ack_and_recovers_only_original_file
         assert_eq!(run(&recovery, 0)["prepared"], true);
         assert_eq!(proxy.calls(), 2);
         assert!(!directory.path().join("original/file-0001").exists());
-        fixture.harness.pic.stop_live();
+        fixture.harness.pic.stop_live().unwrap();
     }
 }
 
@@ -314,7 +315,7 @@ fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_recovery_n
         )["error"],
         "new_run_required"
     );
-    fixture.harness.pic.stop_live();
+    fixture.harness.pic.stop_live().unwrap();
 }
 #[test]
 fn standalone_indexed_prepare_recovers_lost_admission_and_preparation_responses_without_resubmission()
@@ -371,7 +372,7 @@ fn standalone_indexed_prepare_recovers_lost_admission_and_preparation_responses_
             0
         );
         assert_eq!(proxy.calls(), 2);
-        fixture.harness.pic.stop_live();
+        fixture.harness.pic.stop_live().unwrap();
     }
 }
 #[test]
@@ -424,7 +425,7 @@ fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_p
     );
     assert_eq!(blocked["state"], "blocked");
     assert_eq!(blocked["service_updates_this_run"], 0);
-    fixture.harness.pic.stop_live();
+    fixture.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -459,5 +460,5 @@ fn standalone_indexed_prepare_partial_preparation_claim_never_allows_an_update()
     )
     .unwrap();
     assert_eq!(failure["redispatch_authorized"], false);
-    fixture.harness.pic.stop_live();
+    fixture.harness.pic.stop_live().unwrap();
 }

@@ -25,6 +25,10 @@ impl Fixture {
         assert_eq!(self.archive(), before);
     }
 
+    #[expect(
+        clippy::too_many_lines,
+        reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+    )]
     fn assert_updates_fenced(&self, upload: JourneyUpload) {
         let args = |method: &str, root: [u8; 32]| {
             blob_test_protocol::fixture_wire::encode_one(method, root.to_vec()).unwrap()
@@ -124,7 +128,11 @@ impl Fixture {
                 .pic
                 .update_call(self.service, actor, method, input)
                 .expect_err(method);
-            assert_eq!(failure.reject_code, RejectCode::CanisterError, "{method}");
+            assert_eq!(
+                crate::canister_rejection(&failure).reject_code,
+                RejectCode::CanisterError,
+                "{method}"
+            );
         }
     }
 
@@ -152,7 +160,11 @@ impl Fixture {
                 .pic
                 .query_call(self.service, self.gateway, method, input)
                 .expect_err(method);
-            assert_eq!(failure.reject_code, RejectCode::CanisterError, "{method}");
+            assert_eq!(
+                crate::canister_rejection(&failure).reject_code,
+                RejectCode::CanisterError,
+                "{method}"
+            );
         }
     }
 }
@@ -184,7 +196,10 @@ fn partial_verifier_and_all_catalogs_survive_repeated_and_skipped_hook_upgrades(
         f.assert_authority_fenced(v.upload);
     }
     f.restart(f.service);
-    f.harness.pic.advance_time(Duration::from_hours(24));
+    f.harness
+        .pic
+        .advance_time(Duration::from_hours(24))
+        .unwrap();
     f.assert_authority_fenced(v.upload);
 }
 
@@ -196,11 +211,11 @@ fn old_archive_is_fenced_and_missing_archive_rejects_atomically() {
         f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
         Ok(())
     );
-    let old = f.harness.pic.get_stable_memory(f.service);
+    let old = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut retained = f.archive();
     assert_eq!(f.append(f.first, v.upload, 0, &v.bytes), Ok(()));
     f.certificate(f.first, v.upload.root).unwrap();
-    let saved = f.harness.pic.get_stable_memory(f.service);
+    let saved = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.replace_archive_bytes(vec![]);
     f.reject_upgrade(f.service);
     f.upgrade_skipping_outgoing_hook(f.service, false);
@@ -244,7 +259,10 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&failure).reject_code,
+        RejectCode::CanisterError
+    );
     let mut retained = f.archive();
     assert!(retained.pending_read.is_some());
     f.reject_upgrade(f.service);

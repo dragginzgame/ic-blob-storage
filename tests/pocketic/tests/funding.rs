@@ -6,7 +6,9 @@
 use ic_blob_storage_pocketic_tests::fixture_calls;
 mod funding_budget;
 mod funding_recovery;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
+use ic_blob_storage_pocketic_tests::service_calls::canister_rejection;
 
 use blob_test_protocol::funding::{
     FundingAttemptRecord, FundingAttemptStatusView, FundingFailure, FundingObservation,
@@ -16,7 +18,7 @@ use blob_test_protocol::funding::{
 use blob_test_protocol::status::{FundingActivityView, OperatorBlockerView};
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform::pocket_ic::{CreateCanisterParams, RejectCode};
+use ic_platform::pocket_ic::RejectCode;
 use ic_testkit::fake_principal;
 use support::{Harness, fixture_path};
 
@@ -41,16 +43,7 @@ impl Fixture {
         let harness = Harness::new();
         let pic = &harness.pic;
         let driver = fake_principal(11);
-        let create = || {
-            pic.create_canister_with_params(
-                None,
-                CreateCanisterParams {
-                    cycles: Some(2_000_000_000_000),
-                    ..CreateCanisterParams::default()
-                },
-            )
-            .expect("explicit fixture cycle budget")
-        };
+        let create = || installation::funded_canister(pic, 2_000_000_000_000);
         let sender = create();
         let receiver = create();
         let wasm = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).expect("funding Wasm");
@@ -64,7 +57,8 @@ impl Fixture {
                 )
                 .expect("fixture init"),
                 None,
-            );
+            )
+            .unwrap();
         }
         Self {
             harness,
@@ -122,7 +116,7 @@ impl Fixture {
 
     fn status_unchanged(&self) -> FundingOperatorStatusView {
         let pic = &self.harness.pic;
-        let before = [self.sender, self.receiver].map(|id| pic.get_stable_memory(id));
+        let before = [self.sender, self.receiver].map(|id| pic.get_stable_memory(id).unwrap());
         let attempts = self.attempts();
         let receipts = self.receipts();
         let status = self
@@ -174,7 +168,7 @@ impl Fixture {
         assert_eq!(self.attempts(), attempts);
         assert_eq!(self.receipts(), receipts);
         assert!(
-            [self.sender, self.receiver].map(|id| pic.get_stable_memory(id)) == before,
+            [self.sender, self.receiver].map(|id| pic.get_stable_memory(id).unwrap()) == before,
             "read-only status changed stable journals"
         );
         status
@@ -445,7 +439,7 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
         blob_test_protocol::fixture_wire::encode_one("fund", request).expect("request"),
     );
     assert_eq!(
-        result.expect_err("real callback trap").reject_code,
+        crate::canister_rejection(&result.expect_err("real callback trap")).reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(
@@ -483,7 +477,10 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
                 None,
             )
             .expect_err("real post_upgrade trap");
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(fixture.attempts(), attempts);
         assert_eq!(fixture.receipts(), receipts);
         assert_eq!(fixture.status_unchanged(), status);
@@ -502,8 +499,9 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
     fixture
         .harness
         .pic
-        .advance_time(std::time::Duration::from_hours(24));
-    fixture.harness.pic.tick();
+        .advance_time(std::time::Duration::from_hours(24))
+        .unwrap();
+    fixture.harness.pic.tick().unwrap();
     assert_eq!(fixture.status_unchanged(), status);
     assert_eq!(
         fixture.attempts(),
@@ -633,7 +631,7 @@ fn liquidity_rejection_has_no_callback_refund_and_preserves_exact_unsent_history
     let budget_before = fixture.status_unchanged().budget;
     let receipts = fixture.receipts();
     let mut unsent = request(2, 1, FundingReplyMode::Success);
-    unsent.offered = fixture.harness.pic.cycle_balance(fixture.sender) + 1;
+    unsent.offered = fixture.harness.pic.cycle_balance(fixture.sender).unwrap() + 1;
     let observation = fixture
         .fund(fixture.driver, unsent)
         .expect("local liquidity refusal observed");
@@ -751,7 +749,10 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
             blob_test_protocol::fixture_wire::encode_one("receive", request).expect("request"),
         )
         .expect_err("driver cannot impersonate peer");
-    assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&rejected).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(fixture.receipts(), []);
     fixture.upgrade_both();
     assert_eq!(fixture.status_unchanged(), fenced_status(status));

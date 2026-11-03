@@ -30,7 +30,7 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
         additional: 200,
         fault: None,
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(increase(&f, f.other, grant), Err(Failure::Denied));
     assert_eq!(
         increase(
@@ -44,7 +44,7 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
         Err(Failure::Invalid)
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.service) == before,
+        f.harness.pic.get_stable_memory(f.service).unwrap() == before,
         "refused grant changed stable bytes"
     );
     for fault in [WriteFault::FundingAccounting, WriteFault::FundingCommit] {
@@ -62,14 +62,17 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
             packet,
         );
         retain_packet("renewal-trap-result", format!("{result:?}").as_bytes());
-        assert_eq!(result.unwrap_err().reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&result.unwrap_err()).reject_code,
+            RejectCode::CanisterError
+        );
         assert!(
-            f.harness.pic.get_stable_memory(f.service) == before,
+            f.harness.pic.get_stable_memory(f.service).unwrap() == before,
             "grant trap changed stable bytes"
         );
     }
     assert_eq!(increase(&f, f.operator, grant), Ok(true));
-    let granted = f.harness.pic.get_stable_memory(f.service);
+    let granted = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(increase(&f, f.operator, grant), Ok(false));
     assert_eq!(
         increase(
@@ -83,7 +86,7 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
         Err(Failure::Conflict)
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.service) == granted,
+        f.harness.pic.get_stable_memory(f.service).unwrap() == granted,
         "grant replay/conflict changed stable bytes"
     );
     let status = f.local_status().funding;
@@ -130,10 +133,10 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
     assert_eq!(restored.transport_accepted, 500);
     assert_eq!(restored.uncredited_accepted, 0);
     assert!(restored.fenced);
-    let reopened = f.harness.pic.get_stable_memory(f.service);
+    let reopened = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(increase(&f, f.operator, grant), Err(Failure::Fenced));
     assert!(
-        f.harness.pic.get_stable_memory(f.service) == reopened,
+        f.harness.pic.get_stable_memory(f.service).unwrap() == reopened,
         "fenced grant changed stable bytes"
     );
     retain(&f, "renewal");
@@ -145,7 +148,7 @@ fn post_commit_credit_trap_rolls_back_intent_index_and_accounting_without_anothe
     f.configure_cashier(first, 300, FundingReplyMode::Malformed);
     f.funding(f.operator, first, Action::Prepare).unwrap();
     settled(f.guarded_dispatch(f.operator, request(first)));
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let packet = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(CreditCommand {
         fault: Some(WriteFault::FundingCommit),
         ..credit(first, 300, 1)
@@ -159,9 +162,12 @@ fn post_commit_credit_trap_rolls_back_intent_index_and_accounting_without_anothe
         packet,
     );
     retain_packet("post-credit-trap-result", format!("{result:?}").as_bytes());
-    assert_eq!(result.unwrap_err().reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&result.unwrap_err()).reject_code,
+        RejectCode::CanisterError
+    );
     assert!(
-        f.harness.pic.get_stable_memory(f.service) == before,
+        f.harness.pic.get_stable_memory(f.service).unwrap() == before,
         "post-credit trap changed stable bytes"
     );
     assert_eq!(f.local_status().funding.uncredited_accepted, 300);

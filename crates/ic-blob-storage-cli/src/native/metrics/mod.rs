@@ -2,10 +2,9 @@
 use super::{Failure, arguments::Options};
 use ic_blob_storage_contracts::{
     dto::configuration::HostFailure,
-    standalone::{METRICS_METHOD, METRICS_WIRE, MetricOperation, MetricsReport},
+    standalone::{CounterMetrics, METRICS_METHOD, METRICS_WIRE, MetricOperation, MetricsReport},
     wire,
 };
-use ic_metrics::MeasurementCounter;
 use ic_platform::Principal;
 use serde_json::{Value, json};
 
@@ -23,8 +22,8 @@ pub(super) async fn run(
     .await?;
     output(service, namespace, &bytes)
 }
-fn counter(value: MeasurementCounter) -> Value {
-    json!({"total":value.total().to_string(), "saturated":value.total_overflowed()})
+fn counter(value: CounterMetrics) -> Value {
+    json!({"total":value.total.to_string(), "saturated":value.total_overflowed})
 }
 fn output(service: Principal, namespace: u128, bytes: &[u8]) -> Result<Value, Failure> {
     let reply: Result<MetricsReport, HostFailure> =
@@ -46,9 +45,9 @@ fn output(service: Principal, namespace: u128, bytes: &[u8]) -> Result<Value, Fa
         "operation":row.operation,"attempts":counter(row.attempts),"applied":counter(row.applied),
         "replayed":counter(row.replayed),"refused":counter(row.refused),"provider_failed":counter(row.provider_failed),
         "acknowledged":counter(row.acknowledged),"request_bytes":counter(row.request_bytes),
-        "instructions":{"samples":row.instructions.samples().to_string(),"samples_saturated":row.instructions.samples_overflowed(),
-            "total":row.instructions.total().to_string(),"total_saturated":row.instructions.total_overflowed(),
-            "maximum":row.instructions.maximum().map(|value| value.to_string())},
+        "instructions":{"samples":row.instructions.samples.to_string(),"samples_saturated":row.instructions.samples_overflowed,
+            "total":row.instructions.total.to_string(),"total_saturated":row.instructions.total_overflowed,
+            "maximum":row.instructions.maximum.map(|value| value.to_string())},
     })).collect();
     Ok(
         json!({"schema":1,"observation":"standalone_heap_metrics","service":service.to_text(),"namespace":namespace.to_string(),

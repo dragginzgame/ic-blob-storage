@@ -112,7 +112,10 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
             vec![0; 4097],
         )
         .unwrap_err();
-    assert_eq!(oversized.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&oversized).reject_code,
+        RejectCode::CanisterError
+    );
     for actor in [
         f.operator,
         f.controller,

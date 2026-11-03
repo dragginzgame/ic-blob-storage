@@ -65,7 +65,7 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
         Err(Failure::Unknown)
     );
     f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
             f.guarded_dispatch(actor, request(intent)),
@@ -117,7 +117,7 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
     ));
     assert_eq!(otherwise_ready, []);
     assert!(holds_unknown);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(f.incoming(), []);
     let result = settled(f.guarded_dispatch(f.operator, request(intent)));
     assert_eq!(
@@ -214,7 +214,7 @@ fn guarded_dispatch_marker_trap_sends_nothing_and_preserves_prepared_state() {
     let intent = f.funding_intent(1, 900);
     f.configure_cashier(intent, 400, FundingReplyMode::Success);
     f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let error = f
         .harness
         .pic
@@ -229,8 +229,11 @@ fn guarded_dispatch_marker_trap_sends_nothing_and_preserves_prepared_state() {
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(f.incoming(), []);
     assert_eq!(
         f.funding_lookup(f.operator, intent),
@@ -263,7 +266,10 @@ fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() 
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(
             f.incoming(),
             vec![FundingReceiptRecord {
@@ -325,7 +331,7 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
         .unwrap();
     let mut pending = None;
     for _ in 0..20 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         let view = f.retained_outcome(f.operator, intent).unwrap().unwrap();
         if view.phase == FundingPhase::Uncertain {
             pending = Some(view);

@@ -4,13 +4,16 @@ mod mutations;
 use blob_test_protocol::storage::reference::{ReferenceClientInput, ReferenceProbeFailure};
 fn consumer() -> Fixture {
     let mut f = Fixture::new();
-    let client = f.harness.pic.create_canister();
-    f.harness.pic.install_canister(
-        client,
-        Fixture::wasm(),
-        Fixture::installation("fixture_init", f.operator),
-        None,
-    );
+    let client = f.harness.pic.create_canister().unwrap();
+    f.harness
+        .pic
+        .install_canister(
+            client,
+            Fixture::wasm(),
+            Fixture::installation("fixture_init", f.operator),
+            None,
+        )
+        .unwrap();
     f.tenant = client;
     f
 }
@@ -43,9 +46,9 @@ fn replicated_receipt_preserves_historical_success_through_release_suspension_an
     let input = f.exposed();
     let retain = reference(input.request, 1, 2, true);
     let selected = selection(&f, retain);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(fetch(&f, &selected), Ok(ReferenceReceiptLookup::Absent));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.reference(retain).unwrap();
     let original = ReferenceReceiptLookup::Found(ReferenceReceiptResponse {
         request: selected.request,
@@ -71,9 +74,9 @@ fn replicated_receipt_preserves_historical_success_through_release_suspension_an
     f.reference(reference(input.request, 3, 1, false)).unwrap();
     f.fact(input.request, ProviderFact::Deleted).unwrap();
     f.fact(input.request, ProviderFact::Settled).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(fetch(&f, &selected), Ok(original));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.harness
         .pic
         .upgrade_canister(
@@ -103,7 +106,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
             result: Err(ReferenceTransitionFailure::UnknownReference),
         }))
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         fetch(
             &f,
@@ -164,7 +167,7 @@ fn replicated_receipt_returns_recorded_failure_and_enforces_actual_client_and_re
         .map(|(reply,)| reply)
         .unwrap();
     assert_eq!(query, Err(ReferenceProbeFailure::Execution));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.harness
         .pic
         .stop_canister(f.service, Some(f.controller))

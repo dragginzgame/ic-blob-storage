@@ -1,8 +1,12 @@
 use super::*;
+use crate::ops::caffeine::funding::{
+    TopUpProviderError, TopUpReplyError, transport::CashierTopUpStatus as R,
+};
 use crate::workflow::funding::outcome::inspect;
 use crate::{
-    model::billing::journal::record::response::{BalanceFieldRecord, FundingResponseRecord as R},
-    ops::caffeine::funding::{TopUpReply, transport::CashierTopUpStatus},
+    model::billing::balance::BalanceAmounts,
+    ops::billing::balance::{BalanceField, BalanceInputError},
+    ops::caffeine::funding::TopUpReply,
     policy::billing::reconciliation::{FundingReconciliation, assess_funding_reconciliation},
 };
 use ic_blob_storage_contracts::dto::funding::outcome::FundingBalanceField;
@@ -180,12 +184,9 @@ fn response_cases() -> Vec<(R, FundingResponse)> {
         (R::NotEnqueued, FundingResponse::NotEnqueued),
         (R::Rejected(u32::MAX), FundingResponse::Rejected(u32::MAX)),
         (
-            R::Balance {
-                total: u128::MAX,
-                prepaid: 2,
-                promotional: 0,
-                ledger: u128::MAX,
-            },
+            R::Replied(Ok(TopUpReply::ReportedSuccess {
+                balance: BalanceAmounts::new(u128::MAX, 2, 0, u128::MAX),
+            })),
             FundingResponse::ReportedSuccess(FundingReportedBalance {
                 total: u128::MAX,
                 prepaid: 2,
@@ -194,31 +195,59 @@ fn response_cases() -> Vec<(R, FundingResponse)> {
             }),
         ),
         (
-            R::NotAuthorized(principal.into()),
+            R::Replied(Ok(TopUpReply::ProviderFailure(
+                TopUpProviderError::NotAuthorized(principal),
+            ))),
             FundingResponse::NotAuthorized(principal),
         ),
         (
-            R::AccountBalanceOverflow,
+            R::Replied(Ok(TopUpReply::ProviderFailure(
+                TopUpProviderError::AccountBalanceOverflow,
+            ))),
             FundingResponse::AccountBalanceOverflow,
         ),
-        (R::InternalError, FundingResponse::InternalError),
-        (R::TopUpWithoutCycles, FundingResponse::TopUpWithoutCycles),
-        (R::ReplyTooLarge, FundingResponse::ReplyTooLarge),
-        (R::InvalidReply, FundingResponse::InvalidReply),
         (
-            R::InvalidBalance(BalanceFieldRecord::Total),
+            R::Replied(Ok(TopUpReply::ProviderFailure(
+                TopUpProviderError::InternalError,
+            ))),
+            FundingResponse::InternalError,
+        ),
+        (
+            R::Replied(Ok(TopUpReply::ProviderFailure(
+                TopUpProviderError::TopUpWithoutCycles,
+            ))),
+            FundingResponse::TopUpWithoutCycles,
+        ),
+        (
+            R::Replied(Err(TopUpReplyError::ReplyTooLarge)),
+            FundingResponse::ReplyTooLarge,
+        ),
+        (
+            R::Replied(Err(TopUpReplyError::InvalidReply)),
+            FundingResponse::InvalidReply,
+        ),
+        (
+            R::Replied(Err(TopUpReplyError::InvalidBalance(BalanceInputError {
+                field: BalanceField::Total,
+            }))),
             FundingResponse::InvalidBalance(FundingBalanceField::Total),
         ),
         (
-            R::InvalidBalance(BalanceFieldRecord::Prepaid),
+            R::Replied(Err(TopUpReplyError::InvalidBalance(BalanceInputError {
+                field: BalanceField::Prepaid,
+            }))),
             FundingResponse::InvalidBalance(FundingBalanceField::Prepaid),
         ),
         (
-            R::InvalidBalance(BalanceFieldRecord::Promotional),
+            R::Replied(Err(TopUpReplyError::InvalidBalance(BalanceInputError {
+                field: BalanceField::Promotional,
+            }))),
             FundingResponse::InvalidBalance(FundingBalanceField::Promotional),
         ),
         (
-            R::InvalidBalance(BalanceFieldRecord::Ledger),
+            R::Replied(Err(TopUpReplyError::InvalidBalance(BalanceInputError {
+                field: BalanceField::Ledger,
+            }))),
             FundingResponse::InvalidBalance(FundingBalanceField::Ledger),
         ),
     ]
@@ -243,7 +272,6 @@ fn structured_outcomes_roundtrip_without_converting_reports_or_errors_to_credit(
         );
         let before = store.outcome(execution(), intent).unwrap().unwrap();
         check_boundary(&store, intent, expected, false);
-        assert!(before.response.is_some());
         assert_eq!(
             assess_funding_reconciliation(before.transfer),
             if unsent {
@@ -254,27 +282,7 @@ fn structured_outcomes_roundtrip_without_converting_reports_or_errors_to_credit(
                 }
             }
         );
-        if let R::Balance {
-            total,
-            prepaid,
-            promotional,
-            ledger,
-        } = response
-        {
-            assert_eq!(
-                before.response,
-                Some(CashierTopUpStatus::Replied(Ok(
-                    TopUpReply::ReportedSuccess {
-                        balance: crate::model::billing::balance::BalanceAmounts::new(
-                            total,
-                            prepaid,
-                            promotional,
-                            ledger
-                        )
-                    }
-                )))
-            );
-        }
+        assert_eq!(before.response, Some(response));
         let totals = store.allocation(execution()).unwrap();
         assert_eq!(
             store.complete_transport(execution(), intent, source(), transport, Some(response)),
@@ -331,7 +339,9 @@ fn absent_pending_and_transport_only_outcomes_remain_distinct_and_authorized() {
             intent,
             source(),
             transport,
-            Some(R::InternalError)
+            Some(R::Replied(Ok(TopUpReply::ProviderFailure(
+                TopUpProviderError::InternalError
+            ))))
         ),
         Err(FundingIntentError::NotAttempted.into())
     );
@@ -354,7 +364,9 @@ fn absent_pending_and_transport_only_outcomes_remain_distinct_and_authorized() {
             intent,
             source(),
             transport,
-            Some(R::InternalError)
+            Some(R::Replied(Ok(TopUpReply::ProviderFailure(
+                TopUpProviderError::InternalError
+            ))))
         ),
         Ok(true)
     );
@@ -365,7 +377,7 @@ fn absent_pending_and_transport_only_outcomes_remain_distinct_and_authorized() {
             intent,
             source(),
             transport,
-            Some(R::InvalidReply)
+            Some(R::Replied(Err(TopUpReplyError::InvalidReply)))
         ),
         Err(FundingIntentError::OutcomeConflict.into())
     );

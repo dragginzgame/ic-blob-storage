@@ -1,6 +1,9 @@
-//! CLI grammar and typed admission; handlers retain request and trust policy.
-use clap::builder::{PossibleValuesParser, StringValueParser, TypedValueParser};
-use clap::{Arg, ArgAction, Command};
+//! Typed command grammar; effect handlers retain authority and lifecycle policy.
+use crate::native::publish_inputs::{
+    MAX_FILE_BYTES, MAX_FILES, MAX_TIMEOUT_SECONDS, MAX_TOTAL_BYTES,
+};
+use clap::builder::{StringValueParser, TypedValueParser};
+use clap::{Args, Parser, Subcommand, ValueEnum};
 use ic_platform::Principal;
 use std::{
     fmt::Display,
@@ -9,7 +12,6 @@ use std::{
     str::FromStr,
 };
 use url::Url;
-
 // Canonical spelling is product policy; Clap owns invocation, storage and errors.
 fn positive<T>(maximum: T) -> impl TypedValueParser<Value = T>
 where
@@ -44,106 +46,6 @@ fn file_index(text: &str) -> Result<usize, &'static str> {
         Ok(index)
     }
 }
-fn argument(command: &str, name: &'static str, required: bool) -> Arg {
-    use crate::native::publish_inputs::{
-        MAX_FILE_BYTES, MAX_FILES, MAX_TIMEOUT_SECONDS, MAX_TOTAL_BYTES,
-    };
-    let arg = Arg::new(name)
-        .long(&name[2..])
-        .required(required)
-        .action(ArgAction::Set);
-    match name {
-        "--identity"
-        | "--root-key"
-        | "--run-dir"
-        | "--inputs"
-        | "--request"
-        | "--permission"
-        | "--body"
-        | "--cursor"
-        | "--configuration"
-        | "--inventory"
-        | "--root"
-        | "--installation"
-        | "--binding"
-        | "--manifest"
-        | "--uploader-identity"
-        | "--operator-identity"
-        | "--source-run"
-        | "--source-session"
-        | "--browser-selection" => arg.value_parser(clap::value_parser!(PathBuf)),
-        "--network" => arg.value_parser(
-            PossibleValuesParser::new(["ic", "local"])
-                .map(|value| if value == "ic" { "ic" } else { "local" }),
-        ),
-        "--url" => arg.value_parser(clap::value_parser!(Url)),
-        "--gateway" if command != "revoke-gateway" => arg.value_parser(clap::value_parser!(Url)),
-        "--service" | "--operator" | "--actor" | "--cashier" | "--payer" | "--caller"
-        | "--owner" | "--gateway" => {
-            if matches!(command, "account-link-inputs" | "installation-check") {
-                arg.value_parser(principal)
-            } else {
-                arg.value_parser(ordinary_principal)
-            }
-        }
-        "--namespace" | "--operation" | "--offered" | "--reference" | "--target-balance" => {
-            arg.value_parser(positive(u128::MAX))
-        }
-        "--daily-limit" => arg.value_parser(positive(NonZeroU128::MAX)),
-        "--expiry" => arg.value_parser(positive(NonZeroU64::MAX)),
-        "--sequence" => arg.value_parser(positive(u64::MAX)),
-        "--max-bytes" => arg.value_parser(positive(
-            NonZeroU64::new(MAX_FILE_BYTES).expect("positive ceiling"),
-        )),
-        "--max-total-bytes" => arg.value_parser(positive(
-            NonZeroU64::new(MAX_TOTAL_BYTES).expect("positive ceiling"),
-        )),
-        "--timeout-seconds" => arg.value_parser(positive(MAX_TIMEOUT_SECONDS)),
-        "--file-index" => arg.value_parser(file_index),
-        "--max-queries" => arg.value_parser(positive(match command {
-            "publish-file-status" => 4,
-            "publish-map" => 2 * MAX_FILES as u64 + 2,
-            _ => MAX_FILES as u64 + 1,
-        })),
-        "--max-steps" => arg.value_parser(positive(
-            crate::native::publish_session::budget::step_limit(MAX_FILES)
-                .expect("bounded file ceiling"),
-        )),
-        "--kind" => arg.value_parser(|text: &str| {
-            crate::native::account::kind(text).map_err(|_| "invalid account observation kind")
-        }),
-        "--filter" => arg.value_parser(|text: &str| {
-            crate::native::upload_history::filter(text).map_err(|_| "invalid upload filter")
-        }),
-        "--action" => arg.value_parser(PossibleValuesParser::new(["retain", "release"]).map(
-            |value| {
-                if value == "retain" {
-                    ic_blob_storage_contracts::dto::reference::ReferenceAction::Retain
-                } else {
-                    ic_blob_storage_contracts::dto::reference::ReferenceAction::Release
-                }
-            },
-        )),
-        _ => arg.value_name("VALUE"),
-    }
-}
-fn arguments(
-    command: &'static str,
-    names: &'static str,
-    required: bool,
-) -> impl Iterator<Item = Arg> {
-    names
-        .split_ascii_whitespace()
-        .map(move |name| argument(command, name, required))
-}
-
-fn command(name: &'static str, required: &'static str, optional: &'static str) -> Command {
-    Command::new(name)
-        .after_long_help(help(name))
-        .args(arguments(name, required, true))
-        .args(arguments(name, optional, false))
-}
-
 fn help(name: &str) -> &'static str {
     match name {
         "metrics" => {
@@ -212,184 +114,398 @@ fn help(name: &str) -> &'static str {
     }
 }
 
-fn online(
-    name: &'static str,
-    operator: bool,
-    required: &'static str,
-    optional: &'static str,
-) -> Command {
-    command(name, required, optional)
-        .args(arguments(
-            name,
-            "--network --url --identity --service --namespace",
-            true,
-        ))
-        .args(arguments(
-            name,
-            if operator { "--operator" } else { "--actor" },
-            true,
-        ))
-        .args(arguments(name, "--root-key", false))
+#[derive(Parser)]
+#[command(
+    name = "blob-storage",
+    disable_version_flag = true,
+    args_conflicts_with_subcommands = true,
+    arg_required_else_help = true,
+    after_long_help = "Use COMMAND --help for operation constraints. New run directories refuse existing or partial output and CR/LF paths. Preserve original journals after uncertainty; never infer retry authority from a missing reply. See docs/operator-guide.md for recovery procedures."
+)]
+pub(in crate::native) struct Cli {
+    #[arg(long, exclusive = true)]
+    pub version: bool,
+    #[command(subcommand)]
+    pub command: Option<Invocation>,
 }
-
-pub(super) fn cli() -> Command {
-    let cli = Command::new("blob-storage")
-        .args_conflicts_with_subcommands(true)
-        .arg(
-            Arg::new("version")
-                .long("version")
-                .action(ArgAction::SetTrue)
-                .exclusive(true),
-        )
-        .arg_required_else_help(true)
-        .after_long_help("Use COMMAND --help for operation constraints. New run directories refuse existing or partial output and CR/LF paths. Preserve original journals after uncertainty; never infer retry authority from a missing reply. See docs/operator-guide.md for recovery procedures.");
-    publishing(operator(tenant(offline(cli))))
+#[derive(Subcommand)]
+pub(in crate::native) enum Invocation {
+    #[command(after_long_help = help("account-link-inputs"))]
+    AccountLinkInputs(AccountLink),
+    #[command(after_long_help = help("installation-check"))]
+    InstallationCheck(Installation),
+    #[command(after_long_help = help("upload-inputs"))]
+    UploadInputs(UploadInputs),
+    #[command(after_long_help = help("publish-inputs"))]
+    PublishInputs(PublishInputs),
+    #[command(after_long_help = help("reference-inputs"))]
+    ReferenceInputs(ReferenceInputs),
+    #[command(after_long_help = help("admit-upload"))]
+    AdmitUpload(Tenant<Mutation>),
+    #[command(after_long_help = help("prepare-upload"))]
+    PrepareUpload(Tenant<Mutation>),
+    #[command(after_long_help = help("revoke-upload"))]
+    RevokeUpload(Tenant<Mutation>),
+    #[command(after_long_help = help("upload-permission"))]
+    UploadPermission(Tenant<Request>),
+    #[command(after_long_help = help("upload-manifest"))]
+    UploadManifest(Tenant<Request>),
+    #[command(after_long_help = help("submit-reference"))]
+    SubmitReference(Tenant<Mutation>),
+    #[command(after_long_help = help("reference-receipt"))]
+    ReferenceReceipt(Tenant<Request>),
+    #[command(after_long_help = help("reference-status"))]
+    ReferenceStatus(Tenant<Request>),
+    #[command(after_long_help = help("download"))]
+    Download(Tenant<Download>),
+    #[command(after_long_help = help("verify-upload"))]
+    VerifyUpload(Tenant<VerifyUpload>),
+    #[command(after_long_help = help("certificate-assessment"))]
+    CertificateAssessment(Tenant<Permission>),
+    #[command(after_long_help = help("upload-history"))]
+    UploadHistory(Operator<UploadHistory>),
+    #[command(after_long_help = help("metrics"))]
+    Metrics(Operator<Empty>),
+    #[command(after_long_help = help("status"))]
+    Status(Operator<Payer<Empty>>),
+    #[command(after_long_help = help("funding-history"))]
+    FundingHistory(Operator<Payer<Cursor>>),
+    #[command(after_long_help = help("inspect-account"))]
+    InspectAccount(Operator<Payer<AccountKind>>),
+    #[command(after_long_help = help("funding-assessment"))]
+    FundingAssessment(Operator<Payer<Amount>>),
+    #[command(after_long_help = help("funding-outcome"))]
+    FundingOutcome(Operator<Payer<Amount>>),
+    #[command(after_long_help = help("sync-gateways"))]
+    SyncGateways(Operator<Payer<Directory>>),
+    #[command(after_long_help = help("cancel-gateway-sync"))]
+    CancelGatewaySync(Operator<Payer<Cancel>>),
+    #[command(after_long_help = help("revoke-gateway"))]
+    RevokeGateway(Operator<Payer<Revoke>>),
+    #[command(after_long_help = help("publish-check"))]
+    PublishCheck(Tenant<Checks<{ MAX_FILES as u64 + 1 }>>),
+    #[command(after_long_help = help("publish-map"), after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
+    PublishMap(Tenant<Map<{ 2 * MAX_FILES as u64 + 2 }>>),
+    #[command(after_long_help = help("publish-file-status"), after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
+    PublishFileStatus(Tenant<FileStatus>),
+    #[command(after_long_help = help("publish-prepare"))]
+    PublishPrepare(Tenant<IndexedPrepare>),
+    #[command(after_long_help = help("publish-prepare-resume"))]
+    PublishPrepareResume(Tenant<ResumePrepare>),
+    #[command(after_long_help = help("publish-prepare-batch"))]
+    PublishPrepareBatch(Tenant<Prepare>),
+    #[command(after_long_help = help("publish-session"), after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
+    PublishSession(Tenant<Session>),
 }
-
-fn offline(mut cli: Command) -> Command {
-    for (name, required) in [
-        (
-            "account-link-inputs",
-            "--cashier --caller --owner --payer --daily-limit --expiry --run-dir",
-        ),
-        (
-            "installation-check",
-            "--configuration --service --project --release --run-dir",
-        ),
-        (
-            "upload-inputs",
-            "--installation --binding --manifest --body --max-bytes --run-dir",
-        ),
-        (
-            "publish-inputs",
-            "--inventory --root --installation --max-bytes --max-total-bytes --run-dir",
-        ),
-        (
-            "reference-inputs",
-            "--permission --action --reference --operation --run-dir",
-        ),
-    ] {
-        cli = cli.subcommand(command(name, required, ""));
-    }
-    cli
+#[derive(Clone, Copy, ValueEnum)]
+pub(in crate::native) enum Network {
+    Ic,
+    Local,
 }
-
-fn tenant(mut cli: Command) -> Command {
-    for (name, kind) in crate::native::upload_setup::Kind::COMMANDS {
-        let required = if kind.mutation() {
-            "--request --run-dir"
-        } else {
-            "--request"
-        };
-        cli = cli.subcommand(online(name, false, required, ""));
-    }
-    cli = cli.subcommand(online("submit-reference", false, "--request --run-dir", ""));
-    for (name, _) in crate::native::references::Kind::COMMANDS {
-        cli = cli.subcommand(online(name, false, "--request", ""));
-    }
-    cli.subcommand(online(
-        "download",
-        false,
-        "--request --project --gateway --max-bytes --run-dir",
-        "",
-    ))
-    .subcommand(online(
-        "verify-upload",
-        false,
-        "--permission --body --max-bytes",
-        "",
-    ))
-    .subcommand(online("certificate-assessment", false, "--permission", ""))
-    .subcommand(online("upload-history", true, "--filter", "--cursor"))
-}
-
-fn operator(mut cli: Command) -> Command {
-    cli = cli.subcommand(online("metrics", true, "", ""));
-    for (name, required, optional) in [
-        ("status", "", ""),
-        ("funding-history", "", "--cursor"),
-        ("inspect-account", "--kind", ""),
-        (
-            "funding-assessment",
-            "--operation --offered",
-            "--target-balance",
-        ),
-        (
-            "funding-outcome",
-            "--operation --offered",
-            "--target-balance",
-        ),
-        ("sync-gateways", "--run-dir", ""),
-        ("cancel-gateway-sync", "--run-dir --sequence", ""),
-        ("revoke-gateway", "--run-dir --gateway", ""),
-    ] {
-        cli = cli.subcommand(online(name, true, required, optional).args(arguments(
-            name,
-            "--cashier --payer",
-            true,
-        )));
-    }
-    cli
-}
-
-fn publishing(mut cli: Command) -> Command {
-    for name in [
-        "publish-check",
-        "publish-map",
-        "publish-file-status",
-        "publish-prepare",
-        "publish-prepare-resume",
-        "publish-prepare-batch",
-        "publish-session",
-    ] {
-        let mut selected = online(
-            name,
-            false,
-            "--inputs --max-bytes --max-total-bytes --timeout-seconds --run-dir",
-            "",
-        );
-        selected = selected.args(arguments(
-            name,
-            if matches!(
-                name,
-                "publish-check" | "publish-map" | "publish-file-status"
-            ) {
-                "--max-queries"
-            } else {
-                "--uploader-identity"
-            },
-            true,
-        ));
-        if matches!(
-            name,
-            "publish-map" | "publish-file-status" | "publish-session"
-        ) {
-            selected = selected
-                .args(arguments(name, "--gateway --operator-identity", true))
-                .after_help("Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.");
+impl Network {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Ic => "ic",
+            Self::Local => "local",
         }
-        if matches!(
-            name,
-            "publish-prepare" | "publish-prepare-resume" | "publish-file-status"
-        ) {
-            selected = selected.args(arguments(name, "--file-index", true));
-        }
-        if name == "publish-prepare-resume" {
-            selected = selected.args(arguments(name, "--source-run", true));
-        }
-        if name == "publish-session" {
-            selected = selected
-                .args(arguments(name, "--max-steps", true))
-                .args(arguments(
-                    name,
-                    "--source-session --browser-selection",
-                    false,
-                ));
-        }
-        cli = cli.subcommand(selected);
     }
-    cli
 }
-
+#[derive(Args)]
+pub(in crate::native) struct Connection {
+    #[arg(long)]
+    pub network: Network,
+    #[arg(long)]
+    pub url: Url,
+    #[arg(long)]
+    pub identity: PathBuf,
+    #[arg(long, value_parser = ordinary_principal)]
+    pub service: Principal,
+    #[arg(long, value_parser = positive(u128::MAX))]
+    pub namespace: u128,
+    #[arg(long)]
+    pub root_key: Option<PathBuf>,
+}
+#[derive(Args)]
+pub(in crate::native) struct Tenant<T: Args> {
+    #[command(flatten)]
+    pub connection: Connection,
+    #[arg(long, value_parser = ordinary_principal)]
+    pub actor: Principal,
+    #[command(flatten)]
+    pub input: T,
+}
+#[derive(Args)]
+pub(in crate::native) struct Operator<T: Args> {
+    #[command(flatten)]
+    pub connection: Connection,
+    #[arg(long = "operator", value_parser = ordinary_principal)]
+    pub authority: Principal,
+    #[command(flatten)]
+    pub input: T,
+}
+#[derive(Args)]
+pub(in crate::native) struct Payer<T: Args> {
+    #[arg(long, value_parser = ordinary_principal)]
+    pub cashier: Principal,
+    #[arg(long = "payer", value_parser = ordinary_principal)]
+    pub payment_account: Principal,
+    #[command(flatten)]
+    pub input: T,
+}
+#[derive(Args)]
+pub(in crate::native) struct Empty {}
+#[derive(Args)]
+pub(in crate::native) struct Request {
+    #[arg(long)]
+    pub request: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct Mutation {
+    #[arg(long)]
+    pub request: PathBuf,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct Permission {
+    #[arg(long)]
+    pub permission: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct Directory {
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct Cursor {
+    #[arg(long)]
+    pub cursor: Option<PathBuf>,
+}
+#[derive(Args)]
+pub(in crate::native) struct UploadHistory {
+    #[arg(long, value_parser = history_filter)]
+    pub filter: ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter,
+    #[arg(long)]
+    pub cursor: Option<PathBuf>,
+}
+#[derive(Args)]
+pub(in crate::native) struct AccountKind {
+    #[arg(long, value_parser = account_kind)]
+    pub kind: ic_blob_storage_contracts::dto::account::AccountInspectionKind,
+}
+#[derive(Args)]
+pub(in crate::native) struct Amount {
+    #[arg(long, value_parser = positive(u128::MAX))]
+    pub operation: u128,
+    #[arg(long, value_parser = positive(u128::MAX))]
+    pub offered: u128,
+    #[arg(long, value_parser = positive(u128::MAX))]
+    pub target_balance: Option<u128>,
+}
+#[derive(Args)]
+pub(in crate::native) struct Cancel {
+    #[arg(long)]
+    pub run_dir: PathBuf,
+    #[arg(long, value_parser = positive(u64::MAX))]
+    pub sequence: u64,
+}
+#[derive(Args)]
+pub(in crate::native) struct Revoke {
+    #[arg(long)]
+    pub run_dir: PathBuf,
+    #[arg(long, value_parser = ordinary_principal)]
+    pub gateway: Principal,
+}
+#[derive(Args)]
+pub(in crate::native) struct Download {
+    #[arg(long)]
+    pub request: PathBuf,
+    #[arg(long)]
+    pub project: String,
+    #[arg(long)]
+    pub gateway: Url,
+    #[arg(long, value_parser = positive(NonZeroU64::new(MAX_FILE_BYTES).expect("positive ceiling")))]
+    pub max_bytes: NonZeroU64,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct VerifyUpload {
+    #[arg(long)]
+    pub permission: PathBuf,
+    #[arg(long)]
+    pub body: PathBuf,
+    #[arg(long, value_parser = positive(NonZeroU64::new(MAX_FILE_BYTES).expect("positive ceiling")))]
+    pub max_bytes: NonZeroU64,
+}
+#[derive(Args)]
+pub(in crate::native) struct Files {
+    #[arg(long)]
+    pub inputs: PathBuf,
+    #[arg(long, value_parser = positive(NonZeroU64::new(MAX_FILE_BYTES).expect("positive ceiling")))]
+    pub max_bytes: NonZeroU64,
+    #[arg(long, value_parser = positive(NonZeroU64::new(MAX_TOTAL_BYTES).expect("positive ceiling")))]
+    pub max_total_bytes: NonZeroU64,
+    #[arg(long, value_parser = positive(MAX_TIMEOUT_SECONDS))]
+    pub timeout_seconds: u64,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct Checks<const QUERIES: u64> {
+    #[command(flatten)]
+    pub files: Files,
+    #[arg(long, value_parser = positive(QUERIES))]
+    pub max_queries: u64,
+}
+#[derive(Args)]
+pub(in crate::native) struct Map<const QUERIES: u64> {
+    #[command(flatten)]
+    pub checks: Checks<QUERIES>,
+    #[arg(long)]
+    pub gateway: Url,
+    #[arg(long)]
+    pub operator_identity: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct FileStatus {
+    #[command(flatten)]
+    pub map: Map<4>,
+    #[arg(long, value_parser = file_index)]
+    pub file_index: usize,
+}
+#[derive(Args)]
+pub(in crate::native) struct Prepare {
+    #[command(flatten)]
+    pub files: Files,
+    #[arg(long)]
+    pub uploader_identity: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct IndexedPrepare {
+    #[command(flatten)]
+    pub prepare: Prepare,
+    #[arg(long, value_parser = file_index)]
+    pub file_index: usize,
+}
+#[derive(Args)]
+pub(in crate::native) struct ResumePrepare {
+    #[command(flatten)]
+    pub indexed: IndexedPrepare,
+    #[arg(long)]
+    pub source_run: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct Session {
+    #[command(flatten)]
+    pub prepare: Prepare,
+    #[arg(long)]
+    pub gateway: Url,
+    #[arg(long)]
+    pub operator_identity: PathBuf,
+    #[arg(long, value_parser = positive(crate::native::publish_session::budget::step_limit(MAX_FILES).expect("bounded file ceiling")))]
+    pub max_steps: u64,
+    #[arg(long = "source-session")]
+    pub source: Option<PathBuf>,
+    #[arg(long)]
+    pub browser_selection: Option<PathBuf>,
+}
+#[derive(Args)]
+pub(in crate::native) struct AccountLink {
+    #[arg(long, value_parser = principal)]
+    pub cashier: Principal,
+    #[arg(long, value_parser = principal)]
+    pub caller: Principal,
+    #[arg(long, value_parser = principal)]
+    pub owner: Principal,
+    #[arg(long, value_parser = principal)]
+    pub payer: Principal,
+    #[arg(long, value_parser = positive(NonZeroU128::MAX))]
+    pub daily_limit: NonZeroU128,
+    #[arg(long, value_parser = positive(NonZeroU64::MAX))]
+    pub expiry: NonZeroU64,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct Installation {
+    #[arg(long)]
+    pub configuration: PathBuf,
+    #[arg(long, value_parser = principal)]
+    pub service: Principal,
+    #[arg(long)]
+    pub project: String,
+    #[arg(long)]
+    pub release: String,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct UploadInputs {
+    #[arg(long)]
+    pub installation: PathBuf,
+    #[arg(long)]
+    pub binding: PathBuf,
+    #[arg(long)]
+    pub manifest: PathBuf,
+    #[arg(long)]
+    pub body: PathBuf,
+    #[arg(long, value_parser = positive(NonZeroU64::new(MAX_FILE_BYTES).expect("positive ceiling")))]
+    pub max_bytes: NonZeroU64,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct PublishInputs {
+    #[arg(long)]
+    pub inventory: PathBuf,
+    #[arg(long)]
+    pub root: PathBuf,
+    #[arg(long)]
+    pub installation: PathBuf,
+    #[arg(long, value_parser = positive(NonZeroU64::new(MAX_FILE_BYTES).expect("positive ceiling")))]
+    pub max_bytes: NonZeroU64,
+    #[arg(long, value_parser = positive(NonZeroU64::new(MAX_TOTAL_BYTES).expect("positive ceiling")))]
+    pub max_total_bytes: NonZeroU64,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+#[derive(Args)]
+pub(in crate::native) struct ReferenceInputs {
+    #[arg(long)]
+    pub permission: PathBuf,
+    #[arg(long, value_parser = reference_action)]
+    pub action: ic_blob_storage_contracts::dto::reference::ReferenceAction,
+    #[arg(long, value_parser = positive(u128::MAX))]
+    pub reference: u128,
+    #[arg(long, value_parser = positive(u128::MAX))]
+    pub operation: u128,
+    #[arg(long)]
+    pub run_dir: PathBuf,
+}
+fn account_kind(
+    text: &str,
+) -> Result<ic_blob_storage_contracts::dto::account::AccountInspectionKind, &'static str> {
+    crate::native::account::kind(text).map_err(|_| "invalid account observation kind")
+}
+fn history_filter(
+    text: &str,
+) -> Result<ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter, &'static str> {
+    crate::native::upload_history::filter(text).map_err(|_| "invalid upload filter")
+}
+fn reference_action(
+    text: &str,
+) -> Result<ic_blob_storage_contracts::dto::reference::ReferenceAction, &'static str> {
+    use ic_blob_storage_contracts::dto::reference::ReferenceAction;
+    match text {
+        "retain" => Ok(ReferenceAction::Retain),
+        "release" => Ok(ReferenceAction::Release),
+        _ => Err("invalid reference action"),
+    }
+}
+#[cfg(test)]
+fn cli() -> clap::Command {
+    <Cli as clap::CommandFactory>::command()
+}
 #[cfg(test)]
 mod tests;

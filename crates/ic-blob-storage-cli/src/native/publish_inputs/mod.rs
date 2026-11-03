@@ -1,7 +1,6 @@
 //! Freeze a bounded, caller-allocated inventory without service/provider effects.
 mod capacity;
 mod paths;
-use super::arguments::value;
 use super::upload_inputs::installation::Installation;
 use super::{
     Failure,
@@ -157,13 +156,13 @@ fn metadata(
     Ok(bytes)
 }
 
-pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
-    let inventory_path = value::<std::path::PathBuf>(flags, "--inventory");
-    let root = paths::Root::new(&value::<std::path::PathBuf>(flags, "--root"))?;
-    let installation_path = value::<std::path::PathBuf>(flags, "--installation");
-    let maximum: NonZeroU64 = value(flags, "--max-bytes");
-    let total_maximum: NonZeroU64 = value(flags, "--max-total-bytes");
-    let directory = value::<std::path::PathBuf>(flags, "--run-dir");
+pub(super) fn run(input: super::arguments::schema::PublishInputs) -> Result<Value, Failure> {
+    let inventory_path = input.inventory;
+    let root = paths::Root::new(&input.root)?;
+    let installation_path = input.installation;
+    let maximum: NonZeroU64 = input.max_bytes;
+    let total_maximum: NonZeroU64 = input.max_total_bytes;
+    let directory = input.run_dir;
     let inventory_bytes = read(&inventory_path, INVENTORY_BYTES)?;
     let inventory = Inventory::decode(&inventory_bytes)?;
     let installation = Installation::decode(

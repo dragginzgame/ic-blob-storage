@@ -42,13 +42,15 @@ fn install(
     gateway: Principal,
     controller: Principal,
 ) -> Principal {
-    let canister = pic.create_canister_with_settings(
-        Some(controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![controller]),
-            ..CanisterSettings::default()
-        }),
-    );
+    let canister = pic
+        .create_canister_with_settings(
+            Some(controller),
+            Some(CanisterSettings {
+                controllers: Some(vec![controller]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
     pic.install_canister(
         canister,
         std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("Wasm"),
@@ -58,7 +60,8 @@ fn install(
         )
         .expect("init"),
         Some(controller),
-    );
+    )
+    .unwrap();
     canister
 }
 

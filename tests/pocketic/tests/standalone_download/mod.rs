@@ -34,7 +34,7 @@ fn request(upload: ReferenceUpload) -> DownloadRequest {
 fn standalone_download_authenticates_scope_bounds_ingress_and_requires_replicated_delivery() {
     let f = Fixture::new();
     let input = request(f.manifest().permission.upload);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.download(f.tenant, input), Err(F::Inactive));
     for actor in [f.operator, f.controller, f.uploader, Principal::anonymous()] {
         assert_eq!(f.download(actor, input), Err(F::Denied));
@@ -74,7 +74,10 @@ fn standalone_download_authenticates_scope_bounds_ingress_and_requires_replicate
             .pic
             .update_call(f.service, f.tenant, DOWNLOAD_METHOD, bytes)
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
     }
     let query = f
         .harness
@@ -86,8 +89,14 @@ fn standalone_download_authenticates_scope_bounds_ingress_and_requires_replicate
             ic_blob_storage_contracts::wire::encode_request("blob_install", input).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(query.reject_code, RejectCode::CanisterError);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    assert_eq!(
+        crate::canister_rejection(&query).reject_code,
+        RejectCode::CanisterError
+    );
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 
 #[test]
@@ -114,16 +123,18 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
     admitted.unwrap();
     assert_eq!(f.download(f.tenant, input), Err(F::Unavailable));
     f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.download(f.tenant, input), Err(F::Unavailable));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_tenant_as(
             f.service,
             f.operator,
-            "blob_update_tenant",
             TenantUpdateRequest {
                 scope: f.scope(),
                 expected: enrolled.enrollment,
@@ -136,18 +147,21 @@ fn standalone_download_never_serves_prepared_content_and_keeps_restore_fence() {
     assert_eq!(f.download(f.tenant, input), Err(F::Inactive));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.configuration(f.operator).unwrap().project, PROJECT);
     assert_eq!(f.download(f.tenant, input), Err(F::Fenced));
     assert_eq!(f.download(f.operator, input), Err(F::Denied));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }
 
 #[test]
 fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_restore() {
     let f = Fixture::new();
     let enrolled = f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for project in [
         String::new(),
         " project".into(),
@@ -168,10 +182,16 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
             .pic
             .reinstall_canister(f.service, wasm(), input, Some(f.controller))
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(f.tenant(), enrolled);
         assert_eq!(f.configuration(f.operator).unwrap().project, PROJECT);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+        unchanged(
+            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &before,
+        );
     }
     // Corrupt the current schema's project in emulator memory, preserving its byte width.
     let offsets: Vec<_> = before
@@ -184,39 +204,51 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
     };
     let mut corrupted = before;
     corrupted[*offset] = b'\n';
-    f.harness.pic.set_stable_memory(
-        f.service,
-        corrupted.clone(),
-        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
-    );
+    f.harness
+        .pic
+        .set_stable_memory(
+            f.service,
+            corrupted.clone(),
+            ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
+        )
+        .unwrap();
     let error = f
         .upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &corrupted);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &corrupted,
+    );
 }
 
 #[test]
 fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refusals() {
     use blob_test_protocol::storage::read::{DownloadClientInput, DownloadProbeFailure};
     let mut f = Fixture::new();
-    let client = f.harness.pic.create_canister();
-    f.harness.pic.install_canister(
-        client,
-        std::fs::read(fixture_path("BLOB_STORAGE_PROBE_WASM")).unwrap(),
-        blob_test_protocol::fixture_wire::encode_one(
-            "fixture_init",
-            blob_test_protocol::storage::resources::StorageProbeInstallation {
-                operator: f.operator,
-                max_objects: 2,
-                max_tenants: 2,
-                max_object_bytes: 10,
-                max_funding_attempts: 4,
-            },
+    let client = f.harness.pic.create_canister().unwrap();
+    f.harness
+        .pic
+        .install_canister(
+            client,
+            std::fs::read(fixture_path("BLOB_STORAGE_PROBE_WASM")).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one(
+                "fixture_init",
+                blob_test_protocol::storage::resources::StorageProbeInstallation {
+                    operator: f.operator,
+                    max_objects: 2,
+                    max_tenants: 2,
+                    max_object_bytes: 10,
+                    max_funding_attempts: 4,
+                },
+            )
+            .unwrap(),
+            None,
         )
-        .unwrap(),
-        None,
-    );
+        .unwrap();
     f.tenant = client;
     let input = DownloadClientInput {
         request: request(f.manifest().permission.upload),
@@ -237,18 +269,27 @@ fn standalone_download_client_propagates_inactive_unconfirmed_and_restored_refus
             .map(|(reply,)| reply)
             .unwrap()
     };
-    let client_before = f.harness.pic.get_stable_memory(client);
+    let client_before = f.harness.pic.get_stable_memory(client).unwrap();
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Inactive)));
     f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Unavailable)));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(fetch(), Err(DownloadProbeFailure::Remote(F::Fenced)));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
-    unchanged(&f.harness.pic.get_stable_memory(client), &client_before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
+    unchanged(
+        &f.harness.pic.get_stable_memory(client).unwrap(),
+        &client_before,
+    );
 }
 
 #[test]
@@ -273,7 +314,7 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
     assert_eq!(installed.configuration, f.config);
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.configuration(f.operator).unwrap(),
         HostConfigurationView {
@@ -281,5 +322,8 @@ fn standalone_project_at_utf8_byte_limit_survives_current_schema_restore() {
             ..installed
         }
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }

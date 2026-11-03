@@ -11,7 +11,8 @@ fn live(f: &mut Fixture, args: &mut [String]) {
     let url = f
         .harness
         .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None);
+        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap();
     let index = args.iter().position(|s| s == "--url").unwrap();
     args[index + 1] = url.to_string();
 }
@@ -21,7 +22,7 @@ fn args(f: &Fixture, dir: &std::path::Path, permission: UploadAdmissionRequest) 
     let root = dir.join("root.der");
     let saved = dir.join("permission.wire");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
     std::fs::write(
         &saved,
         ic_blob_storage_contracts::document::encode(permission).unwrap(),
@@ -109,9 +110,9 @@ fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
     let mut args = args(&f, dir.path(), permission);
     live(&mut f, &mut args);
     assert_eq!(run(&args, 3)["error"], "unprepared");
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     live(&mut f, &mut args);
     let value = run(&args, 0);
     assert_eq!(value["observation"], "certificate_assessment");
@@ -124,8 +125,11 @@ fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
     assert_eq!(value["issuance_authorized"], false);
     assert_eq!(value["retry_authorized"], false);
     rejects_changed_permission_and_trust(&args, dir.path(), permission);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     f.harness
         .pic
         .update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
@@ -137,20 +141,26 @@ fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
         )
         .unwrap()
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     live(&mut f, &mut args);
     assert_eq!(run(&args, 3)["error"], "assessment_revoked");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     let revoked = f.admission(permission);
     assert!(revoked.revoked);
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     live(&mut f, &mut args);
     assert_eq!(run(&args, 3)["error"], "assessment_permission_fenced");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
     assert_eq!(f.admission(permission), revoked);
 }

@@ -4,15 +4,16 @@
 #![cfg(not(target_family = "wasm"))]
 
 use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
 mod sync_request;
 
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform::pocket_ic::{CanisterSettings, PocketIc};
+use ic_platform::pocket_ic::PocketIc;
 use ic_testkit::fake_principal;
-use support::{Harness, fixture_path};
+use support::Harness;
 
 struct Fixture {
     harness: Harness,
@@ -28,19 +29,12 @@ impl Fixture {
         let harness = Harness::new();
         let pic = &harness.pic;
         let (tenant, gateway, driver) = (fake_principal(1), fake_principal(3), fake_principal(4));
-        let create = || {
-            pic.create_canister_with_settings(
-                Some(driver),
-                Some(CanisterSettings {
-                    controllers: Some(vec![driver]),
-                    ..CanisterSettings::default()
-                }),
-            )
-        };
+        let create = || installation::controlled_canister(pic, driver);
         let (service, source) = (create(), create());
-        pic.install_canister(
+        installation::install_fixture(
+            pic,
             service,
-            std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("probe Wasm"),
+            "BLOB_AUTHORITY_PROBE_WASM",
             blob_test_protocol::fixture_wire::encode_args(
                 "fixture_init",
                 (tenant, fake_principal(2), gateway, source),
@@ -48,9 +42,10 @@ impl Fixture {
             .expect("probe init"),
             Some(driver),
         );
-        pic.install_canister(
+        installation::install_fixture(
+            pic,
             source,
-            std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).expect("source Wasm"),
+            "BLOB_GATEWAY_SOURCE_WASM",
             blob_test_protocol::fixture_wire::encode_args(
                 "fixture_init",
                 (service, gateway, driver),

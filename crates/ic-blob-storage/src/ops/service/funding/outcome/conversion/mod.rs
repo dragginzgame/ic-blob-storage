@@ -1,4 +1,8 @@
 //! Explicit conversion between validated decoder values and the bounded local schema.
+use crate::model::billing::journal::{
+    FundingIntentError, FundingTransportOutcome,
+    record::progress::{FundingProgressRecord, UnsentResponseRecord},
+};
 use crate::{
     model::billing::{
         balance::BalanceAmounts,
@@ -11,10 +15,11 @@ use crate::{
         },
     },
 };
-pub(super) const fn record(status: CashierTopUpStatus) -> FundingResponseRecord {
-    match status {
-        CashierTopUpStatus::NotDispatched => FundingResponseRecord::NotDispatched,
-        CashierTopUpStatus::NotEnqueued => FundingResponseRecord::NotEnqueued,
+fn callback(status: CashierTopUpStatus) -> Result<FundingResponseRecord, FundingIntentError> {
+    Ok(match status {
+        CashierTopUpStatus::NotDispatched | CashierTopUpStatus::NotEnqueued => {
+            return Err(FundingIntentError::OutcomeConflict);
+        }
         CashierTopUpStatus::Rejected(code) => FundingResponseRecord::Rejected(code),
         CashierTopUpStatus::Replied(Ok(TopUpReply::ReportedSuccess { balance })) => {
             FundingResponseRecord::Balance {
@@ -46,14 +51,11 @@ pub(super) const fn record(status: CashierTopUpStatus) -> FundingResponseRecord 
                 })
             }
         },
-    }
+    })
 }
-pub(super) const fn view(record: FundingResponseRecord) -> Option<CashierTopUpStatus> {
+fn callback_view(record: FundingResponseRecord) -> CashierTopUpStatus {
     let reply = match record {
-        FundingResponseRecord::Missing => return None,
-        FundingResponseRecord::NotDispatched => return Some(CashierTopUpStatus::NotDispatched),
-        FundingResponseRecord::NotEnqueued => return Some(CashierTopUpStatus::NotEnqueued),
-        FundingResponseRecord::Rejected(code) => return Some(CashierTopUpStatus::Rejected(code)),
+        FundingResponseRecord::Rejected(code) => return CashierTopUpStatus::Rejected(code),
         FundingResponseRecord::Balance {
             total,
             prepaid,
@@ -87,7 +89,40 @@ pub(super) const fn view(record: FundingResponseRecord) -> Option<CashierTopUpSt
             }))
         }
     };
-    Some(CashierTopUpStatus::Replied(reply))
+    CashierTopUpStatus::Replied(reply)
+}
+
+/// Correlate transport and diagnostics before constructing a persisted terminal state.
+pub(super) fn record(
+    outcome: FundingTransportOutcome,
+    status: Option<CashierTopUpStatus>,
+) -> Result<FundingProgressRecord, FundingIntentError> {
+    Ok(match outcome {
+        FundingTransportOutcome::NotEnqueued => FundingProgressRecord::NotEnqueued(match status {
+            None => None,
+            Some(CashierTopUpStatus::NotDispatched) => Some(UnsentResponseRecord::NotDispatched),
+            Some(CashierTopUpStatus::NotEnqueued) => Some(UnsentResponseRecord::NotEnqueued),
+            _ => return Err(FundingIntentError::OutcomeConflict),
+        }),
+        FundingTransportOutcome::Callback { refunded } => FundingProgressRecord::Callback {
+            refunded,
+            response: status.map(callback).transpose()?,
+        },
+    })
+}
+pub(super) fn view(progress: FundingProgressRecord) -> Option<CashierTopUpStatus> {
+    match progress {
+        FundingProgressRecord::Prepared
+        | FundingProgressRecord::Uncertain
+        | FundingProgressRecord::NotEnqueued(None) => None,
+        FundingProgressRecord::NotEnqueued(Some(UnsentResponseRecord::NotDispatched)) => {
+            Some(CashierTopUpStatus::NotDispatched)
+        }
+        FundingProgressRecord::NotEnqueued(Some(UnsentResponseRecord::NotEnqueued)) => {
+            Some(CashierTopUpStatus::NotEnqueued)
+        }
+        FundingProgressRecord::Callback { response, .. } => response.map(callback_view),
+    }
 }
 
 #[cfg(test)]
@@ -134,8 +169,16 @@ mod tests {
             )));
         }
         for status in statuses {
-            assert_eq!(view(record(status)), Some(status));
+            let transport = if matches!(
+                status,
+                CashierTopUpStatus::NotDispatched | CashierTopUpStatus::NotEnqueued
+            ) {
+                FundingTransportOutcome::NotEnqueued
+            } else {
+                FundingTransportOutcome::Callback { refunded: 0 }
+            };
+            assert_eq!(view(record(transport, Some(status)).unwrap()), Some(status));
         }
-        assert_eq!(view(FundingResponseRecord::Missing), None);
+        assert_eq!(view(FundingProgressRecord::Uncertain), None);
     }
 }

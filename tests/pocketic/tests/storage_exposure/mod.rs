@@ -52,7 +52,7 @@ fn exposure_checks_preparation_permission_and_actual_authority() {
     let yes = input(&f, permission);
     assert_eq!(expose(&f, f.uploader, yes), Err(E::Unprepared));
     f.prepare(&declaration).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.tenant, f.controller, f.operator, f.other] {
         assert_eq!(expose(&f, actor, yes), Err(E::Permission(A::Denied)));
     }
@@ -66,15 +66,15 @@ fn exposure_checks_preparation_permission_and_actual_authority() {
         inspect(&f, f.tenant, changed),
         Err(E::Permission(A::Conflict))
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.enroll(Some(enrolled), false).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(expose(&f, f.uploader, yes), Err(E::Permission(A::Inactive)));
     assert_eq!(
         inspect(&f, f.uploader, yes).unwrap().state,
         UploadState::Reserved
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 #[test]
 fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment_never_allows_reissue()
@@ -85,7 +85,7 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
     f.admit(f.tenant, permission).unwrap();
     f.prepare(&declaration).unwrap();
     let yes = input(&f, permission);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let totals = f.status();
     for fault in [
         ExposureInput {
@@ -107,8 +107,11 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
                 ic_blob_storage_pocketic_tests::control_calls::encode_control_one(fault).unwrap(),
             )
             .unwrap_err();
-        assert_eq!(rejection.reject_code, RejectCode::CanisterError);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(
+            crate::canister_rejection(&rejection).reject_code,
+            RejectCode::CanisterError
+        );
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
         assert_eq!(f.status(), totals);
         assert_eq!(
             inspect(&f, f.uploader, yes).unwrap().state,
@@ -128,12 +131,12 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
     let original = inspect(&f, f.uploader, yes).unwrap();
     assert_eq!(original.state, UploadState::Registered);
     assert_eq!(original.permission, yes.permission);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(expose(&f, f.uploader, yes), Err(E::Phase));
     for actor in [f.operator, f.controller, f.other] {
         assert_eq!(inspect(&f, actor, yes), Err(E::Permission(A::Denied)));
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.revoke(permission).unwrap();
     assert_eq!(
         f.status(),

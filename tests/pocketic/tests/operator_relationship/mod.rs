@@ -261,11 +261,12 @@ fn old_stable_bytes_do_not_replace_live_inspection_and_restoration_fences_querie
     let f = Fixture::new();
     let request = f.relationship_request(owner(), payer());
     f.relationship_response(bytes("linked"), false, false);
-    let old = f.harness.pic.get_stable_memory(f.gateway);
+    let old = f.harness.pic.get_stable_memory(f.gateway).unwrap();
     f.relationship_response(bytes("denied"), false, false);
     f.harness
         .pic
-        .set_stable_memory(f.gateway, old, BlobCompression::NoCompression);
+        .set_stable_memory(f.gateway, old, BlobCompression::NoCompression)
+        .unwrap();
     assert_eq!(
         f.inspect_relationship(&request),
         Ok(PaymentRelationshipReply::ProviderFailure(

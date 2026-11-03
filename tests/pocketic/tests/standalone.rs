@@ -40,7 +40,9 @@ mod standalone_upload_setup;
 mod standalone_upload_status;
 mod standalone_verify_upload;
 mod submission_proxy;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
+use ic_blob_storage_pocketic_tests::service_calls::canister_rejection;
 mod upload_setup_cli;
 use ic_blob_storage_contracts::dto::configuration::HostConfigurationView;
 use ic_blob_storage_contracts::dto::configuration::HostFailure;
@@ -146,13 +148,7 @@ impl Fixture {
         project: &str,
     ) -> Self {
         let controller = fake_principal(1);
-        let service = harness.pic.create_canister_with_settings(
-            Some(controller),
-            Some(CanisterSettings {
-                controllers: Some(vec![controller]),
-                ..CanisterSettings::default()
-            }),
-        );
+        let service = installation::controlled_canister(&harness.pic, controller);
         let mut config = ServiceConfigurationInput {
             service: service.into(),
             operator: operator.into(),
@@ -211,12 +207,15 @@ impl Fixture {
         )
         .unwrap();
         input.project = project.into();
-        harness.pic.install_canister(
-            service,
-            wasm(),
-            ic_blob_storage_contracts::wire::encode_request("blob_install", input).unwrap(),
-            Some(controller),
-        );
+        harness
+            .pic
+            .install_canister(
+                service,
+                wasm(),
+                ic_blob_storage_contracts::wire::encode_request("blob_install", input).unwrap(),
+                Some(controller),
+            )
+            .unwrap();
         Self {
             harness,
             service,
@@ -243,10 +242,9 @@ impl Fixture {
     fn enroll(&self, actor: Principal) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
-            .update_blob_as(
+            .update_tenant_as(
                 self.service,
                 actor,
-                "blob_update_tenant",
                 TenantUpdateRequest {
                     scope: self.scope(),
                     expected: None,
@@ -259,13 +257,7 @@ impl Fixture {
     fn tenant(&self) -> TenantEnrollmentResponse {
         self.harness
             .pic
-            .query_blob_as::<Result<TenantEnrollmentResponse, TenantFailure>, _>(
-                self.service,
-                self.tenant,
-                "blob_tenant",
-                self.scope(),
-                REPLY_BYTES,
-            )
+            .query_tenant_as(self.service, self.tenant, self.scope(), REPLY_BYTES)
             .unwrap()
             .unwrap()
     }
@@ -298,7 +290,7 @@ impl Fixture {
             )
             .unwrap()
     }
-    fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_platform::pocket_ic::RejectResponse> {
+    fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_platform::pocket_ic::ClientError> {
         self.harness
             .pic
             .upgrade_canister(self.service, wasm(), args, Some(self.controller))
@@ -482,7 +474,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
         .unwrap();
     assert_eq!(reference, Err(ReferenceFailure::Unconfirmed));
     let observed = f.admission(request.permission);
-    let bytes = f.harness.pic.get_stable_memory(f.service);
+    let bytes = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.harness
         .pic
         .stop_canister(f.service, Some(f.controller))
@@ -495,22 +487,22 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
     f.resume(f.operator).unwrap();
     assert_eq!(f.configuration(f.operator).unwrap(), installed);
     assert!(!f.prepare(f.uploader, &request).unwrap().changed);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
+    unchanged(&f.harness.pic.get_stable_memory(f.service).unwrap(), &bytes);
     // No upgrade-supplied input can replace the retained operator or limits.
     // Respect the platform's install-code cooldown for optimized modules too.
     install_code::settle_install_code_debt(&f.harness.pic);
     assert_eq!(
-        f.upgrade(installation(&f.config)).unwrap_err().reject_code,
+        crate::canister_rejection(&f.upgrade(installation(&f.config)).unwrap_err()).reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(f.configuration(f.operator).unwrap(), installed);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &bytes);
+    unchanged(&f.harness.pic.get_stable_memory(f.service).unwrap(), &bytes);
     install_code::settle_install_code_debt(&f.harness.pic);
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
     // The memory runtime commits its allocation ledger during bootstrap.
     // Service observations must survive; fenced calls must not write afterward.
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
     assert_eq!(f.configuration(f.operator).unwrap().configuration, f.config);
     assert!(f.tenant().fenced);
@@ -545,14 +537,17 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
         )
         .unwrap();
     assert_eq!(revoked, Err(UploadAdmissionFailure::Fenced));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }
 
 #[test]
 fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write() {
     let f = Fixture::new();
     let enrollment = f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut invalid_limits = f.config;
     invalid_limits.resources.max_tenant_active = 0;
     for input in [
@@ -569,10 +564,16 @@ fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write
             .pic
             .reinstall_canister(f.service, wasm(), input, Some(f.controller))
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(f.tenant(), enrollment);
         assert_eq!(f.configuration(f.operator).unwrap().configuration, f.config);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+        unchanged(
+            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &before,
+        );
     }
     for (method, input) in [
         ("blob_update_tenant", vec![0; 4097]),
@@ -584,61 +585,101 @@ fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write
             .pic
             .update_call(f.service, f.operator, method, input)
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
+        unchanged(
+            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &before,
+        );
     }
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
     let original = Fixture::new();
     original.enroll(original.operator).unwrap();
-    let foreign = original.harness.pic.get_stable_memory(original.service);
+    let foreign = original
+        .harness
+        .pic
+        .get_stable_memory(original.service)
+        .unwrap();
     let target_harness = Harness::new();
-    target_harness.pic.create_canister();
+    target_harness.pic.create_canister().unwrap();
     let target = Fixture::with_harness(target_harness);
     assert_ne!(target.service, original.service);
-    target.harness.pic.set_stable_memory(
-        target.service,
-        foreign.clone(),
-        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
-    );
+    target
+        .harness
+        .pic
+        .set_stable_memory(
+            target.service,
+            foreign.clone(),
+            ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
+        )
+        .unwrap();
     assert_eq!(
-        target
-            .upgrade(
-                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap()
-            )
-            .unwrap_err()
-            .reject_code,
+        crate::canister_rejection(
+            &target
+                .upgrade(
+                    ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ())
+                        .unwrap()
+                )
+                .unwrap_err()
+        )
+        .reject_code,
         RejectCode::CanisterError
     );
     unchanged(
-        &target.harness.pic.get_stable_memory(target.service),
+        &target
+            .harness
+            .pic
+            .get_stable_memory(target.service)
+            .unwrap(),
         &foreign,
     );
-    target.harness.pic.set_stable_memory(
-        target.service,
-        Vec::new(),
-        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
-    );
+    target
+        .harness
+        .pic
+        .set_stable_memory(
+            target.service,
+            Vec::new(),
+            ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
+        )
+        .unwrap();
     assert_eq!(
-        target
-            .upgrade(
-                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap()
-            )
-            .unwrap_err()
-            .reject_code,
+        crate::canister_rejection(
+            &target
+                .upgrade(
+                    ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ())
+                        .unwrap()
+                )
+                .unwrap_err()
+        )
+        .reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(
-        target.harness.pic.get_stable_memory(target.service),
+        target
+            .harness
+            .pic
+            .get_stable_memory(target.service)
+            .unwrap(),
         Vec::<u8>::new()
     );
 
     // Change only the retained release in a same-service snapshot. This is
     // deliberate corruption in the emulator, never a supported restore tool.
     let release = original.configuration(original.operator).unwrap().release;
-    let mut wrong_release = original.harness.pic.get_stable_memory(original.service);
+    let mut wrong_release = original
+        .harness
+        .pic
+        .get_stable_memory(original.service)
+        .unwrap();
     let offsets: Vec<_> = wrong_release
         .windows(release.len())
         .enumerate()
@@ -648,22 +689,33 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
         panic!("expected one installation release field");
     };
     wrong_release[*offset] = b'x';
-    original.harness.pic.set_stable_memory(
-        original.service,
-        wrong_release.clone(),
-        ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
-    );
+    original
+        .harness
+        .pic
+        .set_stable_memory(
+            original.service,
+            wrong_release.clone(),
+            ic_platform::pocket_ic::common::rest::BlobCompression::NoCompression,
+        )
+        .unwrap();
     assert_eq!(
-        original
-            .upgrade(
-                ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap()
-            )
-            .unwrap_err()
-            .reject_code,
+        crate::canister_rejection(
+            &original
+                .upgrade(
+                    ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ())
+                        .unwrap()
+                )
+                .unwrap_err()
+        )
+        .reject_code,
         RejectCode::CanisterError
     );
     unchanged(
-        &original.harness.pic.get_stable_memory(original.service),
+        &original
+            .harness
+            .pic
+            .get_stable_memory(original.service)
+            .unwrap(),
         &wrong_release,
     );
 }

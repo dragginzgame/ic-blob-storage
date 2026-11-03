@@ -4,6 +4,24 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.69.0] - Unreleased
+
+### 💥 Breaking
+
+- Align public Wire 0.16, Platform/Runtime 0.19 and Types 0.18 identities with
+  Contracts. Existing application packets, method IDs, limits and exact signed
+  retries remain unchanged.
+
+### 🔧 Changed
+
+- Define native CLI commands and their shared flag groups once with typed Clap
+  arguments. Remove string-based command dispatch, flag-type lookup and
+  `ArgMatches` conversion from offline handlers. Command names, flags, limits,
+  trust checks, saved documents and exact retry behavior remain unchanged.
+- Render standalone metrics from Contracts-owned transport fields. Keep wide
+  decimal output and scope/roster checks; Metrics is now only a direct CLI test
+  dependency rather than a production import.
+
 ## [0.68.1] - 2026-11-02
 
 ### 🔧 Changed

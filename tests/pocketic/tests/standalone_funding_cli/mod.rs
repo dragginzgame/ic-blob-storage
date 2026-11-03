@@ -33,11 +33,12 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
     let key = dir.path().join("key.pem");
     let root = dir.path().join("root.der");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     let mut args = arguments(
         "funding-outcome",
@@ -55,7 +56,7 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
         "--target-balance".into(),
         u128::MAX.to_string(),
     ]);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let absent = run(&args, 0);
     assert_eq!(absent["outcome"], "absent");
     assert_eq!(absent["record"], Value::Null);
@@ -72,21 +73,28 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
     wrong = args.clone();
     change(&mut wrong, "--root-key", untrusted.to_str().unwrap());
     assert_eq!(run(&wrong, 3)["error"], "transport");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     change(&mut args, "--url", &url);
     let mut expected = absent;
     expected["url"] = url.into();
     assert_eq!(run(&args, 0), expected);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
     assert!(f.configuration(f.operator).unwrap().fenced);
 }

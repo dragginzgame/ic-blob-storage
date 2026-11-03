@@ -34,8 +34,8 @@ impl Headless {
         let identity = BasicIdentity::from_raw_key(&[42; 32]);
         fixture.uploader = identity.sender().unwrap();
         fixture.enroll(None, true).unwrap();
-        let root_key = fixture.harness.pic.root_key().unwrap();
-        let url = fixture.harness.pic.make_live(None).to_string();
+        let root_key = fixture.harness.pic.root_key().unwrap().unwrap();
+        let url = fixture.harness.pic.make_live(None).unwrap().to_string();
         let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()
@@ -140,6 +140,10 @@ fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_p
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refusal() {
     let h = Headless::new();
     let (input, expected) = h.prepare(1, 1);
@@ -152,7 +156,12 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
             .unwrap();
     std::fs::write(saved.as_path(), serde_json::to_vec(&signed).unwrap()).unwrap();
     let _lost_reply = h.runtime.block_on(submit(&h.url, &signed));
-    let before = h.fixture.harness.pic.get_stable_memory(h.fixture.service);
+    let before = h
+        .fixture
+        .harness
+        .pic
+        .get_stable_memory(h.fixture.service)
+        .unwrap();
     let restored: SignedUpdate =
         serde_json::from_slice(&std::fs::read(saved.as_path()).unwrap()).unwrap();
     let (status, cert) = h
@@ -171,7 +180,11 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         Ok(reply.arg)
     );
     assert_eq!(
-        h.fixture.harness.pic.get_stable_memory(h.fixture.service),
+        h.fixture
+            .harness
+            .pic
+            .get_stable_memory(h.fixture.service)
+            .unwrap(),
         before
     );
     assert_eq!(
@@ -190,7 +203,11 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         Err(ProofError::Status)
     );
     assert_eq!(
-        h.fixture.harness.pic.get_stable_memory(h.fixture.service),
+        h.fixture
+            .harness
+            .pic
+            .get_stable_memory(h.fixture.service)
+            .unwrap(),
         before
     );
     // A certified historical reply survives local withdrawal. It is not renewed
@@ -211,7 +228,12 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         )
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);
-    let before = h.fixture.harness.pic.get_stable_memory(h.fixture.service);
+    let before = h
+        .fixture
+        .harness
+        .pic
+        .get_stable_memory(h.fixture.service)
+        .unwrap();
     let (_, history) = h
         .runtime
         .block_on(
@@ -234,7 +256,11 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
             .revoked
     );
     assert_eq!(
-        h.fixture.harness.pic.get_stable_memory(h.fixture.service),
+        h.fixture
+            .harness
+            .pic
+            .get_stable_memory(h.fixture.service)
+            .unwrap(),
         before
     );
 }

@@ -98,7 +98,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     )
     .unwrap();
     std::fs::write(temp.path().join("identity.pem"), PEM).unwrap();
-    let root = f.harness.pic.root_key().unwrap();
+    let root = f.harness.pic.root_key().unwrap().unwrap();
     std::fs::write(temp.path().join("root.der"), &root).unwrap();
     std::fs::write(report.join("root.der"), root).unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -109,18 +109,19 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     for (label, error) in [
         ("unconfirmed", "download_unavailable"),
         ("restored", "download_fenced"),
     ] {
         if label == "restored" {
-            f.harness.pic.stop_progress();
+            f.harness.pic.stop_progress().unwrap();
             f.upgrade(
                 ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
             )
             .unwrap();
-            f.harness.pic.auto_progress();
+            f.harness.pic.auto_progress().unwrap();
         }
         let directory = report.join(label);
         let args = arguments(&f, temp.path(), &report, &directory, &url, &gateway);
@@ -129,7 +130,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
             serde_json::to_vec(&args).unwrap(),
         )
         .unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         let value = run(&args, 3);
         assert_eq!(value["error"], error);
         std::fs::write(
@@ -144,7 +145,10 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
             listener.accept().unwrap_err().kind(),
             std::io::ErrorKind::WouldBlock
         );
-        unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+        unchanged(
+            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &before,
+        );
     }
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }

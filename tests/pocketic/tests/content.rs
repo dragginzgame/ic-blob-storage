@@ -3,12 +3,12 @@
 #![cfg(not(target_family = "wasm"))]
 
 use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
 
 use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, ContentProbeReport};
-use ic_platform::pocket_ic::CanisterSettings;
 use ic_testkit::fake_principal;
-use support::{Harness, fixture_path};
+use support::Harness;
 
 #[test]
 fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_budget() {
@@ -16,16 +16,11 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
     let pic = &harness.pic;
     let operator = fake_principal(4);
     let tenant = fake_principal(1);
-    let canister = pic.create_canister_with_settings(
-        Some(operator),
-        Some(CanisterSettings {
-            controllers: Some(vec![operator]),
-            ..CanisterSettings::default()
-        }),
-    );
-    pic.install_canister(
+    let canister = installation::controlled_canister(pic, operator);
+    installation::install_fixture(
+        pic,
         canister,
-        std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("Wasm"),
+        "BLOB_AUTHORITY_PROBE_WASM",
         blob_test_protocol::fixture_wire::encode_args(
             "fixture_init",
             (tenant, fake_principal(2), fake_principal(3), operator),

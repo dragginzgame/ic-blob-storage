@@ -31,7 +31,7 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
         scope: f.scope(),
         root: [9; 32],
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let expected = UploadDiscoveryResponse {
         request,
         content: None,
@@ -87,9 +87,15 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
             .pic
             .query_call(f.service, f.tenant, UPLOAD_DISCOVERY_METHOD, bytes)
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 
 #[test]
@@ -128,7 +134,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
         ),
         fenced: false,
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.discovery(f.tenant, request), Ok(expected));
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
@@ -142,14 +148,16 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
         )
         .unwrap();
     assert_eq!(replicated, Ok(expected));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_tenant_as(
             f.service,
             f.operator,
-            "blob_update_tenant",
             TenantUpdateRequest {
                 scope: request.scope,
                 expected: enrollment.enrollment,
@@ -162,7 +170,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
     assert_eq!(f.discovery(f.tenant, request), Ok(expected));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.discovery(f.tenant, request),
         Ok(UploadDiscoveryResponse {
@@ -183,5 +191,8 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
             fenced: true,
         })
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }

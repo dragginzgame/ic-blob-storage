@@ -350,13 +350,16 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
     let harness = Harness::new();
     let operator = fake_principal(1);
     let controller = fake_principal(2);
-    let service = harness.pic.create_canister_with_settings(
-        Some(controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![controller]),
-            ..CanisterSettings::default()
-        }),
-    );
+    let service = harness
+        .pic
+        .create_canister_with_settings(
+            Some(controller),
+            Some(CanisterSettings {
+                controllers: Some(vec![controller]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
     let profile = StorageProbeInstallation {
         operator,
         max_objects: count,
@@ -368,12 +371,15 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         blob_test_protocol::fixture_wire::encode_one("fixture_init", profile).unwrap();
     let restoration =
         blob_test_protocol::fixture_wire::encode_one("fixture_post_upgrade", profile).unwrap();
-    harness.pic.install_canister(
-        service,
-        Fixture::wasm(),
-        installation.clone(),
-        Some(controller),
-    );
+    harness
+        .pic
+        .install_canister(
+            service,
+            Fixture::wasm(),
+            installation.clone(),
+            Some(controller),
+        )
+        .unwrap();
     let mut f = Fixture {
         harness,
         service,

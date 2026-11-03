@@ -13,7 +13,7 @@ pub const REPLY_LIMITS: ic_platform::candid::DecodeLimits = ic_platform::candid:
 };
 
 /// Query Blob's emulated provider contracts under their fixed reply budgets.
-/// Platform owns codecs; Testkit owns transport panic classification.
+/// Platform owns codecs and typed transport failures.
 /// # Errors
 /// Preserves encoding, transport, rejection and bounded decoding failures.
 pub fn query_provider<T, A>(
@@ -28,10 +28,7 @@ where
     A: ic_platform::candid::contract::ArgumentEncoder,
 {
     let arguments = ic_platform::candid::contract::encode_args(arguments)?;
-    let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
-        pic.query_call(service, caller, method, arguments)
-    })?
-    .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+    let reply = pic.query_call(service, caller, method, arguments)?;
     ic_platform::candid::decode_args(&reply, REPLY_LIMITS).map_err(Into::into)
 }
 
@@ -51,9 +48,6 @@ where
     A: ic_platform::candid::contract::ArgumentEncoder,
 {
     let arguments = ic_platform::candid::contract::encode_args(arguments)?;
-    let reply = ic_testkit::pic::try_pocket_ic_operation(|| {
-        pic.update_call(service, caller, method, arguments)
-    })?
-    .map_err(ic_testkit::pic::PocketIcCallFailure::Rejected)?;
+    let reply = pic.update_call(service, caller, method, arguments)?;
     ic_platform::candid::decode_args(&reply, REPLY_LIMITS).map_err(Into::into)
 }

@@ -29,7 +29,7 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
     let scope = f.scope();
     assert_eq!(f.capacity(f.tenant, scope), Err(F::NotEnrolled));
     let enrollment = f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.operator, f.controller, f.uploader, Principal::anonymous()] {
         assert_eq!(f.capacity(actor, scope), Err(F::Denied));
     }
@@ -108,15 +108,21 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
             .pic
             .query_call(f.service, f.tenant, UPLOAD_CAPACITY_METHOD, bytes)
             .unwrap_err();
-        assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&rejected).reject_code,
+            RejectCode::CanisterError
+        );
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 
 #[test]
 #[expect(
     clippy::too_many_lines,
-    reason = "Keep contention, cleanup and fenced history in one installed lifecycle scenario"
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
 )]
 fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_history() {
     let f = Fixture::new();
@@ -132,10 +138,9 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let enrolled: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_tenant_as(
             f.service,
             f.operator,
-            "blob_update_tenant",
             TenantUpdateRequest {
                 scope: other_scope,
                 expected: None,
@@ -175,10 +180,9 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_tenant_as(
             f.service,
             f.operator,
-            "blob_update_tenant",
             TenantUpdateRequest {
                 scope,
                 expected: enrollment.enrollment,
@@ -211,7 +215,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
     );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.capacity(f.tenant, scope),
         Ok(UploadCapacityResponse {
@@ -220,5 +224,8 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
         })
     );
     assert!(f.capacity(other_tenant, other_scope).unwrap().fenced);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }

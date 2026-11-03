@@ -73,7 +73,7 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
         .unwrap();
     f.fact(permission.request, ProviderFact::Deleted).unwrap();
     f.fact(permission.request, ProviderFact::Settled).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let retired = ReferenceStatusResponse {
         live: false,
         ..active
@@ -91,7 +91,7 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
         )
         .unwrap();
     assert_eq!(replicated, Ok(retired));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.harness
         .pic
         .upgrade_canister(
@@ -118,13 +118,16 @@ fn reference_status_keeps_history_distinct_from_live_references_through_settleme
 )]
 fn reference_status_client_authenticates_exact_replies_and_preserves_live_restore_fences() {
     let mut f = Fixture::new();
-    let client = f.harness.pic.create_canister();
-    f.harness.pic.install_canister(
-        client,
-        Fixture::wasm(),
-        Fixture::installation("fixture_init", f.operator),
-        None,
-    );
+    let client = f.harness.pic.create_canister().unwrap();
+    f.harness
+        .pic
+        .install_canister(
+            client,
+            Fixture::wasm(),
+            Fixture::installation("fixture_init", f.operator),
+            None,
+        )
+        .unwrap();
     f.tenant = client;
     let permission = f.exposed();
     let input = ReferenceStatusClientInput {
@@ -135,8 +138,8 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
     let fetch = |input: ReferenceStatusClientInput| -> Result<ReferenceStatusResponse, ReferenceProbeFailure> {
         f.harness.pic.update_control_as( client, f.operator, "fixture_fetch_reference_status", (input,), REPLY_BYTES).map(|(reply,)| reply).unwrap()
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let client_before = f.harness.pic.get_stable_memory(client);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let client_before = f.harness.pic.get_stable_memory(client).unwrap();
     let expected = ReferenceStatusResponse {
         request: input.request,
         live: true,
@@ -206,8 +209,11 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
         .map(|(reply,)| reply)
         .unwrap();
     assert_eq!(denied, Err(ReferenceProbeFailure::Denied));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert_eq!(f.harness.pic.get_stable_memory(client), client_before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(client).unwrap(),
+        client_before
+    );
     f.enroll(Some(f.tenant().unwrap()), false).unwrap();
     assert_eq!(fetch(input), Ok(expected));
     f.harness
@@ -233,9 +239,12 @@ fn reference_status_client_authenticates_exact_replies_and_preserves_live_restor
             None,
         )
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let client_before = f.harness.pic.get_stable_memory(client);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let client_before = f.harness.pic.get_stable_memory(client).unwrap();
     assert_eq!(fetch(input), Ok(restored));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
-    assert_eq!(f.harness.pic.get_stable_memory(client), client_before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(client).unwrap(),
+        client_before
+    );
 }

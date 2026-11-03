@@ -93,8 +93,8 @@ match Blob's public Platform and Storage type identities. Direct-declaration and
 resolved deployment checks independently verify ownership and feature isolation;
 removing a manifest entry alone does not prove an external crate is absent.
 
-Platform 0.18 delegates executor and IC0 implementation to its independent
-Runtime 0.18.1 owner; the standalone deployment gate refuses the old external
+Platform 0.19 delegates executor and IC0 implementation to its independent
+Runtime 0.19 owner; the standalone deployment gate refuses the old external
 executor and raw-IC0 packages, upstream management DTOs and native Candid service
 export. Wasm uses Platform's maintained management DTO
 subset, while native tooling keeps upstream management types and Candid bytes.
@@ -106,29 +106,34 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The delivered 0.68.0 graph has one Runtime/guard 0.18.1, Platform 0.18,
-Types 0.17 and Wire 0.15 identity. Contracts selects Metrics 0.27. Testkit 0.80
-uses arithmetic-only Metrics 0.26.1 in that frozen native test graph; no metric
-values cross that boundary. Host Foundation now has one 0.74.1 identity.
-Deployment has no Testkit or native Host dependencies. Host Tools 0.78 uses
-only its interface feature here, leaving optional Platform features disabled.
+The pending 0.69 graph selects Platform/Runtime/guard 0.19, canonical Types 0.18,
+Wire/Derive 0.16, Tools 0.79 and Testkit 0.81. Storage 0.65.5's raw Runtime edge
+unifies with the same executor-capable identity. Metrics remains 0.27.2 and owns
+recording and numeric validation; it no longer supplies Blob's transport schema.
+Build 0.74.1 and Host Foundation 0.74.2 retain their prior selections. Deployment
+contains no Testkit, host tools, retired Memory or stable-structures owner.
 
-Published Storage 0.65 now selects Runtime 0.18 directly, resolving
-[Storage #152](https://github.com/dragginzgame/ic-storage/issues/152).
-Published Wire 0.15 supports canonical Types 0.17 Principal/Account metadata,
-resolving the supplying gap in [Wire #43](https://github.com/dragginzgame/ic-wire/issues/43).
-Consumers rebuild against those exact public identities without a source patch,
-second executor, schema mirror or trait bridge. This does not migrate old backing.
+Published Wire 0.16 resolves [Wire #44](https://github.com/dragginzgame/ic-wire/issues/44).
+Contracts' native `wire-schema` feature selects Wire's `platform-types` schemas
+for the canonical Principal. Blob reports use service-owned counter/aggregate
+DTOs, delegate decoding to Metrics and no longer enable `ic-metrics/native-wire`.
+The native schema graph check refuses reintroduction of that feature. See
+[Blob #113](https://github.com/dragginzgame/ic-blob-storage/issues/113) and
+[the reporting boundary](metrics.md). No schema bridge or second arithmetic owner
+is introduced.
 
-Wire's optional native `platform-types` schema and Metrics' optional
-`native-wire` feature are selected only by Contracts' `wire-schema` feature.
+Principal's bytes, endpoint IDs, admission limits and exact retry packets remain
+unchanged. Blob's owned application/storage records do not embed Platform's
+changed Account representation; the external Caffeine account DTO is a different
+contract. Frozen Rust frames and generated client metadata remain authoritative.
 Normal contracts exclude schema generation; deployment refuses schema/JSON tooling,
-retired Memory/stable-structures, native Testkit and Host owners. Required external
-Candid stays on Platform. The replicated client selects Types/Runtime directly.
-Application frames, method identities, limits and exact retry bytes are unchanged.
+native Testkit and Host dependencies. Required external Candid stays on Platform.
+Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.27.28** is captured at committed source
-`8075b3fd4803d560a1be04768f76701ada3ae8fe` (150 verified files). Blob consumes
+Shared Tooling **0.27.29** is captured at committed source
+`18e727032237e4a6540fefce66bb1b90beb31644` (150 verified files). It refuses partial
+owned-tree inventories after traversal warnings and clarifies delivery checkout
+and direct-push authorization. Blob consumes
 its strict release-group plan admission/checkpoint runner with a local conservative
 selector and source-bound receipts. The first plan-based delivery keeps the full
 roster; later omissions require an admitted baseline and unchanged infrastructure.
@@ -136,6 +141,15 @@ The workspace retains thirteen independently grouped members and one lock.
 The canonical companion closure now includes the validation-runner guide, fixing
 [Shared #346](https://github.com/dragginzgame/shared-tooling/issues/346) without an
 extra consumer entrypoint. See [release ownership](releasing.md).
+
+The published-family adoption and retained checks live in `target/wire016-adoption/`.
+Historical failed preparation remains in `target/upstream-adoption-20261103/` and
+`target/platform019-adoption/`; it is not current qualification. Storage 0.65.5
+still uses Wire 0.15.1 for its own private codecs; Blob uses Wire 0.16.0. Both
+appear in the deployment graph, without exchanged Wire error/schema/limit types
+or a second Types/Runtime identity. Supplier-owned codec adoption remains with
+Storage; no local dependency patch or compatibility bridge is installed. Actual
+normal/feature deployment graphs, not mere lockfile presence, establish exposure.
 
 ### Supported compiler
 

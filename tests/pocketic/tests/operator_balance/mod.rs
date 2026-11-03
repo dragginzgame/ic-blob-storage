@@ -103,16 +103,15 @@ impl Fixture {
         .unwrap();
         status.unwrap()
     }
-    fn balance_cli(&self) -> Value {
+    fn inspect_balance(&self) -> OperatorStatusView {
         let before = self.journals();
-        let (code, json) =
-            command(&self.args(self.authority, self.driver, "authority", "--namespace", "1"));
-        assert_eq!(code, 0);
-        assert!(
-            self.journals() == before,
-            "passive CLI must preserve balance and source journals"
+        let status = self.balance_status();
+        assert_eq!(
+            self.journals(),
+            before,
+            "inspection preserves balance and source journals"
         );
-        json
+        status
     }
     fn hold_balance(&self) -> RawMessageId {
         self.source_balance(bytes("success"), true, false);
@@ -131,7 +130,7 @@ impl Fixture {
             )
             .unwrap();
         for _ in 0..30 {
-            self.harness.pic.tick();
+            self.harness.pic.tick().unwrap();
             if self.balance_source_status().pending.is_some() {
                 return id;
             }
@@ -196,7 +195,7 @@ fn configured_observations_remain_passive_and_never_supply_spendability_or_credi
     f.configure_balance(f.balance_scope()).unwrap();
     f.source_balance(bytes("success"), false, false);
     assert_eq!(f.balance_source_status().requests, 0);
-    assert_eq!(f.balance_cli()["status"]["provider_balance"], Value::Null);
+    assert_eq!(f.inspect_balance().provider_balance, None);
     assert_eq!(f.balance_source_status().requests, 0);
     f.refresh_balance().unwrap();
     let status = f.balance_status();
@@ -214,15 +213,15 @@ fn configured_observations_remain_passive_and_never_supply_spendability_or_credi
             .blockers
             .contains(&OperatorBlockerView::BillingNotConfigured)
     );
-    let json = f.balance_cli();
-    assert_eq!(json["status"]["provider_balance"], "100");
-    let observation = &json["status"]["balance_observation"];
-    assert_eq!(observation["scope"], "controlled_source");
-    assert_eq!(observation["configured"]["account"], account().to_text());
-    assert_eq!(observation["attempts"][0]["outcome"]["prepaid"], "80");
+    let observation = f.inspect_balance().balance_observation;
+    assert_eq!(observation.configured.unwrap().account, account());
+    let Some(BalanceOutcomeView::Reported(amounts, _)) = observation.attempts[0].outcome else {
+        panic!("expected balance amounts")
+    };
+    assert_eq!(amounts.prepaid, 80);
     assert_eq!(f.balance_source_status().requests, 1);
-    f.harness.pic.advance_time(Duration::from_secs(31));
-    f.harness.pic.tick();
+    f.harness.pic.advance_time(Duration::from_secs(31)).unwrap();
+    f.harness.pic.tick().unwrap();
     let expired = f.balance_status();
     assert_eq!(expired.provider_balance, None);
     assert_eq!(
@@ -286,7 +285,7 @@ fn malformed_rejected_and_misbound_replies_replace_no_history_with_zero() {
     .unwrap();
     assert!(configured);
     assert_eq!(f.refresh_balance(), Err(BalanceFailure::AccountMismatch));
-    assert!(f.balance_cli()["status"]["provider_balance"].is_null());
+    assert!(f.inspect_balance().provider_balance.is_none());
 }
 
 #[test]
@@ -301,8 +300,8 @@ fn held_reply_is_invalidated_by_reconfiguration_without_releasing_its_slot() {
     assert_eq!(f.refresh_balance(), Err(BalanceFailure::Busy));
     f.configure_balance(f.balance_scope()).unwrap();
     assert_eq!(
-        f.balance_cli()["status"]["balance_observation"]["usability"],
-        "Invalidated"
+        f.inspect_balance().balance_observation.usability,
+        BalanceUsability::Invalidated
     );
     assert_eq!(f.refresh_balance(), Err(BalanceFailure::Busy));
     assert_eq!(f.resume_balance(id), Err(BalanceFailure::Stale));
@@ -319,8 +318,8 @@ fn old_pending_journals_restore_fenced_without_replay_or_fresh_balances() {
     f.configure_balance(f.balance_scope()).unwrap();
     let id = f.hold_balance();
     let pic = &f.harness.pic;
-    let authority = pic.get_stable_memory(f.authority);
-    let source = pic.get_stable_memory(f.gateway);
+    let authority = pic.get_stable_memory(f.authority).unwrap();
+    let source = pic.get_stable_memory(f.gateway).unwrap();
     let pending = f.balance_status().balance_observation.attempts;
     for (canister, variable) in [
         (f.authority, "BLOB_AUTHORITY_PROBE_WASM"),
@@ -337,8 +336,10 @@ fn old_pending_journals_restore_fenced_without_replay_or_fresh_balances() {
         );
     }
     assert_eq!(f.resume_balance(id), Ok(()));
-    pic.set_stable_memory(f.authority, authority, BlobCompression::NoCompression);
-    pic.set_stable_memory(f.gateway, source, BlobCompression::NoCompression);
+    pic.set_stable_memory(f.authority, authority, BlobCompression::NoCompression)
+        .unwrap();
+    pic.set_stable_memory(f.gateway, source, BlobCompression::NoCompression)
+        .unwrap();
     f.upgrade_fixture(f.authority, true);
     f.upgrade_fixture(f.gateway, true);
     let status = f.balance_status();
@@ -355,7 +356,7 @@ fn old_pending_journals_restore_fenced_without_replay_or_fresh_balances() {
     );
     assert_eq!(f.balance_source_status().pending, Some(account()));
     assert_eq!(f.balance_source_status().requests, 1);
-    f.balance_cli();
+    f.inspect_balance();
     f.upgrade_fixture(f.authority, true);
     assert_eq!(f.balance_status().balance_observation.attempts, pending);
 }
@@ -378,7 +379,7 @@ fn forced_upgrade_while_callback_is_live_cannot_complete_the_restored_intent() {
         .await_call(id)
         .expect_err("old async heap cannot resume after upgrade");
     assert_eq!(
-        error.reject_code,
+        crate::canister_rejection(&error).reject_code,
         ic_platform::pocket_ic::RejectCode::CanisterError
     );
     assert_eq!(f.balance_status().balance_observation.attempts, pending);
@@ -420,7 +421,7 @@ fn authority_and_capacity_checks_happen_before_any_source_call() {
     assert_eq!(f.refresh_balance(), Err(BalanceFailure::Limit));
     assert_eq!(f.balance_status(), full);
     assert_eq!(f.balance_source_status().requests, 16);
-    f.balance_cli(); // Maximum retained history fits the client decoder's bounds.
+    f.inspect_balance(); // Maximum retained history fits the fixture decoder's bounds.
     f.upgrade_fixture(f.authority, false);
     assert_eq!(
         f.balance_status().balance_observation.attempts,
@@ -433,7 +434,7 @@ fn delayed_reply_ages_from_dispatch_and_restored_source_cannot_answer() {
     let f = Fixture::new();
     f.configure_balance(f.balance_scope()).unwrap();
     let id = f.hold_balance();
-    f.harness.pic.advance_time(Duration::from_secs(31));
+    f.harness.pic.advance_time(Duration::from_secs(31)).unwrap();
     assert_eq!(f.resume_balance(id), Ok(()));
     assert_eq!(
         f.balance_status().balance_observation.usability,

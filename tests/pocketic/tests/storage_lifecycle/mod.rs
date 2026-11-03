@@ -137,7 +137,10 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(f.status(), before);
         assert_eq!(f.receipt(retain), Ok(ReferenceReceiptLookup::Absent));
         assert_eq!(f.live(retain), Ok(false));
@@ -174,7 +177,10 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.receipt(release), Ok(ReferenceReceiptLookup::Absent));
     assert_eq!(f.live(release), Ok(true));
     assert_eq!(
@@ -215,7 +221,10 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(f.status(), before);
         assert_eq!(f.fact(permission.request, fact), Ok(true));
         assert_eq!(f.fact(permission.request, fact), Ok(false));
@@ -318,7 +327,7 @@ fn pending_candidate_write_trap_rolls_back_last_release_and_exact_retry() {
     let f = Fixture::new();
     let permission = f.exposed();
     let release = reference(permission.request, 1, 1, false);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let error = f
         .harness
         .pic
@@ -335,8 +344,11 @@ fn pending_candidate_write_trap_rolls_back_last_release_and_exact_retry() {
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(f.receipt(release), Ok(ReferenceReceiptLookup::Absent));
     assert_eq!(f.live(release), Ok(true));
     assert_eq!(f.reference(release), Ok(changed(release, false)));

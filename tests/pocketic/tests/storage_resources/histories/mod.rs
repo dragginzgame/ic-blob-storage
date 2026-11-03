@@ -6,7 +6,6 @@ use blob_test_protocol::storage::{
     resources::{FundingPopulationIntent, HistoryPopulationBatch},
 };
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
-use ic_platform::pocket_ic::RejectResponse;
 
 #[derive(Clone, Copy)]
 struct HistoryWorkload {
@@ -23,7 +22,7 @@ fn send(
     actor: Principal,
     method: &str,
     packet: Vec<u8>,
-) -> Result<Vec<u8>, RejectResponse> {
+) -> Result<Vec<u8>, ic_platform::pocket_ic::ClientError> {
     retain_bytes(directory, &format!("{name}.cbor"), &packet);
     assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
     let result = f.harness.pic.update_call(f.service, actor, method, packet);
@@ -166,13 +165,16 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
     let harness = Harness::new();
     let operator = fake_principal(1);
     let controller = fake_principal(2);
-    let service = harness.pic.create_canister_with_settings(
-        Some(controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![controller]),
-            ..CanisterSettings::default()
-        }),
-    );
+    let service = harness
+        .pic
+        .create_canister_with_settings(
+            Some(controller),
+            Some(CanisterSettings {
+                controllers: Some(vec![controller]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
     let profile = StorageProbeInstallation {
         operator,
         max_objects: workload.tenants * 4,
@@ -185,12 +187,15 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
     let restoration =
         blob_test_protocol::fixture_wire::encode_one("fixture_post_upgrade", profile).unwrap();
     retain_bytes(directory, "installation.wire", &installation);
-    harness.pic.install_canister(
-        service,
-        Fixture::wasm(),
-        installation.clone(),
-        Some(controller),
-    );
+    harness
+        .pic
+        .install_canister(
+            service,
+            Fixture::wasm(),
+            installation.clone(),
+            Some(controller),
+        )
+        .unwrap();
     let f = Fixture {
         harness,
         service,
@@ -308,7 +313,10 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         .unwrap(),
     )
     .unwrap_err();
-    assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&failure).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.local_status(), empty);
     let population_started = Instant::now();
     for start in (0..workload.funding).step_by(16) {

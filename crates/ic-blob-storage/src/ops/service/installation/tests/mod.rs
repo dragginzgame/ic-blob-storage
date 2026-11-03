@@ -370,9 +370,10 @@ fn wrong_host_release_format_project_and_missing_owner_never_repair() {
     let mut records: StableCell<ConfigurationRecord, _> =
         StableCell::load(memory[0].lease(), 16_384).unwrap();
     let mut record = records.get().clone();
-    // Both prior allocation and verifier-bearing installation formats must refuse
+    // Prior allocation, verifier and separate funding-progress formats must refuse
     // even when the host release string is unchanged. Never mutate old bytes.
     for retired in [
+        "ic-blob-storage/installation:singleton-cells",
         "ic-blob-storage/installation:platform-anchor-funding-credit-index-renewal",
         "ic-blob-storage/installation:project-upload-grants-platform-anchor-funding-credit-index-renewal",
     ] {

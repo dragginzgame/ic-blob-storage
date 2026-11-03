@@ -29,7 +29,7 @@ impl Fixture {
             )
             .unwrap();
         for _ in 0..30 {
-            self.harness.pic.tick();
+            self.harness.pic.tick().unwrap();
             if self
                 .source_recovery(self.operator)
                 .unwrap()
@@ -91,8 +91,8 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
         })
     );
     assert_eq!(source.effects.last().unwrap().succeeded, None);
-    let authority_bytes = f.harness.pic.get_stable_memory(f.service);
-    let source_bytes = f.harness.pic.get_stable_memory(f.gateway);
+    let authority_bytes = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let source_bytes = f.harness.pic.get_stable_memory(f.gateway).unwrap();
     for target in [f.service, f.gateway] {
         f.reject_upgrade(target);
     }
@@ -131,7 +131,8 @@ fn actual_pending_sync_rejects_upgrade_and_old_journal_restores_only_as_evidence
     // remain unresolved even though the newer live instance already completed.
     f.harness
         .pic
-        .set_stable_memory(f.gateway, source_bytes, BlobCompression::NoCompression);
+        .set_stable_memory(f.gateway, source_bytes, BlobCompression::NoCompression)
+        .unwrap();
     f.upgrade_skipping_outgoing_hook(f.gateway, true);
     source.fenced = true;
     assert_eq!(f.source_recovery(f.operator).unwrap(), source);
@@ -200,7 +201,7 @@ fn exhausted_local_hold_releases_exact_read_only_attempt_without_automatic_retry
     // PocketIC's await_call stops after 100 rounds; the fixture deliberately
     // allows 128 management callbacks. Drive that bounded schedule explicitly.
     for _ in 0..256 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         if f.source_recovery(f.operator).unwrap().held_sync.is_none() {
             break;
         }

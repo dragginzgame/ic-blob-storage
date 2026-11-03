@@ -62,7 +62,10 @@ fn revocation_traps_preserve_tombstone_and_recover_without_resending() {
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         let pending = asset(&f, 1).unwrap();
         assert!(pending.cancelled);
         assert_eq!(pending.revocation_result, None);
@@ -81,12 +84,12 @@ fn revocation_traps_preserve_tombstone_and_recover_without_resending() {
                 withdraw(&f, Fault::None, 4096),
                 Err(ConsumerFailure::Pending)
             );
-            let before = f.harness.pic.get_stable_memory(f.service);
+            let before = f.harness.pic.get_stable_memory(f.service).unwrap();
             let recovered = recover_withdrawal(&f).unwrap();
             assert_eq!(recovered.revocation_result, Some(Ok(())));
             assert_eq!(recovered.upload_state, Some(UploadState::Cancelled));
             assert_eq!(withdraw(&f, Fault::None, 4096), Ok(recovered));
-            assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+            assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
         }
         assert_eq!(
             f.status().usage,
@@ -116,11 +119,11 @@ fn unusable_revocation_reply_keeps_exposed_bytes_charged_and_late_completion_rel
         withdraw(&f, Fault::None, 4096),
         Err(ConsumerFailure::Pending)
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let known = recover_withdrawal(&f).unwrap();
     assert_eq!(known.revocation_result, Some(Ok(())));
     assert_eq!(known.upload_state, Some(UploadState::Registered));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(
         f.status().usage,
         JourneyUsage {
@@ -150,7 +153,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
     let (input, permission, _) = prepared(&f);
     admit(&f, &input).unwrap();
     let p = admission_input(permission);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.uploader, f.operator, f.controller, f.other] {
         let result: Result<UploadRevocationResponse, A> = f
             .harness
@@ -182,7 +185,7 @@ fn revocation_rejects_changed_permissions_and_restored_service_without_claiming_
             .unwrap();
         assert_eq!(result, Err(A::Conflict));
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     cancel(&f, 1).unwrap();
     f.harness
         .pic
@@ -212,7 +215,7 @@ fn consumer_upgrade_keeps_uncertain_withdrawal_and_blocks_dispatch_or_acknowledg
     let pending = asset(&f, 1).unwrap();
     assert!(pending.revocation_started && pending.cancelled);
     assert_eq!(pending.revocation_result, None);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -228,5 +231,5 @@ fn consumer_upgrade_keeps_uncertain_withdrawal_and_blocks_dispatch_or_acknowledg
         Err(ConsumerFailure::Fenced)
     );
     assert_eq!(recover_withdrawal(&f), Err(ConsumerFailure::Fenced));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }

@@ -103,7 +103,7 @@ impl Fixture {
             )
             .expect("submit read");
         for _ in 0..30 {
-            self.harness.pic.tick();
+            self.harness.pic.tick().unwrap();
             if self.source_observation().waiting {
                 return id;
             }
@@ -256,7 +256,10 @@ fn rejected_source_replies_return_no_bytes_and_release_the_exact_read_slot() {
             .expect("args"),
         )
         .expect_err("source is service-only");
-    assert_eq!(rejected.reject_code, RejectCode::CanisterReject);
+    assert_eq!(
+        crate::canister_rejection(&rejected).reject_code,
+        RejectCode::CanisterReject
+    );
 }
 
 #[test]

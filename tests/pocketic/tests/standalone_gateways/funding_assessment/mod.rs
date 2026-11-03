@@ -34,33 +34,47 @@ fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() 
         .pic
         .stop_canister(scope.cashier.into(), Some(f.controller))
         .unwrap();
-    let root = f.harness.pic.root_key().unwrap();
+    let root = f.harness.pic.root_key().unwrap().unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
-    let before = f.harness.pic.get_stable_memory(f.service);
-    let source = f.harness.pic.get_stable_memory(scope.cashier.into());
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let source = f
+        .harness
+        .pic
+        .get_stable_memory(scope.cashier.into())
+        .unwrap();
     let cli = AssessmentCli::new(scope, &url, &root, "standalone");
     cli.inspect(false);
     cli.refusals();
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(
-        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        f.harness
+            .pic
+            .get_stable_memory(scope.cashier.into())
+            .unwrap(),
         source
     );
-    f.harness.pic.stop_progress();
+    f.harness.pic.stop_progress().unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
-    f.harness.pic.auto_progress();
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.harness.pic.auto_progress().unwrap();
     cli.inspect(true);
     cli.refusals();
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), restored);
     assert_eq!(
-        f.harness.pic.get_stable_memory(scope.cashier.into()),
+        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        restored
+    );
+    assert_eq!(
+        f.harness
+            .pic
+            .get_stable_memory(scope.cashier.into())
+            .unwrap(),
         source
     );
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }

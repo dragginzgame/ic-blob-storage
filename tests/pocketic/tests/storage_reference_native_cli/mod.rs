@@ -21,6 +21,7 @@ fn live(f: &mut Fixture, receipt: &mut [String], status: &mut [String]) {
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     for args in [receipt, status] {
         change_native(args, "--url", &url);
@@ -44,12 +45,13 @@ fn unchanged(f: &Fixture, before: &[u8]) {
         f.harness
             .pic
             .get_stable_memory(f.service)
+            .unwrap()
             .iter()
             .eq(before.iter())
     );
 }
 fn phase(f: &Fixture, receipt: &[String], status: &[String], live: bool, fenced: bool) -> Value {
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let history = run(receipt, 0);
     assert_eq!(
         history["result"],
@@ -73,7 +75,7 @@ fn failed_receipt(
     receipt: &mut [String],
     status: &mut [String],
 ) -> Vec<String> {
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let path = directory.join("receipt.wire");
     std::fs::write(
         &path,
@@ -91,7 +93,7 @@ fn failed_receipt(
     )
     .unwrap();
     unchanged(f, &before);
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     // Keep the original object's reserved final-release receipt within its three-slot budget.
     let (permission, manifest) = f.permission(u128::MAX - 3, 8);
     f.admit(f.tenant, permission).unwrap();
@@ -124,17 +126,21 @@ fn failed_receipt(
     live(f, receipt, status);
     let mut failure = receipt.to_vec();
     change_native(&mut failure, "--request", path.to_str().unwrap());
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         run(&failure, 0)["result"],
         json!({"state":"failure","failure":"unknown_reference"})
     );
     unchanged(f, &before);
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     failure
 }
 
 #[test]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
+)]
 fn signed_history_stays_successful_after_release_while_current_liveness_and_fence_change() {
     let mut f = Fixture::with_operator(
         Harness::with_builder(
@@ -160,17 +166,17 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
     let (mut receipt, mut status) =
         native_requests(&f.harness.pic, input, dir.path(), "http://127.0.0.1:1");
     live(&mut f, &mut receipt, &mut status);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(run(&receipt, 0)["outcome"], "absent");
     assert_eq!(run(&status, 0)["live"], false);
     unchanged(&f, &before);
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     // Discard the mutation acknowledgment; the saved exact intent remains the recovery input.
     apply(&f, input);
     live(&mut f, &mut receipt, &mut status);
     let accepted = phase(&f, &receipt, &status, true, false);
     assert_eq!(accepted["operation"], u128::MAX.to_string());
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     apply(
         &f,
         ReferenceCommand {
@@ -199,7 +205,7 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
     }
     live(&mut f, &mut receipt, &mut status);
     phase(&f, &receipt, &status, false, false);
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -216,7 +222,7 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
         "--url",
         &receipt[receipt.iter().position(|s| s == "--url").unwrap() + 1],
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         run(&failure, 0)["result"],
         json!({"state":"failure","failure":"unknown_reference"})
@@ -226,13 +232,16 @@ fn signed_history_stays_successful_after_release_while_current_liveness_and_fenc
         std::fs::read(dir.path().join("receipt.wire")).unwrap(),
         ic_blob_storage_contracts::document::encode(input).unwrap()
     );
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
         let failure = f
             .harness
             .pic
             .query_call(f.service, f.tenant, "blob_reference_receipt", bytes)
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
     }
 }

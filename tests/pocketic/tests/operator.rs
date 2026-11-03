@@ -1,4 +1,4 @@
-//! Actual CLI subprocesses against local fixtures; never a production provider.
+//! Typed local qualification; simulated callers never qualify a production provider.
 #![cfg(not(target_family = "wasm"))]
 
 use ic_blob_storage_pocketic_tests::fixture_calls;
@@ -9,17 +9,16 @@ mod operator_gateways;
 mod operator_method_mode;
 mod operator_relationship;
 mod operator_sync;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
+use ic_blob_storage_pocketic_tests::service_calls::canister_rejection;
 mod sync_request;
 
 use blob_test_protocol::funding::{
     FundingFailure, FundingObservation, FundingReplyMode, FundingRequest, FundingUpgradeArgs,
 };
-use ic_platform::pocket_ic::CreateCanisterParams;
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
-use serde_json::Value;
-use std::process::Command;
 use support::{Harness, fixture_path};
 
 struct Fixture {
@@ -39,24 +38,16 @@ impl Fixture {
     fn with_source_operator(source_operator: bool) -> Self {
         let harness = Harness::new();
         let pic = &harness.pic;
-        let create = || {
-            pic.create_canister_with_params(
-                None,
-                CreateCanisterParams {
-                    cycles: Some(2_000_000_000_000),
-                    ..CreateCanisterParams::default()
-                },
-            )
-            .unwrap()
-        };
+        let create = || installation::funded_canister(pic, 2_000_000_000_000);
         let authority = create();
         let gateway = create();
         let sender = create();
         let receiver = create();
         let driver = fake_principal(11);
-        pic.install_canister(
+        installation::install_fixture(
+            pic,
             authority,
-            std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
+            "BLOB_AUTHORITY_PROBE_WASM",
             blob_test_protocol::fixture_wire::encode_args(
                 "fixture_init",
                 (
@@ -69,9 +60,10 @@ impl Fixture {
             .unwrap(),
             None,
         );
-        pic.install_canister(
+        installation::install_fixture(
+            pic,
             gateway,
-            std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
+            "BLOB_GATEWAY_SOURCE_WASM",
             blob_test_protocol::fixture_wire::encode_args(
                 "fixture_init",
                 (authority, gateway, driver),
@@ -99,7 +91,8 @@ impl Fixture {
                 )
                 .unwrap(),
                 None,
-            );
+            )
+            .unwrap();
         }
         Self {
             harness,
@@ -111,304 +104,141 @@ impl Fixture {
         }
     }
 
-    fn args(
-        &self,
-        canister: Principal,
-        caller: Principal,
-        kind: &str,
-        flag: &str,
-        binding: &str,
-    ) -> Vec<String> {
-        let url = self.harness.pic.get_server_url();
-        [
-            "status".into(),
-            "--server".into(),
-            format!("{}:{}", url.host_str().unwrap(), url.port().unwrap()),
-            "--instance".into(),
-            self.harness.pic.instance_id().to_string(),
-            "--canister".into(),
-            canister.to_text(),
-            "--caller".into(),
-            caller.to_text(),
-            "--kind".into(),
-            kind.into(),
-            flag.into(),
-            binding.into(),
-        ]
-        .to_vec()
-    }
-
     fn journals(&self) -> Vec<Vec<u8>> {
         [self.authority, self.gateway, self.sender, self.receiver]
             .into_iter()
-            .map(|id| self.harness.pic.get_stable_memory(id))
+            .map(|id| self.harness.pic.get_stable_memory(id).unwrap())
             .collect()
+    }
+    fn status(&self, caller: Principal) -> Option<blob_test_protocol::status::OperatorStatusView> {
+        fixture_calls::query_fixture(
+            &self.harness.pic,
+            self.authority,
+            caller,
+            "operator_status",
+            (),
+        )
+        .map(|(reply,)| reply)
+        .unwrap()
+    }
+    fn funding_status(&self) -> blob_test_protocol::funding::FundingOperatorStatusView {
+        let before = self.journals();
+        let (reply,): (Option<blob_test_protocol::funding::FundingOperatorStatusView>,) =
+            fixture_calls::query_fixture(
+                &self.harness.pic,
+                self.sender,
+                self.driver,
+                "operator_status",
+                (),
+            )
+            .unwrap();
+        assert_eq!(self.journals(), before, "inspection preserves all journals");
+        reply.unwrap()
     }
 }
 
-fn command(args: &[String]) -> (i32, Value) {
-    let output = Command::new(env!("CARGO_BIN_EXE_blob-fixture-status"))
-        .args(args)
-        .output()
-        .unwrap();
-    assert!(
-        output.stderr.is_empty(),
-        "unexpected CLI stderr: {}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    let value = serde_json::from_slice(&output.stdout).expect("one JSON report");
-    (output.status.code().expect("normal child exit"), value)
-}
-
 #[test]
-fn status_and_check_preserve_journals_unknowns_and_instance_ownership() {
+fn status_preserves_journals_unknowns_and_restoration_fences() {
+    use blob_test_protocol::{authority::ArchiveCatalog, status::OperatorBlockerView};
     let f = Fixture::new();
-    let args = f.args(f.authority, f.driver, "authority", "--namespace", "1");
     let before = f.journals();
-    let (code, report) = command(&args);
-    assert_eq!(code, 0);
-    assert_eq!(report["scope"], "pocketic_fixture");
-    assert_eq!(report["mode"], "query");
-    assert_eq!(report["target"]["canister"], f.authority.to_text());
-    assert_eq!(report["status"]["namespace"], "1");
-    assert!(report["status"]["provider_balance"].is_null());
-    assert!(report["status"]["funding_activity"].is_null());
-    let catalogs = report["status"]["catalogs"].as_array().unwrap();
+    let report = f.status(f.driver).unwrap();
+    assert_eq!(report.service, f.authority);
+    assert_eq!(report.namespace, 1);
+    assert_eq!(report.provider_balance, None);
+    assert_eq!(report.funding_activity, None);
     assert!(
-        catalogs
+        report
+            .catalogs
             .iter()
-            .any(|c| c["catalog"] == "Samples" && c["physical_bytes"] == "300")
+            .any(|c| c.catalog == ArchiveCatalog::Samples && c.physical == 300)
     );
     assert!(
-        catalogs
+        report
+            .catalogs
             .iter()
-            .any(|c| c["catalog"] == "Journey" && c["physical_bytes"] == "0")
+            .any(|c| c.catalog == ArchiveCatalog::Journey && c.physical == 0)
     );
-    let mut check = args.clone();
-    check[0] = "check".into();
-    let (code, checked) = command(&check);
-    assert_eq!(code, 4);
-    assert_eq!(checked, report);
-    assert!(
-        f.journals() == before,
-        "queries must preserve all fixture journals"
-    );
-    f.harness
-        .pic
-        .upgrade_canister(
-            f.authority,
-            std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).unwrap(),
-            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
-            None,
-        )
-        .unwrap();
+    assert_eq!(f.status(f.driver).unwrap(), report);
+    assert_eq!(f.status(Principal::anonymous()), None);
+    assert_eq!(f.journals(), before);
+    f.upgrade_fixture(f.authority, false);
     let frozen = f.journals();
-    let (_, report) = command(&check);
-    assert_eq!(report["status"]["fenced"], true);
+    let report = f.status(f.driver).unwrap();
+    assert!(report.fenced);
     assert!(
-        report["status"]["blockers"]
-            .as_array()
-            .unwrap()
-            .contains(&Value::from("RecoveryFenced"))
+        report
+            .blockers
+            .contains(&OperatorBlockerView::RecoveryFenced)
     );
-    assert!(
-        f.journals() == frozen,
-        "fenced inspection must preserve journals"
-    );
+    assert_eq!(f.journals(), frozen);
 }
 
 #[test]
-fn funding_report_keeps_accepted_cycles_separate_from_credit_after_restore() {
+fn funding_status_preserves_transport_facts_and_provider_failures_after_restore() {
+    use blob_test_protocol::funding::FundingProviderErrorView;
+    use blob_test_protocol::funding::{FundingOutcome, FundingReconciliationView};
+    use blob_test_protocol::status::FundingActivityView;
     let f = Fixture::new();
-    let request = FundingRequest {
-        id: u64::MAX,
-        offered: 1_000_000_000,
-        accept: 400_000_000,
-        reply: FundingReplyMode::Success,
-        trap_callback: false,
-    };
-    let result: Result<FundingObservation, FundingFailure> =
-        fixture_calls::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (request,))
-            .map(|(reply,)| reply)
-            .unwrap();
-    result.unwrap();
-    let args = f.args(
-        f.sender,
-        f.driver,
-        "funding",
-        "--peer",
-        &f.receiver.to_text(),
-    );
-    let before = f.journals();
-    let (code, report) = command(&args);
-    assert_eq!(code, 0);
-    let attempt = &report["status"]["attempts"][0];
-    assert_eq!(attempt["id"], u64::MAX.to_string());
-    assert_eq!(attempt["transport_accepted"], "400000000");
-    assert_eq!(attempt["refunded"], "600000000");
-    assert!(attempt["provider_credit"].is_null());
-    assert_eq!(report["status"]["funding_activity"], "Uncertain");
-    assert!(
-        f.journals() == before,
-        "funding query must preserve receipts and attempts"
-    );
-    f.harness
-        .pic
-        .upgrade_canister(
-            f.sender,
-            std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            blob_test_protocol::fixture_wire::encode_args(
-                "fixture_post_upgrade",
-                (FundingUpgradeArgs {
-                    trap_after_restore: false,
-                },),
-            )
-            .unwrap(),
-            None,
-        )
-        .unwrap();
-    let (_, frozen) = command(&args);
-    assert_eq!(frozen["status"]["fenced"], true);
-    assert_eq!(frozen["status"]["attempts"], report["status"]["attempts"]);
-}
-
-#[test]
-fn funding_provider_failures_reach_json_without_becoming_refunds_or_credit() {
-    let f = Fixture::new();
-    let args = f.args(
-        f.sender,
-        f.driver,
-        "funding",
-        "--peer",
-        &f.receiver.to_text(),
-    );
-    let cases = [
+    for (index, (reply, expected)) in [
+        (FundingReplyMode::Success, FundingOutcome::ReportedSuccess),
         (
             FundingReplyMode::InternalError,
-            Value::from("InternalError"),
+            FundingOutcome::ProviderError(FundingProviderErrorView::InternalError),
         ),
         (
             FundingReplyMode::AccountBalanceOverflow,
-            Value::from("AccountBalanceOverflow"),
+            FundingOutcome::ProviderError(FundingProviderErrorView::AccountBalanceOverflow),
         ),
         (
             FundingReplyMode::TopUpWithoutCycles,
-            Value::from("TopUpWithoutCycles"),
+            FundingOutcome::ProviderError(FundingProviderErrorView::TopUpWithoutCycles),
         ),
         (
             FundingReplyMode::NotAuthorized,
-            serde_json::json!({"NotAuthorized":Principal::anonymous().to_text()}),
-        ),
-    ];
-    for (index, (reply, error)) in cases.into_iter().enumerate() {
-        let request = FundingRequest {
-            id: u64::try_from(index).unwrap(),
-            offered: 1_000_000_000,
-            accept: 400_000_000,
-            reply,
-            trap_callback: false,
-        };
-        let result: Result<FundingObservation, FundingFailure> =
-            fixture_calls::update_fixture(&f.harness.pic, f.sender, f.driver, "fund", (request,))
-                .map(|(reply,)| reply)
-                .unwrap();
-        result.unwrap();
-        let before = f.journals();
-        let (code, report) = command(&args);
-        assert_eq!(code, 0);
-        let attempt = &report["status"]["attempts"][index];
-        assert_eq!(
-            attempt["outcome"],
-            serde_json::json!({"ProviderError":error})
-        );
-        assert_eq!(attempt["transport_accepted"], "400000000");
-        assert_eq!(attempt["refunded"], "600000000");
-        assert_eq!(
-            attempt["reconciliation"],
-            serde_json::json!({"kind":"CreditRequired", "cycles":"400000000"})
-        );
-        assert!(attempt["provider_credit"].is_null());
-        assert_eq!(report["status"]["funding_activity"], "Uncertain");
-        assert!(
-            f.journals() == before,
-            "diagnosis must not change accounting"
-        );
-    }
-    let (_, before) = command(&args);
-    f.harness
-        .pic
-        .upgrade_canister(
-            f.sender,
-            std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
-            blob_test_protocol::fixture_wire::encode_args(
-                "fixture_post_upgrade",
-                (FundingUpgradeArgs {
-                    trap_after_restore: false,
-                },),
-            )
-            .unwrap(),
-            None,
-        )
-        .unwrap();
-    let (_, after) = command(&args);
-    assert_eq!(after["status"]["fenced"], true);
-    assert_eq!(after["status"]["attempts"], before["status"]["attempts"]);
-    assert_eq!(after["status"]["budget"], before["status"]["budget"]);
-}
-
-#[test]
-fn denied_misbound_and_missing_methods_never_become_success() {
-    let f = Fixture::new();
-    let before = f.journals();
-    for (args, error) in [
-        (
-            f.args(
-                f.authority,
+            FundingOutcome::ProviderError(FundingProviderErrorView::NotAuthorized(
                 Principal::anonymous(),
-                "authority",
-                "--namespace",
-                "1",
-            ),
-            "denied",
+            )),
         ),
-        (
-            f.args(f.authority, f.driver, "authority", "--namespace", "2"),
-            "binding_mismatch",
-        ),
-        (
-            f.args(
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let id = if index == 0 { u64::MAX } else { index as u64 };
+        let (result,): (Result<FundingObservation, FundingFailure>,) =
+            fixture_calls::update_fixture(
+                &f.harness.pic,
                 f.sender,
                 f.driver,
-                "funding",
-                "--peer",
-                &f.gateway.to_text(),
-            ),
-            "binding_mismatch",
-        ),
-        (
-            f.args(f.gateway, f.driver, "authority", "--namespace", "1"),
-            "query_rejected",
-        ),
-    ] {
-        let (code, report) = command(&args);
-        assert_eq!(code, 3);
-        assert_eq!(report["error"], error);
+                "fund",
+                (FundingRequest {
+                    id,
+                    offered: 1_000_000_000,
+                    accept: 400_000_000,
+                    reply,
+                    trap_callback: false,
+                },),
+            )
+            .unwrap();
+        let observation = result.unwrap();
+        let report = f.funding_status();
+        let attempt = report.attempts[index];
+        assert_eq!(attempt.id, id);
+        assert_eq!(attempt.transport_accepted, Some(400_000_000));
+        assert_eq!(attempt.refunded, Some(600_000_000));
+        assert_eq!(attempt.provider_credit, None);
+        assert_eq!(observation.outcome, expected);
+        assert_eq!(attempt.outcome, Some(expected));
+        assert_eq!(
+            attempt.reconciliation,
+            FundingReconciliationView::CreditRequired(400_000_000)
+        );
+        assert_eq!(report.funding_activity, FundingActivityView::Uncertain);
     }
-    assert!(
-        f.journals() == before,
-        "failed inspections cannot change fixture history"
-    );
-    let mut args = f.args(f.authority, f.driver, "authority", "--namespace", "1");
-    args[4] = usize::MAX.to_string();
-    let (code, report) = command(&args);
-    assert_eq!(code, 3);
-    assert_eq!(report["error"], "transport_failure");
-    args.push("--update".into());
-    let (code, report) = command(&args);
-    assert_eq!(code, 2);
-    assert_eq!(report["error"], "invalid_arguments");
-    assert!(
-        f.journals() == before,
-        "failed transport leaves owned instance usable"
-    );
+    let before = f.funding_status();
+    operator_funding_lookup::upgrade(&f);
+    let after = f.funding_status();
+    assert!(after.fenced);
+    assert_eq!(after.attempts, before.attempts);
+    assert_eq!(after.budget, before.budget);
 }

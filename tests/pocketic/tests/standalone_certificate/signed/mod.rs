@@ -56,8 +56,8 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
         manifest.permission.upload.object = id;
         manifest
     });
-    let root_key = f.harness.pic.root_key().unwrap();
-    let url = f.harness.pic.make_live(None).to_string();
+    let root_key = f.harness.pic.root_key().unwrap().unwrap();
+    let url = f.harness.pic.make_live(None).unwrap().to_string();
     let tenant = agent(&url, 42, &root_key);
     let uploaders = [agent(&url, 43, &root_key), agent(&url, 44, &root_key)];
     let runtime = tokio::runtime::Builder::new_current_thread()
@@ -155,7 +155,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             .is_err()
         );
     }
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
     for manifest in &manifests {
         assert_eq!(
             f.admission(manifest.permission).state,

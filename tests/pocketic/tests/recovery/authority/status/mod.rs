@@ -20,13 +20,19 @@ impl Fixture {
     }
 
     fn status_unchanged(&self) -> OperatorStatusView {
-        let authority = self.harness.pic.get_stable_memory(self.service);
-        let source = self.harness.pic.get_stable_memory(self.gateway);
+        let authority = self.harness.pic.get_stable_memory(self.service).unwrap();
+        let source = self.harness.pic.get_stable_memory(self.gateway).unwrap();
         let effects = self.source_recovery(self.operator);
         let before = self.status(self.authority_operator).unwrap();
         assert_eq!(self.status(self.authority_operator), Some(before.clone()));
-        assert_eq!(self.harness.pic.get_stable_memory(self.service), authority);
-        assert_eq!(self.harness.pic.get_stable_memory(self.gateway), source);
+        assert_eq!(
+            self.harness.pic.get_stable_memory(self.service).unwrap(),
+            authority
+        );
+        assert_eq!(
+            self.harness.pic.get_stable_memory(self.gateway).unwrap(),
+            source
+        );
         assert_eq!(self.source_recovery(self.operator), effects);
         before
     }
@@ -192,7 +198,7 @@ fn diagnostic_counts_keep_logical_physical_and_billing_release_separate() {
 #[test]
 fn old_or_missing_stable_evidence_cannot_replace_live_status_before_restore() {
     let f = Fixture::new();
-    let old = f.harness.pic.get_stable_memory(f.service);
+    let old = f.harness.pic.get_stable_memory(f.service).unwrap();
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     let current = f.status_unchanged();
@@ -229,7 +235,7 @@ fn pending_sync_and_invalidated_reads_remain_visible_without_diagnostic_retry() 
     assert!(pending.warnings.contains(&Warning::ReadPending));
     assert_eq!(f.list_observation().requests, 1);
     assert_eq!(f.source_observation().requests, 1);
-    let memory = f.harness.pic.get_stable_memory(f.service);
+    let memory = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.resume_sync(sync), Ok(()));
     let stale = f.status_unchanged();
     assert_eq!(stale.pending_sync, None);

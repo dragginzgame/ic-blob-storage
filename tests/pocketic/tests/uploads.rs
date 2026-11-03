@@ -2,13 +2,14 @@
 #![cfg(not(target_family = "wasm"))]
 
 use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
 use blob_test_protocol::uploads::UploadProbeState;
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform::pocket_ic::{CanisterSettings, PocketIc};
+use ic_platform::pocket_ic::PocketIc;
 use ic_testkit::fake_principal;
-use support::{Harness, fixture_path};
+use support::Harness;
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
     fixture_calls::query_fixture(pic, canister, caller, "upload_usage", ())
@@ -41,16 +42,11 @@ fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_wor
         fake_principal(3),
         fake_principal(4),
     );
-    let canister = pic.create_canister_with_settings(
-        Some(controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![controller]),
-            ..CanisterSettings::default()
-        }),
-    );
-    pic.install_canister(
+    let canister = installation::controlled_canister(pic, controller);
+    installation::install_fixture(
+        pic,
         canister,
-        std::fs::read(fixture_path("BLOB_AUTHORITY_PROBE_WASM")).expect("fixture Wasm"),
+        "BLOB_AUTHORITY_PROBE_WASM",
         blob_test_protocol::fixture_wire::encode_args(
             "fixture_init",
             (first, second, gateway, controller),

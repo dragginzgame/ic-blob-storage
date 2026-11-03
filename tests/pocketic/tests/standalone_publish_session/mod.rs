@@ -18,7 +18,7 @@ pub(super) fn arguments(
     std::fs::write(directory.join("tenant.pem"), PEM).unwrap();
     std::fs::write(
         directory.join("root.der"),
-        f.harness.pic.root_key().unwrap(),
+        f.harness.pic.root_key().unwrap().unwrap(),
     )
     .unwrap();
     [
@@ -94,6 +94,7 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .unwrap()
         .to_string();
     (f, files, url)
 }
@@ -151,7 +152,7 @@ fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_
     // No browser was launched: the proposed fingerprints above are fixture
     // metadata, not evidence of real browser or provider authority.
     std::fs::create_dir(path.join("profile")).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     args.extend([
         "--source-session".into(),
         path.join("original").display().to_string(),
@@ -176,7 +177,10 @@ fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_
     assert_eq!(record["source_transfer"], original.display().to_string());
     assert_eq!(record["transfer"], handoff["transfer"]);
     assert_eq!(session.finish(3)["error"], "transport");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     assert_eq!(
         std::fs::read(original.join("transfer.json")).unwrap(),
         bytes
@@ -190,8 +194,11 @@ fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_
     );
     assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
     assert!(!path.join("partial").exists());
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
 }
 
 fn recover_preparation(
@@ -227,7 +234,7 @@ fn standalone_publication_session_refuses_retired_verifier_controls_before_effec
         "https://127.0.0.1:65530",
         "missing-verifier",
     );
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     session.send(&json!({"phase":"verify","index":0}));
@@ -238,7 +245,10 @@ fn standalone_publication_session_refuses_retired_verifier_controls_before_effec
             .join("missing-verifier/verification-0000")
             .exists()
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     change_native(
         &mut args,
         "--run-dir",
@@ -251,8 +261,11 @@ fn standalone_publication_session_refuses_retired_verifier_controls_before_effec
     let session = NativeSession::start(&args);
     assert_eq!(session.finish(2)["error"], "arguments");
     assert!(!directory.path().join("wrong-verifier").exists());
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -328,7 +341,7 @@ fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_
     );
     assert_eq!(session.finish(0), map);
     assert!(directory.path().join("session/media-map.json").exists());
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -345,7 +358,7 @@ fn standalone_publication_session_rejects_changed_selected_body_before_admission
     );
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     std::fs::write(
         directory.path().join("batch/file-0000/body.bin"),
         vec![0; 1024],
@@ -360,8 +373,11 @@ fn standalone_publication_session_rejects_changed_selected_body_before_admission
             .join("changed/step-0000/request.json")
             .exists()
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -394,7 +410,7 @@ fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_still_o
     session.wait_for_deadline();
     assert_eq!(session.finish(3)["error"], "timeout");
     assert!(!directory.path().join("idle/media-map.json").exists());
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -438,7 +454,7 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
     );
     // Reopen the recovery run itself. Its resolved control record names the
     // original claim directly, with no recursive session-history traversal.
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     recover_preparation(
         &mut args,
         directory.path(),
@@ -446,7 +462,10 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
         "repeated-recovery",
         original,
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     // A status-only recovery must retain sources that this run never used.
     change_native(
         &mut args,
@@ -472,7 +491,10 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
         "after-status",
         original,
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     std::fs::write(Path::new(original).join("manifest.wire"), b"DIDL").unwrap();
     change_native(
         &mut args,
@@ -481,12 +503,15 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
     );
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     session.send(&json!({"phase":"prepare","index":0}));
     assert_eq!(session.finish(3)["error"], "binding");
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     assert!(!directory.path().join("tampered/step-0000/setup").exists());
-    f.harness.pic.stop_live();
+    f.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -517,7 +542,7 @@ fn standalone_publication_session_refuses_changed_or_partial_source_before_new_r
         directory.path().join("changed").to_str().unwrap(),
     );
     change_native(&mut args, "--gateway", "https://127.0.0.1:65529");
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
     assert!(!directory.path().join("changed").exists());
     change_native(&mut args, "--gateway", "https://127.0.0.1:65530");
@@ -530,6 +555,9 @@ fn standalone_publication_session_refuses_changed_or_partial_source_before_new_r
     assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
     assert!(!directory.path().join("partial").exists());
     assert_eq!(std::fs::read(signed_path).unwrap(), signed);
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
-    f.harness.pic.stop_live();
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
+    f.harness.pic.stop_live().unwrap();
 }

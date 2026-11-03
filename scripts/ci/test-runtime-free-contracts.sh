@@ -20,6 +20,14 @@ fi
 CARGO
 chmod +x "$fixture/cargo"
 export PATH="$fixture:$PATH"
+for features in native-wire 'default,native-wire' 'native-wire,recording'; do
+    export FIXTURE_FEATURE_LINE="ic-metrics v1.0.0|$features (*)"
+    if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
+        echo "Contracts accepted Metrics-owned metadata: $features" >&2; exit 1
+    fi
+    rg -q 'Contracts schema depends on Metrics-owned Wire metadata' "$fixture/output"
+done
+unset FIXTURE_FEATURE_LINE
 for package in ic-blob-storage ic-memory ic-storage; do
     for features in test-support 'default,test-support' 'test-support,other'; do
         export FIXTURE_FEATURE_LINE="$package v1.0.0|$features (*)"

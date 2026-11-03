@@ -1,11 +1,15 @@
 //! Real stable-memory restores fence both sides of local cycle transfers.
 use super::*;
 use ic_platform::pocket_ic::CanisterInstallMode;
-use ic_platform::pocket_ic::{RejectResponse, common::rest::BlobCompression};
+use ic_platform::pocket_ic::common::rest::BlobCompression;
 use sha2::{Digest, Sha256};
 
 impl Fixture {
-    fn upgrade_one(&self, canister: Principal, trap: bool) -> Result<(), RejectResponse> {
+    fn upgrade_one(
+        &self,
+        canister: Principal,
+        trap: bool,
+    ) -> Result<(), ic_platform::pocket_ic::ClientError> {
         self.harness.pic.upgrade_canister(
             canister,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
@@ -23,7 +27,8 @@ impl Fixture {
     fn replace_memory(&self, canister: Principal, bytes: Vec<u8>) {
         self.harness
             .pic
-            .set_stable_memory(canister, bytes, BlobCompression::NoCompression);
+            .set_stable_memory(canister, bytes, BlobCompression::NoCompression)
+            .unwrap();
     }
 
     fn restart(&self, canister: Principal) {
@@ -91,7 +96,7 @@ impl Fixture {
 #[test]
 fn old_empty_sender_journal_cannot_reuse_a_paid_identity_or_admit_new_work() {
     let f = Fixture::new();
-    let old = f.harness.pic.get_stable_memory(f.sender);
+    let old = f.harness.pic.get_stable_memory(f.sender).unwrap();
     let initial = f.status_unchanged();
     let paid = request(41, 37_000_001, FundingReplyMode::Success);
     f.fund(f.driver, paid).unwrap();
@@ -110,22 +115,23 @@ fn old_empty_sender_journal_cannot_reuse_a_paid_identity_or_admit_new_work() {
     f.restart(f.sender);
     f.harness
         .pic
-        .advance_time(std::time::Duration::from_hours(24));
-    f.harness.pic.tick();
+        .advance_time(std::time::Duration::from_hours(24))
+        .unwrap();
+    f.harness.pic.tick().unwrap();
     f.assert_sender_fenced(paid);
 }
 
 #[test]
 fn restored_receiver_rejects_real_attached_cycles_before_acceptance() {
     let f = Fixture::new();
-    let old = f.harness.pic.get_stable_memory(f.receiver);
+    let old = f.harness.pic.get_stable_memory(f.receiver).unwrap();
     let paid = request(1, 31_000_001, FundingReplyMode::Success);
     f.fund(f.driver, paid).unwrap();
     let known = f.attempts();
     f.replace_memory(f.receiver, old);
     f.upgrade_one(f.receiver, false).unwrap();
     assert_eq!(f.receipts(), []);
-    let fenced = f.harness.pic.get_stable_memory(f.receiver);
+    let fenced = f.harness.pic.get_stable_memory(f.receiver).unwrap();
     let next = request(2, 41_000_003, FundingReplyMode::Success);
     let observation = f.fund(f.driver, next).unwrap();
     assert_eq!(
@@ -138,7 +144,7 @@ fn restored_receiver_rejects_real_attached_cycles_before_acceptance() {
         }
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.receiver) == fenced,
+        f.harness.pic.get_stable_memory(f.receiver).unwrap() == fenced,
         "rejected receive changed stable memory"
     );
     assert_eq!(f.attempts()[0], known[0]);
@@ -159,8 +165,8 @@ fn invalid_journals_reject_upgrade_atomically_and_keep_the_active_owner_usable()
     let paid = request(1, 13_000_001, FundingReplyMode::Success);
     f.fund(f.driver, paid).unwrap();
     let before = f.status_unchanged();
-    let original = f.harness.pic.get_stable_memory(f.sender);
-    let wrong_service = f.harness.pic.get_stable_memory(f.receiver);
+    let original = f.harness.pic.get_stable_memory(f.sender).unwrap();
+    let wrong_service = f.harness.pic.get_stable_memory(f.receiver).unwrap();
     let digest = Sha256::digest(include_bytes!("../../../../Cargo.lock"));
     let mut wrong_release = original.clone();
     let locations: Vec<_> = original
@@ -174,11 +180,14 @@ fn invalid_journals_reject_upgrade_atomically_and_keep_the_active_owner_usable()
     wrong_release[*index] ^= 1;
     for bytes in [vec![], vec![0xff; 65_536], wrong_service, wrong_release] {
         f.replace_memory(f.sender, bytes);
-        let before_failure = f.harness.pic.get_stable_memory(f.sender);
+        let before_failure = f.harness.pic.get_stable_memory(f.sender).unwrap();
         let error = f.upgrade_one(f.sender, false).unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         assert!(
-            f.harness.pic.get_stable_memory(f.sender) == before_failure,
+            f.harness.pic.get_stable_memory(f.sender).unwrap() == before_failure,
             "failed upgrade changed stable memory"
         );
         assert_eq!(f.status_unchanged(), before);
@@ -190,13 +199,13 @@ fn invalid_journals_reject_upgrade_atomically_and_keep_the_active_owner_usable()
         Some(next.accept)
     );
     let status = f.status_unchanged();
-    let stable = f.harness.pic.get_stable_memory(f.sender);
+    let stable = f.harness.pic.get_stable_memory(f.sender).unwrap();
     assert_eq!(
-        f.upgrade_one(f.sender, true).unwrap_err().reject_code,
+        crate::canister_rejection(&f.upgrade_one(f.sender, true).unwrap_err()).reject_code,
         RejectCode::CanisterError
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.sender) == stable,
+        f.harness.pic.get_stable_memory(f.sender).unwrap() == stable,
         "failed restore committed its fence"
     );
     assert_eq!(f.status_unchanged(), status);
@@ -221,11 +230,11 @@ fn captured_inflight_intent_restores_as_unknown_after_the_live_call_completes() 
         .unwrap();
     let mut captured = None;
     for _ in 0..20 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         let attempts = f.attempts();
         if let Some(entry) = attempts.first() {
             assert!(entry.observation.is_none(), "capture before completion");
-            captured = Some(f.harness.pic.get_stable_memory(f.sender));
+            captured = Some(f.harness.pic.get_stable_memory(f.sender).unwrap());
             break;
         }
     }
@@ -264,7 +273,7 @@ fn upgrade_with_a_live_callback_cannot_complete_or_replay_the_restored_intent() 
         )
         .unwrap();
     for _ in 0..20 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         if !f.attempts().is_empty() {
             break;
         }
@@ -278,7 +287,10 @@ fn upgrade_with_a_live_callback_cannot_complete_or_replay_the_restored_intent() 
         .pic
         .await_call(call)
         .expect_err("restored callback cannot complete");
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.status_unchanged(), restored);
     assert_eq!(
         f.receipts(),
@@ -306,7 +318,7 @@ fn receiver_upgrade_after_acceptance_preserves_spent_cycles_and_exact_refund() {
         )
         .unwrap();
     for _ in 0..20 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         if !f.receipts().is_empty() {
             break;
         }

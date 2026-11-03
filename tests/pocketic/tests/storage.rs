@@ -14,6 +14,7 @@ mod storage_manifests;
 mod storage_reference_native_cli;
 mod storage_resources;
 mod storage_tenants;
+use ic_blob_storage_pocketic_tests::installation;
 mod support;
 use blob_test_protocol::{
     admission::{Permission, Phase, Request, input::PreparationInput},
@@ -28,9 +29,8 @@ use ic_blob_storage_contracts::dto::tenant::TenantUpdateRequest;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
-use ic_blob_storage_contracts::protocol::TENANT_INSPECTION_METHOD;
-use ic_blob_storage_contracts::protocol::TENANT_UPDATE_METHOD;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
+use ic_blob_storage_pocketic_tests::service_calls::canister_rejection;
 use ic_platform::pocket_ic::{CanisterSettings, RejectCode};
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
@@ -76,19 +76,16 @@ impl Fixture {
     }
     fn with_operator(harness: Harness, operator: Principal) -> Self {
         let controller = fake_principal(2);
-        let service = harness.pic.create_canister_with_settings(
-            Some(controller),
-            Some(CanisterSettings {
-                controllers: Some(vec![controller]),
-                ..CanisterSettings::default()
-            }),
-        );
-        harness.pic.install_canister(
-            service,
-            Self::wasm(),
-            Self::installation("fixture_init", operator),
-            Some(controller),
-        );
+        let service = installation::controlled_canister(&harness.pic, controller);
+        harness
+            .pic
+            .install_canister(
+                service,
+                Self::wasm(),
+                Self::installation("fixture_init", operator),
+                Some(controller),
+            )
+            .unwrap();
         Self {
             harness,
             service,
@@ -311,10 +308,9 @@ impl Fixture {
         let response: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
-            .update_blob_as(
+            .update_tenant_as(
                 self.service,
                 self.operator,
-                TENANT_UPDATE_METHOD,
                 TenantUpdateRequest {
                     scope: self.tenant_scope(),
                     expected,
@@ -333,13 +329,7 @@ impl Fixture {
         let result: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
-            .query_blob_as(
-                self.service,
-                self.tenant,
-                TENANT_INSPECTION_METHOD,
-                self.tenant_scope(),
-                REPLY_BYTES,
-            )
+            .query_tenant_as(self.service, self.tenant, self.tenant_scope(), REPLY_BYTES)
             .unwrap();
         let response = result.unwrap();
         assert_eq!(response.scope, self.tenant_scope());
@@ -381,7 +371,10 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(f.status(), before);
         assert_eq!(f.lookup(f.tenant, attempted.request), Err(Failure::Unknown));
         // The failed root is free for another object, and the failed object/operation
@@ -437,7 +430,10 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         assert_eq!(f.lookup(f.uploader, permission.request), Ok(before));
         assert_eq!(f.status(), totals);
         assert_eq!(f.expose(permission.request), Err(Failure::Unprepared));
@@ -509,7 +505,10 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
             Some(f.controller),
         )
         .unwrap_err();
-    assert_eq!(failed.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&failed).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.status(), before);
     assert_eq!(f.tenant(), Some(suspended));
     f.harness
@@ -563,7 +562,10 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.lookup(f.tenant, permission.request), Ok(before));
     assert_eq!(f.status(), totals);
     assert_eq!(f.revoke(permission), Ok(true));

@@ -96,7 +96,10 @@ impl Fixture {
                 .expect("deletion input"),
             )
             .expect_err("fenced outgoing deletion");
-        assert_eq!(deletion.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&deletion).reject_code,
+            RejectCode::CanisterError
+        );
         let list = self
             .harness
             .pic
@@ -111,7 +114,10 @@ impl Fixture {
                 .expect("list input"),
             )
             .expect_err("fenced list response");
-        assert_eq!(list.reject_code, RejectCode::CanisterReject);
+        assert_eq!(
+            crate::canister_rejection(&list).reject_code,
+            RejectCode::CanisterReject
+        );
         let after = self.source_recovery(self.operator).expect("driver journal");
         assert_eq!(before, after);
     }
@@ -181,7 +187,10 @@ fn source_restores_maximum_leaf_and_history_but_all_effects_stay_fenced() {
     }
     f.assert_source_fenced(&v);
     f.restart(f.gateway);
-    f.harness.pic.advance_time(Duration::from_hours(24));
+    f.harness
+        .pic
+        .advance_time(Duration::from_hours(24))
+        .unwrap();
     f.restore(f.gateway);
     f.upgrade_skipping_outgoing_hook(f.gateway, true);
     f.assert_source_fenced(&v);
@@ -216,7 +225,10 @@ fn source_intents_have_a_lifetime_budget_and_restore_does_not_reset_it() {
             blob_test_protocol::fixture_wire::encode_args("run_deletion", (roots,)).unwrap(),
         )
         .expect_err("lifetime capacity exhausted");
-    assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&rejected).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(
         f.source_recovery(f.operator).unwrap().effects,
         before.effects
@@ -234,10 +246,11 @@ fn missing_journal_rejects_upgrade_without_discarding_the_old_heap() {
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
-    let saved = f.harness.pic.get_stable_memory(f.gateway);
+    let saved = f.harness.pic.get_stable_memory(f.gateway).unwrap();
     f.harness
         .pic
-        .set_stable_memory(f.gateway, vec![], BlobCompression::NoCompression);
+        .set_stable_memory(f.gateway, vec![], BlobCompression::NoCompression)
+        .unwrap();
     f.reject_upgrade(f.gateway);
     let old = f
         .source_recovery(f.operator)
@@ -247,7 +260,8 @@ fn missing_journal_rejects_upgrade_without_discarding_the_old_heap() {
     // Restore the injected fault before resuming any mutations against the old store.
     f.harness
         .pic
-        .set_stable_memory(f.gateway, saved, BlobCompression::NoCompression);
+        .set_stable_memory(f.gateway, saved, BlobCompression::NoCompression)
+        .unwrap();
     assert_eq!(f.read_chunk(f.first, v.upload, 0).unwrap().bytes, v.bytes);
     f.restore(f.gateway);
     f.assert_source_fenced(&v);
@@ -259,12 +273,13 @@ fn restoring_older_stable_bytes_never_reactivates_the_source() {
     let v = content_vectors::vector("abc-text", 1);
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
-    let old = f.harness.pic.get_stable_memory(f.gateway);
+    let old = f.harness.pic.get_stable_memory(f.gateway).unwrap();
     assert_eq!(f.read_chunk(f.first, v.upload, 0).unwrap().bytes, v.bytes);
     assert_eq!(f.source_observation().requests, 1);
     f.harness
         .pic
-        .set_stable_memory(f.gateway, old, BlobCompression::NoCompression);
+        .set_stable_memory(f.gateway, old, BlobCompression::NoCompression)
+        .unwrap();
     f.upgrade_skipping_outgoing_hook(f.gateway, true);
     // This counter really is stale. It cannot authorize work after reconstruction.
     assert_eq!(f.source_observation().requests, 0);
@@ -292,7 +307,10 @@ fn unresolved_source_call_survives_a_forced_fenced_restore() {
             blob_test_protocol::fixture_wire::encode_one("run_sync", request).unwrap(),
         )
         .expect_err("real failed call traps source callback");
-    assert_eq!(failure.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&failure).reject_code,
+        RejectCode::CanisterError
+    );
     let before = f.source_recovery(f.operator).unwrap();
     assert_eq!(
         before.effects,
@@ -322,11 +340,12 @@ fn restored_pending_read_is_retained_for_inspection_without_releasing_it() {
     f.confirm_bytes(&v);
     f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
     let id = f.hold_read(v.upload);
-    let pending = f.harness.pic.get_stable_memory(f.gateway);
+    let pending = f.harness.pic.get_stable_memory(f.gateway).unwrap();
     assert_eq!(f.resume_read(id).unwrap().bytes, v.bytes);
     f.harness
         .pic
-        .set_stable_memory(f.gateway, pending, BlobCompression::NoCompression);
+        .set_stable_memory(f.gateway, pending, BlobCompression::NoCompression)
+        .unwrap();
     f.upgrade_skipping_outgoing_hook(f.gateway, true);
     let restored = f.source_recovery(f.operator).unwrap();
     assert!(restored.read_pending);

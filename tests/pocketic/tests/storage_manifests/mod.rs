@@ -104,11 +104,11 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
     assert_eq!(accepted.observation, expected);
     let mut reordered = input.clone();
     reordered.declaration.headers.reverse();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let replay = prepare(&f, f.uploader, &reordered).unwrap();
     assert!(!replay.changed);
     assert_eq!(replay.observation, expected);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.expose(permission.request).unwrap();
     assert_eq!(prepare(&f, f.uploader, &input), Err(F::Phase));
     f.revoke(permission).unwrap();
@@ -116,14 +116,14 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
     for actor in [f.tenant, f.uploader] {
         assert_eq!(inspect(&f, actor, input.permission), Ok(expected.clone()));
     }
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.operator, f.other] {
         assert_eq!(
             inspect(&f, actor, input.permission),
             Err(F::Permission(A::Denied))
         );
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.harness
         .pic
         .upgrade_canister(
@@ -146,7 +146,7 @@ fn manifest_ingress_binds_actual_uploader_full_permission_and_declared_root() {
     let (permission, declaration) = f.permission(1, 9);
     let input = f.preparation_input(&declaration);
     f.admit(f.tenant, permission).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.tenant, f.controller, f.operator, f.other] {
         assert_eq!(prepare(&f, actor, &input), Err(F::Permission(A::Denied)));
     }
@@ -179,6 +179,6 @@ fn manifest_ingress_binds_actual_uploader_full_permission_and_declared_root() {
         inspect(&f, f.uploader, input.permission).unwrap().manifest,
         UploadManifestInspection::Unprepared
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert!(prepare(&f, f.uploader, &input).unwrap().changed);
 }

@@ -1,8 +1,10 @@
 //! Provider acknowledgments are operational success, separate from account credit.
 use super::credit::host;
 use super::*;
-use crate::model::billing::journal::record::response::FundingResponseRecord as R;
+use crate::model::billing::balance::BalanceAmounts;
 use crate::model::billing::journal::renewal::FundingBudgetRenewal;
+use crate::ops::caffeine::funding::transport::CashierTopUpStatus as R;
+use crate::ops::caffeine::funding::{TopUpProviderError, TopUpReply, TopUpReplyError};
 use crate::policy::billing::admission::FundingActivity;
 use crate::policy::billing::reconciliation::assess_uncredited_allocation;
 use crate::workflow::funding::{FundingPreparationResult, prepare_new};
@@ -36,12 +38,9 @@ fn two_acknowledged_payments_preserve_spending_exact_replay_renewal_and_restore(
                     intent,
                     source(),
                     FundingTransportOutcome::Callback { refunded: 50 },
-                    Some(R::Balance {
-                        total: 1,
-                        prepaid: 1,
-                        promotional: 0,
-                        ledger: 0
-                    })
+                    Some(R::Replied(Ok(TopUpReply::ReportedSuccess {
+                        balance: BalanceAmounts::new(1, 1, 0, 0)
+                    })))
                 )
                 .unwrap()
         );
@@ -60,12 +59,9 @@ fn two_acknowledged_payments_preserve_spending_exact_replay_renewal_and_restore(
                     intent,
                     source(),
                     FundingTransportOutcome::Callback { refunded: 50 },
-                    Some(R::Balance {
-                        total: 1,
-                        prepaid: 1,
-                        promotional: 0,
-                        ledger: 0
-                    })
+                    Some(R::Replied(Ok(TopUpReply::ReportedSuccess {
+                        balance: BalanceAmounts::new(1, 1, 0, 0)
+                    })))
                 )
                 .unwrap()
         );
@@ -105,14 +101,23 @@ fn two_acknowledged_payments_preserve_spending_exact_replay_renewal_and_restore(
 #[test]
 fn errors_missing_and_malformed_replies_do_not_acknowledge_or_enable_more_funding() {
     for response in [
-        R::Missing,
         R::Rejected(4),
-        R::InternalError,
-        R::InvalidReply,
-        R::ReplyTooLarge,
-        R::AccountBalanceOverflow,
-        R::TopUpWithoutCycles,
-    ] {
+        R::Replied(Ok(TopUpReply::ProviderFailure(
+            TopUpProviderError::InternalError,
+        ))),
+        R::Replied(Err(TopUpReplyError::InvalidReply)),
+        R::Replied(Err(TopUpReplyError::ReplyTooLarge)),
+        R::Replied(Ok(TopUpReply::ProviderFailure(
+            TopUpProviderError::AccountBalanceOverflow,
+        ))),
+        R::Replied(Ok(TopUpReply::ProviderFailure(
+            TopUpProviderError::TopUpWithoutCycles,
+        ))),
+    ]
+    .map(Some)
+    .into_iter()
+    .chain([None])
+    {
         let mut store =
             StableFundingJournal::install(copy(&memories()), config(), allocation()).unwrap();
         let first = input(1, 200);
@@ -128,7 +133,7 @@ fn errors_missing_and_malformed_replies_do_not_acknowledge_or_enable_more_fundin
                 first,
                 source(),
                 FundingTransportOutcome::Callback { refunded: 50 },
-                Some(response),
+                response,
             )
             .unwrap();
         let totals = store.allocation(execution()).unwrap();

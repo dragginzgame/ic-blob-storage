@@ -4,6 +4,46 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.69.0] - Unreleased
+
+### 💥 Breaking
+
+- Align the published Wire 0.16 / Platform and Runtime 0.19 / Types 0.18 family,
+  with Tools 0.79 and Testkit 0.81. Preserve endpoint bytes and the single executor
+  identity. Testkit callers handle typed client failures, preserving uncertainty
+  and distinguishing real canister rejections from failed transport.
+- Store funding transport progress and its permitted diagnostic in one bounded
+  state, removing the independently persisted phase/response combination. The
+  fresh `BLFUPR01` record identity and installation format reject old backing;
+  retire existing obligations with their original tools before a fresh whole-
+  backing installation. No migration, fallback reader or automatic reset exists.
+  Exact retries, uncertain effects, credit receipts, renewal accounting and
+  same-release recovery retain their supported behavior.
+
+### 📚 Documentation
+
+- Correct the library composition guidance to align a direct Storage dependency,
+  which owns the backing and collection interfaces.
+
+### 🔧 Changed
+
+- Adopt committed Shared Tooling 0.27.29, including refusal of incomplete
+  owned-tree inventories and explicit delivery checkout/direct-push authority.
+  Preserve local release groups, compiler pin and consumer validation selection.
+- Project heap measurements into Contracts-owned report DTOs without changing
+  recording, authorization, reset windows or report bytes. Enforce that native
+  Contracts schema generation does not enable Metrics-owned Wire metadata.
+
+### 🧪 Testing
+
+- Retire the six private PocketIC operator CLI tools and their argument/report
+  contracts. Typed fixture scenarios retain authority, query-only previews,
+  exact funding lookup, uncertain acknowledgements and restoration fences.
+- Share fixture creation, artifact admission and installation mechanics while
+  keeping scenario principals, cycle budgets and initialization bytes explicit.
+  Tenant tests use the published typed codecs directly, without offline-document
+  round trips. The supported native CLI and service contracts are unchanged.
+
 ## [0.68.1] - 2026-11-02
 
 ### 🔧 Changed

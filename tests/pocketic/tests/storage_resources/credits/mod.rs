@@ -142,13 +142,16 @@ fn profile(directory: &Path, count: u32) {
     let harness = Harness::new();
     let operator = fake_principal(1);
     let controller = fake_principal(2);
-    let service = harness.pic.create_canister_with_settings(
-        Some(controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![controller]),
-            ..CanisterSettings::default()
-        }),
-    );
+    let service = harness
+        .pic
+        .create_canister_with_settings(
+            Some(controller),
+            Some(CanisterSettings {
+                controllers: Some(vec![controller]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
     let profile = StorageProbeInstallation {
         operator,
         max_objects: 2,
@@ -161,12 +164,15 @@ fn profile(directory: &Path, count: u32) {
     let restoration =
         blob_test_protocol::fixture_wire::encode_one("fixture_post_upgrade", profile).unwrap();
     retain_bytes(directory, "installation.wire", &installation);
-    harness.pic.install_canister(
-        service,
-        Fixture::wasm(),
-        installation.clone(),
-        Some(controller),
-    );
+    harness
+        .pic
+        .install_canister(
+            service,
+            Fixture::wasm(),
+            installation.clone(),
+            Some(controller),
+        )
+        .unwrap();
     let f = Fixture {
         harness,
         service,
@@ -242,7 +248,7 @@ fn profile(directory: &Path, count: u32) {
         established: true,
         fault: None,
     };
-    let before = f.harness.pic.get_stable_memory(service);
+    let before = f.harness.pic.get_stable_memory(service).unwrap();
     assert_eq!(
         measured(&f, directory, "denied", f.other, command).result,
         Err(Failure::Denied)
@@ -262,20 +268,20 @@ fn profile(directory: &Path, count: u32) {
         Err(Failure::Conflict)
     );
     assert!(
-        f.harness.pic.get_stable_memory(service) == before,
+        f.harness.pic.get_stable_memory(service).unwrap() == before,
         "refusal changed stable bytes"
     );
     assert_eq!(
         measured(&f, directory, "confirmed", operator, command).result,
         Ok(Some(true))
     );
-    let after = f.harness.pic.get_stable_memory(service);
+    let after = f.harness.pic.get_stable_memory(service).unwrap();
     assert_eq!(
         measured(&f, directory, "replay", operator, command).result,
         Ok(Some(false))
     );
     assert!(
-        f.harness.pic.get_stable_memory(service) == after,
+        f.harness.pic.get_stable_memory(service).unwrap() == after,
         "replay changed stable bytes"
     );
     let credited = f.local_status();
@@ -302,13 +308,13 @@ fn profile(directory: &Path, count: u32) {
     assert_eq!(restored.funding.uncredited_accepted, 0);
     assert!(restored.funding.fenced);
     retain(directory, "restoration.json", &resources(&f));
-    let reopened = f.harness.pic.get_stable_memory(service);
+    let reopened = f.harness.pic.get_stable_memory(service).unwrap();
     assert_eq!(
         measured(&f, directory, "fenced", operator, command).result,
         Err(Failure::Fenced)
     );
     assert!(
-        f.harness.pic.get_stable_memory(service) == reopened,
+        f.harness.pic.get_stable_memory(service).unwrap() == reopened,
         "replay changed stable bytes"
     );
     retain_bytes(directory, "stable.bin", &reopened);

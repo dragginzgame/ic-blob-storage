@@ -67,7 +67,10 @@ impl Fixture {
                 self.controller(canister),
             )
             .expect_err("busy or invalid restoration must reject atomically");
-        assert_eq!(rejected.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&rejected).reject_code,
+            RejectCode::CanisterError
+        );
     }
 
     fn upgrade_skipping_outgoing_hook(&self, canister: Principal, succeeds: bool) {
@@ -103,7 +106,7 @@ impl Fixture {
             result.expect("journal restores synchronously with outgoing hook skipped");
         } else {
             assert_eq!(
-                result.expect_err("unsupported restore").reject_code,
+                crate::canister_rejection(&result.expect_err("unsupported restore")).reject_code,
                 RejectCode::CanisterError
             );
         }
@@ -138,7 +141,10 @@ fn stop_start_retains_verified_prefix_exposure_and_unchanged_accounting() {
     let second_usage = f.usage(f.second);
     f.restart(f.service);
     f.restart(f.gateway);
-    f.harness.pic.advance_time(Duration::from_secs(3600));
+    f.harness
+        .pic
+        .advance_time(Duration::from_secs(3600))
+        .unwrap();
     assert_eq!(f.progress(f.first, partial.upload), prefix);
     assert_eq!(f.usage(f.first), first_usage);
     assert_eq!(f.usage(f.second), second_usage);
@@ -319,7 +325,10 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
             .expect("read args"),
         )
         .expect_err("actual callback trap");
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.source_observation().requests, 1);
     assert!(!f.source_observation().waiting);
     assert_eq!(f.read_resources(f.operator), Ok(None));
@@ -329,7 +338,10 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
     );
     f.reject_upgrade(f.service);
     f.restart(f.service);
-    f.harness.pic.advance_time(Duration::from_hours(24));
+    f.harness
+        .pic
+        .advance_time(Duration::from_hours(24))
+        .unwrap();
     assert_eq!(
         f.read_chunk(f.first, v.upload, 0),
         Err(JourneyFailure::ReadInProgress)

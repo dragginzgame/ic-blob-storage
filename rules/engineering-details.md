@@ -79,6 +79,8 @@ product, release and recovery obligations remain binding when applicable.
   validation within the established scope. A release/ship/deploy
   request delegates its corresponding workflow and routine group/version/order
   choices under [delegated delivery](contributions.md#delegated-delivery).
+  Explicitly authorize direct integration-branch pushes and alternate delivery
+  checkouts under that contract; a configured default does not grant consent.
   Continue that workflow without per-step permission; preserve explicit target
   restrictions and the explicitly scoped isolated PR boundary. A dependency
   blocker does not extend delivery to another repository: report the required
@@ -628,6 +630,12 @@ contracts; ordinary development does not require rereading these mechanics.
   trees and intermediate downloads. Create unique per-run directories there so
   explicit workspace cleanup reclaims them along with compiler outputs. Do not
   default to repository `.tmp/`, `tmp/` or system `/tmp` merely for convenience.
+- Scratch is not source custody. Lasting implementation, unique patches and
+  contribution checkouts follow the [durable work contract](contributions.md#durable-work-and-checkout-location)
+  and must survive routine deletion of `/tmp`, caches and `target/`. Keep actual
+  changes in the requested checkout or an authorized durable contribution; ask
+  before choosing another handoff location. Scratch exceptions below do not
+  authorize leaving unique code changes there.
 - Use outside-target scratch only when the operation needs it, such as an atomic
   replacement on the destination filesystem, a fixture that removes `target/`
   itself, or evidence explicitly required to survive cleanup. Document the reason,

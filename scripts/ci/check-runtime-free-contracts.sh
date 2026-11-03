@@ -75,3 +75,12 @@ if rg '^(reqwest |tokio |ic-host-)' "$contract_graph"; then
     exit 1
 fi
 echo 'Wasm client excludes native download transport even with all features'
+
+# Report schemas belong to Blob, not Metrics' optional supplier integration.
+# Inspect the actual native schema feature selection so unification cannot hide it.
+cargo tree --offline --locked --target all --edges normal --all-features \
+    --prefix none --format '{p}|{f}' -p ic-blob-storage-contracts > "$contract_graph"
+if rg '^ic-metrics v[^|]*\|([^,]*,)*native-wire(,| |$)' "$contract_graph"; then
+    echo 'Contracts schema depends on Metrics-owned Wire metadata' >&2; exit 1
+fi
+echo 'Contracts schemas exclude Metrics-owned Wire metadata'

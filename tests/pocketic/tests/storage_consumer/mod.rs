@@ -24,16 +24,21 @@ fn fixture() -> Fixture {
     fixture_with_wasm(f, consumer_wasm(), arguments)
 }
 fn fixture_with_wasm(mut f: Fixture, wasm: Vec<u8>, arguments: Vec<u8>) -> Fixture {
-    let tenant = f.harness.pic.create_canister_with_settings(
-        Some(f.controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![f.controller]),
-            ..CanisterSettings::default()
-        }),
-    );
+    let tenant = f
+        .harness
+        .pic
+        .create_canister_with_settings(
+            Some(f.controller),
+            Some(CanisterSettings {
+                controllers: Some(vec![f.controller]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
     f.harness
         .pic
-        .install_canister(tenant, wasm, arguments, Some(f.controller));
+        .install_canister(tenant, wasm, arguments, Some(f.controller))
+        .unwrap();
     f.tenant = tenant;
     f.enroll(None, true).unwrap();
     f
@@ -151,8 +156,8 @@ fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
     let mut trailing = original.clone();
     trailing.push(0);
     let unknown = ic_blob_storage_contracts::document::encode((&input, true)).unwrap();
-    let consumer_before = f.harness.pic.get_stable_memory(f.tenant);
-    let service_before = f.harness.pic.get_stable_memory(f.service);
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).unwrap();
+    let service_before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for (method, bytes) in [
         ("register", Vec::new()),
         ("resume", vec![0xf6]),
@@ -170,9 +175,18 @@ fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
             .pic
             .update_call(f.tenant, f.operator, method, bytes)
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
-        assert_eq!(f.harness.pic.get_stable_memory(f.tenant), consumer_before);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.tenant).unwrap(),
+            consumer_before
+        );
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).unwrap(),
+            service_before
+        );
         assert_eq!(asset(&f, 1), Err(ConsumerFailure::Unknown));
     }
     assert!(register(&f, &input).unwrap().published);
@@ -194,7 +208,7 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
         .unwrap();
     let mut held = false;
     for _ in 0..40 {
-        f.harness.pic.tick();
+        f.harness.pic.tick().unwrap();
         let waiting: Result<bool, ConsumerFailure> = f
             .harness
             .pic
@@ -257,7 +271,10 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
                 ic_blob_storage_contracts::document::encode(&input).unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
         input.fault = Fault::None;
         if fault == Fault::AfterIntent {
             assert_eq!(asset(&f, 1), Err(ConsumerFailure::Unknown));
@@ -272,11 +289,11 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
             assert_eq!(pending.retain_result, None);
             cancel(&f, 1).unwrap();
             assert_eq!(release(&f, 1), Err(ConsumerFailure::State));
-            let before = f.harness.pic.get_stable_memory(f.service);
+            let before = f.harness.pic.get_stable_memory(f.service).unwrap();
             let recovered = recover(&f, 1, false).unwrap();
             assert!(recovered.cancelled);
             assert_eq!(recovered.retain_result, Some(Ok(ReferenceChange::Changed)));
-            assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+            assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
             assert_eq!(
                 release(&f, 1).unwrap().release_result,
                 Some(Ok(ReferenceChange::Changed))
@@ -284,11 +301,11 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
             assert!(!register(&f, &input).unwrap().published);
         } else {
             assert!(!asset(&f, 1).unwrap().published);
-            let before = f.harness.pic.get_stable_memory(f.service);
+            let before = f.harness.pic.get_stable_memory(f.service).unwrap();
             let published = register(&f, &input).unwrap();
             assert!(published.published);
             assert_eq!(register(&f, &input), Ok(published));
-            assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+            assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
         }
     }
 }
@@ -315,17 +332,20 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
             .unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     let pending = asset(&f, 1).unwrap();
     assert!(pending.release_started);
     assert_eq!(pending.release_result, None);
     assert!(pending.cancelled && pending.published_once && !pending.published);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         recover(&f, 1, true).unwrap().release_result,
         Some(Ok(ReferenceChange::Changed))
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     let recovered = asset(&f, 1).unwrap();
     f.harness
         .pic
@@ -341,7 +361,7 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
     assert_eq!(release(&f, 1), Err(ConsumerFailure::Fenced));
     assert_eq!(recover(&f, 1, true), Err(ConsumerFailure::Fenced));
     assert_eq!(use_asset(&f, true), Err(ConsumerFailure::Fenced));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 #[test]
 fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_capacity() {
@@ -350,7 +370,7 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
     let second = input(&f, 2);
     register(&f, &first).unwrap();
     register(&f, &second).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut changed = first.clone();
     changed.registration.payload.push(9);
     assert_eq!(register(&f, &changed), Err(ConsumerFailure::Conflict));
@@ -368,7 +388,7 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
         .update_control_as(f.tenant, f.other, "register", &first, REPLY_BYTES)
         .unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     for id in [1, 2] {
         cancel(&f, id).unwrap();
         assert_eq!(
@@ -395,7 +415,10 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
             ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     let pending = cancel(&f, 1).unwrap();
     assert!(pending.retain_started && pending.cancelled);
     assert_eq!(pending.retain_result, None);
@@ -403,7 +426,7 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
         receipt(&f, retained(&input.registration)),
         ReferenceReceiptLookup::Found(_)
     ));
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -417,7 +440,7 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
     assert_eq!(recover(&f, 1, false), Err(ConsumerFailure::Fenced));
     assert_eq!(register(&f, &input), Err(ConsumerFailure::Fenced));
     assert_eq!(release(&f, 1), Err(ConsumerFailure::Fenced));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 
 fn retained(intent: &Registration) -> ReferenceCommand {
@@ -455,8 +478,8 @@ fn retired_consumer_upgrade_refuses_without_losing_published_or_cancelled_histor
     assert!(register(&f, &second).unwrap().published);
     cancel(&f, 2).unwrap();
     let before = [asset(&f, u128::MAX).unwrap(), asset(&f, 2).unwrap()];
-    let service_before = f.harness.pic.get_stable_memory(f.service);
-    let consumer_before = f.harness.pic.get_stable_memory(f.tenant);
+    let service_before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).unwrap();
     crate::install_code::settle_install_code_debt(&f.harness.pic);
     let error = f
         .harness
@@ -468,13 +491,22 @@ fn retired_consumer_upgrade_refuses_without_losing_published_or_cancelled_histor
             Some(f.controller),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
-    assert_eq!(f.harness.pic.get_stable_memory(f.tenant), consumer_before);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.tenant).unwrap(),
+        consumer_before
+    );
     assert_eq!(
         [asset(&f, u128::MAX).unwrap(), asset(&f, 2).unwrap()],
         before
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        service_before
+    );
 }
 
 #[test]
@@ -503,8 +535,8 @@ fn retired_consumer_upgrade_refuses_without_losing_uncertain_retains() {
         receipt(&f, retained(&command.registration)),
         ReferenceReceiptLookup::Found(_)
     ));
-    let service_before = f.harness.pic.get_stable_memory(f.service);
-    let consumer_before = f.harness.pic.get_stable_memory(f.tenant);
+    let service_before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).unwrap();
     crate::install_code::settle_install_code_debt(&f.harness.pic);
     let error = f
         .harness
@@ -516,8 +548,17 @@ fn retired_consumer_upgrade_refuses_without_losing_uncertain_retains() {
             Some(f.controller),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
-    assert_eq!(f.harness.pic.get_stable_memory(f.tenant), consumer_before);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.tenant).unwrap(),
+        consumer_before
+    );
     assert_eq!(asset(&f, 1), Ok(pending));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), service_before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        service_before
+    );
 }

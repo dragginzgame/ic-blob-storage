@@ -123,7 +123,7 @@ pub(super) fn run() -> ExitCode {
     let args: Vec<_> = std::env::args_os().skip(1).collect();
     let result = match arguments::invocation(&args) {
         Ok(None) => return ExitCode::SUCCESS,
-        Ok(Some(matches)) => execute_matches(&matches),
+        Ok(Some(matches)) => execute_invocation(matches),
         Err(error) => Err(error),
     };
     match result {
@@ -190,23 +190,22 @@ fn identity(path: &Path, expected: Principal) -> Result<Box<dyn Identity>, Failu
 
 #[cfg(test)]
 fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
-    execute_matches(&arguments::parse(args)?)
+    execute_invocation(arguments::parse(args)?)
 }
 
-fn execute_matches(matches: &clap::ArgMatches) -> Result<serde_json::Value, Failure> {
-    if matches.get_flag("version") {
+fn execute_invocation(invocation: arguments::schema::Cli) -> Result<serde_json::Value, Failure> {
+    use arguments::schema::Invocation as I;
+    if invocation.version {
         return Ok(json!({"tool":"blob-storage","version":env!("CARGO_PKG_VERSION")}));
     }
-    let (name, flags) = matches.subcommand().ok_or(Failure::Arguments)?;
-    match name {
-        "publish-inputs" => return publish_inputs::run(flags),
-        "installation-check" => return installation_check::run(flags),
-        "account-link-inputs" => return account_link_inputs::run(flags),
-        "reference-inputs" => return reference_inputs::run(flags),
-        "upload-inputs" => return upload_inputs::run(flags),
-        _ => {}
-    }
-    let (command, options) = arguments::Options::from_matches(name, flags)?;
+    let (command, options) = match invocation.command.ok_or(Failure::Arguments)? {
+        I::PublishInputs(input) => return publish_inputs::run(input),
+        I::InstallationCheck(input) => return installation_check::run(input),
+        I::AccountLinkInputs(input) => return account_link_inputs::run(input),
+        I::ReferenceInputs(input) => return reference_inputs::run(input),
+        I::UploadInputs(input) => return upload_inputs::run(input),
+        command => command.into_online()?,
+    };
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()

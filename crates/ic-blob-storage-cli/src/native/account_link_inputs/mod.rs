@@ -5,20 +5,18 @@ use ic_blob_storage_contracts::provider::onboarding::AccountLinkBinding;
 use ic_blob_storage_contracts::provider::onboarding::AccountLinkRequest;
 use ic_blob_storage_contracts::provider::onboarding::AccountLinkTerms;
 use serde_json::{Value, json};
-
-use super::arguments::value;
-pub(super) fn run(flags: &clap::ArgMatches) -> Result<Value, Failure> {
+pub(super) fn run(input: super::arguments::schema::AccountLink) -> Result<Value, Failure> {
     let binding = AccountLinkBinding {
-        cashier: value(flags, "--cashier"),
-        caller: value(flags, "--caller"),
-        paid_canister: value(flags, "--owner"),
-        payment_account: value(flags, "--payer"),
+        cashier: input.cashier,
+        caller: input.caller,
+        paid_canister: input.owner,
+        payment_account: input.payer,
     };
     let terms = AccountLinkTerms {
-        daily_limit: value(flags, "--daily-limit"),
-        expiration_timestamp: value(flags, "--expiry"),
+        daily_limit: input.daily_limit,
+        expiration_timestamp: input.expiry,
     };
-    let directory = value::<std::path::PathBuf>(flags, "--run-dir");
+    let directory = input.run_dir;
     let request = AccountLinkRequest::new(binding, terms).map_err(|_| Failure::Arguments)?;
     let report = json!({"schema":1,"observation":"local_account_link_inputs",
         "cashier":binding.cashier.to_text(),"caller":binding.caller.to_text(),

@@ -1,7 +1,8 @@
 //! Standalone-only operator telemetry. Embedded hosts retain their own reporting policy.
 use crate::endpoints::{MethodCodec, MethodMode, MethodSpec, WireContract};
-use ic_metrics::{MeasurementAggregate, MeasurementCounter};
+mod measurement;
 use ic_platform::Principal;
+pub use measurement::{AggregateMetrics, CounterMetrics};
 use serde::{Deserialize, Serialize};
 
 /// Extra standalone query; deliberately absent from the shared service mount/catalog.
@@ -67,21 +68,21 @@ pub struct OperationMetrics {
     /// Fixed operation identity.
     pub operation: MetricOperation,
     /// Decoded attempts that reached the workflow boundary, including incomplete async work.
-    pub attempts: MeasurementCounter,
+    pub attempts: CounterMetrics,
     /// Fresh successful local mutations with explicit domain evidence of novelty.
-    pub applied: MeasurementCounter,
+    pub applied: CounterMetrics,
     /// Original receipt/declaration replays; never another applied operation.
-    pub replayed: MeasurementCounter,
+    pub replayed: CounterMetrics,
     /// Normally returned typed refusals, including failed original reference receipts.
-    pub refused: MeasurementCounter,
+    pub refused: CounterMetrics,
     /// Normally returned provider query submission, rejection or reply-admission failures.
-    pub provider_failed: MeasurementCounter,
+    pub provider_failed: CounterMetrics,
     /// Successful sync/GC callback returns with no claim of a new logical effect.
-    pub acknowledged: MeasurementCounter,
+    pub acknowledged: CounterMetrics,
     /// Encoded argument bytes for the observed attempts, not uploaded content bytes.
-    pub request_bytes: MeasurementCounter,
+    pub request_bytes: CounterMetrics,
     /// Completed samples in this window; interrupted work can leave unmatched attempts.
-    pub instructions: MeasurementAggregate,
+    pub instructions: AggregateMetrics,
 }
 /// Authenticated heap telemetry, never accounting, retry or restore authority.
 #[cfg_attr(

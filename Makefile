@@ -247,7 +247,7 @@ test-pocketic-client: test-pocketic-prepare
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_tenants::client::
 
 test-pocketic-engine: test-pocketic-prepare
-	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --lib --bins --test admission --test authority --test content --test funding --test gateway_sync --test journey --test obligations --test operator --test storage --test uploads -- --skip storage_tenants::client::
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --lib --test admission --test authority --test content --test funding --test gateway_sync --test journey --test obligations --test operator --test storage --test uploads -- --skip storage_tenants::client::
 	+cargo test --offline --locked -p ic-blob-storage-pocketic-tests --doc
 
 build-standalone:

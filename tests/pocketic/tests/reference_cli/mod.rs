@@ -13,7 +13,7 @@ pub(crate) fn native_requests(
     let key = directory.join("tenant.pem");
     let root = directory.join("root.der");
     fs::write(&key, crate::authenticated_cli::PEM).unwrap();
-    fs::write(&root, pic.root_key().unwrap()).unwrap();
+    fs::write(&root, pic.root_key().unwrap().unwrap()).unwrap();
     let receipt = directory.join("receipt.wire");
     let status = directory.join("status.wire");
     fs::write(

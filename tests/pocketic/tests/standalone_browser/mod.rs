@@ -24,7 +24,7 @@ fn upload(
     let input = trial.f.small_manifest();
     let config = serde_json::json!({
         "url": trial.url, "service": trial.f.service.to_text(),
-        "rootKey": trial.f.harness.pic.root_key().unwrap(), "project": client::PROJECT,
+        "rootKey": trial.f.harness.pic.root_key().unwrap().unwrap(), "project": client::PROJECT,
         "corruptRead": matches!(scenario, Scenario::CorruptRead),
         "lostFinalReply": matches!(scenario, Scenario::LostFinal | Scenario::Withdrawn),
         "withdrawAfterObservation": matches!(scenario, Scenario::Withdrawn),
@@ -116,7 +116,7 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
         "provider_deletion_established": false, "billing_cessation_established": false,
         "live_provider_requests": 0, "paid_effects": 0,
     }));
-    trial.f.harness.pic.stop_live();
+    trial.f.harness.pic.stop_live().unwrap();
 }
 #[test]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
@@ -168,7 +168,7 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
             "live_provider_requests": 0, "paid_effects": 0,
         }),
     );
-    trial.f.harness.pic.stop_live();
+    trial.f.harness.pic.stop_live().unwrap();
 }
 
 #[test]
@@ -218,6 +218,6 @@ fn chromium_registration_preserves_lost_transfer_reply_and_withdrawal_obligation
         assert_eq!(status.uploads.physical_bytes, 1024);
         assert_eq!(status.uploads.liability_bytes, 1024);
         finish(&trial, driver);
-        trial.f.harness.pic.stop_live();
+        trial.f.harness.pic.stop_live().unwrap();
     }
 }

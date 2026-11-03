@@ -181,7 +181,13 @@ fn reference_result(replayed: bool) -> Outcome {
 fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission> {
     let mut inputs = Vec::new();
     let mut previous = f.sample(f.operator).sequence;
-    let expires_at_ns = f.harness.pic.get_time().as_nanos_since_unix_epoch() + 3_600_000_000_000;
+    let expires_at_ns = f
+        .harness
+        .pic
+        .get_time()
+        .unwrap()
+        .as_nanos_since_unix_epoch()
+        + 3_600_000_000_000;
     let mut index = 0;
     while index < OBJECTS {
         // Respect the real two-active-upload tenant limit. Sample milestones run

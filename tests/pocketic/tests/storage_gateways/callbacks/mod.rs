@@ -27,7 +27,7 @@ impl Fixture {
             .unwrap()
     }
     fn gateway_phase(&self, root: [u8; 32], state: ContentState) {
-        let before = self.harness.pic.get_stable_memory(self.service);
+        let before = self.harness.pic.get_stable_memory(self.service).unwrap();
         assert_eq!(
             self.gateway_roots(
                 self.other,
@@ -38,14 +38,17 @@ impl Fixture {
             ),
             Ok(vec![RootView::Known(state)])
         );
-        assert_eq!(self.harness.pic.get_stable_memory(self.service), before);
+        assert_eq!(
+            self.harness.pic.get_stable_memory(self.service).unwrap(),
+            before
+        );
     }
 }
 #[test]
 fn gateway_root_reads_check_scope_and_caller_even_without_known_roots() {
     let f = Fixture::new();
     f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for roots in [vec![], vec![vec![9; 32]], vec![vec![]]] {
         let input = RootsInput {
             scope: f.gateway_scope(),
@@ -99,7 +102,7 @@ fn gateway_root_reads_check_scope_and_caller_even_without_known_roots() {
             Err(Failure::Capacity)
         );
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 #[test]
 fn gateway_root_reads_preserve_uncertainty_and_every_cleanup_phase() {

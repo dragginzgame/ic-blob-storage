@@ -141,7 +141,7 @@ fn damaged_checkpoint_rejects_reconstruction_without_resetting_live_state() {
     assert_eq!(f.reserve_manifest(f.first, v.upload, v.manifest), Ok(()));
     assert_eq!(f.append(f.first, v.upload, 0, &v.bytes[..CHUNK]), Ok(()));
     let before = f.archive();
-    let memory = f.harness.pic.get_stable_memory(f.service);
+    let memory = f.harness.pic.get_stable_memory(f.service).unwrap();
     let mut corrupted = memory.clone();
     // Locate the protected versioned envelope, not an ic-storage implementation offset.
     let at = corrupted
@@ -172,9 +172,19 @@ fn damaged_checkpoint_rejects_reconstruction_without_resetting_live_state() {
             .expect("bounded checkpoint probe"),
         )
         .expect_err("damaged outer journal must refuse reconstruction");
-    assert_eq!(rejected.reject_code, RejectCode::CanisterError);
-    assert!(rejected.reject_message.contains("Checksum"));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), corrupted);
+    assert_eq!(
+        crate::canister_rejection(&rejected).reject_code,
+        RejectCode::CanisterError
+    );
+    assert!(
+        crate::canister_rejection(&rejected)
+            .reject_message
+            .contains("Checksum")
+    );
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        corrupted
+    );
     assert_eq!(f.progress(f.first, v.upload).unwrap().next_chunk, 1);
     assert_eq!(
         f.certificate(f.first, v.upload.root),

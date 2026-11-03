@@ -42,7 +42,10 @@ fn uncertain_admission_recovers_exact_permission_without_resending_after_cancell
                     ic_blob_storage_contracts::document::encode(&input).unwrap(),
                 )
                 .unwrap_err();
-            assert_eq!(error.reject_code, RejectCode::CanisterError);
+            assert_eq!(
+                crate::canister_rejection(&error).reject_code,
+                RejectCode::CanisterError
+            );
         } else {
             input.max_reply_bytes = 1;
             assert_eq!(admit(&f, &input), Err(ConsumerFailure::Transport));
@@ -73,13 +76,13 @@ fn uncertain_admission_recovers_exact_permission_without_resending_after_cancell
         cancel(&f, 1).unwrap();
         f.revoke(original).unwrap();
         f.enroll(Some(f.tenant().unwrap()), false).unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         let recovered = recover(&f, 1, false).unwrap();
         assert_eq!(recovered.admission_result, Some(Ok(())));
         assert_eq!(recovered.upload_state, Some(UploadState::Cancelled));
         assert!(recovered.cancelled && !recovered.published);
         assert_eq!(admit(&f, &input), Err(ConsumerFailure::State));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     }
 }
 #[test]
@@ -97,14 +100,17 @@ fn admission_intent_rolls_back_before_dispatch_and_refusal_is_retained_without_r
             ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(asset(&f, 1), Err(ConsumerFailure::Unknown));
     assert_eq!(inspect_permission(&f, permission(&input)), Err(A::Unknown));
     input.fault = Fault::None;
     assert_eq!(admit(&f, &input).unwrap().admission_result, Some(Ok(())));
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(admit(&f, &input).unwrap().admission_result, Some(Ok(())));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 
     let f = fixture();
     let (mut expired, _, _) = fresh_input(&f);
@@ -131,7 +137,7 @@ fn consumer_upgrade_retains_uncertain_admission_and_blocks_reconciliation_and_re
     input.max_reply_bytes = 1;
     assert_eq!(admit(&f, &input), Err(ConsumerFailure::Transport));
     let pending = cancel(&f, 1).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -145,7 +151,7 @@ fn consumer_upgrade_retains_uncertain_admission_and_blocks_reconciliation_and_re
     assert_eq!(admit(&f, &input), Err(ConsumerFailure::Fenced));
     assert_eq!(recover(&f, 1, false), Err(ConsumerFailure::Fenced));
     assert_eq!(register(&f, &input), Err(ConsumerFailure::Fenced));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     assert_eq!(
         inspect_permission(&f, permission(&input)).unwrap().state,
         UploadState::Reserved

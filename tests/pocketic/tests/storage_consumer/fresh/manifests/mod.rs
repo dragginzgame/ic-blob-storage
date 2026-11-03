@@ -7,14 +7,17 @@ use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod cancellation;
 fn uploader_fixture() -> Fixture {
     let mut f = fixture();
-    let uploader = f.harness.pic.create_canister();
-    f.harness.pic.install_canister(
-        uploader,
-        consumer_wasm(),
-        blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
-            .unwrap(),
-        None,
-    );
+    let uploader = f.harness.pic.create_canister().unwrap();
+    f.harness
+        .pic
+        .install_canister(
+            uploader,
+            consumer_wasm(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
+                .unwrap(),
+            None,
+        )
+        .unwrap();
     f.uploader = uploader;
     f
 }
@@ -64,7 +67,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
         )
         .unwrap();
     assert_eq!(sent, Err(ConsumerFailure::Transport));
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let recovered: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
@@ -81,7 +84,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
         Some(Ok(intent.request.declaration))
     );
     assert!(!register(&f, &input).unwrap().published);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     // These remain labelled fixture controls, not a deployed-provider integration.
     f.expose(permission.request).unwrap();
     let published = register(&f, &input).unwrap();

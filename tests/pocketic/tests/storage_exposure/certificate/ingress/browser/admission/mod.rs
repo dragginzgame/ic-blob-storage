@@ -15,20 +15,27 @@ use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
 pub(super) fn install(f: &mut Fixture) {
-    let consumer = f.harness.pic.create_canister_with_settings(
-        Some(f.controller),
-        Some(CanisterSettings {
-            controllers: Some(vec![f.controller]),
-            ..CanisterSettings::default()
-        }),
-    );
-    f.harness.pic.install_canister(
-        consumer,
-        std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap(),
-        blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.uploader, f.service))
-            .unwrap(),
-        Some(f.controller),
-    );
+    let consumer = f
+        .harness
+        .pic
+        .create_canister_with_settings(
+            Some(f.controller),
+            Some(CanisterSettings {
+                controllers: Some(vec![f.controller]),
+                ..CanisterSettings::default()
+            }),
+        )
+        .unwrap();
+    f.harness
+        .pic
+        .install_canister(
+            consumer,
+            std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.uploader, f.service))
+                .unwrap(),
+            Some(f.controller),
+        )
+        .unwrap();
     f.tenant = consumer;
     f.enroll(None, true).unwrap();
 }

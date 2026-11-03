@@ -74,11 +74,16 @@ impl Trial {
         for (name, bytes) in [("uploader.pem", PEM), ("tenant.pem", OUTSIDER_PEM)] {
             std::fs::write(report.join(name), bytes).unwrap();
         }
-        std::fs::write(report.join("root.der"), f.harness.pic.root_key().unwrap()).unwrap();
+        std::fs::write(
+            report.join("root.der"),
+            f.harness.pic.root_key().unwrap().unwrap(),
+        )
+        .unwrap();
         let url = f
             .harness
             .pic
             .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+            .unwrap()
             .to_string();
         Self {
             f,

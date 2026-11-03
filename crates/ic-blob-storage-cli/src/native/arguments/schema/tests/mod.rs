@@ -94,9 +94,9 @@ fn typed_values_keep_canonical_spelling_and_command_specific_ceilings() {
     let original = publication();
     let matches = cli().try_get_matches_from(&original).unwrap();
     let (_, flags) = matches.subcommand().unwrap();
-    assert_eq!(*flags.get_one::<u128>("--namespace").unwrap(), 1);
+    assert_eq!(*flags.get_one::<u128>("namespace").unwrap(), 1);
     assert_eq!(
-        flags.get_one::<NonZeroU64>("--max-bytes").unwrap().get(),
+        flags.get_one::<NonZeroU64>("max_bytes").unwrap().get(),
         1_073_741_824
     );
     for (flag, invalid) in [
@@ -167,7 +167,6 @@ fn production_invocation_keeps_non_utf8_paths_native() {
     let matches = crate::native::arguments::invocation(&args)
         .unwrap()
         .unwrap();
-    let (name, flags) = matches.subcommand().unwrap();
-    let (_, options) = crate::native::arguments::Options::from_matches(name, flags).unwrap();
+    let (_, options) = matches.command.unwrap().into_online().unwrap();
     assert_eq!(options.identity.as_os_str(), path);
 }

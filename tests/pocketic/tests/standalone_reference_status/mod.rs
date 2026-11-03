@@ -55,7 +55,7 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
         )
         .unwrap();
     admitted.unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.reference_status(f.tenant, input),
         Err(ReferenceFailure::Unconfirmed)
@@ -150,15 +150,24 @@ fn standalone_reference_status_checks_exact_bindings_before_reporting_unconfirme
             .pic
             .query_call(f.service, f.tenant, "blob_reference_status", bytes)
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.reference_status(f.tenant, input),
         Err(ReferenceFailure::Unconfirmed)
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }

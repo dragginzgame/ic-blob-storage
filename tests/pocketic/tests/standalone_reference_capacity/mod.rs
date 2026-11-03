@@ -31,7 +31,7 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
         scope: f.scope(),
         root: [9; 32],
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let expected = ReferenceCapacityResponse {
         request,
         headroom: None,
@@ -87,9 +87,15 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
             .pic
             .query_call(f.service, f.tenant, REFERENCE_CAPACITY_METHOD, bytes)
             .unwrap_err();
-        assert_eq!(failure.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&failure).reject_code,
+            RejectCode::CanisterError
+        );
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
 }
 
 #[test]
@@ -118,16 +124,18 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
         headroom: None,
         fenced: false,
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(f.reference_capacity(f.tenant, request), Ok(expected));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
         .harness
         .pic
-        .update_blob_as(
+        .update_tenant_as(
             f.service,
             f.operator,
-            "blob_update_tenant",
             TenantUpdateRequest {
                 scope: request.scope,
                 expected: enrollment.enrollment,
@@ -140,7 +148,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
     assert_eq!(f.reference_capacity(f.tenant, request), Ok(expected));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.reference_capacity(f.tenant, request),
         Ok(ReferenceCapacityResponse {
@@ -149,5 +157,8 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
         })
     );
     assert_eq!(f.reference_capacity(f.operator, request), Err(F::Denied));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }

@@ -46,7 +46,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             .unwrap();
         let mut held = false;
         for _ in 0..40 {
-            f.harness.pic.tick();
+            f.harness.pic.tick().unwrap();
             let waiting: Result<bool, ConsumerFailure> = f
                 .harness
                 .pic
@@ -81,7 +81,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
         cancel(&f, 1).unwrap();
         revocation::withdraw(&f, Fault::None, 4096).unwrap();
         f.enroll(Some(f.tenant().unwrap()), false).unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         let resumed: Result<(), ConsumerFailure> = f
             .harness
             .pic
@@ -124,7 +124,7 @@ fn cancellation_during_preparation_acknowledgment_preserves_tombstones_and_expos
             )
             .unwrap();
         assert_eq!(saved, Ok(late));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
         finish_cancelled(&f, &input, permission, exposed);
     }
 }

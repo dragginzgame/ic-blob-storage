@@ -34,7 +34,7 @@ impl Fixture {
 fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_cancellation() {
     let f = Fixture::new();
     let scope = f.operator_scope();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
             f.local_status(actor, scope),
@@ -91,7 +91,10 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
         )
         .unwrap();
     assert_eq!(replicated, Ok(initial.clone()));
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     f.enroll(f.operator).unwrap();
     let permission = f.manifest().permission;
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
@@ -142,7 +145,7 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
     assert_eq!(f.local_status(f.operator, scope), Ok(released.clone()));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     released.uploads.fenced = true;
     released.funding.fenced = true;
     released.gateways.fenced = true;
@@ -152,5 +155,8 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
         f.local_status(f.controller, scope),
         Err(LocalStatusFailure::Denied)
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }

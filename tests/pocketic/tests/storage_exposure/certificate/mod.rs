@@ -32,7 +32,7 @@ fn configure(f: &Fixture, input: ExposureInput) {
         .unwrap();
 }
 fn refused(f: &Fixture, actor: Principal, root: &str) {
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let rejection = f
         .harness
         .pic
@@ -43,8 +43,11 @@ fn refused(f: &Fixture, actor: Principal, root: &str) {
             ic_platform::candid::contract::encode_one(root).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(rejection.reject_code, RejectCode::CanisterError);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(
+        crate::canister_rejection(&rejection).reject_code,
+        RejectCode::CanisterError
+    );
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 
 #[test]
@@ -66,7 +69,10 @@ fn certificate_ingress_derives_authority_without_host_fact_substitution() {
             ic_blob_storage_pocketic_tests::control_calls::encode_control_one(yes).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(rejection.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&rejection).reject_code,
+        RejectCode::CanisterError
+    );
     configure(&f, yes);
     refused(&f, f.uploader, &root); // Still unprepared.
     f.prepare(&declaration).unwrap();

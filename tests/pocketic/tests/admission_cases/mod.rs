@@ -227,7 +227,10 @@ fn unsupported_upgrade_preserves_manifest_even_when_outgoing_hook_is_skipped() {
             Some(f.controller),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.observe(p), prefix);
 
     let wasm = Fixture::wasm();
@@ -258,7 +261,10 @@ fn unsupported_upgrade_preserves_manifest_even_when_outgoing_hook_is_skipped() {
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
         )
         .unwrap_err();
-    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&error).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(f.observe(p), prefix);
     assert_eq!(f.observe(p).manifest, ManifestState::Bound);
 }

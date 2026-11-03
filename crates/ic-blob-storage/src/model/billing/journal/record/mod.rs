@@ -1,30 +1,22 @@
 //! Bounded v1 journal schemas and transitions; no storage or transport effects.
 use ic_platform::principal::ExternalPrincipal;
+pub(crate) mod progress;
 pub(crate) mod response;
 use super::credit::{FundingCreditConfirmation, FundingCreditError, FundingCreditReceipt};
 use super::renewal::{FundingBudgetRenewal, FundingRenewalError};
-use super::{
-    FundingIntent, FundingIntentError, FundingIntentState, FundingIntentView,
-    FundingTransportOutcome,
-};
+use super::{FundingIntent, FundingIntentError, FundingIntentState, FundingIntentView};
 use crate::model::billing::allocation::FundingAllocation;
 use crate::model::billing::allocation::FundingAllocationError;
 use crate::model::billing::allocation::FundingAllocationView;
 use crate::model::billing::allocation::record::FundingAllocationRecord;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+use progress::FundingProgressRecord;
 use response::FundingResponseRecord;
 use serde::Deserialize;
 use serde::Serialize;
 use std::num::NonZeroU128;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub(crate) enum FundingPhaseRecord {
-    Prepared,
-    Uncertain,
-    NotEnqueued,
-    Callback { refunded: u128 },
-}
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum FundingCreditRecord {
     Required,
@@ -48,8 +40,7 @@ pub(crate) struct FundingIntentRecord {
     offered: u128,
     method: FundingMethodRecord,
     target_balance: Option<u128>,
-    phase: FundingPhaseRecord,
-    response: FundingResponseRecord,
+    progress: FundingProgressRecord,
     credit: FundingCreditRecord,
     renewed_allocation: u128,
 }
@@ -65,14 +56,13 @@ impl FundingIntentRecord {
             offered: input.offered.get(),
             method: FundingMethodRecord::AccountTopUpV1,
             target_balance: input.target_balance.map(NonZeroU128::get),
-            phase: FundingPhaseRecord::Prepared,
-            response: FundingResponseRecord::Missing,
+            progress: FundingProgressRecord::Prepared,
             credit: FundingCreditRecord::Required,
             renewed_allocation: 0,
         }
     }
     pub(crate) fn view(self) -> Option<FundingIntentView> {
-        if self.version != 1 || !self.response.matches(self.phase) {
+        if self.version != 1 {
             return None;
         }
         let intent = FundingIntent {
@@ -87,15 +77,10 @@ impl FundingIntentRecord {
                 None => None,
             },
         };
-        let state = match self.phase {
-            FundingPhaseRecord::Prepared => FundingIntentState::Prepared,
-            FundingPhaseRecord::Uncertain => FundingIntentState::Uncertain,
-            FundingPhaseRecord::NotEnqueued => FundingIntentState::NotEnqueued,
-            FundingPhaseRecord::Callback { refunded } => {
-                FundingTransfer::unbounded_callback(intent.offered, refunded).ok()?;
-                FundingIntentState::Callback { refunded }
-            }
-        };
+        let state = self.progress.state();
+        if let FundingIntentState::Callback { refunded } = state {
+            FundingTransfer::unbounded_callback(intent.offered, refunded).ok()?;
+        }
         if let FundingCreditRecord::Confirmed {
             accepted,
             receipt_digest,
@@ -121,33 +106,23 @@ impl FundingIntentRecord {
         Some(FundingIntentView { intent, state })
     }
     pub(crate) fn attempted(mut self) -> Result<Self, FundingIntentError> {
-        if self.phase != FundingPhaseRecord::Prepared {
+        if self.progress != FundingProgressRecord::Prepared {
             return Err(FundingIntentError::AlreadyAttempted);
         }
-        self.phase = FundingPhaseRecord::Uncertain;
+        self.progress = FundingProgressRecord::Uncertain;
         Ok(self)
     }
     pub(crate) fn complete(
         mut self,
-        outcome: FundingTransportOutcome,
+        progress: FundingProgressRecord,
     ) -> Result<Self, FundingIntentError> {
-        let phase = match outcome {
-            FundingTransportOutcome::NotEnqueued => FundingPhaseRecord::NotEnqueued,
-            FundingTransportOutcome::Callback { refunded } => {
-                FundingTransfer::unbounded_callback(
-                    NonZeroU128::new(self.offered).expect("validated offer"),
-                    refunded,
-                )?;
-                FundingPhaseRecord::Callback { refunded }
-            }
-        };
-        match self.phase {
-            FundingPhaseRecord::Prepared => return Err(FundingIntentError::NotAttempted),
-            FundingPhaseRecord::Uncertain => {}
-            prior if prior == phase => return Ok(self),
-            _ => return Err(FundingIntentError::OutcomeConflict),
+        if let FundingProgressRecord::Callback { refunded, .. } = progress {
+            FundingTransfer::unbounded_callback(
+                NonZeroU128::new(self.offered).expect("validated offer"),
+                refunded,
+            )?;
         }
-        self.phase = phase;
+        self.progress = self.progress.complete(progress)?;
         Ok(self)
     }
     pub(crate) fn transfer(self) -> Option<FundingTransfer> {
@@ -156,12 +131,14 @@ impl FundingIntentRecord {
     /// Matching successful callback, independent of the reported balance amount.
     /// A separately confirmed credit takes precedence so accounting is disjoint.
     pub(crate) fn acknowledged(self) -> Option<NonZeroU128> {
-        if self.credit != FundingCreditRecord::Required
-            || !matches!(self.response, FundingResponseRecord::Balance { .. })
-        {
+        if self.credit != FundingCreditRecord::Required {
             return None;
         }
-        let FundingPhaseRecord::Callback { refunded } = self.phase else {
+        let FundingProgressRecord::Callback {
+            refunded,
+            response: Some(FundingResponseRecord::Balance { .. }),
+        } = self.progress
+        else {
             return None;
         };
         self.offered
@@ -232,20 +209,8 @@ impl FundingIntentRecord {
         self.renewed_allocation = input.additional.get();
         Ok(self)
     }
-    pub(crate) const fn response(self) -> FundingResponseRecord {
-        self.response
-    }
-    pub(crate) fn with_response(
-        mut self,
-        response: FundingResponseRecord,
-    ) -> Result<Self, FundingIntentError> {
-        if !response.matches(self.phase)
-            || (self.response != FundingResponseRecord::Missing && self.response != response)
-        {
-            return Err(FundingIntentError::OutcomeConflict);
-        }
-        self.response = response;
-        Ok(self)
+    pub(crate) const fn progress(self) -> FundingProgressRecord {
+        self.progress
     }
 }
 
@@ -372,7 +337,10 @@ macro_rules! codec {
         );
     };
 }
-codec!(FundingIntentRecord, b"BLFUNIN1", 1024);
+codec!(FundingIntentRecord, b"BLFUPR01", 1024);
 codec!(FundingJournalRecord, b"BLFUNJR1", 1024);
 
 codec!(FundingAccountingRecord, b"BLFUNAC1", 1024);
+
+#[cfg(test)]
+mod tests;

@@ -216,7 +216,12 @@ fn restoration_refuses_grants_moved_past_original_offer_without_repair() {
     let original = FundingIntentRecord::new(first)
         .attempted()
         .unwrap()
-        .complete(FundingTransportOutcome::Callback { refunded: 0 })
+        .complete(
+            crate::model::billing::journal::record::progress::FundingProgressRecord::Callback {
+                refunded: 0,
+                response: None,
+            },
+        )
         .unwrap()
         .confirm_credit(receipt(first, 900, 1))
         .unwrap();

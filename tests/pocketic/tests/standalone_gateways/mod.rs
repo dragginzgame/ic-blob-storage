@@ -30,7 +30,7 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
             )
             .unwrap()
     };
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(call(actor, input), Err(Error::Denied));
     }
@@ -69,7 +69,10 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
             Err(Error::Invalid)
         );
     }
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     let status = f.local_status(f.operator, input.scope).unwrap();
     for _ in 0..2 {
         assert_eq!(
@@ -83,10 +86,13 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
     }
     // No member or pending sync exists to remove. The retired read-session
     // generation no longer makes an otherwise unchanged decision write state.
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &before);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &before,
+    );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service);
+    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(call(f.operator, input), Err(Error::Fenced));
     assert!(
         f.local_status(f.operator, input.scope)
@@ -94,5 +100,8 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
             .gateways
             .fenced
     );
-    unchanged(&f.harness.pic.get_stable_memory(f.service), &restored);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &restored,
+    );
 }

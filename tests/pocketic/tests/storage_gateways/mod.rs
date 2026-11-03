@@ -30,7 +30,7 @@ fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_ca
         Err(Failure::Invalid)
     );
     let current = f.gateway_begin();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.gateways(
             f.operator,
@@ -46,7 +46,7 @@ fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_ca
         f.cancel_gateway_sync(f.operator, old),
         Err(GatewaySyncFailure::Conflict)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.gateways(
         f.operator,
         Action::Apply {
@@ -97,7 +97,10 @@ impl Fixture {
                 ic_blob_storage_pocketic_tests::control_calls::encode_control_one(request).unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
     }
     fn revocation(&self, gateway: Principal) -> GatewayRevocationRequest {
         GatewayRevocationRequest {
@@ -141,7 +144,10 @@ impl Fixture {
                 ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
     }
     fn gateway_scope(&self) -> Scope {
         Scope {
@@ -203,7 +209,10 @@ impl Fixture {
                 .unwrap(),
             )
             .unwrap_err();
-        assert_eq!(error.reject_code, RejectCode::CanisterError);
+        assert_eq!(
+            crate::canister_rejection(&error).reject_code,
+            RejectCode::CanisterError
+        );
     }
 }
 #[test]
@@ -216,7 +225,7 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
     let source = f.gateway_scope();
     f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let old = f.gateway_begin();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     assert_eq!(
         f.gateways(
             f.operator,
@@ -253,7 +262,7 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
         ),
         Err(Failure::Capacity)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.revoke_gateway(f.operator, f.other).unwrap();
     assert_eq!(f.gateway_view().members, []);
     assert_eq!(
@@ -358,7 +367,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
     f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
     let token = f.gateway_begin();
     let before = f.gateway_view();
-    let bytes = f.harness.pic.get_stable_memory(f.service);
+    let bytes = f.harness.pic.get_stable_memory(f.service).unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
             f.revoke_gateway(actor, f.other),
@@ -406,7 +415,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             .unwrap();
         assert_eq!(view, Err(Failure::Binding));
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), bytes);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), bytes);
     f.harness
         .pic
         .upgrade_canister(
@@ -451,7 +460,7 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
     let token = f.gateway_begin();
     let source = f.gateway_scope();
     let before = f.gateway_view();
-    let stable = f.harness.pic.get_stable_memory(f.service);
+    let stable = f.harness.pic.get_stable_memory(f.service).unwrap();
     let good = ic_platform::candid::contract::encode_one(vec![f.tenant]).unwrap();
     let mut trailing = good.clone();
     trailing.push(0);
@@ -476,7 +485,7 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
             Err(failure)
         );
         assert_eq!(f.gateway_view(), before);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service), stable);
+        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), stable);
     }
     assert_eq!(
         f.gateways(

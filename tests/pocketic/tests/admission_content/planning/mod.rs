@@ -81,7 +81,10 @@ fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observa
                 .pic
                 .query_call(f.service, f.project, method, bytes)
                 .unwrap_err();
-            assert_eq!(error.reject_code, RejectCode::CanisterError);
+            assert_eq!(
+                crate::canister_rejection(&error).reject_code,
+                RejectCode::CanisterError
+            );
         }
         assert_eq!(
             f.harness
@@ -172,7 +175,10 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
         .pic
         .query_call(f.service, f.project, "blob_upload_capacity", vec![0; 4097])
         .unwrap_err();
-    assert_eq!(oversized.reject_code, RejectCode::CanisterError);
+    assert_eq!(
+        crate::canister_rejection(&oversized).reject_code,
+        RejectCode::CanisterError
+    );
     assert_eq!(capacity(&f, f.project, input), Ok(initial));
 }
 

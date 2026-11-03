@@ -49,7 +49,7 @@ pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// memory manager or export lifecycle hooks. IC Storage owns stable collections;
 /// constructors require this runtime's exclusive allocation leases. Store and
 /// workflow type parameters name the backing memory, not `RuntimeMemory<Backing>`.
-/// Hosts should use this re-export or align a direct Memory dependency with
+/// Hosts should use this re-export or align a direct Storage dependency with
 /// this crate's selected release line. Runtime construction requires
 /// [`ic_storage::MemoryBacking`]; custom backing aliases share a retained identity.
 /// Every component lease must drop before the host recreates its runtime.

@@ -30,7 +30,7 @@ fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest 
     input.permission.upload.object = id;
     let config = json!({
         "url": trial.url, "service": trial.f.service.to_text(),
-        "rootKey": trial.f.harness.pic.root_key().unwrap(), "project": super::client::PROJECT,
+        "rootKey": trial.f.harness.pic.root_key().unwrap().unwrap(), "project": super::client::PROJECT,
         "identitySeed": seed, "otherUploaderSeed": if seed == 42 { 45 } else { 42 },
         "bodyByte": byte, "providerRootCertificate": trial.report.join("gateway-ca.pem"),
     });

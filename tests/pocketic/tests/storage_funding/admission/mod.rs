@@ -71,7 +71,7 @@ fn guarded_first_attempt_preserves_unknowns_and_exact_reservation_through_restor
     assert_unknowns(&missing.blockers);
     assert!(missing.blockers.contains(&B::IntentMissing));
     f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let preview = f.inspect_attempt(f.operator, intent).unwrap();
     assert_eq!(preview.intent, intent);
     assert_unknowns(&preview.blockers);
@@ -131,7 +131,7 @@ fn guarded_first_attempt_preserves_unknowns_and_exact_reservation_through_restor
             Err(Failure::Conflict)
         );
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     f.harness
         .pic
         .upgrade_canister(
@@ -176,7 +176,7 @@ fn guarded_attempt_does_not_retry_uncertain_or_terminal_intents_or_hide_older_ac
     );
     let current = f.funding_intent(2, 800);
     f.funding(f.operator, current, Action::Prepare).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let held = f.inspect_attempt(f.operator, current).unwrap();
     assert_unknowns(&held.blockers);
     assert!(held.blockers.contains(&B::JournalUncredited));
@@ -185,7 +185,7 @@ fn guarded_attempt_does_not_retry_uncertain_or_terminal_intents_or_hide_older_ac
         f.guarded_attempt(f.operator, current),
         Ok(Attempt::Blocked(held.blockers))
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
 }
 fn assert_unknowns(blockers: &[B]) {
     for blocker in [
@@ -201,7 +201,7 @@ fn assert_unknowns(blockers: &[B]) {
 fn guarded_funding_keeps_unknown_host_evidence_and_rejected_calls_leave_no_reservation() {
     let f = Fixture::new();
     let intent = f.funding_intent(9, 900);
-    let before = f.harness.pic.get_stable_memory(f.service);
+    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
     let preview = f.inspect_preparation(f.operator, intent).unwrap();
     assert_eq!(preview.intent, intent);
     assert_unknowns(&preview.blockers);
@@ -242,7 +242,7 @@ fn guarded_funding_keeps_unknown_host_evidence_and_rejected_calls_leave_no_reser
             Err(Failure::Binding)
         );
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service), before);
+    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
     // A previously returned preview has no role in the update's next assessment.
     f.funding(f.operator, intent, Action::Prepare).unwrap();
     let Preparation::Blocked(blocked) = f.guarded_prepare(f.operator, intent).unwrap() else {

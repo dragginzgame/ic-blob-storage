@@ -5,8 +5,9 @@
 # Local preparation and PocketIC tools
 
 These examples run from the repository root. Offline preparation reads local
-files. Fixture commands attach to an already-running PocketIC instance with
-explicit simulated callers; they do not provide production authentication.
+files. PocketIC qualification uses typed calls with explicit simulated callers; it does
+not provide production authentication. The six private fixture CLI frontends
+have been retired; use the maintained native CLI for supported operator commands.
 See [dependency setup](dependencies.md) for the local server.
 
 | Task | Tool |
@@ -14,12 +15,7 @@ See [dependency setup](dependencies.md) for the local server.
 | Build a file declaration or inventory | `prepare_upload` example |
 | Save exactly the bytes that were hashed | `prepare_upload --snapshot` |
 | Check downloaded bytes against a trusted claim | `verify_download` example |
-| Observe inventory and service capacity | `blob-fixture-inventory` |
 | Prepare and inspect exact reference intent | Native `reference-inputs`, `reference-receipt` |
-| Inspect local state and blockers | `blob-fixture-status` |
-| Preview or request a controlled balance read | `blob-fixture-refresh` |
-| Preview or request gateway membership sync | `blob-fixture-sync` |
-| Preview funding or recover an exact outcome | `blob-fixture-funding-preview`, `blob-fixture-funding-lookup` |
 
 Fixture outcomes are local test evidence. Live provider behavior and operational
 recovery remain separately qualified in the [acceptance plan](acceptance-plan.md).
@@ -174,39 +170,10 @@ the shared `blob_lookup_content` and `blob_reference_capacity` queries. Discover
 returns complete original identities and local lifecycle, with exact request echoes
 and restore fencing even for absence. Reference capacity binds
 the tenant and root, preserves cleanup receipt reservations and reports its own
-restore fence. The unpublished
-`blob-fixture-inventory` command connects a prepared report to these queries on an
-already-running local admission probe:
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-pocketic-tests \
-  --bin blob-fixture-inventory -- inspect \
-  --server 127.0.0.1:PORT --instance INSTANCE --canister SERVICE \
-  --caller TENANT --tenant TENANT --namespace NAMESPACE \
-  --inventory prepared-inventory.json
-```
-
-Use the output of `prepare_upload --inventory`, or a snapshot's `inventory.json`.
-The client requires explicit local targets and a simulated caller equal to the
-tenant. It bounds input to 8 MiB, 4,096 assets, 2,048 distinct blobs and 8,192 total
-distinct leaves, with at most 16 headers / 4 KiB framed metadata per object. It
-checks manifest/root consistency, mappings and recomputed totals before any query;
-it never opens source/body paths. There is one outstanding query at a time, at most
-one capacity query and two queries per distinct root, with bounded reply decoding.
-
-The JSON report marks a restored service as blocked even with spare quota,
-including a fence observed by the later reference-capacity query. It
-distinguishes content not visible to this tenant, unfinished
-operations to recover, live blobs requiring new references, and retired roots.
-It budgets one fresh reference per asset for existing live blobs. New-object
-reference capacity remains unassessed. Not-visible content is not proof of global
-absence or upload eligibility. Aggregate new-byte/object/leaf demand and concurrent
-upload headroom are separate: a sequential batch need not fit every upload at once.
-Observations are sequential and can become stale; no root, quota or reference is
-reserved, and file bytes are not reverified. Exit 0 means a complete observation
-with no observed blocker, 4 reports blockers, 2 rejects arguments, and 3 reports
-input/query/reply failures without partial results. Production authentication,
-provider transport and operation persistence remain outstanding.
+restore fence. Typed qualification in
+[the inventory scenario](../tests/pocketic/tests/admission_content/planning/inventory/mod.rs)
+checks pending, live and retired content, reference headroom and tenant isolation.
+These observations reserve no capacity and never authorize a retry.
 
 ## Prepare and inspect reference intent
 
@@ -271,121 +238,48 @@ See the
 
 ## Inspect a running PocketIC fixture
 
-The separate unpublished `blob-fixture-status` client attaches to an existing local PocketIC
-instance. It requires a literal loopback address, instance ID, canister and
-simulated caller; there are no inferred identities or targets. For example, with
-these variables set from your running fixture harness:
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-status -- \
-  status --server "$FIXTURE_SERVER" --instance "$FIXTURE_INSTANCE" \
-  --canister "$FIXTURE_CANISTER" --caller "$FIXTURE_OPERATOR" \
-  --kind authority --namespace 1
-```
-
-For the funding fixture use `--kind funding --peer "$FIXTURE_PEER"` instead of
-the authority kind/namespace pair. `status` emits JSON and exits 0 on a valid read;
-`check` emits the same report and exits 4 when reported blockers exist. Neither
-assesses overall service qualification. Exit 2 means invalid arguments; exit 3
-means transport, query, permission, decoding or binding failure. Unknown amounts
-are `null`; full-width amounts and counters are decimal strings. The client calls
-only the `operator_status` query, leaves the instance running and never falls back
-to an update. It supplies no production authentication, discovery or provider access.
+Use the typed [operator scenarios](../tests/pocketic/tests/operator.rs).
+They inspect the caller-owned instance directly, preserve unknown economic fields,
+and compare durable journals before and after passive queries. There is no separate
+fixture command grammar, report format or attachment client.
 
 ## Preview or refresh fixture balances
 
-The separate `blob-fixture-refresh` tool previews or requests one controlled-source
-balance read. Take the current revision and next lifetime attempt number from the
-fixture status, and explicitly supply the configured source and account:
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-refresh -- \
-  dry-run --server "$FIXTURE_SERVER" --instance "$FIXTURE_INSTANCE" \
-  --canister "$FIXTURE_CANISTER" --caller "$FIXTURE_OPERATOR" \
-  --kind authority --namespace 1 --source "$FIXTURE_SOURCE" \
-  --account "$FIXTURE_ACCOUNT" --revision "$FIXTURE_REVISION" --sequence "$FIXTURE_NEXT_ATTEMPT"
-```
-
-Replace `dry-run` with `refresh` to request the local read. Preview grants no future
-admission: the update checks the same bindings, revision, next sequence, capacity,
-pending work and restore fence before persisting intent. Repeating a consumed
-request cannot dispatch again. Both commands leave the existing instance running.
-Refresh may advance simulator rounds; it attaches no provider cycles and never funds.
-
-JSON separates `action` from `post_status`. Exit 0 means eligible preview or completed
-refresh, 2 invalid arguments, 5 a typed operation failure, 6 unknown/uncertain outcome,
-and 7 completed refresh with failed post-status. A typed failed observation may have
-consumed its attempt; inspect status. No outcome triggers an automatic retry or a new
-sequence. Failed/malformed update acknowledgements remain uncertain even if the
-subsequent status read succeeds. Dry-run only queries `preview_balance_refresh`;
-the existing status/check tool remains query-only. These are local test transports,
-not production credentials or evidence of deployed Caffeine behavior.
+[Balance scenarios](../tests/pocketic/tests/operator_balance/mod.rs) and their
+[preview/refresh cases](../tests/pocketic/tests/operator_balance/refresh/mod.rs)
+keep query-only previews separate from a single explicit update. Stale revisions,
+consumed sequences, pending reads and restoration fences refuse before dispatch.
+Malformed acknowledgement never proves no effect; later diagnosis cannot erase it.
 
 ## Synchronize fixture gateways
 
-Gateway synchronization uses `--bin blob-fixture-sync -- dry-run` (or `sync`) with
-the same explicit target flags, `--source`, `--revision` and `--sequence`, and no
-`--account`. Read `sync_source`, `sync_revision` and `last_sync` from status; the
-requested sequence is `last_sync + 1`. Sync revisions begin at 0. A null revision
-means exhausted admission, not revision zero. Each revocation invalidates previous
-previews, including when the member was already absent. Only a later explicit sync
-may re-add it. Both action tools share the JSON/exit behavior described above.
-The local reentrant fixture assigns its source canister the operator role; the CLI
-must name that simulated caller explicitly. This is not a production role binding.
+[Gateway sync scenarios](../tests/pocketic/tests/operator_sync/mod.rs) use explicit
+source, namespace, caller, revision and sequence. Held replies cannot override
+revocation; overlap cannot dispatch another request. Restoration retains fences
+and pending evidence. Each preview remains a query, without update fallback.
 
 ## Preview fixture funding
 
-Funding admission has a passive preview:
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-funding-preview -- \
-  dry-run --server "$FIXTURE_SERVER" --instance "$FIXTURE_INSTANCE" \
-  --canister "$FIXTURE_SENDER" --caller "$FIXTURE_DRIVER" \
-  --kind funding --peer "$FIXTURE_RECEIVER" --id 1 --amount 1000000 \
-  --revision "$FIXTURE_BUDGET_REVISION"
-```
-
-Read `budget.revision` from funding status for `FIXTURE_BUDGET_REVISION` (initially
-0). It changes on intent admission and completion, including full refunds. The
-preview checks that revision, exact identity, protocol amount limit and full
-amount without reserving or transferring cycles.
-Exit 4 means a valid blocked preview; 2 means invalid arguments and 3 a read,
-permission or binding failure. Exit 0 would mean unblocked observations, never
-effect authority. The current fixture always reports missing funding prerequisites:
-gross cycles are not authoritative spendability and transport acceptance is not
-provider credit. Existing identities remain used even after full refunds. This
-command cannot invoke the raw transfer experiment, override missing accounting
-with flags or fall back to an update.
+[Funding preview scenarios](../tests/pocketic/tests/operator_funding_preview/mod.rs)
+inspect the exact identity, full amount and current attachment-budget revision.
+They reserve nothing and never transfer cycles. Gross balance cannot supply
+spendability; transport acceptance cannot supply provider credit. Typed blockers
+remain distinct from caller, binding and invalid-amount failures.
 
 ## Recover an exact fixture funding outcome
 
-Use `blob-fixture-funding-lookup` to recover the retained result of an exact raw
-experiment request after losing its ingress reply. For an original request with
-ID 1, offered 1000000, accept 400000, reply InternalError and no callback trap:
-
-```sh
-cargo run --offline --locked -p ic-blob-storage-pocketic-tests --bin blob-fixture-funding-lookup -- \
-  lookup --server "$FIXTURE_SERVER" --instance "$FIXTURE_INSTANCE" \
-  --canister "$FIXTURE_SENDER" --caller "$FIXTURE_DRIVER" \
-  --kind funding --peer "$FIXTURE_RECEIVER" --id 1 --amount 1000000 \
-  --accept 400000 --reply InternalError --trap-callback false
-```
-
-Every original input is required. This command queries `lookup_funding` only.
-Exit 0 means an exact retained transport observation; exit 4 means absent or
-pending evidence. Exit 2 is invalid arguments and exit 3 a failed, denied or
-conflicting lookup. None is a retry permit or provider credit. `Absent` means
-missing from this journal, including an old restored backup; `Pending` also covers
-callback rollback. Restored owners remain fenced even when an older journal omits
-a paid operation. Lookups do not call the peer, reload stable memory, consume an
-identity or change accounting. These are local PocketIC tools, not payment clients.
+[Funding lookup scenarios](../tests/pocketic/tests/operator_funding_lookup/mod.rs)
+query the complete original request after a lost reply. Absent means missing from
+this journal, including an old backup; pending includes callback rollback. Neither
+permits another transfer. Restored owners stay fenced and conflicting requests
+cannot retrieve an earlier operation's result.
 
 ## Fixture funding accounting
 
 The funding fixture requires `(peer, driver, FundingBudgetInput { allocated,
 reserve, operating_reserve, other_liabilities })` at installation. Its positive
 `reserve` limits transfer attachments;
-status and preview label this `budget.scope = "local_attachment_budget"`. Available
+the typed status and preview expose this local attachment budget. Available
 allocation excludes accepted cycles and full unresolved attachments. Callback
 refunds and proven unsent offers are reported separately. Incoming receipts or
 added gross cycles never increase it. Separately, the transfer guard uses current

@@ -2,7 +2,6 @@
 
 use std::{
     io::BufReader,
-    path::PathBuf,
     process::{ChildStdout, Output},
     time::Duration,
 };
@@ -42,17 +41,7 @@ pub(super) fn wait_with_output(
 #[cfg(test)]
 mod tests;
 
-pub(super) fn fixture_path(variable: &str) -> PathBuf {
-    let path = PathBuf::from(
-        std::env::var_os(variable).expect("run make test-pocketic to provision fixture paths"),
-    );
-    assert!(
-        path.is_file(),
-        "fixture input does not exist: {}",
-        path.display()
-    );
-    path
-}
+pub(super) use ic_blob_storage_pocketic_tests::installation::fixture_path;
 
 pub(super) struct Harness {
     // Rust drops fields in declaration order: instance before its owned server.

@@ -1,4 +1,4 @@
-//! Shared threshold diagnosis with real status/CLI queries and unknown spendability.
+//! Shared threshold diagnosis with real status queries and unknown spendability.
 use super::*;
 use blob_test_protocol::{
     billing::{BillingLimitsInput, FundingNeedView},
@@ -62,15 +62,9 @@ fn threshold_shortfall_and_sufficient_balance_both_keep_spendability_unknown() {
     )));
     assert_eq!(status.available_funding_cycles, None);
     let before = f.journals();
-    let mut args = f.args(f.authority, f.driver, "authority", "--namespace", "1");
-    args[0] = "check".into();
-    let (code, json) = command(&args);
-    assert_eq!(code, 4);
-    assert_eq!(json["status"]["billing"]["funding_need"]["cycles"], "100");
-    assert_eq!(
-        json["status"]["billing"]["limits"]["reserve"],
-        u128::MAX.to_string()
-    );
+    let diagnosed = f.inspect_balance();
+    assert_eq!(diagnosed.billing.funding_need, FundingNeedView::TopUp(100));
+    assert_eq!(diagnosed.billing.limits.unwrap().reserve, u128::MAX);
     assert!(f.journals() == before, "diagnosis cannot refresh or fund");
     f.configure_limits(100, 200);
     let status = f.balance_status();
@@ -84,8 +78,8 @@ fn threshold_shortfall_and_sufficient_balance_both_keep_spendability_unknown() {
     }
     f.configure_limits(u128::MAX, u128::MAX);
     assert_eq!(
-        f.balance_cli()["status"]["billing"]["funding_need"]["cycles"],
-        (u128::MAX - 100).to_string()
+        f.inspect_balance().billing.funding_need,
+        FundingNeedView::TopUp(u128::MAX - 100)
     );
     assert_eq!(f.balance_source_status().requests, 1);
 }
@@ -118,15 +112,15 @@ fn malformed_unavailable_and_expired_reports_remain_distinct_under_configured_li
         f.balance_status().billing.funding_need,
         FundingNeedView::NotNeeded
     );
-    f.harness.pic.advance_time(Duration::from_secs(31));
-    f.harness.pic.tick();
+    f.harness.pic.advance_time(Duration::from_secs(31)).unwrap();
+    f.harness.pic.tick().unwrap();
     assert_eq!(
         f.balance_status().billing.funding_need,
         FundingNeedView::BalanceUnavailable
     );
     assert_eq!(
-        f.balance_cli()["status"]["balance_observation"]["usability"],
-        "Expired"
+        f.inspect_balance().balance_observation.usability,
+        BalanceUsability::Expired
     );
 }
 
@@ -167,7 +161,7 @@ fn limits_do_not_follow_a_new_scope_revision_and_restore_cannot_clear_blockers()
         f.configure_limits_as(f.driver, f.limits(10, 50)),
         Err(BalanceFailure::Fenced)
     );
-    f.balance_cli();
+    f.inspect_balance();
 }
 
 #[test]

@@ -1,7 +1,9 @@
-mod schema;
+pub(super) mod schema;
 use super::Failure;
+use clap::Parser;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_platform::Principal;
+use schema::{Cli, Invocation};
 use std::path::PathBuf;
 use url::{Host, Url};
 
@@ -60,223 +62,343 @@ pub(super) enum Command {
     },
 }
 
-/// Retrieve a value already admitted by Clap; no reparsing or default substitution.
-pub(super) fn value<T: Clone + Send + Sync + 'static>(flags: &clap::ArgMatches, name: &str) -> T {
-    flags
-        .get_one::<T>(name)
-        .expect("required typed CLI argument")
-        .clone()
-}
-
 impl Options {
     #[cfg(test)]
     pub fn parse(args: &[String]) -> Result<(Command, Self), Failure> {
-        let matches = parse(args)?;
-        let (command, flags) = matches.subcommand().ok_or(Failure::Arguments)?;
-        Self::from_matches(command, flags)
+        parse(args)?
+            .command
+            .ok_or(Failure::Arguments)?
+            .into_online()
     }
-    pub fn from_matches(
-        command: &str,
-        flags: &clap::ArgMatches,
-    ) -> Result<(Command, Self), Failure> {
-        let network = value(flags, "--network");
-        let url = value(flags, "--url");
-        let root_key = flags.get_one::<PathBuf>("--root-key").cloned();
-        validate_url(&url, network, root_key.is_some())?;
-        let service = value(flags, "--service");
-        let namespace = value(flags, "--namespace");
-        let command = parse_command(command, service, namespace, network, flags)?;
-        let actor = value(
-            flags,
-            if flags.try_contains_id("--operator").unwrap_or(false) {
-                "--operator"
-            } else {
-                "--actor"
-            },
-        );
+}
+impl schema::Connection {
+    fn finish(self, actor: Principal, command: Command) -> Result<(Command, Options), Failure> {
+        let network = self.network.as_str();
+        validate_url(&self.url, network, self.root_key.is_some())?;
         Ok((
             command,
-            Self {
+            Options {
                 network,
-                url,
-                root_key,
+                url: self.url,
+                root_key: self.root_key,
                 actor,
-                identity: value(flags, "--identity"),
+                identity: self.identity,
             },
         ))
     }
 }
-
-fn parse_command(
-    command: &str,
-    service: Principal,
-    namespace: u128,
-    network: &str,
-    flags: &clap::ArgMatches,
-) -> Result<Command, Failure> {
-    match command {
-        "metrics" => Ok(Command::Metrics { service, namespace }),
-        "publish-session" => {
-            let gateway = value(flags, "--gateway");
-            validate_url(&gateway, network, network == "local")?;
-            Ok(Command::PublishSession(super::publish_session::Input {
-                host_release: host_release()?,
-                source_session: flags.get_one::<PathBuf>("--source-session").cloned(),
-                browser_selection: flags.get_one::<PathBuf>("--browser-selection").cloned(),
-                operator_identity: value(flags, "--operator-identity"),
-                prepare: prepare_input(service, namespace, 0, flags),
-                gateway,
-                max_steps: value(flags, "--max-steps"),
-            }))
-        }
-        "publish-check" => Ok(Command::PublishCheck(check_input(
-            service, namespace, flags,
-        ))),
-        "publish-map" | "publish-file-status" => {
-            let selection = if command == "publish-file-status" {
-                super::publish_map::Selection::File(value(flags, "--file-index"))
-            } else {
-                super::publish_map::Selection::Batch
-            };
-            let gateway = value(flags, "--gateway");
-            validate_url(&gateway, network, network == "local")?;
-            Ok(Command::PublishMap(super::publish_map::Input {
-                host_release: host_release()?,
-                selection,
-                operator_identity: value(flags, "--operator-identity"),
-                checks: check_input(service, namespace, flags),
-                gateway,
-            }))
-        }
-        "publish-prepare" | "publish-prepare-resume" | "publish-prepare-batch" => {
-            let index = if command == "publish-prepare-batch" {
-                0
-            } else {
-                value(flags, "--file-index")
-            };
-            let mut input = prepare_input(service, namespace, index, flags);
-            if command == "publish-prepare-resume" {
-                input.source = Some(value(flags, "--source-run"));
-            }
-            Ok(if command == "publish-prepare-batch" {
-                Command::PublishPrepareBatch(input)
-            } else {
-                Command::PublishPrepare(input)
-            })
-        }
-        _ => scoped_command(command, service, namespace, network, flags),
+impl<T: clap::Args> schema::Tenant<T> {
+    fn convert(
+        self,
+        build: impl FnOnce(Principal, u128, &'static str, T) -> Result<Command, Failure>,
+    ) -> Result<(Command, Options), Failure> {
+        let command = build(
+            self.connection.service,
+            self.connection.namespace,
+            self.connection.network.as_str(),
+            self.input,
+        )?;
+        self.connection.finish(self.actor, command)
     }
 }
-
-fn scoped_command(
-    command: &str,
-    service: Principal,
-    namespace: u128,
-    network: &str,
-    flags: &clap::ArgMatches,
-) -> Result<Command, Failure> {
-    Ok(
-        if let Some(kind) = super::upload_setup::Kind::parse(command) {
-            Command::UploadSetup(super::upload_setup::Input {
-                kind,
-                service,
-                namespace,
-                request: value(flags, "--request"),
-                directory: if kind.mutation() {
-                    Some(value(flags, "--run-dir"))
-                } else {
-                    None
+impl<T: clap::Args> schema::Operator<T> {
+    fn convert(
+        self,
+        build: impl FnOnce(Principal, u128, T) -> Command,
+    ) -> Result<(Command, Options), Failure> {
+        let command = build(
+            self.connection.service,
+            self.connection.namespace,
+            self.input,
+        );
+        self.connection.finish(self.authority, command)
+    }
+}
+impl<T: clap::Args> schema::Operator<schema::Payer<T>> {
+    fn paid(
+        self,
+        build: impl FnOnce(OperatorScope, T) -> Command,
+    ) -> Result<(Command, Options), Failure> {
+        self.convert(|service, namespace, input| {
+            build(
+                OperatorScope {
+                    service,
+                    namespace,
+                    cashier: input.cashier,
+                    payment_account: input.payment_account,
                 },
-            })
-        } else if let Some(kind) = super::references::Kind::parse(command) {
-            Command::Reference(super::references::Input {
-                service,
-                namespace,
-                request: value(flags, "--request"),
-                kind,
-            })
-        } else {
-            match command {
-                "submit-reference" => Command::SubmitReference(super::submit_reference::Input {
+                input.input,
+            )
+        })
+    }
+}
+impl Invocation {
+    #[expect(
+        clippy::too_many_lines,
+        reason = "One exhaustive typed command projection keeps the grammar-to-workflow mapping auditable; trust policy remains in the shared scoped conversions"
+    )]
+    pub fn into_online(self) -> Result<(Command, Options), Failure> {
+        use schema::Invocation as I;
+        match self {
+            I::Metrics(args) => args.convert(|service, namespace, _| {
+                Command::Metrics { service, namespace }
+            }),
+            I::AdmitUpload(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::UploadSetup(super::upload_setup::Input {
+                    kind: super::upload_setup::Kind::Admit,
                     service,
                     namespace,
-                    request: value(flags, "--request"),
-                    directory: value(flags, "--run-dir"),
-                }),
-                "upload-history" => Command::UploadHistory(super::upload_history::Input {
+                    request: input.request,
+                    directory: Some(input.run_dir),
+                }))
+            }),
+            I::PrepareUpload(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::UploadSetup(super::upload_setup::Input {
+                    kind: super::upload_setup::Kind::Prepare,
                     service,
                     namespace,
-                    filter: value(flags, "--filter"),
-                    cursor: flags.get_one::<PathBuf>("--cursor").cloned(),
-                }),
-                "certificate-assessment" => {
-                    Command::CertificateAssessment(super::certificate_assessment::Input {
-                        service,
-                        namespace,
-                        permission: value(flags, "--permission"),
-                    })
-                }
-                "download" => {
-                    let gateway = value(flags, "--gateway");
-                    validate_url(&gateway, network, network == "local")?;
-                    Command::Download(super::download::Input {
-                        service,
-                        namespace,
-                        request: value(flags, "--request"),
-                        project: value(flags, "--project"),
-                        gateway,
-                        directory: value(flags, "--run-dir"),
-                        max_bytes: value(flags, "--max-bytes"),
-                    })
-                }
-                "verify-upload" => Command::VerifyUpload {
+                    request: input.request,
+                    directory: Some(input.run_dir),
+                }))
+            }),
+            I::RevokeUpload(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::UploadSetup(super::upload_setup::Input {
+                    kind: super::upload_setup::Kind::Revoke,
                     service,
                     namespace,
-                    permission: value(flags, "--permission"),
-                    body: value(flags, "--body"),
-                    max_bytes: value(flags, "--max-bytes"),
-                },
-                _ => operator_command(command, service, namespace, flags)?,
-            }
-        },
-    )
+                    request: input.request,
+                    directory: Some(input.run_dir),
+                }))
+            }),
+            I::UploadPermission(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::UploadSetup(super::upload_setup::Input {
+                    kind: super::upload_setup::Kind::Permission,
+                    service,
+                    namespace,
+                    request: input.request,
+                    directory: None,
+                }))
+            }),
+            I::UploadManifest(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::UploadSetup(super::upload_setup::Input {
+                    kind: super::upload_setup::Kind::Manifest,
+                    service,
+                    namespace,
+                    request: input.request,
+                    directory: None,
+                }))
+            }),
+            I::ReferenceReceipt(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::Reference(super::references::Input {
+                    service,
+                    namespace,
+                    kind: super::references::Kind::Receipt,
+                    request: input.request,
+                }))
+            }),
+            I::ReferenceStatus(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::Reference(super::references::Input {
+                    service,
+                    namespace,
+                    kind: super::references::Kind::Status,
+                    request: input.request,
+                }))
+            }),
+            I::SubmitReference(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::SubmitReference(super::submit_reference::Input {
+                    service,
+                    namespace,
+                    request: input.request,
+                    directory: input.run_dir,
+                }))
+            }),
+            I::Download(args) => args.convert(|service, namespace, network, input| {
+                validate_url(&input.gateway, network, network == "local")?;
+                Ok(Command::Download(super::download::Input {
+                    service,
+                    namespace,
+                    request: input.request,
+                    project: input.project,
+                    gateway: input.gateway,
+                    directory: input.run_dir,
+                    max_bytes: input.max_bytes,
+                }))
+            }),
+            I::VerifyUpload(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::VerifyUpload {
+                    service,
+                    namespace,
+                    permission: input.permission,
+                    body: input.body,
+                    max_bytes: input.max_bytes,
+                })
+            }),
+            I::CertificateAssessment(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::CertificateAssessment(super::certificate_assessment::Input {
+                    service,
+                    namespace,
+                    permission: input.permission,
+                }))
+            }),
+            I::UploadHistory(args) => args.convert(|service, namespace, input| {
+                Command::UploadHistory(super::upload_history::Input {
+                    service,
+                    namespace,
+                    filter: input.filter,
+                    cursor: input.cursor,
+                })
+            }),
+            I::Status(args) => args.paid(|scope, _| Command::Status { scope }),
+            I::FundingHistory(args) => args.paid(|scope, input| {
+                Command::FundingHistory { scope, cursor: input.cursor }
+            }),
+            I::InspectAccount(args) => args.paid(|scope, input| {
+                Command::InspectAccount(ic_blob_storage_contracts::dto::account::AccountInspectionRequest {
+                    scope,
+                    kind: input.kind,
+                })
+            }),
+            I::FundingAssessment(args) => args.paid(|scope, input| {
+                Command::FundingAssessment(ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest {
+                    scope,
+                    operation: input.operation,
+                    offered: input.offered,
+                    target_balance: input.target_balance,
+                })
+            }),
+            I::FundingOutcome(args) => args.paid(|scope, input| {
+                Command::FundingOutcome(ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest {
+                    scope,
+                    operation: input.operation,
+                    offered: input.offered,
+                    target_balance: input.target_balance,
+                })
+            }),
+            I::SyncGateways(args) => args.paid(|scope, input| {
+                Command::GatewayControl(super::gateway_controls::Input {
+                    scope,
+                    action: super::gateway_controls::Action::Sync,
+                    directory: input.run_dir,
+                })
+            }),
+            I::CancelGatewaySync(args) => args.paid(|scope, input| {
+                Command::GatewayControl(super::gateway_controls::Input {
+                    scope,
+                    action: super::gateway_controls::Action::Cancel(input.sequence),
+                    directory: input.run_dir,
+                })
+            }),
+            I::RevokeGateway(args) => args.paid(|scope, input| {
+                Command::GatewayControl(super::gateway_controls::Input {
+                    scope,
+                    action: super::gateway_controls::Action::Revoke(input.gateway),
+                    directory: input.run_dir,
+                })
+            }),
+            I::PublishCheck(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::PublishCheck(check_input(
+                    service, namespace, input.files, input.max_queries,
+                )))
+            }),
+            I::PublishMap(args) => args.convert(|service, namespace, network, input| {
+                map_input(service, namespace, network, input, super::publish_map::Selection::Batch)
+            }),
+            I::PublishFileStatus(args) => args.convert(|service, namespace, network, input| {
+                map_input(service, namespace, network, input.map, super::publish_map::Selection::File(input.file_index))
+            }),
+            I::PublishPrepare(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::PublishPrepare(prepare_input(
+                    service, namespace, input.file_index, input.prepare, None,
+                )))
+            }),
+            I::PublishPrepareResume(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::PublishPrepare(prepare_input(
+                    service, namespace, input.indexed.file_index, input.indexed.prepare, Some(input.source_run),
+                )))
+            }),
+            I::PublishPrepareBatch(args) => args.convert(|service, namespace, _, input| {
+                Ok(Command::PublishPrepareBatch(prepare_input(
+                    service, namespace, 0, input, None,
+                )))
+            }),
+            I::PublishSession(args) => args.convert(|service, namespace, network, input| {
+                validate_url(&input.gateway, network, network == "local")?;
+                Ok(Command::PublishSession(super::publish_session::Input {
+                    host_release: host_release()?,
+                    source_session: input.source,
+                    browser_selection: input.browser_selection,
+                    operator_identity: input.operator_identity,
+                    gateway: input.gateway,
+                    max_steps: input.max_steps,
+                    prepare: prepare_input(service, namespace, 0, input.prepare, None),
+                }))
+            }),
+            I::AccountLinkInputs(_)
+            | I::InstallationCheck(_)
+            | I::UploadInputs(_)
+            | I::PublishInputs(_)
+            | I::ReferenceInputs(_) => Err(Failure::Arguments),
+        }
+    }
 }
 fn check_input(
     service: Principal,
     namespace: u128,
-    flags: &clap::ArgMatches,
+    files: schema::Files,
+    max_queries: u64,
 ) -> super::publish_check::Input {
     super::publish_check::Input {
         service,
         namespace,
-        inputs: value(flags, "--inputs"),
-        directory: value(flags, "--run-dir"),
-        max_bytes: value(flags, "--max-bytes"),
-        max_total_bytes: value(flags, "--max-total-bytes"),
-        max_queries: value(flags, "--max-queries"),
-        timeout_seconds: value(flags, "--timeout-seconds"),
+        inputs: files.inputs,
+        directory: files.run_dir,
+        max_bytes: files.max_bytes,
+        max_total_bytes: files.max_total_bytes,
+        max_queries,
+        timeout_seconds: files.timeout_seconds,
     }
 }
 fn prepare_input(
     service: Principal,
     namespace: u128,
     index: usize,
-    flags: &clap::ArgMatches,
+    input: schema::Prepare,
+    source: Option<PathBuf>,
 ) -> super::publish_prepare::Input {
     super::publish_prepare::Input {
         service,
         namespace,
         index,
-        max_bytes: value(flags, "--max-bytes"),
-        max_total_bytes: value(flags, "--max-total-bytes"),
-        timeout_seconds: value(flags, "--timeout-seconds"),
-        inputs: value(flags, "--inputs"),
-        directory: value(flags, "--run-dir"),
-        uploader_identity: value(flags, "--uploader-identity"),
-        source: None,
+        inputs: input.files.inputs,
+        directory: input.files.run_dir,
+        max_bytes: input.files.max_bytes,
+        max_total_bytes: input.files.max_total_bytes,
+        timeout_seconds: input.files.timeout_seconds,
+        uploader_identity: input.uploader_identity,
+        source,
     }
 }
-
+fn map_input<const QUERIES: u64>(
+    service: Principal,
+    namespace: u128,
+    network: &str,
+    input: schema::Map<QUERIES>,
+    selection: super::publish_map::Selection,
+) -> Result<Command, Failure> {
+    validate_url(&input.gateway, network, network == "local")?;
+    Ok(Command::PublishMap(super::publish_map::Input {
+        host_release: host_release()?,
+        selection,
+        operator_identity: input.operator_identity,
+        gateway: input.gateway,
+        checks: check_input(
+            service,
+            namespace,
+            input.checks.files,
+            input.checks.max_queries,
+        ),
+    }))
+}
 pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {
     if !url.username().is_empty()
         || url.password().is_some()
@@ -301,81 +423,19 @@ pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Res
     }
     Ok(())
 }
-fn operator_command(
-    command: &str,
-    service: Principal,
-    namespace: u128,
-    flags: &clap::ArgMatches,
-) -> Result<Command, Failure> {
-    let scope = OperatorScope {
-        service,
-        namespace,
-        cashier: value(flags, "--cashier"),
-        payment_account: value(flags, "--payer"),
-    };
-    Ok(match command {
-        "sync-gateways" | "cancel-gateway-sync" | "revoke-gateway" => {
-            let action = match command {
-                "sync-gateways" => super::gateway_controls::Action::Sync,
-                "cancel-gateway-sync" => {
-                    super::gateway_controls::Action::Cancel(value(flags, "--sequence"))
-                }
-                _ => super::gateway_controls::Action::Revoke(value(flags, "--gateway")),
-            };
-            Command::GatewayControl(super::gateway_controls::Input {
-                scope,
-                action,
-                directory: value(flags, "--run-dir"),
-            })
-        }
-        "inspect-account" => Command::InspectAccount(
-            ic_blob_storage_contracts::dto::account::AccountInspectionRequest {
-                scope,
-                kind: value(flags, "--kind"),
-            },
-        ),
-        "funding-assessment" => Command::FundingAssessment(
-            ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest {
-                scope,
-                operation: value(flags, "--operation"),
-                offered: value(flags, "--offered"),
-                target_balance: flags.get_one::<u128>("--target-balance").copied(),
-            },
-        ),
-        "funding-outcome" => Command::FundingOutcome(
-            ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest {
-                scope,
-                operation: value(flags, "--operation"),
-                offered: value(flags, "--offered"),
-                target_balance: flags.get_one::<u128>("--target-balance").copied(),
-            },
-        ),
-        "funding-history" => Command::FundingHistory {
-            scope,
-            cursor: flags.get_one::<PathBuf>("--cursor").cloned(),
-        },
-        "status" => Command::Status { scope },
-        _ => return Err(Failure::Arguments),
-    })
-}
-
-/// Parse once before any file or network effect. Tests use the same grammar.
+/// Parse the same typed grammar before any file or network effect.
 #[cfg(test)]
-pub(super) fn parse(args: &[String]) -> Result<clap::ArgMatches, Failure> {
-    schema::cli()
-        .try_get_matches_from(
-            std::iter::once("blob-storage").chain(args.iter().map(String::as_str)),
-        )
+pub(super) fn parse(args: &[String]) -> Result<Cli, Failure> {
+    Cli::try_parse_from(std::iter::once("blob-storage").chain(args.iter().map(String::as_str)))
         .map_err(|_| Failure::Arguments)
 }
-
 /// Clap owns help and syntax errors; refusal never echoes sensitive arguments.
-pub(super) fn invocation(args: &[std::ffi::OsString]) -> Result<Option<clap::ArgMatches>, Failure> {
-    match schema::cli().try_get_matches_from(
+pub(super) fn invocation(args: &[std::ffi::OsString]) -> Result<Option<Cli>, Failure> {
+    match Cli::try_parse_from(
         std::iter::once(std::ffi::OsStr::new("blob-storage"))
             .chain(args.iter().map(std::ffi::OsString::as_os_str)),
     ) {
-        Ok(matches) => Ok(Some(matches)),
+        Ok(cli) => Ok(Some(cli)),
         Err(error) if error.kind() == clap::error::ErrorKind::DisplayHelp => {
             error.print().map_err(|_| Failure::File)?;
             Ok(None)

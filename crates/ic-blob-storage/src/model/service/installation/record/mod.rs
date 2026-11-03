@@ -44,7 +44,7 @@ pub(crate) struct ConfigurationRecord {
 impl ConfigurationRecord {
     /// Frozen current layout, independently checked from the installation release.
     /// The host allocation key names a memory slot, not this record's layout.
-    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:singleton-cells";
+    pub(crate) const FORMAT: &str = "ic-blob-storage/installation:singleton-cells:funding-progress";
 
     pub(crate) fn check_binding(
         &self,

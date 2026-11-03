@@ -357,7 +357,7 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
         cursor: None,
     };
     let observe = |state| {
-        let before = f.harness.pic.get_stable_memory(f.service);
+        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
         let page = f.scan(f.operator, query).unwrap();
         assert_eq!(page.request, query);
         assert_eq!(
@@ -377,7 +377,11 @@ fn shared_history_distinguishes_exposure_deletion_and_billing_cessation() {
         );
         assert_eq!(page.next, None);
         assert!(
-            f.harness.pic.get_stable_memory(f.service).eq(&before),
+            f.harness
+                .pic
+                .get_stable_memory(f.service)
+                .unwrap()
+                .eq(&before),
             "history changed stable bytes"
         );
     };
