@@ -101,7 +101,7 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
 fn phase(session: &mut NativeSession, frame: &Value) -> Value {
     session.send(frame);
     let result = session.read();
-    assert_eq!(result["event"], "phase");
+    assert_eq!(result["event"], "phase", "session response: {result}");
     result["report"].clone()
 }
 
@@ -272,13 +272,16 @@ fn standalone_publication_session_refuses_retired_verifier_controls_before_effec
 fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_before_setup() {
     let directory = Directory::new("session-cached-");
     let (mut f, files, url) = fixture(directory.path());
-    let args = arguments(
+    let mut args = arguments(
         &f,
         directory.path(),
         &url,
         "https://127.0.0.1:65530",
         "session",
     );
+    // Multiple signed updates and observations share this total session budget.
+    // Allow parallel installed-test load; the separate idle test checks expiry.
+    change_native(&mut args, "--timeout-seconds", "120");
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     // This invocation has authenticated both preparation roles and pinned its

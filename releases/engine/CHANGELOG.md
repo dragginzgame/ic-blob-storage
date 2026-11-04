@@ -26,6 +26,10 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 🔧 Changed
 
+- Give the multi-phase installed publication-session scenario a bounded 120-second
+  test budget under concurrent load and report unexpected control replies in
+  assertions. Production deadlines and the separate idle-expiry check are unchanged.
+
 - Adopt committed Shared Tooling 0.29.3, including Testkit's native client
   boundary, grouped manifest admission, UTF-8 validation evidence and pinned
   revision export that preserves unrelated source edits. Keep issue outcomes in
