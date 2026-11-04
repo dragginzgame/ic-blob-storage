@@ -1,6 +1,5 @@
 //! The host's read window preserves zero observations and overflow provenance.
 use super::*;
-use ic_metrics::MeasurementAggregate;
 
 fn report(row: ReadCounter) -> RestorationMemoryReads {
     begin_read_profile(true);
@@ -16,7 +15,7 @@ fn zero_read_and_exact_caps_remain_exact_until_overflow() {
     assert_eq!(row.instructions.total(), 0);
     assert_eq!(row.instructions.maximum(), Some(0));
 
-    row.instructions = MeasurementAggregate::from_parts(
+    row.instructions = ic_metrics::persistence::restore_aggregate(
         u64::MAX - 1,
         u128::from(u64::MAX - 1),
         Some(1),
@@ -42,7 +41,7 @@ fn zero_read_and_exact_caps_remain_exact_until_overflow() {
 fn instruction_total_quality_survives_exact_cap_and_overflow() {
     // Count is already clipped: only explicit provenance permits this total.
     let mut row = ReadCounter {
-        instructions: MeasurementAggregate::from_parts(
+        instructions: ic_metrics::persistence::restore_aggregate(
             u64::MAX,
             u128::MAX - 1,
             Some(u64::MAX),
@@ -69,7 +68,7 @@ fn completed_and_disabled_windows_cannot_leak_into_the_next_profile() {
         rows[0].record(0, 0);
         rows[1].record(7, 13);
         rows[2] = ReadCounter {
-            instructions: MeasurementAggregate::from_parts(
+            instructions: ic_metrics::persistence::restore_aggregate(
                 u64::MAX,
                 u128::MAX,
                 Some(u64::MAX),
@@ -77,7 +76,7 @@ fn completed_and_disabled_windows_cannot_leak_into_the_next_profile() {
                 true,
             )
             .unwrap(),
-            bytes: ic_metrics::MeasurementCounter::from_parts(u128::from(u64::MAX) + 1, false)
+            bytes: ic_metrics::persistence::restore_counter(u128::from(u64::MAX) + 1, false)
                 .unwrap(),
         };
     });
@@ -110,7 +109,7 @@ fn completed_and_disabled_windows_cannot_leak_into_the_next_profile() {
 #[test]
 fn wide_byte_overflow_stays_clipped_and_flagged_in_the_narrow_report() {
     let mut row = ReadCounter {
-        bytes: ic_metrics::MeasurementCounter::from_parts(u128::MAX, true).unwrap(),
+        bytes: ic_metrics::persistence::restore_counter(u128::MAX, true).unwrap(),
         ..ReadCounter::EMPTY
     };
     row.record(0, 0);

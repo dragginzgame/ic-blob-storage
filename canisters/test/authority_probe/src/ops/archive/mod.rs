@@ -1,6 +1,7 @@
 //! Atomic archive capture and inspection-only same-release restoration.
 pub(crate) mod recovery;
 mod storage;
+use super::durable::{Owner, context};
 use super::{State, number};
 use crate::model::{
     archive::{AuthorityArchiveRecord, ContentRecord, ObjectRecord},
@@ -12,12 +13,9 @@ use blob_test_protocol::{
     },
     journey::{JourneyManifest, JourneyProgress, JourneyVerification},
 };
-use ic_blob_storage::model::catalog::BlobCatalog;
-use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::model::catalog::admission::UploadPhase;
 use ic_blob_storage::model::lifecycle::LifecycleChange;
 use ic_blob_storage_contracts::binding::ReferenceId;
-use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
@@ -69,47 +67,23 @@ fn load(service: Principal, actor: Principal) -> Option<AuthorityArchiveRecord> 
     Some(record)
 }
 
-#[expect(
-    clippy::too_many_lines,
-    reason = "One frozen archive projection binds all retained owner and obligation fields"
-)]
 fn capture(state: &State) -> AuthorityArchiveRecord {
     assert_eq!(
-        state.catalog.usage().objects,
+        state.catalog.usage().unwrap().operations,
         2,
         "all sample objects covered"
     );
     assert_eq!(
-        state.uploads.catalog.usage().operations,
+        state.uploads.catalog.usage().unwrap().operations,
         state.uploads.requests.len()
     );
     assert_eq!(
-        state.journey.catalog.usage().operations,
+        state.journey.catalog.usage().unwrap().operations,
         state.journey.requests.len()
     );
     let mut objects = vec![];
-    for id in [1, 2] {
-        let journal = state
-            .catalog
-            .get(super::root(id))
-            .expect("sample root retained");
-        let bytes = if id == 1 { 100 } else { 200 };
-        let mut record = ObjectRecord {
-            catalog: ArchiveCatalog::Samples,
-            tenant: journal.lifecycle().binding().tenant().into(),
-            id,
-            root: [id; 32],
-            bytes,
-            digest: None,
-            phase: ArchivePhase::Live,
-            logical: 0,
-            physical: 0,
-            liability: 0,
-            release_receipt: None,
-            content: None,
-        };
-        confirmed(&mut record, &state.catalog);
-        objects.push(record);
+    for request in state.samples {
+        objects.push(upload(ArchiveCatalog::Samples, &state.catalog, request));
     }
     for request in state.uploads.requests {
         objects.push(upload(
@@ -158,7 +132,7 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
         release: crate::model::archive::release_binding(),
         balance: state.balance.clone(),
         fenced: false,
-        service: state.catalog.service().into(),
+        service: state.service.into(),
         operator: state.operator.into(),
         tenants: state.journey.tenants.map(Into::into),
         namespace: scope.namespace().get(),
@@ -183,7 +157,7 @@ fn capture(state: &State) -> AuthorityArchiveRecord {
     }
 }
 
-fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest) -> ObjectRecord {
+fn upload(catalog: ArchiveCatalog, owner: &Owner, request: UploadRequest) -> ObjectRecord {
     let binding = request.object.first.object();
     let identity = binding.identity();
     assert_eq!(
@@ -200,8 +174,9 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
         ic_blob_storage_contracts::upload::binding::UploadRequestId::new(number(u128::from(id)))
     );
     let phase = owner
-        .phase(binding.tenant(), request)
-        .expect("retained request");
+        .lookup(context(binding.service(), binding.tenant()), request)
+        .expect("retained request")
+        .phase;
     let charged = matches!(phase, UploadPhase::Reserved | UploadPhase::Registered);
     let mut record = ObjectRecord {
         catalog,
@@ -222,61 +197,53 @@ fn upload(catalog: ArchiveCatalog, owner: &UploadCatalog, request: UploadRequest
         content: None,
     };
     if phase == UploadPhase::Registered {
-        confirmed(&mut record, owner.confirmed());
+        confirmed(&mut record, owner, request);
     }
     record
 }
 
-fn confirmed(record: &mut ObjectRecord, owner: &BlobCatalog) {
-    let root =
-        ic_blob_storage_contracts::identity::ProviderRootHash::try_from(record.root.as_slice())
-            .expect("root");
-    let journal = owner.get(root).expect("confirmed object");
-    let lifecycle = journal.lifecycle();
-    let binding = lifecycle.binding();
-    assert_eq!(binding.service(), owner.service());
-    assert_eq!(binding.tenant(), record.tenant.into());
-    let identity = binding.identity();
-    assert_eq!(
-        (
-            identity.namespace.get(),
-            identity.object.get(),
-            identity.incarnation.get()
-        ),
-        (1, u128::from(record.id), 1)
-    );
-    record.phase = match lifecycle.phase() {
+fn confirmed(record: &mut ObjectRecord, owner: &Owner, request: UploadRequest) {
+    let binding = request.object.first.object();
+    let ctx = context(binding.service(), record.tenant.into());
+    let view = owner.confirmed(ctx, request).expect("confirmed object");
+    record.phase = match view.phase {
         LifecyclePhase::Live => ArchivePhase::Live,
         LifecyclePhase::DeletionPending => ArchivePhase::DeletionPending,
         LifecyclePhase::ProviderDeleted => ArchivePhase::ProviderDeleted,
         LifecyclePhase::Settled => ArchivePhase::Settled,
     };
-    record.logical = lifecycle.logical_bytes();
-    record.physical = lifecycle.physical_bytes();
-    record.liability = lifecycle.liability_bytes();
-    let receipt = journal
-        .receipt(
-            record.tenant.into(),
+    record.logical = if view.phase == LifecyclePhase::Live {
+        record.bytes
+    } else {
+        0
+    };
+    record.physical = if matches!(
+        view.phase,
+        LifecyclePhase::Live | LifecyclePhase::DeletionPending
+    ) {
+        record.bytes
+    } else {
+        0
+    };
+    record.liability = if view.phase == LifecyclePhase::Settled {
+        0
+    } else {
+        record.bytes
+    };
+    let receipt = owner
+        .reference_receipt(
+            ctx,
+            request,
             ReferenceRequest {
                 id: ReferenceRequestId::new(number(1)),
-                operation: ReferenceOperation::Release(ReferenceKey::new(
-                    lifecycle.binding(),
-                    ReferenceId::new(number(1)),
-                )),
+                operation: ReferenceOperation::Release(request.object.first),
             },
         )
-        .expect("fixture has only the exact tenant release request");
+        .expect("exact tenant release request");
     record.release_receipt =
-        receipt.map(
-            |receipt| match receipt.result.expect("valid fixture release") {
-                LifecycleChange::Changed => true,
-                LifecycleChange::Unchanged => false,
-            },
-        );
-    // The fixture exposes only reference 1 and release request 1. Fail closed if
-    // a future endpoint adds history this archive does not yet represent.
-    assert_eq!(journal.receipt_count(), usize::from(receipt.is_some()));
-    assert_eq!(lifecycle.reference_slots(), 1);
+        receipt.map(|r| r.result.expect("fixture release") == LifecycleChange::Changed);
+    assert_eq!(view.receipt_slots, u64::from(receipt.is_some()));
+    assert_eq!(view.reference_slots, 1);
 }
 
 fn view(record: AuthorityArchiveRecord) -> AuthorityArchiveView {

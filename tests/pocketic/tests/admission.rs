@@ -20,8 +20,8 @@ use blob_test_protocol::admission::{
     Phase, Request, Workload,
 };
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_platform_pocket_ic::RejectCode;
 use ic_testkit::fake_principal;
+use ic_testkit::pocket_ic::RejectCode;
 use std::time::Duration;
 use support::{Harness, fixture_path};
 

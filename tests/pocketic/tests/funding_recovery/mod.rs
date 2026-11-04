@@ -1,7 +1,7 @@
 //! Real stable-memory restores fence both sides of local cycle transfers.
 use super::*;
-use ic_platform_pocket_ic::CanisterInstallMode;
-use ic_platform_pocket_ic::common::rest::BlobCompression;
+use ic_testkit::pocket_ic::CanisterInstallMode;
+use ic_testkit::pocket_ic::common::rest::BlobCompression;
 use sha2::{Digest, Sha256};
 
 impl Fixture {
@@ -9,7 +9,7 @@ impl Fixture {
         &self,
         canister: Principal,
         trap: bool,
-    ) -> Result<(), ic_platform_pocket_ic::ClientError> {
+    ) -> Result<(), ic_testkit::pocket_ic::ClientError> {
         self.harness.pic.upgrade_canister(
             canister,
             std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),

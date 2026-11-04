@@ -15,6 +15,35 @@ This document defines the evidence required for acceptance. The
 open, while [current status](status/current.md) identifies the active released
 baseline and current work.
 
+## Current isolated development installation — 2026-11-03
+
+Separately authorized development-key use and the retained scoped trial allowance
+produced fresh mainnet standalone **`4h7vw-4qaaa-aaaau-ahieq-cai`** on Blob **0.69.0**.
+[The completed installation record](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-install-01/summary.json)
+binds frozen module/init hashes, exact configuration/release/fence/controller
+readback and anonymous refusal. Two trial tenants / two lifetime 1KiB objects are
+bounded to 2KiB global retained/liability bytes; these are not production defaults.
+The [subsequent provider phase](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-provider-01/summary.json)
+reconciles two distinct deposits, exact linkage and tenant authority. It also
+retains a real first tree PUT 403: payer credit/linkage did not provide owner or
+gateway credit. The original certificate/reference and 1KiB possible liability
+remain; this upload was never retried.
+The [explicitly approved higher allowance](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-allowance-01/summary.json)
+kept its original expiry and initially left owner/gateway credit zero. Later
+[scoped queries reconcile a delayed 1T allocation](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-bootstrap-01/summary.json).
+The distinct unused second tenant then [completed a real 1KiB browser upload and
+root-verified native download](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-transfer-01/summary.json),
+with exact original bytes. One refused and one successful test-key user do not
+qualify two signed-in application users. A later [exact disposable-object release](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-gc-release-01/summary.json)
+finds its original receipt and changes only the second reference/liveness to dead.
+Logical bytes fall to 1KiB; physical/billing liabilities remain 2KiB. The original
+public URL still returns the exact second body after release; no physical deletion
+or billing cessation is inferred. Lifetime object capacity remains exhausted. No
+allocation cadence/minimum, application login or deletion/billing guarantee is
+proved. Keep old 0.6/0.7 installations untouched.
+This is Blob-owned provider work independent of Canic's matching-cohort adoption;
+it does not select a production application or replace its acceptance run.
+
 ## Current evidence and open gates
 
 The current library supplies shared durable owners, tenant policy,
@@ -29,9 +58,9 @@ Their dependencies, fixtures and tests are removed here. Older managed test
 captures remain historical evidence; they do not qualify a current wrapper.
 The root workspace owns dependency versions; consumers must use one compatible
 ic-storage identity/runtime. [Current status](status/current.md) owns the released
-baseline and active batch. Pending Storage 0.65 requires a new host composition
-and fresh backing after retirement; Canic's recorded Blob 0.66 tests do not qualify
-this new graph. The earlier
+baseline and active batch. Released Blob 0.69 requires the matching public
+dependency identities and fresh backing after retirement; Canic's recorded Blob
+0.66 tests do not qualify this graph. The earlier
 [framework-removal evidence](evidence/core-primitives.md#independent-library-and-memory-015--2026-10-02)
 retains its original 0.15-era dependency identity.
 
@@ -94,9 +123,25 @@ here does not waive provider, recovery, accounting or retirement requirements.
 
 ### Before the acceptance deployment
 
-Blob's Contracts, Client and Engine **0.66.0** groups are released and published.
-The 2026-11-02 read-only Canic review confirms recorded local qualification of
-that family in its root and both independent consumer locks. Results cover dedicated
+Blob's Contracts, Client and Engine **0.69.0** groups are released and published.
+The matched family is Wire 0.16, Platform 0.20, Runtime 0.19, Types 0.18, Storage
+0.66 and Metrics 0.28. Blob's local release gates passed; current hosted acceptance
+is separately tracked in the handoff. Its funding-record hard cut requires the
+[retirement procedure](retiring-installations.md), not a converter or reset.
+
+The 2026-11-03 read-only Canic review finds Blob Engine/Contracts 0.68.1, Platform
+0.18, Wire 0.15.1 and Timers 0.38.1 in its actively edited root catalog at base
+`0509ec870`. Published Timers 0.38.1 selects Runtime 0.18.1; a reduced published
+Blob 0.69 + Timers 0.38.1 Cargo resolution refuses their conflicting exact executor
+guards. Auth/protocol 0.32 also exposes the older Types/Wire family. Metrics Storage
+0.67 already supplies the Metrics 0.28 / Storage 0.66 integration. Canic must admit
+a compatible published family across its root and both private consumers before
+requalifying their managed artifacts. Do not add runtime bridges, mutable sibling
+patches or another adapter here. Current source/lock observations and the reduced
+resolution are retained in `target/post069-adoption/`.
+
+The earlier 2026-11-02 Canic review retains its recorded local Blob 0.66
+qualification. Results cover dedicated
 installation/recovery, all five embedded funding profiles, generated clients for
 both compositions, dependency admission, private-consumer Clippy and allocation
 peer verification. The corrected held-reply fixture budget is included; these
@@ -108,7 +153,7 @@ remaining non-Blob qualification and applicable CI/publication acceptance. Its
 `target/integrations/checks/blob66-20261102/results.json` and owning audit retain
 the exact source, three lock hashes, managed artifacts and logs. Blob does not
 copy those fixtures or infer a deployed service from a passing local composition.
-During review Canic advanced to committed source `e683f331a`, while its released
+During that review Canic advanced to committed source `e683f331a`, while its released
 baseline remains 0.114.0. The retained check-log hashes and two consumer locks
 match; its current root lock differs from the recorded qualification hash.
 Owner delivery must admit the current source and graph. The earlier passes are
@@ -116,10 +161,12 @@ preserved evidence, not a fresh gate for that later source.
 
 Deployment becomes the next step after the remaining owner actions:
 
-1. Canic delivers its qualified 0.66 adoption with its applicable release/CI and
-   publication requirements satisfied. Blob's supplying release and the local
-   Canic Blob checks are complete; they need not be redesigned or repeated merely
-   because the broader Canic batch has separate work outstanding.
+1. Canic adopts the matching published Blob 0.69 family in its three maintained
+   catalogs/locks, admits one runtime/type/Wire identity and qualifies its dedicated
+   and embedded installation/recovery, funding profiles and generated clients.
+   Its owner then delivers the selected change with applicable CI/publication
+   acceptance. Prior Blob 0.66 checks keep their own inputs; this public-identity
+   cut needs current evidence, without duplicating the adapter or its fixtures.
 2. The application selects that delivered graph and dedicated or embedded
    mounting/lifecycle path. Framework and application changes remain with their
    owners; do not copy an adapter or application transaction into Blob.

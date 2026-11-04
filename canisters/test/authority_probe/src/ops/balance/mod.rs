@@ -31,7 +31,7 @@ pub(crate) fn authorize(service: Principal, actor: Principal) -> Result<(), Fail
 
 pub(crate) fn configure(scope: BalanceScope) -> Result<(), Failure> {
     super::mutate(|state| {
-        if scope.service != state.catalog.service().into()
+        if scope.service != state.service.into()
             || scope.namespace != state.registry.scope().namespace().get()
         {
             return Err(Failure::Binding);

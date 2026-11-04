@@ -4,6 +4,29 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.70.0] - Unreleased
+
+### 💥 Breaking
+
+- Adopt Metrics 0.29's instrumentation boundary and Platform 0.21. Contracts owns
+  report decoding and rejects inconsistent numeric quality without constructing
+  recorders. Remove the public recorder-to-report conversion implementations;
+  hosts project their recorded fields explicitly. Report fields, Wire identities,
+  canonical bytes and decoder limits remain unchanged. Align consumers on the
+  new public dependency family.
+  [Metrics #130 — Restrict Metrics to instrumentation: privatize leaking arithmetic and recording internals](https://github.com/dragginzgame/ic-observability/issues/130).
+
+### 🔧 Changed
+
+- Adopt Shared Tooling 0.29.3's test layout: extract inline contract and schema
+  example tests into owner-local `tests.rs` modules. Preserve private access,
+  test identities, fixtures and all production behavior.
+
+- Add explicit standalone metadata/client outputs to the host-only Wire schema
+  generator. Operator tools can encode and inspect the existing `blob_metrics`
+  query with canonical DTOs and budgets while using their configured signer.
+  Shared service generation, endpoint bytes and deployed code remain unchanged.
+
 ## [0.69.0] - 2026-11-03
 
 ### 💥 Breaking

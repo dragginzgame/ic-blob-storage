@@ -19,8 +19,8 @@ use blob_test_protocol::journey::{
 use ic_platform::candid::decoder;
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform_pocket_ic::RejectCode;
 use ic_testkit::fake_principal;
+use ic_testkit::pocket_ic::RejectCode;
 use sha2::{Digest, Sha256};
 use support::{Harness, fixture_path};
 
@@ -100,13 +100,23 @@ impl Fixture {
             .map(|(reply,)| reply)
             .expect("usage reply")
     }
-    fn reserve(&self, caller: Principal, input: JourneyUpload) -> Result<(), JourneyFailure> {
+    fn reserve(
+        &self,
+        caller: Principal,
+        input: JourneyUpload,
+        bytes: &[u8],
+    ) -> Result<(), JourneyFailure> {
         self.reserve_manifest(
             caller,
             input,
             JourneyManifest {
-                chunks: vec![input.root],
-                headers: vec![],
+                chunks: vec![{
+                    let mut leaf = Sha256::new();
+                    leaf.update(b"icfs-chunk/");
+                    leaf.update(bytes);
+                    leaf.finalize().into()
+                }],
+                headers: vec![("Content-Length".into(), input.bytes.to_string())],
             },
         )
     }
@@ -252,14 +262,33 @@ fn usage(logical: u128, physical: u128, liability: u128) -> JourneyUsage {
 }
 
 fn upload(id: u8, bytes: &[u8]) -> JourneyUpload {
-    let mut leaf = Sha256::new();
-    leaf.update(b"icfs-chunk/");
-    leaf.update(bytes);
+    use ic_blob_storage_contracts::identity::caffeine::{
+        CaffeineHashLimits, CaffeineHeader, manifest::builder::CaffeineManifestBuilder,
+    };
+    let length = bytes.len().to_string();
+    let headers = [CaffeineHeader {
+        name: "Content-Length",
+        value: &length,
+    }];
+    let mut builder = CaffeineManifestBuilder::new(
+        bytes.len() as u64,
+        &headers,
+        CaffeineHashLimits {
+            max_content_bytes: (bytes.len() as u64).try_into().unwrap(),
+            max_append_bytes: bytes.len().try_into().unwrap(),
+            max_headers: 1.try_into().unwrap(),
+            max_header_bytes: 128.try_into().unwrap(),
+        },
+        1.try_into().unwrap(),
+    )
+    .unwrap();
+    builder.append(0, bytes).unwrap();
+    let hashes = builder.finish().unwrap().hashes();
     JourneyUpload {
         id,
-        root: leaf.finalize().into(),
-        digest: Sha256::digest(bytes).into(),
-        bytes: u64::try_from(bytes.len()).expect("small fixture"),
+        root: *hashes.provider_root.as_bytes(),
+        digest: *hashes.content_digest.as_bytes(),
+        bytes: bytes.len() as u64,
     }
 }
 
@@ -271,14 +300,17 @@ fn upload(id: u8, bytes: &[u8]) -> JourneyUpload {
 fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting_owner() {
     let f = Fixture::new();
     let a = upload(1, &[21; 100]);
-    assert_eq!(f.reserve(f.first, a), Ok(()));
-    assert_eq!(f.reserve(f.first, a), Ok(()));
+    assert_eq!(f.reserve(f.first, a, [21; 100].as_slice()), Ok(()));
+    assert_eq!(f.reserve(f.first, a, [21; 100].as_slice()), Ok(()));
     assert_eq!(f.usage(f.first), Ok(usage(100, 100, 100)));
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { bytes: 101, ..a }),
+        f.reserve(f.first, JourneyUpload { bytes: 101, ..a }, &[21; 100]),
         Err(JourneyFailure::Conflict)
     );
-    assert_eq!(f.reserve(f.second, a), Err(JourneyFailure::Conflict));
+    assert_eq!(
+        f.reserve(f.second, a, &[21; 100]),
+        Err(JourneyFailure::Conflict)
+    );
     assert_eq!(
         f.certificate(f.second, a.root),
         Err(RejectCode::CanisterError)
@@ -330,7 +362,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     assert_eq!(f.usage(f.first), Ok(usage(0, 100, 100)));
 
     let b = upload(2, &[22; 150]);
-    assert_eq!(f.reserve(f.first, b), Ok(()));
+    assert_eq!(f.reserve(f.first, b, &[22; 150]), Ok(()));
     assert_eq!(f.append(f.first, b, 0, &[22; 150]), Ok(()));
     f.certificate(f.first, b.root).expect("second certificate");
     // The first mutation must roll back when the second root still has references.
@@ -356,7 +388,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     assert_eq!(f.root_control(f.operator, "journey_settle", a.root), Ok(()));
     assert_eq!(f.root_control(f.operator, "journey_settle", a.root), Ok(()));
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { id: 3, ..a }),
+        f.reserve(f.first, JourneyUpload { id: 3, ..a }, &[21; 100]),
         Err(JourneyFailure::Conflict)
     );
     assert_eq!(f.usage(f.first), Ok(usage(150, 150, 150)));
@@ -397,11 +429,14 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
     let f = Fixture::new();
     let a = upload(1, &[31; 100]);
     for caller in [f.operator, f.gateway, Principal::anonymous()] {
-        assert_eq!(f.reserve(caller, a), Err(JourneyFailure::Denied));
+        assert_eq!(
+            f.reserve(caller, a, &[31; 100]),
+            Err(JourneyFailure::Denied)
+        );
         assert_eq!(f.usage(caller), Err(JourneyFailure::Denied));
     }
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { id: 0, ..a }),
+        f.reserve(f.first, JourneyUpload { id: 0, ..a }, &[31; 100]),
         Err(JourneyFailure::InvalidInput)
     );
     let denied = f
@@ -419,8 +454,11 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
         crate::canister_rejection(&denied).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.reserve(f.first, a), Ok(()));
-    assert_eq!(f.reserve(f.second, upload(1, &[32; 100])), Ok(()));
+    assert_eq!(f.reserve(f.first, a, &[31; 100]), Ok(()));
+    assert_eq!(
+        f.reserve(f.second, upload(1, &[32; 100]), &[32; 100]),
+        Ok(())
+    );
     assert_eq!(f.control(f.first, "journey_cancel", a), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", a), Ok(()));
     assert_eq!(
@@ -468,7 +506,8 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
             JourneyUpload {
                 bytes: 10 * 1024 * 1024 + 1,
                 ..a
-            }
+            },
+            &[31; 100]
         ),
         Err(JourneyFailure::InvalidInput)
     );
@@ -479,7 +518,8 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
 #[test]
 fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
     let f = Fixture::new();
-    let a = upload(1, b"abc");
+    let v = content_vectors::vector("abc-text", 1);
+    let a = v.upload;
     // Cross-check the test declaration against the retained independent JS vector.
     let vectors: serde_json::Value = serde_json::from_str(include_str!(
         "../../../crates/ic-blob-storage-contracts/tests/fixtures/caffeine-hashing/vectors.json"
@@ -489,11 +529,11 @@ fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
         .as_array()
         .expect("array")
         .iter()
-        .find(|v| v["name"] == "abc-no-metadata")
+        .find(|v| v["name"] == "abc-text")
         .expect("abc vector");
     assert_eq!(root_text(a.root), vector["provider_root"]);
     assert_eq!(root_text(a.digest), vector["raw_digest"]);
-    assert_eq!(f.reserve(f.first, a), Ok(()));
+    assert_eq!(f.reserve_manifest(f.first, a, v.manifest.clone()), Ok(()));
     assert_eq!(
         f.certificate(f.first, a.root),
         Err(RejectCode::CanisterError)
@@ -514,7 +554,7 @@ fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
     }
     assert_eq!(f.append(f.first, a, 0, b"abc"), Ok(()));
     assert_eq!(f.append(f.first, a, 0, b"abc"), Ok(()));
-    assert_eq!(f.reserve(f.first, a), Ok(()));
+    assert_eq!(f.reserve_manifest(f.first, a, v.manifest.clone()), Ok(()));
     // Rejected bytes cannot replace a successful immutable verification fact.
     assert_eq!(
         f.append(f.first, a, 0, b"abd"),
@@ -542,7 +582,7 @@ fn mismatched_raw_digest_cannot_issue_authority_or_rebind_the_reservation() {
         digest: [0; 32],
         ..correct
     };
-    assert_eq!(f.reserve(f.first, wrong), Ok(()));
+    assert_eq!(f.reserve(f.first, wrong, b"xyz"), Ok(()));
     assert_eq!(
         f.append(f.first, wrong, 0, b"xyz"),
         Err(JourneyFailure::ContentMismatch)
@@ -551,7 +591,10 @@ fn mismatched_raw_digest_cannot_issue_authority_or_rebind_the_reservation() {
         f.certificate(f.first, wrong.root),
         Err(RejectCode::CanisterError)
     );
-    assert_eq!(f.reserve(f.first, correct), Err(JourneyFailure::Conflict));
+    assert_eq!(
+        f.reserve(f.first, correct, b"xyz"),
+        Err(JourneyFailure::Conflict)
+    );
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
     assert_eq!(f.control(f.first, "journey_cancel", wrong), Ok(()));
     assert_eq!(

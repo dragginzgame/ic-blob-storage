@@ -10,8 +10,8 @@ mod support;
 use support::Harness;
 
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_platform_pocket_ic::PocketIc;
 use ic_testkit::fake_principal;
+use ic_testkit::pocket_ic::PocketIc;
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
     fixture_calls::query_fixture(pic, canister, caller, "usage", ())

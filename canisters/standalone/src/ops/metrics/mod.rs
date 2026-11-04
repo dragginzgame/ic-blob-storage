@@ -1,5 +1,7 @@
 //! Fixed heap telemetry using upstream arithmetic; no stable backing or business authority.
-use ic_blob_storage_contracts::standalone::{MetricOperation, MetricsReport, OperationMetrics};
+use ic_blob_storage_contracts::standalone::{
+    AggregateMetrics, CounterMetrics, MetricOperation, MetricsReport, OperationMetrics,
+};
 use ic_metrics::{MeasurementAggregate, MeasurementCounter};
 use std::cell::RefCell;
 
@@ -20,15 +22,27 @@ impl Row {
     fn view(self, operation: MetricOperation) -> OperationMetrics {
         OperationMetrics {
             operation,
-            attempts: self.attempts.into(),
-            applied: self.outcomes[0].into(),
-            replayed: self.outcomes[1].into(),
-            refused: self.outcomes[2].into(),
-            provider_failed: self.outcomes[3].into(),
-            acknowledged: self.outcomes[4].into(),
-            request_bytes: self.bytes.into(),
-            instructions: self.instructions.into(),
+            attempts: counter(self.attempts),
+            applied: counter(self.outcomes[0]),
+            replayed: counter(self.outcomes[1]),
+            refused: counter(self.outcomes[2]),
+            provider_failed: counter(self.outcomes[3]),
+            acknowledged: counter(self.outcomes[4]),
+            request_bytes: counter(self.bytes),
+            instructions: AggregateMetrics {
+                samples: self.instructions.samples(),
+                total: self.instructions.total(),
+                maximum: self.instructions.maximum(),
+                samples_overflowed: self.instructions.samples_overflowed(),
+                total_overflowed: self.instructions.total_overflowed(),
+            },
         }
+    }
+}
+fn counter(value: MeasurementCounter) -> CounterMetrics {
+    CounterMetrics {
+        total: value.total(),
+        total_overflowed: value.total_overflowed(),
     }
 }
 pub(crate) enum Outcome {

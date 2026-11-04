@@ -31,7 +31,7 @@ Foreign Candid identities stay upstream, without a local dependency alias.
 | IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Platform browser package | Published `@tokostudios/ic-platform` owns SDK Core selection, canonical Principal admission, checked identity restoration and explicit Agent construction; Blob retains trust, intents and effect policy |
 | IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
-| IC Metrics | Validated numeric Serde, heap telemetry and private probe arithmetic; Blob owns report schemas, with no core storage owner or Canic dependency |
+| IC Metrics | Instrumentation in standalone/probe hosts only; Contracts owns report decoding/validation and has no Metrics dependency |
 | IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
 | IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Host HTTP | Bounded native probe response accumulation; request policy, error projection and evidence custody stay with Blob |
@@ -107,34 +107,39 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The pending 0.69 graph selects Platform 0.20, Runtime/guard 0.19, canonical Types 0.18,
-Wire/Derive 0.16, Tools 0.80 and Testkit 0.83. Storage 0.66's raw Runtime edge
-unifies with the same executor-capable identity. Metrics 0.28 owns recording and
-numeric validation; it no longer has a Wire dependency or supplies transport schema.
-The selected 0.28.1 patch has identical Rust sources to 0.28.0, so the compatible
-manifest minimum stays 0.28.0.
-Build 0.74.1 and Host Foundation 0.74.2 retain their prior selections. Deployment
-contains no Testkit, host tools, retired Memory or stable-structures owner.
+The pending 0.70.0 graph selects Platform 0.21, Runtime/guard 0.19, canonical
+Types 0.18, Wire/Derive 0.16.1, Tools 0.81, Testkit 0.84.1, Storage 0.66.1,
+Metrics 0.29 and Build/Host Foundation 0.74.2. Platform 0.21 retires its former
+PocketIC facade while retaining external-protocol/Agent identities. The native
+client is Testkit-owned. Metrics 0.29 owns instrumentation without Serde/report
+APIs: Contracts now validates its own passive reports, and the native CLI's
+fixture-only Metrics dependency is removed. The direct boundary permits Metrics
+only in actual instrumenting hosts; no report decoder uses persistence restoration.
+These changes preserve report bytes, numeric rejections and stored records while
+removing public recorder-conversion implementations. Consume the new dependency
+family under the 0.70 source cut; existing cross-release retirement rules apply.
+Deployment excludes Testkit, Host tooling, retired Memory and stable-structures.
 
-Native fixtures select published `ic-platform-pocket-ic` 0.20 directly, matching
-the client, DTO and error identities exposed by Testkit 0.83. They no longer
-enable the facade's `pocket-ic` feature. This follows Testkit's released API and
-lets the facade and independently released simulator client advance deliberately.
-Testkit now also selects facade 0.20, removing the older native facade generation.
-Canonical Types, Runtime, guard, Wire and simulator client identities remain single.
-The server stays PocketIC 16.1.0. Native snapshot-transfer helpers and the new
-`ResponseTooLarge` failure remain upstream capabilities; Blob does not introduce
-another transfer lifecycle or infer retry permission from client failures.
-No aliases, compatibility bridge or unpublished sibling dependency is used.
+Native fixtures select published **Testkit 0.84.1** for both the maintained
+PocketIC client (`ic_testkit::pocket_ic`) and lifecycle helpers (`ic_testkit::pic`).
+The separate `ic-platform-pocket-ic` dependency and all first-party imports were
+removed; the direct dependency boundary refuses reintroducing it. Platform 0.21
+retains external Candid, Agent and management adapters. Canonical Types 0.18,
+Runtime 0.19 and Wire 0.16 remain aligned, with no compatibility alias or unpublished
+sibling dependency. Testkit owns the native client/DTO/error identity and preserves
+the existing typed failures and accepted-operation custody. Server **16.1.0** is
+unchanged. The published package records the exact Platform donor and transfer
+patch; snapshot copying now uses the maintained client's bounded transfer engine.
+Blob keeps its own scenario authority, budgets, retry and recovery policy.
 
 Published Wire 0.16 resolves [Wire #44](https://github.com/dragginzgame/ic-wire/issues/44).
 Contracts' native `wire-schema` feature selects Wire's `platform-types` schemas
 for the canonical Principal. Blob reports use service-owned counter/aggregate
-DTOs, delegate decoding to Metrics and no longer enable `ic-metrics/native-wire`.
-The native schema graph check refuses reintroduction of that feature. See
+DTOs and independently validate decoded fields. Metrics is absent from the
+Contracts graph, including schema generation; the direct dependency gate prevents
+reintroduction of a recorder dependency at this report boundary. See
 [Blob #113](https://github.com/dragginzgame/ic-blob-storage/issues/113) and
-[the reporting boundary](metrics.md). No schema bridge or second arithmetic owner
-is introduced.
+[the reporting boundary](metrics.md). No schema bridge or recorder implementation is introduced.
 
 Principal's bytes, endpoint IDs, admission limits and exact retry packets remain
 unchanged. Blob's owned application/storage records do not embed Platform's
@@ -144,11 +149,16 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.28.2** is captured at committed source
-`5cf67f81c50c56ac17389ae71a3a87d46e86e8a2` (154 verified files). It refuses partial
-owned-tree inventories after traversal warnings and clarifies delivery checkout
-and direct-push authorization, and keeps release coordination out of waiting
-issues. Blob consumes its strict release-group plan admission/checkpoint runner
+Shared Tooling **0.29.3** is captured from committed source
+`1fa2d90879650780d23ad8f045f5825771b696ad` (154 verified files), using its canonical
+revision exporter while preserving unrelated dirty supplier work. Native dependency
+ownership now recognizes Testkit and refuses the retired client owner. The update
+also fixes grouped manifest-order admission on Bash 3.2 and UTF-8 validation text.
+The current rules separate test bodies into owner-local `tests.rs` or `tests/`
+without path overrides, and keep fixed-issue notes solely in the owning release
+group's ledger. The root changelog remains navigation. Metrics is instrumentation
+only; report consumers do not depend on its recording engine.
+Blob consumes its strict release-group plan admission/checkpoint runner
 and common roster/baseline/evidence verifier with a local conservative selector
 and source-bound receipts. Blob's qualified self-contained receipt supports
 preparation and fresh-checkout publication without rewriting raw runner paths.
@@ -164,7 +174,7 @@ extra consumer entrypoint. See [release ownership](releasing.md).
 Current published archive/index readbacks and focused caller qualification live
 in `target/upstream-refresh-20261103/`. Earlier target-based qualification was
 removed during disk recovery; the handoff distinguishes those historical reports
-from current retained evidence. Storage 0.66 and Testkit 0.83 select Wire 0.16,
+from current retained evidence. Storage 0.66 and Testkit 0.84 select Wire 0.16,
 removing the previous Wire/Derive 0.15 generation.
 Native installed-test and standalone deployment graphs each have one selected
 Wire, Types and Runtime identity. Storage's stored bytes and reopening contract
@@ -253,11 +263,14 @@ Native fixtures use Storage's published `testing::fixture_runtime` and governed
 recreated. Raw backing is retained only for explicit corruption/restore tests;
 production standalone builds exclude test support.
 The core's non-default `test-support` feature exposes component factories,
-explicit exposure/fault access and pure reference models used by the authority
-probe. The admission probe now uses the maintained durable upload owner; the
+explicit exposure/fault access used by the authority probe. Authority, admission
+and storage probes use the maintained durable upload owner; the
 parallel `UploadAdmissions` owner, heap manifest/enrollment bookkeeping and its
 three read-source adapters have been removed. Production consumers use the durable
-installed owner. Shared domain types, capacity checks and pure lifecycle
+installed owner. The parallel `BlobCatalog`/`UploadCatalog` owners and their
+heap read adapters are retired; authority experiments use governed disposable
+backing, with their separate archive retaining fenced inspection evidence.
+Shared domain types, capacity checks and pure lifecycle
 transitions remain available without test support.
 
 Do not infer production feature admission from a workspace-wide unified build.
@@ -332,10 +345,11 @@ upstream identities; Blob must not pass typed values across incompatible
 package versions. Installed tool selection is separate from the application lock:
 run `make install-testkit` then `make testkit-check` after changing Testkit.
 
-Test dependencies select Platform's `pocket-ic` feature, import `ic_platform::pocket_ic` directly,
-and call `ic_testkit::fake_principal`. Testkit still owns server startup,
-lifecycle extensions and transport error handling. The simulator identity,
-principal bytes and local decoder limits retain their original identities.
+Native test dependencies use `ic_testkit::pocket_ic` directly for simulator
+operations and `ic_testkit::fake_principal` for deterministic identities. Testkit
+owns client/server startup, lifecycle extensions and typed transport failures.
+External Principal/management identities and local decoder limits remain unchanged;
+no facade `pocket-ic` feature or separate simulator package is selected.
 Host Tools' decoder limits belong to Platform; Blob uses that canonical type.
 The optional package verifier and its Build dependency stay on the same Host
 process identity. Archive qualification passes explicit default-feature selection to

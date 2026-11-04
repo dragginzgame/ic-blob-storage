@@ -14,11 +14,10 @@
 //! Hosts construct and restore the complete owner through
 //! [`ops::service::installation::ServiceInstallation`]. Component constructors
 //! are internal; certificate issuance uses the installed owner. The non-default
-//! `test-support` feature exists only for isolated probes and reference-model
-//! comparisons; production integrations must leave it disabled. Heap catalog,
-//! lifecycle and receipt owners and their read-policy adapters are available only
-//! with that feature (or in this library's unit tests). Shared domain types, pure
-//! transitions and the durable service owner remain available without it.
+//! `test-support` feature exposes component factories and fault-injection access
+//! for isolated probes; production integrations must leave it disabled. Probes
+//! use the same durable upload/lifecycle implementation as production. Shared
+//! domain types and pure lifecycle transitions remain independently testable.
 //!
 //! Component stores cannot be installed independently through the production API:
 //! ```compile_fail
@@ -55,7 +54,7 @@ pub const LIBRARY_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Every component lease must drop before the host recreates its runtime.
 pub use ic_storage;
 
-/// Probe-only reference models and fault-injection access.
+/// Probe-only component factories and fault-injection access.
 /// Never enable this feature in a production host; it deliberately bypasses the
 /// complete installation boundary for isolated component and recovery fixtures.
 #[cfg(any(test, feature = "test-support"))]

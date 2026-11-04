@@ -30,17 +30,5 @@ ic-storage = { workspace = true, features = ["test-support"] }
 workspace = true
 
 [[test]]
-name = "catalog_journey"
-required-features = ["test-support"]
-
-[[test]]
 name = "lifecycle_binding"
-required-features = ["test-support"]
-
-[[test]]
-name = "tenant_obligations"
-required-features = ["test-support"]
-
-[[test]]
-name = "upload_reads"
 required-features = ["test-support"]

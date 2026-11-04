@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+mode="${1:-full}"
+[[ $# -le 1 && ( "$mode" == full || "$mode" == --metrics-only ) ]] || exit 2
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/blob-feature-boundary.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
@@ -20,14 +22,16 @@ fi
 CARGO
 chmod +x "$fixture/cargo"
 export PATH="$fixture:$PATH"
-for features in native-wire 'default,native-wire' 'native-wire,recording'; do
+for features in '' default native-wire 'default,native-wire' 'native-wire,recording'; do
     export FIXTURE_FEATURE_LINE="ic-metrics v1.0.0|$features (*)"
     if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
-        echo "Contracts accepted Metrics-owned metadata: $features" >&2; exit 1
+        echo "Contracts accepted instrumentation recorders: $features" >&2; exit 1
     fi
-    rg -q 'Contracts schema depends on Metrics-owned Wire metadata' "$fixture/output"
+    rg -q 'Contracts schema depends on instrumentation recorders' "$fixture/output"
 done
 unset FIXTURE_FEATURE_LINE
+printf 'Contracts instrumentation dependency refusals: PASS\n'
+[[ "$mode" != --metrics-only ]] || exit 0
 for package in ic-blob-storage ic-memory ic-storage; do
     for features in test-support 'default,test-support' 'test-support,other'; do
         export FIXTURE_FEATURE_LINE="$package v1.0.0|$features (*)"

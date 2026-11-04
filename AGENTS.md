@@ -1,7 +1,7 @@
 # AGENTS.md
 
 For scope, delegated delivery, validation, compiler support and reporting, use
-[Shared policy at e84252f](https://github.com/dragginzgame/shared-tooling/blob/e84252f5740bacd708359580455ea2b6fd67df38/DRAGGINZGAME.md)
+[Shared policy at 1fa2d90](https://github.com/dragginzgame/shared-tooling/blob/1fa2d90879650780d23ad8f045f5825771b696ad/DRAGGINZGAME.md)
 and its revision-bound references over older snapshot or local-guide wording.
 This includes Rust 1.99.1 as minimum and pinned development/release compiler;
 check local declarations and qualification before claiming adoption is complete.
@@ -62,9 +62,10 @@ it does not override shared rules or depend on a mutable sibling checkout.
   responses, native Testkit decoder limits, entrypoint macros and supported CDK
   call/system APIs also use Platform. Direct Candid, CDK-family, raw ic0 and internal
   Platform macro dependencies are forbidden by `ci/cargo-dependency-boundaries.json`.
-- Native simulator types use the independent `ic-platform-pocket-ic` owner,
-  aligned with Testkit's published client identity. Facade adoption does not
-  advance that independently versioned client or Types/Runtime automatically.
+- Native simulator client, DTO/error types and lifecycle helpers use published
+  Testkit directly (`ic_testkit::pocket_ic` and `ic_testkit::pic`). Do not declare
+  the retired separate `ic-platform-pocket-ic` client dependency. Platform retains
+  external Candid, Agent and management adapters; Types/Runtime stay explicit.
 - Storage owns stable collections, record codecs, host backing and allocation
   leases. Use `ic_storage::adapter` and `ic_storage`; the former Memory package
   is retired. Do not declare direct or renamed `ic-memory` or
@@ -120,8 +121,10 @@ it does not override shared rules or depend on a mutable sibling checkout.
   both the supported minimum and pinned development/release compiler. This
   supersedes the older minimum-version search policy in the reviewed snapshot;
   do not lower the floor or restore a second old-compiler qualification lane.
-- Use Rust edition 2024, directory modules with mod.rs and named boundary types.
-  Do not use path attributes to work around module layout.
+- Use Rust edition 2024, production directory modules with mod.rs and named
+  boundary types. Keep unit-test bodies and test-only helpers in owner-local
+  `tests.rs` or `tests/` using ordinary module discovery; retain existing test
+  hierarchies. Do not use path attributes to work around module layout.
 - Maintainer-approved physical-layout exception (2026-10-07), under
   [the shared workspace rule](rules/rust-workspaces.md): keep the library and CLI
   in `crates/`, standalone and probe canisters in `canisters/`, and packaged test

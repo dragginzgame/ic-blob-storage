@@ -7,7 +7,34 @@ The [service contract](service-contract.md#current-persisted-boundaries) owns th
 requirements; the [operator guide](operator-guide.md) owns command syntax.
 Library publication is separate from permission to retire or deploy a service.
 
-## Pending Blob 0.68 / Storage 0.65 disposition
+## Pending Blob 0.70 source cut
+
+Platform 0.21 and Metrics 0.29 change the public dependency/report-conversion
+boundary. The adopted code preserves Blob's record layouts, report frames and
+numeric refusal behavior; it introduces no additional stable schema or converter.
+Cross-release transitions still follow whole-installation retirement with the
+original tools and fresh backing. Preserve provider objects, credit, uncertain
+effects and liabilities; this source cut never authorizes resetting the retained
+0.69 trial or declaring released bytes physically deleted or settled.
+
+## Blob 0.69 funding-progress disposition
+
+Released Blob 0.69.0 consolidates funding transport progress and its permitted
+diagnostic into one bounded record. The fresh `BLFUPR01` record and
+`ic-blob-storage/installation:singleton-cells:funding-progress` installation
+identity reject earlier backing. Align consumers with the released Contracts,
+Client and Engine identities and qualify their actual host composition before
+installation. Published packages and local fixture results do not select a live
+service or authorize erasing one.
+
+For an existing installation, retain its original binary and tools, inventory
+and discharge or preserve its obligations below, then install with fresh whole
+backing. Do not clear only the funding record, replay an uncertain payment or
+interpret a decode refusal as permission to initialize. There is no migration,
+fallback reader or automatic reset. Same-release recovery and exact retries
+remain supported under the frozen 0.69 contract.
+
+## Blob 0.68 / Storage 0.65 disposition
 
 Storage 0.65 replaces both Memory and stable-structures, including allocation,
 collection and private Blob key images. The 0.65 B-tree map format also refuses

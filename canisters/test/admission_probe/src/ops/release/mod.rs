@@ -9,12 +9,10 @@ use blob_test_protocol::admission::{
     input::ReferenceInput,
     release::{LifecycleCommand, ReferenceFailure},
 };
-use ic_blob_storage::model::catalog::CatalogError;
 use ic_blob_storage::model::lifecycle::LifecycleChange;
 use ic_blob_storage::model::lifecycle::LifecycleError;
 use ic_blob_storage::model::lifecycle::requests::ReferenceRequestError;
 use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
-use ic_blob_storage::model::service::upload::UploadAdmissionError;
 use ic_blob_storage_contracts::binding::ReferenceId;
 use ic_blob_storage_contracts::binding::ReferenceKey;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
@@ -125,19 +123,11 @@ fn number(n: u128) -> Result<NonZeroU128, Failure> {
 fn reference_error(error: ic_blob_storage::ops::service::uploads::UploadStoreError) -> Failure {
     use ic_blob_storage::ops::service::uploads::UploadStoreError;
     match error {
-        UploadStoreError::Reference(error) => reference_admission_error(
-            UploadAdmissionError::Reference(CatalogError::Request(error)),
-        ),
-        UploadStoreError::Admission(error) => reference_admission_error(error),
+        UploadStoreError::Reference(ReferenceRequestError::ReceiptLimitReached) => {
+            Failure::Capacity
+        }
+        UploadStoreError::Admission(error) => super::conversion::admission_failure(error),
         _ => Failure::Catalog,
-    }
-}
-fn reference_admission_error(error: UploadAdmissionError) -> Failure {
-    match error {
-        UploadAdmissionError::Reference(CatalogError::Request(
-            ReferenceRequestError::ReceiptLimitReached,
-        )) => Failure::Capacity,
-        other => super::conversion::admission_failure(other),
     }
 }
 

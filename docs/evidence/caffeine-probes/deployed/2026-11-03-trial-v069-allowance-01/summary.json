@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "run": "trial-v069-allowance-01",
+  "evidence_class": "actual_mainnet_explicitly_approved_daily_limit_change_and_readback",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "release": "0.69.0",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "previous_phase": "../2026-11-03-trial-v069-provider-01/summary.json",
+  "authority": {
+    "user_reply": "ye splease do that",
+    "context": "Approval of the prepared one-shot 1T-to-5T daily update, original expiry preserved, no additional donor funds or upload retry",
+    "new_explicit_approval_after_prior_review_rejection": true,
+    "old_rejected_packet_submitted": false,
+    "fresh_reviewed_packet_submitted_once": true
+  },
+  "result": {
+    "schema": 1,
+    "at": "2026-11-03T16:46:47.196025+00:00",
+    "class": "approved_update_exact_readback",
+    "acknowledged": true,
+    "submission_invocations": 1,
+    "old_daily_limit_cycles": "1000000000000",
+    "new_daily_limit_cycles": "5000000000000",
+    "original_expiry_preserved_ns": "1793728110105542110",
+    "same_payer_service": true,
+    "payer_credit_before_and_after_cycles": "1000600000000",
+    "owner_credit_before_and_after_cycles": "0",
+    "gateway_credit_before_and_after_raw": "0",
+    "period_spend_before_and_after_cycles": "0",
+    "zero_overdraft_and_absent_target_preserved": true,
+    "internal_allocation_observed": false,
+    "new_donor_transfers": 0,
+    "object_requests": 0,
+    "original_upload_retried": false,
+    "interpretation": "Current observations confirm requested terms but no immediate owner/gateway allocation. Historical 5T setting is not a canonical bootstrap requirement or sufficient readiness proof."
+  },
+  "audit_page": {
+    "schema": 1,
+    "at": "2026-11-03T16:48:21.989373+00:00",
+    "class": "one_observed_authenticated_provider_audit_page",
+    "returned_entries": 4,
+    "reported_has_more": false,
+    "automatic_pagination": false,
+    "observed_event_counts": {
+      "LedgerDeposit": 2,
+      "RelationshipUpdate": 2
+    },
+    "observed_credit_amounts": [
+      "999800000000",
+      "800000000"
+    ],
+    "relationship_updates_observed_ledger_delta": "0",
+    "owner_counterparty_balance_observed": "0",
+    "observed_columns_include": [
+      "timestamp_ns",
+      "event_type",
+      "account",
+      "counterparty",
+      "delta_cycles_ledger",
+      "balance_after_total",
+      "success",
+      "error",
+      "sequence"
+    ],
+    "original_ledger_block_or_request_id_columns_observed": false,
+    "limits": "This one page does not prove complete account activity, retention or immutable original-operation credit/replay semantics. Exact Cashier allocation rule remains unidentified.",
+    "new_updates_or_payments": 0
+  },
+  "outcome": "Requested allowance change completed and read back exactly; owner/gateway allocation was not observed. Do not treat the historical 5T setting as a sufficient or universal bootstrap rule.",
+  "followup": "Investigate current provider owner-credit/bootstrap allocation requirements from evidence before proposing any new funding or exposure. Do not repeat this update or the original refused upload.",
+  "unchanged_obligations": "Original observed certificate, responded 403, live first reference and 1KiB possible physical/billing liability remain. No new body, object, reference, logical release, deletion, reset or billing-cessation claim.",
+  "validation_scope": "One acknowledged current provider update plus eight bounded pre/post reads and one audit query. No new donor payment, package/source behavior change, release, sibling edit or application qualification.",
+  "private_custody": ".git/private-operations/blob069-trial-01/",
+  "artifacts": [
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/approval-and-preflight-intent.json",
+      "bytes": 1688,
+      "sha256": "0e357532629a0f0a90fd7b5efbc78f4808b8f61425001c4a0175912108b89b97"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/update-intent.json",
+      "bytes": 1653,
+      "sha256": "145be973a265745764ea2f4c8fd79df46a8e926c0487be1b129a356167b86682"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/dispatch-intent.json",
+      "bytes": 1018,
+      "sha256": "05caf22159aaed410a0aeac142674ab726d54e6a43d8b1c2bcfa7147f6374a3d"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/approved-signed.json",
+      "bytes": 26201,
+      "sha256": "1b2518e0aec3a67c2771cbabf2e9553658e403bc70ac9e6b0bc03eac4cd44193"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/result.json",
+      "bytes": 169,
+      "sha256": "1ffbb5597d31363d718a856af732a7d667ab9bf90b44f76067257d1eb6b7a7fa"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/result.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/reconciliation.json",
+      "bytes": 926,
+      "sha256": "94a951a6f963b7378f3a37a3ac8d463234205a112aec2d6fa8520743b3813a05"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/payment_account_canister_get_v1-before.json",
+      "bytes": 1208,
+      "sha256": "c46801c4fdeb96e5fa94b6a819650b0bd62f68d73241dd2e948dfc2529e31284"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/payment_account_canister_get_v1-after.json",
+      "bytes": 1210,
+      "sha256": "e36a89a7d0f8d2bbbbadd8a866d110bc037155b142a82f1f0df5de9bc09a0c9f"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/account_info_get_v1-after.json",
+      "bytes": 2231,
+      "sha256": "5a21d3479a5e1423e5961ff6cac74c392ed442b83378659888691b188dc775fb"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/owner-balance-after.json",
+      "bytes": 613,
+      "sha256": "24499b36fb40b44637b49788e60cbfd60bef142c9dce1db932565fa0af322a88"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approved-01/budget-after.json",
+      "bytes": 578,
+      "sha256": "ffe1eff5efd595b2613710771420d10caea1eac492b7ef467df5e66fc526a44b"
+    },
+    {
+      "private_path": "target/post069-provider/allocation-audit-01/intent.json",
+      "bytes": 951,
+      "sha256": "b7dd0346fe11bee0b943d603206c5889545cb54b7c138cfc36f5d4bdd771bd6f"
+    },
+    {
+      "private_path": "target/post069-provider/allocation-audit-01/result.json",
+      "bytes": 5396,
+      "sha256": "32b42ac4fbd44c5df6af59b0cd9e7dccc3b7bf1e9d104417a801f90dfeef280d"
+    },
+    {
+      "private_path": "target/post069-provider/allocation-audit-01/summary.json",
+      "bytes": 962,
+      "sha256": "b2791bff4c6ba14a47eec44b10155889c3668b83978d06c0d904225184f5fa17"
+    }
+  ]
+}

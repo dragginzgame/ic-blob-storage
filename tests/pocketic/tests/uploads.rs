@@ -7,8 +7,8 @@ mod support;
 use blob_test_protocol::uploads::UploadProbeState;
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform_pocket_ic::PocketIc;
 use ic_testkit::fake_principal;
+use ic_testkit::pocket_ic::PocketIc;
 use support::Harness;
 
 fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {

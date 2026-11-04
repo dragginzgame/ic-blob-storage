@@ -76,8 +76,8 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_platform_pocket_ic::{CanisterSettings, RejectCode};
 use ic_testkit::fake_principal;
+use ic_testkit::pocket_ic::{CanisterSettings, RejectCode};
 use support::{Harness, fixture_path};
 
 struct Fixture {
@@ -290,7 +290,7 @@ impl Fixture {
             )
             .unwrap()
     }
-    fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_platform_pocket_ic::ClientError> {
+    fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_testkit::pocket_ic::ClientError> {
         self.harness
             .pic
             .upgrade_canister(self.service, wasm(), args, Some(self.controller))
@@ -619,7 +619,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
         .set_stable_memory(
             target.service,
             foreign.clone(),
-            ic_platform_pocket_ic::common::rest::BlobCompression::NoCompression,
+            ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
         )
         .unwrap();
     assert_eq!(
@@ -648,7 +648,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
         .set_stable_memory(
             target.service,
             Vec::new(),
-            ic_platform_pocket_ic::common::rest::BlobCompression::NoCompression,
+            ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
         )
         .unwrap();
     assert_eq!(
@@ -695,7 +695,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
         .set_stable_memory(
             original.service,
             wrong_release.clone(),
-            ic_platform_pocket_ic::common::rest::BlobCompression::NoCompression,
+            ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
         )
         .unwrap();
     assert_eq!(

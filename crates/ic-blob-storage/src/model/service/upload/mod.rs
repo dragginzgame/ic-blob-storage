@@ -16,7 +16,6 @@ pub mod manifest;
 pub mod planning;
 pub use manifest::UploadManifestState;
 
-use crate::model::catalog::CatalogError;
 use crate::model::catalog::admission::UploadError;
 use crate::model::catalog::admission::UploadPhase;
 use crate::model::lifecycle::LifecycleChange;
@@ -69,9 +68,6 @@ pub enum UploadAdmissionError {
     /// Enrollment or activation-generation rejection.
     #[error(transparent)]
     Tenant(#[from] TenantError),
-    /// Reference catalog identity, receipt or capacity rejection.
-    #[error(transparent)]
-    Reference(#[from] CatalogError),
     /// Actual and configured service differ.
     #[error("wrong upload service")]
     WrongService,

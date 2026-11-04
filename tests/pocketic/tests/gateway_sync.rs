@@ -11,8 +11,8 @@ mod sync_request;
 use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
 use ic_platform::principal::ExternalPrincipal as Principal;
 
-use ic_platform_pocket_ic::PocketIc;
 use ic_testkit::fake_principal;
+use ic_testkit::pocket_ic::PocketIc;
 use support::Harness;
 
 struct Fixture {

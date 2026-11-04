@@ -2,15 +2,16 @@
 use super::{bound, number};
 use crate::model::content::ContentRequest;
 pub(crate) mod readback;
+use super::durable::{Owner, context};
 use crate::model::content::{ContentError, ContentSession, ContentVerdict, manifest_limits};
 use blob_test_protocol::journey::{
     JourneyFailure, JourneyManifest, JourneyProgress, JourneyUpload, JourneyVerification,
 };
+use ic_blob_storage::ic_storage::{MemoryRuntime, VectorMemory};
 use ic_blob_storage::model::catalog::admission::UploadAdmission;
-use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::model::catalog::admission::UploadError;
-use ic_blob_storage::model::lifecycle::LifecycleChange;
 use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
+use ic_blob_storage::ops::service::uploads::UploadStoreError;
 use ic_blob_storage_contracts::binding::ObjectBinding;
 use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::binding::ReferenceId;
@@ -31,7 +32,8 @@ use ic_blob_storage_contracts::upload::binding::UploadRequestId;
 use ic_platform::Principal;
 
 pub(crate) struct Journey {
-    pub catalog: UploadCatalog,
+    pub catalog: Owner,
+    _runtime: MemoryRuntime<VectorMemory>,
     pub tenants: [Principal; 2],
     pub(super) requests: Vec<VerifiedUpload>,
     pub(super) reads: crate::model::readback::ReadSlot,
@@ -49,27 +51,33 @@ pub(super) struct VerifiedUpload {
     pub(super) manifest_input: JourneyManifest,
 }
 
-pub(crate) fn initialize(service: Principal, first: Principal, second: Principal) -> Journey {
+pub(crate) fn initialize(
+    service: Principal,
+    first: Principal,
+    second: Principal,
+    operator: Principal,
+) -> Journey {
+    let (catalog, runtime) = super::durable::install(
+        service,
+        operator,
+        [first, second],
+        CatalogLimits {
+            max_objects: bound(8),
+            max_tenant_objects: bound(4),
+            max_physical_bytes: number(12 * 1024 * 1024),
+            max_liability_bytes: number(12 * 1024 * 1024),
+            max_tenant_logical_bytes: number(u128::from(manifest_limits().max_content_bytes.get())),
+            max_references_per_object: bound(1),
+            max_receipts_per_object: bound(1),
+        },
+        UploadLimits {
+            max_active: bound(8),
+            max_tenant_active: bound(4),
+        },
+    );
     Journey {
-        catalog: UploadCatalog::new(
-            service,
-            CatalogLimits {
-                max_objects: bound(8),
-                max_tenant_objects: bound(4),
-                max_physical_bytes: number(12 * 1024 * 1024),
-                max_liability_bytes: number(12 * 1024 * 1024),
-                max_tenant_logical_bytes: number(u128::from(
-                    manifest_limits().max_content_bytes.get(),
-                )),
-                max_references_per_object: bound(1),
-                max_receipts_per_object: bound(1),
-            },
-            UploadLimits {
-                max_active: bound(8),
-                max_tenant_active: bound(4),
-            },
-        )
-        .expect("journey bounds"),
+        catalog,
+        _runtime: runtime,
         tenants: [first, second],
         requests: Vec::new(),
         reads: crate::model::readback::ReadSlot::new(),
@@ -83,15 +91,32 @@ fn mutate<T>(f: impl FnOnce(&mut Journey) -> T) -> T {
     super::mutate(|state| f(&mut state.journey))
 }
 
-fn error(error: UploadError) -> JourneyFailure {
+fn error(error: UploadStoreError) -> JourneyFailure {
+    use ic_blob_storage::model::service::upload::UploadAdmissionError as A;
     match error {
-        UploadError::Denied => JourneyFailure::Denied,
-        UploadError::UnknownRequest => JourneyFailure::Unknown,
-        UploadError::RequestConflict | UploadError::Root(_) => JourneyFailure::Conflict,
-        UploadError::InvalidPhase(_) => JourneyFailure::InvalidPhase,
-        UploadError::ActiveLimit | UploadError::TenantActiveLimit | UploadError::Catalog(_) => {
+        UploadStoreError::Admission(A::Catalog(error)) => match error {
+            UploadError::Denied => JourneyFailure::Denied,
+            UploadError::UnknownRequest => JourneyFailure::Unknown,
+            UploadError::RequestConflict | UploadError::Root(_) => JourneyFailure::Conflict,
+            UploadError::InvalidPhase(_) => JourneyFailure::InvalidPhase,
+            UploadError::ActiveLimit | UploadError::TenantActiveLimit | UploadError::Catalog(_) => {
+                JourneyFailure::Limit
+            }
+        },
+        UploadStoreError::Roots(_) | UploadStoreError::Admission(A::PermissionConflict) => {
+            JourneyFailure::Conflict
+        }
+        UploadStoreError::Admission(A::UnknownPermission) => JourneyFailure::Unknown,
+        UploadStoreError::Admission(
+            A::NotProject | A::NotObserver | A::NotUploader | A::WrongService | A::WrongNamespace,
+        ) => JourneyFailure::Denied,
+        UploadStoreError::Admission(A::ManifestCapacity(_) | A::ObjectTooLarge) => {
             JourneyFailure::Limit
         }
+        UploadStoreError::Admission(A::EmptyObject | A::Metadata(_) | A::Manifest(_)) => {
+            JourneyFailure::InvalidInput
+        }
+        _ => JourneyFailure::InvalidPhase,
     }
 }
 
@@ -100,7 +125,8 @@ pub(crate) fn request(
     tenant: Principal,
     input: JourneyUpload,
 ) -> Result<ContentRequest, JourneyFailure> {
-    if input.id == 0 {
+    if input.id == 0 || input.bytes == 0 || input.bytes > manifest_limits().max_content_bytes.get()
+    {
         return Err(JourneyFailure::InvalidInput);
     }
     let object = ObjectBinding::new(
@@ -161,6 +187,13 @@ pub(super) fn manifest(
         .iter()
         .map(|(name, value)| CaffeineHeader { name, value })
         .collect();
+    ic_blob_storage_contracts::upload::metadata::validate_upload_metadata(
+        &headers,
+        request.upload.object.bytes,
+        limits.max_headers.get(),
+        limits.max_header_bytes.get(),
+    )
+    .map_err(|_| JourneyFailure::InvalidInput)?;
     let manifest = CaffeineChunkManifest::new(
         request.upload.object.root,
         request.upload.object.bytes,
@@ -177,9 +210,9 @@ pub(crate) fn reserve(
     request: ContentRequest,
     input: &JourneyManifest,
 ) -> Result<(), JourneyFailure> {
-    let manifest = manifest(request, input)?;
     mutate(|state| {
         check_content_request(state, request)?;
+        let manifest = manifest(request, input)?;
         if state
             .requests
             .iter()
@@ -189,10 +222,30 @@ pub(crate) fn reserve(
         }
         let result = state
             .catalog
-            .reserve(actor, request.upload)
+            .admit(
+                context(request.upload.object.first.object().service(), actor),
+                super::durable::permission(request.upload),
+                0,
+            )
             .map_err(error)?;
         if result == UploadAdmission::Reserved {
-            // Each successful fresh reservation consumed a bounded lifetime slot.
+            let headers: Vec<_> = input
+                .headers
+                .iter()
+                .map(|(name, value)| CaffeineHeader { name, value })
+                .collect();
+            state
+                .catalog
+                .prepare_manifest(
+                    context(request.upload.object.first.object().service(), actor),
+                    request.upload,
+                    ic_blob_storage::model::service::upload::manifest::UploadManifest {
+                        chunks: manifest.chunks(),
+                        headers: &headers,
+                    },
+                    0,
+                )
+                .map_err(error)?;
             state.requests.push(VerifiedUpload {
                 request,
                 content: ContentSession::new(manifest, request.content),
@@ -212,14 +265,13 @@ pub(crate) fn expose(actor: Principal, request: ContentRequest) -> Result<(), Jo
         {
             return Err(JourneyFailure::InvalidPhase);
         }
-        match state
-            .catalog
-            .register(actor, request.upload)
-            .map_err(error)?
-        {
-            LifecycleChange::Changed => Ok(()),
-            LifecycleChange::Unchanged => Err(JourneyFailure::InvalidPhase),
-        }
+        ic_blob_storage::test_support::exposure::record(
+            &mut state.catalog,
+            context(request.upload.object.first.object().service(), actor),
+            request.upload,
+            0,
+        )
+        .map_err(error)
     })
 }
 
@@ -232,11 +284,15 @@ pub(crate) fn append(
         use ic_blob_storage::model::catalog::admission::UploadPhase;
         if state
             .catalog
-            .phase(
-                request.upload.object.first.object().tenant(),
+            .lookup(
+                context(
+                    request.upload.object.first.object().service(),
+                    request.upload.object.first.object().tenant(),
+                ),
                 request.upload,
             )
             .map_err(error)?
+            .phase
             != UploadPhase::Reserved
         {
             return Err(JourneyFailure::InvalidPhase);
@@ -280,9 +336,22 @@ pub(crate) fn progress(request: ContentRequest) -> Result<JourneyProgress, Journ
 pub(crate) fn cancel(actor: Principal, request: ContentRequest) -> Result<(), JourneyFailure> {
     mutate(|state| {
         check_content_request(state, request)?;
+        let ctx = context(request.upload.object.first.object().service(), actor);
+        if state
+            .catalog
+            .lookup(ctx, request.upload)
+            .map_err(error)?
+            .phase
+            == ic_blob_storage::model::catalog::admission::UploadPhase::Registered
+        {
+            return Err(JourneyFailure::InvalidPhase);
+        }
         state
             .catalog
-            .cancel(actor, request.upload)
+            .revoke(
+                context(request.upload.object.first.object().service(), actor),
+                request.upload,
+            )
             .map(|_| ())
             .map_err(error)
     })
@@ -291,8 +360,8 @@ pub(crate) fn cancel(actor: Principal, request: ContentRequest) -> Result<(), Jo
 pub(crate) fn release(actor: Principal, request: ContentRequest) -> Result<(), JourneyFailure> {
     mutate(|state| {
         match state.catalog.apply_reference(
-            request.upload.object.root,
-            actor,
+            context(request.upload.object.first.object().service(), actor),
+            request.upload,
             ReferenceRequest {
                 id: ReferenceRequestId::new(number(1)),
                 operation: ReferenceOperation::Release(request.upload.object.first),
@@ -311,10 +380,7 @@ pub(crate) fn deleted(request: ContentRequest) -> Result<(), JourneyFailure> {
     mutate(|state| {
         state
             .catalog
-            .confirm_provider_deleted(
-                request.upload.object.root,
-                request.upload.object.first.object(),
-            )
+            .confirm_provider_deleted(request.upload)
             .map(|_| ())
             .map_err(|_| JourneyFailure::InvalidPhase)
     })
@@ -324,10 +390,7 @@ pub(crate) fn settled(request: ContentRequest) -> Result<(), JourneyFailure> {
     mutate(|state| {
         state
             .catalog
-            .confirm_billing_stopped(
-                request.upload.object.root,
-                request.upload.object.first.object(),
-            )
+            .confirm_billing_stopped(request.upload)
             .map(|_| ())
             .map_err(|_| JourneyFailure::InvalidPhase)
     })
@@ -335,11 +398,12 @@ pub(crate) fn settled(request: ContentRequest) -> Result<(), JourneyFailure> {
 
 // The integrity experiment binds its independent raw digest outside the catalog.
 fn check_content_request(state: &Journey, request: ContentRequest) -> Result<(), JourneyFailure> {
-    if state
-        .requests
-        .iter()
-        .any(|entry| entry.request.upload == request.upload && entry.request != request)
-    {
+    if state.requests.iter().any(|entry| {
+        entry.request.upload.id == request.upload.id
+            && entry.request.upload.object.first.object().tenant()
+                == request.upload.object.first.object().tenant()
+            && entry.request != request
+    }) {
         return Err(JourneyFailure::Conflict);
     }
     Ok(())

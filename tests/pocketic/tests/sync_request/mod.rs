@@ -2,7 +2,7 @@
 use blob_test_protocol::{GatewaySyncRequest, status::OperatorStatusView};
 use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_platform_pocket_ic::PocketIc;
+use ic_testkit::pocket_ic::PocketIc;
 
 pub(super) fn read(pic: &PocketIc, service: Principal, operator: Principal) -> GatewaySyncRequest {
     let status: Option<OperatorStatusView> =

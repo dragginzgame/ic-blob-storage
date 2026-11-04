@@ -1,0 +1,306 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "run": "trial-v069-gc-followup-01",
+  "evidence_class": "bounded_mainnet_existing_standalone_telemetry_and_read_only_provider_followup",
+  "release": "0.69.0",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "previous_record": "../2026-11-03-trial-v069-gc-release-01/summary.json",
+  "state": "no_successful_gateway_acknowledgment_recorded_in_reported_window; public_URL_still_200; physical_deletion_and_billing_unproved",
+  "metrics": {
+    "window_version": "1",
+    "observed_version": "18",
+    "started_at_ns": "1793717050214005028",
+    "observed_at_ns": "1793727156064809121",
+    "gateway_ack_attempts": "0",
+    "gateway_successful_acknowledgments": "0",
+    "counts_saturated": false,
+    "other_applied_updates": {
+      "admission": "2",
+      "manifest": "2",
+      "registration": "2",
+      "reference": "1"
+    },
+    "limitations": [
+      "Heap-window telemetry is not a complete independently authenticated provider audit or restore-proof history.",
+      "Rejected/trapping calls may leave no counts; read-only gateway queries are not recorded.",
+      "A positive aggregate could include empty batches and would not identify an exact object."
+    ]
+  },
+  "operator_history": [
+    {
+      "object": "1",
+      "state": "Live"
+    },
+    {
+      "object": "2",
+      "state": "DeletionPending"
+    }
+  ],
+  "local_accounting": {
+    "operations": "2",
+    "active_reservations": "0",
+    "reserved_bytes": "0",
+    "logical_bytes": "1024",
+    "physical_bytes": "2048",
+    "liability_bytes": "2048",
+    "fenced": false
+  },
+  "provider_owner_balance_cycles": "999345491697",
+  "gateway_credit_raw": "166557581949",
+  "HEAD": {
+    "count": 1,
+    "status": 200,
+    "body_bytes": 0,
+    "selected_response_headers": {
+      "cache-control": "max-age=31536000, immutable",
+      "content-type": "application/octet-stream",
+      "access-control-allow-origin": "*",
+      "content-length": "1024",
+      "date": "Tue, 03 Nov 2026 17:32:39 GMT"
+    },
+    "limitation": "Availability/header observation only; caches can answer. Not physical-origin deletion, access control, receipt or billing settlement."
+  },
+  "new_funds_updates_uploads": 0,
+  "automatic_polling": false,
+  "forced_GC_or_impersonated_acknowledgment": false,
+  "probe_query_failures": 0,
+  "operator_tooling": {
+    "prior_shared_client_missing_metrics_export": "Offline import failed before any query. Shared mount intentionally excludes host telemetry.",
+    "implemented": "Explicit standalone-metadata and standalone-client modes reuse canonical existing method/DTO/budgets. No copied packet/DTO or new endpoint.",
+    "runtime_bytes_state_and_shared_client": "unchanged",
+    "identity": "Existing configured ICP identity signs the query without development-key export.",
+    "generator_graph": {
+      "Wire": "0.16.1",
+      "compiler": "1.99.1",
+      "Cargo.lock": "084fba1b42afa326c938b7572032e5075d8f6ef664b3490bca90e2dbf618c149"
+    },
+    "deployed_and_original_service_client_graph": "Original frozen qualified 0.69 artifacts, Wire 0.16.0; generator live round-trip is focused cross-patch codec evidence only."
+  },
+  "remaining": [
+    "#6 actual deployed provider callback/deletion and billing evidence; no fixed cadence can be inferred.",
+    "#5/#31 actual application network/service/session/publication binding. Read-only Canic handoff remains unbound even though Cargo now selects Blob 0.69.0.",
+    "#34 lost/uncertain funding attribution, replay and complete competing activity."
+  ],
+  "custody": ".git/private-operations/blob069-trial-01/gc-followup-01/; raw headers/session cookie private; original native/browser histories and 2KiB physical/liability records preserved. No external backup claimed.",
+  "validation": {
+    "schema": 1,
+    "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+    "cargo": "cargo 1.99.1 (5f94df478 2026-08-27)",
+    "checkout_lock_sha256": "084fba1b42afa326c938b7572032e5075d8f6ef664b3490bca90e2dbf618c149",
+    "checks": [
+      {
+        "command": "cargo test --offline --locked -p ic-blob-storage-contracts --features wire-schema --lib standalone_telemetry_uses_its_own_contract_without_extending_shared_methods",
+        "result": "PASS; 1 test"
+      },
+      {
+        "command": "cargo test --offline --locked -p ic-blob-storage-contracts --features wire-schema --example wire_schema modes_help_and_extra_arguments_are_owned_by_clap",
+        "result": "PASS; 1 test"
+      },
+      {
+        "command": "cargo fmt -p ic-blob-storage-contracts --check",
+        "result": "PASS"
+      },
+      {
+        "command": "cargo clippy --offline --locked -p ic-blob-storage-contracts --features wire-schema --lib --example wire_schema --tests -- -D warnings",
+        "result": "PASS"
+      },
+      {
+        "command": "Generated standalone TypeScript codec: live unit request, exact response re-encoding and five malformed/bounds cases",
+        "result": "PASS"
+      }
+    ],
+    "scope": "Host-only optional schema-generator change. No full workspace, deployed Wasm, installed qualification or macOS matrix rerun. Current checkout Build/Wire dependency adoption is not broadly qualified by these focused checks.",
+    "source_hashes": [
+      {
+        "path": "crates/ic-blob-storage-contracts/src/wire/schema/mod.rs",
+        "sha256": "096c72f24896ca486a969be5c01f52fc6d60361727c8e13f417deb2c2793ede7"
+      },
+      {
+        "path": "crates/ic-blob-storage-contracts/src/wire/schema/tests/mod.rs",
+        "sha256": "7340af31de0216ba9dca10628b745b56c981e053f10c9f48059bd826132eb44c"
+      },
+      {
+        "path": "crates/ic-blob-storage-contracts/examples/wire_schema/main.rs",
+        "sha256": "cb08a9977fdfedfb1434f3b2e1d50b3bc6d888a4b9bb5a294bad80b2d353c9f6"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "private_path": "target/post069-provider/gc-followup-01/HEAD-exit.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/HEAD-headers.txt",
+      "bytes": 541,
+      "sha256": "e6dfa72372e03feba613ed7d0f0f0c867ce1711d5881eb43d327813162c6de64"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/HEAD-request.json",
+      "bytes": 331,
+      "sha256": "18f1d3f8da9267ebc7dfd1f20f9a6647cbe7126f74932f326340a5e6ca20c3c3"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/HEAD-response.status",
+      "bytes": 4,
+      "sha256": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/HEAD.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/budget.json",
+      "bytes": 602,
+      "sha256": "ff68253585255a08c5882fd5f836329ebf13ee94795911dee8d64fb88ad5b6a0"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/budget.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/budget.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/codec-checks.json",
+      "bytes": 404,
+      "sha256": "a53647aa72943c4829a7a341a63ca725915fc9acdafa362d06e6c98b4b42921a"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/history-decoded.json",
+      "bytes": 3567,
+      "sha256": "646f82e9b806f1256da8100e7d7c6c61b49ddba36632305065abfe359cd1e995"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/history.json",
+      "bytes": 451,
+      "sha256": "a18ebdf106218989b76869a285d6ee320c16b8c3025ce0a618305dd3184e3d7a"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/history.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/history.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/intent.json",
+      "bytes": 2096,
+      "sha256": "16bf85725e52861fa88c6d13c0c9a7a29b2aa0a688c6e9482733ab1349ade442"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/local-schema-refusal.json",
+      "bytes": 517,
+      "sha256": "8bdf984ddd64fbdd894bbfc239edcf55cc43ebdcf25c3787e4cfce4c734ae101"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/metrics-decoded.json",
+      "bytes": 6320,
+      "sha256": "b81f82c23ec5116452f50d5c3ddc4ac77e2a7061da2bff644270f29fd0df41ba"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/metrics-request.hex",
+      "bytes": 23,
+      "sha256": "fe5d95f1f87baafe3cd036fbb4d71b08bcf5845606d63bc2f1c56a9768e7467f"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/metrics.json",
+      "bytes": 451,
+      "sha256": "3d0e3763e91821ac8a15c441673eac3635c4a4f570f2f0a58003213a303558ed"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/metrics.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/metrics.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/owner.json",
+      "bytes": 660,
+      "sha256": "44cedef0a857af56a3269709ddaf5483ed6a4b7409033f046059ee7ed2515732"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/owner.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/owner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/schema/blob-runtime.ts",
+      "bytes": 694,
+      "sha256": "1b80d0b54c325ffbc8123e412f820cff15a0482adaca4703dc8b2407082584b9"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/schema/client.mjs",
+      "bytes": 20437,
+      "sha256": "428e8529d4175d120e1066002e2aaf9d4af079440ebbf4970b1b603f739eaae8"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/schema/client.ts",
+      "bytes": 7868,
+      "sha256": "775443134d4746f0604d0490ae90b73c36805efec2816bdb25d52675cd1707ad"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/schema/metadata.json",
+      "bytes": 9778,
+      "sha256": "35990e2b25bd46ff07fb474c0cc1b6903aa942ad8ad77340dc7e2c58a1fd1337"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/schema/wire-runtime.ts",
+      "bytes": 20993,
+      "sha256": "987a8ed1b97310035e2e0e22c46bada4c862722ce7ba0c7dfa53d90f1f33ac20"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/schema-build.stderr",
+      "bytes": 257,
+      "sha256": "06e7020bd29fc19ce0ce37e39a4b3c4e7b62a930eda3e290c1db2b43a7ae331e"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/standalone-client.ts",
+      "bytes": 7868,
+      "sha256": "775443134d4746f0604d0490ae90b73c36805efec2816bdb25d52675cd1707ad"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/status-decoded.json",
+      "bytes": 2000,
+      "sha256": "0faa083bf46c57a22b80486feee62316f3c54085b45ee799b4a6707ae49e6cbc"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/status.json",
+      "bytes": 311,
+      "sha256": "8a71e183e561682bcde9c199ee6132fa1121ba3164b1a332633c73d5160621b3"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/status.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/status.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-followup-01/validation.json",
+      "bytes": 1923,
+      "sha256": "81c90980fe89e5e8d7e3eaad1b8abbecae9320061d143034fd472accdd01747a"
+    }
+  ]
+}

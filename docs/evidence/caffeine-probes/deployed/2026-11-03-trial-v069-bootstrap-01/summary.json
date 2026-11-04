@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "observed_at": "2026-11-03T17:02:30Z",
+  "state": "delayed_provider_allocation_observed",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "payer": "ab5t3-vbigc-tsiay-3hqjk-b4alz-iprf2-ytyer-r4dhq-adx6c-ifxl6-hae",
+  "payer_previous_cycles": "1000600000000",
+  "payer_current_cycles": "600000000",
+  "service_owner_cycles": "1000000000000",
+  "relationship_period_spent_cycles": "1000000000000",
+  "gateway_available_credit_raw": "166666666666",
+  "daily_limit_cycles": "5000000000000",
+  "expiry_raw": "1793728110105542110",
+  "expiry_unchanged": true,
+  "new_payments_or_updates": 0,
+  "queries_succeeded": 4,
+  "limitations": [
+    "Query observations are time-bound, not a certified credit receipt or proof of allocation algorithm/cadence/minimum.",
+    "Cannot establish whether 5T increase was necessary, sufficient or caused delayed allocation.",
+    "Positive scoped gateway credit does not prove an object upload will succeed.",
+    "Original user-1 403 and live liability remain; no replay/reset authorized."
+  ],
+  "evidence_class": "public_source_review_and_actual_mainnet_scoped_query_observations",
+  "previous_completed_record": "../2026-11-03-trial-v069-allowance-01/summary.json",
+  "artifacts": [
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/Mixin.mo",
+      "bytes": 2494,
+      "sha256": "a4c77c185b8f3018d16b72ab3550aff6de3aac66ce83fb5cf15ec81c5e3f9651"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/Storage.mo",
+      "bytes": 2292,
+      "sha256": "60f5a8d5278b864ea0b2c26ced4f6b18f52b5a2cdc2fd10c13a8f9b6faf6eb3a"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/intent.json",
+      "bytes": 1173,
+      "sha256": "031c536cf32e3022edad5fd984a7c381250da4ceeab25596e3731c8d718d3c16"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/official-readme.md",
+      "bytes": 21284,
+      "sha256": "09e954fb0ad1daa61fe0c57258a34c31c57535a72fb92d23ab80a8b065c510b4"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/official-storage.rs",
+      "bytes": 12750,
+      "sha256": "cb9814cb2931362b4fc61e9ad1a557e1e5f445e2741f7cda04c8f1402e41730f"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/provider-commit.json",
+      "bytes": 19470,
+      "sha256": "8b4854b829dd962fda50a8ac710d8f91776edc26ca56ccc0d627a05f21173f8e"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/provider-package.json",
+      "bytes": 1858,
+      "sha256": "c29b876c40f700cfbee7ee7673879a6353762cbfa38506fa3543a8a59217d35b"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/public-search.json",
+      "bytes": 32811,
+      "sha256": "135ff1bde01ce9cc012452345face457310ec952ffa564fa092112b340115a9d"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-source-review-01/source-summary.json",
+      "bytes": 2157,
+      "sha256": "688635b7b8088c8209949822b0fda345acf9ab1dfb29ff31c09d79854d4c7633"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-metrics-01/intent.json",
+      "bytes": 1482,
+      "sha256": "ee47cb0ef21866133be3e4eb20093133579b5a85e55ce924db8e8994b43cb8df"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-metrics-01/result.json",
+      "bytes": 1391,
+      "sha256": "5deac1c634407efa0035d75018341239498416a98816e97f4bd23f4a58669454"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-metrics-01/selected-metrics.txt",
+      "bytes": 3231,
+      "sha256": "4129b0e8d34ec7782ae13387136ce74a9cb0b190afbd039d2762da120c4eaee4"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/account_info_get_v1.json",
+      "bytes": 2215,
+      "sha256": "7c5f63ea0baad61aca6c5316b70097fffde279d4ff099dfd09706fe1acfb333e"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/account_info_get_v1.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/account_info_get_v1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/budget.json",
+      "bytes": 602,
+      "sha256": "10d838d96d75dbc356e868738c42286e8f2d8cb9d53600231c47bfbe97e7896c"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/budget.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/budget.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/intent.json",
+      "bytes": 1680,
+      "sha256": "e74bc5e448ff47c77e291f1de53c05b057818aa0469ffde41d729fc3bc11850a"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/owner-balance.json",
+      "bytes": 664,
+      "sha256": "31033002c0b42776ccd08c99075af80f6a5849ce8a613e33e3b4ac4376138e60"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/owner-balance.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/owner-balance.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/payment_account_canister_get_v1.json",
+      "bytes": 1236,
+      "sha256": "9d0d4613c94b99b74f379a69a8c31c0ef02462d1ecca11582800ffcbe325e42b"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/payment_account_canister_get_v1.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/payment_account_canister_get_v1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "target/post069-provider/bootstrap-allocation-readback-01/summary.json",
+      "bytes": 1041,
+      "sha256": "7d74d7d2acf5e8e7638789324cba3b86bb7502cf3adeaff3597e741636ab11b9"
+    }
+  ]
+}

@@ -3,12 +3,12 @@
 //! never installed as live state, and no sync/read token is minted from a backup.
 use std::cell::RefCell;
 
+use crate::ops::durable::{Owner, context, permission};
 use blob_test_protocol::{
     authority::{ArchiveCatalog, ArchivePhase},
     journey::{JourneyManifest, JourneyUpload, JourneyVerification},
 };
 use ic_blob_storage::model::catalog::admission::UploadAdmission;
-use ic_blob_storage::model::catalog::admission::UploadCatalog;
 use ic_blob_storage::model::gateway::membership::GatewayMembership;
 use ic_blob_storage::model::lifecycle::LifecycleChange;
 use ic_blob_storage::model::lifecycle::requests::ReferenceRequestOutcome;
@@ -47,7 +47,7 @@ pub(super) fn retained() -> Option<AuthorityArchiveRecord> {
 pub(super) fn inspection_allowed(service: Principal, actor: Principal) -> bool {
     RESTORED.with_borrow(|record| match record {
         Some(record) => record.service == service.into() && record.operator == actor.into(),
-        None => ops::read(|state| state.catalog.service() == service && state.operator == actor),
+        None => ops::read(|state| state.service == service && state.operator == actor),
     })
 }
 
@@ -129,8 +129,8 @@ fn samples(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
         if retained.phase != ArchivePhase::Live {
             copy.catalog
                 .apply_reference(
-                    reference.root,
-                    sample.tenant.into(),
+                    context(record.service.into(), sample.tenant.into()),
+                    ops::sample(copy, sample.id)?,
                     release(reference.reference),
                 )
                 .ok()?;
@@ -140,12 +140,12 @@ fn samples(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
             ArchivePhase::ProviderDeleted | ArchivePhase::Settled
         ) {
             copy.catalog
-                .confirm_provider_deleted(reference.root, reference.reference.object())
+                .confirm_provider_deleted(ops::sample(copy, sample.id)?)
                 .ok()?;
         }
         if retained.phase == ArchivePhase::Settled {
             copy.catalog
-                .confirm_billing_stopped(reference.root, reference.reference.object())
+                .confirm_billing_stopped(ops::sample(copy, sample.id)?)
                 .ok()?;
         }
     }
@@ -156,7 +156,13 @@ fn samples(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
         if retained.phase == ArchivePhase::Cancelled {
             copy.uploads
                 .catalog
-                .cancel(request.object.first.object().tenant(), request)
+                .revoke(
+                    context(
+                        record.service.into(),
+                        request.object.first.object().tenant(),
+                    ),
+                    request,
+                )
                 .ok()?;
         }
     }
@@ -207,7 +213,12 @@ fn journey(record: &AuthorityArchiveRecord, copy: &mut ops::State) -> Option<()>
         {
             return None;
         }
-        replay(&mut copy.journey.catalog, request.upload, entry.phase)?;
+        replay(
+            &mut copy.journey.catalog,
+            request.upload,
+            entry.phase,
+            &manifest_input,
+        )?;
         copy.journey.requests.push(VerifiedUpload {
             request,
             content,
@@ -230,25 +241,79 @@ fn release(reference: ic_blob_storage_contracts::binding::ReferenceKey) -> Refer
     }
 }
 
-fn replay(catalog: &mut UploadCatalog, request: UploadRequest, phase: ArchivePhase) -> Option<()> {
+fn replay(
+    catalog: &mut Owner,
+    request: UploadRequest,
+    phase: ArchivePhase,
+    manifest: &JourneyManifest,
+) -> Option<()> {
     let tenant = request.object.first.object().tenant();
-    if catalog.reserve(tenant, request).ok()? != UploadAdmission::Reserved {
+    if catalog
+        .admit(
+            context(request.object.first.object().service(), tenant),
+            permission(request),
+            0,
+        )
+        .ok()?
+        != UploadAdmission::Reserved
+    {
         return None;
     }
     match phase {
         ArchivePhase::Reserved => return Some(()),
         ArchivePhase::Cancelled => {
-            catalog.cancel(tenant, request).ok()?;
+            catalog
+                .revoke(
+                    context(request.object.first.object().service(), tenant),
+                    request,
+                )
+                .ok()?;
             return Some(());
         }
         _ => {}
     }
-    catalog.register(tenant, request).ok()?;
+    let chunks: Vec<_> = manifest
+        .chunks
+        .iter()
+        .map(|hash| {
+            ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash::try_from(
+                hash.as_slice(),
+            )
+            .unwrap()
+        })
+        .collect();
+    let headers: Vec<_> = manifest
+        .headers
+        .iter()
+        .map(
+            |(name, value)| ic_blob_storage_contracts::identity::caffeine::CaffeineHeader {
+                name,
+                value,
+            },
+        )
+        .collect();
+    let ctx = context(request.object.first.object().service(), tenant);
+    catalog
+        .prepare_manifest(
+            ctx,
+            request,
+            ic_blob_storage::model::service::upload::manifest::UploadManifest {
+                chunks: &chunks,
+                headers: &headers,
+            },
+            0,
+        )
+        .ok()?;
+    ic_blob_storage::test_support::exposure::record(catalog, ctx, request, 0).ok()?;
     if phase == ArchivePhase::Live {
         return Some(());
     }
     if catalog
-        .apply_reference(request.object.root, tenant, release(request.object.first))
+        .apply_reference(
+            context(request.object.first.object().service(), tenant),
+            request,
+            release(request.object.first),
+        )
         .ok()?
         != (ReferenceRequestOutcome::Recorded {
             result: Ok(LifecycleChange::Changed),
@@ -259,13 +324,9 @@ fn replay(catalog: &mut UploadCatalog, request: UploadRequest, phase: ArchivePha
     if phase == ArchivePhase::DeletionPending {
         return Some(());
     }
-    catalog
-        .confirm_provider_deleted(request.object.root, request.object.first.object())
-        .ok()?;
+    catalog.confirm_provider_deleted(request).ok()?;
     if phase == ArchivePhase::Settled {
-        catalog
-            .confirm_billing_stopped(request.object.root, request.object.first.object())
-            .ok()?;
+        catalog.confirm_billing_stopped(request).ok()?;
     }
     Some(())
 }

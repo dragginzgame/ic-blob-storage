@@ -3,6 +3,7 @@
 pub(crate) mod archive;
 pub(crate) mod balance;
 pub(crate) mod content;
+pub(crate) mod durable;
 pub(crate) mod journey;
 pub(crate) mod obligations;
 pub(crate) mod status;
@@ -14,9 +15,8 @@ use std::{
     num::{NonZeroU128, NonZeroUsize},
 };
 
-use ic_blob_storage::model::catalog::BlobCatalog;
-use ic_blob_storage::model::catalog::CatalogReferenceKey;
-use ic_blob_storage::model::catalog::ConfirmedObject;
+use durable::{Owner, context};
+use ic_blob_storage::ic_storage::{MemoryRuntime, VectorMemory};
 use ic_blob_storage::model::gateway::membership::GatewayMembership;
 use ic_blob_storage::model::gateway::registry::GatewayRegistry;
 use ic_blob_storage::model::gateway::registry::GatewayScope;
@@ -31,6 +31,7 @@ use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::reference::binding::ReferenceOperation;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::reference::binding::ReferenceRequestId;
+use ic_blob_storage_contracts::upload::binding::{UploadObject, UploadRequest, UploadRequestId};
 use ic_platform::Principal;
 
 thread_local! {
@@ -38,7 +39,10 @@ thread_local! {
 }
 
 pub(crate) struct State {
-    pub catalog: BlobCatalog,
+    pub catalog: Owner,
+    _catalog_runtime: MemoryRuntime<VectorMemory>,
+    pub service: Principal,
+    pub samples: [UploadRequest; 2],
     pub balance: crate::model::balance::BalanceJournalRecord,
     pub uploads: uploads::Uploads,
     pub journey: journey::Journey,
@@ -52,19 +56,20 @@ pub(crate) fn bound(value: usize) -> NonZeroUsize {
     NonZeroUsize::new(value).expect("positive fixture bound")
 }
 
-fn number(value: u128) -> NonZeroU128 {
+pub(crate) fn number(value: u128) -> NonZeroU128 {
     NonZeroU128::new(value).expect("positive fixture identity")
 }
 
 fn root(value: u8) -> ProviderRootHash {
-    ProviderRootHash::try_from([value; 32].as_slice()).expect("fixture root")
+    durable::manifest(value).hashes().provider_root
 }
 
-pub(crate) fn reference(
-    value: u8,
-    service: Principal,
-    tenant: Principal,
-) -> Option<CatalogReferenceKey> {
+pub(crate) struct RootReference {
+    pub root: ProviderRootHash,
+    pub reference: ReferenceKey,
+}
+
+pub(crate) fn reference(value: u8, service: Principal, tenant: Principal) -> Option<RootReference> {
     let object = ObjectBinding::new(
         service,
         tenant,
@@ -75,7 +80,7 @@ pub(crate) fn reference(
         },
     )
     .ok()?;
-    Some(CatalogReferenceKey {
+    Some(RootReference {
         root: root(value),
         reference: ReferenceKey::new(object, ReferenceId::new(number(1))),
     })
@@ -103,8 +108,10 @@ fn fresh(
     gateway: Principal,
     operator: Principal,
 ) -> State {
-    let mut catalog = BlobCatalog::new(
+    let (mut catalog, runtime) = durable::install(
         service,
+        operator,
+        [first, second],
         CatalogLimits {
             max_objects: bound(2),
             max_tenant_objects: bound(1),
@@ -114,18 +121,34 @@ fn fresh(
             max_references_per_object: bound(1),
             max_receipts_per_object: bound(2),
         },
-    )
-    .expect("fixture catalog");
-    for (value, tenant, bytes) in [(1, first, 100), (2, second, 200)] {
+        ic_blob_storage_contracts::configuration::limits::UploadLimits {
+            max_active: bound(2),
+            max_tenant_active: bound(1),
+        },
+    );
+    let samples = [(1, first, 100), (2, second, 200)].map(|(value, tenant, bytes)| {
         let key = reference(value, service, tenant).expect("fixture binding");
-        catalog
-            .insert_confirmed(ConfirmedObject {
+        let request = UploadRequest {
+            id: UploadRequestId::new(number(value.into())),
+            object: UploadObject {
                 root: key.root,
                 bytes,
                 first: key.reference,
-            })
-            .expect("supplied confirmed-object facts, not provider evidence");
-    }
+            },
+        };
+        catalog
+            .admit(context(service, tenant), durable::permission(request), 0)
+            .unwrap();
+        durable::prepare_sample(&mut catalog, request, value);
+        ic_blob_storage::test_support::exposure::record(
+            &mut catalog,
+            context(service, tenant),
+            request,
+            0,
+        )
+        .unwrap();
+        request
+    });
     let mut membership = GatewayMembership::new(GatewayListLimits {
         max_entries: bound(1),
         max_unique: bound(1),
@@ -138,8 +161,11 @@ fn fresh(
     State {
         balance: crate::model::balance::BalanceJournalRecord::new(),
         catalog,
-        uploads: uploads::initialize(service, first, second),
-        journey: journey::initialize(service, first, second),
+        _catalog_runtime: runtime,
+        samples,
+        service,
+        uploads: uploads::initialize(service, first, second, operator),
+        journey: journey::initialize(service, first, second, operator),
         registry,
         sync_control: crate::model::sync::SyncControlRecord::new(),
         operator,
@@ -153,28 +179,29 @@ pub(crate) fn read<T>(f: impl FnOnce(&State) -> T) -> T {
 }
 
 pub(crate) fn binding(value: u8) -> Option<ObjectBinding> {
-    read(|state| {
-        state
-            .catalog
-            .get(root(value))
-            .map(|journal| journal.lifecycle().binding())
-    })
+    read(|state| sample(state, value).map(|r| r.object.first.object()))
+}
+
+pub(crate) fn sample(state: &State, value: u8) -> Option<UploadRequest> {
+    state
+        .samples
+        .iter()
+        .find(|r| r.id.get().get() == u128::from(value))
+        .copied()
 }
 
 pub(crate) fn release(value: u8, actor: Principal) -> bool {
     mutate(|state| {
-        let Some(journal) = state.catalog.get(root(value)) else {
+        let Some(request) = sample(state, value) else {
             return false;
         };
-        let reference =
-            ReferenceKey::new(journal.lifecycle().binding(), ReferenceId::new(number(1)));
         matches!(
             state.catalog.apply_reference(
-                root(value),
-                actor,
+                context(state.service, actor),
+                request,
                 ReferenceRequest {
                     id: ReferenceRequestId::new(number(1)),
-                    operation: ReferenceOperation::Release(reference),
+                    operation: ReferenceOperation::Release(request.object.first)
                 }
             ),
             Ok(ReferenceRequestOutcome::Recorded { result: Ok(_) }

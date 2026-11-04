@@ -1,0 +1,302 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "run": "trial-v069-transfer-01",
+  "evidence_class": "actual_mainnet_standalone_chromium_provider_upload_and_independent_native_verified_download",
+  "state": "one_real_success_preserving_one_earlier_refusal; application_two_successful_users_and_deletion_billing_remain_open",
+  "release": "0.69.0",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "source_head": "ae8bc6ec303486e7da455f5cc54d1685dbd4ca3c",
+  "compiler": "1.99.1",
+  "source_lock_sha256": "d07780b0a57642c8b0a3ff234ff0cfabf8a547b0325df141c898acdcb7652226",
+  "frozen_uncompressed_wasm_sha256": "a743340580fbee7d5dea94952e15e9356a6aaf9c091e02fb16271b1b7df999dc",
+  "frozen_cli_sha256": "b573c56604d6b28ebc74e4d9d651a2a3119b9068f4e3a914f443548b4ba55ead",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "provider": "https://blob.caffeine.ai",
+  "previous_readiness_record": "../2026-11-03-trial-v069-bootstrap-01/summary.json",
+  "tenant_and_uploader": "zkdbt-gd4ja-ovrx6-s4vhm-mmcyn-4dovp-kjpbe-xqtwo-sbpda-l5evy-4ae",
+  "upload_object_reference": "2",
+  "incarnation": "1",
+  "root": "sha256:dc1e10c8098bae5aad00aa0dfdc28a71ad697b1b927103475b631f296f18f537",
+  "permission_expires_ns": "1793727300000000000",
+  "original_unused_expired_inputs_retained": true,
+  "original_body_and_manifest_preserved": true,
+  "admission_request_id": "535bf158ab249e1a5e95b7a175c9091c63230ab2f55aa3825fbfdc0b69792860",
+  "preparation_request_id": "a30c21693ff99dcf77aea72f846adf3c9cd59049400f8f5b39f05912750b4b77",
+  "certificate_observed": true,
+  "tree_and_chunk_PUT_status": [
+    200,
+    200
+  ],
+  "browser_result_is_only_transfer_observed": true,
+  "native_descriptor_authentication": "ic_update_certificate",
+  "native_provider_GETs": 1,
+  "native_root_verification_passed": true,
+  "downloaded_original_bytes_equal": true,
+  "downloaded_bytes": 1024,
+  "download_sha256": "888e1ee46d14c38002617aca71964caf96cc9c5177acf2c4a23fd2726a6c0bd6",
+  "body_content_type_observed": "application/octet-stream",
+  "browser_requests_observed": {
+    "local_asset_GETs": 3,
+    "certificate_calls": 1,
+    "provider_PUTs": 2
+  },
+  "network_limits": "Browser event capture does not independently measure CORS, physical transport retries or Blob-body PUT byte sizes; SDK journal enforces the selected bounds.",
+  "new_provider_funding_or_allowance_updates": 0,
+  "first_failed_user_upload_retried": false,
+  "new_native_or_browser_auto_retries": false,
+  "local_failures_retained": [
+    "CJS resolution of import-only Platform identity failed before profile creation.",
+    "CJS Playwright entry lacked chromium; failure occurred after original binding was written but before Chromium/network/journal creation.",
+    "Wrong saved native reference document sent to raw query endpoint was rejected with Wire Identity trap; one explicit frozen-CLI query correctly translated it. No mutation."
+  ],
+  "initialization_recovery": {
+    "same_original_profile_port_database_and_binding": true,
+    "canonical_empty_database_creation_used": true,
+    "external_traffic_blocked": true,
+    "jobs": 0,
+    "provider_requests": 0,
+    "resets": 0,
+    "subsequent_canonical_launcher_open": true
+  },
+  "post_success_accounting": {
+    "schema": 1,
+    "at": "2026-11-03T17:10:24.425277+00:00",
+    "payer_cycles": "600000000",
+    "owner_cycles": "999507426465",
+    "owner_delta_since_pre_upload_cycles": "492573535",
+    "gateway_available_credit_raw": "166584571077",
+    "gateway_returned_usage": {
+      "bytes_uploaded": "0",
+      "bytes_downloaded": "0",
+      "write_requests": "0",
+      "read_requests": "0"
+    },
+    "relationship_daily_limit_cycles": "5000000000000",
+    "relationship_spent_cycles": "1000000000000",
+    "relationship_expiry_ns": "1793728110105542110",
+    "local_uploads": {
+      "operations": "2",
+      "active_reservations": "0",
+      "reserved_bytes": "0",
+      "logical_bytes": "2048",
+      "physical_bytes": "2048",
+      "liability_bytes": "2048",
+      "fenced": false
+    },
+    "all_local_owners_unfenced": true,
+    "both_references_live": true,
+    "service_attachments_cycles": "0",
+    "observations": {
+      "successful_initial_queries": 6,
+      "failed_wrong_saved_document_as_endpoint_packet_query": 1,
+      "successful_explicit_native_corrected_query": 1
+    },
+    "limits": [
+      "Sequential time-bound queries are not a certified funding receipt, itemized per-upload price or complete account audit.",
+      "Owner reduction with returned zero gateway usage is not evidence of no billing or billing cessation.",
+      "Two lifetime object slots are now occupied; no release/reset can recreate lifetime capacity.",
+      "First failed object remains a live possible physical/billing liability. No logical release, provider deletion or settlement occurred."
+    ]
+  },
+  "obligations": "Both original references remain live; 2048 logical/physical/liability bytes, zero active reservations, all local owners unfenced. Lifetime object capacity exhausted; preserve failed first object and provider balances/history. No release, reset, deletion, refund or billing settlement.",
+  "custody": ".git/private-operations/blob069-trial-01/; fresh keys and exact private journals outside served assets; no development-key export or external backup claimed",
+  "limits": [
+    "One isolated test-key user succeeded; this is not two successful signed-in application users or Canic composition.",
+    "No actual application media map, login, CSP or transaction qualified.",
+    "No general minimum/cadence/5T-causality, independent original-operation credit receipt/replay, physical deletion, future retention or billing-cessation guarantee."
+  ],
+  "artifacts": [
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-2-first-attempt/launch-recovery/browser-dispatch-intent.json",
+      "bytes": 1121,
+      "sha256": "9b706a1f17649a863728f9e946adf6c526b6d120361bfbb522f6b20d2571fca5"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-2-first-attempt/launch-recovery/browser-inspection.json",
+      "bytes": 469,
+      "sha256": "16dbd799234299d5b8ffe8bc99179e2c48af2929c7d07cfe9ce333008d6ac487"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-2-first-attempt/launch-recovery/browser-network.json",
+      "bytes": 1982,
+      "sha256": "5ed9fd2195440a2b70847b19e84f76de0e5443e14f08248bad4272b6f6f22ce6"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-2-first-attempt/launch-recovery/browser-upload-result.json",
+      "bytes": 513,
+      "sha256": "80294bca51fc7bde45a6d1037bdcbd84ec438ea1aa5fcf509da1a49517bb2b2a"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-2-first-attempt/launch-recovery/journal-initialization.json",
+      "bytes": 353,
+      "sha256": "0340dee8454a696b5b812b8acef410efc27a8eab1c25a0de2db9cb62e00b9ba6"
+    },
+    {
+      "private_path": "target/post069-provider/post-success-readback-01/reference-2-correction-intent.json",
+      "bytes": 575,
+      "sha256": "e0b816a777ff186bac96684bef5216c82978dfb4ed35c552672daeb514ebd8b0"
+    },
+    {
+      "private_path": "target/post069-provider/post-success-readback-01/reference-2.stderr",
+      "bytes": 476,
+      "sha256": "9b16b0b64563aba27f7de0712933cd252e0378590e5fed59383a02d3c62f2b3c"
+    },
+    {
+      "private_path": "target/post069-provider/post-success-readback-01/summary.json",
+      "bytes": 1522,
+      "sha256": "079331dad53fc9e791c3c22b9a18ad04d90f2e269b1e724f872ecb44fdf48a49"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/admission-result.json",
+      "bytes": 812,
+      "sha256": "4e5bc081c1060210a25591b09f3be5068596339fc00c4fc513b0828369d4d080"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/admission.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/admission.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/assessment.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/assessment.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/binding.json",
+      "bytes": 697,
+      "sha256": "6df960e00eb0190ec0944ad5ae69f4bd2d3670ba8d614e6465a3da5462a9e51b"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/body-reconciliation.json",
+      "bytes": 334,
+      "sha256": "246a8392ce56f155f2ad2a1b717949c24b1ea6c5a9816663fefeb625a3da7714"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-esm.status",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-esm.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-esm.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-first-attempt-esm.mjs",
+      "bytes": 4825,
+      "sha256": "5861c9314c8d4337b0feac615ae1e27f64a3497632dc983ca0e771eb220f310e"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-first-attempt.mjs",
+      "bytes": 4842,
+      "sha256": "96e5c3deba29ed3a96a1e6c150dd9027b7e6829525eadf9e68ceea9599bd0787"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-initialize-original-and-upload.mjs",
+      "bytes": 7703,
+      "sha256": "73b1d1c683bc2c487c01f228ad72ada155d338dfaa5dc5330bfe9932b3a9b38e"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-recovery.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-recovery.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser-recovery.stdout",
+      "bytes": 672,
+      "sha256": "cd4e3d24c703f295a9b0c51eeb8ccd83aa5eefb33027fc0b92667ad244ab3f42"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser.status",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser.stderr",
+      "bytes": 1042,
+      "sha256": "d398b5ff0856b8688bcea35a9fc6d518fe7d99c87545c7b9dd67ca7cdd0d610f"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/browser.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/certificate-assessment.json",
+      "bytes": 716,
+      "sha256": "2eba02cdf1db5b9ed1da6b0d2f80f5d399e77606b668effeb7eb1ee6e2559158"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/download-intent.json",
+      "bytes": 746,
+      "sha256": "5dc6e7033aa5f53a8ef70b251b5aaa74af805ebe0b93de18bc3dca6451da9eeb"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/download-result.json",
+      "bytes": 1027,
+      "sha256": "24f5d30f96034b8e41f77e731051ae4954072d10ac64b1b0df9aa1854e4f860c"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/download.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/download.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/intent.json",
+      "bytes": 2344,
+      "sha256": "a3533399c4499fdbac7b45861e78a26f675ea614560ed59c8c8ff4a833b626e5"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/journal-initialization-intent.json",
+      "bytes": 1211,
+      "sha256": "d33aa77ef1069fdb3cfe1bdab178324ffd6429e8cd852370827ee9a5adc91fc4"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/local-launch-failure.json",
+      "bytes": 537,
+      "sha256": "1db3aa65e2d38837fc4f6de41de23ddbd04ec6b5bbeb75cdfc557baddef4eb3f"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/preparation-result.json",
+      "bytes": 973,
+      "sha256": "1e8a9840f46bbcd1b91741f08dab7e167b024a4d58bd92279c7014b428f6bd70"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/preparation.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/user2-first-transfer-01/preparation.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -55,11 +55,11 @@ pub enum ServiceCallError {
     /// Request encoding refused before dispatch.
     Encoding(ic_blob_storage_contracts::wire::Error),
     /// Typed client failure, retaining canister refusals and uncertain request context.
-    Platform(ic_platform_pocket_ic::ClientError),
+    Platform(ic_testkit::pocket_ic::ClientError),
     /// Reply admission or decoding refused after dispatch.
     Decoding(ic_blob_storage_contracts::wire::Error),
 }
-impl ServiceCallExt for ic_platform_pocket_ic::PocketIc {
+impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
     fn query_tenant_as(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -166,10 +166,10 @@ impl std::error::Error for ServiceCallError {
 /// Refuses transport, protocol and other client failures, retaining their diagnostic context.
 #[must_use]
 pub fn canister_rejection(
-    failure: &ic_platform_pocket_ic::ClientError,
-) -> &ic_platform_pocket_ic::RejectResponse {
+    failure: &ic_testkit::pocket_ic::ClientError,
+) -> &ic_testkit::pocket_ic::RejectResponse {
     match failure {
-        ic_platform_pocket_ic::ClientError::Canister(rejection) => rejection,
+        ic_testkit::pocket_ic::ClientError::Canister(rejection) => rejection,
         other => panic!("expected canister rejection, received client failure: {other:?}"),
     }
 }

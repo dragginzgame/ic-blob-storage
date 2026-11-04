@@ -4,6 +4,61 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.70.0] - Unreleased
+
+### 💥 Breaking
+
+- Remove the feature-selected heap `BlobCatalog`/`UploadCatalog` owners, their
+  private accounting, heap read/cursor APIs and unused catalog failures. Use
+  `StableUploads` and its indexed reads, exact receipts and explicit installation
+  boundary. Authority probes now exercise that production implementation with
+  valid manifests over disposable governed backing; their independent archive
+  remains fenced inspection evidence. Pure lifecycle rules remain. Retire the
+  old model-only tests in favor of maintained durable-owner and actual-caller
+  coverage. Production stored bytes, endpoints and provider obligations are
+  unchanged; this is a Rust API hard cut with no compatibility owner or migration.
+
+- Adopt Metrics 0.29 and Platform 0.21 with the matching Contracts family. Keep
+  instrumentation local to standalone/probe hosts and project passive report
+  fields explicitly. Existing record bytes, quotas, retries and provider
+  obligations remain intact. Cross-release adoption still requires retirement
+  with original tools and fresh backing; no automatic reset or migration.
+
+### 🔧 Changed
+
+- Adopt committed Shared Tooling 0.29.3, including Testkit's native client
+  boundary, grouped manifest admission, UTF-8 validation evidence and pinned
+  revision export that preserves unrelated source edits. Keep issue outcomes in
+  their owning group ledger rather than duplicating them in the root index.
+  [Shared #351 — Transfer the native PocketIC dependency boundary to Testkit](https://github.com/dragginzgame/shared-tooling/pull/351),
+  [Shared #353 — Export a pinned commit from the existing local repository without requiring a clean checkout](https://github.com/dragginzgame/shared-tooling/issues/353).
+
+- Extract inline model, policy, provider and probe unit tests into owner-local
+  `tests.rs` files, preserving module identities, private access and fixtures.
+  Existing hierarchical tests remain in `tests/`; feature-selected public probe
+  support remains a distinct API rather than being hidden as unit tests.
+
+- Adopt published Testkit 0.84.1 and Host Tools 0.81 for native fixtures. Route simulator client,
+  DTO/error and lifecycle imports through Testkit and remove the separate
+  Platform PocketIC client dependency. Keep the 16.1.0 server, original typed
+  failures, scenario authority and recovery policy; deployed code is unaffected.
+
+- Select the compatible Storage 0.66.1 patch with unchanged production sources
+  and stored/wire formats, retaining its existing compatible manifest minimum.
+- Clarify the released 0.69 retirement and acceptance procedure, including the
+  matching consumer dependency family and the separation between local rehearsal
+  and explicitly bound live-provider acceptance.
+
+- Document the separate payer, service-owner and gateway credit checks before
+  provider exposure. Retain the current real-provider 403 and exact funding/link
+  evidence; account funding or registration alone does not prove stored bytes.
+  Record the subsequently observed delayed owner allocation and one successful
+  second-tenant browser upload/root-verified download without rewriting the
+  earlier refusal, retrying its operation or clearing retained liabilities.
+  Qualify the subsequent exact disposable-object release/receipt/liveness against
+  the deployed standalone: logical quota drops while physical/billing liability
+  remains, and the still-available public URL does not establish deletion.
+
 ## [0.69.0] - 2026-11-03
 
 ### 💥 Breaking

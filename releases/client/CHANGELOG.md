@@ -4,6 +4,21 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.70.0] - Unreleased
+
+### 💥 Breaking
+
+- Align with Contracts' Metrics 0.29 report boundary and Platform 0.21. Remove
+  the CLI's Metrics dependency used solely to build report fixtures. Keep report
+  fields, numeric refusals, canonical packets and exact retries unchanged.
+
+### 🔧 Changed
+
+- Qualify published Host Tools 0.81, Build 0.74.2 and the current native family;
+  consume Shared Tooling 0.29.3's formatting and release metadata checks. Move
+  inline publication-control tests into owner-local `tests.rs` modules without
+  changing their identities or behavior.
+
 ## [0.69.0] - 2026-11-03
 
 ### 💥 Breaking

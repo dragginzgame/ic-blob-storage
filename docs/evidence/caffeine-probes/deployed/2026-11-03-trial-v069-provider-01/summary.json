@@ -1,0 +1,244 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "evidence_class": "actual_mainnet_standalone_payer_linkage_and_refused_chromium_transfer",
+  "run": "trial-v069-provider-01",
+  "state": "partial; independent documentation/custody completed; higher financial authority awaits explicit approval",
+  "owner": "Blob standalone/provider acceptance; no Canic source, fixture, integration or deployment is involved",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "release": "0.69.0",
+  "installation_record": "../2026-11-03-trial-v069-install-01/summary.json",
+  "source_head": "ae8bc6ec303486e7da455f5cc54d1685dbd4ca3c",
+  "graph_note": "Frozen qualified 0.69 source/artifacts plus locally qualified compatible Metrics 0.28.2 / Storage 0.66.1 lock patches; supplier production Rust sources unchanged. No new package release.",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "provider_origin": "https://blob.caffeine.ai",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "gateway": "jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe",
+  "funding": {
+    "first_gross_debit_cycles": "1000000000000",
+    "first_deposit_block": "17080816",
+    "first_sweep_block": "17080834",
+    "first_credit_cycles": "999800000000",
+    "distinct_supplement_gross_cycles": "1000000000",
+    "distinct_supplement_block": "17081076",
+    "distinct_supplement_sweep_block": "17081098",
+    "distinct_supplement_credit_cycles": "800000000",
+    "total_gross_donor_to_provider_cycles": "1001000000000",
+    "total_provider_credit_cycles": "1000600000000",
+    "total_ledger_and_sweep_fees_cycles": "400000000",
+    "both_original_payments_and_sweeps_reconciled": true,
+    "both_returned_deposit_residues": "0",
+    "same_payer_original_returned_address_used": true,
+    "automatic_refill_or_payment_replay": false,
+    "local_Blob_funding_journal_fabricated": false,
+    "service_attachments": "0"
+  },
+  "relationship": {
+    "payer_is_fresh_isolated_trial_actor": true,
+    "paid_canister_matches": true,
+    "initial_link_acknowledged": true,
+    "current_daily_limit_raw": "1000000000000",
+    "original_and_current_expiry_raw": "1793728110105542110",
+    "nominal_expiry_utc": "2026-11-03T17:48:30.105542110Z",
+    "period_spent_at_last_read": "0",
+    "overdraft": "0",
+    "automatic_target": null,
+    "same_limit_explicit_same_expiry_refresh_acknowledged": true,
+    "same_limit_refresh_allocated_owner_credit": false,
+    "owner_credit_at_last_read": "0",
+    "gateway_credit_at_last_read": "0",
+    "allocation_algorithm_or_minimum_proved": false
+  },
+  "authority_and_preparation": {
+    "real_provider_gateway_synced": true,
+    "gateway_sequence": "1",
+    "two_separate_fresh_tenants_active_generation": "1",
+    "anonymous_enrollment_denied": true,
+    "cross_tenant_inspection_denied": true,
+    "two_distinct_public_random_body_bytes_each": 1024,
+    "offline_SDK_and_native_preparation_verified": true,
+    "source_and_manifest_are_frozen": true
+  },
+  "first_transfer": {
+    "original_upload_object_reference": "1",
+    "body_root": "sha256:51f0f9ccf701ea0af2be35fc122ebad86e9bc932de9e3e75722e59018885b980",
+    "native_admission_and_manifest_updates_acknowledged": true,
+    "signed_issuance_assessment_passed": true,
+    "browser_certificate_calls_observed": 1,
+    "certificate_verified_and_observed": true,
+    "gateway_logical_PUTs": 1,
+    "first_blob_tree_status": 403,
+    "owned_gateway_journal_phase": "responded",
+    "raw_403_body_retained": false,
+    "cause_interpretation": "Payer credit/linkage but zero owner/gateway credit is an observed readiness gap consistent with the refusal. Exact 403 text and provider allocation rule remain unknown.",
+    "chunk_PUTs": 0,
+    "native_provider_GETs": 0,
+    "upload_retry": false,
+    "second_upload_admitted": false,
+    "second_actor_uploaded": false,
+    "real_body_download_verified": false,
+    "physical_transport_attempts_and_CORS_preflights_independently_measured": false
+  },
+  "recovery": {
+    "original_profile_origin_database_reopened": true,
+    "original_observed_certificate_and_403_history_preserved": true,
+    "explicit_original_certificate_read_state_attempts": 1,
+    "historical_certificate_reobservation": "failed, redacted transport error; exact cause unknown",
+    "recovery_IC_updates": 0,
+    "recovery_provider_requests": 0,
+    "new_certificate_or_PUT_reissued": false
+  },
+  "obligations": {
+    "local_upload_operations": "1",
+    "logical_bytes": "1024",
+    "physical_bytes": "1024",
+    "liability_bytes": "1024",
+    "active_reservations": "0",
+    "reserved_bytes": "0",
+    "first_reference_live": true,
+    "all_local_owners_unfenced": true,
+    "provider_stored_bytes_or_deleted_bytes_proved": false,
+    "billing_cessation": false,
+    "old_0_6_and_0_7_owners_accounts_and_history_untouched": true,
+    "cleanup_owner": "Maintainer; retain original keys/profiles/receipts/source/config and both current and historical credit/storage/billing custody. No release/reset/refund or delete inferred."
+  },
+  "approval": {
+    "5T_candidate_submitted": false,
+    "automatic_review_rejected_before_process_start": true,
+    "stated_reason": "Fivefold daily spending-authority increase plus null-expiry ambiguity.",
+    "safer_same_1T_limit_explicit_expiry_alternative_submitted_once": true,
+    "safer_alternative_owner_allocation_observed": false,
+    "prepared_unsigned_explicit_expiry_5T_proposal": "target/post069-provider/allowance-approval-01/proposal.json",
+    "user_approval": "Pending asynchronous explicit question; elapsed time is not approval.",
+    "no_bypass": true
+  },
+  "local_failures_retained": [
+    "Strict prototype equality versus generated null-prototype record; original replies passed meaningful-field checks without new service requests.",
+    "First failure-record write selected wrong working directory; corrected and recorded.",
+    "Bare upstream SDK lacks existing Blob patch; selected the qualified patch without new provider code.",
+    "First preparation ESM bundle lacked canonical createRequire banner; failed bundle retained.",
+    "Unused root-key candidate saved hex as text; canonical 133-byte DER selected before any certificate request."
+  ],
+  "custody": {
+    "raw_provider_and_signed_operation_captures": "target/post069-provider/",
+    "private_durable_parent": ".git/private-operations/blob069-trial-01/",
+    "original_upload_and_browser_history": ".git/private-operations/blob069-trial-01/transfers-01",
+    "keys_never_served_or_committed": true,
+    "existing_development_key_exported": false,
+    "external_backup_claimed": false
+  },
+  "limits": [
+    "This is Blob/provider evidence, not application login, a consumer transaction, application CSP, two successful user transfers or Canic qualification.",
+    "A successful link, payer balance, assessment, registered object or live reference proves neither owner/gateway credit nor stored bytes.",
+    "Receipt and exact ledger reconciliation qualify these two settled external deposits, not lost/malformed callback recovery, competing account activity or general provider replay safety.",
+    "Published provider query metadata is a time-bound observation, not a guarantee of expiry enforcement, deletion, future availability or final bills."
+  ],
+  "artifacts": [
+    {
+      "private_path": "target/post069-provider/payer-preflight-01/intent.json",
+      "bytes": 2216,
+      "sha256": "79e35f2469a23b40b376389d9e333690f722a5ccee9d00cf9653a489741077f2"
+    },
+    {
+      "private_path": "target/post069-provider/funding-transfer-01/intent.json",
+      "bytes": 1997,
+      "sha256": "41e1d98e60dbf10c776ccaea5259a8b85f7ee316a6bd8a6e04d6d7522c899711"
+    },
+    {
+      "private_path": "target/post069-provider/funding-transfer-01/reconciliation.json",
+      "bytes": 374,
+      "sha256": "4fe5caeb35335e59136abef649e96eab5218c2d8dd0c4983801fec97e5750db5"
+    },
+    {
+      "private_path": "target/post069-provider/credit-notify-01/reconciliation.json",
+      "bytes": 568,
+      "sha256": "ca1d903e11380a68707c8dab191a0d668e5ec13414b70ba42e0f490e0836469e"
+    },
+    {
+      "private_path": "target/post069-provider/link-account-01/reconciliation.json",
+      "bytes": 307,
+      "sha256": "54a6a791038412b6bf6415b8703228f6daceee34922e6be85bffd8f895bd74b9"
+    },
+    {
+      "private_path": "target/post069-provider/service-readiness-01/summary.json",
+      "bytes": 610,
+      "sha256": "90efe7c6fd0976fd8f9753fd04da6f8ecc8807c4aaab78320143ec62fea1be86"
+    },
+    {
+      "private_path": "target/post069-provider/tenant-setup-01/intent.json",
+      "bytes": 1374,
+      "sha256": "30d962254b87988ff24eddddea45b61fcade7d5186df111c6f71ef91b0a982ef"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-1/admission-result.json",
+      "bytes": 812,
+      "sha256": "b2ee309761eb241abce82c01888b12cf00b451e8480efb1921e009cdaa3a944d"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-1/manifest-preparation-result.json",
+      "bytes": 973,
+      "sha256": "bdcff24433d91e8f9d1ce28ff59adb202c2b7912321fb17bff64f425e41d3191"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-1/browser-upload-result.json",
+      "bytes": 220,
+      "sha256": "e8fd85b068db7345474eb485afd3cbdae243046018bac5dfd6273eb8f0025635"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-1/browser-inspection.json",
+      "bytes": 380,
+      "sha256": "b7b93f8e0fa6b7863214d87b1387c2f87dadb8aa4380404fc49787e3bfa6e979"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-1/browser-network.json",
+      "bytes": 1939,
+      "sha256": "7ba0d978faafb589179485c70d157478d94d8d2a1170b095a0730bc8164f675b"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/transfers-01/user-1/reopened-certificate-recovery.json",
+      "bytes": 233,
+      "sha256": "11067e64620552bf2e65add16a8f99a6212c5f448955c8796c1cee28fde06ccf"
+    },
+    {
+      "private_path": "target/post069-provider/provider-refusal-01/summary.json",
+      "bytes": 835,
+      "sha256": "033e9d064f1b5e21f9a3728bd1823ca38bc6b6a52e50c3e035f83ad92eec37e1"
+    },
+    {
+      "private_path": "target/post069-provider/provider-refusal-01/final-status-decoded.json",
+      "bytes": 1151,
+      "sha256": "160f5462691e304c64adc59edc5419b9dcf7cab72e24de4f1af0cf46ec86b94a"
+    },
+    {
+      "private_path": "target/post069-provider/provider-refusal-01/reference-status-decoded.json",
+      "bytes": 916,
+      "sha256": "4694b32d52dc4981b01b53b137614559e03b0dfa6f03228aa7a4a753cec8884a"
+    },
+    {
+      "private_path": "target/post069-provider/allocation-supplement-01/reconciliation.json",
+      "bytes": 297,
+      "sha256": "e8e7265c4b769ebf9d61ef479ff7db782e01ec94e9d0440f450aa7362fb869b4"
+    },
+    {
+      "private_path": "target/post069-provider/supplement-notify-01/reconciliation.json",
+      "bytes": 417,
+      "sha256": "5b518b5a978d518ed7f37d7e2494c14d61d344703b34624b747894b8a92c5fa4"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-allocation-01/approval-rejection.json",
+      "bytes": 777,
+      "sha256": "62038b986c79fdfb0101f42d30efcc7711e7c771c9761e267192096686478477"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-refresh-01/summary.json",
+      "bytes": 447,
+      "sha256": "90a6e9b097f4efc94ec115c72af0ae628ebcc4302d0927ea60ebe83673720036"
+    },
+    {
+      "private_path": "target/post069-provider/allowance-approval-01/proposal.json",
+      "bytes": 1551,
+      "sha256": "57b9a525527937544aae9a03d28f728495cbec2b44d45a08853e3d0284bc4080"
+    }
+  ]
+}

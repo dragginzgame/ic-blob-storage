@@ -4,8 +4,8 @@ mod authority;
 mod source;
 use super::*;
 use blob_test_protocol::journey::readback::ReadSourceMode;
-use ic_platform_pocket_ic::CanisterInstallMode;
 use ic_testkit::pic::{CanisterInstallExt, RetryPolicy};
+use ic_testkit::pocket_ic::CanisterInstallMode;
 use std::{num::NonZeroUsize, time::Duration};
 
 const CHUNK: usize = 1024 * 1024;
@@ -203,7 +203,7 @@ fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
     f.certificate(f.first, exposed.upload.root)
         .expect("uncertain upload");
     let cancelled = upload(3, b"q");
-    assert_eq!(f.reserve(f.first, cancelled), Ok(()));
+    assert_eq!(f.reserve(f.first, cancelled, b"q"), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
     assert_eq!(f.usage(f.first), Ok(usage(3, 3, 6)));
     f.restart(f.service);
@@ -221,7 +221,7 @@ fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
         Err(JourneyFailure::InvalidPhase)
     );
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { id: 4, ..cancelled }),
+        f.reserve(f.first, JourneyUpload { id: 4, ..cancelled }, b"q"),
         Err(JourneyFailure::Conflict)
     );
     assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));

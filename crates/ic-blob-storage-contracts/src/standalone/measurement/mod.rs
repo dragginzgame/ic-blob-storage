@@ -1,5 +1,4 @@
-//! Service-owned report fields; Metrics owns recording and numeric admission.
-use ic_metrics::{MeasurementAggregate, MeasurementCounter};
+//! Service-owned report fields and admission; instrumentation owns its recorders.
 use serde::{Deserialize, Deserializer, Serialize};
 
 /// A counter observation, including whether an actual overflow occurred.
@@ -15,17 +14,21 @@ pub struct CounterMetrics {
     /// True only when recording exceeded the representable total.
     pub total_overflowed: bool,
 }
-impl From<MeasurementCounter> for CounterMetrics {
-    fn from(value: MeasurementCounter) -> Self {
-        Self {
-            total: value.total(),
-            total_overflowed: value.total_overflowed(),
-        }
-    }
-}
 impl<'de> Deserialize<'de> for CounterMetrics {
     fn deserialize<D: Deserializer<'de>>(decoder: D) -> Result<Self, D::Error> {
-        MeasurementCounter::deserialize(decoder).map(Self::from)
+        #[derive(Deserialize)]
+        #[serde(remote = "CounterMetrics", deny_unknown_fields)]
+        struct Fields {
+            total: u128,
+            total_overflowed: bool,
+        }
+        let value = Fields::deserialize(decoder)?;
+        if value.total_overflowed && value.total != u128::MAX {
+            return Err(serde::de::Error::custom(
+                "overflow flag disagrees with numeric state",
+            ));
+        }
+        Ok(value)
     }
 }
 
@@ -48,19 +51,51 @@ pub struct AggregateMetrics {
     /// True when recording exceeded the representable total.
     pub total_overflowed: bool,
 }
-impl From<MeasurementAggregate> for AggregateMetrics {
-    fn from(value: MeasurementAggregate) -> Self {
-        Self {
-            samples: value.samples(),
-            total: value.total(),
-            maximum: value.maximum(),
-            samples_overflowed: value.samples_overflowed(),
-            total_overflowed: value.total_overflowed(),
-        }
-    }
-}
 impl<'de> Deserialize<'de> for AggregateMetrics {
     fn deserialize<D: Deserializer<'de>>(decoder: D) -> Result<Self, D::Error> {
-        MeasurementAggregate::deserialize(decoder).map(Self::from)
+        #[derive(Deserialize)]
+        #[serde(remote = "AggregateMetrics", deny_unknown_fields)]
+        struct Fields {
+            samples: u64,
+            total: u128,
+            maximum: Option<u64>,
+            samples_overflowed: bool,
+            total_overflowed: bool,
+        }
+        let value = Fields::deserialize(decoder)?;
+        if value.samples == 0 {
+            return if value.total == 0
+                && value.maximum.is_none()
+                && !value.samples_overflowed
+                && !value.total_overflowed
+            {
+                Ok(value)
+            } else {
+                Err(serde::de::Error::custom(
+                    "nonempty state without observations",
+                ))
+            };
+        }
+        let Some(maximum) = value.maximum else {
+            return Err(serde::de::Error::custom("observations without a maximum"));
+        };
+        if (value.samples_overflowed && value.samples != u64::MAX)
+            || (value.total_overflowed && (value.total != u128::MAX || !value.samples_overflowed))
+        {
+            return Err(serde::de::Error::custom(
+                "overflow flag disagrees with numeric state",
+            ));
+        }
+        // The product of two u64 fields always fits in u128.
+        if value.total < u128::from(maximum)
+            || (maximum == 0 && value.total != 0)
+            || (!value.samples_overflowed
+                && value.total > u128::from(value.samples) * u128::from(maximum))
+        {
+            return Err(serde::de::Error::custom(
+                "total disagrees with count or maximum",
+            ));
+        }
+        Ok(value)
     }
 }

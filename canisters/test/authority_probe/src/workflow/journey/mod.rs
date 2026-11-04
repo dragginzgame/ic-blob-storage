@@ -6,10 +6,6 @@ pub(crate) mod readback;
 use blob_test_protocol::journey::{
     JourneyFailure, JourneyProgress, JourneyReservation, JourneyUpload, JourneyUsage,
 };
-use ic_blob_storage::model::catalog::pending::PendingPageLimits;
-use ic_blob_storage::policy::catalog::assess_gateway_pending;
-use ic_blob_storage::policy::catalog::upload::UploadRootStatus;
-use ic_blob_storage::policy::catalog::upload::assess_gateway_upload_roots;
 use ic_blob_storage::policy::gateway::GatewayCallbackContext;
 use ic_blob_storage::policy::gateway::assess_gateway_callback;
 use ic_blob_storage::policy::tenant::TenantAccessContext;
@@ -22,9 +18,7 @@ use ic_blob_storage_contracts::upload::history::UploadRootState;
 
 fn tenant(context: TenantAccessContext) -> Result<(), JourneyFailure> {
     ops::read(|s| {
-        if s.journey.tenants.contains(&context.actor)
-            && s.journey.catalog.confirmed().service() == context.service
-        {
+        if s.journey.tenants.contains(&context.actor) && s.service == context.service {
             Ok(())
         } else {
             Err(JourneyFailure::Denied)
@@ -128,7 +122,11 @@ pub(crate) fn release(context: TenantAccessContext, root: &[u8]) -> Result<(), J
 pub(crate) fn usage(context: TenantAccessContext) -> Result<JourneyUsage, JourneyFailure> {
     tenant(context)?;
     Ok(ops::read(|s| {
-        let u = s.journey.catalog.tenant_usage(context.actor);
+        let u = s
+            .journey
+            .catalog
+            .tenant_usage(context.actor)
+            .expect("valid durable totals");
         JourneyUsage {
             logical: u.logical_bytes,
             physical: u.physical_bytes,
@@ -150,28 +148,41 @@ pub(crate) fn live(
     )
     .map_err(|_| JourneyFailure::InvalidInput)?;
     let statuses = ops::read(|s| {
-        assess_gateway_upload_roots(
-            &s.journey.catalog,
+        ic_blob_storage::policy::gateway::assess_gateway_membership(
             &s.registry,
             GatewayCallbackContext {
                 service: context.service,
                 actor: context.actor,
             },
-            &batch,
         )
-    })
-    .map_err(|_| JourneyFailure::Denied)?;
+        .map_err(|_| JourneyFailure::Denied)?;
+        s.journey
+            .catalog
+            .observe_roots(
+                ops::durable::context(s.service, s.operator),
+                ops::number(1),
+                &batch,
+            )
+            .map_err(|_| JourneyFailure::InvalidPhase)
+    })?;
     statuses
         .into_iter()
         .map(|status| match status {
-            UploadRootStatus::Malformed(_) => Err(JourneyFailure::InvalidInput),
-            UploadRootStatus::Known(UploadRootState::Confirmed(
-                LifecyclePhase::DeletionPending
-                | LifecyclePhase::ProviderDeleted
-                | LifecyclePhase::Settled,
-            )) => Ok(false),
-            // Conservative fixture mapping: protect uncertainty and unknown roots.
-            // This does not prove that bytes were uploaded or qualify provider behavior.
+            ic_blob_storage::ops::service::uploads::read::UploadRootObservation::Malformed(_) => {
+                Err(JourneyFailure::InvalidInput)
+            }
+            ic_blob_storage::ops::service::uploads::read::UploadRootObservation::Known(view)
+                if matches!(
+                    view.state,
+                    UploadRootState::Confirmed(
+                        LifecyclePhase::DeletionPending
+                            | LifecyclePhase::ProviderDeleted
+                            | LifecyclePhase::Settled
+                    )
+                ) =>
+            {
+                Ok(false)
+            }
             _ => Ok(true),
         })
         .collect()
@@ -179,26 +190,35 @@ pub(crate) fn live(
 
 pub(crate) fn pending(context: TenantAccessContext) -> Result<Vec<Vec<u8>>, JourneyFailure> {
     ops::read(|s| {
-        assess_gateway_pending(
-            s.journey.catalog.confirmed(),
+        ic_blob_storage::policy::gateway::assess_gateway_membership(
             &s.registry,
             GatewayCallbackContext {
                 service: context.service,
                 actor: context.actor,
             },
-            None,
-            PendingPageLimits {
-                max_scan: ops::bound(8),
-                max_results: ops::bound(8),
-            },
         )
-    })
-    .map_err(|_| JourneyFailure::Denied)
-    .map(|page| {
-        page.entries
-            .into_iter()
-            .map(|entry| entry.root.as_bytes().to_vec())
-            .collect()
+        .map_err(|_| JourneyFailure::Denied)?;
+        s.journey
+            .catalog
+            .scan(
+                ops::durable::context(s.service, s.operator),
+                ic_blob_storage::ops::service::uploads::read::UploadScanScope::Service {
+                    namespace: ops::number(1),
+                },
+                ic_blob_storage_contracts::upload::history::UploadScanFilter::DeletionPending,
+                None,
+                ic_blob_storage::model::catalog::admission::read::UploadPageLimits {
+                    max_scan: ops::bound(8),
+                    max_results: ops::bound(8),
+                },
+            )
+            .map(|p| {
+                p.entries
+                    .iter()
+                    .map(|e| e.request.object.root.as_bytes().to_vec())
+                    .collect()
+            })
+            .map_err(|_| JourneyFailure::InvalidPhase)
     })
 }
 

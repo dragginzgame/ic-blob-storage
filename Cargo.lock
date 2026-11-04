@@ -1147,7 +1147,6 @@ checksum = "6e634e2e0ebac1ee034020da1ca582e17ffe4e0f5e985823721e168928136dcb"
 dependencies = [
  "crc32fast",
  "miniz_oxide",
- "zlib-rs",
 ]
 
 [[package]]
@@ -1578,7 +1577,6 @@ dependencies = [
  "ic-host-fs",
  "ic-host-http",
  "ic-host-process",
- "ic-metrics",
  "ic-platform",
  "libc",
  "reqwest",
@@ -1611,7 +1609,6 @@ dependencies = [
  "hex",
  "ic-host-artifacts",
  "ic-host-fs",
- "ic-metrics",
  "ic-platform",
  "ic-wire",
  "percent-encoding",
@@ -1635,7 +1632,6 @@ dependencies = [
  "ic-host-process",
  "ic-host-tools",
  "ic-platform",
- "ic-platform-pocket-ic",
  "ic-testkit",
  "ic-wire",
  "reqwest",
@@ -1648,9 +1644,9 @@ dependencies = [
 
 [[package]]
 name = "ic-build"
-version = "0.74.1"
+version = "0.74.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ed106efef97b990faabc68ed44a64985f4898d281f9a8ca0eb4b4ebe8d0dc6f"
+checksum = "c999cf66b5a17279ef46f289f518f90ab8eaf78c2ef20505cf9f2cda27ae5ef4"
 dependencies = [
  "cargo_metadata",
  "ic-host-artifacts",
@@ -1661,8 +1657,8 @@ dependencies = [
  "serde_json",
  "sha2 0.10.9",
  "thiserror 2.0.21",
- "toml 1.1.8+spec-1.1.0",
- "toml_edit 0.25.17+spec-1.1.0",
+ "toml 1.2.0+spec-1.1.0",
+ "toml_edit 0.25.18+spec-1.1.0",
 ]
 
 [[package]]
@@ -1742,9 +1738,9 @@ dependencies = [
 
 [[package]]
 name = "ic-host-tools"
-version = "0.80.0"
+version = "0.81.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7b48116e227027e4900fa259809348ac0b1b1273e0b8bed175dfa9aa0ec245d"
+checksum = "ee771a4ff3f92dae8f46e42d038865a0294be8502587a4bd07a36c0738c6ca33"
 dependencies = [
  "ic-host-artifacts",
  "serde",
@@ -1765,18 +1761,15 @@ dependencies = [
 
 [[package]]
 name = "ic-metrics"
-version = "0.28.1"
+version = "0.29.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36f4cee8fabc7a60bc940c0f9b964341decd2fef34ff9a572e8fefec449158d4"
-dependencies = [
- "serde",
-]
+checksum = "b47d4ea14ea9865bda223dc16a5411d960360ca872dc2829671f50710be0cb08"
 
 [[package]]
 name = "ic-platform"
-version = "0.20.0"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a06a85185aca3ced2084507e0431def65be9beb7beeb3dd4adf2ddb18d561819"
+checksum = "e87f01cbae3cc6cbd5b0ffc705c9086618817e4f0045ce67821e3fcbbc338670"
 dependencies = [
  "candid",
  "candid_parser",
@@ -1801,38 +1794,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 3.0.9",
-]
-
-[[package]]
-name = "ic-platform-pocket-ic"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb41e1e22f9ab9c953bf5bdde690c21a06308de92908c3d2dd68bee2b2c70dbc"
-dependencies = [
- "backon",
- "base64 0.23.1",
- "candid",
- "flate2",
- "hex",
- "ic-certification",
- "ic-management-canister-types",
- "ic-transport-types",
- "reqwest",
- "schemars",
- "semver",
- "serde",
- "serde_cbor",
- "serde_json",
- "sha2 0.10.9",
- "slog",
- "strum",
- "strum_macros",
- "tempfile",
- "thiserror 2.0.21",
- "tokio",
- "tracing",
- "tracing-appender",
- "tracing-subscriber",
 ]
 
 [[package]]
@@ -1872,9 +1833,9 @@ dependencies = [
 
 [[package]]
 name = "ic-storage"
-version = "0.66.0"
+version = "0.66.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00918186b092ee0ef2373640bd818b6600d32e6557ead9d0f028e28c9c9bb289"
+checksum = "515db546502c638fb0d94c6d6fdce394e2aad2786df86cda822dcb888209555e"
 dependencies = [
  "ic-platform-runtime",
  "ic-wire",
@@ -1884,20 +1845,41 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.83.0"
+version = "0.84.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd9292b33c111a6cab4b1188e3e7e6a8467705991fc3b11b34511403197115d4"
+checksum = "42d50a3d60e605a6cc7cb42589c32dc51ff3f4eecd70ed159e46944d86476eda"
 dependencies = [
+ "backon",
+ "base64 0.23.1",
+ "candid",
+ "flate2",
+ "hex",
+ "ic-certification",
  "ic-host-artifacts",
  "ic-host-fs",
  "ic-host-process",
+ "ic-management-canister-types",
  "ic-platform",
- "ic-platform-pocket-ic",
  "ic-platform-runtime",
  "ic-platform-types",
+ "ic-transport-types",
  "libc",
+ "reqwest",
+ "schemars",
+ "semver",
+ "serde",
+ "serde_cbor",
+ "serde_json",
+ "sha2 0.10.9",
+ "slog",
+ "strum",
+ "strum_macros",
+ "tempfile",
  "thiserror 2.0.21",
  "tokio",
+ "tracing",
+ "tracing-appender",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -1934,9 +1916,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.16.0"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7405eaf0d977aa1765f7f2ab06724154653ef2235da72a99b9c92a19fbd75230"
+checksum = "ef5c9c1d5a07ba652379ed698a1eec7e92b6c10bc2b305eee311cca113eae942"
 dependencies = [
  "bytemuck",
  "ic-platform-types",
@@ -1949,9 +1931,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire-derive"
-version = "0.16.0"
+version = "0.16.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "022f7cfa0eb58ac31669b30e9d65f4476ad16d2c09e42585938f2c3f524c5e14"
+checksum = "806f1fc46fb963176e2af03b8c53acdb55a6b2a8d6a7a190d0d55d007ef3167f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3816,9 +3798,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "1.1.8+spec-1.1.0"
+version = "1.2.0+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20489e00e4d8741d6be680764cc12e270655e375a20d1011e844a9c3379e678d"
+checksum = "c5ffcdf8f50436dbbfd675c1fe1b8e0854f42b7defea8584bdebe1aee900e561"
 dependencies = [
  "indexmap",
  "serde_core",
@@ -3862,9 +3844,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.25.17+spec-1.1.0"
+version = "0.25.18+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e3641d5bbb5349a79e1020a242d251efbc546ad8048d133958323ce9c40a9c9c"
+checksum = "1ec6e78bd70db9420d8d212fa9dc97f116448a1ceff5d00eabb991d407e21396"
 dependencies = [
  "indexmap",
  "toml_datetime 1.1.2+spec-1.1.0",
@@ -3884,9 +3866,9 @@ dependencies = [
 
 [[package]]
 name = "toml_writer"
-version = "1.1.3+spec-1.1.0"
+version = "1.2.0+spec-1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06bdbd8cfc056b8d2e2e85f29b56a3bdbecb527cef81eb39e3e7b98af4652770"
+checksum = "009dbb7700f11c55ef83aebbe4c0e9cf1f1ac0844bd8d6f00dc38f302026e13a"
 
 [[package]]
 name = "tower"
@@ -4517,12 +4499,6 @@ dependencies = [
  "quote",
  "syn 3.0.9",
 ]
-
-[[package]]
-name = "zlib-rs"
-version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b268e58e7c693d7c271f93ffc4ba3b380412554231c85bf61ca7af91042a4112"
 
 [[package]]
 name = "zmij"

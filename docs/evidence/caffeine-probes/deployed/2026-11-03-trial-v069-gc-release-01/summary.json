@@ -1,0 +1,390 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "run": "trial-v069-gc-release-01",
+  "evidence_class": "actual_mainnet_disposable_object_logical_release_and_post_release_availability",
+  "release": "0.69.0",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "source_head": "ae8bc6ec303486e7da455f5cc54d1685dbd4ca3c",
+  "source_lock_sha256": "d07780b0a57642c8b0a3ff234ff0cfabf8a547b0325df141c898acdcb7652226",
+  "original_success_record": "../2026-11-03-trial-v069-transfer-01/summary.json",
+  "tenant": "zkdbt-gd4ja-ovrx6-s4vhm-mmcyn-4dovp-kjpbe-xqtwo-sbpda-l5evy-4ae",
+  "upload_object_reference": "2",
+  "root": "sha256:dc1e10c8098bae5aad00aa0dfdc28a71ad697b1b927103475b631f296f18f537",
+  "reference_release_operation": "7",
+  "release_request_id": "5cf1df3f2e24be7fb0baf2b63801e94661a5e95845ab1b69b92b7d7717d250ff",
+  "update_submission_count": 1,
+  "outcome": "recorded_success_changed",
+  "exact_receipt_query_found_original_outcome": true,
+  "reference_live_before": true,
+  "reference_live_after": false,
+  "public_liveness_order": "[failed first root, successful second root, duplicate second root, unknown all-zero root]",
+  "public_liveness_before": [
+    true,
+    true,
+    true,
+    true
+  ],
+  "public_liveness_after": [
+    true,
+    false,
+    false,
+    true
+  ],
+  "operator_history": [
+    {
+      "object": "1",
+      "state": "Live"
+    },
+    {
+      "object": "2",
+      "state": "DeletionPending"
+    }
+  ],
+  "operator_page_scanned": "2",
+  "operator_page_next": null,
+  "accounting_after": {
+    "operations": "2",
+    "active_reservations": "0",
+    "reserved_bytes": "0",
+    "logical_bytes": "1024",
+    "physical_bytes": "2048",
+    "liability_bytes": "2048",
+    "fenced": false
+  },
+  "service_attachment_allowance": "0",
+  "service_attached_cycles": "0",
+  "new_funds": 0,
+  "allowance_updates": 0,
+  "gateway_impersonation_or_acknowledgment": false,
+  "forced_GC": false,
+  "physical_or_billing_confirmation_invoked": false,
+  "object_or_history_reset": false,
+  "provider_GET_after_release": {
+    "count": 1,
+    "http_status": 200,
+    "bounded_body_bytes": 1024,
+    "matches_original": true,
+    "body_sha256": "888e1ee46d14c38002617aca71964caf96cc9c5177acf2c4a23fd2726a6c0bd6",
+    "request_cache_control": "no-cache",
+    "response_selected_headers": {
+      "cache-control": "max-age=31536000, immutable",
+      "content-type": "application/octet-stream",
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "GET, PUT, HEAD, OPTIONS",
+      "access-control-allow-headers": "Content-Type, X-Caffeine-Project-ID, X-Dry-Run",
+      "content-length": "1024",
+      "date": "Tue, 03 Nov 2026 17:20:06 GMT"
+    },
+    "raw_headers_private": "Session cookie and other raw headers remain private; not copied into public evidence.",
+    "limitation": "Public URL availability sample, possibly served by a cache. Even a future 404 would not establish physical-origin deletion or billing settlement."
+  },
+  "owner_balance_before_and_after_cycles": "999507426465",
+  "gateway_available_credit_raw": "166584571077",
+  "gateway_returned_usage_counters": "all zero in this scoped query; no inference of no charges",
+  "checks": {
+    "preflight_queries": 3,
+    "post_release_queries": 7,
+    "provider_GETs": 1,
+    "automatic_retries": 0,
+    "query_or_transfer_failures": 0
+  },
+  "remaining": [
+    "Live application overlapping releases/interruption and restoration remain consumer acceptance; this one release/receipt read is not an injected lost-reply/replay test.",
+    "The real gateway has not supplied independently attributable deletion/confirmation evidence in this run. Operator history DeletionPending alone does not reveal whether a callback acknowledgment occurred.",
+    "No authoritative object billing cutoff/settlement evidence; unchanged queried balance and zero usage counters are not billing cessation.",
+    "Two lifetime object slots stay occupied. Failed first object/reference, all old installations and provider balances/obligations must be retained."
+  ],
+  "custody": ".git/private-operations/blob069-trial-01/gc-release-01/; original successful and failed profiles/native intents retained separately; no external backup claimed",
+  "state": "logical_release_receipt_liveness_and_liability_separation_qualified; physical_deletion_billing_and_consumer_acceptance_open",
+  "artifacts": [
+    {
+      "private_path": "target/post069-provider/gc-release-01/budget-after.json",
+      "bytes": 602,
+      "sha256": "b0d182de1624b89b80d73e2fadcf1c8a56d0add182c43dd3f199a3e37c2de795"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/budget-after.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/budget-after.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/history-decoded.json",
+      "bytes": 3567,
+      "sha256": "646f82e9b806f1256da8100e7d7c6c61b49ddba36632305065abfe359cd1e995"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/history-request.hex",
+      "bytes": 53,
+      "sha256": "9b315cb6440703b869885a0b662be2d03c599703642a99d9471e00868feeda1a"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/history.json",
+      "bytes": 451,
+      "sha256": "a18ebdf106218989b76869a285d6ee320c16b8c3025ce0a618305dd3184e3d7a"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/history.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/history.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/inputs-result.json",
+      "bytes": 1017,
+      "sha256": "4accd3963a66d7baafd05585334c0357d14d181b3a54baf7fc350bad506657ca"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/intent.json",
+      "bytes": 2488,
+      "sha256": "7ebdf8c5b72c80f5e8004a1e97c3f2721e9dbfb32b19d2c27af0ef4898d8e6fa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/liveness-after.json",
+      "bytes": 125,
+      "sha256": "88432971a51172eaf34020ed987b1e0b090f4744c57b65c7a6c3b21fa067eb24"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/liveness-after.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/liveness-after.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/liveness-args.candid",
+      "bytes": 429,
+      "sha256": "c40f69e08604e1b04e416ff94dadd89fe1176aed0924583c41268796edb07ad8"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/liveness-before.json",
+      "bytes": 123,
+      "sha256": "54a383fc9ba3ab3cb6bc959733f4eacca756a0e4f2f0594295b0939876304e65"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/liveness-before.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/liveness-before.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/owner-after.json",
+      "bytes": 660,
+      "sha256": "dccdeb741db72f5301e423cf4cd04e6d9e4d2328d56a3049c64d9f94097c26f5"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/owner-after.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/owner-after.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/owner-before.json",
+      "bytes": 660,
+      "sha256": "dccdeb741db72f5301e423cf4cd04e6d9e4d2328d56a3049c64d9f94097c26f5"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/owner-before.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/owner-before.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/provider-GET-body.bin",
+      "bytes": 1024,
+      "sha256": "888e1ee46d14c38002617aca71964caf96cc9c5177acf2c4a23fd2726a6c0bd6"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/provider-GET-exit.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/provider-GET-headers.txt",
+      "bytes": 549,
+      "sha256": "9c659570a2dbb7e61d2ad273afc7906fcbfa8d92d879bdfb63adcb70c5dcd83d"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/provider-GET-intent.json",
+      "bytes": 623,
+      "sha256": "0668fcb9c9f2d901914931286f39cff848bef2d5964e7cdbda8571f9c29de787"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/provider-GET-status.txt",
+      "bytes": 4,
+      "sha256": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/provider-GET.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/receipt.json",
+      "bytes": 773,
+      "sha256": "37db2680daa6fcdb943ad01b43c5c9f9ac34428810f99f9566904fd85a1b6dca"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/receipt.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/receipt.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/reference-after.json",
+      "bytes": 640,
+      "sha256": "d7a5012aa0a11a86f74a86cf2ec8c1a6ebc21708e585cdbfebbb6d24e95366b1"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/reference-after.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/reference-after.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/reference-before.json",
+      "bytes": 639,
+      "sha256": "5185b5dcb4e3b7b51bf5245b4a151833080db6700c3c123ff7e8a54df3ee9dba"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/reference-before.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/reference-before.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release-inputs/download.wire",
+      "bytes": 88,
+      "sha256": "7ac95a6786aba3e963a4448bcd6e95ec8fb0f9401cffd02967586f6569b432fa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release-inputs/permission.wire",
+      "bytes": 130,
+      "sha256": "6b6b411b82aa22d893ec1701f28f54bfaf4c612b2f97aa878a9c2dd54314ed73"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release-inputs/reference-status.wire",
+      "bytes": 92,
+      "sha256": "8ead1599adbf4c911ba967d06c13e8b6c1d48f3041888c89dcb5f19037f36f69"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release-inputs/reference.wire",
+      "bytes": 94,
+      "sha256": "571c76b735ec7f25139a835e02701b6cbde7b307534bc893fb242b1ef1f064c9"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release-inputs/summary.json",
+      "bytes": 1161,
+      "sha256": "697fad546683574ef341fb198769c45307280b75b716ae3a730f624a1d526ce8"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release-result.json",
+      "bytes": 347,
+      "sha256": "f583c2583f57d3fc0fe5ccb9ab4f36217585925b3143341ba39b54d6662a81db"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/release.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/status-after-decoded.json",
+      "bytes": 2000,
+      "sha256": "0faa083bf46c57a22b80486feee62316f3c54085b45ee799b4a6707ae49e6cbc"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/status-after.json",
+      "bytes": 311,
+      "sha256": "8a71e183e561682bcde9c199ee6132fa1121ba3164b1a332633c73d5160621b3"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/status-after.status",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/status-after.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/gc-release-01/release/intent.json",
+      "bytes": 1328,
+      "sha256": "f6410fefd5c2fa76d4500eb0e238b49462c0c54a2a518852100795b0c66500a0"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/gc-release-01/release/outcome.json",
+      "bytes": 402,
+      "sha256": "8e13d6811dfa09682fe1bda201ec7cbf0b2cfec3f0de645746217db1d1a9bf97"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/gc-release-01/release/reference.wire",
+      "bytes": 94,
+      "sha256": "571c76b735ec7f25139a835e02701b6cbde7b307534bc893fb242b1ef1f064c9"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/gc-release-01/release/request.wire",
+      "bytes": 94,
+      "sha256": "146a3c131235a56b55ca68aa79f91f09d1e63161bcfaf158d35a5d819d365a0a"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/gc-release-01/release/response.wire",
+      "bytes": 98,
+      "sha256": "050622367d6fe86200e5d1340d684bcec2a7d1c88823073fc5c12416b81d50b2"
+    },
+    {
+      "private_path": ".git/private-operations/blob069-trial-01/gc-release-01/release/signed-request.cbor",
+      "bytes": 453,
+      "sha256": "1804430d5d0e700195c82bcf5ddb32f1d49d2ba112e04f583ed6987e2bbe18e8"
+    },
+    {
+      "private_path": "target/post069-provider/gc-release-01/validation-lock-drift.json",
+      "bytes": 772,
+      "sha256": "227baf8514fc05b43ba7176ce8f77fa407cc1b5c0aa991ba5f100405eed24830"
+    }
+  ],
+  "execution_binding": "Frozen previously qualified CLI/Wasm and their original d07780 graph. Incoming checkout Build/Wire patches were detected during final validation and preserved; this live run does not qualify them.",
+  "frozen_cli_sha256": "b573c56604d6b28ebc74e4d9d651a2a3119b9068f4e3a914f443548b4ba55ead",
+  "checkout_lock_at_final_validation": "084fba1b42afa326c938b7572032e5075d8f6ef664b3490bca90e2dbf618c149"
+}

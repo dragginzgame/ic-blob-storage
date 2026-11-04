@@ -62,5 +62,16 @@
   {
     "dependency": "pocket-ic",
     "allowed_packages": []
+  },
+  {
+    "dependency": "ic-platform-pocket-ic",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ic-metrics",
+    "allowed_packages": [
+      "ic-blob-storage-canister",
+      "blob-storage-probe"
+    ]
   }
 ]

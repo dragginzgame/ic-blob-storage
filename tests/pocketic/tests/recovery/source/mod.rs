@@ -7,7 +7,7 @@ use blob_test_protocol::{
 };
 use ic_blob_storage_pocketic_tests::fixture_calls;
 
-use ic_platform_pocket_ic::common::rest::BlobCompression;
+use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
     pub(in crate::recovery) fn source_recovery(

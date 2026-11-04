@@ -209,7 +209,7 @@ fn standalone_project_validation_rolls_back_installation_and_rejects_corrupt_res
         .set_stable_memory(
             f.service,
             corrupted.clone(),
-            ic_platform_pocket_ic::common::rest::BlobCompression::NoCompression,
+            ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
         )
         .unwrap();
     let error = f

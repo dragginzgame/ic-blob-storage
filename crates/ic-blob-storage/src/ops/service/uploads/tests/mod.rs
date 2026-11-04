@@ -188,6 +188,14 @@ fn rejected_admissions_cannot_claim_roots_or_charge_capacity() {
     );
     assert_eq!(store.usage(), Ok(before));
     assert_eq!(store.roots.slots(), 0);
+    let mut empty = input;
+    empty.request.object.bytes = 0;
+    assert_eq!(
+        store.admit(context(4), empty, 1),
+        Err(UploadAdmissionError::EmptyObject.into())
+    );
+    assert_eq!(store.usage(), Ok(before));
+    assert_eq!(store.roots.slots(), 0);
     store.admit(context(4), input, 1).unwrap();
     let changed = UploadPermission {
         expires_at_ns: 99,

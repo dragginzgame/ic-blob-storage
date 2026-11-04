@@ -44,7 +44,7 @@ fn transfer(
     id: u64,
     accept: u128,
     trap: bool,
-) -> Result<Result<FundingObservation, FundingFailure>, ic_platform_pocket_ic::ClientError> {
+) -> Result<Result<FundingObservation, FundingFailure>, ic_testkit::pocket_ic::ClientError> {
     f.harness
         .pic
         .update_call(
@@ -168,7 +168,7 @@ fn trapped_callback_keeps_the_original_identity_and_full_transfer_uncertain() {
     let failure = transfer(&f, 7, 500_000, true).unwrap_err();
     assert_eq!(
         crate::canister_rejection(&failure).reject_code,
-        ic_platform_pocket_ic::RejectCode::CanisterError
+        ic_testkit::pocket_ic::RejectCode::CanisterError
     );
     for id in [7, 8] {
         let blockers = blocked(&f, id, 1);

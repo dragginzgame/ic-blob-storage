@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "evidence_class": "actual_mainnet_standalone_installation",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "release": "0.69.0",
+  "installed_at": "2026-11-03T14:45:13.240Z",
+  "module_sha256": "a00e4f4923b87320fd22dd581f38381220e0bcb17da07fb6d1e779d6906381df",
+  "uncompressed_wasm_sha256": "a743340580fbee7d5dea94952e15e9356a6aaf9c091e02fb16271b1b7df999dc",
+  "init_sha256": "5bd71bfe9789808fa3c36c189730590364a735762668455da4fe7c9909d09b20",
+  "exact_configuration_readback": true,
+  "controller_matches": true,
+  "anonymous_denied": true,
+  "fenced": false,
+  "physical_bytes_limit": "2048",
+  "local_only_init": false,
+  "live_provider_qualified": false,
+  "provider_funded": false,
+  "tenant_admissions": 0,
+  "uploads": 0,
+  "application_login_qualified": false,
+  "cleanup_owner": "Maintainer; preserve original keys, configuration and continuing IC costs; no deletion or automatic reinstall",
+  "run": "trial-v069-install-01",
+  "capture": "target/post069-followup/",
+  "private_durable_custody": ".git/private-operations/blob069-trial-01/",
+  "source_head": "ae8bc6ec303486e7da455f5cc54d1685dbd4ca3c",
+  "source_qualification": "Released Blob 0.69.0 plus separately locally qualified compatible Metrics 0.28.2 / Storage 0.66.1 lock patch; identical supplier production Rust sources. Not a new package publication.",
+  "compiler": "1.99.1",
+  "source_lock_sha256": "d07780b0a57642c8b0a3ff234ff0cfabf8a547b0325df141c898acdcb7652226",
+  "creation": {
+    "ledger_block": "17079955",
+    "amount_cycles": "2000000000000",
+    "fee_cycles": "100000000",
+    "submission_invocations": 1,
+    "original_signed_request_retained": true,
+    "original_timestamp_and_block_match": true,
+    "empty_module_and_controller_checked_before_install": true
+  },
+  "funding_preparation": {
+    "icp_conversion_invocations": 1,
+    "icp_amount_e8s": "200000000",
+    "observed_icp_fee_e8s": "10000",
+    "deposited_cycles": "3663700000000",
+    "account_deltas_reconciled": true,
+    "provider_funding_cycles": "0",
+    "automatic_refill": false,
+    "budgets": "Current accepted trial held below a conservative 8T gross accounting envelope within the historical scoped 20T/day and 100T total allowance; not proof of unrelated external activity."
+  },
+  "provider_observation": "Current public Cashier service metadata and one advertised gateway queried; no provider update, deposit, relationship, certificate or object request. Query metadata is not gateway admission, namespace, pricing or billing proof.",
+  "limits": "Two lifetime 1KiB objects across two independent tenants, serially, with 2KiB physical/liability ceiling. Trial limits are not production defaults.",
+  "failures": [
+    {
+      "class": "local_review_parser",
+      "outcome": "CLI dry-run used human stderr despite --json; empty stdout parse failed before paid submission. Original signed request reused only for its first dispatch."
+    },
+    {
+      "class": "local_browser_import",
+      "outcome": "CommonJS require.resolve could not resolve an import-only Platform export; ESM import derived the public principals without generating extra keys or network effects."
+    }
+  ],
+  "custody_limits": "Fresh keys and exact artifacts retained privately outside cargo clean and served assets; existing development key never exported. No external backup claimed. Preserve all old trial accounts, objects and billing history.",
+  "artifacts": [
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/intent.json",
+      "bytes": 1736,
+      "sha256": "3fe0f97e0ead20699447ffdf82876192dd71cd61fc50af28abe6e4e1774c5c84"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/dispatch-intent.json",
+      "bytes": 1307,
+      "sha256": "6a47867b94bf5ac039d14801346dbf80a07474e536548862ddf7e30ea3008616"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/installation/installation.wire",
+      "bytes": 175,
+      "sha256": "5bd71bfe9789808fa3c36c189730590364a735762668455da4fe7c9909d09b20"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/readback.wire",
+      "bytes": 184,
+      "sha256": "707dbe037d71dd3ab328f030ab403d538b4a4aaf5f99195856ebe0d92f3281f9"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/install.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/install.stderr",
+      "bytes": 60,
+      "sha256": "0dcddb541837376d06f0b952a00afb00e0f5889c3bc3e26f8029c07518f75494"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/installed-status.json",
+      "bytes": 862,
+      "sha256": "16b890dee2d52b49b4f7051a0a0b62ffd1c9d03e75fa458d9ff637ee2219baf9"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/configuration-canic-mainnet.json",
+      "bytes": 433,
+      "sha256": "7212c9bbe4269cbd987af54109c7775b63443790068920132947ebd4c550166c"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/configuration-anonymous.json",
+      "bytes": 91,
+      "sha256": "8cc6a17ef646503419ce967a30d79e147bc98362011a87e1c7ac8335bbb04c1e"
+    },
+    {
+      "private_path": "target/post069-followup/mainnet-install-01/summary.json",
+      "bytes": 1071,
+      "sha256": "7a70c3ccc0eabad1ac347c9a2db14c7eeb951a81b9ab27bdb5944eccc89ddb77"
+    }
+  ],
+  "next": "Record exact fresh-payer deposit-route/account reads; review one at-most-1T gross provider deposit and matching notification/link terms before effect. Provider and browser journey acceptance remain open; full application requires selected origin/login and Canic matching published cohort."
+}

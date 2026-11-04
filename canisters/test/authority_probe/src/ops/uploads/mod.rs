@@ -1,8 +1,9 @@
 //! Fixed upload facts for IC caller tests; archived by the enclosing state owner.
 
+use super::durable::{Owner, context};
 use super::{bound, number, reference};
 use blob_test_protocol::uploads::UploadProbeState;
-use ic_blob_storage::model::catalog::admission::UploadCatalog;
+use ic_blob_storage::ic_storage::{MemoryRuntime, VectorMemory};
 use ic_blob_storage::policy::catalog::upload::UploadRootStatus;
 use ic_blob_storage_contracts::configuration::limits::CatalogLimits;
 use ic_blob_storage_contracts::configuration::limits::UploadLimits;
@@ -15,13 +16,21 @@ use ic_blob_storage_contracts::upload::history::UploadRootState;
 use ic_platform::Principal;
 
 pub(crate) struct Uploads {
-    pub catalog: UploadCatalog,
+    pub catalog: Owner,
+    _runtime: MemoryRuntime<VectorMemory>,
     pub(super) requests: [UploadRequest; 4],
 }
 
-pub(crate) fn initialize(service: Principal, first: Principal, second: Principal) -> Uploads {
-    let mut catalog = UploadCatalog::new(
+pub(crate) fn initialize(
+    service: Principal,
+    first: Principal,
+    second: Principal,
+    operator: Principal,
+) -> Uploads {
+    let (mut catalog, runtime) = super::durable::install(
         service,
+        operator,
+        [first, second],
         CatalogLimits {
             max_objects: bound(4),
             max_tenant_objects: bound(2),
@@ -35,8 +44,7 @@ pub(crate) fn initialize(service: Principal, first: Principal, second: Principal
             max_active: bound(4),
             max_tenant_active: bound(2),
         },
-    )
-    .expect("fixture upload owner");
+    );
     let requests = [(11, first), (12, first), (13, second), (14, second)].map(|(id, tenant)| {
         let reference = reference(id, service, tenant).expect("fixture reference");
         UploadRequest {
@@ -50,19 +58,31 @@ pub(crate) fn initialize(service: Principal, first: Principal, second: Principal
     });
     for request in requests {
         catalog
-            .reserve(request.object.first.object().tenant(), request)
+            .admit(
+                context(service, request.object.first.object().tenant()),
+                super::durable::permission(request),
+                0,
+            )
             .expect("fixture reservation");
     }
+    for (actor, request, id) in [(first, requests[1], 12), (second, requests[2], 13)] {
+        super::durable::prepare_sample(&mut catalog, request, id);
+        ic_blob_storage::test_support::exposure::record(
+            &mut catalog,
+            context(service, actor),
+            request,
+            0,
+        )
+        .unwrap();
+    }
     catalog
-        .register(first, requests[1])
-        .expect("uncertain fixture");
-    catalog
-        .register(second, requests[2])
-        .expect("fixture exposure");
-    catalog
-        .cancel(second, requests[3])
-        .expect("unexposed cancellation");
-    Uploads { catalog, requests }
+        .revoke(context(service, second), requests[3])
+        .unwrap();
+    Uploads {
+        catalog,
+        requests,
+        _runtime: runtime,
+    }
 }
 
 pub(crate) fn cancel(actor: Principal, root: u8) -> bool {
@@ -71,24 +91,32 @@ pub(crate) fn cancel(actor: Principal, root: u8) -> bool {
         let Some(request) = uploads
             .requests
             .iter()
-            .find(|request| request.object.root.as_bytes()[0] == root)
+            .find(|request| request.id.get().get() == u128::from(root))
             .copied()
         else {
             return false;
         };
-        uploads.catalog.cancel(actor, request).is_ok()
+        let ctx = context(state.service, actor);
+        let Ok(view) = uploads.catalog.lookup(ctx, request) else {
+            return false;
+        };
+        view.phase != ic_blob_storage::model::catalog::admission::UploadPhase::Registered
+            && uploads.catalog.revoke(ctx, request).is_ok()
     })
 }
 
 pub(crate) fn roots() -> ProviderRootBatch {
+    let roots: Vec<_> = [11, 12, 13, 14]
+        .map(|id| super::root(id).as_bytes().to_vec())
+        .into();
     ProviderRootBatch::from_bytes(
-        &[vec![11; 32], vec![12; 32], vec![13; 32], vec![14; 32]],
+        &roots,
         RootBatchLimits {
             max_entries: bound(4),
             max_bytes: bound(128),
         },
     )
-    .expect("fixed root batch")
+    .unwrap()
 }
 
 pub(crate) fn status(status: UploadRootStatus) -> Option<UploadProbeState> {

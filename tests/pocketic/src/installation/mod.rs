@@ -1,6 +1,6 @@
 //! Shared Blob fixture installation mechanics; scenarios own authority, budgets and initialization bytes.
 use ic_platform::principal::ExternalPrincipal as Principal;
-use ic_platform_pocket_ic::{CanisterSettings, CreateCanisterParams, PocketIc};
+use ic_testkit::pocket_ic::{CanisterSettings, CreateCanisterParams, PocketIc};
 use std::path::PathBuf;
 
 /// Admit the scenario-selected artifact or `PocketIC` executable path.

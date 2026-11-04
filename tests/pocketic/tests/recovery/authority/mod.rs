@@ -12,7 +12,7 @@ use blob_test_protocol::{
     authority::{ArchiveCatalog, ArchivePhase, ArchivedObjectView, AuthorityArchiveView},
     obligations::ObligationProbeFact,
 };
-use ic_platform_pocket_ic::common::rest::BlobCompression;
+use ic_testkit::pocket_ic::common::rest::BlobCompression;
 
 impl Fixture {
     pub(super) fn archive(&self) -> AuthorityArchiveView {
@@ -96,7 +96,7 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
     );
     assert_eq!(f.delete(vec![root(deleted.upload.root)]), Ok(()));
     let cancelled = upload(3, b"cancelled");
-    assert_eq!(f.reserve(f.first, cancelled), Ok(()));
+    assert_eq!(f.reserve(f.first, cancelled, b"cancelled"), Ok(()));
     assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
     let (released,): (bool,) =
         fixture_calls::update_fixture(&f.harness.pic, f.service, f.first, "release", (1_u8,))
@@ -150,7 +150,7 @@ fn archive_preserves_all_catalogs_partial_progress_and_byte_free_history() {
     );
     let settled = f.archive();
     for (catalog, root) in [
-        (ArchiveCatalog::Samples, [1; 32]),
+        (ArchiveCatalog::Samples, sample_object(&settled, 1).root),
         (ArchiveCatalog::Journey, deleted.upload.root),
     ] {
         let entry = object(&settled, catalog, root);
@@ -315,6 +315,19 @@ fn stable_archive_is_operator_only_and_old_or_missing_bytes_never_change_live_au
 }
 
 #[test]
+fn invalid_upload_metadata_cannot_allocate_capacity_or_change_the_archive() {
+    let f = Fixture::new();
+    let v = content_vectors::vector("ecmascript-metadata", 1);
+    let before = f.archive();
+    assert_eq!(
+        f.reserve_manifest(f.first, v.upload, v.manifest),
+        Err(JourneyFailure::InvalidInput)
+    );
+    assert_eq!(f.usage(f.first), Ok(usage(0, 0, 0)));
+    assert_eq!(f.archive(), before);
+}
+
+#[test]
 fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
     let f = Fixture::new();
     let v = content_vectors::vector("abc-text", 1);
@@ -339,7 +352,7 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
     let names = [
         "abc-binary",
         "abc-no-metadata",
-        "ecmascript-metadata",
+        "media-1048577",
         "pattern-1",
         "pattern-1048577",
         "pattern-2097152",
@@ -367,7 +380,10 @@ fn terminal_digest_failure_and_full_lifetime_root_history_are_archived() {
     }
     let full = f.archive();
     let next = upload(5, b"full");
-    assert_eq!(f.reserve(f.first, next), Err(JourneyFailure::Limit));
+    assert_eq!(
+        f.reserve(f.first, next, b"full"),
+        Err(JourneyFailure::Limit)
+    );
     assert_eq!(f.archive(), full);
     let mut full = full;
     f.restore(f.service);
@@ -424,8 +440,16 @@ fn successful_and_reentrant_syncs_archive_sequences_and_current_membership() {
     assert_eq!(after.gateways, []);
 }
 
+fn sample_object(archive: &AuthorityArchiveView, id: u8) -> &ArchivedObjectView {
+    archive
+        .objects
+        .iter()
+        .find(|o| o.catalog == ArchiveCatalog::Samples && o.id == id)
+        .expect("sample identity")
+}
+
 fn assert_sample_history(archive: &AuthorityArchiveView) {
-    let sample = object(archive, ArchiveCatalog::Samples, [1; 32]);
+    let sample = sample_object(archive, 1);
     assert_eq!(
         (
             sample.phase,
@@ -436,17 +460,18 @@ fn assert_sample_history(archive: &AuthorityArchiveView) {
         ),
         (ArchivePhase::ProviderDeleted, 0, 0, 100, Some(true))
     );
-    assert_eq!(
-        object(archive, ArchiveCatalog::Samples, [2; 32]).phase,
-        ArchivePhase::Live
-    );
+    assert_eq!(sample_object(archive, 2).phase, ArchivePhase::Live);
     for (id, phase) in [
         (11, ArchivePhase::Cancelled),
         (12, ArchivePhase::Live),
         (13, ArchivePhase::Live),
         (14, ArchivePhase::Cancelled),
     ] {
-        let entry = object(archive, ArchiveCatalog::Uploads, [id; 32]);
+        let entry = archive
+            .objects
+            .iter()
+            .find(|o| o.catalog == ArchiveCatalog::Uploads && o.id == id)
+            .expect("initial upload identity");
         assert_eq!(entry.phase, phase);
     }
 }

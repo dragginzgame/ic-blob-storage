@@ -70,6 +70,6 @@ pub(super) const fn admission_failure(error: UploadAdmissionError) -> Failure {
         UploadAdmissionError::EmptyObject
         | UploadAdmissionError::InvalidUploader
         | UploadAdmissionError::Tenant(TenantError::InvalidTenant) => Failure::InvalidInput,
-        UploadAdmissionError::Reference(_) | UploadAdmissionError::Catalog(_) => Failure::Catalog,
+        UploadAdmissionError::Catalog(_) => Failure::Catalog,
     }
 }

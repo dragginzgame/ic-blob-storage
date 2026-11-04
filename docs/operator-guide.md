@@ -139,7 +139,7 @@ and budget under the [probe ledger](evidence/caffeine-probes/README.md).
 
 `installation-check` checks the complete shared installation candidate,
 including service/operator/payer bindings, portable quotas, reference cleanup
-capacity, funding reserves, read limits, project. It emits the complete shared `ServiceInstallationInput`
+capacity, funding reserves and project. It emits the complete shared `ServiceInstallationInput`
 without opening memory or dispatching installation.
 
 Prepare one strict JSON `ServiceConfigurationInput` using explicitly reviewed
@@ -222,13 +222,14 @@ authority. Keep [trial facts](evidence/caffeine-upload-gates.json) and the
 ## Prepare isolated trial provisioning
 
 Use the [maintained configuration envelope](../canisters/standalone/trial/README.md)
-and private `.tmp/trial-provisioning-01/proposal.json`. The preparation proposes
-`canic-mainnet` solely as deployer/controller/operator, with a fresh repository-local
-principal explicitly sharing payer/tenant/original-uploader roles and a distinct
-fresh operator. No existing signing key or account is read; the default identity
-remains unchanged. Fresh key files are private candidates, not selected authority
-or funded accounts. Before any use, arrange their retention and controlled browser
-handoff; never serve identity files from the trial page or put them in its bundle.
+and a new controlled operational directory. Select exact controller/operator,
+payer, tenant and original-uploader bindings; controller status grants neither
+tenant nor payer authority. Keep trial keys and uncertain-operation journals
+outside build cleanup and browser-served assets, with explicit maintainer custody.
+Never put a signer in an HTTP credential route or page bundle, or switch the default
+identity implicitly. Historical `.tmp/trial-provisioning-01` artifacts below retain
+their original release and proposal; they are not current installation inputs.
+[Current status](status/current.md) and the probe ledger own the selected live run.
 
 The provider candidates remain Cashier `72ch2-fiaaa-aaaar-qbsvq-cai` and
 `https://blob.caffeine.ai`. A fresh UUID project/bucket and namespace 1 are proposed
@@ -395,6 +396,64 @@ argument: generic CLI signing may retain the management principal as routing
 metadata. Correct only destination metadata before submission, retain both files
 and the unchanged signed envelope/request ID. Never infer provider account/project
 acceptance from installation or authorize funding/certificates/uploads from it.
+
+## Check payer, owner and gateway credit before exposure
+
+Payer funding, service linkage and service-owner credit are separate observations.
+`inspect-account` with `Balance` observes the **installed payment account**;
+`PaymentRelationship` observes its exact service link. Neither report establishes
+service-owner or gateway credit. Certificate registration and a live reference
+also do not establish provider availability.
+
+The [0.69 mainnet trial](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-provider-01/summary.json)
+reconciled two distinct external deposits and the exact service link, with zero
+payer overdraft/no automatic target. Payer credit reached 1.0006T while owner and
+gateway credit stayed zero. The first tree PUT returned 403. Its raw error text
+was not retained, so zero credit is a demonstrated readiness gap consistent with
+the refusal, not proof of Cashier's allocation algorithm or minimum funding.
+A same-limit/same-expiry refresh did not change those credit observations.
+A [separately approved 5T daily update](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-allowance-01/summary.json)
+also preserved expiry and left payer/owner/gateway balances unchanged at its
+immediate readback. A [later bounded investigation](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-bootstrap-01/summary.json)
+reconciled a delayed 1T allocation: payer fell to 600M, owner gained 1T and the
+relationship recorded 1T spent, with positive explicit-gateway credit. A distinct
+unused tenant then [uploaded and downloaded 1KiB successfully](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-transfer-01/summary.json);
+the original failed upload was never repeated. Do not promote this sequence into
+a fixed wait duration, minimum balance or proof that increasing the limit caused
+allocation. Preserve earlier observations and perform fresh bounded scoped reads
+before exposure rather than blindly adding funds or retrying a refused upload.
+
+Before issuing a certificate or PUT, record a bounded probe intent and inspect
+both the actual owner balance and the explicit advertised storage gateway budget.
+Use the reviewed current provider DID, mainnet root and the already selected
+principals; these anonymous queries do not impersonate a gateway:
+
+```sh
+icp canister call "$CASHIER" account_balance_get_v1 \
+  "(record { account = principal \"$SERVICE\" })" \
+  --query --candid "$CURRENT_CASHIER_DID" --network "$MAINNET_URL" \
+  --root-key mainnet --identity anonymous --json
+icp canister call "$CASHIER" budget_get_v1 \
+  "(record { owner_id = principal \"$SERVICE\"; gateway_id = opt record { \"principal\" = principal \"$STORAGE_GATEWAY\"; name = null } })" \
+  --query --candid "$CURRENT_CASHIER_DID" --network "$MAINNET_URL" \
+  --root-key mainnet --identity anonymous --json
+```
+
+Retain the original replies and separate payer/owner/relationship/gateway scope.
+A zero or inconsistent observation stops exposure for explicit reconciliation;
+positive credit is still a time-bound observation, not a bill cap or guarantee
+that an upload will succeed. Do not choose a universal bootstrap amount or daily
+limit from one historical trial. Count transfer/sweep fees in the selected gross
+budget and observe actual credited amounts. External account funding is visible
+through provider observations; never fabricate a Blob service-attachment journal
+entry for it.
+
+After a refusal, preserve the original certificate, upload/profile claim and
+possible physical/billing liability. A responded 403 does not authorize deleting
+the claim or resending a PUT. Inspect the exact operation and fix account setup
+separately; any additional funding or higher spending authority needs its own
+scope, intent and authorization. Logical release, remote deletion and billing
+cessation retain their separate contracts.
 
 ## Size a consumer installation
 

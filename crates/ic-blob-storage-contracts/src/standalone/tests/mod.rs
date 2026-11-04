@@ -1,11 +1,11 @@
 use super::*;
 use crate::{dto::configuration::HostFailure, wire};
-use ic_metrics::{MeasurementAggregate, MeasurementCounter};
 
 pub(super) fn maximal_report() -> MetricsReport {
-    let counter = MeasurementCounter::from_parts(u128::MAX, true)
-        .unwrap()
-        .into();
+    let counter = CounterMetrics {
+        total: u128::MAX,
+        total_overflowed: true,
+    };
     MetricsReport {
         service: Principal::from_slice(&[1; 29]),
         namespace: u128::MAX,
@@ -22,15 +22,13 @@ pub(super) fn maximal_report() -> MetricsReport {
             provider_failed: counter,
             acknowledged: counter,
             request_bytes: counter,
-            instructions: MeasurementAggregate::from_parts(
-                u64::MAX,
-                u128::MAX,
-                Some(u64::MAX),
-                true,
-                true,
-            )
-            .unwrap()
-            .into(),
+            instructions: AggregateMetrics {
+                samples: u64::MAX,
+                total: u128::MAX,
+                maximum: Some(u64::MAX),
+                samples_overflowed: true,
+                total_overflowed: true,
+            },
         }),
     }
 }
@@ -80,14 +78,41 @@ fn report_decoding_rejects_invalid_numeric_quality() {
     report.namespace = 7;
     report.operations = MetricOperation::ALL.map(|operation| OperationMetrics {
         operation,
-        attempts: MeasurementCounter::ZERO.into(),
-        applied: MeasurementCounter::ZERO.into(),
-        replayed: MeasurementCounter::ZERO.into(),
-        refused: MeasurementCounter::ZERO.into(),
-        provider_failed: MeasurementCounter::ZERO.into(),
-        acknowledged: MeasurementCounter::ZERO.into(),
-        request_bytes: MeasurementCounter::ZERO.into(),
-        instructions: MeasurementAggregate::EMPTY.into(),
+        attempts: CounterMetrics {
+            total: 0,
+            total_overflowed: false,
+        },
+        applied: CounterMetrics {
+            total: 0,
+            total_overflowed: false,
+        },
+        replayed: CounterMetrics {
+            total: 0,
+            total_overflowed: false,
+        },
+        refused: CounterMetrics {
+            total: 0,
+            total_overflowed: false,
+        },
+        provider_failed: CounterMetrics {
+            total: 0,
+            total_overflowed: false,
+        },
+        acknowledged: CounterMetrics {
+            total: 0,
+            total_overflowed: false,
+        },
+        request_bytes: CounterMetrics {
+            total: 0,
+            total_overflowed: false,
+        },
+        instructions: AggregateMetrics {
+            samples: 0,
+            total: 0,
+            maximum: None,
+            samples_overflowed: false,
+            total_overflowed: false,
+        },
     });
     let value = serde_json::to_value(&report).unwrap();
     assert_eq!(
@@ -149,18 +174,34 @@ fn report_projection_keeps_the_frozen_prior_metrics_frame() {
 #[test]
 fn metric_projections_keep_exact_caps_actual_overflow_and_empty_zero_distinct() {
     for overflowed in [false, true] {
-        let canonical = MeasurementCounter::from_parts(u128::MAX, overflowed).unwrap();
-        let dto = CounterMetrics::from(canonical);
+        let dto = CounterMetrics {
+            total: u128::MAX,
+            total_overflowed: overflowed,
+        };
         assert_eq!(dto.total, u128::MAX);
         assert_eq!(dto.total_overflowed, overflowed);
         let json = serde_json::to_string(&dto).unwrap();
-        assert_eq!(json, serde_json::to_string(&canonical).unwrap());
+        assert_eq!(
+            json,
+            format!(
+                "{{\"total\":{},\"total_overflowed\":{overflowed}}}",
+                u128::MAX
+            )
+        );
         assert_eq!(serde_json::from_str::<CounterMetrics>(&json).unwrap(), dto);
     }
-    let empty = AggregateMetrics::from(MeasurementAggregate::EMPTY);
-    let zero = AggregateMetrics::from(
-        MeasurementAggregate::from_parts(1, 0, Some(0), false, false).unwrap(),
-    );
+    let empty = AggregateMetrics {
+        samples: 0,
+        total: 0,
+        maximum: None,
+        samples_overflowed: false,
+        total_overflowed: false,
+    };
+    let zero = AggregateMetrics {
+        samples: 1,
+        maximum: Some(0),
+        ..empty
+    };
     assert_eq!(empty.maximum, None);
     assert_eq!(zero.maximum, Some(0));
     assert_ne!(empty, zero);
@@ -171,4 +212,91 @@ fn metric_projections_keep_exact_caps_actual_overflow_and_empty_zero_distinct() 
             dto
         );
     }
+}
+
+#[test]
+fn report_numeric_admission_preserves_refusal_priority_and_strict_fields() {
+    let empty = AggregateMetrics {
+        samples: 0,
+        total: 0,
+        maximum: None,
+        samples_overflowed: false,
+        total_overflowed: false,
+    };
+    let one = AggregateMetrics {
+        samples: 1,
+        maximum: Some(1),
+        total: 1,
+        ..empty
+    };
+    for (invalid, message) in [
+        (
+            AggregateMetrics {
+                total: 1,
+                total_overflowed: true,
+                ..empty
+            },
+            "nonempty state without observations",
+        ),
+        (
+            AggregateMetrics {
+                samples: 1,
+                samples_overflowed: true,
+                ..empty
+            },
+            "observations without a maximum",
+        ),
+        (
+            AggregateMetrics {
+                samples_overflowed: true,
+                ..one
+            },
+            "overflow flag disagrees with numeric state",
+        ),
+        (
+            AggregateMetrics {
+                total_overflowed: true,
+                ..one
+            },
+            "overflow flag disagrees with numeric state",
+        ),
+        (
+            AggregateMetrics { total: 0, ..one },
+            "total disagrees with count or maximum",
+        ),
+        (
+            AggregateMetrics { total: 2, ..one },
+            "total disagrees with count or maximum",
+        ),
+        (
+            AggregateMetrics {
+                maximum: Some(0),
+                ..one
+            },
+            "total disagrees with count or maximum",
+        ),
+    ] {
+        let value = serde_json::to_value(invalid).unwrap();
+        assert!(
+            serde_json::from_value::<AggregateMetrics>(value)
+                .unwrap_err()
+                .to_string()
+                .contains(message)
+        );
+        let bytes = crate::document::encode(invalid).unwrap();
+        assert!(crate::document::decode::<AggregateMetrics>(&bytes, 4096).is_err());
+    }
+    let mut extra = serde_json::to_value(one).unwrap();
+    extra["extra"] = 0.into();
+    assert!(serde_json::from_value::<AggregateMetrics>(extra).is_err());
+    let invalid = CounterMetrics {
+        total: 0,
+        total_overflowed: true,
+    };
+    assert!(
+        serde_json::from_value::<CounterMetrics>(serde_json::to_value(invalid).unwrap())
+            .unwrap_err()
+            .to_string()
+            .contains("overflow flag disagrees with numeric state")
+    );
 }

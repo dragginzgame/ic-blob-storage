@@ -497,7 +497,7 @@ proof that the object no longer exists at the provider.
 
 ## Transient catalog after 0.1.6
 
-The [catalog model](../../crates/ic-blob-storage/src/model/catalog/mod.rs) composes
+The [catalog model](https://github.com/dragginzgame/ic-blob-storage/blob/600315eeb669de337bab15d49ef8b43d78173623/crates/ic-blob-storage/src/model/catalog/mod.rs) composes
 confirmed-object lifecycles, immutable service-wide root claims and exact reference
 receipts under one mutable owner. There is no mutable journal escape or history
 removal. Limits bound global/per-tenant lifetime objects and per-object metadata, tenant logical
@@ -506,17 +506,17 @@ Logical release, physical deletion and final settlement free separate capacities
 settlement never frees lifetime identity slots. Derived counters retain zero-byte
 obligation counts and use u128 byte/metadata totals on supported 32/64-bit targets.
 
-[Pending pages](../../crates/ic-blob-storage/src/model/catalog/pending/mod.rs)
+[Pending pages](https://github.com/dragginzgame/ic-blob-storage/blob/600315eeb669de337bab15d49ef8b43d78173623/crates/ic-blob-storage/src/model/catalog/pending/mod.rs)
 have separate scan/result budgets and service/namespace cursors. Empty filtered
 pages advance; root order is stable. These are current views, not snapshots:
 another sweep is required for objects that become pending behind a cursor.
-[Catalog read policy](../../crates/ic-blob-storage/src/policy/catalog/mod.rs)
+[Catalog read policy](https://github.com/dragginzgame/ic-blob-storage/blob/600315eeb669de337bab15d49ef8b43d78173623/crates/ic-blob-storage/src/policy/catalog/mod.rs)
 checks current gateway membership on every page/root batch and exposes tenant
 usage only for the supplied authenticated caller. Root observations retain
 order, duplicates and explicit unknown/malformed/wrong-namespace outcomes;
 no provider deletion boolean is inferred from missing local data.
 
-[Unit tests](../../crates/ic-blob-storage/src/model/catalog/tests/mod.rs) cover
+[Unit tests](https://github.com/dragginzgame/ic-blob-storage/blob/600315eeb669de337bab15d49ef8b43d78173623/crates/ic-blob-storage/src/model/catalog/tests/mod.rs) cover
 atomic rejected admissions, immutable registration identity, exact retries at
 capacity/after settlement, separate capacity recovery, receipt exhaustion with
 reserved release capacity, zero-byte liabilities, totals above u64, scoped
@@ -524,11 +524,11 @@ pagination and rescanning after concurrent logical changes. Per-tenant object
 quota tests retain zero-byte/settled history across namespaces, reject new
 registrations atomically at capacity, accept exact retries and leave unused
 global slots available to another tenant.
-[Native composition](../../crates/ic-blob-storage/tests/catalog_journey.rs)
+[Native composition](https://github.com/dragginzgame/ic-blob-storage/blob/600315eeb669de337bab15d49ef8b43d78173623/crates/ic-blob-storage/tests/catalog_journey.rs)
 adds multi-tenant/multi-namespace accounting, reference replay through settlement,
 cross-object rejection, revocation between pages and ordered root observations.
 
-The [tenant catalog policy](../../crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs)
+The [tenant catalog policy](https://github.com/dragginzgame/ic-blob-storage/blob/600315eeb669de337bab15d49ef8b43d78173623/crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs)
 adds bounded cross-object reference reads: context, raw count, ownership of every
 root and full bindings are checked before allocating statuses. Unknown/foreign
 roots share one typed rejection; duplicates and namespace-spanning owned reads
@@ -761,7 +761,7 @@ unchanged. No provider, persistence or production adapter was exercised.
 
 ## Transient upload admission after 0.1.10
 
-The [admission owner](../../crates/ic-blob-storage/src/model/catalog/admission/mod.rs)
+The [admission owner](https://github.com/dragginzgame/ic-blob-storage/blob/3b5ab645e579e8193c951c7b47b649cd921abe65/crates/ic-blob-storage/src/model/catalog/admission/mod.rs)
 combines pending operations and its private confirmed catalog under the existing
 byte/object bounds plus explicit concurrent-upload bounds. One shared root-claim
 map prevents admission through another operation, including after cancellation.
@@ -779,7 +779,7 @@ observations free those reservations. There is no timeout/reset API. Completion
 consumes a separately authenticated exact fact and transfers capacity into the
 same catalog; replay after settlement cannot restore a reference or liability.
 
-[Native tests](../../crates/ic-blob-storage/src/model/catalog/admission/tests/mod.rs)
+[Native tests](https://github.com/dragginzgame/ic-blob-storage/blob/3b5ab645e579e8193c951c7b47b649cd921abe65/crates/ic-blob-storage/src/model/catalog/admission/tests/mod.rs)
 exercise competing tenants and identical tenant-local IDs, each independent
 capacity bound, exact/rejected retries, immutable service/namespace/incarnation/
 reference/content inputs, root/object reuse rejection, cancellation, unresolved
@@ -788,11 +788,11 @@ financial release. Zero-byte operations retain slots and totals above u64 remain
 exact. Snapshots cover operation history, root claims and confirmed state on
 rejection. Tests supply completion/deletion/billing facts as local substitutes.
 
-The [read model](../../crates/ic-blob-storage/src/model/catalog/admission/read/mod.rs)
+The [read model](https://github.com/dragginzgame/ic-blob-storage/blob/3b5ab645e579e8193c951c7b47b649cd921abe65/crates/ic-blob-storage/src/model/catalog/admission/read/mod.rs)
 adds tenant-bounded operation scans with separate scan/result budgets. Terminal
 history consumes scan work, empty filtered pages can continue, and cursors bind
 service/tenant without granting access or a snapshot. The
-[read policy](../../crates/ic-blob-storage/src/policy/catalog/upload/mod.rs) checks
+[read policy](https://github.com/dragginzgame/ic-blob-storage/blob/3b5ab645e579e8193c951c7b47b649cd921abe65/crates/ic-blob-storage/src/policy/catalog/upload/mod.rs) checks
 the actual context on each page and includes reservations in tenant usage.
 Gateway batches preserve input order, duplicates and malformed entries, report
 reserved/uncertain/cancelled/confirmed state, and hide other namespaces. They
@@ -805,7 +805,7 @@ or cross-call cache. Duplicates retain their output positions without repeating
 history scans. The model's batch view reports actual scanned operation rows,
 excluding tree lookups; policy does not disclose that global count to gateways.
 
-[Read integration cases](../../crates/ic-blob-storage/tests/upload_reads.rs)
+[Read integration cases](https://github.com/dragginzgame/ic-blob-storage/blob/3b5ab645e579e8193c951c7b47b649cd921abe65/crates/ic-blob-storage/tests/upload_reads.rs)
 exercise budget combinations, sparse terminal history, cancellation/completion
 between pages, new lower IDs, maximum IDs, tenant ID collisions, scope rejection
 and phase/accounting consistency. Duplicate-heavy mixed batches match individual
@@ -895,7 +895,7 @@ extra CI dependency on cloc/jq were introduced.
 
 ## Tenant obligation views after 0.1.11
 
-The [tenant object model](../../crates/ic-blob-storage/src/model/catalog/tenant/mod.rs)
+The [tenant object model](https://github.com/dragginzgame/ic-blob-storage/blob/e125fb803d28b8215e7ec0ed294043f925eb82f0/crates/ic-blob-storage/src/model/catalog/tenant/mod.rs)
 adds bounded current pages of unsettled confirmed objects across a tenant's
 namespaces. Live, DeletionPending and ProviderDeleted remain visible, including
 zero-byte objects. Only explicit billing settlement removes an object from these
@@ -916,9 +916,9 @@ empty page with continuation. Each lookup observes current state, so a fresh swe
 is required for roots inserted behind a cursor. Pages prove no restore safety or
 installation retirement condition, and exclude pending upload reservations.
 
-The [tenant policy](../../crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs)
+The [tenant policy](https://github.com/dragginzgame/ic-blob-storage/blob/e125fb803d28b8215e7ec0ed294043f925eb82f0/crates/ic-blob-storage/src/policy/catalog/tenant/mod.rs)
 checks actual caller/service context before cursor scope on every page. There
-is no requested tenant or controller override. [Native tests](../../crates/ic-blob-storage/tests/tenant_obligations.rs)
+is no requested tenant or controller override. [Native tests](https://github.com/dragginzgame/ic-blob-storage/blob/e125fb803d28b8215e7ec0ed294043f925eb82f0/crates/ic-blob-storage/tests/tenant_obligations.rs)
 cover budget combinations, sparse history, exact bindings, zero bytes, byte
 projections, scope rejection, interleaved settlement, minimum/maximum roots,
 confirmed index consistency and transfer from pending upload reservations.
@@ -5851,3 +5851,11 @@ Wrong test selection and the initial test-length lint failure remain in the capt
 No live provider effect or Miner adoption is qualified. Existing live captures and
 the 0.6.0 owner stay frozen; publication requires a minor release. No allocator,
 dependency, version, commit, sibling or cleanup change occurs.
+
+## Retired catalog source links — 2026-11-04
+
+The pending Engine 0.70.0 cut removes the heap catalog implementation. Historical
+catalog links above now select the committed source that introduced each cited
+link, verified through Git, instead of resolving against the changed checkout.
+The recorded outcomes, inventories and hashes are unchanged. Current ownership
+and replacement qualification are recorded in the [handoff](../status/current.md).

@@ -145,6 +145,23 @@ pub fn methods() -> Result<Vec<Value>, GenerationError> {
         .map(MethodSchema::into_json)
         .collect())
 }
+/// Describe the standalone host's extra telemetry query, separately from the
+/// shared service mount. This grants no operator authority or accounting proof.
+/// # Errors
+/// Rejects unsupported standalone request or response schemas.
+pub fn standalone_methods() -> Result<Vec<Value>, GenerationError> {
+    use crate::dto::configuration::HostFailure;
+    use crate::standalone::{METRICS_METHOD, METRICS_WIRE, MetricsReport};
+    Ok(vec![
+        MethodSchema {
+            spec: METRICS_METHOD,
+            contract: METRICS_WIRE,
+            request: native_schema::<()>()?,
+            response: native_schema::<Result<MetricsReport, HostFailure>>()?,
+        }
+        .into_json(),
+    ])
+}
 /// Generate TypeScript codecs. `runtime_module` must export the Blob scalar-aware
 /// `createCodec` produced by [`runtime_adapter`], not the bare Wire runtime.
 /// Wire's bulk-field advice is emitted to stderr, leaving generated source clean.
@@ -154,6 +171,19 @@ pub fn typescript(runtime_module: &str) -> Result<String, GenerationError> {
     ic_wire::typescript::generate_registry(
         &BTreeMap::new(),
         &methods()?,
+        runtime_module,
+        &BTreeMap::new(),
+        |report| eprint!("{report}"),
+    )
+}
+/// Generate codecs only for the standalone host's extra telemetry query.
+/// The shared service client remains a separate explicit selection.
+/// # Errors
+/// Refuses unsupported standalone contracts or invalid runtime module paths.
+pub fn standalone_typescript(runtime_module: &str) -> Result<String, GenerationError> {
+    ic_wire::typescript::generate_registry(
+        &BTreeMap::new(),
+        &standalone_methods()?,
         runtime_module,
         &BTreeMap::new(),
         |report| eprint!("{report}"),

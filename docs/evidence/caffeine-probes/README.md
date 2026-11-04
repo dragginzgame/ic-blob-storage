@@ -14,6 +14,695 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Current 0.69 post-release acknowledgment observation — 2026-11-03
+
+The maintainer continued issue work. Source review found an **existing** standalone
+`GatewayAcknowledgment` telemetry row: only successful update completion records
+an acknowledged outcome; a trapping callback rolls replicated changes back.
+Before network requests, `target/post069-provider/gc-followup-01/intent.json`
+selects five bounded reads (operator metrics, one history page, global accounting,
+owner balance and explicit gateway budget), plus one original public URL HEAD
+with no body. Budget 45 seconds/query, 30 seconds/HEAD, zero updates/funds/
+allowance changes, no redirects, repeated uploads, forced GC or polling loop.
+A zero acknowledgment count cannot exclude failed callbacks or read-only gateway
+queries; a positive aggregate cannot identify a particular root or exclude empty
+batches. Keep the existing window/restore limitations and all original records.
+No new diagnostic endpoint, public DTO, telemetry store or settlement flow is added.
+
+The [completed follow-up](deployed/2026-11-03-trial-v069-gc-followup-01/summary.json)
+retains five successful queries and one body-free HEAD (200). Existing standalone
+metrics report zero `GatewayAcknowledgment` attempts/acknowledgments in window
+version 1, observed version 18, while recording two admissions/preparations/
+registrations and one reference change. Those telemetry limits above remain;
+no origin deletion, failed-call history or billing conclusion follows.
+History stays first object `Live`, second `DeletionPending`, with 1024 logical /
+2048 physical / 2048 liability bytes; no update or new funds occurred.
+
+The frozen shared-service client intentionally had no `blob_metrics` export;
+its offline import failure is retained before any request. Explicit standalone
+metadata/client output was added to the canonical Contracts host generator, using
+existing report DTOs/identity/budgets instead of copying them or exporting the
+configured operator key. Shared service generation/runtime packets are unchanged.
+The generated unit request and live response round-trip pass; truncation, trailing
+bytes, wrong direction/identity and oversized response refuse. Native schema /
+CLI-mode tests, strict affected Clippy and Rust formatting pass on Rust 1.99.1 /
+Wire 0.16.1. Full graph, deployed Wasm and macOS qualification were not rerun for
+this optional native-only generator change. Exact source/lock/tool hashes and
+original provider captures remain privately retained; raw session cookies are
+excluded from the public summary.
+
+## Current 0.69 disposable-object release probe — 2026-11-03
+
+The maintainer requested work on the remaining issues. Before network/effects,
+`target/post069-provider/gc-release-01/intent.json` selects #6's bounded exact
+release of **only** the successful disposable public 1KiB second object/reference,
+original operation 7. The failed first object's live reference/history, old owners
+and all balances/liabilities remain untouched. Inspect reference 2, ordered public
+liveness `[first, second, second, unknown]` and owner balance before proceeding.
+Retain exact offline inputs and signed native intent before one release update;
+uncertainty permits receipt inspection, never a replacement operation/resend.
+Post-release observations select the exact receipt/reference/liveness, global
+accounting, one bounded original provider GET and scoped provider economics;
+one operator history page may supply lifecycle evidence. Bounds: one update,
+ten queries, one <=1KiB GET, 45 seconds/query and 30 seconds/GET, zero new funds,
+allowance changes, forced GC, gateway impersonation or automatic retries.
+Logical release may authorize the real gateway to delete the selected disposable
+object; it does not itself establish physical deletion or billing cessation.
+No callback acknowledgment or settlement is manufactured on the gateway's behalf.
+
+The completed [live release record](deployed/2026-11-03-trial-v069-gc-release-01/summary.json)
+retains all ten successful queries, one acknowledged original release and one
+bounded post-release GET. Exact operation-7 receipt inspection finds the original
+success without resending. Liveness changes from `[true,true,true,true]` to
+`[true,false,false,true]`; reference 2 becomes not live while reference 1 stays
+protected. The one operator history page retains object 1 `Live`, object 2
+`DeletionPending`, with no continuation. Logical bytes fall to **1024**, but
+physical/liability bytes remain **2048**, zero reservations, all owners unfenced.
+No callback acknowledgment, forced GC, settlement, reset or capacity reclamation
+was performed on the gateway's behalf.
+
+The direct original URL GET returns **200 / exactly 1024 original bytes** after
+release. Selected headers are `application/octet-stream`, wildcard CORS and
+`max-age=31536000, immutable`; raw headers/session cookie stay private. The
+`no-cache` request hint does not prove an origin read. Owner balance remains
+999507426465, explicit gateway credit 166584571077 and reported usage zero at
+this readback; these do not prove billing cessation. No fixed scrubber cadence or
+remote-delete timing was inferred. No failure/automatic retry occurred in this
+phase. #6 remains open for actual provider callback/deletion/billing evidence and
+consumer interruption; one receipt read is not an injected lost-reply test.
+
+## Current 0.69 second-tenant live transfer — 2026-11-03
+
+[Completed transfer evidence](deployed/2026-11-03-trial-v069-transfer-01/summary.json)
+records one real successful second-tenant upload/download after the separately
+reconciled delayed allocation. Original unused/expired inputs and the first user's
+403 remain intact. Fresh inputs keep the original second body/root and upload /
+object / reference 2, permission expiry 17:35 UTC. One admission, preparation and
+signed assessment passed. One observed certificate, tree PUT 200 and chunk PUT 200
+were followed by one native descriptor/GET: root verified and all **1024 bytes**
+equal the original (`888e1ee46d14c38002617aca71964caf96cc9c5177acf2c4a23fd2726a6c0bd6`).
+No new funds, allowance updates, first-user replay or automatic upload retry.
+
+Two local script imports failed before browser/effects: ESM-only Platform
+resolution, then missing Chromium export from Playwright's CJS entry. Preserve
+both candidates and diagnostics. The second left only the original profile binding,
+with no Chromium/database/requests. Before recovery,
+`user2-first-transfer-01/journal-initialization-intent.json` selected canonical
+explicit empty-journal creation in the **same** profile/origin/database/assets,
+with external traffic blocked and zero jobs. It succeeded with only three asset
+GETs; the binding stayed byte-identical. The maintained launcher then reopened it
+and dispatched the original first transfer once. No existing journal was erased,
+replaced or migrated. Private profiles/keys are never served as assets.
+
+`post-success-readback-01/intent.json` selected seven bounded post-transfer reads.
+Six succeeded. The raw second-reference query mistakenly sent the native saved
+**document** identity and trapped before mutation; its exact failure remains.
+An explicit correction intent selected one frozen-CLI query, which translated the
+same saved reference correctly and succeeded. Payer stays **600M**, owner reports
+**999507426465**, gateway raw credit **166584571077**, unchanged 5T daily limit /
+original expiry and 1T period spend. Returned gateway usage counters are zero;
+owner reduction is neither an itemized upload price nor proof of billing cessation.
+
+Both exact references remain live; local logical/physical/liability totals are
+**2048 bytes**, zero active/reserved bytes, all owners unfenced, zero attachments.
+The two lifetime object slots are occupied. No logical release, deletion, refund,
+reset or settlement occurred. One isolated test-key user success plus one earlier
+refusal does not qualify #31's two signed-in application users, #5's application
+transaction/serving or #6's physical deletion/billing. Raw captures and all original
+native/browser histories retain private durable custody outside `cargo clean`;
+no external backup is claimed.
+
+## Provider bootstrap source review — 2026-11-03
+
+The maintainer continued after the approved limit update failed to produce
+owner/gateway credit. Before external reads,
+`target/post069-provider/bootstrap-source-review-01/intent.json` selects a bounded
+public-source/local-contract investigation of documented owner-credit bootstrap:
+the already linked official integration, current revision-bound provider modules
+and primary-source Cashier funding references. Budget three public searches /
+eight source fetches, 1MiB each, zero provider accounts/updates/payments/objects.
+Source descriptions cannot authorize a paid call or prove current Cashier behavior.
+Retain refusals/failures/hashes; preserve all current/old trial obligations.
+
+Public-source review retained current provider revision
+`cf159e4dd500a7212d8a3e8bebcd30611b7d21b4` and the pinned official integration.
+The example funds a payer with 10T, uses a 5T daily link and advertises low-payer
+(<5T) and insufficient-auto-topup metrics. These are examples/alerts, **not** a
+proved Cashier minimum. The provider module's attached-cycle self-account refill
+does not specify the external-payer allocation rule; its result-discarding helper
+is not copied into Blob. No public current Cashier implementation was found in
+the selected searches; unrelated search hits are not evidence.
+Before a diagnostic network request, `bootstrap-metrics-01/intent.json` selects
+one candidate public `/metrics` GET, 30 seconds/1MiB, no redirects/retries/payments/
+updates/objects. Retain only the selected trial account metrics and relevant
+unlabelled diagnostics, with full-response hash/status; do not retain unrelated
+account balances. Endpoint availability and metrics are observations, not certified
+provider history or proof that a global counter belongs to this trial.
+
+The selected candidate metrics endpoint returned HTTP 200 within bounds;
+unrelated labelled accounts were omitted. Its selected payer gauge is now **600M**,
+versus the earlier 1.0006T. That suggests a later internal allocation, but the raw
+HTTPS metrics are not certified account history and global auto-topup counters
+cannot be attributed to this trial. Before further requests,
+`bootstrap-allocation-readback-01/intent.json` selects four bounded payer/link/
+owner/explicit-gateway queries to reconcile this new observation. Budget 45 seconds
+each, zero funds/updates/objects and no polling/retry loop. Do not infer a fixed
+cadence, minimum balance or readiness until actual scoped balances agree.
+
+All four follow-up queries succeeded: payer **600M**, actual service-owner
+**1T**, relationship period spend **1T**, explicit gateway raw available credit
+**166666666666**. The approved 5T daily limit and original expiry are unchanged.
+This confirms a delayed internal allocation between the retained immediate-zero
+and later-positive observations, not a known cadence, minimum or causal effect of
+the 5T increase. [Completed bootstrap evidence](deployed/2026-11-03-trial-v069-bootstrap-01/summary.json)
+keeps both phases separate. No extra donor funds, updates or object requests were
+used for this investigation.
+
+Before resuming the original two-tenant trial,
+`target/post069-provider/user2-first-transfer-01/intent.json` selects only user 2's
+**unused** original upload/object/reference 2 and original public 1KiB body.
+The initial stop after user 1's 403 is preserved; independently reconciled positive
+owner/gateway credit now justifies this distinct first attempt. User 1 is never
+retried, reset or recertified. User 2's expired **unsubmitted** inputs remain intact;
+a fresh candidate preserves all identities/body/manifest and expires at 17:35 UTC,
+before the unchanged payer-link expiry. Bounds: one admission, one preparation,
+one assessment query, one certificate call, at most two serial PUTs (64KiB each /
+128KiB aggregate), one independently verified <=1KiB download, zero automatic
+retries/funds/allowance changes. Any refusal or uncertainty stops; private native
+and browser journals remain durable before effects. This cannot establish two
+successful users or an application login/transaction journey.
+
+## Explicitly approved daily-limit update — 2026-11-03
+
+The maintainer explicitly answered **“ye splease do that”** to the prepared
+one-shot **1T -> 5T daily** update, with the original expiry preserved and no
+additional donor funds or upload retry. This is new approval for that exact scope;
+the earlier rejected signed/null-expiry candidate remains unsubmitted.
+Before any network use, `target/post069-provider/allowance-approved-01/approval-and-preflight-intent.json`
+records four bounded reads of current payer, relationship, owner and gateway.
+Reconfirm exact identities/1T limit, unchanged still-future expiry and account
+state before signing a fresh explicit-expiry request. Budget four queries,
+45 seconds each, zero update/payment/object effects. Drift stops the action.
+
+Current preflight matches the reviewed scope: 1T daily, exact still-future
+original expiry, payer 1.0006T/zero overdraft/no target, owner/gateway zero and no
+period spend. `allowance-approved-01/update-intent.json` now freezes **one**
+explicitly approved 5T update using `opt opt` of that same expiry. Copy the exact
+reviewed unsigned arguments and sign a fresh packet; do not use the rejected old
+candidate. Budget one update / 180 seconds, zero attachments/new donor funds/
+object requests or automatic retries. Persist actual outcome before readback.
+
+The new explicitly approved packet returned `Ok` once; its original
+signature, canonical decoded review, raw response, status and hashes remain in
+`allowance-approved-01/`. The earlier rejected packet was never submitted.
+Before interpreting success, `readback-intent.json` selects four bounded reads of
+payer, exact relationship, actual service-owner and explicit gateway budget.
+Confirm 5T daily and the original expiry, and reconcile any internal credit move;
+no new donor payment, provider object request or automatic update retry follows.
+
+Approved-update readback confirms the exact **5T daily limit** and
+**unchanged original expiry**, payer/service, zero overdraft and absent target.
+Payer credit is still **1.0006T**; service-owner/gateway credit and period spend
+remain **zero**. No immediate internal allocation was observed, so the historical
+5T setting is not a sufficient general bootstrap rule. No new donor funds or
+object requests occurred, and the failed PUT remains untouched.
+Before one independent diagnostic read, `allocation-audit-01/intent.json` selects
+a single authenticated provider audit page for the exact fresh payer, at most 20
+entries, 45 seconds, no pagination/updates/payments/objects. Retain raw CSV privately;
+one page cannot prove complete activity, retention or credit/replay guarantees.
+
+The single authenticated audit page returned four entries (two
+`LedgerDeposit`, two `RelationshipUpdate`), with `has_more = false`. The deposit
+amounts match the separately settled receipts; both returned relationship-update
+rows have zero ledger delta and zero owner-counterparty balance. Observed columns
+include event/time/account/counterparty/delta/balance/success/error/sequence, but
+not original ledger-block or request IDs. One page is not proof of complete
+history, retention or original paid-call credit/replay semantics; the allocation
+requirement remains unidentified. Raw account CSV stays private.
+The [completed approved-update summary](deployed/2026-11-03-trial-v069-allowance-01/summary.json)
+retains explicit new approval, exact signed scope, accepted result, unchanged expiry,
+zero observed allocation and audit limits. Earlier rejected/awaiting-approval
+records remain historical; the rejected old packet was never submitted.
+No extra donor funds or object requests occurred. The original 403/reference/
+physical-liability history remains intact; this result does not authorize another
+update, funding amount, upload retry, reset or deletion.
+
+## Blob-owned fresh payer/provider trial — 2026-11-03
+
+The maintainer explicitly continued this work as **Blob-owned provider acceptance**,
+independent of Canic's adapter. `target/post069-provider/payer-preflight-01/intent.json`
+records the actual installed service, Cashier and fresh isolated payer before
+network use. Import only that already-created trial key into a new named ICP CLI
+identity; keep the default anonymous and never export the development key.
+Then select five bounded read-only requests: provider-returned deposit subaccount,
+fresh payer account/settings, current cycles-ledger fee and donor balance.
+Each has a 45-second bound and zero updates/payments/object requests. Preserve
+all replies/failures/hashes; stop payment preparation at any binding/route anomaly.
+The current coherent trial retains its conservative 8T allocation envelope and
+at-most-1T gross initial provider funding, including ledger fee. No payment,
+notification, relationship or upload is selected by these reads.
+
+All five payer preflight reads completed successfully: the fresh payer
+receives a 32-byte provider-returned ledger subaccount, both payer account and
+settings return `AccountNotFound`, fee remains 100M cycles and the donor has
+1,879,955,097,235 cycles. Raw replies/statuses and `summary.json` retain exact
+bindings. The address is taken from that reply, never independently derived.
+`deposit-balance-intent.json` selects one further anonymous 45-second balance
+query of the exact returned Cashier subaccount before payment; an unexpected
+existing balance stops preparation. No payment or notification has occurred.
+
+The exact returned deposit account is empty; imported payer principal and
+unchanged anonymous default match the plan. Before any payment,
+`target/post069-provider/funding-transfer-01/intent.json` freezes one
+`icrc1_transfer` to that Cashier subaccount: **999.9B amount + 100M fee = 1T gross**,
+with exact random memo and `created_at_time`. Retain/review the signed original
+before one dispatch. A missing/error outcome stops for original-ledger inspection;
+no repeat transfer, auto-refill, old-account change or provider notification is
+included. Even success proves a ledger deposit only, not payer credit.
+
+The exact transfer returned `Ok` once at ledger block **17080816**.
+Raw receipt/status, original signed envelope and hashes remain in
+`funding-transfer-01/`. Before credit notification, `readback-intent.json`
+selects three bounded anonymous reads: donor balance, exact destination balance
+and the original transaction block. Require exact source/destination/amount/fee/
+memo/timestamp agreement; any mismatch stops this path without another payment.
+No provider notification or account linkage has occurred yet.
+
+Deposit reconciliation passed: the original block matches sender, returned
+Cashier destination, amount, fee, random memo and timestamp. Donor delta is exactly
+1T and the returned subaccount holds 999.9B. Before the next effect,
+`credit-notify-01/intent.json` selects one fresh-payer-signed
+`cycles_ledger_deposit_notify_v1` for the explicit same payer, with zero attached
+cycles/new transfer and a 180-second bound. Retain/review its exact signed request.
+The predicted 999.8B credit assumes one 100M sweep fee; actual response/block and
+account reads must establish it. Any uncertainty stops without another deposit
+or notification. This remains Blob's provider trial, with no Canic edits.
+
+The one selected notification returned `Ok`: **999.8B credited**,
+Ledger balance/total 999.8B, sweep block **17080834**, zero promo/prepaid.
+Before linkage, `credit-notify-01/readback-intent.json` selects six read-only
+observations: signed payer account/settings and service relationship; anonymous
+exact deposit balance, original sweep block and current pricing. Require exact
+payer/credit/sweep agreement and zero overdraft/no automatic target. No linked
+spendability, replay safety, billing cessation or account settings mutation is
+inferred from this successful receipt.
+
+Credit reconciliation passed: the exact sweep moved 999.8B from the
+returned subaccount to Cashier's default account with 100M fee, leaving zero.
+Signed payer info/settings match owner, total, zero overdraft and absent target;
+the fresh service has no relationship. Current pricing is retained as a query
+observation, not proof of final charges. No settings mutation is needed.
+Before linkage, `link-account-01/intent.json` selects one payer-signed
+`payment_account_canister_add_v1` generated by Blob's maintained offline helper:
+explicit fresh owner/payer, raw **1T daily limit** and nominal **two-hour absolute
+expiry** from current timestamp units. Neither term is a proved billing cap or
+expiry-enforcement guarantee. No extra donor transfer/attachment, retry, object
+or old-account effect is included; the maintainer retains ongoing custody.
+
+The exact fresh-payer link returned `Ok` once. The original signed terms
+and receipt remain in `link-account-01/`; no additional funds were sent.
+Its `readback-intent.json` now selects one payer-signed relationship query, with
+45-second bound and zero updates/payments, requiring the exact paid service,
+payer, raw daily limit and absolute expiry before service-readiness checks.
+
+The signed relationship readback exactly matches the fresh service/payer,
+1T raw daily limit and original raw expiry, with zero period spend. Before any
+certificate/upload, `service-readiness-01/intent.json` selects three zero-attachment
+Blob updates (gateway synchronization, payer balance and relationship inspection),
+each making one provider query, plus one local status query. They use the existing
+generated current Wire client and the configured development operator. Budget
+60 seconds each; no new funding, tenant admission, object or automatic retry.
+Check each outcome for exact scope, membership and restore fences before exposure.
+
+Blob's own readiness checks passed: gateway synchronization sequence 1
+contains exactly the advertised gateway; scoped account/relationship observations
+match the funded payer and linked service, and all local owners are unfenced with
+zero upload operations. No service cycle attachment is authorized by its reserve.
+Before object work, `tenant-setup-01/intent.json` selects two exact fresh tenant
+compare-and-set enrollments, their absence/readbacks and anonymous/cross-tenant
+refusals. Each actor uses its original separate trial key; a second named CLI
+identity imports only that existing key. Bounds: two positive updates, one refused
+update, five queries, 45 seconds each, zero provider calls/payments/objects.
+Consumed tenant history is preserved; an uncertain enrollment is inspected, never
+reset or blindly repeated.
+
+Both exact fresh tenant enrollments returned active generation 1. Original
+scope readbacks and a cross-tenant inspection refusal complete the selected
+authority checks before certificate exposure. Before offline body work,
+`upload-preparation-01/intent.json` selects two distinct public random 1KiB bodies,
+original IDs 1 and 2 in this fresh namespace, SDK-owned manifests and native
+validated snapshots. Project/bucket use the new UUID; source bytes, metadata,
+credentials and browser profiles remain in controlled operational storage outside
+`cargo clean`. This phase has zero network, service/provider effects or payments.
+No fresh operation replaces any failed or uncertain predecessor.
+
+Two local preparation/inspection failures are retained before further
+network work. First, strict JS object-prototype equality refused an otherwise
+matching generated Wire tenant record; the same original replies passed field
+checks, including active generation 1 and cross-tenant `Denied`, without any new
+request. An initial failure-record write selected the browser working directory
+instead of repository root and failed before writing; this corrected capture
+preserves that failure too. Second, bare upstream Caffeine 1.1.2 lacks Blob's
+existing `prepareFile` patch. The offline attempt stopped with one original 1KiB
+source body saved and zero network requests. Reuse that exact body and the
+already-qualified maintained SDK patch used by the browser/native build; do not
+generate another body/identity or change the provider protocol. The private run
+retains `preparation-failure.json`; no admission/certificate, provider object
+request or extra payment occurred in these failures.
+
+Offline preparation now passes using the existing qualified Caffeine
+patch and canonical Node bundling options; the first failed ESM bundle lacked the
+same `createRequire` banner already used by the maintained browser build. Failed
+bundles/logs and the first original body remain. Both distinct 1KiB sources now
+have SDK manifests, native-verified snapshots, permissions and cleanup requests.
+Before admission, `upload-admission-01/intent.json` binds both actors and exact
+root/request hashes to the existing native `admit-upload` / `prepare-upload`
+commands. Budget two local service updates per actor, 60 seconds each, zero
+provider/certificate/payment requests. Finish user 1 transfer/readback before
+admitting user 2; any uncertainty preserves the original operation/journal.
+
+User 1's exact native admission and manifest preparation are acknowledged,
+with original signed journals and no provider/certificate request yet. Before
+exposure, `browser-transfer-01/intent.json` binds both actors, original public
+1KiB snapshots, private persistent profiles/ports/databases, current service/root
+trust and exact Caffeine origin. Use the maintained browser worker/IndexedDB and
+patched SDK, with one certificate update, at most two serial PUTs (64KiB each /
+128KiB aggregate) and one bounded verified GET per user, no upload retry/refill.
+An issuance assessment precedes each attempt; explicit certificate recovery may
+read the original request once without reissuing it. CORS/protocol HTTP exchanges
+are separate from logical PUT bounds. Any partial/refused/uncertain result stops
+before user 2 admission; keep profiles, original intents and continuing liabilities.
+
+User 1's signed issuance assessment passed against the current service
+without granting dispatch/retry authority. Before browser dispatch, an offline
+trust-input check found that JavaScript Platform exports `IC_ROOT_KEY` as hex
+text. Retain the unused text candidate and select its canonical 133-byte DER
+decoding before any certificate request; native IC clients already used their
+independent built-in mainnet root. The private trust-correction record preserves
+that preparation failure with zero extra network effects. Freeze the selected
+host/worker assets and mainnet root with each browser dispatch intent.
+
+The first real Chromium attempt stopped at a **responded HTTP 403** from
+`/v1/blob-tree/`. Its single synchronous certificate update succeeded and was
+verified; original persistent journal marks certificate `observed` and exactly one
+gateway request `responded/403`. No chunk PUT, upload retry or user-2 admission
+followed. The maintained worker deliberately redacts upstream error bodies; this
+capture retains status/network metadata and journal, **not** the raw 403 message.
+Do not relabel the cause as insufficient credit until separately observed.
+Before diagnostic requests, `provider-refusal-01/intent.json` selects four bounded
+read-only queries: payer info, exact relationship, service-owner balance and
+explicit-gateway budget. Historical payer/owner-credit separation is a hypothesis
+to verify. Budget 45 seconds each, zero object requests, updates or new funding;
+preserve the original service reference, 1KiB possible physical/billing exposure,
+keys/profile and every refusal. Never retry or erase the claimed upload.
+
+Current diagnostic reads expose a concrete readiness gap: fresh payer
+credit remains **999.8B**, but **service-owner balance and gateway available credit
+are zero**, with zero reported gateway usage and zero relationship period spend.
+That is consistent with the 403, but does not recover its missing raw body or
+prove Cashier's allocation algorithm/minimum. Positive payer credit/linkage is
+not sufficient to permit exposure. The failed first PUT stays claimed.
+Before a bounded repair decision, `allocation-repair-preflight-01/intent.json`
+selects three read-only checks (fee, same returned payer deposit route, donor
+balance). A possible **separate 1B gross** supplement would lift payer credit above
+1T after fees; a separately reviewed raw 5T daily-limit update could then test
+the historically observed internal owner allocation, retaining original expiry.
+These are hypotheses, not an automatic refill/replay or authority to retry the
+first PUT. Current scoped allowance and conservative 8T envelope remain; no extra
+ICP conversion, installation or upload is selected.
+
+Repair preflight confirms the same exact provider-returned address,
+100M fee and unchanged donor balance. Before payment,
+`allocation-supplement-01/intent.json` selects **one distinct 1B gross supplement**
+(900M deposit + 100M fee) with new explicit memo/timestamp, not a retry of the
+reconciled 1T deposit or an automatic refill. After a potential 100M sweep fee,
+additional credit would be 800M and total payer credit 1.0006T; observe actual
+receipt/account state. This bounded allocation experiment stays under the current
+8T envelope and existing trial allowance, creates no new ICP conversion/service,
+and never retries the refused upload. Reconcile the original new block/balances
+before any notification or separately reviewed allowance update.
+
+The distinct 1B-gross supplement returned `Ok`, block **17081076**.
+Before notification, its `readback-intent.json` selects original-block and both
+balance reconciliation (three anonymous queries, 45 seconds each). Require the
+exact original memo/timestamp, 900M deposit and 1B gross donor delta. No new
+notification, limit update or object request has occurred yet; the original 403
+remains unchanged.
+
+The distinct supplement reconciles exactly: 1B donor debit, 900M at the
+same returned deposit address and matching original block/memo/timestamp.
+`supplement-notify-01/intent.json` now selects one new notification solely for
+that conclusively separate deposit, zero attachment/new payment/object requests.
+The earlier notification remains completed, never replayed. Observe actual sweep/
+credit plus service-owner/gateway balances before changing any allowance; if owner
+credit becomes positive with the current 1T limit, omit the proposed limit update.
+The original failed PUT remains claimed and is not retried.
+
+The new supplement notification returned `Ok`: **800M credited** and
+sweep block **17081098**. This is a distinct settled deposit, not replay of the
+first payment/notification. Its `readback-intent.json` selects five zero-effect
+reads of that sweep, deposit residue, payer, service-owner and gateway budget.
+Observe allocation under existing terms before selecting any allowance change;
+no new object/certificate request or failed-upload replay follows these reads.
+
+Supplement reconciliation confirms 800M swept/credited, zero residue
+and **1.0006T payer credit**, while owner/gateway still report zero. The conditional
+allowance experiment is therefore selected: `allowance-allocation-01/intent.json`
+freezes one payer-signed `payment_account_canister_update_v1` changing only raw
+**1T daily -> 5T daily**, with the **original expiry unchanged**. There is no new
+donor transfer, attachment, object or retry. The historical 1T internal allocation
+is an expectation to observe, not an asserted minimum or automatic refill.
+The selected term stays within the maintainer's scoped trial allowance; require
+actual receipt and exact payer/owner/gateway/relationship readback, preserving all
+prior failed requests and obligations.
+
+**Automatic approval review rejected the proposed 5T update before process
+launch; it was not submitted.** The stated concerns were the fivefold spending
+authority increase and ambiguity about a null expiry update. Original candidate,
+rejection and all prior records remain in `allowance-allocation-01/`; never send
+that blocked request through another path. The maintainer was informed.
+A genuinely narrower alternative, `allowance-refresh-01/intent.json`, keeps the
+**existing 1T daily limit unchanged** and explicitly encodes the **same original
+expiry** as `opt opt <value>`. It selects one refresh after the newly credited
+supplement, zero authority increase/expiry extension/new donor payment/object
+request. Possible internal allocation stays within the already accepted limit.
+Require exact before/after accounting; if this fails, stop rather than increase
+terms without explicit approval. The first refused PUT remains untouched.
+
+The safer **same-1T-limit / explicit-same-expiry** refresh returned `Ok`
+once. The rejected 5T request remains unsubmitted. Before any further action,
+`allowance-refresh-01/readback-intent.json` selects four bounded reads of payer,
+relationship, owner and gateway credit. Confirm unchanged authority/expiry and
+observe actual allocation before proceeding; no new payment or object request.
+
+Same-1T refresh readback confirms original limit/expiry unchanged, payer
+1.0006T, owner/gateway zero and period spend zero. The exact higher-limit proposal
+now explicitly preserves expiry and is **unsigned / awaiting explicit approval**;
+no 5T update has been sent. Before independent recovery work,
+`provider-refusal-01/recovery-intent.json` selects opening only the original user-1
+profile/origin/database, local inspection and one original certificate read-state
+request. Budget zero provider/update/payment requests, 90 seconds; retain an
+expired/missing-status failure rather than reissue or reset anything.
+
+The exact original browser profile reopened successfully and retained
+certificate `observed` plus the first responded 403 claim. Its one explicit
+historical-certificate recovery read failed with redacted `transport`; raw cause
+is unavailable, so do not assert expiration. There were **zero new IC update or
+provider requests** and no reset/reissue. Before final custody,
+`provider-refusal-01/local-accounting-intent.json` selects two local service
+queries (operator status and original tenant reference), zero provider/payment/
+mutation effects, to preserve exact continuing accounting and liveness.
+
+The two final local queries confirm that the failed provider transfer
+still has **one live first reference**, 1KiB logical/physical/liability bytes,
+zero active/reserved bytes and unfenced owners. External provider deposits were
+not invented as Blob service-attachment journal entries. No logical release,
+provider deletion, billing cessation or refund is inferred.
+The [redacted provider-phase summary](deployed/2026-11-03-trial-v069-provider-01/summary.json)
+indexes both exact settled deposits/sweeps, actual link/tenants/refusal/recovery,
+local preparation failures, remaining obligations and the approval block.
+Current payer credit is 1.0006T; owner/gateway remain zero. Higher 5T terms are
+unsigned and await explicit approval. This phase claims no successful body
+transfer/download, second-user transfer, consumer application or Canic result.
+
+## Development-identity read-only preflight — 2026-11-03
+
+The maintainer confirmed the configured `canic-mainnet` development identity may
+be used for the current follow-up. Local identity inventory matches the historical
+operator principal; the default remains anonymous. No key was exported or changed.
+The old 0.6/0.7 services, accounts, keys and billing custody remain separate.
+
+Before network execution, `target/post069-followup/mainnet-readonly/intent.json`
+selects one anonymous, mainnet-root cycles-ledger balance query for that public
+principal, bounded to 45 seconds, zero attachments, provider requests or canister
+creations. Retain failure/timeout and raw result/hash; no automatic retry. The
+historical 100T total / 20T daily scoped trial allowance is evidence to reconcile,
+not proof of current liquidity, fees or authority to erase an old installation.
+No paid effect is selected by this read-only preflight.
+
+The cycles-ledger query completed with `216_355_097_235 cycles`, below the
+installed CLI's standard 2T creation allocation before funding/fees. Raw JSON,
+stderr, status and hashes remain in that capture. Before another request,
+`icp-intent.json` selects one anonymous public ICP-balance query for the same
+principal, bounded to 45 seconds with no transfers, minting or provider calls.
+This checks whether a bounded funding plan is possible; it selects no paid effect.
+
+The ICP query completed with `11.47583434 ICP`. Raw result/status/hash remain in
+the same capture. Before another network request, `cmc-intent.json` selects one
+anonymous CMC conversion-rate query, bounded to 45 seconds and zero attachments
+or transfers, to price a bounded development-trial funding proposal. The recorded
+scoped allowance and the maintainer's current development-key confirmation are
+retained; no mint, transfer or canister creation has occurred.
+
+The CMC query completed once: `xdr_permyriad_per_icp = 18_319`, timestamp
+`1_793_716_440`. Raw Candid/JSON, status and hashes are retained. This query
+observation prices 2 ICP at approximately 3.6638T before fees; it is not a future
+rate or paid-effect receipt. The maintainer subsequently explicitly confirmed
+that this is the development mainnet key and may be used. Before another request,
+`icp-fee-intent.json` selects one anonymous ICP-ledger `icrc1_fee` query, 45 seconds,
+zero payment/attachments, to finalize the fixed-amount funding plan.
+
+The ICP ledger fee query completed once with `10_000` e8s (0.0001 ICP).
+Before any payment, `target/post069-followup/mainnet-mint-01/intent.json` selects
+one canonical ICP CLI conversion of **2 ICP plus the observed ledger fee** into
+the same development principal's cycles-ledger account. At the observed rate this
+is approximately 3.6638T before conversion fees, not a guaranteed quote. The
+current coherent trial reserves a conservative 8T gross allocation envelope below
+the retained 20T/day and 100T total scoped limits; prior recorded gross debit is
+7.1001T, not proof of all external activity. The available account balances are
+below 100T and are not spending authority by themselves. No automatic refill or
+retry, old-owner/account mutation, key export, provider funding or owner creation
+is part of this conversion. Retain raw CLI receipt/status and reconcile both
+balances; an uncertain conversion stops before creation. The CLI's internal
+signed envelopes/transport attempts are not separately observed.
+
+The one selected conversion returned success: **3,663,700,000,000 cycles**
+deposited and **3,880,055,097,235 cycles** new ledger balance. The 100M difference
+from the indicative gross conversion is retained, not silently discarded.
+Raw result, empty stderr, exit 0 and hashes remain in `mainnet-mint-01/`.
+Before further effects, `mainnet-readonly/contracts-intent.json` selects at most
+five anonymous reads: both development-account balances, current cycles-ledger
+service metadata/fee and current Cashier service metadata. Each is bounded to
+45 seconds, zero payments/attachments; the selected cycle conversion is never
+repeated. No owner creation, install or provider payment has occurred yet.
+
+All five reconciliation/contract reads completed once. ICP balance is
+9.47573434 ICP (exact 2.0001 ICP debit); cycles balance matches 3,880,055,097,235.
+Current cycles-ledger fee is 100M cycles; current ledger and Cashier public DIDs
+are retained with hashes. Before the next effect, `mainnet-create-01/intent.json`
+selects one exact timestamp-bound cycles-ledger `create_canister`: **2T amount
+plus 100M fee**, the development principal as sole controller, zero compute/memory
+allocation. The canonical CLI will retain and review the signed request before
+one submission. No old service, install or provider call is included; any lost
+reply stops creation and requires original-transaction inspection. The maintainer
+owns the fresh empty canister and its continuing idle costs.
+
+The exact signed creation succeeded once: ledger block **17,079,955**,
+fresh canister **`4h7vw-4qaaa-aaaau-ahieq-cai`**. Original packet, decoded dry-run,
+dispatch intent, raw reply and hashes remain in `mainnet-create-01/`. The dry-run
+writes human review to stderr even with `--json`; a local stdout JSON parse failed
+before dispatch and is recorded without re-signing or another paid request.
+`mainnet-readonly/creation-readback-intent.json` now selects three bounded reads:
+original ledger block, development cycles balance and new-owner controller status.
+No install, provider funding, account linkage, tenant admission or upload has yet
+occurred. Old 0.6/0.7 owners retain their original custody.
+
+Creation reconciliation passed: development ledger balance
+1,879,955,097,235 cycles (exact 2.0001T debit); the original block matches amount,
+fee, source and timestamp. Controller status confirms the sole reviewed controller,
+Running/empty module, zero compute/memory allocation and approximately 1.5T after
+network creation cost, with idle-cost custody retained. Before fixing the new
+installation, `mainnet-readonly/gateway-intent.json` selects one anonymous Cashier
+`storage_gateway_list_v1` query (45 seconds, zero attachments/payments). This is
+advertised scope, not proof of gateway admission or billing.
+
+Two fresh random trial-only keys are retained privately with operational receipts
+under `.git/private-operations/blob069-trial-01/`, outside `cargo clean` and browser
+served assets. The development key was not exported; default identity remains
+anonymous. Public principal derivation required ESM package resolution rather than
+CommonJS `require.resolve`; the failed local attempt created no extra key or effect.
+No funded payer or browser credential handoff has occurred. Maintainer-controlled
+backup outside this checkout remains unperformed; preserve these original keys.
+
+The current Cashier query advertises one gateway, within the proposed
+2-entry/1-unique-principal installation bound. Offline `installation-check`
+accepted the actual fresh service, operator, fresh payer and project
+`585d4080-dd85-490c-bc86-12f06e395bcd`. Unlike the one-object template, this selected
+trial admits two independent tenants / two lifetime 1KiB objects, serially, with
+2KiB global physical/liability ceilings and cleanup receipts retained. It enables
+no service cycle attachment. This is not provider namespace provisioning.
+Before installation, `mainnet-install-01/dispatch-intent.json` binds one explicit
+**install** (never reinstall/upgrade) to the frozen 0.69.0 raw/gzip module and
+complete method-bound Wire init hashes. The qualified compatible patch graph is
+retained separately from published release source. Budget: one installation,
+180 seconds, zero provider calls/payments, tenant admission or upload. Lost reply
+stops for module/history/configuration inspection; no automatic retry.
+
+The selected fresh installation returned success once (exit 0); raw output
+and hashes are retained in `mainnet-install-01/`. Before further actions,
+`readback-intent.json` selects three 45-second bounded reads: controller status,
+operator-signed current `blob_configuration` and anonymous refusal of that same
+Wire query. The generated current codec owns request/response bytes. No live
+provider account funding, tenant admission, certificate or upload follows until
+actual module/release/roles/limits/fence are checked.
+
+Installed readback passed: submitted gzip module hash, sole controller,
+complete actual-service configuration, project, compiled **0.69.0** release and
+unfenced state match the frozen plan. Anonymous configuration inspection returns
+the expected `Denied`; current generated Wire encoding/decoding owns the frames.
+The [redacted completed summary](deployed/2026-11-03-trial-v069-install-01/summary.json)
+indexes artifacts, failures, exact creation/payment reconciliation and custody.
+This is real mainnet installation evidence, **not** live provider/upload, Canic or
+application-login qualification. No provider payment/account linkage, tenant
+admission, certificate or uploaded object was created. Next prepare the exact
+fresh-payer deposit-route/account observations and bounded 1T gross initial
+provider-funding/link terms; keep those effects separate from installation proof.
+Fresh keys and critical receipts are retained privately outside `cargo clean`;
+no external backup or key handoff is claimed. Preserve the old trial obligations.
+
+## Blob 0.69 acceptance preparation — 2026-11-03
+
+Intent before execution: `target/post069-adoption/intent.json`, with source,
+manifest/lock and artifact hashes in the same directory. Qualify the published
+Metrics 0.28.2 / Storage 0.66.1 patch selection and rehearse the maintained
+installation-carrier, Metrics/snapshot and Chromium/native-CLI/PocketIC paths.
+Production Rust sources are identical to Metrics 0.28.1 / Storage 0.66.0;
+canonical index/archive checks and source comparisons are retained alongside it.
+The current local lock differs from the released 0.69 lock and is recorded as
+pending source, not a new published Blob release.
+
+Select fixture-only actors, ephemeral loopback IC/TLS endpoints and six fixed
+1 KiB local uploads across the maintained browser scenarios. Budget zero live
+provider/account requests, deployment or paid cycles. Retain failures and all
+request/result reports under `target/post069-adoption/`; harnesses own local
+process/TLS cleanup. These cases cannot establish application login, deployed
+Caffeine behavior, physical deletion, billing cessation or payer spendability.
+
+At the start of this local rehearsal, the live trial still required selected
+network/operator/budget bindings. The later development preflight above records
+the maintainer authorization and actual fresh mainnet installation separately.
+Never reuse historical 0.6/0.7 installations or fixture principals. Canic's active
+checkout remains read-only here; published Timers 0.38.1 / Runtime 0.18.1 conflicts
+with Blob 0.69 / Runtime 0.19 in the retained reduced Cargo resolution check.
+Its owner must admit one compatible published family before managed qualification.
+
+Results: strict Core/Contracts Clippy, dependency/deployment/compiler admission,
+five Metrics report-contract tests and seventeen installation/reopen tests pass.
+Fresh standalone Wasm/CLI builds and five actual installed carrier, Metrics and
+snapshot cases pass. The template carrier report preserves exact readback,
+wrong-service refusal and controller denial; its init remains local-only.
+All four Chromium scenarios pass (28.53s), plus the three browser-control tests:
+two fixture users, verified reads, corruption refusal and lost-reply/withdrawal
+recovery. Request/result artifacts remain in `browser-reports/`; original
+manifest/lock/toolchain/browser/template/Wasm/CLI hash readbacks are unchanged.
+Harness-owned processes completed; no live cleanup or billing was created.
+
+[Canic #622](https://github.com/dragginzgame/canic/issues/622#issuecomment-6606081330)
+records the concrete supplier/consumer boundary and reduced resolution refusal.
+No active sibling source was changed. The live target/budget question remains
+pending; no deployed acceptance, payment or issue closure follows from this
+local substitute rehearsal.
+
 ## Pending 0.61 deployment preparation — 2026-10-31
 
 Intent recorded before execution:
@@ -4262,6 +4951,27 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`trial-v069-allowance-01` / 2026-11-03: explicitly approved fresh one-shot 1T-to-5T
+daily update, original expiry preserved and exact readback.
+[Summary](deployed/2026-11-03-trial-v069-allowance-01/summary.json) records no observed
+owner/gateway allocation, unchanged payer credit, one bounded audit page and
+preserved first-upload liabilities. No new donor funds or object requests.
+
+`trial-v069-provider-01` / 2026-11-03: two separately settled external deposits
+(total 1.001T gross / 1.0006T credited), exact fresh-payer linkage, two tenant
+authority checks and a preserved first real Chromium tree PUT **403**.
+[Summary](deployed/2026-11-03-trial-v069-provider-01/summary.json) retains the
+zero-owner/gateway-credit diagnosis, same-limit refresh, rejected 5T proposal,
+failed historical-certificate re-observation and continuing first-reference
+liabilities. Higher authority awaits explicit approval; no upload retry or
+successful download/second transfer is claimed.
+
+`trial-v069-install-01` / 2026-11-03: one bounded ICP conversion, exact signed
+cycles-ledger creation and current standalone Wire installation/readback on a
+fresh isolated mainnet service. [Summary](deployed/2026-11-03-trial-v069-install-01/summary.json)
+retains source/artifact identity, custody and local failures. No provider funding,
+upload, application or billing acceptance is claimed.
 
 `gc-contract-discovery-01` / 2026-10-22: bounded public-source discovery of the
 provider's exact Motoko GC primitive owner. [Intent](local/2026-10-22-gc-contract-discovery-01/intent.json)

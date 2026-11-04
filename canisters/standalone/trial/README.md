@@ -43,7 +43,7 @@ owns those steps and their effect authorization.
 | Standalone Wasm | Frozen default build and SHA-256; observed compiled release must match the selected release |
 | Native CLI and provider DID | Frozen hashes; declared and host-exported provider Candid contracts must agree; check the complete Wasm method surface against the shared catalog |
 | Configuration and init | Exact validated method-bound Wire init frame and hash for the actual created service principal; all local stand-in inputs remain local-only |
-| Installed readback | Explicit operator inspects service, payer, namespace, project, verifier, resource envelope, release and fence before tenant admission |
+| Installed readback | Explicit operator inspects service, payer, namespace, project, resource envelope, release and fence before tenant admission |
 
 The maintained `standalone_installation_cli` PocketIC cases consume this JSON
 template through the actual CLI, install the complete carrier and check readback,

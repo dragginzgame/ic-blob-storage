@@ -2,7 +2,7 @@
 
 The standalone host records a fixed heap roster: Admission, Manifest, Registration,
 Reference, GatewayAcknowledgment and GatewaySync. IC Metrics owns scalar arithmetic,
-measurement aggregates, overflow quality and numeric admission. Blob owns report
+measurement aggregates and overflow quality. Blob owns report numeric admission,
 DTOs, schemas, attribution, platform reads,
 reset windows and operator authorization. There are no dynamic labels or stable
 allocations. The service core remains framework-independent; Canic owns its
@@ -11,13 +11,24 @@ separate adapter, reporting and optional persistence policy.
 Recording uses published IC Metrics `MeasurementCounter` and
 `MeasurementAggregate`. The report boundary projects them once into Contracts'
 passive `CounterMetrics` and `AggregateMetrics` fields; it does not mirror live
-recording state. DTO decoding delegates to Metrics' validated Serde readers.
-Contracts owns Wire metadata; Metrics 0.28 supplies arithmetic and validated Serde
-without a Wire dependency or the retired `native-wire` feature.
-The 0.69 Rust API change preserves the frozen report frame, JSON representation,
-exact-cap versus overflow flags and empty versus measured-zero maximum. See
-[#113](https://github.com/dragginzgame/ic-blob-storage/issues/113) and
-[Observability #128](https://github.com/dragginzgame/ic-observability/issues/128).
+recording state. Metrics 0.29 supplies instrumentation without Serde or report
+DTOs. Contracts decodes and validates its own numeric fields, preserving empty /
+measured-zero, exact caps / actual overflow, strict fields and error priority.
+No report decoder constructs a recorder or uses the storage restoration API.
+The Engine projects its recorders explicitly; Contracts and CLI report fixtures
+have no Metrics dependency. Report Wire/JSON shapes and limits are unchanged.
+The pending 0.70 Rust cut removes the earlier public `From<Measurement*>`
+implementations; downstream hosts should read their recorders' fields when
+constructing a report. See [Metrics #130](https://github.com/dragginzgame/ic-observability/issues/130).
+A host can replace the removed conversion directly:
+
+```rust,ignore
+let report = CounterMetrics {
+    total: recorder.total(),
+    total_overflowed: recorder.total_overflowed(),
+};
+```
+
 Recording remains fixed heap state; no optional recording feature or stable store
 is enabled. Native schema tooling stays outside deployed canisters.
 

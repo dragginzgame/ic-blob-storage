@@ -29,8 +29,17 @@ cargo run -p ic-blob-storage-contracts --features wire-schema --example wire_sch
 The examples use Clap to validate their complete invocation before opening files
 or reading stdin. `prepare_upload --inventory INVENTORY.json [--snapshot PARENT]`
 is separate from its declaration/stdin form. `wire_schema` requires exactly one
-of `metadata`, `client`, `adapter` or `runtime`; surplus arguments refuse. Clap
-is a native development dependency and is excluded from deployed canisters.
+of `metadata`, `client`, `standalone-metadata`, `standalone-client`, `adapter` or
+`runtime`; surplus arguments refuse. Clap is a native development dependency
+and is excluded from deployed canisters.
+
+`metadata` and `client` describe the shared service mount. The explicit
+`standalone-metadata` and `standalone-client` modes describe only the standalone
+host's additional `blob_metrics` operator query, using its existing report types,
+method identity and decoder budgets. Both clients use the same `adapter` and
+`runtime` outputs. Generate the standalone client separately when needed; it
+does not extend embedded hosts, grant operator access or prove provider deletion
+or billing. Request and reply bytes are unchanged.
 
 See the repository's [migration and qualification record](../../docs/evidence/contracts-0180.md).
 
@@ -100,8 +109,8 @@ Wire's TypeScript conventions use bigint for wide integers, Uint8Array for
 principals, `{some: value}`/null for options and `{ok: value}`/`{err: value}` for
 results. Metadata does not authenticate calls or establish provider guarantees.
 
-The `wire_schema` example emits `metadata`, `client`, `adapter` or `runtime` to
-stdout. `make test-wire-schema` uses explicitly prepared browser tools to bundle
+The `wire_schema` example emits shared `metadata`/`client`, explicit standalone
+`standalone-metadata`/`standalone-client`, or common `adapter`/`runtime` to stdout. `make test-wire-schema` uses explicitly prepared browser tools to bundle
 and test generated TypeScript against the frozen Rust frames, including rejection
 cases. It installs nothing. The `Wire schema and generated clients` CI job runs this
 check on pull requests and main pushes after explicit pinned dependency setup,

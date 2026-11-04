@@ -88,11 +88,15 @@ fn restoration_retains_large_reused_capacity_and_exhausted_lifetime_slots() {
         );
     }
     assert_eq!(
-        f.reserve(f.first, upload(5, b"lifetime full")),
+        f.reserve(f.first, upload(5, b"lifetime full"), b"lifetime full"),
         Err(JourneyFailure::Limit)
     );
     assert_eq!(
-        f.reserve(f.second, upload(5, b"other lifetime full")),
+        f.reserve(
+            f.second,
+            upload(5, b"other lifetime full"),
+            b"other lifetime full"
+        ),
         Err(JourneyFailure::Limit)
     );
     let mut retained = f.archive();

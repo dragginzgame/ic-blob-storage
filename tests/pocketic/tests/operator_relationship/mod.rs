@@ -10,7 +10,7 @@ use ic_blob_storage::ops::caffeine::{
     },
 };
 use ic_blob_storage_pocketic_tests::fixture_calls;
-use ic_platform_pocket_ic::common::rest::BlobCompression;
+use ic_testkit::pocket_ic::common::rest::BlobCompression;
 use std::num::NonZeroUsize;
 
 fn owner() -> Principal {

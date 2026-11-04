@@ -22,7 +22,6 @@ provider-json = ["dep:serde_json"]
 wire-schema = ["ic-wire/platform-types", "dep:serde_json"]
 
 [dependencies]
-ic-metrics.workspace = true
 ic-platform = { workspace = true, features = ["candid"] }
 ic-wire.workspace = true
 percent-encoding.workspace = true

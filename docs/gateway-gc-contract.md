@@ -86,3 +86,50 @@ remote deletion, replay and billing semantics. An answer is not a prerequisite
 for local implementation and testing of this narrower profile. It is still needed
 for stronger claims about the deployed provider, or those claims need separately
 authorized observations. Local substitutes cannot supply those guarantees.
+
+## Current standalone live observation — 2026-11-03
+
+The [0.69 disposable-object probe](evidence/caffeine-probes/deployed/2026-11-03-trial-v069-gc-release-01/summary.json)
+released only a previously uploaded and independently downloaded public 1KiB
+object. Its original operation-7 receipt is recoverable without resending.
+Anonymous liveness for `[first-live, second-released, duplicate-second, unknown]`
+returns `[true,false,false,true]`; the operator history retains `DeletionPending`.
+Logical usage falls to 1KiB while physical/liability bytes stay 2KiB. No real
+gateway identity was impersonated or confirmation manufactured.
+
+One bounded original public URL GET after release still returns the exact 1KiB
+body with immutable one-year cache headers and wildcard CORS. This is time-bound
+public availability, possibly cached, not authenticated tenant access or proof
+about physical origin deletion. Unchanged queried balance and zero usage counters
+are not billing cessation. Even a later 404 would not supply the independent
+physical/billing evidence required by the internal confirmation boundaries.
+The current run therefore qualifies exact local release/receipt/liveness on the
+deployed standalone, while #6's real gateway/deletion/billing acceptance stays open.
+
+### Inspect existing acknowledgment telemetry
+
+The standalone's authenticated `blob_metrics` report already includes a fixed
+`GatewayAcknowledgment` row. Use the native `metrics` command with an existing
+compatible signer, or generate its operator client explicitly:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-contracts --features wire-schema \
+  --example wire_schema -- standalone-metadata
+cargo run --offline --locked -p ic-blob-storage-contracts --features wire-schema \
+  --example wire_schema -- standalone-client
+```
+
+The standalone client uses the same generated `adapter` and `runtime` outputs as
+the shared client. It can encode a unit request for submission through an already
+configured IC identity and decode the retained reply without exporting that key.
+This is an explicit host-only projection; shared service generation remains
+separate and embedded hosts retain their own telemetry policy. Generated codecs
+check packet structure and traversal bounds; callers still check expected service,
+namespace, operation roster and numeric quality before interpreting a report.
+The native `metrics` command retains its existing scope/roster/quality checks.
+
+Keep the report's service, namespace, lifecycle window and restore limitations.
+A zero successful acknowledgment count does not exclude trapped/rejected calls
+or read-only list/liveness queries. A positive aggregate can include empty batches
+and cannot establish which root was acknowledged. Neither value establishes
+physical deletion or billing cessation. Queries do not record durable telemetry.

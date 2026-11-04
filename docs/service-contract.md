@@ -808,9 +808,9 @@ are published synchronously. The plan cannot escape the model or survive an
 intervening mutation/await. Exact retries still work at capacity. No receipt eviction
 or timeout exists. The workflow must authenticate before receipt access as well as mutation;
 an original success response does not imply the object is still live today.
-This is transient local bookkeeping: it does not survive restart, reconcile a
-paid effect or permit clearing history through reconstruction. Durable atomic
-storage, request allocation and global limits remain open.
+These pure lifecycle primitives do not themselves persist state or reconcile a
+paid effect. The maintained durable upload owner below stores their decisions,
+exact receipts and global/tenant accounting; reconstruction never grants authority.
 
 | Local decision | Reason and consequence |
 | --- | --- |
@@ -828,42 +828,23 @@ binding rejects the complete batch. These pure reads change no accounting and
 are not gateway root-liveness/deletion responses. The eventual workflow must
 authenticate callers, resolve current state and fence unreconciled restoration.
 
-The local model also composes confirmed lifecycles, immutable root claims and
-reference journals in a bounded transient catalog. Limits cover global and
-per-tenant lifetime object slots, per-object metadata, tenant logical bytes across
-namespaces, and separate global physical/billing-byte totals. Object counts retain zero-byte
-obligations. Exact registration replay never revives released references; no
-settlement path deletes history or frees lifetime slots. Private global/tenant totals
-change through the same owner as object insertion and journal mutation. Each mutation
-replaces that entry's contribution, including a receipt recorded for a failed
-lifecycle operation; retries and outer rejections do not add charges. Usage reads
-do not scan object history. These are transient indexes, with no public counter
-mutation, import or recovery authority.
+`StableUploads` is the single catalog implementation. It owns immutable root
+claims, permissions, manifests, confirmed lifecycles, references, receipts and
+charged totals in governed storage. Authority, admission and storage probes use
+that same implementation. The former heap `BlobCatalog`/`UploadCatalog`, their
+accounting engines and their root-ordered read/cursor APIs have been removed.
+Pure lifecycle transitions and independently asserted accounting outcomes remain
+covered without maintaining a second catalog.
 
-Tenant catalog reads now resolve ownership before inspecting supplied reference
-bindings. Bounded cross-object batches preserve order/duplicates and reject
-unknown or foreign roots identically, with no partial statuses. Exact request
-receipt queries authenticate independently, returning the original result without
-reapplying it or consuming capacity. An absent receipt only describes the supplied
-local journal; it never proves an uncertain provider effect did not execute or
-releases a restore fence. These remain pure reads, not network query guarantees.
-
-Local pending-deletion enumeration bounds scanned entries and returned results,
-with service/namespace cursors and current-gateway checks on every page. Pages
-are not snapshots; each sweep restarts to catch newly pending earlier roots.
-Root observations preserve unknown/malformed/foreign-namespace states rather
-than equating them to deletion permission. These are internal model/policy views,
-not a new provider wire contract. This extends the transient local exception;
-production still needs atomic durable reservations/claims before upload effects,
-authenticated endpoints, monetary accounting, provider evidence and restore fencing.
-
-The shared admission owner also supports tenant-scoped content discovery by root,
-with explicit service context and provider namespace. It returns the original
-upload request plus current pending/cancelled/confirmed lifecycle using the retained
-index. Unknown and foreign roots both return no object; absence is not global
-availability or permission to upload. Operators/uploaders have no implicit tenant
-discovery authority. Suspended tenants retain inspection access. This is a passive
-transient-model API, with no persistent protocol or provider guarantee.
+Tenant content discovery, current reference status, original receipts and bounded
+history scans use the durable owner's explicit service/tenant/namespace scope.
+Foreign and unknown roots do not grant authority. Scan positions are not snapshots,
+freshness proofs or reservations, and a new sweep is required to find earlier
+entries whose phase changed. An absent receipt never proves an uncertain effect
+did not execute. Gateway membership and restore fences are checked through the
+installed callback workflow; local deletion candidates are not provider deletion
+or billing evidence. New empty provider uploads are rejected, while any retained
+zero-byte lifecycle obligation still cannot be discarded based on byte counters.
 
 For overlapping consumer releases, retain a distinct reference to a live object
 before publishing the new release. Persist the exact request before dispatch and
@@ -921,7 +902,7 @@ lifetime slots. Logical release and physical deletion cannot erase continuing
 billing. Combine this view with tenant content discovery and exact reference
 capacity for reuse; absence still does not prove a root is globally unclaimed.
 `workflow::uploads::capacity::inspect` serves this boundary in the standalone host,
-durable storage fixture and transient admission fixture. All use `TenantScope` and
+durable storage and admission fixtures. All use `TenantScope` and
 the same maintained DTOs and conversion. The old private capacity interface is
 removed. The local inventory tool uses the shared response and reports a restored
 service as blocked despite positive headroom; this is not a provider guarantee or
@@ -1043,16 +1024,18 @@ this store together with pending and confirmed lifecycle bookkeeping.
 claims, exact original upload operations and their reverse object index.
 There is no separate root-to-operation index. Metadata binds service, namespace and the
 lifetime root count; bounded v1 records preserve full-width identities. Claim
-rules are shared with the heap model. Exact replay at capacity allocates nothing;
+rules preserve the pure root-binding invariants. Exact replay at capacity allocates nothing;
 there is no deletion/reassignment API. Reopen validates the forward/reverse
 bijection without rebuilding missing entries, then fences all mutations. Tenant
 lookup hides foreign roots. Enrollment and byte-quota admission belong to the
 enclosing workflow, not this index component.
 
-The transient upload model lives in explicitly selected test support and supplies
-independent accounting comparisons for the durable owner. It is absent from normal
-production builds and has no persistence or restore contract. Keeping this reference
-model does not introduce an alternate stable schema or a cross-release reader.
+The authority fixture uses the production durable owner over disposable governed
+backing. Its separate bounded archive preserves experiment history and validates
+restoration into an inspection-only fence. This is caller/recovery experiment
+coverage, not proof of deployed-provider behavior or permission to activate a stale
+installation. Test support supplies explicit component/fault access, not a second
+catalog implementation or cross-release reader.
 
 `StableUploads` exclusively owns these components plus permission, manifest,
 charged-total, confirmed-lifecycle, reference, receipt and root/request index maps in ten distinct
@@ -1069,8 +1052,8 @@ reference without dropping charged bytes. Reference transitions and exact receip
 commit with maintained counts and byte totals. One receipt per live reference
 remains reserved for cleanup, and every released identity/result remains retained.
 Last release removes logical bytes; authenticated physical deletion removes
-physical bytes; final settlement removes liability bytes. These transitions share
-the heap model's rules and never scan/copy the full reference history on mutation.
+physical bytes; final settlement removes liability bytes. These transitions use
+the pure lifecycle rules and never scan/copy the full reference history on mutation.
 
 Bounded v1 codecs retain configuration, permissions, totals, manifests and individual
 lifecycle/reference/receipt rows. The

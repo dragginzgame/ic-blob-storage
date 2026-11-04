@@ -1,4 +1,4 @@
-//! Shared checks for the heap owner and durable pending-upload owner.
+//! Pure scope, permission and clock checks for the durable upload owner.
 use super::NonZeroU64;
 use super::ObjectBinding;
 use super::Principal;

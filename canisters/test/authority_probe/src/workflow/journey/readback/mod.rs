@@ -7,7 +7,6 @@ use blob_test_protocol::journey::{
 };
 use ic_blob_storage::policy::{
     gateway::{GatewayCallbackContext, assess_gateway_callback},
-    liveness::assess_reference_liveness,
     tenant::TenantAccessContext,
 };
 use ic_platform::Principal;
@@ -74,15 +73,22 @@ fn authorize(
     gateway: Principal,
 ) -> Result<(), JourneyFailure> {
     ops::read(|state| {
-        let journal = state
+        let live = state
             .journey
             .catalog
-            .confirmed()
-            .get(request.upload.object.root)
-            .ok_or(JourneyFailure::InvalidPhase)?;
-        let live =
-            assess_reference_liveness(journal.lifecycle(), request.upload.object.first, context)
-                .map_err(|_| JourneyFailure::Denied)?;
+            .reference_is_live(
+                ops::durable::context(context.service, context.actor),
+                request.upload,
+                request.upload.object.first,
+            )
+            .map_err(|error| match error {
+                ic_blob_storage::ops::service::uploads::UploadStoreError::Admission(
+                    ic_blob_storage::model::service::upload::UploadAdmissionError::Catalog(
+                        ic_blob_storage::model::catalog::admission::UploadError::InvalidPhase(_),
+                    ),
+                ) => JourneyFailure::InvalidPhase,
+                _ => JourneyFailure::Denied,
+            })?;
         if !live {
             return Err(JourneyFailure::InvalidPhase);
         }
