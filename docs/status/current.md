@@ -1,6 +1,52 @@
 # Current status — 2026-11-04
 
-## Heap catalog retirement — pending Engine 0.70.0
+## Published Contracts, Client and Engine 0.70.0
+
+Authorized delivery completed from this checkout's `main` to `origin/main`,
+supplier-first. All thirteen members are now 0.70.0. Each group passed its own
+22-stage source-bound release gate, then its publication compiler/Clippy and
+archive checks. The three non-yanked registry archives match their published
+checksums, embedded VCS commits/package paths and annotated remote tags:
+
+| Group | Release commit | Tag |
+| --- | --- | --- |
+| Contracts | `4d9041fe543a7799d492d16b41a85f63f8ae111e` | `contracts-v0.70.0` |
+| Client | `e07475b12374fb3ea8e7074409fde9e2861b2cf8` | `client-v0.70.0` |
+| Engine | `3a18f15e2743c0222956f22ec6d4a298eff821ec` | `engine-v0.70.0` |
+
+Successful gate evidence is in `target/blob-release-validation.BmGCcn/`,
+`target/blob-release-validation.flDhhv/` and
+`target/blob-release-validation.QTh4kU/`, respectively; immutable group receipts
+are committed with each tag. Publication captures are `target/publication.oZAeG6/`,
+`target/publication.WeuvDT/` and `target/publication.BbJGgB/`; independent registry
+and tag readback is in `target/release070-readback/summary.json`.
+
+The first Contracts attempt retained at `target/blob-release-validation.223YaR/`
+failed when the multi-phase installed publication-session test exhausted its
+30-second total budget under concurrent load. Its retained `failure.json` reports
+`timeout`. Commit `dc32c7d2` gives only that scenario a bounded 120-second budget
+and includes the actual control response in assertion failures. The focused case
+and all subsequent full gates pass; production deadlines and the separate
+one-second idle-expiry test are unchanged. One initial focused invocation omitted
+the required CLI artifact environment and failed setup before the corrected run.
+
+Each successful gate ran 651 native tests/docs, 84 installed Client/standalone
+cases and 270 Engine cases, plus Wasm, boundaries and exact archive verification.
+Optional Chromium scenarios were skipped; this is Linux/PocketIC and cross-build
+evidence, not new native macOS, browser or mainnet qualification. The delivered
+graph includes Metrics 0.29.1 and Storage 0.66.2 alongside Platform 0.21.0,
+Testkit 0.84.1, Host Tools 0.81.0 and Wire 0.16.1; no graph changes occurred during
+the successful gates. Shared remains 0.29.3 and Rust remains pinned at 1.99.1.
+
+The publication controller remains supported under the decision below. No
+sibling was edited or released, and no canister was reset, installed, funded or
+probed during delivery. The existing live 0.69 trial and its provider obligations
+remain unchanged. Release validation artifacts precede version preparation;
+rebuild and qualify exact 0.70 Engine artifacts before any separately authorized
+service deployment. Older pending/qualification sections below retain their
+original evidence scope and are superseded by this delivery record.
+
+## Heap catalog retirement — delivered in Engine 0.70.0
 
 The maintainer approved retiring the parallel heap catalog. Removed
 `BlobCatalog`/`UploadCatalog`, their private accounting and heap read/cursor
