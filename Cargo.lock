@@ -1566,7 +1566,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-cli"
-version = "0.70.0"
+version = "0.71.0"
 dependencies = [
  "clap",
  "ic-blob-storage-client",
@@ -1587,7 +1587,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-client"
-version = "0.70.0"
+version = "0.71.0"
 dependencies = [
  "ic-blob-storage-contracts",
  "ic-host-fs",
