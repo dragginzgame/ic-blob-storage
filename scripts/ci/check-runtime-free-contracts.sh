@@ -25,8 +25,8 @@ for target in all wasm32-unknown-unknown; do
     cargo tree --offline --locked --no-default-features --target "$target" \
         --edges normal,build --prefix none --format '{p}' \
         -p ic-blob-storage-contracts > "$contract_graph"
-    if rg '^(ic-platform |candid |candid_derive |ic-agent |ic-platform-(runtime(-guard)?|macros) |ic-cdk)' "$contract_graph"; then
-        echo 'Passive Contracts depend on Candid, facade or execution' >&2; exit 1
+    if rg '^(ic-platform |candid |candid_derive |ic-wire-derive |ic-agent |ic-platform-(runtime(-guard)?|macros) |ic-cdk)' "$contract_graph"; then
+        echo 'Passive Contracts depend on Candid, facade, execution or schema derive' >&2; exit 1
     fi
 done
 echo 'Passive Contracts exclude Candid, facade, Agent and execution across targets'
@@ -55,7 +55,7 @@ echo 'Workspace feature/target selections exclude retired Platform/CDK'
 # Native interface inspection never enables a deployed parser or tooling runtime.
 cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
     --prefix none --format '{p}' -p ic-blob-storage-canister > "$contract_graph"
-if rg '^((ic-metrics|ic-memory|ic-stable-structures|ic-cdk|ic-cdk-macros|ic-cdk-executor|ic0|ic-management-canister-types|ic-testkit|pocket-ic|ic-platform-pocket-ic|ic-build|ic-agent|candid_parser|clap|clap_builder|clap_derive|reqwest|tokio) v|ic-platform v0\.[12345]\.|ic-host-)' "$contract_graph"; then
+if rg '^((ic-metrics|ic-memory|ic-stable-structures|ic-wire-derive|ic-cdk|ic-cdk-macros|ic-cdk-executor|ic0|ic-management-canister-types|ic-testkit|pocket-ic|ic-platform-pocket-ic|ic-build|ic-agent|candid_parser|clap|clap_builder|clap_derive|reqwest|tokio) v|ic-platform v0\.[12345]\.|ic-host-)' "$contract_graph"; then
     echo 'Deployment depends on a legacy runtime or native-only owner' >&2
     exit 1
 fi

@@ -129,16 +129,6 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Select Linux compatibility checks against the complete release delta
-        if: runner.os == 'Linux'
-        id: compatibility
-        env:
-          RELEASE_GROUP: ${{ inputs.release_group != 'workspace' && inputs.release_group || 'client' }}
-        run: |
-          export RELEASE_SOURCE="$(git rev-parse HEAD)"
-          mkdir -p .tmp/compatibility
-          perl scripts/release/validation.pl plan .tmp/compatibility/plan.json
-          jq -r '"release=" + ((.scope == "workspace") | tostring), "optimizer=" + ([.stages[] | select(.target == "test-pocketic-engine") | .required][0] | tostring)' .tmp/compatibility/plan.json >> "$GITHUB_OUTPUT"
       - name: Prepare fixture utilities on Linux
         if: runner.os == 'Linux'
         run: |
@@ -203,6 +193,19 @@ jobs:
         run: |
           make deps
           make compiler-check
+      - name: Select native compatibility checks against the complete release delta
+        id: compatibility
+        env:
+          RELEASE_GROUP: ${{ inputs.release_group != 'workspace' && inputs.release_group || 'client' }}
+        run: |
+          export RELEASE_SOURCE="$(git rev-parse HEAD)"
+          mkdir -p .tmp/compatibility
+          perl scripts/release/validation.pl plan target/compatibility/plan.json
+          jq -er '
+            "release=" + ((.scope == "workspace") | tostring),
+            "optimizer=" + ([.stages[] | select(.target == "test-pocketic") | (.required and (.reason | contains("test-pocketic-engine-run")))][0] | tostring),
+            "archive=" + ([.stages[] | select(.target == "package-regression") | .required][0] | tostring)
+          ' target/compatibility/plan.json >> "$GITHUB_OUTPUT"
       - name: Run the selected source-bound group plan on this native host
         if: env.BLOB_GROUP_CI == 'true'
         env:
@@ -220,6 +223,12 @@ jobs:
           name: blob-group-${{ inputs.release_group }}-${{ matrix.os }}-${{ github.run_attempt }}
           path: |
             target/blob-release-validation.*/
+            target/release-stage-cache/candidates/attempts/*/projection.json
+            target/release-stage-cache/candidates/attempts/*/preparation.log
+            target/release-stage-cache/execution/attempts/*/*.json
+            target/release-stage-cache/execution/attempts/*/*.stdout
+            target/release-stage-cache/execution/attempts/*/*.stderr
+            target/release-stage-cache/execution/proofs/*.json
             .git/release-state/validation/
             .git/release-state/validation-failures/
           include-hidden-files: true
@@ -246,13 +255,22 @@ jobs:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
           TMPDIR: ${{ runner.temp }}
-        run: make release-check
+        run: |
+          make release-check
+          bash scripts/ci/test-release-stage-reuse.sh
       - name: Run the existing Clippy gate before archive qualification
         if: env.BLOB_GROUP_CI != 'true'
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
         run: make clippy
+      - name: Qualify changed or uncertain archive-verifier contracts
+        if: env.BLOB_GROUP_CI != 'true' && steps.compatibility.outputs.archive != 'false'
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+          TMPDIR: ${{ runner.temp }}
+        run: make package-regression
       - name: Qualify mixed-version library archives on this host
         if: env.BLOB_GROUP_CI != 'true'
         env:
@@ -302,7 +320,7 @@ jobs:
           name: blob-wasm-opt-${{ matrix.os }}-${{ github.run_attempt }}
           path: |
             target/blob-wasm-opt.*
-            .tmp/compatibility/
+            target/compatibility/
           if-no-files-found: ignore
           retention-days: 30
       - name: Archive failed tooling fixtures

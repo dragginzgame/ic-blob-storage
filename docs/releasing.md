@@ -124,6 +124,7 @@ invalidates that proof. A shallow checkout cannot establish a narrow scope.
 | Contracts implementation | All thirteen package roots and every installed integration scenario, covering public identities and reverse consumers |
 | Engine implementation | Engine roots for the five Cargo stages; common CLI/probe/archive boundaries and both installed partitions remain required |
 | Release machinery unchanged in either case | Real selected-group metadata rendering/rollback and preservation of other groups; omit the full publication/recovery fixture matrix |
+| Product implementation with unchanged CLI/verifier contract | Omit `package-regression`; keep actual `package` verification |
 | Shared or uncertain inputs | Every stage, including the full release-adapter matrix |
 
 Only numbered group notes and the current status handoff are separately admitted
@@ -149,7 +150,25 @@ This inventory query uses `--no-deps`; complete lock/graph admission remains wit
 the existing release preflight and group renderer, not this projection.
 
 The two installed-test partitions are disjoint and exhaust Cargo's test roster.
-`make test-pocketic` still runs both. No test results are reused.
+One `test-pocketic` stage selects both through a single sequential, fail-fast Make
+graph. Their common `test-pocketic-prepare` prerequisite admits Testkit and builds
+the probe/standalone Wasm and CLI once. An admitted tenant-client-only plan selects
+only `test-pocketic-client-run`; all other plans retain both partitions. The exact
+partition list is bound into the stage reason and re-admitted before dispatch.
+Individual `test-pocketic-client`/`test-pocketic-engine` targets remain self-contained;
+there are no persistent preparation stamps or skip flags. Ordinary CI and direct
+`make test-pocketic` run both; release-only candidate reuse below is explicit.
+
+`package-regression` separately qualifies the archive verifier's same-version,
+warm-target and refusal behavior. A current annotated baseline with the same stage
+roster/configuration can omit it for admitted product-only changes outside the CLI.
+CLI/verifier implementation, wrappers, manifests/locks, compiler/tools, policy and
+unknown changes retain it. Full CI retains the regression, while hosted native
+jobs use the admitted compatibility plan on each host. `make package` always
+builds the verifier, checks the Client license and verifies the actual current
+package archives; it does not run the regression fixture. Missing/legacy baselines
+and uncertain closure keep the regression required. Real archive verification is
+never inferred from the regression's result or skipped with it.
 
 Original/O3/Os/Oz qualification is an explicit `make test-wasm-opt` compatibility
 check, outside the normal release roster. Linux hosted CI runs it for Engine/shared
@@ -177,7 +196,7 @@ exclusion reasons and timings in `target/blob-release-validation.*`. Only a comp
 attempt writes `.git/release-state/validation/<group>-<source>.json`. A fresh attempt
 invalidates that selectable record first, preserving prior logs. Missing, failed,
 blocked or drifted obligations cannot authorize preparation. The new
-`release-verify-plan-v1` receipt embeds source/group/host/compiler, plan/policy,
+`release-verify-stages-v1` receipt embeds source/group/host/compiler, plan/policy,
 input hashes, hashed build configuration and executed log identities/timings.
 Configuration values are hashed rather than retaining credentials or file contents;
 the generated configuration input is checkpointed with the plan, re-observed after
@@ -186,6 +205,56 @@ checks re-admit the same selection against its immutable source. Historical
 whole-gate receipts retain their original tools; they are not upgraded or reused.
 Historical `.tmp/` attempts remain untouched and are still selected by failure
 evidence collection. New selector/proof scratch also lives under `target/`.
+
+### Reuse across group releases
+
+Shared Tooling 0.29.6 prepares disposable final candidate source with the canonical
+IC Build editor. All pending numbered group versions are compiled as their actual
+intended final versions. Later supplier-first group releases can reach identical
+candidate content; there is no version stripping, old binary rebinding or whole-
+gate cache. Fixed candidate-only notes/empty receipts cannot authorize a release.
+Real group rendering, rollback, source/index/selection, tools, compiler, dependency
+and boundary checks, formatting, archive verification and registry admission remain
+fresh in the actual checkout.
+
+`ci/release-stage-reuse.json` selects nine candidate stages: Clippy, release-adapter
+regressions, check, probe check, Rustdoc, native tests, the combined installed
+stage, Wasm check and archive-verifier regressions. Each admission hashes full candidate source, dependency sources,
+Rust/native toolchain inputs, explicit environment and host identity. It records
+execution or reuse against an immutable original proof and logs; missing or changed
+proofs run the stage. Changed source/tool/configuration cannot satisfy an exact
+match. Unsupported host/scope/configuration (including parallel Make and custom
+build targets) executes the original recipe. Only Linux/x86_64 is currently
+qualified; native macOS keeps ordinary execution. Narrow group plans remain narrow.
+
+The installed candidate suites cover final versions. After every admitted
+installed stage, a small fresh actual-source sweep checks installation/reopen version
+binding, checkpoint corruption and CLI/host release identity. Intermediate mixed-
+version packages are still archived and verified fresh. Candidate sources/builds
+stay under `target/release-stage-cache/` and `target/release-stage-build/`; their
+read-only prepared tools root is explicit. No stage setup or tool-root symlink is
+created. A short explicit temp root under the owning checkout's `target/` keeps
+PocketIC Unix sockets within the platform path limit; long temp roots fall back
+to ordinary execution. Retain this cache's selected original proofs/logs with the
+group evidence. Release related groups supplier-first from the same checkout,
+retaining `target/` between them; `cargo clean` discards this reuse evidence.
+
+Publication first authenticates an existing registry archive: an exact non-yanked
+retry needs no repeated compiler/lint/archive work. New uploads/dry runs keep fresh
+dependency/compiler admission and actual archives. Clippy may consume the release's
+completed candidate qualification only after tag/source/exact changed-path roster,
+original proof/log custody, complete retained candidate inventory and exact actual
+primary package/target/feature/dependency closure all agree. This historical lint
+qualification is not a claim that a new execution ran on today's host. It avoids
+candidate rendering/tool setup again. Missing local evidence or a differing closure
+runs ordinary current-source Clippy before archive work/upload. No skip flag or
+registry-proof substitution is introduced.
+
+Focused producer and consumer fixtures exercise real Cargo execution, supplier-
+first group preparations, fresh receipts, later admissions, publication closure
+and source damage refusal. The full real consumer fixture runs only when release
+infrastructure is changed/uncertain on Linux, rather than at every group release.
+See [the Shared protocol](release-validation-reuse.md) for producer contracts.
 
 For [Blob #114](https://github.com/dragginzgame/ic-blob-storage/issues/114), Shared's
 [evidence interface](group-validation-adoption.md) now admits the full-stage roster,
@@ -201,7 +270,7 @@ rewritten or treated as portable execution evidence. Shared's `check` command
 re-admits raw logs only at their original physical source location. The three-group
 reverse-consumer mapping, installed obligations, receipt custody and publication
 admission remain local. [Shared #349](https://github.com/dragginzgame/shared-tooling/issues/349)
-owns the common verifier; #114 remains open until consumer delivery.
+owns the common verifier; #114 was closed after consumer delivery; current reuse is a separate follow-up.
 
 Shared's group helper and the published IC Build editor render the selected
 literal manifests, root catalog, lock entries and ledger; external lock selections
@@ -278,10 +347,14 @@ before lock/setup. Separate publication requires its completed receipt, exact
 parent and annotated tag. A later group release changes shared metadata; switch
 to the selected group's tag for publication/readback rather than rewriting receipts.
 
-Publication holds the shared release lock, prepares locked sources and runs the
-same Clippy gate before archive creation or registry contact. Cargo owns uploading
-and index visibility. A retry skips an existing version only after non-yanked
+Publication holds the shared release lock and admits the exact release/tag before
+observing registry state. A normal retry skips an existing version only after non-yanked
 registry metadata, archive checksum, VCS source and package path match this release.
+That verified read-only retry performs no dependency preparation, compilation or
+Clippy. New uploads and dry runs prepare locked sources and admit the compiler,
+then consume completed exact-primary candidate Clippy or execute current-source
+Clippy before Cargo creates/verifies an archive or uploads. Cargo owns uploading
+and index visibility.
 403, failed transport, malformed metadata or foreign bytes/source are fatal and
 cannot authorize upload. API reads use Shared's exact metadata helper with jq and
 curl 8.4.0+; archive reads also disable implicit curl configuration. Request,

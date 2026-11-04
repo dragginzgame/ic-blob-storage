@@ -66,8 +66,11 @@ network and never selects new versions; the validation aggregate does not fetch.
 The full CI Clippy gate (or the admitted release package scope) runs next, before dependency boundaries,
 documentation/shared fixtures,
 compilation, tests and packaging. The sequential validation runner stops on lint
-failure under parallel Make too. Publication uses that same gate after source/tag
-admission and dependency preparation, before registry or archive work. Rust
+failure under parallel Make too. For new uploads and dry runs, publication admits the release's completed candidate
+lint only when its retained source/proof and exact actual primary closure match;
+otherwise it runs current-source Clippy before Cargo archive work or upload.
+Source/tag, dependency/compiler and archive/registry checks remain fresh. An exact, non-yanked existing publication may finish its
+read-only checksum/source verification without repeating build/lint work. Rust
 compilation/tests use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
 The shared logger owns stage dispatch and prepared-input checkpoints. Blob's
@@ -133,8 +136,13 @@ instead of appending `test-native-host` or separate Contracts/Core/Client Rust
 regressions. Isolated feature/compiler graphs and generated-client qualification
 still run independently. Normal main/PR and workspace dispatch retain the native
 host checks and library regressions.
-Each native lane also runs `make package`, including real same-version/refusal
-regressions and exact coordinated archive tests. Hosted archive qualification
+Each native lane runs `make package` for actual coordinated archive verification.
+The same-version/refusal fixture has its own `make package-regression` stage:
+full CI includes it; admitted group/host plans omit it only for product changes
+with unchanged CLI/verifier qualification inputs. Unknown baselines, dependency,
+compiler, tool and policy changes retain it. Installed partitions share one Make
+graph and preparation in `test-pocketic`, with exact Client-only selection bound
+to the admitted plan. Hosted archive qualification
 retains archives, unpacked sources, admitted metadata/hashes and regression
 attempts on success or failure, excluding compiler caches. Artifact presence
 alone does not turn a failed or cancelled host into a qualified result.

@@ -6,7 +6,8 @@ export CARGO_TARGET_DIR := $(CURDIR)/target
 IC_TOOLS := wasm-opt
 LOCAL_TOOL_INSTALL_TARGETS := install-ic-tools install-testkit install-release-editor
 LOCAL_TOOL_CHECK_TARGETS := ic-tools-check testkit-check release-editor-check
-RELEASE_EDITOR_ARGS := --consumer "$(CURDIR)" --package ic-build --lockfile Cargo.lock --bin ic-build-release-metadata --profile debug --features cli
+export BLOB_PREPARED_TOOLS_ROOT ?= $(CURDIR)
+RELEASE_EDITOR_ARGS := --consumer "$(BLOB_PREPARED_TOOLS_ROOT)" --package ic-build --lockfile "$(CURDIR)/Cargo.lock" --bin ic-build-release-metadata --profile debug --features cli
 override SHARED_TOOLING_ROOT := $(CURDIR)
 override RELEASE_DELIVERY_POLICY := ci/release-delivery-policy.txt
 export PATH := $(CURDIR)/.tools/ic/bin:$(PATH)
@@ -42,13 +43,13 @@ export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE
 SHELLCHECK ?= shellcheck
 override CI_TARGETS = $(shell perl scripts/release/validation.pl stages)
 CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-release-groups.json ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
-	ci/release-validation.json ci/release-package-scopes.json scripts/release/validation.pl scripts/release/validate.sh scripts/ci/test-release-validation.sh \
+	ci/release-validation.json ci/release-stage-reuse.json ci/release-package-scopes.json scripts/release/validation.pl scripts/release/stage.pl scripts/release/validate.sh scripts/ci/test-release-validation.sh \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl scripts/ci/check-rust-compiler.sh \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
-	build package package-verifier clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
+	build package package-regression package-verifier clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
 	release-plan ensure-clean \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
 	release-commit-check release-committed-check release-tagged-check release-push-check \
@@ -125,6 +126,7 @@ testkit-check:
 	+bash scripts/dev/testkit-server.sh check
 
 install-release-editor:
+	@test "$(BLOB_PREPARED_TOOLS_ROOT)" = "$(CURDIR)" || { echo 'Borrowed prepared tools are check-only.' >&2; exit 1; }
 	+bash scripts/dev/install-rust-tools.sh $(RELEASE_EDITOR_ARGS)
 
 release-editor-check:
@@ -172,15 +174,15 @@ contracts-boundary-check:
 	+bash scripts/ci/check-runtime-free-contracts.sh
 	+bash scripts/ci/test-runtime-free-contracts.sh
 
-check:
+check-run:
 	+@packages="$$(perl scripts/release/validation.pl packages check)" || exit $$?; \
 		cargo check --offline --locked $$packages --all-targets --all-features
 
-clippy:
+clippy-run:
 	+@packages="$$(perl scripts/release/validation.pl packages clippy)" || exit $$?; \
 		cargo clippy --offline --locked $$packages --all-targets --all-features -- -D warnings
 
-probe-check:
+probe-check-run:
 	+cargo build --offline --locked -p ic-blob-storage-cli --bin caffeine-probe
 	@for run in docs/evidence/caffeine-probes/runs/*; do \
 		"$(CARGO_TARGET_DIR)/debug/caffeine-probe" verify "$$run" || exit $$?; \
@@ -191,7 +193,7 @@ probe-check:
 evidence-check:
 	bash scripts/ci/verify-evidence-checksums.sh docs/evidence/caffeine-probes/local/SHA256SUMS docs/evidence/caffeine-probes/deployed/SHA256SUMS
 
-docs-check:
+docs-check-run:
 	+@packages="$$(perl scripts/release/validation.pl packages docs-check)" || exit $$?; \
 		RUSTDOCFLAGS="-D warnings" cargo doc --offline --locked $$packages --all-features --no-deps
 
@@ -199,7 +201,7 @@ test:
 	+$(MAKE) --no-print-directory test-native
 	+$(MAKE) --no-print-directory test-pocketic
 
-test-native:
+test-native-run:
 	+@packages="$$(perl scripts/release/validation.pl packages test-native)" || exit $$?; \
 		bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked $$packages --all-features
 
@@ -240,15 +242,19 @@ test-pocketic-prepare:
 # These disjoint selections exhaust Cargo's test roster (checked by the plan
 # fixture). Client keeps its installed host, CLI and replicated-client boundary;
 # the remaining Engine scenarios never run twice in a complete gate.
-test-pocketic:
-	+$(MAKE) --no-print-directory test-pocketic-client
-	+$(MAKE) --no-print-directory test-pocketic-engine
+test-pocketic-run:
+	+@partitions="$$(perl scripts/release/validation.pl pocketic-targets)" || exit $$?; \
+		$(MAKE) --no-print-directory -j1 -S $$partitions
 
-test-pocketic-client: test-pocketic-prepare
+# One Make graph visits the common preparation once, including two-goal calls.
+test-pocketic-client: test-pocketic-client-run
+test-pocketic-engine: test-pocketic-engine-run
+
+test-pocketic-client-run: test-pocketic-prepare
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_tenants::client::
 
-test-pocketic-engine: test-pocketic-prepare
+test-pocketic-engine-run: test-pocketic-prepare
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --lib --test admission --test authority --test content --test funding --test gateway_sync --test journey --test obligations --test operator --test storage --test uploads -- --skip storage_tenants::client::
 	+cargo test --offline --locked -p ic-blob-storage-pocketic-tests --doc
 
@@ -355,7 +361,7 @@ test-read-resources:
 	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test journey readback -- --test-threads=2
 	@echo "Local read report: .tmp/read-resources.json (not a production read protocol or provider pricing)"
 
-wasm-check:
+wasm-check-run:
 	+@packages="$$(perl scripts/release/validation.pl packages wasm-check)" || exit $$?; \
 		cargo check --offline --locked $$packages --all-features --target wasm32-unknown-unknown
 
@@ -365,10 +371,12 @@ build:
 package-verifier:
 	+cargo build --offline --locked -p ic-blob-storage-cli --features package-verification --bin blob-package-verify
 
+package-regression-run: package-verifier
+	+bash scripts/ci/test-library-packages.sh
+
 package: package-verifier
 	@test -f crates/ic-blob-storage-client/LICENSE && test ! -L crates/ic-blob-storage-client/LICENSE
 	cmp LICENSE crates/ic-blob-storage-client/LICENSE
-	+bash scripts/ci/test-library-packages.sh
 	+bash scripts/ci/verify-library-packages.sh
 
 clean:
@@ -377,11 +385,9 @@ clean:
 shell-check:
 	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
 	"$(SHELLCHECK)" scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
-	perl -c scripts/release/release-data.pl
-	perl -c scripts/release/validation.pl
-	perl -c scripts/ci/check-documentation-links.pl
+	@for script in scripts/release/*.pl scripts/ci/check-documentation-links.pl scripts/ci/prepare-cargo-stage-source.pl scripts/ci/run-validation-stage.pl scripts/ci/observe-cargo-stage.pl scripts/ci/seal-validation-stage.pl scripts/ci/check-cargo-stage-closure.pl; do perl -c "$$script" || exit $$?; done
 
-release-check: release-commands-check
+release-check-run: release-commands-check
 	bash scripts/release/test-release.sh
 
 release-metadata-check: release-commands-check
@@ -451,3 +457,18 @@ test-wire-schema: browser-tools-check
 	$(CARGO_TARGET_DIR)/debug/examples/wire_schema adapter > .tmp/wire-schema/blob-runtime.ts
 	$(CARGO_TARGET_DIR)/debug/examples/wire_schema runtime > .tmp/wire-schema/wire-runtime.ts
 	$(BLOB_BROWSER_NODE) tests/browser/wire-schema.mjs
+
+# Ordinary CI/commands execute their original recipes. Group releases may admit
+# exact final-candidate stage evidence through the shared source/proof owners.
+.PHONY: clippy-run release-check-run check-run probe-check-run docs-check-run test-native-run test-pocketic-run test-pocketic-client-run test-pocketic-engine-run wasm-check-run package-regression-run test-release-identity
+clippy release-check check probe-check docs-check test-native test-pocketic wasm-check package-regression:
+	+perl scripts/release/stage.pl "$@"
+
+# Prospective suites exercise final versions. This small fresh check covers the
+# actual intermediate release mixture without replaying either installed suite.
+test-release-identity: testkit-check
+	+$(MAKE) --no-print-directory build-standalone
+	+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
+	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage --lib ops::service::installation::tests::compiled_library_version_binds_installation_and_reopen -- --exact
+	+bash scripts/ci/run-nonempty-cargo-test.sh --offline --locked -p ic-blob-storage-contracts --lib identity::caffeine::manifest::verification::ordered::checkpoint::tests::bounded_decoding_rejects_damage_and_inconsistent_counts_even_with_a_new_checksum -- --exact
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_installation_cli::standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service -- --exact --test-threads=1

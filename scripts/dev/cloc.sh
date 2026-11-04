@@ -9,11 +9,14 @@ export PATH="$ROOT/.tools/host/bin:$PATH"
 
 usage() {
     cat <<'EOF'
-Usage: cloc.sh [--json] [--manifest PATH] [repository]
+Usage: cloc.sh [--subcrates] [--json] [--manifest PATH] [directory]
        cloc.sh --check-tools
 
-Report Rust runtime/test lines and test-function totals for each Cargo
-workspace member. The repository defaults to the current working directory.
+Report Rust runtime/test lines and test-function totals per workspace.
+The directory defaults to the current working directory. A parent directory
+selects its immediate Git checkouts; --subcrates also displays member rows.
+Counts always include all members. Independent excluded workspaces require
+--manifest. --json is a single-workspace report and always includes crate rows.
 --manifest selects one independent Cargo workspace explicitly; its own Cargo
 configuration and target directory apply. The default is the Git root workspace.
 Prepared host tools beside this script's checkout take precedence over PATH.
@@ -35,14 +38,138 @@ check_tools() {
     fi
 }
 
+report_repositories() {
+local parent_root="$1"
+export LC_ALL=C
+shopt -s nullglob dotglob
+repos=()
+needs_cargo=false
+column_width=24
+for repo in "${parent_root%/}"/*; do
+    [[ -d "$repo" && ! -L "$repo" && -e "$repo/.git" ]] || continue
+    name="${repo##*/}"
+    if [[ "$name" == *$'\n'* || "$name" == *$'\r'* || "$name" == *$'\t'* ]]; then
+        echo 'error: repository names containing tabs or newlines cannot be displayed' >&2
+        exit 1
+    fi
+    repos+=("$repo")
+    if [[ -f "$repo/Cargo.toml" ]]; then needs_cargo=true; fi
+    if [[ ${#name} -gt $column_width ]]; then column_width=${#name}; fi
+done
+if [[ ${#repos[@]} == 0 ]]; then
+    echo "error: no Git checkouts found in $parent_root" >&2
+    exit 1
+fi
+if [[ "$needs_cargo" == true ]]; then
+    bash "$ROOT/scripts/dev/cloc.sh" --check-tools
+fi
+
+rows=()
+# Buffer the counted rows so every repository and indented crate shares one
+# width. Counting remains a single pass, even when a later crate is longest.
+print_row() {
+    local row
+    if [[ ${#1} -gt $column_width ]]; then column_width=${#1}; fi
+    printf -v row '%s\t%s\t%s\t%s\t%s\t%s' "$@"
+    rows+=("$row")
+}
+print_row repository runtime_loc test_loc test_% test_fns inline_fns
+rows+=(divider)
+
+status=0
+counted_repos=0
+total_runtime_loc=0
+total_test_loc=0
+total_test_fns=0
+total_inline_fns=0
+for repo in "${repos[@]}"; do
+    name="${repo##*/}"
+    if ! git_root="$(git -C "$repo" rev-parse --show-toplevel 2>/dev/null)" || [[ "$git_root" != "$repo" ]]; then
+        print_row "$name" ERROR ERROR ERROR ERROR ERROR
+        echo "error: not a Git checkout root: $repo" >&2
+        status=1
+        continue
+    fi
+    if [[ ! -f "$repo/Cargo.toml" ]]; then
+        print_row "$name" N/A N/A N/A N/A N/A
+        continue
+    fi
+    # Enter the checkout so Cargo reads its own .cargo/config.toml. Reuse the
+    # complete workspace report, publishing only its final totals on success.
+    if ! report="$(cd "$repo" && bash "$ROOT/scripts/dev/cloc.sh" --json "$repo")"; then
+        print_row "$name" ERROR ERROR ERROR ERROR ERROR
+        echo "error: unable to count $repo" >&2
+        status=1
+        continue
+    fi
+    if ! totals="$(jq -er -s '
+        if length != 1 then error("expected one LOC report") else .[0].totals end
+        | [.runtime_loc, .test_loc, .test_fns, .inline_fns]
+        | if all(.[]; type == "number" and . >= 0 and floor == .)
+          then @tsv else error("invalid LOC counts") end
+    ' <<< "$report")"; then
+        print_row "$name" ERROR ERROR ERROR ERROR ERROR
+        echo "error: invalid workspace totals for $repo" >&2
+        status=1
+        continue
+    fi
+    IFS=$'\t' read -r runtime_loc test_loc test_fns inline_fns <<< "$totals"
+    test_pct="$(awk -v runtime="$runtime_loc" -v tests="$test_loc" \
+        'BEGIN { printf "%.1f%%", (runtime + tests > 0 ? 100 * tests / (runtime + tests) : 0) }')"
+    print_row "$name" "$runtime_loc" "$test_loc" "$test_pct" "$test_fns" "$inline_fns"
+    if [[ "$subcrates" == true ]]; then
+        while IFS=$'\t' read -r crate runtime tests pct fns inline; do
+            print_row "  $crate" "$runtime" "$tests" "$pct%" "$fns" "$inline"
+        done < <(jq -r '.crates[] | [.crate,.runtime_loc,.test_loc,.test_pct,.test_fns,.inline_fns] | @tsv' <<< "$report")
+    fi
+    counted_repos=$((counted_repos + 1))
+    total_runtime_loc=$((total_runtime_loc + runtime_loc))
+    total_test_loc=$((total_test_loc + test_loc))
+    total_test_fns=$((total_test_fns + test_fns))
+    total_inline_fns=$((total_inline_fns + inline_fns))
+done
+rows+=(divider)
+total_label=TOTAL
+if [[ "$status" != 0 ]]; then total_label='TOTAL (partial)'; fi
+if [[ "$counted_repos" == 0 ]]; then
+    print_row "$total_label" N/A N/A N/A N/A N/A
+else
+    total_pct=0.0%
+    if [[ $((total_runtime_loc + total_test_loc)) -gt 0 ]]; then
+        total_pct="$(awk -v runtime="$total_runtime_loc" -v tests="$total_test_loc" \
+            'BEGIN { printf "%.1f%%", 100 * tests / (runtime + tests) }')"
+    fi
+    print_row "$total_label" "$total_runtime_loc" "$total_test_loc" "$total_pct" "$total_test_fns" "$total_inline_fns"
+fi
+printf -v divider '%*s' "$column_width" ''
+for row in "${rows[@]}"; do
+    if [[ "$row" == divider ]]; then
+        printf '%-*s %12s %12s %10s %9s %10s\n' "$column_width" \
+            "${divider// /-}" ------------ ------------ ---------- --------- ----------
+    else
+        IFS=$'\t' read -r name runtime tests pct fns inline <<< "$row"
+        printf '%-*s %12s %12s %10s %9s %10s\n' "$column_width" \
+            "$name" "$runtime" "$tests" "$pct" "$fns" "$inline"
+    fi
+done
+return "$status"
+
+}
+
+
+subcrates=false
 selected_manifest=''
 json=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
+        --subcrates) subcrates=true; shift ;;
         --json) json=true; shift ;;
         --manifest)
             [[ $# -ge 2 && -n "$2" && -z "$selected_manifest" ]] || { usage >&2; exit 2; }
             selected_manifest="$2"; shift 2 ;;
+        --help|-h|--check-tools) break ;;
+        --) shift; break ;;
+        -*) usage >&2; exit 2 ;;
         *) break ;;
     esac
 done
@@ -67,7 +194,7 @@ resolve_directory() (
     case "$PWD" in
         *$'\n'*|*$'\r'*) echo 'error: resolved directory contains line breaks' >&2; exit 1 ;;
     esac
-    printf '%s\n' "$PWD"
+    printf '%s/.' "$PWD"
 )
 
 if [[ -n "$selected_manifest" ]]; then
@@ -78,9 +205,21 @@ if [[ -n "$selected_manifest" ]]; then
         echo 'error: selected manifest must be a regular file' >&2; exit 1;
     }
     selected_directory="$(resolve_directory "$(dirname "$selected_manifest")")"
+    selected_directory="${selected_directory%/.}"
     selected_manifest="$selected_directory/$(basename "$selected_manifest")"
 fi
 requested_root="$(resolve_directory "${1:-${selected_directory:-$PWD}}")"
+requested_root="${requested_root%/.}"
+has_checkouts=false
+for child in "$requested_root"/* "$requested_root"/.[!.]*; do
+    if [[ -d "$child" && ! -L "$child" && -e "$child/.git" ]]; then has_checkouts=true; break; fi
+done
+if [[ -z "$selected_manifest" && ! -f "$requested_root/Cargo.toml" && ! -e "$requested_root/.git" ]] &&
+   { [[ "$has_checkouts" == true ]] || ! git -C "$requested_root" rev-parse --show-toplevel >/dev/null 2>&1; }; then
+    [[ "$json" == false ]] || { echo 'error: --json requires one workspace' >&2; exit 2; }
+    report_repositories "$requested_root"
+    exit $?
+fi
 if repo_root="$(git -C "${requested_root}" rev-parse --show-toplevel 2>/dev/null)"; then
     :
 else
@@ -88,6 +227,7 @@ else
 fi
 
 repo_root="$(resolve_directory "$repo_root")"
+repo_root="${repo_root%/.}"
 manifest_path="${selected_manifest:-${repo_root}/Cargo.toml}"
 case "$manifest_path" in
     "$repo_root/"*) ;;
@@ -182,7 +322,7 @@ print_divider() {
 if [[ "$json" == false ]]; then
     printf "%-*s %12s %12s %10s %9s %10s\n" \
         "${crate_column_width}" \
-        "crate" \
+        "workspace/crate" \
         "runtime_loc" \
         "test_loc" \
         "test_%" \
@@ -198,7 +338,7 @@ print_counts() {
             --argjson test_pct "$4" --argjson test_fns "$5" --argjson inline_fns "$6" \
             '{crate:$crate,runtime_loc:$runtime_loc,test_loc:$test_loc,test_pct:$test_pct,
               test_fns:$test_fns,inline_fns:$inline_fns}' >> "$FILE_LIST_DIR/rows.jsonl"
-    else
+    elif [[ "$subcrates" == true || "$1" == TOTAL ]]; then
         printf '%-*s %12d %12d %9s%% %9d %10d\n' "$crate_column_width" "$@"
     fi
 }

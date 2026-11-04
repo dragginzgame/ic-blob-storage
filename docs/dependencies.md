@@ -6,11 +6,15 @@
 
 ## Current adoption
 
-The 0.71.1 release batch selects published Platform 0.22.0, Testkit 0.85.1,
-Host Tools 0.82.0 and Wire/Derive 0.16.2. Canonical Types 0.18.1 and Runtime,
-macros and guard 0.19.1 retain their existing identities. The incoming Build and
-Host foundation 0.74.3 patches remain selected. The lockfile is authoritative;
-this records the qualified batch, rather than requiring fleet lockstep.
+The pending 0.72.0 batch selects published Storage 0.67.0, Testkit 0.86.0 and
+Wire/Derive 0.17.0. Storage configuration/codec errors and public Wire values have
+new Rust crate identities; direct consumers align the same minor lines. Wire's
+metadata derive remains enabled only by the existing schema feature. Codec bytes,
+limits, frames and stored layouts are unchanged by these supplier releases.
+Blob's cross-release retirement/reinstall rule still applies; no existing provider
+obligation is discarded. Platform 0.22.0, Types 0.18.1, Runtime/macros/guard 0.19.1,
+Host Tools 0.82.0 and Build/Host foundation 0.74.3 remain selected. The lockfile is
+authoritative; this records the reviewed batch without imposing fleet lockstep.
 
 Testkit's maintained client requires an explicit server URL. Blob's existing
 managed startup owns the server and passes that endpoint to each builder; direct

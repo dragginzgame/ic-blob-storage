@@ -202,7 +202,6 @@ required to run setup. Make targets and CI select this same local tool set.
 | --- | --- |
 | Evidence download and its portable fixture | GitHub CLI, jq, unzip and SHA-256 verification; the fixture also uses zip |
 | `scripts/dev/cloc.sh` | Git, Cargo, `cloc`, `jq`, `awk`, `find`, `grep`, and `sort` |
-| `scripts/dev/cloc-siblings.sh` | Git and the same prepared tools as `cloc.sh`; read-only root workspace summaries |
 | `scripts/dev/cloc-tooling.pl` | Git, cloc, and core Perl modules including JSON::PP and Digest::SHA; no Cargo or consumer command execution |
 | `scripts/dev/github-siblings.sh` | Git, jq, awk, sort, Perl core POSIX functions, system IANA timezone data (Europe/Paris), and an authenticated GitHub CLI |
 | `scripts/dev/gh-ci.sh` | Git and an authenticated GitHub CLI |

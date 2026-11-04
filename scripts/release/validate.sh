@@ -20,6 +20,7 @@ attempt="$(mktemp -d target/blob-release-validation.XXXXXX)"
 printf 'Release validation evidence: %s\n' "$attempt"
 perl scripts/release/validation.pl plan "$attempt/plan.json"
 export BLOB_RELEASE_VALIDATION_PLAN="$attempt/plan.json"
+export BLOB_RELEASE_STAGE_ADMISSIONS="$attempt/stages"
 jq -r '"Release validation scope: " + .scope, (.stages[] | select(.required == false) | "Not applicable: " + .target + " (" + .reason + ")")' "$attempt/plan.json"
 VALIDATION_LOG_DIR="$attempt" bash scripts/ci/run-validation-targets.sh --plan "$attempt/plan.json"
 bash scripts/ci/check-release-source.sh

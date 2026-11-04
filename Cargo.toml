@@ -60,8 +60,8 @@ ic-metrics = { version = "0.29.0", default-features = false }
 ic-platform = { version = "0.22.0", default-features = false }
 ic-platform-runtime = { version = "0.19.0", default-features = false }
 ic-platform-types = { version = "0.18.0", default-features = false }
-ic-storage = "0.66.0"
-ic-wire = "0.16.2"
+ic-storage = "0.67.0"
+ic-wire = "0.17.0"
 libc = "0.2.191"
 percent-encoding = "2.3.2"
 reqwest = { version = "0.13.5", default-features = false }
@@ -75,7 +75,7 @@ url = "2.5.8"
 
 # Tests and tooling only
 ic-host-tools = { version = "0.82.0", default-features = false }
-ic-testkit = "0.85.1"
+ic-testkit = "0.86.0"
 
 [workspace.lints.rust]
 missing_docs = "deny"

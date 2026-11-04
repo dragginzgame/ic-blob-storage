@@ -4,6 +4,15 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.72.0] - Unreleased
+
+### 💥 Breaking
+
+- Adopt Contracts 0.72 and the IC Wire 0.17 type cohort, including Testkit 0.86
+  for native qualification. Align direct consumer Wire dependencies; preserve
+  replicated/native transport, authentication, exact retry bytes and explicit
+  Engine release selection. No saved-document conversion is introduced.
+
 ## [0.71.1] - 2026-11-04
 
 ### 🔧 Changed

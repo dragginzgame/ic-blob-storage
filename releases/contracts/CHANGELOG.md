@@ -4,6 +4,15 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.72.0] - Unreleased
+
+### 💥 Breaking
+
+- Adopt published IC Wire 0.17.0 for public borrowed values, limits and errors.
+  Keep metadata derivation opt-in under the existing host schema feature; codec
+  builds exclude the derive. Align consumer Wire selections to the same minor.
+  Method identities, canonical frames, budgets and retained retry bytes are unchanged.
+
 ## [0.71.1] - 2026-11-04
 
 ### 🔧 Changed

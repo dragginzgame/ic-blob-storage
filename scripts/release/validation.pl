@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 # Bounded consumer selection/receipt data. Shared owns generic plan admission,
-# checkpointing, dispatch and failure retention; no validation result is reused.
+# checkpointing, exact candidate execution/reuse and failure retention.
 package BlobValidation;
 use strict;
 use warnings;
@@ -128,6 +128,74 @@ sub inputs {
         m{\Atests/browser/(?:\.nvmrc|package(?:-lock)?\.json)\z}
     } source_files($source)];
 }
+sub reuse_policy {
+    my ($source) = @_;
+    my $path='ci/release-stage-reuse.json';
+    my $raw=defined($source) ? blob($source,$path) : read_file($path);
+    my $policy=$json->decode($raw);
+    encode($policy) eq $raw && ($policy->{schema}//0)==1
+        && join(',',sort keys %$policy) eq 'contract,hosts,schema,stages'
+        && ($policy->{contract}//'') eq 'blob-final-candidate/1'
+        && ref($policy->{hosts}) eq 'ARRAY' && @{$policy->{hosts}}
+        && ref($policy->{stages}) eq 'ARRAY'
+        or die "invalid reusable-stage policy\n";
+    my $full=stage_policy($source); my %full=map {$_=>1} @{$full->{stages}}; my %seen;
+    !grep {!$full{$_} || $seen{$_}++} @{$policy->{stages}}
+        or die "unknown or duplicate reusable stage\n";
+    return $policy;
+}
+sub active_plan {
+    my ($stage)=@_;
+    my ($source,$group)=@ENV{qw(RELEASE_SOURCE RELEASE_GROUP)};
+    my $path=$ENV{BLOB_RELEASE_VALIDATION_PLAN}//die "missing active plan\n";
+    $path =~ m{\Atarget/blob-release-validation\.[A-Za-z0-9]+/plan\.json\z}
+        or die "invalid active plan path\n";
+    git('rev-parse','HEAD') eq "$source\n" or die "active source changed\n";
+    system('bash','scripts/ci/check-release-source.sh')==0 or die "active source is dirty\n";
+    (my $context_path=$path) =~ s{/plan\.json\z}{/configuration.json};
+    my $context=$json->decode(read_file($context_path));
+    encode($context) eq encode(configuration()) or die "active configuration changed\n";
+    my $plan=selection($source,$group,$context_path,$context);
+    read_file($path) eq encode($plan) or die "active selection changed\n";
+    grep {$_->{target} eq $stage && $_->{required}} @{$plan->{stages}}
+        or die "stage not required by active plan\n";
+    return $plan;
+}
+sub stage_records {
+    my ($attempt,$source,$group,$plan)=@_;
+    my $policy=reuse_policy($source);
+    my %selected=map {$_=>1} @{$policy->{stages}};
+    my @targets=map {$_->{target}} grep {$_->{required} && $selected{$_->{target}}} @{$plan->{stages}};
+    my (%records,$candidate);
+    for my $stage (@targets) {
+        my $record=$json->decode(read_file("$attempt/stages/$stage.json"));
+        if (($record->{kind}//'') eq 'blob-direct-stage-execution') {
+            ($record->{schema}//0)==1 && $record->{source} eq $source && $record->{group} eq $group
+                && $record->{stage} eq $stage && $record->{mode} eq 'executed'
+                or die "mismatched direct stage execution\n";
+        } elsif (($record->{kind}//'') eq 'sealed-cargo-stage-admission') {
+            $candidate //= $json->decode(read_file("$attempt/candidate.json"));
+            my $admission=$record->{admission};
+            ($record->{schema}//0)==1 && $admission->{source} eq $source && $admission->{group} eq $group
+                && $admission->{stage} eq $stage && $admission->{contract} eq $policy->{contract}
+                && $admission->{mode} =~ /\A(?:executed|reused)\z/
+                && $record->{candidate_identity} eq $candidate->{identity}
+                or die "mismatched reusable stage admission\n";
+            # Re-seal the producer-owned physical admission at capture; do not
+            # trust a target-side JSON object to declare its own evidence roster.
+            my $sealed=$json->decode(observation($^X,'scripts/ci/seal-validation-stage.pl',
+                abs_path("$attempt/stages/$stage-admission.json")//die("missing stage admission\n"),
+                $source,$group,$candidate->{identity}));
+            encode($sealed) eq encode({map {$_=>$record->{$_}} keys %$sealed})
+                or die "stage custody changed before capture\n";
+            $stage ne 'test-pocketic' || $record->{fresh_identity}
+                or die "missing actual mixed-version identity qualification\n";
+        } else { die "unknown stage execution evidence\n"; }
+        $records{$stage}=$record;
+    }
+    return (\%records,$candidate);
+}
+
 sub package_scope {
     my ($source,$members) = @_;
     $members //= workspace_members();
@@ -195,6 +263,7 @@ sub selection {
     my $scope = 'workspace';
     my $reason = 'Shared, unknown or not yet classified inputs require the full roster';
     my $client_only = 0;
+    my $package_regression = 1;
     my %changed_groups;
     # Admit the whole delta since this group's annotated release, never only the
     # last commit. New helpers/policies, missing history or any unknown path keep
@@ -212,10 +281,12 @@ sub selection {
         my %baseline_files = map { $_=>1 } source_files($base);
         $baseline_files{"releases/$group/release.json"} or die "missing baseline receipt";
         my $receipt = $json->decode(blob($base,"releases/$group/release.json"));
-        ($receipt->{gate}//'') eq 'release-verify-plan-v1'
-            && ($receipt->{validation}{kind}//'') eq 'blob-release-plan-v1'
+        ($receipt->{gate}//'') eq 'release-verify-stages-v1'
+            && ($receipt->{validation}{kind}//'') eq 'blob-release-stages-v1'
             && ($receipt->{validation}{group}//'') eq $group
             or die "baseline predates qualified plan receipts";
+        encode($receipt->{validation}{policy}) eq encode($policy)
+            or die "baseline predates the current stage roster";
         encode($receipt->{validation}{configuration}) eq encode($context)
             or die "baseline configuration differs";
         ($receipt->{validation}{evidence}{inputs}{$packages_path}//'') eq sha256_hex(blob($source,$packages_path))
@@ -234,24 +305,31 @@ sub selection {
         keys(%changed_groups) or die "no classified implementation change";
         $scope = 'group';
         $client_only = $group eq 'client' && $only_client;
+        # The verifier is a standalone CLI binary. Conservatively include all
+        # CLI implementation; wrappers, manifests/locks, tools, compiler, policy
+        # and unknown inputs already force full validation above.
+        $package_regression = scalar grep {m{\Acrates/ic-blob-storage-cli/src/}} @changed;
         $reason = "Complete source delta from $tag at $base leaves release infrastructure unchanged";
     };
     my @stages = map {
-        my $skip = $scope eq 'group' && ($_ eq 'release-check' || ($client_only && $_ eq 'test-pocketic-engine'));
+        my $skip = $scope eq 'group' && ($_ eq 'release-check' || ($_ eq 'package-regression' && !$package_regression));
         my $target = $_;
         my $package_reason = $scope eq 'group' && $target =~ /\A(?:clippy|check|docs-check|test-native|wasm-check)\z/
             ? '; package roots: '.join(' ',@{package_args($source,$target,\%changed_groups,$context->{workspace_members})}) : '';
+        my $installed_reason = $target eq 'test-pocketic'
+            ? '; installed partitions: test-pocketic-client-run'.($client_only ? '' : ' test-pocketic-engine-run') : '';
         {target=>$target, required=>$skip ? JSON::PP::false : JSON::PP::true,
             reason=>$skip ? ($_ eq 'release-check'
                 ? 'Unchanged release machinery; real group renderer/rollback checks remain required'
-                : 'Tenant-client-only implementation; installed Client/CLI/host and replicated tenant-client boundaries remain required') : $reason.$package_reason}
+                : 'Unchanged archive verifier/CLI and qualification contract; actual package verification remains required')
+                : $reason.$package_reason.$installed_reason}
     } @{$policy->{stages}};
     return {schema=>1,source=>$source,group=>$group,scope=>$scope,policy=>$policy_path,
         inputs=>[sort(@{inputs($source)},$context_path)],stages=>\@stages};
 }
 sub verify {
     my ($record,$source,$group) = @_;
-    ref($record) eq 'HASH' && ($record->{kind}//'') eq 'blob-release-plan-v1'
+    ref($record) eq 'HASH' && ($record->{kind}//'') eq 'blob-release-stages-v1'
         && ($record->{schema}//0)==1 && ($record->{source}//'') eq $source && ($record->{group}//'') eq $group
         or die "missing or mismatched structured validation proof\n";
     my $path = $record->{plan_path}//'';
@@ -304,6 +382,40 @@ sub verify {
                 or die "missing execution log identity/timing\n";
         }
     }
+    my $reuse=reuse_policy($source);
+    my %reusable=map {$_=>1} @{$reuse->{stages}};
+    my @required=sort map {$_->{target}} grep {$_->{required} && $reusable{$_->{target}}} @{$record->{plan}{stages}};
+    ref($record->{stage_admissions}) eq 'HASH'
+        && join(',',sort keys %{$record->{stage_admissions}}) eq join(',',@required)
+        or die "incomplete stage admission roster\n";
+    for my $stage (@required) {
+        my $entry=$record->{stage_admissions}{$stage};
+        if (($entry->{kind}//'') eq 'blob-direct-stage-execution') {
+            $entry->{source} eq $source && $entry->{group} eq $group && $entry->{stage} eq $stage
+                && $entry->{mode} eq 'executed' or die "direct stage identity differs\n";
+        } elsif (($entry->{kind}//'') eq 'sealed-cargo-stage-admission') {
+            my $admitted=$entry->{admission};
+            ($entry->{schema}//0)==1 && $admitted->{source} eq $source && $admitted->{group} eq $group
+                && $admitted->{stage} eq $stage && $admitted->{contract} eq $reuse->{contract}
+                && $admitted->{mode} =~ /\A(?:executed|reused)\z/
+                && ($entry->{candidate_identity}//'') =~ /\A[0-9a-f]{64}\z/
+                && $entry->{candidate_identity} eq $record->{candidate}{identity}
+                && $record->{candidate}{source} eq $source
+                or die "candidate stage identity differs\n";
+            ref($entry->{files}) eq 'HASH' && keys(%{$entry->{files}})==4
+                && ($admitted->{context_sha256}//'') =~ /\A[0-9a-f]{64}\z/
+                && ($entry->{environment_sha256}//'') =~ /\A[0-9a-f]{64}\z/
+                && ($entry->{files}{$admitted->{execution_proof}}//'') eq $admitted->{execution_proof_sha256}
+                && ref($entry->{command}) eq 'ARRAY' && @{$entry->{command}}
+                && $entry->{cwd} eq $record->{candidate}{directory}
+                or die "incomplete sealed stage custody\n";
+            for my $digest (values %{$entry->{files}}) {
+                $digest =~ /\A[0-9a-f]{64}\z/ or die "invalid retained stage digest\n";
+            }
+            $stage ne 'test-pocketic' || $entry->{fresh_identity}
+                or die "missing fresh version-sensitive integration\n";
+        } else { die "unknown sealed stage kind\n"; }
+    }
     return 1;
 }
 sub main {
@@ -312,31 +424,32 @@ sub main {
     if ($command eq 'stages') {
         @args == 0 or die "unexpected stage-roster arguments\n";
         print join(' ',@{stage_policy(undef)->{stages}}),"\n";
+    } elsif ($command eq 'pocketic-targets') {
+        @args==0 or die "unexpected installed-partition arguments\n";
+        my $targets='test-pocketic-client-run test-pocketic-engine-run';
+        if (defined $ENV{BLOB_RELEASE_VALIDATION_PLAN}) {
+            my $plan=active_plan('test-pocketic');
+            my ($entry)=grep {$_->{target} eq 'test-pocketic'} @{$plan->{stages}};
+            $entry->{reason} =~ /; installed partitions: (test-pocketic-client-run(?: test-pocketic-engine-run)?)\z/
+                or die "missing planned installed partitions\n";
+            $targets=$1;
+        }
+        print "$targets\n";
     } elsif ($command eq 'packages') {
         @args == 1 or die "expected package stage\n";
         my ($stage) = @args;
         my $path = $ENV{BLOB_RELEASE_VALIDATION_PLAN};
         my $flags;
         if (defined $path) {
-            $path =~ m{\Atarget/blob-release-validation\.[A-Za-z0-9]+/plan\.json\z}
-                or die "invalid active release plan path\n";
-            git('rev-parse','HEAD') eq "$source\n" or die "active package source changed\n";
-            system('bash','scripts/ci/check-release-source.sh') == 0 or die "active package source is dirty\n";
-            (my $context_path = $path) =~ s{/plan\.json\z}{/configuration.json};
-            my $context = $json->decode(read_file($context_path));
-            encode($context) eq encode(configuration()) or die "active package configuration changed\n";
-            my $bytes = read_file($path);
-            my $plan = selection($source,$group,$context_path,$context);
-            $bytes eq encode($plan) or die "active package selection changed\n";
-            my ($entry) = grep { $_->{target} eq $stage && $_->{required} } @{$plan->{stages}};
-            $entry or die "package stage not required by active plan\n";
+            my $plan=active_plan($stage);
+            my ($entry)=grep {$_->{target} eq $stage} @{$plan->{stages}};
             if ($plan->{scope} eq 'group') {
                 $entry->{reason} =~ /; package roots: (.+)\z/ or die "missing planned package roots\n";
                 my @flags = split / /,$1;
                 @flags % 2 == 0 && !grep { $_ !~ /\A(?:-p|[a-z0-9_-]+)\z/ } @flags
                     or die "invalid planned package flags\n";
                 $flags = \@flags;
-            } else { $flags = package_args($source,$stage,undef,$context->{workspace_members}); }
+            } else { $flags = package_args($source,$stage,undef,workspace_members()); }
         } else { $flags = package_args(undef,$stage,undef); }
         print join(' ',@$flags),"\n";
     } elsif ($command eq 'plan') {
@@ -361,7 +474,8 @@ sub main {
         encode($context) eq encode(configuration()) or die "release configuration changed during validation\n";
         my $evidence = $json->decode(shared_observation('verify',abs_path('.'),
             "$args[0]/plan.json",$source,$group,$dir,"$args[0]/configuration.json"));
-        my $record = {schema=>1,kind=>'blob-release-plan-v1',source=>$source,group=>$group,plan=>$plan,
+        my ($stage_admissions,$candidate)=stage_records($args[0],$source,$group,$plan);
+        my $record = {schema=>1,kind=>'blob-release-stages-v1',stage_admissions=>$stage_admissions,candidate=>$candidate,source=>$source,group=>$group,plan=>$plan,
             configuration=>$context,
             plan_path=>"$args[0]/plan.json",policy=>$json->decode(read_file("$dir/parsed-inputs.json.policy.json")),
             evidence=>$evidence};

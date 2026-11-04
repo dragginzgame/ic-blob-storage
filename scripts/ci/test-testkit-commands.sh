@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+unset BLOB_PREPARED_TOOLS_ROOT
 unset MAKEFLAGS MFLAGS MAKEOVERRIDES GNUMAKEFLAGS MAKEFILES
 root="${BASH_SOURCE[0]}"
 [[ "$root" == /* ]] || root="$PWD/$root"
@@ -48,7 +49,7 @@ if [[ $# == 4 || ( $# == 5 && ( "$5" == --check || "$5" == --preflight ) ) ]]; t
 fi
 [[ $# == 12 || ( $# == 13 && "${13}" == --check ) ]] || exit 1
 [[ "$1" == --consumer && "$2" == "$TESTKIT_FIXTURE_ROOT" && "$3" == --package &&
-   "$5" == --lockfile && "$6" == Cargo.lock && "$7" == --bin && "$9" == --profile && "${11}" == --features && "${12}" == cli ]] || exit 1
+   "$5" == --lockfile && "$6" == "$TESTKIT_FIXTURE_ROOT/Cargo.lock" && "$7" == --bin && "$9" == --profile && "${11}" == --features && "${12}" == cli ]] || exit 1
 case "$4:$8:${10}" in
     ic-testkit:ic-testkit-server:release) failure=install; binary=testkit-cli ;;
     ic-build:ic-build-release-metadata:debug) failure=release-editor; binary=release-editor ;;
@@ -168,7 +169,7 @@ for target in install-tools tools-check; do
     [[ "$(sed -n "$((offset + 3))p" "$TESTKIT_COMMAND_LOG")" == common-ic ]] || exit 1
     [[ "$(sed -n "$((offset + 4))p" "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-testkit>'* ]] || exit 1
     [[ "$(sed -n "$((offset + 5))p" "$TESTKIT_COMMAND_LOG")" == "cli <$action> <--directory> <$consumer/.tools/testkit-server>" ]] || exit 1
-    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-build> <--lockfile> <Cargo.lock> <--bin> <ic-build-release-metadata> <--profile> <debug>'* ]] || exit 1
+    [[ "$(tail -1 "$TESTKIT_COMMAND_LOG")" == 'install <--consumer>'*'<--package> <ic-build> <--lockfile> <'"$consumer"'/Cargo.lock> <--bin> <ic-build-release-metadata> <--profile> <debug>'* ]] || exit 1
     if [[ "$action" == check ]]; then
         [[ "$(grep -c '<--check>' "$TESTKIT_COMMAND_LOG")" == 3 ]] || exit 1
     elif grep -F '<--check>' "$TESTKIT_COMMAND_LOG" >/dev/null; then exit 1; fi

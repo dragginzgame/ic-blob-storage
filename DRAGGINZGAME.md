@@ -108,6 +108,10 @@ when changing interfaces, persistence or installation/recovery behavior.
   report that limitation; do not silently broaden an ordinary task into the full
   suite. Name the changed behavior each selected check proves. Keep unchanged
   generic regression matrices with their producer.
+- Give repeated validation one execution owner: selected group scope must reach
+  the leaf commands, and aggregate gates must not repeat full lint/setup through
+  nested targets. Reuse unchanged release-stage evidence only through the
+  qualified contract; see [validation mechanics](rules/engineering-details.md#validation-and-evidence).
 - Reserve local full repository/workspace suites and broad gates for an explicitly
   authorized release or explicit request for those checks. Implementation,
   continuation, PR delivery and readiness wording do not authorize them. Focused

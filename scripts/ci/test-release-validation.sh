@@ -26,6 +26,10 @@ perl -MJSON::PP -e '
     join(" ",@{$p->{stages}})."\n" eq $r or die "full-gate roster drift\n";
     open my $g,"<","ci/cargo-release-groups.json" or die $!; my $g=decode_json(<$g>);
     join(",",sort @{$p->{groups}}) eq join(",",sort map {$_->{name}} @{$g->{groups}}) or die "group roster drift\n";
+    my %stages=map {$_=>1} @{$p->{stages}};
+    $stages{"test-pocketic"} && $stages{"package-regression"} && $stages{package}
+        && !$stages{"test-pocketic-client"} && !$stages{"test-pocketic-engine"}
+        or die "installed/preparation or archive qualification roster drift\n";
 ' "$TEMPORARY/full-roster"
 cargo metadata --offline --locked --no-deps --format-version 1 > "$TEMPORARY/metadata.json"
 # Every runtime/build/dev/optional/target-specific local edge must be covered by
@@ -63,14 +67,16 @@ jq -e '
     (.jobs["wire-schema"].steps | all((.run // "") | contains("cargo clippy") | not)) and
     (.jobs["wire-schema"].steps | any(.name == "Qualify generated Wire clients" and .if == null and (.run | contains("make test-wire-schema")))) and
     (.jobs["library-tests"].steps | any(.name == "Run core and client library regressions" and .if == "github.event_name != '\''workflow_dispatch'\'' || inputs.release_group == '\''workspace'\''")) and
+    (.jobs.tooling.steps | any(.name == "Qualify changed or uncertain archive-verifier contracts" and .if == "env.BLOB_GROUP_CI != '\''true'\'' && steps.compatibility.outputs.archive != '\''false'\''" and .run == "make package-regression")) and
+    (.jobs.tooling.steps | any(.name == "Qualify mixed-version library archives on this host" and .if == "env.BLOB_GROUP_CI != '\''true'\''" and .run == "make package")) and
     .jobs["wire-schema"].if == null and .jobs["library-tests"].if == null
 ' "$TEMPORARY/workflow.json" > /dev/null
 jq -r '.packages[] | select(.name == "ic-blob-storage-pocketic-tests") | .targets[] | select(.kind == ["test"]) | .name' \
     "$TEMPORARY/metadata.json" | LC_ALL=C sort > "$TEMPORARY/actual-tests"
 perl -e '
     local $/; open my $f,"<","Makefile" or die $!; my $m=<$f>;
-    $m =~ /^test-pocketic-client:.*?\n(.*?)(?=^\S|\z)/ms or die "missing Client partition\n"; my $c=$1;
-    $m =~ /^test-pocketic-engine:.*?\n(.*?)(?=^\S|\z)/ms or die "missing Engine partition\n"; my $e=$1;
+    $m =~ /^test-pocketic-client-run: test-pocketic-prepare\n(.*?)(?=^\S|\z)/ms or die "missing Client partition\n"; my $c=$1;
+    $m =~ /^test-pocketic-engine-run: test-pocketic-prepare\n(.*?)(?=^\S|\z)/ms or die "missing Engine partition\n"; my $e=$1;
     $e =~ /--lib/ && $e =~ /--doc/ && $e =~ /--skip storage_tenants::client::/ or die "incomplete Engine partition\n";
     $c =~ /--test standalone/ && $c =~ /--test storage storage_tenants::client::/ or die "incomplete Client boundary\n";
     my %seen; my @all=grep {!$seen{$_}++} ($c =~ /--test ([a-z_]+)/g, $e =~ /--test ([a-z_]+)/g);
@@ -119,6 +125,7 @@ mkdir -p "$TEMPORARY/source/scripts/release" "$TEMPORARY/source/ci" "$TEMPORARY/
 cp scripts/release/validation.pl scripts/release/validate.sh "$TEMPORARY/source/scripts/release/"
 cp scripts/ci/check-release-source.sh "$TEMPORARY/source/scripts/ci/"
 cp ci/cargo-release-groups.json ci/release-package-scopes.json "$TEMPORARY/source/ci/"
+printf '%s\n' '{"contract":"blob-final-candidate/1","hosts":["Linux/x86_64"],"schema":1,"stages":[]}' > "$TEMPORARY/source/ci/release-stage-reuse.json"
 cp Cargo.toml "$TEMPORARY/source/"
 cp scripts/ci/run-nonempty-cargo-test.sh "$TEMPORARY/source/scripts/ci/"
 jq --arg root "$TEMPORARY/source" '
@@ -127,7 +134,7 @@ jq --arg root "$TEMPORARY/source" '
 ' "$TEMPORARY/metadata.json" > "$TEMPORARY/fixture-metadata.json"
 export TEST_METADATA="$TEMPORARY/fixture-metadata.json"
 # Exercise the actual five Cargo recipes, substituting only Cargo itself.
-perl -0777 -ne 'for my $t (qw(clippy check docs-check test-native wasm-check ci)) { /^\Q$t\E:\n(.*?)(?=^\S|\z)/ms or die "missing $t recipe"; print "$t:\n$1"; }' Makefile > "$TEMPORARY/package-recipes.mk"
+perl -0777 -ne 'for my $t (qw(clippy check docs-check test-native wasm-check test-pocketic ci)) { my $actual=$t eq "ci" ? $t : "$t-run"; /^\Q$actual\E:\n(.*?)(?=^\S|\z)/ms or die "missing $t recipe"; print "$t:\n$1"; }' Makefile > "$TEMPORARY/package-recipes.mk"
 perl -0777 -ne '/^override CI_TARGETS = [^\n]+\n/m or die "missing roster caller"; print $&;' Makefile > "$TEMPORARY/roster.mk"
 mkdir "$TEMPORARY/bin"
 cat > "$TEMPORARY/bin/cargo" <<'CARGO'
@@ -144,6 +151,40 @@ if [[ "$1" == test ]]; then echo 'test result: ok. 1 passed; 0 failed;'; fi
 CARGO
 chmod +x "$TEMPORARY/bin/cargo"
 export PATH="$TEMPORARY/bin:$PATH" TEST_COMMANDS="$TEMPORARY/commands"
+# Package verification and its regression have independent entrypoints. Exercise
+# the actual Make recipes with substitute Cargo and script effects only.
+mkdir -p "$TEMPORARY/package-routing/crates/ic-blob-storage-client" "$TEMPORARY/package-routing/scripts/ci"
+cp "$ROOT/LICENSE" "$TEMPORARY/package-routing/LICENSE"
+cp "$ROOT/LICENSE" "$TEMPORARY/package-routing/crates/ic-blob-storage-client/LICENSE"
+perl -0777 -ne 'for my $t (qw(package package-verifier package-regression-run)) { /^\Q$t\E:[^\n]*\n(.*?)(?=^\S|\z)/ms or die "missing $t recipe"; print "$t:".($t eq "package-verifier" ? "" : " package-verifier")."\n$1"; }' "$ROOT/Makefile" > "$TEMPORARY/package-routing/Makefile"
+cat > "$TEMPORARY/package-routing/scripts/ci/test-library-packages.sh" <<'STUB'
+#!/bin/bash
+set -euo pipefail
+echo regression >> "$TEST_PACKAGE_EVENTS"
+[[ ${TEST_FAIL_REGRESSION:-0} != 1 ]]
+STUB
+cat > "$TEMPORARY/package-routing/scripts/ci/verify-library-packages.sh" <<'STUB'
+#!/bin/bash
+set -euo pipefail
+echo actual >> "$TEST_PACKAGE_EVENTS"
+[[ ${TEST_FAIL_PACKAGE:-0} != 1 ]]
+STUB
+(
+    cd "$TEMPORARY/package-routing"
+    export TEST_PACKAGE_EVENTS="$TEMPORARY/package-events"
+    : > "$TEST_PACKAGE_EVENTS"
+    make package > "$TEMPORARY/package-route.log" 2>&1
+    [[ "$(cat "$TEST_PACKAGE_EVENTS")" == actual ]]
+    : > "$TEST_PACKAGE_EVENTS"
+    make package-regression-run > "$TEMPORARY/regression-route.log" 2>&1
+    [[ "$(cat "$TEST_PACKAGE_EVENTS")" == regression ]]
+    if TEST_FAIL_PACKAGE=1 make package > "$TEMPORARY/package-failure.log" 2>&1; then exit 1; fi
+    if TEST_FAIL_REGRESSION=1 make package-regression-run > "$TEMPORARY/regression-failure.log" 2>&1; then exit 1; fi
+    : > "$TEST_PACKAGE_EVENTS"
+    if TEST_FAIL=build make package > "$TEMPORARY/verifier-build-failure.log" 2>&1; then exit 1; fi
+    [[ ! -s "$TEST_PACKAGE_EVENTS" ]]
+)
+: > "$TEST_COMMANDS"
 cd "$TEMPORARY/source"
 export CARGO_HOME="$TEMPORARY/cargo-home"
 mkdir "$CARGO_HOME"
@@ -163,15 +204,21 @@ mkdir -p crates/ic-blob-storage-client/src/tenants
 printf '// initial tenant client\n' > crates/ic-blob-storage-client/src/tenants/mod.rs
 cat > Makefile <<'MAKE'
 SHELL := /bin/bash
-.PHONY: lint clippy check docs-check test-native wasm-check ci client-boundary test-pocketic-engine release-metadata-check release-check
-lint client-boundary test-pocketic-engine release-metadata-check release-check:
+.PHONY: lint clippy check docs-check test-native wasm-check ci client-boundary test-pocketic test-pocketic-client-run test-pocketic-engine-run fixture-prepare release-metadata-check release-check package-regression package
+lint client-boundary release-metadata-check release-check package-regression package:
 	@echo "$@" >> "$$TEST_EVENTS"
 	@test "$${TEST_FAIL:-}" != "$@"
 	@if test "$@" = client-boundary && test "$${TEST_DRIFT:-0}" = 1; then echo drift >> ci/config.json; fi
+fixture-prepare:
+	@echo "$@" >> "$$TEST_EVENTS"
+	@test "$${TEST_FAIL:-}" != "$@"
+test-pocketic-client-run test-pocketic-engine-run: fixture-prepare
+	@echo "$@" >> "$$TEST_EVENTS"
+	@test "$${TEST_FAIL:-}" != "$@"
 MAKE
 cat "$TEMPORARY/roster.mk" >> Makefile
 cat "$TEMPORARY/package-recipes.mk" >> Makefile
-printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["lint","clippy","check","docs-check","test-native","wasm-check","client-boundary","test-pocketic-engine","release-metadata-check","release-check"]}' > ci/release-validation.json
+printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["lint","clippy","check","docs-check","test-native","wasm-check","client-boundary","test-pocketic","release-metadata-check","release-check","package-regression","package"]}' > ci/release-validation.json
 export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TEMPLATE_DIR="$TEMPORARY/templates"
 : > "$TEST_COMMANDS"
 make clippy check docs-check test-native wasm-check > "$TEMPORARY/full-commands.log" 2>&1
@@ -200,7 +247,7 @@ RELEASE_SOURCE="$(git rev-parse HEAD)"
 mkdir -p releases/{contracts,client,engine}
 for group in contracts client engine; do
     RELEASE_GROUP="$group" bash scripts/release/validate.sh > "$TEMPORARY/$group-baseline.log" 2>&1
-    jq '{gate:"release-verify-plan-v1",validation:.}' ".git/release-state/validation/$group-$RELEASE_SOURCE.json" > "$TEMPORARY/$group-receipt.json"
+    jq '{gate:"release-verify-stages-v1",validation:.}' ".git/release-state/validation/$group-$RELEASE_SOURCE.json" > "$TEMPORARY/$group-receipt.json"
 done
 for group in contracts client engine; do cp "$TEMPORARY/$group-receipt.json" "releases/$group/release.json"; done
 git add releases
@@ -223,10 +270,14 @@ verify_record() {
     perl -MJSON::PP -e 'require "./scripts/release/validation.pl"; local $/; open my $f,"<",$ARGV[0] or die $!; BlobValidation::verify(decode_json(<$f>),$ENV{RELEASE_SOURCE},$ENV{RELEASE_GROUP});' "$1"
 }
 record=".git/release-state/validation/client-$RELEASE_SOURCE.json"
-TEST_FAIL=test-pocketic-engine bash scripts/release/validate.sh > "$TEMPORARY/narrow.log" 2>&1
+TEST_FAIL=test-pocketic-engine-run bash scripts/release/validate.sh > "$TEMPORARY/narrow.log" 2>&1
 verify_record "$record"
-jq -e '.plan.scope == "group" and (.evidence.stages | map(select(.state == "not-applicable") | .target) == ["test-pocketic-engine","release-check"])' "$record" > /dev/null
-if grep -Eq '^(test-pocketic-engine|release-check)$' "$TEST_EVENTS"; then exit 1; fi
+jq -e '.plan.scope == "group" and (.evidence.stages | map(select(.state == "not-applicable") | .target) == ["release-check","package-regression"])' "$record" > /dev/null
+if grep -Eq '^(test-pocketic-engine-run|release-check|package-regression)$' "$TEST_EVENTS"; then exit 1; fi
+[[ "$(grep -c '^fixture-prepare$' "$TEST_EVENTS")" == 1 ]]
+grep -Fx package "$TEST_EVENTS" > /dev/null
+active_installed="$(jq -r .plan_path "$record")"
+[[ "$(BLOB_RELEASE_VALIDATION_PLAN="$active_installed" perl scripts/release/validation.pl pocketic-targets)" == test-pocketic-client-run ]]
 cp "$record" "$TEMPORARY/good-record.json"
 # Shared re-admits the actual retained run; Blob's self-contained receipt must
 # also work in a fresh publication checkout without rewriting absolute log paths.
@@ -271,7 +322,7 @@ cp "$TEST_METADATA" "$TEMPORARY/original-metadata.json"
 jq '.packages[0].manifest_path="/outside/Cargo.toml"' "$TEMPORARY/original-metadata.json" > "$TEST_METADATA"
 BLOB_RELEASE_VALIDATION_PLAN="$active_plan" refuse make clippy
 cp "$TEMPORARY/original-metadata.json" "$TEST_METADATA"
-for mutation in '.evidence.stages[0].state="FAIL"' '.evidence.stages[0].state="blocked"' '.evidence.stages=[]' '.evidence.inputs={}' '.evidence=null' '.evidence.context_sha256="changed"' '.configuration=null' '.configuration.workspace_members={}' '.group="engine"' '.plan.stages[7].required=true'; do
+for mutation in '.evidence.stages[0].state="FAIL"' '.evidence.stages[0].state="blocked"' '.evidence.stages=[]' '.evidence.inputs={}' '.evidence=null' '.evidence.context_sha256="changed"' '.configuration=null' '.configuration.workspace_members={}' '.group="engine"' '(.plan.stages[] | select(.target == "package-regression") | .required)=true'; do
     jq "$mutation" "$TEMPORARY/good-record.json" > "$TEMPORARY/invalid.json"
     refuse verify_record "$TEMPORARY/invalid.json"
 done
@@ -306,7 +357,7 @@ RELEASE_SOURCE="$(git rev-parse HEAD)"
 perl scripts/release/validation.pl plan .tmp/full/plan.json
 jq -e '.scope == "workspace" and all(.stages[]; .required)' .tmp/full/plan.json > /dev/null
 refuse verify_record "$TEMPORARY/good-record.json"
-TEST_FAIL=test-pocketic-engine refuse bash scripts/release/validate.sh
+TEST_FAIL=test-pocketic-engine-run refuse bash scripts/release/validate.sh
 git reset --hard -q "$client_source"
 RELEASE_SOURCE="$client_source"
 RELEASE_GROUP=unknown refuse perl scripts/release/validation.pl plan .tmp/invalid/plan.json
@@ -327,7 +378,7 @@ git add .
 git commit -qm 'Client shared transport'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
 perl scripts/release/validation.pl plan .tmp/client-shared/plan.json
-jq -e 'any(.stages[]; .target == "test-pocketic-engine" and .required)' .tmp/client-shared/plan.json > /dev/null
+jq -e 'any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' .tmp/client-shared/plan.json > /dev/null
 git reset --hard -q "$client_source"
 RELEASE_SOURCE="$client_source"
 # Contracts changes retain installed reverse consumers, not merely DTO unit tests.
@@ -336,7 +387,7 @@ git add .
 git commit -qm 'Contracts boundary'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
 RELEASE_GROUP=contracts perl scripts/release/validation.pl plan .tmp/contracts/plan.json
-jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic-engine" and .required)' .tmp/contracts/plan.json > /dev/null
+jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' .tmp/contracts/plan.json > /dev/null
 # Contracts changes select all public identities and reverse consumers.
 jq -e 'all(.stages[] | select(.target == "clippy" or .target == "check"); (.reason | contains("-p ic-blob-storage-contracts")) and (.reason | contains("-p ic-blob-storage-client")) and (.reason | contains("-p ic-blob-storage")))' .tmp/contracts/plan.json > /dev/null
 git reset --hard -q "$client_source"
@@ -358,7 +409,32 @@ git add .
 git commit -qm 'Later tenant implementation'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
 perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic-engine" and .required)' .tmp/full/plan.json > /dev/null
+jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' .tmp/full/plan.json > /dev/null
+# CLI/verifier implementation keeps the archive regression; actual package
+# verification stays required even when the regression is legitimately omitted.
+git reset --hard -q "$client_source"
+printf '// verifier implementation\n' >> crates/ic-blob-storage-cli/src/mod.rs
+git add .
+git commit -qm 'Verifier/CLI implementation'
+RELEASE_SOURCE="$(git rev-parse HEAD)"
+perl scripts/release/validation.pl plan .tmp/full/plan.json
+jq -e '.scope == "group" and any(.stages[]; .target == "package-regression" and .required) and any(.stages[]; .target == "package" and .required)' .tmp/full/plan.json > /dev/null
+TEST_FAIL=package-regression refuse bash scripts/release/validate.sh
+git reset --hard -q "$client_source"
+RELEASE_SOURCE="$client_source"
+TEST_FAIL=package refuse bash scripts/release/validate.sh
+# Combined Make still prepares once under parallel callers and stops after a
+# failing Client partition. Ordinary no-plan selection keeps both partitions.
+: > "$TEST_EVENTS"
+env -u BLOB_RELEASE_VALIDATION_PLAN make -j4 test-pocketic > "$TEMPORARY/combined.log" 2>&1
+[[ "$(grep -c '^fixture-prepare$' "$TEST_EVENTS")" == 1 ]]
+grep -Fx test-pocketic-engine-run "$TEST_EVENTS" > /dev/null
+: > "$TEST_EVENTS"
+TEST_FAIL=test-pocketic-client-run refuse env -u BLOB_RELEASE_VALIDATION_PLAN make -j4 -k test-pocketic
+if grep -Fx test-pocketic-engine-run "$TEST_EVENTS"; then exit 1; fi
+: > "$TEST_EVENTS"
+TEST_FAIL=fixture-prepare refuse env -u BLOB_RELEASE_VALIDATION_PLAN make -j4 test-pocketic
+if grep -E '^test-pocketic-(client|engine)-run$' "$TEST_EVENTS"; then exit 1; fi
 # Dependencies, generated input, tests outside reviewed roots and renames from
 # unclassified paths must broaden. Never bless an old baseline after policy drift.
 for input in Cargo.toml Cargo.lock ci/config.json scripts/generator.pl tests/input.rs; do

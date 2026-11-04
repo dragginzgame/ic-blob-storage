@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 mode="${1:-full}"
-case "$mode" in full|--metadata-only) ;; *) exit 2 ;; esac
+case "$mode" in full|--metadata-only|--publication-only) ;; *) exit 2 ;; esac
 groups=(contracts client engine)
+if [[ "$mode" == --publication-only ]]; then groups=(contracts); fi
 if [[ "$mode" == --metadata-only ]]; then
     case "${2:-engine}" in
         contracts|client|engine) groups=("${2:-engine}") ;;
@@ -53,12 +54,16 @@ release-editor-check:
 fmt-check:
 	@echo formatter >> "$$TEST_EVENTS"
 	@test "$${TEST_FORMAT_FAIL:-0}" != 1
-deps tools-check install-tools release-tools-check compiler-check clippy:
+deps tools-check install-tools release-tools-check compiler-check:
 	@echo "$@" >> "$$TEST_EVENTS"
+clippy clippy-run:
+	@echo clippy >> "$$TEST_EVENTS"
+	@test "$${TEST_LINT_FAIL:-0}" != 1
 MAKE
 # Keep the fixture's admitted full roster explicit, rather than bypassing the
 # actual plan/receipt path or weakening source admission with an environment flag.
 printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["fixture-validation"]}' > ci/release-validation.json
+printf '%s\n' '{"contract":"blob-final-candidate/1","hosts":["Linux/x86_64"],"schema":1,"stages":[]}' > ci/release-stage-reuse.json
 export TEST_EVENTS="$TEMPORARY/events"
 : > "$TEST_EVENTS"
 # Fixture-owned candidates follow actual member versions, independently of
@@ -234,7 +239,7 @@ for shape in forbidden checksum yanked; do
     export TEST_REGISTRY="$shape"
     : > "$TEST_EVENTS"
     refuse bash scripts/release/release.sh publish
-    if grep -q '^publish ' "$TEST_EVENTS"; then exit 1; fi
+    [[ ! -s "$TEST_EVENTS" ]] || exit 1
 done
 # A correct checksum for another source still cannot authorize skipping upload.
 printf '{"git":{"sha1":"%040d"},"path_in_vcs":"crates/ic-blob-storage-contracts"}' 0 > "$TEMPORARY/archive/$archive_package/.cargo_vcs_info.json"
@@ -245,16 +250,28 @@ printf '{"git":{"sha1":"%s"},"path_in_vcs":"crates/ic-blob-storage-contracts"}' 
 tar -czf "$TEST_ARCHIVE" -C "$TEMPORARY/archive" "$archive_package"
 : > "$TEST_EVENTS"
 bash scripts/release/release.sh publish > "$TEMPORARY/already-published.log" 2>&1
-if grep -q '^publish ' "$TEST_EVENTS"; then exit 1; fi
+[[ ! -s "$TEST_EVENTS" ]] || exit 1
+# A dry run still creates/verifies an archive, even for a published version.
+bash scripts/release/release.sh publish --dry-run > "$TEMPORARY/published-dry-run.log" 2>&1
+[[ "$(cat "$TEST_EVENTS")" == $'deps\ncompiler-check\nclippy\npublish --locked --registry crates-io -p ic-blob-storage-contracts --dry-run' ]] || exit 1
 export TEST_REGISTRY=missing
+: > "$TEST_EVENTS"
+TEST_LINT_FAIL=1 refuse bash scripts/release/release.sh publish
+[[ "$(cat "$TEST_EVENTS")" == $'deps\ncompiler-check\nclippy' ]] || exit 1
+: > "$TEST_EVENTS"
 bash scripts/release/release.sh publish > "$TEMPORARY/new-publication.log" 2>&1
-grep -Fx 'publish --locked --registry crates-io -p ic-blob-storage-contracts' "$TEST_EVENTS" > /dev/null
+[[ "$(cat "$TEST_EVENTS")" == $'deps\ncompiler-check\nclippy\npublish --locked --registry crates-io -p ic-blob-storage-contracts' ]] || exit 1
 mkdir -p .git/release-state/lock
 printf 'another owner\n' > .git/release-state/lock/owner
 refuse bash scripts/release/release.sh publish
 [[ "$(cat .git/release-state/lock/owner)" == 'another owner' ]] || exit 1
 rm .git/release-state/lock/owner
 rmdir .git/release-state/lock
+if [[ "$mode" == --publication-only ]]; then
+    fixture_complete=true
+    echo 'Publication retry, exact archive admission, dry-run lint and failed-lint ordering passed (substitute registry; no upload).'
+    exit 0
+fi
 for group in client engine; do
     git reset --hard -q "$(cat "$TEMPORARY/$group.commit")"
     export RELEASE_GROUP="$group" TEST_REGISTRY=dependency

@@ -77,7 +77,7 @@ if ($command eq 'version') {
     my $validation = decode_json(read_file($ENV{BLOB_RELEASE_VALIDATION_RECORD} // die "missing release validation record\n"));
     BlobValidation::verify($validation,$source,$plan->{group});
     my $receipt = {schema=>1,status=>'released',group=>$plan->{group},version=>$plan->{previous},
-        source=>$source,date=>$date,gate=>'release-verify-plan-v1',validation=>$validation,files=>\%hashes,
+        source=>$source,date=>$date,gate=>'release-verify-stages-v1',validation=>$validation,files=>\%hashes,
         policy=>sha256_hex(read_file('ci/cargo-release-groups.json'))};
     open my $fh, '>', $receipt_path or die $!;
     print {$fh} JSON::PP->new->canonical->pretty->encode($receipt);
@@ -88,7 +88,7 @@ if ($command eq 'version') {
         ($receipt->{status}//'') eq 'released' && ($receipt->{group}//'') eq $plan->{group};
     die "release version mismatch\n" unless ($receipt->{version}//'') eq $plan->{previous};
     die "invalid release source/date/gate\n" unless ($receipt->{source}//'') =~ /\A[0-9a-f]{40,64}\z/ &&
-        ($receipt->{date}//'') =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/ && ($receipt->{gate}//'') eq 'release-verify-plan-v1';
+        ($receipt->{date}//'') =~ /\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/ && ($receipt->{gate}//'') eq 'release-verify-stages-v1';
     require './scripts/release/validation.pl';
     BlobValidation::verify($receipt->{validation},$receipt->{source},$plan->{group});
     die "release policy changed\n" unless ($receipt->{policy}//'') eq sha256_hex(read_file('ci/cargo-release-groups.json',$commit));

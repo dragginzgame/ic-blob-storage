@@ -118,11 +118,15 @@ committed_check() {
 verify_tag() { bash scripts/ci/check-release-tag.sh "$1" "$2" "$RELEASE_GROUP" || fail 'tag does not match selected group'; }
 tag_check() {
     ensure_clean
-    perl "$DATA" verify
-    local current source parent head
+    # source verifies the complete receipt as well as returning its identity.
+    local current source parent head changed
     current="$(version)"; source="$(perl "$DATA" source)"
     parent="$(git log -1 --format=%P HEAD)"; head="$(git rev-parse HEAD)"
     [[ "$parent" == "$source" ]] || fail 'release parent does not match validated source'
+    changed="$(mktemp "${TMPDIR:-/tmp}/blob-release-commit.XXXXXX")"
+    git diff --name-only -z "$source" "$head" -- > "$changed"
+    if ! perl "$DATA" index-check "$changed"; then rm -f "$changed"; fail 'release commit changed paths outside its exact roster'; fi
+    rm -f "$changed"
     verify_tag "$head" "$current"
 }
 publication_checksum() {
@@ -148,11 +152,6 @@ publish() {
     trap 'status=$?; rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"; if ! perl scripts/ci/check-retained-state.pl --root "$PUBLICATION_STATE_ROOT"; then [[ "$status" != 0 ]] || status=1; fi; exit "$status"' EXIT
     tag_check
     local packages=("$primary")
-    # Use the same full lint gate as release validation before archive builds or
-    # new registry effects. Keep dependency preparation ahead of offline lint.
-    make --no-print-directory deps
-    make --no-print-directory compiler-check
-    make --no-print-directory clippy
     local current head package checksum run registry_user_agent contracts_version
     current="$(version)" || fail 'cannot read publication version'
     registry_user_agent="ic-blob-storage-release/$current (+https://github.com/dragginzgame/ic-blob-storage)"
@@ -183,6 +182,12 @@ publish() {
             checksum="$(publication_checksum "$run/$package-contracts-dependency-observation" ic-blob-storage-contracts "$contracts_version")" || fail 'contracts dependency readback refused'
             [[ "$checksum" != missing ]] || fail 'dry-run requires the selected Contracts dependency on crates.io; run make package for local payload verification'
         fi
+        # Read-only retries above authenticate the existing publication without
+        # compiling. New uploads and dry runs require admitted completed lint
+        # or current-source Clippy before Cargo archive verification/upload.
+        make --no-print-directory deps
+        make --no-print-directory compiler-check
+        perl scripts/release/stage.pl --publication-clippy "$primary" "$run"
         cargo publish --locked --registry crates-io -p "$package" ${1:+"$1"}
     done
 }

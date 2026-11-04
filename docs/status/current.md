@@ -1,5 +1,174 @@
 # Current status — 2026-11-04
 
+## Storage/Wire/Testkit adoption and delivery — pending 0.72.0
+
+Delivery is authorized for this Blob checkout: `main` to `origin/main` and
+crates.io, supplier-first Contracts, Client, Engine **0.72.0**. Include the pending
+release-stage/preparation/archive improvements below. Shared's adopted committed
+revision is now confirmed present on GitHub; no sibling source/delivery changes
+are needed. The live 0.69 service trial and all provider obligations stay untouched.
+
+Selected and checksum-verified published archives: **Storage 0.67.0**, **Testkit
+0.86.0**, **Wire 0.17.0**. Cargo also aligns metadata Derive 0.17.0. Only these four
+locked package identities change; other supplier selections remain fixed.
+The incoming Storage 0.66.3 lock edit is preserved through its published 0.67
+successor, including its production cache/scan improvements. New Wire/Storage
+public type identities require the next minor for all three affected Blob groups.
+Package versions remain 0.71.1 until the standard group runners prepare them.
+
+Published API review confirms optional metadata derive, already forwarded by
+Blob's existing host schema feature. No Endpoint macro dependency is used here.
+Storage/Testkit align Wire limits/errors; frame bytes, decoder budgets, stored
+layouts and simulator behavior are unchanged by this cohort. No compatibility
+reader, automatic migration or reset is introduced. Blob's existing retirement/
+reinstall requirement still governs cross-release service transitions.
+
+Archive metadata, checksums, sources and resolution output are retained under
+`target/upstream-delivery-20261104/`. Graph/deployment and refusal checks pass,
+including metadata-derive exclusions. The frozen Wire surface, 32 service-export
+checks and generated TypeScript's 27 methods/137 frozen frames pass. The first
+browser tool check refused the unpinned ambient npm; the existing prepared
+repository npm 12.2.1 passes without changing global tools. Testkit 0.86 CLI/setup
+passes with server 16.1.0 unchanged. No service install or paid effect occurred.
+Release gates/publication are the remaining delivery work.
+
+## Installed preparation and archive regression — pending Engine 0.71.2
+
+The two installed partitions now run through one `test-pocketic` stage and one
+sequential, fail-fast Make graph. Their common preparation executes once without
+new stamps, artifact caches or bypass flags. The admitted partition list retains
+tenant-client-only selection and independent developer targets. The separate
+actual-version smoke sweep still qualifies a different release/version mix when
+candidate evidence is reused. The full roster remains 22 stages: one installed
+stage replaces two, and the archive-verifier regression gets its own stage.
+
+`package-regression` owns the same-version/warm-target/refusal fixture. A current
+annotated baseline with matching stage roster/configuration can omit it for
+classified product-only source changes outside the CLI. CLI/verifier changes and
+unknown input, dependency, compiler, tool or policy drift retain it. The explicit
+reuse policy can admit it across matching final candidates. `package` always
+builds its verifier and verifies the actual applicable archives, independently
+of regression selection. Native hosted compatibility selection runs after prepared
+tools/compiler admission; it selects the regression on every native host while
+retaining actual package verification. Compatibility scratch is under `target/`.
+No Shared/sibling change or delivery is part of this follow-up.
+
+Focused qualification passes under Rust 1.99.1: **82 Client + 270 Engine installed
+cases**, with exactly one Testkit preparation, probe build, standalone Wasm build
+and CLI build in the combined Make graph. Actual archive-verifier regression
+passes both same-version generations and all ten graph/status/final-drift refusals.
+Updated source-bound selection fixtures pass Client-only omission, CLI/verifier
+activation, unknown-input fallback, mandatory actual-package verification and
+failure propagation. Parallel/keep-going callers still prepare once and stop
+before Engine after Client/preparation failure. Current stage-dispatch and policy
+inputs are also in the normal-CI input checkpoint inventory.
+
+Evidence: `target/release-stage-followup-summary.json`,
+`target/release-stage-followup-installed.log`,
+`target/release-stage-followup-archive-regression.log` and
+`target/release-stage-followup-selection-final.log`. The initial selection-fixture
+failure at `target/blob-release-selection.tauxYd/` is retained: an old positional
+negative test became a no-op after the roster changed; it now selects the omitted
+regression by name. The earlier four-stage timing/reuse results below belong to
+the prior split dispatch; this follow-up did not repeat that three-group benchmark,
+the full 22-stage gate or native macOS qualification. Current code/docs/snapshot
+checks are recorded with this follow-up. Package versions/Cargo.lock are unchanged;
+all work in this checkout remains unstaged/uncommitted, with no push, publication,
+service deployment or paid effect.
+
+## Group-stage reuse and publication admission — pending Engine 0.71.2
+
+The maintainer authorized fixing repeated qualification across group releases,
+including the Shared Tooling producer and scoped local Shared commits. Shared
+**0.29.6** at `75949bd97f040c311e764c85b511f06e6ed685e6` is adopted through
+the canonical exporter (160 files). These Shared follow-ups are committed locally;
+no Shared push/release is authorized or claimed. Its unrelated changelog/group-
+helper edits are preserved. Blob changes remain uncommitted; all package versions
+and Cargo.lock remain at the published 0.71.1 selections.
+
+Shared owns final candidate rendering, exact input observation/execution/admission,
+proof/log sealing and publication package closure checks. Blob's thin dispatcher
+and explicit stage/host policy consume these interfaces. Pending numbered group
+versions are actually compiled in a disposable final candidate; versions are never
+stripped from compiled evidence. Nine reusable stages retain per-group admissions
+and immutable original logs. Only Linux/x86_64 workspace plans are qualified;
+narrow plans, macOS and unsupported flags/paths keep ordinary recipes. Actual
+source/index/selection, metadata/rollback, tool/compiler/graph, formatting, package
+archives and registry admission remain fresh. A small fresh actual-version sweep
+follows every admitted installed Client partition. Ordinary CI/Make targets keep
+their existing behavior. The selected proof/log artifacts are retained by hosted
+group CI; infrastructure qualification remains conditional rather than running
+at every release.
+
+Publication authenticates exact non-yanked existing archives before compilation.
+New uploads/dry runs use admitted completed candidate lint only after actual
+source/tag/exact changed-path roster, original proof/log custody, candidate inventory
+and complete primary closure all agree. Missing local evidence or differing closure
+runs current-source Clippy. Historical qualification is not a new execution on the
+publication host. Publication avoids candidate rendering/setup again; compiler,
+archive creation/verification, upload and registry provenance remain fresh.
+
+Focused checks pass: source selection/refusal and stage partitions; substitute-
+registry retry/dry-run/lint-failure ordering; tool forwarding; compiler/native
+version binding, checkpoint corruption and actual installed CLI/host identity;
+producer source-path-with-spaces, real Cargo execution/two later admissions and
+closure checks; generic runner failure/drift/interruption; candidate source and
+ignored tool-root refusal; Perl/shell syntax, selected ShellCheck, snapshot,
+formatting and documentation checks. Shared docs/version checks pass. No full
+22-stage gate, native macOS, mainnet/provider or registry upload was run here.
+
+The first real consumer run (`target/blob-stage-reuse.kQRpWW/`) executed strict
+Clippy and 641 native tests once and admitted both for the next two groups; all
+three publication lints were reused. Its final summary script was edited during
+execution and failed; preserve the raw successful group evidence and that failure.
+The broader retry (`target/blob-stage-reuse.hMp5Jm/`) passed Clippy/native then
+failed installed startup because its nested temp path exceeded PocketIC's Unix
+socket limit (`SUN_LEN`). The failed output/probe state is retained; no receipt
+was issued for the failed stage. The dispatcher now uses a short explicit target-
+owned temp root and falls back on long unsupported temp roots. The corrected
+four-stage real Clippy/native/Client/Engine qualification passed at
+`target/blob-stage-reuse.0QmMkH/`. Each large stage executed once and was reused
+by both later groups: **641 native**, **82 installed Client** and **270 Engine**
+cases, plus fresh actual-version checks for every group. All three publication
+closures admitted completed Clippy without rerendering/recompiling. The missing-
+original-log fixture then ran real current-source Clippy successfully; its original
+log remains beside the missing path as `.fixture-retained`.
+
+| Disposable group | Four-stage gate wall time | Qualification |
+| --- | --- | --- |
+| Contracts | 597 seconds | Four real executions, including cold compilation |
+| Client | 225 seconds | Four reuses plus fresh actual-version sweep |
+| Engine | 176 seconds | Four reuses plus fresh actual-version sweep |
+
+These are selected fixture measurements under shared package-cache contention,
+not an uncached warm baseline or a full 22-stage release benchmark. Publication
+qualification took 20.8–25.3 seconds per group; no lint subprocess ran for those
+admissions. Counts, origins and monotonic timings are in `summary.json` and
+`publication-summary.json` beside the retained group records. Rendering/hashing
+still has overhead; keep `target/` across supplier-first group delivery to retain
+reuse. macOS/unsupported configurations keep ordinary execution.
+
+The latest committed Shared revision also passes its real Cargo/source/cache/
+closure/refusal fixture from a clean Git export, excluding unrelated dirty Shared
+work: `../shared-tooling/target/committed-candidate-check.dhV4al/qualification.log`.
+Current Blob capture successfully re-seals actual original physical admissions;
+its receipt verifier admits the four-stage record and rejects five missing/
+mismatched custody cases. Those refusals are now in the permanent consumer
+fixture. Its hosted run stays conditional on changed/uncertain infrastructure;
+the full production gate and native macOS were not rerun.
+
+Other evidence: `target/publication-stage-final-check.log`,
+`target/stage-reuse-selection-final.log`, `target/stage-tools-forwarding-final.log`,
+`target/stage-reuse-fresh-identities.log`, `target/stage-reuse-custody-refusals.log`,
+`target/stage-reuse-reseal-capture.json`, `target/stage-reuse-final-four-stage-receipt.log`
+and the `target/stage-*-snapshot-*.log`
+exporter records. Source/format failures from earlier preparations are retained.
+Candidate source and compilation caches stay under target; no retained evidence,
+old provider state or unfinished live 0.69 obligations was erased. The actual
+Blob checkout remains unstaged/uncommitted; only disposable fixtures exercised
+release preparation/Git tags. No push, real release/publication, paid effect or
+service deployment occurred.
+
 ## Published Contracts, Client and Engine 0.71.1
 
 Authorized delivery completed in this checkout on `main`, supplier-first to
@@ -663,7 +832,8 @@ retired Memory and stable-structures; canonical execution/type/Wire owners are s
 at `ae8bc6ec` passed schema/generated clients, Core/Client and Linux/macOS ARM/macOS
 Intel tooling. Contracts owns passive Metrics Wire DTOs; Metrics owns arithmetic.
 Shared owns roster/baseline/run verification; Blob keeps product mapping and its
-self-contained preparation/publication custody. No version projection or gate reuse.
+self-contained preparation/publication custody. That delivered baseline had no
+version projection or gate reuse; the current pending follow-up is described above.
 
 Open **#5/#6/#31/#34** retain publication/serving, deletion/billing, multi-user
 transfer and provider funding/credit acceptance. Do not close from installation,

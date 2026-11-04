@@ -1035,8 +1035,9 @@ The JSON output retains full revisions and each manifest's drifted paths.
 To retire unnecessary fleet copies, review their local callers first, update
 Make/CI/help references, then select the remaining entrypoints and refresh through
 the exporter. Preserve ownership records until
-that refresh completes. Candidates are `cloc-tooling.pl`, `cloc-siblings.sh` and their
-dedicated tests; keep `cloc.sh` for the consumer's own workspace. Preserve
+that refresh completes. Candidates are `cloc-tooling.pl`, the retired
+`cloc-siblings.sh` entrypoint and fleet-only tests; keep the unified `cloc.sh`
+for workspace and parent-directory reports. Preserve
 checksum/verifier helpers used by other selected tools, local integration checks
 and historical evidence. Automatic retirement is limited to verified unchanged
 payloads outside the selected closure.

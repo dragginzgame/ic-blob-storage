@@ -4,6 +4,35 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.72.0] - Unreleased
+
+### 💥 Breaking
+
+- Adopt published Storage 0.67.0, Wire 0.17.0 and Testkit 0.86.0, aligning the
+  public Storage configuration/codec-error and Wire type identities with
+  Contracts 0.72. Codec bytes, endpoint identities, resource budgets and stored
+  layouts are unchanged; this dependency cut introduces no reader, conversion,
+  reset or new authority for existing provider obligations.
+
+### 🔧 Changed
+
+- Adopt committed Shared Tooling 0.29.6 and qualify exact final-candidate stage
+  reuse across supplier-first group releases on Linux/x86_64. Retain separate
+  source-bound group receipts and fresh actual metadata, mixed-version identity,
+  archive and registry admission; unsupported hosts/configuration execute normally.
+- Admit completed candidate Clippy for new publication only when retained source,
+  proof/log custody and the actual primary's complete closure match. Exact verified
+  registry retries finish without repeated compilation. Missing qualification runs
+  fresh lint; no archive/upload admission is skipped. Qualify real native execution,
+  later group admissions and publication ordering in focused fixtures.
+- Run selected installed-test partitions in one sequential, fail-fast Make graph,
+  preparing their Wasm/CLI artifacts once. Preserve Client-only release selection
+  and independent partition commands without preparation stamps or skip flags.
+- Split archive-verifier regression from actual package verification. Omit the
+  regression only for admitted product changes with unchanged verifier/CLI inputs;
+  keep it for dependency/configuration drift and uncertainty, and always verify
+  actual applicable package archives. Bind hosted checks to native selected plans.
+
 ## [0.71.1] - 2026-11-04
 
 ### 🔧 Changed
