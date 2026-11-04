@@ -1,48 +1,80 @@
 # Current status — 2026-11-04
 
-## Storage/Wire/Testkit adoption and delivery — pending 0.72.0
+## Published Contracts, Client and Engine 0.72.0
 
-Delivery is authorized for this Blob checkout: `main` to `origin/main` and
-crates.io, supplier-first Contracts, Client, Engine **0.72.0**. Include the pending
-release-stage/preparation/archive improvements below. Shared's adopted committed
-revision is now confirmed present on GitHub; no sibling source/delivery changes
-are needed. The live 0.69 service trial and all provider obligations stay untouched.
+The authorized supplier-first delivery completed from this checkout's `main` to
+`origin/main` and crates.io. All thirteen members are **0.72.0**. Each normal
+release plan is complete; no receipt, release commit or annotated tag was rewritten.
 
-Selected and checksum-verified published archives: **Storage 0.67.0**, **Testkit
-0.86.0**, **Wire 0.17.1**. Cargo also aligns metadata Derive 0.17.1. Only these four
-locked package identities change; other supplier selections remain fixed.
-The incoming Storage 0.66.3 lock edit is preserved through its published 0.67
-successor, including its production cache/scan improvements. New Wire/Storage
-public type identities require the next minor for all three affected Blob groups.
-Package versions remain 0.71.1 until the standard group runners prepare them.
+| Group | Published package | Release commit | Annotated tag |
+| --- | --- | --- | --- |
+| Contracts | `ic-blob-storage-contracts` 0.72.0 | `baed366aee9a3b3493b1f4fb3e989abe5dab1b93` | `contracts-v0.72.0` |
+| Client | `ic-blob-storage-client` 0.72.0 | `8042c7bc96428c800dd51b9fcec8656031df9fc5` | `client-v0.72.0` |
+| Engine | `ic-blob-storage` 0.72.0 | `d211fd0a4809d62a6264d630b973605213c942a6` | `engine-v0.72.0` |
 
-Published API review confirms optional metadata derive, already forwarded by
-Blob's existing host schema feature. No Endpoint macro dependency is used here.
-Storage/Testkit align Wire limits/errors; frame bytes, decoder budgets, stored
-layouts and simulator behavior are unchanged by this cohort. No compatibility
-reader, automatic migration or reset is introduced. Blob's existing retirement/
-reinstall requirement still governs cross-release service transitions.
+Independent official non-yanked metadata, downloaded archive checksums, embedded
+VCS commits/package paths and remote annotated tag/peeled readbacks match all three
+releases. Evidence: `target/release072/summary.json`, group release/publication logs
+and `readback-{contracts,client,engine}/verified.json`. Publication runs are
+`target/publication.tcbkIo/`, `.4otxRj/` and `.be8brw/`. A later handoff commit is
+not the group's publication checkout or receipt.
 
-Archive metadata, checksums, sources and resolution output are retained under
-`target/upstream-delivery-20261104/`. Graph/deployment and refusal checks pass,
-including metadata-derive exclusions. The frozen Wire surface, 32 service-export
-checks and generated TypeScript's 27 methods/137 frozen frames pass. The first
-browser tool check refused the unpinned ambient npm; the existing prepared
-repository npm 12.2.1 passes without changing global tools. Testkit 0.86 CLI/setup
-passes with server 16.1.0 unchanged. No service install or paid effect occurred.
-Release gates/publication are the remaining delivery work.
+Selected, checksum-verified published **Storage 0.67.0**, **Testkit 0.86.0** and
+**Wire/Derive 0.17.1** are now delivered. Only these four external locked identities
+changed. The user confirmed this graph was settled. Public Storage/Wire Rust
+identities require the affected groups' minor cut; no automatic reader, migration,
+reset or retry is introduced. Canonical bytes, endpoints, decoder budgets and
+stored layouts remain unchanged. Optional Wire metadata derive stays behind the
+existing schema features and is excluded from passive/deployed graphs.
+Archive/API evidence remains under `target/upstream-delivery-20261104/`.
 
-The first Contracts gate at source `f17ba3a8` passed Clippy, graph and metadata
-admission, then was invalidated when an incoming lock update selected published
-Wire/Derive 0.17.1 during the release-adapter matrix. The user confirmed the graph
-is settled at this cohort. The affected disposable stage subtree was terminated;
-normal runner failure/lock cleanup completed and no release metadata/tag/push or
-upload occurred. Preserve `target/release072/contracts-release.log` and
-`target/blob-release-validation.t0hzD9/` plus its Git-side failure logs. Verified
-0.17.1 archives/checksums are under the adoption evidence root; these retain the
-same APIs, canonical bytes and budgets, with documented small-value codec cost
-tradeoffs. Restart the complete gate from a new clean source; do not reuse the
-interrupted attempt as a release receipt.
+Every group's **22-stage** gate passed on Rust **1.99.1**, Linux/x86_64. Contracts
+executed all nine eligible candidate stages; Client and Engine reused their
+original sealed proofs/logs against the identical final candidate
+`811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213`.
+The candidate executed **641 native + 82 Client + 270 Engine installed tests**
+with ten explicit installed ignores. Its combined installed Make graph prepared
+Testkit, probe Wasm, standalone Wasm and CLI once. Each actual checkout also passed
+fresh recovery/checkpoint/installation-CLI identity tests. Tool/compiler/pin,
+source/index/metadata/rollback, boundary, formatting and actual archive verification
+remained fresh. Recorded stage-duration sums were Contracts **1662s**, Client
+**628s**, Engine **582s**; these are stage sums, not end-to-end wall times or a
+controlled benchmark. The full release-regression stage changed from 699s execution
+to 27s admission in each later group.
+
+Complete attempts: `target/blob-release-validation.iCOMLG/`, `.Mc5Jrz/` and
+`.XrjuKK/`. Focused frozen Wire/service-export and generated TypeScript checks also
+passed: 32 service-export tests, the frozen Wire surface and 27 methods / 137 Rust
+frames using the prepared pinned npm 12.2.1. Ambient npm 12.2.0 refusal remains
+retained. Local PocketIC server is still 16.1.0. No new native macOS, hosted, real
+application or provider acceptance is claimed.
+
+**Remaining release-performance gap:** real publication selected fresh whole-
+workspace Clippy in all three groups. The standard wrapper's isolated archive
+`CARGO_TARGET_DIR` triggers the generic custom-target fallback before historical
+lint admission. Fresh lint and Cargo archive verification passed; no check was
+bypassed. [Blob #116](https://github.com/dragginzgame/ic-blob-storage/issues/116)
+records the reproduced wrapper path and acceptance for a focused follow-up. Keep
+archive isolation and exact proof/closure admission; do not remove target guards
+globally or claim publication lint reuse is already delivered in practice.
+
+The first Contracts gate at source `f17ba3a8` was invalidated when an incoming
+lock edit selected Wire/Derive 0.17.1 during release-adapter testing. Its affected
+disposable stage subtree was terminated and normal runner cleanup completed;
+that attempt produced no release/tag/push/upload. Preserve
+`target/release072/contracts-release.log`, `target/blob-release-validation.t0hzD9/`
+and Git-side failure logs. The successful complete restart used clean source
+`170db9cc3d0b1dca5310bcf3916cf9bcd916e757`; interrupted evidence was not reused.
+
+The existing **0.69 live service trial and provider obligations are untouched**.
+This delivery performed no service installation, paid probe, funding, reset or
+cleanup. #5/#6/#31/#34 retain their separate application/provider acceptance.
+
+## Historical preparation evidence
+
+The following sections retain the earlier implementation and qualification
+history. Their pending/uncommitted/source-state statements describe those earlier
+observations; the published delivery above supersedes their delivery status.
 
 ## Installed preparation and archive regression — pending Engine 0.71.2
 

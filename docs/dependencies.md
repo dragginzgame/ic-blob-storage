@@ -6,7 +6,7 @@
 
 ## Current adoption
 
-The pending 0.72.0 batch selects published Storage 0.67.0, Testkit 0.86.0 and
+Published Contracts, Client and Engine 0.72.0 select Storage 0.67.0, Testkit 0.86.0 and
 Wire/Derive 0.17.1. Storage configuration/codec errors and public Wire values have
 new Rust crate identities; direct consumers align the same minor lines. Wire's
 metadata derive remains enabled only by the existing schema feature. Codec bytes,
@@ -60,7 +60,6 @@ Foreign Candid identities stay upstream, without a local dependency alias.
 | IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Host HTTP | Bounded native probe response accumulation; request policy, error projection and evidence custody stay with Blob |
 | IC Build | CLI source fingerprints and optional archive verification; absent from public libraries and production Wasm |
-| Platform PocketIC client | Native simulator types selected directly to match Testkit; Testkit owns lifecycle/server policy, with no separate Blob server catalog |
 
 [IC Tooling](https://github.com/dragginzgame/ic-tooling) now owns Host, Build and
 Testkit; [IC Storage](https://github.com/dragginzgame/ic-storage) owns the published
