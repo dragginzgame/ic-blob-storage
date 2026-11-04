@@ -1,5 +1,50 @@
 # Current status — 2026-11-04
 
+## Published Contracts, Client and Engine 0.71.0
+
+Authorized delivery completed from this checkout's `main` to `origin/main` and
+crates.io, supplier-first. All thirteen members now select 0.71.0. Standalone
+telemetry is retired and passive Contracts no longer selects Candid. Full service
+and CLI integrations select `caffeine-candid` explicitly. The publication controller
+remains supported. Each group passed its own 22-stage source-bound gate, then
+publication compiler/Clippy and archive verification. No delivery failure required
+source changes or a gate restart.
+
+| Group | Release commit | Annotated tag |
+| --- | --- | --- |
+| Contracts | `654a2f982006835386f609476c01dc8402a60d5f` | `contracts-v0.71.0` |
+| Client | `fbac972fc99cbc0b79ee916c52bd50bc7cb7ce79` | `client-v0.71.0` |
+| Engine | `98042e2a042a5d3b10feb101eb5895ec3c2853a3` | `engine-v0.71.0` |
+
+Independent readback verifies all three non-yanked registry archives, exact
+checksums, embedded VCS source/package paths and annotated remote tags. Evidence:
+`target/release071-readback/summary.json`. Successful gates are retained at
+`target/blob-release-validation.e4I3mv/` (Contracts),
+`target/blob-release-validation.pbMUkR/` (Client) and
+`target/blob-release-validation.HNfCwb/` (Engine), with immutable committed group
+receipts. Publication captures are `target/publication.vvMOqb/`,
+`target/publication.WUrLq7/` and `target/publication.FiHn4W/`, respectively.
+
+Each gate passed 641 native tests/docs, 82 installed Client/standalone cases,
+270 Engine cases, Wasm, dependency admission and exact mixed-version archives.
+Optional Chromium/provider scenarios were skipped; this is Linux/PocketIC and
+cross-build evidence, not new macOS, application/browser or live-provider
+qualification. Supplier versions remain fixed at their 0.70 delivery selections.
+Rust remains 1.99.1 and Shared Tooling remains 0.29.3.
+
+[#115 is closed/completed](https://github.com/dragginzgame/ic-blob-storage/issues/115#issuecomment-6631894091)
+after confirming the implementation on default main and publication. Its checklist
+is complete and state independently read back. Passive Contracts' normal/build
+graphs exclude Platform facade, Candid, Agent and execution; native dev tooling
+and explicit Caffeine consumers still use their required external boundary.
+
+No sibling edit/delivery, new provider request, paid effect or canister install,
+reset or funding occurred. The existing live 0.69 trial and all unfinished
+obligations retain their original tools and artifacts. Release gates precede
+version preparation: rebuild and qualify exact 0.71 Engine bytes before any
+separately authorized service installation. The earlier pending sections below
+retain their original source/evidence scope and are superseded by this delivery.
+
 ## #115 passive Contracts / Caffeine capability — pending 0.71.0
 
 Implemented [#115](https://github.com/dragginzgame/ic-blob-storage/issues/115)
