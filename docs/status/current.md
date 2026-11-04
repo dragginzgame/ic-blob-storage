@@ -1,100 +1,70 @@
 # Current status — 2026-11-04
 
-## Published dependency and Shared adoption — pending 0.71.1
+## Published Contracts, Client and Engine 0.71.1
 
-Adopted published Testkit **0.85.1**, Platform **0.22.0**, Host Tools **0.82.0**
-and Wire/Derive **0.16.2**, verified against registry metadata and fourteen cached
-package archive checksums. Preserved incoming lock updates to Build/Host foundation
-0.74.3, Runtime/macros/guard 0.19.1 and Types 0.18.1. The root catalog and lock are
-stable throughout qualification. The sibling Wire 0.17 draft was not a published
-release at selection time and is not used. The sole workspace still has thirteen
-members; package versions remain 0.71.0 and compatible next notes are 0.71.1 in
-Contracts, Client and Engine. Blob's exposed Types/Candid identities, ordinary
-Wire frames, storage representations and CLI behavior remain unchanged; supplier
-minor versions alone do not require a Blob hard cut.
+Authorized delivery completed in this checkout on `main`, supplier-first to
+`origin/main` and crates.io. All thirteen members now select **0.71.1**. Each
+group passed its complete 22-stage source-bound release gate, followed by
+publication compiler/Clippy and fresh archive verification. All attempts passed;
+no source repair or validation restart was needed during delivery.
 
-Refreshed committed Shared **0.29.4**, revision
-`628ccc75d813bfd9bae777bfbaef55838d25b1b2`, through the pinned canonical exporter
-after impact review. Remote main matches; the supplier was read-only and clean.
-The 155-file snapshot independently matches the selected commit. AGENTS follows
-that pin. The existing pending hosted-CI ownership cleanup is preserved.
+| Group | Release commit | Annotated tag |
+| --- | --- | --- |
+| Contracts | `7390ec10b786bbe7c9302c3fceb2eb47335aed9d` | `contracts-v0.71.1` |
+| Client | `089a177035ffbb8679eaee3f2201156d71a7b2f6` | `client-v0.71.1` |
+| Engine | `db19866ca82d86e7f0e6e1bcf5ee8551edb8a791` | `engine-v0.71.1` |
 
-The new retained-state helper admits the current 19 MiB release-state tree without
-removal. Shared's runner now enforces its boundaries around adapter hooks; Blob
-also applies the same helper before/after direct group verification and publication,
-which can be invoked without that runner. A pre-validation refusal preserves an
-existing receipt. A post-check failure withdraws only the new selectable receipt;
-logs and other evidence remain. No cache/build tree, archive, old run, key or provider
-journal was deleted. The guard is a boundary check, not a live quota on one running
-adapter. The release-selection regression covers refusal before prior receipt
-invalidation; the publication fixture checks refusal before lock/tool/registry work.
+Independent registry/archive readback confirms non-yanked versions, exact
+checksums, embedded VCS commits/package paths and matching annotated remote tags.
+Evidence: `target/release0711-readback/summary.json`. Source implementation is
+`dfb9f238`; successful gates are retained at
+`target/blob-release-validation.YR1rsu/` (Contracts),
+`target/blob-release-validation.d661lT/` (Client) and
+`target/blob-release-validation.Nr8I7Z/` (Engine). Publication captures are
+`target/publication.qOCjIt/`, `target/publication.1Wmhjs/` and
+`target/publication.8IK1Sh/`, respectively. Immutable group receipts remain
+committed with each release tag.
 
-Testkit now requires an explicit endpoint. Existing `PocketIcStartupConfig::Spawn`
-and managed `build_instance` already provide one and retain server custody/drop
-order; no caller workaround was necessary. The prepared Testkit CLI was rebuilt
-at 0.85.1, server remains **16.1.0**, and IC Build's 0.74.3 editor is admitted offline.
-Platform's native certificate identities now share upstream types with Agent;
-existing explicit verification required no local conversion or wrapper. Native
-crypto/certification transitive packages do not enter the passive Contracts or
-standalone deployment selections. Both graph boundaries pass.
+The delivered graph selects published Testkit **0.85.1**, Platform **0.22.0**,
+Host Tools **0.82.0**, Wire/Derive **0.16.2**, Build/Host foundation **0.74.3**,
+Runtime/macros/guard **0.19.1** and Types **0.18.1**. The selected graph stayed
+fixed through all three gates; only authorized group version preparation changed
+local package/catalog entries. Wire's unpublished 0.17 sibling draft was not
+used. Rust remains **1.99.1** and managed PocketIC server remains **16.1.0**.
+No public identity, service frame, stored format, authentication or retry contract
+changed in this compatible batch.
 
-Focused evidence: strict all-target/all-feature Clippy for Contracts, Client, Core,
-CLI, standalone and PocketIC; three schema tests, ten provider tests (including
-full-width Candid/GC bounds), 32 endpoint-export checks and the frozen Wire fixture;
-fresh standalone/storage-probe Wasm and CLI; passive Contracts and replicated
-Client Wasm checks; four installed cases covering managed startup, signed-query
-trust/scope/restore, callable exports, certificate forgery/unrelated-proof refusal
-and original-request recovery without reissuance. All pass. Generated TypeScript
-passes 27 methods/137 frozen frames, decimal, malformed, identity, direction and
-limit checks; fifteen browser dependency-boundary assertions pass. Wire's new
-hash-list advice is diagnostic only; no protocol/performance redesign was made.
+Shared **0.29.4**, revision `628ccc75d813bfd9bae777bfbaef55838d25b1b2`, is
+adopted through the canonical exporter with all 155 snapshot files verified.
+The retained-state guard now covers the shared runner and Blob's direct
+verification/publication entrypoints. Refusal preserves evidence and an existing
+receipt; failed post-validation admission withdraws only the new selectable
+receipt. No retained cache, archive, key, provider journal or obligation was
+deleted. Regression fixtures verify refusal before receipt invalidation or
+publication lock/tool/registry effects.
 
-The global npm selection differs from Blob's declared npm 12.2.1, so the first
-read-only browser prerequisite check refused. Prepared the pinned npm only under
-`target/browser-tools/npm-12.2.1/` and reran with explicit `BLOB_BROWSER_NPM`; global
-Node/npm and browser package inputs are unchanged. Initial narrow ShellCheck lacked
-sourced-file inputs and reported the EXIT-trap status initialization; initialization
-and source-aware checks are corrected. Source-bound selection and Engine metadata
-checks pass, including the final publication-entry refusal regression.
-Actionlint 1.7.12, compiler admission (Rust 1.99.1), dependency declarations/resolved
-graphs, snapshot integrity and documentation/diff checks pass.
+Hosted CI now gives portable Contracts tests one Linux owner and Clippy its
+three-host native owner. Manual group dispatch delegates Rust/native/installed
+obligations to its selected plan instead of appending broad native-host tests.
+Generated TypeScript and isolated compiler/feature checks remain independent;
+normal main/PR/workspace dispatch retains native CLI/installation/restoration
+coverage on all three hosts. Required job names and host roster are unchanged.
 
-Evidence and exact package/input identities: `target/upstream-20261104-post071/`.
-This is local Linux/PocketIC, generated-client and cross-build qualification; no
-full workspace/release gate, native macOS or live-provider/browser-login proof.
-No sibling edits, staging, commits, push, publication, service reset or paid effect.
-The existing 0.69 trial and all unfinished provider obligations remain untouched.
+Each gate passed **641 native tests/doctests**, **82 installed Client/standalone
+cases** and **270 Engine cases**, plus Wasm, graph/boundary, release-adapter,
+metadata/rollback and exact mixed-version archive checks. Earlier focused adoption
+also passed generated TypeScript qualification for 27 methods/137 frozen frames
+and fifteen browser dependency assertions; its exact inputs/results remain in
+`target/upstream-20261104-post071/`. Optional Chromium/provider/resource cases were
+skipped as declared. This is Linux/PocketIC and cross-build evidence, not fresh
+native macOS, live-browser/login or deployed-provider qualification.
 
-## Hosted CI ownership — pending Engine 0.71.1
-
-Traced the Shared Tooling feedback against `.github/workflows/tooling.yml`,
-`test-native-host` and the source-bound release selector. The Linux schema job's
-all-feature Contracts tests already include the portable library/example tests
-repeated by each native host. Its Clippy invocation also repeated the native
-matrix's all-target/all-feature gate. Removed that extra Clippy invocation and
-the Contracts library/example commands from `test-native-host`. Normal main/PR
-and workspace dispatch keep portable Contracts tests in the Linux schema job,
-native Clippy on all three hosts, and native CLI/installation/resource-restoration
-and replicated-client checks on all three hosts. Package/archive qualification
-retains its distinct extracted-source/integrity purpose.
-
-Manual group dispatch now delegates portable Contracts/Core/Client Rust tests
-to its selected release plan and no longer appends `test-native-host`. The plan
-already owns `test-native` and both installed partitions, including a justified
-Engine exclusion for tenant-client-only changes. Appending the broad host target
-afterward bypassed that selection. Generated TypeScript clients and isolated
-feature/compiler graphs still run independently. Required job names, host roster,
-failure propagation, plan receipts and optimizer selection remain unchanged.
-
-Actionlint 1.7.12, shell syntax, documentation links and diff checks pass. The
-focused release-selection fixture passes with the updated workflow guards,
-source-bound receipts, package scopes, failure cases and exhaustive installed-test
-partition checks. An initial attempt to select Actionlint under `.tools/host/bin`
-found no executable; the available `/home/adam/.local/bin/actionlint` reports the
-pinned version and successfully validates the workflow. No new test suite,
-installation, runtime/source protocol change or broad Cargo test run was needed.
-Hosted execution and native macOS qualification were not rerun locally; no timing
-gain is claimed. Nothing staged, committed, pushed or released in this pass.
+No sibling edits/delivery, paid provider effects, canister installation, reset or
+funding occurred. The existing live **0.69** trial and its unfinished provider
+obligations retain their original tools, artifacts and journals. Release gates
+precede version preparation: rebuild and qualify exact released Engine bytes
+before any separately authorized service installation. The earlier sections below
+retain their original evidence scope and are superseded by this delivery record.
 
 ## Published Contracts, Client and Engine 0.71.0
 

@@ -6,7 +6,7 @@
 
 ## Current adoption
 
-The pending compatible batch selects published Platform 0.22.0, Testkit 0.85.1,
+The 0.71.1 release batch selects published Platform 0.22.0, Testkit 0.85.1,
 Host Tools 0.82.0 and Wire/Derive 0.16.2. Canonical Types 0.18.1 and Runtime,
 macros and guard 0.19.1 retain their existing identities. The incoming Build and
 Host foundation 0.74.3 patches remain selected. The lockfile is authoritative;
