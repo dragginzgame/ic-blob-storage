@@ -9,7 +9,7 @@ revision is now confirmed present on GitHub; no sibling source/delivery changes
 are needed. The live 0.69 service trial and all provider obligations stay untouched.
 
 Selected and checksum-verified published archives: **Storage 0.67.0**, **Testkit
-0.86.0**, **Wire 0.17.0**. Cargo also aligns metadata Derive 0.17.0. Only these four
+0.86.0**, **Wire 0.17.1**. Cargo also aligns metadata Derive 0.17.1. Only these four
 locked package identities change; other supplier selections remain fixed.
 The incoming Storage 0.66.3 lock edit is preserved through its published 0.67
 successor, including its production cache/scan improvements. New Wire/Storage
@@ -31,6 +31,18 @@ browser tool check refused the unpinned ambient npm; the existing prepared
 repository npm 12.2.1 passes without changing global tools. Testkit 0.86 CLI/setup
 passes with server 16.1.0 unchanged. No service install or paid effect occurred.
 Release gates/publication are the remaining delivery work.
+
+The first Contracts gate at source `f17ba3a8` passed Clippy, graph and metadata
+admission, then was invalidated when an incoming lock update selected published
+Wire/Derive 0.17.1 during the release-adapter matrix. The user confirmed the graph
+is settled at this cohort. The affected disposable stage subtree was terminated;
+normal runner failure/lock cleanup completed and no release metadata/tag/push or
+upload occurred. Preserve `target/release072/contracts-release.log` and
+`target/blob-release-validation.t0hzD9/` plus its Git-side failure logs. Verified
+0.17.1 archives/checksums are under the adoption evidence root; these retain the
+same APIs, canonical bytes and budgets, with documented small-value codec cost
+tradeoffs. Restart the complete gate from a new clean source; do not reuse the
+interrupted attempt as a release receipt.
 
 ## Installed preparation and archive regression — pending Engine 0.71.2
 

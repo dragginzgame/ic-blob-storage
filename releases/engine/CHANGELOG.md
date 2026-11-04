@@ -8,7 +8,7 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 💥 Breaking
 
-- Adopt published Storage 0.67.0, Wire 0.17.0 and Testkit 0.86.0, aligning the
+- Adopt published Storage 0.67.0, Wire 0.17.1 and Testkit 0.86.0, aligning the
   public Storage configuration/codec-error and Wire type identities with
   Contracts 0.72. Codec bytes, endpoint identities, resource budgets and stored
   layouts are unchanged; this dependency cut introduces no reader, conversion,
