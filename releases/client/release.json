@@ -1,19 +1,110 @@
 {
    "date" : "2026-11-04",
    "files" : {
-      "Cargo.lock" : "2128b7ee68ec2b4304f6f5f891afca2b70ec952ac13acb6520933a1797f1b339",
-      "Cargo.toml" : "c6e401582e84f5f71d3608a366c66eb8ef9aeaf0323b2fa93ec22324a189d44c",
-      "crates/ic-blob-storage-cli/Cargo.toml" : "1f21d8df4d85de592da61c4c336f72e3562efd12db57550605c988f8c3416b6b",
-      "crates/ic-blob-storage-client/Cargo.toml" : "78e8f0cdaee6792a768b6f07c9f7870b31d176a111022f57c7e1a111d71ead21",
-      "releases/client/CHANGELOG.md" : "58523eb73270c282f4b733a141af58024bbeb28db718d052770abed526af7b81"
+      "Cargo.lock" : "244b2fb48191657d2a05617818838cc99887eb7d8ed1e8c36b6e44a6d72a103b",
+      "Cargo.toml" : "b4016986d2b9b86cb98bad60e431d422c2d20cdd6fb9fe890c672c86bd973c84",
+      "crates/ic-blob-storage-cli/Cargo.toml" : "92ddaad0f2ca7b46787ddd385e9060ebeb68e35275ce712d1ba5b59684741170",
+      "crates/ic-blob-storage-client/Cargo.toml" : "3f8a14c27fc077328fde9c25ebc44c6ebb71c5d4f71cd0cafdefda2a91686ca1",
+      "releases/client/CHANGELOG.md" : "416cd6bca0b11c2c16ff5a7291226c78766f5dfc4f26576999537563fc12baa7"
    },
-   "gate" : "release-verify-plan-v1",
+   "gate" : "release-verify-stages-v1",
    "group" : "client",
    "policy" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
    "schema" : 1,
-   "source" : "7390ec10b786bbe7c9302c3fceb2eb47335aed9d",
+   "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
    "status" : "released",
    "validation" : {
+      "candidate" : {
+         "directory" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+         "editor" : {
+            "path" : "/home/adam/projects/ic-blob-storage/.tools/rust/selected-55679a17ba6c89afb55c6c61281013132848b1f574b3fd719b005040cb1f4318/bin/ic-build-release-metadata",
+            "sha256" : "464f2c158456dcd31d9dee3e3e4861be7cda4c7ebcbc5601f4276620ea1c8501"
+         },
+         "identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+         "kind" : "cargo-final-candidate-source",
+         "original" : {
+            "Cargo.lock" : "b9c82032ec629ec846d9aea469081c874d0702d9079af017e80fcee43b734732",
+            "Cargo.toml" : "99e0cb255b39dee9bd590312428c4d56ce0ae3a4c11df68cda30353e0deca076",
+            "canisters/standalone/Cargo.toml" : "226c63a9f5bde09b30d59620b9767e384ee4c069bd5da157b55499c9e518d0ae",
+            "canisters/test/admission_probe/Cargo.toml" : "1567c852bf741698f765c4fe09159231224a6841b84184fa60e42a15b3c68b06",
+            "canisters/test/authority_probe/Cargo.toml" : "45dcd4f1356affade295c6850a0aad6f01b7f74baaa4aab7b338d0ee524770d1",
+            "canisters/test/consumer_probe/Cargo.toml" : "7e022db743ac39a56e45f92b4d856e5cf6e44ebc504694af60eb143ee2abcd24",
+            "canisters/test/funding_probe/Cargo.toml" : "3ac4237ab4ed8ac14000ce1e57cbb88e424e75069ed2439ac40b4678645e2346",
+            "canisters/test/gateway_source/Cargo.toml" : "dd73d5b53ed61da9f382a486b9fa00e497ab76ffd2599e29e56a59b5775ec081",
+            "canisters/test/storage_probe/Cargo.toml" : "c38f8ae4558d0d8a38a166784a3509d1110e7c195e3cb0f56038bd5930d6ed6c",
+            "crates/ic-blob-storage-cli/Cargo.toml" : "1f21d8df4d85de592da61c4c336f72e3562efd12db57550605c988f8c3416b6b",
+            "crates/ic-blob-storage-client/Cargo.toml" : "78e8f0cdaee6792a768b6f07c9f7870b31d176a111022f57c7e1a111d71ead21",
+            "crates/ic-blob-storage-contracts/Cargo.toml" : "f0b997190e3f3ff7e2f08486559fc89a6367054221fdcbd10c01f2ade3084778",
+            "crates/ic-blob-storage/Cargo.toml" : "3774df01a00fb7025f09b24f3989fb3df74c73beeec80c184d9db02a1ba2b392",
+            "releases/client/CHANGELOG.md" : "fd77a009361159c5b818242b97e27633825e57fc44ac5d1c5b4c2fcbc8bbf02f",
+            "releases/client/release.json" : "c12ebb1b5bfe0c18ec32198ba6e99b8cba1a0879499b59d0ebb28ae102ea5148",
+            "releases/contracts/CHANGELOG.md" : "bdca2f510ec804205e982d1de2b3ec953cf947a400d9af0938dd997d5381bcd5",
+            "releases/contracts/release.json" : "1b41db761336dc193f3f5df369e0cd3be9e72615eec7d21034c3c59084c15094",
+            "releases/engine/CHANGELOG.md" : "89dd6cf2c89c4451d22db413c047777c275a9c6cc64a91c96f24f5cde8bc33ed",
+            "releases/engine/release.json" : "694c085fa53a49d0768ba2c986eb442c98a876e701020b45dff3e8efc69ebbc2",
+            "tests/pocketic/Cargo.toml" : "c11517dc6cfda4e5c575c141b316ab341e3a607eb667c7fbb1d05fe1dc41fd66",
+            "tests/protocol/Cargo.toml" : "891250049a771193887963872583e70533863e8606a5bde23aaf1ca107ce8447"
+         },
+         "projected" : {
+            "Cargo.lock" : "001aa344cbc40c57117a04aa86ec23017b2a8a2f08c1a35b51e6227560cb67c3",
+            "Cargo.toml" : "67feb531ef4e5d56b6a48f4f9a7c6bc954e4a9b705fc88a0ae1c7d971430f0d6",
+            "canisters/standalone/Cargo.toml" : "bf5f3f1986999d289f439a2a1c1e070389b13713f71bcb8403d39515cc400b51",
+            "canisters/test/admission_probe/Cargo.toml" : "5bb5a314d4b3b792f0e2ffb4a236d91c4107d25c8d8bf919de449fb1f4b38cee",
+            "canisters/test/authority_probe/Cargo.toml" : "30b6ff08415d6660fd4a2d863cfb2de4b1e8d40b05eb8256899293983d0f38f2",
+            "canisters/test/consumer_probe/Cargo.toml" : "0eefcf19382029740b5bcf057a7ca1ebf9c3ea6cd0f1dd57d341f41fb9134ad3",
+            "canisters/test/funding_probe/Cargo.toml" : "0d722bb0d82ff592fa262a366968b4f5f5577e65b1f5e54fd930b64bc824fe60",
+            "canisters/test/gateway_source/Cargo.toml" : "6eb3f7ba67a6d42da5584db7d7e302103ff77956393285eaa55d0f3795796348",
+            "canisters/test/storage_probe/Cargo.toml" : "2e555856d623c7ddf0871696a1fdcd4f02460055d5b295fe8f3bf1e125334772",
+            "crates/ic-blob-storage-cli/Cargo.toml" : "92ddaad0f2ca7b46787ddd385e9060ebeb68e35275ce712d1ba5b59684741170",
+            "crates/ic-blob-storage-client/Cargo.toml" : "3f8a14c27fc077328fde9c25ebc44c6ebb71c5d4f71cd0cafdefda2a91686ca1",
+            "crates/ic-blob-storage-contracts/Cargo.toml" : "f0b997190e3f3ff7e2f08486559fc89a6367054221fdcbd10c01f2ade3084778",
+            "crates/ic-blob-storage/Cargo.toml" : "56e8a5950217084ced048a69cd9e43250c614a10f98ec34a3e721f5b4eb12fee",
+            "releases/client/CHANGELOG.md" : "7524d7b83452c55933d9caef8b6bfab43845bd1150266f21e3bbd615ea8b86eb",
+            "releases/client/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+            "releases/contracts/CHANGELOG.md" : "7524d7b83452c55933d9caef8b6bfab43845bd1150266f21e3bbd615ea8b86eb",
+            "releases/contracts/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+            "releases/engine/CHANGELOG.md" : "7524d7b83452c55933d9caef8b6bfab43845bd1150266f21e3bbd615ea8b86eb",
+            "releases/engine/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+            "tests/pocketic/Cargo.toml" : "b5763f7fa953fd3a872ceec2aead0c177951627c2124a863c3601bd3176df1df",
+            "tests/protocol/Cargo.toml" : "01f5bf6520236bc196876c1e44d9beb1f28d94fe7a9b934220f97cc5810335aa"
+         },
+         "root" : "/home/adam/projects/ic-blob-storage",
+         "schema" : 1,
+         "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+         "versions" : {
+            "client" : {
+               "members" : [
+                  "ic-blob-storage-client",
+                  "ic-blob-storage-cli"
+               ],
+               "primary" : "ic-blob-storage-client",
+               "version" : "0.72.0"
+            },
+            "contracts" : {
+               "members" : [
+                  "ic-blob-storage-contracts"
+               ],
+               "primary" : "ic-blob-storage-contracts",
+               "version" : "0.72.0"
+            },
+            "engine" : {
+               "members" : [
+                  "ic-blob-storage",
+                  "ic-blob-storage-canister",
+                  "blob-admission-probe",
+                  "blob-authority-probe",
+                  "blob-consumer-probe",
+                  "blob-funding-probe",
+                  "blob-gateway-source",
+                  "blob-storage-probe",
+                  "blob-test-protocol",
+                  "ic-blob-storage-pocketic-tests"
+               ],
+               "primary" : "ic-blob-storage",
+               "version" : "0.72.0"
+            }
+         }
+      },
       "configuration" : {
          "cargo_config" : {},
          "environment" : {},
@@ -42,97 +133,97 @@
       "evidence" : {
          "context_sha256" : "b617ba3c0609387616c0901bd4d92524beb38114ef8d3211c5431346e4e9d8e9",
          "files" : {
-            "0-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "0-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "0.log" : "1357c305c5a3dd779e9df035cd983e8f94dd43dc3bd89123a117ded69103fbc4",
-            "1-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "1-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
+            "0-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "0-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "0.log" : "18a14492f05c70d2c97a0525749fac4551a2c83d25d174268b1a2ebaec0d4a9a",
+            "1-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "1-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
             "1.log" : "7f112ffd18567deb7f4e3ba4acdecc3869fe55552411be1c2b7090310fa12228",
-            "10-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "10-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
+            "10-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "10-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
             "10.log" : "25b5b62f2426739b39e23d7c33c9667d537cc1b2c32fe1c30d1af7a9550ffeee",
-            "11-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "11-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "11.log" : "c31443aa056fbc3636d7ed2e7ad800de09593e3af440564d6b4db36a63aa93cb",
-            "12-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "12-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
+            "11-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "11-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "11.log" : "67773b7e5008f6f2c5f2b34f36062699fc29d7e9c97980b9ad34e7458e71700d",
+            "12-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "12-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
             "12.log" : "3b350408c858e830d4ba4e6274fd8cfe151be6bcec909f29d132081a587af4c9",
-            "13-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "13-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "13.log" : "2f939151b1d21f83b99cd084ea0c699fcb1b8fcd1d95b693f87594d4555b6a92",
-            "14-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "14-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "14.log" : "fead2c97ee1c4b95ff9bc583980faa779d88c5d70b3e7b19faf47f7cf4ad4a51",
-            "15-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "15-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "15.log" : "27e0125191088d8dc8214230b02bbbcc29d537ae700d292a963aa939d33002ec",
-            "16-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "16-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "16.log" : "9087dc2469a81111d7825a82ae584644cb2bf23bb56a34199dd8b9b98324ad0c",
-            "17-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "17-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "17.log" : "ecd3cf16417d100c34d724714862a2f4af1351b9e6c8d280b2b5f5731cfc83e9",
-            "18-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "18-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "18.log" : "ebd7853da7da148dcdb487655cefc86807d6f62f3164669ccadcc95cada31f57",
-            "19-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "19-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "19.log" : "80e53dfa4a97881a14114d97a4fe0b44123d5ea2d552e861b5ea756c4ab14573",
-            "2-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "2-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
+            "13-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "13-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "13.log" : "00fb6feb758b296b737596c5a1afdef8afccd128e484b8fc8aa9d67c6a481f57",
+            "14-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "14-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "14.log" : "087712e483d0121ac305e22e0fb5f02495fd27c71493e5a930b7311cc7364388",
+            "15-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "15-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "15.log" : "204b7187cfc39636d3b16323abec27321589a807e027680337e049c39976e96d",
+            "16-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "16-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "16.log" : "ecf2a6114bbca6a76e9e0caf6d2cde7134d8a6d418fe3e71e64369437a60fe8d",
+            "17-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "17-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "17.log" : "6c1c469dd82f76a774068d15d7d6fa065cef186dd73425a6db9c09ddbf66fbcb",
+            "18-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "18-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "18.log" : "f4fd6df0ef61c6b3cbaddd07cae29a8ee3658b142f08465979382f2daf8c7d26",
+            "19-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "19-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "19.log" : "4d2e02c7169fb22541d0c89a7abeb3103f815b72409b9cce2941cbb507eaf469",
+            "2-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "2-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
             "2.log" : "0758306b474a3427e5d5f1012e49cd4dd042945122306df43913b2953a3f74fd",
-            "20-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "20-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "20.log" : "377603acde98accf8eac0907b3b08c6a608bc03caf897d4f7a40fbf2dfceab07",
-            "21-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "21-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "21.log" : "28f22fb0abc2709a7ecb73d9b25f6a37023df988ecb7f9ddc6a316eb91d07b14",
-            "3-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "3-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
+            "20-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "20-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "20.log" : "bc5e7ad40975739316723407c6af5efc18afe2655e514d572e2c895141a7877d",
+            "21-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "21-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "21.log" : "3505e5ee9f7e9478aecdb660c7dc5a05cbc4faf2b8de3473f0fed12095662443",
+            "3-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "3-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
             "3.log" : "b1f02d33270051ad1d21c2fad5db070eed44d89fbf52903533dbab703ec688b3",
-            "4-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "4-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "4.log" : "299f16a2c523be18fef769975d2df00e0505521db047540feea3a74b94666887",
-            "5-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "5-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
+            "4-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "4-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "4.log" : "08e7fa485f201f7c215932dc5612cab636791c1eee35226a2c2c4b258e7913c7",
+            "5-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "5-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
             "5.log" : "f63c248219aff683ef6d1364331cdf25ec79474026b961eebefdf6903c31108b",
-            "6-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "6-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "6.log" : "4ab3b2bdb75cff7c86c37003d04eb88f0d46939643e2ff225e68a9700874d4e7",
-            "7-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "7-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "7.log" : "5330d32d6b1ccf40688e77cb423d98085d6df6120cf005450c4a739954dfcf97",
-            "8-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "8-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
+            "6-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "6-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "6.log" : "83cf8996cce3e867dfcff38f108fd83f6fe4e75d0e0e335e76b58ef131a9153c",
+            "7-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "7-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "7.log" : "cf60da65b6f7f4d0e85f26ac5c34a9e2605f13579e38a4a60a40194817f9931b",
+            "8-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "8-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
             "8.log" : "4468da9eab7905399767b5fcb7b9373215ba910ad4a3cf54d900ae73fb8825c2",
-            "9-after-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "9-before-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "9.log" : "25cf285c9dc522523bc887936c3afc066de664784b41be552b6ddc7d6bb7dfd5",
-            "inputs.json" : "991e814063f8762c6f6fcf7f71a9db1e1d1660c717cdd8b07a819ea5a9091407",
-            "parsed-inputs.json" : "ac18606e03f8786ad8025cb22bd4b0b5563c6c7f240c6a32bfac08e6ffeb3dee",
-            "parsed-inputs.json.plan.json" : "04aff60450f913852387cd86972edd668abb75c9bf3fd277e4d554713cbf1376",
-            "parsed-inputs.json.policy.json" : "d5aa5be74392580dd8b59b9025dc6bc8b5c543468e53300fae06f2f67097bd7c",
-            "plan-events.tsv" : "77ac28f00a56c3c73a8ca9ff98fdbf95dc6c57fa561f1af852106ea2da196637",
-            "plan-inputs.json" : "62435c308d223761660deffe912326226f581ca0ba8b2e15bf91775843469ddc",
-            "plan-selection.tsv" : "0e2ce90a5c5a332d9873b18d553f4f40f8c4f012a43222a4eb5c0d84df97859f",
-            "timings.tsv" : "c3a06b56b7f8af261ad08f9ef736b0103e1e423350a3a82235783db5ca272944"
+            "9-after-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "9-before-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "9.log" : "cd0830e9aefe39267528c623286596855c83a8b3100ba11e681c046f6a97f001",
+            "inputs.json" : "f19bd161d864dbdf3dcf7775a69e2ad14e12f0a7d429178bb8d37990eb2e3126",
+            "parsed-inputs.json" : "a38ed8f4213ccb58565a91534974945fb7de574903cfb5489c6494096f1d7fae",
+            "parsed-inputs.json.plan.json" : "6bd37081455a9a80bbfc8af81a14f25207f51dc01179fd5cd69cccf27a2b3e5f",
+            "parsed-inputs.json.policy.json" : "23dad03e78aee872fd4ff3aa59158019e6051b7f604c7523238e3964bb116eb6",
+            "plan-events.tsv" : "45115c3f7e294103efbcbf712777da619e3ab81a709f6bd63b570874eb9af782",
+            "plan-inputs.json" : "59855341230f599f29b0c78d3ded2c02c0d614d50f32b946b0ee1782830d6b30",
+            "plan-selection.tsv" : "bb25ef881a06014a4fa404fd26128adfc22b1ba77905359df816db29d8f5ba62",
+            "timings.tsv" : "ec0e58bbbd03d2a31fd82ca3a53977913ab0829141772693527d4459374db680"
          },
          "group" : "client",
          "inputs" : {
             ".github/actions/retain-failure-evidence/action.yml" : "26a269c0e63125e8bd939578a64a6a67dbc5280cd3fbfd7da8b9c8e4d44cc6d5",
             ".github/workflows/published-example-install.yml" : "ef084929d3fa9aaee51024c032991d233300d9f42d4e5ad8ce034939d7292999",
-            ".github/workflows/tooling.yml" : "be53a5776d2f7bb09c71a1e5910097e27620d0b25fe502d3ea86363f5693d5bf",
-            ".shared-tooling.snapshot" : "e186fe5a9bda5cb01faa0977c7276fb1eb22d56cc40cad413c4300b87687a4f2",
-            "Cargo.lock" : "ffcfdf4c827fb41066bc8ebbead15e6ef40666a97285683c05986f410db55654",
-            "Cargo.toml" : "819ef7ce40dacc32c36435c5376a2360bd0724c29fed4fde602b0c05dabe7112",
-            "Makefile" : "f4c3feecd4a3be38f342cc5fceb7cc4fc4d929d143f4a2d2519f1602da52f279",
-            "canisters/standalone/Cargo.toml" : "839e41c77d33ef8894d91b1f290f8783d46947f006438ba00344af5ec73892ce",
-            "canisters/test/admission_probe/Cargo.toml" : "14738270a89933cfdcf1c5aa63c41b5829844bdf735bff3e0e721fb9fd73d831",
-            "canisters/test/authority_probe/Cargo.toml" : "49c9f42167b4044873ae36ebc3898a1fc4adc0a684e751fbc22e70c1823a4992",
-            "canisters/test/consumer_probe/Cargo.toml" : "81d3930ffae8e35ecfb53c8b365ef4a7f8801fdbf244a0e5579ab43c958caaca",
-            "canisters/test/funding_probe/Cargo.toml" : "b29f30165bda0093e6dad45e844e0907cb148777296884953b20c6ba3ca04d86",
-            "canisters/test/gateway_source/Cargo.toml" : "b8498e2cc202f362948ade07c706fb8015833af6feb6756b0b6f0e329771e646",
-            "canisters/test/storage_probe/Cargo.toml" : "8f7e4d58d4351c7e5de083891ab1e1ccb3d3121098037f9a268de42dbcaff3c5",
+            ".github/workflows/tooling.yml" : "5b5d42ffda820e7b728e4254ae831b45f073ae725e4b4eb3090d6c44609a958a",
+            ".shared-tooling.snapshot" : "494379c895da1e668013c8a6afc7455b08cf1ea3a2dbd2f0293ba0b3508c4da0",
+            "Cargo.lock" : "b9c82032ec629ec846d9aea469081c874d0702d9079af017e80fcee43b734732",
+            "Cargo.toml" : "99e0cb255b39dee9bd590312428c4d56ce0ae3a4c11df68cda30353e0deca076",
+            "Makefile" : "a1edf5a36f303fec49db1f651b813dab0ac09e8425c2ecb4f0940c29b7698420",
+            "canisters/standalone/Cargo.toml" : "226c63a9f5bde09b30d59620b9767e384ee4c069bd5da157b55499c9e518d0ae",
+            "canisters/test/admission_probe/Cargo.toml" : "1567c852bf741698f765c4fe09159231224a6841b84184fa60e42a15b3c68b06",
+            "canisters/test/authority_probe/Cargo.toml" : "45dcd4f1356affade295c6850a0aad6f01b7f74baaa4aab7b338d0ee524770d1",
+            "canisters/test/consumer_probe/Cargo.toml" : "7e022db743ac39a56e45f92b4d856e5cf6e44ebc504694af60eb143ee2abcd24",
+            "canisters/test/funding_probe/Cargo.toml" : "3ac4237ab4ed8ac14000ce1e57cbb88e424e75069ed2439ac40b4678645e2346",
+            "canisters/test/gateway_source/Cargo.toml" : "dd73d5b53ed61da9f382a486b9fa00e497ab76ffd2599e29e56a59b5775ec081",
+            "canisters/test/storage_probe/Cargo.toml" : "c38f8ae4558d0d8a38a166784a3509d1110e7c195e3cb0f56038bd5930d6ed6c",
             "ci/cargo-dependency-boundaries.json" : "d362a2ecb7eea8815055b94d81e5c9fa06390ee83eaf20a003f531627acbe61f",
             "ci/cargo-release-groups.json" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
             "ci/examples/platform-owner-boundaries.json" : "c8a83509add7a7e7ef5a3932db105cd7d4207f486ad9c382e36ca96dda25ae5f",
@@ -140,24 +231,25 @@
             "ci/ic-tools.tsv" : "235d355481adf5b15dd118bbd2e83174484af4e463d75714bf70fd7f7352a8fc",
             "ci/release-delivery-policy.txt" : "96f56a26868e3613cca099b0457840e9e532b916a4de8572946edca4b12a5a15",
             "ci/release-package-scopes.json" : "0371e2f57e64457a435fda3ba48d8d0e7c312a5406ac26e6b8f47e1398a4701c",
-            "ci/release-validation.json" : "d5aa5be74392580dd8b59b9025dc6bc8b5c543468e53300fae06f2f67097bd7c",
+            "ci/release-stage-reuse.json" : "5f0f3e40af6aaef738323348dc7522e719a1c07ed9cb9b8f596414f8e6d4f856",
+            "ci/release-validation.json" : "23dad03e78aee872fd4ff3aa59158019e6051b7f604c7523238e3964bb116eb6",
             "ci/tool-versions.env" : "0e5b503627e26605327cafb81f2a15287394e10fa8adce24e086b1752745079a",
-            "crates/ic-blob-storage-cli/Cargo.toml" : "fc467c891e26e41c8b52effbccfa358d9c0cbe505587b9f8841f19c188aea9e9",
-            "crates/ic-blob-storage-client/Cargo.toml" : "fc6ee9c1d332b112d85cacda5304684972cdb59180a5e1e8bf128ad0a740121a",
-            "crates/ic-blob-storage-contracts/Cargo.toml" : "67da316002ea901e46d9ecd8cdf0c515782e18f19cf8457133aae1148f6dbca4",
-            "crates/ic-blob-storage/Cargo.toml" : "54c06c96ee96aa6d0eaeb0e50627e071f5c8e0b50d863548c4c6d8320b9e020e",
+            "crates/ic-blob-storage-cli/Cargo.toml" : "1f21d8df4d85de592da61c4c336f72e3562efd12db57550605c988f8c3416b6b",
+            "crates/ic-blob-storage-client/Cargo.toml" : "78e8f0cdaee6792a768b6f07c9f7870b31d176a111022f57c7e1a111d71ead21",
+            "crates/ic-blob-storage-contracts/Cargo.toml" : "f0b997190e3f3ff7e2f08486559fc89a6367054221fdcbd10c01f2ade3084778",
+            "crates/ic-blob-storage/Cargo.toml" : "3774df01a00fb7025f09b24f3989fb3df74c73beeec80c184d9db02a1ba2b392",
             "make/cargo-publication.mk" : "27e4279cd48e0c40597aba3f25f4ec06faf69c77882968b21f28719790825258",
             "make/consumer.mk" : "cb896704cd9ff2302b59072d723fea2dc17169e41b1c3440156f6958ff9f5258",
             "make/execution.mk" : "cebc0fa4ee9944550350a492a3bc1084e28820e2c915e20351c336d87ce0359f",
             "make/release.mk" : "cadaefaea8553889397ab2b87bb644afa8e9abbf7476c937df6f91099903dee6",
             "make/rust-format.mk" : "a7296bd15dcb49f052e5862ef0ecb592f09a826aacc7691b11aa3ce56fcdd5ef",
-            "make/tools.mk" : "1c1712e19d3c8328a4664776dc4faf6d4b081ee7e4010a57e46f0a93829f4c17",
-            "releases/client/CHANGELOG.md" : "9d8c9686f0553cd04d1cac8e6b639f7d71c1b1b82ec96dae07ff4ff833a04994",
-            "releases/client/release.json" : "c7cbd33e1894e974e0c544a2295f921f39f7a2413cfca9732a6285a1e204976b",
-            "releases/contracts/CHANGELOG.md" : "638e090ddc497830bfb454626524eba49dae07cea74a6ee207eaa8c85781c03a",
-            "releases/contracts/release.json" : "f6c79feaa15d779fe93bb15f312d42f3914e64799237f5759f9e0cd3fa608954",
-            "releases/engine/CHANGELOG.md" : "fd42c2721690d9ba5ae7d3aeb6512619cace0b243f3c483a9f51b5e06220d0a5",
-            "releases/engine/release.json" : "4c4bea6264175adb3cc4c5675b9d4aa2c6f69970fd0af6b1299a9984b60135be",
+            "make/tools.mk" : "d2a5b214b8b1aed1de46c641c92efe85800affbc4efea3531b6a2b703619d77f",
+            "releases/client/CHANGELOG.md" : "fd77a009361159c5b818242b97e27633825e57fc44ac5d1c5b4c2fcbc8bbf02f",
+            "releases/client/release.json" : "c12ebb1b5bfe0c18ec32198ba6e99b8cba1a0879499b59d0ebb28ae102ea5148",
+            "releases/contracts/CHANGELOG.md" : "bdca2f510ec804205e982d1de2b3ec953cf947a400d9af0938dd997d5381bcd5",
+            "releases/contracts/release.json" : "1b41db761336dc193f3f5df369e0cd3be9e72615eec7d21034c3c59084c15094",
+            "releases/engine/CHANGELOG.md" : "89dd6cf2c89c4451d22db413c047777c275a9c6cc64a91c96f24f5cde8bc33ed",
+            "releases/engine/release.json" : "694c085fa53a49d0768ba2c986eb442c98a876e701020b45dff3e8efc69ebbc2",
             "releases/history.md" : "96b0c5bbf31ce492fb4f7efec93cef8c5890d23260cdfe93a480390909f8a926",
             "rust-toolchain.toml" : "1bfdb988c976a2649721229548e6d8b827475b23e65671d889789b594182fe97",
             "scripts/ci/RustSource.pm" : "ce27820fc6256fc417d3606dfcc8b850256c3f36a1a29132be587d49aceb82d4",
@@ -168,13 +260,14 @@
             "scripts/ci/cargo-publication-paths.sh" : "a38b6c7690bf00d9de14f2a76ec6f56a65c4694dc5d5d7d18533feac2d15780a",
             "scripts/ci/cargo-publication-selection.pl" : "ec46c51af7fc2b7ef2959343331e6aa9efb40904d55f5c5b5a43cb446736f9a8",
             "scripts/ci/cargo-release-group.sh" : "2aee39fe595a6e30b71d4a1a3b7ba7db231e6f1c0efe964ec4456dcad9759f20",
-            "scripts/ci/cargo-release-groups.jq" : "a973e193fe6218b85ae5a86537fba5b8ca93e427fd9155dadd7cc2b36339c891",
+            "scripts/ci/cargo-release-groups.jq" : "ab1e505ef56a9bd2d28fb02d43300b3e5c0f3702d33519ece5ab49d3e2670811",
             "scripts/ci/cargo-release-metadata.sh" : "8fb2e21888c67507645b0dd0d98c4bf8476f1e443e8ec8a6b3bfd803064ba856",
             "scripts/ci/cargo-release-preflight.sh" : "1d69a4a04dbf19db8a54a070d820ee89ffea457ded2ca666108777c310b0e9ac",
             "scripts/ci/cargo-workspace-members.jq" : "e00937f22bd31231993ae9c1d7eda844227b39529466d017de44dbc1f0618026",
             "scripts/ci/check-browser-tools.mjs" : "52193969809c93fdb4fb671a8a688a9136ef8be2ed5e06d34f060499507978da",
             "scripts/ci/check-browser-tools.sh" : "5ff2b0521c4682d132e25106e5019638182e1f189a02a350bfb36d7ec595f68a",
             "scripts/ci/check-cargo-dependency-boundaries.sh" : "7331456e7713f16db994bda0a9b7cac32ce4a38c24297f6010b03dba5e895ec5",
+            "scripts/ci/check-cargo-stage-closure.pl" : "86e3b3088dabb28632d651f25a76399568e7fe323ec0fd43e6dcc3e35a2d1667",
             "scripts/ci/check-crates-io-version.sh" : "41e6d60c7110e0d554d49c4aa98d9f2703e45212049992064207950c6d00a037",
             "scripts/ci/check-dependency-pins.sh" : "9dce3ea5fe202071c73b0ed195d34cf4eb062676cf0cb7361d7f877314f0fd91",
             "scripts/ci/check-documentation-links.pl" : "a04ef3105e7851b83bb682120873e29a6c3c604183c275bc53051dd9e4b300a7",
@@ -190,7 +283,7 @@
             "scripts/ci/check-release-source.sh" : "a3af7084956384262842be33100f91a22fdd82b0f91b6091a00e90f8726f67fe",
             "scripts/ci/check-release-tag.sh" : "18240ae231c3056bab5c535f25534dcd5ec0ac65d8d431e88fc3b174c66f2fce",
             "scripts/ci/check-retained-state.pl" : "40c83cfc937b5115c3e7eb10db0194c455cc5179e465cdd7d62cb56d305c3e27",
-            "scripts/ci/check-runtime-free-contracts.sh" : "4d43ec9d02c2c1c9590449163850e3e80b7a6878efe19f24f70c9741b13993b1",
+            "scripts/ci/check-runtime-free-contracts.sh" : "8ee1b62f6ead1679c27d2cfb42960f91194ba125cf0e87207b4226b24862cdd8",
             "scripts/ci/check-rust-compiler.sh" : "481a58f4ae6647111c42846166e4417897caee4fdced9480101dcd48e0129b25",
             "scripts/ci/check-validation-logging.sh" : "335fa3bfe47d8c24a3edb5882774659fd741ac94675273c0243a2531c93dddaf",
             "scripts/ci/collect-tool-evidence.sh" : "172ab2415f4816bdad7955720ef45445b4bd81283c928d7ef2ee3de9064b69b5",
@@ -205,7 +298,9 @@
             "scripts/ci/formatting-evidence.sh" : "d517344568e02a638cd19b99bfbcc63f000a0cf1df7b7713f901f52518b1e2ee",
             "scripts/ci/ic-tool-pins.awk" : "6d99677e86759273a88fb4149cbd4c14f2aacc99e1838a0db343d76c776f1aba",
             "scripts/ci/next-release-version.sh" : "918815a81861abd80684fea14f71cb5a298644317afc0f5860a3d1b6506a0a16",
+            "scripts/ci/observe-cargo-stage.pl" : "e9f90a301ce183620579e8e81dec0d0100f6d74d898453f0952f067d4cfb58e5",
             "scripts/ci/prepare-cargo-formatting-fixture.pl" : "cab304269146b6dc25d7cfc98a4838fc94de83e5d935aee0789e442a0cd6ee35",
+            "scripts/ci/prepare-cargo-stage-source.pl" : "7a8e4ba0d9b33b9674a683213720553068f4939cc123bc29e827a789beac4b74",
             "scripts/ci/prepare-script-fixture.sh" : "ec0ee173807556f931a08a173fc4e38397f26bab00539b748b829cb24d310138",
             "scripts/ci/qualify-blob-wasm-opt.sh" : "ec33d5ff23fe6c6d90e899cbcc5af14d832fac5045deacd617a40af4cf17f4be",
             "scripts/ci/qualify-published-example-install.sh" : "f6370a30a431eee2ee550db737bffd6a9945f32977bdbc568a4b765f985d2d48",
@@ -221,7 +316,9 @@
             "scripts/ci/run-pocketic-test.sh" : "056cc81029df8313e515923b53ca4c8bf4e4f02a01a97c4d1ca57796ff2e1d2c",
             "scripts/ci/run-release.sh" : "8c1af07a6360b0afe4a821acd08d700962c4c15938660c91edf8d099601e6df2",
             "scripts/ci/run-rust-formatting.pl" : "4594fcf9c2bd3d30302a750361394c2aa81dd6807f77a64c5e0be9142e83a72f",
+            "scripts/ci/run-validation-stage.pl" : "11f071129e3a85fccc3e2eccb6fdaaefea39574e715391c62a3751ac3c355bdb",
             "scripts/ci/run-validation-targets.sh" : "476e5bd1acf2033b75eed5eed080e4d306fa81bc3519eef7b79239294ab637e2",
+            "scripts/ci/seal-validation-stage.pl" : "0d37d72ec0e484c5cde38b9bc383410d1daa63f71b67f47a740134bce1aec423",
             "scripts/ci/select-rust-formatting-sources.sh" : "c10514df9c63541c1e86633c6311d9448d06426cd33b93e4dd289e743fc2e4c6",
             "scripts/ci/select-tool-evidence.sh" : "064ee8ecf5e36d760ae4b0aad1cc80563cac074445677526bc7d1d124ff5b303",
             "scripts/ci/shared-companions.sh" : "ffab807c6e7ecfa18e354e65201ee53cb40b8c376fcbad319bfc4a9e615dc46d",
@@ -229,10 +326,11 @@
             "scripts/ci/test-library-packages.sh" : "bd6cdf4f2ce9bad236dd910e400520613d21d36a8d4ed848a299030e4ea4ebce",
             "scripts/ci/test-node-tools.mjs" : "265f1880bb7daf00bacab5e2c707f0213fe8cb224f55bc540eebd15e32a3d830",
             "scripts/ci/test-published-example-install.sh" : "90335ea153fd6ac8c626c572101750a2cc62147e44f64785014a877eabab42fb",
-            "scripts/ci/test-release-validation.sh" : "c5f09f5ac39bcc66bcb23c577de801ef0a4dbcabaaa803ed29efa38a5fde2cae",
-            "scripts/ci/test-runtime-free-contracts.sh" : "a7d0c645e103d622dc0492a5a2d470083cfa7abe93759bd4d80b2202ce65c62c",
+            "scripts/ci/test-release-stage-reuse.sh" : "2e6cbb5c851c5f34ca59a23a6c9adeda8ed02946a82826e9905bd9110cdef40f",
+            "scripts/ci/test-release-validation.sh" : "ee242a1dd557105f624b9e24e7dd8bccda1735b6f74a850f202f6c8fbf3d403c",
+            "scripts/ci/test-runtime-free-contracts.sh" : "e8406ad3bc920924f9a89d82d80bfcb34a5d94191426dea62cae089336495f28",
             "scripts/ci/test-rust-compiler.sh" : "4bdeb733a78006b002b94108a47568670aeac1d7a6dab630a12507d0c0d790d9",
-            "scripts/ci/test-testkit-commands.sh" : "5badd62b813e53f95b2fd1243ef08f1bfe5bffbaeb10f7b337eb6c5076af9027",
+            "scripts/ci/test-testkit-commands.sh" : "a133afd933f171cceb1ab04944e6d395e2165feeab542fc56795c5a3bbdc767c",
             "scripts/ci/test-tool-downloads.sh" : "c672b97997f6e6dfe0ec367120332a743cf281501d731c9be0808213fb853af1",
             "scripts/ci/test-tool-evidence.sh" : "f93edce1f8881690a6702efbfcb8d7679488e83b5da8b6f53bdeb643e3fba706",
             "scripts/ci/test-tool-store.sh" : "af563f004e8b03bea5f12c3896fb7228ae672ce33e7b548ce6da7f0545da6c15",
@@ -248,7 +346,7 @@
             "scripts/dev/OwnedTree.pm" : "efe6acefb807e41e7f2bc3bfe3314deba5647d694ccfd48c3beac4e7956bfb49",
             "scripts/dev/cargo-tool-build.sh" : "2dd5d5da3a78a6b982f7eadb2c175cef9270d6e17753990817e5759f34fa1b7d",
             "scripts/dev/check-cargo-tool-versions.pl" : "35b356fa090cd2fc498fc53d13a1b3926ddacb0db5944aa92bbbbc8f53dfe76c",
-            "scripts/dev/cloc.sh" : "d68abbb5f4a7d03e89b4e5969a545f541c9a122dd2bd6429fc4a99e046f7871a",
+            "scripts/dev/cloc.sh" : "95148453cd78376c3a127451d215bc07bc50f7b84dcdad48d39632bde84ad5e8",
             "scripts/dev/compiler-cache-maintenance.pl" : "7f39ed6acc821c20680e0e4cba85cf10fa894af81eb92dbf3c152bb198410b8e",
             "scripts/dev/gh-ci.sh" : "6eb261f79ff2780422a75e018b091bb119f552a1d155504acacefb7e2e290ba0",
             "scripts/dev/host-platform.sh" : "f1916ce5f9727e437efb2c67252a88ec3fd2ebb91ec34507669ae37e27215aac",
@@ -258,37 +356,38 @@
             "scripts/dev/install-rust-tools.sh" : "3a40139e5d928a7a9917a2e2dbb11bec34f5a5b8350ac2de5d030082ffb32136",
             "scripts/dev/native-package-inputs.pl" : "ee9ec8f9f45ff2e61ed0287fcac6b2b3c151e802565cacd29c6eeacf32c3b97f",
             "scripts/dev/run-maintenance.sh" : "c056d7d7ff08260445587810274ba0022fe610e81da597ab9dc44444b4a179a3",
-            "scripts/dev/testkit-server.sh" : "da86203caa0ff60a816f3937283f4a0320d8fc7353ac192d77713c727121acec",
+            "scripts/dev/testkit-server.sh" : "9668af5940d8fe83e1dba1c11ae8e5859fea817c3c96b3ff6c37bf0081f9c6cd",
             "scripts/dev/tool-store-maintenance.pl" : "f06fab74d51ec386133feeda6cd26509e8a9797ae14d93afdf5fb7369b0141a0",
             "scripts/dev/tool-store.sh" : "0ef2b424b2a6c78ae4078a9b61f719b7e0b0337a56a4aabcd72f42f259c6cadc",
             "scripts/distribution/governance-files.txt" : "b58c28709ad3d8a8fa950d7a27020fc87f5f10150b5dcb1e9351ca35790e2619",
             "scripts/distribution/maintenance-files.txt" : "9aa52699f4f7f8069cddd6b6ec295afc7a781e48b09bf104d2fff8f262a4720d",
             "scripts/distribution/refresh-consumer.sh" : "bf691a4ed847f347697de360223b04efe83d128f888fa6f7cf70bf3d1d85a8fb",
             "scripts/release/group.sh" : "39bc77e0109381fc3912ccc463cb9c60d80149acfcdb37986468710a077625b2",
-            "scripts/release/release-data.pl" : "2dc6d4fc2276b29a4dabdb21a8959985daec556bfcf8f07ad4513f7a727d3f48",
-            "scripts/release/release.sh" : "b1f0d60b4254a253c86212c969c68d4eb3b05fd4801fe6e3a52a94e973bf18f1",
-            "scripts/release/test-release.sh" : "5ec8d55a73f351cf45b307cabc9dedd17dc0fc0f8c37f422fec2dca043df1165",
-            "scripts/release/validate.sh" : "5935bce17b2ce13d2dd1842322c58e2a0d6aba8fe925e762aa13666b25065e43",
-            "scripts/release/validation.pl" : "4eff33907cd50edc08633081007cc2d135505fa2adeafbc46882406b9945178e",
-            "target/blob-release-validation.d661lT/configuration.json" : "b617ba3c0609387616c0901bd4d92524beb38114ef8d3211c5431346e4e9d8e9",
-            "target/blob-release-validation.d661lT/plan.json" : "04aff60450f913852387cd86972edd668abb75c9bf3fd277e4d554713cbf1376",
+            "scripts/release/release-data.pl" : "177f248f033093d591bac150544be96379a972dca96ba12fc41b75cfc049b95b",
+            "scripts/release/release.sh" : "942893519ff5fe98dfd1aa3d90d625c722d243a084594ae1ffe310201fdba513",
+            "scripts/release/stage.pl" : "4886a5e3260a4be9d5d0e6270b4234383a5858e2b34525418f86d6e0157b45b4",
+            "scripts/release/test-release.sh" : "a01c0ab17ef8963204900ca30c00d18dccee13acf677c93cacb83100702ab2a6",
+            "scripts/release/validate.sh" : "eade59893985ddbe31b3ab1648c9a9e78a79943e596c9b4514d033d19f01a95c",
+            "scripts/release/validation.pl" : "448a8bf175773554818ef9c66fc021a9e543211496d21d2a61e792c7fbdddb75",
+            "target/blob-release-validation.Mc5Jrz/configuration.json" : "b617ba3c0609387616c0901bd4d92524beb38114ef8d3211c5431346e4e9d8e9",
+            "target/blob-release-validation.Mc5Jrz/plan.json" : "6bd37081455a9a80bbfc8af81a14f25207f51dc01179fd5cd69cccf27a2b3e5f",
             "tests/browser/.nvmrc" : "73fb1b615e2043a933be1c0895cde4358036acc28d785692509b822aa53c761f",
             "tests/browser/package-lock.json" : "2cc2795c46acb0dcaac85cfa7118da4e62a1adf37f4b84ccac942cac85df0bf6",
             "tests/browser/package.json" : "fa42746e13d3e5b43e4213360e5683c240357bae69d94870eb7d7df94348644d",
-            "tests/pocketic/Cargo.toml" : "1b8bababa6be3e5071c7592a2acdec578015949ea2bf5866dafb256b0ba30969",
-            "tests/protocol/Cargo.toml" : "71d6160f2e20587f81b15d29b03076024674390a97c05d7ee40f6c2bc3fc807b"
+            "tests/pocketic/Cargo.toml" : "c11517dc6cfda4e5c575c141b316ab341e3a607eb667c7fbb1d05fe1dc41fd66",
+            "tests/protocol/Cargo.toml" : "891250049a771193887963872583e70533863e8606a5bde23aaf1ca107ce8447"
          },
          "kind" : "group-validation-evidence",
-         "plan_sha256" : "04aff60450f913852387cd86972edd668abb75c9bf3fd277e4d554713cbf1376",
-         "policy_sha256" : "d5aa5be74392580dd8b59b9025dc6bc8b5c543468e53300fae06f2f67097bd7c",
-         "run" : "target/blob-release-validation.d661lT/validation.wdfYTh",
+         "plan_sha256" : "6bd37081455a9a80bbfc8af81a14f25207f51dc01179fd5cd69cccf27a2b3e5f",
+         "policy_sha256" : "23dad03e78aee872fd4ff3aa59158019e6051b7f604c7523238e3964bb116eb6",
+         "run" : "target/blob-release-validation.Mc5Jrz/validation.k8sn7I",
          "schema" : 1,
          "scope" : "workspace",
-         "source" : "7390ec10b786bbe7c9302c3fceb2eb47335aed9d",
+         "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
          "stages" : [
             {
                "log" : "0.log",
-               "log_sha256" : "1357c305c5a3dd779e9df035cd983e8f94dd43dc3bd89123a117ded69103fbc4",
+               "log_sha256" : "18a14492f05c70d2c97a0525749fac4551a2c83d25d174268b1a2ebaec0d4a9a",
                "seconds" : 2,
                "state" : "PASS",
                "target" : "shared-tooling-check"
@@ -303,7 +402,7 @@
             {
                "log" : "2.log",
                "log_sha256" : "0758306b474a3427e5d5f1012e49cd4dd042945122306df43913b2953a3f74fd",
-               "seconds" : 24,
+               "seconds" : 25,
                "state" : "PASS",
                "target" : "tools-check"
             },
@@ -316,134 +415,134 @@
             },
             {
                "log" : "4.log",
-               "log_sha256" : "299f16a2c523be18fef769975d2df00e0505521db047540feea3a74b94666887",
-               "seconds" : 2,
+               "log_sha256" : "08e7fa485f201f7c215932dc5612cab636791c1eee35226a2c2c4b258e7913c7",
+               "seconds" : 67,
                "state" : "PASS",
                "target" : "clippy"
             },
             {
                "log" : "5.log",
                "log_sha256" : "f63c248219aff683ef6d1364331cdf25ec79474026b961eebefdf6903c31108b",
-               "seconds" : 1,
+               "seconds" : 2,
                "state" : "PASS",
                "target" : "platform-boundary-check"
             },
             {
                "log" : "6.log",
-               "log_sha256" : "4ab3b2bdb75cff7c86c37003d04eb88f0d46939643e2ff225e68a9700874d4e7",
+               "log_sha256" : "83cf8996cce3e867dfcff38f108fd83f6fe4e75d0e0e335e76b58ef131a9153c",
                "seconds" : 1,
                "state" : "PASS",
                "target" : "documentation-links-check"
             },
             {
                "log" : "7.log",
-               "log_sha256" : "5330d32d6b1ccf40688e77cb423d98085d6df6120cf005450c4a739954dfcf97",
-               "seconds" : 80,
+               "log_sha256" : "cf60da65b6f7f4d0e85f26ac5c34a9e2605f13579e38a4a60a40194817f9931b",
+               "seconds" : 98,
                "state" : "PASS",
                "target" : "shared-tooling-tests"
             },
             {
                "log" : "8.log",
                "log_sha256" : "4468da9eab7905399767b5fcb7b9373215ba910ad4a3cf54d900ae73fb8825c2",
-               "seconds" : 4,
+               "seconds" : 5,
                "state" : "PASS",
                "target" : "contracts-boundary-check"
             },
             {
                "log" : "9.log",
-               "log_sha256" : "25cf285c9dc522523bc887936c3afc066de664784b41be552b6ddc7d6bb7dfd5",
-               "seconds" : 9,
+               "log_sha256" : "cd0830e9aefe39267528c623286596855c83a8b3100ba11e681c046f6a97f001",
+               "seconds" : 8,
                "state" : "PASS",
                "target" : "shell-check"
             },
             {
                "log" : "10.log",
                "log_sha256" : "25b5b62f2426739b39e23d7c33c9667d537cc1b2c32fe1c30d1af7a9550ffeee",
-               "seconds" : 84,
+               "seconds" : 86,
                "state" : "PASS",
                "target" : "release-metadata-check"
             },
             {
                "log" : "11.log",
-               "log_sha256" : "c31443aa056fbc3636d7ed2e7ad800de09593e3af440564d6b4db36a63aa93cb",
-               "seconds" : 667,
+               "log_sha256" : "67773b7e5008f6f2c5f2b34f36062699fc29d7e9c97980b9ad34e7458e71700d",
+               "seconds" : 27,
                "state" : "PASS",
                "target" : "release-check"
             },
             {
                "log" : "12.log",
                "log_sha256" : "3b350408c858e830d4ba4e6274fd8cfe151be6bcec909f29d132081a587af4c9",
-               "seconds" : 17,
+               "seconds" : 16,
                "state" : "PASS",
                "target" : "hooks-check"
             },
             {
                "log" : "13.log",
-               "log_sha256" : "2f939151b1d21f83b99cd084ea0c699fcb1b8fcd1d95b693f87594d4555b6a92",
+               "log_sha256" : "00fb6feb758b296b737596c5a1afdef8afccd128e484b8fc8aa9d67c6a481f57",
                "seconds" : 3,
                "state" : "PASS",
                "target" : "fmt-check"
             },
             {
                "log" : "14.log",
-               "log_sha256" : "fead2c97ee1c4b95ff9bc583980faa779d88c5d70b3e7b19faf47f7cf4ad4a51",
-               "seconds" : 8,
+               "log_sha256" : "087712e483d0121ac305e22e0fb5f02495fd27c71493e5a930b7311cc7364388",
+               "seconds" : 26,
                "state" : "PASS",
                "target" : "check"
             },
             {
                "log" : "15.log",
-               "log_sha256" : "27e0125191088d8dc8214230b02bbbcc29d537ae700d292a963aa939d33002ec",
-               "seconds" : 6,
+               "log_sha256" : "204b7187cfc39636d3b16323abec27321589a807e027680337e049c39976e96d",
+               "seconds" : 27,
                "state" : "PASS",
                "target" : "probe-check"
             },
             {
                "log" : "16.log",
-               "log_sha256" : "9087dc2469a81111d7825a82ae584644cb2bf23bb56a34199dd8b9b98324ad0c",
-               "seconds" : 6,
+               "log_sha256" : "ecf2a6114bbca6a76e9e0caf6d2cde7134d8a6d418fe3e71e64369437a60fe8d",
+               "seconds" : 27,
                "state" : "PASS",
                "target" : "docs-check"
             },
             {
                "log" : "17.log",
-               "log_sha256" : "ecd3cf16417d100c34d724714862a2f4af1351b9e6c8d280b2b5f5731cfc83e9",
-               "seconds" : 33,
+               "log_sha256" : "6c1c469dd82f76a774068d15d7d6fa065cef186dd73425a6db9c09ddbf66fbcb",
+               "seconds" : 27,
                "state" : "PASS",
                "target" : "test-native"
             },
             {
                "log" : "18.log",
-               "log_sha256" : "ebd7853da7da148dcdb487655cefc86807d6f62f3164669ccadcc95cada31f57",
-               "seconds" : 101,
+               "log_sha256" : "f4fd6df0ef61c6b3cbaddd07cae29a8ee3658b142f08465979382f2daf8c7d26",
+               "seconds" : 85,
                "state" : "PASS",
-               "target" : "test-pocketic-client"
+               "target" : "test-pocketic"
             },
             {
                "log" : "19.log",
-               "log_sha256" : "80e53dfa4a97881a14114d97a4fe0b44123d5ea2d552e861b5ea756c4ab14573",
-               "seconds" : 108,
-               "state" : "PASS",
-               "target" : "test-pocketic-engine"
-            },
-            {
-               "log" : "20.log",
-               "log_sha256" : "377603acde98accf8eac0907b3b08c6a608bc03caf897d4f7a40fbf2dfceab07",
-               "seconds" : 7,
+               "log_sha256" : "4d2e02c7169fb22541d0c89a7abeb3103f815b72409b9cce2941cbb507eaf469",
+               "seconds" : 27,
                "state" : "PASS",
                "target" : "wasm-check"
             },
             {
+               "log" : "20.log",
+               "log_sha256" : "bc5e7ad40975739316723407c6af5efc18afe2655e514d572e2c895141a7877d",
+               "seconds" : 27,
+               "state" : "PASS",
+               "target" : "package-regression"
+            },
+            {
                "log" : "21.log",
-               "log_sha256" : "28f22fb0abc2709a7ecb73d9b25f6a37023df988ecb7f9ddc6a316eb91d07b14",
-               "seconds" : 43,
+               "log_sha256" : "3505e5ee9f7e9478aecdb660c7dc5a05cbc4faf2b8de3473f0fed12095662443",
+               "seconds" : 35,
                "state" : "PASS",
                "target" : "package"
             }
          ]
       },
       "group" : "client",
-      "kind" : "blob-release-plan-v1",
+      "kind" : "blob-release-stages-v1",
       "plan" : {
          "group" : "client",
          "inputs" : [
@@ -468,6 +567,7 @@
             "ci/ic-tools.tsv",
             "ci/release-delivery-policy.txt",
             "ci/release-package-scopes.json",
+            "ci/release-stage-reuse.json",
             "ci/release-validation.json",
             "ci/tool-versions.env",
             "crates/ic-blob-storage-cli/Cargo.toml",
@@ -503,6 +603,7 @@
             "scripts/ci/check-browser-tools.mjs",
             "scripts/ci/check-browser-tools.sh",
             "scripts/ci/check-cargo-dependency-boundaries.sh",
+            "scripts/ci/check-cargo-stage-closure.pl",
             "scripts/ci/check-crates-io-version.sh",
             "scripts/ci/check-dependency-pins.sh",
             "scripts/ci/check-documentation-links.pl",
@@ -533,7 +634,9 @@
             "scripts/ci/formatting-evidence.sh",
             "scripts/ci/ic-tool-pins.awk",
             "scripts/ci/next-release-version.sh",
+            "scripts/ci/observe-cargo-stage.pl",
             "scripts/ci/prepare-cargo-formatting-fixture.pl",
+            "scripts/ci/prepare-cargo-stage-source.pl",
             "scripts/ci/prepare-script-fixture.sh",
             "scripts/ci/qualify-blob-wasm-opt.sh",
             "scripts/ci/qualify-published-example-install.sh",
@@ -549,7 +652,9 @@
             "scripts/ci/run-pocketic-test.sh",
             "scripts/ci/run-release.sh",
             "scripts/ci/run-rust-formatting.pl",
+            "scripts/ci/run-validation-stage.pl",
             "scripts/ci/run-validation-targets.sh",
+            "scripts/ci/seal-validation-stage.pl",
             "scripts/ci/select-rust-formatting-sources.sh",
             "scripts/ci/select-tool-evidence.sh",
             "scripts/ci/shared-companions.sh",
@@ -557,6 +662,7 @@
             "scripts/ci/test-library-packages.sh",
             "scripts/ci/test-node-tools.mjs",
             "scripts/ci/test-published-example-install.sh",
+            "scripts/ci/test-release-stage-reuse.sh",
             "scripts/ci/test-release-validation.sh",
             "scripts/ci/test-runtime-free-contracts.sh",
             "scripts/ci/test-rust-compiler.sh",
@@ -595,10 +701,11 @@
             "scripts/release/group.sh",
             "scripts/release/release-data.pl",
             "scripts/release/release.sh",
+            "scripts/release/stage.pl",
             "scripts/release/test-release.sh",
             "scripts/release/validate.sh",
             "scripts/release/validation.pl",
-            "target/blob-release-validation.d661lT/configuration.json",
+            "target/blob-release-validation.Mc5Jrz/configuration.json",
             "tests/browser/.nvmrc",
             "tests/browser/package-lock.json",
             "tests/browser/package.json",
@@ -608,7 +715,7 @@
          "policy" : "ci/release-validation.json",
          "schema" : 1,
          "scope" : "workspace",
-         "source" : "7390ec10b786bbe7c9302c3fceb2eb47335aed9d",
+         "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
          "stages" : [
             {
                "reason" : "Shared, unknown or not yet classified inputs require the full roster",
@@ -701,14 +808,9 @@
                "target" : "test-native"
             },
             {
-               "reason" : "Shared, unknown or not yet classified inputs require the full roster",
+               "reason" : "Shared, unknown or not yet classified inputs require the full roster; installed partitions: test-pocketic-client-run test-pocketic-engine-run",
                "required" : true,
-               "target" : "test-pocketic-client"
-            },
-            {
-               "reason" : "Shared, unknown or not yet classified inputs require the full roster",
-               "required" : true,
-               "target" : "test-pocketic-engine"
+               "target" : "test-pocketic"
             },
             {
                "reason" : "Shared, unknown or not yet classified inputs require the full roster",
@@ -718,11 +820,16 @@
             {
                "reason" : "Shared, unknown or not yet classified inputs require the full roster",
                "required" : true,
+               "target" : "package-regression"
+            },
+            {
+               "reason" : "Shared, unknown or not yet classified inputs require the full roster",
+               "required" : true,
                "target" : "package"
             }
          ]
       },
-      "plan_path" : "target/blob-release-validation.d661lT/plan.json",
+      "plan_path" : "target/blob-release-validation.Mc5Jrz/plan.json",
       "policy" : {
          "groups" : [
             "contracts",
@@ -749,14 +856,431 @@
             "probe-check",
             "docs-check",
             "test-native",
-            "test-pocketic-client",
-            "test-pocketic-engine",
+            "test-pocketic",
             "wasm-check",
+            "package-regression",
             "package"
          ]
       },
       "schema" : 1,
-      "source" : "7390ec10b786bbe7c9302c3fceb2eb47335aed9d"
+      "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+      "stage_admissions" : {
+         "check" : {
+            "admission" : {
+               "context_sha256" : "3ecb5538b5de58a3aabe9d5aef098d6dfc08165f425f1c286d1d181e9767f8cb",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.5721538100042,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/3ecb5538b5de58a3aabe9d5aef098d6dfc08165f425f1c286d1d181e9767f8cb.1NkR3c.json",
+               "execution_proof_sha256" : "54843fa8f9ea38eeeb99e468236328c4980e792350bda38017e0033b65f69abd",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "check"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "check-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 25.1424844640133,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/check-admission.json" : "ac6027db1541039027aaf7c8df4a7184c215d10eae4e475d5d0f9dcc35503c83",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-contracts.1NkR3c/command.stderr" : "1ff00eeeb1b4b0ffe7683d994b29ac312e4787d162209ddbdc9fe6655db89a6a",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-contracts.1NkR3c/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/3ecb5538b5de58a3aabe9d5aef098d6dfc08165f425f1c286d1d181e9767f8cb.1NkR3c.json" : "54843fa8f9ea38eeeb99e468236328c4980e792350bda38017e0033b65f69abd"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-contracts.1NkR3c",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "clippy" : {
+            "admission" : {
+               "context_sha256" : "e44eb1811eec72477acb0cd22eacfba78975710c2557d5ed7a44240788c595df",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.7316240500077,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/e44eb1811eec72477acb0cd22eacfba78975710c2557d5ed7a44240788c595df.9NUGgz.json",
+               "execution_proof_sha256" : "840acaa24d1f22639fcc153c4b356fe18522aa4c0efdd5f5a60144187f369a3b",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "clippy"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "clippy-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 65.6643780960003,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/clippy-admission.json" : "c657c1a5f3f91a46791900771c2b4339dd8687a3ab51bb62a5a5698e666de095",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-contracts.9NUGgz/command.stderr" : "00cba529c66c5f0e719805752df7930bf619dd8ff6ec412c9a4a57bb3f00082c",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-contracts.9NUGgz/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/e44eb1811eec72477acb0cd22eacfba78975710c2557d5ed7a44240788c595df.9NUGgz.json" : "840acaa24d1f22639fcc153c4b356fe18522aa4c0efdd5f5a60144187f369a3b"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-contracts.9NUGgz",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "docs-check" : {
+            "admission" : {
+               "context_sha256" : "5062083bd509074d2497901899aed9e0b4364a1942f063a9b343c084c6119434",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.8189746540156,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/5062083bd509074d2497901899aed9e0b4364a1942f063a9b343c084c6119434.a4Xw6r.json",
+               "execution_proof_sha256" : "cf68464513ae8fbb3e0ee9cc7700e741d69fa6f15a008f6553cd7d8ca6dcbe94",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "docs-check"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "docs-check-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 25.320029524999,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/docs-check-admission.json" : "667442c84e5e01d22eec4f6be934662a8ab40719131300d24bdbe05d421494a7",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-contracts.a4Xw6r/command.stderr" : "5437a66d7a8f60cc3a62a463b638de26cd74d71c6cd27c7030619e26b6949152",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-contracts.a4Xw6r/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/5062083bd509074d2497901899aed9e0b4364a1942f063a9b343c084c6119434.a4Xw6r.json" : "cf68464513ae8fbb3e0ee9cc7700e741d69fa6f15a008f6553cd7d8ca6dcbe94"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-contracts.a4Xw6r",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "package-regression" : {
+            "admission" : {
+               "context_sha256" : "a8ef20bac6df416136c663f033e98847ad4195443da4fc56314429aeac30ec60",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.7645245259919,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/a8ef20bac6df416136c663f033e98847ad4195443da4fc56314429aeac30ec60.bVq7sH.json",
+               "execution_proof_sha256" : "4091d5d10c4c5ca8617a3b2b09c61dd5d7f9889a711ac09151f8a2332bcc7dff",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "package-regression"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "package-regression-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 25.2749981280067,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/package-regression-admission.json" : "b7c55bb536f55dbc37897fdc82fbc73b07c1d98db101552e2d15c92f95ff832b",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-contracts.bVq7sH/command.stderr" : "6e635520a63ed97cb175fca655d3be60685a7214d783115cf68912209088a6c1",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-contracts.bVq7sH/command.stdout" : "1c288d26d5faa99f297f6f44a2e03f780c2c310afbc4c263b17492232625f731",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/a8ef20bac6df416136c663f033e98847ad4195443da4fc56314429aeac30ec60.bVq7sH.json" : "4091d5d10c4c5ca8617a3b2b09c61dd5d7f9889a711ac09151f8a2332bcc7dff"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-contracts.bVq7sH",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "probe-check" : {
+            "admission" : {
+               "context_sha256" : "039e88d75bcc2d9d4203466212aa5cd517107a1327b27061465e9c7637663bc4",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.8691177169967,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/039e88d75bcc2d9d4203466212aa5cd517107a1327b27061465e9c7637663bc4.JMrviW.json",
+               "execution_proof_sha256" : "ca9ad12f82c876ae78284ff3420ab5717cb01c1021fbc80e000f43078bd1d064",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "probe-check"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "probe-check-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 25.462419825024,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/probe-check-admission.json" : "b45991774ef1cea3e04d584b3d42fdca71cd72865cbf85c3bd20fdd830834f8b",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-contracts.JMrviW/command.stderr" : "92341458d237e722b88be45f37fbe81e4898881ec0b6a3da9b0aa8452838ab59",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-contracts.JMrviW/command.stdout" : "f768c8de95d9541c4bd1e59ca69f97162bf5c08ce35423c518e1c435719a6acb",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/039e88d75bcc2d9d4203466212aa5cd517107a1327b27061465e9c7637663bc4.JMrviW.json" : "ca9ad12f82c876ae78284ff3420ab5717cb01c1021fbc80e000f43078bd1d064"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-contracts.JMrviW",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "release-check" : {
+            "admission" : {
+               "context_sha256" : "2b748313bbe212e305ebf30a2237f6ef46157caa8420a6ebc32c6862f2c67819",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 21.0543262529827,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/2b748313bbe212e305ebf30a2237f6ef46157caa8420a6ebc32c6862f2c67819.ZyYy9z.json",
+               "execution_proof_sha256" : "6c157430d66217c012dc13d259bf7541f5fcb0b3af8e4b4ade4bd207d3c500a3",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "release-check"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "release-check-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 25.6364104709937,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/release-check-admission.json" : "8ce2d06d9213c395a5e0baf0458172b21b635c9d2dda016dc67e2eabccf1c27d",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-contracts.ZyYy9z/command.stderr" : "4c9eb667b06d15fae0587960059a48122a7acc60b10acd07c1b3eee2e2167a76",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-contracts.ZyYy9z/command.stdout" : "c31443aa056fbc3636d7ed2e7ad800de09593e3af440564d6b4db36a63aa93cb",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/2b748313bbe212e305ebf30a2237f6ef46157caa8420a6ebc32c6862f2c67819.ZyYy9z.json" : "6c157430d66217c012dc13d259bf7541f5fcb0b3af8e4b4ade4bd207d3c500a3"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-contracts.ZyYy9z",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "test-native" : {
+            "admission" : {
+               "context_sha256" : "4ac7f32efe02afc2c8ceeff5ecae22ca2c0004522f3c4f7c55fcae55f5d5a151",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.7730612989981,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/4ac7f32efe02afc2c8ceeff5ecae22ca2c0004522f3c4f7c55fcae55f5d5a151.4_PSyh.json",
+               "execution_proof_sha256" : "d3d0137ef61451d28266376d046e4f7b4eb484fdc8b52bc846f1e83f0429308b",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "test-native"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "test-native-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 25.2845398340141,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/test-native-admission.json" : "fe43ccd81429c7f445e1ec54677c2dd54aa05b3b0be213cd8746c4fb6f4e8bbc",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-contracts.4_PSyh/command.stderr" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-contracts.4_PSyh/command.stdout" : "9f1d058cbf15ab7c999be1a26ba7043034bf66e4f124698dcc414074866eea76",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/4ac7f32efe02afc2c8ceeff5ecae22ca2c0004522f3c4f7c55fcae55f5d5a151.4_PSyh.json" : "d3d0137ef61451d28266376d046e4f7b4eb484fdc8b52bc846f1e83f0429308b"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-contracts.4_PSyh",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "test-pocketic" : {
+            "admission" : {
+               "context_sha256" : "b27834b54788f62c5851a71dcfd0666f2e949218bf23a9a7e227a21641ba2b9b",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.6966151219967,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/b27834b54788f62c5851a71dcfd0666f2e949218bf23a9a7e227a21641ba2b9b.UKXYYJ.json",
+               "execution_proof_sha256" : "cc0c4b98e104393567a8424bbcfa38459454023e719aec7852c8bb73ba463149",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "test-pocketic"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "test-pocketic-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 84.4435585530009,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/test-pocketic-admission.json" : "bd9bd01f890a7715f53c0e8db408e03d24e27d99987ad4594f280942a0c0f79f",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-contracts.UKXYYJ/command.stderr" : "7d0619dfed239cd2ffab4186e88f9b133cde16f86d7d9dd9aab74e7efd696c06",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-contracts.UKXYYJ/command.stdout" : "4a850202ae2ba465e8a6308eeb512aa0021b6660179d13bb84f7ffce7e4c5958",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/b27834b54788f62c5851a71dcfd0666f2e949218bf23a9a7e227a21641ba2b9b.UKXYYJ.json" : "cc0c4b98e104393567a8424bbcfa38459454023e719aec7852c8bb73ba463149"
+            },
+            "fresh_identity" : true,
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-contracts.UKXYYJ",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         },
+         "wasm-check" : {
+            "admission" : {
+               "context_sha256" : "f4cd56b2b9881e76e336d6eec1bc157320d33ee282be9427f96a64488ae1663d",
+               "contract" : "blob-final-candidate/1",
+               "elapsed_seconds" : 20.7976107110153,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/f4cd56b2b9881e76e336d6eec1bc157320d33ee282be9427f96a64488ae1663d.PGC7l6.json",
+               "execution_proof_sha256" : "b2bb19135fc03f2619890560c7ca2ee20e26624da1b6881c38365c7ae21cab48",
+               "group" : "client",
+               "kind" : "release-stage-admission",
+               "mode" : "reused",
+               "schema" : 1,
+               "source" : "baed366aee9a3b3493b1f4fb3e989abe5dab1b93",
+               "stage" : "wasm-check"
+            },
+            "candidate_identity" : "811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "command" : [
+               "/usr/bin/make",
+               "--no-print-directory",
+               "CARGO_TARGET_DIR=/home/adam/projects/ic-blob-storage/target/release-stage-build",
+               "wasm-check-run"
+            ],
+            "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/811e9129ca6a1194167a79659ff1b05409bee21158d0f32bdf35c7a65229c213",
+            "elapsed_seconds" : 25.3225453500054,
+            "environment_sha256" : "648d9f1c02b408c7a688ec47732470e48269f3a59e78608780d12e0eec06c7cd",
+            "files" : {
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.Mc5Jrz/stages/wasm-check-admission.json" : "92e76e8b03f5490680fa259dfc4be2129451c18e8d669c95314541f0a05070ac",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-contracts.PGC7l6/command.stderr" : "8365d8f964c4d856ccd614ae045ad005d9926b82cf6bdfcffe8b159454f18b26",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-contracts.PGC7l6/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/f4cd56b2b9881e76e336d6eec1bc157320d33ee282be9427f96a64488ae1663d.PGC7l6.json" : "b2bb19135fc03f2619890560c7ca2ee20e26624da1b6881c38365c7ae21cab48"
+            },
+            "host" : [
+               "Linux",
+               "ripper",
+               "7.0.0-42-generic",
+               "#42~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Mon Oct 19 14:43:01 UTC 2",
+               "x86_64"
+            ],
+            "kind" : "sealed-cargo-stage-admission",
+            "origin" : {
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-contracts.PGC7l6",
+               "group" : "contracts",
+               "source" : "170db9cc3d0b1dca5310bcf3916cf9bcd916e757"
+            },
+            "schema" : 1
+         }
+      }
    },
-   "version" : "0.71.1"
+   "version" : "0.72.0"
 }
