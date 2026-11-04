@@ -4,6 +4,15 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.71.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Platform 0.22 and Host Tools 0.82 with the matching Runtime 0.19.1,
+  Types 0.18.1, Wire 0.16.2 and Build/Host 0.74.3 selections. Qualify native
+  signed queries and certificate refusal/recovery while preserving CLI output,
+  authentication, retry custody and passive replicated-client boundaries.
+
 ## [0.71.0] - 2026-11-04
 
 ### 💥 Breaking

@@ -58,7 +58,11 @@ jq -e '
     (.jobs.tooling.env.BLOB_GROUP_CI | contains("workflow_dispatch")) and
     (.jobs.tooling.steps | any(.name == "Run the selected source-bound group plan on this native host" and .env.RELEASE_GROUP == "${{ inputs.release_group }}" and (.run | contains("make release-verify")))) and
     (.jobs.tooling.steps | any(.name == "Retain group plans, package scopes and stage execution evidence" and .with["include-hidden-files"] == true)) and
-    (.jobs.tooling.steps | any(.name == "Qualify native CLI, installation and Metrics restoration probe" and .if == null)) and
+    (.jobs.tooling.steps | any(.name == "Qualify native CLI, installation and Metrics restoration probe" and .if == "env.BLOB_GROUP_CI != '\''true'\''")) and
+    (.jobs["wire-schema"].steps | any(.name == "Qualify portable Contracts regressions" and .if == "github.event_name != '\''workflow_dispatch'\'' || inputs.release_group == '\''workspace'\''" and (.run | contains("cargo test --offline --locked -p ic-blob-storage-contracts --all-features")))) and
+    (.jobs["wire-schema"].steps | all((.run // "") | contains("cargo clippy") | not)) and
+    (.jobs["wire-schema"].steps | any(.name == "Qualify generated Wire clients" and .if == null and (.run | contains("make test-wire-schema")))) and
+    (.jobs["library-tests"].steps | any(.name == "Run core and client library regressions" and .if == "github.event_name != '\''workflow_dispatch'\'' || inputs.release_group == '\''workspace'\''")) and
     .jobs["wire-schema"].if == null and .jobs["library-tests"].if == null
 ' "$TEMPORARY/workflow.json" > /dev/null
 jq -r '.packages[] | select(.name == "ic-blob-storage-pocketic-tests") | .targets[] | select(.kind == ["test"]) | .name' \
@@ -110,7 +114,7 @@ jq -cS '.stages |= map_values("members")' ci/release-package-scopes.json > "$TEM
 mkdir "$TEMPORARY/source"
 bash scripts/ci/prepare-script-fixture.sh "$ROOT" "$TEMPORARY/source" \
     scripts/ci/run-validation-targets.sh scripts/ci/validation-evidence.pl \
-    scripts/ci/release-receipts.sh
+    scripts/ci/release-receipts.sh scripts/ci/check-retained-state.pl
 mkdir -p "$TEMPORARY/source/scripts/release" "$TEMPORARY/source/ci" "$TEMPORARY/templates"
 cp scripts/release/validation.pl scripts/release/validate.sh "$TEMPORARY/source/scripts/release/"
 cp scripts/ci/check-release-source.sh "$TEMPORARY/source/scripts/ci/"
@@ -280,6 +284,12 @@ jq -e '.scope == "workspace" and all(.stages[]; .required)' .tmp/full/plan.json 
 refuse perl scripts/release/validation.pl check "$record"
 rm "$CARGO_HOME/config.toml"
 verify_record "$record"
+# Refuse retained build trees before invalidating an existing valid receipt.
+cp "$record" "$TEMPORARY/prior-retention-record.json"
+mkdir -p .git/release-state/retention-fixture/target
+refuse bash scripts/release/validate.sh
+cmp "$record" "$TEMPORARY/prior-retention-record.json"
+rmdir .git/release-state/retention-fixture/target .git/release-state/retention-fixture
 # Failed reruns invalidate the selectable proof without overwriting old logs.
 TEST_FAIL=client-boundary refuse bash scripts/release/validate.sh
 [[ ! -e "$record" ]]

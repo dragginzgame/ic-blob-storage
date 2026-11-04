@@ -109,6 +109,12 @@ for group in "${groups[@]}"; do
     RELEASE_PREVIOUS="$(jq -er .previous "$TEMPORARY/$group-plan.json")"
     RELEASE_VERSION="$(cat "$TEMPORARY/$group.version")"
     export RELEASE_PREVIOUS RELEASE_VERSION
+    # Retention admission precedes tag checks, tool setup and registry effects.
+    mkdir -p .git/release-state/retention-fixture/target
+    refuse bash scripts/release/release.sh publish
+    rg -q 'retained state refused: build/cache/checkout tree' "$TEMPORARY/refusal.log"
+    [[ ! -d .git/release-state/lock && ! -s "$TEST_EVENTS" ]] || exit 1
+    rmdir .git/release-state/retention-fixture/target .git/release-state/retention-fixture
     refuse bash scripts/release/release.sh publish
     [[ ! -s "$TEST_EVENTS" ]] || exit 1
     make --no-print-directory release-preflight > "$TEMPORARY/$group-preflight.log" 2>&1

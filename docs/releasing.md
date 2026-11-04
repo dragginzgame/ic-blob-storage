@@ -158,8 +158,13 @@ changes and uncertainty; manual workspace dispatch forces it. An explicit
 macOS and Intel macOS. Main/PR and manual workspace CI retain the existing full
 checks. Group dispatch retains source-bound plans, package reasons, receipts and
 stage logs on each host; it does not force an otherwise excluded Engine optimizer
-matrix. Wire-schema and isolated library jobs and native CLI/installation/Metrics
-restoration checks remain independent hosted obligations. Routine builds ship
+matrix. Generated Wire clients and isolated feature/compiler graphs remain independent
+hosted obligations. On manual group dispatch, the plan owns Rust regressions and
+native CLI/installation/restoration obligations, including justified exclusions;
+the workflow does not append `test-native-host` or separate Contracts/Core/Client
+Rust tests. Normal main/PR and workspace dispatch retain those native-host checks;
+portable Contracts tests run once in the Linux schema job and Clippy stays in
+the native matrix. Routine builds ship
 untransformed Cargo Wasm. Their installation, carrier rejection, corruption,
 restoration and fencing scenarios stay in the required integration tests. Native
 Linux and both macOS lanes retain actual installation/CLI/archive/reopen checks;
@@ -239,6 +244,21 @@ build/registry effects. It creates no real checkout commit/tag, upload or push.
 substitute runner. Failed fixture/preparation paths are printed and retained.
 Validation logs remain in unique Git `release-state/validation-failures` entries;
 successful retries do not replace failures.
+
+## Retained-state admission
+
+Shared Tooling 0.29.4 checks compact Git-side release/publication/retired-checkout
+state before and after release adapter hooks. Blob also applies the canonical
+`check-retained-state.pl` helper to direct `release-verify` and publication entry
+points. The default limits are 512 MiB aggregate, 32 MiB per file and 30 days for
+bulk files of at least 1 MiB; small journals/receipts do not expire. Nested build
+or cache trees and symlinks refuse. Ordinary CI scratch stays under `target/`.
+
+Refusal preserves retained evidence and grants no cleanup authority. A refused
+initial verification keeps its previous receipt; a failed post-validation check
+withdraws the new selectable receipt so it cannot stand in for a successful gate.
+Publication still releases only its owned lock. Review active recovery, unique
+work and existing provider obligations before any separately authorized cleanup.
 
 ## Publication and deployment
 

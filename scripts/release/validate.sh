@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Blob selects obligations; Shared admits/checkpoints/executes the complete plan.
+# Shared companions: scripts/ci/check-retained-state.pl
 set -euo pipefail
 unset BLOB_RELEASE_VALIDATION_PLAN
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
@@ -8,8 +9,11 @@ bash scripts/ci/check-release-source.sh
 case "${RELEASE_GROUP:-}" in contracts|client|engine) ;; *) exit 2 ;; esac
 state="$(git rev-parse --git-path release-state)/validation"
 [[ ! -L "$state" && ! -L "${state%/*}" ]]
-mkdir -p "$state" target
+perl scripts/ci/check-retained-state.pl --root "${state%/*}"
 record="$state/$RELEASE_GROUP-$RELEASE_SOURCE.json"
+status=0
+trap 'status=$?; if ! perl scripts/ci/check-retained-state.pl --root "${state%/*}"; then rm -f "$record"; [[ "$status" != 0 ]] || status=1; fi; exit "$status"' EXIT
+mkdir -p "$state" target
 # A failed fresh attempt cannot revive a previous success. Old attempt logs stay.
 rm -f "$record"
 attempt="$(mktemp -d target/blob-release-validation.XXXXXX)"

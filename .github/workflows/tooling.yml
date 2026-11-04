@@ -49,14 +49,22 @@ jobs:
           rustup show active-toolchain
           make deps
           make compiler-check
-      - name: Qualify native schemas and generated Wire clients
+      # Portable Contracts regressions have one Linux owner. A manual group
+      # dispatch delegates Rust tests to its source-bound plan on each host.
+      - name: Qualify portable Contracts regressions
+        if: github.event_name != 'workflow_dispatch' || inputs.release_group == 'workspace'
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
         run: |
           mkdir -p .tmp/wire-schema
-          cargo clippy --offline --locked -p ic-blob-storage-contracts --all-targets --all-features -- -D warnings 2>&1 | tee .tmp/wire-schema/clippy.log
           cargo test --offline --locked -p ic-blob-storage-contracts --all-features 2>&1 | tee .tmp/wire-schema/contracts.log
+      - name: Qualify generated Wire clients
+        env:
+          CARGO_NET_OFFLINE: 'true'
+          RUSTUP_AUTO_INSTALL: '0'
+        run: |
+          mkdir -p .tmp/wire-schema
           make test-wire-schema 2>&1 | tee .tmp/wire-schema/qualification.log
       - name: Retain generated clients and qualification logs
         if: always()
@@ -90,6 +98,7 @@ jobs:
           RUSTUP_AUTO_INSTALL: '0'
         run: make compiler-graphs-check
       - name: Run core and client library regressions
+        if: github.event_name != 'workflow_dispatch' || inputs.release_group == 'workspace'
         id: library-tests
         env:
           CARGO_NET_OFFLINE: 'true'
@@ -270,7 +279,10 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 30
+      # The group plan already owns CLI tests and both installed partitions,
+      # including any justified exclusions. Do not append the broad host target.
       - name: Qualify native CLI, installation and Metrics restoration probe
+        if: env.BLOB_GROUP_CI != 'true'
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'

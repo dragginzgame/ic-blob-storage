@@ -4,6 +4,24 @@
 
 # Dependency setup
 
+## Current adoption
+
+The pending compatible batch selects published Platform 0.22.0, Testkit 0.85.1,
+Host Tools 0.82.0 and Wire/Derive 0.16.2. Canonical Types 0.18.1 and Runtime,
+macros and guard 0.19.1 retain their existing identities. The incoming Build and
+Host foundation 0.74.3 patches remain selected. The lockfile is authoritative;
+this records the qualified batch, rather than requiring fleet lockstep.
+
+Testkit's maintained client requires an explicit server URL. Blob's existing
+managed startup owns the server and passes that endpoint to each builder; direct
+client constructors and implicit downloader/startup paths are unnecessary.
+Platform's native certificate/tree types now share upstream identities with
+Agent. Keep exact trust roots, bounded decoding, signature checks and saved
+requests; changing supplier identity does not authorize retry or reissuance.
+Passive Contracts still selects Types directly; required Caffeine Candid stays
+behind its explicit capability. Native crypto/certification dependencies do not
+establish a deployed canister's graph or a performance improvement.
+
 ## Current dependency owners
 
 The root [Cargo catalog](../Cargo.toml) owns all direct dependency requirements;

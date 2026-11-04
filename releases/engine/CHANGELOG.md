@@ -4,6 +4,24 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.71.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt committed Shared Tooling 0.29.4 and its retained-state guard. Apply the
+  canonical guard to direct group verification and publication as well as the
+  shared release runner; preserve evidence on refusal and invalidate only a new
+  selectable receipt when post-validation admission fails.
+- Qualify published Testkit 0.85.1, Platform 0.22, Host Tools 0.82 and Wire 0.16.2.
+  Existing managed server custody supplies Testkit's now-required explicit URL;
+  keep server 16.1.0, service frames, storage bytes and lifecycle semantics.
+
+- Align hosted CI with selected group plans: omit the broad native-host rerun
+  and separate portable Rust regressions on manual group dispatch. Keep isolated
+  feature graphs and generated-client qualification. Give portable Contracts
+  tests one Linux owner and remove duplicate schema-job Clippy; normal native
+  CLI/installation/restoration coverage remains on all three hosts.
+
 ## [0.71.0] - 2026-11-04
 
 ### 💥 Breaking

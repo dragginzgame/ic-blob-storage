@@ -4,6 +4,14 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.71.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt published Wire/Derive 0.16.2, Platform 0.22 and canonical Types 0.18.1.
+  Keep passive Contracts free of Candid/Agent/execution; full-service Caffeine
+  codecs retain their fields, quotas, method identities and exact Wire bytes.
+
 ## [0.71.0] - 2026-11-04
 
 ### 💥 Breaking

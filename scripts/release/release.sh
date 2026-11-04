@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Shared companions: scripts/release/group.sh scripts/release/release-data.pl ci/release-delivery-policy.txt scripts/ci/check-release-delivery.sh scripts/ci/check-release-source.sh scripts/ci/cargo-release-metadata.sh scripts/ci/check-release-tag.sh scripts/ci/check-crates-io-version.sh scripts/ci/next-release-version.sh scripts/ci/check-release-changelog.sh scripts/ci/release-metadata-transaction.sh scripts/ci/cargo-release-preflight.sh
+# Shared companions: scripts/release/group.sh scripts/release/release-data.pl ci/release-delivery-policy.txt scripts/ci/check-release-delivery.sh scripts/ci/check-release-source.sh scripts/ci/cargo-release-metadata.sh scripts/ci/check-release-tag.sh scripts/ci/check-crates-io-version.sh scripts/ci/next-release-version.sh scripts/ci/check-release-changelog.sh scripts/ci/release-metadata-transaction.sh scripts/ci/cargo-release-preflight.sh scripts/ci/check-retained-state.pl
 set -euo pipefail
 root_file="${BASH_SOURCE[0]}"
 [[ "$root_file" == /* ]] || root_file="$PWD/$root_file"
@@ -141,10 +141,11 @@ publish() {
     # while another process may be changing this package's release metadata.
     PUBLICATION_STATE_ROOT="$(git rev-parse --git-path release-state)" || fail 'cannot resolve publication lock path'
     [[ ! -L "$PUBLICATION_STATE_ROOT" ]] || fail 'release state directory is symlinked'
+    perl scripts/ci/check-retained-state.pl --root "$PUBLICATION_STATE_ROOT"
     mkdir -p "$PUBLICATION_STATE_ROOT"
     mkdir "$PUBLICATION_STATE_ROOT/lock" 2>/dev/null || fail 'release/publication lock is occupied'
     printf '%s\n' "$$" > "$PUBLICATION_STATE_ROOT/lock/owner"
-    trap 'rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"' EXIT
+    trap 'status=$?; rm -f "$PUBLICATION_STATE_ROOT/lock/owner"; rmdir "$PUBLICATION_STATE_ROOT/lock"; if ! perl scripts/ci/check-retained-state.pl --root "$PUBLICATION_STATE_ROOT"; then [[ "$status" != 0 ]] || status=1; fi; exit "$status"' EXIT
     tag_check
     local packages=("$primary")
     # Use the same full lint gate as release validation before archive builds or

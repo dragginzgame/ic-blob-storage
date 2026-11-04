@@ -123,9 +123,16 @@ offline. Both lock-selected Tooling CLIs require explicit `--features cli` durin
 setup and admission; this feature belongs to tool selections, not the application
 library graph. Tool installation may compile and use the
 network; it stays explicit and separate from ordinary validation.
-`make test-native-host` is the focused CLI/example/PocketIC installation,
-Metrics restoration-read and replicated tenant-client check used by
-the native host CI matrix, separate from the complete gate.
+`make test-native-host` is the focused CLI/PocketIC installation,
+Metrics restoration-read and replicated tenant-client check used by normal
+native host CI. Portable Contracts tests/examples run once in the Linux schema
+job with all features; native Clippy remains owned by the three-host tooling
+matrix. Generated-client qualification stays separate because it exercises
+TypeScript codecs. Manual group dispatch uses its selected source-bound plan
+instead of appending `test-native-host` or separate Contracts/Core/Client Rust
+regressions. Isolated feature/compiler graphs and generated-client qualification
+still run independently. Normal main/PR and workspace dispatch retain the native
+host checks and library regressions.
 Each native lane also runs `make package`, including real same-version/refusal
 regressions and exact coordinated archive tests. Hosted archive qualification
 retains archives, unpacked sources, admitted metadata/hashes and regression
