@@ -28,7 +28,7 @@ publish = ["crates-io"]
 [workspace.dependencies]
 # Contracts
 # Changelog : releases/contracts/CHANGELOG.md
-ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.71.0", default-features = false }
+ic-blob-storage-contracts = { path = "crates/ic-blob-storage-contracts", version = "0.71.1", default-features = false }
 
 # Client
 # Changelog : releases/client/CHANGELOG.md
