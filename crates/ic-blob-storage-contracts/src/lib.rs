@@ -2,6 +2,7 @@
 //! No storage, CDK, lifecycle, provider dispatch or implicit authority is owned here.
 pub mod binding;
 pub mod configuration;
+#[cfg(feature = "caffeine-candid")]
 pub mod decoding;
 /// Passive offline document encoding, separate from endpoint frames.
 pub mod document;
@@ -13,8 +14,6 @@ pub mod identity;
 pub mod protocol;
 pub mod provider;
 pub mod reference;
-/// Optional standalone host contracts, separate from the shared mounted service.
-pub mod standalone;
 pub mod tenant;
 pub mod upload;
 pub mod wire;

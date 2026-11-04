@@ -26,8 +26,14 @@ pub struct UploadCertificateAssessmentResponse {
 )]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
-#[derive(ic_platform::candid::contract::CandidType)]
-#[candid_path("ic_platform::candid::contract")]
+#[cfg_attr(
+    feature = "caffeine-candid",
+    derive(ic_platform::candid::contract::CandidType)
+)]
+#[cfg_attr(
+    feature = "caffeine-candid",
+    candid_path("ic_platform::candid::contract")
+)]
 pub struct CaffeineUploadCertificateResponse {
     /// Exactly `upload` for the supported operation.
     pub method: String,

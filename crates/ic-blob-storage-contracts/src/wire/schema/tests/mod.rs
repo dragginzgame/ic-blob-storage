@@ -1,42 +1,6 @@
 use super::*;
 
 #[test]
-fn standalone_telemetry_uses_its_own_contract_without_extending_shared_methods() {
-    use crate::standalone::{METRICS_METHOD, METRICS_WIRE};
-    let standalone = standalone_methods().unwrap();
-    assert_eq!(standalone.len(), 1);
-    let row = &standalone[0];
-    assert_eq!(row["name"], METRICS_METHOD.name);
-    assert_eq!(row["mode"], "query");
-    assert_eq!(row["id"], METRICS_WIRE.id.to_string());
-    assert_eq!(row["request"], native_schema::<()>().unwrap());
-    for (direction, limits) in [
-        ("request", METRICS_WIRE.request),
-        ("response", METRICS_WIRE.response),
-    ] {
-        for (suffix, expected) in [
-            ("Bytes", limits.bytes),
-            ("Allocation", limits.allocation),
-            ("Nodes", limits.nodes),
-            ("Depth", limits.depth),
-        ] {
-            assert_eq!(row[format!("{direction}{suffix}")], expected);
-        }
-    }
-    assert!(
-        methods()
-            .unwrap()
-            .iter()
-            .all(|m| m["name"] != METRICS_METHOD.name)
-    );
-    assert!(
-        standalone_typescript("./blob-runtime.js")
-            .unwrap()
-            .contains("blob_metrics")
-    );
-}
-
-#[test]
 fn catalog_is_complete_unique_and_uses_mounted_limits() {
     let catalog = methods().unwrap();
     for row in &catalog {
@@ -86,10 +50,8 @@ fn catalog_is_complete_unique_and_uses_mounted_limits() {
 #[test]
 fn custom_relationship_projection_uses_canonical_decimal_text() {
     use crate::dto::account::AccountRelationshipView;
-    use ic_platform::{
-        Principal,
-        candid::contract::{Int, Nat},
-    };
+    use ic_platform::candid::contract::{Int, Nat};
+    use ic_platform_types::Principal;
     let value = AccountRelationshipView {
         paid_canister: Principal::anonymous(),
         payment_account: Principal::management_canister(),

@@ -64,7 +64,7 @@ pub fn parse_upload(
 /// # Panics
 /// The fixed-size wire root must remain 32 bytes; a violated internal width invariant traps.
 pub fn parse_upload_binding(
-    service: ic_platform::Principal,
+    service: ic_platform_types::Principal,
     upload: ReferenceUpload,
 ) -> Result<UploadRequest, ReferenceFailure> {
     if upload.service != service {

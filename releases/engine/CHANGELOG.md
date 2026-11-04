@@ -4,6 +4,15 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.71.0] - Unreleased
+
+### 💥 Breaking
+
+- Explicitly select Contracts’ `caffeine-candid` capability for full service/provider integrations. Keep external Caffeine codecs, callback identities and bounded decoding unchanged; passive clients can link Contracts without Candid.
+  [#115](https://github.com/dragginzgame/ic-blob-storage/issues/115).
+
+- Remove the standalone `blob_metrics` endpoint, heap recorders, lifecycle resets, response-attribution workflow and instrumentation-only endpoint wrappers. Drop the standalone Metrics dependency and enforce its exclusion from the deployment graph. Preserve service accounting, provider callbacks and their authority/replay/liability tests. Canic owns operational reporting; private probe resource measurements remain qualification-only.
+
 ## [0.70.0] - 2026-11-04
 
 ### 💥 Breaking

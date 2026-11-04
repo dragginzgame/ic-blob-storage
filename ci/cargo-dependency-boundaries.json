@@ -70,7 +70,6 @@
   {
     "dependency": "ic-metrics",
     "allowed_packages": [
-      "ic-blob-storage-canister",
       "blob-storage-probe"
     ]
   }

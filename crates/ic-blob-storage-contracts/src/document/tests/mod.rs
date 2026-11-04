@@ -1,6 +1,6 @@
 use super::*;
 use crate::dto::tenant::TenantScope;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 
 fn scope() -> TenantScope {
     TenantScope {

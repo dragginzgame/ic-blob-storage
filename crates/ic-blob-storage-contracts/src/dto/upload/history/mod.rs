@@ -1,6 +1,6 @@
 //! Bounded retained operation discovery. A page never grants effect authority.
 use crate::dto::reference::ReferenceUpload;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Independently authenticated observer scope.

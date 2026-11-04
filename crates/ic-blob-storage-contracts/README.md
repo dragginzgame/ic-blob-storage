@@ -29,19 +29,28 @@ cargo run -p ic-blob-storage-contracts --features wire-schema --example wire_sch
 The examples use Clap to validate their complete invocation before opening files
 or reading stdin. `prepare_upload --inventory INVENTORY.json [--snapshot PARENT]`
 is separate from its declaration/stdin form. `wire_schema` requires exactly one
-of `metadata`, `client`, `standalone-metadata`, `standalone-client`, `adapter` or
+of `metadata`, `client`, `adapter` or
 `runtime`; surplus arguments refuse. Clap is a native development dependency
 and is excluded from deployed canisters.
 
-`metadata` and `client` describe the shared service mount. The explicit
-`standalone-metadata` and `standalone-client` modes describe only the standalone
-host's additional `blob_metrics` operator query, using its existing report types,
-method identity and decoder budgets. Both clients use the same `adapter` and
-`runtime` outputs. Generate the standalone client separately when needed; it
-does not extend embedded hosts, grant operator access or prove provider deletion
-or billing. Request and reply bytes are unchanged.
+`metadata` and `client` describe the shared service mount. See the repository's [migration and qualification record](../../docs/evidence/contracts-0180.md).
 
-See the repository's [migration and qualification record](../../docs/evidence/contracts-0180.md).
+## Dependency capabilities
+
+The default and `provider-json` selections use canonical `ic-platform-types`
+Principal directly and do not enable Platform/Candid. Provider hashes, manifests,
+passive certificate replies and ordinary Wire contracts remain available.
+
+Select `caffeine-candid` for the external Caffeine account-link encoder, GC codecs,
+Candid decoder configuration, account-inspection DTO family and
+`mount_service_endpoints!`. The account family retains arbitrary-width Int/Nat,
+canonical decimal Serde, all fields and original method identities. The passive
+certificate response gains its Candid implementation only with this capability.
+The macro's capability is selected by this defining crate, never by a downstream
+crate's similarly named feature. `wire-schema` selects the capability explicitly
+because it generates the complete service schema. `provider-json` remains an
+independent capability; it does not enable Candid. Native service-export tests
+retain their genuine Platform Candid service dependency.
 
 ## Opt-in host endpoint declarations
 
@@ -80,10 +89,11 @@ See [measured applicability and tradeoffs](../../docs/evidence/borrowed-wire0390
 lifecycle contracts independently of round trips. Nested DTOs are exercised
 through these boundary values and focused unit tests rather than a separate
 exhaustive DTO registry. Application-only DTOs no
-longer implement `CandidType`; the external provider certificate retains it.
+longer implement `CandidType`; the external provider certificate selects it with
+`caffeine-candid`.
 Frozen historical test schemas and stable record codecs have their own owners.
 
-Application DTO principals use Platform 0.4's owned `ic_platform::Principal`.
+Application DTO principals use canonical `ic_platform_types::Principal` directly.
 Provider Candid projections use `ic_platform::principal::ExternalPrincipal`;
 convert with `.into()` when crossing that boundary. Binary Wire bytes remain
 unchanged; the public Rust type identity requires aligned host dependencies.
@@ -109,8 +119,7 @@ Wire's TypeScript conventions use bigint for wide integers, Uint8Array for
 principals, `{some: value}`/null for options and `{ok: value}`/`{err: value}` for
 results. Metadata does not authenticate calls or establish provider guarantees.
 
-The `wire_schema` example emits shared `metadata`/`client`, explicit standalone
-`standalone-metadata`/`standalone-client`, or common `adapter`/`runtime` to stdout. `make test-wire-schema` uses explicitly prepared browser tools to bundle
+The `wire_schema` example emits `metadata`/`client` or `adapter`/`runtime` to stdout. `make test-wire-schema` uses explicitly prepared browser tools to bundle
 and test generated TypeScript against the frozen Rust frames, including rejection
 cases. It installs nothing. The `Wire schema and generated clients` CI job runs this
 check on pull requests and main pushes after explicit pinned dependency setup,

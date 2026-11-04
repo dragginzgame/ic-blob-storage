@@ -48,9 +48,6 @@ fn file_index(text: &str) -> Result<usize, &'static str> {
 }
 fn help(name: &str) -> &'static str {
     match name {
-        "metrics" => {
-            "Standalone heap telemetry only. Queries do not record; traps can roll observations back. Compare only matching lifecycle windows with no intervening snapshot restore. Counts prove neither stored bytes nor provider billing."
-        }
         "account-link-inputs" => {
             "Offline provider terms only; no signing, linking, funding or financial-cap proof."
         }
@@ -164,8 +161,6 @@ pub(in crate::native) enum Invocation {
     CertificateAssessment(Tenant<Permission>),
     #[command(after_long_help = help("upload-history"))]
     UploadHistory(Operator<UploadHistory>),
-    #[command(after_long_help = help("metrics"))]
-    Metrics(Operator<Empty>),
     #[command(after_long_help = help("status"))]
     Status(Operator<Payer<Empty>>),
     #[command(after_long_help = help("funding-history"))]

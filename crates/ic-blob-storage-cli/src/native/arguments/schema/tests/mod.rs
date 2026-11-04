@@ -146,7 +146,7 @@ fn production_invocation_keeps_non_utf8_paths_native() {
     use std::{ffi::OsString, os::unix::ffi::OsStringExt};
     let path = OsString::from_vec(b"identity-\xff.pem".to_vec());
     let mut args: Vec<OsString> = [
-        "metrics",
+        "status",
         "--network",
         "ic",
         "--url",
@@ -158,6 +158,10 @@ fn production_invocation_keeps_non_utf8_paths_native() {
         "--namespace",
         "1",
         "--operator",
+        "rrkah-fqaaa-aaaaa-aaaaq-cai",
+        "--payer",
+        "rrkah-fqaaa-aaaaa-aaaaq-cai",
+        "--cashier",
         "rrkah-fqaaa-aaaaa-aaaaq-cai",
     ]
     .into_iter()

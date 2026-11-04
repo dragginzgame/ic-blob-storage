@@ -1,5 +1,5 @@
 //! Explicit local service configuration inputs, not a provider wire or stable schema.
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Complete installation input shared by host adapters and offline preparation.

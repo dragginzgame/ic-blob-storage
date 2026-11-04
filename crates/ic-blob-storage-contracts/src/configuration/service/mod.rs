@@ -3,7 +3,7 @@ use std::num::NonZeroU64;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;
 
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use thiserror::Error;
 
 use crate::configuration::billing::BillingConfiguration;

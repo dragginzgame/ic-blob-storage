@@ -2,14 +2,7 @@ use super::*;
 #[test]
 fn modes_help_and_extra_arguments_are_owned_by_clap() {
     cli().debug_assert();
-    for mode in [
-        "metadata",
-        "client",
-        "standalone-metadata",
-        "standalone-client",
-        "adapter",
-        "runtime",
-    ] {
+    for mode in ["metadata", "client", "adapter", "runtime"] {
         assert!(cli().try_get_matches_from(["wire_schema", mode]).is_ok());
         assert!(
             cli()

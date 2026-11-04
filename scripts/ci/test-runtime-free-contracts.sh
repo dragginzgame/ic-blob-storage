@@ -32,6 +32,15 @@ done
 unset FIXTURE_FEATURE_LINE
 printf 'Contracts instrumentation dependency refusals: PASS\n'
 [[ "$mode" != --metrics-only ]] || exit 0
+for package in ic-platform candid candid_derive ic-agent; do
+    export FIXTURE_CONTRACTS_LINE="$package v1.0.0"
+    if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
+        echo "Passive Contracts accepted $package" >&2; exit 1
+    fi
+    rg -q 'Passive Contracts depend on Candid, facade or execution' "$fixture/output"
+done
+unset FIXTURE_CONTRACTS_LINE
+printf 'Passive Contracts Candid/facade refusals: PASS\n'
 for package in ic-blob-storage ic-memory ic-storage; do
     for features in test-support 'default,test-support' 'test-support,other'; do
         export FIXTURE_FEATURE_LINE="$package v1.0.0|$features (*)"
@@ -45,7 +54,7 @@ for package in ic-blob-storage ic-memory ic-storage; do
 done
 printf 'Deployment fixture feature refusals: PASS\n'
 unset FIXTURE_FEATURE_LINE
-for package in ic-memory ic-stable-structures clap clap_builder clap_derive ic0 ic-cdk-executor ic-management-canister-types ic-platform-pocket-ic; do
+for package in ic-metrics ic-memory ic-stable-structures clap clap_builder clap_derive ic0 ic-cdk-executor ic-management-canister-types ic-platform-pocket-ic; do
     export FIXTURE_PACKAGE_LINE="$package v4.6.7"
     if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
         echo "Deployment accepted forbidden package $package" >&2; exit 1

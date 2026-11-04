@@ -4,7 +4,7 @@ use crate::upload::certificate::reply::*;
 fn encode<T: serde::Serialize>(value: T) -> Result<Vec<u8>, crate::wire::Error> {
     crate::wire::encode_response("blob_upload_certificate_assessment", value)
 }
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 
 fn permission() -> UploadAdmissionRequest {
     UploadAdmissionRequest {

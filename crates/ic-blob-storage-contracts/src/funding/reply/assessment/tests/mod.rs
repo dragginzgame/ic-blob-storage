@@ -1,6 +1,6 @@
 use super::*;
 use crate::dto::operator::{LocalFundingStatus, OperatorScope};
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 
 fn request() -> Request {
     Request {

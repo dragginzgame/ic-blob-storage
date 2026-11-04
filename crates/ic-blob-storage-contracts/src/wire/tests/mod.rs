@@ -1,6 +1,6 @@
 use super::*;
 use crate::dto::tenant::TenantScope;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 #[test]
 fn catalog_identities_are_unique_and_provider_is_external() {
     use crate::endpoints::{MethodCodec, SERVICE_METHODS};

@@ -76,9 +76,9 @@ impl<'a> From<&'a native::TenantScope> for Scope<'a> {
 impl From<Scope<'_>> for native::TenantScope {
     fn from(value: Scope<'_>) -> Self {
         Self {
-            service: ic_platform::Principal::from_slice(value.service.as_slice()),
+            service: ic_platform_types::Principal::from_slice(value.service.as_slice()),
             namespace: value.namespace,
-            tenant: ic_platform::Principal::from_slice(value.tenant.as_slice()),
+            tenant: ic_platform_types::Principal::from_slice(value.tenant.as_slice()),
         }
     }
 }

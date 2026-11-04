@@ -19,7 +19,7 @@ use crate::download::scope::CaffeineDownloadScope;
 use crate::download::scope::DownloadScopeError;
 use crate::dto::configuration::ServiceConfigurationInput;
 use crate::dto::configuration::ServiceFundingInput;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use std::num::NonZeroU64;
 use std::num::NonZeroU128;
 use std::num::NonZeroUsize;

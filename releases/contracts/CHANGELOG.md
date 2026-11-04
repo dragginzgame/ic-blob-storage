@@ -4,6 +4,15 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.71.0] - Unreleased
+
+### 💥 Breaking
+
+- Make external Caffeine Candid APIs an explicit `caffeine-candid` capability. Default/passive contracts import canonical Types directly and exclude the facade/Candid; gate complete account DTOs and codecs together, conditionally derive Candid on the passive certificate reply, and require the feature for full endpoint mounting. Full-service schema generation selects it; provider JSON remains independent. Preserve endpoint identities, full-width decimal fields, provider Candid bytes and decoder quotas.
+  [#115](https://github.com/dragginzgame/ic-blob-storage/issues/115).
+
+- Remove standalone telemetry DTOs, method identity and standalone-only schema/client generator modes. The shared service catalog and application Wire contracts remain unchanged; Canic owns operational reporting.
+
 ## [0.70.0] - 2026-11-04
 
 ### 💥 Breaking

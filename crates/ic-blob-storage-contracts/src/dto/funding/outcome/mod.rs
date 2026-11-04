@@ -1,7 +1,7 @@
 //! Exact retained observations, distinct from provider credit or payment authority.
 use crate::dto::funding::FundingPhase;
 use crate::dto::operator::OperatorScope;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Complete original local intent; changed amounts or target options must reject.

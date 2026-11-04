@@ -1,5 +1,5 @@
 //! Passive local accounting observations; no readiness or provider credit assertion.
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Complete installed service/provider/account scope for explicit operator requests.

@@ -1,6 +1,6 @@
 use crate::download::reply::*;
 use crate::dto::download::DownloadHeader;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 fn setup() -> (
     DownloadRequest,
     CaffeineDownloadScope,

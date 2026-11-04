@@ -8,9 +8,9 @@ This guide is organized by operator task. Commands act on an explicitly selected
 installation and identity; examples do not grant authority or authorize provider
 traffic by themselves.
 
-For bounded heap-only operation counts and instruction observations, use
-[`blob-storage metrics`](metrics.md). It authenticates the configured operator
-and reports comparison windows separately from authoritative accounting.
+For operational instrumentation, Canic deployments use the shared metrics
+adapter. Blob accounting and provider inspection remain available through the
+service operator APIs. See [reporting ownership](metrics.md).
 
 New `blob-storage` artifact run directories are owner-only. Their selected path and
 resolved physical parent must contain no CR/LF characters; refused paths create

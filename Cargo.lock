@@ -1560,7 +1560,6 @@ version = "0.70.0"
 dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-contracts",
- "ic-metrics",
  "ic-platform",
  "serde",
 ]
@@ -1610,6 +1609,7 @@ dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",
  "ic-platform",
+ "ic-platform-types",
  "ic-wire",
  "percent-encoding",
  "serde",

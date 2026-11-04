@@ -1,7 +1,7 @@
 //! Exact reference commands and historical outcomes; no implicit dispatch authority.
 pub mod capacity;
 pub mod status;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Complete original upload binding. Upload and object IDs are independent.

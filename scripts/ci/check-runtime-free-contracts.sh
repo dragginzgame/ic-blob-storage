@@ -19,6 +19,18 @@ if rg '^ic-platform-(runtime(-guard)?|macros) ' "$contract_graph"; then
 fi
 echo 'Contracts alone exclude Platform execution'
 
+# Passive contracts must not gain external Candid through normal/build edges.
+# Observe both targets without dev-feature unification or a service consumer.
+for target in all wasm32-unknown-unknown; do
+    cargo tree --offline --locked --no-default-features --target "$target" \
+        --edges normal,build --prefix none --format '{p}' \
+        -p ic-blob-storage-contracts > "$contract_graph"
+    if rg '^(ic-platform |candid |candid_derive |ic-agent |ic-platform-(runtime(-guard)?|macros) |ic-cdk)' "$contract_graph"; then
+        echo 'Passive Contracts depend on Candid, facade or execution' >&2; exit 1
+    fi
+done
+echo 'Passive Contracts exclude Candid, facade, Agent and execution across targets'
+
 # Replicated callers need Platform execution, but never the installed service or stores.
 cargo tree --offline --locked --target all --edges normal --prefix none --format '{p}' \
     -p ic-blob-storage-client > "$contract_graph"
@@ -43,7 +55,7 @@ echo 'Workspace feature/target selections exclude retired Platform/CDK'
 # Native interface inspection never enables a deployed parser or tooling runtime.
 cargo tree --offline --locked --target wasm32-unknown-unknown --edges normal,build \
     --prefix none --format '{p}' -p ic-blob-storage-canister > "$contract_graph"
-if rg '^((ic-memory|ic-stable-structures|ic-cdk|ic-cdk-macros|ic-cdk-executor|ic0|ic-management-canister-types|ic-testkit|pocket-ic|ic-platform-pocket-ic|ic-build|ic-agent|candid_parser|clap|clap_builder|clap_derive|reqwest|tokio) v|ic-platform v0\.[12345]\.|ic-host-)' "$contract_graph"; then
+if rg '^((ic-metrics|ic-memory|ic-stable-structures|ic-cdk|ic-cdk-macros|ic-cdk-executor|ic0|ic-management-canister-types|ic-testkit|pocket-ic|ic-platform-pocket-ic|ic-build|ic-agent|candid_parser|clap|clap_builder|clap_derive|reqwest|tokio) v|ic-platform v0\.[12345]\.|ic-host-)' "$contract_graph"; then
     echo 'Deployment depends on a legacy runtime or native-only owner' >&2
     exit 1
 fi
@@ -76,7 +88,7 @@ if rg '^(reqwest |tokio |ic-host-)' "$contract_graph"; then
 fi
 echo 'Wasm client excludes native download transport even with all features'
 
-# Reports belong to Blob; recorder dependencies stay with instrumenting hosts.
+# Instrumentation stays with the owning adapter or private measurement probes.
 # Inspect the actual native schema feature selection so unification cannot hide it.
 cargo tree --offline --locked --target all --edges normal --all-features \
     --prefix none --format '{p}|{f}' -p ic-blob-storage-contracts > "$contract_graph"

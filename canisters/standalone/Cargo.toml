@@ -14,8 +14,7 @@ ic-platform = { workspace = true, features = ["candid-service"] }
 
 [dependencies]
 ic-blob-storage.workspace = true
-ic-blob-storage-contracts.workspace = true
-ic-metrics.workspace = true
+ic-blob-storage-contracts = { workspace = true, features = ["caffeine-candid"] }
 ic-platform = { workspace = true, features = ["candid", "cdk"] }
 serde.workspace = true
 

@@ -106,30 +106,14 @@ physical/billing evidence required by the internal confirmation boundaries.
 The current run therefore qualifies exact local release/receipt/liveness on the
 deployed standalone, while #6's real gateway/deletion/billing acceptance stays open.
 
-### Inspect existing acknowledgment telemetry
+### Reporting ownership
 
-The standalone's authenticated `blob_metrics` report already includes a fixed
-`GatewayAcknowledgment` row. Use the native `metrics` command with an existing
-compatible signer, or generate its operator client explicitly:
+Canic's metrics adapter owns operational reporting. The standalone service keeps
+its authoritative operator history, reference receipts and accounting; it does
+not provide a separate telemetry query. Callback observations and aggregate
+counts cannot establish exact physical deletion or billing cessation. Those
+claims still require independently attributable provider evidence under #6.
 
-```sh
-cargo run --offline --locked -p ic-blob-storage-contracts --features wire-schema \
-  --example wire_schema -- standalone-metadata
-cargo run --offline --locked -p ic-blob-storage-contracts --features wire-schema \
-  --example wire_schema -- standalone-client
-```
-
-The standalone client uses the same generated `adapter` and `runtime` outputs as
-the shared client. It can encode a unit request for submission through an already
-configured IC identity and decode the retained reply without exporting that key.
-This is an explicit host-only projection; shared service generation remains
-separate and embedded hosts retain their own telemetry policy. Generated codecs
-check packet structure and traversal bounds; callers still check expected service,
-namespace, operation roster and numeric quality before interpreting a report.
-The native `metrics` command retains its existing scope/roster/quality checks.
-
-Keep the report's service, namespace, lifecycle window and restore limitations.
-A zero successful acknowledgment count does not exclude trapped/rejected calls
-or read-only list/liveness queries. A positive aggregate can include empty batches
-and cannot establish which root was acknowledged. Neither value establishes
-physical deletion or billing cessation. Queries do not record durable telemetry.
+The retained 0.69 trial observations above belong to their original release and
+tools. Preserve those tools and journals for unfinished obligations; current
+source changes do not alter that installed service or its evidence.

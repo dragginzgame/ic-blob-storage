@@ -3,7 +3,7 @@ use crate::upload::status::reply::*;
 fn encode<T: serde::Serialize>(value: T) -> Result<Vec<u8>, crate::wire::Error> {
     crate::wire::encode_response("blob_upload_status", value)
 }
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 fn upload() -> ReferenceUpload {
     ReferenceUpload {
         service: Principal::from_slice(&[1, 1]),

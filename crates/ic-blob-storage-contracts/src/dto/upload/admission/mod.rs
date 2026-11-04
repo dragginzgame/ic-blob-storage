@@ -1,7 +1,7 @@
 //! Exact tenant permission admission and recovery, without provider dispatch.
 use crate::dto::upload::ReferenceUpload;
 use crate::dto::upload::UploadState;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 /// Immutable permission. Persist every field before dispatch; IDs are caller allocated.
 #[cfg_attr(

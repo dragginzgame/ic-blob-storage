@@ -18,7 +18,9 @@ is not a second version catalog. The [current handoff](status/current.md) record
 source-bound qualification and its limits. Native Testkit and deployed components
 share canonical Types/Runtime identities; facade versions can differ in native
 tool graphs. Explicit provider decoding uses Blob's
-direct Platform boundary. Agent verification consumes Platform's explicit
+optional Contracts `caffeine-candid` capability and Platform boundary. Passive
+Contracts and provider JSON select Types directly without Candid; full-service
+schema generation selects the provider capability explicitly. Agent verification consumes Platform's explicit
 `agent::ExternalCertificate`; owned certificate trees use `certification`.
 Foreign Candid identities stay upstream, without a local dependency alias.
 
@@ -31,7 +33,7 @@ Foreign Candid identities stay upstream, without a local dependency alias.
 | IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Platform browser package | Published `@tokostudios/ic-platform` owns SDK Core selection, canonical Principal admission, checked identity restoration and explicit Agent construction; Blob retains trust, intents and effect policy |
 | IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
-| IC Metrics | Instrumentation in standalone/probe hosts only; Contracts owns report decoding/validation and has no Metrics dependency |
+| IC Metrics | Operational reporting belongs to Canic; only the private storage probe retains measurement recorders here. Contracts and standalone deployment exclude Metrics |
 | IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
 | IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Host HTTP | Bounded native probe response accumulation; request policy, error projection and evidence custody stay with Blob |
@@ -134,12 +136,10 @@ Blob keeps its own scenario authority, budgets, retry and recovery policy.
 
 Published Wire 0.16 resolves [Wire #44](https://github.com/dragginzgame/ic-wire/issues/44).
 Contracts' native `wire-schema` feature selects Wire's `platform-types` schemas
-for the canonical Principal. Blob reports use service-owned counter/aggregate
-DTOs and independently validate decoded fields. Metrics is absent from the
-Contracts graph, including schema generation; the direct dependency gate prevents
-reintroduction of a recorder dependency at this report boundary. See
-[Blob #113](https://github.com/dragginzgame/ic-blob-storage/issues/113) and
-[the reporting boundary](metrics.md). No schema bridge or recorder implementation is introduced.
+for the canonical Principal. Metrics is absent from Contracts and standalone
+deployment graphs. Only the private storage probe uses measurement recorders;
+Canic owns application instrumentation and reporting through its metrics adapter.
+See [reporting ownership](metrics.md).
 
 Principal's bytes, endpoint IDs, admission limits and exact retry packets remain
 unchanged. Blob's owned application/storage records do not embed Platform's

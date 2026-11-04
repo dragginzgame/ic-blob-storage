@@ -1,6 +1,5 @@
 //! Synchronous host lifecycle and borrowing of the shared installation owner.
 mod memory;
-pub(crate) mod metrics;
 use ic_blob_storage::ic_storage::DefaultMemoryImpl;
 use ic_blob_storage::ic_storage::MemoryRuntime;
 use ic_blob_storage::ops::service::installation::ServiceInstallation;
@@ -74,7 +73,6 @@ fn assert_uninitialized() {
     HOST.with_borrow(|host| assert!(host.is_none(), "host initialization is not reset"));
 }
 fn publish(host: Host) {
-    metrics::reset();
     HOST.with_borrow_mut(|state| *state = Some(host));
 }
 /// Bound raw provider callback ingress before Platform copies the argument buffer.

@@ -1,5 +1,5 @@
 //! Current descriptor contract. Hosts expose it through authenticated update execution.
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Exact tenant-owned reference, never an allocation or a publication lease.

@@ -4,6 +4,15 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.71.0] - Unreleased
+
+### 💥 Breaking
+
+- Consume the default passive Contracts/Types path without selecting external Caffeine Candid. Native CLI explicitly selects the provider capability for its existing account-link and service operations.
+  [#115](https://github.com/dragginzgame/ic-blob-storage/issues/115).
+
+- Remove the native `metrics` command and its standalone report decoder/output. Keep service accounting, operator inspection and publication-session recovery commands; Canic owns operational reporting.
+
 ## [0.70.0] - 2026-11-04
 
 ### 💥 Breaking

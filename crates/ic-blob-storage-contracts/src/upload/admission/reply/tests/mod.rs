@@ -5,7 +5,7 @@ use crate::dto::upload::UploadState;
 fn encode<T: serde::Serialize>(value: T) -> Result<Vec<u8>, crate::wire::Error> {
     crate::wire::encode_response("blob_upload_admission", value)
 }
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 #[test]
 #[expect(
     clippy::too_many_lines,

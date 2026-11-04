@@ -1,6 +1,6 @@
 use super::*;
 use crate::tenant::reply;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 
 fn scope() -> native::TenantScope {
     native::TenantScope {

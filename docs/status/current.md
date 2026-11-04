@@ -1,5 +1,85 @@
 # Current status — 2026-11-04
 
+## #115 passive Contracts / Caffeine capability — pending 0.71.0
+
+Implemented [#115](https://github.com/dragginzgame/ic-blob-storage/issues/115)
+inside this repo while preserving the pending standalone-telemetry retirement.
+Owned Principals now import canonical `ic-platform-types` directly, including
+self-authentication in tests. Platform is optional under `caffeine-candid`.
+That capability gates the complete account-inspection DTO family (including
+wide Int/Nat decimal fields), account-link Candid encoder/private types, GC
+codecs, decoder configuration and full endpoint mount macro. The passive
+certificate response conditionally selects its Candid derive. No serialized field,
+variant, method ID or decoder quota was changed. The mount macro's feature is
+resolved at its defining owner; downstream crates need no matching local feature.
+Full-service schema generation explicitly selects the capability, while provider
+JSON, content hashing/verification and passive certificate/ordinary Wire DTOs
+remain independent. Full service, native CLI and probe consumers opt in; the
+replicated Client and test protocol keep passive direct selections. External
+Caffeine types and protocols remain in Contracts/Platform, with no new crate,
+wrapper, fallback codec, migration or storage changes.
+
+The normal/build Contracts closures exclude facade, Candid, Agent and execution
+on native/all-target and Wasm selections; provider-json independently retains the
+same absence. CI now checks this boundary with explicit no-default-feature graph
+selections and mutation refusals. Native dev tests intentionally retain Platform
+Candid/service tooling and are not evidence of the minimal deployment graph.
+Native and Wasm minimal Contracts builds, independent provider-json build/graph,
+117 passive library tests, 129 all-feature contract tests (including the independent
+full-width account-link fixture), 32 service-export checks and the frozen Wire
+fixture pass. Strict Clippy passes for Contracts, replicated Client, Core, CLI,
+standalone and PocketIC callers. Fresh standalone Wasm and replicated Client Wasm
+checks pass; actual installed Caffeine callbacks and exact Wasm/provider export
+parity pass. Dependency guards and their new Candid/facade refusal fixtures,
+canonical formatting, documentation and diff checks pass. This is local Linux and
+Wasm/PocketIC evidence; no full gate, native macOS or live-provider qualification.
+The [implementation update on #115](https://github.com/dragginzgame/ic-blob-storage/issues/115#issuecomment-6630091986)
+was posted and independently read back.
+No staging, commit, push, release, sibling edit or provider effect is authorized
+by this implementation; #115 stays open until the fix reaches default main.
+
+## Standalone telemetry retirement — pending 0.71.0 hard cut
+
+The maintainer approved assigning operational reporting to Canic's existing Blob
+metrics adapter. Removed standalone `blob_metrics`, its heap recorders and reset
+hooks, response-classification workflow, special instrumentation wrappers, public
+Contracts report DTOs/identity, standalone schema/client generator modes and CLI
+`metrics` command. The standalone host now implements only the shared service
+catalog. Contracts, Client and Engine notes select their next minor, 0.71.0;
+package metadata remains at released 0.70.0.
+
+The direct dependency boundary now permits Metrics only for the private storage
+probe; the resolved standalone deployment guard also rejects it. The probe's
+resource measurements remain separate fixture qualification. Canic stays read-only
+and owns its own adapter; this removal adds no framework dependency. Service
+accounting, quotas, references, funding journals, operator inspection and provider
+callbacks remain. Callback/recovery tests retain business-state assertions while
+removing observations of the retired recorder.
+
+The existing 0.69 mainnet trial is untouched. Preserve its original tools, saved
+telemetry and signed journals for unfinished provider obligations; current source
+retirement does not grant reset/reinstall or discard authority. Historical release
+notes and probe records keep their original findings. The publication controller
+and its recovery support remain under the retention decision below.
+
+Focused checks pass under Rust 1.99.1: strict all-target/all-feature Clippy for
+Contracts, CLI, standalone and PocketIC callers; three schema tests, the schema
+example's CLI test and three product CLI grammar/path tests; fresh standalone
+Wasm/CLI builds; seven installed gateway/callback cases; exact Wasm export/provider
+contract parity; and installed admission/manifest/restoration. The non-UTF-8 path
+test now uses the maintained `status` invocation with its full payer/Cashier scope
+instead of the removed command. Two incomplete intermediate fixture invocations
+failed argument admission before this correction; production parsing is unchanged.
+Direct and resolved dependency guards, their refusal fixtures, canonical
+formatting, documentation links and diff checks pass. A second source search
+finds no retired metrics contracts/commands in current Rust, generators or test
+callers. Metrics remains in the workspace lock only for private probe measurement;
+it is absent from the standalone deployment graph.
+
+This is local Linux/PocketIC and cross-build evidence; no full workspace/release
+gate, native macOS or live-provider qualification was run. No staging, commit,
+publication, sibling edit or provider request is part of this implementation.
+
 ## Published Contracts, Client and Engine 0.70.0
 
 Authorized delivery completed from this checkout's `main` to `origin/main`,

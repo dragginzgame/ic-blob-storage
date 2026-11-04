@@ -1,4 +1,5 @@
 //! Passive service boundary data; linking exports no endpoints or lifecycle hooks.
+#[cfg(feature = "caffeine-candid")]
 pub mod account;
 pub mod configuration;
 pub mod download;

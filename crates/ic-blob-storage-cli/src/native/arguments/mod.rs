@@ -25,10 +25,6 @@ pub(super) struct Options {
 }
 
 pub(super) enum Command {
-    Metrics {
-        service: Principal,
-        namespace: u128,
-    },
     PublishSession(super::publish_session::Input),
     PublishMap(super::publish_map::Input),
     PublishPrepareBatch(super::publish_prepare::Input),
@@ -140,9 +136,6 @@ impl Invocation {
     pub fn into_online(self) -> Result<(Command, Options), Failure> {
         use schema::Invocation as I;
         match self {
-            I::Metrics(args) => args.convert(|service, namespace, _| {
-                Command::Metrics { service, namespace }
-            }),
             I::AdmitUpload(args) => args.convert(|service, namespace, _, input| {
                 Ok(Command::UploadSetup(super::upload_setup::Input {
                     kind: super::upload_setup::Kind::Admit,

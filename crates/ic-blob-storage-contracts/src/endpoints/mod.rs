@@ -72,6 +72,7 @@ pub const SERVICE_METHODS: &[MethodSpec] = crate::__blob_service_catalog!(
 /// declaration. Use the expression in a const/static; `MethodSpec::wire` supplies
 /// complete Wire policy. The callback owns artifact records and their format;
 /// provider entries must remain external Candid. Existing emitters are unchanged.
+#[cfg(feature = "caffeine-candid")]
 #[macro_export]
 macro_rules! mount_service_endpoints {
     (emit = $emit:ident, $(describe = $describe:ident,)? workflow = $workflow:ident, context = $context:ident, contracts = $contracts:ident,

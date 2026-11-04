@@ -16,13 +16,16 @@ ic-host-fs = { workspace = true, features = ["test-support"] }
 ic-platform = { workspace = true, features = ["candid-service"] }
 
 [features]
+# Required only for external Caffeine codecs and full-service account contracts.
+caffeine-candid = ["dep:ic-platform"]
 # Provider JSON codecs are opt-in; the default contract graph stays minimal.
 provider-json = ["dep:serde_json"]
 # Host metadata is never required by mounted canisters.
-wire-schema = ["ic-wire/platform-types", "dep:serde_json"]
+wire-schema = ["caffeine-candid", "ic-wire/platform-types", "dep:serde_json"]
 
 [dependencies]
-ic-platform = { workspace = true, features = ["candid"] }
+ic-platform = { workspace = true, optional = true, features = ["candid"] }
+ic-platform-types.workspace = true
 ic-wire.workspace = true
 percent-encoding.workspace = true
 serde.workspace = true
@@ -32,7 +35,7 @@ thiserror.workspace = true
 
 [dev-dependencies]
 hex.workspace = true
-ic-platform = { workspace = true, features = ["principal-self-authenticating"] }
+ic-platform-types = { workspace = true, features = ["principal-self-authenticating"] }
 serde_json.workspace = true
 
 [[example]]
@@ -52,3 +55,13 @@ required-features = ["wire-schema"]
 
 [lints]
 workspace = true
+
+[[test]]
+name = "service_export"
+path = "tests/service_export/main.rs"
+required-features = ["caffeine-candid"]
+
+[[test]]
+name = "wire_golden"
+path = "tests/wire_golden/main.rs"
+required-features = ["caffeine-candid"]

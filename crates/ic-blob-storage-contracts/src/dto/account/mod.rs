@@ -1,9 +1,9 @@
 //! Passive provider reports; no spendability, credit or configuration authority.
 use crate::dto::funding::outcome::FundingReportedBalance;
 use crate::dto::operator::OperatorScope;
-use ic_platform::Principal;
 use ic_platform::candid::contract::Int;
 use ic_platform::candid::contract::Nat;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Explicit observation kind; account and owner come from the installed scope.

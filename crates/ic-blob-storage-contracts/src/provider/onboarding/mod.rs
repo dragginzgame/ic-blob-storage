@@ -2,8 +2,8 @@
 //! The schema is the maintained Cashier Candid. Explicit raw limits/expiry do not
 //! establish their units, enforcement, caller authority or a financial guarantee.
 use super::wire;
-use ic_platform::Principal;
 use ic_platform::candid::contract::Int;
+use ic_platform_types::Principal;
 use std::num::NonZeroU64;
 use std::num::NonZeroU128;
 use thiserror::Error;

@@ -1,5 +1,5 @@
 //! Explicit tenant enrollment scope and compare-and-set commands.
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use serde::Deserialize;
 
 /// Exact service namespace and tenant; supplied identity alone grants no authority.

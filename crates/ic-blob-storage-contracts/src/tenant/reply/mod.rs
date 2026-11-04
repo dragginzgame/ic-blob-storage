@@ -5,7 +5,7 @@ use crate::dto::tenant::TenantFailure;
 use crate::dto::tenant::TenantScope;
 use crate::dto::tenant::TenantUpdateRequest;
 use crate::tenant::next_enrollment;
-use ic_platform::Principal;
+use ic_platform_types::Principal;
 use std::num::NonZeroUsize;
 use thiserror::Error;
 
