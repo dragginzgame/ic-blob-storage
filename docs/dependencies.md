@@ -6,14 +6,14 @@
 
 ## Current adoption
 
-Published Contracts/Client 0.72.0 and Engine 0.72.1 select Storage 0.67.0,
+Published Contracts/Client 0.72.0 and Engine 0.72.2 select Storage 0.67.0,
 Testkit 0.86.0 and
 Wire/Derive 0.17.1. Storage configuration/codec errors and public Wire values have
 new Rust crate identities; direct consumers align the same minor lines. Wire's
 metadata derive remains enabled only by the existing schema feature. Codec bytes,
 limits, frames and stored layouts are unchanged by these supplier releases.
 Blob's cross-release retirement/reinstall rule still applies; no existing provider
-obligation is discarded. Platform 0.22.0, Types 0.18.1, Runtime/macros/guard 0.19.1,
+obligation is discarded. Platform 0.22.1, Types 0.18.1, Runtime/macros/guard 0.19.1,
 Host Tools 0.82.0 and Build/Host foundation 0.74.3 remain selected. The lockfile is
 authoritative; this records the reviewed batch without imposing fleet lockstep.
 

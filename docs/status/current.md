@@ -1,5 +1,43 @@
 # Current status — 2026-11-05
 
+## Published Engine 0.72.2 — Shared Tooling audit delivered
+
+Engine's ten members are **0.72.2**, pushed to `origin/main` and published to
+crates.io. Contracts, Client and CLI remain **0.72.0**. Source implementation
+`1dd742751382663396d8498b1ba92c015b26b855` is followed by release commit
+**`dc9d02e2ecf6db7e53db22b0b71c868353d31874`**, annotated tag **`engine-v0.72.2`**.
+The standard `.git/release-state/engine-0.72.2.plan` is complete.
+
+Independent non-yanked registry/archive VCS and remote main/tag/peeled readbacks
+match that release. Archive checksum:
+`031373285eaa196b29baa1da68301c692928b90198ed2622619b67344f8fa737`.
+Readbacks: `target/deploy0722-readback.ZpLIJi/`; summary:
+`target/deploy0722-summary.json`; original runner/publication logs:
+`target/deploy0722-{release,publish}.log`. A later handoff commit does not replace
+the tagged publication source.
+
+All **22 gate stages passed** on Linux/x86_64, Rust/Cargo **1.99.1**, including
+**641 native + 82 Client + 270 Engine installed tests**, fresh source-version
+identity checks, strict Clippy, Wasm, archive/regression, hook, metadata/rollback,
+tool and dependency checks. Existing opt-in ignores retain their scope. Evidence:
+`target/blob-release-validation.4z5OHG/`; recorded stage-duration sum **1643s**
+is not delivery wall time. The incoming compatible Platform **0.22.1** selection
+was already fixed before preparation and is included; its published patch restores
+upstream signature-envelope admission without changing Blob's Wire/storage types.
+
+Publication independently ran fresh strict Clippy and archive verification before
+upload. Retained lint was refused because Shared's candidate projector skipped
+the supported undated pending heading and qualified the previous Engine version.
+The fallback worked; [Shared #357](https://github.com/dragginzgame/shared-tooling/issues/357)
+tracks the reusable optimization fix. Actual publication evidence:
+`target/publication.dxaPCH/`. The snapshot's scratch-default gap remains tracked
+in [Shared #356](https://github.com/dragginzgame/shared-tooling/issues/356).
+
+No installed service reset, paid provider operation or custody cleanup occurred.
+Native macOS and live/provider/application acceptance were not rerun or inferred.
+The following sections retain pre-delivery audit and authorization evidence;
+the completed delivery above supersedes their pending/uncommitted statements.
+
 ## Authorized Engine 0.72.2 delivery in progress
 
 The maintainer requested delivery of this Blob audit/tooling batch to
