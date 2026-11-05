@@ -37,16 +37,16 @@ ic-blob-storage-client = { path = "crates/ic-blob-storage-client", version = "0.
 
 # Engine
 # Changelog : releases/engine/CHANGELOG.md
-blob-admission-probe = { path = "canisters/tests/admission_probe", version = "0.72.1" }
-blob-authority-probe = { path = "canisters/tests/authority_probe", version = "0.72.1" }
-blob-consumer-probe = { path = "canisters/tests/consumer_probe", version = "0.72.1" }
-blob-funding-probe = { path = "canisters/tests/funding_probe", version = "0.72.1" }
-blob-gateway-source = { path = "canisters/tests/gateway_source", version = "0.72.1" }
-blob-storage-probe = { path = "canisters/tests/storage_probe", version = "0.72.1" }
-blob-test-protocol = { path = "tests/protocol", version = "0.72.1" }
-ic-blob-storage = { path = "crates/ic-blob-storage", version = "0.72.1" }
-ic-blob-storage-canister = { path = "canisters/standalone", version = "0.72.1" }
-ic-blob-storage-pocketic-tests = { path = "tests/pocketic", version = "0.72.1" }
+blob-admission-probe = { path = "canisters/tests/admission_probe", version = "0.72.2" }
+blob-authority-probe = { path = "canisters/tests/authority_probe", version = "0.72.2" }
+blob-consumer-probe = { path = "canisters/tests/consumer_probe", version = "0.72.2" }
+blob-funding-probe = { path = "canisters/tests/funding_probe", version = "0.72.2" }
+blob-gateway-source = { path = "canisters/tests/gateway_source", version = "0.72.2" }
+blob-storage-probe = { path = "canisters/tests/storage_probe", version = "0.72.2" }
+blob-test-protocol = { path = "tests/protocol", version = "0.72.2" }
+ic-blob-storage = { path = "crates/ic-blob-storage", version = "0.72.2" }
+ic-blob-storage-canister = { path = "canisters/standalone", version = "0.72.2" }
+ic-blob-storage-pocketic-tests = { path = "tests/pocketic", version = "0.72.2" }
 
 # Production dependencies
 clap = { version = "4.6.7", default-features = false, features = ["std", "help", "usage", "error-context"] }

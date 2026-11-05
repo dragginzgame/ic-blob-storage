@@ -4,7 +4,7 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
-## [0.72.2]
+## [0.72.2] - 2026-11-05
 
 ### 🔧 Changed
 
