@@ -6,7 +6,8 @@
 
 ## Current adoption
 
-Published Contracts, Client and Engine 0.72.0 select Storage 0.67.0, Testkit 0.86.0 and
+Published Contracts/Client 0.72.0 and Engine 0.72.1 select Storage 0.67.0,
+Testkit 0.86.0 and
 Wire/Derive 0.17.1. Storage configuration/codec errors and public Wire values have
 new Rust crate identities; direct consumers align the same minor lines. Wire's
 metadata derive remains enabled only by the existing schema feature. Codec bytes,

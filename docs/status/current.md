@@ -1,6 +1,49 @@
 # Current status — 2026-11-05
 
-## Issue follow-up — pending Engine 0.72.1
+## Published Engine 0.72.1 — #116 completed
+
+Authorized delivery completed from this checkout's `main` to `origin/main` and
+crates.io. Engine's ten members are **0.72.1**; Contracts, Client and CLI remain
+**0.72.0**. The reviewed incoming Winnow 1.0.5 lock adjustment is included.
+
+Release commit **`9c98cec7c30701be91fbdbe090f56e95f8de6e32`**, annotated
+**`engine-v0.72.1`**, and the non-yanked registry archive independently match.
+Archive checksum is `092149175bdc25d469dd345b9d5fa23025d1b5615a5ff25481bd468f5cc029b2`;
+embedded VCS commit/package path and remote main/tag/peeled readbacks passed.
+The standard `.git/release-state/engine-0.72.1.plan` is complete. A later handoff
+commit does not replace the release commit, receipt or publication checkout.
+
+All **22 stages** passed on Rust **1.99.1**, Linux/x86_64: strict Clippy,
+**641 native + 82 Client + 270 Engine installed tests**, fresh actual-version
+identity sweep, deployment boundaries, tools/pins, metadata/release/hook fixtures,
+formatting, Rustdoc, Wasm and actual archive/regression checks. Ten explicit
+installed ignores retain their existing scope. Candidate identity is
+`2ee583dbf30e9be01f320f48cdfbce8eb19b8317e021c152d832337a5bbd597f`.
+The recorded stage-duration sum is **1698s**, not total delivery wall time.
+Complete gate: `target/blob-release-validation.e5iObs/`;
+summary/readbacks/logs: `target/release0721/summary.json` and its owning directory.
+
+The **actual publication** now records `blob-publication-stage-qualification`
+and `Publication Clippy: retained final-candidate qualification admitted`.
+It admitted the retained lint proof in **17.83s**, preserving fresh compiler,
+archive verification, upload and registry admission. Evidence:
+`target/publication.UI4XIu/stages/clippy.json`. The focused real-wrapper fixture
+below also proves archive isolation and custom-target/configuration/proof-loss
+fallback. [#116 is closed/completed](https://github.com/dragginzgame/ic-blob-storage/issues/116#issuecomment-6653030495),
+with closure independently read back after source and publication verification.
+
+**Four issues remain open: #5/#6/#31/#34.** The November 5 readback below is now
+on default main, retaining `DeletionPending`, physical/billing liabilities and
+URL availability without claiming provider deletion or settlement. Application
+session/media/publication acceptance and original-paid-operation credit/replay
+still need their own evidence. This delivery performed no live install, payment,
+upload, reset, new provider query or sibling change. Native macOS/hosted acceptance
+was not rerun or inferred from Linux results. No artifacts/custody were cleaned.
+
+## Earlier issue implementation and acceptance follow-up
+
+The following describes pre-delivery source state; the verified release above
+supersedes its pending/uncommitted delivery statements.
 
 Deployment is now authorized for this Blob checkout's `main` to `origin/main`
 and crates.io: **Engine 0.72.1 only**, including the reviewed compatible incoming
