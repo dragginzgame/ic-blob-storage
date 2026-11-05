@@ -6,7 +6,7 @@ import { build } from 'esbuild';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
-const directory = resolve('.tmp/wire-schema');
+const directory = resolve('target/wire-schema');
 await build({ entryPoints: [`${directory}/client.ts`, `${directory}/blob-runtime.ts`],
   bundle: true, platform: 'node', format: 'esm', outdir: `${directory}/js`, outExtension: { '.js': '.mjs' } });
 const client = await import(pathToFileURL(`${directory}/js/client.mjs`));

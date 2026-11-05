@@ -6,7 +6,9 @@ root="${BASH_SOURCE[0]}"
 [[ "$root" == /* ]] || root="$PWD/$root"
 root="$(cd -P "${root%/*}/../.." && printf '%s/.' "$PWD")"
 root="${root%/.}"
-fixture="$(mktemp -d "${TMPDIR:-/tmp}/blob-testkit-commands.XXXXXX")"
+task_tmp="${TMPDIR:-$root/target/tmp}"
+mkdir -p "$task_tmp"
+fixture="$(mktemp -d "$task_tmp/blob-testkit-commands.XXXXXX")"
 fixture_complete=false
 finish_fixture() {
     local status=$?

@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { serveAssets } from './assets.mjs';
 
-const profile = await mkdtemp(fileURLToPath(new URL('../../.tmp/browser-store-profile-', import.meta.url)));
-const bundle = await readFile(new URL('../../.tmp/browser/store.js', import.meta.url));
+const profile = await mkdtemp(fileURLToPath(new URL('../../target/browser-store-profile-', import.meta.url)));
+const bundle = await readFile(new URL('../../target/browser/store.js', import.meta.url));
 const server = createServer(serveAssets({ '/store.js': bundle }, '/store.js'));
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const origin = `http://127.0.0.1:${server.address().port}`;

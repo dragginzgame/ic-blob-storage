@@ -46,7 +46,7 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 	ci/release-validation.json ci/release-stage-reuse.json ci/release-package-scopes.json scripts/release/validation.pl scripts/release/stage.pl scripts/release/validate.sh scripts/ci/test-release-validation.sh \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl scripts/ci/check-rust-compiler.sh \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
-	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/test/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
+	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/tests/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
 .PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
 	build package package-regression package-verifier clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
@@ -74,7 +74,7 @@ help:
 	@echo "install-rust-tools / rust-tools-check   Pinned shared Cargo tools setup / verification"
 	@echo "install-testkit / testkit-check         Locked Testkit CLI and owned PocketIC setup / offline check"
 	@echo "deps                         Fetch locked Rust dependencies (network)"
-	@echo "cloc                         Offline Rust runtime/test counts for every workspace member"
+	@echo "cloc                         Offline categorized Rust LOC for every workspace member"
 	@echo "test-funding-receipt-resources  Measure populated receipt confirmation and restore (opt-in)"
 	@echo "shared-tooling-check          Verify the reviewed shared snapshot offline"
 	@echo "shared-tooling-tests          Exercise consumer tool, evidence, lockfile and metadata checks offline"
@@ -288,13 +288,13 @@ test-sdk-probe:
 	@test -n "$(BLOB_SDK_PROBE_REPORT)" || { echo 'Set BLOB_SDK_PROBE_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	+cargo build --offline --locked -p ic-blob-storage-contracts --example verify_download
-	$(BLOB_BROWSER_NODE) .tmp/browser/sdk-probe.mjs "$(BLOB_SDK_PROBE_REPORT)" "$(CARGO_TARGET_DIR)/debug/examples/verify_download"
+	$(BLOB_BROWSER_NODE) target/browser/sdk-probe.mjs "$(BLOB_SDK_PROBE_REPORT)" "$(CARGO_TARGET_DIR)/debug/examples/verify_download"
 
 test-sdk-inputs:
 	@test -n "$(BLOB_SDK_INPUTS_REPORT)" || { echo 'Set BLOB_SDK_INPUTS_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
 	+cargo build --offline --locked -p ic-blob-storage-cli --bin blob-storage
-	$(BLOB_BROWSER_NODE) .tmp/browser/native-inputs.mjs "$(BLOB_SDK_INPUTS_REPORT)" "$(CARGO_TARGET_DIR)/debug/blob-storage" "$(BLOB_SDK_INPUTS_BYTES)"
+	$(BLOB_BROWSER_NODE) target/browser/native-inputs.mjs "$(BLOB_SDK_INPUTS_REPORT)" "$(CARGO_TARGET_DIR)/debug/blob-storage" "$(BLOB_SDK_INPUTS_BYTES)"
 
 test-browser-transport:
 	@test -n "$(BLOB_BROWSER_TRANSPORT_REPORT)" || { echo 'Set BLOB_BROWSER_TRANSPORT_REPORT to a new directory beneath an existing parent'; exit 1; }
@@ -304,7 +304,7 @@ test-browser-transport:
 test-browser-publication:
 	@test -n "$(BLOB_PUBLICATION_REPORT)" || { echo 'Set BLOB_PUBLICATION_REPORT to a new directory beneath an existing parent'; exit 1; }
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
-	$(BLOB_BROWSER_NODE) .tmp/browser/publication.mjs "$(BLOB_PUBLICATION_REPORT)"
+	$(BLOB_BROWSER_NODE) target/browser/publication.mjs "$(BLOB_PUBLICATION_REPORT)"
 
 test-browser-store:
 	$(BLOB_BROWSER_NODE) tests/browser/build.mjs
@@ -340,14 +340,14 @@ test-browser:
 
 test-admission-resources:
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib
-	@mkdir -p .tmp
-	+BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/.tmp/admission-resources.json" \
-	BLOB_ADMISSION_HISTORY_REPORT="$(CURDIR)/.tmp/admission-history.json" \
-	BLOB_RELEASE_HISTORY_REPORT="$(CURDIR)/.tmp/release-history.json" \
-	BLOB_REFERENCE_HISTORY_REPORT="$(CURDIR)/.tmp/reference-history.json" \
-	BLOB_DESCRIPTOR_RESOURCE_REPORT="$(CURDIR)/.tmp/descriptor-resources.json" \
+	@mkdir -p target/reports
+	+BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/target/reports/admission-resources.json" \
+	BLOB_ADMISSION_HISTORY_REPORT="$(CURDIR)/target/reports/admission-history.json" \
+	BLOB_RELEASE_HISTORY_REPORT="$(CURDIR)/target/reports/release-history.json" \
+	BLOB_REFERENCE_HISTORY_REPORT="$(CURDIR)/target/reports/reference-history.json" \
+	BLOB_DESCRIPTOR_RESOURCE_REPORT="$(CURDIR)/target/reports/descriptor-resources.json" \
 	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test admission admission_resources -- --test-threads=2
-	@echo "Local resource reports in .tmp/: admission-resources.json, admission-history.json, release-history.json, reference-history.json, descriptor-resources.json (not provider pricing)"
+	@echo "Local resource reports in target/reports/: admission-resources.json, admission-history.json, release-history.json, reference-history.json, descriptor-resources.json (not provider pricing)"
 
 test-funding-receipt-resources:
 	@test -n "$(BLOB_FUNDING_RECEIPT_PROFILE)" || { echo "Set BLOB_FUNDING_RECEIPT_PROFILE to a fresh report directory." >&2; exit 1; }
@@ -356,10 +356,10 @@ test-funding-receipt-resources:
 
 test-read-resources:
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
-	@mkdir -p .tmp
-	+BLOB_READ_RESOURCE_REPORT="$(CURDIR)/.tmp/read-resources.json" \
+	@mkdir -p target/reports
+	+BLOB_READ_RESOURCE_REPORT="$(CURDIR)/target/reports/read-resources.json" \
 	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test journey readback -- --test-threads=2
-	@echo "Local read report: .tmp/read-resources.json (not a production read protocol or provider pricing)"
+	@echo "Local read report: target/reports/read-resources.json (not a production read protocol or provider pricing)"
 
 wasm-check-run:
 	+@packages="$$(perl scripts/release/validation.pl packages wasm-check)" || exit $$?; \
@@ -451,11 +451,11 @@ publish-dry-run:
 .PHONY: test-wire-schema
 test-wire-schema: browser-tools-check
 	+cargo build --offline --locked -p ic-blob-storage-contracts --example wire_schema --features wire-schema
-	mkdir -p .tmp/wire-schema
-	$(CARGO_TARGET_DIR)/debug/examples/wire_schema metadata > .tmp/wire-schema/metadata.json
-	$(CARGO_TARGET_DIR)/debug/examples/wire_schema client > .tmp/wire-schema/client.ts
-	$(CARGO_TARGET_DIR)/debug/examples/wire_schema adapter > .tmp/wire-schema/blob-runtime.ts
-	$(CARGO_TARGET_DIR)/debug/examples/wire_schema runtime > .tmp/wire-schema/wire-runtime.ts
+	mkdir -p target/wire-schema
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema metadata > target/wire-schema/metadata.json
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema client > target/wire-schema/client.ts
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema adapter > target/wire-schema/blob-runtime.ts
+	$(CARGO_TARGET_DIR)/debug/examples/wire_schema runtime > target/wire-schema/wire-runtime.ts
 	$(BLOB_BROWSER_NODE) tests/browser/wire-schema.mjs
 
 # Ordinary CI/commands execute their original recipes. Group releases may admit

@@ -11,7 +11,7 @@ const directory = resolve(process.argv[2]);
 await mkdir(directory, { mode: 0o700 });
 const record = (name, value) => writeFile(join(directory, name), JSON.stringify(value, null, 2) + '\n',
   { flag: 'wx', mode: 0o600 });
-const bundle = await readFile(new URL('../../.tmp/browser/store.js', import.meta.url));
+const bundle = await readFile(new URL('../../target/browser/store.js', import.meta.url));
 const capacities = [675, 5000, 10000], populated = [], reopened = [], requests = [], blocked = [];
 const paths = new Set(['/', '/store.js']);
 const assets = serveAssets({ '/store.js': bundle }, '/store.js');

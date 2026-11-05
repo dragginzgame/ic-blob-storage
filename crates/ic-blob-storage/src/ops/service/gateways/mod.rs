@@ -14,8 +14,6 @@ use crate::model::gateway::registry::GatewaySyncToken;
 use crate::model::gateway::registry::GatewaySyncView;
 use crate::model::gateway::registry::record::GatewayRegistryRecord;
 use crate::model::gateway::registry::record::MAX_BYTES;
-#[cfg(test)]
-use crate::model::gateway::registry::record::MAX_MEMBERS;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::upload::binding::UploadContext;
 use ic_platform::Principal;

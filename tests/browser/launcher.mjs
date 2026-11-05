@@ -29,7 +29,7 @@ const engine = { async launchPersistentContext(...args) {
   return context;
 } };
 const options = mode => ({ profile: join(report, 'profile'), assetPort: port, nativeSession: null,
-  hostBundle: resolve('.tmp/browser/publication-host.js'), workerBundle: resolve('.tmp/browser/publication-worker.js'),
+  hostBundle: resolve('target/browser/publication-host.js'), workerBundle: resolve('target/browser/publication-worker.js'),
   bootstrap: { schema: 1, operation: 'bootstrap', signer: { kind: 'ed25519', json: JSON.stringify(signer.toJSON()) },
     configuration: { host: origin, rootKey: [1], service: 'aaaaa-aa', tenant: 'rrkah-fqaaa-aaaaa-aaaaq-cai',
       uploader: signer.getPrincipal().toText(), project: 'bootstrap-fixture', bucket: 'test', origin: 'https://substitute.invalid',

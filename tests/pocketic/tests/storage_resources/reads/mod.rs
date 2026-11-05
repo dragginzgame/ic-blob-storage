@@ -1,4 +1,4 @@
-//! The host owns measurement windows and authority; shared arithmetic owns the aggregate.
+//! The private host owns numeric read-cost windows and their observation authority.
 use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 

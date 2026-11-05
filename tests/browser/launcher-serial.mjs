@@ -37,8 +37,8 @@ await writeFile(config.browserSelection, JSON.stringify({
   format: 'ic-blob-storage/browser-selection', session: resolve(config.session), profile: resolve(config.profile),
   project: config.project, bucket: config.bucket, asset_port: port,
   signer_sha256: digest(JSON.stringify({ kind: 'ed25519', json: JSON.stringify(signer.toJSON()) })),
-  host_sha256: digest(await readFile('.tmp/browser/publication-host.js')),
-  worker_sha256: digest(await readFile('.tmp/browser/publication-worker.js')),
+  host_sha256: digest(await readFile('target/browser/publication-host.js')),
+  worker_sha256: digest(await readFile('target/browser/publication-worker.js')),
   database: 'standalone-trial-v1', max_slots: 2,
 }), { flag: 'wx', mode: 0o600 });
 const workerReports = [], journals = [], originals = [], unexpected = [];
@@ -80,7 +80,7 @@ async function open(mode) {
   certificateCalls = 0; id = 0;
   bridge = await launchPublicationBrowser(engine, {
     profile: resolve(config.profile), assetPort: port, nativeSession: resolve(config.session),
-    hostBundle: resolve('.tmp/browser/publication-host.js'), workerBundle: resolve('.tmp/browser/publication-worker.js'),
+    hostBundle: resolve('target/browser/publication-host.js'), workerBundle: resolve('target/browser/publication-worker.js'),
     bootstrap: { schema: 1, operation: 'bootstrap', signer: { kind: 'ed25519', json: JSON.stringify(signer.toJSON()) },
       configuration: { host: config.url, rootKey: config.rootKey, service: config.service, tenant: config.tenant,
         uploader: signer.getPrincipal().toText(), project: config.project, bucket: config.bucket, origin: gateway.origin,

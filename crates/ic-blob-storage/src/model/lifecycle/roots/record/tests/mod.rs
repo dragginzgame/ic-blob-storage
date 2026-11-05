@@ -1,4 +1,5 @@
 use super::*;
+use ic_storage::adapter::Storable;
 
 #[test]
 fn largest_identity_round_trips_and_invalid_identity_never_binds() {

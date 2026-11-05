@@ -69,8 +69,6 @@
   },
   {
     "dependency": "ic-metrics",
-    "allowed_packages": [
-      "blob-storage-probe"
-    ]
+    "allowed_packages": []
   }
 ]

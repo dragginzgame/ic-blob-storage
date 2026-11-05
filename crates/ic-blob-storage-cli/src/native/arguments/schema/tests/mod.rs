@@ -1,5 +1,9 @@
 use super::*;
 
+fn cli() -> clap::Command {
+    <Cli as clap::CommandFactory>::command()
+}
+
 #[test]
 fn grammar_requires_complete_unique_scoped_flags_and_supports_help() {
     cli().debug_assert();

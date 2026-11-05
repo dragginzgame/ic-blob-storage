@@ -3,7 +3,9 @@ set -Eeuo pipefail
 
 # Consumer integration only; Shared Tooling owns logger mechanics and its suite.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
-FIXTURE="$(mktemp -d "${TMPDIR:-/tmp}/blob-validation-logging.XXXXXX")"
+task_tmp="${TMPDIR:-$ROOT/target/tmp}"
+mkdir -p "$task_tmp"
+FIXTURE="$(mktemp -d "$task_tmp/blob-validation-logging.XXXXXX")"
 fixture_complete=false
 finish() {
     local status=$?

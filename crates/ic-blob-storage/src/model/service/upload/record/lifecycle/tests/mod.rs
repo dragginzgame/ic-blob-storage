@@ -1,4 +1,6 @@
 use super::*;
+use ic_storage::adapter::Storable;
+use std::borrow::Cow;
 #[test]
 fn bounded_codecs_preserve_maximum_receipt_identity_and_typed_outcomes() {
     for result in [

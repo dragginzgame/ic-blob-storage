@@ -7,8 +7,8 @@ import { resolve } from 'node:path';
 import { serveAssets } from './assets.mjs';
 const report = resolve(process.argv[2]);
 await mkdir(report, { mode: 0o700 });
-const bundle = await readFile(new URL('../../.tmp/browser/bootstrap.js', import.meta.url));
-const worker = await readFile(new URL('../../.tmp/browser/publication-worker.js', import.meta.url));
+const bundle = await readFile(new URL('../../target/browser/bootstrap.js', import.meta.url));
+const worker = await readFile(new URL('../../target/browser/publication-worker.js', import.meta.url));
 const requests = [], unexpected = [], cases = [];
 const assets = serveAssets({ '/bootstrap.js': bundle, '/worker-entry.js': worker },
   '/bootstrap.js', { 'cache-control': 'no-store' });

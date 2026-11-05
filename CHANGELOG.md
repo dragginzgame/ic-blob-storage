@@ -9,7 +9,7 @@ owns its versions and ledger; there is no aggregate workspace version.
 | Client | Published client and native CLI | [Client](releases/client/CHANGELOG.md) |
 | Engine | Service core, standalone host and private probes | [Engine](releases/engine/CHANGELOG.md) |
 
-Pending **0.70.0** notes are maintained in the three group ledgers above.
+Pending notes are maintained in the owning group ledgers above.
 
 [Coordinated history through 0.65.0](releases/history.md) is retained once.
 Select `RELEASE_GROUP=contracts`, `client` or `engine` explicitly; see

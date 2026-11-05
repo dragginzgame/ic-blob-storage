@@ -3,7 +3,9 @@ set -euo pipefail
 mode="${1:-full}"
 [[ $# -le 1 && ( "$mode" == full || "$mode" == --metrics-only ) ]] || exit 2
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-fixture="$(mktemp -d "${TMPDIR:-/tmp}/blob-feature-boundary.XXXXXX")"
+task_tmp="${TMPDIR:-$root/target/tmp}"
+mkdir -p "$task_tmp"
+fixture="$(mktemp -d "$task_tmp/blob-feature-boundary.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
 cat > "$fixture/cargo" <<'CARGO'
 #!/usr/bin/env bash

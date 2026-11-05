@@ -2,12 +2,8 @@
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_blob_storage_contracts::tenant::TenantEnrollmentView;
 use ic_platform::principal::ExternalPrincipal;
-#[cfg(test)]
-use ic_storage::adapter::Storable;
 use serde::Deserialize;
 use serde::Serialize;
-#[cfg(test)]
-use std::borrow::Cow;
 use std::num::NonZeroU64;
 
 const MAX_BYTES: u32 = 256;

@@ -56,7 +56,7 @@ Foreign Candid identities stay upstream, without a local dependency alias.
 | IC Platform | Owned entrypoint/runtime adapters, Principal, external Candid contracts/decoding, management DTOs and native Agent/parser/certificate identities |
 | IC Platform browser package | Published `@tokostudios/ic-platform` owns SDK Core selection, canonical Principal admission, checked identity restoration and explicit Agent construction; Blob retains trust, intents and effect policy |
 | IC Wire | Bounded method/direction framing for owned service contracts and separate passive document encoding |
-| IC Metrics | Operational reporting belongs to Canic; only the private storage probe retains measurement recorders here. Contracts and standalone deployment exclude Metrics |
+| IC Metrics | Operational reporting belongs to Canic; private resource probes use local checked totals. Every Blob package excludes Metrics |
 | IC Testkit | PocketIC client/server selection and managed lifetime; bounded decoding shares Platform types directly |
 | IC Host artifacts/fs/process/tools | Native artifacts, descriptor-rooted reads, durable publication, processes, framing and interface inspection |
 | IC Host HTTP | Bounded native probe response accumulation; request policy, error projection and evidence custody stay with Blob |
@@ -131,14 +131,15 @@ Platform scopes its singleton check to executor/runtime features through
 its exact-version internal runtime guard. Non-runtime consumers do not claim an
 executor. Blob selects the published facade, never that internal helper directly.
 
-The pending 0.70.0 graph selects Platform 0.21, Runtime/guard 0.19, canonical
+The 0.70.0 adoption selected Platform 0.21, Runtime/guard 0.19, canonical
 Types 0.18, Wire/Derive 0.16.1, Tools 0.81, Testkit 0.84.1, Storage 0.66.1,
 Metrics 0.29 and Build/Host Foundation 0.74.2. Platform 0.21 retires its former
 PocketIC facade while retaining external-protocol/Agent identities. The native
 client is Testkit-owned. Metrics 0.29 owns instrumentation without Serde/report
 APIs: Contracts now validates its own passive reports, and the native CLI's
-fixture-only Metrics dependency is removed. The direct boundary permits Metrics
-only in actual instrumenting hosts; no report decoder uses persistence restoration.
+fixture-only Metrics dependency was removed at that cut. The current dependency
+boundary also refuses Metrics in private probes; no report decoder uses persistence
+restoration.
 These changes preserve report bytes, numeric rejections and stored records while
 removing public recorder-conversion implementations. Consume the new dependency
 family under the 0.70 source cut; existing cross-release retirement rules apply.
@@ -159,8 +160,9 @@ Blob keeps its own scenario authority, budgets, retry and recovery policy.
 Published Wire 0.16 resolves [Wire #44](https://github.com/dragginzgame/ic-wire/issues/44).
 Contracts' native `wire-schema` feature selects Wire's `platform-types` schemas
 for the canonical Principal. Metrics is absent from Contracts and standalone
-deployment graphs. Only the private storage probe uses measurement recorders;
-Canic owns application instrumentation and reporting through its metrics adapter.
+deployment graphs. The private storage probe now uses checked numeric totals for bounded test windows,
+without the Metrics recording engine. Canic owns application instrumentation and
+reporting through its metrics adapter.
 See [reporting ownership](metrics.md).
 
 Principal's bytes, endpoint IDs, admission limits and exact retry packets remain
@@ -171,11 +173,13 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.29.3** is captured from committed source
-`1fa2d90879650780d23ad8f045f5825771b696ad` (154 verified files), using its canonical
-revision exporter while preserving unrelated dirty supplier work. Native dependency
-ownership now recognizes Testkit and refuses the retired client owner. The update
-also fixes grouped manifest-order admission on Bash 3.2 and UTF-8 validation text.
+Shared Tooling **0.30.0** is captured from committed source
+`b37a882314d22bf7ab393b3fe561809377ffd22d` (166 verified files), using its canonical
+revision exporter. Probe packages live under `canisters/tests/`; their manifests
+and both packaged test-support manifests explicitly declare the `tests` LOC role.
+The native archive verifier alone has a `build_tooling` path classification.
+[Categorized LOC](fleet-tools.md#source-classification) separates library, tests,
+examples and tooling, and reports ambiguous macro/conditional bodies for review.
 The current rules separate test bodies into owner-local `tests.rs` or `tests/`
 without path overrides, and keep fixed-issue notes solely in the owning release
 group's ledger. The root changelog remains navigation. Metrics is instrumentation
@@ -193,14 +197,14 @@ The canonical companion closure now includes the validation-runner guide, fixing
 [Shared #346](https://github.com/dragginzgame/shared-tooling/issues/346) without an
 extra consumer entrypoint. See [release ownership](releasing.md).
 
-Current published archive/index readbacks and focused caller qualification live
+The November 3 archive/index readbacks and focused caller qualification live
 in `target/upstream-refresh-20261103/`. Earlier target-based qualification was
 removed during disk recovery; the handoff distinguishes those historical reports
 from current retained evidence. Storage 0.66 and Testkit 0.84 select Wire 0.16,
 removing the previous Wire/Derive 0.15 generation.
 Native installed-test and standalone deployment graphs each have one selected
 Wire, Types and Runtime identity. Storage's stored bytes and reopening contract
-are unchanged by this supplier cut; the pending Blob funding-record cut still
+are unchanged by that supplier cut. Blob's cross-release retirement contract still
 requires retirement and fresh backing. Actual target/feature graphs, not mere
 lockfile presence, establish exposure.
 
@@ -492,7 +496,7 @@ continues to own simulator selection and server lifecycle.
 Testkit's opt-in `held-reply-fixtures` owns generic immutable reply slots
 and manual PocketIC release. It is suitable for consumer callback races without
 provider lifecycle operations. It does not replace Blob's durable
-[gateway source](../canisters/test/gateway_source/src/model/mod.rs): the
+[gateway source](../canisters/tests/gateway_source/src/model/mod.rs): the
 [recovery cases](../tests/pocketic/tests/recovery/authority/sync/mod.rs) inspect
 captured source journals, reject pending upgrades, restore old source bytes and
 verify bounded exhaustion. Testkit's held controller explicitly excludes fixture

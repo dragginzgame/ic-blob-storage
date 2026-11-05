@@ -127,7 +127,7 @@ setup and admission; this feature belongs to tool selections, not the applicatio
 library graph. Tool installation may compile and use the
 network; it stays explicit and separate from ordinary validation.
 `make test-native-host` is the focused CLI/PocketIC installation,
-Metrics restoration-read and replicated tenant-client check used by normal
+numeric restoration-read and replicated tenant-client check used by normal
 native host CI. Portable Contracts tests/examples run once in the Linux schema
 job with all features; native Clippy remains owned by the three-host tooling
 matrix. Generated-client qualification stays separate because it exercises

@@ -4,6 +4,20 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.72.2]
+
+### 🔧 Changed
+
+- Adopt committed Shared Tooling 0.30.0, rename private probe directories to
+  `canisters/tests/`, and declare fixture/tooling LOC roles. Categorized counts
+  cover all workspace members without changing package identities or wire bytes;
+  workspace table labels no longer repeat an aggregate total.
+- Keep active browser builds, generated schemas, reports and local fixture
+  defaults beneath `target/`; retain historical evidence and explicit overrides.
+- Replace the private read profiler's Metrics recorders with checked numeric
+  totals, preserving exact-cap and sticky-overflow reports while removing the
+  unused instrumentation dependency. Operational reporting remains consumer-owned.
+
 ## [0.72.1] - 2026-11-05
 
 ### 🩹 Fixed

@@ -1,4 +1,5 @@
 use super::*;
+use crate::model::gateway::registry::record::MAX_MEMBERS;
 use crate::ops::caffeine::decoding::CaffeineReplyLimits;
 mod revocation;
 mod sync;

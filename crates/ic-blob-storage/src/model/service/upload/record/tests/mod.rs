@@ -1,4 +1,6 @@
 use super::*;
+use ic_storage::adapter::Storable;
+use std::borrow::Cow;
 fn permission() -> UploadPermissionRecord {
     UploadPermissionRecord::new(
         UploadPermission {

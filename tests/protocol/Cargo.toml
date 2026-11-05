@@ -6,6 +6,9 @@ edition.workspace = true
 rust-version.workspace = true
 publish = false
 
+[package.metadata.shared-tooling.loc]
+category = "tests"
+
 [features]
 fixture-storage = ["dep:ic-storage", "ic-storage/test-support"]
 

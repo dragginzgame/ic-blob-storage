@@ -208,7 +208,7 @@ evidence collection. New selector/proof scratch also lives under `target/`.
 
 ### Reuse across group releases
 
-Shared Tooling 0.29.6 prepares disposable final candidate source with the canonical
+Shared Tooling 0.30.0 prepares disposable final candidate source with the canonical
 IC Build editor. All pending numbered group versions are compiled as their actual
 intended final versions. Later supplier-first group releases can reach identical
 candidate content; there is no version stripping, old binary rebinding or whole-

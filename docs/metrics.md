@@ -13,7 +13,8 @@ Telemetry never substitutes for these records or proves provider deletion,
 independent credit or billing cessation.
 
 The private storage probe retains bounded resource measurements for local
-qualification. They are fixture instrumentation and are excluded from standalone
+qualification using local checked numeric totals. They have no Metrics dependency
+and are excluded from standalone
 deployment, rather than an application reporting service.
 
 Historical provider observations retain their original released tools, packets,

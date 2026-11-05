@@ -62,7 +62,7 @@ jq -e '
     (.jobs.tooling.env.BLOB_GROUP_CI | contains("workflow_dispatch")) and
     (.jobs.tooling.steps | any(.name == "Run the selected source-bound group plan on this native host" and .env.RELEASE_GROUP == "${{ inputs.release_group }}" and (.run | contains("make release-verify")))) and
     (.jobs.tooling.steps | any(.name == "Retain group plans, package scopes and stage execution evidence" and .with["include-hidden-files"] == true)) and
-    (.jobs.tooling.steps | any(.name == "Qualify native CLI, installation and Metrics restoration probe" and .if == "env.BLOB_GROUP_CI != '\''true'\''")) and
+    (.jobs.tooling.steps | any(.name == "Qualify native CLI, installation and restoration read-cost probe" and .if == "env.BLOB_GROUP_CI != '\''true'\''")) and
     (.jobs["wire-schema"].steps | any(.name == "Qualify portable Contracts regressions" and .if == "github.event_name != '\''workflow_dispatch'\'' || inputs.release_group == '\''workspace'\''" and (.run | contains("cargo test --offline --locked -p ic-blob-storage-contracts --all-features")))) and
     (.jobs["wire-schema"].steps | all((.run // "") | contains("cargo clippy") | not)) and
     (.jobs["wire-schema"].steps | any(.name == "Qualify generated Wire clients" and .if == null and (.run | contains("make test-wire-schema")))) and
@@ -260,7 +260,7 @@ export RELEASE_SOURCE RELEASE_GROUP=client TEST_EVENTS="$TEMPORARY/events"
 RELEASE_SOURCE="$(git rev-parse HEAD)"
 client_source="$RELEASE_SOURCE"
 : > "$TEST_EVENTS"
-mkdir -p .tmp/full .tmp/invalid .tmp/contracts .tmp/client-shared .git/release-state/validation
+mkdir -p target/full target/invalid target/contracts target/client-shared .git/release-state/validation
 refuse() { if "$@" > "$TEMPORARY/refusal.log" 2>&1; then echo "Unexpected success: $*" >&2; exit 1; fi; }
 mkdir -p .tmp/blob-release-validation.historical
 printf 'original historical evidence\n' > .tmp/blob-release-validation.historical/plan.json
@@ -326,12 +326,12 @@ for mutation in '.evidence.stages[0].state="FAIL"' '.evidence.stages[0].state="b
     jq "$mutation" "$TEMPORARY/good-record.json" > "$TEMPORARY/invalid.json"
     refuse verify_record "$TEMPORARY/invalid.json"
 done
-RUSTFLAGS='-C opt-level=2' perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "workspace" and all(.stages[]; .required)' .tmp/full/plan.json > /dev/null
+RUSTFLAGS='-C opt-level=2' perl scripts/release/validation.pl plan target/full/plan.json
+jq -e '.scope == "workspace" and all(.stages[]; .required)' target/full/plan.json > /dev/null
 RUSTFLAGS='-C opt-level=2' refuse perl scripts/release/validation.pl check "$record"
 printf '[build]\njobs = 2\n' > "$CARGO_HOME/config.toml"
-perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "workspace" and all(.stages[]; .required)' .tmp/full/plan.json > /dev/null
+perl scripts/release/validation.pl plan target/full/plan.json
+jq -e '.scope == "workspace" and all(.stages[]; .required)' target/full/plan.json > /dev/null
 refuse perl scripts/release/validation.pl check "$record"
 rm "$CARGO_HOME/config.toml"
 verify_record "$record"
@@ -354,20 +354,20 @@ printf 'unknown input\n' > unknown.txt
 git add .
 git commit -qm 'Unknown input'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "workspace" and all(.stages[]; .required)' .tmp/full/plan.json > /dev/null
+perl scripts/release/validation.pl plan target/full/plan.json
+jq -e '.scope == "workspace" and all(.stages[]; .required)' target/full/plan.json > /dev/null
 refuse verify_record "$TEMPORARY/good-record.json"
 TEST_FAIL=test-pocketic-engine-run refuse bash scripts/release/validate.sh
 git reset --hard -q "$client_source"
 RELEASE_SOURCE="$client_source"
-RELEASE_GROUP=unknown refuse perl scripts/release/validation.pl plan .tmp/invalid/plan.json
+RELEASE_GROUP=unknown refuse perl scripts/release/validation.pl plan target/invalid/plan.json
 jq -cS '.stages += ["unreviewed-stage"]' ci/release-validation.json > "$TEMPORARY/roster.json"
 cp "$TEMPORARY/roster.json" ci/release-validation.json
 git add ci/release-validation.json
 git commit -qm 'Unreviewed roster'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-perl scripts/release/validation.pl plan .tmp/invalid/plan.json
-jq -e '.scope == "workspace" and any(.stages[]; .target == "unreviewed-stage" and .required)' .tmp/invalid/plan.json > /dev/null
+perl scripts/release/validation.pl plan target/invalid/plan.json
+jq -e '.scope == "workspace" and any(.stages[]; .target == "unreviewed-stage" and .required)' target/invalid/plan.json > /dev/null
 refuse bash scripts/release/validate.sh
 git reset --hard -q "$client_source"
 RELEASE_SOURCE="$client_source"
@@ -377,8 +377,8 @@ printf '// shared client transport\n' >> crates/ic-blob-storage-client/src/mod.r
 git add .
 git commit -qm 'Client shared transport'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-perl scripts/release/validation.pl plan .tmp/client-shared/plan.json
-jq -e 'any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' .tmp/client-shared/plan.json > /dev/null
+perl scripts/release/validation.pl plan target/client-shared/plan.json
+jq -e 'any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' target/client-shared/plan.json > /dev/null
 git reset --hard -q "$client_source"
 RELEASE_SOURCE="$client_source"
 # Contracts changes retain installed reverse consumers, not merely DTO unit tests.
@@ -386,10 +386,10 @@ printf '// public DTO change\n' >> crates/ic-blob-storage-contracts/src/mod.rs
 git add .
 git commit -qm 'Contracts boundary'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-RELEASE_GROUP=contracts perl scripts/release/validation.pl plan .tmp/contracts/plan.json
-jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' .tmp/contracts/plan.json > /dev/null
+RELEASE_GROUP=contracts perl scripts/release/validation.pl plan target/contracts/plan.json
+jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' target/contracts/plan.json > /dev/null
 # Contracts changes select all public identities and reverse consumers.
-jq -e 'all(.stages[] | select(.target == "clippy" or .target == "check"); (.reason | contains("-p ic-blob-storage-contracts")) and (.reason | contains("-p ic-blob-storage-client")) and (.reason | contains("-p ic-blob-storage")))' .tmp/contracts/plan.json > /dev/null
+jq -e 'all(.stages[] | select(.target == "clippy" or .target == "check"); (.reason | contains("-p ic-blob-storage-contracts")) and (.reason | contains("-p ic-blob-storage-client")) and (.reason | contains("-p ic-blob-storage")))' target/contracts/plan.json > /dev/null
 git reset --hard -q "$client_source"
 # The complete delta includes an earlier Engine change even when the last commit
 # is tenant-only. Only Engine edits select Engine roots; both IC partitions stay.
@@ -398,8 +398,8 @@ printf '// Engine implementation\n' >> crates/ic-blob-storage/src/mod.rs
 git add .
 git commit -qm 'Engine implementation'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-RELEASE_GROUP=engine perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "group" and all(.stages[] | select(.target == "clippy" or .target == "check"); (.reason | contains("-p ic-blob-storage ")) and (.reason | contains("-p ic-blob-storage-client") | not) and (.reason | contains("-p ic-blob-storage-contracts") | not))' .tmp/full/plan.json > /dev/null
+RELEASE_GROUP=engine perl scripts/release/validation.pl plan target/full/plan.json
+jq -e '.scope == "group" and all(.stages[] | select(.target == "clippy" or .target == "check"); (.reason | contains("-p ic-blob-storage ")) and (.reason | contains("-p ic-blob-storage-client") | not) and (.reason | contains("-p ic-blob-storage-contracts") | not))' target/full/plan.json > /dev/null
 : > "$TEST_COMMANDS"
 RELEASE_GROUP=engine bash scripts/release/validate.sh > "$TEMPORARY/engine.log" 2>&1
 [[ "$(wc -l < "$TEST_COMMANDS")" == 5 ]]
@@ -408,8 +408,8 @@ printf '// later tenant change\n' >> crates/ic-blob-storage-client/src/tenants/m
 git add .
 git commit -qm 'Later tenant implementation'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' .tmp/full/plan.json > /dev/null
+perl scripts/release/validation.pl plan target/full/plan.json
+jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' target/full/plan.json > /dev/null
 # CLI/verifier implementation keeps the archive regression; actual package
 # verification stays required even when the regression is legitimately omitted.
 git reset --hard -q "$client_source"
@@ -417,8 +417,8 @@ printf '// verifier implementation\n' >> crates/ic-blob-storage-cli/src/mod.rs
 git add .
 git commit -qm 'Verifier/CLI implementation'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "group" and any(.stages[]; .target == "package-regression" and .required) and any(.stages[]; .target == "package" and .required)' .tmp/full/plan.json > /dev/null
+perl scripts/release/validation.pl plan target/full/plan.json
+jq -e '.scope == "group" and any(.stages[]; .target == "package-regression" and .required) and any(.stages[]; .target == "package" and .required)' target/full/plan.json > /dev/null
 TEST_FAIL=package-regression refuse bash scripts/release/validate.sh
 git reset --hard -q "$client_source"
 RELEASE_SOURCE="$client_source"
@@ -444,8 +444,8 @@ for input in Cargo.toml Cargo.lock ci/config.json scripts/generator.pl tests/inp
     git add .
     git commit -qm 'Shared or unknown input'
     RELEASE_SOURCE="$(git rev-parse HEAD)"
-    perl scripts/release/validation.pl plan .tmp/full/plan.json
-    jq -e '.scope == "workspace" and all(.stages[]; .required)' .tmp/full/plan.json > /dev/null
+    perl scripts/release/validation.pl plan target/full/plan.json
+    jq -e '.scope == "workspace" and all(.stages[]; .required)' target/full/plan.json > /dev/null
 done
 git reset --hard -q "$client_source"
 # A pre-mapping receipt cannot enable narrower package commands.
@@ -458,8 +458,8 @@ printf '// tenant change\n' >> crates/ic-blob-storage-client/src/tenants/mod.rs
 git add .
 git commit -qm 'Post legacy implementation'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
-perl scripts/release/validation.pl plan .tmp/full/plan.json
-jq -e '.scope == "workspace" and all(.stages[]; .required)' .tmp/full/plan.json > /dev/null
+perl scripts/release/validation.pl plan target/full/plan.json
+jq -e '.scope == "workspace" and all(.stages[]; .required)' target/full/plan.json > /dev/null
 # Incomplete ownership/roots cannot supply even ordinary full command flags.
 cp ci/release-package-scopes.json "$TEMPORARY/package-policy.json"
 for mutation in '.consumers.engine=["client"]' '.consumers.client += ["client"]' '.stages.clippy=["not-a-member"]' 'del(.stages.check)' '.stages["test-native"]=[]'; do

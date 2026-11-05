@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { loopbackTLS, loopbackH2 } from './tls.mjs';
 import { standaloneGateway } from './standalone-gateway.mjs';
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
-const bundle = await readFile(new URL('../../.tmp/browser/standalone.js', import.meta.url));
+const bundle = await readFile(new URL('../../target/browser/standalone.js', import.meta.url));
 const { next, send, close } = controlChannel();
 const { handle, state } = standaloneGateway(config, bundle, [1024], undefined,
   [Buffer.alloc(1024, config.bodyByte ?? 42)]);

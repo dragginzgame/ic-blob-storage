@@ -621,7 +621,7 @@ support and all released APIs remain unchanged.
 
 ## PocketIC authority probe after 0.1.8
 
-On 2026-09-26, the unpublished [test canister](../../canisters/test/authority_probe/src/lib.rs)
+On 2026-09-26, the unpublished [test canister](../../canisters/tests/authority_probe/src/lib.rs)
 and [host harness](../../tests/pocketic/tests/authority.rs) passed `make test-pocketic`.
 The harness creates and installs actual Wasm with an explicit controller. Endpoints
 capture `msg_caller` and `canister_self`, then use shared library policies/catalog
@@ -644,7 +644,7 @@ bytes per tenant, one reference and two receipt slots per object. Tests observe:
   Operator authority comes from installation configuration, not controller status.
 
 The [sync integration cases](../../tests/pocketic/tests/gateway_sync.rs) install a
-second [controlled source](../../canisters/test/gateway_source/src/lib.rs). For
+second [controlled source](../../canisters/tests/gateway_source/src/lib.rs). For
 deterministic scheduling only, that source is also the explicit fixture operator:
 it calls back into the probe before returning its captured list. This is not a
 Cashier implementation or a product decision to trust providers as operators.
@@ -948,7 +948,7 @@ version mutation or full CI/release gate ran.
 
 ## Funding callback experiment
 
-After 0.1.12, the unpublished [funding probe](../../canisters/test/funding_probe/src/lib.rs)
+After 0.1.12, the unpublished [funding probe](../../canisters/tests/funding_probe/src/lib.rs)
 and [PocketIC cases](../../tests/pocketic/tests/funding.rs) exercise real
 unbounded inter-canister cycle transfers. The sender captures the system refund
 immediately in the call continuation, before decoding or another await. The
@@ -1179,7 +1179,7 @@ injection experiment is not a whole-canister snapshot
 load: restoring an old heap can bypass post_upgrade entirely. Upload journals and
 independent recovery authority remain unimplemented.
 
-The authority's [inspection archive](../../canisters/test/authority_probe/src/ops/archive/mod.rs)
+The authority's [inspection archive](../../canisters/tests/authority_probe/src/ops/archive/mod.rs)
 now records all three fixture owners in a separate host-owned ic-memory cell
 (`fixture.authority.archive.v1`, memory ID 120). The encoded archive is capped at
 65,536 bytes; Candid work/skip/type budgets are 2,000,000/10,000/64. It retains

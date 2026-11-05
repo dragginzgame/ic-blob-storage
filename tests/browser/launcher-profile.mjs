@@ -62,8 +62,8 @@ let bridge;
 try {
   bridge = await launchPublicationBrowser(engine, {
     profile: join(directory, 'profile'), assetPort: port, nativeSession: null,
-    hostBundle: resolve('.tmp/browser/publication-host.js'),
-    workerBundle: resolve('.tmp/browser/publication-worker.js'),
+    hostBundle: resolve('target/browser/publication-host.js'),
+    workerBundle: resolve('target/browser/publication-worker.js'),
     bootstrap: { schema: 1, operation: 'bootstrap', signer: { kind: 'ed25519', json: JSON.stringify(signer.toJSON()) },
       configuration: { host: origin, rootKey: [1], service: binding.service, tenant: binding.tenant,
         uploader: binding.uploader, project: binding.project, bucket: binding.bucket,

@@ -11,25 +11,18 @@ fn report(row: ReadCounter) -> RestorationMemoryReads {
 fn zero_read_and_exact_caps_remain_exact_until_overflow() {
     let mut row = ReadCounter::EMPTY;
     row.record(0, 0);
-    assert_eq!(row.instructions.samples(), 1);
-    assert_eq!(row.instructions.total(), 0);
-    assert_eq!(row.instructions.maximum(), Some(0));
+    assert_eq!(row.calls, 1);
+    assert_eq!(row.instructions, 0);
 
-    row.instructions = ic_metrics::persistence::restore_aggregate(
-        u64::MAX - 1,
-        u128::from(u64::MAX - 1),
-        Some(1),
-        false,
-        false,
-    )
-    .unwrap();
+    row.calls = u64::MAX - 1;
+    row.instructions = u128::from(u64::MAX - 1);
     row.record(1, u64::MAX);
-    assert_eq!(row.instructions.samples(), u64::MAX);
-    assert!(!row.instructions.samples_overflowed());
+    assert_eq!(row.calls, u64::MAX);
+    assert!(!row.calls_saturated);
     assert_eq!(report(row).bytes, u64::MAX);
     assert!(!report(row).bytes_saturated);
     row.record(0, 0);
-    assert!(row.instructions.samples_overflowed());
+    assert!(row.calls_saturated);
     assert!(!report(row).bytes_saturated);
     row.record(1, 1);
     assert!(report(row).bytes_saturated);
@@ -41,24 +34,19 @@ fn zero_read_and_exact_caps_remain_exact_until_overflow() {
 fn instruction_total_quality_survives_exact_cap_and_overflow() {
     // Count is already clipped: only explicit provenance permits this total.
     let mut row = ReadCounter {
-        instructions: ic_metrics::persistence::restore_aggregate(
-            u64::MAX,
-            u128::MAX - 1,
-            Some(u64::MAX),
-            true,
-            false,
-        )
-        .unwrap(),
+        calls: u64::MAX,
+        calls_saturated: true,
+        instructions: u128::MAX - 1,
         ..ReadCounter::EMPTY
     };
     row.record(1, 0);
-    assert_eq!(row.instructions.total(), u128::MAX);
-    assert!(!row.instructions.total_overflowed());
+    assert_eq!(row.instructions, u128::MAX);
+    assert!(!row.instructions_saturated);
     row.record(1, 0);
-    assert_eq!(row.instructions.total(), u128::MAX);
-    assert!(row.instructions.total_overflowed());
+    assert_eq!(row.instructions, u128::MAX);
+    assert!(row.instructions_saturated);
     row.record(0, 0);
-    assert!(row.instructions.total_overflowed());
+    assert!(row.instructions_saturated);
 }
 
 #[test]
@@ -68,16 +56,12 @@ fn completed_and_disabled_windows_cannot_leak_into_the_next_profile() {
         rows[0].record(0, 0);
         rows[1].record(7, 13);
         rows[2] = ReadCounter {
-            instructions: ic_metrics::persistence::restore_aggregate(
-                u64::MAX,
-                u128::MAX,
-                Some(u64::MAX),
-                true,
-                true,
-            )
-            .unwrap(),
-            bytes: ic_metrics::persistence::restore_counter(u128::from(u64::MAX) + 1, false)
-                .unwrap(),
+            calls: u64::MAX,
+            instructions: u128::MAX,
+            bytes: u64::MAX,
+            calls_saturated: true,
+            instructions_saturated: true,
+            bytes_saturated: true,
         };
     });
     let first = finish_read_profile();
@@ -107,9 +91,10 @@ fn completed_and_disabled_windows_cannot_leak_into_the_next_profile() {
 }
 
 #[test]
-fn wide_byte_overflow_stays_clipped_and_flagged_in_the_narrow_report() {
+fn byte_overflow_stays_clipped_and_flagged_after_zero_observations() {
     let mut row = ReadCounter {
-        bytes: ic_metrics::persistence::restore_counter(u128::MAX, true).unwrap(),
+        bytes: u64::MAX,
+        bytes_saturated: true,
         ..ReadCounter::EMPTY
     };
     row.record(0, 0);

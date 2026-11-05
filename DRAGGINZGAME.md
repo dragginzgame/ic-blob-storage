@@ -241,12 +241,15 @@ storage allocation, admission, backing access or persistence integrations.
 
 ## Rust workspaces and portable tooling
 
-Keep Rust tests and test-only helpers in `tests.rs` or a `tests/` directory
-wherever practical, so file-based LOC tools can distinguish test source.
-Follow the [test layout rule](docs/principles/rust-code-hygiene.md#tests).
+Keep Rust tests and test-only helpers in `tests.rs`, `*_tests.rs` or `tests/`;
+declare fixture-only package roles explicitly. Adopt the naming layout as a
+hard cut, including references, under the
+[test layout rule](docs/principles/rust-code-hygiene.md#tests).
 
 Use ordinary Rust module discovery. `#[path]` module attributes, including
-conditional path overrides, are prohibited. Follow the
+conditional path overrides, are prohibited. Do not inject embedded Rust source
+or patch generated entrypoints to change executable code, including in tests.
+Follow the
 [module layout rule](docs/principles/rust-code-hygiene.md#ownership-and-module-shape)
 for source, tests and generated code.
 

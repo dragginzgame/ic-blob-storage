@@ -334,7 +334,6 @@ dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-client",
  "ic-blob-storage-contracts",
- "ic-metrics",
  "ic-platform",
  "serde",
 ]
@@ -1760,16 +1759,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "ic-metrics"
-version = "0.29.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b47d4ea14ea9865bda223dc16a5411d960360ca872dc2829671f50710be0cb08"
-
-[[package]]
 name = "ic-platform"
-version = "0.22.0"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19b0b5b5a8399051037aeb0f6d0832b8191eef1f7c9e727a9cf9baed951fc968"
+checksum = "229f2ea285da3b2cfd9b780e50f32c3313be5972c3a5fda70646111dbe794a07"
 dependencies = [
  "candid",
  "candid_parser",

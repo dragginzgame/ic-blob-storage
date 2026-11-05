@@ -13,13 +13,9 @@ use ic_blob_storage_contracts::reference::binding::ReferenceRequest;
 use ic_blob_storage_contracts::upload::history::LifecyclePhase;
 use ic_platform::Principal;
 use ic_platform::principal::ExternalPrincipal;
-#[cfg(test)]
-use ic_storage::adapter::Storable;
 use ic_storage::adapter::storable::Bound;
 use serde::Deserialize;
 use serde::Serialize;
-#[cfg(test)]
-use std::borrow::Cow;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 enum PhaseRecord {

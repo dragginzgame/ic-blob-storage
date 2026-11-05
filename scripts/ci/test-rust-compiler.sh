@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
-fixture="$(mktemp -d "${TMPDIR:-/tmp}/blob-compiler-admission.XXXXXX")"
+task_tmp="${TMPDIR:-$root/target/tmp}"
+mkdir -p "$task_tmp"
+fixture="$(mktemp -d "$task_tmp/blob-compiler-admission.XXXXXX")"
 fixture_complete=false
 finish_fixture() {
     local status=$?

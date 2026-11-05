@@ -1,7 +1,7 @@
 # AGENTS.md
 
 For scope, delegated delivery, validation, compiler support and reporting, use
-[Shared policy at 75949bd](https://github.com/dragginzgame/shared-tooling/blob/75949bd97f040c311e764c85b511f06e6ed685e6/DRAGGINZGAME.md)
+[Shared policy at b37a882](https://github.com/dragginzgame/shared-tooling/blob/b37a882314d22bf7ab393b3fe561809377ffd22d/DRAGGINZGAME.md)
 and its revision-bound references over older snapshot or local-guide wording.
 This includes Rust 1.99.1 as minimum and pinned development/release compiler;
 check local declarations and qualification before claiming adoption is complete.
@@ -127,7 +127,7 @@ it does not override shared rules or depend on a mutable sibling checkout.
   hierarchies. Do not use path attributes to work around module layout.
 - Maintainer-approved physical-layout exception (2026-10-07), under
   [the shared workspace rule](rules/rust-workspaces.md): keep the library and CLI
-  in `crates/`, standalone and probe canisters in `canisters/`, and packaged test
+  in `crates/`, standalone in `canisters/standalone/` and probe canisters in `canisters/tests/`, and packaged test
   support in `tests/pocketic/` and `tests/protocol/`. The maintainer explicitly
   reversed the crates-only moves. Do not relocate these packages during routine
   adoption; a future redesign requires separate explicit approval. All 13 members

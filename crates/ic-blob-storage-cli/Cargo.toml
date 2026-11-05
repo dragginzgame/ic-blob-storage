@@ -9,6 +9,9 @@ publish = false
 [target.'cfg(unix)'.dependencies]
 libc.workspace = true
 
+[package.metadata.shared-tooling.loc.paths]
+"src/bin/blob_package_verify" = "build_tooling"
+
 [[bin]]
 name = "blob-storage"
 path = "src/main.rs"

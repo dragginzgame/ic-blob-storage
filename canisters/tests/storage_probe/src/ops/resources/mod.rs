@@ -21,21 +21,43 @@ use ic_blob_storage_contracts::upload::binding::UploadPermission;
 use std::cell::{Cell, RefCell};
 use std::num::NonZeroU128;
 
+// Per-query profiler arithmetic, not application instrumentation or persistence.
 #[derive(Clone, Copy)]
 struct ReadCounter {
-    instructions: ic_metrics::MeasurementAggregate,
-    bytes: ic_metrics::MeasurementCounter,
+    calls: u64,
+    instructions: u128,
+    bytes: u64,
+    calls_saturated: bool,
+    instructions_saturated: bool,
+    bytes_saturated: bool,
 }
 impl ReadCounter {
     const EMPTY: Self = Self {
-        instructions: ic_metrics::MeasurementAggregate::EMPTY,
-        bytes: ic_metrics::MeasurementCounter::ZERO,
+        calls: 0,
+        instructions: 0,
+        bytes: 0,
+        calls_saturated: false,
+        instructions_saturated: false,
+        bytes_saturated: false,
     };
 
     fn record(&mut self, instructions: u64, bytes: u64) {
-        // One completed wrapped read, including a measured zero.
-        self.instructions.record(instructions);
-        self.bytes.add(u128::from(bytes));
+        // Reaching a cap is exact; only exceeding it sets sticky provenance.
+        self.calls = self.calls.checked_add(1).unwrap_or_else(|| {
+            self.calls_saturated = true;
+            u64::MAX
+        });
+        self.instructions = self
+            .instructions
+            .checked_add(u128::from(instructions))
+            .unwrap_or_else(|| {
+                self.instructions_saturated = true;
+                u128::MAX
+            });
+        self.bytes = self.bytes.checked_add(bytes).unwrap_or_else(|| {
+            self.bytes_saturated = true;
+            u64::MAX
+        });
     }
 }
 thread_local! {
@@ -72,18 +94,14 @@ pub(crate) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
         reads
             .iter()
             .zip(super::MEMORY_KEYS)
-            .map(|(r, memory)| {
-                // Narrow only the report: reaching the cap is exact, exceeding it is not.
-                let bytes = u64::try_from(r.bytes.total());
-                RestorationMemoryReads {
-                    memory: memory.to_owned(),
-                    calls: r.instructions.samples(),
-                    calls_saturated: r.instructions.samples_overflowed(),
-                    bytes: bytes.unwrap_or(u64::MAX),
-                    bytes_saturated: r.bytes.total_overflowed() || bytes.is_err(),
-                    instructions: r.instructions.total(),
-                    instructions_saturated: r.instructions.total_overflowed(),
-                }
+            .map(|(r, memory)| RestorationMemoryReads {
+                memory: memory.to_owned(),
+                calls: r.calls,
+                calls_saturated: r.calls_saturated,
+                bytes: r.bytes,
+                bytes_saturated: r.bytes_saturated,
+                instructions: r.instructions,
+                instructions_saturated: r.instructions_saturated,
             })
             .collect()
     })
@@ -92,7 +110,7 @@ pub(crate) fn finish_read_profile() -> Vec<RestorationMemoryReads> {
 pub(crate) fn heap_bytes() -> u64 {
     #[cfg(target_arch = "wasm32")]
     {
-        (core::arch::wasm32::memory_size(0) as u64) * 65_536
+        (std::arch::wasm32::memory_size(0) as u64) * 65_536
     }
     #[cfg(not(target_arch = "wasm32"))]
     {

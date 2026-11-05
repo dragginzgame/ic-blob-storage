@@ -20,13 +20,9 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::manifest::CaffeineChunkHash;
 use ic_blob_storage_contracts::upload::binding::UploadObject;
 use ic_blob_storage_contracts::upload::binding::UploadPermission;
-#[cfg(test)]
-use ic_storage::adapter::Storable;
 use ic_storage::adapter::storable::Bound;
 use serde::Deserialize;
 use serde::Serialize;
-#[cfg(test)]
-use std::borrow::Cow;
 use std::num::{NonZeroU64, NonZeroU128};
 
 use ic_blob_storage_contracts::configuration::envelope::MAX_MANIFEST_RECORD_BYTES as MANIFEST_BYTES;

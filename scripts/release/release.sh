@@ -8,6 +8,7 @@ ROOT="$(cd -P "${root_file%/*}/../.." && pwd -P)"
 case "$ROOT" in *$'\n'*|*$'\r'*) echo 'release directory must not contain LF or CR' >&2; exit 2 ;; esac
 cd "$ROOT"
 export CARGO_TARGET_DIR="$ROOT/target"
+task_tmp="${TMPDIR:-$ROOT/target/tmp}"
 unset BLOB_RELEASE_SOURCE_ROOT BLOB_RELEASE_VALIDATION_RECORD
 export RELEASE_GROUP
 case "${RELEASE_GROUP:-}" in contracts|client|engine) ;; *) echo 'Select RELEASE_GROUP=contracts, client or engine' >&2; exit 2 ;; esac
@@ -89,7 +90,8 @@ prepare() {
     perl scripts/release/validation.pl check "$(git rev-parse --git-path release-state)/validation/$RELEASE_GROUP-$RELEASE_SOURCE.json" || fail 'complete the current source-bound release validation first'
     CARGO_RELEASE_METADATA_EDITOR="$(make --no-print-directory --silent release-editor-check)" || fail 'prepare the selected editor with make install-release-editor'
     export CARGO_RELEASE_METADATA_EDITOR CARGO_RELEASE_METADATA_MAX_BYTES=8388608
-    release_metadata_prepare "${TMPDIR:-/tmp}/blob-group-metadata.XXXXXX" render_metadata check_metadata "${RELEASE_FILES[@]}"
+    mkdir -p "$task_tmp"
+    release_metadata_prepare "$task_tmp/blob-group-metadata.XXXXXX" render_metadata check_metadata "${RELEASE_FILES[@]}"
 }
 verify_prepared() {
     [[ "$(git rev-parse HEAD)" == "${RELEASE_SOURCE:?}" ]] || fail 'source commit does not match release intent'
@@ -101,7 +103,8 @@ commit_check() {
     verify_prepared
     git diff --quiet -- || fail 'unstaged release edits remain'
     local paths
-    paths="$(mktemp "${TMPDIR:-/tmp}/blob-release-index.XXXXXX")"
+    mkdir -p "$task_tmp"
+    paths="$(mktemp "$task_tmp/blob-release-index.XXXXXX")"
     git diff --cached --name-only -z -- > "$paths"
     if ! perl "$DATA" index-check "$paths"; then rm -f "$paths"; fail 'index must contain exactly the selected group release files'; fi
     rm -f "$paths"
@@ -123,7 +126,8 @@ tag_check() {
     current="$(version)"; source="$(perl "$DATA" source)"
     parent="$(git log -1 --format=%P HEAD)"; head="$(git rev-parse HEAD)"
     [[ "$parent" == "$source" ]] || fail 'release parent does not match validated source'
-    changed="$(mktemp "${TMPDIR:-/tmp}/blob-release-commit.XXXXXX")"
+    mkdir -p "$task_tmp"
+    changed="$(mktemp "$task_tmp/blob-release-commit.XXXXXX")"
     git diff --name-only -z "$source" "$head" -- > "$changed"
     if ! perl "$DATA" index-check "$changed"; then rm -f "$changed"; fail 'release commit changed paths outside its exact roster'; fi
     rm -f "$changed"

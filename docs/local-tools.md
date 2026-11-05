@@ -63,7 +63,7 @@ shasum -a 256 Cargo.lock tests/browser/package-lock.json \
   "$BLOB_TOOLS_ROOT/version.json" "$BLOB_TOOLS_ROOT/rust-version.txt" \
   "$BLOB_TOOLS_ROOT/node-version.txt" "$BLOB_TOOLS_ROOT/build-profile.txt" \
   "$BLOB_TOOLS_ROOT/bin/blob-storage" \
-  .tmp/browser/publication-host.js .tmp/browser/publication-worker.js \
+  target/browser/publication-host.js target/browser/publication-worker.js \
   clients/browser/launcher.mjs clients/browser/native.mjs \
   clients/browser/session.mjs clients/browser/package.json \
   clients/browser/patches/caffeine-1.1.2.patch \

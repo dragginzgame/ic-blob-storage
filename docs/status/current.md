@@ -1,5 +1,61 @@
 # Current status — 2026-11-05
 
+## Authorized Engine 0.72.2 delivery in progress
+
+The maintainer requested delivery of this Blob audit/tooling batch to
+`origin/main` and crates.io. Select **Engine 0.72.2**, tag `engine-v0.72.2`;
+Contracts/Client remain 0.72.0. Commit the reviewed implementation and pending
+notes, then use the standard patch runner and publication adapter. Keep the
+source/dependency graph fixed through the complete gate and verify remote tag,
+registry checksum and archived source afterward. No canister reinstall or paid
+provider operation is selected. The following audit sections describe the
+pre-delivery source state and focused qualification, not completion of this release.
+
+## Pending Shared Tooling 0.30 adoption and rule audit
+
+Local implementation only; nothing staged, committed, pushed or released.
+
+LOC follow-up: canonical **0.30.0** refresh at
+`b37a882314d22bf7ab393b3fe561809377ffd22d` corrects the workspace table label and
+removes its duplicate aggregate row. The 166-file selection is preserved; rule
+links use revision-bound upstream documentation. Further display edits found
+dirty in the supplier were not exported. Focused results are retained under
+`target/cloc-refresh-*`; no dependency, Rust source or frozen receipt changed
+from the preceding audit batch.
+Both committed LOC fixtures, actual text/JSON parity, snapshot integrity,
+formatting, ShellCheck/Perl syntax and local documentation checks pass on Linux.
+Native macOS and broader runtime checks were not rerun for this formatter update.
+The initial audit selected committed Shared **0.30.0** at
+`07dce12cbe4a798fd4a6d263095518678c4f6b45`; the follow-up above advances that
+selection without changing the reviewed rules or source classification. The [audit report](../reports/audits/2026/11/05/shared030/01/report.md)
+records rule coverage, retained exceptions, focused evidence and limits.
+
+Renamed the six private probes to `canisters/tests/`, declared eight test-package
+LOC roles and the native archive verifier's tooling path, and updated callers.
+No singular Rust test owners remain. The 836-source audit found **zero allows**
+and **80 existing expectations**, with unfulfilled expectations left enabled.
+Moved a substantial corruption helper to its existing tests owner. Removed the
+private profiler's Metrics dependency in favour of checked numeric totals with
+unchanged overflow reports. Serde CBOR is labelled test/tooling-only.
+
+Active browser/schema/report output and local fixture defaults now use `target/`;
+historical evidence and frozen release receipts are preserved. The canonical
+helpers' remaining default `/tmp` use is tracked in
+[Shared #356](https://github.com/dragginzgame/shared-tooling/issues/356).
+
+Focused Linux 1.99.1 qualification passes: snapshot, compiler, dependency pins/
+boundaries, formatting, shell and doc checks; strict affected-package Clippy;
+six probe Wasm builds; 45 focused unit tests; one installed restoration
+case; actual browser persistence; 27-method/137-frame generated client parity;
+metadata/rollback, hook, logging, forwarding, completion, evidence and release-plan
+fixtures. See `target/shared030-*.log`. Native macOS and the full release gate were
+not rerun. New LOC is 28,586 library/app, 83,215 tests, 734 examples and 128 tooling,
+zero unclassified, with 54 disclosed macro/conditional review notes. This is a
+classification correction, not a claimed runtime shrink or performance gain.
+
+Engine's next undated notes are **0.72.2**. All Cargo package versions remain at
+the published versions below; no provider/service acceptance claim changes.
+
 ## Published Engine 0.72.1 — #116 completed
 
 Authorized delivery completed from this checkout's `main` to `origin/main` and

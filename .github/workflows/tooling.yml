@@ -57,21 +57,21 @@ jobs:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
         run: |
-          mkdir -p .tmp/wire-schema
-          cargo test --offline --locked -p ic-blob-storage-contracts --all-features 2>&1 | tee .tmp/wire-schema/contracts.log
+          mkdir -p target/wire-schema
+          cargo test --offline --locked -p ic-blob-storage-contracts --all-features 2>&1 | tee target/wire-schema/contracts.log
       - name: Qualify generated Wire clients
         env:
           CARGO_NET_OFFLINE: 'true'
           RUSTUP_AUTO_INSTALL: '0'
         run: |
-          mkdir -p .tmp/wire-schema
-          make test-wire-schema 2>&1 | tee .tmp/wire-schema/qualification.log
+          mkdir -p target/wire-schema
+          make test-wire-schema 2>&1 | tee target/wire-schema/qualification.log
       - name: Retain generated clients and qualification logs
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: blob-wire-schema-${{ github.run_attempt }}
-          path: .tmp/wire-schema/
+          path: target/wire-schema/
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 30
@@ -199,7 +199,7 @@ jobs:
           RELEASE_GROUP: ${{ inputs.release_group != 'workspace' && inputs.release_group || 'client' }}
         run: |
           export RELEASE_SOURCE="$(git rev-parse HEAD)"
-          mkdir -p .tmp/compatibility
+          mkdir -p target/compatibility
           perl scripts/release/validation.pl plan target/compatibility/plan.json
           jq -er '
             "release=" + ((.scope == "workspace") | tostring),
@@ -299,7 +299,7 @@ jobs:
           retention-days: 30
       # The group plan already owns CLI tests and both installed partitions,
       # including any justified exclusions. Do not append the broad host target.
-      - name: Qualify native CLI, installation and Metrics restoration probe
+      - name: Qualify native CLI, installation and restoration read-cost probe
         if: env.BLOB_GROUP_CI != 'true'
         env:
           CARGO_NET_OFFLINE: 'true'

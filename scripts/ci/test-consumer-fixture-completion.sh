@@ -5,7 +5,9 @@ unset MAKEFLAGS MFLAGS MAKEOVERRIDES GNUMAKEFLAGS MAKEFILES
 root="${BASH_SOURCE[0]}"
 [[ "$root" == /* ]] || root="$PWD/$root"
 root="$(cd -P "${root%/*}/../.." && pwd -P)"
-fixture="$(mktemp -d "${TMPDIR:-/tmp}/blob-fixture-completion.XXXXXX")"
+task_tmp="${TMPDIR:-$root/target/tmp}"
+mkdir -p "$task_tmp"
+fixture="$(mktemp -d "$task_tmp/blob-fixture-completion.XXXXXX")"
 fixture_complete=false
 finish() {
     local status=$?

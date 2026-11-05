@@ -499,8 +499,4 @@ fn reference_action(
     }
 }
 #[cfg(test)]
-fn cli() -> clap::Command {
-    <Cli as clap::CommandFactory>::command()
-}
-#[cfg(test)]
 mod tests;

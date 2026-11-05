@@ -4,8 +4,6 @@ use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_blob_storage_contracts::configuration::service::ServiceConfiguration;
 use ic_platform::Principal;
 use ic_platform::principal::ExternalPrincipal;
-#[cfg(test)]
-use ic_storage::adapter::Storable;
 use serde::Deserialize;
 use serde::Serialize;
 use std::num::NonZeroU128;

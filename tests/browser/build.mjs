@@ -18,42 +18,42 @@ assert.equal(pkg.version, evidence.version);
 for (const [path, hash] of Object.entries(evidence.files)) {
   assert.equal(createHash('sha256').update(await readFile(`${upstream}/${path}`)).digest('hex'), hash);
 }
-const adapted = `${repo}/.tmp/browser/caffeine`;
+const adapted = `${repo}/target/browser/caffeine`;
 await mkdir(adapted, { recursive: true });
 await cp(`${upstream}/dist`, `${adapted}/dist`, { recursive: true });
 await cp(`${upstream}/LICENSE`, `${adapted}/LICENSE`);
 const patch = 'clients/browser/patches/caffeine-1.1.2.patch';
-await promisify(execFile)('git', ['apply', '--check', '--directory=.tmp/browser/caffeine', patch], { cwd: repo });
-await promisify(execFile)('git', ['apply', '--directory=.tmp/browser/caffeine', patch], { cwd: repo });
+await promisify(execFile)('git', ['apply', '--check', '--directory=target/browser/caffeine', patch], { cwd: repo });
+await promisify(execFile)('git', ['apply', '--directory=target/browser/caffeine', patch], { cwd: repo });
 await build({ absWorkingDir: repo, entryPoints: ['tests/browser/client.js'], bundle: true,
-  format: 'esm', outfile: '.tmp/browser/client.js',
+  format: 'esm', outfile: 'target/browser/client.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 await build({ absWorkingDir: repo, entryPoints: ['tests/browser/store.js'], bundle: true,
-  format: 'esm', outfile: '.tmp/browser/store.js',
+  format: 'esm', outfile: 'target/browser/store.js',
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 await build({ absWorkingDir: repo, entryPoints: ['clients/browser/gateway.js'], bundle: true,
-  format: 'esm', outfile: '.tmp/browser/gateway.js',
+  format: 'esm', outfile: 'target/browser/gateway.js',
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 await build({ absWorkingDir: repo, entryPoints: ['tests/browser/standalone.js'], bundle: true,
-  format: 'esm', outfile: '.tmp/browser/standalone.js',
+  format: 'esm', outfile: 'target/browser/standalone.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 await build({ absWorkingDir: repo, entryPoints: ['clients/browser/worker-entry.js'], bundle: true,
-  format: 'esm', outfile: '.tmp/browser/publication-worker.js',
+  format: 'esm', outfile: 'target/browser/publication-worker.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 await build({ absWorkingDir: repo, entryPoints: ['clients/browser/bootstrap.js'], bundle: true,
-  format: 'esm', outfile: '.tmp/browser/publication-host.js',
+  format: 'esm', outfile: 'target/browser/publication-host.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 await build({ absWorkingDir: repo, entryPoints: ['tests/browser/bootstrap.js'], bundle: true,
-  format: 'esm', outfile: '.tmp/browser/bootstrap.js',
+  format: 'esm', outfile: 'target/browser/bootstrap.js',
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },
   nodePaths: [fileURLToPath(new URL('node_modules', import.meta.url))] });
 for (const name of ['sdk-probe', 'native-inputs', 'publication', 'worker', 'launcher-serial']) await build({ absWorkingDir: repo,
   entryPoints: [`tests/browser/${name}.mjs`], bundle: true,
-  format: 'esm', platform: 'node', outfile: `.tmp/browser/${name}.mjs`,
+  format: 'esm', platform: 'node', outfile: `target/browser/${name}.mjs`,
   external: ['/host.js'], // Executed inside Chromium, not a native module import.
   banner: { js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);" },
   alias: { '@caffeineai/object-storage': `${adapted}/dist/index.js` },

@@ -1,5 +1,6 @@
 use super::*;
 use ic_host_fs::testing::FixtureDirectory;
+use ic_platform::Principal;
 mod installation;
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
 use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestRequest;

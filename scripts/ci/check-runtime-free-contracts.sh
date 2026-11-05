@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
-contract_graph="$(mktemp "${TMPDIR:-/tmp}/blob-contract-graph.XXXXXX")"
+task_tmp="${TMPDIR:-$PWD/target/tmp}"
+mkdir -p "$task_tmp"
+contract_graph="$(mktemp "$task_tmp/blob-contract-graph.XXXXXX")"
 trap 'rm -f "$contract_graph"' EXIT
 cargo tree --offline --locked --target all --edges normal --prefix none --format '{p}' \
     -p ic-blob-storage-contracts -p ic-blob-storage-cli > "$contract_graph"
@@ -88,7 +90,7 @@ if rg '^(reqwest |tokio |ic-host-)' "$contract_graph"; then
 fi
 echo 'Wasm client excludes native download transport even with all features'
 
-# Instrumentation stays with the owning adapter or private measurement probes.
+# Operational instrumentation stays with the consumer-owned adapter.
 # Inspect the actual native schema feature selection so unification cannot hide it.
 cargo tree --offline --locked --target all --edges normal --all-features \
     --prefix none --format '{p}|{f}' -p ic-blob-storage-contracts > "$contract_graph"

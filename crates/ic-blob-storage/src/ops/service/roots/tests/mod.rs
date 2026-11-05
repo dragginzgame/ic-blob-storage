@@ -6,6 +6,42 @@ use ic_blob_storage_contracts::binding::ObjectIdentity;
 use ic_platform::Principal;
 use std::num::NonZeroU128;
 
+// Corruption controls belong to the unit-test owner, never the service build.
+impl<M: Memory> StableRootClaims<M> {
+    pub(crate) fn damage_operation(&mut self, root: [u8; 32], operation: Option<u128>) {
+        let key = root_key(ProviderRootHash::try_from(root.as_slice()).expect("fixed root"));
+        let Some(operation) = operation else {
+            self.roots
+                .remove(&key)
+                .expect("stable collection operation");
+            return;
+        };
+        let mut record = self
+            .roots
+            .get(&key)
+            .expect("stable collection operation")
+            .unwrap_or_else(|| {
+                self.roots
+                    .iter()
+                    .map(|entry| entry.expect("stable collection traversal"))
+                    .find_map(|entry| match entry.value().expect("stable record") {
+                        record @ RootClaimRecord::Claim { .. } => Some(record),
+                        RootClaimRecord::Metadata(_) => None,
+                    })
+                    .expect("fixture claim")
+            });
+        if let RootClaimRecord::Claim {
+            operation: saved, ..
+        } = &mut record
+        {
+            *saved = operation;
+        }
+        self.roots
+            .insert(key, record)
+            .expect("stable collection operation");
+    }
+}
+
 fn p(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }

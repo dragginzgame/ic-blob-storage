@@ -19,8 +19,6 @@ use ic_blob_storage_contracts::provider::preparation::PreparedManifestLimits;
 use ic_blob_storage_contracts::provider::preparation::decode_prepared_manifest;
 use ic_blob_storage_contracts::upload::admission::reply::validate_request;
 use ic_host_artifacts::artifact::Sha256Digest;
-#[cfg(test)]
-use ic_platform::Principal;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{num::NonZeroU64, path::Path, rc::Rc};

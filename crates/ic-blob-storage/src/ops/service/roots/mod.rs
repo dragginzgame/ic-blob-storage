@@ -251,40 +251,6 @@ impl<M: Memory> StableRootClaims<M> {
         ))
     }
 
-    #[cfg(test)]
-    pub(crate) fn damage_operation(&mut self, root: [u8; 32], operation: Option<u128>) {
-        let key = root_key(ProviderRootHash::try_from(root.as_slice()).expect("fixed root"));
-        let Some(operation) = operation else {
-            self.roots
-                .remove(&key)
-                .expect("stable collection operation");
-            return;
-        };
-        let mut record = self
-            .roots
-            .get(&key)
-            .expect("stable collection operation")
-            .unwrap_or_else(|| {
-                self.roots
-                    .iter()
-                    .map(|entry| entry.expect("stable collection traversal"))
-                    .find_map(|entry| match entry.value().expect("stable record") {
-                        record @ RootClaimRecord::Claim { .. } => Some(record),
-                        RootClaimRecord::Metadata(_) => None,
-                    })
-                    .expect("fixture claim")
-            });
-        if let RootClaimRecord::Claim {
-            operation: saved, ..
-        } = &mut record
-        {
-            *saved = operation;
-        }
-        self.roots
-            .insert(key, record)
-            .expect("stable collection operation");
-    }
-
     /// Lifetime count for trusted host accounting, not a tenant-authorized endpoint.
     #[must_use]
     pub fn slots(&self) -> u64 {

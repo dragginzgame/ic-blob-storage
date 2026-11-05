@@ -1,4 +1,6 @@
 use super::*;
+use ic_storage::adapter::Storable;
+use std::borrow::Cow;
 
 #[test]
 fn maximal_records_fit_the_bound_and_round_trip_without_narrowing() {

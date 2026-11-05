@@ -11,7 +11,7 @@ const [major, minor] = process.versions.node.split('.').map(Number);
 assert(major > 20 || (major === 20 && minor >= 19), 'Browser evidence requires Node >=20.19.0');
 const config = JSON.parse(await readFile(process.argv[2], 'utf8'));
 const deadline = setTimeout(() => { console.error('Browser fixture exceeded 60 seconds'); process.exit(1); }, 60_000);
-const bundle = await readFile(new URL('../../.tmp/browser/client.js', import.meta.url));
+const bundle = await readFile(new URL('../../target/browser/client.js', import.meta.url));
 const assets = serveAssets({ '/client.js': bundle }, '/client.js');
 const gateway = [];
 const tls = await loopbackTLS();

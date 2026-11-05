@@ -1,17 +1,20 @@
 [package]
 license.workspace = true
-name = "blob-consumer-probe"
+name = "blob-funding-probe"
 version = "0.72.1"
 edition.workspace = true
 rust-version.workspace = true
 publish = false
+
+[package.metadata.shared-tooling.loc]
+category = "tests"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
 blob-test-protocol = { workspace = true, features = ["fixture-storage"] }
-ic-blob-storage-client.workspace = true
+ic-blob-storage.workspace = true
 ic-blob-storage-contracts = { workspace = true, features = ["caffeine-candid"] }
 ic-platform = { workspace = true, features = ["candid", "cdk"] }
 ic-storage = { workspace = true, features = ["test-support"] }

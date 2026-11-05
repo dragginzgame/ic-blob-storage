@@ -38,7 +38,7 @@ finished production service.
 
 Remote canister callers can use `ic-blob-storage-client` without linking the
 installed service implementation. Contracts owns codecs; Core owns service state.
-The pending client-package cut is documented in [dependencies](docs/dependencies.md#replicated-clients-and-service-storage).
+The client/service boundary is documented in [dependencies](docs/dependencies.md#replicated-clients-and-service-storage).
 
 ## What it does
 
@@ -280,9 +280,9 @@ scope; controller status does not grant tenant access.
 | `make release-tools-check` | ShellCheck availability and reviewed cargo-sort version before release validation |
 | `make install-tools` / `make tools-check` | Explicit local executable setup / offline verification |
 | `make install-rust-tools` / `make rust-tools-check` | Shared pinned Cargo-tool setup / offline verification |
-| `make test-native-host` | Native CLI/examples, actual installation and Metrics restoration probe |
+| `make test-native-host` | Native CLI/examples, actual installation and restoration read-cost probe |
 | `make browser-tools-check` | Offline exact Node/npm selection and browser manifest/lock declarations |
-| `make cloc` | Rust LOC and test-attribute counts for every Cargo workspace member; requires cloc and jq |
+| `make cloc` | Categorized Rust LOC for every Cargo workspace member; requires cloc and jq |
 
 Run focused checks during development. Full validation and release commands follow
 [development governance](docs/governance/development.md).
