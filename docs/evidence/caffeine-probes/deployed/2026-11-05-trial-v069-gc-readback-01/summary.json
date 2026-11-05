@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "date": "2026-11-05",
+  "run": "trial-v069-gc-readback-01",
+  "evidence_class": "bounded_mainnet_read_only_followup",
+  "release": "0.69.0",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "previous_record": "../2026-11-03-trial-v069-gc-followup-01/summary.json",
+  "result": "No successful acknowledgment recorded in the unchanged window; exact second object remains DeletionPending; URL HEAD 200. Physical deletion and billing cessation remain unproved.",
+  "metrics": {
+    "window_version": "1",
+    "observed_version": "18",
+    "started_at_ns": "1793717050214005028",
+    "observed_at_ns": "1793863437548836382"
+  },
+  "gateway_ack": {
+    "attempts": {
+      "total": "0",
+      "total_overflowed": false
+    },
+    "acknowledged": {
+      "total": "0",
+      "total_overflowed": false
+    }
+  },
+  "operator_history": [
+    {
+      "object": "1",
+      "state": "Live"
+    },
+    {
+      "object": "2",
+      "state": "DeletionPending"
+    }
+  ],
+  "pagination": {
+    "continuation": null,
+    "scanned": "2"
+  },
+  "local_accounting": {
+    "operations": "2",
+    "active_reservations": "0",
+    "reserved_bytes": "0",
+    "logical_bytes": "1024",
+    "physical_bytes": "2048",
+    "liability_bytes": "2048",
+    "fenced": false
+  },
+  "HEAD": {
+    "status": 200,
+    "body_bytes": 0,
+    "selected_response_headers": {
+      "cache-control": "max-age=31536000, immutable",
+      "content-type": "application/octet-stream",
+      "access-control-allow-origin": "*",
+      "content-length": "1024",
+      "date": "Thu, 05 Nov 2026 07:24:00 GMT"
+    }
+  },
+  "effects": {
+    "queries": 3,
+    "HEADs": 1,
+    "updates": 0,
+    "funds": 0,
+    "uploads": 0,
+    "automatic_retries": 0
+  },
+  "local_preparation_failures": [
+    "An initial null local-status request was rejected offline.",
+    "A second offline preparation selected the reply root instead of its scope; its error log is retained.",
+    "The corrected packet uses the original scoped service, namespace, Cashier and payer from the frozen prior reply. No network effect preceded correction."
+  ],
+  "limitations": [
+    "Query replies and aggregate telemetry do not provide complete callback history or independently authenticated exact-object provider deletion.",
+    "Successful telemetry can include empty callbacks; trapping/refused updates may roll back counts.",
+    "Public HTTP HEAD can be cache-served; a 200 or 404 proves neither physical-origin deletion nor billing settlement.",
+    "No funding/credit/audit query was selected; this does not advance #34 original-operation credit or competing-account guarantees.",
+    "No actual application session, publication transaction or updated 0.72 installation was qualified."
+  ],
+  "remaining": [
+    "#6 exact provider deletion/billing and real consumer release/interruption/restoration.",
+    "#5/#31 selected real application/session/media-publication acceptance.",
+    "#34 original-operation credit/replay, lost paid outcomes and complete competing activity."
+  ],
+  "private_custody": ".git/private-operations/blob069-trial-01/gc-readback-20261105/; raw headers remain private",
+  "artifacts": [
+    {
+      "file": "HEAD-headers.txt",
+      "bytes": 541,
+      "sha256": "635fc717e8852544f10997b9033bdef8ed8ba68a49fddb65e049e81adb54988d"
+    },
+    {
+      "file": "HEAD-request.json",
+      "bytes": 331,
+      "sha256": "18f1d3f8da9267ebc7dfd1f20f9a6647cbe7126f74932f326340a5e6ca20c3c3"
+    },
+    {
+      "file": "HEAD-response.status",
+      "bytes": 3,
+      "sha256": "27badc983df1780b60c2b3fa9d3a19a00e46aac798451f0febdca52920faaddf"
+    },
+    {
+      "file": "HEAD.exit",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "HEAD.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "decode.log",
+      "bytes": 143,
+      "sha256": "13488b4d43c48cc6539d09966e13aebe33d3b272a8ba2cf768e9fae433dcaf36"
+    },
+    {
+      "file": "history-decoded.json",
+      "bytes": 3567,
+      "sha256": "646f82e9b806f1256da8100e7d7c6c61b49ddba36632305065abfe359cd1e995"
+    },
+    {
+      "file": "history-request.hex",
+      "bytes": 53,
+      "sha256": "9b315cb6440703b869885a0b662be2d03c599703642a99d9471e00868feeda1a"
+    },
+    {
+      "file": "history-request.json",
+      "bytes": 497,
+      "sha256": "895c2e8cb89923cf0f6f9251ca0fe0561bdf6120d244a315ec69bd94af52498d"
+    },
+    {
+      "file": "history.exit",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "history.json",
+      "bytes": 451,
+      "sha256": "a18ebdf106218989b76869a285d6ee320c16b8c3025ce0a618305dd3184e3d7a"
+    },
+    {
+      "file": "history.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "inputs.json",
+      "bytes": 597,
+      "sha256": "ba561290bc94b4a8c9beccbf110d3e6c77cca6b3165f1c81e0148b2119f48e9b"
+    },
+    {
+      "file": "intent.json",
+      "bytes": 1722,
+      "sha256": "97aeeede8b47c481f22d867cd5ae7d9ddf061609cd1198c600e6be195a4a378c"
+    },
+    {
+      "file": "metrics-decoded.json",
+      "bytes": 6320,
+      "sha256": "13715aa3fa068fede6072ee47e51e21bc0ee034ea555b923fcc33f3a396c9ab0"
+    },
+    {
+      "file": "metrics-request.hex",
+      "bytes": 23,
+      "sha256": "fe5d95f1f87baafe3cd036fbb4d71b08bcf5845606d63bc2f1c56a9768e7467f"
+    },
+    {
+      "file": "metrics-request.json",
+      "bytes": 490,
+      "sha256": "46a25daf4245e071583c0099b81aa6e9ac410153ab23b89d2849792e6df3074f"
+    },
+    {
+      "file": "metrics.exit",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "metrics.json",
+      "bytes": 451,
+      "sha256": "aad17aa04becc58611d57ed8dca2f0a97d69256816d32d7fa8665a394bba0124"
+    },
+    {
+      "file": "metrics.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "preparation-failure.json",
+      "bytes": 246,
+      "sha256": "8e94150b0f6c444de2f244abf2f69b151c6c445d5ffc16737c722899af9deab8"
+    },
+    {
+      "file": "preparation-scope-refusal.log",
+      "bytes": 834,
+      "sha256": "7cf2d088db1a559a535c982d8da1ddcdb86cc9e83914850950720f7174ac25b2"
+    },
+    {
+      "file": "preparation-status.log",
+      "bytes": 55,
+      "sha256": "c6be916ecd3aed67b08d7bfb5622ed63275a3270c37dd603359e47ed8f40cc1c"
+    },
+    {
+      "file": "status-decoded.json",
+      "bytes": 2000,
+      "sha256": "0faa083bf46c57a22b80486feee62316f3c54085b45ee799b4a6707ae49e6cbc"
+    },
+    {
+      "file": "status-request.hex",
+      "bytes": 129,
+      "sha256": "316a83ad148a3dde0d4ce3fea79624d56407e027a0d2c9137f848f985b53ba31"
+    },
+    {
+      "file": "status-request.json",
+      "bytes": 494,
+      "sha256": "e2f90eea63aba6fd849111f8d108a5d322985437785ab2df3e6b44ee637c4c3d"
+    },
+    {
+      "file": "status.exit",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "file": "status.json",
+      "bytes": 311,
+      "sha256": "8a71e183e561682bcde9c199ee6132fa1121ba3164b1a332633c73d5160621b3"
+    },
+    {
+      "file": "status.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "at": "2026-11-05T07:22:52.655220+00:00",
+  "issues": [
+    6,
+    34
+  ],
+  "evidence_class": "bounded_mainnet_read_only_followup",
+  "service": "4h7vw-4qaaa-aaaau-ahieq-cai",
+  "deployed_release": "0.69.0",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "identity": "canic-mainnet",
+  "question": "Has the released second object acquired gateway acknowledgment or a new local lifecycle state since the November 3 observation? Is its original public URL still reachable?",
+  "requests": [
+    "query blob_metrics (existing frozen unit packet)",
+    "query blob_upload_history (original service-wide All request; one page; no continuation)",
+    "query blob_local_status (frozen codec)",
+    "one HEAD of the exact previously verified public URL; no redirects/body/retry"
+  ],
+  "budgets": {
+    "queries": 3,
+    "seconds_per_query": 45,
+    "HEAD": 1,
+    "HEAD_seconds": 30,
+    "HEAD_body_bytes": 0,
+    "updates": 0,
+    "funds": 0,
+    "allowance_changes": 0,
+    "uploads": 0,
+    "automatic_retries": 0
+  },
+  "preserve": "Original user-1 refusal, released user-2 identity, private journals, old installations and all accounting obligations. No original mutation is replayed.",
+  "limitations": [
+    "Aggregate telemetry cannot identify exact roots or prove remote physical deletion/billing cessation.",
+    "A HEAD may be cache-served; no physical-origin or billing conclusion follows.",
+    "This frozen 0.69 observation does not qualify current 0.72 source, dependency graph or an application integration."
+  ],
+  "raw_evidence": "target/post072-acceptance/gc-readback-01",
+  "status": "intent recorded before network; stop and retain failures without automatic repetition"
+}

@@ -254,7 +254,12 @@ Focused producer and consumer fixtures exercise real Cargo execution, supplier-
 first group preparations, fresh receipts, later admissions, publication closure
 and source damage refusal. The full real consumer fixture runs only when release
 infrastructure is changed/uncertain on Linux, rather than at every group release.
-See [the Shared protocol](release-validation-reuse.md) for producer contracts.
+For a publication-only change, `bash scripts/ci/test-release-stage-reuse.sh
+--publication-only` qualifies the real wrapper with a Contracts-only Cargo lint
+proof, target/configuration fallback and retained-log-loss fallback, using a
+substitute registry/upload. The default infrastructure fixture retains all three
+group stages and exercises the same wrapper. See
+[the Shared protocol](release-validation-reuse.md) for producer contracts.
 
 For [Blob #114](https://github.com/dragginzgame/ic-blob-storage/issues/114), Shared's
 [evidence interface](group-validation-adoption.md) now admits the full-stage roster,
@@ -353,8 +358,12 @@ registry metadata, archive checksum, VCS source and package path match this rele
 That verified read-only retry performs no dependency preparation, compilation or
 Clippy. New uploads and dry runs prepare locked sources and admit the compiler,
 then consume completed exact-primary candidate Clippy or execute current-source
-Clippy before Cargo creates/verifies an archive or uploads. Cargo owns uploading
-and index visibility.
+Clippy before Cargo creates/verifies an archive or uploads. The standard wrapper's newly
+created `target/publication.XXXXXX/target` is admitted only for that same run's
+historical lint check. Arbitrary custom target directories and compiler/configuration
+overrides retain fresh lint; exact tag/source, candidate inventory, sealed proof/log
+custody and primary closure checks still apply. Cargo owns uploading and index
+visibility.
 403, failed transport, malformed metadata or foreign bytes/source are fatal and
 cannot authorize upload. API reads use Shared's exact metadata helper with jq and
 curl 8.4.0+; archive reads also disable implicit curl configuration. Request,

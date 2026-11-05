@@ -123,49 +123,39 @@ here does not waive provider, recovery, accounting or retirement requirements.
 
 ### Before the acceptance deployment
 
-Blob's Contracts, Client and Engine **0.69.0** groups are released and published.
-The matched family is Wire 0.16, Platform 0.20, Runtime 0.19, Types 0.18, Storage
-0.66 and Metrics 0.28. Blob's local release gates passed; current hosted acceptance
-is separately tracked in the handoff. Its funding-record hard cut requires the
-[retirement procedure](retiring-installations.md), not a converter or reset.
+Blob's Contracts, Client and Engine **0.72.0** groups are released and published.
+The delivered family selects Wire 0.17.1, Platform 0.22.0, Runtime 0.19.1, Types
+0.18.1, Storage 0.67.0 and native Testkit 0.86.0. Source-bound release gates and
+registry/archive/tag readbacks passed; [current status](status/current.md) records
+the exact evidence and host limits. Cross-release service transitions still use
+[retirement and fresh installation](retiring-installations.md), preserving old
+provider objects, uncertainty and billing. The live 0.69 trial above keeps its
+original artifacts; publication did not upgrade it.
 
-The 2026-11-03 read-only Canic review finds Blob Engine/Contracts 0.68.1, Platform
-0.18, Wire 0.15.1 and Timers 0.38.1 in its actively edited root catalog at base
-`0509ec870`. Published Timers 0.38.1 selects Runtime 0.18.1; a reduced published
-Blob 0.69 + Timers 0.38.1 Cargo resolution refuses their conflicting exact executor
-guards. Auth/protocol 0.32 also exposes the older Types/Wire family. Metrics Storage
-0.67 already supplies the Metrics 0.28 / Storage 0.66 integration. Canic must admit
-a compatible published family across its root and both private consumers before
-requalifying their managed artifacts. Do not add runtime bridges, mutable sibling
-patches or another adapter here. Current source/lock observations and the reduced
-resolution are retained in `target/post069-adoption/`.
+The **2026-11-05 read-only Canic review**, at base
+`e6a061999dfae207bc20917ffefa2082e7ffe2e7` with active unrelated work, finds its
+root and embedded consumer still selecting Blob 0.71.1 / Storage 0.66.1 / Wire
+0.16.1. Its handoff records delivered framework/Blob adapter 0.115.0 but keeps
+[Canic #622](https://github.com/dragginzgame/canic/issues/622) application adoption
+and [#494](https://github.com/dragginzgame/canic/issues/494) independent-credit
+acceptance separate. Neither `apps/demo/canic.toml` nor `apps/test/canic.toml`
+selects a Blob role; no actual application origin/network/Blob-service binding
+was identified. Those are deployment inputs owned by the application, not a
+missing Blob adapter or a reason to add one here.
 
-The earlier 2026-11-02 Canic review retains its recorded local Blob 0.66
-qualification. Results cover dedicated
-installation/recovery, all five embedded funding profiles, generated clients for
-both compositions, dependency admission, private-consumer Clippy and allocation
-peer verification. The corrected held-reply fixture budget is included; these
-are local framework results, not deployed-provider or application evidence.
-
-[Canic #622 — Mounted Blob adoption](https://github.com/dragginzgame/canic/issues/622)
-owns delivery of the adoption first qualified on `e7537859` (Canic 0.114.0), its
-remaining non-Blob qualification and applicable CI/publication acceptance. Its
-`target/integrations/checks/blob66-20261102/results.json` and owning audit retain
-the exact source, three lock hashes, managed artifacts and logs. Blob does not
-copy those fixtures or infer a deployed service from a passing local composition.
-During that review Canic advanced to committed source `e683f331a`, while its released
-baseline remains 0.114.0. The retained check-log hashes and two consumer locks
-match; its current root lock differs from the recorded qualification hash.
-Owner delivery must admit the current source and graph. The earlier passes are
-preserved evidence, not a fresh gate for that later source.
+Recorded November 2/3 Canic composition and dependency-conflict observations
+retain their original graphs in the earlier handoff/evidence. They do not establish
+a current defect or qualify the new 0.72 public identities. This review did not
+edit or compile Canic, run its private consumers or infer a production capacity
+profile from fixture limits.
 
 Deployment becomes the next step after the remaining owner actions:
 
-1. Canic adopts the matching published Blob 0.69 family in its three maintained
+1. Canic adopts the matching published Blob 0.72 family in its three maintained
    catalogs/locks, admits one runtime/type/Wire identity and qualifies its dedicated
    and embedded installation/recovery, funding profiles and generated clients.
    Its owner then delivers the selected change with applicable CI/publication
-   acceptance. Prior Blob 0.66 checks keep their own inputs; this public-identity
+   acceptance. Prior composition checks keep their own inputs; this public-identity
    cut needs current evidence, without duplicating the adapter or its fixtures.
 2. The application selects that delivered graph and dedicated or embedded
    mounting/lifecycle path. Framework and application changes remain with their

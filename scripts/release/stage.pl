@@ -79,7 +79,16 @@ $eligible=0 unless $qualified_path;
 $eligible=0 if $temporary !~ m{\A/} || length($temporary)>60
     || (defined($ENV{TMPDIR}) && !-d $temporary);
 $eligible=0 if ($ENV{MAKEFLAGS}//'') =~ /--jobserver|(?:\A|\s)-?j(?:\d|\s|\z)/;
-$eligible=0 if defined($ENV{CARGO_TARGET_DIR}) && $ENV{CARGO_TARGET_DIR} ne "$root/target";
+# The standard publication wrapper isolates archive builds in its newly owned
+# run. Historical lint admission does not compile there; its proof and exact
+# primary closure are checked below. Other custom target directories still use
+# current-source lint, including ordinary candidate execution.
+my $publication_target=$publication
+    && $publication_run =~ m{\Atarget/publication\.[A-Za-z0-9]{6}\z}
+    && defined($ENV{CARGO_TARGET_DIR})
+    && $ENV{CARGO_TARGET_DIR} eq "$root/$publication_run/target";
+$eligible=0 if defined($ENV{CARGO_TARGET_DIR})
+    && $ENV{CARGO_TARGET_DIR} ne "$root/target" && !$publication_target;
 # Explicit simulator selections are not silently converted to managed defaults.
 $eligible=0 if defined $ENV{POCKET_IC_BIN};
 if (!$eligible) {

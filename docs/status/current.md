@@ -1,4 +1,73 @@
-# Current status — 2026-11-04
+# Current status — 2026-11-05
+
+## Issue follow-up — pending Engine 0.72.1
+
+Deployment is now authorized for this Blob checkout's `main` to `origin/main`
+and crates.io: **Engine 0.72.1 only**, including the reviewed compatible incoming
+Winnow 1.0.5 lock adjustment. Contracts and Client stay at 0.72.0. Use the normal
+patch runner/publication and verify the actual wrapper's lint admission, registry
+archive and annotated tag before closing #116. No live installation, financial
+probe, reset or sibling delivery is selected. Final gate inputs stay fixed.
+
+[Blob #116](https://github.com/dragginzgame/ic-blob-storage/issues/116) is fixed
+locally: the standard publication wrapper's exact newly created
+`target/publication.XXXXXX/target` no longer triggers the generic custom-target
+fallback before retained Clippy admission. Other custom targets/configuration,
+source/tag/exact roster, complete candidate inventory, sealed proof/log custody
+and primary closure checks remain. Archive isolation is unchanged. The issue
+stays open until this fix is delivered on default main.
+
+The existing reuse fixture now exercises the **real publication wrapper**.
+Its `--publication-only` mode produces an authentic Contracts-library lint proof
+and release receipt, without unrelated native/PocketIC suites. It passes retained
+qualification, exact archive-target forwarding, unrelated-target/compiler-flag
+fresh lint and missing-log fresh fallback. Source/tag/receipt/closure checks and
+Cargo lint remain real; registry reads/uploads are explicit substitutes. Evidence:
+`target/issue116-publication.log`, `target/blob-stage-reuse.GxmdZ7/` and
+`publication-summary.json`. This is focused Linux/Rust 1.99.1 qualification, not a
+new full release, native macOS or real registry upload. The existing full hosted
+infrastructure fixture also uses the wrapper and missing-log regression.
+Perl/Bash syntax, selected ShellCheck, documentation links, new public evidence
+checksums, exact prior scope/history echoes, private-file hashes and diff checks
+pass. `target/issue116-followup-validation.json` retains focused source hashes and
+results. The first ShellCheck command selected an absent managed path; the
+existing configured ShellCheck passed without any installation.
+
+The separate [November 5 bounded readback](../evidence/caffeine-probes/deployed/2026-11-05-trial-v069-gc-readback-01/summary.json)
+advances #6's observation, without updates/funds/uploads. Three queries and one
+body-free HEAD pass against the frozen **0.69** trial. Its window/observed versions
+remain 1/18 with zero gateway-ack attempts/successes; first object stays `Live`,
+second `DeletionPending`; logical/physical/liability bytes stay 1024/2048/2048 and
+HEAD returns 200. Neither aggregate telemetry nor a possibly cached HEAD proves
+physical deletion or billing cessation. Two offline preparation errors were
+retained before corrected scoped packets, with no earlier network effect.
+Thirty raw/evidence files were privately copied and hash-verified outside
+`cargo clean` under `.git/private-operations/blob069-trial-01/gc-readback-20261105/`.
+No prior capture, user-1 journal, liability or installation was changed.
+
+Read-only Canic review at base `e6a061999dfae207bc20917ffefa2082e7ffe2e7`
+finds root/embedded catalogs on Blob 0.71.1, with active unrelated work and
+framework/adapter 0.115.0 delivery recorded in its handoff. No actual application
+origin/network/service binding was identified, and its demo/test configs select
+no Blob role. [The acceptance plan](../acceptance-plan.md#next-application-acceptance-run)
+now distinguishes the published 0.72 family, frozen live 0.69 trial and historical
+composition checks. #5/#31 still need the real application/session/media run;
+#34 needs attributable original paid-operation credit/replay and complete competing
+activity. No new payment, automatic retry or synthetic receipt is justified.
+Siblings were not edited or compiled.
+
+Material findings were posted and independently read back on
+[#116](https://github.com/dragginzgame/ic-blob-storage/issues/116#issuecomment-6652333443),
+[#6](https://github.com/dragginzgame/ic-blob-storage/issues/6#issuecomment-6652336421),
+[#31](https://github.com/dragginzgame/ic-blob-storage/issues/31#issuecomment-6652339132)
+and [#5](https://github.com/dragginzgame/ic-blob-storage/issues/5#issuecomment-6652341590).
+#34's description now separates already evidenced trial linkage/spendability from
+unresolved original-paid-operation credit/replay and complete competing activity.
+No issue was closed by waiving its acceptance or treating a local fix as delivered.
+
+The incoming **Winnow 1.0.5 Cargo.lock edit** is preserved. No manifest/package
+version changed. The local fix/notes/evidence remain uncommitted; no release,
+push, registry upload or service deployment occurred in this follow-up.
 
 ## Published Contracts, Client and Engine 0.72.0
 

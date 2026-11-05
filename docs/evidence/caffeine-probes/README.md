@@ -14,6 +14,27 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## Current read-only 0.69 follow-up — 2026-11-05
+
+The maintainer requested work on the remaining issues. Before any request,
+[the bounded intent](deployed/2026-11-05-trial-v069-gc-readback-01/intent.json)
+selects three queries of the existing 0.69 service (metrics, one original history
+page and local accounting) and one body-free HEAD of the previously verified
+second-object URL. Each query is bounded to 45 seconds; HEAD to 30 seconds,
+without redirects or retries. Frozen generated codecs/packets retain their hashes.
+No funds, IC update, allowance change, upload, forced GC, callback impersonation,
+reset or settlement is selected. Aggregate telemetry and URL availability cannot
+prove physical deletion or stopped billing. [The completed readback](deployed/2026-11-05-trial-v069-gc-readback-01/summary.json)
+retains all three successful queries, exact codec re-encoding and one HEAD 200.
+The same window/observed versions (1/18) still record zero gateway acknowledgment
+attempts/successes. Object 1 stays `Live`, object 2 `DeletionPending`, with no next
+history page. Logical/physical/liability bytes remain 1024/2048/2048, unfenced.
+This later unchanged observation proves no provider cadence, origin deletion or
+billing outcome. Two offline request-preparation errors are retained separately;
+no network operation occurred before their correction. #6 remains open. Raw
+headers and captures have private custody outside `cargo clean`; original records
+and obligations are preserved.
+
 ## Current 0.69 post-release acknowledgment observation — 2026-11-03
 
 The maintainer continued issue work. Source review found an **existing** standalone

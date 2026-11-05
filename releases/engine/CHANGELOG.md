@@ -4,6 +4,15 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.72.1] - Unreleased
+
+### 🩹 Fixed
+
+- Admit retained release lint during publication with its isolated archive build
+  directory, keeping exact source/proof/closure checks and fresh lint fallback.
+  The wrapper regression covers archive isolation and missing-proof recovery
+  ([#116](https://github.com/dragginzgame/ic-blob-storage/issues/116)).
+
 ## [0.72.0] - 2026-11-04
 
 ### 💥 Breaking
