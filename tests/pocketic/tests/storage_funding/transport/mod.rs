@@ -62,7 +62,7 @@ fn expected_response(outcome: FundingOutcome) -> FundingResponse {
 }
 
 impl Fixture {
-    fn upgrade_storage(&self) {
+    async fn upgrade_storage(&self) {
         self.harness
             .pic
             .upgrade_canister(
@@ -71,14 +71,15 @@ impl Fixture {
                 Self::installation("fixture_post_upgrade", self.operator),
                 Some(self.controller),
             )
+            .await
             .unwrap();
     }
-    fn with_cashier() -> Self {
-        let harness = Harness::new();
-        let cashier = harness.pic.create_canister().unwrap();
+    async fn with_cashier() -> Self {
+        let harness = Harness::new().await;
+        let cashier = harness.pic.create_canister().await.unwrap();
         // The test controller acts for this configured canister operator through
         // PocketIC ingress. Both operator and Cashier bindings remain explicit.
-        let f = Self::with_operator(harness, cashier);
+        let f = Self::with_operator(harness, cashier).await;
         f.harness
             .pic
             .install_canister(
@@ -100,10 +101,11 @@ impl Fixture {
                 .unwrap(),
                 None,
             )
+            .await
             .unwrap();
         f
     }
-    fn configure_cashier(&self, intent: Intent, accepted: u128, reply: FundingReplyMode) {
+    async fn configure_cashier(&self, intent: Intent, accepted: u128, reply: FundingReplyMode) {
         let request = CashierTopUpRequest::new(
             intent.cashier,
             intent.account,
@@ -129,11 +131,12 @@ impl Fixture {
                 },
             },),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
         result.unwrap();
     }
-    fn transport(&self, actor: Principal, input: Input) -> Result<Observation, Failure> {
+    async fn transport(&self, actor: Principal, input: Input) -> Result<Observation, Failure> {
         self.harness
             .pic
             .update_control_as(
@@ -143,10 +146,11 @@ impl Fixture {
                 (input,),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
     }
-    fn incoming(&self) -> Vec<FundingReceiptRecord> {
+    async fn incoming(&self) -> Vec<FundingReceiptRecord> {
         fixture_calls::query_fixture::<(Option<Vec<FundingReceiptRecord>>,), _>(
             &self.harness.pic,
             self.operator,
@@ -154,11 +158,12 @@ impl Fixture {
             "receipts",
             (),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
         .unwrap()
     }
-    fn retained_outcome(
+    async fn retained_outcome(
         &self,
         actor: Principal,
         intent: Intent,
@@ -172,6 +177,7 @@ impl Fixture {
                 outcome_request(intent),
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
 }
@@ -185,8 +191,12 @@ fn input(intent: Intent) -> Input {
     }
 }
 
-#[test]
-fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_reply_decoding() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One actual callback journey keeps attachment, refund and provider-reply decoding independent"
+)]
+async fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_reply_decoding() {
     for (accepted, reply, expected) in [
         (
             0,
@@ -220,20 +230,26 @@ fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_repl
         ),
         (400, FundingReplyMode::Reject, FundingOutcome::Rejected(4)),
     ] {
-        let f = Fixture::with_cashier();
+        let f = Fixture::with_cashier().await;
         let intent = Intent {
             target_balance: Some(u128::MAX),
             ..f.funding_intent(1, 900)
         };
-        f.configure_cashier(intent, accepted, reply);
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
-        let result = f.transport(f.operator, input(intent)).unwrap();
+        f.configure_cashier(intent, accepted, reply).await;
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
+        let result = f.transport(f.operator, input(intent)).await.unwrap();
         assert_eq!(
             (result.accepted, result.refunded, result.outcome),
             (accepted, Some(900 - accepted), expected)
         );
         assert!(result.call_cost > 0);
-        let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+        let retained = f
+            .retained_outcome(f.operator, intent)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(retained.request, outcome_request(intent));
         assert_eq!(retained.response, Some(expected_response(expected)));
         assert_eq!(
@@ -247,10 +263,10 @@ fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_repl
             }
         );
         assert_eq!(
-            f.funding_lookup(f.operator, intent),
+            f.funding_lookup(f.operator, intent).await,
             Ok(Some(Phase::Callback(900 - accepted)))
         );
-        let allocation = f.funding_allocation();
+        let allocation = f.funding_allocation().await;
         assert_eq!(
             (
                 allocation.available,
@@ -260,47 +276,59 @@ fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_of_repl
             ),
             (1000 - accepted, accepted, 900 - accepted, 0)
         );
-        assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Phase));
         assert_eq!(
-            f.incoming(),
+            f.transport(f.operator, input(intent)).await,
+            Err(Failure::Phase)
+        );
+        assert_eq!(
+            f.incoming().await,
             vec![FundingReceiptRecord {
                 id: 1,
                 available: 900,
                 accepted
             }]
         );
-        assert_eq!(f.funding_allocation(), allocation);
+        assert_eq!(f.funding_allocation().await, allocation);
         for actor in [f.controller, f.tenant, Principal::anonymous()] {
             assert_eq!(
-                f.retained_outcome(actor, intent),
+                f.retained_outcome(actor, intent).await,
                 Err(FundingOutcomeFailure::Denied)
             );
         }
-        f.upgrade_storage();
+        f.upgrade_storage().await;
         assert_eq!(
-            f.retained_outcome(f.operator, intent),
+            f.retained_outcome(f.operator, intent).await,
             Ok(Some(FundingOutcomeResponse {
                 fenced: true,
                 ..retained
             }))
         );
-        assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Fenced));
+        assert_eq!(
+            f.transport(f.operator, input(intent)).await,
+            Err(Failure::Fenced)
+        );
     }
 }
 
-#[test]
-fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity() {
+    let f = Fixture::with_cashier().await;
     let intent = f.funding_intent(1, 900);
-    f.configure_cashier(intent, 900, FundingReplyMode::Success);
+    f.configure_cashier(intent, 900, FundingReplyMode::Success)
+        .await;
     assert_eq!(
-        f.transport(f.operator, input(intent)),
+        f.transport(f.operator, input(intent)).await,
         Err(Failure::Unknown)
     );
-    f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let reserved = f.funding_allocation();
+    f.funding(f.operator, intent, Action::Prepare)
+        .await
+        .unwrap();
+    let reserved = f.funding_allocation().await;
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.transport(actor, input(intent)), Err(Failure::Denied));
+        assert_eq!(
+            f.transport(actor, input(intent)).await,
+            Err(Failure::Denied)
+        );
     }
     for changed in [
         Intent {
@@ -313,7 +341,7 @@ fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity(
         },
     ] {
         assert_eq!(
-            f.transport(f.operator, input(changed)),
+            f.transport(f.operator, input(changed)).await,
             Err(Failure::Conflict)
         );
     }
@@ -324,10 +352,11 @@ fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity(
                 cashier: f.other.into(),
                 ..intent
             })
-        ),
+        )
+        .await,
         Err(Failure::Binding)
     );
-    assert_eq!(f.funding_allocation(), reserved);
+    assert_eq!(f.funding_allocation().await, reserved);
     let blocked = f
         .transport(
             f.operator,
@@ -336,43 +365,54 @@ fn cashier_transport_requires_exact_prepared_operator_intent_and_full_liquidity(
                 ..input(intent)
             },
         )
+        .await
         .unwrap();
     assert_eq!(
         (blocked.accepted, blocked.refunded, blocked.outcome),
         (0, None, FundingOutcome::LiquidityBlocked)
     );
-    assert_eq!(f.incoming(), []);
+    assert_eq!(f.incoming().await, []);
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::NotEnqueued))
     );
-    assert_eq!(f.funding_allocation().not_enqueued, 900);
-    let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+    assert_eq!(f.funding_allocation().await.not_enqueued, 900);
+    let retained = f
+        .retained_outcome(f.operator, intent)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(retained.response, Some(FundingResponse::NotDispatched));
     assert_eq!(
         retained.reconciliation,
         FundingReconciliationView::NoTransfer
     );
-    assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Phase));
+    assert_eq!(
+        f.transport(f.operator, input(intent)).await,
+        Err(Failure::Phase)
+    );
 }
 
-#[test]
-fn cashier_receiver_trap_rolls_back_acceptance_and_returns_the_full_attachment() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cashier_receiver_trap_rolls_back_acceptance_and_returns_the_full_attachment() {
+    let f = Fixture::with_cashier().await;
     let intent = f.funding_intent(1, 900);
-    f.configure_cashier(intent, 400, FundingReplyMode::Trap);
-    f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let result = f.transport(f.operator, input(intent)).unwrap();
+    f.configure_cashier(intent, 400, FundingReplyMode::Trap)
+        .await;
+    f.funding(f.operator, intent, Action::Prepare)
+        .await
+        .unwrap();
+    let result = f.transport(f.operator, input(intent)).await.unwrap();
     assert_eq!(
         (result.accepted, result.refunded, result.outcome),
         (0, Some(900), FundingOutcome::Rejected(5))
     );
-    assert_eq!(f.incoming(), []);
+    assert_eq!(f.incoming().await, []);
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::Callback(900)))
     );
-    let allocation = f.funding_allocation();
+    let allocation = f.funding_allocation().await;
     assert_eq!(
         (
             allocation.available,
@@ -382,18 +422,28 @@ fn cashier_receiver_trap_rolls_back_acceptance_and_returns_the_full_attachment()
         ),
         (1000, 0, 900, 0)
     );
-    assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Phase));
-    assert_eq!(f.funding_allocation(), allocation);
+    assert_eq!(
+        f.transport(f.operator, input(intent)).await,
+        Err(Failure::Phase)
+    );
+    assert_eq!(f.funding_allocation().await, allocation);
 }
 
-#[test]
-fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance() {
+    let f = Fixture::with_cashier().await;
     let intent = f.funding_intent(1, 900);
-    f.configure_cashier(intent, 400, FundingReplyMode::Success);
-    f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let reserved = f.funding_allocation();
-    let prepared = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+    f.configure_cashier(intent, 400, FundingReplyMode::Success)
+        .await;
+    f.funding(f.operator, intent, Action::Prepare)
+        .await
+        .unwrap();
+    let reserved = f.funding_allocation().await;
+    let prepared = f
+        .retained_outcome(f.operator, intent)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(prepared.response, None);
     let error = f
         .harness
@@ -408,13 +458,14 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
             })
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(
-        f.incoming(),
+        f.incoming().await,
         vec![FundingReceiptRecord {
             id: 1,
             available: 900,
@@ -422,32 +473,42 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
         }]
     );
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::Uncertain))
     );
-    assert_eq!(f.funding_allocation(), reserved);
-    let uncertain = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+    assert_eq!(f.funding_allocation().await, reserved);
+    let uncertain = f
+        .retained_outcome(f.operator, intent)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(uncertain.response, None);
     assert_eq!(
         uncertain.reconciliation,
         FundingReconciliationView::TransferUnknown(900)
     );
-    assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Phase));
-    f.upgrade_storage();
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.transport(f.operator, input(intent)).await,
+        Err(Failure::Phase)
+    );
+    f.upgrade_storage().await;
+    assert_eq!(
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::Uncertain))
     );
-    assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Fenced));
     assert_eq!(
-        f.retained_outcome(f.operator, intent),
+        f.transport(f.operator, input(intent)).await,
+        Err(Failure::Fenced)
+    );
+    assert_eq!(
+        f.retained_outcome(f.operator, intent).await,
         Ok(Some(FundingOutcomeResponse {
             fenced: true,
             ..uncertain
         }))
     );
     assert_eq!(
-        f.funding_allocation(),
+        f.funding_allocation().await,
         Allocation {
             fenced: true,
             ..reserved
@@ -455,18 +516,21 @@ fn cashier_callback_write_trap_preserves_uncertainty_after_receiver_acceptance()
     );
 }
 
-#[test]
-fn mismatched_callback_request_never_releases_the_original_uncertain_offer() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn mismatched_callback_request_never_releases_the_original_uncertain_offer() {
     for fault in [
         CallbackIdentityFault::Offered,
         CallbackIdentityFault::Account,
         CallbackIdentityFault::TargetBalance,
     ] {
-        let f = Fixture::with_cashier();
+        let f = Fixture::with_cashier().await;
         let intent = f.funding_intent(1, 900);
-        f.configure_cashier(intent, 400, FundingReplyMode::Success);
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
-        let totals = f.funding_allocation();
+        f.configure_cashier(intent, 400, FundingReplyMode::Success)
+            .await;
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
+        let totals = f.funding_allocation().await;
         assert_eq!(
             f.transport(
                 f.operator,
@@ -474,41 +538,61 @@ fn mismatched_callback_request_never_releases_the_original_uncertain_offer() {
                     callback_identity_fault: Some(fault),
                     ..input(intent)
                 }
-            ),
+            )
+            .await,
             Err(Failure::Conflict)
         );
-        assert_eq!(f.incoming()[0].accepted, 400);
-        let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+        assert_eq!(f.incoming().await[0].accepted, 400);
+        let retained = f
+            .retained_outcome(f.operator, intent)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(retained.phase, FundingPhase::Uncertain);
         assert_eq!(retained.response, None);
         assert_eq!(
             retained.reconciliation,
             FundingReconciliationView::TransferUnknown(900)
         );
-        assert_eq!(f.funding_allocation(), totals);
-        assert_eq!(f.transport(f.operator, input(intent)), Err(Failure::Phase));
+        assert_eq!(f.funding_allocation().await, totals);
+        assert_eq!(
+            f.transport(f.operator, input(intent)).await,
+            Err(Failure::Phase)
+        );
     }
 }
 
-#[test]
-fn actual_cashier_acceptance_is_not_cleared_by_a_later_fully_refunded_call() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn actual_cashier_acceptance_is_not_cleared_by_a_later_fully_refunded_call() {
     use blob_test_protocol::status::FundingActivityView;
-    let f = Fixture::with_cashier();
+    let f = Fixture::with_cashier().await;
     for (id, offered, accepted) in [(1, 900, 400), (2, 500, 0)] {
         let intent = f.funding_intent(id, offered);
-        f.configure_cashier(intent, accepted, FundingReplyMode::Malformed);
+        f.configure_cashier(intent, accepted, FundingReplyMode::Malformed)
+            .await;
         // Explicit local effect controls; production activity admission is separate.
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
-        f.transport(f.operator, input(intent)).unwrap();
-        let summary = f.funding_summary(f.operator, f.funding_scope()).unwrap();
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
+        f.transport(f.operator, input(intent)).await.unwrap();
+        let summary = f
+            .funding_summary(f.operator, f.funding_scope())
+            .await
+            .unwrap();
         assert_eq!(summary.allocation.accepted, 400);
         assert_eq!(summary.allocation.uncertain, 0);
         assert_eq!(summary.local_activity, FundingActivityView::Uncertain);
         assert_eq!(summary.last_operation, Some(id));
     }
-    let before = f.funding_summary(f.operator, f.funding_scope()).unwrap();
-    f.upgrade_storage();
-    let after = f.funding_summary(f.operator, f.funding_scope()).unwrap();
+    let before = f
+        .funding_summary(f.operator, f.funding_scope())
+        .await
+        .unwrap();
+    f.upgrade_storage().await;
+    let after = f
+        .funding_summary(f.operator, f.funding_scope())
+        .await
+        .unwrap();
     assert_eq!(after.allocation.accepted, before.allocation.accepted);
     assert_eq!(after.local_activity, FundingActivityView::Uncertain);
     assert!(after.allocation.fenced);

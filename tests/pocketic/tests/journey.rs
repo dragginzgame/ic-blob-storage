@@ -35,22 +35,22 @@ struct Fixture {
 }
 
 impl Fixture {
-    fn sync_request(&self) -> blob_test_protocol::GatewaySyncRequest {
-        sync_request::read(&self.harness.pic, self.service, self.authority_operator)
+    async fn sync_request(&self) -> blob_test_protocol::GatewaySyncRequest {
+        sync_request::read(&self.harness.pic, self.service, self.authority_operator).await
     }
 
-    fn new() -> Self {
-        Self::with_source_operator(false)
+    async fn new() -> Self {
+        Self::with_source_operator(false).await
     }
 
-    fn with_source_operator(source_operator: bool) -> Self {
-        let harness = Harness::new();
+    async fn with_source_operator(source_operator: bool) -> Self {
+        let harness = Harness::new().await;
         let pic = &harness.pic;
         let first = fake_principal(1);
         let second = fake_principal(2);
         let operator = fake_principal(4);
-        let service = installation::controlled_canister(pic, operator);
-        let gateway = pic.create_canister().unwrap();
+        let service = installation::controlled_canister(pic, operator).await;
+        let gateway = pic.create_canister().await.unwrap();
         let authority_operator = if source_operator { gateway } else { operator };
         installation::install_fixture(
             pic,
@@ -62,7 +62,8 @@ impl Fixture {
             )
             .expect("service init"),
             Some(operator),
-        );
+        )
+        .await;
         installation::install_fixture(
             pic,
             gateway,
@@ -73,7 +74,8 @@ impl Fixture {
             )
             .expect("gateway init"),
             None,
-        );
+        )
+        .await;
         Self {
             harness,
             service,
@@ -85,22 +87,24 @@ impl Fixture {
         }
     }
 
-    fn control(
+    async fn control(
         &self,
         caller: Principal,
         method: &str,
         input: JourneyUpload,
     ) -> Result<(), JourneyFailure> {
         fixture_calls::update_fixture(&self.harness.pic, self.service, caller, method, (input,))
+            .await
             .map(|(reply,)| reply)
             .expect("local control reply")
     }
-    fn usage(&self, caller: Principal) -> Result<JourneyUsage, JourneyFailure> {
+    async fn usage(&self, caller: Principal) -> Result<JourneyUsage, JourneyFailure> {
         fixture_calls::query_fixture(&self.harness.pic, self.service, caller, "journey_usage", ())
+            .await
             .map(|(reply,)| reply)
             .expect("usage reply")
     }
-    fn reserve(
+    async fn reserve(
         &self,
         caller: Principal,
         input: JourneyUpload,
@@ -119,8 +123,9 @@ impl Fixture {
                 headers: vec![("Content-Length".into(), input.bytes.to_string())],
             },
         )
+        .await
     }
-    fn reserve_manifest(
+    async fn reserve_manifest(
         &self,
         caller: Principal,
         input: JourneyUpload,
@@ -136,10 +141,11 @@ impl Fixture {
                 manifest,
             },),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("admission reply")
     }
-    fn progress(
+    async fn progress(
         &self,
         caller: Principal,
         input: JourneyUpload,
@@ -151,10 +157,11 @@ impl Fixture {
             "journey_progress",
             (root(input.root),),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("progress reply")
     }
-    fn append(
+    async fn append(
         &self,
         caller: Principal,
         input: JourneyUpload,
@@ -173,10 +180,11 @@ impl Fixture {
                     .unwrap(),
             ),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("verification reply")
     }
-    fn certificate(
+    async fn certificate(
         &self,
         caller: Principal,
         seed: [u8; 32],
@@ -189,13 +197,14 @@ impl Fixture {
                 "_immutableObjectStorageCreateCertificate",
                 ic_platform::candid::contract::encode_one(root_text(seed)).expect("root text"),
             )
+            .await
             .map(|bytes| {
                 decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new())
                     .expect("current certificate shape")
             })
             .map_err(|error| crate::canister_rejection(&error).reject_code)
     }
-    fn root_control(
+    async fn root_control(
         &self,
         caller: Principal,
         method: &str,
@@ -208,10 +217,11 @@ impl Fixture {
             method,
             (root(seed),),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("root control")
     }
-    fn pending(&self) -> Vec<Vec<u8>> {
+    async fn pending(&self) -> Vec<Vec<u8>> {
         ic_blob_storage_pocketic_tests::provider_calls::query_provider(
             &self.harness.pic,
             self.service,
@@ -219,10 +229,11 @@ impl Fixture {
             "_immutableObjectStorageBlobsToDelete",
             (),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("binary-root deletion list")
     }
-    fn live(&self, seeds: &[[u8; 32]]) -> Vec<bool> {
+    async fn live(&self, seeds: &[[u8; 32]]) -> Vec<bool> {
         let roots: Vec<_> = seeds.iter().map(|seed| root(*seed)).collect();
         ic_blob_storage_pocketic_tests::provider_calls::query_provider(
             &self.harness.pic,
@@ -231,10 +242,11 @@ impl Fixture {
             "_immutableObjectStorageBlobsAreLive",
             (roots,),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("liveness batch")
     }
-    fn delete(&self, roots: Vec<Vec<u8>>) -> Result<(), u32> {
+    async fn delete(&self, roots: Vec<Vec<u8>>) -> Result<(), u32> {
         fixture_calls::update_fixture(
             &self.harness.pic,
             self.gateway,
@@ -242,6 +254,7 @@ impl Fixture {
             "run_deletion",
             (roots,),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("real inter-canister callback")
     }
@@ -292,36 +305,37 @@ fn upload(id: u8, bytes: &[u8]) -> JourneyUpload {
     }
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One connected journey checks the same objects through interruption, release and delayed callbacks"
 )]
-fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting_owner() {
-    let f = Fixture::new();
+async fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting_owner() {
+    let f = Fixture::new().await;
     let a = upload(1, &[21; 100]);
-    assert_eq!(f.reserve(f.first, a, [21; 100].as_slice()), Ok(()));
-    assert_eq!(f.reserve(f.first, a, [21; 100].as_slice()), Ok(()));
-    assert_eq!(f.usage(f.first), Ok(usage(100, 100, 100)));
+    assert_eq!(f.reserve(f.first, a, [21; 100].as_slice()).await, Ok(()));
+    assert_eq!(f.reserve(f.first, a, [21; 100].as_slice()).await, Ok(()));
+    assert_eq!(f.usage(f.first).await, Ok(usage(100, 100, 100)));
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { bytes: 101, ..a }, &[21; 100]),
+        f.reserve(f.first, JourneyUpload { bytes: 101, ..a }, &[21; 100])
+            .await,
         Err(JourneyFailure::Conflict)
     );
     assert_eq!(
-        f.reserve(f.second, a, &[21; 100]),
+        f.reserve(f.second, a, &[21; 100]).await,
         Err(JourneyFailure::Conflict)
     );
     assert_eq!(
-        f.certificate(f.second, a.root),
+        f.certificate(f.second, a.root).await,
         Err(RejectCode::CanisterError)
     );
     assert_eq!(
-        f.certificate(f.first, a.root),
+        f.certificate(f.first, a.root).await,
         Err(RejectCode::CanisterError)
     );
-    assert_eq!(f.append(f.first, a, 0, &[21; 100]), Ok(()));
+    assert_eq!(f.append(f.first, a, 0, &[21; 100]).await, Ok(()));
     assert_eq!(
-        f.certificate(f.first, a.root),
+        f.certificate(f.first, a.root).await,
         Ok(CaffeineUploadCertificateResponse {
             method: "upload".to_owned(),
             blob_hash: root_text(a.root)
@@ -329,85 +343,113 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     );
     // Authority has escaped; interrupt before supplying any completion fact.
     assert_eq!(
-        f.certificate(f.first, a.root),
+        f.certificate(f.first, a.root).await,
         Err(RejectCode::CanisterError)
     );
     assert_eq!(
-        f.control(f.first, "journey_cancel", a),
+        f.control(f.first, "journey_cancel", a).await,
         Err(JourneyFailure::InvalidPhase)
     );
     assert_eq!(
-        f.delete(vec![root(a.root)]),
+        f.delete(vec![root(a.root)]).await,
         Err(RejectCode::CanisterError as u32)
     );
-    assert_eq!(f.live(&[a.root, [99; 32], a.root]), vec![true, true, true]);
-    assert_eq!(f.usage(f.first), Ok(usage(100, 100, 100)));
-    assert_eq!(f.usage(f.first), Ok(usage(100, 100, 100)));
     assert_eq!(
-        f.root_control(f.operator, "journey_settle", a.root),
+        f.live(&[a.root, [99; 32], a.root]).await,
+        vec![true, true, true]
+    );
+    assert_eq!(f.usage(f.first).await, Ok(usage(100, 100, 100)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(100, 100, 100)));
+    assert_eq!(
+        f.root_control(f.operator, "journey_settle", a.root).await,
         Err(JourneyFailure::InvalidPhase)
     );
     assert_eq!(
-        f.root_control(f.second, "journey_release", a.root),
+        f.root_control(f.second, "journey_release", a.root).await,
         Err(JourneyFailure::Denied)
     );
-    assert_eq!(f.root_control(f.first, "journey_release", a.root), Ok(()));
-    assert_eq!(f.root_control(f.first, "journey_release", a.root), Ok(()));
-    let delayed = f.pending();
+    assert_eq!(
+        f.root_control(f.first, "journey_release", a.root).await,
+        Ok(())
+    );
+    assert_eq!(
+        f.root_control(f.first, "journey_release", a.root).await,
+        Ok(())
+    );
+    let delayed = f.pending().await;
     assert_eq!(delayed, vec![root(a.root)]);
     assert_eq!(
-        f.live(&[a.root, [99; 32], a.root]),
+        f.live(&[a.root, [99; 32], a.root]).await,
         vec![false, true, false]
     );
-    assert_eq!(f.usage(f.first), Ok(usage(0, 100, 100)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(0, 100, 100)));
 
     let b = upload(2, &[22; 150]);
-    assert_eq!(f.reserve(f.first, b, &[22; 150]), Ok(()));
-    assert_eq!(f.append(f.first, b, 0, &[22; 150]), Ok(()));
-    f.certificate(f.first, b.root).expect("second certificate");
+    assert_eq!(f.reserve(f.first, b, &[22; 150]).await, Ok(()));
+    assert_eq!(f.append(f.first, b, 0, &[22; 150]).await, Ok(()));
+    f.certificate(f.first, b.root)
+        .await
+        .expect("second certificate");
     // The first mutation must roll back when the second root still has references.
     assert_eq!(
-        f.delete(vec![root(a.root), root(b.root)]),
+        f.delete(vec![root(a.root), root(b.root)]).await,
         Err(RejectCode::CanisterError as u32)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(150, 250, 250)));
-    assert_eq!(f.pending(), delayed);
-    assert_eq!(f.pending(), delayed);
+    assert_eq!(f.usage(f.first).await, Ok(usage(150, 250, 250)));
+    assert_eq!(f.pending().await, delayed);
+    assert_eq!(f.pending().await, delayed);
     assert_eq!(
-        f.certificate(f.first, a.root),
+        f.certificate(f.first, a.root).await,
         Err(RejectCode::CanisterError)
     );
-    assert_eq!(f.delete(vec![root(a.root), root(a.root)]), Ok(()));
-    assert_eq!(f.delete(delayed), Ok(()));
-    assert_eq!(f.usage(f.first), Ok(usage(150, 150, 250)));
-    assert_eq!(f.pending(), Vec::<Vec<u8>>::new());
+    assert_eq!(f.delete(vec![root(a.root), root(a.root)]).await, Ok(()));
+    assert_eq!(f.delete(delayed).await, Ok(()));
+    assert_eq!(f.usage(f.first).await, Ok(usage(150, 150, 250)));
+    assert_eq!(f.pending().await, Vec::<Vec<u8>>::new());
     assert_eq!(
-        f.root_control(f.first, "journey_settle", a.root),
+        f.root_control(f.first, "journey_settle", a.root).await,
         Err(JourneyFailure::Denied)
     );
-    assert_eq!(f.root_control(f.operator, "journey_settle", a.root), Ok(()));
-    assert_eq!(f.root_control(f.operator, "journey_settle", a.root), Ok(()));
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { id: 3, ..a }, &[21; 100]),
+        f.root_control(f.operator, "journey_settle", a.root).await,
+        Ok(())
+    );
+    assert_eq!(
+        f.root_control(f.operator, "journey_settle", a.root).await,
+        Ok(())
+    );
+    assert_eq!(
+        f.reserve(f.first, JourneyUpload { id: 3, ..a }, &[21; 100])
+            .await,
         Err(JourneyFailure::Conflict)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(150, 150, 150)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(150, 150, 150)));
 
-    assert_eq!(f.root_control(f.first, "journey_release", b.root), Ok(()));
-    let delayed = f.pending();
+    assert_eq!(
+        f.root_control(f.first, "journey_release", b.root).await,
+        Ok(())
+    );
+    let delayed = f.pending().await;
     assert_eq!(delayed, vec![root(b.root)]);
     let revoked: bool =
         fixture_calls::update_fixture(&f.harness.pic, f.service, f.operator, "revoke_gateway", ())
+            .await
             .map(|(reply,)| reply)
             .expect("revoke");
     assert!(revoked);
-    assert_eq!(f.delete(delayed), Err(RejectCode::CanisterError as u32));
-    assert_eq!(f.delete(vec![]), Err(RejectCode::CanisterError as u32));
     assert_eq!(
-        f.root_control(f.operator, "journey_settle", b.root),
+        f.delete(delayed).await,
+        Err(RejectCode::CanisterError as u32)
+    );
+    assert_eq!(
+        f.delete(vec![]).await,
+        Err(RejectCode::CanisterError as u32)
+    );
+    assert_eq!(
+        f.root_control(f.operator, "journey_settle", b.root).await,
         Err(JourneyFailure::InvalidPhase)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(0, 150, 150)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(0, 150, 150)));
     let denied = f
         .harness
         .pic
@@ -417,6 +459,7 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
             "_immutableObjectStorageBlobsToDelete",
             ic_platform::candid::contract::encode_args(()).expect("empty args"),
         )
+        .await
         .expect_err("revoked gateway");
     assert_eq!(
         crate::canister_rejection(&denied).reject_code,
@@ -424,19 +467,20 @@ fn upload_interruption_replay_release_and_delayed_callbacks_share_one_accounting
     );
 }
 
-#[test]
-fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
+    let f = Fixture::new().await;
     let a = upload(1, &[31; 100]);
     for caller in [f.operator, f.gateway, Principal::anonymous()] {
         assert_eq!(
-            f.reserve(caller, a, &[31; 100]),
+            f.reserve(caller, a, &[31; 100]).await,
             Err(JourneyFailure::Denied)
         );
-        assert_eq!(f.usage(caller), Err(JourneyFailure::Denied));
+        assert_eq!(f.usage(caller).await, Err(JourneyFailure::Denied));
     }
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { id: 0, ..a }, &[31; 100]),
+        f.reserve(f.first, JourneyUpload { id: 0, ..a }, &[31; 100])
+            .await,
         Err(JourneyFailure::InvalidInput)
     );
     let denied = f
@@ -449,24 +493,25 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
             blob_test_protocol::fixture_wire::encode_one("run_deletion", vec![root(a.root)])
                 .expect("callback roots"),
         )
+        .await
         .expect_err("tenant cannot command the gateway fixture");
     assert_eq!(
         crate::canister_rejection(&denied).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.reserve(f.first, a, &[31; 100]), Ok(()));
+    assert_eq!(f.reserve(f.first, a, &[31; 100]).await, Ok(()));
     assert_eq!(
-        f.reserve(f.second, upload(1, &[32; 100]), &[32; 100]),
+        f.reserve(f.second, upload(1, &[32; 100]), &[32; 100]).await,
         Ok(())
     );
-    assert_eq!(f.control(f.first, "journey_cancel", a), Ok(()));
-    assert_eq!(f.control(f.first, "journey_cancel", a), Ok(()));
+    assert_eq!(f.control(f.first, "journey_cancel", a).await, Ok(()));
+    assert_eq!(f.control(f.first, "journey_cancel", a).await, Ok(()));
     assert_eq!(
-        f.certificate(f.first, a.root),
+        f.certificate(f.first, a.root).await,
         Err(RejectCode::CanisterError)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(0, 0, 0)));
-    assert_eq!(f.usage(f.second), Ok(usage(100, 100, 100)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(0, 0, 0)));
+    assert_eq!(f.usage(f.second).await, Ok(usage(100, 100, 100)));
     for caller in [f.first, f.second, f.operator, Principal::anonymous()] {
         let rejected = f
             .harness
@@ -478,6 +523,7 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                 ic_platform::candid::contract::encode_one(Vec::<Vec<u8>>::new())
                     .expect("empty batch"),
             )
+            .await
             .expect_err("gateway-only even for empty batch");
         assert_eq!(
             crate::canister_rejection(&rejected).reject_code,
@@ -494,6 +540,7 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                 "_immutableObjectStorageBlobsAreLive",
                 ic_platform::candid::contract::encode_one(batch).expect("invalid batch"),
             )
+            .await
             .expect_err("bounded valid binary roots required");
         assert_eq!(
             crate::canister_rejection(&rejected).reject_code,
@@ -508,16 +555,17 @@ fn cancellation_and_rejected_authority_preserve_bounds_and_other_tenants() {
                 ..a
             },
             &[31; 100]
-        ),
+        )
+        .await,
         Err(JourneyFailure::InvalidInput)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(0, 0, 0)));
-    assert_eq!(f.usage(f.second), Ok(usage(100, 100, 100)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(0, 0, 0)));
+    assert_eq!(f.usage(f.second).await, Ok(usage(100, 100, 100)));
 }
 
-#[test]
-fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("abc-text", 1);
     let a = v.upload;
     // Cross-check the test declaration against the retained independent JS vector.
@@ -533,73 +581,83 @@ fn content_verification_binds_authority_to_exact_bytes_and_tenant() {
         .expect("abc vector");
     assert_eq!(root_text(a.root), vector["provider_root"]);
     assert_eq!(root_text(a.digest), vector["raw_digest"]);
-    assert_eq!(f.reserve_manifest(f.first, a, v.manifest.clone()), Ok(()));
     assert_eq!(
-        f.certificate(f.first, a.root),
+        f.reserve_manifest(f.first, a, v.manifest.clone()).await,
+        Ok(())
+    );
+    assert_eq!(
+        f.certificate(f.first, a.root).await,
         Err(RejectCode::CanisterError)
     );
     for caller in [f.second, f.gateway, f.operator, Principal::anonymous()] {
-        assert_eq!(f.append(caller, a, 0, b"abc"), Err(JourneyFailure::Denied));
+        assert_eq!(
+            f.append(caller, a, 0, b"abc").await,
+            Err(JourneyFailure::Denied)
+        );
     }
     for invalid in [b"".as_slice(), b"ab", b"abcd", b"abd", &[1; 401]] {
         assert_eq!(
-            f.append(f.first, a, 0, invalid),
+            f.append(f.first, a, 0, invalid).await,
             Err(JourneyFailure::ContentMismatch)
         );
         assert_eq!(
-            f.certificate(f.first, a.root),
+            f.certificate(f.first, a.root).await,
             Err(RejectCode::CanisterError)
         );
-        assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
+        assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 3)));
     }
-    assert_eq!(f.append(f.first, a, 0, b"abc"), Ok(()));
-    assert_eq!(f.append(f.first, a, 0, b"abc"), Ok(()));
-    assert_eq!(f.reserve_manifest(f.first, a, v.manifest.clone()), Ok(()));
+    assert_eq!(f.append(f.first, a, 0, b"abc").await, Ok(()));
+    assert_eq!(f.append(f.first, a, 0, b"abc").await, Ok(()));
+    assert_eq!(
+        f.reserve_manifest(f.first, a, v.manifest.clone()).await,
+        Ok(())
+    );
     // Rejected bytes cannot replace a successful immutable verification fact.
     assert_eq!(
-        f.append(f.first, a, 0, b"abd"),
+        f.append(f.first, a, 0, b"abd").await,
         Err(JourneyFailure::ContentMismatch)
     );
     assert_eq!(
-        f.root_control(f.first, "journey_release", a.root),
+        f.root_control(f.first, "journey_release", a.root).await,
         Err(JourneyFailure::InvalidPhase)
     );
     f.certificate(f.first, a.root)
+        .await
         .expect("verified certificate");
     assert_eq!(
-        f.append(f.first, a, 0, b"abc"),
+        f.append(f.first, a, 0, b"abc").await,
         Err(JourneyFailure::InvalidPhase)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
-    assert_eq!(f.usage(f.second), Ok(usage(0, 0, 0)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 3)));
+    assert_eq!(f.usage(f.second).await, Ok(usage(0, 0, 0)));
 }
 
-#[test]
-fn mismatched_raw_digest_cannot_issue_authority_or_rebind_the_reservation() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread")]
+async fn mismatched_raw_digest_cannot_issue_authority_or_rebind_the_reservation() {
+    let f = Fixture::new().await;
     let correct = upload(1, b"xyz");
     let wrong = JourneyUpload {
         digest: [0; 32],
         ..correct
     };
-    assert_eq!(f.reserve(f.first, wrong, b"xyz"), Ok(()));
+    assert_eq!(f.reserve(f.first, wrong, b"xyz").await, Ok(()));
     assert_eq!(
-        f.append(f.first, wrong, 0, b"xyz"),
+        f.append(f.first, wrong, 0, b"xyz").await,
         Err(JourneyFailure::ContentMismatch)
     );
     assert_eq!(
-        f.certificate(f.first, wrong.root),
+        f.certificate(f.first, wrong.root).await,
         Err(RejectCode::CanisterError)
     );
     assert_eq!(
-        f.reserve(f.first, correct, b"xyz"),
+        f.reserve(f.first, correct, b"xyz").await,
         Err(JourneyFailure::Conflict)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
-    assert_eq!(f.control(f.first, "journey_cancel", wrong), Ok(()));
+    assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 3)));
+    assert_eq!(f.control(f.first, "journey_cancel", wrong).await, Ok(()));
     assert_eq!(
-        f.append(f.first, wrong, 0, b"xyz"),
+        f.append(f.first, wrong, 0, b"xyz").await,
         Err(JourneyFailure::InvalidPhase)
     );
-    assert_eq!(f.usage(f.first), Ok(usage(0, 0, 0)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(0, 0, 0)));
 }

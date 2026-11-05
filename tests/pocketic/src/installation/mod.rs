@@ -23,7 +23,7 @@ pub fn fixture_path(variable: &str) -> PathBuf {
 /// # Panics
 /// Refuses platform creation failure.
 #[must_use]
-pub fn controlled_canister(pic: &PocketIc, controller: Principal) -> Principal {
+pub async fn controlled_canister(pic: &PocketIc, controller: Principal) -> Principal {
     pic.create_canister_with_settings(
         Some(controller),
         Some(CanisterSettings {
@@ -31,13 +31,14 @@ pub fn controlled_canister(pic: &PocketIc, controller: Principal) -> Principal {
             ..Default::default()
         }),
     )
+    .await
     .expect("create controlled fixture")
 }
 
 /// Install selected fixture bytes without choosing authority, arguments or retry policy.
 /// # Panics
 /// Refuses missing artifact bytes or installation failure.
-pub fn install_fixture(
+pub async fn install_fixture(
     pic: &PocketIc,
     canister: Principal,
     artifact: &str,
@@ -50,6 +51,7 @@ pub fn install_fixture(
         arguments,
         caller,
     )
+    .await
     .expect("install fixture");
 }
 
@@ -57,7 +59,7 @@ pub fn install_fixture(
 /// # Panics
 /// Refuses platform creation failure.
 #[must_use]
-pub fn funded_canister(pic: &PocketIc, cycles: u128) -> Principal {
+pub async fn funded_canister(pic: &PocketIc, cycles: u128) -> Principal {
     pic.create_canister_with_params(
         None,
         CreateCanisterParams {
@@ -65,5 +67,6 @@ pub fn funded_canister(pic: &PocketIc, cycles: u128) -> Principal {
             ..Default::default()
         },
     )
+    .await
     .expect("explicit fixture cycle budget")
 }

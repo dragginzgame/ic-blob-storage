@@ -17,6 +17,28 @@ obligation is discarded. Platform 0.22.1, Types 0.18.1, Runtime/macros/guard 0.1
 Host Tools 0.82.0 and Build/Host foundation 0.74.3 remain selected. The lockfile is
 authoritative; this records the reviewed batch without imposing fleet lockstep.
 
+The pending compatible batch selects Storage **0.67.1** in the lockfile, retaining
+the compatible `0.67.0` manifest minimum. Its published production diff contains
+documentation/lint cleanup, const-qualified helpers and an equivalent cached-tree
+read expression; stored layouts, allocation policy and dependency/features stay
+unchanged. Qualification is recorded separately in the current handoff.
+
+The pending Platform/Tooling graph selects **Platform 0.23.0**, Foundation/Build
+**0.74.4** and Host Tools **0.83.0**. Foundation/Build retain their compatible
+minimums; Tools selects its new minor explicitly. Its removed certificate codec
+has no Blob caller: required native certificate CBOR already uses Platform.
+Blob selects only Tools' `ic-interface` capability in native installed tests;
+the published Wasm interface implementation is unchanged from 0.82.1.
+Platform's optional subnet-metrics return change has no Blob caller. Testkit
+**0.87.0** supplies the async-only native client and selects Platform 0.23.
+The old native Platform 0.22 facade is no longer resolved. Runtime-owned async
+tests await direct client, installation, lifecycle and typed call helpers;
+callback configuration is async and journal/chunk observations remain sequential.
+Each private harness owns its isolated server, whose process cleanup also stops
+its instances on panic. There is no blocking compatibility client, private
+per-method runtime, renamed facade or sibling source/path override.
+See the current handoff for qualification and scope.
+
 Testkit's maintained client requires an explicit server URL. Blob's existing
 managed startup owns the server and passes that endpoint to each builder; direct
 client constructors and implicit downloader/startup paths are unnecessary.
@@ -173,9 +195,25 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.30.0** is captured from committed source
-`b37a882314d22bf7ab393b3fe561809377ffd22d` (166 verified files), using its canonical
-revision exporter. Probe packages live under `canisters/tests/`; their manifests
+Shared Tooling **0.30.4** is captured from committed source
+`2aa41c7394300302fe802b69b31b855bdc89b671` (168 verified files), using its canonical
+revision exporter. It includes the undated-draft candidate projection fix
+([Shared #357](https://github.com/dragginzgame/shared-tooling/issues/357)) and
+consumer-owned formatting/LOC scratch defaults
+([Shared #356](https://github.com/dragginzgame/shared-tooling/issues/356)).
+Fresh source/publication admission and lint fallback remain required; adoption
+alone is not evidence of a reused publication stage.
+The existing `platform-boundary-check` also runs the lexical
+[Candid source check](candid-boundary.md) across `crates`, `canisters` and `tests`.
+Its admitted input, `ci/candid-boundary.json`, names 41 exact external Caffeine
+declarations and codec/test helpers; owned application DTOs remain Wire. New,
+stale and ambiguous allowances fail. Ordinary hosted tooling and the existing
+release stage use this same target. Macro expansion, cross-module aliases and
+protocol compatibility still require review; this check is not type resolution.
+The snapshot includes the Bash 3.2 empty-option fix for LOC and bounded
+experimental-evidence guidance. Routine output belongs under `target/evidence`;
+this refresh does not delete protected provider, recovery or release evidence.
+Probe packages live under `canisters/tests/`; their manifests
 and both packaged test-support manifests explicitly declare the `tests` LOC role.
 The native archive verifier alone has a `build_tooling` path classification.
 [Categorized LOC](fleet-tools.md#source-classification) separates library, tests,
@@ -246,7 +284,11 @@ The browser client declares `@tokostudios/ic-platform` as a regular dependency;
 first-party runtime, test and build sources use its explicit ESM subpaths. SDK
 Core remains transitive through Platform and the external Caffeine package.
 The maintained workspace overrides Caffeine's SDK selection to 6.1.1, matching
-Platform 0.1.1. Browser prerequisites enforce that graph and reject direct SDK
+Platform 0.2.0. The published minor supplies typed call-ingress inspection and
+the development-only IC fixture helpers used here. Request IDs, saved envelope
+bytes, application binding/trust checks and the SDK version stay unchanged;
+first-party code no longer imports the generic CBOR codec. Browser prerequisites
+enforce that graph and reject direct SDK
 declarations/imports and aliases through Shared's opt-in SDK boundary checker.
 Blob additionally rejects separate installed Agent identities. External
 Caffeine Candid remains on Platform's `/candid` boundary; application bytes stay
@@ -398,10 +440,21 @@ validation. Blob and probe argument errors remain sanitized so identity/path inp
 are not echoed; generated help documents syntax without dispatching an operation.
 Clap is excluded from canister targets.
 
-Blob has no direct Ciborium dependency or local CBOR implementation. Storage owns the Wire-encoded allocation ledger and collections; neither
-`serde_cbor` nor `half` is in the standalone normal/build Wasm graph. Its codec
-and retained-byte contract remain Storage-owned. Native test `serde_cbor` remains
-for IC transport envelopes and certificates. Provider/management Candid and
+Blob has no direct Rust CBOR dependency or local CBOR implementation. Storage
+owns the Wire-encoded allocation ledger and collections; neither `serde_cbor`
+nor `half` is in the standalone normal/build Wasm graph. Its codec and retained
+bytes remain Storage-owned. Native IC certificate/envelope fixtures now select
+published Platform **0.23.0**'s `ic-protocol` capability in the native dev
+configuration, consuming byte-bounded readers and the untagged certificate
+encoder. No unused generic or development fixture encoder is selected.
+[Platform #143](https://github.com/dragginzgame/ic-platform/issues/143) supplied
+the former missing API. The declaration boundary now forbids direct
+`serde_cbor` and Ciborium in every workspace package, including tests; owned
+application DTOs/private controls stay on Wire. Native transitive CBOR remains
+through Platform/Agent, IC transport types and Testkit. The consumer still owns
+trust roots, signature/request-ID verification, byte limits, original request
+custody and recovery policy; decoding never authorizes submission or retry.
+Provider/management Candid and
 stored records retain their external/persisted contracts. Platform owns the
 supported parser/decoder/runtime APIs. The fixed provider DID is parsed through
 Platform in the deployment-surface test; it is repository input, not an untrusted
@@ -667,11 +720,11 @@ gateway sync races, funding, public metrics and same-release restore/recovery.
 The host retains its one synchronous lifecycle and its own release profile.
 Blob's standalone size measurements do not predict a composed Canic artifact.
 
-Use the [0.52 implementation/evidence record](evidence/simplification0520.md)
+Use the [0.52 implementation/evidence record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/simplification0520.md)
 for the exact cut and measured limits. Previous-release test results establish
 their recorded graph, not acceptance of a regenerated 0.52 adapter.
 
-The [2026-10-16 receipt](evidence/canic-issues0310.md) retains its historical
+The [2026-10-16 receipt](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic-issues0310.md) retains its historical
 source, stale fixture-lock failures and proposed caller repairs. It does not
 establish current integration. The latest read-only source observations and
 inspection limits are recorded in the

@@ -8,7 +8,7 @@ use crate::{
 use serde_json::{Value, json};
 use std::path::Path;
 
-pub(super) fn arguments(
+pub(super) async fn arguments(
     f: &Fixture,
     directory: &Path,
     url: &str,
@@ -18,7 +18,7 @@ pub(super) fn arguments(
     std::fs::write(directory.join("tenant.pem"), PEM).unwrap();
     std::fs::write(
         directory.join("root.der"),
-        f.harness.pic.root_key().unwrap().unwrap(),
+        f.harness.pic.root_key().await.unwrap().unwrap(),
     )
     .unwrap();
     [
@@ -59,7 +59,7 @@ pub(super) fn arguments(
     .map(str::to_owned)
     .to_vec()
 }
-fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
+async fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
     // Here the three setup roles intentionally coincide for scope checks. The
     // browser suite keeps tenant/verifier independent of the uploader/operator.
     let mut f = Fixture::with_profile(
@@ -67,16 +67,18 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
             ic_testkit::pocket_ic::PocketIcBuilder::new()
                 .with_nns_subnet()
                 .with_application_subnet(),
-        ),
+        )
+        .await,
         fake_principal(5),
         crate::account_native_cli::signer(),
         crate::account_native_cli::signer(),
         Envelope::Regular,
         "persistent-session-fixture",
-    );
+    )
+    .await;
     f.tenant = crate::account_native_cli::signer();
-    f.enroll(f.operator).unwrap();
-    freeze_files(&f, directory, &[1024, 2048]);
+    f.enroll(f.operator).await.unwrap();
+    freeze_files(&f, directory, &[1024, 2048]).await;
     for name in ["operator.pem", "uploader.pem"] {
         std::fs::write(directory.join(name), PEM).unwrap();
     }
@@ -94,6 +96,7 @@ fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, String) {
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
     (f, files, url)
@@ -105,13 +108,14 @@ fn phase(session: &mut NativeSession, frame: &Value) -> Value {
     result["report"].clone()
 }
 
-#[test]
-fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_without_upload() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_without_upload()
+ {
     use crate::reference_cli::change_native;
     let directory = Directory::new("session-transfer-");
     let path = directory.path();
-    let (mut f, _, url) = fixture(path);
-    let mut args = arguments(&f, path, &url, "https://127.0.0.1:65530", "original");
+    let (mut f, _, url) = fixture(path).await;
+    let mut args = arguments(&f, path, &url, "https://127.0.0.1:65530", "original").await;
     let binding: Value =
         serde_json::from_slice(&std::fs::read(path.join("batch/file-0000/binding.json")).unwrap())
             .unwrap();
@@ -152,7 +156,7 @@ fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_
     // No browser was launched: the proposed fingerprints above are fixture
     // metadata, not evidence of real browser or provider authority.
     std::fs::create_dir(path.join("profile")).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     args.extend([
         "--source-session".into(),
         path.join("original").display().to_string(),
@@ -178,7 +182,7 @@ fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_
     assert_eq!(record["transfer"], handoff["transfer"]);
     assert_eq!(session.finish(3)["error"], "transport");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     assert_eq!(
@@ -195,10 +199,10 @@ fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_
     assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
     assert!(!path.join("partial").exists());
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }
 
 fn recover_preparation(
@@ -223,18 +227,19 @@ fn recover_preparation(
     assert_eq!(session.finish(0)["code"], "step_budget_exhausted");
 }
 
-#[test]
-fn standalone_publication_session_refuses_retired_verifier_controls_before_effects() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_publication_session_refuses_retired_verifier_controls_before_effects() {
     let directory = Directory::new("session-verifier-authority-");
-    let (mut f, _, url) = fixture(directory.path());
+    let (mut f, _, url) = fixture(directory.path()).await;
     let mut args = arguments(
         &f,
         directory.path(),
         &url,
         "https://127.0.0.1:65530",
         "missing-verifier",
-    );
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    )
+    .await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     session.send(&json!({"phase":"verify","index":0}));
@@ -246,7 +251,7 @@ fn standalone_publication_session_refuses_retired_verifier_controls_before_effec
             .exists()
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     change_native(
@@ -262,23 +267,25 @@ fn standalone_publication_session_refuses_retired_verifier_controls_before_effec
     assert_eq!(session.finish(2)["error"], "arguments");
     assert!(!directory.path().join("wrong-verifier").exists());
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
-fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_before_setup() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_before_setup()
+{
     let directory = Directory::new("session-cached-");
-    let (mut f, files, url) = fixture(directory.path());
+    let (mut f, files, url) = fixture(directory.path()).await;
     let mut args = arguments(
         &f,
         directory.path(),
         &url,
         "https://127.0.0.1:65530",
         "session",
-    );
+    )
+    .await;
     // Multiple signed updates and observations share this total session budget.
     // Allow parallel installed-test load; the separate idle test checks expiry.
     change_native(&mut args, "--timeout-seconds", "120");
@@ -313,7 +320,7 @@ fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_
             .join("admission/signed-request.cbor")
             .exists()
     );
-    confirm(&f, &files[0]);
+    confirm(&f, &files[0]).await;
     assert_eq!(
         phase(&mut session, &json!({"phase":"status","index":0}))["file_live"],
         true
@@ -329,7 +336,7 @@ fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_
         phase(&mut session, &json!({"phase":"prepare","index":1}))["prepared"],
         true
     );
-    confirm(&f, &files[1]);
+    confirm(&f, &files[1]).await;
     assert_eq!(
         phase(&mut session, &json!({"phase":"status","index":1}))["file_live"],
         true
@@ -344,24 +351,25 @@ fn standalone_publication_session_reuses_cached_batch_and_checks_selected_bytes_
     );
     assert_eq!(session.finish(0), map);
     assert!(directory.path().join("session/media-map.json").exists());
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
-fn standalone_publication_session_rejects_changed_selected_body_before_admission_and_preserves_intent()
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_publication_session_rejects_changed_selected_body_before_admission_and_preserves_intent()
  {
     let directory = Directory::new("session-changed-");
-    let (mut f, _, url) = fixture(directory.path());
+    let (mut f, _, url) = fixture(directory.path()).await;
     let args = arguments(
         &f,
         directory.path(),
         &url,
         "https://127.0.0.1:65530",
         "changed",
-    );
+    )
+    .await;
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     std::fs::write(
         directory.path().join("batch/file-0000/body.bin"),
         vec![0; 1024],
@@ -377,23 +385,24 @@ fn standalone_publication_session_rejects_changed_selected_body_before_admission
             .exists()
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
-fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_still_open() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_still_open() {
     let directory = Directory::new("session-bounded-");
-    let (mut f, _, url) = fixture(directory.path());
+    let (mut f, _, url) = fixture(directory.path()).await;
     let mut args = arguments(
         &f,
         directory.path(),
         &url,
         "https://127.0.0.1:65530",
         "budget",
-    );
+    )
+    .await;
     change_native(&mut args, "--max-steps", "1");
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
@@ -413,21 +422,22 @@ fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_still_o
     session.wait_for_deadline();
     assert_eq!(session.finish(3)["error"], "timeout");
     assert!(!directory.path().join("idle/media-map.json").exists());
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
-fn standalone_publication_session_recovers_original_setup_after_control_loss_and_refuses_tampering()
-{
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_publication_session_recovers_original_setup_after_control_loss_and_refuses_tampering()
+ {
     let directory = Directory::new("session-recovery-");
-    let (mut f, _, url) = fixture(directory.path());
+    let (mut f, _, url) = fixture(directory.path()).await;
     let mut args = arguments(
         &f,
         directory.path(),
         &url,
         "https://127.0.0.1:65530",
         "original",
-    );
+    )
+    .await;
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     let prepared = phase(&mut session, &json!({"phase":"prepare","index":0}));
@@ -457,7 +467,7 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
     );
     // Reopen the recovery run itself. Its resolved control record names the
     // original claim directly, with no recursive session-history traversal.
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     recover_preparation(
         &mut args,
         directory.path(),
@@ -466,7 +476,7 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
         original,
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     // A status-only recovery must retain sources that this run never used.
@@ -495,7 +505,7 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
         original,
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     std::fs::write(Path::new(original).join("manifest.wire"), b"DIDL").unwrap();
@@ -506,28 +516,29 @@ fn standalone_publication_session_recovers_original_setup_after_control_loss_and
     );
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     session.send(&json!({"phase":"prepare","index":0}));
     assert_eq!(session.finish(3)["error"], "binding");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     assert!(!directory.path().join("tampered/step-0000/setup").exists());
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
-fn standalone_publication_session_refuses_changed_or_partial_source_before_new_run() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_publication_session_refuses_changed_or_partial_source_before_new_run() {
     let directory = Directory::new("session-source-binding-");
-    let (mut f, _, url) = fixture(directory.path());
+    let (mut f, _, url) = fixture(directory.path()).await;
     let mut args = arguments(
         &f,
         directory.path(),
         &url,
         "https://127.0.0.1:65530",
         "original",
-    );
+    )
+    .await;
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     let prepared = phase(&mut session, &json!({"phase":"prepare","index":0}));
@@ -545,7 +556,7 @@ fn standalone_publication_session_refuses_changed_or_partial_source_before_new_r
         directory.path().join("changed").to_str().unwrap(),
     );
     change_native(&mut args, "--gateway", "https://127.0.0.1:65529");
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
     assert!(!directory.path().join("changed").exists());
     change_native(&mut args, "--gateway", "https://127.0.0.1:65530");
@@ -559,8 +570,8 @@ fn standalone_publication_session_refuses_changed_or_partial_source_before_new_r
     assert!(!directory.path().join("partial").exists());
     assert_eq!(std::fs::read(signed_path).unwrap(), signed);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }

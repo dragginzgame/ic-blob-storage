@@ -873,7 +873,7 @@ the owned local server closes with no provider obligations or external cleanup.
 
 The [intent](local/2026-10-17-icwire0320-01/intent.json),
 [summary](local/2026-10-17-icwire0320-01/summary.json) and
-[receipt](../icwire0320.md) record ten passing candidate-source surface cases,
+[receipt](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/icwire0320.md) record ten passing candidate-source surface cases,
 including nine installed cases for the tenant IC Wire boundary, policy and
 replicated clients. This is a frozen local prepublication snapshot, not published
 0.3 qualification or deployed provider evidence. No paid effects or external
@@ -888,7 +888,7 @@ pending 0.32 CBOR boundary against local PocketIC and substitute peers only.
 The provider-required certificate method remains Candid; no deployed provider
 requests, paid effects or external cleanup were performed. The
 [summary](local/2026-10-17-service0320-01/summary.json) and
-[receipt](../service0320.md) record 36 selected passing surface cases, including
+[receipt](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/service0320.md) record 36 selected passing surface cases, including
 35 installed cases and ten Chromium scenarios within one case, at the settled
 Memory 0.46 / Build 0.12.1 graph. Failed attempts and intermediate graph results
 remain separately retained. Local fixture scopes close; earlier source/live
@@ -903,7 +903,7 @@ pending 0.21.0 to explicit logical/physical/liability headroom and the 92-file
 Shared 0.2.4 source snapshot. All 35 focused cases, strict affected lint and actual
 Rust 1.88 native/Wasm checks pass with 14,407 captured inputs unchanged.
 
-[The follow-up record](../capacity0210.md) owns exact Candid/Rust/JSON behavior,
+[The follow-up record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/capacity0210.md) owns exact Candid/Rust/JSON behavior,
 fixture removal, source phases, original lint/compiler/PATH failures and native
 acceptance limits. Synthetic provider facts only: zero explicit local probe GETs,
 deployed requests or paid effects. Temporary successful fixtures follow existing
@@ -919,7 +919,7 @@ Metrics 0.3.1. Shared remains the reviewed 0.2.2 snapshot. All 242 native-host
 cases, six focused file/process cases, strict affected lint and actual Rust 1.88
 native/Wasm checks pass with 17,750 captured inputs unchanged.
 
-[The adoption record](../libraries0210.md) owns package source identity, explicit
+[The adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/libraries0210.md) owns package source identity, explicit
 CLI setup/pathless offline admission, preserved tool bytes and acceptance limits.
 Four explicit local probe GETs, zero deployed provider/paid effects. Temporary
 successful probe bodies/requests follow existing cleanup; logs and executed bytes
@@ -934,7 +934,7 @@ bind compiled 0.19.3 / pending 0.20.0 to Shared 0.2.2, Host 0.9.1, Testkit 0.26,
 public Memory 0.32 and private Metrics 0.3. All 242 final native cases, strict
 affected lint and Rust 1.88 native/Wasm checks pass with unchanged frozen inputs.
 
-[The coordinated record](../coordinated-hardcut0200.md) separates earlier graphs,
+[The coordinated record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/coordinated-hardcut0200.md) separates earlier graphs,
 concurrent-manifest interruption and final qualification. Four completed native
 runs used 16 explicit local probe GETs; the aborted Wasm-build attempt dispatched
 no tests. Zero deployed provider requests/paid effects, owned local scopes close.
@@ -955,7 +955,7 @@ final-adapter native runs use eight explicit local probe GETs in total, zero
 deployed provider requests or paid effects. Explicit binary overrides remain
 caller-owned; the default uses Testkit's checked bundle.
 
-[The adoption record](../pocketic-handoff0200.md) separates package source review,
+[The adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/pocketic-handoff0200.md) separates package source review,
 local runtime substitutes and owner native CI. Explicit tool setup preserves all
 old bundle receipts and covered bytes; its expected six-tool refusal survives.
 Successful temporary HTTP bodies/requests were not separately archived; source
@@ -976,7 +976,7 @@ Final native-host, strict affected lint and Rust 1.88 native/Wasm checks pass.
 The earlier 0.31.9 run, lint refusal, later missing-cache failure and original
 artifacts remain distinct; an intermediate probe-only intent was not dispatched.
 Eight explicit localhost probe GETs across two native runs, zero deployed provider
-requests or paid effects. [The adoption record](../host0350193.md) owns the full
+requests or paid effects. [The adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host0350193.md) owns the full
 source/graph/artifact limits, including successful temporary body retention and
 outstanding native macOS/full gates. Owned local scopes close; no external cleanup.
 
@@ -995,7 +995,7 @@ pass with exactly 12 local PUTs/11 GETs. The separate signed-IC case qualifies
 service-side cross-user and self-grant refusals. The first preparation-frame
 failure, original source/bundle and missing raw-frame limitation remain separate;
 the producer now projects the declared fields rather than weakening decoding.
-[The maintained record](../multi-user-browser0192.md) retains the graph,
+[The maintained record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/multi-user-browser0192.md) retains the graph,
 commands and limitations. Fixed test identities and the HTTP/2 provider substitute
 do not qualify Toko login/capabilities, Canic integration or deployed provider
 behavior. Owned local scopes close; zero live/paid effects or external cleanup.
@@ -1028,7 +1028,7 @@ live provider requests or deployed paid cycles, no Chromium/native macOS run.
 
 Native-host, seven publication-session and one buffered-output cases pass,
 as do strict affected Clippy and Rust 1.88 native/Wasm checks. The
-[follow-up record](../../evidence/host071-tooling0185.md) retains registry/source
+[follow-up record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host071-tooling0185.md) retains registry/source
 identity proof, frozen CLI/Wasm/harness bytes, separate shared-helper source
 phases, preparation failures and an intentional missing-companion reproduction.
 Owned local scopes dropped; no external cleanup remains. Hosted artifact transport,
@@ -1063,7 +1063,7 @@ Linux loopback substitutes and isolated PocketIC to pre-release compiled 0.17.2
 with Host 0.5.0 direct, Testkit 0.21.3 / transitive Host 0.4.6, Memory 0.31.3
 and private Metrics 0.2.9. Zero live provider requests or deployed paid cycles.
 
-The [additional record](../host050-package0180.md) preserves the missing-method
+The [additional record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host050-package0180.md) preserves the missing-method
 package failure and a real executable stale-artifact regression: old verification
 executes value 1 from an earlier same-version contract; isolated verification
 executes updated value 2. Fresh paired payloads pass 517 cases plus two doctests.
@@ -1084,7 +1084,7 @@ projects and canisters are maintained synthetic fixtures. Live provider requests
 and paid cycles are zero. The extraction preserves wire/hash identities; these
 substitutes cannot establish deployed provider or native macOS behavior.
 Results and retained failed attempts are recorded in the
-[qualification record](../contracts-0180.md) and hash-bound
+[qualification record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/contracts-0180.md) and hash-bound
 [summary](local/2026-10-07-contracts-0180-01/summary.json). The maintained native
 qualification and successive isolated PocketIC runs execute **79** canister cases
 within the recorded budget. The final standalone interface is byte-exact against
@@ -1114,7 +1114,7 @@ fixture paths and fails before creating services; its raw log and failure remain
 The Make-environment retry passes 18 publication cases, followed by ten lifecycle,
 two planning and six read/cleanup cases. Strict Clippy and Rust 1.88 checks pass.
 Owned mock/test resources are dropped; no external cleanup is pending.
-The [full record](../publication-0172.md) keeps source/artifact/raw bindings and
+The [full record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/publication-0172.md) keeps source/artifact/raw bindings and
 the four product issues' downstream/deployed acceptance limits.
 
 An external lock change after those checks selects Testkit 0.21.2. The separate
@@ -3201,7 +3201,7 @@ payment/link/exposure/liability records. Canic integration stays deferred and
 ## Configurable issuance — local implementation, 2026-10-02
 
 The maintainer requests relaxing the 1 KiB cap for Miner integration. The
-[local evidence](../configured-upload.json) records removal of the extra trial
+[local evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/configured-upload.json) records removal of the extra trial
 envelope in favor of installed admission quotas, plus actual PocketIC certificate
 issuance for a 10 MiB object and a second multi-chunk object. Quota, authority,
 replay, rollback and restore checks remain. This is local IC implementation
@@ -5009,7 +5009,7 @@ artifact bytes, successful checks and failed/unlogged attempts.
 source/registry review and Testkit 0.21.3 Linux native/installation/Metrics checks.
 [Intent](local/2026-10-08-host050-0180-03/intent.json),
 [summary](local/2026-10-08-host050-0180-03/summary.json) and
-[additional record](../host050-package0180.md) retain failures and release/artifact
+[additional record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host050-package0180.md) retain failures and release/artifact
 identity limitations separately from prior warm package evidence.
 
 `contracts-0180-01` / 2026-10-07: complete passive client/service contract
@@ -5017,7 +5017,7 @@ extraction, Linux native HTTP substitutes and isolated PocketIC recovery.
 Final wire/hash identities are unchanged; 79 canister cases across retained
 stages, no paid/live effects. See the
 [summary](local/2026-10-07-contracts-0180-01/summary.json) and
-[migration inventory](../contracts-0180-inventory.json).
+[migration inventory](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/contracts-0180-inventory.json).
 
 `publication-0172-01` / 2026-10-07: source review and local HTTP/PocketIC evidence
 for duplicate fresh provider-root refusal, bounded parsed headers and exact

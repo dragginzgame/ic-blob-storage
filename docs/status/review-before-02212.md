@@ -23,7 +23,7 @@ probe mismatch is now repaired in the working tree: totals and private Candid
 observations use `u128`, and retained JSON projects them as decimal strings.
 Workspace checking, the wide codec/report regression and actual PocketIC
 restoration/authority/reset case pass on this graph. See
-[the repair record](../evidence/metrics07102211.md). Full product qualification
+[the repair record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/metrics07102211.md). Full product qualification
 remains separate from those targeted checks.
 
 Pending adoption now records Shared 0.8.0
@@ -34,13 +34,13 @@ and direct release admission remain local. CI/release validation now use the
 canonical declared-input checkpoints at every stage, covering all twelve member
 manifests plus lock, compiler/tool pins, snapshot/Make and browser selectors.
 Nested gates retain their original baseline; drift stops later work without an
-automatic fetch/retry. The prior [common Make/input-guard record](../evidence/shared06502211.md)
-retains its original inputs. The [latest adoption record](../evidence/shared066-host014402211.md)
+automatic fetch/retry. The prior [common Make/input-guard record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared06502211.md)
+retains its original inputs. The [latest adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared066-host014402211.md)
 qualifies the derive formatter and earlier Host patch selection, with raw
 `target/review-validation/shared066-host0144-02211/`.
-The prior [entrypoint adoption](../evidence/shared-entrypoints02211.md) retains
+The prior [entrypoint adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-entrypoints02211.md) retains
 its exact pending 0.7.0 source and manual-retirement evidence. The latest
-[0.8.0 adoption](../evidence/shared08002211.md) replaces that refresh contract:
+[0.8.0 adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared08002211.md) replaces that refresh contract:
 unchanged owned payloads outside the selected closure are retired automatically,
 and `--retire-file` is removed. All 105 existing roots are retained, so this
 refresh removes no files. Repeat preview, actual snapshot/Make/tool checks and
@@ -60,7 +60,7 @@ also adopts the common Make/input guard and retains the earlier Host/Candid
 qualification below. Shared adoption changes no library API or stored schema.
 The batch also fixes the private Metrics probe/report integration; production
 service schemas and public library interfaces are unchanged.
-See [the continuation review](../evidence/canic02211.md) and raw
+See [the continuation review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic02211.md) and raw
 `target/review-validation/canic02211/`. The core/contracts/standalone Rust source
 diff from released Blob 0.22.8 to 0.22.10 is empty; new dependency graphs still
 require their own execution evidence. Cross-release transitions remain

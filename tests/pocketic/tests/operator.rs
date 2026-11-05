@@ -31,18 +31,18 @@ struct Fixture {
 }
 
 impl Fixture {
-    fn new() -> Self {
-        Self::with_source_operator(false)
+    async fn new() -> Self {
+        Self::with_source_operator(false).await
     }
 
-    fn with_source_operator(source_operator: bool) -> Self {
-        let harness = Harness::new();
+    async fn with_source_operator(source_operator: bool) -> Self {
+        let harness = Harness::new().await;
         let pic = &harness.pic;
         let create = || installation::funded_canister(pic, 2_000_000_000_000);
-        let authority = create();
-        let gateway = create();
-        let sender = create();
-        let receiver = create();
+        let authority = create().await;
+        let gateway = create().await;
+        let sender = create().await;
+        let receiver = create().await;
         let driver = fake_principal(11);
         installation::install_fixture(
             pic,
@@ -59,7 +59,8 @@ impl Fixture {
             )
             .unwrap(),
             None,
-        );
+        )
+        .await;
         installation::install_fixture(
             pic,
             gateway,
@@ -70,7 +71,8 @@ impl Fixture {
             )
             .unwrap(),
             None,
-        );
+        )
+        .await;
         let funding = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap();
         for (canister, peer) in [(sender, receiver), (receiver, sender)] {
             pic.install_canister(
@@ -92,6 +94,7 @@ impl Fixture {
                 .unwrap(),
                 None,
             )
+            .await
             .unwrap();
         }
         Self {
@@ -104,13 +107,19 @@ impl Fixture {
         }
     }
 
-    fn journals(&self) -> Vec<Vec<u8>> {
-        [self.authority, self.gateway, self.sender, self.receiver]
-            .into_iter()
-            .map(|id| self.harness.pic.get_stable_memory(id).unwrap())
-            .collect()
+    async fn journals(&self) -> Vec<Vec<u8>> {
+        {
+            let mut values = Vec::new();
+            for id in [self.authority, self.gateway, self.sender, self.receiver] {
+                values.push(self.harness.pic.get_stable_memory(id).await.unwrap());
+            }
+            values
+        }
     }
-    fn status(&self, caller: Principal) -> Option<blob_test_protocol::status::OperatorStatusView> {
+    async fn status(
+        &self,
+        caller: Principal,
+    ) -> Option<blob_test_protocol::status::OperatorStatusView> {
         fixture_calls::query_fixture(
             &self.harness.pic,
             self.authority,
@@ -118,11 +127,12 @@ impl Fixture {
             "operator_status",
             (),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
     }
-    fn funding_status(&self) -> blob_test_protocol::funding::FundingOperatorStatusView {
-        let before = self.journals();
+    async fn funding_status(&self) -> blob_test_protocol::funding::FundingOperatorStatusView {
+        let before = self.journals().await;
         let (reply,): (Option<blob_test_protocol::funding::FundingOperatorStatusView>,) =
             fixture_calls::query_fixture(
                 &self.harness.pic,
@@ -131,18 +141,23 @@ impl Fixture {
                 "operator_status",
                 (),
             )
+            .await
             .unwrap();
-        assert_eq!(self.journals(), before, "inspection preserves all journals");
+        assert_eq!(
+            self.journals().await,
+            before,
+            "inspection preserves all journals"
+        );
         reply.unwrap()
     }
 }
 
-#[test]
-fn status_preserves_journals_unknowns_and_restoration_fences() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn status_preserves_journals_unknowns_and_restoration_fences() {
     use blob_test_protocol::{authority::ArchiveCatalog, status::OperatorBlockerView};
-    let f = Fixture::new();
-    let before = f.journals();
-    let report = f.status(f.driver).unwrap();
+    let f = Fixture::new().await;
+    let before = f.journals().await;
+    let report = f.status(f.driver).await.unwrap();
     assert_eq!(report.service, f.authority);
     assert_eq!(report.namespace, 1);
     assert_eq!(report.provider_balance, None);
@@ -159,27 +174,27 @@ fn status_preserves_journals_unknowns_and_restoration_fences() {
             .iter()
             .any(|c| c.catalog == ArchiveCatalog::Journey && c.physical == 0)
     );
-    assert_eq!(f.status(f.driver).unwrap(), report);
-    assert_eq!(f.status(Principal::anonymous()), None);
-    assert_eq!(f.journals(), before);
-    f.upgrade_fixture(f.authority, false);
-    let frozen = f.journals();
-    let report = f.status(f.driver).unwrap();
+    assert_eq!(f.status(f.driver).await.unwrap(), report);
+    assert_eq!(f.status(Principal::anonymous()).await, None);
+    assert_eq!(f.journals().await, before);
+    f.upgrade_fixture(f.authority, false).await;
+    let frozen = f.journals().await;
+    let report = f.status(f.driver).await.unwrap();
     assert!(report.fenced);
     assert!(
         report
             .blockers
             .contains(&OperatorBlockerView::RecoveryFenced)
     );
-    assert_eq!(f.journals(), frozen);
+    assert_eq!(f.journals().await, frozen);
 }
 
-#[test]
-fn funding_status_preserves_transport_facts_and_provider_failures_after_restore() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn funding_status_preserves_transport_facts_and_provider_failures_after_restore() {
     use blob_test_protocol::funding::FundingProviderErrorView;
     use blob_test_protocol::funding::{FundingOutcome, FundingReconciliationView};
     use blob_test_protocol::status::FundingActivityView;
-    let f = Fixture::new();
+    let f = Fixture::new().await;
     for (index, (reply, expected)) in [
         (FundingReplyMode::Success, FundingOutcome::ReportedSuccess),
         (
@@ -219,9 +234,10 @@ fn funding_status_preserves_transport_facts_and_provider_failures_after_restore(
                     trap_callback: false,
                 },),
             )
+            .await
             .unwrap();
         let observation = result.unwrap();
-        let report = f.funding_status();
+        let report = f.funding_status().await;
         let attempt = report.attempts[index];
         assert_eq!(attempt.id, id);
         assert_eq!(attempt.transport_accepted, Some(400_000_000));
@@ -235,9 +251,9 @@ fn funding_status_preserves_transport_facts_and_provider_failures_after_restore(
         );
         assert_eq!(report.funding_activity, FundingActivityView::Uncertain);
     }
-    let before = f.funding_status();
-    operator_funding_lookup::upgrade(&f);
-    let after = f.funding_status();
+    let before = f.funding_status().await;
+    operator_funding_lookup::upgrade(&f).await;
+    let after = f.funding_status().await;
     assert!(after.fenced);
     assert_eq!(after.attempts, before.attempts);
     assert_eq!(after.budget, before.budget);

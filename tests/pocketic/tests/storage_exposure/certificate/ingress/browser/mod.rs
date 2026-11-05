@@ -3,9 +3,9 @@ mod admission;
 use super::*;
 use crate::browser_driver::{BrowserDriver, BrowserPreparation};
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser"]
-fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation() {
+async fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation() {
     for (id, content, scenario) in [
         (u128::MAX, 1, "success"),
         (u128::MAX - 1, 2, "lost-response"),
@@ -18,8 +18,8 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
         (u128::MAX - 8, 9, "gateway-oversize"),
         (u128::MAX - 9, 10, "gateway-cancel-before-claim"),
     ] {
-        let mut h = Headless::new();
-        admission::install(&mut h.fixture);
+        let mut h = Headless::new().await;
+        admission::install(&mut h.fixture).await;
         let held = scenario == "lost-response";
         let cancelled = held
             || matches!(
@@ -59,16 +59,19 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
             &browser,
             &mut driver,
             scenario == "success",
-        );
+        )
+        .await;
         let grant = serde_json::json!({ "permission": ic_blob_storage_contracts::document::encode(input.permission).unwrap(),
                 "consumer": admission::consumer_commands(&consumer) });
         driver.send(&grant);
         let report = driver.finish();
         assert_eq!(report["outcome"], "passed");
         assert_eq!(report["cancelled"], cancelled);
-        admission::verify_consumer(&h.fixture, &consumer, cancelled, report["consumer"].clone());
+        admission::verify_consumer(&h.fixture, &consumer, cancelled, report["consumer"].clone())
+            .await;
         assert_eq!(
             inspect(&h.fixture, h.fixture.uploader, input)
+                .await
                 .unwrap()
                 .state,
             UploadState::Registered
@@ -76,6 +79,7 @@ fn chromium_certificate_intent_survives_reload_competing_tabs_and_cancellation()
         // The explicit consumer follow-through withdraws; browser cancellation alone does not.
         assert_eq!(
             inspect(&h.fixture, h.fixture.tenant, input)
+                .await
                 .unwrap()
                 .revoked,
             cancelled

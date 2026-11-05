@@ -11,7 +11,7 @@ pub trait ControlCallExt {
         method: &str,
         argument: A,
         max_reply_bytes: usize,
-    ) -> Result<R, ControlCallError>;
+    ) -> impl std::future::Future<Output = Result<R, ControlCallError>>;
     /// Execute one replicated call without retry and decode its bounded reply.
     /// # Errors
     /// Preserves failures without treating an unusable reply as absence of effects.
@@ -22,7 +22,7 @@ pub trait ControlCallExt {
         method: &str,
         argument: A,
         max_reply_bytes: usize,
-    ) -> Result<R, ControlCallError>;
+    ) -> impl std::future::Future<Output = Result<R, ControlCallError>>;
 }
 /// Codec failures and typed platform failures remain distinct.
 #[derive(Debug)]
@@ -35,7 +35,7 @@ pub enum ControlCallError {
     Decoding(ic_blob_storage_contracts::document::Error),
 }
 impl ControlCallExt for ic_testkit::pocket_ic::PocketIc {
-    fn query_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    async fn query_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -47,11 +47,12 @@ impl ControlCallExt for ic_testkit::pocket_ic::PocketIc {
             .map_err(ControlCallError::Encoding)?;
         let reply = self
             .query_call(canister.into(), caller.into(), method, args)
+            .await
             .map_err(ControlCallError::Platform)?;
         ic_blob_storage_contracts::document::decode(&reply, max_reply_bytes)
             .map_err(ControlCallError::Decoding)
     }
-    fn update_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    async fn update_control_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -63,6 +64,7 @@ impl ControlCallExt for ic_testkit::pocket_ic::PocketIc {
             .map_err(ControlCallError::Encoding)?;
         let reply = self
             .update_call(canister.into(), caller.into(), method, args)
+            .await
             .map_err(ControlCallError::Platform)?;
         ic_blob_storage_contracts::document::decode(&reply, max_reply_bytes)
             .map_err(ControlCallError::Decoding)

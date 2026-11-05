@@ -6,7 +6,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_CAPACITY_METHOD;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
-    pub(super) fn capacity(
+    pub(super) async fn capacity(
         &self,
         actor: Principal,
         scope: TenantScope,
@@ -20,18 +20,19 @@ impl Fixture {
                 scope,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
 }
-#[test]
-fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
+    let f = Fixture::new().await;
     let scope = f.scope();
-    assert_eq!(f.capacity(f.tenant, scope), Err(F::NotEnrolled));
-    let enrollment = f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    assert_eq!(f.capacity(f.tenant, scope).await, Err(F::NotEnrolled));
+    let enrollment = f.enroll(f.operator).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.operator, f.controller, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.capacity(actor, scope), Err(F::Denied));
+        assert_eq!(f.capacity(actor, scope).await, Err(F::Denied));
     }
     for scope in [
         TenantScope {
@@ -43,7 +44,7 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
             ..scope
         },
     ] {
-        assert_eq!(f.capacity(f.tenant, scope), Err(F::Binding));
+        assert_eq!(f.capacity(f.tenant, scope).await, Err(F::Binding));
     }
     assert_eq!(
         f.capacity(
@@ -52,10 +53,11 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
                 namespace: 0,
                 ..scope
             }
-        ),
+        )
+        .await,
         Err(F::Invalid)
     );
-    let observed = f.capacity(f.tenant, scope).unwrap();
+    let observed = f.capacity(f.tenant, scope).await.unwrap();
     assert_eq!(observed.scope, scope);
     assert_eq!(observed.enrollment, enrollment.enrollment.unwrap());
     assert_eq!(
@@ -100,6 +102,7 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
             scope,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(replicated, Ok(observed));
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
@@ -107,6 +110,7 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
             .harness
             .pic
             .query_call(f.service, f.tenant, UPLOAD_CAPACITY_METHOD, bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&rejected).reject_code,
@@ -114,21 +118,21 @@ fn standalone_capacity_is_tenant_scoped_and_bounded_without_reserving_quota() {
         );
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
 )]
-fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_history() {
-    let f = Fixture::new();
-    let enrollment = f.enroll(f.operator).unwrap();
+async fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_history() {
+    let f = Fixture::new().await;
+    let enrollment = f.enroll(f.operator).await.unwrap();
     let scope = f.scope();
-    let initial = f.capacity(f.tenant, scope).unwrap();
+    let initial = f.capacity(f.tenant, scope).await.unwrap();
     let permission = f.manifest().permission;
     let other_tenant = f.uploader;
     let other_scope = TenantScope {
@@ -148,6 +152,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     enrolled.unwrap();
     let other_permission = UploadAdmissionRequest {
@@ -169,10 +174,11 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
                 permission,
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         admitted.unwrap();
     }
-    let full = f.capacity(f.tenant, scope).unwrap();
+    let full = f.capacity(f.tenant, scope).await.unwrap();
     assert_eq!(full.remaining_objects, 0);
     assert_eq!(full.remaining_active_uploads, 0);
     assert_eq!(full.remaining_bytes, 0);
@@ -190,6 +196,7 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     suspended.unwrap();
     let revoked: Result<UploadRevocationResponse, UploadAdmissionFailure> = f
@@ -202,9 +209,10 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     revoked.unwrap();
-    let cancelled = f.capacity(f.tenant, scope).unwrap();
+    let cancelled = f.capacity(f.tenant, scope).await.unwrap();
     assert!(!cancelled.enrollment.active);
     assert_eq!(cancelled.remaining_objects, 0);
     assert_eq!(cancelled.remaining_manifest_chunks, 0);
@@ -214,18 +222,19 @@ fn standalone_capacity_tracks_shared_contention_cleanup_and_fenced_suspended_his
         initial.remaining_bytes - u128::from(other_permission.upload.bytes)
     );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let restored = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
-        f.capacity(f.tenant, scope),
+        f.capacity(f.tenant, scope).await,
         Ok(UploadCapacityResponse {
             fenced: true,
             ..cancelled
         })
     );
-    assert!(f.capacity(other_tenant, other_scope).unwrap().fenced);
+    assert!(f.capacity(other_tenant, other_scope).await.unwrap().fenced);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &restored,
     );
 }

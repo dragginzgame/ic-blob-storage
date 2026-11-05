@@ -11,7 +11,11 @@ use ic_blob_storage_contracts::dto::funding::FundingPhase;
 use ic_blob_storage_contracts::dto::operator::OperatorScope as Scope;
 
 impl Fixture {
-    fn funding_history(&self, actor: Principal, input: Input) -> Result<Page, HistoryFailure> {
+    async fn funding_history(
+        &self,
+        actor: Principal,
+        input: Input,
+    ) -> Result<Page, HistoryFailure> {
         self.harness
             .pic
             .query_blob_as(
@@ -21,6 +25,7 @@ impl Fixture {
                 input,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
 }
@@ -45,15 +50,19 @@ fn entry(intent: Intent, phase: Phase) -> Entry {
     }
 }
 
-#[test]
-fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrade() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep original request history and reserved liabilities continuous across a same-release upgrade"
+)]
+async fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrade() {
+    let f = Fixture::new().await;
     let query = Input {
         scope: f.funding_scope(),
         cursor: None,
     };
     assert_eq!(
-        f.funding_history(f.operator, query),
+        f.funding_history(f.operator, query).await,
         Ok(Page {
             request: query,
             fenced: false,
@@ -68,29 +77,37 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
         (u128::MAX - 1, Action::Callback(0), Phase::Callback(0)),
     ] {
         let intent = f.funding_intent(id, 20);
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
-        f.funding(f.operator, intent, Action::Attempt).unwrap();
-        f.funding(f.operator, intent, action).unwrap();
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
+        f.funding(f.operator, intent, Action::Attempt)
+            .await
+            .unwrap();
+        f.funding(f.operator, intent, action).await.unwrap();
         entries.push(entry(intent, phase));
     }
-    let old_page = f.funding_history(f.operator, query).unwrap();
+    let old_page = f.funding_history(f.operator, query).await.unwrap();
     let newest = Intent {
         target_balance: Some(u128::MAX),
         ..f.funding_intent(u128::MAX, 400)
     };
-    f.funding(f.operator, newest, Action::Prepare).unwrap();
-    let prepared = f.funding_history(f.operator, query).unwrap();
+    f.funding(f.operator, newest, Action::Prepare)
+        .await
+        .unwrap();
+    let prepared = f.funding_history(f.operator, query).await.unwrap();
     assert_eq!(prepared.entries[0], entry(newest, Phase::Prepared));
-    f.funding(f.operator, newest, Action::Attempt).unwrap();
+    f.funding(f.operator, newest, Action::Attempt)
+        .await
+        .unwrap();
     entries.push(entry(newest, Phase::Uncertain));
     entries.reverse();
-    let mut first = f.funding_history(f.operator, query).unwrap();
+    let mut first = f.funding_history(f.operator, query).await.unwrap();
     assert_eq!(first.entries, entries[..2]);
     let continuation = Input {
         cursor: first.next,
         ..query
     };
-    let mut second = f.funding_history(f.operator, continuation).unwrap();
+    let mut second = f.funding_history(f.operator, continuation).await.unwrap();
     assert_eq!(second.entries, entries[2..]);
     assert_eq!(second.next, None);
     let old_tail = f
@@ -101,9 +118,10 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
                 ..query
             },
         )
+        .await
         .unwrap();
     assert_eq!(old_tail.entries, vec![entries[3]]);
-    let before = f.funding_allocation();
+    let before = f.funding_allocation().await;
     assert_eq!((before.accepted, before.uncertain), (20, 400));
     f.harness
         .pic
@@ -113,11 +131,18 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
     first.fenced = true;
     second.fenced = true;
-    assert_eq!(f.funding_history(f.operator, query), Ok(first.clone()));
-    assert_eq!(f.funding_history(f.operator, continuation), Ok(second));
+    assert_eq!(
+        f.funding_history(f.operator, query).await,
+        Ok(first.clone())
+    );
+    assert_eq!(
+        f.funding_history(f.operator, continuation).await,
+        Ok(second)
+    );
     // The discovered identity is sufficient for canonical request inspection;
     // it remains insufficient to repeat an effect or release the restore fence.
     let view = first.entries[0];
@@ -130,24 +155,27 @@ fn funding_history_recovers_original_requests_and_reserved_intents_across_upgrad
         offered: view.offered,
         target_balance: view.target_balance,
     };
-    check_recovered_request(&f, recovered);
+    check_recovered_request(&f, recovered).await;
     assert_eq!(
-        f.funding(f.operator, recovered, Action::Attempt),
+        f.funding(f.operator, recovered, Action::Attempt).await,
         Err(Failure::Fenced)
     );
     assert_eq!(
-        f.funding_allocation(),
+        f.funding_allocation().await,
         Allocation {
             fenced: true,
             ..before
         }
     );
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.funding_history(actor, query), Err(HistoryFailure::Denied));
+        assert_eq!(
+            f.funding_history(actor, query).await,
+            Err(HistoryFailure::Denied)
+        );
     }
 }
 
-fn check_recovered_request(f: &Fixture, recovered: Intent) {
+async fn check_recovered_request(f: &Fixture, recovered: Intent) {
     let wire: Result<blob_test_protocol::storage::funding::Request, Failure> = f
         .harness
         .pic
@@ -158,6 +186,7 @@ fn check_recovered_request(f: &Fixture, recovered: Intent) {
             (recovered,),
             REPLY_BYTES,
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
     let expected = ic_blob_storage::ops::caffeine::funding::request::CashierTopUpRequest::new(
@@ -176,16 +205,19 @@ fn check_recovered_request(f: &Fixture, recovered: Intent) {
     assert_eq!(wire.offered, expected.offered().get());
 }
 
-#[test]
-fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empty() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread")]
+async fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empty() {
+    let f = Fixture::new().await;
     let scope = f.funding_scope();
     let query = Input {
         scope,
         cursor: None,
     };
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.funding_history(actor, query), Err(HistoryFailure::Denied));
+        assert_eq!(
+            f.funding_history(actor, query).await,
+            Err(HistoryFailure::Denied)
+        );
     }
     for changed in [
         Scope {
@@ -212,7 +244,8 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
                     scope: changed,
                     ..query
                 }
-            ),
+            )
+            .await,
             Err(HistoryFailure::Binding)
         );
         assert_eq!(
@@ -225,7 +258,8 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
                     }),
                     ..query
                 }
-            ),
+            )
+            .await,
             Err(HistoryFailure::CursorScope)
         );
     }
@@ -246,15 +280,15 @@ fn funding_history_rejects_foreign_scope_and_cursors_even_when_the_range_is_empt
         },
     ] {
         assert_eq!(
-            f.funding_history(f.operator, invalid),
+            f.funding_history(f.operator, invalid).await,
             Err(HistoryFailure::Invalid)
         );
     }
 }
 
-#[test]
-fn funding_history_preserves_reservations_and_excludes_rolled_back_intents() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn funding_history_preserves_reservations_and_excludes_rolled_back_intents() {
+    let f = Fixture::new().await;
     let scope = f.funding_scope();
     let query = Input {
         scope,
@@ -264,13 +298,20 @@ fn funding_history_preserves_reservations_and_excludes_rolled_back_intents() {
         target_balance: Some(100),
         ..f.funding_intent(3, 400)
     };
-    let initial = f.funding_allocation();
-    f.funding_trap(original, Action::Prepare, WriteFault::FundingAccounting);
-    assert_eq!(f.funding_history(f.operator, query).unwrap().entries, []);
-    assert_eq!(f.funding_allocation(), initial);
-    f.funding(f.operator, original, Action::Prepare).unwrap();
-    let before = f.funding_allocation();
-    f.funding_trap(original, Action::Attempt, WriteFault::FundingIntents);
+    let initial = f.funding_allocation().await;
+    f.funding_trap(original, Action::Prepare, WriteFault::FundingAccounting)
+        .await;
+    assert_eq!(
+        f.funding_history(f.operator, query).await.unwrap().entries,
+        []
+    );
+    assert_eq!(f.funding_allocation().await, initial);
+    f.funding(f.operator, original, Action::Prepare)
+        .await
+        .unwrap();
+    let before = f.funding_allocation().await;
+    f.funding_trap(original, Action::Attempt, WriteFault::FundingIntents)
+        .await;
     let empty = f
         .funding_history(
             f.operator,
@@ -282,6 +323,7 @@ fn funding_history_preserves_reservations_and_excludes_rolled_back_intents() {
                 ..query
             },
         )
+        .await
         .unwrap();
     assert_eq!(
         empty,
@@ -299,8 +341,8 @@ fn funding_history_preserves_reservations_and_excludes_rolled_back_intents() {
         }
     );
     assert_eq!(
-        f.funding_history(f.operator, query).unwrap().entries,
+        f.funding_history(f.operator, query).await.unwrap().entries,
         vec![entry(original, Phase::Prepared)]
     );
-    assert_eq!(f.funding_allocation(), before);
+    assert_eq!(f.funding_allocation().await, before);
 }

@@ -11,14 +11,14 @@ use ic_blob_storage_contracts::dto::gateway::GatewayRevocationRequest;
 use ic_blob_storage_contracts::dto::gateway::GatewayRevocationResponse;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_blob_storage_contracts::protocol::GATEWAY_REVOCATION_METHOD;
-#[test]
-fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
+    let f = Fixture::new().await;
     let input = GatewayRevocationRequest {
         scope: f.operator_scope(),
         gateway: fake_principal(9).into(),
     };
-    let call = |actor, input| -> Result<GatewayRevocationResponse, Error> {
+    let call = async |actor, input| -> Result<GatewayRevocationResponse, Error> {
         f.harness
             .pic
             .update_blob_as(
@@ -28,11 +28,12 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
                 input,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     };
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
-        assert_eq!(call(actor, input), Err(Error::Denied));
+        assert_eq!(call(actor, input).await, Err(Error::Denied));
     }
     for scope in [
         OperatorScope {
@@ -53,7 +54,7 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
         },
     ] {
         assert_eq!(
-            call(f.operator, GatewayRevocationRequest { scope, ..input }),
+            call(f.operator, GatewayRevocationRequest { scope, ..input }).await,
             Err(Error::Binding)
         );
     }
@@ -65,43 +66,49 @@ fn standalone_gateway_revocation_checks_scope_caller_and_restore_fence() {
                     gateway: gateway.into(),
                     ..input
                 }
-            ),
+            )
+            .await,
             Err(Error::Invalid)
         );
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    let status = f.local_status(f.operator, input.scope).unwrap();
+    let status = f.local_status(f.operator, input.scope).await.unwrap();
     for _ in 0..2 {
         assert_eq!(
-            call(f.operator, input),
+            call(f.operator, input).await,
             Ok(GatewayRevocationResponse {
                 request: input,
                 removed: false
             })
         );
-        assert_eq!(f.local_status(f.operator, input.scope).unwrap(), status);
+        assert_eq!(
+            f.local_status(f.operator, input.scope).await.unwrap(),
+            status
+        );
     }
     // No member or pending sync exists to remove. The retired read-session
     // generation no longer makes an otherwise unchanged decision write state.
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(call(f.operator, input), Err(Error::Fenced));
+    let restored = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(call(f.operator, input).await, Err(Error::Fenced));
     assert!(
         f.local_status(f.operator, input.scope)
+            .await
             .unwrap()
             .gateways
             .fenced
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &restored,
     );
 }

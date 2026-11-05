@@ -48,8 +48,9 @@ instructions unless the current status explicitly points to them.
 | [Current status](status/current.md) | Released baseline, active work and remaining product gaps |
 | [Implementation history](status/history.md) | Superseded handoffs and their original evidence |
 | [Caffeine probe ledger](evidence/caffeine-probes/README.md) | Local, substitute and deployed provider observations |
-| [Core primitive evidence](evidence/core-primitives.md) | Source-bound implementation and validation history |
-| [Shared tooling adoption](evidence/shared-tooling-adoption.md) | Reviewed tooling source and snapshot identity |
+| [Evidence retention](evidence/README.md) | Current evidence owners, retained studies and retired run archive |
+| [Core primitive evidence](evidence/core-primitives.md) | Compact implementation conclusions and precise historical references |
+| [Shared tooling adoption](evidence/shared-tooling-adoption.md) | Tooling ownership and current snapshot references |
 
 The [forum introduction](forum-introduction.md) is a historical announcement
 from the `0.1.7` period and does not describe the current implementation.

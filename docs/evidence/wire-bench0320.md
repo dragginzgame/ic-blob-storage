@@ -41,7 +41,7 @@ comparison or a size comparison against released Candid.
 
 ## Method and reproducibility
 
-The [machine record](wire-bench0320.json) contains every instruction sample,
+The [machine record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/wire-bench0320.json) contains every instruction sample,
 packet hash/length, compiler/environment, source hashes, selected lock and Wasm
 identities. The [intent](caffeine-probes/local/2026-10-17-wire-bench0320-01/intent.json)
 predates dispatch, and the
@@ -49,8 +49,8 @@ predates dispatch, and the
 predates the final comparison; the
 [summary](caffeine-probes/local/2026-10-17-wire-bench0320-01/summary.json) closes
 the local scope. Raw experimental Rust sources, lockfiles, all 36 request/reply
-packets, commands and build/run logs remain locally under
-`.tmp/review-validation/wire-bench0320/`. The private harness is not a maintained
+packets, commands and build/run logs are not retained here. The historical `.tmp/review-validation/wire-bench0320/`
+path does not establish continuing custody or reproducibility. The private harness is not a maintained
 benchmark target or a production endpoint; no permanent benchmark framework is
 added to Blob.
 
@@ -79,23 +79,23 @@ only the two throwaway harness packages are additional lock entries. Captured
 inputs remain hash-identical through the run. All 180 selected measured calls
 and 180 counter queries complete; every response matches both expected bytes and
 native values. An earlier successful 180-call/180-query control used current DTO
-derives for Candid. It remains separately retained, superseded by exact released
+derives for Candid. It was recorded separately, superseded by exact released
 derives because the new Serde attributes can affect decoding work. Totals across
 both runs are 360 measured calls and 360 counter queries. Each owned server/
 instance drops normally, with no provider objects, balances or external cleanup
 obligations.
 
 The candidate is the same frozen, unpublished IC Wire source described in the
-[adoption receipt](icwire0320.md): observed dirty source at upstream HEAD
+[adoption receipt](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/icwire0320.md): observed dirty source at upstream HEAD
 `226a11fce6d5cdd59a77d9a006c91f5a46c58b42`, still labelled 0.2.2. The maintainer
 selected registry 0.3. These are not results for a published 0.3 artifact.
 
-Preparation failures remain retained: the first lock comparison mishandled
+The historical preparation failures were: the first lock comparison mishandled
 multiple versions, regenerated locks drifted, and the native SHA helper initially
 required an unavailable formatting trait. These were repaired before initial
 dispatch. The exact released DTO control initially omitted its direct Serde
-derive dependency; that compile failure is retained and repaired before its run.
-No failed installed measurement is omitted or relabelled.
+derive dependency; that compile failure was recorded and repaired before its run.
+Failed measurements remain described in the historical record.
 No full CI, release, publication, sibling edit or deployed-provider request ran.
 
 ## Feedback for IC Wire

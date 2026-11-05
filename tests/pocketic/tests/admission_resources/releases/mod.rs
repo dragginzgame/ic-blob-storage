@@ -72,7 +72,7 @@ fn content(f: &Fixture, object: usize, expires_at_ns: u64) -> (Permission, Journ
     )
 }
 
-fn capacity(
+async fn capacity(
     f: &Fixture,
     actor: Principal,
     request: Request,
@@ -95,6 +95,7 @@ fn capacity(
             input,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     result.map(|response| {
         assert_eq!(response.request, input);
@@ -118,7 +119,7 @@ fn reference(request: Request, generation: u128, retain: bool) -> Command {
 
 /// Queue independent objects, keeping each operation a separate IC message.
 /// Await every reply before submitting any dependent phase.
-fn calls(
+async fn calls(
     f: &Fixture,
     actor: Principal,
     commands: impl Iterator<Item = Command>,
@@ -126,21 +127,25 @@ fn calls(
 ) {
     let commands: Vec<_> = commands.collect();
     assert!(!commands.is_empty() && commands.len() <= RESOURCE_SAMPLE_CAPACITY);
-    let messages: Vec<_> = commands
-        .into_iter()
-        .map(|command| {
-            let (method, bytes) = crate::admission_wire::encode(command);
-            (
-                method,
-                f.harness
-                    .pic
-                    .submit_call(f.service, actor, method, bytes)
-                    .unwrap(),
-            )
-        })
-        .collect();
+    let messages: Vec<_> = {
+        let mut values = Vec::new();
+        for command in commands {
+            values.push({
+                let (method, bytes) = crate::admission_wire::encode(command);
+                (
+                    method,
+                    f.harness
+                        .pic
+                        .submit_call(f.service, actor, method, bytes)
+                        .await
+                        .unwrap(),
+                )
+            });
+        }
+        values
+    };
     for (method, message) in messages {
-        let bytes = f.harness.pic.await_call(message).unwrap();
+        let bytes = f.harness.pic.await_call(message).await.unwrap();
         let result: Result<Outcome, Failure> = blob_test_protocol::fixture_wire::decode_one(
             method,
             &bytes,
@@ -153,10 +158,15 @@ fn calls(
 
 /// Inspect every new sample, including sequence continuity and actual caller.
 /// A missing, overwritten or unexpected sample fails rather than reducing coverage.
-fn measurements(f: &Fixture, previous: &mut u64, actors: &[Principal]) -> Vec<ExecutionProfile> {
+async fn measurements(
+    f: &Fixture,
+    previous: &mut u64,
+    actors: &[Principal],
+) -> Vec<ExecutionProfile> {
     assert!(!actors.is_empty() && actors.len() <= RESOURCE_SAMPLE_CAPACITY);
     let profiles: Vec<_> = f
         .resources(f.operator, actors.len())
+        .await
         .unwrap()
         .into_iter()
         .filter(|profile| profile.sequence > *previous)
@@ -178,13 +188,14 @@ fn reference_result(replayed: bool) -> Outcome {
     }
 }
 
-fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission> {
+async fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission> {
     let mut inputs = Vec::new();
-    let mut previous = f.sample(f.operator).sequence;
+    let mut previous = f.sample(f.operator).await.sequence;
     let expires_at_ns = f
         .harness
         .pic
         .get_time()
+        .await
         .unwrap()
         .as_nanos_since_unix_epoch()
         + 3_600_000_000_000;
@@ -206,7 +217,8 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
             f.project,
             group.iter().map(|(input, _)| Command::Admit(*input)),
             Outcome::Admitted,
-        );
+        )
+        .await;
         calls(
             f,
             f.uploader,
@@ -214,7 +226,8 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
                 .iter()
                 .map(|(input, manifest)| Command::Prepare(input.request, manifest.clone())),
             Outcome::Changed(true),
-        );
+        )
+        .await;
         calls(
             f,
             f.uploader,
@@ -222,12 +235,13 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
                 .iter()
                 .map(|(input, _)| Command::Expose(input.request.root)),
             Outcome::Exposed,
-        );
+        )
+        .await;
         let actors: Vec<_> = [f.project, f.uploader, f.uploader]
             .into_iter()
             .flat_map(|actor| std::iter::repeat_n(actor, count))
             .collect();
-        let profiles = measurements(f, &mut previous, &actors);
+        let profiles = measurements(f, &mut previous, &actors).await;
         if milestone {
             let [admit, prepare, register] = profiles.as_slice() else {
                 panic!("single-object milestone");
@@ -243,7 +257,7 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
                 "register_instructions":register.after_work, "register_before_work":register.before_work,
                 "register_before_decode":register.before_decode,
                  "register_after_decode":register.after_decode,
-                "wasm_memory_bytes":f.wasm_bytes(),
+                "wasm_memory_bytes":f.wasm_bytes().await,
             }));
         }
         inputs.extend(group.into_iter().map(|(input, _)| input));
@@ -253,9 +267,10 @@ fn populate(f: &Fixture, samples: &mut Vec<serde_json::Value>) -> Vec<Permission
     inputs
 }
 
-fn overlap(f: &Fixture, inputs: &[Permission], samples: &mut Vec<serde_json::Value>) {
+async fn overlap(f: &Fixture, inputs: &[Permission], samples: &mut Vec<serde_json::Value>) {
     let mut previous = f
         .resources(f.operator, RESOURCE_SAMPLE_CAPACITY)
+        .await
         .unwrap()
         .last()
         .unwrap()
@@ -274,8 +289,9 @@ fn overlap(f: &Fixture, inputs: &[Permission], samples: &mut Vec<serde_json::Val
                     .iter()
                     .map(|input| reference(input.request, generation, true)),
                 reference_result(false),
-            );
-            for retain in measurements(f, &mut previous, &actors) {
+            )
+            .await;
+            for retain in measurements(f, &mut previous, &actors).await {
                 max_retain = max_retain.max(retain.after_work);
                 max_retain_workflow =
                     max_retain_workflow.max(retain.after_work - retain.before_work);
@@ -287,23 +303,25 @@ fn overlap(f: &Fixture, inputs: &[Permission], samples: &mut Vec<serde_json::Val
                     .iter()
                     .map(|input| reference(input.request, generation - 1, false)),
                 reference_result(false),
-            );
-            for release in measurements(f, &mut previous, &actors) {
+            )
+            .await;
+            for release in measurements(f, &mut previous, &actors).await {
                 max_release = max_release.max(release.after_work);
                 max_release_workflow =
                     max_release_workflow.max(release.after_work - release.before_work);
             }
         }
-        samples.push(serde_json::json!({"phase":"overlap", "generation":generation, "max_retain_instructions":max_retain, "max_release_instructions":max_release, "max_retain_workflow_instructions":max_retain_workflow, "max_release_workflow_instructions":max_release_workflow, "wasm_memory_bytes":f.wasm_bytes()}));
+        samples.push(serde_json::json!({"phase":"overlap", "generation":generation, "max_retain_instructions":max_retain, "max_release_instructions":max_release, "max_retain_workflow_instructions":max_retain_workflow, "max_release_workflow_instructions":max_release_workflow, "wasm_memory_bytes":f.wasm_bytes().await}));
         println!(
             "release history: reference generation {generation} retained; previous references released"
         );
     }
 }
 
-fn cleanup(f: &Fixture, inputs: &[Permission]) {
+async fn cleanup(f: &Fixture, inputs: &[Permission]) {
     let mut previous = f
         .resources(f.operator, RESOURCE_SAMPLE_CAPACITY)
+        .await
         .unwrap()
         .last()
         .unwrap()
@@ -324,18 +342,21 @@ fn cleanup(f: &Fixture, inputs: &[Permission]) {
             f.project,
             group.iter().map(final_release),
             reference_result(false),
-        );
-        measurements(f, &mut previous, &vec![f.project; group.len()]);
+        )
+        .await;
+        measurements(f, &mut previous, &vec![f.project; group.len()]).await;
         calls(
             f,
             f.project,
             group.iter().map(final_release),
             reference_result(true),
-        );
-        measurements(f, &mut previous, &vec![f.project; group.len()]);
+        )
+        .await;
+        measurements(f, &mut previous, &vec![f.project; group.len()]).await;
         for input in group {
             assert_eq!(
                 capacity(f, f.project, input.request)
+                    .await
                     .unwrap()
                     .unwrap()
                     .release_reserved_receipts,
@@ -344,7 +365,7 @@ fn cleanup(f: &Fixture, inputs: &[Permission]) {
         }
     }
     let first = inputs[0];
-    let usage = f.observe(first).usage.unwrap();
+    let usage = f.observe(first).await.usage.unwrap();
     assert_eq!(
         (usage.logical, usage.physical, usage.liability),
         (0, DECLARED_BYTES, DECLARED_BYTES)
@@ -357,10 +378,11 @@ fn cleanup(f: &Fixture, inputs: &[Permission]) {
                 Command::FixtureLifecycle(LifecycleCommand::SubstituteDeletion(input.request))
             }),
             Outcome::Changed(true),
-        );
-        measurements(f, &mut previous, &vec![f.operator; group.len()]);
+        )
+        .await;
+        measurements(f, &mut previous, &vec![f.operator; group.len()]).await;
     }
-    let usage = f.observe(first).usage.unwrap();
+    let usage = f.observe(first).await.usage.unwrap();
     assert_eq!(
         (usage.logical, usage.physical, usage.liability),
         (0, 0, DECLARED_BYTES)
@@ -373,42 +395,44 @@ fn cleanup(f: &Fixture, inputs: &[Permission]) {
                 Command::FixtureLifecycle(LifecycleCommand::SubstituteSettlement(input.request))
             }),
             Outcome::Changed(true),
-        );
-        measurements(f, &mut previous, &vec![f.operator; group.len()]);
+        )
+        .await;
+        measurements(f, &mut previous, &vec![f.operator; group.len()]).await;
     }
-    let usage = f.observe(first).usage.unwrap();
+    let usage = f.observe(first).await.usage.unwrap();
     assert_eq!((usage.logical, usage.physical, usage.liability), (0, 0, 0));
 }
 
-#[test]
-fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
-    let f = Fixture::with_workload(Workload::ReleaseHistory);
-    f.enroll();
-    let initial_heap = f.wasm_bytes();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
+    let f = Fixture::with_workload(Workload::ReleaseHistory).await;
+    f.enroll().await;
+    let initial_heap = f.wasm_bytes().await;
     let mut samples = Vec::new();
-    let inputs = populate(&f, &mut samples);
+    let inputs = populate(&f, &mut samples).await;
     let first = inputs[0];
     for actor in [f.operator, f.uploader, f.controller, f.other] {
         assert_eq!(
-            capacity(&f, actor, first.request),
+            capacity(&f, actor, first.request).await,
             Err(ReferenceCapacityFailure::Denied)
         );
     }
     assert_eq!(
         capacity(&f, f.project, first.request)
+            .await
             .unwrap()
             .unwrap()
             .fresh_retains,
         3
     );
-    let original = f.observe(first);
+    let original = f.observe(first).await;
     assert_eq!(original.usage.unwrap().physical, DECLARED_BYTES);
-    overlap(&f, &inputs, &mut samples);
-    f.restart();
-    assert_eq!(f.observe(first), original);
+    overlap(&f, &inputs, &mut samples).await;
+    f.restart().await;
+    assert_eq!(f.observe(first).await, original);
     for input in &inputs {
         assert_eq!(
-            capacity(&f, f.project, input.request),
+            capacity(&f, f.project, input.request).await,
             Ok(Some(ReferenceHeadroom {
                 reference_slots: 0,
                 unreserved_receipts: 0,
@@ -418,28 +442,28 @@ fn resource_multifile_release_history_preserves_cleanup_at_capacity() {
         );
     }
     assert_eq!(
-        f.call(f.project, reference(first.request, 4, true)),
+        f.call(f.project, reference(first.request, 4, true)).await,
         Ok(reference_result(true))
     );
     assert_eq!(
-        f.call(f.project, reference(first.request, 5, true)),
+        f.call(f.project, reference(first.request, 5, true)).await,
         Err(Failure::Capacity)
     );
     let (extra, _) = content(&f, OBJECTS, first.expires_at_ns);
     assert_eq!(
-        f.call(f.project, Command::Admit(extra)),
+        f.call(f.project, Command::Admit(extra)).await,
         Err(Failure::TenantManifestCapacity)
     );
-    cleanup(&f, &inputs);
+    cleanup(&f, &inputs).await;
     assert_eq!(
-        f.call(f.project, Command::Admit(extra)),
+        f.call(f.project, Command::Admit(extra)).await,
         Err(Failure::TenantManifestCapacity)
     );
     assert_eq!(
-        f.call(f.project, Command::Admit(first)),
+        f.call(f.project, Command::Admit(first)).await,
         Ok(Outcome::Existing(Phase::Registered))
     );
-    let final_heap = f.wasm_bytes();
+    let final_heap = f.wasm_bytes().await;
     assert!(final_heap <= initial_heap + 16 * CHUNK as u64);
     let report = serde_json::json!({
         "scope":"Local durable owner; synthetic 640 x 256 KiB and 64 x 2 MiB files, 768 retained leaves, four reference generations. Operator-only completion/deletion/billing facts are substitutes, not Caffeine evidence. No file bytes enter the canister. Instructions exclude diagnostic writes/reply encoding; memory is allocated Wasm pages. Stable bookkeeping is included; no upgrade/restore or read sessions.",

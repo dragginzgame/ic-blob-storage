@@ -5,6 +5,52 @@ fn cli() -> clap::Command {
 }
 
 #[test]
+fn finite_choices_are_advertised_and_reject_other_spellings() {
+    use clap::builder::ValueParser;
+    for (parser, values) in [
+        (
+            ValueParser::new(account_kind()),
+            &["balance", "relationship"][..],
+        ),
+        (
+            ValueParser::new(history_filter()),
+            &["all", "active", "deletion-pending", "outstanding"][..],
+        ),
+        (
+            ValueParser::new(reference_action()),
+            &["retain", "release"][..],
+        ),
+    ] {
+        let mut command = clap::Command::new("choices")
+            .arg(clap::Arg::new("value").required(true).value_parser(parser));
+        let help = command.render_long_help().to_string();
+        for value in values {
+            assert!(help.contains(value), "{help}");
+            assert!(
+                command
+                    .clone()
+                    .try_get_matches_from(["choices", value])
+                    .is_ok()
+            );
+            assert!(
+                command
+                    .clone()
+                    .try_get_matches_from(["choices", &value.to_uppercase()])
+                    .is_err()
+            );
+        }
+        for invalid in ["", "unknown", " active"] {
+            assert!(
+                command
+                    .clone()
+                    .try_get_matches_from(["choices", invalid])
+                    .is_err()
+            );
+        }
+    }
+}
+
+#[test]
 fn grammar_requires_complete_unique_scoped_flags_and_supports_help() {
     cli().debug_assert();
     let valid = [

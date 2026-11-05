@@ -50,7 +50,7 @@ impl Fixture {
         )
         .unwrap()
     }
-    fn relationship_response(&self, bytes: Vec<u8>, hold: bool, reject: bool) {
+    async fn relationship_response(&self, bytes: Vec<u8>, hold: bool, reject: bool) {
         // The existing bounded raw-response slot is shared by the local experiments.
         let configured: bool = fixture_calls::update_fixture(
             &self.harness.pic,
@@ -64,15 +64,16 @@ impl Fixture {
                 reject,
             },),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
         assert!(configured);
     }
-    fn inspect_relationship(
+    async fn inspect_relationship(
         &self,
         request: &CashierQueryRequest,
     ) -> Result<PaymentRelationshipReply, BoundRelationshipReplyError> {
-        let before = self.journals();
+        let before = self.journals().await;
         let bytes = self
             .harness
             .pic
@@ -82,23 +83,26 @@ impl Fixture {
                 request.method_name(),
                 request.arguments().to_vec(),
             )
+            .await
             .unwrap();
         let result = request.decode_relationship_reply(request.cashier(), &bytes, limits());
         assert!(
-            self.journals() == before,
+            self.journals().await == before,
             "inspection preserves all journals"
         );
         result
     }
 }
 
-#[test]
-fn relationship_query_preserves_exact_fields_absence_and_provider_failures_without_mutation() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn relationship_query_preserves_exact_fields_absence_and_provider_failures_without_mutation()
+{
+    let f = Fixture::new().await;
     let request = f.relationship_request(owner(), payer());
-    f.relationship_response(bytes("wide-signed"), false, false);
+    f.relationship_response(bytes("wide-signed"), false, false)
+        .await;
     let PaymentRelationshipReply::ReportedRelationship(report) =
-        f.inspect_relationship(&request).unwrap()
+        f.inspect_relationship(&request).await.unwrap()
     else {
         panic!("report expected")
     };
@@ -147,8 +151,8 @@ fn relationship_query_preserves_exact_fields_absence_and_provider_failures_witho
             ),
         ),
     ] {
-        f.relationship_response(bytes(name), false, false);
-        assert_eq!(f.inspect_relationship(&request), Ok(expected));
+        f.relationship_response(bytes(name), false, false).await;
+        assert_eq!(f.inspect_relationship(&request).await, Ok(expected));
     }
     assert_eq!(
         request.query(),
@@ -159,14 +163,14 @@ fn relationship_query_preserves_exact_fields_absence_and_provider_failures_witho
     );
 }
 
-#[test]
-fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
+    let f = Fixture::new().await;
     let request = f.relationship_request(owner(), payer());
-    f.relationship_response(bytes("linked"), false, false);
+    f.relationship_response(bytes("linked"), false, false).await;
     let wrong_payer = f.relationship_request(owner(), owner());
     assert_eq!(
-        f.inspect_relationship(&wrong_payer),
+        f.inspect_relationship(&wrong_payer).await,
         Err(BoundRelationshipReplyError::Reply(
             PaymentRelationshipReplyError::PaymentAccountMismatch
         ))
@@ -185,11 +189,13 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
             reject: false,
         },),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap();
     assert!(configured);
     assert_eq!(
-        f.inspect_relationship(&f.relationship_request(payer(), payer())),
+        f.inspect_relationship(&f.relationship_request(payer(), payer()))
+            .await,
         Err(BoundRelationshipReplyError::Reply(
             PaymentRelationshipReplyError::PaidCanisterMismatch
         ))
@@ -198,20 +204,20 @@ fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
         (vec![], PaymentRelationshipReplyError::InvalidReply),
         (vec![0; 4097], PaymentRelationshipReplyError::ReplyTooLarge),
     ] {
-        f.relationship_response(bytes, false, false);
+        f.relationship_response(bytes, false, false).await;
         assert_eq!(
-            f.inspect_relationship(&request),
+            f.inspect_relationship(&request).await,
             Err(BoundRelationshipReplyError::Reply(error))
         );
     }
 }
 
-#[test]
-fn query_cannot_bypass_driver_owner_or_source_hold_controls() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn query_cannot_bypass_driver_owner_or_source_hold_controls() {
+    let f = Fixture::new().await;
     let request = f.relationship_request(owner(), payer());
-    f.relationship_response(bytes("linked"), false, false);
-    let before = f.journals();
+    f.relationship_response(bytes("linked"), false, false).await;
+    let before = f.journals().await;
     for caller in [Principal::anonymous(), f.authority, fake_principal(99)] {
         assert!(
             f.harness
@@ -222,6 +228,7 @@ fn query_cannot_bypass_driver_owner_or_source_hold_controls() {
                     request.method_name(),
                     request.arguments().to_vec()
                 )
+                .await
                 .is_err()
         );
     }
@@ -235,12 +242,13 @@ fn query_cannot_bypass_driver_owner_or_source_hold_controls() {
                 wrong_owner.method_name(),
                 wrong_owner.arguments().to_vec()
             )
+            .await
             .is_err()
     );
-    assert_eq!(f.journals(), before);
+    assert_eq!(f.journals().await, before);
     for (hold, reject) in [(true, false), (false, true)] {
-        f.relationship_response(bytes("linked"), hold, reject);
-        let before = f.journals();
+        f.relationship_response(bytes("linked"), hold, reject).await;
+        let before = f.journals().await;
         assert!(
             f.harness
                 .pic
@@ -250,31 +258,33 @@ fn query_cannot_bypass_driver_owner_or_source_hold_controls() {
                     request.method_name(),
                     request.arguments().to_vec()
                 )
+                .await
                 .is_err()
         );
-        assert_eq!(f.journals(), before);
+        assert_eq!(f.journals().await, before);
     }
 }
 
-#[test]
-fn old_stable_bytes_do_not_replace_live_inspection_and_restoration_fences_queries() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn old_stable_bytes_do_not_replace_live_inspection_and_restoration_fences_queries() {
+    let f = Fixture::new().await;
     let request = f.relationship_request(owner(), payer());
-    f.relationship_response(bytes("linked"), false, false);
-    let old = f.harness.pic.get_stable_memory(f.gateway).unwrap();
-    f.relationship_response(bytes("denied"), false, false);
+    f.relationship_response(bytes("linked"), false, false).await;
+    let old = f.harness.pic.get_stable_memory(f.gateway).await.unwrap();
+    f.relationship_response(bytes("denied"), false, false).await;
     f.harness
         .pic
         .set_stable_memory(f.gateway, old, BlobCompression::NoCompression)
+        .await
         .unwrap();
     assert_eq!(
-        f.inspect_relationship(&request),
+        f.inspect_relationship(&request).await,
         Ok(PaymentRelationshipReply::ProviderFailure(
             PaymentRelationshipProviderError::NotAuthorized(payer().into())
         ))
     );
-    f.upgrade_fixture(f.gateway, true);
-    let before = f.journals();
+    f.upgrade_fixture(f.gateway, true).await;
+    let before = f.journals().await;
     assert!(
         f.harness
             .pic
@@ -284,7 +294,8 @@ fn old_stable_bytes_do_not_replace_live_inspection_and_restoration_fences_querie
                 request.method_name(),
                 request.arguments().to_vec()
             )
+            .await
             .is_err()
     );
-    assert_eq!(f.journals(), before);
+    assert_eq!(f.journals().await, before);
 }

@@ -16,7 +16,7 @@ fn request(intent: Intent) -> DispatchInput {
     }
 }
 impl Fixture {
-    fn guarded_dispatch(
+    async fn guarded_dispatch(
         &self,
         actor: Principal,
         input: DispatchInput,
@@ -33,6 +33,7 @@ impl Fixture {
                 "fixture_guarded_funding_dispatch",
                 request,
             )
+            .await
             .unwrap();
         credit::retain_packet("dispatch-reply", &reply);
         ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
@@ -55,20 +56,27 @@ fn refused(value: Result<DispatchResult, Failure>) -> (Vec<B>, bool) {
     };
     (blockers, holds_unknown)
 }
-#[test]
-fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_sending() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One dispatch journey independently checks every required hold and actor before any effect"
+)]
+async fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_sending() {
+    let f = Fixture::with_cashier().await;
     let intent = f.funding_intent(1, 900);
-    f.configure_cashier(intent, 400, FundingReplyMode::Malformed);
+    f.configure_cashier(intent, 400, FundingReplyMode::Malformed)
+        .await;
     assert_eq!(
-        f.guarded_dispatch(f.operator, request(intent)),
+        f.guarded_dispatch(f.operator, request(intent)).await,
         Err(Failure::Unknown)
     );
-    f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.funding(f.operator, intent, Action::Prepare)
+        .await
+        .unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
-            f.guarded_dispatch(actor, request(intent)),
+            f.guarded_dispatch(actor, request(intent)).await,
             Err(Failure::Denied)
         );
     }
@@ -79,7 +87,8 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
                 offered: 899,
                 ..intent
             })
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
     assert_eq!(
@@ -89,16 +98,20 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
                 cashier: f.other.into(),
                 ..intent
             })
-        ),
+        )
+        .await,
         Err(Failure::Binding)
     );
-    let (unknown, holds_unknown) = refused(f.guarded_dispatch(
-        f.operator,
-        DispatchInput {
-            evidence: EvidenceScenario::Unknown,
-            ..request(intent)
-        },
-    ));
+    let (unknown, holds_unknown) = refused(
+        f.guarded_dispatch(
+            f.operator,
+            DispatchInput {
+                evidence: EvidenceScenario::Unknown,
+                ..request(intent)
+            },
+        )
+        .await,
+    );
     assert!(holds_unknown);
     for blocker in [
         B::ProviderUnqualified,
@@ -108,81 +121,97 @@ fn guarded_dispatch_requires_complete_holds_and_authority_before_marking_or_send
     ] {
         assert!(unknown.contains(&blocker));
     }
-    let (otherwise_ready, holds_unknown) = refused(f.guarded_dispatch(
-        f.operator,
-        DispatchInput {
-            evidence: EvidenceScenario::MissingHolds,
-            ..request(intent)
-        },
-    ));
+    let (otherwise_ready, holds_unknown) = refused(
+        f.guarded_dispatch(
+            f.operator,
+            DispatchInput {
+                evidence: EvidenceScenario::MissingHolds,
+                ..request(intent)
+            },
+        )
+        .await,
+    );
     assert_eq!(otherwise_ready, []);
     assert!(holds_unknown);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    assert_eq!(f.incoming(), []);
-    let result = settled(f.guarded_dispatch(f.operator, request(intent)));
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    assert_eq!(f.incoming().await, []);
+    let result = settled(f.guarded_dispatch(f.operator, request(intent)).await);
     assert_eq!(
         (result.accepted, result.refunded, result.outcome),
         (400, Some(500), FundingOutcome::InvalidReply)
     );
-    let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+    let retained = f
+        .retained_outcome(f.operator, intent)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(retained.response, Some(FundingResponse::InvalidReply));
     assert_eq!(
         retained.reconciliation,
         FundingReconciliationView::CreditRequired(400)
     );
     assert!(
-        refused(f.guarded_dispatch(f.operator, request(intent)))
+        refused(f.guarded_dispatch(f.operator, request(intent)).await)
             .0
             .contains(&B::AlreadyAttempted)
     );
     let later = f.funding_intent(2, 500);
-    f.funding(f.operator, later, Action::Prepare).unwrap();
+    f.funding(f.operator, later, Action::Prepare).await.unwrap();
     assert!(
-        refused(f.guarded_dispatch(f.operator, request(later)))
+        refused(f.guarded_dispatch(f.operator, request(later)).await)
             .0
             .contains(&B::JournalUncredited)
     );
-    assert_eq!(f.incoming().len(), 1);
-    f.upgrade_storage();
+    assert_eq!(f.incoming().await.len(), 1);
+    f.upgrade_storage().await;
     assert!(
-        refused(f.guarded_dispatch(f.operator, request(later)))
+        refused(f.guarded_dispatch(f.operator, request(later)).await)
             .0
             .contains(&B::JournalFenced)
     );
     assert_eq!(
-        f.retained_outcome(f.operator, intent),
+        f.retained_outcome(f.operator, intent).await,
         Ok(Some(FundingOutcomeResponse {
             fenced: true,
             ..retained
         }))
     );
 }
-#[test]
-fn guarded_dispatch_settles_unsent_liquidity_refusal_and_allows_a_distinct_intent() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn guarded_dispatch_settles_unsent_liquidity_refusal_and_allows_a_distinct_intent() {
+    let f = Fixture::with_cashier().await;
     let intent = f.funding_intent(1, 900);
-    f.configure_cashier(intent, 900, FundingReplyMode::Success);
-    f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let result = settled(f.guarded_dispatch(
-        f.operator,
-        DispatchInput {
-            other_liabilities: u128::MAX,
-            ..request(intent)
-        },
-    ));
+    f.configure_cashier(intent, 900, FundingReplyMode::Success)
+        .await;
+    f.funding(f.operator, intent, Action::Prepare)
+        .await
+        .unwrap();
+    let result = settled(
+        f.guarded_dispatch(
+            f.operator,
+            DispatchInput {
+                other_liabilities: u128::MAX,
+                ..request(intent)
+            },
+        )
+        .await,
+    );
     assert_eq!(
         (result.accepted, result.refunded, result.outcome),
         (0, None, FundingOutcome::LiquidityBlocked)
     );
     assert!(result.call_cost > 0);
-    assert_eq!(f.incoming(), []);
+    assert_eq!(f.incoming().await, []);
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::NotEnqueued))
     );
-    assert_eq!(f.funding_allocation().not_enqueued, 900);
+    assert_eq!(f.funding_allocation().await.not_enqueued, 900);
     assert!(
-        refused(f.guarded_dispatch(f.operator, request(intent)))
+        refused(f.guarded_dispatch(f.operator, request(intent)).await)
             .0
             .contains(&B::AlreadyAttempted)
     );
@@ -190,31 +219,38 @@ fn guarded_dispatch_settles_unsent_liquidity_refusal_and_allows_a_distinct_inten
         target_balance: Some(u128::MAX),
         ..f.funding_intent(2, 900)
     };
-    f.configure_cashier(second, 0, FundingReplyMode::Success);
-    f.funding(f.operator, second, Action::Prepare).unwrap();
-    let returned = settled(f.guarded_dispatch(f.operator, request(second)));
+    f.configure_cashier(second, 0, FundingReplyMode::Success)
+        .await;
+    f.funding(f.operator, second, Action::Prepare)
+        .await
+        .unwrap();
+    let returned = settled(f.guarded_dispatch(f.operator, request(second)).await);
     assert_eq!((returned.accepted, returned.refunded), (0, Some(900)));
-    assert_eq!(f.funding_allocation().available, 1000);
+    assert_eq!(f.funding_allocation().await.available, 1000);
     let third = f.funding_intent(3, 900);
-    f.configure_cashier(third, 900, FundingReplyMode::Success);
-    f.funding(f.operator, third, Action::Prepare).unwrap();
+    f.configure_cashier(third, 900, FundingReplyMode::Success)
+        .await;
+    f.funding(f.operator, third, Action::Prepare).await.unwrap();
     assert_eq!(
-        settled(f.guarded_dispatch(f.operator, request(third))).accepted,
+        settled(f.guarded_dispatch(f.operator, request(third)).await).accepted,
         900
     );
     assert_eq!(
-        f.incoming().iter().map(|r| r.id).collect::<Vec<_>>(),
+        f.incoming().await.iter().map(|r| r.id).collect::<Vec<_>>(),
         vec![2, 3]
     );
-    assert_eq!(f.funding_allocation().accepted, 900);
+    assert_eq!(f.funding_allocation().await.accepted, 900);
 }
-#[test]
-fn guarded_dispatch_marker_trap_sends_nothing_and_preserves_prepared_state() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn guarded_dispatch_marker_trap_sends_nothing_and_preserves_prepared_state() {
+    let f = Fixture::with_cashier().await;
     let intent = f.funding_intent(1, 900);
-    f.configure_cashier(intent, 400, FundingReplyMode::Success);
-    f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.configure_cashier(intent, 400, FundingReplyMode::Success)
+        .await;
+    f.funding(f.operator, intent, Action::Prepare)
+        .await
+        .unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let error = f
         .harness
         .pic
@@ -228,30 +264,37 @@ fn guarded_dispatch_marker_trap_sends_nothing_and_preserves_prepared_state() {
             })
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    assert_eq!(f.incoming(), []);
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    assert_eq!(f.incoming().await, []);
+    assert_eq!(
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::Prepared))
     );
     assert_eq!(
-        settled(f.guarded_dispatch(f.operator, request(intent))).accepted,
+        settled(f.guarded_dispatch(f.operator, request(intent)).await).accepted,
         400
     );
 }
-#[test]
-fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() {
     for fault in [WriteFault::FundingIntents, WriteFault::FundingAccounting] {
-        let f = Fixture::with_cashier();
+        let f = Fixture::with_cashier().await;
         let intent = f.funding_intent(1, 900);
-        f.configure_cashier(intent, 400, FundingReplyMode::Success);
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
-        let before = f.funding_allocation();
+        f.configure_cashier(intent, 400, FundingReplyMode::Success)
+            .await;
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
+        let before = f.funding_allocation().await;
         let error = f
             .harness
             .pic
@@ -265,21 +308,26 @@ fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() 
                 })
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
             RejectCode::CanisterError
         );
         assert_eq!(
-            f.incoming(),
+            f.incoming().await,
             vec![FundingReceiptRecord {
                 id: 1,
                 available: 900,
                 accepted: 400
             }]
         );
-        assert_eq!(f.funding_allocation(), before);
-        let uncertain = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+        assert_eq!(f.funding_allocation().await, before);
+        let uncertain = f
+            .retained_outcome(f.operator, intent)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(uncertain.phase, FundingPhase::Uncertain);
         assert_eq!(uncertain.response, None);
         assert_eq!(
@@ -287,37 +335,40 @@ fn guarded_dispatch_callback_traps_retain_uncertainty_after_remote_acceptance() 
             FundingReconciliationView::TransferUnknown(900)
         );
         assert!(
-            refused(f.guarded_dispatch(f.operator, request(intent)))
+            refused(f.guarded_dispatch(f.operator, request(intent)).await)
                 .0
                 .contains(&B::AlreadyAttempted)
         );
-        f.upgrade_storage();
+        f.upgrade_storage().await;
         assert!(
-            refused(f.guarded_dispatch(f.operator, request(intent)))
+            refused(f.guarded_dispatch(f.operator, request(intent)).await)
                 .0
                 .contains(&B::JournalFenced)
         );
         assert_eq!(
-            f.retained_outcome(f.operator, intent),
+            f.retained_outcome(f.operator, intent).await,
             Ok(Some(FundingOutcomeResponse {
                 fenced: true,
                 ..uncertain
             }))
         );
-        assert_eq!(f.incoming().len(), 1);
+        assert_eq!(f.incoming().await.len(), 1);
     }
 }
 
-#[test]
-fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservation() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservation() {
+    let f = Fixture::with_cashier().await;
     let intent = Intent {
         target_balance: Some(u128::MAX),
         ..f.funding_intent(1, 900)
     };
-    f.configure_cashier(intent, 400, FundingReplyMode::DelayedSuccess);
-    f.funding(f.operator, intent, Action::Prepare).unwrap();
-    let reserved = f.funding_allocation();
+    f.configure_cashier(intent, 400, FundingReplyMode::DelayedSuccess)
+        .await;
+    f.funding(f.operator, intent, Action::Prepare)
+        .await
+        .unwrap();
+    let reserved = f.funding_allocation().await;
     let call = f
         .harness
         .pic
@@ -328,11 +379,16 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
             ic_blob_storage_pocketic_tests::control_calls::encode_control_one(request(intent))
                 .unwrap(),
         )
+        .await
         .unwrap();
     let mut pending = None;
     for _ in 0..20 {
-        f.harness.pic.tick().unwrap();
-        let view = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+        f.harness.pic.tick().await.unwrap();
+        let view = f
+            .retained_outcome(f.operator, intent)
+            .await
+            .unwrap()
+            .unwrap();
         if view.phase == FundingPhase::Uncertain {
             pending = Some(view);
             break;
@@ -345,20 +401,24 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
         pending.reconciliation,
         FundingReconciliationView::TransferUnknown(900)
     );
-    assert_eq!(f.funding_allocation(), reserved);
+    assert_eq!(f.funding_allocation().await, reserved);
     assert!(
-        refused(f.guarded_dispatch(f.operator, request(intent)))
+        refused(f.guarded_dispatch(f.operator, request(intent)).await)
             .0
             .contains(&B::AlreadyAttempted)
     );
     let reply: Result<DispatchResult, Failure> =
         ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
-            &f.harness.pic.await_call(call).unwrap(),
+            &f.harness.pic.await_call(call).await.unwrap(),
             4 * 1024 * 1024,
         )
         .unwrap();
     assert_eq!(settled(reply).accepted, 400);
-    let retained = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+    let retained = f
+        .retained_outcome(f.operator, intent)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(retained.request, outcome_request(intent));
     assert_eq!(retained.phase, FundingPhase::Callback { refunded: 500 });
     assert_eq!(
@@ -366,7 +426,7 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
         Some(expected_response(FundingOutcome::ReportedSuccess))
     );
     assert_eq!(
-        f.incoming(),
+        f.incoming().await,
         vec![FundingReceiptRecord {
             id: 1,
             available: 900,
@@ -375,36 +435,43 @@ fn delayed_guarded_dispatch_releases_the_borrow_but_retains_its_exact_reservatio
     );
 }
 
-#[test]
-fn successful_cashier_callbacks_allow_two_bounded_payments_without_independent_credit() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn successful_cashier_callbacks_allow_two_bounded_payments_without_independent_credit() {
+    let f = Fixture::with_cashier().await;
     for (operation, accepted) in [(1, 300), (2, 200)] {
         let intent = f.funding_intent(operation, 400);
-        f.configure_cashier(intent, accepted, FundingReplyMode::Success);
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
+        f.configure_cashier(intent, accepted, FundingReplyMode::Success)
+            .await;
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
         assert_eq!(
-            settled(f.guarded_dispatch(f.operator, request(intent))).accepted,
+            settled(f.guarded_dispatch(f.operator, request(intent)).await).accepted,
             accepted
         );
-        let outcome = f.retained_outcome(f.operator, intent).unwrap().unwrap();
+        let outcome = f
+            .retained_outcome(f.operator, intent)
+            .await
+            .unwrap()
+            .unwrap();
         assert_eq!(
             outcome.reconciliation,
             FundingReconciliationView::ProviderAcknowledged(accepted)
         );
         // Exact original effect cannot be repeated after a successful or lost reply.
         assert_eq!(
-            refused(f.guarded_dispatch(f.operator, request(intent))).0,
+            refused(f.guarded_dispatch(f.operator, request(intent)).await).0,
             vec![B::AlreadyAttempted]
         );
     }
-    let status = f.local_status().funding;
+    let status = f.local_status().await.funding;
     assert_eq!(status.transport_accepted, 500);
     assert_eq!(status.uncredited_accepted, 500);
     assert_eq!(status.provider_acknowledged, 500);
-    assert_eq!(f.funding_allocation().available, 500);
-    assert_eq!(f.incoming().len(), 2);
-    f.upgrade_storage();
-    let restored = f.local_status().funding;
+    assert_eq!(f.funding_allocation().await.available, 500);
+    assert_eq!(f.incoming().await.len(), 2);
+    f.upgrade_storage().await;
+    let restored = f.local_status().await.funding;
     assert!(restored.fenced);
     assert_eq!(restored.provider_acknowledged, 500);
     assert_eq!(restored.transport_accepted, 500);

@@ -1,4 +1,5 @@
 mod record;
+use clap::{Parser, Subcommand};
 use record::{MAX_BODY, MAX_REQUESTS, PlanRecord, RequestRecord, ResponseRecord, SummaryRecord};
 use std::{path::Path, process::ExitCode, time::Duration};
 
@@ -9,13 +10,30 @@ const COMMIT_URL: &str = "https://api.github.com/repos/caffeinelabs/skills/commi
 const PACKAGE_URL: &str = "https://registry.npmjs.org/@caffeineai%2fobject-storage/latest";
 const LIMITATION: &str = "Public source/registry observations only. No gateway, account, payment or deployed behavioral qualification. Capture success is not provider acceptance.";
 
+#[derive(Parser)]
+#[command(
+    name = "caffeine-probe",
+    about = "Capture public source evidence or verify a retained run; no provider qualification.",
+    after_help = "Capture uses at most four anonymous HTTPS GETs, without retries, redirects, credentials or payments. Failed/interrupted runs remain; never resume them automatically."
+)]
+struct Cli {
+    #[command(subcommand)]
+    command: Command,
+}
+#[derive(Subcommand)]
+enum Command {
+    PublicSource {
+        #[arg(value_name = "directory")]
+        directory: std::path::PathBuf,
+    },
+    Verify {
+        #[arg(value_name = "directory")]
+        directory: std::path::PathBuf,
+    },
+}
+
 pub(super) fn run() -> ExitCode {
-    let cli = clap::Command::new("caffeine-probe")
-        .about("Capture public source evidence or verify a retained run; no provider qualification.")
-        .after_help("Capture uses at most four anonymous HTTPS GETs, without retries, redirects, credentials or payments. Failed/interrupted runs remain; never resume them automatically.")
-        .subcommand_required(true)
-        .subcommands(["public-source", "verify"].map(|name| clap::Command::new(name).arg(clap::Arg::new("directory").required(true).value_parser(clap::value_parser!(std::path::PathBuf)))));
-    let matches = match cli.try_get_matches() {
+    let cli = match Cli::try_parse() {
         Ok(matches) => matches,
         Err(error) if error.kind() == clap::error::ErrorKind::DisplayHelp => {
             return if error.print().is_ok() {
@@ -29,16 +47,11 @@ pub(super) fn run() -> ExitCode {
             return ExitCode::from(3);
         }
     };
-    let (command, args) = matches.subcommand().expect("required command");
-    let path = args
-        .get_one::<std::path::PathBuf>("directory")
-        .expect("required directory");
-    let result = match command {
-        "public-source" => capture(path).map(
-            |()| serde_json::json!({"outcome":"captured","directory":path,"limitation":LIMITATION}),
+    let result = match cli.command {
+        Command::PublicSource { directory } => capture(&directory).map(
+            |()| serde_json::json!({"outcome":"captured","directory":directory,"limitation":LIMITATION}),
         ),
-        "verify" => record::verify(path),
-        _ => unreachable!("Clap admits only the declared commands"),
+        Command::Verify { directory } => record::verify(&directory),
     };
     match result {
         Ok(value) => {

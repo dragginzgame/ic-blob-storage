@@ -17,34 +17,36 @@ fn agent(url: &str, seed: u8, root_key: &[u8]) -> Agent {
     agent
 }
 
-fn update(
-    runtime: &tokio::runtime::Runtime,
+async fn update(
     agent: &Agent,
     service: Principal,
     method: &str,
     argument: Vec<u8>,
 ) -> Result<Vec<u8>, ic_platform::agent::AgentError> {
-    runtime.block_on(
-        agent
-            .update(&service, method)
-            .with_arg(argument)
-            .call_and_wait(),
-    )
+    (agent
+        .update(&service, method)
+        .with_arg(argument)
+        .call_and_wait())
+    .await
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One signed two-user journey preserves identities through certificate refusal and restore"
 )]
-fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate_authority() {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+async fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate_authority() {
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.tenant = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let identities =
         [43, 44].map(|seed| BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap());
     let manifests = identities.map(|uploader| {
@@ -56,17 +58,12 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
         manifest.permission.upload.object = id;
         manifest
     });
-    let root_key = f.harness.pic.root_key().unwrap().unwrap();
-    let url = f.harness.pic.make_live(None).unwrap().to_string();
+    let root_key = f.harness.pic.root_key().await.unwrap().unwrap();
+    let url = f.harness.pic.make_live(None).await.unwrap().to_string();
     let tenant = agent(&url, 42, &root_key);
     let uploaders = [agent(&url, 43, &root_key), agent(&url, 44, &root_key)];
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .unwrap();
     for (manifest, uploader) in manifests.iter().zip(&uploaders) {
         let admission = update(
-            &runtime,
             &tenant,
             f.service,
             "blob_admit_upload",
@@ -76,6 +73,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             )
             .unwrap(),
         )
+        .await
         .unwrap();
         ic_blob_storage_contracts::wire::decode_response::<
             Result<UploadAdmissionMutation, UploadAdmissionFailure>,
@@ -83,13 +81,13 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
         .unwrap()
         .unwrap();
         let prepared = update(
-            &runtime,
             uploader,
             f.service,
             "blob_prepare_upload",
             ic_blob_storage_contracts::wire::encode_request("blob_prepare_upload", manifest)
                 .unwrap(),
         )
+        .await
         .unwrap();
         ic_blob_storage_contracts::wire::decode_response::<
             Result<UploadManifestMutation, UploadManifestFailure>,
@@ -101,16 +99,15 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
     for (index, uploader) in uploaders.iter().enumerate() {
         assert!(
             update(
-                &runtime,
                 uploader,
                 f.service,
                 ISSUE,
                 ic_platform::candid::contract::encode_one(root(&manifests[1 - index])).unwrap()
             )
+            .await
             .is_err()
         );
         let denied = update(
-            &runtime,
             uploader,
             f.service,
             "blob_admit_upload",
@@ -120,6 +117,7 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
             )
             .unwrap(),
         )
+        .await
         .unwrap();
         assert_eq!(
             ic_blob_storage_contracts::wire::decode_response::<
@@ -132,12 +130,12 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
     for (manifest, uploader) in manifests.iter().zip(&uploaders) {
         let root = root(manifest);
         let bytes = update(
-            &runtime,
             uploader,
             f.service,
             ISSUE,
             ic_platform::candid::contract::encode_one(&root).unwrap(),
         )
+        .await
         .unwrap();
         let reply: CaffeineUploadCertificateResponse =
             decoder::decode_one_with_config(&bytes, &decoder::DecoderConfig::new()).unwrap();
@@ -146,29 +144,30 @@ fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate
         // IC-Agent verifies the local IC certificate against the explicit emulator root.
         assert!(
             update(
-                &runtime,
                 uploader,
                 f.service,
                 ISSUE,
                 ic_platform::candid::contract::encode_one(&root).unwrap()
             )
+            .await
             .is_err()
         );
     }
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     for manifest in &manifests {
         assert_eq!(
-            f.admission(manifest.permission).state,
+            f.admission(manifest.permission).await.state,
             UploadState::Registered
         );
     }
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
     for manifest in &manifests {
         assert_eq!(
-            inspect(&f, manifest.permission.uploader.into(), &root(manifest)),
+            inspect(&f, manifest.permission.uploader.into(), &root(manifest)).await,
             Err(E::Permission(UploadAdmissionFailure::Fenced))
         );
-        refuses(&f, manifest.permission.uploader.into(), &root(manifest));
+        refuses(&f, manifest.permission.uploader.into(), &root(manifest)).await;
     }
 }

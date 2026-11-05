@@ -14,7 +14,9 @@ pub trait ServiceCallExt {
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
         argument: TenantScope,
         max_reply_bytes: usize,
-    ) -> Result<Result<TenantEnrollmentResponse, TenantFailure>, ServiceCallError>;
+    ) -> impl std::future::Future<
+        Output = Result<Result<TenantEnrollmentResponse, TenantFailure>, ServiceCallError>,
+    >;
     /// Call the typed tenant update codec once under the caller's reply ceiling.
     /// # Errors
     /// Preserves encoding, rejection and bounded decoding failures.
@@ -24,7 +26,9 @@ pub trait ServiceCallExt {
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
         argument: TenantUpdateRequest,
         max_reply_bytes: usize,
-    ) -> Result<Result<TenantEnrollmentResponse, TenantFailure>, ServiceCallError>;
+    ) -> impl std::future::Future<
+        Output = Result<Result<TenantEnrollmentResponse, TenantFailure>, ServiceCallError>,
+    >;
 
     /// Execute one raw read-only call and decode its exact bounded reply.
     /// # Errors
@@ -36,7 +40,7 @@ pub trait ServiceCallExt {
         method: &str,
         argument: A,
         max_reply_bytes: usize,
-    ) -> Result<R, ServiceCallError>;
+    ) -> impl std::future::Future<Output = Result<R, ServiceCallError>>;
     /// Execute one replicated call without retry and decode its bounded reply.
     /// # Errors
     /// Preserves failures without treating an unusable reply as absence of effects.
@@ -47,7 +51,7 @@ pub trait ServiceCallExt {
         method: &str,
         argument: A,
         max_reply_bytes: usize,
-    ) -> Result<R, ServiceCallError>;
+    ) -> impl std::future::Future<Output = Result<R, ServiceCallError>>;
 }
 /// Codec failures and typed platform failures remain distinct.
 #[derive(Debug)]
@@ -60,7 +64,7 @@ pub enum ServiceCallError {
     Decoding(ic_blob_storage_contracts::wire::Error),
 }
 impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
-    fn query_tenant_as(
+    async fn query_tenant_as(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -77,6 +81,7 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
                 protocol::TENANT_INSPECTION_METHOD,
                 args,
             )
+            .await
             .map_err(ServiceCallError::Platform)?;
         if reply.len() > max_reply_bytes {
             return Err(ServiceCallError::Decoding(wire::Error::Limit));
@@ -84,7 +89,7 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
         wire::tenant::decode_inspection_response(&reply)
             .map_err(|_| ServiceCallError::Decoding(wire::Error::Malformed))
     }
-    fn update_tenant_as(
+    async fn update_tenant_as(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -101,6 +106,7 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
                 protocol::TENANT_UPDATE_METHOD,
                 args,
             )
+            .await
             .map_err(ServiceCallError::Platform)?;
         if reply.len() > max_reply_bytes {
             return Err(ServiceCallError::Decoding(wire::Error::Limit));
@@ -109,7 +115,7 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
             .map_err(|_| ServiceCallError::Decoding(wire::Error::Malformed))
     }
 
-    fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    async fn query_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -121,11 +127,12 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
             .map_err(ServiceCallError::Encoding)?;
         let reply = self
             .query_call(canister.into(), caller.into(), method, args)
+            .await
             .map_err(ServiceCallError::Platform)?;
         ic_blob_storage_contracts::wire::decode_response(method, &reply, max_reply_bytes)
             .map_err(ServiceCallError::Decoding)
     }
-    fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
+    async fn update_blob_as<R: serde::de::DeserializeOwned, A: serde::Serialize>(
         &self,
         canister: impl Into<ic_platform::principal::ExternalPrincipal>,
         caller: impl Into<ic_platform::principal::ExternalPrincipal>,
@@ -137,6 +144,7 @@ impl ServiceCallExt for ic_testkit::pocket_ic::PocketIc {
             .map_err(ServiceCallError::Encoding)?;
         let reply = self
             .update_call(canister.into(), caller.into(), method, args)
+            .await
             .map_err(ServiceCallError::Platform)?;
         ic_blob_storage_contracts::wire::decode_response(method, &reply, max_reply_bytes)
             .map_err(ServiceCallError::Decoding)

@@ -8,31 +8,39 @@ use blob_test_protocol::funding::{
 };
 use ic_blob_storage_pocketic_tests::fixture_calls;
 
-#[test]
-fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
     let f = Fixture::with_budget(FundingBudgetInput {
         operating_reserve: 1_000_000_000,
         other_liabilities: 0,
         allocated: 200_000_000,
         reserve: 100_000_000,
-    });
-    let initial = f.status_unchanged().budget;
+    })
+    .await;
+    let initial = f.status_unchanged().await.budget;
     let mut too_large = request(1, 0, FundingReplyMode::Success);
     too_large.offered += 1;
-    let bytes = [f.sender, f.receiver].map(|id| f.harness.pic.get_stable_memory(id).unwrap());
+    let bytes = [
+        f.harness.pic.get_stable_memory(f.sender).await.unwrap(),
+        f.harness.pic.get_stable_memory(f.receiver).await.unwrap(),
+    ];
     assert_eq!(
-        f.fund(f.driver, too_large),
+        f.fund(f.driver, too_large).await,
         Err(FundingFailure::ReserveWouldBeViolated)
     );
-    assert_eq!(f.receipts(), []);
-    assert_eq!(f.status_unchanged().budget, initial);
+    assert_eq!(f.receipts().await, []);
+    assert_eq!(f.status_unchanged().await.budget, initial);
     assert!(
-        [f.sender, f.receiver].map(|id| f.harness.pic.get_stable_memory(id).unwrap()) == bytes,
+        [
+            f.harness.pic.get_stable_memory(f.sender).await.unwrap(),
+            f.harness.pic.get_stable_memory(f.receiver).await.unwrap()
+        ] == bytes,
         "rejection must save no partial intent"
     );
     f.fund(f.driver, request(1, 40_000_000, FundingReplyMode::Success))
+        .await
         .unwrap();
-    let paid = f.status_unchanged().budget;
+    let paid = f.status_unchanged().await.budget;
     assert_eq!(
         (
             paid.available,
@@ -44,24 +52,26 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
         (160_000_000, 40_000_000, 60_000_000, 0, 2)
     );
     assert_eq!(
-        f.fund(f.driver, request(2, 0, FundingReplyMode::Success)),
+        f.fund(f.driver, request(2, 0, FundingReplyMode::Success))
+            .await,
         Err(FundingFailure::ReserveWouldBeViolated)
     );
     let mut refund = request(2, 0, FundingReplyMode::Success);
     refund.offered = 60_000_000;
-    f.fund(f.driver, refund).unwrap();
-    let refunded = f.status_unchanged().budget;
+    f.fund(f.driver, refund).await.unwrap();
+    let refunded = f.status_unchanged().await.budget;
     assert_eq!(
         (refunded.available, refunded.refunded, refunded.revision),
         (160_000_000, 120_000_000, 4)
     );
     assert_eq!(
-        f.fund(f.driver, refund),
+        f.fund(f.driver, refund).await,
         Err(FundingFailure::AlreadyAdmitted)
     );
     f.harness
         .pic
         .add_cycles(f.sender, 1_000_000_000_000)
+        .await
         .unwrap();
     let incoming: Result<FundingObservation, FundingFailure> = fixture_calls::update_fixture(
         &f.harness.pic,
@@ -70,20 +80,25 @@ fn reserve_rejection_is_atomic_and_only_exact_returns_release_the_allocation() {
         "fund",
         (request(99, 50_000_000, FundingReplyMode::Success),),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap();
     incoming.unwrap();
-    assert_eq!(f.status_as(f.sender, f.driver).unwrap().budget, refunded);
+    assert_eq!(
+        f.status_as(f.sender, f.driver).await.unwrap().budget,
+        refunded
+    );
 }
 
-#[test]
-fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
     let f = Fixture::with_budget(FundingBudgetInput {
         operating_reserve: 1_000_000_000,
         other_liabilities: 0,
         allocated: 200_000_000,
         reserve: 100_000_000,
-    });
+    })
+    .await;
     let mut paid = request(1, 40_000_000, FundingReplyMode::Success);
     paid.trap_callback = true;
     let failure = f
@@ -95,12 +110,13 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
             "fund",
             blob_test_protocol::fixture_wire::encode_one("fund", paid).unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&failure).reject_code,
         RejectCode::CanisterError
     );
-    let pending = f.assert_unknown_status(paid).budget;
+    let pending = f.assert_unknown_status(paid).await.budget;
     assert_eq!(
         (
             pending.revision,
@@ -109,7 +125,7 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
         ),
         (1, 100_000_000, 100_000_000)
     );
-    assert_eq!(f.receipts()[0].accepted, 40_000_000);
+    assert_eq!(f.receipts().await[0].accepted, 40_000_000);
     f.harness
         .pic
         .upgrade_canister(
@@ -124,8 +140,9 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
             .unwrap(),
             None,
         )
+        .await
         .unwrap();
-    assert_eq!(f.assert_unknown_status(paid).budget, pending);
+    assert_eq!(f.assert_unknown_status(paid).await.budget, pending);
     let preview: Result<FundingPreviewView, FundingPreviewFailure> = fixture_calls::query_fixture(
         &f.harness.pic,
         f.sender,
@@ -139,6 +156,7 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
             revision: pending.revision,
         },),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap();
     let preview = preview.unwrap();
@@ -154,23 +172,25 @@ fn callback_rollback_and_restore_keep_the_full_attachment_reserved() {
         assert!(preview.blockers.contains(&blocker));
     }
     assert_eq!(
-        f.fund(f.driver, request(2, 0, FundingReplyMode::Success)),
+        f.fund(f.driver, request(2, 0, FundingReplyMode::Success))
+            .await,
         Err(FundingFailure::Fenced)
     );
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
 )]
-fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revision() {
+async fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revision() {
     let f = Fixture::with_budget(FundingBudgetInput {
         allocated: 200_000_000,
         reserve: 100_000_000,
         operating_reserve: 1_000_000_000,
         other_liabilities: 3_000_000_000_000,
-    });
+    })
+    .await;
     let proposed = FundingPreviewRequest {
         service: f.sender,
         peer: f.receiver,
@@ -178,7 +198,7 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
         requested_cycles: 100_000_000,
         revision: 0,
     };
-    let preview = |request| -> FundingPreviewView {
+    let preview = async |request| -> FundingPreviewView {
         let result: Result<FundingPreviewView, FundingPreviewFailure> =
             fixture_calls::query_fixture(
                 &f.harness.pic,
@@ -187,11 +207,12 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
                 "preview_funding",
                 (request,),
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap();
         result.unwrap()
     };
-    let before = preview(proposed);
+    let before = preview(proposed).await;
     assert!(before.liquidity.call_cost > 0);
     assert!(before.liquidity.liquid_cycles > proposed.requested_cycles);
     assert!(
@@ -207,6 +228,7 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
     )));
     let outcome = f
         .fund(f.driver, request(1, 40_000_000, FundingReplyMode::Success))
+        .await
         .unwrap();
     assert_eq!(
         outcome,
@@ -217,14 +239,15 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
             reconciliation: FundingReconciliationView::NoTransfer,
         }
     );
-    assert_eq!(f.receipts(), []);
-    let status = f.status_unchanged();
+    assert_eq!(f.receipts().await, []);
+    let status = f.status_unchanged().await;
     assert_eq!(status.budget.available, before.budget.available);
     assert_eq!(status.budget.not_enqueued, proposed.requested_cycles);
     assert_eq!(status.budget.refunded, 0);
     assert_eq!(status.budget.revision, 2);
     assert_eq!(
-        f.fund(f.driver, request(1, 0, FundingReplyMode::Success)),
+        f.fund(f.driver, request(1, 0, FundingReplyMode::Success))
+            .await,
         Err(FundingFailure::AlreadyAdmitted)
     );
 
@@ -233,14 +256,15 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
         revision: 2,
         ..proposed
     };
-    let before_top_up = preview(proposed);
+    let before_top_up = preview(proposed).await;
     f.harness
         .pic
         .add_cycles(f.sender, 3_000_000_000_000)
+        .await
         .unwrap();
     // A repeated query may be cached independently of cycle top-ups. Observe a
     // different proposed operation; the update must still recheck its own funds.
-    let after_top_up = preview(FundingPreviewRequest { id: 3, ..proposed });
+    let after_top_up = preview(FundingPreviewRequest { id: 3, ..proposed }).await;
     assert_eq!(after_top_up.budget, before_top_up.budget);
     assert!(after_top_up.liquidity.liquid_cycles > before_top_up.liquidity.liquid_cycles);
     assert!(
@@ -257,25 +281,27 @@ fn operating_holds_block_dispatch_and_liquidity_changes_without_a_budget_revisio
     assert_eq!(after_top_up.available_cycles, None);
     let paid = f
         .fund(f.driver, request(2, 40_000_000, FundingReplyMode::Success))
+        .await
         .unwrap();
     assert_eq!(paid.transport_accepted, Some(40_000_000));
-    assert_eq!(f.receipts().len(), 1);
-    let budget = f.status_unchanged().budget;
+    assert_eq!(f.receipts().await.len(), 1);
+    let budget = f.status_unchanged().await.budget;
     assert_eq!(budget.other_liabilities, 3_000_000_000_000);
     assert_eq!(budget.operating_reserve, 1_000_000_000);
     assert_eq!(budget.accepted, 40_000_000);
-    f.upgrade_both();
-    assert_eq!(f.status_unchanged().budget, budget);
+    f.upgrade_both().await;
+    assert_eq!(f.status_unchanged().await.budget, budget);
     assert_eq!(
-        f.fund(f.driver, request(3, 0, FundingReplyMode::Success)),
+        f.fund(f.driver, request(3, 0, FundingReplyMode::Success))
+            .await,
         Err(FundingFailure::Fenced)
     );
 }
 
-#[test]
-fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
-    let f = Fixture::new();
-    let preview = |requested_cycles| -> FundingPreviewView {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
+    let f = Fixture::new().await;
+    let preview = async |requested_cycles| -> FundingPreviewView {
         let result: Result<FundingPreviewView, FundingPreviewFailure> =
             fixture_calls::query_fixture(
                 &f.harness.pic,
@@ -290,16 +316,17 @@ fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
                     revision: 0,
                 },),
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap();
         result.unwrap()
     };
-    let observed = preview(1);
+    let observed = preview(1).await;
     let amount = observed.liquidity.liquid_cycles
         - observed.budget.operating_reserve
         - observed.budget.other_liabilities
         - observed.liquidity.call_cost / 2;
-    let checked = preview(amount);
+    let checked = preview(amount).await;
     assert!(
         amount
             < checked.liquidity.liquid_cycles
@@ -316,23 +343,24 @@ fn platform_call_cost_blocks_an_attachment_that_fits_the_liquid_balance() {
         offered: amount,
         ..request(1, 0, FundingReplyMode::Success)
     };
-    let outcome = f.fund(f.driver, attempt).unwrap();
+    let outcome = f.fund(f.driver, attempt).await.unwrap();
     assert_eq!(outcome.outcome, FundingOutcome::LiquidityBlocked);
     assert_eq!(outcome.refunded, None);
     assert_eq!(outcome.transport_accepted, Some(0));
-    assert_eq!(f.receipts(), []);
-    assert_eq!(f.status_unchanged().budget.not_enqueued, amount);
+    assert_eq!(f.receipts().await, []);
+    assert_eq!(f.status_unchanged().await.budget.not_enqueued, amount);
 }
 
-#[test]
-fn unsent_attempts_ignore_callback_controls_and_remain_bounded_after_restore() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn unsent_attempts_ignore_callback_controls_and_remain_bounded_after_restore() {
     let f = Fixture::with_budget(FundingBudgetInput {
         allocated: 1_000_000_000,
         reserve: 1,
         operating_reserve: 1,
         other_liabilities: u128::MAX,
-    });
-    let initial = f.status_unchanged().budget;
+    })
+    .await;
+    let initial = f.status_unchanged().await.budget;
     let modes = [
         FundingReplyMode::Success,
         FundingReplyMode::DelayedSuccess,
@@ -343,7 +371,7 @@ fn unsent_attempts_ignore_callback_controls_and_remain_bounded_after_restore() {
             trap_callback: true,
             ..request(id, 40_000_000, reply)
         };
-        let outcome = f.fund(f.driver, attempt).unwrap();
+        let outcome = f.fund(f.driver, attempt).await.unwrap();
         assert_eq!(
             outcome,
             FundingObservation {
@@ -354,36 +382,38 @@ fn unsent_attempts_ignore_callback_controls_and_remain_bounded_after_restore() {
             }
         );
         assert_eq!(
-            f.fund(f.driver, attempt),
+            f.fund(f.driver, attempt).await,
             Err(FundingFailure::AlreadyAdmitted)
         );
     }
-    assert_eq!(f.receipts(), []);
+    assert_eq!(f.receipts().await, []);
     assert_eq!(
-        f.fund(f.driver, request(16, 0, FundingReplyMode::Success)),
+        f.fund(f.driver, request(16, 0, FundingReplyMode::Success))
+            .await,
         Err(FundingFailure::Limit)
     );
-    let retained = f.status_unchanged();
+    let retained = f.status_unchanged().await;
     assert_eq!(retained.budget.available, initial.available);
     assert_eq!(retained.budget.refunded, 0);
     assert_eq!(retained.budget.accepted, 0);
     assert_eq!(retained.budget.reserved_or_uncertain, 0);
     assert_eq!(retained.funding_activity, FundingActivityView::Clear);
-    f.upgrade_both();
-    let restored = f.status_unchanged();
+    f.upgrade_both().await;
+    let restored = f.status_unchanged().await;
     assert_eq!(restored.budget, retained.budget);
     assert_eq!(restored.attempts, retained.attempts);
     assert!(restored.fenced);
     assert_eq!(
-        f.fund(f.driver, request(17, 0, FundingReplyMode::Success)),
+        f.fund(f.driver, request(17, 0, FundingReplyMode::Success))
+            .await,
         Err(FundingFailure::Fenced)
     );
 }
 
-#[test]
-fn actual_zero_and_full_refund_callbacks_still_trap_and_keep_the_full_reservation() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn actual_zero_and_full_refund_callbacks_still_trap_and_keep_the_full_reservation() {
     for accepted in [0, 100_000_000] {
-        let f = Fixture::new();
+        let f = Fixture::new().await;
         let attempt = FundingRequest {
             trap_callback: true,
             ..request(1, accepted, FundingReplyMode::Success)
@@ -397,16 +427,18 @@ fn actual_zero_and_full_refund_callbacks_still_trap_and_keep_the_full_reservatio
                 "fund",
                 blob_test_protocol::fixture_wire::encode_one("fund", attempt).unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&failure).reject_code,
             RejectCode::CanisterError
         );
-        let status = f.assert_unknown_status(attempt);
+        let status = f.assert_unknown_status(attempt).await;
         assert_eq!(status.budget.reserved_or_uncertain, attempt.offered);
-        assert_eq!(f.receipts()[0].accepted, accepted);
+        assert_eq!(f.receipts().await[0].accepted, accepted);
         assert_eq!(
-            f.fund(f.driver, request(2, 0, FundingReplyMode::Success)),
+            f.fund(f.driver, request(2, 0, FundingReplyMode::Success))
+                .await,
             Err(FundingFailure::InProgress)
         );
     }

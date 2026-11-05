@@ -140,23 +140,21 @@ impl Context<'_> {
         else {
             return Err(Failure::InvalidReply);
         };
-        if let UploadManifestInspection::Prepared(declaration) = manifest.manifest {
-            if declaration != *self.selected.declaration() {
-                return Err(Failure::Binding);
+        let state = match manifest.manifest {
+            UploadManifestInspection::Prepared(declaration) => {
+                if declaration != *self.selected.declaration() {
+                    return Err(Failure::Binding);
+                }
+                PreparationState::Prepared
             }
-            if recovery && journal::claimed(self.origin, journal::Step::Preparation)? {
-                journal::validate_attempt(
-                    &journal::RecoveryDirectory::open(self.origin)?,
-                    journal::Step::Preparation,
-                    self.options,
-                    self.selected,
-                    &self.tenant.read_root_key(),
-                )?;
-            }
-            return Ok(self.report(PreparationState::Prepared, updates, &preflight.report));
-        }
-        if journal::claimed(self.origin, journal::Step::Preparation)? {
-            // Unprepared, missing/partial evidence or expiry never licenses another attempt.
+            UploadManifestInspection::Unprepared => PreparationState::PreparationUnobserved,
+        };
+        // Fresh acknowledged preparation needs no historical claim inspection.
+        // Every other surviving claim uses the same exact-envelope validation,
+        // whether inspection found its manifest or its reply remains uncertain.
+        let claimed = (recovery || state != PreparationState::Prepared)
+            && journal::claimed(self.origin, journal::Step::Preparation)?;
+        if claimed {
             journal::validate_attempt(
                 &journal::RecoveryDirectory::open(self.origin)?,
                 journal::Step::Preparation,
@@ -164,11 +162,10 @@ impl Context<'_> {
                 self.selected,
                 &self.tenant.read_root_key(),
             )?;
-            return Ok(self.report(
-                PreparationState::PreparationUnobserved,
-                updates,
-                &preflight.report,
-            ));
+        }
+        if state == PreparationState::Prepared || claimed {
+            // Unprepared, missing/partial evidence or expiry never licenses another attempt.
+            return Ok(self.report(state, updates, &preflight.report));
         }
         let result = upload_setup::execute(
             self.options,

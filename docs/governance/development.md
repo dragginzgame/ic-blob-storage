@@ -269,10 +269,10 @@ source into a disposable repository, exercises the actual thirteen-member graph
 and installs only its build/registry substitutes. Release fixtures live under
 `target/release-tests.*`; failed fixtures remain there and the tooling evidence
 collector includes that prefix and historical locations.
-The [original snapshot adoption record](../evidence/shared01500270.md) retains
+The [original snapshot adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared01500270.md) retains
 its direct-delivery adapter qualification. The [current handoff](../status/current.md)
 records the selected snapshot and source-bound follow-up checks. The
-[historical fixture ownership map](../evidence/release-fixture-ownership.md)
+[historical fixture ownership map](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/release-fixture-ownership.md)
 records the previous coordinated adapter; current group proofs are described
 in [the release guide](../releasing.md#maintainer-delivery-and-recovery).
 

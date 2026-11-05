@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_DISCOVERY_METHOD;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
-    fn discovery(
+    async fn discovery(
         &self,
         actor: Principal,
         request: UploadDiscoveryRequest,
@@ -21,23 +21,24 @@ impl Fixture {
                 request,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
 }
-#[test]
-fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
+    let f = Fixture::new().await;
     let request = UploadDiscoveryRequest {
         scope: f.scope(),
         root: [9; 32],
     };
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let expected = UploadDiscoveryResponse {
         request,
         content: None,
         fenced: false,
     };
-    assert_eq!(f.discovery(f.tenant, request), Ok(expected));
+    assert_eq!(f.discovery(f.tenant, request).await, Ok(expected));
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
@@ -48,10 +49,11 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
             request,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(replicated, Ok(expected));
     for actor in [f.operator, f.controller, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.discovery(actor, request), Err(F::Denied));
+        assert_eq!(f.discovery(actor, request).await, Err(F::Denied));
     }
     for scope in [
         TenantScope {
@@ -64,7 +66,8 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
         },
     ] {
         assert_eq!(
-            f.discovery(f.tenant, UploadDiscoveryRequest { scope, ..request }),
+            f.discovery(f.tenant, UploadDiscoveryRequest { scope, ..request })
+                .await,
             Err(F::Binding)
         );
     }
@@ -78,7 +81,8 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
                 },
                 ..request
             }
-        ),
+        )
+        .await,
         Err(F::Invalid)
     );
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
@@ -86,6 +90,7 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
             .harness
             .pic
             .query_call(f.service, f.tenant, UPLOAD_DISCOVERY_METHOD, bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&failure).reject_code,
@@ -93,15 +98,15 @@ fn standalone_discovery_authenticates_even_unknown_roots_and_bounds_ingress() {
         );
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
 
-#[test]
-fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
-    let f = Fixture::new();
-    let enrollment = f.enroll(f.operator).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
+    let f = Fixture::new().await;
+    let enrollment = f.enroll(f.operator).await.unwrap();
     let mut permission = f.manifest().permission;
     permission.upload.upload = u128::MAX;
     permission.upload.object = u128::MAX - 1;
@@ -117,6 +122,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     admitted.unwrap();
     let request = UploadDiscoveryRequest {
@@ -134,8 +140,8 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
         ),
         fenced: false,
     };
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(f.discovery(f.tenant, request), Ok(expected));
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(f.discovery(f.tenant, request).await, Ok(expected));
     let replicated: Result<UploadDiscoveryResponse, F> = f
         .harness
         .pic
@@ -146,10 +152,11 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
             request,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(replicated, Ok(expected));
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
@@ -165,26 +172,28 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     suspended.unwrap();
-    assert_eq!(f.discovery(f.tenant, request), Ok(expected));
+    assert_eq!(f.discovery(f.tenant, request).await, Ok(expected));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let restored = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
-        f.discovery(f.tenant, request),
+        f.discovery(f.tenant, request).await,
         Ok(UploadDiscoveryResponse {
             fenced: true,
             ..expected
         })
     );
-    assert_eq!(f.discovery(f.operator, request), Err(F::Denied));
+    assert_eq!(f.discovery(f.operator, request).await, Err(F::Denied));
     let absent = UploadDiscoveryRequest {
         root: [9; 32],
         ..request
     };
     assert_eq!(
-        f.discovery(f.tenant, absent),
+        f.discovery(f.tenant, absent).await,
         Ok(UploadDiscoveryResponse {
             request: absent,
             content: None,
@@ -192,7 +201,7 @@ fn standalone_discovery_keeps_original_identity_and_exposes_restore_fence() {
         })
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &restored,
     );
 }

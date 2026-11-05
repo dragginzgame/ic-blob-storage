@@ -64,14 +64,14 @@ passes; 0.6.3 changes no installer/pin and needs no reinstall. PocketIC stays
 Testkit-owned 16.1.0 and previous installations remain retained. Current focused
 release-adapter checks pass on Bash 5.2; the matching shared runner and Blob
 premature-completion fixtures pass on genuine Bash 3.2.57. Snapshot/declaration,
-link and shell checks pass. See [the current adoption record](../evidence/shared063-host01402210.md)
+link and shell checks pass. See [the current adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared063-host01402210.md)
 and raw `target/review-validation/shared063-host01402210/`. The
-[preceding record](../evidence/shared06202210.md) and
+[preceding record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared06202210.md) and
 `target/review-validation/continuation02210/` retain 0.6.2 setup, collector and
 cold-cache archive results. No old compiler/evidence result is relabelled.
 
 Canic's published adapter 0.111.0 remains authenticated in
-[the release review](../evidence/canic0229.md). Its owner now reports both
+[the release review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0229.md). Its owner now reports both
 independent managed fixture locks qualified with Blob/contracts 0.22.8,
 Memory 0.35.9, Metrics 0.6.4 and Timers 0.17.10 in the pending uncommitted
 0.111.1 batch. Complete Fast artifacts, canonical Candid parity, tenant/uploader

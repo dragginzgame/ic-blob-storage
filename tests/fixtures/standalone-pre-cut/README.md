@@ -33,6 +33,6 @@ recovery remains covered separately. No live owner or provider effect is used.
 The test-only frozen installation producer retains this image's original uploader
 field even though current production initialization rejects it. The distinct
 single-uploader installation cut for pending 0.19.0 is recorded in
-[its own evidence](../../../docs/evidence/multi-user0190.md); it uses a separately
+[its own evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/multi-user0190.md); it uses a separately
 pinned 0.18.4 artifact and fresh report. Neither fixture supplies a production
 compatibility reader or permits upgrading/resetting an owner with obligations.

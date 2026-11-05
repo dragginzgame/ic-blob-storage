@@ -1,43 +1,51 @@
 //! Contributor-only mixed-version package qualification; never a publication command.
+#[cfg(not(target_family = "wasm"))]
+#[derive(clap::Parser)]
+#[command(
+    name = "blob-package-verify",
+    about = "Qualify independently versioned package archives without publication"
+)]
+struct Arguments {
+    #[arg(value_name = "workspace")]
+    workspace: std::path::PathBuf,
+    #[arg(value_name = "archives")]
+    archives: std::path::PathBuf,
+    #[arg(value_name = "evidence")]
+    evidence: std::path::PathBuf,
+    #[arg(value_name = "contracts-version")]
+    contracts_version: String,
+    #[arg(value_name = "client-version")]
+    client_version: String,
+    #[arg(value_name = "engine-version")]
+    engine_version: String,
+}
+
 fn main() {
     #[cfg(not(target_family = "wasm"))]
     {
+        use clap::Parser;
         use ic_build::cargo::packages::{
             PackageArchiveSpec, PackageCommandError, PackageQualificationLimits,
             qualify_package_archives,
         };
         use ic_build::cargo::selection::CargoFeatureSelection;
         use ic_host_process::tool::{OutputLimit, OutputLimits, ToolError};
-        use std::{path::PathBuf, process::Command};
-        let args = clap::Command::new("blob-package-verify")
-            .about("Qualify independently versioned package archives without publication")
-            .args(["workspace", "archives", "evidence"].map(|name| {
-                clap::Arg::new(name)
-                    .required(true)
-                    .value_parser(clap::value_parser!(PathBuf))
-            }))
-            .args(
-                ["contracts-version", "client-version", "engine-version"]
-                    .map(|name| clap::Arg::new(name).required(true)),
-            )
-            .get_matches();
+        use std::process::Command;
+        let args = Arguments::parse();
         let packages = [
-            ("ic-blob-storage-contracts", "contracts-version", true),
-            ("ic-blob-storage-client", "client-version", false),
-            ("ic-blob-storage", "engine-version", false),
+            ("ic-blob-storage-contracts", &args.contracts_version, true),
+            ("ic-blob-storage-client", &args.client_version, false),
+            ("ic-blob-storage", &args.engine_version, false),
         ]
         .map(|(name, version, patch_registry)| PackageArchiveSpec {
             name,
-            version: args.get_one::<String>(version).expect("required version"),
+            version,
             patch_registry,
         });
         let result = qualify_package_archives(
-            args.get_one::<PathBuf>("workspace")
-                .expect("required workspace"),
-            args.get_one::<PathBuf>("archives")
-                .expect("required archives"),
-            args.get_one::<PathBuf>("evidence")
-                .expect("required evidence"),
+            &args.workspace,
+            &args.archives,
+            &args.evidence,
             &packages,
             &CargoFeatureSelection::default(),
             PackageQualificationLimits {

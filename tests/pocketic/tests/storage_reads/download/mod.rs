@@ -8,7 +8,7 @@ use ic_blob_storage_contracts::dto::download::DownloadResponse;
 use ic_blob_storage_contracts::identity::ProviderRootHash;
 use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
 impl Fixture {
-    fn download(
+    async fn download(
         &self,
         actor: Principal,
         input: RetainedDescriptorInput,
@@ -22,13 +22,14 @@ impl Fixture {
                 wire(input),
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
-    fn download_input(&self) -> (Permission, PreparationInput, RetainedDescriptorInput) {
-        self.enroll(None, true).unwrap();
+    async fn download_input(&self) -> (Permission, PreparationInput, RetainedDescriptorInput) {
+        self.enroll(None, true).await.unwrap();
         let (permission, preparation) = self.permission(1, 1);
-        self.admit(self.tenant, permission).unwrap();
-        self.prepare(&preparation).unwrap();
+        self.admit(self.tenant, permission).await.unwrap();
+        self.prepare(&preparation).await.unwrap();
         let input = RetainedDescriptorInput {
             content: self.content_input(permission.request),
             object: 1,
@@ -38,17 +39,17 @@ impl Fixture {
         (permission, preparation, input)
     }
 }
-#[test]
-fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_body_call() {
-    let f = Fixture::new();
-    let (permission, preparation, input) = f.download_input();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_body_call() {
+    let f = Fixture::new().await;
+    let (permission, preparation, input) = f.download_input().await;
     assert_eq!(
-        f.download(f.tenant, input),
+        f.download(f.tenant, input).await,
         Err(DownloadFailure::Unavailable)
     );
-    f.expose(permission.request).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let view = f.download(f.tenant, input).unwrap();
+    f.expose(permission.request).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let view = f.download(f.tenant, input).await.unwrap();
     assert_eq!(view.owner, f.service.into());
     assert_ne!(view.owner, ic_platform::Principal::from(f.operator));
     assert_ne!(view.owner, ic_platform::Principal::from(f.tenant));
@@ -89,7 +90,7 @@ fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_bod
         f.other,
         Principal::anonymous(),
     ] {
-        assert_eq!(f.download(actor, input), Err(DownloadFailure::Denied));
+        assert_eq!(f.download(actor, input).await, Err(DownloadFailure::Denied));
     }
     assert_eq!(
         f.download(
@@ -98,25 +99,33 @@ fn operational_download_descriptor_preserves_owner_and_hash_inputs_without_a_bod
                 incarnation: 2,
                 ..input
             }
-        ),
+        )
+        .await,
         Err(DownloadFailure::Unavailable)
     );
     let mut foreign = input;
     foreign.content.service = f.other;
-    assert_eq!(f.download(f.tenant, foreign), Err(DownloadFailure::Binding));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.download(f.tenant, foreign).await,
+        Err(DownloadFailure::Binding)
+    );
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
 }
-#[test]
-fn operational_download_rejects_released_suspended_and_restored_content() {
-    let f = Fixture::new();
-    let (permission, _, first) = f.download_input();
-    f.expose(permission.request).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn operational_download_rejects_released_suspended_and_restored_content() {
+    let f = Fixture::new().await;
+    let (permission, _, first) = f.download_input().await;
+    f.expose(permission.request).await.unwrap();
     f.reference(ReferenceInput {
         object: permission.request,
         reference: 2,
         operation: 1,
         retain: true,
     })
+    .await
     .unwrap();
     f.reference(ReferenceInput {
         object: permission.request,
@@ -124,28 +133,37 @@ fn operational_download_rejects_released_suspended_and_restored_content() {
         operation: 2,
         retain: false,
     })
+    .await
     .unwrap();
     let second = RetainedDescriptorInput {
         reference: 2,
         ..first
     };
     assert_eq!(
-        f.download(f.tenant, first),
+        f.download(f.tenant, first).await,
         Err(DownloadFailure::Unavailable)
     );
-    let view = f.download(f.tenant, second).unwrap();
-    f.enroll(Some(f.tenant().unwrap()), false).unwrap();
-    assert_eq!(f.download(f.tenant, second), Err(DownloadFailure::Inactive));
+    let view = f.download(f.tenant, second).await.unwrap();
+    f.enroll(Some(f.tenant().await.unwrap()), false)
+        .await
+        .unwrap();
+    assert_eq!(
+        f.download(f.tenant, second).await,
+        Err(DownloadFailure::Inactive)
+    );
     assert_eq!(
         f.retained(f.tenant, second)
+            .await
             .unwrap()
             .unwrap()
             .descriptor
             .headers,
         headers(&view)
     );
-    f.enroll(Some(f.tenant().unwrap()), true).unwrap();
-    assert_eq!(f.download(f.tenant, second), Ok(view.clone()));
+    f.enroll(Some(f.tenant().await.unwrap()), true)
+        .await
+        .unwrap();
+    assert_eq!(f.download(f.tenant, second).await, Ok(view.clone()));
     f.harness
         .pic
         .upgrade_canister(
@@ -154,10 +172,15 @@ fn operational_download_rejects_released_suspended_and_restored_content() {
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(f.download(f.tenant, second), Err(DownloadFailure::Fenced));
+    assert_eq!(
+        f.download(f.tenant, second).await,
+        Err(DownloadFailure::Fenced)
+    );
     assert_eq!(
         f.retained(f.tenant, second)
+            .await
             .unwrap()
             .unwrap()
             .descriptor

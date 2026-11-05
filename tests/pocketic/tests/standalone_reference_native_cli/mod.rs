@@ -13,10 +13,11 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 
-fn live(f: &mut Fixture) -> String {
+async fn live(f: &mut Fixture) -> String {
     f.harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string()
 }
@@ -59,7 +60,13 @@ fn response(directory: &Path, failure: ReferenceFailure) {
     assert_eq!(outcome["provider_deletion"], "not_established");
     assert_eq!(outcome["billing_cessation"], "not_established");
 }
-fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str, reply: Reply) {
+async fn unknown_submission(
+    f: &Fixture,
+    receipt: &[String],
+    report: &Path,
+    url: &str,
+    reply: Reply,
+) {
     let directory = report.join("unknown");
     let proxy = Proxy::start(
         url.into(),
@@ -72,7 +79,7 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
         },
         reply,
     );
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut args = submission(receipt, &directory);
     change_native(&mut args, "--url", &proxy.url);
     let value = run(&args, if reply == Reply::Pending { 0 } else { 3 });
@@ -121,11 +128,11 @@ fn unknown_submission(f: &Fixture, receipt: &[String], report: &Path, url: &str,
     );
     assert_eq!(proxy.calls(), 1);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
-fn phase_submission(
+async fn phase_submission(
     f: &Fixture,
     receipt: &[String],
     report: &Path,
@@ -134,7 +141,7 @@ fn phase_submission(
     code: &str,
 ) {
     let directory = report.join(label);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let args = submission(receipt, &directory);
     let value = run(&args, 3);
     assert_eq!(value["error"], code);
@@ -142,12 +149,12 @@ fn phase_submission(
     response(&directory, failure);
     refused(&args, "submission_already_claimed");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
-fn authority(f: &Fixture, receipt: &[String], directory: &Path) {
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+async fn authority(f: &Fixture, receipt: &[String], directory: &Path) {
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut wrong = receipt.to_vec();
     change_native(&mut wrong, "--namespace", "1");
     refused(&wrong, "binding");
@@ -161,11 +168,11 @@ fn authority(f: &Fixture, receipt: &[String], directory: &Path) {
     change_native(&mut wrong, "--root-key", untrusted.to_str().unwrap());
     refused(&wrong, "transport");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
-fn restored(
+async fn restored(
     f: &mut Fixture,
     receipt: &mut [String],
     status: &mut [String],
@@ -173,11 +180,12 @@ fn restored(
     report: &Path,
     mut current: ReferenceCommand,
 ) -> ReferenceCommand {
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let url = live(f);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let url = live(f).await;
     for args in [&mut *receipt, status] {
         change_native(args, "--url", &url);
         refused(args, "reference_unconfirmed");
@@ -195,8 +203,12 @@ fn restored(
         "fenced-release",
         ReferenceFailure::Fenced,
         "reference_fenced",
-    );
-    let accounting = f.local_status(f.operator, f.operator_scope()).unwrap();
+    )
+    .await;
+    let accounting = f
+        .local_status(f.operator, f.operator_scope())
+        .await
+        .unwrap();
     assert_eq!(
         [
             accounting.uploads.fenced,
@@ -215,15 +227,15 @@ fn restored(
         [u128::from(current.upload.bytes); 4]
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
-    assert!(f.configuration(f.operator).unwrap().fenced);
+    f.harness.pic.stop_live().await.unwrap();
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
     current
 }
 
-fn report_directory(f: &Fixture, temporary: &Path, label: &str, bytes: u64) -> PathBuf {
+async fn report_directory(f: &Fixture, temporary: &Path, label: &str, bytes: u64) -> PathBuf {
     let report = std::env::var_os("BLOB_STANDALONE_REFERENCE_REPORT").map_or_else(
         || temporary.join(label),
         |root| PathBuf::from(root).join(label),
@@ -241,18 +253,18 @@ fn report_directory(f: &Fixture, temporary: &Path, label: &str, bytes: u64) -> P
     );
     std::fs::write(
         report.join("fixture-root.der"),
-        f.harness.pic.root_key().unwrap().unwrap(),
+        f.harness.pic.root_key().await.unwrap().unwrap(),
     )
     .unwrap();
     report
 }
-fn prepared(
+async fn prepared(
     f: &mut Fixture,
     manifest: &UploadManifestRequest,
     receipt: &mut [String],
     status: &mut [String],
 ) {
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     f.harness
         .pic
         .update_blob_as::<Result<UploadAdmissionMutation, UploadAdmissionFailure>, _>(
@@ -262,10 +274,11 @@ fn prepared(
             manifest.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
-    f.prepare(f.uploader, manifest).unwrap();
-    let url = live(f);
+    f.prepare(f.uploader, manifest).await.unwrap();
+    let url = live(f).await;
     for args in [receipt, status] {
         change_native(args, "--url", &url);
         refused(args, "reference_unconfirmed");
@@ -275,14 +288,18 @@ fn prepared(
     clippy::too_many_lines,
     reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
 )]
-fn journey(reply: Reply, label: &str) {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+async fn journey(reply: Reply, label: &str) {
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.tenant = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let mut manifest = f.manifest();
     manifest.permission.upload.upload = u128::MAX;
     manifest.permission.upload.object = u128::MAX - 1;
@@ -296,20 +313,20 @@ fn journey(reply: Reply, label: &str) {
         action: ReferenceAction::Retain,
     };
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let report = report_directory(&f, dir.path(), label, permission.upload.bytes);
-    let url = live(&mut f);
-    let (mut receipt, mut status) = native_requests(&f.harness.pic, input, dir.path(), &url);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let report = report_directory(&f, dir.path(), label, permission.upload.bytes).await;
+    let url = live(&mut f).await;
+    let (mut receipt, mut status) = native_requests(&f.harness.pic, input, dir.path(), &url).await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for args in [&receipt, &status] {
         refused(args, "reference_unknown");
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    unknown_submission(&f, &receipt, &report, &url, reply);
-    prepared(&mut f, &manifest, &mut receipt, &mut status);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    unknown_submission(&f, &receipt, &report, &url, reply).await;
+    prepared(&mut f, &manifest, &mut receipt, &mut status).await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut current = input;
     current.operation -= 1;
     std::fs::write(
@@ -324,7 +341,8 @@ fn journey(reply: Reply, label: &str) {
         "unconfirmed-retain",
         ReferenceFailure::Unconfirmed,
         "reference_unconfirmed",
-    );
+    )
+    .await;
     current.operation -= 1;
     current.action = ReferenceAction::Release;
     std::fs::write(
@@ -339,10 +357,11 @@ fn journey(reply: Reply, label: &str) {
         "unconfirmed-release",
         ReferenceFailure::Unconfirmed,
         "reference_unconfirmed",
-    );
-    authority(&f, &receipt, dir.path());
+    )
+    .await;
+    authority(&f, &receipt, dir.path()).await;
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     current = restored(
@@ -352,7 +371,8 @@ fn journey(reply: Reply, label: &str) {
         dir.path(),
         &report,
         current,
-    );
+    )
+    .await;
     assert_eq!(
         std::fs::read(dir.path().join("receipt.wire")).unwrap(),
         ic_blob_storage_contracts::document::encode(current).unwrap()
@@ -366,12 +386,13 @@ fn journey(reply: Reply, label: &str) {
         "restored_fenced":true,"reservation_bytes":permission.upload.bytes.to_string(),
         "provider_content":"not_observed","retry_authorized":false}),
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
         let failure = f
             .harness
             .pic
             .query_call(f.service, f.tenant, "blob_reference_receipt", bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&failure).reject_code,
@@ -380,15 +401,17 @@ fn journey(reply: Reply, label: &str) {
     }
 }
 
-#[test]
-fn signed_reference_inspection_keeps_unknown_unconfirmed_and_restored_refusals() {
-    journey(Reply::Pass, "acknowledged");
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn signed_reference_inspection_keeps_unknown_unconfirmed_and_restored_refusals() {
+    journey(Reply::Pass, "acknowledged").await;
 }
-#[test]
-fn standalone_native_reference_submission_keeps_lost_reply_uncertain_when_inspection_refuses() {
-    journey(Reply::Drop, "dropped");
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_native_reference_submission_keeps_lost_reply_uncertain_when_inspection_refuses()
+{
+    journey(Reply::Drop, "dropped").await;
 }
-#[test]
-fn standalone_native_reference_submission_keeps_pending_reply_unresolved_when_inspection_refuses() {
-    journey(Reply::Pending, "pending");
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_native_reference_submission_keeps_pending_reply_unresolved_when_inspection_refuses()
+ {
+    journey(Reply::Pending, "pending").await;
 }

@@ -958,7 +958,7 @@ checks, stop/start and restore fencing, signed setup recovery, and declared/expo
 Candid through the installation carrier. Strict affected-package all-target lint
 passes after extracting test helpers. Initial wrong test-target/empty-filter
 selections and the test-length lint failure remain in `.tmp/configured-upload-01`.
-The [evidence record](../evidence/configured-upload.json) distinguishes local
+The [evidence record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/configured-upload.json) distinguishes local
 certificate issuance from live Caffeine transfer and consumer acceptance.
 No full CI, version/release/commit, provider effects, sibling edits or build cleanup.
 
@@ -1921,7 +1921,7 @@ This is consumer work, not a library release dependency. No upstream messages we
 sent and no sibling edits are authorized by this removal.
 
 Toko review uses remote development; the local checkout is absent/stale. The
-[source review](../evidence/toko-0.2-review.json) and
+[source review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/toko-0.2-review.json) and
 [Miner findings](../roadmap.md#toko-miner-feedback--2026-09-27) retain consumer input,
 not approved adoption or production sizing. Real application transactions,
 consumer outbox/worker acceptance and operational restart remain open.

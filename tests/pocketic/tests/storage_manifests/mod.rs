@@ -15,7 +15,7 @@ use ic_blob_storage_contracts::protocol::UPLOAD_MANIFEST_PREPARE_METHOD;
 use ic_blob_storage_contracts::upload::manifests::reply;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyError;
 use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimits;
-fn inspect(
+async fn inspect(
     f: &Fixture,
     actor: Principal,
     permission: UploadAdmissionRequest,
@@ -29,9 +29,10 @@ fn inspect(
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
 }
-fn prepare(
+async fn prepare(
     f: &Fixture,
     actor: Principal,
     input: &UploadManifestRequest,
@@ -45,6 +46,7 @@ fn prepare(
             input,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
 }
 fn limits() -> UploadManifestReplyLimits {
@@ -58,15 +60,18 @@ fn limits() -> UploadManifestReplyLimits {
         },
     }
 }
-#[test]
-fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and_upgrade() {
-    let f = Fixture::new();
-    let enrollment = f.enroll(None, true).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and_upgrade() {
+    let f = Fixture::new().await;
+    let enrollment = f.enroll(None, true).await.unwrap();
     let (permission, declaration) = f.permission(u128::MAX, 7);
     let input = f.preparation_input(&declaration);
-    f.admit(f.tenant, permission).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
     assert_eq!(
-        inspect(&f, f.uploader, input.permission).unwrap().manifest,
+        inspect(&f, f.uploader, input.permission)
+            .await
+            .unwrap()
+            .manifest,
         UploadManifestInspection::Unprepared
     );
     let bytes = f
@@ -79,6 +84,7 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
             ic_blob_storage_contracts::wire::encode_request(UPLOAD_MANIFEST_PREPARE_METHOD, &input)
                 .unwrap(),
         )
+        .await
         .unwrap();
     assert_eq!(
         reply::mutation(
@@ -96,7 +102,7 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
         manifest: UploadManifestInspection::Prepared(input.declaration.clone()),
     };
     assert_eq!(
-        inspect(&f, f.tenant, input.permission),
+        inspect(&f, f.tenant, input.permission).await,
         Ok(expected.clone())
     );
     let accepted = reply::mutation(&input, &bytes, limits()).unwrap();
@@ -104,26 +110,35 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
     assert_eq!(accepted.observation, expected);
     let mut reordered = input.clone();
     reordered.declaration.headers.reverse();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let replay = prepare(&f, f.uploader, &reordered).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let replay = prepare(&f, f.uploader, &reordered).await.unwrap();
     assert!(!replay.changed);
     assert_eq!(replay.observation, expected);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    f.expose(permission.request).unwrap();
-    assert_eq!(prepare(&f, f.uploader, &input), Err(F::Phase));
-    f.revoke(permission).unwrap();
-    f.enroll(Some(enrollment), false).unwrap();
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    f.expose(permission.request).await.unwrap();
+    assert_eq!(prepare(&f, f.uploader, &input).await, Err(F::Phase));
+    f.revoke(permission).await.unwrap();
+    f.enroll(Some(enrollment), false).await.unwrap();
     for actor in [f.tenant, f.uploader] {
-        assert_eq!(inspect(&f, actor, input.permission), Ok(expected.clone()));
+        assert_eq!(
+            inspect(&f, actor, input.permission).await,
+            Ok(expected.clone())
+        );
     }
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.controller, f.operator, f.other] {
         assert_eq!(
-            inspect(&f, actor, input.permission),
+            inspect(&f, actor, input.permission).await,
             Err(F::Permission(A::Denied))
         );
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
     f.harness
         .pic
         .upgrade_canister(
@@ -132,53 +147,66 @@ fn manifest_lost_ack_recovers_original_declaration_after_exposure_revocation_and
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(inspect(&f, f.uploader, input.permission), Ok(expected));
     assert_eq!(
-        prepare(&f, f.uploader, &input),
+        inspect(&f, f.uploader, input.permission).await,
+        Ok(expected)
+    );
+    assert_eq!(
+        prepare(&f, f.uploader, &input).await,
         Err(F::Permission(A::Fenced))
     );
 }
-#[test]
-fn manifest_ingress_binds_actual_uploader_full_permission_and_declared_root() {
-    let f = Fixture::new();
-    f.enroll(None, true).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn manifest_ingress_binds_actual_uploader_full_permission_and_declared_root() {
+    let f = Fixture::new().await;
+    f.enroll(None, true).await.unwrap();
     let (permission, declaration) = f.permission(1, 9);
     let input = f.preparation_input(&declaration);
-    f.admit(f.tenant, permission).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.tenant, f.controller, f.operator, f.other] {
-        assert_eq!(prepare(&f, actor, &input), Err(F::Permission(A::Denied)));
+        assert_eq!(
+            prepare(&f, actor, &input).await,
+            Err(F::Permission(A::Denied))
+        );
     }
     let mut changed = input.clone();
     changed.permission.expires_at_ns -= 1;
     assert_eq!(
-        prepare(&f, f.uploader, &changed),
+        prepare(&f, f.uploader, &changed).await,
         Err(F::Permission(A::Conflict))
     );
     assert_eq!(
-        inspect(&f, f.tenant, changed.permission),
+        inspect(&f, f.tenant, changed.permission).await,
         Err(F::Permission(A::Conflict))
     );
     changed = input.clone();
     changed.permission.uploader = f.other.into();
     assert_eq!(
-        prepare(&f, f.other, &changed),
+        prepare(&f, f.other, &changed).await,
         Err(F::Permission(A::Denied))
     );
     changed = input.clone();
     changed.declaration.chunks[0][0] ^= 1;
-    assert_eq!(prepare(&f, f.uploader, &changed), Err(F::Declaration));
+    assert_eq!(prepare(&f, f.uploader, &changed).await, Err(F::Declaration));
     changed = input.clone();
     changed.declaration.headers[0].value = "11".into();
-    assert_eq!(prepare(&f, f.uploader, &changed), Err(F::Declaration));
+    assert_eq!(prepare(&f, f.uploader, &changed).await, Err(F::Declaration));
     changed = input.clone();
     changed.declaration.headers[1].value = "x".repeat(1024);
-    assert_eq!(prepare(&f, f.uploader, &changed), Err(F::Limit));
+    assert_eq!(prepare(&f, f.uploader, &changed).await, Err(F::Limit));
     assert_eq!(
-        inspect(&f, f.uploader, input.permission).unwrap().manifest,
+        inspect(&f, f.uploader, input.permission)
+            .await
+            .unwrap()
+            .manifest,
         UploadManifestInspection::Unprepared
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    assert!(prepare(&f, f.uploader, &input).unwrap().changed);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    assert!(prepare(&f, f.uploader, &input).await.unwrap().changed);
 }

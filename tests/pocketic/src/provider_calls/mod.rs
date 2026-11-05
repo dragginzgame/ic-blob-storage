@@ -16,7 +16,7 @@ pub const REPLY_LIMITS: ic_platform::candid::DecodeLimits = ic_platform::candid:
 /// Platform owns codecs and typed transport failures.
 /// # Errors
 /// Preserves encoding, transport, rejection and bounded decoding failures.
-pub fn query_provider<T, A>(
+pub async fn query_provider<T, A>(
     pic: &PocketIc,
     service: ic_platform::principal::ExternalPrincipal,
     caller: ic_platform::principal::ExternalPrincipal,
@@ -28,7 +28,7 @@ where
     A: ic_platform::candid::contract::ArgumentEncoder,
 {
     let arguments = ic_platform::candid::contract::encode_args(arguments)?;
-    let reply = pic.query_call(service, caller, method, arguments)?;
+    let reply = pic.query_call(service, caller, method, arguments).await?;
     ic_platform::candid::decode_args(&reply, REPLY_LIMITS).map_err(Into::into)
 }
 
@@ -36,7 +36,7 @@ where
 /// A transport failure never authorizes retrying an uncertain update.
 /// # Errors
 /// Preserves encoding, transport, rejection and bounded decoding failures.
-pub fn update_provider<T, A>(
+pub async fn update_provider<T, A>(
     pic: &PocketIc,
     service: ic_platform::principal::ExternalPrincipal,
     caller: ic_platform::principal::ExternalPrincipal,
@@ -48,6 +48,6 @@ where
     A: ic_platform::candid::contract::ArgumentEncoder,
 {
     let arguments = ic_platform::candid::contract::encode_args(arguments)?;
-    let reply = pic.update_call(service, caller, method, arguments)?;
+    let reply = pic.update_call(service, caller, method, arguments).await?;
     ic_platform::candid::decode_args(&reply, REPLY_LIMITS).map_err(Into::into)
 }

@@ -5,7 +5,7 @@ import { mkdirSync, openSync, writeFileSync, fsyncSync, closeSync, readFileSync 
 import { resolve, join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
-import { Cbor } from '@tokostudios/ic-platform/agent';
+import { invalidCertificateFixture } from '@tokostudios/ic-platform/testing';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createGatewayTransport, GatewayRefusal } from '../../clients/browser/gateway.js';
 import { createUploadTransfer, TransferRefusal } from '../../clients/browser/transfer.js';
@@ -104,7 +104,7 @@ async function probe(name, size, mode) {
   const agent = { call: async () => {
     certificateCalls++;
     // Valid CBOR container, deliberately no signature/tree. Not a verified IC certificate.
-    return { requestId: new Uint8Array(32), response: { body: { certificate: Cbor.encode({}) } } };
+    return { requestId: new Uint8Array(32), response: { body: { certificate: invalidCertificateFixture() } } };
   } };
   certificate.certificateAgent = agent;
   const storage = await createUploadTransfer(options);

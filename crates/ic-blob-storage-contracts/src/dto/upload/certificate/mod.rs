@@ -20,9 +20,19 @@ pub struct UploadCertificateAssessmentResponse {
 /// Successful `_immutableObjectStorageCreateCertificate` response, matching the
 /// reviewed Caffeine Mixin. This record alone is neither a signed certificate nor
 /// proof of provider acceptance, completed upload, or billing behavior.
+///
+/// This external Candid record is not part of Blob's owned Wire schema. Its
+/// existing Rust path is retained for host adapters; the separate
+/// [`UploadCertificateAssessmentResponse`] is the owned Wire observation.
 #[cfg_attr(
     all(feature = "wire-schema", not(target_arch = "wasm32")),
-    derive(ic_wire::Wire)
+    doc = r"
+External provider records cannot be projected as owned Wire metadata:
+```compile_fail
+use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
+ic_wire::typescript::native_schema::<CaffeineUploadCertificateResponse>().unwrap();
+```
+"
 )]
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]

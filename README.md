@@ -302,7 +302,7 @@ Releases preserve build artifacts; cleanup is a separate `make clean` action.
 | [Shared engineering baseline](DRAGGINZGAME.md) | Reviewed common rules; AGENTS.md supplies the local overlay |
 | [Provider review](docs/provider-review.md) | Reviewed Caffeine interfaces and unresolved guarantees |
 | [Probe ledger](docs/evidence/caffeine-probes/README.md) | Tracked investigations, retained artifacts and limitations |
-| [Core evidence](docs/evidence/core-primitives.md) | Source-bound local implementation and test results |
+| [Evidence retention](docs/evidence/README.md) | Evidence ownership, compact conclusions and historical results |
 | [Release guide](docs/releasing.md) | Maintainer release and registry publication workflow |
 
 Before 1.0, contract changes are hard cuts with no compatibility shims or migration

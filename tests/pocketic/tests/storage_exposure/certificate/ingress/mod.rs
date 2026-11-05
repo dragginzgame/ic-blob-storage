@@ -19,27 +19,29 @@ struct ExpectedUpload {
 struct Headless {
     fixture: Fixture,
     agent: Agent,
-    runtime: tokio::runtime::Runtime,
     url: String,
 }
 impl Headless {
-    fn new() -> Self {
+    async fn new() -> Self {
         let harness = Harness::with_builder(
             PocketIcBuilder::new()
                 .with_nns_subnet()
                 .with_application_subnet(),
-        );
-        let mut fixture = Fixture::with_operator(harness, fake_principal(1));
+        )
+        .await;
+        let mut fixture = Fixture::with_operator(harness, fake_principal(1)).await;
         // Fixed test-only key, never a deployment identity.
         let identity = BasicIdentity::from_raw_key(&[42; 32]);
         fixture.uploader = identity.sender().unwrap();
-        fixture.enroll(None, true).unwrap();
-        let root_key = fixture.harness.pic.root_key().unwrap().unwrap();
-        let url = fixture.harness.pic.make_live(None).unwrap().to_string();
-        let runtime = tokio::runtime::Builder::new_current_thread()
-            .enable_all()
-            .build()
-            .unwrap();
+        fixture.enroll(None, true).await.unwrap();
+        let root_key = fixture.harness.pic.root_key().await.unwrap().unwrap();
+        let url = fixture
+            .harness
+            .pic
+            .make_live(None)
+            .await
+            .unwrap()
+            .to_string();
         let agent = Agent::builder()
             .with_url(&url)
             .with_identity(identity)
@@ -53,17 +55,16 @@ impl Headless {
         Self {
             fixture,
             agent,
-            runtime,
             url,
         }
     }
-    fn prepare(&self, id: u128, bytes: u8) -> (ExposureInput, ExpectedUpload) {
+    async fn prepare(&self, id: u128, bytes: u8) -> (ExposureInput, ExpectedUpload) {
         let f = &self.fixture;
         let (permission, declaration) = f.permission(id, bytes);
-        f.admit(f.tenant, permission).unwrap();
-        f.prepare(&declaration).unwrap();
+        f.admit(f.tenant, permission).await.unwrap();
+        f.prepare(&declaration).await.unwrap();
         let input = input(f, permission);
-        configure(f, input);
+        configure(f, input).await;
         (
             input,
             ExpectedUpload {
@@ -82,29 +83,51 @@ impl Headless {
     }
 }
 
-#[test]
-fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_proofs() {
-    let h = Headless::new();
-    let (input, expected) = h.prepare(1, 1);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_proofs() {
+    let h = Headless::new().await;
+    let (input, expected) = h.prepare(1, 1).await;
     let signed = h.sign(&expected);
-    let certificate = h.runtime.block_on(submit(&h.url, &signed));
+    let certificate = (submit(&h.url, &signed)).await;
     let reply = extract(&h.agent, &signed, &expected, &certificate).unwrap();
     assert_ne!(reply, Vec::<u8>::new());
     assert_eq!(
         inspect(&h.fixture, h.fixture.uploader, input)
+            .await
             .unwrap()
             .state,
         UploadState::Registered
     );
     let mut forged: ic_platform::certification::Certificate =
-        serde_cbor::from_slice(&certificate).unwrap();
+        ic_platform::certification::cbor::decode_certificate(
+            &certificate,
+            proof::MAX_CERTIFICATE_BYTES,
+        )
+        .unwrap();
+    let untagged = ic_platform::certification::cbor::encode_certificate_untagged(
+        &forged,
+        proof::MAX_CERTIFICATE_BYTES,
+    )
+    .unwrap();
+    assert!(!untagged.starts_with(&[0xd9, 0xd9, 0xf7]));
+    assert_eq!(extract(&h.agent, &signed, &expected, &untagged), Ok(reply));
+    let mut trailing = certificate.clone();
+    trailing.push(0);
+    assert_eq!(
+        extract(&h.agent, &signed, &expected, &trailing),
+        Err(ProofError::Encoding)
+    );
     forged.signature[0] ^= 1;
     assert_eq!(
         extract(
             &h.agent,
             &signed,
             &expected,
-            &serde_cbor::to_vec(&forged).unwrap()
+            &ic_platform::certification::cbor::encode_certificate_untagged(
+                &forged,
+                proof::MAX_CERTIFICATE_BYTES
+            )
+            .unwrap()
         ),
         Err(ProofError::Signature)
     );
@@ -116,7 +139,7 @@ fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_p
         extract(&h.agent, &signed, &expected, &vec![0; 128 * 1024 + 1]),
         Err(ProofError::Size)
     );
-    let (_, other) = h.prepare(2, 2);
+    let (_, other) = h.prepare(2, 2).await;
     let other_signed = h.sign(&other);
     assert_eq!(
         extract(&h.agent, &other_signed, &other, &certificate),
@@ -139,14 +162,14 @@ fn headless_ingress_extracts_exact_certificate_and_rejects_forged_or_unrelated_p
     );
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
 )]
-fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refusal() {
-    let h = Headless::new();
-    let (input, expected) = h.prepare(1, 1);
+async fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refusal() {
+    let h = Headless::new().await;
+    let (input, expected) = h.prepare(1, 1).await;
     let signed = h.sign(&expected);
     // Retain the transport envelope/request ID before dispatch. This is not a
     // production consumer journal or a claim about provider receipt retention.
@@ -155,26 +178,29 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         ic_host_fs::scratch::create_private_bytes(saved_directory.path(), "input", b"", 128)
             .unwrap();
     std::fs::write(saved.as_path(), serde_json::to_vec(&signed).unwrap()).unwrap();
-    let _lost_reply = h.runtime.block_on(submit(&h.url, &signed));
+    let _lost_reply = (submit(&h.url, &signed)).await;
     let before = h
         .fixture
         .harness
         .pic
         .get_stable_memory(h.fixture.service)
+        .await
         .unwrap();
     let restored: SignedUpdate =
         serde_json::from_slice(&std::fs::read(saved.as_path()).unwrap()).unwrap();
-    let (status, cert) = h
-        .runtime
-        .block_on(
-            h.agent
-                .request_status_raw(&restored.request_id, expected.service),
-        )
-        .unwrap();
+    let (status, cert) = (h
+        .agent
+        .request_status_raw(&restored.request_id, expected.service))
+    .await
+    .unwrap();
     let RequestStatusResponse::Replied(reply) = status else {
         panic!("expected retained ingress reply")
     };
-    let recovered = serde_cbor::to_vec(&cert).unwrap();
+    let recovered = ic_platform::certification::cbor::encode_certificate_untagged(
+        &cert,
+        proof::MAX_CERTIFICATE_BYTES,
+    )
+    .unwrap();
     assert_eq!(
         extract(&h.agent, &restored, &expected, &recovered),
         Ok(reply.arg)
@@ -184,11 +210,13 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
             .harness
             .pic
             .get_stable_memory(h.fixture.service)
+            .await
             .unwrap(),
         before
     );
     assert_eq!(
         inspect(&h.fixture, h.fixture.uploader, input)
+            .await
             .unwrap()
             .state,
         UploadState::Registered
@@ -197,7 +225,7 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
     // upload certificate even though HTTP successfully transports a certificate.
     let repeated = h.sign(&expected);
     assert_ne!(repeated.request_id, restored.request_id);
-    let rejected = h.runtime.block_on(submit(&h.url, &repeated));
+    let rejected = (submit(&h.url, &repeated)).await;
     assert_eq!(
         extract(&h.agent, &repeated, &expected, &rejected),
         Err(ProofError::Status)
@@ -207,6 +235,7 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
             .harness
             .pic
             .get_stable_memory(h.fixture.service)
+            .await
             .unwrap(),
         before
     );
@@ -226,6 +255,7 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
             input.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);
     let before = h
@@ -233,25 +263,29 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
         .harness
         .pic
         .get_stable_memory(h.fixture.service)
+        .await
         .unwrap();
-    let (_, history) = h
-        .runtime
-        .block_on(
-            h.agent
-                .request_status_raw(&restored.request_id, expected.service),
-        )
-        .unwrap();
+    let (_, history) = (h
+        .agent
+        .request_status_raw(&restored.request_id, expected.service))
+    .await
+    .unwrap();
     assert!(
         extract(
             &h.agent,
             &restored,
             &expected,
-            &serde_cbor::to_vec(&history).unwrap()
+            &ic_platform::certification::cbor::encode_certificate_untagged(
+                &history,
+                proof::MAX_CERTIFICATE_BYTES
+            )
+            .unwrap()
         )
         .is_ok()
     );
     assert!(
         inspect(&h.fixture, h.fixture.uploader, input)
+            .await
             .unwrap()
             .revoked
     );
@@ -260,6 +294,7 @@ fn headless_ingress_recovers_saved_request_without_reissuing_and_certifies_refus
             .harness
             .pic
             .get_stable_memory(h.fixture.service)
+            .await
             .unwrap(),
         before
     );

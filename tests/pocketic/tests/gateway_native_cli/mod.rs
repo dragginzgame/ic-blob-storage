@@ -220,15 +220,15 @@ impl GatewayCli {
             0
         );
     }
-    fn mode(&self, label: &str, mode: SourceMode, configure: &impl Fn(SourceMode)) {
+    async fn mode(&self, label: &str, mode: SourceMode, configure: &impl AsyncFn(SourceMode)) {
         save(
             &self.report.join(format!("{label}-source.json")),
             &serde_json::to_vec(&json!({"local_source_mode":format!("{mode:?}")})).unwrap(),
         );
-        configure(mode);
+        configure(mode).await;
     }
-    pub fn decisions(&self, configure: impl Fn(SourceMode)) -> String {
-        self.mode("valid", SourceMode::Valid, &configure);
+    pub async fn decisions(&self, configure: impl AsyncFn(SourceMode)) -> String {
+        self.mode("valid", SourceMode::Valid, &configure).await;
         assert_eq!(
             self.send(
                 "sync-gateways",
@@ -263,10 +263,11 @@ impl GatewayCli {
             json!([self.gateway.to_text()])
         );
         assert_eq!(status["gateways"]["last_sequence"], "2");
-        self.failed_decisions(&configure)
+        self.failed_decisions(&configure).await
     }
-    fn failed_decisions(&self, configure: &impl Fn(SourceMode)) -> String {
-        self.mode("malformed", SourceMode::Malformed, configure);
+    async fn failed_decisions(&self, configure: &impl AsyncFn(SourceMode)) -> String {
+        self.mode("malformed", SourceMode::Malformed, configure)
+            .await;
         let refused = self.send(
             "sync-gateways",
             "malformed-sync",
@@ -310,10 +311,11 @@ impl GatewayCli {
             )["error"],
             "gateway_conflict"
         );
-        self.oversized_decisions(configure)
+        self.oversized_decisions(configure).await
     }
-    fn oversized_decisions(&self, configure: &impl Fn(SourceMode)) -> String {
-        self.mode("oversized", SourceMode::Oversized, configure);
+    async fn oversized_decisions(&self, configure: &impl AsyncFn(SourceMode)) -> String {
+        self.mode("oversized", SourceMode::Oversized, configure)
+            .await;
         assert_eq!(
             self.send(
                 "sync-gateways",
@@ -368,7 +370,7 @@ impl GatewayCli {
             )["acknowledgment"]["removed"],
             false
         );
-        self.mode("reject", SourceMode::Reject, configure);
+        self.mode("reject", SourceMode::Reject, configure).await;
         assert_eq!(
             self.send(
                 "sync-gateways",

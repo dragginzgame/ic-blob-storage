@@ -1,4 +1,4 @@
-import { HttpAgent, Cbor, requestIdOf, createAgentOptions } from '@tokostudios/ic-platform/agent';
+import { HttpAgent, inspectCallIngress, createAgentOptions } from '@tokostudios/ic-platform/agent';
 import { Certificate, lookupResultToBuffer } from '@tokostudios/ic-platform/certification';
 import { Principal } from '@tokostudios/ic-platform/principal';
 import { IDL } from '@tokostudios/ic-platform/candid';
@@ -56,12 +56,10 @@ export async function createCertificateClient({ host, identity, rootKey, binding
   }
   function envelopeId(bytes) {
     require(bytes instanceof Uint8Array && bytes.length > 0 && bytes.length <= 8192, 'envelope-size');
-    const { content } = Cbor.decode(bytes);
-    require(content.request_type === 'call' && content.method_name === METHOD &&
-      Principal.fromUint8Array(content.sender).toText() === saved.uploader &&
-      Principal.fromUint8Array(content.canister_id).toText() === saved.service &&
-      same(new Uint8Array(content.arg), arg), 'envelope');
-    return hex(requestIdOf(content));
+    const call = inspectCallIngress(bytes);
+    require(call.methodName === METHOD && call.sender.toText() === saved.uploader &&
+      call.canisterId.toText() === saved.service && same(call.arg, arg), 'envelope');
+    return hex(call.requestId);
   }
   function retained(row) {
     bound(row);

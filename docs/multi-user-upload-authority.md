@@ -64,18 +64,18 @@ single-uploader format refuses without opening or replacing service owners.
 There are no compatibility re-exports, dual modes or record migrations.
 Workspace versions and release effects remain maintainer-operated.
 
-The [local implementation record](evidence/multi-user0190.md) retains passing
+The [local implementation record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/multi-user0190.md) retains passing
 two-signer ingress/certificate, cross-user refusal, permission binding,
 expiry/revocation, shared quota, uncertainty and restored-owner checks. Frozen
 old-image refusal preserves every stable byte and existing obligations.
 Registration records retention intent at certificate issuance; it does not prove
 provider availability. Downloads still verify actual bytes.
-The [later Chromium record](evidence/multi-user-browser0192.md) qualifies two
+The [later Chromium record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/multi-user-browser0192.md) qualifies two
 browser signing keys uploading distinct bodies to one actual standalone service,
 independent native verification/download and separate reference release, using
 an owned provider substitute. It does not qualify application login/capabilities
 or deployed provider behavior.
-The [Canic review](evidence/canic0216.md) links its recorded managed two-uploader
+The [Canic review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0216.md) links its recorded managed two-uploader
 permission/restoration acceptance and distinguishes that from pushed adapter
 delivery. It does not establish successful managed certificate issuance.
 Canic owns thin mounting/DTO propagation and its neutral managed fixture; Toko

@@ -8,13 +8,6 @@ use ic_blob_storage_contracts::dto::account::AccountObservation as Observation;
 use ic_blob_storage_contracts::protocol;
 use serde_json::{Value, json};
 
-pub(super) fn kind(value: &str) -> Result<Kind, Failure> {
-    match value {
-        "balance" => Ok(Kind::Balance),
-        "relationship" => Ok(Kind::PaymentRelationship),
-        _ => Err(Failure::Arguments),
-    }
-}
 fn decode(
     request: AccountInspectionRequest,
     bytes: &[u8],

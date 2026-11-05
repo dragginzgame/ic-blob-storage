@@ -1,5 +1,5 @@
 // Local test identity, fault injection and controls; transport lives in clients/browser.
-import { Cbor } from '@tokostudios/ic-platform/agent';
+import { corruptCertificateSignatureFixture, callWithMethodFixture } from '@tokostudios/ic-platform/testing';
 import { Ed25519KeyIdentity } from '@tokostudios/ic-platform/identity';
 import { StorageClient } from '@caffeineai/object-storage';
 import { createCertificateClient } from '../../clients/browser/certificate.js';
@@ -115,9 +115,7 @@ window.fixture = { setup, initializeStore: intents.initialize, admitAndPrepare, 
     const { raw, requestId } = lastProof;
     if (kind === 'request') return client.observeCertificate(raw, new Uint8Array(32));
     if (kind === 'size') return client.observeCertificate(new Uint8Array(128 * 1024 + 1), requestId);
-    const changed = Cbor.decode(raw);
-    changed.signature[0] ^= 1;
-    return client.observeCertificate(Cbor.encode(changed), requestId);
+    return client.observeCertificate(corruptCertificateSignatureFixture(raw), requestId);
   },
   rejectRetained: async kind => {
     corruptInspection = row => {
@@ -125,9 +123,7 @@ window.fixture = { setup, initializeStore: intents.initialize, admitAndPrepare, 
       if (kind === 'trust') row.binding.icRootKey[0] ^= 1;
       if (kind === 'phase') row.phase = 'saved';
       if (kind === 'envelope') {
-        const envelope = Cbor.decode(new Uint8Array(row.envelope));
-        envelope.content.method_name = 'unrelated';
-        row.envelope = Array.from(Cbor.encode(envelope));
+        row.envelope = Array.from(callWithMethodFixture(new Uint8Array(row.envelope), 'unrelated'));
       }
       return row;
     };

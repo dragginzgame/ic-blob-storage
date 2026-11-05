@@ -10,10 +10,11 @@ fn change(args: &mut [String], flag: &str, value: &str) {
     args[index + 1] = value.into();
 }
 
-fn live(f: &mut Fixture) -> String {
+async fn live(f: &mut Fixture) -> String {
     f.harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string()
 }
@@ -40,13 +41,17 @@ fn funding_history(args: &[String], fenced: bool) {
     assert_eq!(run(&history, 3)["error"], "cursor_scope");
 }
 
-#[test]
-fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restore_status() {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restore_status() {
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.operator = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
     f.config.operator = f.operator.into();
     // Fresh local fixture, with no objects, effects or outstanding obligations.
@@ -58,15 +63,16 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
             installation(&f.config),
             Some(f.controller),
         )
+        .await
         .unwrap();
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let key = directory.path().join("identity.pem");
     let root = directory.path().join("root.der");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
-    let url = live(&mut f);
+    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
+    let url = live(&mut f).await;
     let args = arguments("status", f.operator_scope(), f.operator, &url, &key, &root);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let value = run(&args, 0);
     funding_history(&args, false);
     assert_eq!(value["operator"], f.operator.to_text());
@@ -100,15 +106,16 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
     assert_eq!(run(&args, 3)["error"], "transport");
     std::fs::write(&root, root_bytes).unwrap();
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut args = args;
-    change(&mut args, "--url", &live(&mut f));
+    change(&mut args, "--url", &live(&mut f).await);
     let restored = run(&args, 0);
     funding_history(&args, true);
     assert!(restored.get("reads").is_none());
@@ -116,10 +123,10 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
         assert_eq!(restored[owner]["fenced"], true);
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     // A valid signing identity is still refused when it is not the installed operator.
     f.config.operator = f.controller.into();
     f.harness
@@ -130,8 +137,9 @@ fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restor
             installation(&f.config),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    change(&mut args, "--url", &live(&mut f));
+    change(&mut args, "--url", &live(&mut f).await);
     assert_eq!(run(&args, 3)["error"], "denied");
     args[0] = "funding-history".into();
     assert_eq!(run(&args, 3)["error"], "denied");

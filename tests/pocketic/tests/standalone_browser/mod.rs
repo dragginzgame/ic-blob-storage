@@ -17,14 +17,14 @@ enum Scenario {
     Withdrawn,
 }
 
-fn upload(
+async fn upload(
     trial: &Trial,
     scenario: Scenario,
 ) -> (BrowserDriver, UploadManifestRequest, client::UploadReport) {
     let input = trial.f.small_manifest();
     let config = serde_json::json!({
         "url": trial.url, "service": trial.f.service.to_text(),
-        "rootKey": trial.f.harness.pic.root_key().unwrap().unwrap(), "project": client::PROJECT,
+        "rootKey": trial.f.harness.pic.root_key().await.unwrap().unwrap(), "project": client::PROJECT,
         "corruptRead": matches!(scenario, Scenario::CorruptRead),
         "lostFinalReply": matches!(scenario, Scenario::LostFinal | Scenario::Withdrawn),
         "withdrawAfterObservation": matches!(scenario, Scenario::Withdrawn),
@@ -35,8 +35,8 @@ fn upload(
     });
     let mut driver = BrowserDriver::start(&config, "standalone.mjs");
     let plan: BrowserPreparation = driver.read(8192);
-    let generated = trial.inputs(&input, &plan, &[42; 1024]);
-    trial.setup(&generated);
+    let generated = trial.inputs(&input, &plan, &[42; 1024]).await;
+    trial.setup(&generated).await;
     driver.send(&trial.transfer_inputs());
     let uploaded: client::UploadReport = driver.read(8192);
     let lost = matches!(scenario, Scenario::LostFinal | Scenario::Withdrawn);
@@ -54,7 +54,7 @@ fn upload(
         &serde_json::to_value(&uploaded).unwrap(),
     );
     assert_eq!(
-        trial.f.admission(input.permission).state,
+        trial.f.admission(input.permission).await.state,
         UploadState::Registered
     );
     (driver, input, uploaded)
@@ -66,11 +66,11 @@ fn finish(trial: &Trial, mut driver: BrowserDriver) -> serde_json::Value {
     trial.record("browser-result.json", &report);
     report
 }
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
-fn chromium_standalone_trial_upload_verification_download_and_release() {
-    let mut trial = Trial::new("success");
-    let (driver, input, uploaded) = upload(&trial, Scenario::Verified);
+async fn chromium_standalone_trial_upload_verification_download_and_release() {
+    let mut trial = Trial::new("success").await;
+    let (driver, input, uploaded) = upload(&trial, Scenario::Verified).await;
     assert!(uploaded.gateway.starts_with("https://127.0.0.1:"));
     let delivered = trial.download(
         &input,
@@ -87,7 +87,7 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
         std::fs::read(trial.report.join("download/body.bin")).unwrap(),
         [42; 1024]
     );
-    trial.release(&input);
+    trial.release(&input).await;
     let released = trial.download(
         &input,
         input.permission.upload.first_reference,
@@ -100,6 +100,7 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
     let status = trial
         .f
         .local_status(trial.f.operator, trial.f.operator_scope())
+        .await
         .unwrap();
     assert_eq!(status.uploads.logical_bytes, 0);
     assert_eq!(status.uploads.physical_bytes, 1024);
@@ -116,13 +117,13 @@ fn chromium_standalone_trial_upload_verification_download_and_release() {
         "provider_deletion_established": false, "billing_cessation_established": false,
         "live_provider_requests": 0, "paid_effects": 0,
     }));
-    trial.f.harness.pic.stop_live().unwrap();
+    trial.f.harness.pic.stop_live().await.unwrap();
 }
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
-fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_obligations() {
-    let mut trial = Trial::new("corrupt");
-    let (driver, input, uploaded) = upload(&trial, Scenario::CorruptRead);
+async fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_obligations() {
+    let mut trial = Trial::new("corrupt").await;
+    let (driver, input, uploaded) = upload(&trial, Scenario::CorruptRead).await;
     let refusal = trial.download(
         &input,
         input.permission.upload.first_reference,
@@ -143,14 +144,16 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
             input.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert!(revoked.unwrap().admission.revoked);
-    let retained = trial.f.admission(input.permission);
+    let retained = trial.f.admission(input.permission).await;
     assert!(retained.revoked);
     assert_eq!(retained.state, UploadState::Registered);
     let status = trial
         .f
         .local_status(trial.f.operator, trial.f.operator_scope())
+        .await
         .unwrap();
     assert_eq!(status.uploads.logical_bytes, 1024);
     assert_eq!(status.uploads.physical_bytes, 1024);
@@ -168,21 +171,22 @@ fn chromium_standalone_trial_corrupt_provider_download_cannot_confirm_or_free_ob
             "live_provider_requests": 0, "paid_effects": 0,
         }),
     );
-    trial.f.harness.pic.stop_live().unwrap();
+    trial.f.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
-fn chromium_registration_preserves_lost_transfer_reply_and_withdrawal_obligations() {
+async fn chromium_registration_preserves_lost_transfer_reply_and_withdrawal_obligations() {
     for scenario in [Scenario::LostFinal, Scenario::Withdrawn] {
         let mut trial = Trial::new(if matches!(scenario, Scenario::Withdrawn) {
             "withdrawn-registration"
         } else {
             "lost-final-registration"
-        });
-        let (driver, input, uploaded) = upload(&trial, scenario);
+        })
+        .await;
+        let (driver, input, uploaded) = upload(&trial, scenario).await;
         assert_eq!(
-            trial.f.admission(input.permission).state,
+            trial.f.admission(input.permission).await.state,
             UploadState::Registered
         );
         assert_eq!(uploaded.final_request_phase, "uncertain");
@@ -199,6 +203,7 @@ fn chromium_registration_preserves_lost_transfer_reply_and_withdrawal_obligation
                         input.permission,
                         REPLY_BYTES,
                     )
+                    .await
                     .unwrap();
             assert!(withdrawn.unwrap().admission.revoked);
         }
@@ -209,15 +214,16 @@ fn chromium_registration_preserves_lost_transfer_reply_and_withdrawal_obligation
             "download",
             0,
         );
-        trial.release(&input);
+        trial.release(&input).await;
         let status = trial
             .f
             .local_status(trial.f.operator, trial.f.operator_scope())
+            .await
             .unwrap();
         assert_eq!(status.uploads.logical_bytes, 0);
         assert_eq!(status.uploads.physical_bytes, 1024);
         assert_eq!(status.uploads.liability_bytes, 1024);
         finish(&trial, driver);
-        trial.f.harness.pic.stop_live().unwrap();
+        trial.f.harness.pic.stop_live().await.unwrap();
     }
 }

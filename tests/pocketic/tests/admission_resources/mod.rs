@@ -14,15 +14,15 @@ mod releases;
 
 const CHUNK: usize = 1024 * 1024;
 
-#[test]
-fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
+#[tokio::test(flavor = "multi_thread")]
+async fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
     use blob_test_protocol::admission::release::LifecycleCommand;
-    let f = Fixture::new();
-    f.enroll();
+    let f = Fixture::new().await;
+    f.enroll().await;
     let vector = vectors::vector("abc-text", 1);
-    let permission = f.permission(&vector);
-    f.admit(permission);
-    let original = f.observe(permission);
+    let permission = f.permission(&vector).await;
+    f.admit(permission).await;
+    let original = f.observe(permission).await;
     for command in [
         LifecycleCommand::SubstituteDeletion(permission.request),
         LifecycleCommand::SubstituteSettlement(permission.request),
@@ -35,7 +35,7 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
             Principal::anonymous(),
         ] {
             assert_eq!(
-                f.call(actor, Command::FixtureLifecycle(command)),
+                f.call(actor, Command::FixtureLifecycle(command)).await,
                 Err(Failure::NotOperator)
             );
         }
@@ -57,21 +57,27 @@ fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
                         operation: 1,
                         retain,
                     })
-                ),
+                )
+                .await,
                 Err(Failure::NotProject)
             );
         }
     }
-    assert_eq!(f.observe(permission), original);
-    f.prepare(permission, &vector);
+    assert_eq!(f.observe(permission).await, original);
+    f.prepare(permission, &vector).await;
     assert_eq!(
-        f.call(f.uploader, Command::Expose(permission.request.root)),
+        f.call(f.uploader, Command::Expose(permission.request.root))
+            .await,
         Ok(Outcome::Exposed)
     );
 }
 
 impl Fixture {
-    fn resources(&self, caller: Principal, limit: usize) -> Result<Vec<ExecutionProfile>, Failure> {
+    async fn resources(
+        &self,
+        caller: Principal,
+        limit: usize,
+    ) -> Result<Vec<ExecutionProfile>, Failure> {
         fixture_calls::query_fixture(
             &self.harness.pic,
             self.service,
@@ -79,30 +85,38 @@ impl Fixture {
             "resources",
             (u8::try_from(limit).unwrap(),),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
     }
 
-    fn sample(&self, caller: Principal) -> ExecutionProfile {
-        let profile = *self.resources(self.operator, 1).unwrap().last().unwrap();
+    async fn sample(&self, caller: Principal) -> ExecutionProfile {
+        let profile = *self
+            .resources(self.operator, 1)
+            .await
+            .unwrap()
+            .last()
+            .unwrap();
         check_profile(profile, caller);
         profile
     }
 
-    fn wasm_bytes(&self) -> u64 {
+    async fn wasm_bytes(&self) -> u64 {
         let status = self
             .harness
             .pic
             .canister_status(self.service, Some(self.controller))
+            .await
             .unwrap();
         u64::try_from(status.memory_metrics.wasm_memory_size.0).unwrap()
     }
 
-    fn reject_input(&self, bytes: Vec<u8>) {
+    async fn reject_input(&self, bytes: Vec<u8>) {
         let error = self
             .harness
             .pic
             .update_call(self.service, self.uploader, "prepare", bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
@@ -118,88 +132,100 @@ fn check_profile(profile: ExecutionProfile, caller: Principal) {
     assert!(profile.after_work > profile.before_work);
 }
 
-#[test]
-fn resource_observations_are_operator_only_and_reads_preserve_the_sample() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread")]
+async fn resource_observations_are_operator_only_and_reads_preserve_the_sample() {
+    let f = Fixture::new().await;
     assert_eq!(
-        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).await,
         Ok(vec![])
     );
-    f.enroll();
-    let sample = f.sample(f.operator);
+    f.enroll().await;
+    let sample = f.sample(f.operator).await;
     for caller in [f.controller, f.project, f.uploader, Principal::anonymous()] {
         assert_eq!(
-            f.resources(caller, RESOURCE_SAMPLE_CAPACITY),
+            f.resources(caller, RESOURCE_SAMPLE_CAPACITY).await,
             Err(Failure::NotOperator)
         );
     }
     assert_eq!(
-        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).await,
         Ok(vec![sample])
     );
     assert_eq!(
-        f.call(f.controller, f.enrollment(None, false)),
+        f.call(f.controller, f.enrollment(None, false)).await,
         Err(Failure::NotOperator)
     );
-    f.sample(f.controller);
+    f.sample(f.controller).await;
 }
 
-#[test]
-fn resource_window_preserves_order_and_overwrites_only_the_oldest_samples() {
-    let f = Fixture::new();
-    f.enroll();
-    let initial = f.sample(f.operator).sequence;
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn resource_window_preserves_order_and_overwrites_only_the_oldest_samples() {
+    let f = Fixture::new().await;
+    f.enroll().await;
+    let initial = f.sample(f.operator).await.sequence;
     let callers: Vec<_> = (0..RESOURCE_SAMPLE_CAPACITY + 3)
         .map(|index| fake_principal(u32::try_from(index + 20).unwrap()))
         .collect();
     for caller in &callers {
         assert_eq!(
-            f.call(*caller, f.enrollment(None, false)),
+            f.call(*caller, f.enrollment(None, false)).await,
             Err(Failure::NotOperator)
         );
     }
-    let profiles = f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).unwrap();
+    let profiles = f
+        .resources(f.operator, RESOURCE_SAMPLE_CAPACITY)
+        .await
+        .unwrap();
     assert_eq!(profiles.len(), RESOURCE_SAMPLE_CAPACITY);
     let discarded = callers.len() - RESOURCE_SAMPLE_CAPACITY;
     for (index, (profile, caller)) in profiles.iter().zip(&callers[discarded..]).enumerate() {
         check_profile(*profile, *caller);
         assert_eq!(profile.sequence, initial + (discarded + index + 1) as u64);
     }
-    f.restart();
+    f.restart().await;
     assert_eq!(
-        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).await,
         Ok(profiles.clone())
     );
     for limit in [1, 3, RESOURCE_SAMPLE_CAPACITY] {
         assert_eq!(
-            f.resources(f.operator, limit),
+            f.resources(f.operator, limit).await,
             Ok(profiles[profiles.len() - limit..].to_vec())
         );
     }
     for limit in [0, RESOURCE_SAMPLE_CAPACITY + 1] {
-        assert_eq!(f.resources(f.operator, limit), Err(Failure::InvalidInput));
-        assert_eq!(f.resources(f.controller, limit), Err(Failure::NotOperator));
+        assert_eq!(
+            f.resources(f.operator, limit).await,
+            Err(Failure::InvalidInput)
+        );
+        assert_eq!(
+            f.resources(f.controller, limit).await,
+            Err(Failure::NotOperator)
+        );
     }
     assert_eq!(
-        f.resources(f.controller, RESOURCE_SAMPLE_CAPACITY),
+        f.resources(f.controller, RESOURCE_SAMPLE_CAPACITY).await,
         Err(Failure::NotOperator)
     );
     assert_eq!(
-        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).await,
         Ok(profiles)
     );
 }
 
-#[test]
-fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permission() {
-    let f = Fixture::new();
-    f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permission() {
+    let f = Fixture::new().await;
+    f.enroll().await;
     let v = vectors::vector("abc-text", 1);
-    let p = f.permission(&v);
-    f.admit(p);
-    let original = f.observe(p);
-    f.sample(f.project);
-    let profiles = f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).unwrap();
+    let p = f.permission(&v).await;
+    f.admit(p).await;
+    let original = f.observe(p).await;
+    f.sample(f.project).await;
+    let profiles = f
+        .resources(f.operator, RESOURCE_SAMPLE_CAPACITY)
+        .await
+        .unwrap();
     let valid = PreparationInput {
         request: p.request,
         manifest: v.manifest.clone(),
@@ -226,25 +252,25 @@ fn resource_envelope_rejects_before_workflow_and_preserves_the_original_permissi
         truncated,
         vec![],
     ] {
-        f.reject_input(bytes);
+        f.reject_input(bytes).await;
     }
-    assert_eq!(f.observe(p), original);
+    assert_eq!(f.observe(p).await, original);
     assert_eq!(
-        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY),
+        f.resources(f.operator, RESOURCE_SAMPLE_CAPACITY).await,
         Ok(profiles)
     );
     // A valid input still works after every rejected message.
-    f.prepare(p, &v);
-    assert_eq!(f.observe(p).manifest, ManifestState::Bound);
+    f.prepare(p, &v).await;
+    assert_eq!(f.observe(p).await.manifest, ManifestState::Bound);
 }
-#[test]
-fn resource_manifest_conversion_rejects_large_collections_without_hash_work() {
-    let f = Fixture::new();
-    f.enroll();
+#[tokio::test(flavor = "multi_thread")]
+async fn resource_manifest_conversion_rejects_large_collections_without_hash_work() {
+    let f = Fixture::new().await;
+    f.enroll().await;
     let v = vectors::vector("abc-text", 1);
-    let p = f.permission(&v);
-    f.admit(p);
-    let original = f.observe(p);
+    let p = f.permission(&v).await;
+    f.admit(p).await;
+    let original = f.observe(p).await;
     for manifest in [
         JourneyManifest {
             chunks: vec![[0; 32]; 256],
@@ -260,25 +286,26 @@ fn resource_manifest_conversion_rejects_large_collections_without_hash_work() {
         },
     ] {
         assert_eq!(
-            f.call(f.uploader, Command::Prepare(p.request, manifest)),
+            f.call(f.uploader, Command::Prepare(p.request, manifest))
+                .await,
             Err(Failure::Manifest)
         );
-        let sample = f.sample(f.uploader);
+        let sample = f.sample(f.uploader).await;
         // Coarse work budget excludes Candid decode but includes argument destruction;
         // it detects accidental conversion/hashing of these oversized inputs.
         assert!(sample.after_work - sample.before_work < 1_000_000);
-        assert_eq!(f.observe(p), original);
+        assert_eq!(f.observe(p).await, original);
     }
-    f.prepare(p, &v);
+    f.prepare(p, &v).await;
 }
 
-#[test]
-fn resource_profile_ten_mib_direct_manifest_and_exposure() {
-    let f = Fixture::new();
-    f.enroll();
+#[tokio::test(flavor = "multi_thread")]
+async fn resource_profile_ten_mib_direct_manifest_and_exposure() {
+    let f = Fixture::new().await;
+    f.enroll().await;
     let v = vectors::vector("media-10485760", 1);
-    let p = f.permission(&v);
-    let initial_heap = f.wasm_bytes();
+    let p = f.permission(&v).await;
+    let initial_heap = f.wasm_bytes().await;
     let mut messages = Vec::new();
     let mut total = 0;
     for (step, caller, command, expected) in [
@@ -304,9 +331,9 @@ fn resource_profile_ten_mib_direct_manifest_and_exposure() {
     ] {
         let wire_bytes = admission_wire::encode(command.clone()).1.len();
         assert!(wire_bytes < 4096);
-        assert_eq!(f.call(caller, command), Ok(expected));
-        let sample = f.sample(caller);
-        let heap = f.wasm_bytes();
+        assert_eq!(f.call(caller, command).await, Ok(expected));
+        let sample = f.sample(caller).await;
+        let heap = f.wasm_bytes().await;
         total += sample.after_work;
         // Headroom for normal compiler/allocator changes; bound metadata work.
         assert!(sample.after_work < 5_000_000);
@@ -314,7 +341,7 @@ fn resource_profile_ten_mib_direct_manifest_and_exposure() {
         messages.push(serde_json::json!({"step":step,"wire_bytes":wire_bytes,"before_decode":sample.before_decode,"after_decode":sample.after_decode,"before_work":sample.before_work,"after_work":sample.after_work,"wasm_memory_bytes":heap}));
     }
     assert!(total < 10_000_000);
-    let view = f.observe(p);
+    let view = f.observe(p).await;
     assert_eq!(view.manifest, ManifestState::Bound);
     assert_eq!(view.phase, Phase::Registered);
     assert_eq!(view.usage.unwrap().liability, u128::from(p.request.bytes));

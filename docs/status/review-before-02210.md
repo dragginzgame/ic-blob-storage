@@ -18,7 +18,7 @@ Shared 0.6.0 remains the reviewed 102-file snapshot at
 `75180980a0c4e4252d8a915aaecfaefd92bf9a4e`. The previously missing evidence file
 and collector correction are committed in this release. Original failures,
 setup/reuse and both Bash qualifications remain in
-[their source-bound record](../evidence/shared0600228.md); its earlier untracked
+[their source-bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0600228.md); its earlier untracked
 observation is historical. No new tool setup or Shared refresh is performed here.
 
 Pending compatible 0.22.9 corrects stale Canic/Memory guidance and records current
@@ -39,8 +39,8 @@ Toko Miner reports delivered registry-only Canic/adapter 0.111.0 with Blob
 0.22.5, disposable managed installation/admission, generated-Candid parity and
 same-release database restoration. Production Root installation, frozen
 Release-profile and provider/deployment acceptance remain open. See
-[the current review](../evidence/canic0229.md) for exact source, package, graph and
-owner evidence. Earlier [Canic reviews](../evidence/canic0223.md) retain their
+[the current review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0229.md) for exact source, package, graph and
+owner evidence. Earlier [Canic reviews](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0223.md) retain their
 original inputs and limitations.
 
 Documentation links, runtime-free contract/CLI graph, snapshot/dependency

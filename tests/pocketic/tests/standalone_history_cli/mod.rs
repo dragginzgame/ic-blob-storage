@@ -9,11 +9,12 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;
 
-fn live(f: &mut Fixture, args: &mut [String]) {
+async fn live(f: &mut Fixture, args: &mut [String]) {
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap();
     change(args, "--url", url.as_str());
 }
@@ -21,11 +22,11 @@ fn change(args: &mut [String], flag: &str, value: &str) {
     let index = args.iter().position(|s| s == flag).unwrap();
     args[index + 1] = value.into();
 }
-fn arguments(f: &Fixture, directory: &Path) -> Vec<String> {
+async fn arguments(f: &Fixture, directory: &Path) -> Vec<String> {
     let key = directory.join("operator.pem");
     let root = directory.join("root.der");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
     [
         "upload-history",
         "--network",
@@ -49,8 +50,8 @@ fn arguments(f: &Fixture, directory: &Path) -> Vec<String> {
     .map(str::to_owned)
     .collect()
 }
-fn populate(f: &Fixture) -> UploadAdmissionRequest {
-    f.enroll(f.operator).unwrap();
+async fn populate(f: &Fixture) -> UploadAdmissionRequest {
+    f.enroll(f.operator).await.unwrap();
     let mut permission = UploadAdmissionRequest {
         upload: ReferenceUpload {
             service: f.service.into(),
@@ -85,6 +86,7 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
                 permission,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
             .unwrap();
         if id != 65 {
@@ -97,6 +99,7 @@ fn populate(f: &Fixture) -> UploadAdmissionRequest {
                     permission,
                     REPLY_BYTES,
                 )
+                .await
                 .unwrap()
                 .unwrap();
         }
@@ -138,13 +141,17 @@ fn rejected_cursor(args: &[String], path: &Path, next: &Value) {
     assert_eq!(run(&args, 3)["error"], "cursor_scope");
 }
 
-#[test]
-fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upgrade() {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upgrade() {
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.operator = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
     f.config.operator = f.operator.into();
     f.config.resources.max_objects = 65;
@@ -160,13 +167,14 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
             installation(&f.config),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    let permission = populate(&f);
+    let permission = populate(&f).await;
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let saved = dir.path().join("cursor.json");
-    let mut args = arguments(&f, dir.path());
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    live(&mut f, &mut args);
+    let mut args = arguments(&f, dir.path()).await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    live(&mut f, &mut args).await;
     let empty = run(&args, 0);
     assert_eq!(empty["entries"], json!([]));
     assert_eq!(empty["scanned"], "64");
@@ -189,22 +197,23 @@ fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upg
     change(&mut wrong, "--operator", &f.controller.to_text());
     assert_eq!(run(&wrong, 3)["error"], "identity_binding");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    live(&mut f, &mut args);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    live(&mut f, &mut args).await;
     let restored = run(&cursor(&args, &saved, &empty["next"]), 0);
     assert_eq!(restored["entries"], resumed["entries"]);
     assert_eq!(restored["fenced"], true);
     assert_eq!(restored["retry_authorized"], false);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
-    assert!(f.configuration(f.operator).unwrap().fenced);
+    f.harness.pic.stop_live().await.unwrap();
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
 }

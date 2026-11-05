@@ -2,37 +2,38 @@
 use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
-fn observe(f: &Fixture, actor: Principal) -> Result<RestorationResources, Failure> {
+async fn observe(f: &Fixture, actor: Principal) -> Result<RestorationResources, Failure> {
     f.harness
         .pic
         .query_control_as(f.service, actor, "restoration_resources", (), REPLY_BYTES)
+        .await
         .map(|(reply,)| reply)
         .unwrap()
 }
 
-#[test]
-fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
-    let f = Fixture::new();
-    let fresh = observe(&f, f.operator).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
+    let f = Fixture::new().await;
+    let fresh = observe(&f, f.operator).await.unwrap();
     assert!(!fresh.restored);
     assert!(fresh.reads.is_empty());
 
-    f.enroll(None, true).unwrap();
+    f.enroll(None, true).await.unwrap();
     let (permission, input) = f.permission(1, 7);
-    f.admit(f.tenant, permission).unwrap();
-    f.prepare(&input).unwrap();
-    f.expose(permission.request).unwrap();
-    let before = f.status();
+    f.admit(f.tenant, permission).await.unwrap();
+    f.prepare(&input).await.unwrap();
+    f.expose(permission.request).await.unwrap();
+    let before = f.status().await;
     assert_eq!(
         ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
-            observe(&f, f.operator).unwrap()
+            observe(&f, f.operator).await.unwrap()
         )
         .unwrap(),
         ic_blob_storage_pocketic_tests::control_calls::encode_control_one(&fresh).unwrap()
     );
 
     // Installation instruction debt must cool before testing restore semantics.
-    install_code::settle_install_code_debt(&f.harness.pic);
+    install_code::settle_install_code_debt(&f.harness.pic).await;
     f.harness
         .pic
         .upgrade_canister(
@@ -41,8 +42,9 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    let restored = observe(&f, f.operator).unwrap();
+    let restored = observe(&f, f.operator).await.unwrap();
     assert!(restored.restored);
     assert!(
         restored
@@ -61,7 +63,7 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
         }
     }
     assert_eq!(
-        f.status(),
+        f.status().await,
         Status {
             fenced: true,
             ..before
@@ -70,18 +72,18 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
     let frozen =
         ic_blob_storage_pocketic_tests::control_calls::encode_control_one(&restored).unwrap();
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
-        assert!(matches!(observe(&f, actor), Err(Failure::Denied)));
+        assert!(matches!(observe(&f, actor).await, Err(Failure::Denied)));
     }
-    f.lookup(f.tenant, permission.request).unwrap();
+    f.lookup(f.tenant, permission.request).await.unwrap();
     assert_eq!(
         ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
-            observe(&f, f.operator).unwrap()
+            observe(&f, f.operator).await.unwrap()
         )
         .unwrap(),
         frozen
     );
 
-    install_code::settle_install_code_debt(&f.harness.pic);
+    install_code::settle_install_code_debt(&f.harness.pic).await;
     f.harness
         .pic
         .upgrade_canister(
@@ -90,8 +92,9 @@ fn restoration_reads_are_attributed_only_to_the_operator_reopen_window() {
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    let again = observe(&f, f.operator).unwrap();
+    let again = observe(&f, f.operator).await.unwrap();
     let attribution = |r: RestorationResources| {
         r.reads
             .into_iter()

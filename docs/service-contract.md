@@ -154,7 +154,7 @@ Only the current allocation ledger is supported. Earlier images require
 [installation retirement](retiring-installations.md) and fresh reinstall, preserving
 all objects, uncertain effects, balances and continuing billing obligations;
 neither failed restoration nor missing grants authorize clearing or migration.
-The [published Canic adapter review](evidence/canic0229.md) authenticates 0.111.0
+The [published Canic adapter review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0229.md) authenticates 0.111.0
 and records consumer-owned disposable acceptance separately; it does not qualify
 another release graph, deployed application or provider. Canic owns ongoing
 mounting, package alignment and

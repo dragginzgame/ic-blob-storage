@@ -54,21 +54,30 @@ fn arguments(
     .collect()
 }
 
-#[test]
-fn standalone_native_download_refuses_unconfirmed_and_restored_references_without_provider_get() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep refusal and restore observations on one reference while proving no provider GET"
+)]
+async fn standalone_native_download_refuses_unconfirmed_and_restored_references_without_provider_get()
+ {
     let temp = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let report = std::env::var_os("BLOB_TENANT_DOWNLOAD_REPORT").map_or_else(
         || temp.path().join("standalone"),
         |p| PathBuf::from(p).join("standalone"),
     );
     std::fs::create_dir(&report).unwrap();
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.tenant = signer();
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let permission = f.manifest();
     f.harness
         .pic
@@ -79,9 +88,10 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
             permission.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
-    f.prepare(f.uploader, &permission).unwrap();
+    f.prepare(f.uploader, &permission).await.unwrap();
     let upload = permission.permission.upload;
     let request = DownloadRequest {
         service: f.service.into(),
@@ -98,7 +108,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
     )
     .unwrap();
     std::fs::write(temp.path().join("identity.pem"), PEM).unwrap();
-    let root = f.harness.pic.root_key().unwrap().unwrap();
+    let root = f.harness.pic.root_key().await.unwrap().unwrap();
     std::fs::write(temp.path().join("root.der"), &root).unwrap();
     std::fs::write(report.join("root.der"), root).unwrap();
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
@@ -109,6 +119,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
     for (label, error) in [
@@ -116,12 +127,13 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
         ("restored", "download_fenced"),
     ] {
         if label == "restored" {
-            f.harness.pic.stop_progress().unwrap();
+            f.harness.pic.stop_progress().await.unwrap();
             f.upgrade(
                 ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
             )
+            .await
             .unwrap();
-            f.harness.pic.auto_progress().unwrap();
+            f.harness.pic.auto_progress().await.unwrap();
         }
         let directory = report.join(label);
         let args = arguments(&f, temp.path(), &report, &directory, &url, &gateway);
@@ -130,7 +142,7 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
             serde_json::to_vec(&args).unwrap(),
         )
         .unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
         let value = run(&args, 3);
         assert_eq!(value["error"], error);
         std::fs::write(
@@ -146,9 +158,9 @@ fn standalone_native_download_refuses_unconfirmed_and_restored_references_withou
             std::io::ErrorKind::WouldBlock
         );
         unchanged(
-            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
             &before,
         );
     }
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }

@@ -4,6 +4,32 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.73.0]
+
+### 💥 Breaking
+
+- Align the pending family with Contracts 0.73's removal of the external
+  certificate reply's unused Wire metadata implementation. Public contract
+  consumers select the same Contracts cohort; Caffeine Candid bytes, endpoint
+  names, application Wire frames and saved records are unchanged.
+  [#117](https://github.com/dragginzgame/ic-blob-storage/issues/117).
+
+### 🔧 Changed
+
+- Adopt published browser Platform 0.2 for typed saved-call inspection and
+  protocol refusal fixtures, replacing generic CBOR access. Preserve original
+  request IDs, envelope bytes, trust/binding checks and SDK Core 6.1.1.
+- Consolidate CLI grammar and command guidance in Clap. Advertise account,
+  history and reference choices through typed value parsers, and use derived
+  arguments for the probe and archive verifier instead of string-keyed dispatch.
+  Preserve command names, argument spellings, redacted errors, saved requests and
+  recovery behavior.
+- Consolidate publication preparation's retained-claim verification across
+  prepared and uncertain outcomes, preserving exact-envelope checks and the
+  refusal to resend an already claimed operation.
+- Qualify the native CLI and archive-verifier interfaces with Platform 0.23.0
+  and Foundation/Build 0.74.4, preserving transport, command and recovery behavior.
+
 ## [0.72.0] - 2026-11-04
 
 ### 💥 Breaking

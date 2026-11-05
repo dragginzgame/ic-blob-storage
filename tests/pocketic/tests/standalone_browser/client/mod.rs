@@ -46,10 +46,10 @@ fn limits() -> CaffeineManifestLimits {
     }
 }
 impl Trial {
-    pub fn new(label: &str) -> Self {
-        Self::with_envelope(label, Envelope::Single)
+    pub async fn new(label: &str) -> Self {
+        Self::with_envelope(label, Envelope::Single).await
     }
-    pub(super) fn with_envelope(label: &str, envelope: Envelope) -> Self {
+    pub(super) async fn with_envelope(label: &str, envelope: Envelope) -> Self {
         use ic_testkit::pocket_ic::PocketIcBuilder;
         let principal = |seed| BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap();
         let mut f = Fixture::with_profile(
@@ -57,15 +57,17 @@ impl Trial {
                 PocketIcBuilder::new()
                     .with_nns_subnet()
                     .with_application_subnet(),
-            ),
+            )
+            .await,
             fake_principal(5),
             fake_principal(2),
             principal(42),
             envelope,
             PROJECT,
-        );
+        )
+        .await;
         f.tenant = principal(43);
-        f.enroll(f.operator).unwrap();
+        f.enroll(f.operator).await.unwrap();
         let temporary = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
         let report = std::env::var_os("BLOB_STANDALONE_BROWSER_REPORT")
             .map_or_else(|| temporary.path().to_path_buf(), PathBuf::from)
@@ -76,13 +78,14 @@ impl Trial {
         }
         std::fs::write(
             report.join("root.der"),
-            f.harness.pic.root_key().unwrap().unwrap(),
+            f.harness.pic.root_key().await.unwrap().unwrap(),
         )
         .unwrap();
         let url = f
             .harness
             .pic
             .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+            .await
             .unwrap()
             .to_string();
         Self {
@@ -128,7 +131,7 @@ impl Trial {
         self.record(&format!("{label}-result.json"), &result);
         result
     }
-    pub fn inputs(
+    pub async fn inputs(
         &self,
         expected: &UploadManifestRequest,
         browser: &BrowserPreparation,
@@ -156,7 +159,7 @@ impl Trial {
             "upload":u.upload.to_string(),"object":u.object.to_string(),"incarnation":u.incarnation.to_string(),
             "first_reference":u.first_reference.to_string(),"root":browser.hash,"bytes":u.bytes.to_string(),
             "expires_at_ns":p.expires_at_ns.to_string()}));
-        let host = self.f.configuration(self.f.operator).unwrap();
+        let host = self.f.configuration(self.f.operator).await.unwrap();
         let carrier = ServiceInstallationInput {
             configuration: host.configuration,
             project: host.project,
@@ -211,7 +214,7 @@ impl Trial {
         .map(str::to_owned);
         assert_eq!(self.invoke("inputs", &args, 0)["all_bodies_verified"], true);
     }
-    pub fn setup(&self, input: &UploadManifestRequest) {
+    pub async fn setup(&self, input: &UploadManifestRequest) {
         let mut args = self.args("publish-prepare", "tenant.pem", self.f.tenant);
         args.extend([
             "--inputs".into(),
@@ -231,7 +234,7 @@ impl Trial {
         ]);
         assert_eq!(self.invoke("setup", &args, 0)["state"], "prepared");
         assert_eq!(
-            self.f.admission(input.permission).state,
+            self.f.admission(input.permission).await.state,
             ic_blob_storage_contracts::dto::upload::UploadState::Reserved
         );
         assert_eq!(
@@ -240,6 +243,7 @@ impl Trial {
                 self.f.uploader,
                 &crate::standalone_certificate::root(input)
             )
+            .await
             .unwrap()
             .permission,
             input.permission
@@ -294,7 +298,7 @@ impl Trial {
         ]);
         self.invoke(label, &args, code)
     }
-    pub fn release(&self, input: &UploadManifestRequest) {
+    pub async fn release(&self, input: &UploadManifestRequest) {
         let command = ReferenceCommand {
             upload: input.permission.upload,
             reference: input.permission.upload.first_reference,
@@ -317,6 +321,7 @@ impl Trial {
                 command,
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         assert!(result.unwrap().receipt.result.is_ok());
     }

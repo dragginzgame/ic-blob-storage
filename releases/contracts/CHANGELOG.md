@@ -4,6 +4,16 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.73.0]
+
+### 💥 Breaking
+
+- Remove the unused host Wire-schema implementation from the external Caffeine
+  certificate reply. Keep its existing Rust path and required Candid
+  `method`/`blob_hash` record; the owned certificate-assessment endpoint retains
+  its Wire schema. No second DTO, compatibility re-export or protocol conversion
+  is introduced. [#117](https://github.com/dragginzgame/ic-blob-storage/issues/117).
+
 ## [0.72.0] - 2026-11-04
 
 ### 💥 Breaking

@@ -12,15 +12,15 @@ use blob_test_protocol::{
     storage::{FactInput, ProviderFact},
 };
 impl Fixture {
-    fn exposed(&self) -> Permission {
-        self.enroll(None, true).unwrap();
+    async fn exposed(&self) -> Permission {
+        self.enroll(None, true).await.unwrap();
         let (permission, manifest) = self.permission(1, 1);
-        self.admit(self.tenant, permission).unwrap();
-        self.prepare(&manifest).unwrap();
-        self.expose(permission.request).unwrap();
+        self.admit(self.tenant, permission).await.unwrap();
+        self.prepare(&manifest).await.unwrap();
+        self.expose(permission.request).await.unwrap();
         permission
     }
-    pub(super) fn fact(&self, request: Request, fact: ProviderFact) -> Result<bool, Failure> {
+    pub(super) async fn fact(&self, request: Request, fact: ProviderFact) -> Result<bool, Failure> {
         self.harness
             .pic
             .update_control_as(
@@ -34,10 +34,11 @@ impl Fixture {
                 },),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
     }
-    pub(super) fn reference(
+    pub(super) async fn reference(
         &self,
         request: ReferenceInput,
     ) -> Result<ReferenceMutationResponse, ReferenceFailure> {
@@ -50,9 +51,10 @@ impl Fixture {
                 receipt_request(request),
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
-    pub(super) fn receipt(
+    pub(super) async fn receipt(
         &self,
         request: ReferenceInput,
     ) -> Result<ReferenceReceiptLookup, ReferenceFailure> {
@@ -65,9 +67,10 @@ impl Fixture {
                 receipt_request(request),
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
-    pub(super) fn live(&self, input: ReferenceInput) -> Result<bool, ReferenceFailure> {
+    pub(super) async fn live(&self, input: ReferenceInput) -> Result<bool, ReferenceFailure> {
         use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusRequest;
         use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
         let command = receipt_request(input);
@@ -85,12 +88,12 @@ impl Fixture {
                 request,
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
-        result.map(|response| {
-            assert_eq!(response.request, request);
-            assert_eq!(response.fenced, self.status().fenced);
-            response.live
-        })
+        let response = result?;
+        assert_eq!(response.request, request);
+        assert_eq!(response.fenced, self.status().await.fenced);
+        Ok(response.live)
     }
 }
 fn reference(object: Request, operation: u128, id: u128, retain: bool) -> ReferenceInput {
@@ -110,16 +113,16 @@ fn changed(request: ReferenceInput, replayed: bool) -> ReferenceMutationResponse
         },
     }
 }
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One ordered reference/receipt/settlement rollback journey shares the same constrained history"
 )]
-fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
-    let f = Fixture::new();
-    let permission = f.exposed();
+async fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
+    let f = Fixture::new().await;
+    let permission = f.exposed().await;
     let retain = reference(permission.request, u128::MAX, 2, true);
-    let before = f.status();
+    let before = f.status().await;
     for fault in [WriteFault::Receipts, WriteFault::Confirmed] {
         let error = f
             .harness
@@ -136,29 +139,32 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 )
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(f.status(), before);
-        assert_eq!(f.receipt(retain), Ok(ReferenceReceiptLookup::Absent));
-        assert_eq!(f.live(retain), Ok(false));
+        assert_eq!(f.status().await, before);
+        assert_eq!(f.receipt(retain).await, Ok(ReferenceReceiptLookup::Absent));
+        assert_eq!(f.live(retain).await, Ok(false));
     }
-    assert_eq!(f.reference(retain), Ok(changed(retain, false)));
-    assert_eq!(f.reference(retain), Ok(changed(retain, true)));
+    assert_eq!(f.reference(retain).await, Ok(changed(retain, false)));
+    assert_eq!(f.reference(retain).await, Ok(changed(retain, true)));
     assert_eq!(
-        f.reference(reference(permission.request, 4, 9, false)),
+        f.reference(reference(permission.request, 4, 9, false))
+            .await,
         Err(ReferenceFailure::Capacity)
     );
-    let active = f.tenant().unwrap();
-    f.enroll(Some(active), false).unwrap();
-    assert_eq!(f.reference(retain), Ok(changed(retain, true)));
+    let active = f.tenant().await.unwrap();
+    f.enroll(Some(active), false).await.unwrap();
+    assert_eq!(f.reference(retain).await, Ok(changed(retain, true)));
     assert_eq!(
-        f.reference(reference(permission.request, 4, 3, true)),
+        f.reference(reference(permission.request, 4, 3, true)).await,
         Err(ReferenceFailure::Inactive)
     );
     f.reference(reference(permission.request, 2, 1, false))
+        .await
         .unwrap();
     let release = reference(permission.request, 3, 2, false);
     let error = f
@@ -176,24 +182,25 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
             )
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.receipt(release), Ok(ReferenceReceiptLookup::Absent));
-    assert_eq!(f.live(release), Ok(true));
+    assert_eq!(f.receipt(release).await, Ok(ReferenceReceiptLookup::Absent));
+    assert_eq!(f.live(release).await, Ok(true));
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 10,
             physical: 10,
             liability: 10
         }
     );
-    assert_eq!(f.reference(release), Ok(changed(release, false)));
+    assert_eq!(f.reference(release).await, Ok(changed(release, false)));
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 0,
             physical: 10,
@@ -201,11 +208,11 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
         }
     );
     assert_eq!(
-        f.fact(permission.request, ProviderFact::Settled),
+        f.fact(permission.request, ProviderFact::Settled).await,
         Err(Failure::Phase)
     );
     for fact in [ProviderFact::Deleted, ProviderFact::Settled] {
-        let before = f.status();
+        let before = f.status().await;
         let error = f
             .harness
             .pic
@@ -220,44 +227,49 @@ fn reference_receipt_and_last_release_faults_roll_back_all_obligations() {
                 })
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(f.status(), before);
-        assert_eq!(f.fact(permission.request, fact), Ok(true));
-        assert_eq!(f.fact(permission.request, fact), Ok(false));
+        assert_eq!(f.status().await, before);
+        assert_eq!(f.fact(permission.request, fact).await, Ok(true));
+        assert_eq!(f.fact(permission.request, fact).await, Ok(false));
     }
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 0,
             physical: 0,
             liability: 0
         }
     );
-    assert_eq!(f.reference(retain), Ok(changed(retain, true)));
-    assert_eq!(f.live(retain), Ok(false));
-    assert_eq!(f.live(retain), Ok(false));
+    assert_eq!(f.reference(retain).await, Ok(changed(retain, true)));
+    assert_eq!(f.live(retain).await, Ok(false));
+    assert_eq!(f.live(retain).await, Ok(false));
 }
-#[test]
-fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
     for stage in 0..4 {
-        let f = Fixture::new();
-        let permission = f.exposed();
+        let f = Fixture::new().await;
+        let permission = f.exposed().await;
         let release = reference(permission.request, 1, 1, false);
         if stage > 0 {
-            f.reference(release).unwrap();
+            f.reference(release).await.unwrap();
         }
         if stage > 1 {
-            f.fact(permission.request, ProviderFact::Deleted).unwrap();
+            f.fact(permission.request, ProviderFact::Deleted)
+                .await
+                .unwrap();
         }
         if stage > 2 {
-            f.fact(permission.request, ProviderFact::Settled).unwrap();
+            f.fact(permission.request, ProviderFact::Settled)
+                .await
+                .unwrap();
         }
-        let before = f.status();
-        let receipt = f.receipt(release).unwrap();
+        let before = f.status().await;
+        let receipt = f.receipt(release).await.unwrap();
         f.harness
             .pic
             .upgrade_canister(
@@ -266,19 +278,20 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
                 Fixture::installation("fixture_post_upgrade", f.operator),
                 Some(f.controller),
             )
+            .await
             .unwrap();
         assert_eq!(
-            f.status(),
+            f.status().await,
             Status {
                 fenced: true,
                 ..before
             }
         );
-        assert_eq!(f.receipt(release), Ok(receipt));
-        assert_eq!(f.live(release), Ok(stage == 0));
-        assert_eq!(f.reference(release), Err(ReferenceFailure::Fenced));
+        assert_eq!(f.receipt(release).await, Ok(receipt));
+        assert_eq!(f.live(release).await, Ok(stage == 0));
+        assert_eq!(f.reference(release).await, Err(ReferenceFailure::Fenced));
         for fact in [ProviderFact::Deleted, ProviderFact::Settled] {
-            assert_eq!(f.fact(permission.request, fact), Err(Failure::Fenced));
+            assert_eq!(f.fact(permission.request, fact).await, Err(Failure::Fenced));
         }
         let denied: Result<ReferenceReceiptLookup, ReferenceFailure> = f
             .harness
@@ -290,10 +303,11 @@ fn upgrade_retains_each_confirmed_phase_and_receipts_under_the_restore_fence() {
                 receipt_request(release),
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         assert_eq!(denied, Err(ReferenceFailure::Denied));
-        f.restart();
-        assert_eq!(f.receipt(release), Ok(receipt));
+        f.restart().await;
+        assert_eq!(f.receipt(release).await, Ok(receipt));
     }
 }
 
@@ -322,12 +336,12 @@ fn receipt_request(input: ReferenceInput) -> ReferenceCommand {
     }
 }
 
-#[test]
-fn pending_candidate_write_trap_rolls_back_last_release_and_exact_retry() {
-    let f = Fixture::new();
-    let permission = f.exposed();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn pending_candidate_write_trap_rolls_back_last_release_and_exact_retry() {
+    let f = Fixture::new().await;
+    let permission = f.exposed().await;
     let release = reference(permission.request, 1, 1, false);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let error = f
         .harness
         .pic
@@ -343,15 +357,19 @@ fn pending_candidate_write_trap_rolls_back_last_release_and_exact_retry() {
             )
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    assert_eq!(f.receipt(release), Ok(ReferenceReceiptLookup::Absent));
-    assert_eq!(f.live(release), Ok(true));
-    assert_eq!(f.reference(release), Ok(changed(release, false)));
-    assert_eq!(f.reference(release), Ok(changed(release, true)));
-    assert_eq!(f.live(release), Ok(false));
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    assert_eq!(f.receipt(release).await, Ok(ReferenceReceiptLookup::Absent));
+    assert_eq!(f.live(release).await, Ok(true));
+    assert_eq!(f.reference(release).await, Ok(changed(release, false)));
+    assert_eq!(f.reference(release).await, Ok(changed(release, true)));
+    assert_eq!(f.live(release).await, Ok(false));
 }

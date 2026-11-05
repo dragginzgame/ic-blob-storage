@@ -26,7 +26,7 @@ lock selections, and check final archive/source/mode/manifest/lock integrity.
 The verifier rejects incomplete exits with retained evidence. Actual Cargo
 regressions cover same-version warm-cache execution, false metadata, failed reads
 and post-build drift, including paths with spaces and Unicode. Current qualification
-is [recorded separately](../evidence/libraries0225.md): full `make ci`, genuine
+is [recorded separately](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/libraries0225.md): full `make ci`, genuine
 Bash 3.2 regressions and Rust 1.88 native/Wasm checks pass on fixed inputs.
 No agent commit, push, version transaction, release, publication or paid effect.
 

@@ -4,9 +4,14 @@ use ic_blob_storage_pocketic_tests::fixture_calls;
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::pocket_ic::PocketIc;
 
-pub(super) fn read(pic: &PocketIc, service: Principal, operator: Principal) -> GatewaySyncRequest {
+pub(super) async fn read(
+    pic: &PocketIc,
+    service: Principal,
+    operator: Principal,
+) -> GatewaySyncRequest {
     let status: Option<OperatorStatusView> =
         fixture_calls::query_fixture(pic, service, operator, "operator_status", ())
+            .await
             .map(|(reply,)| reply)
             .unwrap();
     let status = status.expect("fixture operator");

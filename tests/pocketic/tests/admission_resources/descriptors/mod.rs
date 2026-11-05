@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_pocketic_tests::fixture_calls;
 use std::num::{NonZeroU64, NonZeroUsize};
 
-fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest) {
+async fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest) {
     let v = vectors::vector("abc-text", id);
     let mut manifest = v.manifest.clone();
     manifest.headers.push(("X-Object".into(), id.to_string()));
@@ -47,13 +47,13 @@ fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest)
     )
     .unwrap();
     hasher.append(0, b"abc").unwrap();
-    let mut p = f.permission(&v);
+    let mut p = f.permission(&v).await;
     p.request.root = *hasher.finish().unwrap().provider_root.as_bytes();
     p.request.tenant = tenant;
     (p, manifest)
 }
 
-fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
+async fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
     let result: Result<Option<ContentDescriptor>, Failure> = fixture_calls::query_fixture(
         &f.harness.pic,
         f.service,
@@ -66,49 +66,53 @@ fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
             root: p.request.root,
         },),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap();
     result.unwrap().unwrap()
 }
 
-fn bind(f: &Fixture, p: Permission, manifest: &JourneyManifest) -> u64 {
+async fn bind(f: &Fixture, p: Permission, manifest: &JourneyManifest) -> u64 {
     assert_eq!(
-        f.call(p.request.tenant, Command::Admit(p)),
+        f.call(p.request.tenant, Command::Admit(p)).await,
         Ok(Outcome::Admitted)
     );
     let mut oversized = manifest.clone();
     oversized.headers.last_mut().unwrap().1.push('x');
     assert_eq!(
-        f.call(f.uploader, Command::Prepare(p.request, oversized)),
+        f.call(f.uploader, Command::Prepare(p.request, oversized))
+            .await,
         Err(Failure::Manifest)
     );
     assert_eq!(
-        f.call(f.uploader, Command::Prepare(p.request, manifest.clone())),
+        f.call(f.uploader, Command::Prepare(p.request, manifest.clone()))
+            .await,
         Ok(Outcome::Changed(true))
     );
-    let instructions = f.sample(f.uploader).after_work;
-    let original = descriptor(f, p);
+    let instructions = f.sample(f.uploader).await.after_work;
+    let original = descriptor(f, p).await;
     assert_eq!(original.headers, manifest.headers);
     let mut reordered = manifest.clone();
     reordered.headers.reverse();
     for _ in 0..8 {
         assert_eq!(
-            f.call(f.uploader, Command::Prepare(p.request, reordered.clone())),
+            f.call(f.uploader, Command::Prepare(p.request, reordered.clone()))
+                .await,
             Ok(Outcome::Changed(false))
         );
-        assert_eq!(descriptor(f, p), original);
+        assert_eq!(descriptor(f, p).await, original);
     }
     assert_eq!(
-        f.call(p.request.tenant, Command::Revoke(p.request)),
+        f.call(p.request.tenant, Command::Revoke(p.request)).await,
         Ok(Outcome::Changed(true))
     );
     instructions
 }
 
-#[test]
-fn descriptors_keep_maximum_metadata_at_lifetime_capacity() {
-    let f = Fixture::new();
-    let enrolled = f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn descriptors_keep_maximum_metadata_at_lifetime_capacity() {
+    let f = Fixture::new().await;
+    let enrolled = f.enroll().await;
     f.call(
         f.operator,
         Command::Enroll {
@@ -117,31 +121,34 @@ fn descriptors_keep_maximum_metadata_at_lifetime_capacity() {
             active: true,
         },
     )
+    .await
     .unwrap();
-    let initial = f.wasm_bytes();
+    let initial = f.wasm_bytes().await;
     let mut retained = Vec::new();
     let mut samples = Vec::new();
     for id in 1..=4 {
         let tenant = if id <= 2 { f.project } else { f.other };
-        let (p, manifest) = wide(&f, id, tenant);
-        let instructions = bind(&f, p, &manifest);
-        samples.push(serde_json::json!({"objects":id,"prepare_instructions":instructions,"wasm_memory_bytes":f.wasm_bytes()}));
+        let (p, manifest) = wide(&f, id, tenant).await;
+        let instructions = bind(&f, p, &manifest).await;
+        samples.push(serde_json::json!({"objects":id,"prepare_instructions":instructions,"wasm_memory_bytes":f.wasm_bytes().await}));
         retained.push((p, manifest));
     }
-    let (extra, _) = wide(&f, 5, f.project);
+    let (extra, _) = wide(&f, 5, f.project).await;
     assert_eq!(
-        f.call(f.project, Command::Admit(extra)),
+        f.call(f.project, Command::Admit(extra)).await,
         Err(Failure::Catalog)
     );
     f.call(f.operator, f.enrollment(Some(enrolled), false))
+        .await
         .unwrap();
-    f.restart();
+    f.restart().await;
     for (p, manifest) in retained {
-        let view = descriptor(&f, p);
+        let view = descriptor(&f, p).await;
         assert_eq!(view.content.state, ContentState::Cancelled);
         assert_eq!(view.headers, manifest.headers);
         assert_eq!(
             f.inspect(p.request.tenant, p.request)
+                .await
                 .unwrap()
                 .usage
                 .unwrap()
@@ -149,7 +156,7 @@ fn descriptors_keep_maximum_metadata_at_lifetime_capacity() {
             0
         );
     }
-    let final_heap = f.wasm_bytes();
+    let final_heap = f.wasm_bytes().await;
     assert!(final_heap <= initial + 1024 * 1024);
     let report = serde_json::json!({
         "scope":"Four prepared then cancelled objects across two tenants, each with eight headers and 1024 framed metadata bytes. Reordered retries, overflow rejection, full lifetime history, suspension and stop/start. Transient probe; no production persistence, certified descriptor or provider calls. Counters exclude reply encoding/diagnostics.",

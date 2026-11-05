@@ -30,22 +30,23 @@ struct Fixture {
 }
 
 impl Fixture {
-    fn new() -> Self {
+    async fn new() -> Self {
         Self::with_budget(blob_test_protocol::funding::budget::FundingBudgetInput {
             operating_reserve: 1_000_000_000,
             other_liabilities: 0,
             allocated: 100_000_000_000_000,
             reserve: 1_000_000_000_000,
         })
+        .await
     }
 
-    fn with_budget(budget: blob_test_protocol::funding::budget::FundingBudgetInput) -> Self {
-        let harness = Harness::new();
+    async fn with_budget(budget: blob_test_protocol::funding::budget::FundingBudgetInput) -> Self {
+        let harness = Harness::new().await;
         let pic = &harness.pic;
         let driver = fake_principal(11);
         let create = || installation::funded_canister(pic, 2_000_000_000_000);
-        let sender = create();
-        let receiver = create();
+        let sender = create().await;
+        let receiver = create().await;
         let wasm = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).expect("funding Wasm");
         for (canister, peer) in [(sender, receiver), (receiver, sender)] {
             pic.install_canister(
@@ -58,6 +59,7 @@ impl Fixture {
                 .expect("fixture init"),
                 None,
             )
+            .await
             .unwrap();
         }
         Self {
@@ -68,17 +70,18 @@ impl Fixture {
         }
     }
 
-    fn fund(
+    async fn fund(
         &self,
         caller: Principal,
         request: FundingRequest,
     ) -> Result<FundingObservation, FundingFailure> {
         fixture_calls::update_fixture(&self.harness.pic, self.sender, caller, "fund", (request,))
+            .await
             .map(|(reply,)| reply)
             .expect("funding call completed")
     }
 
-    fn attempts(&self) -> Vec<FundingAttemptRecord> {
+    async fn attempts(&self) -> Vec<FundingAttemptRecord> {
         let result: Option<Vec<FundingAttemptRecord>> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.sender,
@@ -86,12 +89,13 @@ impl Fixture {
             "attempts",
             (),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("sender journal");
         result.expect("driver allowed")
     }
 
-    fn receipts(&self) -> Vec<FundingReceiptRecord> {
+    async fn receipts(&self) -> Vec<FundingReceiptRecord> {
         let result: Option<Vec<FundingReceiptRecord>> = fixture_calls::query_fixture(
             &self.harness.pic,
             self.receiver,
@@ -99,35 +103,42 @@ impl Fixture {
             "receipts",
             (),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("receiver journal");
         result.expect("driver allowed")
     }
 
-    fn status_as(
+    async fn status_as(
         &self,
         canister: Principal,
         caller: Principal,
     ) -> Option<FundingOperatorStatusView> {
         fixture_calls::query_fixture(&self.harness.pic, canister, caller, "operator_status", ())
+            .await
             .map(|(reply,)| reply)
             .expect("read-only funding diagnosis")
     }
 
-    fn status_unchanged(&self) -> FundingOperatorStatusView {
+    async fn status_unchanged(&self) -> FundingOperatorStatusView {
         let pic = &self.harness.pic;
-        let before = [self.sender, self.receiver].map(|id| pic.get_stable_memory(id).unwrap());
-        let attempts = self.attempts();
-        let receipts = self.receipts();
+        let before = [
+            pic.get_stable_memory(self.sender).await.unwrap(),
+            pic.get_stable_memory(self.receiver).await.unwrap(),
+        ];
+        let attempts = self.attempts().await;
+        let receipts = self.receipts().await;
         let status = self
             .status_as(self.sender, self.driver)
+            .await
             .expect("driver status");
         assert_eq!(
-            self.status_as(self.sender, self.driver),
+            self.status_as(self.sender, self.driver).await,
             Some(status.clone())
         );
         let incoming = self
             .status_as(self.receiver, self.driver)
+            .await
             .expect("peer driver status");
         assert_eq!(incoming.service, self.receiver);
         assert_eq!(incoming.peer, self.sender);
@@ -165,16 +176,19 @@ impl Fixture {
             );
         }
         assert_eq!(status.warnings, []);
-        assert_eq!(self.attempts(), attempts);
-        assert_eq!(self.receipts(), receipts);
+        assert_eq!(self.attempts().await, attempts);
+        assert_eq!(self.receipts().await, receipts);
         assert!(
-            [self.sender, self.receiver].map(|id| pic.get_stable_memory(id).unwrap()) == before,
+            [
+                pic.get_stable_memory(self.sender).await.unwrap(),
+                pic.get_stable_memory(self.receiver).await.unwrap()
+            ] == before,
             "read-only status changed stable journals"
         );
         status
     }
 
-    fn upgrade_both(&self) {
+    async fn upgrade_both(&self) {
         let wasm = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM"))
             .expect("same-release funding Wasm");
         for canister in [self.sender, self.receiver] {
@@ -192,17 +206,18 @@ impl Fixture {
                     .expect("upgrade args"),
                     None,
                 )
+                .await
                 .expect("restore fixture through host-owned ic-storage");
         }
     }
 
-    fn assert_completed_status(
+    async fn assert_completed_status(
         &self,
         request: FundingRequest,
         observation: FundingObservation,
         credit_outstanding: bool,
     ) {
-        let status = self.status_unchanged();
+        let status = self.status_unchanged().await;
         assert_eq!(
             status.attempts.last(),
             Some(&FundingAttemptStatusView {
@@ -229,15 +244,19 @@ impl Fixture {
         );
     }
 
-    fn assert_unknown_status(&self, request: FundingRequest) -> FundingOperatorStatusView {
-        let budget = self.status_as(self.sender, self.driver).unwrap().budget;
+    async fn assert_unknown_status(&self, request: FundingRequest) -> FundingOperatorStatusView {
+        let budget = self
+            .status_as(self.sender, self.driver)
+            .await
+            .unwrap()
+            .budget;
         assert_eq!(budget.reserved_or_uncertain, request.offered);
         assert_eq!(budget.available, budget.allocated - request.offered);
         assert_eq!(
             (budget.accepted, budget.refunded, budget.not_enqueued),
             (0, 0, 0)
         );
-        let status = self.status_unchanged();
+        let status = self.status_unchanged().await;
         assert_eq!(status.funding_activity, FundingActivityView::Uncertain);
         assert!(
             status
@@ -347,13 +366,16 @@ fn reply_cases() -> Vec<(u128, FundingReplyMode, FundingOutcome)> {
     ]
 }
 
-#[test]
-fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
-    let fixture = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
+    let fixture = Fixture::new().await;
     let mut credit_outstanding = false;
     for (index, (accept, reply, outcome)) in reply_cases().into_iter().enumerate() {
         let request = request(u64::try_from(index).expect("small index"), accept, reply);
-        let observation = fixture.fund(fixture.driver, request).expect("admitted");
+        let observation = fixture
+            .fund(fixture.driver, request)
+            .await
+            .expect("admitted");
         assert_eq!(
             observation,
             FundingObservation {
@@ -368,7 +390,7 @@ fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
             }
         );
         assert_eq!(
-            fixture.receipts().last(),
+            fixture.receipts().await.last(),
             Some(&FundingReceiptRecord {
                 id: request.id,
                 available: request.offered,
@@ -376,74 +398,84 @@ fn refunds_are_call_specific_and_independent_of_cashier_reply_decoding() {
             })
         );
         assert_eq!(
-            fixture.attempts().last(),
+            fixture.attempts().await.last(),
             Some(&FundingAttemptRecord {
                 request,
                 observation: Some(observation),
             })
         );
         credit_outstanding |= accept > 0;
-        fixture.assert_completed_status(request, observation, credit_outstanding);
-        let receipts = fixture.receipts();
+        fixture
+            .assert_completed_status(request, observation, credit_outstanding)
+            .await;
+        let receipts = fixture.receipts().await;
         assert_eq!(
-            fixture.fund(fixture.driver, request),
+            fixture.fund(fixture.driver, request).await,
             Err(FundingFailure::AlreadyAdmitted)
         );
-        assert_eq!(fixture.receipts(), receipts);
+        assert_eq!(fixture.receipts().await, receipts);
     }
-    let attempts = fixture.attempts();
-    let receipts = fixture.receipts();
-    let status = fixture.status_unchanged();
-    fixture.upgrade_both();
-    assert_eq!(fixture.status_unchanged(), fenced_status(status));
-    assert_eq!(fixture.attempts(), attempts);
-    assert_eq!(fixture.receipts(), receipts);
+    let attempts = fixture.attempts().await;
+    let receipts = fixture.receipts().await;
+    let status = fixture.status_unchanged().await;
+    fixture.upgrade_both().await;
+    assert_eq!(fixture.status_unchanged().await, fenced_status(status));
+    assert_eq!(fixture.attempts().await, attempts);
+    assert_eq!(fixture.receipts().await, receipts);
     // Restored journals cannot pay again even with changed identities or parameters.
     for entry in &attempts {
         let mut changed = entry.request;
         changed.accept = 0;
         changed.reply = FundingReplyMode::Malformed;
         assert_eq!(
-            fixture.fund(fixture.driver, changed),
+            fixture.fund(fixture.driver, changed).await,
             Err(FundingFailure::Fenced)
         );
     }
     let next = request(99, 13_000_001, FundingReplyMode::Success);
     assert_eq!(
-        fixture.fund(fixture.driver, next),
+        fixture.fund(fixture.driver, next).await,
         Err(FundingFailure::Fenced)
     );
-    assert_eq!(fixture.attempts(), attempts);
-    assert_eq!(fixture.receipts(), receipts);
+    assert_eq!(fixture.attempts().await, attempts);
+    assert_eq!(fixture.receipts().await, receipts);
 }
 
-#[test]
-fn callback_trap_retains_pending_intent_and_blocks_another_payment() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn callback_trap_retains_pending_intent_and_blocks_another_payment() {
     for reply in [
         FundingReplyMode::Success,
         FundingReplyMode::TopUpWithoutCycles,
         FundingReplyMode::LedgerReport,
     ] {
-        assert_callback_trap_retains_pending_intent(reply);
+        assert_callback_trap_retains_pending_intent(reply).await;
     }
 }
 
-fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
-    let fixture = Fixture::new();
+#[expect(
+    clippy::too_many_lines,
+    reason = "One callback-trap journey retains the original intent and journals through failed and successful restoration"
+)]
+async fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
+    let fixture = Fixture::new().await;
     let mut request = request(7, 31_000_001, reply);
     request.trap_callback = true;
-    let result = fixture.harness.pic.update_call(
-        fixture.sender,
-        fixture.driver,
-        "fund",
-        blob_test_protocol::fixture_wire::encode_one("fund", request).expect("request"),
-    );
+    let result = fixture
+        .harness
+        .pic
+        .update_call(
+            fixture.sender,
+            fixture.driver,
+            "fund",
+            blob_test_protocol::fixture_wire::encode_one("fund", request).expect("request"),
+        )
+        .await;
     assert_eq!(
         crate::canister_rejection(&result.expect_err("real callback trap")).reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(
-        fixture.attempts(),
+        fixture.attempts().await,
         vec![FundingAttemptRecord {
             request,
             observation: None
@@ -454,11 +486,11 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
         available: request.offered,
         accepted: request.accept,
     }];
-    assert_eq!(fixture.receipts(), receipts);
+    assert_eq!(fixture.receipts().await, receipts);
     // A failed upgrade must leave the previous executable and its journals usable.
     // Exercise both sides before trying a successful upgrade of the same release.
-    let attempts = fixture.attempts();
-    let status = fixture.assert_unknown_status(request);
+    let attempts = fixture.attempts().await;
+    let status = fixture.assert_unknown_status(request).await;
     let wasm = std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).expect("funding Wasm");
     for canister in [fixture.sender, fixture.receiver] {
         let failure = fixture
@@ -476,67 +508,73 @@ fn assert_callback_trap_retains_pending_intent(reply: FundingReplyMode) {
                 .expect("upgrade args"),
                 None,
             )
+            .await
             .expect_err("real post_upgrade trap");
         assert_eq!(
             crate::canister_rejection(&failure).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(fixture.attempts(), attempts);
-        assert_eq!(fixture.receipts(), receipts);
-        assert_eq!(fixture.status_unchanged(), status);
+        assert_eq!(fixture.attempts().await, attempts);
+        assert_eq!(fixture.receipts().await, receipts);
+        assert_eq!(fixture.status_unchanged().await, status);
         let mut next = request;
         next.id += 1;
         next.trap_callback = false;
         assert_eq!(
-            fixture.fund(fixture.driver, next),
+            fixture.fund(fixture.driver, next).await,
             Err(FundingFailure::InProgress)
         );
-        assert_eq!(fixture.receipts(), receipts);
+        assert_eq!(fixture.receipts().await, receipts);
     }
-    fixture.upgrade_both();
+    fixture.upgrade_both().await;
     let status = fenced_status(status);
-    assert_eq!(fixture.status_unchanged(), status);
+    assert_eq!(fixture.status_unchanged().await, status);
     fixture
         .harness
         .pic
         .advance_time(std::time::Duration::from_hours(24))
+        .await
         .unwrap();
-    fixture.harness.pic.tick().unwrap();
-    assert_eq!(fixture.status_unchanged(), status);
+    fixture.harness.pic.tick().await.unwrap();
+    assert_eq!(fixture.status_unchanged().await, status);
     assert_eq!(
-        fixture.attempts(),
+        fixture.attempts().await,
         vec![FundingAttemptRecord {
             request,
             observation: None
         }]
     );
-    assert_eq!(fixture.receipts(), receipts);
+    assert_eq!(fixture.receipts().await, receipts);
     assert_eq!(
-        fixture.fund(Principal::anonymous(), request),
+        fixture.fund(Principal::anonymous(), request).await,
         Err(FundingFailure::Denied)
     );
     assert_eq!(
-        fixture.fund(fixture.driver, request),
+        fixture.fund(fixture.driver, request).await,
         Err(FundingFailure::Fenced)
     );
     request.id += 1;
     request.trap_callback = false;
     assert_eq!(
-        fixture.fund(fixture.driver, request),
+        fixture.fund(fixture.driver, request).await,
         Err(FundingFailure::Fenced)
     );
-    assert_eq!(fixture.receipts(), receipts);
+    assert_eq!(fixture.receipts().await, receipts);
 }
 
-#[test]
-fn receiver_trap_rolls_back_acceptance_and_receipt_before_refunding_the_sender() {
-    let fixture = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn receiver_trap_rolls_back_acceptance_and_receipt_before_refunding_the_sender() {
+    let fixture = Fixture::new().await;
     let prior = request(1, 13_000_001, FundingReplyMode::Success);
-    fixture.fund(fixture.driver, prior).expect("prior payment");
-    let receipts = fixture.receipts();
+    fixture
+        .fund(fixture.driver, prior)
+        .await
+        .expect("prior payment");
+    let receipts = fixture.receipts().await;
     let trapped = request(2, 37_000_001, FundingReplyMode::Trap);
     let observation = fixture
         .fund(fixture.driver, trapped)
+        .await
         .expect("receiver failure observed");
     assert_eq!(
         observation,
@@ -547,7 +585,7 @@ fn receiver_trap_rolls_back_acceptance_and_receipt_before_refunding_the_sender()
             reconciliation: FundingReconciliationView::NoTransfer,
         }
     );
-    let attempts = fixture.attempts();
+    let attempts = fixture.attempts().await;
     assert_eq!(
         attempts.last(),
         Some(&FundingAttemptRecord {
@@ -555,11 +593,11 @@ fn receiver_trap_rolls_back_acceptance_and_receipt_before_refunding_the_sender()
             observation: Some(observation),
         })
     );
-    assert_eq!(fixture.receipts(), receipts);
-    fixture.upgrade_both();
-    assert_eq!(fixture.attempts(), attempts);
-    assert_eq!(fixture.receipts(), receipts);
-    let status = fixture.status_unchanged();
+    assert_eq!(fixture.receipts().await, receipts);
+    fixture.upgrade_both().await;
+    assert_eq!(fixture.attempts().await, attempts);
+    assert_eq!(fixture.receipts().await, receipts);
+    let status = fixture.status_unchanged().await;
     assert_eq!(status.funding_activity, FundingActivityView::Uncertain);
     assert!(
         status
@@ -575,21 +613,21 @@ fn receiver_trap_rolls_back_acceptance_and_receipt_before_refunding_the_sender()
         FundingReconciliationView::CreditRequired(prior.accept)
     );
     assert_eq!(
-        fixture.fund(fixture.driver, trapped),
+        fixture.fund(fixture.driver, trapped).await,
         Err(FundingFailure::Fenced)
     );
     // The receiver's trapped receipt remains absent, and neither side resumes.
     let next = request(3, 19_000_003, FundingReplyMode::Success);
     assert_eq!(
-        fixture.fund(fixture.driver, next),
+        fixture.fund(fixture.driver, next).await,
         Err(FundingFailure::Fenced)
     );
-    assert_eq!(fixture.receipts(), receipts);
+    assert_eq!(fixture.receipts().await, receipts);
 }
 
-#[test]
-fn lifetime_journal_capacity_survives_upgrade_without_forgetting_payments() {
-    let fixture = Fixture::new();
+#[tokio::test(flavor = "multi_thread")]
+async fn lifetime_journal_capacity_survives_upgrade_without_forgetting_payments() {
+    let fixture = Fixture::new().await;
     let mut candidate = request(0, 1, FundingReplyMode::Success);
     loop {
         // Test-run cap, deliberately independent of the fixture's capacity constant.
@@ -597,43 +635,51 @@ fn lifetime_journal_capacity_survives_upgrade_without_forgetting_payments() {
             candidate.id < 100,
             "experiment must reach its bounded journal limit"
         );
-        match fixture.fund(fixture.driver, candidate) {
+        match fixture.fund(fixture.driver, candidate).await {
             Ok(_) => candidate.id += 1,
             Err(FundingFailure::Limit) => break,
             other => panic!("unexpected admission: {other:?}"),
         }
     }
-    let attempts = fixture.attempts();
-    let receipts = fixture.receipts();
+    let attempts = fixture.attempts().await;
+    let receipts = fixture.receipts().await;
     assert_ne!(receipts, []);
-    let status = fixture.status_unchanged();
-    fixture.upgrade_both();
-    assert_eq!(fixture.status_unchanged(), fenced_status(status));
+    let status = fixture.status_unchanged().await;
+    fixture.upgrade_both().await;
+    assert_eq!(fixture.status_unchanged().await, fenced_status(status));
     assert_eq!(
-        fixture.fund(fixture.driver, candidate),
+        fixture.fund(fixture.driver, candidate).await,
         Err(FundingFailure::Fenced)
     );
-    assert_eq!(fixture.attempts(), attempts);
-    assert_eq!(fixture.receipts(), receipts);
+    assert_eq!(fixture.attempts().await, attempts);
+    assert_eq!(fixture.receipts().await, receipts);
     assert_eq!(
-        fixture.fund(fixture.driver, attempts[0].request),
+        fixture.fund(fixture.driver, attempts[0].request).await,
         Err(FundingFailure::Fenced)
     );
 }
 
-#[test]
-fn liquidity_rejection_has_no_callback_refund_and_preserves_exact_unsent_history() {
-    let fixture = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn liquidity_rejection_has_no_callback_refund_and_preserves_exact_unsent_history() {
+    let fixture = Fixture::new().await;
     let prior = request(1, 13_000_001, FundingReplyMode::Success);
     fixture
         .fund(fixture.driver, prior)
+        .await
         .expect("prior refunded call");
-    let budget_before = fixture.status_unchanged().budget;
-    let receipts = fixture.receipts();
+    let budget_before = fixture.status_unchanged().await.budget;
+    let receipts = fixture.receipts().await;
     let mut unsent = request(2, 1, FundingReplyMode::Success);
-    unsent.offered = fixture.harness.pic.cycle_balance(fixture.sender).unwrap() + 1;
+    unsent.offered = fixture
+        .harness
+        .pic
+        .cycle_balance(fixture.sender)
+        .await
+        .unwrap()
+        + 1;
     let observation = fixture
         .fund(fixture.driver, unsent)
+        .await
         .expect("local liquidity refusal observed");
     assert_eq!(
         observation,
@@ -644,7 +690,7 @@ fn liquidity_rejection_has_no_callback_refund_and_preserves_exact_unsent_history
             reconciliation: FundingReconciliationView::NoTransfer,
         }
     );
-    let attempts = fixture.attempts();
+    let attempts = fixture.attempts().await;
     assert_eq!(
         attempts.last(),
         Some(&FundingAttemptRecord {
@@ -652,20 +698,20 @@ fn liquidity_rejection_has_no_callback_refund_and_preserves_exact_unsent_history
             observation: Some(observation),
         })
     );
-    assert_eq!(fixture.receipts(), receipts);
-    let budget_after = fixture.status_unchanged().budget;
+    assert_eq!(fixture.receipts().await, receipts);
+    let budget_after = fixture.status_unchanged().await.budget;
     assert_eq!(budget_after.available, budget_before.available);
     assert_eq!(budget_after.accepted, budget_before.accepted);
     assert_eq!(budget_after.refunded, budget_before.refunded);
     assert_eq!(budget_after.not_enqueued, unsent.offered);
     assert_eq!(budget_after.reserved_or_uncertain, 0);
     assert_eq!(budget_after.revision, budget_before.revision + 2);
-    fixture.upgrade_both();
-    assert_eq!(fixture.status_unchanged().budget, budget_after);
-    assert_eq!(fixture.attempts(), attempts);
-    assert_eq!(fixture.receipts(), receipts);
+    fixture.upgrade_both().await;
+    assert_eq!(fixture.status_unchanged().await.budget, budget_after);
+    assert_eq!(fixture.attempts().await, attempts);
+    assert_eq!(fixture.receipts().await, receipts);
     // Changed parameters do not turn the already admitted identity into a retry.
-    let status = fixture.status_unchanged();
+    let status = fixture.status_unchanged().await;
     assert_eq!(status.funding_activity, FundingActivityView::Uncertain);
     assert_eq!(
         status.attempts.last(),
@@ -682,36 +728,36 @@ fn liquidity_rejection_has_no_callback_refund_and_preserves_exact_unsent_history
     assert_eq!(status.attempts.first().unwrap().provider_credit, None);
     let changed = request(unsent.id, 1, FundingReplyMode::Success);
     assert_eq!(
-        fixture.fund(fixture.driver, changed),
+        fixture.fund(fixture.driver, changed).await,
         Err(FundingFailure::Fenced)
     );
     let next = request(3, 19_000_003, FundingReplyMode::Success);
     assert_eq!(
-        fixture.fund(fixture.driver, next),
+        fixture.fund(fixture.driver, next).await,
         Err(FundingFailure::Fenced)
     );
-    assert_eq!(fixture.receipts(), receipts);
+    assert_eq!(fixture.receipts().await, receipts);
 }
 
-#[test]
-fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
-    let fixture = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
+    let fixture = Fixture::new().await;
     let mut request = request(1, 1, FundingReplyMode::Success);
     assert_eq!(
-        fixture.fund(Principal::anonymous(), request),
+        fixture.fund(Principal::anonymous(), request).await,
         Err(FundingFailure::Denied)
     );
     for (offered, accept) in [(0, 0), (u128::MAX, 0), (10, 11)] {
         request.offered = offered;
         request.accept = accept;
         assert_eq!(
-            fixture.fund(fixture.driver, request),
+            fixture.fund(fixture.driver, request).await,
             Err(FundingFailure::Limit)
         );
     }
-    assert_eq!(fixture.attempts(), []);
-    assert_eq!(fixture.receipts(), []);
-    let status = fixture.status_unchanged();
+    assert_eq!(fixture.attempts().await, []);
+    assert_eq!(fixture.receipts().await, []);
+    let status = fixture.status_unchanged().await;
     assert_eq!(status.funding_activity, FundingActivityView::Clear);
     assert!(
         !status
@@ -726,7 +772,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
             fixture.sender,
             fixture.receiver,
         ] {
-            assert_eq!(fixture.status_as(canister, caller), None);
+            assert_eq!(fixture.status_as(canister, caller).await, None);
         }
     }
     let hidden: Option<Vec<FundingAttemptRecord>> = fixture_calls::query_fixture(
@@ -736,6 +782,7 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
         "attempts",
         (),
     )
+    .await
     .map(|(reply,)| reply)
     .expect("private journal query");
     assert_eq!(hidden, None);
@@ -748,16 +795,19 @@ fn denied_and_invalid_requests_cannot_offer_cycles_or_inspect_journals() {
             "receive",
             blob_test_protocol::fixture_wire::encode_one("receive", request).expect("request"),
         )
+        .await
         .expect_err("driver cannot impersonate peer");
     assert_eq!(
         crate::canister_rejection(&rejected).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(fixture.receipts(), []);
-    fixture.upgrade_both();
-    assert_eq!(fixture.status_unchanged(), fenced_status(status));
+    assert_eq!(fixture.receipts().await, []);
+    fixture.upgrade_both().await;
+    assert_eq!(fixture.status_unchanged().await, fenced_status(status));
     assert_eq!(
-        fixture.status_as(fixture.sender, Principal::anonymous()),
+        fixture
+            .status_as(fixture.sender, Principal::anonymous())
+            .await,
         None
     );
 }

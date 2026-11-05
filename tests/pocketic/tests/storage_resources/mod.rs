@@ -129,7 +129,7 @@ fn wide_instruction_totals_survive_wire_and_retained_json() {
     }
 }
 
-pub(super) fn resources(f: &Fixture) -> serde_json::Value {
+pub(super) async fn resources(f: &Fixture) -> serde_json::Value {
     let result: Result<RestorationResources, Failure> = f
         .harness
         .pic
@@ -140,6 +140,7 @@ pub(super) fn resources(f: &Fixture) -> serde_json::Value {
             (),
             REPLY_BYTES,
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
     let r = result.unwrap();
@@ -147,6 +148,7 @@ pub(super) fn resources(f: &Fixture) -> serde_json::Value {
         .harness
         .pic
         .canister_status(f.service, Some(f.controller))
+        .await
         .unwrap();
     serde_json::json!({"restored":r.restored, "initialization_instructions":r.initialization_instructions,
         "stores_instructions":r.stores_instructions, "initialization_heap_bytes":r.heap_bytes,
@@ -236,7 +238,7 @@ fn preparation(f: &Fixture, workload: Workload, index: u32) -> PreparationInput 
     }
 }
 
-fn manifest(f: &Fixture, input: &PreparationInput) -> UploadManifestResponse {
+async fn manifest(f: &Fixture, input: &PreparationInput) -> UploadManifestResponse {
     let permission = admission_input(Permission {
         request: input.request,
         uploader: input.request.tenant,
@@ -252,6 +254,7 @@ fn manifest(f: &Fixture, input: &PreparationInput) -> UploadManifestResponse {
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     result.unwrap()
 }
@@ -280,9 +283,9 @@ fn references(samples: &[PreparationInput]) -> Vec<ReferenceInput> {
         .collect()
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread")]
 #[ignore = "opt-in population profile; needs a fresh BLOB_RESTORE_RESOURCE_REPORT directory"]
-fn populated_service_restoration_profile() {
+async fn populated_service_restoration_profile() {
     let directory =
         std::path::PathBuf::from(std::env::var_os("BLOB_RESTORE_RESOURCE_REPORT").unwrap());
     std::fs::create_dir(&directory).unwrap();
@@ -326,7 +329,7 @@ fn populated_service_restoration_profile() {
     ];
     let mut failures = Vec::new();
     for workload in workloads {
-        if !profile_workload(&directory, workload) {
+        if !profile_workload(&directory, workload).await {
             failures.push(workload.name);
         }
     }
@@ -344,10 +347,10 @@ fn populated_service_restoration_profile() {
     clippy::too_many_lines,
     reason = "One retained workload couples population, actual reopen and boundary evidence"
 )]
-fn profile_workload(directory: &Path, workload: Workload) -> bool {
+async fn profile_workload(directory: &Path, workload: Workload) -> bool {
     let count = workload.objects;
     let name = workload.name;
-    let harness = Harness::new();
+    let harness = Harness::new().await;
     let operator = fake_principal(1);
     let controller = fake_principal(2);
     let service = harness
@@ -359,6 +362,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
                 ..CanisterSettings::default()
             }),
         )
+        .await
         .unwrap();
     let profile = StorageProbeInstallation {
         operator,
@@ -379,6 +383,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             installation.clone(),
             Some(controller),
         )
+        .await
         .unwrap();
     let mut f = Fixture {
         harness,
@@ -389,7 +394,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         uploader: fake_principal(4),
         other: fake_principal(5),
     };
-    let initial = resources(&f);
+    let initial = resources(&f).await;
     let started = Instant::now();
     let mut samples = Vec::new();
     let batch_objects = if workload.bytes <= CAFFEINE_CHUNK_BYTES as u64 {
@@ -418,6 +423,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
                 (batch,),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply);
         if !matches!(result, Ok(Ok(()))) {
             retain(
@@ -431,7 +437,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             retain(
                 directory,
                 &format!("checkpoint-{name}-{end}.json"),
-                &serde_json::json!({"operations":f.status().operations,"population_ms":started.elapsed().as_millis(),"resources":resources(&f)}),
+                &serde_json::json!({"operations":f.status().await.operations,"population_ms":started.elapsed().as_millis(),"resources":resources(&f).await}),
             );
         }
     }
@@ -439,7 +445,7 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         samples.len(),
         usize::try_from(workload.tenants * 4).unwrap()
     );
-    let before = f.status();
+    let before = f.status().await;
     assert_eq!(before.operations, u64::from(count));
     assert_eq!(before.active, u64::from(count / 4));
     assert_eq!(
@@ -455,10 +461,13 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         u128::from(count / 4 * 3) * u128::from(workload.bytes)
     );
     assert_eq!(before.usage.liability, before.usage.physical);
-    let observations: Vec<_> = samples
-        .iter()
-        .map(|p| f.lookup(p.request.tenant, p.request).unwrap())
-        .collect();
+    let observations: Vec<_> = {
+        let mut values = Vec::new();
+        for p in &samples {
+            values.push(f.lookup(p.request.tenant, p.request).await.unwrap());
+        }
+        values
+    };
     for group in observations.as_chunks::<4>().0 {
         assert_eq!(
             group.iter().map(|r| r.phase).collect::<Vec<_>>(),
@@ -470,7 +479,10 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             ]
         );
     }
-    let manifests: Vec<_> = samples.iter().map(|p| manifest(&f, p)).collect();
+    let mut manifests = Vec::with_capacity(samples.len());
+    for input in &samples {
+        manifests.push(manifest(&f, input).await);
+    }
     for (index, (input, observed)) in samples.iter().zip(&manifests).enumerate() {
         if index % 4 == 3 {
             assert_eq!(observed.manifest, UploadManifestInspection::Unprepared);
@@ -490,27 +502,31 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         }
     }
     let references = references(&samples);
-    let receipts: Vec<_> = references
-        .iter()
-        .map(|r| {
-            f.tenant = r.object.tenant;
-            assert_eq!(f.live(*r).unwrap(), r.retain);
-            f.receipt(*r).unwrap()
-        })
-        .collect();
+    let receipts: Vec<_> = {
+        let mut values = Vec::new();
+        for r in &references {
+            values.push({
+                f.tenant = r.object.tenant;
+                assert_eq!(f.live(*r).await.unwrap(), r.retain);
+                f.receipt(*r).await.unwrap()
+            });
+        }
+        values
+    };
     retain(
         directory,
         &format!("before-reopen-{name}.json"),
         &serde_json::json!({
         "count":count,"tenants":workload.tenants,"object_bytes":workload.bytes,"initial":initial,
-        "populated":resources(&f),"status":format!("{before:?}"),"observations":format!("{observations:?}"),
+        "populated":resources(&f).await,"status":format!("{before:?}"),"observations":format!("{observations:?}"),
         "manifests":format!("{manifests:?}"),"receipts":format!("{receipts:?}"),"population_ms":started.elapsed().as_millis()}),
     );
     let restore_started = Instant::now();
-    if let Err(error) =
-        f.harness
-            .pic
-            .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller))
+    if let Err(error) = f
+        .harness
+        .pic
+        .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller))
+        .await
     {
         retain(
             directory,
@@ -520,23 +536,26 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
         );
         return false;
     }
-    let restored = resources(&f);
+    let restored = resources(&f).await;
     assert_eq!(
-        f.status(),
+        f.status().await,
         Status {
             fenced: true,
             ..before
         }
     );
     for ((input, observed), declared) in samples.iter().zip(&observations).zip(&manifests) {
-        assert_eq!(f.lookup(input.request.tenant, input.request), Ok(*observed));
-        assert_eq!(manifest(&f, input), *declared);
-        assert_eq!(f.lookup(f.other, input.request), Err(Failure::Denied));
+        assert_eq!(
+            f.lookup(input.request.tenant, input.request).await,
+            Ok(*observed)
+        );
+        assert_eq!(manifest(&f, input).await, *declared);
+        assert_eq!(f.lookup(f.other, input.request).await, Err(Failure::Denied));
     }
     for (reference, receipt) in references.iter().zip(&receipts) {
         f.tenant = reference.object.tenant;
-        assert_eq!(f.live(*reference).unwrap(), reference.retain);
-        assert_eq!(f.receipt(*reference).unwrap(), *receipt);
+        assert_eq!(f.live(*reference).await.unwrap(), reference.retain);
+        assert_eq!(f.receipt(*reference).await.unwrap(), *receipt);
     }
     let refused: Result<(), Failure> = f
         .harness
@@ -551,17 +570,18 @@ fn profile_workload(directory: &Path, workload: Workload) -> bool {
             },),
             REPLY_BYTES,
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
     assert_eq!(refused, Err(Failure::Fenced));
     assert_eq!(
-        f.status(),
+        f.status().await,
         Status {
             fenced: true,
             ..before
         }
     );
-    assert_eq!(resources(&f), restored);
+    assert_eq!(resources(&f).await, restored);
     retain(
         directory,
         &format!("reopened-{name}.json"),

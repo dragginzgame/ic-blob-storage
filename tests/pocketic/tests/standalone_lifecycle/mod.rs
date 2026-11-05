@@ -25,9 +25,9 @@ fn normalized(mut status: LocalServiceStatus) -> LocalServiceStatus {
 
     status
 }
-fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
+async fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
     assert_eq!(
-        f.prepare(f.uploader, manifest),
+        f.prepare(f.uploader, manifest).await,
         Err(UploadManifestFailure::Permission(
             UploadAdmissionFailure::Fenced
         ))
@@ -45,6 +45,7 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(removed, Err(GatewayRevocationFailure::Fenced));
     let account: Result<AccountInspectionResponse, AccountInspectionFailure> = f
@@ -60,18 +61,19 @@ fn refuses(f: &Fixture, manifest: &UploadManifestRequest) {
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(account, Err(AccountInspectionFailure::Fenced));
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
 )]
-fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() {
-    let f = Fixture::new();
-    f.enroll(f.operator).unwrap();
+async fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() {
+    let f = Fixture::new().await;
+    f.enroll(f.operator).await.unwrap();
     let manifest = f.manifest();
     f.harness
         .pic
@@ -82,72 +84,88 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
             manifest.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
-    let prepared = f.prepare(f.uploader, &manifest).unwrap().observation;
-    let installation = f.configuration(f.operator).unwrap();
-    let admission = f.admission(manifest.permission);
-    let status = f.local_status(f.operator, f.operator_scope()).unwrap();
+    let prepared = f.prepare(f.uploader, &manifest).await.unwrap().observation;
+    let installation = f.configuration(f.operator).await.unwrap();
+    let admission = f.admission(manifest.permission).await;
+    let status = f
+        .local_status(f.operator, f.operator_scope())
+        .await
+        .unwrap();
     fences(&status, false);
     assert_eq!(
         status.uploads.reserved_bytes,
         u128::from(manifest.permission.upload.bytes)
     );
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     f.harness
         .pic
         .stop_canister(f.service, Some(f.controller))
+        .await
         .unwrap();
     f.harness
         .pic
         .start_canister(f.service, Some(f.controller))
+        .await
         .unwrap();
     fences(
-        &f.local_status(f.operator, f.operator_scope()).unwrap(),
+        &f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         true,
     );
     assert_eq!(
-        f.resume(f.controller),
+        f.resume(f.controller).await,
         Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::Denied)
     );
-    f.resume(f.operator).unwrap();
-    assert_eq!(f.configuration(f.operator).unwrap(), installation);
+    f.resume(f.operator).await.unwrap();
+    assert_eq!(f.configuration(f.operator).await.unwrap(), installation);
     assert_eq!(
-        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         status
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     // Supplied replacement settings must not publish a partially restored host.
     assert_eq!(
-        crate::canister_rejection(&f.upgrade(super::installation(&f.config)).unwrap_err())
+        crate::canister_rejection(&f.upgrade(super::installation(&f.config)).await.unwrap_err())
             .reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.configuration(f.operator).unwrap(), installation);
+    assert_eq!(f.configuration(f.operator).await.unwrap(), installation);
     assert_eq!(
-        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         status
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     for _ in 0..2 {
         f.upgrade(
             ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap(),
         )
+        .await
         .unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
         let mut expected = installation.clone();
         expected.fenced = true;
-        assert_eq!(f.configuration(f.operator).unwrap(), expected);
-        let restored = f.local_status(f.operator, f.operator_scope()).unwrap();
+        assert_eq!(f.configuration(f.operator).await.unwrap(), expected);
+        let restored = f
+            .local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap();
         fences(&restored, true);
         assert_eq!(normalized(restored), status);
-        assert_eq!(f.admission(manifest.permission), admission);
+        assert_eq!(f.admission(manifest.permission).await, admission);
         let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
             .harness
             .pic
@@ -158,36 +176,41 @@ fn stop_start_and_repeated_upgrade_preserve_installation_and_all_owner_fences() 
                 manifest.permission,
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         assert_eq!(retained.unwrap(), prepared);
-        refuses(&f, &manifest);
+        refuses(&f, &manifest).await;
         unchanged(
-            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
             &before,
         );
     }
     // A fresh replicated IC history read proves this was an ordinary same-release
     // upgrade, while all original permissions, manifests and reservations survive.
-    f.resume(f.operator).unwrap();
+    f.resume(f.operator).await.unwrap();
     fences(
-        &f.local_status(f.operator, f.operator_scope()).unwrap(),
+        &f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         false,
     );
-    assert_eq!(f.admission(manifest.permission), admission);
+    assert_eq!(f.admission(manifest.permission).await, admission);
     assert_eq!(
-        f.prepare(f.uploader, &manifest).unwrap().observation,
+        f.prepare(f.uploader, &manifest).await.unwrap().observation,
         prepared
     );
     let root = super::standalone_certificate::root(&manifest);
-    let assessment = super::standalone_certificate::inspect(&f, f.uploader, &root).unwrap();
+    let assessment = super::standalone_certificate::inspect(&f, f.uploader, &root)
+        .await
+        .unwrap();
     assert_eq!(assessment.permission, manifest.permission);
 }
 
-#[test]
-fn current_instance_recovery_refuses_expired_platform_history_without_rotating_anchor() {
-    let f = Fixture::new();
-    f.enroll(f.operator).unwrap();
-    let installation = f.configuration(f.operator).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn current_instance_recovery_refuses_expired_platform_history_without_rotating_anchor() {
+    let f = Fixture::new().await;
+    f.enroll(f.operator).await.unwrap();
+    let installation = f.configuration(f.operator).await.unwrap();
     // Each actual controller-settings change adds IC-owned history. Keep the
     // same controller; neither its authority nor a plausible local counter can
     // replace the missing beginning of this installation's retained history.
@@ -195,31 +218,35 @@ fn current_instance_recovery_refuses_expired_platform_history_without_rotating_a
         f.harness
             .pic
             .set_controllers(f.service, Some(f.controller), vec![f.controller])
+            .await
             .unwrap();
     }
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
-        f.resume(f.operator),
+        f.resume(f.operator).await,
         Err(ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure::IncompleteHistory)
     );
     let mut expected = installation;
     expected.fenced = true;
-    assert_eq!(f.configuration(f.operator).unwrap(), expected);
+    assert_eq!(f.configuration(f.operator).await.unwrap(), expected);
     fences(
-        &f.local_status(f.operator, f.operator_scope()).unwrap(),
+        &f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         true,
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
 
-#[test]
-fn current_instance_recovery_rejects_management_change_during_history_await() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn current_instance_recovery_rejects_management_change_during_history_await() {
     use ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure;
-    let f = Fixture::new();
+    let f = Fixture::new().await;
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
     let message = f
         .harness
@@ -231,39 +258,45 @@ fn current_instance_recovery_rejects_management_change_during_history_await() {
             ic_blob_storage_contracts::wire::encode_request("blob_resume_current_instance", ())
                 .unwrap(),
         )
+        .await
         .unwrap();
-    f.harness.pic.tick().unwrap();
+    f.harness.pic.tick().await.unwrap();
     f.harness
         .pic
         .set_controllers(f.service, Some(f.controller), vec![f.controller])
+        .await
         .unwrap();
     let reply: Result<(), CurrentInstanceRecoveryFailure> =
         ic_blob_storage_contracts::wire::decode_response(
             "blob_resume_current_instance",
-            &f.harness.pic.await_call(message).unwrap(),
+            &f.harness.pic.await_call(message).await.unwrap(),
             ic_blob_storage_contracts::wire::MAX_MESSAGE_BYTES,
         )
         .unwrap();
     assert_eq!(reply, Err(CurrentInstanceRecoveryFailure::Binding));
-    assert!(f.configuration(f.operator).unwrap().fenced);
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
     // A fresh explicit history read may qualify this ordinary controller change;
     // the earlier reply is not reused and no provider operation is repeated.
-    f.resume(f.operator).unwrap();
-    assert!(!f.configuration(f.operator).unwrap().fenced);
+    f.resume(f.operator).await.unwrap();
+    assert!(!f.configuration(f.operator).await.unwrap().fenced);
 }
 
-#[test]
-fn recovery_survives_denied_updates_during_history_without_losing_obligations() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn recovery_survives_denied_updates_during_history_without_losing_obligations() {
     use ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure;
-    let f = Fixture::small(Harness::new(), fake_principal(4));
-    confirm_and_release_locally(&f);
-    let before = f.local_status(f.operator, f.operator_scope()).unwrap();
+    let f = Fixture::small(Harness::new().await, fake_principal(4)).await;
+    confirm_and_release_locally(&f).await;
+    let before = f
+        .local_status(f.operator, f.operator_scope())
+        .await
+        .unwrap();
     assert_eq!(before.uploads.physical_bytes, 1024);
     assert_eq!(before.uploads.liability_bytes, 1024);
-    let admission = f.admission(f.small_manifest().permission);
+    let admission = f.admission(f.small_manifest().permission).await;
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let submit = |actor| {
+    let submit = async |actor| {
         f.harness
             .pic
             .submit_call(
@@ -273,36 +306,45 @@ fn recovery_survives_denied_updates_during_history_without_losing_obligations() 
                 ic_blob_storage_contracts::wire::encode_request("blob_resume_current_instance", ())
                     .unwrap(),
             )
+            .await
             .unwrap()
     };
-    let recovery = submit(f.operator);
-    f.harness.pic.tick().unwrap();
+    let recovery = submit(f.operator).await;
+    f.harness.pic.tick().await.unwrap();
     // Queue repeated unauthorized updates alongside the history request. They
     // must reach the canister (not merely be rejected by ingress inspection).
-    let denied: Vec<_> = (0..16).map(|_| submit(f.uploader)).collect();
+    let mut denied = Vec::with_capacity(16);
+    for _ in 0..16 {
+        denied.push(submit(f.uploader).await);
+    }
     let decode = |bytes: &[u8]| {
         ic_blob_storage_contracts::wire::decode_response::<
             Result<(), CurrentInstanceRecoveryFailure>,
         >("blob_resume_current_instance", bytes, REPLY_BYTES)
         .unwrap()
     };
-    assert_eq!(decode(&f.harness.pic.await_call(recovery).unwrap()), Ok(()));
+    assert_eq!(
+        decode(&f.harness.pic.await_call(recovery).await.unwrap()),
+        Ok(())
+    );
     for message in denied {
         assert_eq!(
-            decode(&f.harness.pic.await_call(message).unwrap()),
+            decode(&f.harness.pic.await_call(message).await.unwrap()),
             Err(CurrentInstanceRecoveryFailure::Denied)
         );
     }
     assert_eq!(
-        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         before
     );
-    assert_eq!(f.admission(f.small_manifest().permission), admission);
+    assert_eq!(f.admission(f.small_manifest().permission).await, admission);
 }
 
-pub(super) fn confirm_and_release_locally(f: &Fixture) {
+pub(super) async fn confirm_and_release_locally(f: &Fixture) {
     use ic_blob_storage_contracts::dto::upload::certificate::CaffeineUploadCertificateResponse;
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let manifest = f.small_manifest();
     f.harness
         .pic
@@ -313,9 +355,10 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
             manifest.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
-    f.prepare(f.uploader, &manifest).unwrap();
+    f.prepare(f.uploader, &manifest).await.unwrap();
     let _: CaffeineUploadCertificateResponse = provider_calls::update_provider(
         &f.harness.pic,
         f.service,
@@ -323,6 +366,7 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
         ic_blob_storage_contracts::protocol::CAFFEINE_UPLOAD_CERTIFICATE_METHOD,
         (super::standalone_certificate::root(&manifest),),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap();
     // This statement is a local verifier substitute, not a deployed byte observation.
@@ -340,35 +384,45 @@ pub(super) fn confirm_and_release_locally(f: &Fixture) {
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
 }
 
-#[test]
-fn active_current_instance_recovery_retains_released_physical_and_billing_obligations() {
-    let f = Fixture::small(Harness::new(), fake_principal(4));
-    confirm_and_release_locally(&f);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn active_current_instance_recovery_retains_released_physical_and_billing_obligations() {
+    let f = Fixture::small(Harness::new().await, fake_principal(4)).await;
+    confirm_and_release_locally(&f).await;
     let permission = f.small_manifest().permission;
-    let before = f.local_status(f.operator, f.operator_scope()).unwrap();
+    let before = f
+        .local_status(f.operator, f.operator_scope())
+        .await
+        .unwrap();
     assert_eq!(before.uploads.logical_bytes, 0);
     assert_eq!(before.uploads.physical_bytes, 1024);
     assert_eq!(before.uploads.liability_bytes, 1024);
-    let admission = f.admission(permission);
+    let admission = f.admission(permission).await;
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
     fences(
-        &f.local_status(f.operator, f.operator_scope()).unwrap(),
+        &f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         true,
     );
-    f.resume(f.operator).unwrap();
+    f.resume(f.operator).await.unwrap();
     assert_eq!(
-        f.local_status(f.operator, f.operator_scope()).unwrap(),
+        f.local_status(f.operator, f.operator_scope())
+            .await
+            .unwrap(),
         before
     );
-    assert_eq!(f.admission(permission), admission);
+    assert_eq!(f.admission(permission).await, admission);
     super::standalone_certificate::refuses(
         &f,
         f.uploader,
         &super::standalone_certificate::root(&f.small_manifest()),
-    );
+    )
+    .await;
 }

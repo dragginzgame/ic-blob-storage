@@ -28,9 +28,9 @@ fn limits() -> CaffeineReplyLimits {
     }
 }
 
-#[test]
-fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() {
+    let f = Fixture::new().await;
     let request =
         CashierQueryRequest::new(f.gateway.into(), CashierQuery::StorageGateways).unwrap();
     let scope = GatewayScope::new(
@@ -47,7 +47,7 @@ fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() 
         }),
     );
     let token = registry.begin_sync().unwrap();
-    let before = f.journals();
+    let before = f.journals().await;
     let bytes = f
         .harness
         .pic
@@ -57,6 +57,7 @@ fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() 
             request.method_name(),
             request.arguments().to_vec(),
         )
+        .await
         .unwrap();
     request
         .apply_gateway_sync_reply(&mut registry, token, scope, &bytes, limits())
@@ -81,14 +82,14 @@ fn gateway_query_feeds_an_exact_pending_sync_without_mutating_source_journals() 
     );
     assert_eq!(registry, revoked);
     assert!(
-        f.journals() == before,
+        f.journals().await == before,
         "query and local registry work preserve fixture journals"
     );
 }
 
-#[test]
-fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_sources() {
-    let f = Fixture::with_source_operator(true);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_sources() {
+    let f = Fixture::with_source_operator(true).await;
     let request =
         CashierQueryRequest::new(f.gateway.into(), CashierQuery::StorageGateways).unwrap();
     let query = |caller| {
@@ -99,17 +100,17 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
             request.arguments().to_vec(),
         )
     };
-    let before = f.journals();
+    let before = f.journals().await;
     for caller in [
         Principal::anonymous(),
         f.authority,
         f.gateway,
         fake_principal(99),
     ] {
-        assert!(query(caller).is_err());
+        assert!(query(caller).await.is_err());
     }
     assert!(
-        f.journals() == before,
+        f.journals().await == before,
         "denied callers preserve all journals"
     );
     for mode in [
@@ -126,13 +127,14 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
             "configure",
             (mode,),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
         assert!(configured);
-        let before = f.journals();
-        assert!(query(f.driver).is_err());
+        let before = f.journals().await;
+        assert!(query(f.driver).await.is_err());
         assert!(
-            f.journals() == before,
+            f.journals().await == before,
             "query must not execute a scripted source action"
         );
     }
@@ -143,19 +145,23 @@ fn gateway_query_refuses_other_callers_scripted_effect_modes_and_restored_source
         "configure",
         (SourceMode::Valid,),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap();
     assert!(configured);
-    assert!(query(f.driver).is_ok());
-    f.upgrade_fixture(f.gateway, true);
-    let before = f.journals();
-    assert!(query(f.driver).is_err());
-    assert!(f.journals() == before, "restored source remains fenced");
+    assert!(query(f.driver).await.is_ok());
+    f.upgrade_fixture(f.gateway, true).await;
+    let before = f.journals().await;
+    assert!(query(f.driver).await.is_err());
+    assert!(
+        f.journals().await == before,
+        "restored source remains fenced"
+    );
 }
 
-#[test]
-fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
+    let f = Fixture::new().await;
     let request =
         CashierQueryRequest::new(f.gateway.into(), CashierQuery::StorageGateways).unwrap();
     let scope = GatewayScope::new(
@@ -188,10 +194,11 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
             "configure",
             (mode,),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
         assert!(configured);
-        let before = f.journals();
+        let before = f.journals().await;
         let bytes = f
             .harness
             .pic
@@ -201,6 +208,7 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
                 request.method_name(),
                 request.arguments().to_vec(),
             )
+            .await
             .expect("passive fault mode returns bytes for client validation");
         assert_eq!(
             request.apply_gateway_sync_reply(&mut registry, token, scope, &bytes, limits()),
@@ -208,6 +216,9 @@ fn gateway_query_passive_fault_replies_preserve_source_and_pending_sync() {
             "mode {mode:?}"
         );
         assert_eq!(registry, pending);
-        assert!(f.journals() == before, "passive replies preserve journals");
+        assert!(
+            f.journals().await == before,
+            "passive replies preserve journals"
+        );
     }
 }

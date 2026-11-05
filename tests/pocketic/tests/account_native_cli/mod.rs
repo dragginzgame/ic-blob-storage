@@ -85,7 +85,7 @@ impl NativeAccountCli {
         );
         result
     }
-    pub fn reports(&self, configure: impl Fn(Kind, Vec<u8>)) {
+    pub async fn reports(&self, configure: impl AsyncFn(Kind, Vec<u8>)) {
         for (index, (kind, bytes, expected)) in cases(self.scope).into_iter().enumerate() {
             save(&self.report.join(format!("source-{index:02}.cbor")), &bytes);
             save(
@@ -96,7 +96,7 @@ impl NativeAccountCli {
                 })
                 .unwrap(),
             );
-            configure(kind, bytes);
+            configure(kind, bytes).await;
             let value = self.execute(&self.arguments(kind), 0);
             assert_eq!(value["observation"], "account_inspection");
             assert_eq!(value["verification"], "ic_update_certificate");
@@ -114,15 +114,15 @@ impl NativeAccountCli {
                 &self.report.join(format!("invalid-source-{index}.cbor")),
                 &bytes,
             );
-            configure(Kind::Balance, bytes);
+            configure(Kind::Balance, bytes).await;
             assert_eq!(
                 self.execute(&self.arguments(Kind::Balance), 3)["error"],
                 error
             );
         }
     }
-    pub fn refusals(&self, configure: impl Fn(Kind, Vec<u8>)) {
-        configure(Kind::Balance, balance(self.scope.payment_account.into()));
+    pub async fn refusals(&self, configure: impl AsyncFn(Kind, Vec<u8>)) {
+        configure(Kind::Balance, balance(self.scope.payment_account.into())).await;
         let args = self.arguments(Kind::Balance);
         let other = BasicIdentity::from_raw_key(&[43; 32]);
         let principal = other.sender().unwrap().to_text();

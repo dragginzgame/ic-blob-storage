@@ -30,7 +30,7 @@ fn credit(intent: Intent, accepted: u128, digest: u8) -> CreditCommand {
     }
 }
 impl Fixture {
-    fn confirm_credit(
+    async fn confirm_credit(
         &self,
         actor: Principal,
         input: CreditCommand,
@@ -47,51 +47,53 @@ impl Fixture {
                 "fixture_confirm_funding_credit",
                 request,
             )
+            .await
             .unwrap();
         retain_packet("credit-reply", &reply);
         ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
             .unwrap()
     }
 }
-fn retain(f: &Fixture, name: &str) {
+async fn retain(f: &Fixture, name: &str) {
     if let Some(root) = std::env::var_os("BLOB_FUNDING_CREDIT_REPORT") {
         let dir = std::path::PathBuf::from(root).join(name);
         std::fs::create_dir(&dir).unwrap();
         std::fs::write(
             dir.join("stable.bin"),
-            f.harness.pic.get_stable_memory(f.service).unwrap(),
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         )
         .unwrap();
         std::fs::write(
             dir.join("observations.txt"),
             format!(
                 "local_status={:#?}\nallocation={:#?}\nrequests={:#?}\n",
-                f.local_status(),
-                f.funding_allocation(),
-                f.incoming(),
+                f.local_status().await,
+                f.funding_allocation().await,
+                f.incoming().await,
             ),
         )
         .unwrap();
     }
 }
-#[test]
-fn confirmed_credit_allows_another_dispatch_without_replenishing_spent_cycles() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn confirmed_credit_allows_another_dispatch_without_replenishing_spent_cycles() {
+    let f = Fixture::with_cashier().await;
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
-    f.funding(f.operator, first, Action::Prepare).unwrap();
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, first, Action::Prepare).await.unwrap();
     assert_eq!(
-        settled(f.guarded_dispatch(f.operator, request(first))).accepted,
+        settled(f.guarded_dispatch(f.operator, request(first)).await).accepted,
         300
     );
     let next = f.funding_intent(2, 400);
-    f.funding(f.operator, next, Action::Prepare).unwrap();
+    f.funding(f.operator, next, Action::Prepare).await.unwrap();
     assert!(
-        refused(f.guarded_dispatch(f.operator, request(next)))
+        refused(f.guarded_dispatch(f.operator, request(next)).await)
             .0
             .contains(&B::JournalUncredited)
     );
-    let before = f.funding_allocation();
+    let before = f.funding_allocation().await;
     assert_eq!(
         f.confirm_credit(
             f.operator,
@@ -99,20 +101,25 @@ fn confirmed_credit_allows_another_dispatch_without_replenishing_spent_cycles() 
                 established: false,
                 ..credit(first, 300, 1)
             }
-        ),
+        )
+        .await,
         Ok(None)
     );
     assert_eq!(
-        f.confirm_credit(f.operator, credit(first, 300, 1)),
+        f.confirm_credit(f.operator, credit(first, 300, 1)).await,
         Ok(Some(true))
     );
     assert_eq!(
-        f.confirm_credit(f.operator, credit(first, 300, 1)),
+        f.confirm_credit(f.operator, credit(first, 300, 1)).await,
         Ok(Some(false))
     );
-    assert_eq!(f.funding_allocation(), before);
-    assert_eq!(f.local_status().funding.uncredited_accepted, 0);
-    let outcome = f.retained_outcome(f.operator, first).unwrap().unwrap();
+    assert_eq!(f.funding_allocation().await, before);
+    assert_eq!(f.local_status().await.funding.uncredited_accepted, 0);
+    let outcome = f
+        .retained_outcome(f.operator, first)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(
         outcome.reconciliation,
         FundingReconciliationView::CreditConfirmed {
@@ -120,34 +127,36 @@ fn confirmed_credit_allows_another_dispatch_without_replenishing_spent_cycles() 
             receipt_digest: [1; 32],
         }
     );
-    f.configure_cashier(next, 200, FundingReplyMode::Malformed);
+    f.configure_cashier(next, 200, FundingReplyMode::Malformed)
+        .await;
     assert_eq!(
-        settled(f.guarded_dispatch(f.operator, request(next))).accepted,
+        settled(f.guarded_dispatch(f.operator, request(next)).await).accepted,
         200
     );
     assert_eq!(
-        f.incoming().iter().map(|r| r.id).collect::<Vec<_>>(),
+        f.incoming().await.iter().map(|r| r.id).collect::<Vec<_>>(),
         vec![1, 2]
     );
-    assert_eq!(f.funding_allocation().accepted, 500);
-    assert_eq!(f.funding_allocation().available, 500);
-    assert_eq!(f.local_status().funding.uncredited_accepted, 200);
+    assert_eq!(f.funding_allocation().await.accepted, 500);
+    assert_eq!(f.funding_allocation().await.available, 500);
+    assert_eq!(f.local_status().await.funding.uncredited_accepted, 200);
     assert_eq!(
-        f.confirm_credit(f.operator, credit(next, 200, 2)),
+        f.confirm_credit(f.operator, credit(next, 200, 2)).await,
         Ok(Some(true))
     );
-    assert_eq!(f.local_status().funding.transport_accepted, 500);
-    assert_eq!(f.local_status().funding.uncredited_accepted, 0);
-    retain(&f, "repeat");
+    assert_eq!(f.local_status().await.funding.transport_accepted, 500);
+    assert_eq!(f.local_status().await.funding.uncredited_accepted, 0);
+    retain(&f, "repeat").await;
 }
-#[test]
-fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay() {
+    let f = Fixture::with_cashier().await;
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
-    f.funding(f.operator, first, Action::Prepare).unwrap();
-    settled(f.guarded_dispatch(f.operator, request(first)));
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, first, Action::Prepare).await.unwrap();
+    settled(f.guarded_dispatch(f.operator, request(first)).await);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let input = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(CreditCommand {
         fault: Some(WriteFault::FundingAccounting),
         ..credit(first, 300, 1)
@@ -163,34 +172,40 @@ fn credit_accounting_trap_rolls_back_receipt_and_allows_only_confirmation_replay
             "fixture_confirm_funding_credit",
             input,
         )
+        .await
         .unwrap_err();
     retain_packet("credit-trap-result", format!("{error:?}").as_bytes());
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
     assert_eq!(
         f.retained_outcome(f.operator, first)
+            .await
             .unwrap()
             .unwrap()
             .reconciliation,
         FundingReconciliationView::CreditRequired(300)
     );
     assert_eq!(
-        f.confirm_credit(f.operator, credit(first, 300, 1)),
+        f.confirm_credit(f.operator, credit(first, 300, 1)).await,
         Ok(Some(true))
     );
-    assert_eq!(f.incoming().len(), 1);
-    retain(&f, "rollback");
+    assert_eq!(f.incoming().await.len(), 1);
+    retain(&f, "rollback").await;
 }
-#[test]
-fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_without_writes() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_without_writes() {
+    let f = Fixture::with_cashier().await;
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
-    f.funding(f.operator, first, Action::Prepare).unwrap();
-    settled(f.guarded_dispatch(f.operator, request(first)));
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, first, Action::Prepare).await.unwrap();
+    settled(f.guarded_dispatch(f.operator, request(first)).await);
     for (actor, input, failure) in [
         (f.tenant, credit(first, 300, 1), Failure::Denied),
         (
@@ -220,55 +235,77 @@ fn confirmation_refuses_wrong_authority_identity_amount_and_receipt_reuse_withou
         (f.operator, credit(first, 299, 1), Failure::Invalid),
         (f.operator, credit(first, 300, 0), Failure::Invalid),
     ] {
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-        assert_eq!(f.confirm_credit(actor, input), Err(failure));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+        assert_eq!(f.confirm_credit(actor, input).await, Err(failure));
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            before
+        );
     }
-    f.confirm_credit(f.operator, credit(first, 300, 1)).unwrap();
+    f.confirm_credit(f.operator, credit(first, 300, 1))
+        .await
+        .unwrap();
     let next = f.funding_intent(2, 400);
-    f.configure_cashier(next, 200, FundingReplyMode::Malformed);
-    f.funding(f.operator, next, Action::Prepare).unwrap();
-    settled(f.guarded_dispatch(f.operator, request(next)));
+    f.configure_cashier(next, 200, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, next, Action::Prepare).await.unwrap();
+    settled(f.guarded_dispatch(f.operator, request(next)).await);
     for input in [credit(first, 300, 2), credit(next, 200, 1)] {
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-        assert_eq!(f.confirm_credit(f.operator, input), Err(Failure::Conflict));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+        assert_eq!(
+            f.confirm_credit(f.operator, input).await,
+            Err(Failure::Conflict)
+        );
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            before
+        );
     }
-    assert_eq!(f.local_status().funding.uncredited_accepted, 200);
-    retain(&f, "refusals");
+    assert_eq!(f.local_status().await.funding.uncredited_accepted, 200);
+    retain(&f, "refusals").await;
 }
-#[test]
-fn same_release_restoration_preserves_credit_receipts_and_fences_even_exact_replay() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn same_release_restoration_preserves_credit_receipts_and_fences_even_exact_replay() {
+    let f = Fixture::with_cashier().await;
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
-    f.funding(f.operator, first, Action::Prepare).unwrap();
-    settled(f.guarded_dispatch(f.operator, request(first)));
-    f.confirm_credit(f.operator, credit(first, 300, 1)).unwrap();
-    let original = f.retained_outcome(f.operator, first).unwrap().unwrap();
-    let allocation = f.funding_allocation();
-    f.upgrade_storage();
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, first, Action::Prepare).await.unwrap();
+    settled(f.guarded_dispatch(f.operator, request(first)).await);
+    f.confirm_credit(f.operator, credit(first, 300, 1))
+        .await
+        .unwrap();
+    let original = f
+        .retained_outcome(f.operator, first)
+        .await
+        .unwrap()
+        .unwrap();
+    let allocation = f.funding_allocation().await;
+    f.upgrade_storage().await;
     assert_eq!(
-        f.retained_outcome(f.operator, first),
+        f.retained_outcome(f.operator, first).await,
         Ok(Some(FundingOutcomeResponse {
             fenced: true,
             ..original
         }))
     );
     assert_eq!(
-        f.funding_allocation(),
+        f.funding_allocation().await,
         Allocation {
             fenced: true,
             ..allocation
         }
     );
-    assert_eq!(f.local_status().funding.uncredited_accepted, 0);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    assert_eq!(f.local_status().await.funding.uncredited_accepted, 0);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
-        f.confirm_credit(f.operator, credit(first, 300, 1)),
+        f.confirm_credit(f.operator, credit(first, 300, 1)).await,
         Err(Failure::Fenced)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    assert_eq!(f.incoming().len(), 1);
-    retain(&f, "restore");
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    assert_eq!(f.incoming().await.len(), 1);
+    retain(&f, "restore").await;
 }

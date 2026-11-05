@@ -15,7 +15,7 @@ impl Fixture {
             payment_account: self.config.payment_account,
         }
     }
-    pub(super) fn local_status(
+    pub(super) async fn local_status(
         &self,
         actor: Principal,
         scope: OperatorScope,
@@ -23,21 +23,22 @@ impl Fixture {
         self.harness
             .pic
             .query_blob_as(self.service, actor, LOCAL_STATUS_METHOD, scope, REPLY_BYTES)
+            .await
             .unwrap()
     }
 }
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One operator observation journey through admission, cancellation and restoration"
 )]
-fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_cancellation() {
-    let f = Fixture::new();
+async fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_cancellation() {
+    let f = Fixture::new().await;
     let scope = f.operator_scope();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
-            f.local_status(actor, scope),
+            f.local_status(actor, scope).await,
             Err(LocalStatusFailure::Denied)
         );
     }
@@ -60,11 +61,11 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
         },
     ] {
         assert_eq!(
-            f.local_status(f.operator, changed),
+            f.local_status(f.operator, changed).await,
             Err(LocalStatusFailure::Binding)
         );
     }
-    let initial = f.local_status(f.operator, scope).unwrap();
+    let initial = f.local_status(f.operator, scope).await.unwrap();
     assert_eq!(initial.scope, scope);
     assert_eq!(
         initial.funding.available_allocation,
@@ -89,13 +90,14 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
             scope,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(replicated, Ok(initial.clone()));
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let permission = f.manifest().permission;
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
@@ -107,9 +109,10 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     admitted.unwrap();
-    let occupied = f.local_status(f.operator, scope).unwrap();
+    let occupied = f.local_status(f.operator, scope).await.unwrap();
     assert_eq!(occupied.uploads.operations, 1);
     assert_eq!(occupied.uploads.active_reservations, 1);
     assert_eq!(
@@ -138,25 +141,30 @@ fn standalone_operator_inspection_is_scoped_passive_and_retains_history_after_ca
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     revoked.unwrap();
     let mut released = initial;
     released.uploads.operations = 1;
-    assert_eq!(f.local_status(f.operator, scope), Ok(released.clone()));
+    assert_eq!(
+        f.local_status(f.operator, scope).await,
+        Ok(released.clone())
+    );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let restored = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     released.uploads.fenced = true;
     released.funding.fenced = true;
     released.gateways.fenced = true;
 
-    assert_eq!(f.local_status(f.operator, scope), Ok(released));
+    assert_eq!(f.local_status(f.operator, scope).await, Ok(released));
     assert_eq!(
-        f.local_status(f.controller, scope),
+        f.local_status(f.controller, scope).await,
         Err(LocalStatusFailure::Denied)
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &restored,
     );
 }

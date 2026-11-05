@@ -10,8 +10,8 @@ use blob_test_protocol::consumer::{
 fn wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
-fn fixture() -> Fixture {
-    let mut f = Fixture::new();
+async fn fixture() -> Fixture {
+    let mut f = Fixture::new().await;
     f.uploader = f
         .harness
         .pic
@@ -22,6 +22,7 @@ fn fixture() -> Fixture {
                 ..CanisterSettings::default()
             }),
         )
+        .await
         .unwrap();
     f.harness
         .pic
@@ -32,23 +33,26 @@ fn fixture() -> Fixture {
                 .unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    f.enroll(None, true).unwrap();
+    f.enroll(None, true).await.unwrap();
     f
 }
-fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
+async fn save(f: &Fixture, input: &ManifestIntent) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
         .update_control_as(f.uploader, f.operator, "save_manifest", input, REPLY_BYTES)
+        .await
         .unwrap()
 }
-fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
+async fn view(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
         .query_control_as(f.uploader, f.operator, "manifest_intent", id, REPLY_BYTES)
+        .await
         .unwrap()
 }
-fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, C> {
+async fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
         .update_control_as(
@@ -58,12 +62,14 @@ fn dispatch(f: &Fixture, input: ManifestDispatch) -> Result<ManifestIntentView, 
             input,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
 }
-fn recover(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
+async fn recover(f: &Fixture, id: u128) -> Result<ManifestIntentView, C> {
     f.harness
         .pic
         .update_control_as(f.uploader, f.operator, "recover_manifest", id, REPLY_BYTES)
+        .await
         .unwrap()
 }
 fn run(id: u128) -> ManifestDispatch {
@@ -84,16 +90,19 @@ fn intent(f: &Fixture, id: u128, content: u8) -> (Permission, ManifestIntent) {
         },
     )
 }
-#[test]
-fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply_loss_or_callback_trap()
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply_loss_or_callback_trap()
  {
     for trap in [false, true] {
-        let f = fixture();
+        let f = fixture().await;
         let (permission, input) = intent(&f, 1, 7);
-        f.admit(f.tenant, permission).unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-        assert!(!save(&f, &input).unwrap().started);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+        f.admit(f.tenant, permission).await.unwrap();
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+        assert!(!save(&f, &input).await.unwrap().started);
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            before
+        );
         if trap {
             let rejected = f
                 .harness
@@ -108,6 +117,7 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
                     })
                     .unwrap(),
                 )
+                .await
                 .unwrap_err();
             assert_eq!(
                 crate::canister_rejection(&rejected).reject_code,
@@ -121,16 +131,17 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
                         max_reply_bytes: 1,
                         ..run(1)
                     }
-                ),
+                )
+                .await,
                 Err(C::Transport)
             );
         }
-        let pending = view(&f, 1).unwrap();
+        let pending = view(&f, 1).await.unwrap();
         assert!(pending.started);
         assert_eq!(pending.result, None);
-        assert_eq!(dispatch(&f, run(1)), Err(C::Pending));
-        f.expose(permission.request).unwrap();
-        f.revoke(permission).unwrap();
+        assert_eq!(dispatch(&f, run(1)).await, Err(C::Pending));
+        f.expose(permission.request).await.unwrap();
+        f.revoke(permission).await.unwrap();
         f.harness
             .pic
             .upgrade_canister(
@@ -139,25 +150,29 @@ fn manifest_client_recovers_committed_preparation_without_redispatch_after_reply
                 Fixture::installation("fixture_post_upgrade", f.operator),
                 Some(f.controller),
             )
+            .await
             .unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-        let recovered = recover(&f, 1).unwrap();
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+        let recovered = recover(&f, 1).await.unwrap();
         assert_eq!(
             recovered.result,
             Some(Ok(input.request.declaration.clone()))
         );
-        assert_eq!(dispatch(&f, run(1)), Ok(recovered));
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+        assert_eq!(dispatch(&f, run(1)).await, Ok(recovered));
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            before
+        );
     }
 }
-#[test]
-fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
-    let f = fixture();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
+    let f = fixture().await;
     let (permission, input) = intent(&f, 1, 1);
-    f.admit(f.tenant, permission).unwrap();
-    save(&f, &input).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let local = f.harness.pic.get_stable_memory(f.uploader).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
+    save(&f, &input).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let local = f.harness.pic.get_stable_memory(f.uploader).await.unwrap();
     let rejected = f
         .harness
         .pic
@@ -171,16 +186,18 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
             })
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&rejected).reject_code,
         RejectCode::CanisterError
     );
-    assert!(!view(&f, 1).unwrap().started);
+    assert!(!view(&f, 1).await.unwrap().started);
     let queried: Result<UploadManifestResponse, C> = f
         .harness
         .pic
         .query_control_as(f.uploader, f.operator, "query_manifest", 1u128, REPLY_BYTES)
+        .await
         .unwrap();
     assert_eq!(queried, Err(C::Transport));
     let denied: Result<ManifestIntentView, C> = f
@@ -193,70 +210,84 @@ fn manifest_start_write_rolls_back_before_dispatch_and_queries_cannot_send() {
             run(1),
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(denied, Err(C::Denied));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    assert_eq!(f.harness.pic.get_stable_memory(f.uploader).unwrap(), local);
     assert_eq!(
-        dispatch(&f, run(1)).unwrap().result,
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.uploader).await.unwrap(),
+        local
+    );
+    assert_eq!(
+        dispatch(&f, run(1)).await.unwrap().result,
         Some(Ok(input.request.declaration))
     );
 }
-#[test]
-fn manifest_refusal_is_retained_and_unprepared_inspection_cannot_clear_uncertainty() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn manifest_refusal_is_retained_and_unprepared_inspection_cannot_clear_uncertainty() {
     for lose_reply in [false, true] {
-        let f = fixture();
+        let f = fixture().await;
         let (permission, input) = intent(&f, 1, 4);
-        f.admit(f.tenant, permission).unwrap();
-        save(&f, &input).unwrap();
-        let suspended = f.enroll(Some(f.tenant().unwrap()), false).unwrap();
+        f.admit(f.tenant, permission).await.unwrap();
+        save(&f, &input).await.unwrap();
+        let suspended = f
+            .enroll(Some(f.tenant().await.unwrap()), false)
+            .await
+            .unwrap();
         let outcome = dispatch(
             &f,
             ManifestDispatch {
                 max_reply_bytes: if lose_reply { 1 } else { 4096 },
                 ..run(1)
             },
-        );
+        )
+        .await;
         if lose_reply {
             assert_eq!(outcome, Err(C::Transport));
-            assert_eq!(recover(&f, 1), Err(C::Pending));
-            assert_eq!(view(&f, 1).unwrap().result, None);
+            assert_eq!(recover(&f, 1).await, Err(C::Pending));
+            assert_eq!(view(&f, 1).await.unwrap().result, None);
         } else {
             assert_eq!(
                 outcome.unwrap().result,
                 Some(Err(F::Permission(A::Inactive)))
             );
         }
-        f.enroll(Some(suspended), true).unwrap();
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+        f.enroll(Some(suspended), true).await.unwrap();
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
         if lose_reply {
-            assert_eq!(dispatch(&f, run(1)), Err(C::Pending));
+            assert_eq!(dispatch(&f, run(1)).await, Err(C::Pending));
         } else {
             assert_eq!(
-                dispatch(&f, run(1)).unwrap().result,
+                dispatch(&f, run(1)).await.unwrap().result,
                 Some(Err(F::Permission(A::Inactive)))
             );
         }
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            before
+        );
     }
 }
-#[test]
-fn manifest_intent_capacity_conflicts_and_upgrade_preserve_uncertain_originals() {
-    let f = fixture();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn manifest_intent_capacity_conflicts_and_upgrade_preserve_uncertain_originals() {
+    let f = fixture().await;
     let (permission, input) = intent(&f, 1, 3);
-    f.admit(f.tenant, permission).unwrap();
-    save(&f, &input).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
+    save(&f, &input).await.unwrap();
     let mut changed = input.clone();
     changed.request.permission.expires_at_ns -= 1;
-    assert_eq!(save(&f, &changed), Err(C::Conflict));
+    assert_eq!(save(&f, &changed).await, Err(C::Conflict));
     changed = input.clone();
     changed.id = 2;
-    assert_eq!(save(&f, &changed), Err(C::Conflict));
+    assert_eq!(save(&f, &changed).await, Err(C::Conflict));
     let (_, second) = intent(&f, 2, 5);
-    save(&f, &second).unwrap();
+    save(&f, &second).await.unwrap();
     let (_, third) = intent(&f, 3, 6);
-    assert_eq!(save(&f, &third), Err(C::Capacity));
-    assert_eq!(save(&f, &input).unwrap().intent, input);
+    assert_eq!(save(&f, &third).await, Err(C::Capacity));
+    assert_eq!(save(&f, &input).await.unwrap().intent, input);
     assert_eq!(
         dispatch(
             &f,
@@ -264,10 +295,11 @@ fn manifest_intent_capacity_conflicts_and_upgrade_preserve_uncertain_originals()
                 max_reply_bytes: 1,
                 ..run(1)
             }
-        ),
+        )
+        .await,
         Err(C::Transport)
     );
-    let pending = view(&f, 1).unwrap();
+    let pending = view(&f, 1).await.unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -276,9 +308,10 @@ fn manifest_intent_capacity_conflicts_and_upgrade_preserve_uncertain_originals()
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(view(&f, 1), Ok(pending));
-    assert_eq!(recover(&f, 1), Err(C::Fenced));
-    assert_eq!(dispatch(&f, run(1)), Err(C::Fenced));
-    assert_eq!(save(&f, &input), Err(C::Fenced));
+    assert_eq!(view(&f, 1).await, Ok(pending));
+    assert_eq!(recover(&f, 1).await, Err(C::Fenced));
+    assert_eq!(dispatch(&f, run(1)).await, Err(C::Fenced));
+    assert_eq!(save(&f, &input).await, Err(C::Fenced));
 }

@@ -26,10 +26,10 @@ fn limits() -> CaffeineHashLimits {
     }
 }
 
-#[test]
-fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
-    let f = Fixture::new();
-    f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
+    let f = Fixture::new().await;
+    f.enroll().await;
     let mut vector = vectors::vector("media-10485760", 1);
     let headers: Vec<_> = vector
         .manifest
@@ -56,17 +56,17 @@ fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
         .iter()
         .map(|hash| *hash.as_bytes())
         .collect();
-    let permission = f.permission(&vector);
-    f.admit(permission);
+    let permission = f.permission(&vector).await;
+    f.admit(permission).await;
     // Only the computed leaves and original metadata cross the IC boundary.
-    f.prepare(permission, &vector);
+    f.prepare(permission, &vector).await;
     let input = RetainedDescriptorInput {
         content: lookup(&f, permission),
         object: permission.request.id,
         incarnation: 1,
         reference: 1,
     };
-    let inspect = || -> Result<Option<RetainedDescriptor>, Failure> {
+    let inspect = async || -> Result<Option<RetainedDescriptor>, Failure> {
         fixture_calls::query_fixture(
             &f.harness.pic,
             f.service,
@@ -74,13 +74,15 @@ fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() {
             "retained_content_descriptor",
             (input,),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
     };
-    assert_eq!(inspect(), Ok(None));
+    assert_eq!(inspect().await, Ok(None));
     f.call(f.uploader, Command::Expose(permission.request.root))
+        .await
         .unwrap();
-    let descriptor = inspect().unwrap().unwrap().descriptor;
+    let descriptor = inspect().await.unwrap().unwrap().descriptor;
     assert_eq!(descriptor.headers, vector.manifest.headers);
     let headers: Vec<_> = descriptor
         .headers

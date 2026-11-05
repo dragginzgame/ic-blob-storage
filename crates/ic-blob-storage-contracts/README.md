@@ -33,7 +33,7 @@ of `metadata`, `client`, `adapter` or
 `runtime`; surplus arguments refuse. Clap is a native development dependency
 and is excluded from deployed canisters.
 
-`metadata` and `client` describe the shared service mount. See the repository's [migration and qualification record](../../docs/evidence/contracts-0180.md).
+`metadata` and `client` describe the shared service mount. See the repository's [migration and qualification record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/contracts-0180.md).
 
 ## Dependency capabilities
 
@@ -46,6 +46,12 @@ Candid decoder configuration, account-inspection DTO family and
 `mount_service_endpoints!`. The account family retains arbitrary-width Int/Nat,
 canonical decimal Serde, all fields and original method identities. The passive
 certificate response gains its Candid implementation only with this capability.
+`CaffeineUploadCertificateResponse` remains the external provider's
+`{ method; blob_hash }` record, at its existing Rust path. It has no owned Wire
+schema and is excluded from generated Wire clients; the separate
+`UploadCertificateAssessmentResponse` remains an owned Wire observation.
+The pending 0.73 cut retires only the external reply's opt-in metadata trait;
+provider Candid fields, method identity and bytes remain unchanged.
 The macro's capability is selected by this defining crate, never by a downstream
 crate's similarly named feature. `wire-schema` selects the capability explicitly
 because it generates the complete service schema. `provider-json` remains an

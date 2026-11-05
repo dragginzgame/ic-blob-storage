@@ -15,7 +15,7 @@ fn input(f: &Fixture, permission: Permission) -> ExposureInput {
         trap_after: false,
     }
 }
-fn expose(
+async fn expose(
     f: &Fixture,
     actor: Principal,
     input: ExposureInput,
@@ -23,10 +23,11 @@ fn expose(
     f.harness
         .pic
         .update_control_as(f.service, actor, "expose", (input,), REPLY_BYTES)
+        .await
         .map(|(reply,)| reply)
         .unwrap()
 }
-fn inspect(
+async fn inspect(
     f: &Fixture,
     actor: Principal,
     input: ExposureInput,
@@ -40,53 +41,63 @@ fn inspect(
             (input.permission,),
             REPLY_BYTES,
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
 }
-#[test]
-fn exposure_checks_preparation_permission_and_actual_authority() {
-    let f = Fixture::new();
-    let enrolled = f.enroll(None, true).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn exposure_checks_preparation_permission_and_actual_authority() {
+    let f = Fixture::new().await;
+    let enrolled = f.enroll(None, true).await.unwrap();
     let (permission, declaration) = f.permission(u128::MAX, 8);
-    f.admit(f.tenant, permission).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
     let yes = input(&f, permission);
-    assert_eq!(expose(&f, f.uploader, yes), Err(E::Unprepared));
-    f.prepare(&declaration).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    assert_eq!(expose(&f, f.uploader, yes).await, Err(E::Unprepared));
+    f.prepare(&declaration).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.tenant, f.controller, f.operator, f.other] {
-        assert_eq!(expose(&f, actor, yes), Err(E::Permission(A::Denied)));
+        assert_eq!(expose(&f, actor, yes).await, Err(E::Permission(A::Denied)));
     }
     let mut changed = yes;
     changed.permission.expires_at_ns -= 1;
     assert_eq!(
-        expose(&f, f.uploader, changed),
+        expose(&f, f.uploader, changed).await,
         Err(E::Permission(A::Conflict))
     );
     assert_eq!(
-        inspect(&f, f.tenant, changed),
+        inspect(&f, f.tenant, changed).await,
         Err(E::Permission(A::Conflict))
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    f.enroll(Some(enrolled), false).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(expose(&f, f.uploader, yes), Err(E::Permission(A::Inactive)));
     assert_eq!(
-        inspect(&f, f.uploader, yes).unwrap().state,
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    f.enroll(Some(enrolled), false).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(
+        expose(&f, f.uploader, yes).await,
+        Err(E::Permission(A::Inactive))
+    );
+    assert_eq!(
+        inspect(&f, f.uploader, yes).await.unwrap().state,
         UploadState::Reserved
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
 }
-#[test]
-fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment_never_allows_reissue()
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment_never_allows_reissue()
  {
-    let f = Fixture::new();
-    f.enroll(None, true).unwrap();
+    let f = Fixture::new().await;
+    f.enroll(None, true).await.unwrap();
     let (permission, declaration) = f.permission(1, 1);
-    f.admit(f.tenant, permission).unwrap();
-    f.prepare(&declaration).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
+    f.prepare(&declaration).await.unwrap();
     let yes = input(&f, permission);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let totals = f.status();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let totals = f.status().await;
     for fault in [
         ExposureInput {
             trap_write: true,
@@ -106,15 +117,19 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
                 "expose",
                 ic_blob_storage_pocketic_tests::control_calls::encode_control_one(fault).unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&rejection).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-        assert_eq!(f.status(), totals);
         assert_eq!(
-            inspect(&f, f.uploader, yes).unwrap().state,
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            before
+        );
+        assert_eq!(f.status().await, totals);
+        assert_eq!(
+            inspect(&f, f.uploader, yes).await.unwrap().state,
             UploadState::Reserved
         );
     }
@@ -127,26 +142,30 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
             "expose",
             ic_blob_storage_pocketic_tests::control_calls::encode_control_one(yes).unwrap(),
         )
+        .await
         .unwrap();
-    let original = inspect(&f, f.uploader, yes).unwrap();
+    let original = inspect(&f, f.uploader, yes).await.unwrap();
     assert_eq!(original.state, UploadState::Registered);
     assert_eq!(original.permission, yes.permission);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(expose(&f, f.uploader, yes), Err(E::Phase));
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(expose(&f, f.uploader, yes).await, Err(E::Phase));
     for actor in [f.operator, f.controller, f.other] {
-        assert_eq!(inspect(&f, actor, yes), Err(E::Permission(A::Denied)));
+        assert_eq!(inspect(&f, actor, yes).await, Err(E::Permission(A::Denied)));
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    f.revoke(permission).unwrap();
     assert_eq!(
-        f.status(),
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    f.revoke(permission).await.unwrap();
+    assert_eq!(
+        f.status().await,
         Status {
             active: 0,
             bytes: 0,
             ..totals
         }
     );
-    let withdrawn = inspect(&f, f.tenant, yes).unwrap();
+    let withdrawn = inspect(&f, f.tenant, yes).await.unwrap();
     assert!(withdrawn.revoked);
     assert_eq!(withdrawn.state, UploadState::Registered);
     f.harness
@@ -157,7 +176,11 @@ fn exposure_write_and_response_traps_roll_back_but_lost_committed_acknowledgment
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(inspect(&f, f.uploader, yes), Ok(withdrawn));
-    assert_eq!(expose(&f, f.uploader, yes), Err(E::Permission(A::Fenced)));
+    assert_eq!(inspect(&f, f.uploader, yes).await, Ok(withdrawn));
+    assert_eq!(
+        expose(&f, f.uploader, yes).await,
+        Err(E::Permission(A::Fenced))
+    );
 }

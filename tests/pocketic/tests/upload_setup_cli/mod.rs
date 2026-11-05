@@ -31,7 +31,7 @@ pub(crate) fn uploader() -> Principal {
         .sender()
         .unwrap()
 }
-pub(crate) fn cancelled_totals(
+pub(crate) async fn cancelled_totals(
     pic: &ic_testkit::pocket_ic::PocketIc,
     scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
     operator: Principal,
@@ -46,6 +46,7 @@ pub(crate) fn cancelled_totals(
             scope,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
     assert_eq!(status.uploads.operations, 1);

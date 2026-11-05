@@ -7,10 +7,11 @@ use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
-fn live(f: &mut Fixture) -> String {
+async fn live(f: &mut Fixture) -> String {
     f.harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string()
 }
@@ -35,19 +36,23 @@ fn rejects_wrong_root(args: &[String], root: &std::path::Path) {
     assert_eq!(run(args, 3)["error"], "transport");
     std::fs::write(root, trusted).unwrap();
 }
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "Keep original-manifest verification and restore fencing in one installed scenario"
 )]
-fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_fences() {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+async fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_fences() {
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.uploader = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let mut manifest = f.manifest();
     manifest.permission.upload.upload = u128::MAX;
     manifest.permission.upload.object = u128::MAX - 1;
@@ -63,6 +68,7 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
@@ -72,14 +78,14 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     let body = dir.path().join("body");
     let original = vec![42; 10 * 1024 * 1024];
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
     std::fs::write(
         &saved,
         ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     std::fs::write(&body, &original).unwrap();
-    let url = live(&mut f);
+    let url = live(&mut f).await;
     let mut args: Vec<String> = [
         "verify-upload",
         "--network",
@@ -107,10 +113,10 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     .map(str::to_owned)
     .collect();
     assert_eq!(run(&args, 3)["error"], "unprepared");
-    f.harness.pic.stop_live().unwrap();
-    f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    change(&mut args, "--url", &live(&mut f));
+    f.harness.pic.stop_live().await.unwrap();
+    f.prepare(f.uploader, &manifest).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    change(&mut args, "--url", &live(&mut f).await);
     let report = run(&args, 0);
     assert_eq!(report["observation"], "local_upload_bytes");
     assert_eq!(
@@ -136,25 +142,26 @@ fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_
     .unwrap();
     rejects_wrong_root(&args, &root);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    change(&mut args, "--url", &live(&mut f));
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    change(&mut args, "--url", &live(&mut f).await);
     let restored = run(&args, 0);
     assert_eq!(restored["content_digest"], report["content_digest"]);
     assert_eq!(restored["retry_authorized"], false);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
-    assert!(f.configuration(f.operator).unwrap().fenced);
+    f.harness.pic.stop_live().await.unwrap();
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
     assert_eq!(
-        f.admission(permission).state,
+        f.admission(permission).await.state,
         ic_blob_storage_contracts::dto::upload::UploadState::Reserved
     );
 }

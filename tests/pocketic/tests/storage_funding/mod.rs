@@ -15,7 +15,7 @@ impl Fixture {
             namespace: 1,
         }
     }
-    fn funding_summary(
+    async fn funding_summary(
         &self,
         actor: Principal,
         scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
@@ -29,6 +29,7 @@ impl Fixture {
                 (scope,),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
     }
@@ -43,7 +44,7 @@ impl Fixture {
             target_balance: None,
         }
     }
-    pub(super) fn funding(
+    pub(super) async fn funding(
         &self,
         actor: Principal,
         intent: Intent,
@@ -63,10 +64,15 @@ impl Fixture {
                 },),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
     }
-    fn funding_lookup(&self, actor: Principal, intent: Intent) -> Result<Option<Phase>, Failure> {
+    async fn funding_lookup(
+        &self,
+        actor: Principal,
+        intent: Intent,
+    ) -> Result<Option<Phase>, Failure> {
         self.harness
             .pic
             .query_control_as(
@@ -76,10 +82,11 @@ impl Fixture {
                 (intent,),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
     }
-    pub(super) fn funding_allocation(&self) -> Allocation {
+    pub(super) async fn funding_allocation(&self) -> Allocation {
         self.harness
             .pic
             .query_control_as::<(Result<Allocation, Failure>,), _>(
@@ -89,11 +96,12 @@ impl Fixture {
                 (),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
             .unwrap()
     }
-    fn funding_trap(&self, intent: Intent, action: Action, fault: WriteFault) {
+    async fn funding_trap(&self, intent: Intent, action: Action, fault: WriteFault) {
         let error = self
             .harness
             .pic
@@ -109,6 +117,7 @@ impl Fixture {
                 })
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
@@ -116,37 +125,49 @@ impl Fixture {
         );
     }
 }
-#[test]
-fn funding_intent_and_outcome_traps_roll_back_rows_and_allocation_together() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn funding_intent_and_outcome_traps_roll_back_rows_and_allocation_together() {
+    let f = Fixture::new().await;
     let intent = f.funding_intent(u128::MAX, 900);
-    let empty = f.funding_allocation();
-    f.funding_trap(intent, Action::Prepare, WriteFault::FundingAccounting);
-    assert_eq!(f.funding_lookup(f.operator, intent), Ok(None));
-    assert_eq!(f.funding_allocation(), empty);
-    assert_eq!(f.funding(f.operator, intent, Action::Prepare), Ok(true));
-    assert_eq!(f.funding(f.operator, intent, Action::Prepare), Ok(false));
-    let reserved = f.funding_allocation();
-    assert_eq!((reserved.available, reserved.uncertain), (100, 900));
-    f.funding_trap(intent, Action::Attempt, WriteFault::FundingIntents);
+    let empty = f.funding_allocation().await;
+    f.funding_trap(intent, Action::Prepare, WriteFault::FundingAccounting)
+        .await;
+    assert_eq!(f.funding_lookup(f.operator, intent).await, Ok(None));
+    assert_eq!(f.funding_allocation().await, empty);
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.funding(f.operator, intent, Action::Prepare).await,
+        Ok(true)
+    );
+    assert_eq!(
+        f.funding(f.operator, intent, Action::Prepare).await,
+        Ok(false)
+    );
+    let reserved = f.funding_allocation().await;
+    assert_eq!((reserved.available, reserved.uncertain), (100, 900));
+    f.funding_trap(intent, Action::Attempt, WriteFault::FundingIntents)
+        .await;
+    assert_eq!(
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::Prepared))
     );
-    f.funding(f.operator, intent, Action::Attempt).unwrap();
+    f.funding(f.operator, intent, Action::Attempt)
+        .await
+        .unwrap();
     assert_eq!(
-        f.funding(f.operator, intent, Action::Attempt),
+        f.funding(f.operator, intent, Action::Attempt).await,
         Err(Failure::Phase)
     );
-    f.funding_trap(intent, Action::Callback(500), WriteFault::FundingAccounting);
+    f.funding_trap(intent, Action::Callback(500), WriteFault::FundingAccounting)
+        .await;
     assert_eq!(
-        f.funding_lookup(f.operator, intent),
+        f.funding_lookup(f.operator, intent).await,
         Ok(Some(Phase::Uncertain))
     );
-    assert_eq!(f.funding_allocation(), reserved);
+    assert_eq!(f.funding_allocation().await, reserved);
     f.funding(f.operator, intent, Action::Callback(500))
+        .await
         .unwrap();
-    let finished = f.funding_allocation();
+    let finished = f.funding_allocation().await;
     assert_eq!(
         (
             finished.available,
@@ -157,47 +178,54 @@ fn funding_intent_and_outcome_traps_roll_back_rows_and_allocation_together() {
         (600, 400, 500, 0)
     );
     assert_eq!(
-        f.funding(f.operator, intent, Action::Callback(500)),
+        f.funding(f.operator, intent, Action::Callback(500)).await,
         Ok(false)
     );
     assert_eq!(
-        f.funding(f.operator, intent, Action::NotEnqueued),
+        f.funding(f.operator, intent, Action::NotEnqueued).await,
         Err(Failure::Conflict)
     );
-    assert_eq!(f.funding_allocation(), finished);
+    assert_eq!(f.funding_allocation().await, finished);
     for actor in [f.tenant, f.controller, f.uploader] {
         assert_eq!(
-            f.funding(actor, intent, Action::Prepare),
+            f.funding(actor, intent, Action::Prepare).await,
             Err(Failure::Denied)
         );
-        assert_eq!(f.funding_lookup(actor, intent), Err(Failure::Denied));
+        assert_eq!(f.funding_lookup(actor, intent).await, Err(Failure::Denied));
     }
 }
-#[test]
-fn funding_journal_upgrades_preserve_every_phase_and_reject_late_outcomes() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn funding_journal_upgrades_preserve_every_phase_and_reject_late_outcomes() {
     for phase in [
         Phase::Prepared,
         Phase::Uncertain,
         Phase::NotEnqueued,
         Phase::Callback(200),
     ] {
-        let f = Fixture::new();
+        let f = Fixture::new().await;
         let intent = f.funding_intent(1, 900);
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
         if phase != Phase::Prepared {
-            f.funding(f.operator, intent, Action::Attempt).unwrap();
+            f.funding(f.operator, intent, Action::Attempt)
+                .await
+                .unwrap();
         }
         match phase {
             Phase::NotEnqueued => {
-                f.funding(f.operator, intent, Action::NotEnqueued).unwrap();
+                f.funding(f.operator, intent, Action::NotEnqueued)
+                    .await
+                    .unwrap();
             }
             Phase::Callback(refunded) => {
                 f.funding(f.operator, intent, Action::Callback(refunded))
+                    .await
                     .unwrap();
             }
             _ => {}
         }
-        let before = f.funding_allocation();
+        let before = f.funding_allocation().await;
         f.harness
             .pic
             .upgrade_canister(
@@ -206,10 +234,11 @@ fn funding_journal_upgrades_preserve_every_phase_and_reject_late_outcomes() {
                 Fixture::installation("fixture_post_upgrade", f.operator),
                 Some(f.controller),
             )
+            .await
             .unwrap();
-        assert_eq!(f.funding_lookup(f.operator, intent), Ok(Some(phase)));
+        assert_eq!(f.funding_lookup(f.operator, intent).await, Ok(Some(phase)));
         assert_eq!(
-            f.funding_allocation(),
+            f.funding_allocation().await,
             Allocation {
                 fenced: true,
                 ..before
@@ -221,10 +250,14 @@ fn funding_journal_upgrades_preserve_every_phase_and_reject_late_outcomes() {
             Action::NotEnqueued,
             Action::Callback(0),
         ] {
-            assert_eq!(f.funding(f.operator, intent, action), Err(Failure::Fenced));
+            assert_eq!(
+                f.funding(f.operator, intent, action).await,
+                Err(Failure::Fenced)
+            );
         }
         assert_eq!(
-            f.funding(f.operator, f.funding_intent(2, 1), Action::Prepare),
+            f.funding(f.operator, f.funding_intent(2, 1), Action::Prepare)
+                .await,
             Err(Failure::Fenced)
         );
         assert_eq!(
@@ -234,20 +267,26 @@ fn funding_journal_upgrades_preserve_every_phase_and_reject_late_outcomes() {
                     cashier: f.other.into(),
                     ..intent
                 }
-            ),
+            )
+            .await,
             Err(Failure::Binding)
         );
     }
 }
 
-#[test]
-fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_offer_charged() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep the same canonical request and charged offer across restore and mismatched outcomes"
+)]
+async fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_offer_charged()
+{
+    let f = Fixture::new().await;
     let original = Intent {
         target_balance: Some(u128::MAX),
         ..f.funding_intent(1, 900)
     };
-    let inspect = |actor, intent| {
+    let inspect = async |actor, intent| {
         f.harness.pic.query_control_as::<
             (Result<blob_test_protocol::storage::funding::Request, Failure>,),
             _,
@@ -258,12 +297,14 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
             (intent,),
             REPLY_BYTES,
         )
-        .map(|(reply,)| reply)
+        .await.map(|(reply,)| reply)
         .unwrap()
     };
-    assert_eq!(inspect(f.operator, original), Err(Failure::Unknown));
-    f.funding(f.operator, original, Action::Prepare).unwrap();
-    let wire = inspect(f.operator, original).unwrap();
+    assert_eq!(inspect(f.operator, original).await, Err(Failure::Unknown));
+    f.funding(f.operator, original, Action::Prepare)
+        .await
+        .unwrap();
+    let wire = inspect(f.operator, original).await.unwrap();
     let expected = ic_blob_storage::ops::caffeine::funding::request::CashierTopUpRequest::new(
         f.operator.into(),
         f.service.into(),
@@ -286,16 +327,18 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
         },
     ] {
         assert_eq!(
-            f.funding(f.operator, changed, Action::Prepare),
+            f.funding(f.operator, changed, Action::Prepare).await,
             Err(Failure::Conflict)
         );
-        assert_eq!(inspect(f.operator, changed), Err(Failure::Conflict));
+        assert_eq!(inspect(f.operator, changed).await, Err(Failure::Conflict));
     }
     for actor in [f.controller, f.tenant, f.uploader] {
-        assert_eq!(inspect(actor, original), Err(Failure::Denied));
+        assert_eq!(inspect(actor, original).await, Err(Failure::Denied));
     }
-    f.funding(f.operator, original, Action::Attempt).unwrap();
-    let before = f.funding_allocation();
+    f.funding(f.operator, original, Action::Attempt)
+        .await
+        .unwrap();
+    let before = f.funding_allocation().await;
     let wrong_source: Result<bool, Failure> = f
         .harness
         .pic
@@ -311,12 +354,13 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
             },),
             REPLY_BYTES,
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
     assert_eq!(wrong_source, Err(Failure::Binding));
-    assert_eq!(f.funding_allocation(), before);
+    assert_eq!(f.funding_allocation().await, before);
     assert_eq!(
-        f.funding_lookup(f.operator, original),
+        f.funding_lookup(f.operator, original).await,
         Ok(Some(Phase::Uncertain))
     );
     f.harness
@@ -327,14 +371,15 @@ fn canonical_funding_request_survives_upgrade_and_mismatched_outcomes_keep_the_o
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(inspect(f.operator, original), Ok(wire));
+    assert_eq!(inspect(f.operator, original).await, Ok(wire));
     assert_eq!(
-        f.funding(f.operator, original, Action::Callback(900)),
+        f.funding(f.operator, original, Action::Callback(900)).await,
         Err(Failure::Fenced)
     );
     assert_eq!(
-        f.funding_allocation(),
+        f.funding_allocation().await,
         Allocation {
             fenced: true,
             ..before

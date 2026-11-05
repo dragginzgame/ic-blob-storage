@@ -42,7 +42,7 @@ release-patch release-minor release-major release-resume: export BLOB_RELEASE_PR
 export RELEASE_KIND RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE RELEASE_SOURCE RELEASE_COMMIT RELEASE_REMOTE RELEASE_BRANCH
 SHELLCHECK ?= shellcheck
 override CI_TARGETS = $(shell perl scripts/release/validation.pl stages)
-CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-release-groups.json ci/cargo-dependency-boundaries.json ci/external-ic-dependencies.txt \
+CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot Makefile ci/tool-versions.env ci/ic-tools.tsv ci/release-delivery-policy.txt ci/cargo-release-groups.json ci/cargo-dependency-boundaries.json ci/candid-boundary.json ci/external-ic-dependencies.txt \
 	ci/release-validation.json ci/release-stage-reuse.json ci/release-package-scopes.json scripts/release/validation.pl scripts/release/stage.pl scripts/release/validate.sh scripts/ci/test-release-validation.sh \
 	make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/run-rust-formatting.pl scripts/ci/check-rust-compiler.sh \
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
@@ -168,6 +168,7 @@ hooks-check:
 
 .PHONY: platform-boundary-check
 platform-boundary-check:
+	+perl scripts/ci/check-candid-boundary.pl "$(CURDIR)" ci/candid-boundary.json crates canisters tests
 	+bash scripts/ci/check-cargo-dependency-boundaries.sh --consumer "$(CURDIR)" --external-ic
 
 contracts-boundary-check:

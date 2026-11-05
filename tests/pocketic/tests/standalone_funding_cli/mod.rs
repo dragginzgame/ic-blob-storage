@@ -11,13 +11,17 @@ fn change(args: &mut [String], flag: &str, value: &str) {
     args[index + 1] = value.into();
 }
 
-#[test]
-fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() {
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.operator = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
     f.config.operator = f.operator.into();
     f.harness
@@ -28,16 +32,18 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
             installation(&f.config),
             Some(f.controller),
         )
+        .await
         .unwrap();
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let key = dir.path().join("key.pem");
     let root = dir.path().join("root.der");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
     let mut args = arguments(
@@ -56,7 +62,7 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
         "--target-balance".into(),
         u128::MAX.to_string(),
     ]);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let absent = run(&args, 0);
     assert_eq!(absent["outcome"], "absent");
     assert_eq!(absent["record"], Value::Null);
@@ -74,17 +80,19 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
     change(&mut wrong, "--root-key", untrusted.to_str().unwrap());
     assert_eq!(run(&wrong, 3)["error"], "transport");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
     change(&mut args, "--url", &url);
@@ -92,9 +100,9 @@ fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() 
     expected["url"] = url.into();
     assert_eq!(run(&args, 0), expected);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
-    assert!(f.configuration(f.operator).unwrap().fenced);
+    f.harness.pic.stop_live().await.unwrap();
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
 }

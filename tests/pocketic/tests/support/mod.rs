@@ -44,17 +44,18 @@ mod tests;
 pub(super) use ic_blob_storage_pocketic_tests::installation::fixture_path;
 
 pub(super) struct Harness {
-    // Rust drops fields in declaration order: instance before its owned server.
+    // Every harness owns an isolated server. Its process cleanup stops all
+    // instances, including on panic; async clients issue no requests from Drop.
     pub pic: PocketIc,
-    _server: Option<PocketIcManagedServer>,
+    _server: PocketIcManagedServer,
 }
 
 impl Harness {
-    pub fn new() -> Self {
-        Self::with_builder(PocketIcBuilder::new().with_application_subnet())
+    pub async fn new() -> Self {
+        Self::with_builder(PocketIcBuilder::new().with_application_subnet()).await
     }
 
-    pub fn with_builder(builder: PocketIcBuilder) -> Self {
+    pub async fn with_builder(builder: PocketIcBuilder) -> Self {
         let (instance, server) = PocketIcStartupConfig::Spawn {
             server_binary: fixture_path("POCKET_IC_BIN"),
             timeout: Duration::from_secs(30),
@@ -63,11 +64,12 @@ impl Harness {
             server_output_files: None,
         }
         .build_instance(builder)
+        .await
         .expect("start explicitly selected local server and instance")
         .into_parts();
         Self {
             pic: instance,
-            _server: server,
+            _server: server.expect("spawn configuration owns the isolated server"),
         }
     }
 }

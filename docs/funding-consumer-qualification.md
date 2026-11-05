@@ -131,11 +131,11 @@ needed. Payer linkage and real-provider acceptance remain separate.
 
 Released Blob 0.22.12 retains the host-internal credit and bounded renewal APIs
 introduced in 0.15.0. They do not acquire or authenticate provider evidence.
-The [authenticated published Canic adapter review](evidence/canic0229.md) finds
+The [authenticated published Canic adapter review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0229.md) finds
 only funding history, exact outcome and preparation assessment mounted in 0.111.0.
 There is no adapter dispatch, credit-confirmation or budget-renewal endpoint.
 This is an integration gap, not a missing public "mark credited" API in Blob.
-The newer [normal Canic composition review](evidence/shared083-canic02212.md)
+The newer [normal Canic composition review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared083-canic02212.md)
 qualifies published Blob 0.22.11 endpoint/placement/recovery integration; its
 uncommitted 0.112.0 adapter still exposes only those passive funding operations.
 That framework completion does not supply provider evidence or guarded funding.

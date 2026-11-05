@@ -59,7 +59,7 @@ impl Fixture {
         )
         .unwrap()
     }
-    fn local_status(&self) -> ic_blob_storage_contracts::dto::operator::LocalServiceStatus {
+    async fn local_status(&self) -> ic_blob_storage_contracts::dto::operator::LocalServiceStatus {
         self.harness
             .pic
             .query_blob_as::<Result<_, ic_blob_storage_contracts::dto::operator::LocalStatusFailure>, _>(self.service, self.operator, ic_blob_storage_contracts::protocol::LOCAL_STATUS_METHOD, ic_blob_storage_contracts::dto::operator::OperatorScope {
@@ -68,15 +68,15 @@ impl Fixture {
                     cashier: self.operator.into(),
                     payment_account: self.service.into(),
                 }, REPLY_BYTES)
-            .unwrap()
+            .await.unwrap()
             .unwrap()
     }
-    fn new() -> Self {
-        Self::with_operator(Harness::new(), fake_principal(1))
+    async fn new() -> Self {
+        Self::with_operator(Harness::new().await, fake_principal(1)).await
     }
-    fn with_operator(harness: Harness, operator: Principal) -> Self {
+    async fn with_operator(harness: Harness, operator: Principal) -> Self {
         let controller = fake_principal(2);
-        let service = installation::controlled_canister(&harness.pic, controller);
+        let service = installation::controlled_canister(&harness.pic, controller).await;
         harness
             .pic
             .install_canister(
@@ -85,6 +85,7 @@ impl Fixture {
                 Self::installation("fixture_init", operator),
                 Some(controller),
             )
+            .await
             .unwrap();
         Self {
             harness,
@@ -155,7 +156,7 @@ impl Fixture {
             },
         )
     }
-    fn admit(&self, actor: Principal, input: Permission) -> Result<bool, Failure> {
+    async fn admit(&self, actor: Principal, input: Permission) -> Result<bool, Failure> {
         let result: Result<
             ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionMutation,
             ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
@@ -169,10 +170,11 @@ impl Fixture {
                 admission_input(input),
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         result.map(|r| !r.replayed).map_err(admission_failure)
     }
-    fn prepare(&self, input: &PreparationInput) -> Result<bool, Failure> {
+    async fn prepare(&self, input: &PreparationInput) -> Result<bool, Failure> {
         use ic_blob_storage_contracts::dto::upload::manifest::UploadManifestFailure as E;
         let result: Result<
             ic_blob_storage_contracts::dto::upload::manifest::UploadManifestMutation,
@@ -187,6 +189,7 @@ impl Fixture {
                 self.preparation_input(input),
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         result.map(|r| r.changed).map_err(|e| match e {
             E::Permission(e) => admission_failure(e),
@@ -223,7 +226,7 @@ impl Fixture {
             },
         }
     }
-    fn expose(&self, input: Request) -> Result<(), Failure> {
+    async fn expose(&self, input: Request) -> Result<(), Failure> {
         use blob_test_protocol::storage::exposure::ExposureInput;
         use ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure as E;
         use ic_blob_storage_contracts::dto::upload::{
@@ -247,6 +250,7 @@ impl Fixture {
                 },),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap();
         result
@@ -260,7 +264,7 @@ impl Fixture {
                 E::Phase => Failure::Phase,
             })
     }
-    fn revoke(&self, input: Permission) -> Result<bool, Failure> {
+    async fn revoke(&self, input: Permission) -> Result<bool, Failure> {
         let result: Result<
             ic_blob_storage_contracts::dto::upload::admission::UploadRevocationResponse,
             ic_blob_storage_contracts::dto::upload::admission::UploadAdmissionFailure,
@@ -274,21 +278,24 @@ impl Fixture {
                 admission_input(input),
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         result.map(|r| r.changed).map_err(admission_failure)
     }
-    fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
+    async fn lookup(&self, actor: Principal, input: Request) -> Result<Observation, Failure> {
         self.harness
             .pic
             .query_control_as(self.service, actor, "lookup", (input,), REPLY_BYTES)
+            .await
             .map(|(reply,)| reply)
             .unwrap()
     }
-    fn status(&self) -> Status {
+    async fn status(&self) -> Status {
         let result: Result<Status, Failure> = self
             .harness
             .pic
             .query_control_as(self.service, self.operator, "status", (), REPLY_BYTES)
+            .await
             .map(|(reply,)| reply)
             .unwrap();
         result.unwrap()
@@ -300,7 +307,7 @@ impl Fixture {
             tenant: self.tenant.into(),
         }
     }
-    fn enroll(
+    async fn enroll(
         &self,
         expected: Option<TenantEnrollment>,
         active: bool,
@@ -318,6 +325,7 @@ impl Fixture {
                 },
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         response.map(|v| {
             assert_eq!(v.scope, self.tenant_scope());
@@ -325,38 +333,41 @@ impl Fixture {
             v.enrollment.unwrap()
         })
     }
-    fn tenant(&self) -> Option<TenantEnrollment> {
+    async fn tenant(&self) -> Option<TenantEnrollment> {
         let result: Result<TenantEnrollmentResponse, TenantFailure> = self
             .harness
             .pic
             .query_tenant_as(self.service, self.tenant, self.tenant_scope(), REPLY_BYTES)
+            .await
             .unwrap();
         let response = result.unwrap();
         assert_eq!(response.scope, self.tenant_scope());
         response.enrollment
     }
-    fn restart(&self) {
+    async fn restart(&self) {
         self.harness
             .pic
             .stop_canister(self.service, Some(self.controller))
+            .await
             .unwrap();
         self.harness
             .pic
             .start_canister(self.service, Some(self.controller))
+            .await
             .unwrap();
     }
 }
-#[test]
-fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
     for fault in [
         WriteFault::Objects,
         WriteFault::Permissions,
         WriteFault::Usage,
     ] {
-        let f = Fixture::new();
-        f.enroll(None, true).unwrap();
+        let f = Fixture::new().await;
+        f.enroll(None, true).await.unwrap();
         let (attempted, _) = f.permission(1, 1);
-        let before = f.status();
+        let before = f.status().await;
         let error = f
             .harness
             .pic
@@ -370,21 +381,25 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
                 })
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(f.status(), before);
-        assert_eq!(f.lookup(f.tenant, attempted.request), Err(Failure::Unknown));
+        assert_eq!(f.status().await, before);
+        assert_eq!(
+            f.lookup(f.tenant, attempted.request).await,
+            Err(Failure::Unknown)
+        );
         // The failed root is free for another object, and the failed object/operation
         // is free for another root. No partial index or cached capacity survived.
         let (same_root, _) = f.permission(2, 1);
         let (same_object, _) = f.permission(1, 2);
-        assert_eq!(f.admit(f.tenant, same_root), Ok(true));
-        assert_eq!(f.admit(f.tenant, same_object), Ok(true));
+        assert_eq!(f.admit(f.tenant, same_root).await, Ok(true));
+        assert_eq!(f.admit(f.tenant, same_object).await, Ok(true));
         assert_eq!(
-            f.status(),
+            f.status().await,
             Status {
                 operations: 2,
                 active: 2,
@@ -397,22 +412,22 @@ fn admission_write_traps_roll_back_identity_permission_and_both_totals() {
                 fenced: false
             }
         );
-        assert_eq!(f.admit(f.tenant, same_root), Ok(false));
-        assert_eq!(f.admit(f.tenant, attempted), Err(Failure::Conflict));
+        assert_eq!(f.admit(f.tenant, same_root).await, Ok(false));
+        assert_eq!(f.admit(f.tenant, attempted).await, Err(Failure::Conflict));
         assert_eq!(
-            f.admit(f.tenant, f.permission(3, 3).0),
+            f.admit(f.tenant, f.permission(3, 3).0).await,
             Err(Failure::Capacity)
         );
     }
 }
-#[test]
-fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
-    let f = Fixture::new();
-    f.enroll(None, true).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
+    let f = Fixture::new().await;
+    f.enroll(None, true).await.unwrap();
     let (permission, preparation) = f.permission(1, 1);
-    f.admit(f.tenant, permission).unwrap();
-    let before = f.lookup(f.uploader, permission.request).unwrap();
-    let totals = f.status();
+    f.admit(f.tenant, permission).await.unwrap();
+    let before = f.lookup(f.uploader, permission.request).await.unwrap();
+    let totals = f.status().await;
     for fault in [WriteFault::Manifests, WriteFault::Permissions] {
         let error = f
             .harness
@@ -429,22 +444,23 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
                 )
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(f.lookup(f.uploader, permission.request), Ok(before));
-        assert_eq!(f.status(), totals);
-        assert_eq!(f.expose(permission.request), Err(Failure::Unprepared));
+        assert_eq!(f.lookup(f.uploader, permission.request).await, Ok(before));
+        assert_eq!(f.status().await, totals);
+        assert_eq!(f.expose(permission.request).await, Err(Failure::Unprepared));
     }
-    assert_eq!(f.prepare(&preparation), Ok(true));
-    assert_eq!(f.prepare(&preparation), Ok(false));
-    f.expose(permission.request).unwrap();
-    assert_eq!(f.revoke(permission), Ok(true));
-    assert_eq!(f.revoke(permission), Ok(false));
+    assert_eq!(f.prepare(&preparation).await, Ok(true));
+    assert_eq!(f.prepare(&preparation).await, Ok(false));
+    f.expose(permission.request).await.unwrap();
+    assert_eq!(f.revoke(permission).await, Ok(true));
+    assert_eq!(f.revoke(permission).await, Ok(false));
     assert_eq!(
-        f.status(),
+        f.status().await,
         Status {
             active: 0,
             bytes: 0,
@@ -452,29 +468,32 @@ fn failed_preparation_cannot_leave_a_manifest_or_permission_flag() {
         }
     );
     assert_eq!(
-        f.lookup(f.uploader, permission.request).unwrap().phase,
+        f.lookup(f.uploader, permission.request)
+            .await
+            .unwrap()
+            .phase,
         Phase::Registered
     );
-    assert_eq!(f.expose(permission.request), Err(Failure::Revoked));
+    assert_eq!(f.expose(permission.request).await, Err(Failure::Revoked));
 }
-#[test]
-fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
-    let f = Fixture::new();
-    let active = f.enroll(None, true).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
+    let f = Fixture::new().await;
+    let active = f.enroll(None, true).await.unwrap();
     let (permission, preparation) = f.permission(u128::MAX, 7);
     for actor in [f.controller, f.operator, f.other, f.uploader] {
-        assert_eq!(f.admit(actor, permission), Err(Failure::Denied));
+        assert_eq!(f.admit(actor, permission).await, Err(Failure::Denied));
     }
-    f.admit(f.tenant, permission).unwrap();
-    f.prepare(&preparation).unwrap();
-    f.expose(permission.request).unwrap();
-    f.revoke(permission).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
+    f.prepare(&preparation).await.unwrap();
+    f.expose(permission.request).await.unwrap();
+    f.revoke(permission).await.unwrap();
     let (cancelled, second_manifest) = f.permission(2, 8);
-    f.admit(f.tenant, cancelled).unwrap();
-    f.prepare(&second_manifest).unwrap();
-    f.revoke(cancelled).unwrap();
-    let suspended = f.enroll(Some(active), false).unwrap();
-    let before = f.status();
+    f.admit(f.tenant, cancelled).await.unwrap();
+    f.prepare(&second_manifest).await.unwrap();
+    f.revoke(cancelled).await.unwrap();
+    let suspended = f.enroll(Some(active), false).await.unwrap();
+    let before = f.status().await;
     assert_eq!(
         before,
         Status {
@@ -489,12 +508,15 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
             fenced: false
         }
     );
-    let original = f.lookup(f.uploader, permission.request).unwrap();
-    let cancelled_view = f.lookup(f.tenant, cancelled.request).unwrap();
+    let original = f.lookup(f.uploader, permission.request).await.unwrap();
+    let cancelled_view = f.lookup(f.tenant, cancelled.request).await.unwrap();
     assert_eq!(cancelled_view.phase, Phase::Cancelled);
-    assert_eq!(f.lookup(f.other, permission.request), Err(Failure::Denied));
-    f.restart();
-    assert_eq!(f.status(), before);
+    assert_eq!(
+        f.lookup(f.other, permission.request).await,
+        Err(Failure::Denied)
+    );
+    f.restart().await;
+    assert_eq!(f.status().await, before);
     let failed = f
         .harness
         .pic
@@ -504,13 +526,14 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
             Fixture::installation("fixture_post_upgrade", f.other),
             Some(f.controller),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&failed).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.status(), before);
-    assert_eq!(f.tenant(), Some(suspended));
+    assert_eq!(f.status().await, before);
+    assert_eq!(f.tenant().await, Some(suspended));
     f.harness
         .pic
         .upgrade_canister(
@@ -519,36 +542,46 @@ fn upgrade_preserves_complete_pending_obligations_and_fences_all_mutations() {
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
     assert_eq!(
-        f.status(),
+        f.status().await,
         Status {
             fenced: true,
             ..before
         }
     );
-    assert_eq!(f.tenant(), Some(suspended));
-    assert_eq!(f.lookup(f.uploader, permission.request), Ok(original));
-    assert_eq!(f.lookup(f.tenant, cancelled.request), Ok(cancelled_view));
-    assert_eq!(f.lookup(f.other, permission.request), Err(Failure::Denied));
-    assert_eq!(f.enroll(Some(suspended), true), Err(TenantFailure::Fenced));
-    assert_eq!(f.admit(f.tenant, permission), Err(Failure::Fenced));
-    assert_eq!(f.prepare(&preparation), Err(Failure::Fenced));
-    assert_eq!(f.expose(permission.request), Err(Failure::Fenced));
-    assert_eq!(f.revoke(permission), Err(Failure::Fenced));
-    f.restart();
-    assert!(f.status().fenced);
-    assert_eq!(f.lookup(f.tenant, permission.request), Ok(original));
+    assert_eq!(f.tenant().await, Some(suspended));
+    assert_eq!(f.lookup(f.uploader, permission.request).await, Ok(original));
+    assert_eq!(
+        f.lookup(f.tenant, cancelled.request).await,
+        Ok(cancelled_view)
+    );
+    assert_eq!(
+        f.lookup(f.other, permission.request).await,
+        Err(Failure::Denied)
+    );
+    assert_eq!(
+        f.enroll(Some(suspended), true).await,
+        Err(TenantFailure::Fenced)
+    );
+    assert_eq!(f.admit(f.tenant, permission).await, Err(Failure::Fenced));
+    assert_eq!(f.prepare(&preparation).await, Err(Failure::Fenced));
+    assert_eq!(f.expose(permission.request).await, Err(Failure::Fenced));
+    assert_eq!(f.revoke(permission).await, Err(Failure::Fenced));
+    f.restart().await;
+    assert!(f.status().await.fenced);
+    assert_eq!(f.lookup(f.tenant, permission.request).await, Ok(original));
 }
 
-#[test]
-fn failed_cancellation_retains_permission_and_reservation_until_retry() {
-    let f = Fixture::new();
-    f.enroll(None, true).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn failed_cancellation_retains_permission_and_reservation_until_retry() {
+    let f = Fixture::new().await;
+    f.enroll(None, true).await.unwrap();
     let (permission, _) = f.permission(1, 1);
-    f.admit(f.tenant, permission).unwrap();
-    let before = f.lookup(f.tenant, permission.request).unwrap();
-    let totals = f.status();
+    f.admit(f.tenant, permission).await.unwrap();
+    let before = f.lookup(f.tenant, permission.request).await.unwrap();
+    let totals = f.status().await;
     let error = f
         .harness
         .pic
@@ -561,16 +594,17 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             ))
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.lookup(f.tenant, permission.request), Ok(before));
-    assert_eq!(f.status(), totals);
-    assert_eq!(f.revoke(permission), Ok(true));
+    assert_eq!(f.lookup(f.tenant, permission.request).await, Ok(before));
+    assert_eq!(f.status().await, totals);
+    assert_eq!(f.revoke(permission).await, Ok(true));
     assert_eq!(
-        f.status(),
+        f.status().await,
         Status {
             active: 0,
             bytes: 0,
@@ -582,10 +616,10 @@ fn failed_cancellation_retains_permission_and_reservation_until_retry() {
             ..totals
         }
     );
-    assert_eq!(f.revoke(permission), Ok(false));
-    assert_eq!(f.admit(f.tenant, permission), Ok(false));
+    assert_eq!(f.revoke(permission).await, Ok(false));
+    assert_eq!(f.admit(f.tenant, permission).await, Ok(false));
     assert_eq!(
-        f.lookup(f.tenant, permission.request).unwrap().phase,
+        f.lookup(f.tenant, permission.request).await.unwrap().phase,
         Phase::Cancelled
     );
 }

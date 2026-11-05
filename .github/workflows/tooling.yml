@@ -245,7 +245,7 @@ jobs:
           /bin/bash --version
           make shared-tooling-check
           failed=0
-          for target in tools-check release-tools-check dependency-pins-check documentation-links-check shared-tooling-tests evidence-check fmt-check release-metadata-check hooks-check; do
+          for target in tools-check release-tools-check dependency-pins-check platform-boundary-check documentation-links-check shared-tooling-tests evidence-check fmt-check release-metadata-check hooks-check; do
             if make "$target"; then :; else failed=1; fi
           done
           exit "$failed"

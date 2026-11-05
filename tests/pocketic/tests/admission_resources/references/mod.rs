@@ -20,7 +20,7 @@ fn reference(request: Request, id: u64, retain: bool) -> Command {
     })
 }
 
-fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
+async fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
     let input = ReferenceCapacityRequest {
         scope: TenantScope {
             service: request.service.into(),
@@ -39,6 +39,7 @@ fn capacity(f: &Fixture, request: Request) -> ReferenceHeadroom {
             input,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     let response = result.unwrap();
     assert_eq!(response.request, input);
@@ -53,19 +54,23 @@ fn changed(replayed: bool) -> Outcome {
     }
 }
 
-fn retain_all(f: &Fixture, input: Permission, samples: &mut Vec<serde_json::Value>) -> (u64, u64) {
+async fn retain_all(
+    f: &Fixture,
+    input: Permission,
+    samples: &mut Vec<serde_json::Value>,
+) -> (u64, u64) {
     let mut max_retain = 0;
     let mut max_retain_workflow = 0;
     for id in 2..=REFERENCES {
         assert_eq!(
-            f.call(f.project, reference(input.request, id, true)),
+            f.call(f.project, reference(input.request, id, true)).await,
             Ok(changed(false))
         );
-        let profile = f.sample(f.project);
+        let profile = f.sample(f.project).await;
         max_retain = max_retain.max(profile.after_work);
         max_retain_workflow = max_retain_workflow.max(profile.after_work - profile.before_work);
         assert!(profile.after_work < 10_000_000);
-        let remaining = capacity(f, input.request);
+        let remaining = capacity(f, input.request).await;
         assert_eq!(remaining.reference_slots, REFERENCES - id);
         assert_eq!(remaining.fresh_retains, REFERENCES - id);
         assert_eq!(remaining.release_reserved_receipts, id);
@@ -74,43 +79,47 @@ fn retain_all(f: &Fixture, input: Permission, samples: &mut Vec<serde_json::Valu
                 "before_decode":profile.before_decode,
                 "after_decode":profile.after_decode,
                 "before_work":profile.before_work,"after_work":profile.after_work,
-                "wasm_memory_bytes":f.wasm_bytes()}));
+                "wasm_memory_bytes":f.wasm_bytes().await}));
         }
     }
     (max_retain, max_retain_workflow)
 }
 
-fn release_all(f: &Fixture, input: Permission, samples: &mut Vec<serde_json::Value>) -> (u64, u64) {
+async fn release_all(
+    f: &Fixture,
+    input: Permission,
+    samples: &mut Vec<serde_json::Value>,
+) -> (u64, u64) {
     let mut max_release = 0;
     let mut max_release_workflow = 0;
     for id in 1..=REFERENCES {
         let command = reference(input.request, id, false);
-        assert_eq!(f.call(f.project, command.clone()), Ok(changed(false)));
-        let profile = f.sample(f.project);
+        assert_eq!(f.call(f.project, command.clone()).await, Ok(changed(false)));
+        let profile = f.sample(f.project).await;
         max_release = max_release.max(profile.after_work);
         max_release_workflow = max_release_workflow.max(profile.after_work - profile.before_work);
         assert!(profile.after_work < 10_000_000);
         assert_eq!(
-            capacity(f, input.request).release_reserved_receipts,
+            capacity(f, input.request).await.release_reserved_receipts,
             REFERENCES - id
         );
         if [1, 16, 64, 128, REFERENCES].contains(&id) {
-            assert_eq!(f.call(f.project, command), Ok(changed(true)));
+            assert_eq!(f.call(f.project, command).await, Ok(changed(true)));
             samples.push(
                 serde_json::json!({"phase":"release", "released_references":id,
                 "before_decode":profile.before_decode,
                 "after_decode":profile.after_decode,
                 "before_work":profile.before_work,"after_work":profile.after_work,
-                "wasm_memory_bytes":f.wasm_bytes()}),
+                "wasm_memory_bytes":f.wasm_bytes().await}),
             );
         }
     }
     (max_release, max_release_workflow)
 }
 
-fn settle(f: &Fixture, input: Permission) {
+async fn settle(f: &Fixture, input: Permission) {
     let bytes = u128::from(input.request.bytes);
-    let usage = f.observe(input).usage.unwrap();
+    let usage = f.observe(input).await.usage.unwrap();
     assert_eq!(
         (usage.logical, usage.physical, usage.liability),
         (0, bytes, bytes)
@@ -119,10 +128,11 @@ fn settle(f: &Fixture, input: Permission) {
         f.call(
             f.operator,
             Command::FixtureLifecycle(LifecycleCommand::SubstituteDeletion(input.request))
-        ),
+        )
+        .await,
         Ok(Outcome::Changed(true))
     );
-    let usage = f.observe(input).usage.unwrap();
+    let usage = f.observe(input).await.usage.unwrap();
     assert_eq!(
         (usage.logical, usage.physical, usage.liability),
         (0, 0, bytes)
@@ -131,29 +141,31 @@ fn settle(f: &Fixture, input: Permission) {
         f.call(
             f.operator,
             Command::FixtureLifecycle(LifecycleCommand::SubstituteSettlement(input.request))
-        ),
+        )
+        .await,
         Ok(Outcome::Changed(true))
     );
-    let usage = f.observe(input).usage.unwrap();
+    let usage = f.observe(input).await.usage.unwrap();
     assert_eq!((usage.logical, usage.physical, usage.liability), (0, 0, 0));
 }
 
-#[test]
-fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() {
-    let f = Fixture::with_workload(Workload::ReferenceHistory);
-    f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() {
+    let f = Fixture::with_workload(Workload::ReferenceHistory).await;
+    f.enroll().await;
     let vector = vectors::vector("abc-text", 1);
-    let input = f.permission(&vector);
-    f.admit(input);
-    f.prepare(input, &vector);
+    let input = f.permission(&vector).await;
+    f.admit(input).await;
+    f.prepare(input, &vector).await;
     assert_eq!(
-        f.call(f.uploader, Command::Expose(input.request.root)),
+        f.call(f.uploader, Command::Expose(input.request.root))
+            .await,
         Ok(Outcome::Exposed)
     );
-    let initial_heap = f.wasm_bytes();
+    let initial_heap = f.wasm_bytes().await;
     let mut samples = Vec::new();
-    let (max_retain, max_retain_workflow) = retain_all(&f, input, &mut samples);
-    let full = capacity(&f, input.request);
+    let (max_retain, max_retain_workflow) = retain_all(&f, input, &mut samples).await;
+    let full = capacity(&f, input.request).await;
     assert_eq!(
         full,
         ReferenceHeadroom {
@@ -163,28 +175,30 @@ fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() 
             fresh_retains: 0
         }
     );
-    let original = f.observe(input);
+    let original = f.observe(input).await;
     // Fresh retain and unknown release must not consume reserved cleanup slots.
     for retain in [true, false] {
         assert_eq!(
             f.call(
                 f.project,
                 reference(input.request, 2 * REFERENCES + 1, retain)
-            ),
+            )
+            .await,
             Err(Failure::Capacity)
         );
     }
-    assert_eq!(capacity(&f, input.request), full);
-    assert_eq!(f.observe(input), original);
-    f.restart();
-    assert_eq!(capacity(&f, input.request), full);
+    assert_eq!(capacity(&f, input.request).await, full);
+    assert_eq!(f.observe(input).await, original);
+    f.restart().await;
+    assert_eq!(capacity(&f, input.request).await, full);
     assert_eq!(
-        f.call(f.project, reference(input.request, REFERENCES, true)),
+        f.call(f.project, reference(input.request, REFERENCES, true))
+            .await,
         Ok(changed(true))
     );
-    let (max_release, max_release_workflow) = release_all(&f, input, &mut samples);
+    let (max_release, max_release_workflow) = release_all(&f, input, &mut samples).await;
     assert_eq!(
-        capacity(&f, input.request),
+        capacity(&f, input.request).await,
         ReferenceHeadroom {
             reference_slots: 0,
             unreserved_receipts: 0,
@@ -192,23 +206,26 @@ fn resource_reference_history_reserves_every_release_and_keeps_exact_receipts() 
             fresh_retains: 0,
         }
     );
-    settle(&f, input);
+    settle(&f, input).await;
     assert_eq!(
-        f.call(f.project, reference(input.request, REFERENCES, true)),
+        f.call(f.project, reference(input.request, REFERENCES, true))
+            .await,
         Ok(changed(true))
     );
     assert_eq!(
-        f.call(f.project, reference(input.request, REFERENCES, false)),
+        f.call(f.project, reference(input.request, REFERENCES, false))
+            .await,
         Ok(changed(true))
     );
     assert_eq!(
         f.call(
             f.project,
             reference(input.request, 2 * REFERENCES + 1, true)
-        ),
+        )
+        .await,
         Err(Failure::Capacity)
     );
-    let final_heap = f.wasm_bytes();
+    let final_heap = f.wasm_bytes().await;
     assert!(final_heap <= initial_heap + 2 * CHUNK as u64);
     let report = serde_json::json!({
         "scope":"One durable object with 256 simultaneous references and 511 receipts. Stop/start, exact retries, saturation and separate deletion/billing cleanup. Operator completion facts are substitutes. Counters exclude diagnostics/replies; allocated memory includes allocator headroom. Stable bookkeeping is included; no upgrade/restore or provider calls.",

@@ -86,7 +86,7 @@ Cross-release Blob transitions remain reinstall-only under this runbook. Retain
 all provider identities, uncertain effects, balances and continuing billing
 obligations before reset. Fresh-install and same-release restore evidence on the
 new graph does not qualify an old ledger or authorize deployment/reset. The
-[Memory 0.44 evidence](evidence/memory044.md) records that transition's qualification;
+[Memory 0.44 evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/memory044.md) records that transition's qualification;
 the integrating host owns its retained-installation review. Earlier
 [#77 — Align exposed Memory types with 0.41](https://github.com/dragginzgame/ic-blob-storage/issues/77)
 acceptance does not qualify this new format.

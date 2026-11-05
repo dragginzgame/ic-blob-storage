@@ -14,10 +14,10 @@ fn gateway_reply(principals: &[Principal]) -> Vec<u8> {
     ic_platform::candid::contract::encode_one(principals).unwrap()
 }
 
-#[test]
-fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_cancel() {
-    let f = Fixture::new();
-    let old = f.gateway_begin();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_cancel() {
+    let f = Fixture::new().await;
+    let old = f.gateway_begin().await;
     assert_eq!(
         f.gateways(
             f.operator,
@@ -26,11 +26,12 @@ fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_ca
                 source: f.gateway_scope(),
                 reply: gateway_reply(&[]),
             }
-        ),
+        )
+        .await,
         Err(Failure::Invalid)
     );
-    let current = f.gateway_begin();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let current = f.gateway_begin().await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
         f.gateways(
             f.operator,
@@ -39,14 +40,18 @@ fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_ca
                 source: f.gateway_scope(),
                 reply: gateway_reply(&[f.other]),
             }
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
     assert_eq!(
-        f.cancel_gateway_sync(f.operator, old),
+        f.cancel_gateway_sync(f.operator, old).await,
         Err(GatewaySyncFailure::Conflict)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
     f.gateways(
         f.operator,
         Action::Apply {
@@ -55,9 +60,10 @@ fn new_explicit_refresh_supersedes_failed_read_and_rejects_its_late_reply_and_ca
             reply: gateway_reply(&[f.other]),
         },
     )
+    .await
     .unwrap();
-    assert_eq!(f.gateway_view().members, [f.other.into()]);
-    assert_eq!(f.gateway_view().pending_sequence, None);
+    assert_eq!(f.gateway_view().await.members, [f.other.into()]);
+    assert_eq!(f.gateway_view().await.pending_sequence, None);
 }
 impl Fixture {
     fn cancellation(&self, sequence: u64) -> GatewaySyncCancellation {
@@ -66,7 +72,7 @@ impl Fixture {
             sequence,
         }
     }
-    fn cancel_gateway_sync(
+    async fn cancel_gateway_sync(
         &self,
         actor: Principal,
         sequence: u64,
@@ -80,9 +86,10 @@ impl Fixture {
                 self.cancellation(sequence),
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
-    fn cancel_gateway_sync_trap(&self, sequence: u64) {
+    async fn cancel_gateway_sync_trap(&self, sequence: u64) {
         let request = blob_test_protocol::storage::gateways::FaultCancellation {
             request: self.cancellation(sequence),
             fault: true,
@@ -96,6 +103,7 @@ impl Fixture {
                 "fixture_cancel_gateway_sync",
                 ic_blob_storage_pocketic_tests::control_calls::encode_control_one(request).unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
@@ -113,7 +121,7 @@ impl Fixture {
             gateway: gateway.into(),
         }
     }
-    fn revoke_gateway(
+    async fn revoke_gateway(
         &self,
         actor: Principal,
         gateway: Principal,
@@ -127,9 +135,10 @@ impl Fixture {
                 self.revocation(gateway),
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
-    fn revoke_gateway_trap(&self, gateway: Principal) {
+    async fn revoke_gateway_trap(&self, gateway: Principal) {
         let input = blob_test_protocol::storage::gateways::FaultRevocation {
             request: self.revocation(gateway),
             fault: true,
@@ -143,6 +152,7 @@ impl Fixture {
                 "fixture_revoke_gateway",
                 ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
@@ -156,7 +166,7 @@ impl Fixture {
             namespace: 1,
         }
     }
-    fn gateways(&self, actor: Principal, action: Action) -> Result<Outcome, Failure> {
+    async fn gateways(&self, actor: Principal, action: Action) -> Result<Outcome, Failure> {
         self.harness
             .pic
             .update_control_as(
@@ -170,10 +180,11 @@ impl Fixture {
                 },),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
     }
-    fn gateway_view(&self) -> View {
+    async fn gateway_view(&self) -> View {
         self.harness
             .pic
             .query_control_as::<(Result<View, Failure>,), _>(
@@ -183,17 +194,19 @@ impl Fixture {
                 (self.gateway_scope(),),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap()
             .unwrap()
     }
-    fn gateway_begin(&self) -> u64 {
-        let Outcome::Begun(token) = self.gateways(self.operator, Action::Begin).unwrap() else {
+    async fn gateway_begin(&self) -> u64 {
+        let Outcome::Begun(token) = self.gateways(self.operator, Action::Begin).await.unwrap()
+        else {
             panic!("begin result")
         };
         token
     }
-    fn gateway_trap(&self, action: Action) {
+    async fn gateway_trap(&self, action: Action) {
         let error = self
             .harness
             .pic
@@ -208,6 +221,7 @@ impl Fixture {
                 })
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
@@ -215,17 +229,19 @@ impl Fixture {
         );
     }
 }
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One durable-sync scenario preserves stale-token and failed-reply ordering"
 )]
-fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pending() {
-    let f = Fixture::new();
+async fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pending() {
+    let f = Fixture::new().await;
     let source = f.gateway_scope();
-    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
-    let old = f.gateway_begin();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.gateways(f.operator, Action::Add(f.other.into()))
+        .await
+        .unwrap();
+    let old = f.gateway_begin().await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
         f.gateways(
             f.operator,
@@ -234,7 +250,8 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
                 source,
                 reply: gateway_reply(&[])
             }
-        ),
+        )
+        .await,
         Err(Failure::Invalid)
     );
     assert_eq!(
@@ -248,7 +265,8 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
                 },
                 reply: gateway_reply(&[f.tenant])
             }
-        ),
+        )
+        .await,
         Err(Failure::Binding)
     );
     assert_eq!(
@@ -259,12 +277,16 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
                 source,
                 reply: gateway_reply(&[f.tenant; 9])
             }
-        ),
+        )
+        .await,
         Err(Failure::Capacity)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    f.revoke_gateway(f.operator, f.other).unwrap();
-    assert_eq!(f.gateway_view().members, []);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    f.revoke_gateway(f.operator, f.other).await.unwrap();
+    assert_eq!(f.gateway_view().await.members, []);
     assert_eq!(
         f.gateways(
             f.operator,
@@ -273,12 +295,13 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
                 source,
                 reply: gateway_reply(&[f.other])
             }
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
-    let current = f.gateway_begin();
+    let current = f.gateway_begin().await;
     assert_eq!(
-        f.cancel_gateway_sync(f.operator, old),
+        f.cancel_gateway_sync(f.operator, old).await,
         Err(GatewaySyncFailure::Conflict)
     );
     f.gateways(
@@ -289,17 +312,18 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
             reply: gateway_reply(&[f.other, f.tenant, f.other]),
         },
     )
+    .await
     .unwrap();
     assert_eq!(
-        f.gateway_view().members,
+        f.gateway_view().await.members,
         vec![
             ic_platform::Principal::from(f.other),
             ic_platform::Principal::from(f.tenant)
         ]
     );
-    let pending = f.gateway_begin();
+    let pending = f.gateway_begin().await;
     assert_eq!(
-        f.gateways(f.operator, Action::Add(f.other.into())),
+        f.gateways(f.operator, Action::Add(f.other.into())).await,
         Ok(Outcome::Changed(false))
     );
     assert_eq!(
@@ -310,12 +334,13 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
                 source,
                 reply: gateway_reply(&[f.uploader])
             }
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
-    let latest = f.gateway_begin();
-    f.cancel_gateway_sync(f.operator, latest).unwrap();
-    assert_eq!(f.gateway_view().pending_sequence, None);
+    let latest = f.gateway_begin().await;
+    f.cancel_gateway_sync(f.operator, latest).await.unwrap();
+    assert_eq!(f.gateway_view().await.pending_sequence, None);
     assert_eq!(
         f.gateways(
             f.operator,
@@ -324,29 +349,33 @@ fn durable_gateway_sync_cannot_undo_operator_edits_and_failed_lists_leave_it_pen
                 source,
                 reply: gateway_reply(&[f.uploader])
             }
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
 }
-#[test]
-fn gateway_writes_roll_back_membership_and_pending_identity_together() {
-    let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
-    let before = f.gateway_view();
-    f.gateway_trap(Action::Begin);
-    assert_eq!(f.gateway_view(), before);
-    let token = f.gateway_begin();
-    let pending = f.gateway_view();
-    f.revoke_gateway_trap(f.other);
-    assert_eq!(f.gateway_view(), pending);
-    f.cancel_gateway_sync_trap(token);
-    assert_eq!(f.gateway_view(), pending);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn gateway_writes_roll_back_membership_and_pending_identity_together() {
+    let f = Fixture::new().await;
+    f.gateways(f.operator, Action::Add(f.other.into()))
+        .await
+        .unwrap();
+    let before = f.gateway_view().await;
+    f.gateway_trap(Action::Begin).await;
+    assert_eq!(f.gateway_view().await, before);
+    let token = f.gateway_begin().await;
+    let pending = f.gateway_view().await;
+    f.revoke_gateway_trap(f.other).await;
+    assert_eq!(f.gateway_view().await, pending);
+    f.cancel_gateway_sync_trap(token).await;
+    assert_eq!(f.gateway_view().await, pending);
     f.gateway_trap(Action::Apply {
         token,
         source: f.gateway_scope(),
         reply: gateway_reply(&[f.tenant]),
-    });
-    assert_eq!(f.gateway_view(), pending);
+    })
+    .await;
+    assert_eq!(f.gateway_view().await, pending);
     f.gateways(
         f.operator,
         Action::Apply {
@@ -355,22 +384,25 @@ fn gateway_writes_roll_back_membership_and_pending_identity_together() {
             reply: gateway_reply(&[f.tenant]),
         },
     )
+    .await
     .unwrap();
-    let after = f.gateway_view();
+    let after = f.gateway_view().await;
     assert_eq!(after.members, vec![ic_platform::Principal::from(f.tenant)]);
     assert_eq!(after.pending_sequence, None);
     assert_eq!(after.last_sequence, 1);
 }
-#[test]
-fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_sync() {
-    let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
-    let token = f.gateway_begin();
-    let before = f.gateway_view();
-    let bytes = f.harness.pic.get_stable_memory(f.service).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_sync() {
+    let f = Fixture::new().await;
+    f.gateways(f.operator, Action::Add(f.other.into()))
+        .await
+        .unwrap();
+    let token = f.gateway_begin().await;
+    let before = f.gateway_view().await;
+    let bytes = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
-            f.revoke_gateway(actor, f.other),
+            f.revoke_gateway(actor, f.other).await,
             Err(GatewayRevocationFailure::Denied)
         );
         let view: Result<View, Failure> = f
@@ -383,6 +415,7 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
                 (f.gateway_scope(),),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap();
         assert_eq!(view, Err(Failure::Denied));
@@ -411,11 +444,15 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
                 (scope,),
                 REPLY_BYTES,
             )
+            .await
             .map(|(reply,)| reply)
             .unwrap();
         assert_eq!(view, Err(Failure::Binding));
     }
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), bytes);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        bytes
+    );
     f.harness
         .pic
         .upgrade_canister(
@@ -424,20 +461,21 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
     assert_eq!(
-        f.gateway_view(),
+        f.gateway_view().await,
         View {
             fenced: true,
             ..before
         }
     );
     assert_eq!(
-        f.revoke_gateway(f.operator, f.other),
+        f.revoke_gateway(f.operator, f.other).await,
         Err(GatewayRevocationFailure::Fenced)
     );
     assert_eq!(
-        f.cancel_gateway_sync(f.operator, token),
+        f.cancel_gateway_sync(f.operator, token).await,
         Err(GatewaySyncFailure::Fenced)
     );
     for action in [
@@ -448,19 +486,21 @@ fn gateway_scope_is_operator_only_and_restore_retains_members_and_unresolved_syn
             reply: gateway_reply(&[f.tenant]),
         },
     ] {
-        assert_eq!(f.gateways(f.operator, action), Err(Failure::Fenced));
+        assert_eq!(f.gateways(f.operator, action).await, Err(Failure::Fenced));
     }
-    assert_eq!(f.gateway_view().pending_sequence, Some(1));
+    assert_eq!(f.gateway_view().await.pending_sequence, Some(1));
 }
 
-#[test]
-fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_revocation() {
-    let f = Fixture::new();
-    f.gateways(f.operator, Action::Add(f.other.into())).unwrap();
-    let token = f.gateway_begin();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_revocation() {
+    let f = Fixture::new().await;
+    f.gateways(f.operator, Action::Add(f.other.into()))
+        .await
+        .unwrap();
+    let token = f.gateway_begin().await;
     let source = f.gateway_scope();
-    let before = f.gateway_view();
-    let stable = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.gateway_view().await;
+    let stable = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let good = ic_platform::candid::contract::encode_one(vec![f.tenant]).unwrap();
     let mut trailing = good.clone();
     trailing.push(0);
@@ -481,11 +521,15 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
                     source,
                     reply
                 }
-            ),
+            )
+            .await,
             Err(failure)
         );
-        assert_eq!(f.gateway_view(), before);
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), stable);
+        assert_eq!(f.gateway_view().await, before);
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            stable
+        );
     }
     assert_eq!(
         f.gateways(
@@ -495,7 +539,8 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
                 source,
                 reply: vec![]
             }
-        ),
+        )
+        .await,
         Err(Failure::Denied)
     );
     assert_eq!(
@@ -509,7 +554,8 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
                 },
                 reply: vec![0; 2049]
             }
-        ),
+        )
+        .await,
         Err(Failure::Binding)
     );
     f.gateways(
@@ -520,15 +566,16 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
             reply: good,
         },
     )
+    .await
     .unwrap();
     assert_eq!(
-        f.gateway_view().members,
+        f.gateway_view().await.members,
         vec![ic_platform::Principal::from(f.tenant)]
     );
-    let old = f.gateway_begin();
-    f.revoke_gateway(f.operator, f.tenant).unwrap();
-    let current = f.gateway_begin();
-    let pending = f.gateway_view();
+    let old = f.gateway_begin().await;
+    f.revoke_gateway(f.operator, f.tenant).await.unwrap();
+    let current = f.gateway_begin().await;
+    let pending = f.gateway_view().await;
     assert_eq!(
         f.gateways(
             f.operator,
@@ -537,12 +584,13 @@ fn gateway_encoded_reply_rejections_preserve_the_pending_sync_and_cannot_bypass_
                 source,
                 reply: vec![0; 2049]
             }
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
-    assert_eq!(f.gateway_view(), pending);
-    f.cancel_gateway_sync(f.operator, current).unwrap();
-    assert_eq!(f.gateway_view().members, []);
+    assert_eq!(f.gateway_view().await, pending);
+    f.cancel_gateway_sync(f.operator, current).await.unwrap();
+    assert_eq!(f.gateway_view().await.members, []);
 }
 
 mod callbacks;

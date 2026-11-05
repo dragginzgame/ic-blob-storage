@@ -14,7 +14,7 @@ use ic_blob_storage_contracts::upload::manifests::reply::UploadManifestReplyLimi
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 
-pub(super) fn install(f: &mut Fixture) {
+pub(super) async fn install(f: &mut Fixture) {
     let consumer = f
         .harness
         .pic
@@ -25,6 +25,7 @@ pub(super) fn install(f: &mut Fixture) {
                 ..CanisterSettings::default()
             }),
         )
+        .await
         .unwrap();
     f.harness
         .pic
@@ -35,9 +36,10 @@ pub(super) fn install(f: &mut Fixture) {
                 .unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap();
     f.tenant = consumer;
-    f.enroll(None, true).unwrap();
+    f.enroll(None, true).await.unwrap();
 }
 
 fn limits() -> CaffeineManifestLimits {
@@ -65,7 +67,7 @@ struct BrowserReplies {
     preparation: Vec<u8>,
 }
 
-pub(super) fn handshake(
+pub(super) async fn handshake(
     f: &Fixture,
     permission: Permission,
     browser: &BrowserPreparation,
@@ -109,7 +111,7 @@ pub(super) fn handshake(
     if let Some(authority) = replies.authority {
         verify_refusals(&request, &authority);
     }
-    verify_admission(f, &run, &replies.admission);
+    verify_admission(f, &run, &replies.admission).await;
     let prepared = reply::mutation(
         &request,
         &replies.preparation,
@@ -122,10 +124,10 @@ pub(super) fn handshake(
     assert!(prepared.changed);
     let input = input(f, permission);
     assert_eq!(
-        inspect(f, f.uploader, input).unwrap().state,
+        inspect(f, f.uploader, input).await.unwrap().state,
         UploadState::Reserved
     );
-    configure(f, input);
+    configure(f, input).await;
     run
 }
 
@@ -157,7 +159,7 @@ fn verify_refusals(request: &UploadManifestRequest, replies: &AuthorityReplies) 
     );
 }
 
-fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
+async fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
     let admitted: Result<AssetView, ConsumerFailure> =
         ic_blob_storage_contracts::document::decode(bytes, REPLY_BYTES).unwrap();
     let admitted = admitted.unwrap();
@@ -175,6 +177,7 @@ fn verify_admission(f: &Fixture, run: &Run, bytes: &[u8]) {
             run.registration.asset,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(stored, Ok(admitted));
 }
@@ -197,7 +200,12 @@ struct ConsumerReplies {
     withdrawn: Option<Vec<u8>>,
 }
 
-pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: serde_json::Value) {
+pub(super) async fn verify_consumer(
+    f: &Fixture,
+    run: &Run,
+    cancelled: bool,
+    value: serde_json::Value,
+) {
     let replies: ConsumerReplies = serde_json::from_value(value).unwrap();
     let view = |bytes: &[u8]| {
         assert!(bytes.len() <= 4096);
@@ -205,21 +213,23 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
             ic_blob_storage_contracts::document::decode(bytes, REPLY_BYTES).unwrap();
         let view = result.unwrap();
         assert_eq!(view.registration, run.registration);
-        assert!(!view.published);
         assert!(!view.retain_started);
         assert_eq!(view.upload_state, Some(UploadState::Registered));
         view
     };
     let pending = view(&replies.pending);
     assert!(!pending.cancelled);
+    // Registration publishes retention intent, not proof of provider bytes.
+    assert!(pending.published && pending.published_once);
     assert_eq!(replies.cancelled.is_some(), cancelled);
     assert_eq!(replies.withdrawn.is_some(), cancelled);
     let expected = if cancelled {
         let tombstone = view(replies.cancelled.as_ref().unwrap());
-        assert!(tombstone.cancelled);
+        assert!(tombstone.cancelled && !tombstone.published && tombstone.published_once);
         assert!(!tombstone.revocation_started);
         let withdrawn = view(replies.withdrawn.as_ref().unwrap());
-        assert!(withdrawn.cancelled && withdrawn.revocation_started);
+        assert!(withdrawn.cancelled && !withdrawn.published && withdrawn.published_once);
+        assert!(withdrawn.revocation_started);
         assert_eq!(withdrawn.revocation_result, Some(Ok(())));
         withdrawn
     } else {
@@ -235,9 +245,21 @@ pub(super) fn verify_consumer(f: &Fixture, run: &Run, cancelled: bool, value: se
             run.registration.asset,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(stored, Ok(expected));
-    // Neither an HTTP success nor withdrawal erases the exposed reservation.
-    assert_eq!(f.status().bytes, 10);
-    assert_eq!(f.status().active, 1);
+    // Registration consumes the reservation. Withdrawal alone does not release
+    // the first reference or erase charged provider bytes and liabilities.
+    let status = f.status().await;
+    assert_eq!(status.operations, 1);
+    assert_eq!(status.bytes, 0);
+    assert_eq!(status.active, 0);
+    assert_eq!(
+        status.usage,
+        JourneyUsage {
+            logical: 10,
+            physical: 10,
+            liability: 10,
+        }
+    );
 }

@@ -10,7 +10,7 @@ use std::num::{NonZeroU64, NonZeroUsize};
 mod preparation;
 mod retained;
 
-fn read(
+async fn read(
     f: &Fixture,
     actor: Principal,
     input: ContentLookup,
@@ -22,6 +22,7 @@ fn read(
         "content_descriptor",
         (input,),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap()
 }
@@ -66,11 +67,12 @@ fn check_body(descriptor: &ContentDescriptor, bytes: &[u8]) {
     assert_eq!(verifier.finish().unwrap().provider_root, root);
 }
 
-fn check_authority(f: &Fixture, input: ContentLookup) {
+async fn check_authority(f: &Fixture, input: ContentLookup) {
     let oversized = f
         .harness
         .pic
         .query_call(f.service, f.project, "content_descriptor", vec![0; 4097])
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&oversized).reject_code,
@@ -83,7 +85,7 @@ fn check_authority(f: &Fixture, input: ContentLookup) {
         f.other,
         Principal::anonymous(),
     ] {
-        assert_eq!(read(f, actor, input), Err(Failure::NotProject));
+        assert_eq!(read(f, actor, input).await, Err(Failure::NotProject));
     }
     assert_eq!(
         read(
@@ -93,7 +95,8 @@ fn check_authority(f: &Fixture, input: ContentLookup) {
                 tenant: f.other,
                 ..input
             }
-        ),
+        )
+        .await,
         Ok(None)
     );
     assert_eq!(
@@ -104,7 +107,8 @@ fn check_authority(f: &Fixture, input: ContentLookup) {
                 service: f.other,
                 ..input
             }
-        ),
+        )
+        .await,
         Err(Failure::WrongService)
     );
     assert_eq!(
@@ -115,37 +119,41 @@ fn check_authority(f: &Fixture, input: ContentLookup) {
                 namespace: 2,
                 ..input
             }
-        ),
+        )
+        .await,
         Err(Failure::WrongNamespace)
     );
 }
 
-#[test]
-fn descriptor_keeps_authority_original_metadata_and_current_lifecycle() {
-    let f = Fixture::new();
-    f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn descriptor_keeps_authority_original_metadata_and_current_lifecycle() {
+    let f = Fixture::new().await;
+    f.enroll().await;
     let v = vectors::vector("abc-text", 1);
-    let p = f.permission(&v);
+    let p = f.permission(&v).await;
     let input = lookup(&f, p);
-    assert_eq!(read(&f, f.project, input), Ok(None));
-    f.admit(p);
-    assert_eq!(read(&f, f.project, input), Ok(None));
-    f.prepare(p, &v);
-    let first = read(&f, f.project, input).unwrap().unwrap();
+    assert_eq!(read(&f, f.project, input).await, Ok(None));
+    f.admit(p).await;
+    assert_eq!(read(&f, f.project, input).await, Ok(None));
+    f.prepare(p, &v).await;
+    let first = read(&f, f.project, input).await.unwrap().unwrap();
     assert_eq!(first.content.request, p.request);
     assert_eq!(first.content.state, ContentState::Reserved);
     assert_eq!(first.headers, v.manifest.headers);
-    let original = f.observe(p);
-    check_authority(&f, input);
+    let original = f.observe(p).await;
+    check_authority(&f, input).await;
     let mut reordered = v.manifest.clone();
     reordered.headers.reverse();
     assert_eq!(
-        f.call(f.uploader, Command::Prepare(p.request, reordered)),
+        f.call(f.uploader, Command::Prepare(p.request, reordered))
+            .await,
         Ok(Outcome::Changed(false))
     );
-    assert_eq!(read(&f, f.project, input), Ok(Some(first.clone())));
-    assert_eq!(f.observe(p), original);
-    f.call(f.uploader, Command::Expose(p.request.root)).unwrap();
+    assert_eq!(read(&f, f.project, input).await, Ok(Some(first.clone())));
+    assert_eq!(f.observe(p).await, original);
+    f.call(f.uploader, Command::Expose(p.request.root))
+        .await
+        .unwrap();
     let commands = [
         (
             ContentState::Live,
@@ -166,7 +174,7 @@ fn descriptor_keeps_authority_original_metadata_and_current_lifecycle() {
         ),
     ];
     for (state, command) in commands {
-        let view = read(&f, f.project, input).unwrap().unwrap();
+        let view = read(&f, f.project, input).await.unwrap().unwrap();
         assert_eq!(view.content.state, state);
         assert_eq!(view.headers, first.headers);
         if state == ContentState::Live {
@@ -177,10 +185,12 @@ fn descriptor_keeps_authority_original_metadata_and_current_lifecycle() {
         } else {
             f.operator
         };
-        f.call(actor, Command::FixtureLifecycle(command)).unwrap();
+        f.call(actor, Command::FixtureLifecycle(command))
+            .await
+            .unwrap();
     }
-    f.restart();
-    let settled = read(&f, f.project, input).unwrap().unwrap();
+    f.restart().await;
+    let settled = read(&f, f.project, input).await.unwrap().unwrap();
     assert_eq!(settled.content.state, ContentState::Settled);
     assert_eq!(settled.headers, first.headers);
 }

@@ -4,6 +4,48 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.73.0]
+
+### 💥 Breaking
+
+- Align the pending family with Contracts 0.73's removal of the external
+  certificate reply's unused Wire metadata implementation. Public contract
+  consumers select the same Contracts cohort; Caffeine Candid bytes, endpoint
+  names, application Wire frames and saved records are unchanged.
+  [#117](https://github.com/dragginzgame/ic-blob-storage/issues/117).
+
+### 🔧 Changed
+
+- Adopt Testkit 0.87's async-only native client. Await fixture installation,
+  calls, callbacks and recovery checks on caller-owned runtimes; keep isolated
+  server custody and remove the older native Platform facade from the graph.
+- Adopt published Host Tools 0.83 for native deployment-interface inspection;
+  its removed certificate codec has no local caller. Preserve the existing
+  Platform-owned certificate boundary and installed-test interface contract.
+- Compact the evidence diaries and retire superseded per-run reports. Keep
+  benchmark conclusions and exact historical citations; preserve provider,
+  recovery and maintained fixture provenance under their existing owners.
+- Adopt committed Shared Tooling 0.30.4: enforce the Candid source boundary
+  through the existing Platform check, with exact external-protocol declarations;
+  retain the Bash 3.2 LOC fix and bounded experimental-evidence guidance.
+  Correct undated release-candidate
+  projection, default formatting/LOC scratch to its consumer, and refresh LOC
+  presentation and command help. Classification diagnostics remain in JSON.
+- Select the compatible Storage 0.67.1 patch, preserving the supported minimum,
+  stored formats and allocation behavior.
+- Adopt published Platform 0.23.0's native IC protocol codecs and remove the
+  direct CBOR dependency and temporary test exception. Preserve untagged
+  certificate bytes, bounded decoding, original request IDs and ingress
+  forgery/refusal/recovery checks; application DTOs remain Wire.
+  [Platform #143](https://github.com/dragginzgame/ic-platform/issues/143).
+- Select the compatible Foundation/Build 0.74.4 patches with Platform 0.23.
+
+### 🧪 Testing
+
+- Align opt-in browser consumer checks with trusted registration: publication
+  records retention intent, cancellation clears publication, and withdrawal
+  preserves the first reference and provider-byte liabilities.
+
 ## [0.72.2] - 2026-11-05
 
 ### 🔧 Changed

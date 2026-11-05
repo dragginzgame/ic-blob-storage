@@ -34,7 +34,7 @@ impl Directory {
     }
 }
 
-fn args(
+async fn args(
     fixture: &Fixture,
     directory: &Path,
     url: &str,
@@ -45,7 +45,7 @@ fn args(
     std::fs::write(directory.join("uploader.pem"), OUTSIDER_PEM).unwrap();
     std::fs::write(
         directory.join("root.der"),
-        fixture.harness.pic.root_key().unwrap().unwrap(),
+        fixture.harness.pic.root_key().await.unwrap().unwrap(),
     )
     .unwrap();
     let mut args = [
@@ -124,17 +124,18 @@ fn plan(
     })
     .collect()
 }
-fn live(fixture: &mut Fixture) -> String {
+async fn live(fixture: &mut Fixture) -> String {
     fixture
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string()
 }
 
-fn batch_args(fixture: &Fixture, directory: &Path, url: &str) -> Vec<String> {
-    let mut args = args(fixture, directory, url, false, "original");
+async fn batch_args(fixture: &Fixture, directory: &Path, url: &str) -> Vec<String> {
+    let mut args = args(fixture, directory, url, false, "original").await;
     args[0] = "publish-prepare-batch".into();
     let index = args.iter().position(|a| a == "--file-index").unwrap();
     args.drain(index..=index + 1);
@@ -174,15 +175,16 @@ fn batch_plan(
         .collect()
 }
 
-#[test]
-fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both_manifests() {
-    let mut fixture = crate::standalone_publish_check::setup_batch();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both_manifests() {
+    let mut fixture = crate::standalone_publish_check::setup_batch().await;
     let directory = Directory::new("batch-prepared-");
     let permissions =
-        crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048]);
-    let backend = live(&mut fixture);
+        crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048])
+            .await;
+    let backend = live(&mut fixture).await;
     let proxy = Proxy::sequence(backend, batch_plan(&fixture, directory.path(), None));
-    let args = batch_args(&fixture, directory.path(), &proxy.url);
+    let args = batch_args(&fixture, directory.path(), &proxy.url).await;
     let report = run(&args, 0);
     assert_eq!(report["all_files_prepared"], true);
     assert_eq!(proxy.calls(), 4);
@@ -192,7 +194,7 @@ fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both_manif
             permission.upload.upload.to_string()
         );
         assert_eq!(
-            fixture.admission(permission).state,
+            fixture.admission(permission).await.state,
             ic_blob_storage_contracts::dto::upload::UploadState::Reserved
         );
         assert!(
@@ -206,23 +208,24 @@ fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both_manif
     }
     assert_eq!(run(&args, 3)["error"], "new_run_required");
     assert_eq!(proxy.calls(), 4);
-    fixture.harness.pic.stop_live().unwrap();
+    fixture.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
-fn standalone_batch_prepare_stops_after_lost_ack_and_recovers_only_original_file() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_batch_prepare_stops_after_lost_ack_and_recovers_only_original_file() {
     for lost in 0..2 {
-        let mut fixture = crate::standalone_publish_check::setup_batch();
+        let mut fixture = crate::standalone_publish_check::setup_batch().await;
         let directory = Directory::new("batch-lost-");
-        crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048]);
-        let backend = live(&mut fixture);
+        crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048])
+            .await;
+        let backend = live(&mut fixture).await;
         let proxy = Proxy::sequence(backend, batch_plan(&fixture, directory.path(), Some(lost)));
         assert_eq!(
-            run(&batch_args(&fixture, directory.path(), &proxy.url), 3)["error"],
+            run(&batch_args(&fixture, directory.path(), &proxy.url).await, 3)["error"],
             "transport"
         );
         assert!(!directory.path().join("original/file-0001").exists());
-        let mut recovery = args(&fixture, directory.path(), &proxy.url, true, "recovery");
+        let mut recovery = args(&fixture, directory.path(), &proxy.url, true, "recovery").await;
         let source = recovery.iter().position(|a| a == "--source-run").unwrap();
         recovery[source + 1] = directory
             .path()
@@ -236,15 +239,15 @@ fn standalone_batch_prepare_stops_after_lost_ack_and_recovers_only_original_file
         assert_eq!(run(&recovery, 0)["prepared"], true);
         assert_eq!(proxy.calls(), 2);
         assert!(!directory.path().join("original/file-0001").exists());
-        fixture.harness.pic.stop_live().unwrap();
+        fixture.harness.pic.stop_live().await.unwrap();
     }
 }
 
-#[test]
-fn standalone_batch_prepare_rejects_corrupt_later_body_before_any_setup_claim() {
-    let fixture = crate::standalone_publish_check::setup_batch();
+#[tokio::test(flavor = "multi_thread")]
+async fn standalone_batch_prepare_rejects_corrupt_later_body_before_any_setup_claim() {
+    let fixture = crate::standalone_publish_check::setup_batch().await;
     let directory = Directory::new("batch-corrupt-");
-    crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048]);
+    crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048]).await;
     std::fs::write(
         directory.path().join("batch/file-0001/body.bin"),
         vec![41; 2048],
@@ -252,23 +255,23 @@ fn standalone_batch_prepare_rejects_corrupt_later_body_before_any_setup_claim() 
     .unwrap();
     assert_eq!(
         run(
-            &batch_args(&fixture, directory.path(), "http://127.0.0.1:1"),
+            &batch_args(&fixture, directory.path(), "http://127.0.0.1:1").await,
             3
         )["error"],
         "content_mismatch"
     );
     assert!(!directory.path().join("original").exists());
 }
-#[test]
-fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_recovery_never_redispatches()
-{
-    let mut fixture = setup();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_recovery_never_redispatches()
+ {
+    let mut fixture = setup().await;
     let directory = Directory::new("acknowledged-");
-    let permission = freeze(&fixture, directory.path());
-    let backend = live(&mut fixture);
+    let permission = freeze(&fixture, directory.path()).await;
+    let backend = live(&mut fixture).await;
     let proxy = Proxy::sequence(backend, plan(&fixture, directory.path(), [Reply::Pass; 2]));
     let report = run(
-        &args(&fixture, directory.path(), &proxy.url, false, "original"),
+        &args(&fixture, directory.path(), &proxy.url, false, "original").await,
         0,
     );
     assert_eq!(report["state"], "prepared");
@@ -289,14 +292,14 @@ fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_recovery_n
     )
     .unwrap();
     let resumed = run(
-        &args(&fixture, directory.path(), &proxy.url, true, "recovered"),
+        &args(&fixture, directory.path(), &proxy.url, true, "recovered").await,
         0,
     );
     assert_eq!(resumed["state"], "prepared");
     assert_eq!(resumed["service_updates_this_run"], 0);
     assert_eq!(proxy.calls(), 2);
     assert_eq!(
-        fixture.admission(permission).state,
+        fixture.admission(permission).await.state,
         ic_blob_storage_contracts::dto::upload::UploadState::Reserved
     );
     assert_eq!(
@@ -310,31 +313,31 @@ fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_recovery_n
     );
     assert_eq!(
         run(
-            &args(&fixture, directory.path(), &proxy.url, false, "original"),
+            &args(&fixture, directory.path(), &proxy.url, false, "original").await,
             3
         )["error"],
         "new_run_required"
     );
-    fixture.harness.pic.stop_live().unwrap();
+    fixture.harness.pic.stop_live().await.unwrap();
 }
-#[test]
-fn standalone_indexed_prepare_recovers_lost_admission_and_preparation_responses_without_resubmission()
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_indexed_prepare_recovers_lost_admission_and_preparation_responses_without_resubmission()
  {
     for lost_stage in 0..2 {
-        let mut fixture = setup();
+        let mut fixture = setup().await;
         let directory = Directory::new(if lost_stage == 0 {
             "lost-admission-"
         } else {
             "lost-preparation-"
         });
-        freeze(&fixture, directory.path());
-        let backend = live(&mut fixture);
+        freeze(&fixture, directory.path()).await;
+        let backend = live(&mut fixture).await;
         let mut replies = [Reply::Pass; 2];
         replies[lost_stage] = Reply::Drop;
         let proxy = Proxy::sequence(backend, plan(&fixture, directory.path(), replies));
         assert_eq!(
             run(
-                &args(&fixture, directory.path(), &proxy.url, false, "original"),
+                &args(&fixture, directory.path(), &proxy.url, false, "original").await,
                 3
             )["error"],
             "transport"
@@ -349,7 +352,7 @@ fn standalone_indexed_prepare_recovers_lost_admission_and_preparation_responses_
             "uncertain"
         );
         let resumed = run(
-            &args(&fixture, directory.path(), &proxy.url, true, "recovered"),
+            &args(&fixture, directory.path(), &proxy.url, true, "recovered").await,
             0,
         );
         assert_eq!(resumed["state"], "prepared");
@@ -366,22 +369,23 @@ fn standalone_indexed_prepare_recovers_lost_admission_and_preparation_responses_
                     &proxy.url,
                     true,
                     "recovered-again"
-                ),
+                )
+                .await,
                 0
             )["service_updates_this_run"],
             0
         );
         assert_eq!(proxy.calls(), 2);
-        fixture.harness.pic.stop_live().unwrap();
+        fixture.harness.pic.stop_live().await.unwrap();
     }
 }
-#[test]
-fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_permission() {
-    let mut fixture = setup();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_permission() {
+    let mut fixture = setup().await;
     let directory = Directory::new("refusals-");
-    let permission = freeze(&fixture, directory.path());
-    let url = live(&mut fixture);
-    let mut wrong = args(&fixture, directory.path(), &url, false, "wrong");
+    let permission = freeze(&fixture, directory.path()).await;
+    let url = live(&mut fixture).await;
+    let mut wrong = args(&fixture, directory.path(), &url, false, "wrong").await;
     let flag = wrong
         .iter()
         .position(|s| s == "--uploader-identity")
@@ -391,7 +395,7 @@ fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_p
     assert!(!directory.path().join("wrong").exists());
     assert_eq!(
         run(
-            &args(&fixture, directory.path(), &url, false, "original"),
+            &args(&fixture, directory.path(), &url, false, "original").await,
             0
         )["state"],
         "prepared"
@@ -402,7 +406,10 @@ fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_p
     changed["actor"] = json!(fixture.uploader.to_text());
     std::fs::write(&intent_path, changed.to_string()).unwrap();
     assert_eq!(
-        run(&args(&fixture, directory.path(), &url, true, "tampered"), 3)["error"],
+        run(
+            &args(&fixture, directory.path(), &url, true, "tampered").await,
+            3
+        )["error"],
         "binding"
     );
     assert!(!directory.path().join("tampered").exists());
@@ -417,30 +424,31 @@ fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withdrawn_p
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
     let blocked = run(
-        &args(&fixture, directory.path(), &url, true, "withdrawn"),
+        &args(&fixture, directory.path(), &url, true, "withdrawn").await,
         0,
     );
     assert_eq!(blocked["state"], "blocked");
     assert_eq!(blocked["service_updates_this_run"], 0);
-    fixture.harness.pic.stop_live().unwrap();
+    fixture.harness.pic.stop_live().await.unwrap();
 }
 
-#[test]
-fn standalone_indexed_prepare_partial_preparation_claim_never_allows_an_update() {
-    let mut fixture = setup();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_indexed_prepare_partial_preparation_claim_never_allows_an_update() {
+    let mut fixture = setup().await;
     let directory = Directory::new("partial-claim-");
-    freeze(&fixture, directory.path());
-    let backend = live(&mut fixture);
+    freeze(&fixture, directory.path()).await;
+    let backend = live(&mut fixture).await;
     let proxy = Proxy::sequence(
         backend,
         plan(&fixture, directory.path(), [Reply::Drop, Reply::Pass]),
     );
     assert_eq!(
         run(
-            &args(&fixture, directory.path(), &proxy.url, false, "original"),
+            &args(&fixture, directory.path(), &proxy.url, false, "original").await,
             3
         )["error"],
         "transport"
@@ -448,7 +456,7 @@ fn standalone_indexed_prepare_partial_preparation_claim_never_allows_an_update()
     std::fs::create_dir(directory.path().join("original/preparation")).unwrap();
     assert_eq!(
         run(
-            &args(&fixture, directory.path(), &proxy.url, true, "partial"),
+            &args(&fixture, directory.path(), &proxy.url, true, "partial").await,
             3
         )["error"],
         "file"
@@ -460,5 +468,5 @@ fn standalone_indexed_prepare_partial_preparation_claim_never_allows_an_update()
     )
     .unwrap();
     assert_eq!(failure["redispatch_authorized"], false);
-    fixture.harness.pic.stop_live().unwrap();
+    fixture.harness.pic.stop_live().await.unwrap();
 }

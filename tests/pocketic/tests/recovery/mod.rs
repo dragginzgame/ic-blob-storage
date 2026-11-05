@@ -11,7 +11,7 @@ use std::{num::NonZeroUsize, time::Duration};
 const CHUNK: usize = 1024 * 1024;
 
 impl Fixture {
-    fn restore(&self, canister: Principal) {
+    async fn restore(&self, canister: Principal) {
         let wasm = self.wasm(canister);
         let args =
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap();
@@ -31,6 +31,7 @@ impl Fixture {
                     )
                 },
             )
+            .await
             .expect("same-release fenced fixture restore");
     }
 
@@ -38,11 +39,13 @@ impl Fixture {
         (canister == self.service).then_some(self.operator)
     }
 
-    fn restart(&self, canister: Principal) {
+    async fn restart(&self, canister: Principal) {
         let pic = &self.harness.pic;
         pic.stop_canister(canister, self.controller(canister))
+            .await
             .expect("stop current instance");
         pic.start_canister(canister, self.controller(canister))
+            .await
             .expect("start current instance");
     }
 
@@ -55,7 +58,7 @@ impl Fixture {
         .expect("fixture Wasm")
     }
 
-    fn reject_upgrade(&self, canister: Principal) {
+    async fn reject_upgrade(&self, canister: Principal) {
         let rejected = self
             .harness
             .pic
@@ -66,6 +69,7 @@ impl Fixture {
                     .expect("no args"),
                 self.controller(canister),
             )
+            .await
             .expect_err("busy or invalid restoration must reject atomically");
         assert_eq!(
             crate::canister_rejection(&rejected).reject_code,
@@ -73,16 +77,20 @@ impl Fixture {
         );
     }
 
-    fn upgrade_skipping_outgoing_hook(&self, canister: Principal, succeeds: bool) {
+    async fn upgrade_skipping_outgoing_hook(&self, canister: Principal, succeeds: bool) {
         let pic = &self.harness.pic;
         let wasm = self.wasm(canister);
-        let hashes: Vec<_> = wasm
-            .chunks(CHUNK)
-            .map(|bytes| {
-                pic.upload_chunk(canister, self.controller(canister), bytes.to_vec())
-                    .expect("local Wasm chunk")
-            })
-            .collect();
+        let hashes: Vec<_> = {
+            let mut values = Vec::new();
+            for bytes in wasm.chunks(CHUNK) {
+                values.push({
+                    pic.upload_chunk(canister, self.controller(canister), bytes.to_vec())
+                        .await
+                        .expect("local Wasm chunk")
+                });
+            }
+            values
+        };
         #[expect(
             clippy::default_trait_access,
             reason = "PocketIC does not reexport UpgradeFlags; infer its own management DTO type"
@@ -92,16 +100,18 @@ impl Fixture {
             unreachable!("upgrade flags")
         };
         flags.skip_pre_upgrade = Some(true);
-        let result = pic.install_chunked_canister(
-            canister,
-            self.controller(canister),
-            mode,
-            canister,
-            hashes,
-            Sha256::digest(&wasm).to_vec(),
-            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ())
-                .expect("no args"),
-        );
+        let result = pic
+            .install_chunked_canister(
+                canister,
+                self.controller(canister),
+                mode,
+                canister,
+                hashes,
+                Sha256::digest(&wasm).to_vec(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ())
+                    .expect("no args"),
+            )
+            .await;
         if succeeds {
             result.expect("journal restores synchronously with outgoing hook skipped");
         } else {
@@ -113,186 +123,217 @@ impl Fixture {
     }
 }
 
-#[test]
-fn stop_start_retains_verified_prefix_exposure_and_unchanged_accounting() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn stop_start_retains_verified_prefix_exposure_and_unchanged_accounting() {
+    let f = Fixture::new().await;
     let partial = content_vectors::vector("pattern-1048577", 1);
     let exposed = content_vectors::vector("abc-text", 1);
     assert_eq!(
-        f.reserve_manifest(f.first, partial.upload, partial.manifest.clone()),
+        f.reserve_manifest(f.first, partial.upload, partial.manifest.clone())
+            .await,
         Ok(())
     );
     assert_eq!(
-        f.append(f.first, partial.upload, 0, &partial.bytes[..CHUNK]),
+        f.append(f.first, partial.upload, 0, &partial.bytes[..CHUNK])
+            .await,
         Ok(())
     );
     assert_eq!(
-        f.reserve_manifest(f.second, exposed.upload, exposed.manifest),
+        f.reserve_manifest(f.second, exposed.upload, exposed.manifest)
+            .await,
         Ok(())
     );
     assert_eq!(
-        f.append(f.second, exposed.upload, 0, &exposed.bytes),
+        f.append(f.second, exposed.upload, 0, &exposed.bytes).await,
         Ok(())
     );
     f.certificate(f.second, exposed.upload.root)
+        .await
         .expect("authority issued before stop");
-    let prefix = f.progress(f.first, partial.upload);
-    let first_usage = f.usage(f.first);
-    let second_usage = f.usage(f.second);
-    f.restart(f.service);
-    f.restart(f.gateway);
+    let prefix = f.progress(f.first, partial.upload).await;
+    let first_usage = f.usage(f.first).await;
+    let second_usage = f.usage(f.second).await;
+    f.restart(f.service).await;
+    f.restart(f.gateway).await;
     f.harness
         .pic
         .advance_time(Duration::from_secs(3600))
+        .await
         .unwrap();
-    assert_eq!(f.progress(f.first, partial.upload), prefix);
-    assert_eq!(f.usage(f.first), first_usage);
-    assert_eq!(f.usage(f.second), second_usage);
+    assert_eq!(f.progress(f.first, partial.upload).await, prefix);
+    assert_eq!(f.usage(f.first).await, first_usage);
+    assert_eq!(f.usage(f.second).await, second_usage);
     assert_eq!(
-        f.certificate(f.second, exposed.upload.root),
+        f.certificate(f.second, exposed.upload.root).await,
         Err(RejectCode::CanisterError)
     );
     assert_eq!(
-        f.control(f.second, "journey_cancel", exposed.upload),
+        f.control(f.second, "journey_cancel", exposed.upload).await,
         Err(JourneyFailure::InvalidPhase)
     );
     assert_eq!(
-        f.append(f.first, partial.upload, 0, &partial.bytes[..CHUNK]),
+        f.append(f.first, partial.upload, 0, &partial.bytes[..CHUNK])
+            .await,
         Ok(())
     );
-    assert_eq!(f.progress(f.first, partial.upload), prefix);
+    assert_eq!(f.progress(f.first, partial.upload).await, prefix);
     assert_eq!(
-        f.append(f.first, partial.upload, 1, &partial.bytes[CHUNK..]),
+        f.append(f.first, partial.upload, 1, &partial.bytes[CHUNK..])
+            .await,
         Ok(())
     );
     f.certificate(f.first, partial.upload.root)
+        .await
         .expect("continued prefix");
-    assert_eq!(f.usage(f.first), first_usage);
-    assert_eq!(f.usage(f.second), second_usage);
+    assert_eq!(f.usage(f.first).await, first_usage);
+    assert_eq!(f.usage(f.second).await, second_usage);
     f.source_config(
         partial.upload,
         1,
         &partial.bytes[CHUNK..],
         ReadSourceMode::Valid,
         false,
-    );
+    )
+    .await;
     assert_eq!(
         f.read_chunk(f.first, partial.upload, 1)
+            .await
             .expect("read after restart")
             .bytes,
         partial.bytes[CHUNK..]
     );
 }
 
-#[test]
-fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn upgrade_retains_uncertain_roots_cancelled_history_and_continuing_billing() {
+    let f = Fixture::new().await;
     let deleted = content_vectors::vector("abc-binary", 1);
-    f.confirm_bytes(&deleted);
+    f.confirm_bytes(&deleted).await;
     assert_eq!(
-        f.root_control(f.first, "journey_release", deleted.upload.root),
+        f.root_control(f.first, "journey_release", deleted.upload.root)
+            .await,
         Ok(())
     );
-    assert_eq!(f.delete(vec![root(deleted.upload.root)]), Ok(()));
+    assert_eq!(f.delete(vec![root(deleted.upload.root)]).await, Ok(()));
     let exposed = content_vectors::vector("abc-text", 2);
     assert_eq!(
-        f.reserve_manifest(f.first, exposed.upload, exposed.manifest.clone()),
+        f.reserve_manifest(f.first, exposed.upload, exposed.manifest.clone())
+            .await,
         Ok(())
     );
-    assert_eq!(f.append(f.first, exposed.upload, 0, &exposed.bytes), Ok(()));
+    assert_eq!(
+        f.append(f.first, exposed.upload, 0, &exposed.bytes).await,
+        Ok(())
+    );
     f.certificate(f.first, exposed.upload.root)
+        .await
         .expect("uncertain upload");
     let cancelled = upload(3, b"q");
-    assert_eq!(f.reserve(f.first, cancelled, b"q"), Ok(()));
-    assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 6)));
-    f.restart(f.service);
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 6)));
+    assert_eq!(f.reserve(f.first, cancelled, b"q").await, Ok(()));
     assert_eq!(
-        f.reserve_manifest(f.first, exposed.upload, exposed.manifest.clone()),
+        f.control(f.first, "journey_cancel", cancelled).await,
+        Ok(())
+    );
+    assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 6)));
+    f.restart(f.service).await;
+    assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 6)));
+    assert_eq!(
+        f.reserve_manifest(f.first, exposed.upload, exposed.manifest.clone())
+            .await,
         Ok(())
     );
     assert_eq!(
-        f.certificate(f.first, exposed.upload.root),
+        f.certificate(f.first, exposed.upload.root).await,
         Err(RejectCode::CanisterError)
     );
     assert_eq!(
-        f.control(f.first, "journey_cancel", exposed.upload),
+        f.control(f.first, "journey_cancel", exposed.upload).await,
         Err(JourneyFailure::InvalidPhase)
     );
     assert_eq!(
-        f.reserve(f.first, JourneyUpload { id: 4, ..cancelled }, b"q"),
+        f.reserve(f.first, JourneyUpload { id: 4, ..cancelled }, b"q")
+            .await,
         Err(JourneyFailure::Conflict)
     );
-    assert_eq!(f.control(f.first, "journey_cancel", cancelled), Ok(()));
     assert_eq!(
-        f.root_control(f.operator, "journey_settle", deleted.upload.root),
+        f.control(f.first, "journey_cancel", cancelled).await,
         Ok(())
     );
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
+    assert_eq!(
+        f.root_control(f.operator, "journey_settle", deleted.upload.root)
+            .await,
+        Ok(())
+    );
+    assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 3)));
     f.source_config(
         exposed.upload,
         0,
         &exposed.bytes,
         ReadSourceMode::Valid,
         false,
-    );
+    )
+    .await;
     assert_eq!(
         f.read_chunk(f.first, exposed.upload, 0)
+            .await
             .expect("old instance still usable")
             .bytes,
         exposed.bytes
     );
-    let mut retained = f.archive();
-    f.restore(f.service);
+    let mut retained = f.archive().await;
+    f.restore(f.service).await;
     retained.fenced = true;
-    assert_eq!(f.archive(), retained);
-    f.assert_authority_fenced(exposed.upload);
+    assert_eq!(f.archive().await, retained);
+    f.assert_authority_fenced(exposed.upload).await;
 }
 
-#[test]
-fn skipping_pre_upgrade_restores_only_fenced_inspection() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread")]
+async fn skipping_pre_upgrade_restores_only_fenced_inspection() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("abc-text", 1);
-    f.confirm_bytes(&v);
-    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
-    let mut retained = f.archive();
-    f.upgrade_skipping_outgoing_hook(f.service, true);
+    f.confirm_bytes(&v).await;
+    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false)
+        .await;
+    let mut retained = f.archive().await;
+    f.upgrade_skipping_outgoing_hook(f.service, true).await;
     retained.fenced = true;
-    assert_eq!(f.archive(), retained);
-    f.assert_authority_fenced(v.upload);
+    assert_eq!(f.archive().await, retained);
+    f.assert_authority_fenced(v.upload).await;
 }
 
-#[test]
-fn rejected_upgrades_preserve_the_held_read_and_its_release_race() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread")]
+async fn rejected_upgrades_preserve_the_held_read_and_its_release_race() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("abc-text", 1);
-    f.confirm_bytes(&v);
-    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
-    let id = f.hold_read(v.upload);
+    f.confirm_bytes(&v).await;
+    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true)
+        .await;
+    let id = f.hold_read(v.upload).await;
     for canister in [f.service, f.gateway] {
-        f.reject_upgrade(canister);
+        f.reject_upgrade(canister).await;
         assert_eq!(
-            f.read_chunk(f.first, v.upload, 0),
+            f.read_chunk(f.first, v.upload, 0).await,
             Err(JourneyFailure::ReadInProgress)
         );
-        assert_eq!(f.source_observation().requests, 1);
-        assert!(f.source_observation().waiting);
+        assert_eq!(f.source_observation().await.requests, 1);
+        assert!(f.source_observation().await.waiting);
     }
     assert_eq!(
-        f.root_control(f.first, "journey_release", v.upload.root),
+        f.root_control(f.first, "journey_release", v.upload.root)
+            .await,
         Ok(())
     );
-    assert_eq!(f.resume_read(id), Err(JourneyFailure::InvalidPhase));
-    assert_eq!(f.usage(f.first), Ok(usage(0, 3, 3)));
+    assert_eq!(f.resume_read(id).await, Err(JourneyFailure::InvalidPhase));
+    assert_eq!(f.usage(f.first).await, Ok(usage(0, 3, 3)));
 }
 
-#[test]
-fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("abc-text", 1);
-    f.confirm_bytes(&v);
-    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
+    f.confirm_bytes(&v).await;
+    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false)
+        .await;
     for caller in [
         f.first,
         f.second,
@@ -307,6 +348,7 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
             "journey_arm_read_callback_trap",
             (root(v.upload.root),),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("fault control");
         assert_eq!(armed, caller == f.operator);
@@ -324,33 +366,36 @@ fn callback_trap_rolls_back_slot_release_and_stop_start_cannot_clear_it() {
             )
             .expect("read args"),
         )
+        .await
         .expect_err("actual callback trap");
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.source_observation().requests, 1);
-    assert!(!f.source_observation().waiting);
-    assert_eq!(f.read_resources(f.operator), Ok(None));
+    assert_eq!(f.source_observation().await.requests, 1);
+    assert!(!f.source_observation().await.waiting);
+    assert_eq!(f.read_resources(f.operator).await, Ok(None));
     assert_eq!(
-        f.read_chunk(f.first, v.upload, 0),
+        f.read_chunk(f.first, v.upload, 0).await,
         Err(JourneyFailure::ReadInProgress)
     );
-    f.reject_upgrade(f.service);
-    f.restart(f.service);
+    f.reject_upgrade(f.service).await;
+    f.restart(f.service).await;
     f.harness
         .pic
         .advance_time(Duration::from_hours(24))
+        .await
         .unwrap();
     assert_eq!(
-        f.read_chunk(f.first, v.upload, 0),
+        f.read_chunk(f.first, v.upload, 0).await,
         Err(JourneyFailure::ReadInProgress)
     );
-    assert_eq!(f.source_observation().requests, 1);
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
+    assert_eq!(f.source_observation().await.requests, 1);
+    assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 3)));
     assert_eq!(
-        f.root_control(f.first, "journey_release", v.upload.root),
+        f.root_control(f.first, "journey_release", v.upload.root)
+            .await,
         Ok(())
     );
-    assert_eq!(f.usage(f.first), Ok(usage(0, 3, 3)));
+    assert_eq!(f.usage(f.first).await, Ok(usage(0, 3, 3)));
 }

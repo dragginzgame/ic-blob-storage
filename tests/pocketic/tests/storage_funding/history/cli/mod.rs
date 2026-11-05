@@ -21,11 +21,12 @@ fn exact(args: &[String], intent: Intent) -> Vec<String> {
     args
 }
 
-fn unchanged(f: &Fixture, before: &[u8]) {
+async fn unchanged(f: &Fixture, before: &[u8]) {
     assert!(
         f.harness
             .pic
             .get_stable_memory(f.service)
+            .await
             .unwrap()
             .iter()
             .eq(before.iter())
@@ -83,41 +84,56 @@ fn outcomes(f: &Fixture, args: &[String], uncertain: Intent, first: &Value) -> V
     observed
 }
 
-#[test]
-fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_restore() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One signed CLI journey retains its cursor and exact funding outcomes through restore"
+)]
+async fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_restore() {
     let mut f = Fixture::with_operator(
         Harness::with_builder(
             PocketIcBuilder::new()
                 .with_nns_subnet()
                 .with_application_subnet(),
-        ),
+        )
+        .await,
         BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap(),
-    );
+    )
+    .await;
     for (id, action) in [
         (1, Action::NotEnqueued),
         (u128::MAX - 1, Action::Callback(10)),
     ] {
         let intent = f.funding_intent(id, 20);
-        f.funding(f.operator, intent, Action::Prepare).unwrap();
-        f.funding(f.operator, intent, Action::Attempt).unwrap();
-        f.funding(f.operator, intent, action).unwrap();
+        f.funding(f.operator, intent, Action::Prepare)
+            .await
+            .unwrap();
+        f.funding(f.operator, intent, Action::Attempt)
+            .await
+            .unwrap();
+        f.funding(f.operator, intent, action).await.unwrap();
     }
     let uncertain = Intent {
         target_balance: Some(u128::MAX),
         ..f.funding_intent(u128::MAX, 30)
     };
-    f.funding(f.operator, uncertain, Action::Prepare).unwrap();
-    f.funding(f.operator, uncertain, Action::Attempt).unwrap();
+    f.funding(f.operator, uncertain, Action::Prepare)
+        .await
+        .unwrap();
+    f.funding(f.operator, uncertain, Action::Attempt)
+        .await
+        .unwrap();
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let key = dir.path().join("key.pem");
     let root = dir.path().join("root.der");
     let cursor = dir.path().join("cursor.json");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
     let args = arguments(
@@ -128,7 +144,7 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
         &key,
         &root,
     );
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let first = run(&args, 0);
     assert_eq!(first["entries"][0]["operation"], u128::MAX.to_string());
     assert_eq!(first["entries"][0]["phase"]["state"], "uncertain");
@@ -146,8 +162,8 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
     assert_eq!(last["entries"][0]["phase"]["state"], "not_enqueued");
     assert_eq!(last["next"], Value::Null);
     let observed = outcomes(&f, &args, uncertain, &first);
-    unchanged(&f, &before);
-    f.harness.pic.stop_live().unwrap();
+    unchanged(&f, &before).await;
+    f.harness.pic.stop_live().await.unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -156,12 +172,14 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
     let index = tail.iter().position(|s| s == "--url").unwrap();
@@ -177,7 +195,7 @@ fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_re
     expected["url"] = exact_args[index + 1].clone().into();
     expected["record"]["fenced"] = true.into();
     assert_eq!(run(&exact_args, 0), expected);
-    unchanged(&f, &before);
-    assert_eq!(f.funding_allocation().uncertain, 30);
-    f.harness.pic.stop_live().unwrap();
+    unchanged(&f, &before).await;
+    assert_eq!(f.funding_allocation().await.uncertain, 30);
+    f.harness.pic.stop_live().await.unwrap();
 }

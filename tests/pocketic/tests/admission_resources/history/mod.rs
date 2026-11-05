@@ -1,8 +1,8 @@
 //! Saturated cancelled history: identity slots remain occupied while bytes release.
 use super::*;
 
-fn permission(f: &Fixture, tenant: Principal, id: u128) -> Permission {
-    let mut input = f.permission(&vectors::vector("abc-text", 1));
+async fn permission(f: &Fixture, tenant: Principal, id: u128) -> Permission {
+    let mut input = f.permission(&vectors::vector("abc-text", 1)).await;
     input.request.tenant = tenant;
     input.request.id = id;
     // Synthetic roots are sufficient for admission/cancellation; never prepare
@@ -12,10 +12,10 @@ fn permission(f: &Fixture, tenant: Principal, id: u128) -> Permission {
     input
 }
 
-#[test]
-fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() {
-    let f = Fixture::with_workload(Workload::RetainedHistory);
-    f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() {
+    let f = Fixture::with_workload(Workload::RetainedHistory).await;
+    f.enroll().await;
     assert_eq!(
         f.call(
             f.operator,
@@ -24,7 +24,8 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
                 expected: None,
                 active: true
             }
-        ),
+        )
+        .await,
         Ok(Outcome::Enrolled(Enrollment {
             generation: 1,
             active: true
@@ -32,28 +33,34 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
     );
     for id in 1..256 {
         let tenant = if id <= 128 { f.project } else { f.other };
-        let input = permission(&f, tenant, id);
-        assert_eq!(f.call(tenant, Command::Admit(input)), Ok(Outcome::Admitted));
+        let input = permission(&f, tenant, id).await;
         assert_eq!(
-            f.call(tenant, Command::Revoke(input.request)),
+            f.call(tenant, Command::Admit(input)).await,
+            Ok(Outcome::Admitted)
+        );
+        assert_eq!(
+            f.call(tenant, Command::Revoke(input.request)).await,
             Ok(Outcome::Changed(true))
         );
     }
     let vector = vectors::vector("abc-text", 1);
-    let mut last = f.permission(&vector);
+    let mut last = f.permission(&vector).await;
     last.request.id = 256;
     last.request.tenant = f.other;
-    assert_eq!(f.call(f.other, Command::Admit(last)), Ok(Outcome::Admitted));
-    let original = f.inspect(f.other, last.request).unwrap();
     assert_eq!(
-        f.call(f.uploader, Command::Expose(last.request.root)),
+        f.call(f.other, Command::Admit(last)).await,
+        Ok(Outcome::Admitted)
+    );
+    let original = f.inspect(f.other, last.request).await.unwrap();
+    assert_eq!(
+        f.call(f.uploader, Command::Expose(last.request.root)).await,
         Err(Failure::Exposure(ExposureFailure::Unprepared))
     );
-    f.prepare(last, &vector);
-    f.restart();
+    f.prepare(last, &vector).await;
+    f.restart().await;
     for caller in [f.project, f.other, f.operator, f.controller] {
         assert_eq!(
-            f.call(caller, Command::Expose(last.request.root)),
+            f.call(caller, Command::Expose(last.request.root)).await,
             Err(Failure::Exposure(ExposureFailure::Permission(
                 AdmissionFailure::Denied
             )))
@@ -62,41 +69,43 @@ fn resource_root_lookup_at_capacity_keeps_exact_last_permission_and_authority() 
     assert_eq!(
         f.call(
             f.uploader,
-            Command::Expose(permission(&f, f.project, 1).request.root)
-        ),
+            Command::Expose(permission(&f, f.project, 1).await.request.root)
+        )
+        .await,
         Err(Failure::Exposure(ExposureFailure::Revoked))
     );
-    let unknown = permission(&f, f.other, 1000);
+    let unknown = permission(&f, f.other, 1000).await;
     assert_eq!(
-        f.call(f.other, Command::Admit(unknown)),
+        f.call(f.other, Command::Admit(unknown)).await,
         Err(Failure::TenantManifestCapacity)
     );
     assert_eq!(
-        f.call(f.uploader, Command::Expose(unknown.request.root)),
+        f.call(f.uploader, Command::Expose(unknown.request.root))
+            .await,
         Err(Failure::Exposure(ExposureFailure::Permission(
             AdmissionFailure::Denied
         )))
     );
     assert_eq!(
-        f.call(f.uploader, Command::Expose(last.request.root)),
+        f.call(f.uploader, Command::Expose(last.request.root)).await,
         Ok(Outcome::Exposed)
     );
-    assert!(f.sample(f.uploader).after_work < 5_000_000);
-    let exposed = f.inspect(f.other, last.request).unwrap();
+    assert!(f.sample(f.uploader).await.after_work < 5_000_000);
+    let exposed = f.inspect(f.other, last.request).await.unwrap();
     assert_eq!(exposed.permission, last);
     assert_eq!(exposed.phase, Phase::Registered);
     assert_eq!(exposed.usage, original.usage);
     assert_eq!(
-        f.call(f.uploader, Command::Expose(last.request.root)),
+        f.call(f.uploader, Command::Expose(last.request.root)).await,
         Err(Failure::Exposure(ExposureFailure::Phase))
     );
-    assert_eq!(f.inspect(f.other, last.request).unwrap(), exposed);
+    assert_eq!(f.inspect(f.other, last.request).await.unwrap(), exposed);
 }
 
-#[test]
-fn resource_history_saturation_keeps_retries_cleanup_and_other_tenant_available() {
-    let f = Fixture::with_workload(Workload::RetainedHistory);
-    f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn resource_history_saturation_keeps_retries_cleanup_and_other_tenant_available() {
+    let f = Fixture::with_workload(Workload::RetainedHistory).await;
+    f.enroll().await;
     assert_eq!(
         f.call(
             f.operator,
@@ -105,24 +114,28 @@ fn resource_history_saturation_keeps_retries_cleanup_and_other_tenant_available(
                 expected: None,
                 active: true,
             }
-        ),
+        )
+        .await,
         Ok(Outcome::Enrolled(Enrollment {
             generation: 1,
             active: true
         }))
     );
-    let initial_heap = f.wasm_bytes();
+    let initial_heap = f.wasm_bytes().await;
     let mut samples = Vec::new();
     for (tenant_index, tenant) in [f.project, f.other].into_iter().enumerate() {
         for index in 1..=128u128 {
-            let input = permission(&f, tenant, tenant_index as u128 * 128 + index);
-            assert_eq!(f.call(tenant, Command::Admit(input)), Ok(Outcome::Admitted));
-            let admit = f.sample(tenant);
+            let input = permission(&f, tenant, tenant_index as u128 * 128 + index).await;
             assert_eq!(
-                f.call(tenant, Command::Revoke(input.request)),
+                f.call(tenant, Command::Admit(input)).await,
+                Ok(Outcome::Admitted)
+            );
+            let admit = f.sample(tenant).await;
+            assert_eq!(
+                f.call(tenant, Command::Revoke(input.request)).await,
                 Ok(Outcome::Changed(true))
             );
-            let cancel = f.sample(tenant);
+            let cancel = f.sample(tenant).await;
             // Broad per-message ceilings include decoder and allocator costs;
             // compiler/layout changes need not reproduce exact observations.
             assert!(admit.after_work < 5_000_000);
@@ -138,36 +151,39 @@ fn resource_history_saturation_keeps_retries_cleanup_and_other_tenant_available(
                     "admit_after_decode": admit.after_decode,
                     "admit_workflow_instructions": admit.after_work - admit.before_work,
                     "cancel_instructions": cancel.after_work,
-                    "wasm_memory_bytes": f.wasm_bytes(),
+                    "wasm_memory_bytes": f.wasm_bytes().await,
                 }));
             }
         }
-        let rejected = permission(&f, tenant, 1000 + tenant_index as u128);
+        let rejected = permission(&f, tenant, 1000 + tenant_index as u128).await;
         assert_eq!(
-            f.call(tenant, Command::Admit(rejected)),
+            f.call(tenant, Command::Admit(rejected)).await,
             Err(Failure::TenantManifestCapacity)
         );
-        assert_eq!(f.inspect(tenant, rejected.request), Err(Failure::Unknown));
+        assert_eq!(
+            f.inspect(tenant, rejected.request).await,
+            Err(Failure::Unknown)
+        );
     }
-    f.restart();
+    f.restart().await;
     for (tenant, id) in [(f.project, 1), (f.other, 129)] {
-        let input = permission(&f, tenant, id);
+        let input = permission(&f, tenant, id).await;
         // Reuse the retained permission, including its original deadline.
-        let original = f.inspect(tenant, input.request).unwrap();
+        let original = f.inspect(tenant, input.request).await.unwrap();
         assert_eq!(original.phase, Phase::Cancelled);
         let usage = original.usage.unwrap();
         assert_eq!((usage.logical, usage.physical, usage.liability), (0, 0, 0));
         assert_eq!(
-            f.call(tenant, Command::Admit(original.permission)),
+            f.call(tenant, Command::Admit(original.permission)).await,
             Ok(Outcome::Existing(Phase::Cancelled))
         );
         assert_eq!(
-            f.call(tenant, Command::Revoke(input.request)),
+            f.call(tenant, Command::Revoke(input.request)).await,
             Ok(Outcome::Changed(false))
         );
-        assert_eq!(f.inspect(tenant, input.request).unwrap(), original);
+        assert_eq!(f.inspect(tenant, input.request).await.unwrap(), original);
     }
-    let final_heap = f.wasm_bytes();
+    let final_heap = f.wasm_bytes().await;
     assert!(final_heap <= initial_heap + 2 * CHUNK as u64);
     let report = serde_json::json!({
         "scope": "Local durable release Wasm, two tenants and 256 cancelled one-byte admissions. No manifests, provider calls, upgrade/restore or confirmed-object history. Stable bookkeeping is included. Instructions exclude diagnostic storage and reply encoding; memory is allocated Wasm pages.",

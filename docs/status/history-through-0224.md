@@ -26,8 +26,8 @@ Date: 2026-10-10
   inputs; unchanged compiler/product results remain bound separately. Track
   delivery/native acceptance in [#55](https://github.com/dragginzgame/ic-blob-storage/issues/55)
   and selector adoption in #54. Released 0.22.3 hosted CI is in progress; #52/#53
-  stay open. Current qualification and hosted limitations belong to [the follow-up evidence](../evidence/shared0370224.md);
-  retain earlier [0.3.6 qualification](../evidence/shared0360224.md) separately.
+  stay open. Current qualification and hosted limitations belong to [the follow-up evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0370224.md);
+  retain earlier [0.3.6 qualification](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0360224.md) separately.
 
 ## Earlier continuation — released 0.22.3, pending 0.22.4
 
@@ -39,7 +39,7 @@ Date: 2026-10-10
   in the later native CLI/PocketIC step. Close #45/#50/#51 against those completed
   matching-source tooling checks, without calling the overall run green.
   #52/#53 retain their separate 0.22.3 native acceptance boundaries.
-- [Shared 0.3.6 adoption](../evidence/shared0360224.md) selects the same 99-file
+- [Shared 0.3.6 adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0360224.md) selects the same 99-file
   roster from canonical `0604bfd730ec7ec288cd2cfdad217a0d42bf256b` under
   [#54](https://github.com/dragginzgame/ic-blob-storage/issues/54). Blob delegates
   Testkit Cargo.lock selection to the canonical installer and adopts the failed
@@ -89,7 +89,7 @@ Date: 2026-10-10
   the finalized receipt remain 0.22.2. Read-only registry metadata observes both
   libraries present/un-yanked. [Hosted 0.22.2 acceptance](https://github.com/dragginzgame/ic-blob-storage/actions/runs/38056512376)
   remains queued at final review; #45/#50/#51 retain matching native acceptance.
-- [Shared 0.3.5 adoption](../evidence/shared0350223.md) canonically selects the
+- [Shared 0.3.5 adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0350223.md) canonically selects the
   same 99-file roster at `a744d7f1990b9e1451ef45cd6d495de00a141cd3`, excluding
   dirty upstream 0.3.6 work. Common setup explicitly prepares Binaryen 133 and
   Testkit 0.32.2. Preserve incoming Memory 0.35.3/all four Host 0.12.4, Metrics
@@ -106,7 +106,7 @@ Date: 2026-10-10
   project inputs stay unchanged during final checks. Retain sandbox-denied,
   rate-limited and initial strict-Clippy attempts separately. Matching native
   #52/#53 acceptance remains open; Shared 0.3.5 CI is still queued.
-- [Canic source review](../evidence/canic0223.md) corrects stale 0.21.5/numeric
+- [Canic source review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0223.md) corrects stale 0.21.5/numeric
   range guidance to the current Memory 0.35 host pool. Its dirty adapter/root
   and two consumer locks select Blob 0.22.2; separately captured passing 0.22.1
   managed builds/Candid/PocketIC evidence is not relabelled. Funding still mounts
@@ -119,7 +119,7 @@ Date: 2026-10-10
 
 ## Earlier continuation — released 0.22.1, pending 0.22.2
 
-- [Shared 0.3.3 adoption](../evidence/shared0330222.md) selects 99 canonical
+- [Shared 0.3.3 adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0330222.md) selects 99 canonical
   files at `d63f0cfaba8ab2961d6012064adbf051c1898bc1`, preserving the pending
   registry work without agent staging/reset. Common setup preflights before installation; local
   Cargo recipes forward jobserver descriptors. The runner and Blob-owned
@@ -146,7 +146,7 @@ Date: 2026-10-10
   paired-package ordering and Cargo publication ownership. Each metadata
   observation retains separate transport/parser evidence. jq and curl 8.4+
   are explicit prerequisites; no registry upload is performed.
-- [The adoption record](../evidence/registry0222.md) separates substituted
+- [The adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/registry0222.md) separates substituted
   publication tests from two bounded live metadata reads of released 0.22.1.
   Both registry rows are present and un-yanked. Shared's registry fixtures,
   prepared-tool admission, shell checks and the complete isolated consumer
@@ -191,7 +191,7 @@ Date: 2026-10-10
   preserving the 96-file selection and excluding dirty sibling edits.
   Common setup/check runs host → IC → Cargo → Testkit, stopping on failure.
   Existing Testkit-owned server selection and caller overrides remain unchanged.
-- [The adoption record](../evidence/testkit030shared0300221.md) binds source,
+- [The adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/testkit030shared0300221.md) binds source,
   complete setup, parallel consumer ordering and validation to this new graph.
   Complete setup/offline admission/reuse, parallel Bash 5/3.2 fixtures, Rust
   1.88 native/Wasm checks and the remaining delivery gate pass. Reuse unchanged
@@ -216,7 +216,7 @@ Date: 2026-10-10
   versions and release receipt remain 0.21.5; the entire compatible 0.21.6 draft
   moves to the 0.22.0
   hard-cut notes because Memory is a public re-export.
-- [Memory adoption](../evidence/memory0340220.md) replaces numeric owner ranges
+- [Memory adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/memory0340220.md) replaces numeric owner ranges
   in the standalone, all affected probes and native fixtures with explicit host
   namespace grants and one allocation pool. Keep all seventeen production keys,
   record layouts, uncertainty and restore fences. No compatibility open helper,
@@ -237,7 +237,7 @@ Date: 2026-10-10
   storage cases and 73 rebuilt standalone cases pass; reuse unchanged gate
   evidence without relabelling the earlier full run. Explicit opt-in cases
   remain ignored. The follow-up's captured inputs and Cargo choices stay fixed.
-- [Host qualification](../evidence/host0110220.md) authenticates the published
+- [Host qualification](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host0110220.md) authenticates the published
   sources and unifies private Host 0.11 through Testkit 0.29 without wrappers.
   Explicit setup prepares the incoming lock-selected Testkit 0.29.0 executable;
   its offline admission passes and prior selections remain retained. Failed
@@ -245,7 +245,7 @@ Date: 2026-10-10
 - Reviewed Shared main is 0.2.13 at
   `5864f468d39f8f9d1bd26fca1afe0e20f25f1b5e`; the maintainer authorized adoption
   into this batch. Canonical export selects 96 files, including the formatter
-  companion. [The record](../evidence/memory0340220.md#shared-tooling-review)
+  companion. [The record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/memory0340220.md#shared-tooling-review)
   describes complete fixture inputs, retained failures and preflight setup.
   The consumer release wrapper refuses LF/CR directories and rechecks admitted
   source/cleanliness after setup. Final shell/release/hook/evidence/formatting,
@@ -264,7 +264,7 @@ Date: 2026-10-10
   observed published and un-yanked. Package versions/receipt remain 0.21.5.
   Preserve incoming Memory 0.33.4, private Metrics 0.3.6 and other lock changes;
   this documentation review does not compile or qualify that new graph.
-- [The Canic source review](../evidence/canic0216.md) checks memory, lifecycle,
+- [The Canic source review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic0216.md) checks memory, lifecycle,
   caller and passive funding boundaries. Refresh the
   [adoption recipe](../dependencies.md#canic-integration), stale Memory 0.31/open
   #20 guidance and multi-user release wording. Local managed 0.21 acceptance is
@@ -301,7 +301,7 @@ Date: 2026-10-10
   the finalized receipt remain 0.21.4. Shared remains the reviewed 95-file
   0.2.8 snapshot. Preserve the incoming direct Host 0.10 edits and subsequent
   private Metrics 0.3.5 selection; Memory remains 0.33.3.
-- [The Host adoption record](../evidence/host0100215.md) replaces the removed
+- [The Host adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host0100215.md) replaces the removed
   writer call with `write_with`, preserving private create-only publication and
   terminal redaction. Testkit 0.28 was published during qualification; adopt it
   to unify all four Host crates, now at incoming 0.10.1 with the parent-directory
@@ -330,7 +330,7 @@ Date: 2026-10-10
   the finalized receipt remain 0.21.3. Preserve the incoming Host 0.9.7 and
   private Metrics 0.3.4 lock selections. Memory 0.33.3, Testkit 0.27.2 and
   PocketIC 16.1.0 are unchanged from the released graph.
-- [The continuation record](../evidence/upstream0214.md) adopts all 95 files
+- [The continuation record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/upstream0214.md) adopts all 95 files
   canonically from committed Shared 0.2.8
   `b2646cde9abbc8861857a4379c683a0c19eba43e`. Make admission selects the helper
   beside its reviewed include and admits recursive `MAKE` arguments while
@@ -359,7 +359,7 @@ Date: 2026-10-10
   not compile or qualify those dependency changes. Host remains 0.9.4 and
   Testkit 0.27.1. Earlier runtime
   qualification retains Memory 0.33.2 and its original source/artifacts.
-- [The adoption record](../evidence/shared0270213.md) selects 95 files from
+- [The adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0270213.md) selects 95 files from
   committed Shared 0.2.7 `47d6ae6488b8007323fa7c2e22a6efa11d77ae63`, including
   the new Make execution companion. Guard unsafe Make modes before recipes;
   bind release fixtures to their own tooling root. Update all consumer fixture
@@ -385,11 +385,11 @@ Date: 2026-10-10
   and the finalized receipt remain 0.21.1. Preserve incoming Memory 0.33.2;
   runtime sources/dependency edges are unchanged. The subsequent incoming Host
   artifacts/fs/process/tools 0.9.4 selection is qualified separately in
-  [the Host record](../evidence/host0940212.md): nine focused file/process cases
+  [the Host record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host0940212.md): nine focused file/process cases
   and Rust 1.88 CLI/harness targets/features pass. Published sources and edges
   are unchanged; no new helper justifies additional Blob code removal. Private
   Metrics stays 0.3.2 and Testkit 0.27.1. Earlier records keep their original graphs.
-- [The continuation record](../evidence/shared0260212.md) adopts committed Shared
+- [The continuation record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0260212.md) adopts committed Shared
   0.2.6 `ce13a5314916891fd239d9b199b4a91b04775054`, selecting 94 files.
   Common release/format Make includes replace equivalent local wiring under
   [#42](https://github.com/dragginzgame/ic-blob-storage/issues/42); retain all four
@@ -428,13 +428,13 @@ Date: 2026-10-10
   Later incoming lock edits select published Testkit 0.27.1 and all four Host
   crates at 0.9.3; every patch leaves dependency edges and runtime Rust unchanged.
   Earlier source reviews retain their original publication readbacks.
-- [The patch record](../evidence/libraries0211.md) owns focused storage
+- [The patch record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/libraries0211.md) owns focused storage
   installation/restore and Rust 1.88 native/Wasm qualification of the initial
   Memory/Metrics patch graph with Testkit 0.27.0.
   Pending 0.21.1 is compatible: no public API, runtime schema or admission change.
   Earlier tests are not relabelled as qualification of the new selection;
   the initial graph and externally changed lock retain separate captures.
-- [The Shared follow-up](../evidence/shared0250211.md) adopts committed 0.2.5
+- [The Shared follow-up](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared0250211.md) adopts committed 0.2.5
   `04e07b4bf54e7aeb03eb7804a845cee27b7305df` through the canonical exporter,
   retaining all 92 selected files. Hooks preserve literal trailing-newline paths
   and refuse failed Git reads without changing configuration. Consumer formatter
@@ -442,13 +442,13 @@ Date: 2026-10-10
   focused shell lint and documentation checks pass. No runtime code changes or
   removed Rust/shell definitions. No additional locally actionable service fix
   emerges from the issue review; external acceptance requirements remain below.
-- [The Testkit follow-up](../evidence/testkit0271-0211.md) qualifies its incoming
+- [The Testkit follow-up](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/testkit0271-0211.md) qualifies its incoming
   graph separately. Explicit `make install-testkit` prepares the 0.27.1
   CLI; actual offline/pathless server checks pass while old CLI/server bytes stay
   unchanged. Eleven storage and four bounded inventory cases pass, as does
   Rust 1.88 private-harness compilation across targets/features. No new canister
   lifecycle or provider qualification is inferred from unchanged owner sources.
-- [The Host follow-up](../evidence/host0930211.md) qualifies the subsequent
+- [The Host follow-up](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host0930211.md) qualifies the subsequent
   0.9.3 selection against published owner source. Nine native file/process cases
   and Rust 1.88 CLI/harness targets/features pass. The owner release adopts
   Shared 0.2.5 hook fixes but adds no runtime helper or API; no additional Blob
@@ -477,7 +477,7 @@ Date: 2026-10-10
   Rust sources are unchanged; Testkit now retains original startup failure,
   bounded output and separate cleanup diagnostics through our existing harness.
   No new wrapper or server policy is introduced.
-- [The capacity/cleanup follow-up](../evidence/capacity0210.md) exposes tenant
+- [The capacity/cleanup follow-up](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/capacity0210.md) exposes tenant
   logical, global physical and global billing-liability headroom alongside their
   unchanged minimum. Native preflights report each exhausted dimension and refuse
   inconsistent minima. Rust/Candid/JSON consumers must rebuild; stored schemas,
@@ -497,7 +497,7 @@ Date: 2026-10-10
   checks stay offline. Preserve prior CLI slots, server archives, bundles,
   receipts and failed evidence. Per-instance server ownership/drop order and
   followed-symlink/buffered-output/probe-retention contracts remain in place.
-- [The adoption record](../evidence/libraries0210.md) owns this graph's focused
+- [The adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/libraries0210.md) owns this graph's focused
   qualification, source identity and limitations: 242 native-host and six focused
   file/process cases, strict affected lint and actual Rust 1.88 native/Wasm pass
   with 17,750 captured inputs unchanged. Four explicit local probe GETs, zero
@@ -530,10 +530,10 @@ Date: 2026-10-10
   rebuild; its runtime schemas and Metrics arithmetic remain unchanged. Registry
   archives and Rust/original manifests match owner revisions. Unrelated Windows
   bindings remain at incoming selections.
-- [The initial hard-cut record](../evidence/pocketic-handoff0200.md) owns setup intent,
+- [The initial hard-cut record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/pocketic-handoff0200.md) owns setup intent,
   old six-tool refusal, explicit official replacement, all old receipt-covered
   bytes preserved, real pathless offline Testkit check and earlier graph evidence.
-  [The coordinated record](../evidence/coordinated-hardcut0200.md) owns final graph
+  [The coordinated record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/coordinated-hardcut0200.md) owns final graph
   qualification: all 242 native-host cases, strict affected lint and Rust 1.88
   native/Wasm pass with 13,919 frozen inputs unchanged. The intermediate graph
   drift and pre-test interruption remain separately retained.
@@ -551,7 +551,7 @@ Date: 2026-10-10
   four completed local qualifications, zero
   deployed/paid effects. Owned local scopes close, old bundles/failures remain;
   no sibling edit, agent commit, push, release or publication occurs.
-- [Host reuse follow-up](../evidence/host091-reuse0200.md): Host 0.9.1 remains the
+- [Host reuse follow-up](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host091-reuse0200.md): Host 0.9.1 remains the
   latest reviewed published source. Replace private fixture inventory read and
   resource artifact write/sync implementations with its existing owners. Five
   focused local-file cases, strict harness lint and Rust 1.88 native compilation
@@ -567,7 +567,7 @@ Date: 2026-10-10
   `be550afa57fe9e16872e5110b5cd69c24b4fa9e8`. The snapshot now selects 93 files,
   with 640 measured
   code lines removed. Local workspace LOC and tool setup/check remain available.
-- [Cleanup evidence](../evidence/fleet-cleanup0193.md) owns removed symbols,
+- [Cleanup evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/fleet-cleanup0193.md) owns removed symbols,
   provenance and focused checks. Common command/local LOC fixtures pass under
   Bash 5 and Linux-built Bash 3.2; actual local LOC/tool checks, snapshot,
   declarations, shell lint, links and whitespace pass. #37 awaits committed
@@ -580,12 +580,12 @@ Date: 2026-10-10
   0.19.3 is compatible internal tooling/dependency cleanup; product contracts
   are unchanged.
 - [#38](https://github.com/dragginzgame/ic-blob-storage/issues/38): remove the
-  unused protocol-to-core dependency and lock edge. [Its separate evidence](../evidence/protocol-dependency0193.md)
+  unused protocol-to-core dependency and lock edge. [Its separate evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/protocol-dependency0193.md)
   owns successful native/Wasm protocol and consumer compilation, actual Rust 1.88,
   strict protocol lint and exact incoming-lock preservation. No Rust symbol is
   removed. The initial missing-cache failure is retained before explicit locked
   preparation; no lifecycle/provider probe or build-speed gain is claimed.
-- [Current Host/shared adoption](../evidence/host0350193.md) uses Host 0.8.8's
+- [Current Host/shared adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host0350193.md) uses Host 0.8.8's
   streaming hash for retained probe bodies, preserving exact length/digest,
   file limits and refusal codes. Shared 0.1.35 adds selected Cargo installation
   and explicit network/cache guidance; ordinary validation remains offline.
@@ -626,7 +626,7 @@ Date: 2026-10-10
   work. Existing setup/check and PocketIC provisioning remain in place until the
   published Testkit replacement is qualified. Source-bound push CI preserves
   each pushed commit's native jobs; newer PR revisions still supersede old ones.
-- [The browser record](../evidence/multi-user-browser0192.md) owns five passing
+- [The browser record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/multi-user-browser0192.md) owns five passing
   Chromium cases: two distinct signed browser users with native verification/
   download and independent release, plus default-key success, corruption and
   interruption controls. Twelve local PUTs/eleven GETs match the budget. After
@@ -665,7 +665,7 @@ Date: 2026-10-10
   0.8.4 is already selected in released HEAD; Testkit remains 0.25.3, public
   Memory 0.31.8 and PocketIC 16.1.0. Package versions/receipt remain 0.19.0.
   Pending 0.19.1 is compatible: no endpoint, public DTO or durable schema changes.
-- [The continuation evidence](../evidence/maintenance0191.md) binds current
+- [The continuation evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/maintenance0191.md) binds current
   compiled 0.19.0 artifacts, focused native/PocketIC checks, strict affected lint
   and actual Rust 1.88 native/Wasm to this graph. Shared fixtures pass Bash 5
   and Linux-built Bash 3.2.57; new native macOS and dirty-source hosted results
@@ -702,7 +702,7 @@ Date: 2026-10-10
 - Preserve the current incoming lock: Host 0.8.3, Testkit 0.25.3, Memory 0.31.8,
   private Metrics 0.2.15 and PocketIC 16.1.0. Earlier source/graph records remain
   separate. Shared Tooling remains the 97-file committed 0.1.30 snapshot.
-- [The implementation record](../evidence/multi-user0190.md) owns 563 final native
+- [The implementation record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/multi-user0190.md) owns 563 final native
   and 17 focused PocketIC passes, strict affected Clippy, actual Rust 1.88
   native/Wasm and offline SDK preparation. Both frozen old-image cuts preserve
   every stable byte and the retained owners/obligations. All 936 final input
@@ -734,7 +734,7 @@ and retains its earlier candidate, graph and CI observations.
   simulation coverage checks path diagnostics, pre-validation refusal and failed
   prefix/status observations. The declaration gate opts into shared npm/lock
   checks for the existing browser root and Node/npm selections.
-- [The continuation record](../evidence/shared-tooling0186.md) owns new graph
+- [The continuation record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling0186.md) owns new graph
   qualification and failed/incomplete attempts. Rust 1.88 native/Wasm checks,
   shared declarations, browser tools and canonical npm/source fixtures pass.
   Linux native-host qualification passes 241 cases; complete substituted release
@@ -778,7 +778,7 @@ The following record predates released 0.18.5 and retains its original inputs.
   `1872ed2c20f6c70689bb2249050b1d673c60bfa0`, with installer path fixes,
   simulation-only consumer release fixtures and task catalog companions.
   Sibling dirty work is excluded; no maintenance schedule is enabled.
-- The [repair record](../evidence/pocketic-msrv0185.md) owns new local
+- The [repair record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/pocketic-msrv0185.md) owns new local
   qualification and removed-symbol inventory. Final Linux native-host checks
   pass 241 cases on the actual 16.1 server; Rust 1.88 passes public/native/Wasm
   paths. Installer/snapshot/simulation fixtures, declarations, shell/workflow
@@ -809,7 +809,7 @@ the CI observations at that time; the current issue work above supersedes it.
   Testkit **0.24.0**, Memory **0.31.5**, private Metrics **0.2.13**. The earlier
   direct Host 0.7 / Testkit 0.23 Host 0.6 duplication is gone. Public Memory
   identity stays 0.31; no public service, wire or durable contract changes.
-- The [follow-up record](../evidence/host071-tooling0185.md) binds passing Linux
+- The [follow-up record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host071-tooling0185.md) binds passing Linux
   native-host, seven publication-session, buffered-output, strict affected Clippy
   and Rust 1.88 native/Wasm checks to compiled **0.18.4** and frozen artifacts.
   Keep the local final-output reader: the protocol already owns/prefetches stdout,
@@ -825,7 +825,7 @@ the CI observations at that time; the current issue work above supersedes it.
   Direct delivery and local receipts remain unchanged. Ordinary failure upload
   now archives the scoped roots through the shared helper, retaining its uploader
   pin, artifact name and 30-day policy. The
-  [archive integration record](../evidence/tooling-archive0185.md) retains passing
+  [archive integration record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/tooling-archive0185.md) retains passing
   Bash 5/3.2 selection, mode/link/filename round trips, early/late failure and
   actual workflow-command checks. [#29](https://github.com/dragginzgame/ic-blob-storage/issues/29)
   remains open for committed native upload/download acceptance. Native CI now
@@ -871,7 +871,7 @@ Its pending and uncommitted-owner statements retain their original context.
   The required portable suite and complete script ShellCheck pass locally on
   Linux. Normal runner selections and jobserver behavior remain intact. See
   [Shared Tooling #7](https://github.com/dragginzgame/shared-tooling/issues/7) and
-  the [follow-up evidence](../evidence/shared-tooling-0181.md#shared-tooling-correction-and-released-0183--2026-10-08).
+  the [follow-up evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-0181.md#shared-tooling-correction-and-released-0183--2026-10-08).
 - Shared Tooling's pending **0.1.26** notes include that correction. The fix is
   uncommitted at its owner and has no hosted result; Blob's reviewed 81-file
   snapshot remains unchanged. Adopt only a reviewed committed revision later.
@@ -883,7 +883,7 @@ Its pending and uncommitted-owner statements retain their original context.
   this application and disable implicit curl configuration. Genuine 403 remains
   fatal with zero upload effects. The full substituted adapter suite and shell
   checks pass. [#30](https://github.com/dragginzgame/ic-blob-storage/issues/30)
-  and the [repair record](../evidence/publication-user-agent0184.md) retain live
+  and the [repair record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/publication-user-agent0184.md) retain live
   read-only observations, fixtures and the original failed readback. A clean
   unchanged 0.18.3 checkout with an external curl identity wrapper is prepared
   for maintainer publication; no upload was run. Full CI is not rerun.
@@ -912,7 +912,7 @@ the current release state above supersedes them.
 - Ordinary `make publish` now selects contracts then core and authenticates exact
   registry archive/source readback before skipping completed uploads on retry.
   Optional individual selection remains; dry-run cannot supply unpublished
-  contracts. See the [repair record](../evidence/publication-helper0181.md) and
+  contracts. See the [repair record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/publication-helper0181.md) and
   [release guide](../releasing.md#publication-and-deployment) for the fixed flow
   and clean-tag steps to finish already-tagged 0.18.0. Isolated fixtures pass;
   the agent has executed no registry publication.
@@ -944,7 +944,7 @@ the current release state above supersedes them.
   receipt adapters are not adopted. Shared runner/routing, Blob adapters, snapshot
   distribution, LOC, archive and shell checks pass. The original fixture command
   refusal and missing-cloc attempt remain in the
-  [adoption record](../evidence/shared-tooling-0181.md). No vendored copy is patched.
+  [adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-0181.md). No vendored copy is patched.
   The archive helper is available but not wired into Blob's existing CI collector.
 - Maintainer validation at `a505a4cb242facc1c0c2fb37435bea6bae6383cf` exposed a
   nested-Make fixture failure: the parent direct-delivery command-line override
@@ -953,7 +953,7 @@ the current release state above supersedes them.
   suite passes under an actual parent Make with the same direct selection;
   production release checks remain unchanged. The original failed full-gate log,
   failed reproduction and narrower prior qualification are retained in the
-  [adoption record](../evidence/shared-tooling-0181.md#nested-make-correction--2026-10-08).
+  [adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-0181.md#nested-make-correction--2026-10-08).
   Manifests/lock/receipt are unchanged; full CI/release validation still needs
   the repaired committed source.
 - Owner 0.1.24 Linux/Intel macOS/lint pass; ARM macOS's exact-ID artifact download
@@ -970,13 +970,13 @@ the current release state above supersedes them.
 - The earlier package compilation failure was stale same-version artifacts from
   a shared extracted target. Released verification uses a unique target; fresh
   payload checks pass **517** cases and **two** doctests. See the
-  [additional record](../evidence/host050-package0180.md); its actual compiled
+  [additional record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host050-package0180.md); its actual compiled
   **0.17.2** inputs and earlier warm-package limitation are preserved independently.
 
 ## Previous extraction — released 0.18.0
 
-The [migration/qualification record](../evidence/contracts-0180.md) and
-[sanity pass](../evidence/contracts-0180-sanity.md) retain the complete #27
+The [migration/qualification record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/contracts-0180.md) and
+[sanity pass](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/contracts-0180-sanity.md) retain the complete #27
 runtime-free boundary extraction, moved/deleted path inventory and each original
 graph's checks. Contracts own passive DTOs, identities, immutable bindings,
 method names, bounded correlation/decoding and content verification. Service
@@ -1009,7 +1009,7 @@ identity language predates released HEAD; the contracts batch above supersedes i
   from original hash metadata and existing status/attestation artifacts. Duplicate
   values survive; capture beyond 32 occurrences/8 KiB is explicitly incomplete.
   This supplies local serving evidence, not deployed browser qualification.
-- The [current record](../evidence/publication-0172.md) retains the failing
+- The [current record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/publication-0172.md) retains the failing
   pre-fix root regression, the missing-fixture-environment attempt and the original
   intent's corrected Metrics label. Actual Make native-host qualification passes
   **114 CLI**, **21 examples**, **two installation/carrier** and **one Metrics**
@@ -1160,7 +1160,7 @@ of native frontend/installer artifact retention remains with
 [Shared Tooling #29](https://github.com/dragginzgame/shared-tooling/issues/29).
 Its owner-specific frontend fixtures are not copied into Blob's snapshot.
 
-The [current adoption record](../evidence/tooling020-host043-0172.md) binds
+The [current adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/tooling020-host043-0172.md) binds
 source, archive identities, actual artifacts, command results and remaining
 portable limits under `.tmp/latest-tooling-host-0172-01/`. The entry lock and
 receipt remain byte-identical; only the filesystem dependency's required API
@@ -1241,9 +1241,9 @@ all-target/all-feature harness Clippy and Rust 1.88 harness compilation pass.
 Native tests use fresh standalone/probe Wasms and execute 110 CLI, 21 examples,
 two installation/carrier cases and one Metrics repeated-restoration case. Core
 normal dependency trees exclude Host, Testkit and Metrics on native and Wasm
-targets. The earlier [testkit record](../evidence/testkit-021-0171.md) retains its
+targets. The earlier [testkit record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/testkit-021-0171.md) retains its
 0.21.0/Host 0.4.1 graph. The current
-[adoption record](../evidence/tooling019-host042-0171.md) owns selected provenance,
+[adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/tooling019-host042-0171.md) owns selected provenance,
 source/artifacts, commands and limitations. Initial offline preparation refused
 missing testkit 0.21.1; explicit locked online cache preparation succeeded without
 reselection, and all subsequent compilation/tests ran offline.
@@ -1284,7 +1284,7 @@ dependencies. Cached published Memory 0.31.1 runtime source matches 0.30.0, but
 its public Rust crate identity requires the minor hard cut. Earlier records
 retain their own Memory 0.30 and Host 0.4.0 graphs. No existing evidence is
 rebound to this new source or dependency selection. Focused results and remaining
-native qualification belong to [the repair record](../evidence/native-ci-0170.md).
+native qualification belong to [the repair record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/native-ci-0170.md).
 
 All 110 CLI binary regression cases pass locally. Strict CLI binary/test Clippy,
 Rust 1.88 compilation, workflow lint and local links pass. The initial sandbox
@@ -1382,7 +1382,7 @@ The qualification updates were posted and read back on
 and [#23](https://github.com/dragginzgame/ic-blob-storage/issues/23#issuecomment-6035795699).
 
 Focused results, source/artifact hashes, attempts and qualification limits belong
-to [the adoption record](../evidence/tooling-host-018-0161.json). Consumer native
+to [the adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/tooling-host-018-0161.json). Consumer native
 macOS and matching committed CI remain separate. This batch performs no full
 CI/release gate, commit, version bump, tag, push, publication, provider request
 or sibling file edit.
@@ -1450,7 +1450,7 @@ not qualify this dirty consumer batch or its Metrics 0.2.6 graph. The repository
 description accurately identifies the prototype and needs no change.
 
 Focused qualification and limitations are recorded in the
-[snapshot refresh record](../evidence/shared-tooling-017-0161.json). Consumer native macOS
+[snapshot refresh record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-017-0161.json). Consumer native macOS
 and matching committed consumer CI remain pending; Linux Bash 3.2 does not
 establish native macOS behavior. This batch executes no full CI/release gate,
 Rust compilation, commit, version bump, tag, push, publication, provider effect
@@ -1495,7 +1495,7 @@ confirms the production export still selects this repository's `target/`.
 The entry lock and snapshot are byte-identical after this repair; package
 metadata and the release receipt are unchanged.
 
-The [LOC gate repair record](../evidence/loc-gate-0161.json) binds this Makefile,
+The [LOC gate repair record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/loc-gate-0161.json) binds this Makefile,
 the currently selected Metrics 0.2.6 lock, logs and retained failures under
 `.tmp/loc-gate-0161-01`. It does not compile or qualify Metrics 0.2.6 or supersede
 earlier source-bound records. #23 remains open for matching committed native
@@ -1509,7 +1509,7 @@ These earlier results retain their original Metrics 0.2.5 graph and source
 hashes; they do not qualify the subsequently selected Metrics 0.2.6 probe.
 
 The maintainer authorized the inspected follow-up batch. The
-[release fixture ownership map](../evidence/release-fixture-ownership.md) addresses
+[release fixture ownership map](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/release-fixture-ownership.md) addresses
 [#22](https://github.com/dragginzgame/ic-blob-storage/issues/22). The shared runner
 owns the lost-effect/next-version matrix. Blob retains receipt and selected
 historical commit checks, publication policy/lock checks, failed preparation
@@ -1558,7 +1558,7 @@ read-back evidence in
 Publication unblocks Memory 0.30 library availability under #20, but Canic-owned
 adapter/three-lock/managed execution qualification remains separate.
 
-The [source-bound tooling record](../evidence/tooling-0161.json) binds inputs,
+The [source-bound tooling record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/tooling-0161.json) binds inputs,
 checks, graph selection and artifacts to `.tmp/tooling-0161-01`. Initial CLI
 HTTP tests were denied local bind by the sandbox (101 passed, two refused);
 the authorized local-loopback retry passes all 108 binary cases. The first LOC
@@ -1621,7 +1621,7 @@ snapshot checks pass. Declaration/inheritance coverage uses a private index
 for the unstaged reversal, preserving the real index; staging these moves remains
 the maintainer's action.
 
-The [rollback record](../evidence/layout-rollback-0160.json) owns focused checks,
+The [rollback record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/layout-rollback-0160.json) owns focused checks,
 source/artifact identities, raw attempts and limitations under
 `.tmp/layout-rollback-0160-01`. Prior focused records keep their original paths
 and graphs; they are not relabelled as qualification of this restored source.
@@ -1676,7 +1676,7 @@ succeeds without verification compilation or publication; its normalized manifes
 selects Memory 0.30. Metadata and normal-edge trees show one Memory identity,
 and keep host artifacts out of the production native-library and Wasm graphs.
 
-The [source-bound record](../evidence/memory-streams-0160.json) retains selected
+The [source-bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/memory-streams-0160.json) retains selected
 inputs, source/artifact hashes and raw attempts in `.tmp/memory-streams-0154-01`.
 Earlier records remain bound to their original graphs. Initial missing-path
 formatter, GitHub sandbox connection, private receipt-path and patch-context
@@ -1728,7 +1728,7 @@ Clippy; seven canister Wasm builds and Rust 1.88 Wasm checks pass. Actual local
 PocketIC checks cover exported Candid, CLI installation including wrong-service
 refusal, restoration diagnostic windows and corrupt funding-journal release
 binding. Core packaging succeeds without publication. The
-[source-bound adoption record](../evidence/shared-014-0154.json) retains the graph,
+[source-bound adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-014-0154.json) retains the graph,
 package map, artifacts, raw attempts and focused tooling checks.
 
 The declaration checker sees tracked deletions until the maintainer stages the
@@ -1765,7 +1765,7 @@ operator-only immutable readback and fenced obligations, plus the existing
 pending-obligation recovery case. The first harness Clippy diagnostic is retained;
 its assertion correction and retry pass. Metadata, declarations, snapshot,
 formatting, links and unused-dependency checks pass. The
-[source-bound record](../evidence/metrics-0154.json) owns graph/artifact identities
+[source-bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/metrics-0154.json) owns graph/artifact identities
 and every raw attempt. No function, method or type is removed.
 
 This is initial private probe adoption, not production telemetry or a measured
@@ -1852,7 +1852,7 @@ All 108 native CLI/probe cases, the FIFO subprocess, strict CLI Clippy and
 Rust 1.88 CLI compilation pass with compiled identity 0.15.3. Metadata confirms
 native-only host placement. Retained probes/checksums, formatting, declarations,
 links, syntax/ShellCheck, actionlint and unused-dependency checks pass.
-The [source-bound refresh record](../evidence/refresh-0154-02.json) retains inputs,
+The [source-bound refresh record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/refresh-0154-02.json) retains inputs,
 selected graph, published source hashes, remote readbacks and raw attempts.
 The initial dependency fetch's sandbox DNS refusal is retained; its approved
 locked retry succeeds. Both selected upstream revisions have successful CI.
@@ -1864,7 +1864,7 @@ draft until maintainer release. Matching committed-source consumer native macOS
 qualification remains outstanding for these edits. No function, method or type
 is removed.
 
-The [earlier 0.1.11 record](../evidence/shared-011-0154.json) remains immutable.
+The [earlier 0.1.11 record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-011-0154.json) remains immutable.
 It retains the passing-name logger and precision reproductions, the attempted
 upstream logger fixture's missing metadata-adapter dependency, prior Bash checks,
 failed fixtures and rejected remote-write bundle. Its original lock/source
@@ -1872,7 +1872,7 @@ bindings remain historical; do not relabel them as the newer selected graph.
 
 ## Earlier host adoption cleanup qualification — prepared for 0.15.3
 
-The [cleanup review](../evidence/host-cleanup-0153.md) traces all workspace
+The [cleanup review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host-cleanup-0153.md) traces all workspace
 direct dependencies, maintained scripts/CI callers and retained native helper
 contracts. It removes the standalone canister's unused serde dependency edge.
 The consumer fixture still needs serde for its Deserialize derives; explicit
@@ -1918,7 +1918,7 @@ All 108 native CLI/probe cases, one FIFO subprocess, strict CLI Clippy and
 Rust 1.88 native CLI compilation pass on the selected graph. The first local
 test attempt retains its two sandbox loopback refusals; the permitted retry
 passes. Probe verification and all 265 local/39 deployed evidence checksums
-pass read-only. The [source-bound record](../evidence/host-owners-0153.json)
+pass read-only. The [source-bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host-owners-0153.json)
 retains source, graph, published owner hashes and every raw attempt.
 Compiled package identity remains 0.15.2; no full gate, core/PocketIC or native
 macOS qualification is claimed for this batch.
@@ -1946,7 +1946,7 @@ original file set and source hashes. Bash 5/Bash 3.2 checksum fixtures pass;
 `make evidence-check` verifies all 265 local and 39 deployed retained files
 read-only, and `make host-tools-check` verifies the existing parser bundle
 without installation. Syntax, ShellCheck, snapshot and local-link checks pass.
-The [cleanup record](../evidence/tooling-cleanup-0153.json) binds exact inputs,
+The [cleanup record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/tooling-cleanup-0153.json) binds exact inputs,
 logs, the removed source and the unchanged earlier evidence records. No new
 Rust build, full CI gate, release, provider request or GitHub write occurred.
 Matching native macOS CI remains required for the pending source as described
@@ -1979,7 +1979,7 @@ and Linux-built Bash 3.2. A failed rustfmt probe refuses before validation or
 metadata writes, retains evidence and succeeds on exact retry. The new release
 suites requalify the pending #13 finalizer against this snapshot. Snapshot,
 syntax, ShellCheck, release routing and local links pass. The
-[source-bound adoption record](../evidence/formatter-owner-0153.json) preserves
+[source-bound adoption record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/formatter-owner-0153.json) preserves
 exact inputs, both completed refusal/retry fixtures and the deliberately failed
 shared fixture. The earlier finalizer record remains immutable below.
 
@@ -2017,7 +2017,7 @@ preflight and post-bump preparation, rollback and exact retry. The original
 selector reproduces the post-bump competing-draft bug. Syntax, ShellCheck,
 release routing, snapshot, local documentation links and committed release
 identity checks are recorded in the
-[source-bound record](../evidence/changelog-owner-0153.json). Private Git/Cargo
+[source-bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/changelog-owner-0153.json). Private Git/Cargo
 substitutes establish local release mechanics only. There is no new full gate,
 Rust build, native macOS qualification, release or publication for this batch.
 At that qualification, Cargo, the lock and receipt remained at 0.15.2 and the
@@ -2252,7 +2252,7 @@ clean-prefix/no-Git installation test. No full CI, version change, commit,
 deployment, live provider request, paid cycle, sibling edit/message or cleanup
 occurs. Consumer adoption and certified asset registration remain open.
 
-The subsequent [restoration simplification](../evidence/upload-restoration-simplification.json)
+The subsequent [restoration simplification](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/upload-restoration-simplification.json)
 removes a temporary heap set of every Caffeine blob root. The already validated
 root/object owner, root-to-request index and permission key together establish
 uniqueness; all three checks remain. Attestation validation reuses the decoded
@@ -2674,7 +2674,7 @@ downloaded native console logs remain bound to the original release/run.
 
 The host workflow now includes evidence checks and retains failed release/hook/
 checksum fixtures as artifacts for 30 days, with the host and attempt in each
-name. [The batch summary](../evidence/checksum-portability-v01413.json) binds entry
+name. [The batch summary](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/checksum-portability-v01413.json) binds entry
 source, unchanged evidence inputs, scoped logs and the tested patch under
 `.tmp/checksum-portability-v01413-01`. The first added assertion's ShellCheck
 refusal remains retained; the explicit conditional and final shell check pass.
@@ -2683,7 +2683,7 @@ Rust compilation, version bump, commit/tag/push, publication, provider probe,
 sibling edit or preexisting artifact cleanup occurs. No functions, methods or
 types are removed.
 
-The [Bash 3.2 follow-up](../evidence/bash32-v01413.json) builds GNU Bash 3.2.57
+The [Bash 3.2 follow-up](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/bash32-v01413.json) builds GNU Bash 3.2.57
 from signature-verified source inside the repository's temporary tooling area.
 It reproduces a failed conditional guard continuing into simulated registry
 publication. Release identity/tag guards and fixture assertions now refuse
@@ -2699,7 +2699,7 @@ in Shared Tooling, with its existing unrelated edits and index preserved. The
 required upstream portable suite passes on Bash 3.2, and ShellCheck passes. Both
 prerequisite failures remain in the follow-up evidence. The maintainer then
 committed the fix in Shared Tooling `9437bab201bb6071da0bdc4de0336daf553113f5`.
-The [subsequent adoption](../evidence/shared-tooling-recovery-v01413.json) first
+The [subsequent adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-recovery-v01413.json) first
 refreshes 23 files from an isolated clean checkout of that exact revision, leaving
 new unrelated sibling edits untouched. The requested latest refresh then selects
 `cb86188c5956866564de4fb6ec6be67b27981ab9` with 24 files and its validation logger.
@@ -2748,7 +2748,7 @@ separate release. Cargo package versions and docs/release.json remain 0.14.12.
 The selected lock also updates want and zerocopy; no dependency is reselected
 during these checks.
 
-The [new record](../evidence/release-preflight-0150.json) binds the selected graph,
+The [new record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/release-preflight-0150.json) binds the selected graph,
 entry source patch, raw logs and artifact hashes under `.tmp/v01413-final-01`.
 The complete local `make ci` gate passes on Rust 1.99.0/Linux, including release
 and actual hook fixtures, formatting, all-target compilation, strict Clippy,
@@ -2960,7 +2960,7 @@ provider effect, sibling mutation or named symbol removal occurs.
 
 ## Local host tooling and artifact adoption — 2026-10-06
 
-The [retained record](../evidence/tooling-host-0151.json) adopts Shared Tooling
+The [retained record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/tooling-host-0151.json) adopts Shared Tooling
 [`a37771f`](https://github.com/dragginzgame/shared-tooling/commit/a37771f1b6b5fc9a88ed6ab3b705bdda35cd8fa3)
 through the canonical export: 43 exact files, including the common audit methods,
 provenance guidance, local installers and verification helpers. The matching
@@ -3007,7 +3007,7 @@ removal occurs. The latest description readback remains empty; existing
 
 ## Release prerequisites and full-gate follow-up — 2026-10-06
 
-The [follow-up record](../evidence/release-preflight-0151.json) adds
+The [follow-up record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/release-preflight-0151.json) adds
 `make release-tools-check` to release preflight. It checks the existing pinned
 formatter owner and the selected ShellCheck executable before full validation,
 with explicit setup commands on refusal. Missing/broken ShellCheck and
@@ -3040,7 +3040,7 @@ paid/live provider effect, sibling mutation or named symbol removal occurs.
 ## Shared Tooling verification adoption — 2026-10-06
 
 The [adoption evidence](../evidence/shared-tooling-adoption.md#0152-verification-adoption--2026-10-06)
-and [bound record](../evidence/shared-tooling-adoption-0152.json) cover the canonical
+and [bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-adoption-0152.json) cover the canonical
 48-file export at `47cd2cc`, the local documentation and release-command targets,
 portable digest generation and IC receipt traversal refusal. Local tests cover
 GNU/Perl hashing, installer preservation, release routing and the consumer's
@@ -3092,7 +3092,7 @@ publication, paid/live request, sibling edit or named symbol removal occurs.
 
 ## Release admission and backpressure follow-up — 2026-10-06
 
-The [bound record](../evidence/release-guards-0152.json) retains the source,
+The [bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/release-guards-0152.json) retains the source,
 commands, matching native test artifacts and every attempt in
 `.tmp/continuation-0152-02`. The old consumer adapter accepts expected version
 output from a failed helper and proceeds to the formatter prerequisite check.
@@ -3121,7 +3121,7 @@ edit or named symbol removal occurs.
 
 ## Shared-owner adoption and issue acceptance — 2026-10-06
 
-The [new source-bound record](../evidence/shared-tooling-owners-0152.json) and
+The [new source-bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-owners-0152.json) and
 [adoption narrative](../evidence/shared-tooling-adoption.md#0152-shared-owners-and-issue-acceptance--2026-10-06)
 retain the intermediate `9f8c7c7` and final `d957d1f` canonical exports separately.
 The final snapshot includes shared lockfile rewriting, formatting-hook mechanics,
@@ -3156,7 +3156,7 @@ provider effect or sibling mutation occurs. Keep artifacts and original failures
 
 ## Native installation and failure artifact follow-up — 2026-10-06
 
-The [bound record](../evidence/native-installation-0152.json) retains the exact
+The [bound record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/native-installation-0152.json) retains the exact
 runtime inputs, selected graph, native executable, standalone Wasm, harness test
 binary and generated Candid/readback under `.tmp/installation-0152-03`.
 Explicit offline cache preparation succeeds without changing the selected lock.
@@ -3222,7 +3222,7 @@ provider effect, sibling mutation or named symbol removal occurs in this follow-
 GitHub owns issue status and triage. The
 [earlier retained issue review](../evidence/caffeine-probes/local/2026-10-04-gh-issues-review-01/summary.json)
 keeps its original remote/source observations. The 2026-10-06 read-only review
-in the [tooling adoption evidence](../evidence/shared-tooling-recovery-v01413.json)
+in the [tooling adoption evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared-tooling-recovery-v01413.json)
 finds eight open owning-repository issues and no open Shared Tooling issues or
 owning-repository PRs. Use the existing issues for
 [embedding #1](https://github.com/dragginzgame/ic-blob-storage/issues/1),

@@ -1,37 +1,41 @@
 //! Actual IC rollback, repeated dispatch and same-image restore of bounded grants.
 use super::*;
 use blob_test_protocol::storage::funding::RenewalCommand;
-fn increase(f: &Fixture, actor: Principal, input: RenewalCommand) -> Result<bool, Failure> {
+async fn increase(f: &Fixture, actor: Principal, input: RenewalCommand) -> Result<bool, Failure> {
     let packet = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap();
     retain_packet("renewal-request", &packet);
     let reply = f
         .harness
         .pic
         .update_call(f.service, actor, "fixture_renew_funding_budget", packet)
+        .await
         .unwrap();
     retain_packet("renewal-reply", &reply);
     ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
         .unwrap()
 }
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One actual IC journey binds grant traps, immutable replay, later dispatch and fenced restoration"
 )]
-fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
-    let f = Fixture::with_cashier();
+async fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
+    let f = Fixture::with_cashier().await;
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
-    f.funding(f.operator, first, Action::Prepare).unwrap();
-    settled(f.guarded_dispatch(f.operator, request(first)));
-    f.confirm_credit(f.operator, credit(first, 300, 1)).unwrap();
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, first, Action::Prepare).await.unwrap();
+    settled(f.guarded_dispatch(f.operator, request(first)).await);
+    f.confirm_credit(f.operator, credit(first, 300, 1))
+        .await
+        .unwrap();
     let grant = RenewalCommand {
         intent: first,
         additional: 200,
         fault: None,
     };
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(increase(&f, f.other, grant), Err(Failure::Denied));
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(increase(&f, f.other, grant).await, Err(Failure::Denied));
     assert_eq!(
         increase(
             &f,
@@ -40,11 +44,12 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
                 additional: 301,
                 ..grant
             }
-        ),
+        )
+        .await,
         Err(Failure::Invalid)
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.service).unwrap() == before,
+        f.harness.pic.get_stable_memory(f.service).await.unwrap() == before,
         "refused grant changed stable bytes"
     );
     for fault in [WriteFault::FundingAccounting, WriteFault::FundingCommit] {
@@ -55,25 +60,29 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
             })
             .unwrap();
         retain_packet("renewal-trap-request", &packet);
-        let result = f.harness.pic.update_call(
-            f.service,
-            f.operator,
-            "fixture_renew_funding_budget",
-            packet,
-        );
+        let result = f
+            .harness
+            .pic
+            .update_call(
+                f.service,
+                f.operator,
+                "fixture_renew_funding_budget",
+                packet,
+            )
+            .await;
         retain_packet("renewal-trap-result", format!("{result:?}").as_bytes());
         assert_eq!(
             crate::canister_rejection(&result.unwrap_err()).reject_code,
             RejectCode::CanisterError
         );
         assert!(
-            f.harness.pic.get_stable_memory(f.service).unwrap() == before,
+            f.harness.pic.get_stable_memory(f.service).await.unwrap() == before,
             "grant trap changed stable bytes"
         );
     }
-    assert_eq!(increase(&f, f.operator, grant), Ok(true));
-    let granted = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(increase(&f, f.operator, grant), Ok(false));
+    assert_eq!(increase(&f, f.operator, grant).await, Ok(true));
+    let granted = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(increase(&f, f.operator, grant).await, Ok(false));
     assert_eq!(
         increase(
             &f,
@@ -82,14 +91,15 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
                 additional: 201,
                 ..grant
             }
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.service).unwrap() == granted,
+        f.harness.pic.get_stable_memory(f.service).await.unwrap() == granted,
         "grant replay/conflict changed stable bytes"
     );
-    let status = f.local_status().funding;
+    let status = f.local_status().await.funding;
     assert_eq!(
         (
             status.cumulative_allocation,
@@ -101,23 +111,28 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
     );
     assert_eq!(
         f.retained_outcome(f.operator, first)
+            .await
             .unwrap()
             .unwrap()
             .renewed_allocation,
         200
     );
     let second = f.funding_intent(2, 400);
-    f.configure_cashier(second, 200, FundingReplyMode::Malformed);
-    f.funding(f.operator, second, Action::Prepare).unwrap();
+    f.configure_cashier(second, 200, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, second, Action::Prepare)
+        .await
+        .unwrap();
     assert_eq!(
-        settled(f.guarded_dispatch(f.operator, request(second))).accepted,
+        settled(f.guarded_dispatch(f.operator, request(second)).await).accepted,
         200
     );
     f.confirm_credit(f.operator, credit(second, 200, 2))
+        .await
         .unwrap();
-    assert_eq!(increase(&f, f.operator, grant), Ok(false));
-    assert_eq!(f.incoming().len(), 2);
-    let before = f.local_status().funding;
+    assert_eq!(increase(&f, f.operator, grant).await, Ok(false));
+    assert_eq!(f.incoming().await.len(), 2);
+    let before = f.local_status().await.funding;
     f.harness
         .pic
         .upgrade_canister(
@@ -126,59 +141,65 @@ fn bounded_budget_grant_rolls_back_replays_and_survives_fenced_restoration() {
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    let restored = f.local_status().funding;
+    let restored = f.local_status().await.funding;
     assert_eq!(restored.cumulative_allocation, before.cumulative_allocation);
     assert_eq!(restored.available_allocation, before.available_allocation);
     assert_eq!(restored.transport_accepted, 500);
     assert_eq!(restored.uncredited_accepted, 0);
     assert!(restored.fenced);
-    let reopened = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(increase(&f, f.operator, grant), Err(Failure::Fenced));
+    let reopened = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(increase(&f, f.operator, grant).await, Err(Failure::Fenced));
     assert!(
-        f.harness.pic.get_stable_memory(f.service).unwrap() == reopened,
+        f.harness.pic.get_stable_memory(f.service).await.unwrap() == reopened,
         "fenced grant changed stable bytes"
     );
-    retain(&f, "renewal");
+    retain(&f, "renewal").await;
 }
-#[test]
-fn post_commit_credit_trap_rolls_back_intent_index_and_accounting_without_another_payment() {
-    let f = Fixture::with_cashier();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn post_commit_credit_trap_rolls_back_intent_index_and_accounting_without_another_payment() {
+    let f = Fixture::with_cashier().await;
     let first = f.funding_intent(1, 400);
-    f.configure_cashier(first, 300, FundingReplyMode::Malformed);
-    f.funding(f.operator, first, Action::Prepare).unwrap();
-    settled(f.guarded_dispatch(f.operator, request(first)));
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.configure_cashier(first, 300, FundingReplyMode::Malformed)
+        .await;
+    f.funding(f.operator, first, Action::Prepare).await.unwrap();
+    settled(f.guarded_dispatch(f.operator, request(first)).await);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let packet = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(CreditCommand {
         fault: Some(WriteFault::FundingCommit),
         ..credit(first, 300, 1)
     })
     .unwrap();
     retain_packet("post-credit-trap-request", &packet);
-    let result = f.harness.pic.update_call(
-        f.service,
-        f.operator,
-        "fixture_confirm_funding_credit",
-        packet,
-    );
+    let result = f
+        .harness
+        .pic
+        .update_call(
+            f.service,
+            f.operator,
+            "fixture_confirm_funding_credit",
+            packet,
+        )
+        .await;
     retain_packet("post-credit-trap-result", format!("{result:?}").as_bytes());
     assert_eq!(
         crate::canister_rejection(&result.unwrap_err()).reject_code,
         RejectCode::CanisterError
     );
     assert!(
-        f.harness.pic.get_stable_memory(f.service).unwrap() == before,
+        f.harness.pic.get_stable_memory(f.service).await.unwrap() == before,
         "post-credit trap changed stable bytes"
     );
-    assert_eq!(f.local_status().funding.uncredited_accepted, 300);
+    assert_eq!(f.local_status().await.funding.uncredited_accepted, 300);
     assert_eq!(
-        f.confirm_credit(f.operator, credit(first, 300, 1)),
+        f.confirm_credit(f.operator, credit(first, 300, 1)).await,
         Ok(Some(true))
     );
     assert_eq!(
-        f.confirm_credit(f.operator, credit(first, 300, 1)),
+        f.confirm_credit(f.operator, credit(first, 300, 1)).await,
         Ok(Some(false))
     );
-    assert_eq!(f.incoming().len(), 1);
-    retain(&f, "post-credit-rollback");
+    assert_eq!(f.incoming().await.len(), 1);
+    retain(&f, "post-credit-rollback").await;
 }

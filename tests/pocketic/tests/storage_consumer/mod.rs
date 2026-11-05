@@ -16,14 +16,14 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 fn consumer_wasm() -> Vec<u8> {
     std::fs::read(fixture_path("BLOB_CONSUMER_PROBE_WASM")).unwrap()
 }
-fn fixture() -> Fixture {
-    let f = Fixture::new();
+async fn fixture() -> Fixture {
+    let f = Fixture::new().await;
     let arguments =
         blob_test_protocol::fixture_wire::encode_args("fixture_init", (f.operator, f.service))
             .unwrap();
-    fixture_with_wasm(f, consumer_wasm(), arguments)
+    fixture_with_wasm(f, consumer_wasm(), arguments).await
 }
-fn fixture_with_wasm(mut f: Fixture, wasm: Vec<u8>, arguments: Vec<u8>) -> Fixture {
+async fn fixture_with_wasm(mut f: Fixture, wasm: Vec<u8>, arguments: Vec<u8>) -> Fixture {
     let tenant = f
         .harness
         .pic
@@ -34,20 +34,22 @@ fn fixture_with_wasm(mut f: Fixture, wasm: Vec<u8>, arguments: Vec<u8>) -> Fixtu
                 ..CanisterSettings::default()
             }),
         )
+        .await
         .unwrap();
     f.harness
         .pic
         .install_canister(tenant, wasm, arguments, Some(f.controller))
+        .await
         .unwrap();
     f.tenant = tenant;
-    f.enroll(None, true).unwrap();
+    f.enroll(None, true).await.unwrap();
     f
 }
-fn input(f: &Fixture, id: u8) -> Run {
+async fn input(f: &Fixture, id: u8) -> Run {
     let (permission, manifest) = f.permission(u128::from(id), id);
-    f.admit(f.tenant, permission).unwrap();
-    f.prepare(&manifest).unwrap();
-    f.expose(permission.request).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
+    f.prepare(&manifest).await.unwrap();
+    f.expose(permission.request).await.unwrap();
     Run {
         registration: Registration {
             asset: u128::from(id),
@@ -75,25 +77,28 @@ fn input(f: &Fixture, id: u8) -> Run {
         max_reply_bytes: 4096,
     }
 }
-fn register(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
+async fn register(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
         .update_control_as(f.tenant, f.operator, "register", input, REPLY_BYTES)
+        .await
         .unwrap()
 }
-fn asset(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
+async fn asset(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
         .query_control_as(f.tenant, f.operator, "asset", id, REPLY_BYTES)
+        .await
         .unwrap()
 }
-fn cancel(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
+async fn cancel(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
         .update_control_as(f.tenant, f.operator, "cancel", id, REPLY_BYTES)
+        .await
         .unwrap()
 }
-fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
+async fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
         .update_control_as(
@@ -106,9 +111,10 @@ fn release(f: &Fixture, id: u128) -> Result<AssetView, ConsumerFailure> {
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap()
 }
-fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFailure> {
+async fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
         .update_control_as(
@@ -118,9 +124,10 @@ fn recover(f: &Fixture, id: u128, release: bool) -> Result<AssetView, ConsumerFa
             Recovery { asset: id, release },
             REPLY_BYTES,
         )
+        .await
         .unwrap()
 }
-fn use_asset(f: &Fixture, attach: bool) -> Result<AssetView, ConsumerFailure> {
+async fn use_asset(f: &Fixture, attach: bool) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
         .update_control_as(
@@ -130,9 +137,10 @@ fn use_asset(f: &Fixture, attach: bool) -> Result<AssetView, ConsumerFailure> {
             Use { asset: 1, attach },
             REPLY_BYTES,
         )
+        .await
         .unwrap()
 }
-fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
+async fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
     let value: Result<ReferenceReceiptLookup, ReferenceFailure> = f
         .harness
         .pic
@@ -143,21 +151,22 @@ fn receipt(f: &Fixture, command: ReferenceCommand) -> ReferenceReceiptLookup {
             command,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     value.unwrap()
 }
-#[test]
-fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
-    let f = fixture();
-    let input = input(&f, 1);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
+    let f = fixture().await;
+    let input = input(&f, 1).await;
     let original = ic_blob_storage_contracts::document::encode(&input).unwrap();
     let mut truncated = original.clone();
     truncated.pop();
     let mut trailing = original.clone();
     trailing.push(0);
     let unknown = ic_blob_storage_contracts::document::encode((&input, true)).unwrap();
-    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).unwrap();
-    let service_before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).await.unwrap();
+    let service_before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for (method, bytes) in [
         ("register", Vec::new()),
         ("resume", vec![0xf6]),
@@ -174,27 +183,28 @@ fn consumer_control_ingress_refuses_unusable_packets_before_asset_intent() {
             .harness
             .pic
             .update_call(f.tenant, f.operator, method, bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
             RejectCode::CanisterError
         );
         assert_eq!(
-            f.harness.pic.get_stable_memory(f.tenant).unwrap(),
+            f.harness.pic.get_stable_memory(f.tenant).await.unwrap(),
             consumer_before
         );
         assert_eq!(
-            f.harness.pic.get_stable_memory(f.service).unwrap(),
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
             service_before
         );
-        assert_eq!(asset(&f, 1), Err(ConsumerFailure::Unknown));
+        assert_eq!(asset(&f, 1).await, Err(ConsumerFailure::Unknown));
     }
-    assert!(register(&f, &input).unwrap().published);
+    assert!(register(&f, &input).await.unwrap().published);
 }
-#[test]
-fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
-    let f = fixture();
-    let mut input = input(&f, 1);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
+    let f = fixture().await;
+    let mut input = input(&f, 1).await;
     input.hold = true;
     let call = f
         .harness
@@ -205,14 +215,16 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
             "register",
             ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
+        .await
         .unwrap();
     let mut held = false;
     for _ in 0..40 {
-        f.harness.pic.tick().unwrap();
+        f.harness.pic.tick().await.unwrap();
         let waiting: Result<bool, ConsumerFailure> = f
             .harness
             .pic
             .query_control_as(f.tenant, f.operator, "waiting", (), REPLY_BYTES)
+            .await
             .unwrap();
         if waiting.unwrap() {
             held = true;
@@ -223,31 +235,32 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
         held,
         "consumer must reach the post-descriptor publication hold"
     );
-    assert!(!asset(&f, 1).unwrap().published);
-    assert!(cancel(&f, 1).unwrap().cancelled);
-    assert_eq!(use_asset(&f, true), Err(ConsumerFailure::State));
+    assert!(!asset(&f, 1).await.unwrap().published);
+    assert!(cancel(&f, 1).await.unwrap().cancelled);
+    assert_eq!(use_asset(&f, true).await, Err(ConsumerFailure::State));
     assert_eq!(
-        release(&f, 1).unwrap().release_result,
+        release(&f, 1).await.unwrap().release_result,
         Some(Ok(ReferenceChange::Changed))
     );
     let resumed: Result<(), ConsumerFailure> = f
         .harness
         .pic
         .update_control_as(f.tenant, f.operator, "resume", (), REPLY_BYTES)
+        .await
         .unwrap();
     resumed.unwrap();
     let result: Result<AssetView, ConsumerFailure> = ic_blob_storage_contracts::document::decode(
-        &f.harness.pic.await_call(call).unwrap(),
+        &f.harness.pic.await_call(call).await.unwrap(),
         REPLY_BYTES,
     )
     .unwrap();
     assert_eq!(result, Err(ConsumerFailure::State));
-    let state = register(&f, &input).unwrap();
+    let state = register(&f, &input).await.unwrap();
     assert!(state.cancelled);
     assert!(!state.published_once);
     assert!(!state.published);
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 10,
             physical: 10,
@@ -255,11 +268,11 @@ fn cancellation_and_cleanup_prevent_late_registration_and_new_uses() {
         }
     );
 }
-#[test]
-fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
     for fault in [Fault::AfterIntent, Fault::AfterRetain, Fault::AfterPublish] {
-        let f = fixture();
-        let mut input = input(&f, 1);
+        let f = fixture().await;
+        let mut input = input(&f, 1).await;
         input.fault = fault;
         let error = f
             .harness
@@ -270,6 +283,7 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
                 "register",
                 ic_blob_storage_contracts::document::encode(&input).unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
@@ -277,47 +291,53 @@ fn consumer_traps_preserve_intent_and_recover_without_retain_redispatch() {
         );
         input.fault = Fault::None;
         if fault == Fault::AfterIntent {
-            assert_eq!(asset(&f, 1), Err(ConsumerFailure::Unknown));
+            assert_eq!(asset(&f, 1).await, Err(ConsumerFailure::Unknown));
             assert_eq!(
-                receipt(&f, retained(&input.registration)),
+                receipt(&f, retained(&input.registration)).await,
                 ReferenceReceiptLookup::Absent
             );
-            assert!(register(&f, &input).unwrap().published);
+            assert!(register(&f, &input).await.unwrap().published);
         } else if fault == Fault::AfterRetain {
-            let pending = asset(&f, 1).unwrap();
+            let pending = asset(&f, 1).await.unwrap();
             assert!(pending.retain_started);
             assert_eq!(pending.retain_result, None);
-            cancel(&f, 1).unwrap();
-            assert_eq!(release(&f, 1), Err(ConsumerFailure::State));
-            let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-            let recovered = recover(&f, 1, false).unwrap();
+            cancel(&f, 1).await.unwrap();
+            assert_eq!(release(&f, 1).await, Err(ConsumerFailure::State));
+            let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+            let recovered = recover(&f, 1, false).await.unwrap();
             assert!(recovered.cancelled);
             assert_eq!(recovered.retain_result, Some(Ok(ReferenceChange::Changed)));
-            assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
             assert_eq!(
-                release(&f, 1).unwrap().release_result,
+                f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+                before
+            );
+            assert_eq!(
+                release(&f, 1).await.unwrap().release_result,
                 Some(Ok(ReferenceChange::Changed))
             );
-            assert!(!register(&f, &input).unwrap().published);
+            assert!(!register(&f, &input).await.unwrap().published);
         } else {
-            assert!(!asset(&f, 1).unwrap().published);
-            let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-            let published = register(&f, &input).unwrap();
+            assert!(!asset(&f, 1).await.unwrap().published);
+            let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+            let published = register(&f, &input).await.unwrap();
             assert!(published.published);
-            assert_eq!(register(&f, &input), Ok(published));
-            assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+            assert_eq!(register(&f, &input).await, Ok(published));
+            assert_eq!(
+                f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+                before
+            );
         }
     }
 }
-#[test]
-fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through_upgrade() {
-    let f = fixture();
-    let input = input(&f, 1);
-    assert!(register(&f, &input).unwrap().published);
-    assert_eq!(use_asset(&f, true).unwrap().uses, 1);
-    assert_eq!(cancel(&f, 1), Err(ConsumerFailure::State));
-    use_asset(&f, false).unwrap();
-    cancel(&f, 1).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through_upgrade() {
+    let f = fixture().await;
+    let input = input(&f, 1).await;
+    assert!(register(&f, &input).await.unwrap().published);
+    assert_eq!(use_asset(&f, true).await.unwrap().uses, 1);
+    assert_eq!(cancel(&f, 1).await, Err(ConsumerFailure::State));
+    use_asset(&f, false).await.unwrap();
+    cancel(&f, 1).await.unwrap();
     let error = f
         .harness
         .pic
@@ -331,22 +351,26 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
             })
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    let pending = asset(&f, 1).unwrap();
+    let pending = asset(&f, 1).await.unwrap();
     assert!(pending.release_started);
     assert_eq!(pending.release_result, None);
     assert!(pending.cancelled && pending.published_once && !pending.published);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
-        recover(&f, 1, true).unwrap().release_result,
+        recover(&f, 1, true).await.unwrap().release_result,
         Some(Ok(ReferenceChange::Changed))
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    let recovered = asset(&f, 1).unwrap();
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    let recovered = asset(&f, 1).await.unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -355,25 +379,29 @@ fn release_acknowledgment_trap_preserves_tombstone_and_recovery_evidence_through
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(asset(&f, 1), Ok(recovered));
-    assert_eq!(register(&f, &input), Err(ConsumerFailure::Fenced));
-    assert_eq!(release(&f, 1), Err(ConsumerFailure::Fenced));
-    assert_eq!(recover(&f, 1, true), Err(ConsumerFailure::Fenced));
-    assert_eq!(use_asset(&f, true), Err(ConsumerFailure::Fenced));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(asset(&f, 1).await, Ok(recovered));
+    assert_eq!(register(&f, &input).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(release(&f, 1).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(recover(&f, 1, true).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(use_asset(&f, true).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
 }
-#[test]
-fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_capacity() {
-    let f = fixture();
-    let first = input(&f, 1);
-    let second = input(&f, 2);
-    register(&f, &first).unwrap();
-    register(&f, &second).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_capacity() {
+    let f = fixture().await;
+    let first = input(&f, 1).await;
+    let second = input(&f, 2).await;
+    register(&f, &first).await.unwrap();
+    register(&f, &second).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut changed = first.clone();
     changed.registration.payload.push(9);
-    assert_eq!(register(&f, &changed), Err(ConsumerFailure::Conflict));
+    assert_eq!(register(&f, &changed).await, Err(ConsumerFailure::Conflict));
     let mut third = first.clone();
     third.registration.asset = 3;
     let mut command = retained(&third.registration);
@@ -381,29 +409,33 @@ fn bounded_consumer_history_rejects_changed_payload_and_preserves_cleanup_at_cap
     command.operation = 3;
     third.registration.source = RegistrationSource::Existing(command);
     third.registration.release_operation = 4;
-    assert_eq!(register(&f, &third), Err(ConsumerFailure::Capacity));
+    assert_eq!(register(&f, &third).await, Err(ConsumerFailure::Capacity));
     let denied: Result<AssetView, ConsumerFailure> = f
         .harness
         .pic
         .update_control_as(f.tenant, f.other, "register", &first, REPLY_BYTES)
+        .await
         .unwrap();
     assert_eq!(denied, Err(ConsumerFailure::Denied));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
     for id in [1, 2] {
-        cancel(&f, id).unwrap();
+        cancel(&f, id).await.unwrap();
         assert_eq!(
-            release(&f, id).unwrap().release_result,
+            release(&f, id).await.unwrap().release_result,
             Some(Ok(ReferenceChange::Changed))
         );
     }
-    assert_eq!(register(&f, &third), Err(ConsumerFailure::Capacity));
-    assert!(register(&f, &first).unwrap().cancelled);
+    assert_eq!(register(&f, &third).await, Err(ConsumerFailure::Capacity));
+    assert!(register(&f, &first).await.unwrap().cancelled);
 }
 
-#[test]
-fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_resend() {
-    let f = fixture();
-    let mut input = input(&f, 1);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_resend() {
+    let f = fixture().await;
+    let mut input = input(&f, 1).await;
     input.fault = Fault::AfterRetain;
     let error = f
         .harness
@@ -414,19 +446,20 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
             "register",
             ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
-    let pending = cancel(&f, 1).unwrap();
+    let pending = cancel(&f, 1).await.unwrap();
     assert!(pending.retain_started && pending.cancelled);
     assert_eq!(pending.retain_result, None);
     assert!(matches!(
-        receipt(&f, retained(&input.registration)),
+        receipt(&f, retained(&input.registration)).await,
         ReferenceReceiptLookup::Found(_)
     ));
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -435,12 +468,16 @@ fn upgrade_keeps_uncertain_retain_and_tombstone_without_authorizing_recovery_or_
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(asset(&f, 1), Ok(pending));
-    assert_eq!(recover(&f, 1, false), Err(ConsumerFailure::Fenced));
-    assert_eq!(register(&f, &input), Err(ConsumerFailure::Fenced));
-    assert_eq!(release(&f, 1), Err(ConsumerFailure::Fenced));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(asset(&f, 1).await, Ok(pending));
+    assert_eq!(recover(&f, 1, false).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(register(&f, &input).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(release(&f, 1).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
 }
 
 fn retained(intent: &Registration) -> ReferenceCommand {
@@ -463,24 +500,27 @@ fn pre_trait_consumer_wasm() -> Vec<u8> {
     old
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "Requires retained pre-trait consumer Wasm and its explicit SHA-256"]
-fn retired_consumer_upgrade_refuses_without_losing_published_or_cancelled_history() {
-    let f = Fixture::new();
+async fn retired_consumer_upgrade_refuses_without_losing_published_or_cancelled_history() {
+    let f = Fixture::new().await;
     // The pinned old image still owns its original Candid initializer.
     let arguments = ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap();
-    let f = fixture_with_wasm(f, pre_trait_consumer_wasm(), arguments);
-    let mut first = input(&f, 1);
+    let f = fixture_with_wasm(f, pre_trait_consumer_wasm(), arguments).await;
+    let mut first = input(&f, 1).await;
     first.registration.asset = u128::MAX;
     first.registration.release_operation = u128::MAX;
-    let second = input(&f, 2);
-    assert!(register(&f, &first).unwrap().published);
-    assert!(register(&f, &second).unwrap().published);
-    cancel(&f, 2).unwrap();
-    let before = [asset(&f, u128::MAX).unwrap(), asset(&f, 2).unwrap()];
-    let service_before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).unwrap();
-    crate::install_code::settle_install_code_debt(&f.harness.pic);
+    let second = input(&f, 2).await;
+    assert!(register(&f, &first).await.unwrap().published);
+    assert!(register(&f, &second).await.unwrap().published);
+    cancel(&f, 2).await.unwrap();
+    let before = [
+        asset(&f, u128::MAX).await.unwrap(),
+        asset(&f, 2).await.unwrap(),
+    ];
+    let service_before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).await.unwrap();
+    crate::install_code::settle_install_code_debt(&f.harness.pic).await;
     let error = f
         .harness
         .pic
@@ -490,32 +530,36 @@ fn retired_consumer_upgrade_refuses_without_losing_published_or_cancelled_histor
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(
-        f.harness.pic.get_stable_memory(f.tenant).unwrap(),
+        f.harness.pic.get_stable_memory(f.tenant).await.unwrap(),
         consumer_before
     );
     assert_eq!(
-        [asset(&f, u128::MAX).unwrap(), asset(&f, 2).unwrap()],
+        [
+            asset(&f, u128::MAX).await.unwrap(),
+            asset(&f, 2).await.unwrap()
+        ],
         before
     );
     assert_eq!(
-        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         service_before
     );
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "Requires retained pre-trait consumer Wasm and its explicit SHA-256"]
-fn retired_consumer_upgrade_refuses_without_losing_uncertain_retains() {
-    let f = Fixture::new();
+async fn retired_consumer_upgrade_refuses_without_losing_uncertain_retains() {
+    let f = Fixture::new().await;
     let arguments = ic_platform::candid::contract::encode_args((f.operator, f.service)).unwrap();
-    let f = fixture_with_wasm(f, pre_trait_consumer_wasm(), arguments);
-    let mut command = input(&f, 1);
+    let f = fixture_with_wasm(f, pre_trait_consumer_wasm(), arguments).await;
+    let mut command = input(&f, 1).await;
     command.fault = Fault::AfterRetain;
     assert!(
         f.harness
@@ -526,18 +570,19 @@ fn retired_consumer_upgrade_refuses_without_losing_uncertain_retains() {
                 "register",
                 ic_blob_storage_contracts::document::encode(&command).unwrap(),
             )
+            .await
             .is_err()
     );
-    let pending = cancel(&f, 1).unwrap();
+    let pending = cancel(&f, 1).await.unwrap();
     assert!(pending.retain_started && pending.cancelled);
     assert_eq!(pending.retain_result, None);
     assert!(matches!(
-        receipt(&f, retained(&command.registration)),
+        receipt(&f, retained(&command.registration)).await,
         ReferenceReceiptLookup::Found(_)
     ));
-    let service_before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).unwrap();
-    crate::install_code::settle_install_code_debt(&f.harness.pic);
+    let service_before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let consumer_before = f.harness.pic.get_stable_memory(f.tenant).await.unwrap();
+    crate::install_code::settle_install_code_debt(&f.harness.pic).await;
     let error = f
         .harness
         .pic
@@ -547,18 +592,19 @@ fn retired_consumer_upgrade_refuses_without_losing_uncertain_retains() {
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(
-        f.harness.pic.get_stable_memory(f.tenant).unwrap(),
+        f.harness.pic.get_stable_memory(f.tenant).await.unwrap(),
         consumer_before
     );
-    assert_eq!(asset(&f, 1), Ok(pending));
+    assert_eq!(asset(&f, 1).await, Ok(pending));
     assert_eq!(
-        f.harness.pic.get_stable_memory(f.service).unwrap(),
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         service_before
     );
 }

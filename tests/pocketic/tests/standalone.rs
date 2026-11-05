@@ -105,16 +105,16 @@ fn unchanged(actual: &[u8], expected: &[u8]) {
     );
 }
 impl Fixture {
-    fn new() -> Self {
-        Self::with_harness(Harness::new())
+    async fn new() -> Self {
+        Self::with_harness(Harness::new().await).await
     }
-    fn with_harness(harness: Harness) -> Self {
-        Self::with_cashier(harness, fake_principal(5))
+    async fn with_harness(harness: Harness) -> Self {
+        Self::with_cashier(harness, fake_principal(5)).await
     }
-    fn with_cashier(harness: Harness, cashier: Principal) -> Self {
-        Self::with_cashier_and_operator(harness, cashier, fake_principal(2))
+    async fn with_cashier(harness: Harness, cashier: Principal) -> Self {
+        Self::with_cashier_and_operator(harness, cashier, fake_principal(2)).await
     }
-    fn with_cashier_and_operator(
+    async fn with_cashier_and_operator(
         harness: Harness,
         cashier: Principal,
         operator: Principal,
@@ -127,8 +127,9 @@ impl Fixture {
             Envelope::Regular,
             PROJECT,
         )
+        .await
     }
-    fn small(harness: Harness, uploader: Principal) -> Self {
+    async fn small(harness: Harness, uploader: Principal) -> Self {
         Self::with_profile(
             harness,
             fake_principal(5),
@@ -137,8 +138,9 @@ impl Fixture {
             Envelope::Single,
             PROJECT,
         )
+        .await
     }
-    fn with_profile(
+    async fn with_profile(
         harness: Harness,
         cashier: Principal,
         operator: Principal,
@@ -147,7 +149,7 @@ impl Fixture {
         project: &str,
     ) -> Self {
         let controller = fake_principal(1);
-        let service = installation::controlled_canister(&harness.pic, controller);
+        let service = installation::controlled_canister(&harness.pic, controller).await;
         let mut config = ServiceConfigurationInput {
             service: service.into(),
             operator: operator.into(),
@@ -214,6 +216,7 @@ impl Fixture {
                 ic_blob_storage_contracts::wire::encode_request("blob_install", input).unwrap(),
                 Some(controller),
             )
+            .await
             .unwrap();
         Self {
             harness,
@@ -225,10 +228,11 @@ impl Fixture {
             config,
         }
     }
-    fn configuration(&self, actor: Principal) -> Result<HostConfigurationView, HostFailure> {
+    async fn configuration(&self, actor: Principal) -> Result<HostConfigurationView, HostFailure> {
         self.harness
             .pic
             .query_blob_as(self.service, actor, "blob_configuration", (), REPLY_BYTES)
+            .await
             .unwrap()
     }
     fn scope(&self) -> TenantScope {
@@ -238,7 +242,7 @@ impl Fixture {
             tenant: self.tenant.into(),
         }
     }
-    fn enroll(&self, actor: Principal) -> Result<TenantEnrollmentResponse, TenantFailure> {
+    async fn enroll(&self, actor: Principal) -> Result<TenantEnrollmentResponse, TenantFailure> {
         self.harness
             .pic
             .update_tenant_as(
@@ -251,16 +255,18 @@ impl Fixture {
                 },
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
-    fn tenant(&self) -> TenantEnrollmentResponse {
+    async fn tenant(&self) -> TenantEnrollmentResponse {
         self.harness
             .pic
             .query_tenant_as(self.service, self.tenant, self.scope(), REPLY_BYTES)
+            .await
             .unwrap()
             .unwrap()
     }
-    fn admission(&self, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
+    async fn admission(&self, input: UploadAdmissionRequest) -> UploadAdmissionResponse {
         self.harness
             .pic
             .query_blob_as::<Result<UploadAdmissionResponse, UploadAdmissionFailure>, _>(
@@ -270,10 +276,11 @@ impl Fixture {
                 input,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
             .unwrap()
     }
-    fn prepare(
+    async fn prepare(
         &self,
         actor: Principal,
         input: &UploadManifestRequest,
@@ -287,14 +294,16 @@ impl Fixture {
                 input,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
-    fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_testkit::pocket_ic::ClientError> {
+    async fn upgrade(&self, args: Vec<u8>) -> Result<(), ic_testkit::pocket_ic::ClientError> {
         self.harness
             .pic
             .upgrade_canister(self.service, wasm(), args, Some(self.controller))
+            .await
     }
-    fn resume(
+    async fn resume(
         &self,
         actor: Principal,
     ) -> Result<(), ic_blob_storage_contracts::dto::recovery::CurrentInstanceRecoveryFailure> {
@@ -307,6 +316,7 @@ impl Fixture {
                 (),
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
     fn manifest(&self) -> UploadManifestRequest {
@@ -403,22 +413,22 @@ impl Fixture {
     }
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One actual installation journey preserves the same permission through lifecycle checks"
 )]
-fn standalone_admission_manifest_and_restore_use_shared_authority() {
-    let f = Fixture::new();
-    let installed = f.configuration(f.operator).unwrap();
+async fn standalone_admission_manifest_and_restore_use_shared_authority() {
+    let f = Fixture::new().await;
+    let installed = f.configuration(f.operator).await.unwrap();
     assert_eq!(installed.configuration, f.config);
     assert_eq!(installed.project, PROJECT);
     assert!(!installed.fenced);
     for actor in [f.controller, f.tenant, Principal::anonymous()] {
-        assert_eq!(f.configuration(actor), Err(HostFailure::Denied));
-        assert_eq!(f.enroll(actor), Err(TenantFailure::Denied));
+        assert_eq!(f.configuration(actor).await, Err(HostFailure::Denied));
+        assert_eq!(f.enroll(actor).await, Err(TenantFailure::Denied));
     }
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let request = f.manifest();
     for actor in [f.controller, f.operator, f.uploader] {
         let result: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
@@ -431,6 +441,7 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
                 request.permission,
                 REPLY_BYTES,
             )
+            .await
             .unwrap();
         assert_eq!(result, Err(UploadAdmissionFailure::Denied));
     }
@@ -444,17 +455,18 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             request.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert!(!admitted.unwrap().replayed);
     assert_eq!(
-        f.prepare(f.tenant, &request),
+        f.prepare(f.tenant, &request).await,
         Err(UploadManifestFailure::Permission(
             UploadAdmissionFailure::Denied
         ))
     );
-    let prepared = f.prepare(f.uploader, &request).unwrap();
+    let prepared = f.prepare(f.uploader, &request).await.unwrap();
     assert!(prepared.changed);
-    assert!(!f.prepare(f.uploader, &request).unwrap().changed);
+    assert!(!f.prepare(f.uploader, &request).await.unwrap().changed);
     let reference: Result<ReferenceMutationResponse, ReferenceFailure> = f
         .harness
         .pic
@@ -470,42 +482,56 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(reference, Err(ReferenceFailure::Unconfirmed));
-    let observed = f.admission(request.permission);
-    let bytes = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let observed = f.admission(request.permission).await;
+    let bytes = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     f.harness
         .pic
         .stop_canister(f.service, Some(f.controller))
+        .await
         .unwrap();
     f.harness
         .pic
         .start_canister(f.service, Some(f.controller))
+        .await
         .unwrap();
-    assert!(f.configuration(f.operator).unwrap().fenced);
-    f.resume(f.operator).unwrap();
-    assert_eq!(f.configuration(f.operator).unwrap(), installed);
-    assert!(!f.prepare(f.uploader, &request).unwrap().changed);
-    unchanged(&f.harness.pic.get_stable_memory(f.service).unwrap(), &bytes);
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
+    f.resume(f.operator).await.unwrap();
+    assert_eq!(f.configuration(f.operator).await.unwrap(), installed);
+    assert!(!f.prepare(f.uploader, &request).await.unwrap().changed);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        &bytes,
+    );
     // No upgrade-supplied input can replace the retained operator or limits.
     // Respect the platform's install-code cooldown for optimized modules too.
-    install_code::settle_install_code_debt(&f.harness.pic);
+    install_code::settle_install_code_debt(&f.harness.pic).await;
     assert_eq!(
-        crate::canister_rejection(&f.upgrade(installation(&f.config)).unwrap_err()).reject_code,
+        crate::canister_rejection(&f.upgrade(installation(&f.config)).await.unwrap_err())
+            .reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.configuration(f.operator).unwrap(), installed);
-    unchanged(&f.harness.pic.get_stable_memory(f.service).unwrap(), &bytes);
-    install_code::settle_install_code_debt(&f.harness.pic);
+    assert_eq!(f.configuration(f.operator).await.unwrap(), installed);
+    unchanged(
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        &bytes,
+    );
+    install_code::settle_install_code_debt(&f.harness.pic).await;
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
     // The memory runtime commits its allocation ledger during bootstrap.
     // Service observations must survive; fenced calls must not write afterward.
-    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert!(f.configuration(f.operator).unwrap().fenced);
-    assert_eq!(f.configuration(f.operator).unwrap().configuration, f.config);
-    assert!(f.tenant().fenced);
-    assert_eq!(f.admission(request.permission), observed);
+    let restored = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
+    assert_eq!(
+        f.configuration(f.operator).await.unwrap().configuration,
+        f.config
+    );
+    assert!(f.tenant().await.fenced);
+    assert_eq!(f.admission(request.permission).await, observed);
     let retained: Result<UploadManifestResponse, UploadManifestFailure> = f
         .harness
         .pic
@@ -516,10 +542,11 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             request.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(retained.unwrap(), prepared.observation);
     assert_eq!(
-        f.prepare(f.uploader, &request),
+        f.prepare(f.uploader, &request).await,
         Err(UploadManifestFailure::Permission(
             UploadAdmissionFailure::Fenced
         ))
@@ -534,19 +561,20 @@ fn standalone_admission_manifest_and_restore_use_shared_authority() {
             request.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(revoked, Err(UploadAdmissionFailure::Fenced));
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &restored,
     );
 }
 
-#[test]
-fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write() {
-    let f = Fixture::new();
-    let enrollment = f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write() {
+    let f = Fixture::new().await;
+    let enrollment = f.enroll(f.operator).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut invalid_limits = f.config;
     invalid_limits.resources.max_tenant_active = 0;
     for input in [
@@ -562,15 +590,19 @@ fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write
             .harness
             .pic
             .reinstall_canister(f.service, wasm(), input, Some(f.controller))
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&failure).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(f.tenant(), enrollment);
-        assert_eq!(f.configuration(f.operator).unwrap().configuration, f.config);
+        assert_eq!(f.tenant().await, enrollment);
+        assert_eq!(
+            f.configuration(f.operator).await.unwrap().configuration,
+            f.config
+        );
         unchanged(
-            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
             &before,
         );
     }
@@ -583,34 +615,36 @@ fn standalone_invalid_installation_rolls_back_and_bounded_ingress_does_not_write
             .harness
             .pic
             .update_call(f.service, f.operator, method, input)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&failure).reject_code,
             RejectCode::CanisterError
         );
         unchanged(
-            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
             &before,
         );
     }
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[expect(
     clippy::too_many_lines,
     reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
 )]
-fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
-    let original = Fixture::new();
-    original.enroll(original.operator).unwrap();
+async fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
+    let original = Fixture::new().await;
+    original.enroll(original.operator).await.unwrap();
     let foreign = original
         .harness
         .pic
         .get_stable_memory(original.service)
+        .await
         .unwrap();
-    let target_harness = Harness::new();
-    target_harness.pic.create_canister().unwrap();
-    let target = Fixture::with_harness(target_harness);
+    let target_harness = Harness::new().await;
+    target_harness.pic.create_canister().await.unwrap();
+    let target = Fixture::with_harness(target_harness).await;
     assert_ne!(target.service, original.service);
     target
         .harness
@@ -620,6 +654,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
             foreign.clone(),
             ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
         )
+        .await
         .unwrap();
     assert_eq!(
         crate::canister_rejection(
@@ -628,6 +663,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
                     ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ())
                         .unwrap()
                 )
+                .await
                 .unwrap_err()
         )
         .reject_code,
@@ -638,6 +674,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
             .harness
             .pic
             .get_stable_memory(target.service)
+            .await
             .unwrap(),
         &foreign,
     );
@@ -649,6 +686,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
             Vec::new(),
             ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
         )
+        .await
         .unwrap();
     assert_eq!(
         crate::canister_rejection(
@@ -657,6 +695,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
                     ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ())
                         .unwrap()
                 )
+                .await
                 .unwrap_err()
         )
         .reject_code,
@@ -667,17 +706,23 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
             .harness
             .pic
             .get_stable_memory(target.service)
+            .await
             .unwrap(),
         Vec::<u8>::new()
     );
 
     // Change only the retained release in a same-service snapshot. This is
     // deliberate corruption in the emulator, never a supported restore tool.
-    let release = original.configuration(original.operator).unwrap().release;
+    let release = original
+        .configuration(original.operator)
+        .await
+        .unwrap()
+        .release;
     let mut wrong_release = original
         .harness
         .pic
         .get_stable_memory(original.service)
+        .await
         .unwrap();
     let offsets: Vec<_> = wrong_release
         .windows(release.len())
@@ -696,6 +741,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
             wrong_release.clone(),
             ic_testkit::pocket_ic::common::rest::BlobCompression::NoCompression,
         )
+        .await
         .unwrap();
     assert_eq!(
         crate::canister_rejection(
@@ -704,6 +750,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
                     ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ())
                         .unwrap()
                 )
+                .await
                 .unwrap_err()
         )
         .reject_code,
@@ -714,6 +761,7 @@ fn standalone_restore_rejects_foreign_and_missing_installation_memory() {
             .harness
             .pic
             .get_stable_memory(original.service)
+            .await
             .unwrap(),
         &wrong_release,
     );

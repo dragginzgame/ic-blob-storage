@@ -5,7 +5,7 @@ use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 mod client;
 
 impl Fixture {
-    fn update_enrollment(
+    async fn update_enrollment(
         &self,
         actor: Principal,
         input: TenantUpdateRequest,
@@ -13,9 +13,10 @@ impl Fixture {
         self.harness
             .pic
             .update_tenant_as(self.service, actor, input, REPLY_BYTES)
+            .await
             .unwrap()
     }
-    fn inspect_enrollment(
+    async fn inspect_enrollment(
         &self,
         actor: Principal,
         scope: TenantScope,
@@ -23,20 +24,21 @@ impl Fixture {
         self.harness
             .pic
             .query_tenant_as(self.service, actor, scope, REPLY_BYTES)
+            .await
             .unwrap()
     }
 }
 
-#[test]
-fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
+    let f = Fixture::new().await;
     let scope = f.tenant_scope();
     let input = TenantUpdateRequest {
         scope,
         expected: None,
         active: true,
     };
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for actor in [
         f.controller,
         f.tenant,
@@ -45,13 +47,13 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
         Principal::anonymous(),
     ] {
         assert_eq!(
-            f.update_enrollment(actor, input),
+            f.update_enrollment(actor, input).await,
             Err(TenantFailure::Denied)
         );
     }
     for actor in [f.operator, f.tenant] {
         assert_eq!(
-            f.inspect_enrollment(actor, scope),
+            f.inspect_enrollment(actor, scope).await,
             Ok(TenantEnrollmentResponse {
                 scope,
                 enrollment: None,
@@ -61,7 +63,7 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
     }
     for actor in [f.controller, f.uploader, f.other, Principal::anonymous()] {
         assert_eq!(
-            f.inspect_enrollment(actor, scope),
+            f.inspect_enrollment(actor, scope).await,
             Err(TenantFailure::Denied)
         );
     }
@@ -80,11 +82,12 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
         },
     ] {
         assert_eq!(
-            f.update_enrollment(f.operator, TenantUpdateRequest { scope, ..input }),
+            f.update_enrollment(f.operator, TenantUpdateRequest { scope, ..input })
+                .await,
             Err(TenantFailure::Binding)
         );
         assert_eq!(
-            f.inspect_enrollment(f.operator, scope),
+            f.inspect_enrollment(f.operator, scope).await,
             Err(TenantFailure::Binding)
         );
     }
@@ -94,11 +97,12 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
             ..scope
         };
         assert_eq!(
-            f.update_enrollment(f.operator, TenantUpdateRequest { scope, ..input }),
+            f.update_enrollment(f.operator, TenantUpdateRequest { scope, ..input })
+                .await,
             Err(TenantFailure::Invalid)
         );
         assert_eq!(
-            f.inspect_enrollment(f.operator, scope),
+            f.inspect_enrollment(f.operator, scope).await,
             Err(TenantFailure::Invalid)
         );
     }
@@ -112,29 +116,34 @@ fn tenant_boundary_checks_scope_authority_and_preconditions_without_writes() {
                 }),
                 ..input
             }
-        ),
+        )
+        .await,
         Err(TenantFailure::Invalid)
     );
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
 }
 
-#[test]
-fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity() {
+    let f = Fixture::new().await;
     let scope = f.tenant_scope();
     let original = TenantUpdateRequest {
         scope,
         expected: None,
         active: true,
     };
-    f.update_enrollment(f.operator, original).unwrap();
+    f.update_enrollment(f.operator, original).await.unwrap();
     // A lost enrollment reply is recovered by inspection, not blind replay.
     assert_eq!(
-        f.update_enrollment(f.operator, original),
+        f.update_enrollment(f.operator, original).await,
         Err(TenantFailure::Conflict)
     );
     let active = f
         .inspect_enrollment(f.operator, scope)
+        .await
         .unwrap()
         .enrollment
         .unwrap();
@@ -146,9 +155,9 @@ fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity
         }
     );
     let (permission, _) = f.permission(1, 1);
-    f.admit(f.tenant, permission).unwrap();
-    let obligations = f.status();
-    let suspended = f.enroll(Some(active), false).unwrap();
+    f.admit(f.tenant, permission).await.unwrap();
+    let obligations = f.status().await;
+    let suspended = f.enroll(Some(active), false).await.unwrap();
     assert_eq!(
         suspended,
         TenantEnrollment {
@@ -156,9 +165,12 @@ fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity
             ..active
         }
     );
-    assert_eq!(f.status(), obligations);
-    assert_eq!(f.enroll(Some(active), true), Err(TenantFailure::Conflict));
-    let reactivated = f.enroll(Some(suspended), true).unwrap();
+    assert_eq!(f.status().await, obligations);
+    assert_eq!(
+        f.enroll(Some(active), true).await,
+        Err(TenantFailure::Conflict)
+    );
+    let reactivated = f.enroll(Some(suspended), true).await.unwrap();
     assert_eq!(
         reactivated,
         TenantEnrollment {
@@ -168,10 +180,13 @@ fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity
     );
     // Fresh-generation permission cannot replace the retained original operation.
     assert_eq!(
-        f.lookup(f.tenant, permission.request).unwrap().generation,
+        f.lookup(f.tenant, permission.request)
+            .await
+            .unwrap()
+            .generation,
         1
     );
-    assert_eq!(f.status(), obligations);
+    assert_eq!(f.status().await, obligations);
 
     let second = TenantScope {
         tenant: f.other.into(),
@@ -185,6 +200,7 @@ fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity
             active: false,
         },
     )
+    .await
     .unwrap();
     let third = TenantScope {
         tenant: f.uploader.into(),
@@ -197,28 +213,32 @@ fn tenant_compare_and_set_recovers_by_inspection_and_suspension_retains_capacity
                 scope: third,
                 ..original
             }
-        ),
+        )
+        .await,
         Err(TenantFailure::Capacity)
     );
     // Suspension of an existing tenant still succeeds at lifetime capacity.
-    f.enroll(Some(reactivated), false).unwrap();
+    f.enroll(Some(reactivated), false).await.unwrap();
     assert_eq!(
-        f.inspect_enrollment(f.uploader, third).unwrap().enrollment,
+        f.inspect_enrollment(f.uploader, third)
+            .await
+            .unwrap()
+            .enrollment,
         None
     );
     assert_eq!(
-        f.inspect_enrollment(f.tenant, second),
+        f.inspect_enrollment(f.tenant, second).await,
         Err(TenantFailure::Denied)
     );
-    assert_eq!(f.status(), obligations);
+    assert_eq!(f.status().await, obligations);
 }
 
-#[test]
-fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
+    let f = Fixture::new().await;
     let scope = f.tenant_scope();
-    let trap = |expected, active| {
-        let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let trap = async |expected, active| {
+        let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
         let error = f
             .harness
             .pic
@@ -235,22 +255,26 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
                 )
                 .unwrap(),
             )
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
             RejectCode::CanisterError
         );
-        assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+            before
+        );
     };
-    trap(None, true);
-    assert_eq!(f.tenant(), None);
-    let active = f.enroll(None, true).unwrap();
-    trap(Some(active), false);
-    assert_eq!(f.tenant(), Some(active));
-    let suspended = f.enroll(Some(active), false).unwrap();
-    trap(Some(suspended), true);
-    assert_eq!(f.tenant(), Some(suspended));
-    let reactivated = f.enroll(Some(suspended), true).unwrap();
+    trap(None, true).await;
+    assert_eq!(f.tenant().await, None);
+    let active = f.enroll(None, true).await.unwrap();
+    trap(Some(active), false).await;
+    assert_eq!(f.tenant().await, Some(active));
+    let suspended = f.enroll(Some(active), false).await.unwrap();
+    trap(Some(suspended), true).await;
+    assert_eq!(f.tenant().await, Some(suspended));
+    let reactivated = f.enroll(Some(suspended), true).await.unwrap();
     assert_eq!(reactivated.generation, 2);
     f.harness
         .pic
@@ -260,10 +284,11 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
     for actor in [f.tenant, f.operator] {
         assert_eq!(
-            f.inspect_enrollment(actor, scope),
+            f.inspect_enrollment(actor, scope).await,
             Ok(TenantEnrollmentResponse {
                 scope,
                 enrollment: Some(reactivated),
@@ -272,11 +297,11 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
         );
     }
     assert_eq!(
-        f.enroll(Some(reactivated), true),
+        f.enroll(Some(reactivated), true).await,
         Err(TenantFailure::Fenced)
     );
     assert_eq!(
-        f.enroll(Some(reactivated), false),
+        f.enroll(Some(reactivated), false).await,
         Err(TenantFailure::Fenced)
     );
     assert_eq!(
@@ -287,7 +312,8 @@ fn tenant_write_traps_preserve_generation_then_restore_keeps_inspection_only() {
                 expected: Some(reactivated),
                 active: false
             }
-        ),
+        )
+        .await,
         Err(TenantFailure::Denied)
     );
 }

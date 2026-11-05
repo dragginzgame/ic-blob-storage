@@ -64,12 +64,12 @@ enum RelationshipError {
     InternalError(String),
 }
 
-fn fixture() -> Fixture {
-    fixture_with_operator(Harness::new(), fake_principal(2))
+async fn fixture() -> Fixture {
+    fixture_with_operator(Harness::new().await, fake_principal(2)).await
 }
-fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
-    let cashier = harness.pic.create_canister().unwrap();
-    let f = Fixture::with_cashier_and_operator(harness, cashier, operator);
+async fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
+    let cashier = harness.pic.create_canister().await.unwrap();
+    let f = Fixture::with_cashier_and_operator(harness, cashier, operator).await;
     f.harness
         .pic
         .install_canister(
@@ -82,6 +82,7 @@ fn fixture_with_operator(harness: Harness, operator: Principal) -> Fixture {
             .unwrap(),
             None,
         )
+        .await
         .unwrap();
     f
 }
@@ -91,7 +92,7 @@ fn request(f: &Fixture, kind: AccountInspectionKind) -> AccountInspectionRequest
         kind,
     }
 }
-fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
+async fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
     let account = match kind {
         AccountInspectionKind::Balance => f.config.payment_account,
         AccountInspectionKind::PaymentRelationship => f.service.into(),
@@ -109,11 +110,12 @@ fn configure(f: &Fixture, kind: AccountInspectionKind, bytes: Vec<u8>) {
                 hold: false
             },)
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
     );
 }
-fn inspect(
+async fn inspect(
     f: &Fixture,
     actor: Principal,
     input: AccountInspectionRequest,
@@ -121,6 +123,7 @@ fn inspect(
     f.harness
         .pic
         .update_blob_as(f.service, actor, "blob_inspect_account", input, REPLY_BYTES)
+        .await
         .unwrap()
 }
 fn balance(account: Principal, total: Int) -> Vec<u8> {
@@ -169,24 +172,30 @@ fn relationship(value: Option<AccountRelationshipView>) -> Vec<u8> {
     .unwrap()
 }
 
-#[test]
-fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state() {
-    let f = fixture();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep independent callers and all account observations against the same installed state"
+)]
+async fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state() {
+    let f = fixture().await;
     let input = request(&f, AccountInspectionKind::Balance);
     configure(
         &f,
         input.kind,
         balance(f.config.payment_account.into(), u128::MAX.into()),
-    );
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    )
+    .await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let source_before = f
         .harness
         .pic
         .get_stable_memory(input.scope.cashier.into())
+        .await
         .unwrap();
     for actor in [f.controller, f.tenant, f.uploader, Principal::anonymous()] {
         assert_eq!(
-            inspect(&f, actor, input),
+            inspect(&f, actor, input).await,
             Err(AccountInspectionFailure::Denied)
         );
     }
@@ -209,12 +218,12 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
         },
     ] {
         assert_eq!(
-            inspect(&f, f.operator, AccountInspectionRequest { scope, ..input }),
+            inspect(&f, f.operator, AccountInspectionRequest { scope, ..input }).await,
             Err(AccountInspectionFailure::Binding)
         );
     }
     assert_eq!(
-        inspect(&f, f.operator, input),
+        inspect(&f, f.operator, input).await,
         Ok(AccountInspectionResponse {
             request: input,
             observation: AccountObservation::Balance(FundingReportedBalance {
@@ -234,6 +243,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
                 "blob_inspect_account",
                 ic_blob_storage_pocketic_tests::retired_packets::candid_scope()
             )
+            .await
             .is_err()
     );
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
@@ -241,6 +251,7 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
             .harness
             .pic
             .update_call(f.service, f.operator, "blob_inspect_account", bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&error).reject_code,
@@ -248,36 +259,39 @@ fn standalone_account_reads_bind_operator_and_scope_and_preserve_all_local_state
         );
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     unchanged(
         &f.harness
             .pic
             .get_stable_memory(input.scope.cashier.into())
+            .await
             .unwrap(),
         &source_before,
     );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
     assert_eq!(
-        inspect(&f, f.operator, input),
+        inspect(&f, f.operator, input).await,
         Err(AccountInspectionFailure::Fenced)
     );
     unchanged(
         &f.harness
             .pic
             .get_stable_memory(input.scope.cashier.into())
+            .await
             .unwrap(),
         &source_before,
     );
 }
 
-#[test]
-fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
-    let f = fixture();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
+    let f = fixture().await;
     let input = request(&f, AccountInspectionKind::Balance);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for (bytes, failure) in [
         (
             balance(f.tenant, 1.into()),
@@ -297,8 +311,8 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
         (vec![0], AccountInspectionFailure::InvalidReply),
         (vec![0; 4097], AccountInspectionFailure::ReplyTooLarge),
     ] {
-        configure(&f, input.kind, bytes);
-        assert_eq!(inspect(&f, f.operator, input), Err(failure));
+        configure(&f, input.kind, bytes).await;
+        assert_eq!(inspect(&f, f.operator, input).await, Err(failure));
     }
     for (error, expected) in [
         (
@@ -314,9 +328,10 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
             &f,
             input.kind,
             ic_platform::candid::contract::encode_one(Err::<BalanceReport, _>(error)).unwrap(),
-        );
+        )
+        .await;
         assert_eq!(
-            inspect(&f, f.operator, input).unwrap().observation,
+            inspect(&f, f.operator, input).await.unwrap().observation,
             expected
         );
     }
@@ -333,22 +348,27 @@ fn standalone_balance_errors_never_supply_zero_credit_or_trigger_funding() {
                 hold: false
             },)
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
     );
     assert_eq!(
-        inspect(&f, f.operator, input),
+        inspect(&f, f.operator, input).await,
         Err(AccountInspectionFailure::Rejected(4))
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
 
-#[test]
-fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_linked_payer() {
-    let mut f = fixture();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One linked-payer journey distinguishes exact signed values, missing links and restore fences"
+)]
+async fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_linked_payer() {
+    let mut f = fixture().await;
     // This fresh local installation has no objects or provider effects.
     f.config.payment_account = fake_principal(8).into();
     f.harness
@@ -359,13 +379,14 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
             installation(&f.config),
             Some(f.controller),
         )
+        .await
         .unwrap();
     let input = request(&f, AccountInspectionKind::PaymentRelationship);
     let expected = relation(&f);
-    configure(&f, input.kind, relationship(Some(expected.clone())));
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    configure(&f, input.kind, relationship(Some(expected.clone()))).await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
-        inspect(&f, f.operator, input),
+        inspect(&f, f.operator, input).await,
         Ok(AccountInspectionResponse {
             request: input,
             observation: AccountObservation::Relationship(Box::new(expected.clone()))
@@ -381,15 +402,15 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
             ..expected.clone()
         },
     ] {
-        configure(&f, input.kind, relationship(Some(changed)));
+        configure(&f, input.kind, relationship(Some(changed))).await;
         assert_eq!(
-            inspect(&f, f.operator, input),
+            inspect(&f, f.operator, input).await,
             Err(AccountInspectionFailure::Binding)
         );
     }
-    configure(&f, input.kind, relationship(None));
+    configure(&f, input.kind, relationship(None)).await;
     assert_eq!(
-        inspect(&f, f.operator, input).unwrap().observation,
+        inspect(&f, f.operator, input).await.unwrap().observation,
         AccountObservation::NoRelationshipReported
     );
     for (error, expected) in [
@@ -414,9 +435,10 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
             &f,
             input.kind,
             ic_platform::candid::contract::encode_one(Err::<RelationshipReport, _>(error)).unwrap(),
-        );
+        )
+        .await;
         assert_eq!(
-            inspect(&f, f.operator, input).unwrap().observation,
+            inspect(&f, f.operator, input).await.unwrap().observation,
             expected
         );
     }
@@ -424,27 +446,32 @@ fn standalone_relationship_keeps_signed_fields_and_missing_link_distinct_for_lin
         (vec![0], AccountInspectionFailure::InvalidReply),
         (vec![0; 4097], AccountInspectionFailure::ReplyTooLarge),
     ] {
-        configure(&f, input.kind, bytes);
-        assert_eq!(inspect(&f, f.operator, input), Err(expected));
+        configure(&f, input.kind, bytes).await;
+        assert_eq!(inspect(&f, f.operator, input).await, Err(expected));
     }
     let balance_input = request(&f, AccountInspectionKind::Balance);
     configure(
         &f,
         balance_input.kind,
         balance(f.config.payment_account.into(), 10.into()),
-    );
+    )
+    .await;
     assert!(matches!(
-        inspect(&f, f.operator, balance_input).unwrap().observation,
+        inspect(&f, f.operator, balance_input)
+            .await
+            .unwrap()
+            .observation,
         AccountObservation::Balance(_)
     ));
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
     assert_eq!(
-        inspect(&f, f.operator, input),
+        inspect(&f, f.operator, input).await,
         Err(AccountInspectionFailure::Fenced)
     );
 }

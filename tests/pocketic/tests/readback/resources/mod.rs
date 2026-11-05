@@ -1,8 +1,12 @@
 //! Bounded read-slot and call-context sizing with the default Rust allocator.
 use super::*;
 
-fn profile(f: &Fixture, outcome: Result<(), JourneyFailure>) -> ReadExecutionProfile {
-    let p = f.read_resources(f.authority_operator).unwrap().unwrap();
+async fn profile(f: &Fixture, outcome: Result<(), JourneyFailure>) -> ReadExecutionProfile {
+    let p = f
+        .read_resources(f.authority_operator)
+        .await
+        .unwrap()
+        .unwrap();
     assert_eq!(p.outcome, outcome);
     let stages = [
         Some(p.started),
@@ -23,11 +27,12 @@ fn profile(f: &Fixture, outcome: Result<(), JourneyFailure>) -> ReadExecutionPro
     p
 }
 
-fn heap(f: &Fixture) -> u64 {
+async fn heap(f: &Fixture) -> u64 {
     let status = f
         .harness
         .pic
         .canister_status(f.service, Some(f.operator))
+        .await
         .unwrap();
     u64::try_from(status.memory_metrics.wasm_memory_size.0).unwrap()
 }
@@ -51,27 +56,28 @@ fn wasm_hash(variable: &str) -> String {
     hex::encode(Sha256::digest(bytes))
 }
 
-#[test]
-fn read_resources_cover_full_chunks_faults_and_repeated_slot_reuse() {
-    let f = Fixture::new();
-    assert_eq!(f.read_resources(f.operator), Ok(None));
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn read_resources_cover_full_chunks_faults_and_repeated_slot_reuse() {
+    let f = Fixture::new().await;
+    assert_eq!(f.read_resources(f.operator).await, Ok(None));
     let mut samples = Vec::new();
     for (name, id) in [("abc-text", 1), ("pattern-1048576", 2)] {
         let v = content_vectors::vector(name, id);
-        f.confirm_bytes(&v);
-        f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
-        let before = heap(&f);
-        let usage = f.usage(f.first).unwrap();
+        f.confirm_bytes(&v).await;
+        f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false)
+            .await;
+        let before = heap(&f).await;
+        let usage = f.usage(f.first).await.unwrap();
         for attempt in 0..12 {
-            let chunk = f.read_chunk(f.first, v.upload, 0).unwrap();
+            let chunk = f.read_chunk(f.first, v.upload, 0).await.unwrap();
             assert_eq!(chunk.bytes, v.bytes);
-            let p = profile(&f, Ok(()));
+            let p = profile(&f, Ok(())).await;
             assert_eq!(p.caller, f.first);
             assert_eq!(p.disclosed_bytes, v.bytes.len() as u64);
             assert!(p.verified.is_some());
             assert!(p.received_bytes > p.disclosed_bytes);
-            assert!(heap(&f) <= before + 8 * CHUNK as u64);
-            samples.push(sample(&format!("{name}-{attempt}"), p, heap(&f)));
+            assert!(heap(&f).await <= before + 8 * CHUNK as u64);
+            samples.push(sample(&format!("{name}-{attempt}"), p, heap(&f).await));
         }
         for (mode, failure) in [
             (ReadSourceMode::Corrupt, JourneyFailure::ContentMismatch),
@@ -84,9 +90,9 @@ fn read_resources_cover_full_chunks_faults_and_repeated_slot_reuse() {
             ),
             (ReadSourceMode::Reject, JourneyFailure::Transport),
         ] {
-            f.source_config(v.upload, 0, &v.bytes, mode, false);
-            assert_eq!(f.read_chunk(f.first, v.upload, 0), Err(failure));
-            let p = profile(&f, Err(failure));
+            f.source_config(v.upload, 0, &v.bytes, mode, false).await;
+            assert_eq!(f.read_chunk(f.first, v.upload, 0).await, Err(failure));
+            let p = profile(&f, Err(failure)).await;
             match mode {
                 ReadSourceMode::Corrupt => assert!(p.verified.is_some()),
                 ReadSourceMode::Malformed
@@ -98,15 +104,15 @@ fn read_resources_cover_full_chunks_faults_and_repeated_slot_reuse() {
                 ReadSourceMode::Oversized | ReadSourceMode::Reject => assert!(p.decoding.is_none()),
                 _ => unreachable!(),
             }
-            samples.push(sample(&format!("{name}-{mode:?}"), p, heap(&f)));
+            samples.push(sample(&format!("{name}-{mode:?}"), p, heap(&f).await));
         }
-        assert_eq!(f.usage(f.first).unwrap(), usage);
+        assert_eq!(f.usage(f.first).await.unwrap(), usage);
     }
-    let latest = f.read_resources(f.operator).unwrap();
+    let latest = f.read_resources(f.operator).await.unwrap();
     for caller in [f.first, f.second, f.gateway, Principal::anonymous()] {
-        assert_eq!(f.read_resources(caller), Err(JourneyFailure::Denied));
+        assert_eq!(f.read_resources(caller).await, Err(JourneyFailure::Denied));
     }
-    assert_eq!(f.read_resources(f.operator).unwrap(), latest);
+    assert_eq!(f.read_resources(f.operator).await.unwrap(), latest);
     let report = serde_json::json!({
         "scope":"Single-slot fixture read through a local source. Call-context counter 1 includes fixture journal saves and excludes ingress decode, source execution, final reply encoding and diagnostic storage. Allocated Wasm memory includes allocator headroom; neither peak live bytes nor production concurrency sizing. Default Rust allocator; no deployed provider calls.",
         "authority_wasm_sha256":wasm_hash("BLOB_AUTHORITY_PROBE_WASM"),
@@ -119,34 +125,39 @@ fn read_resources_cover_full_chunks_faults_and_repeated_slot_reuse() {
     println!("read resource profile: {report}");
 }
 
-#[test]
-fn held_read_keeps_one_slot_and_profiles_do_not_grant_authority() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn held_read_keeps_one_slot_and_profiles_do_not_grant_authority() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("pattern-1048576", 1);
-    f.confirm_bytes(&v);
-    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true);
-    let held = f.hold_read(v.upload);
-    assert_eq!(f.read_resources(f.operator), Ok(None));
-    let before = f.source_observation();
+    f.confirm_bytes(&v).await;
+    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, true)
+        .await;
+    let held = f.hold_read(v.upload).await;
+    assert_eq!(f.read_resources(f.operator).await, Ok(None));
+    let before = f.source_observation().await;
     for _ in 0..8 {
         for (caller, failure) in [
             (f.first, JourneyFailure::ReadInProgress),
             (f.second, JourneyFailure::Denied),
         ] {
-            assert_eq!(f.read_chunk(caller, v.upload, 0), Err(failure));
-            let p = profile(&f, Err(failure));
+            assert_eq!(f.read_chunk(caller, v.upload, 0).await, Err(failure));
+            let p = profile(&f, Err(failure)).await;
             assert_eq!(p.caller, caller);
             assert!(p.sending.is_none());
             assert!(p.replied.is_none());
             assert_eq!(p.received_bytes, 0);
         }
     }
-    assert_eq!(f.source_observation(), before);
-    assert_eq!(f.resume_read(held).unwrap().bytes, v.bytes);
-    let p = profile(&f, Ok(()));
+    assert_eq!(f.source_observation().await, before);
+    assert_eq!(f.resume_read(held).await.unwrap().bytes, v.bytes);
+    let p = profile(&f, Ok(())).await;
     assert_eq!(p.caller, f.first);
     assert_eq!(p.disclosed_bytes, CHUNK as u64);
     assert!(p.verified.is_some());
-    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
-    assert_eq!(f.read_chunk(f.first, v.upload, 0).unwrap().bytes, v.bytes);
+    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false)
+        .await;
+    assert_eq!(
+        f.read_chunk(f.first, v.upload, 0).await.unwrap().bytes,
+        v.bytes
+    );
 }

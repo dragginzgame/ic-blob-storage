@@ -10,10 +10,11 @@ The published archive's migration guide and API were reviewed. Wire supplies
 schema/serialization; generic decode requires an explicit input-lifetime or owned
 Serde bound. The archive checksum is
 `bdfc9e7a6686d78854a2a06f408492313ce10c985a17976e7395fc6cef776479`.
-The [machine record](borrowed-wire0390.json) retains affected package checksums,
+The [machine record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/borrowed-wire0390.json) retains affected package checksums,
 compiler identity, artifact/source hashes, sample counts/ranges and frame hashes.
-Complete temporary sources, drivers, frames, raw samples and all failed/provisional
-attempts remain under `.tmp/review-validation/borrowed-wire0380/` locally.
+Raw experiment sources, drivers, samples and failed/provisional attempts are
+not retained by this summary. The historical record does not establish their
+continued local custody or independent reproducibility.
 
 ## Ownership and implementation
 
@@ -68,10 +69,10 @@ are not live/peak heap. Native codec probes count peak additional live bytes,
 excluding pre-existing input; they omit metadata validation, transport and storage.
 The async retained-heap comparison below is a native model, not an IC heap reading.
 
-Initial shared-target captures suffered stale build-cache mixing and are retained
-as provisional. Accepted comparisons were rebuilt in distinct target directories
-for each captured source; they use the same driver. Raw logs retain the initial
-cache, compilation, admission and test failures together with successful retries.
+Initial shared-target captures suffered stale build-cache mixing and were marked
+provisional. Accepted comparisons were rebuilt in distinct target directories
+for each captured source; they use the same driver. The historical report records the initial cache, compilation, admission and
+test failures; raw logs are no longer retained here.
 
 ## Final measurements
 
@@ -127,8 +128,8 @@ Borrowing upload metadata across the continuity await cut raw native decode from
 six allocations to two, but retained the whole ingress frame: the native retained
 heap model rose 402 to 525 bytes (small) and 1,081 to 1,206 (heavy). Isolated IC
 first preparation regressed 3.74–3.88% and replay 5.89–6.12%. That experiment was
-reverted; the final upload request remains owned. Trial source/results are retained
-separately in the machine record, not presented as accepted implementation gains.
+reverted; the final upload request remains owned. Trial source/results are recorded
+separately in the historical machine record, not presented as accepted implementation gains.
 
 The descriptor IC instruction regression remains a qualification/performance
 limitation. Its allocation benefit applies to native consumers retaining a reply,
@@ -138,22 +139,8 @@ Canic, a live provider, full CI or the optimized-Wasm matrix. Cross-release serv
 transitions still require safe retirement and reinstall.
 
 
-## Focused qualification
+## Qualification scope
 
-Contracts pass 123 unit cases, service export and literal vectors covering all
-159 owned method/lifecycle cases; the other Contracts integration targets pass.
-Extended malformed/bounds/refusal cases verify owned/borrowed error parity.
-Six native CLI/provider download cases pass; changed decoder/output cases pass
-again after lint cleanup. Installed local PocketIC passes the before/after
-record/retry proof, the upload/admission/replay/restore flow, four ingress cases,
-six descriptor/client/native refusal cases, three certificate cases and four
-lifecycle/recovery cases. Chromium's complete upload, verification, native download
-and release journey passes against a local provider substitute; browser control
-and offline admission/build also pass.
-
-Strict Clippy passes for six affected packages across targets/features. Actual
-Rust 1.91 native checks pass for the same selection; Contracts and default
-standalone pass minimum-version Wasm checks. Formatting, dependency pins and
-inheritance, canonical direct dependency boundaries, deployment exclusions and
-documentation links pass. The full CI/release gate and other hosts/providers
-listed above remain outside this focused qualification.
+Historical focused native, installed substitute, Chromium, malformed-input and
+old-minimum compiler checks passed for that captured graph. These results do not
+qualify the current graph; the complete old check inventory remains in Git.

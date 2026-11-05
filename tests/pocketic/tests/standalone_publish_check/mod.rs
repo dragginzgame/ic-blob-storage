@@ -15,33 +15,35 @@ use serde_json::json;
 use sha2::{Digest, Sha256};
 use std::path::Path;
 
-pub(super) fn setup() -> Fixture {
-    setup_profile(Envelope::Single)
+pub(super) async fn setup() -> Fixture {
+    setup_profile(Envelope::Single).await
 }
-pub(super) fn setup_batch() -> Fixture {
-    setup_profile(Envelope::Regular)
+pub(super) async fn setup_batch() -> Fixture {
+    setup_profile(Envelope::Regular).await
 }
-fn setup_profile(envelope: Envelope) -> Fixture {
+async fn setup_profile(envelope: Envelope) -> Fixture {
     let mut f = Fixture::with_profile(
         Harness::with_builder(
             PocketIcBuilder::new()
                 .with_nns_subnet()
                 .with_application_subnet(),
-        ),
+        )
+        .await,
         fake_principal(5),
         fake_principal(2),
         uploader(),
         envelope,
         "publish-check-fixture",
-    );
+    )
+    .await;
     f.tenant = signer();
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     f
 }
-pub(super) fn freeze(fixture: &Fixture, directory: &Path) -> UploadAdmissionRequest {
-    freeze_files(fixture, directory, &[1024])[0]
+pub(super) async fn freeze(fixture: &Fixture, directory: &Path) -> UploadAdmissionRequest {
+    freeze_files(fixture, directory, &[1024]).await[0]
 }
-pub(super) fn freeze_files(
+pub(super) async fn freeze_files(
     fixture: &Fixture,
     directory: &Path,
     sizes: &[u64],
@@ -57,8 +59,9 @@ pub(super) fn freeze_files(
         &vec!["image/png"; bodies.len()],
         &vec![None; bodies.len()],
     )
+    .await
 }
-pub(super) fn freeze_bodies(
+pub(super) async fn freeze_bodies(
     fixture: &Fixture,
     directory: &Path,
     bodies: &[Vec<u8>],
@@ -67,7 +70,7 @@ pub(super) fn freeze_bodies(
 ) -> Vec<UploadAdmissionRequest> {
     assert_eq!(bodies.len(), content_types.len());
     assert_eq!(bodies.len(), cache_controls.len());
-    let host = fixture.configuration(fixture.operator).unwrap();
+    let host = fixture.configuration(fixture.operator).await.unwrap();
     std::fs::write(
         directory.join("installation.wire"),
         ic_blob_storage_contracts::wire::encode_request(
@@ -139,11 +142,11 @@ pub(super) fn freeze_bodies(
     assert_eq!(run(&args, 0)["all_bodies_verified"], true);
     permissions
 }
-fn args(f: &Fixture, d: &Path, url: &str, label: &str) -> Vec<String> {
+async fn args(f: &Fixture, d: &Path, url: &str, label: &str) -> Vec<String> {
     std::fs::write(d.join("tenant.pem"), PEM).unwrap();
     std::fs::write(
         d.join("root.der"),
-        f.harness.pic.root_key().unwrap().unwrap(),
+        f.harness.pic.root_key().await.unwrap().unwrap(),
     )
     .unwrap();
     [
@@ -178,25 +181,26 @@ fn args(f: &Fixture, d: &Path, url: &str, label: &str) -> Vec<String> {
     .map(str::to_owned)
     .to_vec()
 }
-#[test]
-fn standalone_batch_check_observes_absence_original_reservation_and_same_release_restore_without_mutation()
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_batch_check_observes_absence_original_reservation_and_same_release_restore_without_mutation()
  {
-    let mut f = setup();
+    let mut f = setup().await;
     let d = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let p = freeze(&f, d.path());
+    let p = freeze(&f, d.path()).await;
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let absent = run(&args(&f, d.path(), &url, "absent"), 0);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let absent = run(&args(&f, d.path(), &url, "absent").await, 0);
     assert_eq!(absent["blocked"], false);
     assert_eq!(absent["files"][0]["status"], "not_visible");
     assert_eq!(absent["not_visible_demand"]["objects"], 1);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     f.harness
@@ -208,10 +212,11 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
             p,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let pending = run(&args(&f, d.path(), &url, "pending"), 0);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let pending = run(&args(&f, d.path(), &url, "pending").await, 0);
     assert_eq!(pending["blocked"], true);
     assert_eq!(pending["files"][0]["status"], "recover_existing_operation");
     assert_eq!(
@@ -220,17 +225,18 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
     );
     assert_eq!(pending["capacity_reserved"], false);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    let repeated = run(&args(&f, d.path(), &url, "pending"), 3);
+    let repeated = run(&args(&f, d.path(), &url, "pending").await, 3);
     assert_eq!(repeated["error"], "new_run_required");
-    f.harness.pic.stop_progress().unwrap();
+    f.harness.pic.stop_progress().await.unwrap();
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    f.harness.pic.auto_progress().unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let restored = run(&args(&f, d.path(), &url, "restored"), 0);
+    f.harness.pic.auto_progress().await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let restored = run(&args(&f, d.path(), &url, "restored").await, 0);
     assert_eq!(restored["capacity"]["fenced"], true);
     assert!(
         restored["blockers"]
@@ -240,16 +246,16 @@ fn standalone_batch_check_observes_absence_original_reservation_and_same_release
     );
     assert_eq!(restored["files"][0]["status"], "recover_existing_operation");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }
-#[test]
-fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellation() {
-    let mut f = setup();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellation() {
+    let mut f = setup().await;
     let d = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let mut p = freeze(&f, d.path());
+    let mut p = freeze(&f, d.path()).await;
     p.upload.root = [77; 32];
     p.upload.upload = 99;
     p.upload.object = 99;
@@ -262,6 +268,7 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             p,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
     f.harness
@@ -273,16 +280,18 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             p,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap()
         .to_string();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let report = run(&args(&f, d.path(), &url, "capacity"), 0);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let report = run(&args(&f, d.path(), &url, "capacity").await, 0);
     assert_eq!(report["files"][0]["status"], "not_visible");
     assert_eq!(report["capacity"]["remaining_objects"], 0);
     assert!(
@@ -292,8 +301,8 @@ fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cancellatio
             .contains(&json!("object_history_capacity"))
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
 }

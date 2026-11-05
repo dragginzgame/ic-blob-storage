@@ -1,5 +1,13 @@
 [
   {
+    "dependency": "serde_cbor",
+    "allowed_packages": []
+  },
+  {
+    "dependency": "ciborium",
+    "allowed_packages": []
+  },
+  {
     "dependency": "ic-memory",
     "allowed_packages": []
   },

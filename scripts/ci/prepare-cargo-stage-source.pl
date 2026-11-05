@@ -150,14 +150,24 @@ for my $group (@{$policy->{groups}}) {
     my $plan=$json->decode(observe('bash',"$root/scripts/ci/cargo-release-group.sh",'plan',$name));
     my $previous=$plan->{previous};
     my $notes=bytes("$tree/$group->{changelog}");
-    $notes =~ /^## \[(\d+\.\d+\.\d+)\] - (Unreleased|\d{4}-\d{2}-\d{2})$/m
+    # Never search past the first release heading for an older usable version.
+    my ($heading) = $notes =~ /^(##[ \t]+[^\n]*)/m;
+    defined($heading) or die "candidate group has no release heading\n";
+    $heading =~ s/[ \t]+$//;
+    $heading =~ s/[ \t]+/ /g;
+    $heading =~ /\A## \[(\d+\.\d+\.\d+)\](?: - (Unreleased|\d{4}-\d{2}-\d{2}))?\z/
         or die "candidate group needs its exact latest release heading\n";
-    my ($version,$date)=($1,$2);
+    my ($version,$date)=($1,$2 // 'Unreleased');
     if ($date eq 'Unreleased') {
         $version ne $previous or die "pending candidate must advance its group\n";
         local @ENV{qw(RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE)}=($previous,$version,'2000-01-01');
         run("$attempt/preparation.log",'bash',"$root/scripts/ci/cargo-release-group.sh",'prepare',$name);
-    } else { $version eq $previous or die "finalized group and package version differ\n"; }
+    } else {
+        $version eq $previous or die "finalized group and package version differ\n";
+        run("$attempt/preparation.log",'awk','-v',"version=$version",'-v',"previous=$previous",
+            '-v',"date=$date",'-v','allow_finalized=1','-v','verify_current=1',
+            '-f',"$root/scripts/ci/finalize-release-changelog.awk","$tree/$group->{changelog}");
+    }
     $versions{$name}={version=>$version,primary=>$plan->{primary},members=>$plan->{members}};
 }
 # These are stage-only inputs, not replacement release records. The consumer

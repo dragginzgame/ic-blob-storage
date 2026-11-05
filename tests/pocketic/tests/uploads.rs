@@ -11,30 +11,38 @@ use ic_testkit::fake_principal;
 use ic_testkit::pocket_ic::PocketIc;
 use support::Harness;
 
-fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
+async fn usage(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<u128> {
     fixture_calls::query_fixture(pic, canister, caller, "upload_usage", ())
+        .await
         .map(|(reply,)| reply)
         .expect("usage")
 }
-fn active(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
+async fn active(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<u8>> {
     fixture_calls::query_fixture(pic, canister, caller, "active_uploads", ())
+        .await
         .map(|(reply,)| reply)
         .expect("active uploads")
 }
-fn roots(pic: &PocketIc, canister: Principal, caller: Principal) -> Option<Vec<UploadProbeState>> {
+async fn roots(
+    pic: &PocketIc,
+    canister: Principal,
+    caller: Principal,
+) -> Option<Vec<UploadProbeState>> {
     fixture_calls::query_fixture(pic, canister, caller, "upload_roots", ())
+        .await
         .map(|(reply,)| reply)
         .expect("root observations")
 }
-fn cancel(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
+async fn cancel(pic: &PocketIc, canister: Principal, caller: Principal, root: u8) -> bool {
     fixture_calls::update_fixture(pic, canister, caller, "cancel_upload", (root,))
+        .await
         .map(|(reply,)| reply)
         .expect("cancel")
 }
 
-#[test]
-fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_work() {
-    let harness = Harness::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_work() {
+    let harness = Harness::new().await;
     let pic = &harness.pic;
     let (first, second, gateway, controller) = (
         fake_principal(1),
@@ -42,7 +50,7 @@ fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_wor
         fake_principal(3),
         fake_principal(4),
     );
-    let canister = installation::controlled_canister(pic, controller);
+    let canister = installation::controlled_canister(pic, controller).await;
     installation::install_fixture(
         pic,
         canister,
@@ -53,41 +61,42 @@ fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_wor
         )
         .expect("init"),
         Some(controller),
-    );
+    )
+    .await;
     let observations = vec![
         UploadProbeState::Reserved,
         UploadProbeState::Registered,
         UploadProbeState::Registered,
         UploadProbeState::Cancelled,
     ];
-    assert_eq!(roots(pic, canister, gateway), Some(observations));
-    assert_eq!(active(pic, canister, first), Some(vec![11]));
-    assert_eq!(active(pic, canister, second), Some(vec![]));
-    assert_eq!(usage(pic, canister, first), Some(200));
-    assert_eq!(usage(pic, canister, second), Some(100));
-    assert_eq!(active(pic, canister, Principal::anonymous()), None);
-    assert_eq!(usage(pic, canister, Principal::anonymous()), None);
+    assert_eq!(roots(pic, canister, gateway).await, Some(observations));
+    assert_eq!(active(pic, canister, first).await, Some(vec![11]));
+    assert_eq!(active(pic, canister, second).await, Some(vec![]));
+    assert_eq!(usage(pic, canister, first).await, Some(200));
+    assert_eq!(usage(pic, canister, second).await, Some(100));
+    assert_eq!(active(pic, canister, Principal::anonymous()).await, None);
+    assert_eq!(usage(pic, canister, Principal::anonymous()).await, None);
     for caller in [controller, gateway] {
-        assert_eq!(active(pic, canister, caller), Some(vec![]));
-        assert_eq!(usage(pic, canister, caller), Some(0));
+        assert_eq!(active(pic, canister, caller).await, Some(vec![]));
+        assert_eq!(usage(pic, canister, caller).await, Some(0));
     }
     for caller in [second, controller, gateway, Principal::anonymous()] {
-        assert!(!cancel(pic, canister, caller, 11));
-        assert!(!cancel(pic, canister, caller, 12));
+        assert!(!cancel(pic, canister, caller, 11).await);
+        assert!(!cancel(pic, canister, caller, 12).await);
     }
     for caller in [first, second, controller, Principal::anonymous()] {
-        assert_eq!(roots(pic, canister, caller), None);
+        assert_eq!(roots(pic, canister, caller).await, None);
     }
-    assert!(!cancel(pic, canister, first, 12)); // Registered references require lifecycle release.
-    assert!(!cancel(pic, canister, second, 13)); // The same rule applies to either tenant.
-    assert!(!cancel(pic, canister, first, 99));
-    assert!(cancel(pic, canister, first, 11));
-    assert!(cancel(pic, canister, first, 11));
-    assert_eq!(active(pic, canister, first), Some(vec![]));
-    assert_eq!(usage(pic, canister, first), Some(100));
-    assert_eq!(usage(pic, canister, second), Some(100));
+    assert!(!cancel(pic, canister, first, 12).await); // Registered references require lifecycle release.
+    assert!(!cancel(pic, canister, second, 13).await); // The same rule applies to either tenant.
+    assert!(!cancel(pic, canister, first, 99).await);
+    assert!(cancel(pic, canister, first, 11).await);
+    assert!(cancel(pic, canister, first, 11).await);
+    assert_eq!(active(pic, canister, first).await, Some(vec![]));
+    assert_eq!(usage(pic, canister, first).await, Some(100));
+    assert_eq!(usage(pic, canister, second).await, Some(100));
     assert_eq!(
-        roots(pic, canister, gateway),
+        roots(pic, canister, gateway).await,
         Some(vec![
             UploadProbeState::Cancelled,
             UploadProbeState::Registered,
@@ -97,10 +106,11 @@ fn real_callers_observe_only_owned_reservations_and_cannot_cancel_registered_wor
     );
     let revoked: bool =
         fixture_calls::update_fixture(pic, canister, controller, "revoke_gateway", ())
+            .await
             .map(|(reply,)| reply)
             .expect("revoke");
     assert!(revoked);
-    assert_eq!(roots(pic, canister, gateway), None);
-    assert_eq!(active(pic, canister, first), Some(vec![]));
-    assert_eq!(usage(pic, canister, first), Some(100));
+    assert_eq!(roots(pic, canister, gateway).await, None);
+    assert_eq!(active(pic, canister, first).await, Some(vec![]));
+    assert_eq!(usage(pic, canister, first).await, Some(100));
 }

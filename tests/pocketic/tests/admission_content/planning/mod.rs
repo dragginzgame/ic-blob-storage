@@ -16,7 +16,7 @@ fn scope(f: &Fixture) -> TenantScope {
     }
 }
 
-fn capacity(
+async fn capacity(
     f: &Fixture,
     actor: Principal,
     input: TenantScope,
@@ -24,16 +24,17 @@ fn capacity(
     f.harness
         .pic
         .query_blob_as(f.service, actor, "blob_upload_capacity", input, REPLY_BYTES)
+        .await
         .unwrap()
 }
 
-#[test]
-fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observations() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observations() {
     use ic_blob_storage_contracts::dto::reference::capacity::ReferenceCapacityRequest;
     use ic_blob_storage_contracts::{document, wire};
 
-    let f = Fixture::new();
-    f.enroll();
+    let f = Fixture::new().await;
+    f.enroll().await;
     let scope = scope(&f);
     let root = [1; 32];
     let requests = [
@@ -63,6 +64,7 @@ fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observa
             .harness
             .pic
             .query_call(f.service, f.project, method, request.clone())
+            .await
             .expect("current method-bound request succeeds");
         let mut trailing = request.clone();
         trailing.push(0);
@@ -80,6 +82,7 @@ fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observa
                 .harness
                 .pic
                 .query_call(f.service, f.project, method, bytes)
+                .await
                 .unwrap_err();
             assert_eq!(
                 crate::canister_rejection(&error).reject_code,
@@ -90,22 +93,23 @@ fn discovery_and_capacity_queries_refuse_foreign_frames_without_changing_observa
             f.harness
                 .pic
                 .query_call(f.service, f.project, method, request)
+                .await
                 .unwrap(),
             before
         );
     }
 }
 
-#[test]
-fn capacity_queries_enforce_caller_scope_and_input_bound() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn capacity_queries_enforce_caller_scope_and_input_bound() {
+    let f = Fixture::new().await;
     let input = scope(&f);
     assert_eq!(
-        capacity(&f, f.project, input),
+        capacity(&f, f.project, input).await,
         Err(UploadCapacityFailure::NotEnrolled)
     );
-    let enrollment = f.enroll();
-    let initial = capacity(&f, f.project, input).unwrap();
+    let enrollment = f.enroll().await;
+    let initial = capacity(&f, f.project, input).await.unwrap();
     assert_eq!(initial.scope, input);
     assert_eq!(initial.enrollment.generation, enrollment.generation);
     assert_eq!(initial.enrollment.active, enrollment.active);
@@ -122,7 +126,7 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
         Principal::anonymous(),
     ] {
         assert_eq!(
-            capacity(&f, actor, input),
+            capacity(&f, actor, input).await,
             Err(UploadCapacityFailure::Denied)
         );
     }
@@ -134,7 +138,8 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
                 tenant: f.other.into(),
                 ..input
             }
-        ),
+        )
+        .await,
         Err(UploadCapacityFailure::NotEnrolled)
     );
     assert_eq!(
@@ -145,7 +150,8 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
                 service: f.other.into(),
                 ..input
             }
-        ),
+        )
+        .await,
         Err(UploadCapacityFailure::Binding)
     );
     assert_eq!(
@@ -156,7 +162,8 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
                 namespace: 2,
                 ..input
             }
-        ),
+        )
+        .await,
         Err(UploadCapacityFailure::Binding)
     );
     assert_eq!(
@@ -167,39 +174,42 @@ fn capacity_queries_enforce_caller_scope_and_input_bound() {
                 namespace: 0,
                 ..input
             }
-        ),
+        )
+        .await,
         Err(UploadCapacityFailure::Invalid)
     );
     let oversized = f
         .harness
         .pic
         .query_call(f.service, f.project, "blob_upload_capacity", vec![0; 4097])
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&oversized).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(capacity(&f, f.project, input), Ok(initial));
+    assert_eq!(capacity(&f, f.project, input).await, Ok(initial));
 }
 
-#[test]
-fn capacity_preserves_cancelled_history_and_suspended_inspection_across_stop_start() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn capacity_preserves_cancelled_history_and_suspended_inspection_across_stop_start() {
+    let f = Fixture::new().await;
     let input = scope(&f);
-    let enrollment = f.enroll();
-    let initial = capacity(&f, f.project, input).unwrap();
-    let permission = f.permission(&vectors::vector("abc-text", 1));
-    f.admit(permission);
-    let before = f.observe(permission);
-    let reserved = capacity(&f, f.project, input).unwrap();
+    let enrollment = f.enroll().await;
+    let initial = capacity(&f, f.project, input).await.unwrap();
+    let permission = f.permission(&vectors::vector("abc-text", 1)).await;
+    f.admit(permission).await;
+    let before = f.observe(permission).await;
+    let reserved = capacity(&f, f.project, input).await.unwrap();
     assert_eq!(reserved.remaining_bytes, initial.remaining_bytes - 3);
     assert_eq!(reserved.remaining_objects, 1);
     assert_eq!(reserved.remaining_active_uploads, 1);
     assert_eq!(reserved.remaining_manifest_chunks, 9);
-    assert_eq!(f.observe(permission), before);
+    assert_eq!(f.observe(permission).await, before);
     f.call(f.project, Command::Revoke(permission.request))
+        .await
         .unwrap();
-    let cancelled = capacity(&f, f.project, input).unwrap();
+    let cancelled = capacity(&f, f.project, input).await.unwrap();
     assert_eq!(cancelled.remaining_bytes, initial.remaining_bytes);
     assert_eq!(
         cancelled.remaining_active_uploads,
@@ -211,10 +221,11 @@ fn capacity_preserves_cancelled_history_and_suspended_inspection_across_stop_sta
         reserved.remaining_manifest_chunks
     );
     f.call(f.operator, f.enrollment(Some(enrollment), false))
+        .await
         .unwrap();
-    f.restart();
+    f.restart().await;
     assert_eq!(
-        capacity(&f, f.project, input).unwrap(),
+        capacity(&f, f.project, input).await.unwrap(),
         UploadCapacityResponse {
             enrollment: ic_blob_storage_contracts::dto::tenant::TenantEnrollment {
                 active: false,
@@ -224,33 +235,36 @@ fn capacity_preserves_cancelled_history_and_suspended_inspection_across_stop_sta
         }
     );
     assert_eq!(
-        f.call(f.project, Command::Admit(permission)),
+        f.call(f.project, Command::Admit(permission)).await,
         Ok(Outcome::Existing(Phase::Cancelled))
     );
     assert_eq!(
         capacity(&f, f.project, input)
+            .await
             .unwrap()
             .remaining_manifest_chunks,
         9
     );
 }
 
-#[test]
-fn completion_and_settlement_never_restore_lifetime_manifest_capacity() {
-    let f = Fixture::new();
-    f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn completion_and_settlement_never_restore_lifetime_manifest_capacity() {
+    let f = Fixture::new().await;
+    f.enroll().await;
     let input = scope(&f);
     let vector = vectors::vector("media-10485760", 1);
-    let permission = f.permission(&vector);
-    f.admit(permission);
-    f.prepare(permission, &vector);
+    let permission = f.permission(&vector).await;
+    f.admit(permission).await;
+    f.prepare(permission, &vector).await;
     f.call(f.uploader, Command::Expose(permission.request.root))
+        .await
         .unwrap();
-    let pending = capacity(&f, f.project, input).unwrap();
+    let pending = capacity(&f, f.project, input).await.unwrap();
     assert_eq!(pending.remaining_bytes, 0);
     assert_eq!(pending.remaining_manifest_chunks, 0);
     assert_eq!(
         capacity(&f, f.project, input)
+            .await
             .unwrap()
             .remaining_active_uploads,
         2
@@ -264,23 +278,25 @@ fn completion_and_settlement_never_restore_lifetime_manifest_capacity() {
             retain: false,
         }),
     )
+    .await
     .unwrap();
     for command in [
         LifecycleCommand::SubstituteDeletion(permission.request),
         LifecycleCommand::SubstituteSettlement(permission.request),
     ] {
         f.call(f.operator, Command::FixtureLifecycle(command))
+            .await
             .unwrap();
     }
-    f.restart();
-    let settled = capacity(&f, f.project, input).unwrap();
+    f.restart().await;
+    let settled = capacity(&f, f.project, input).await.unwrap();
     assert_eq!(settled.remaining_bytes, 10 * 1024 * 1024);
     assert_eq!(settled.remaining_manifest_chunks, 0);
     assert_eq!(settled.remaining_objects, 1);
-    let next = f.permission(&vectors::vector("abc-text", 2));
+    let next = f.permission(&vectors::vector("abc-text", 2)).await;
     assert_eq!(
-        f.call(f.project, Command::Admit(next)),
+        f.call(f.project, Command::Admit(next)).await,
         Err(Failure::TenantManifestCapacity)
     );
-    assert_eq!(capacity(&f, f.project, input).unwrap(), settled);
+    assert_eq!(capacity(&f, f.project, input).await.unwrap(), settled);
 }

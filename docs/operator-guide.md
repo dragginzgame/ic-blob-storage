@@ -27,6 +27,11 @@ numbers before command execution. Decimal IDs and limits retain canonical
 spelling; file indices permit canonical zero. Trust-root/URL policy and request
 authority remain with their command owners. Argument refusals retain the existing
 redacted JSON and exit 2; help succeeds without opening identity or input files.
+Command guidance lives beside the Clap declaration; account `--kind`, history
+`--filter` and reference `--action` choices are listed by `COMMAND --help`.
+The `caffeine-probe` and contributor archive verifier also use typed Clap
+arguments. Saved documents and session control frames remain their existing
+bounded protocols, separate from command-line parsing.
 
 ## Choose a task
 

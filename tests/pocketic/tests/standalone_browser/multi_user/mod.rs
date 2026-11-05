@@ -23,21 +23,21 @@ fn user_directory(trial: &mut Trial, parent: &Path, seed: u8) {
     trial.f.uploader = BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap();
 }
 
-fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest {
+async fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest {
     let body = [byte; 1024];
     let mut input = trial.f.manifest_body(&body, "image/png", None);
     input.permission.upload.upload = id;
     input.permission.upload.object = id;
     let config = json!({
         "url": trial.url, "service": trial.f.service.to_text(),
-        "rootKey": trial.f.harness.pic.root_key().unwrap().unwrap(), "project": super::client::PROJECT,
+        "rootKey": trial.f.harness.pic.root_key().await.unwrap().unwrap(), "project": super::client::PROJECT,
         "identitySeed": seed, "otherUploaderSeed": if seed == 42 { 45 } else { 42 },
         "bodyByte": byte, "providerRootCertificate": trial.report.join("gateway-ca.pem"),
     });
     let mut driver = BrowserDriver::start(&config, "standalone.mjs");
     let plan: BrowserPreparation = driver.read(8192);
-    let generated = trial.inputs(&input, &plan, &body);
-    trial.setup(&generated);
+    let generated = trial.inputs(&input, &plan, &body).await;
+    trial.setup(&generated).await;
     driver.send(&trial.transfer_inputs());
     let uploaded: super::client::UploadReport = driver.read(8192);
     assert!(uploaded.uploaded && uploaded.recovered);
@@ -45,7 +45,7 @@ fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest 
     assert_eq!(uploaded.root, plan.hash);
     assert_eq!(uploaded.puts.len(), 2);
     assert_eq!(
-        trial.f.admission(input.permission).state,
+        trial.f.admission(input.permission).await.state,
         UploadState::Registered
     );
     let delivered = trial.download(
@@ -82,15 +82,16 @@ fn upload(trial: &Trial, seed: u8, byte: u8, id: u128) -> UploadManifestRequest 
     input
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "Requires pinned browser packages and Chromium; run make test-browser-standalone"]
-fn chromium_standalone_trial_two_users_verify_distinct_uploads_and_release_independently() {
-    let mut trial = Trial::with_envelope("two-users", Envelope::Regular);
+async fn chromium_standalone_trial_two_users_verify_distinct_uploads_and_release_independently() {
+    let mut trial = Trial::with_envelope("two-users", Envelope::Regular).await;
     let parent = trial.report.clone();
-    let files = [(42, 42, 1), (45, 43, 2)].map(|(seed, byte, id)| {
+    let mut files = Vec::with_capacity(2);
+    for (seed, byte, id) in [(42, 42, 1), (45, 43, 2)] {
         user_directory(&mut trial, &parent, seed);
-        upload(&trial, seed, byte, id)
-    });
+        files.push(upload(&trial, seed, byte, id).await);
+    }
     assert_ne!(files[0].permission.uploader, files[1].permission.uploader);
     assert_ne!(
         files[0].permission.upload.root,
@@ -99,26 +100,29 @@ fn chromium_standalone_trial_two_users_verify_distinct_uploads_and_release_indep
     let both = trial
         .f
         .local_status(trial.f.operator, trial.f.operator_scope())
+        .await
         .unwrap();
     assert_eq!(both.uploads.logical_bytes, 2048);
     trial.report = parent.join("user-42");
-    trial.release(&files[0]);
+    trial.release(&files[0]).await;
     let one = trial
         .f
         .local_status(trial.f.operator, trial.f.operator_scope())
+        .await
         .unwrap();
     assert_eq!(one.uploads.logical_bytes, 1024);
     assert_eq!(one.uploads.physical_bytes, 2048);
     assert_eq!(one.uploads.liability_bytes, 2048);
     assert_eq!(
-        trial.f.admission(files[1].permission).state,
+        trial.f.admission(files[1].permission).await.state,
         UploadState::Registered
     );
     trial.report = parent.join("user-45");
-    trial.release(&files[1]);
+    trial.release(&files[1]).await;
     let released = trial
         .f
         .local_status(trial.f.operator, trial.f.operator_scope())
+        .await
         .unwrap();
     assert_eq!(released.uploads.logical_bytes, 0);
     assert_eq!(released.uploads.physical_bytes, 2048);

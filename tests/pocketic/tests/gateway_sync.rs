@@ -25,12 +25,12 @@ struct Fixture {
 }
 
 impl Fixture {
-    fn new() -> Self {
-        let harness = Harness::new();
+    async fn new() -> Self {
+        let harness = Harness::new().await;
         let pic = &harness.pic;
         let (tenant, gateway, driver) = (fake_principal(1), fake_principal(3), fake_principal(4));
         let create = || installation::controlled_canister(pic, driver);
-        let (service, source) = (create(), create());
+        let (service, source) = (create().await, create().await);
         installation::install_fixture(
             pic,
             service,
@@ -41,7 +41,8 @@ impl Fixture {
             )
             .expect("probe init"),
             Some(driver),
-        );
+        )
+        .await;
         installation::install_fixture(
             pic,
             source,
@@ -52,9 +53,11 @@ impl Fixture {
             )
             .expect("source init"),
             Some(driver),
-        );
+        )
+        .await;
         let released: bool =
             fixture_calls::update_fixture(pic, service, tenant, "release", (1_u8,))
+                .await
                 .map(|(reply,)| reply)
                 .expect("owner release");
         assert!(released);
@@ -72,7 +75,7 @@ impl Fixture {
         &self.harness.pic
     }
 
-    fn configure(&self, mode: SourceMode) {
+    async fn configure(&self, mode: SourceMode) {
         let accepted: bool = fixture_calls::update_fixture(
             self.pic(),
             self.source,
@@ -80,42 +83,46 @@ impl Fixture {
             "configure",
             (mode,),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("source configuration");
         assert!(accepted);
     }
 
-    fn sync(&self) -> Result<(), SyncFailure> {
+    async fn sync(&self) -> Result<(), SyncFailure> {
         fixture_calls::update_fixture(
             self.pic(),
             self.source,
             self.driver,
             "run_sync",
-            (sync_request::read(self.pic(), self.service, self.source),),
+            (sync_request::read(self.pic(), self.service, self.source).await,),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("drive actual source-to-probe call")
     }
 
-    fn observation(&self) -> SourceObservation {
+    async fn observation(&self) -> SourceObservation {
         let observation: Option<SourceObservation> =
             fixture_calls::query_fixture(self.pic(), self.source, self.driver, "observation", ())
+                .await
                 .map(|(reply,)| reply)
                 .expect("source observation");
         observation.expect("authorized driver")
     }
 
-    fn pending(&self, actor: Principal) -> Option<Vec<u8>> {
+    async fn pending(&self, actor: Principal) -> Option<Vec<u8>> {
         fixture_calls::query_fixture(self.pic(), self.service, actor, "pending", ())
+            .await
             .map(|(reply,)| reply)
             .expect("pending query")
     }
 }
 
-#[test]
-fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
-    let fixture = Fixture::new();
-    let before = fixture.observation();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
+    let fixture = Fixture::new().await;
+    let before = fixture.observation().await;
     for caller in [
         fixture.tenant,
         fixture.gateway,
@@ -127,70 +134,67 @@ fn denied_and_failed_syncs_do_not_change_membership_or_automatically_retry() {
             fixture.service,
             caller,
             "sync_gateway",
-            (sync_request::read(
-                fixture.pic(),
-                fixture.service,
-                fixture.source,
-            ),),
+            (sync_request::read(fixture.pic(), fixture.service, fixture.source).await,),
         )
+        .await
         .map(|(reply,)| reply)
         .expect("sync denial");
         assert_eq!(result, Err(SyncFailure::Denied));
     }
-    assert_eq!(fixture.observation(), before);
+    assert_eq!(fixture.observation().await, before);
     for (mode, error) in [
         (SourceMode::Malformed, SyncFailure::InvalidReply),
         (SourceMode::Oversized, SyncFailure::ReplyTooLarge),
         (SourceMode::Empty, SyncFailure::InvalidReply),
         (SourceMode::Reject, SyncFailure::Transport),
     ] {
-        fixture.configure(mode);
-        let requests = fixture.observation().requests;
-        assert_eq!(fixture.sync(), Err(error));
-        assert_eq!(fixture.observation().requests, requests + 1);
-        assert_eq!(fixture.pending(fixture.gateway), Some(vec![1]));
-        fixture.configure(SourceMode::Valid);
-        assert_eq!(fixture.sync(), Ok(()));
-        assert_eq!(fixture.observation().requests, requests + 2);
-        assert_eq!(fixture.pending(fixture.gateway), Some(vec![1]));
+        fixture.configure(mode).await;
+        let requests = fixture.observation().await.requests;
+        assert_eq!(fixture.sync().await, Err(error));
+        assert_eq!(fixture.observation().await.requests, requests + 1);
+        assert_eq!(fixture.pending(fixture.gateway).await, Some(vec![1]));
+        fixture.configure(SourceMode::Valid).await;
+        assert_eq!(fixture.sync().await, Ok(()));
+        assert_eq!(fixture.observation().await.requests, requests + 2);
+        assert_eq!(fixture.pending(fixture.gateway).await, Some(vec![1]));
     }
 }
 
-#[test]
-fn reentrant_sync_cannot_overlap_or_undo_revocation_and_newer_membership() {
-    let fixture = Fixture::new();
-    fixture.configure(SourceMode::Overlap);
-    assert_eq!(fixture.sync(), Ok(()));
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn reentrant_sync_cannot_overlap_or_undo_revocation_and_newer_membership() {
+    let fixture = Fixture::new().await;
+    fixture.configure(SourceMode::Overlap).await;
+    assert_eq!(fixture.sync().await, Ok(()));
     assert_eq!(
-        fixture.observation(),
+        fixture.observation().await,
         SourceObservation {
             requests: 1,
             nested_sync: Some(Err(SyncFailure::InProgress)),
         }
     );
-    assert_eq!(fixture.pending(fixture.gateway), Some(vec![1]));
+    assert_eq!(fixture.pending(fixture.gateway).await, Some(vec![1]));
 
-    fixture.configure(SourceMode::Revoke);
-    assert_eq!(fixture.sync(), Err(SyncFailure::Stale));
-    assert_eq!(fixture.pending(fixture.gateway), None);
+    fixture.configure(SourceMode::Revoke).await;
+    assert_eq!(fixture.sync().await, Err(SyncFailure::Stale));
+    assert_eq!(fixture.pending(fixture.gateway).await, None);
     // A later explicit sync may re-add the member; revocation is not a permanent ban.
-    fixture.configure(SourceMode::Valid);
-    assert_eq!(fixture.sync(), Ok(()));
-    assert_eq!(fixture.pending(fixture.gateway), Some(vec![1]));
+    fixture.configure(SourceMode::Valid).await;
+    assert_eq!(fixture.sync().await, Ok(()));
+    assert_eq!(fixture.pending(fixture.gateway).await, Some(vec![1]));
 
     let replacement = fake_principal(5);
-    fixture.configure(SourceMode::Replace(replacement));
-    let requests = fixture.observation().requests;
-    assert_eq!(fixture.sync(), Err(SyncFailure::Stale));
+    fixture.configure(SourceMode::Replace(replacement)).await;
+    let requests = fixture.observation().await.requests;
+    assert_eq!(fixture.sync().await, Err(SyncFailure::Stale));
     assert_eq!(
-        fixture.observation(),
+        fixture.observation().await,
         SourceObservation {
             requests: requests + 2,
             nested_sync: Some(Ok(())),
         }
     );
-    assert_eq!(fixture.pending(fixture.gateway), None);
-    assert_eq!(fixture.pending(replacement), Some(vec![1]));
-    assert_eq!(fixture.sync(), Ok(()));
-    assert_eq!(fixture.pending(replacement), Some(vec![1]));
+    assert_eq!(fixture.pending(fixture.gateway).await, None);
+    assert_eq!(fixture.pending(replacement).await, Some(vec![1]));
+    assert_eq!(fixture.sync().await, Ok(()));
+    assert_eq!(fixture.pending(replacement).await, Some(vec![1]));
 }

@@ -15,7 +15,7 @@ struct HistoryWorkload {
     final_phase: FundingPhase,
 }
 
-fn send(
+async fn send(
     f: &Fixture,
     directory: &Path,
     name: &str,
@@ -25,7 +25,11 @@ fn send(
 ) -> Result<Vec<u8>, ic_testkit::pocket_ic::ClientError> {
     retain_bytes(directory, &format!("{name}.cbor"), &packet);
     assert!(packet.len() <= STORAGE_PROBE_INPUT_BYTES);
-    let result = f.harness.pic.update_call(f.service, actor, method, packet);
+    let result = f
+        .harness
+        .pic
+        .update_call(f.service, actor, method, packet)
+        .await;
     retain(
         directory,
         &format!("{name}.json"),
@@ -34,7 +38,7 @@ fn send(
     result
 }
 
-fn populate(
+async fn populate(
     f: &Fixture,
     directory: &Path,
     name: &str,
@@ -48,6 +52,7 @@ fn populate(
         "populate_histories",
         ic_blob_storage_pocketic_tests::control_calls::encode_control_one(batch).unwrap(),
     )
+    .await
     .unwrap();
     ic_blob_storage_pocketic_tests::control_calls::decode_control_one(&reply, 4 * 1024 * 1024)
         .unwrap()
@@ -77,47 +82,52 @@ fn funding(f: &Fixture, workload: HistoryWorkload, index: u32) -> FundingPopulat
     }
 }
 
-fn selected_funding(
+async fn selected_funding(
     f: &Fixture,
     workload: HistoryWorkload,
 ) -> Vec<(Intent, FundingPhase, FundingRequest)> {
-    [0, workload.funding / 2, workload.funding - 1]
-        .into_iter()
-        .map(|index| {
-            let input = funding(f, workload, index);
-            let phase: Result<Option<FundingPhase>, Failure> = f
-                .harness
-                .pic
-                .query_control_as(
-                    f.service,
-                    f.operator,
-                    "funding_lookup",
-                    (input.intent,),
-                    REPLY_BYTES,
-                )
-                .map(|(reply,)| reply)
-                .unwrap();
-            assert_eq!(phase, Ok(Some(input.phase)));
-            let request: Result<FundingRequest, Failure> = f
-                .harness
-                .pic
-                .query_control_as(
-                    f.service,
-                    f.operator,
-                    "funding_request",
-                    (input.intent,),
-                    REPLY_BYTES,
-                )
-                .map(|(reply,)| reply)
-                .unwrap();
-            (input.intent, input.phase, request.unwrap())
-        })
-        .collect()
+    {
+        let mut values = Vec::new();
+        for index in [0, workload.funding / 2, workload.funding - 1] {
+            values.push({
+                let input = funding(f, workload, index);
+                let phase: Result<Option<FundingPhase>, Failure> = f
+                    .harness
+                    .pic
+                    .query_control_as(
+                        f.service,
+                        f.operator,
+                        "funding_lookup",
+                        (input.intent,),
+                        REPLY_BYTES,
+                    )
+                    .await
+                    .map(|(reply,)| reply)
+                    .unwrap();
+                assert_eq!(phase, Ok(Some(input.phase)));
+                let request: Result<FundingRequest, Failure> = f
+                    .harness
+                    .pic
+                    .query_control_as(
+                        f.service,
+                        f.operator,
+                        "funding_request",
+                        (input.intent,),
+                        REPLY_BYTES,
+                    )
+                    .await
+                    .map(|(reply,)| reply)
+                    .unwrap();
+                (input.intent, input.phase, request.unwrap())
+            });
+        }
+        values
+    }
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "opt-in larger history profile; needs a fresh BLOB_SCALED_HISTORY_REPORT directory"]
-fn scaled_occupied_history_restoration_profile() {
+async fn scaled_occupied_history_restoration_profile() {
     let directory =
         std::path::PathBuf::from(std::env::var_os("BLOB_SCALED_HISTORY_REPORT").unwrap());
     std::fs::create_dir(&directory).unwrap();
@@ -146,7 +156,7 @@ fn scaled_occupied_history_restoration_profile() {
     ] {
         let path = directory.join(workload.name);
         std::fs::create_dir(&path).unwrap();
-        profile_workload(&path, workload);
+        profile_workload(&path, workload).await;
     }
     retain(
         &directory,
@@ -161,8 +171,8 @@ fn scaled_occupied_history_restoration_profile() {
     clippy::too_many_lines,
     reason = "One retained local workload binds population, rollback/refusals, funding inspection and actual upgrade"
 )]
-fn profile_workload(directory: &Path, workload: HistoryWorkload) {
-    let harness = Harness::new();
+async fn profile_workload(directory: &Path, workload: HistoryWorkload) {
+    let harness = Harness::new().await;
     let operator = fake_principal(1);
     let controller = fake_principal(2);
     let service = harness
@@ -174,6 +184,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
                 ..CanisterSettings::default()
             }),
         )
+        .await
         .unwrap();
     let profile = StorageProbeInstallation {
         operator,
@@ -195,6 +206,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             installation.clone(),
             Some(controller),
         )
+        .await
         .unwrap();
     let f = Fixture {
         harness,
@@ -226,6 +238,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             "populate_resources",
             ic_blob_storage_pocketic_tests::control_calls::encode_control_one(batch).unwrap(),
         )
+        .await
         .unwrap();
         assert_eq!(
             ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<Result<(), Failure>>(
@@ -253,6 +266,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "fixture_gateways",
         ic_blob_storage_pocketic_tests::control_calls::encode_control_one(command).unwrap(),
     )
+    .await
     .unwrap();
     assert!(
         ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<Result<Outcome, Failure>>(
@@ -262,7 +276,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         .unwrap()
         .is_ok()
     );
-    let empty = f.local_status();
+    let empty = f.local_status().await;
     let first = HistoryPopulationBatch {
         funding_start: 0,
 
@@ -276,6 +290,7 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         "populate_histories",
         ic_blob_storage_pocketic_tests::control_calls::encode_control_one(&first).unwrap(),
     )
+    .await
     .unwrap();
     assert_eq!(
         ic_blob_storage_pocketic_tests::control_calls::decode_control_one::<Result<(), Failure>>(
@@ -294,7 +309,8 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
                 funding_start: 1,
                 ..first.clone()
             }
-        ),
+        )
+        .await,
         Err(Failure::Conflict)
     );
     let mut invalid = funding(&f, workload, 1);
@@ -312,12 +328,13 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
         })
         .unwrap(),
     )
+    .await
     .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&failure).reject_code,
         RejectCode::CanisterError
     );
-    assert_eq!(f.local_status(), empty);
+    assert_eq!(f.local_status().await, empty);
     let population_started = Instant::now();
     for start in (0..workload.funding).step_by(16) {
         let end = (start + 16).min(workload.funding);
@@ -327,47 +344,48 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
             funding: (start..end).map(|i| funding(&f, workload, i)).collect(),
         };
         assert_eq!(
-            populate(&f, directory, &format!("funding-{start}"), &batch),
+            populate(&f, directory, &format!("funding-{start}"), &batch).await,
             Ok(())
         );
         if end / 1000 != start / 1000 || end == workload.funding {
             retain(
                 directory,
                 &format!("funding-checkpoint-{end}.json"),
-                &serde_json::json!({"local_status": format!("{:?}", f.local_status()), "elapsed_ms": population_started.elapsed().as_millis()}),
+                &serde_json::json!({"local_status": format!("{:?}", f.local_status().await), "elapsed_ms": population_started.elapsed().as_millis()}),
             );
         }
     }
-    let before = f.local_status();
+    let before = f.local_status().await;
     assert_eq!(before.funding.retained_intents, u64::from(workload.funding));
     assert_eq!(before.funding.reserved_or_uncertain, 1);
     assert_eq!(before.funding.transport_accepted, 75);
-    let funding_before = selected_funding(&f, workload);
-    assert_eq!(f.local_status(), before);
+    let funding_before = selected_funding(&f, workload).await;
+    assert_eq!(f.local_status().await, before);
     retain(
         directory,
         "before-reopen.json",
-        &serde_json::json!({"local_status": format!("{before:?}"), "selected_funding": format!("{funding_before:?}"), "resources": resources(&f), "population_ms": population_started.elapsed().as_millis()}),
+        &serde_json::json!({"local_status": format!("{before:?}"), "selected_funding": format!("{funding_before:?}"), "resources": resources(&f).await, "population_ms": population_started.elapsed().as_millis()}),
     );
     let started = Instant::now();
-    let result =
-        f.harness
-            .pic
-            .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller));
+    let result = f
+        .harness
+        .pic
+        .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller))
+        .await;
     retain(
         directory,
         "upgrade-result.json",
         &serde_json::json!({"result": format!("{result:?}"), "elapsed_ms": started.elapsed().as_millis()}),
     );
     result.unwrap();
-    let restored = resources(&f);
+    let restored = resources(&f).await;
     let mut expected = before;
     expected.uploads.fenced = true;
     expected.funding.fenced = true;
     expected.gateways.fenced = true;
 
-    assert_eq!(f.local_status(), expected);
-    assert_eq!(selected_funding(&f, workload), funding_before);
+    assert_eq!(f.local_status().await, expected);
+    assert_eq!(selected_funding(&f, workload).await, funding_before);
     assert_eq!(
         populate(
             &f,
@@ -378,11 +396,12 @@ fn profile_workload(directory: &Path, workload: HistoryWorkload) {
 
                 funding: first.funding,
             }
-        ),
+        )
+        .await,
         Err(Failure::Fenced)
     );
-    assert_eq!(f.local_status(), expected);
-    assert_eq!(resources(&f), restored);
+    assert_eq!(f.local_status().await, expected);
+    assert_eq!(resources(&f).await, restored);
     retain(
         directory,
         "reopened.json",

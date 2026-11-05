@@ -40,7 +40,7 @@ fn fresh_input(f: &Fixture) -> (Run, Permission, PreparationInput) {
     };
     (input, permission, manifest)
 }
-fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
+async fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
     let (input, permission, manifest) = fresh_input(f);
     let view: Result<AssetView, ConsumerFailure> = f
         .harness
@@ -52,6 +52,7 @@ fn prepared(f: &Fixture) -> (Run, Permission, PreparationInput) {
             &input.registration,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(view.unwrap().upload_state, None);
     (input, permission, manifest)
@@ -62,7 +63,7 @@ fn upload(input: &Run) -> ReferenceUpload {
         RegistrationSource::Existing(_) => panic!("fresh-upload test"),
     }
 }
-fn inspect(
+async fn inspect(
     f: &Fixture,
     actor: Principal,
     upload: ReferenceUpload,
@@ -70,41 +71,45 @@ fn inspect(
     f.harness
         .pic
         .query_blob_as(f.service, actor, "blob_upload_status", upload, REPLY_BYTES)
+        .await
         .unwrap()
 }
-#[test]
-fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt() {
-    let f = fixture();
-    let (input, permission, manifest) = prepared(&f);
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt() {
+    let f = fixture().await;
+    let (input, permission, manifest) = prepared(&f).await;
     assert_eq!(
-        inspect(&f, f.tenant, upload(&input)),
+        inspect(&f, f.tenant, upload(&input)).await,
         Err(UploadStatusFailure::Unknown)
     );
-    admit(&f, &input).unwrap();
+    admit(&f, &input).await.unwrap();
     assert_eq!(
-        register(&f, &input).unwrap().upload_state,
+        register(&f, &input).await.unwrap().upload_state,
         Some(UploadState::Reserved)
     );
-    f.prepare(&manifest).unwrap();
-    f.expose(permission.request).unwrap();
-    let pending = register(&f, &input).unwrap();
+    f.prepare(&manifest).await.unwrap();
+    f.expose(permission.request).await.unwrap();
+    let pending = register(&f, &input).await.unwrap();
     assert_eq!(pending.upload_state, Some(UploadState::Registered));
     assert!(pending.published); // Consumer publishes retention intent, not verified provider bytes.
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let published = register(&f, &input).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let published = register(&f, &input).await.unwrap();
     assert!(published.published);
     assert!(!published.retain_started);
     assert_eq!(published.retain_result, None);
     assert_eq!(published.upload_state, Some(UploadState::Registered));
-    assert_eq!(register(&f, &input), Ok(published));
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    cancel(&f, 1).unwrap();
+    assert_eq!(register(&f, &input).await, Ok(published));
     assert_eq!(
-        release(&f, 1).unwrap().release_result,
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    cancel(&f, 1).await.unwrap();
+    assert_eq!(
+        release(&f, 1).await.unwrap().release_result,
         Some(Ok(ReferenceChange::Changed))
     );
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 0,
             physical: 10,
@@ -112,11 +117,11 @@ fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt
         }
     );
     assert_eq!(
-        inspect(&f, f.tenant, upload(&input)).unwrap().state,
+        inspect(&f, f.tenant, upload(&input)).await.unwrap().state,
         UploadState::Registered
     );
-    assert!(!register(&f, &input).unwrap().published);
-    let retired = asset(&f, 1).unwrap();
+    assert!(!register(&f, &input).await.unwrap().published);
+    let retired = asset(&f, 1).await.unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -125,39 +130,42 @@ fn first_upload_reference_registers_and_releases_without_an_extra_retain_receipt
             blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(asset(&f, 1), Ok(retired));
-    assert_eq!(recover(&f, 1, false), Err(ConsumerFailure::Fenced));
-    assert_eq!(register(&f, &input), Err(ConsumerFailure::Fenced));
-    assert_eq!(release(&f, 1), Err(ConsumerFailure::Fenced));
+    assert_eq!(asset(&f, 1).await, Ok(retired));
+    assert_eq!(recover(&f, 1, false).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(register(&f, &input).await, Err(ConsumerFailure::Fenced));
+    assert_eq!(release(&f, 1).await, Err(ConsumerFailure::Fenced));
 }
-#[test]
-fn late_upload_completion_after_cancellation_is_reconciled_for_cleanup_under_suspension() {
-    let f = fixture();
-    let (mut input, permission, manifest) = prepared(&f);
-    admit(&f, &input).unwrap();
-    f.prepare(&manifest).unwrap();
-    f.expose(permission.request).unwrap();
-    register(&f, &input).unwrap();
-    cancel(&f, 1).unwrap();
-    revocation::withdraw(&f, Fault::None, 4096).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn late_upload_completion_after_cancellation_is_reconciled_for_cleanup_under_suspension() {
+    let f = fixture().await;
+    let (mut input, permission, manifest) = prepared(&f).await;
+    admit(&f, &input).await.unwrap();
+    f.prepare(&manifest).await.unwrap();
+    f.expose(permission.request).await.unwrap();
+    register(&f, &input).await.unwrap();
+    cancel(&f, 1).await.unwrap();
+    revocation::withdraw(&f, Fault::None, 4096).await.unwrap();
     assert_eq!(
-        recover(&f, 1, false).unwrap().upload_state,
+        recover(&f, 1, false).await.unwrap().upload_state,
         Some(UploadState::Registered)
     );
-    f.enroll(Some(f.tenant().unwrap()), false).unwrap();
+    f.enroll(Some(f.tenant().await.unwrap()), false)
+        .await
+        .unwrap();
     assert_eq!(
-        recover(&f, 1, false).unwrap().upload_state,
+        recover(&f, 1, false).await.unwrap().upload_state,
         Some(UploadState::Registered)
     );
     assert_eq!(
-        release(&f, 1).unwrap().release_result,
+        release(&f, 1).await.unwrap().release_result,
         Some(Ok(ReferenceChange::Changed))
     );
     input.hold = false;
-    assert!(!register(&f, &input).unwrap().published);
+    assert!(!register(&f, &input).await.unwrap().published);
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 0,
             physical: 10,
@@ -165,15 +173,15 @@ fn late_upload_completion_after_cancellation_is_reconciled_for_cleanup_under_sus
         }
     );
 }
-#[test]
-fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention() {
-    let f = fixture();
-    let (mut input, permission, manifest) = prepared(&f);
-    admit(&f, &input).unwrap();
-    f.prepare(&manifest).unwrap();
-    f.expose(permission.request).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention() {
+    let f = fixture().await;
+    let (mut input, permission, manifest) = prepared(&f).await;
+    admit(&f, &input).await.unwrap();
+    f.prepare(&manifest).await.unwrap();
+    f.expose(permission.request).await.unwrap();
     input.fault = Fault::AfterUploadObservation;
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let error = f
         .harness
         .pic
@@ -183,30 +191,34 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
             "register",
             ic_blob_storage_contracts::document::encode(&input).unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&error).reject_code,
         RejectCode::CanisterError
     );
     assert_eq!(
-        asset(&f, 1).unwrap().upload_state,
+        asset(&f, 1).await.unwrap().upload_state,
         Some(UploadState::Reserved)
     );
     input.fault = Fault::None;
-    assert!(register(&f, &input).unwrap().published);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
-    let f = fixture();
-    let (input, _, _) = prepared(&f);
-    admit(&f, &input).unwrap();
-    cancel(&f, 1).unwrap();
-    revocation::withdraw(&f, Fault::None, 4096).unwrap();
-    let cancelled = register(&f, &input).unwrap();
+    assert!(register(&f, &input).await.unwrap().published);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
+    let f = fixture().await;
+    let (input, _, _) = prepared(&f).await;
+    admit(&f, &input).await.unwrap();
+    cancel(&f, 1).await.unwrap();
+    revocation::withdraw(&f, Fault::None, 4096).await.unwrap();
+    let cancelled = register(&f, &input).await.unwrap();
     assert_eq!(cancelled.upload_state, Some(UploadState::Cancelled));
     assert!(!cancelled.published);
-    cancel(&f, 1).unwrap();
-    assert_eq!(release(&f, 1), Err(ConsumerFailure::State));
+    cancel(&f, 1).await.unwrap();
+    assert_eq!(release(&f, 1).await, Err(ConsumerFailure::State));
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 0,
             physical: 0,
@@ -214,16 +226,19 @@ fn upload_observation_trap_and_cancelled_reservation_cannot_fabricate_retention(
         }
     );
 }
-#[test]
-fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_after_restore() {
-    let f = fixture();
-    let (input, permission, manifest) = prepared(&f);
-    admit(&f, &input).unwrap();
-    f.prepare(&manifest).unwrap();
-    f.expose(permission.request).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_after_restore() {
+    let f = fixture().await;
+    let (input, permission, manifest) = prepared(&f).await;
+    admit(&f, &input).await.unwrap();
+    f.prepare(&manifest).await.unwrap();
+    f.expose(permission.request).await.unwrap();
     let u = upload(&input);
     for actor in [f.operator, f.controller, f.uploader, f.other] {
-        assert_eq!(inspect(&f, actor, u), Err(UploadStatusFailure::Denied));
+        assert_eq!(
+            inspect(&f, actor, u).await,
+            Err(UploadStatusFailure::Denied)
+        );
     }
     assert_eq!(
         inspect(
@@ -233,10 +248,11 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
                 first_reference: 2,
                 ..u
             }
-        ),
+        )
+        .await,
         Err(UploadStatusFailure::Conflict)
     );
-    let original = inspect(&f, f.tenant, u).unwrap();
+    let original = inspect(&f, f.tenant, u).await.unwrap();
     f.harness
         .pic
         .upgrade_canister(
@@ -245,17 +261,19 @@ fn upload_status_rejects_foreign_and_changed_bindings_and_remains_historical_aft
             Fixture::installation("fixture_post_upgrade", f.operator),
             Some(f.controller),
         )
+        .await
         .unwrap();
-    assert_eq!(inspect(&f, f.tenant, u), Ok(original));
+    assert_eq!(inspect(&f, f.tenant, u).await, Ok(original));
     // Historical completion is readable, but operational descriptor delivery stays fenced.
-    assert_eq!(register(&f, &input), Err(ConsumerFailure::Transport));
-    let known = asset(&f, 1).unwrap();
+    assert_eq!(register(&f, &input).await, Err(ConsumerFailure::Transport));
+    let known = asset(&f, 1).await.unwrap();
     assert_eq!(known.upload_state, Some(UploadState::Registered));
     assert!(!known.published);
 }
-fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
+async fn admit(f: &Fixture, input: &Run) -> Result<AssetView, ConsumerFailure> {
     f.harness
         .pic
         .update_control_as(f.tenant, f.operator, "admit", input, REPLY_BYTES)
+        .await
         .unwrap()
 }

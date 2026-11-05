@@ -2,7 +2,7 @@
 use crate::native::publish_inputs::{
     MAX_FILE_BYTES, MAX_FILES, MAX_TIMEOUT_SECONDS, MAX_TOTAL_BYTES,
 };
-use clap::builder::{StringValueParser, TypedValueParser};
+use clap::builder::{PossibleValuesParser, StringValueParser, TypedValueParser};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use ic_platform::Principal;
 use std::{
@@ -46,70 +46,15 @@ fn file_index(text: &str) -> Result<usize, &'static str> {
         Ok(index)
     }
 }
-fn help(name: &str) -> &'static str {
-    match name {
-        "account-link-inputs" => {
-            "Offline provider terms only; no signing, linking, funding or financial-cap proof."
-        }
-        "installation-check" => {
-            "Offline validation and retained configuration packets; no deployment, memory grant or provider qualification."
-        }
-        "upload-inputs" | "publish-inputs" => {
-            "Freeze verified bodies and caller-supplied identities offline. No allocation, installed-state proof or provider effect. Partial output is retained and cannot be overwritten."
-        }
-        "reference-inputs" => {
-            "Encode exact reference/download requests from the saved permission. No identity allocation, mutation, liveness proof or retry authority."
-        }
-        "admit-upload" | "revoke-upload" => {
-            "Tenant-authorized update. Persist exact signed intent before one dispatch; no polling or retry. Preserve partial and uncertain journals."
-        }
-        "prepare-upload" => {
-            "Uploader-authorized manifest preparation. Persist exact signed intent before one dispatch; no certificate, provider upload or automatic retry."
-        }
-        "upload-permission" | "upload-manifest" => {
-            "Inspect the exact saved permission. Historical state does not authorize resubmission or establish stored bytes."
-        }
-        "submit-reference" => {
-            "Submit the exact retained reference command once. Lost replies require receipt inspection; never allocate a replacement operation to retry."
-        }
-        "reference-receipt" | "reference-status" => {
-            "Read the exact reference identity without mutation. Observation is not a retention lease or retry permit."
-        }
-        "download" => {
-            "One replicated descriptor and one bounded provider GET. Only root-verified bytes become body.bin; partial output remains body.part. No automatic retry."
-        }
-        "verify-upload" => {
-            "Compare a local body with the saved declaration. This does not establish provider retention or issue a certificate."
-        }
-        "certificate-assessment" => {
-            "Inspect current issuance eligibility without issuing a certificate. A successful assessment is not retry authority."
-        }
-        "upload-history" | "funding-history" => {
-            "One bounded page. Retain a non-null cursor for explicit continuation, including empty filtered pages; no automatic pagination or provider calls."
-        }
-        "publish-check" => {
-            "Retain bounded capacity/content observations. Existing roots require recovery, retain or retirement handling; no reservation, mutation or publication authority."
-        }
-        "publish-map" | "publish-file-status" => {
-            "Authenticate current scope and exact reference liveness. Sequential observations are not a publication lease or provider availability proof; incomplete batches emit no map."
-        }
-        "publish-prepare" | "publish-prepare-resume" => {
-            "At most two original setup updates and four queries per file. Resume binds --source-run and never resubmits a claimed update. Preserve original journals; no certificate or provider transfer."
-        }
-        "publish-prepare-batch" => {
-            "Serial per-file preparation stops at the first blocker or uncertainty. Never resume the whole batch; use publish-prepare-resume with the original file journal."
-        }
-        "publish-session" => {
-            "Bounded JSON-lines prepare/transfer/status/map session. Retain browser handoff journals for lost replies. Registration is not provider availability; no automatic retry or publication lease."
-        }
-        "sync-gateways" | "cancel-gateway-sync" | "revoke-gateway" => {
-            "Operator-authorized control with retained intent. Uncertain results require original-state inspection, never automatic redispatch."
-        }
-        _ => {
-            "Authenticated observation only. Local accounting and provider acknowledgments do not establish independent account credit or authorize a paid effect."
-        }
-    }
-}
+const UPLOAD_INPUTS_HELP: &str = "Freeze verified bodies and caller-supplied identities offline. No allocation, installed-state proof or provider effect. Partial output is retained and cannot be overwritten.";
+const ADMIT_UPLOAD_HELP: &str = "Tenant-authorized update. Persist exact signed intent before one dispatch; no polling or retry. Preserve partial and uncertain journals.";
+const UPLOAD_PERMISSION_HELP: &str = "Inspect the exact saved permission. Historical state does not authorize resubmission or establish stored bytes.";
+const REFERENCE_RECEIPT_HELP: &str = "Read the exact reference identity without mutation. Observation is not a retention lease or retry permit.";
+const UPLOAD_HISTORY_HELP: &str = "One bounded page. Retain a non-null cursor for explicit continuation, including empty filtered pages; no automatic pagination or provider calls.";
+const PUBLISH_MAP_HELP: &str = "Authenticate current scope and exact reference liveness. Sequential observations are not a publication lease or provider availability proof; incomplete batches emit no map.";
+const PUBLISH_PREPARE_HELP: &str = "At most two original setup updates and four queries per file. Resume binds --source-run and never resubmits a claimed update. Preserve original journals; no certificate or provider transfer.";
+const SYNC_GATEWAYS_HELP: &str = "Operator-authorized control with retained intent. Uncertain results require original-state inspection, never automatic redispatch.";
+const OBSERVATION_HELP: &str = "Authenticated observation only. Local accounting and provider acknowledgments do not establish independent account credit or authorize a paid effect.";
 
 #[derive(Parser)]
 #[command(
@@ -127,69 +72,92 @@ pub(in crate::native) struct Cli {
 }
 #[derive(Subcommand)]
 pub(in crate::native) enum Invocation {
-    #[command(after_long_help = help("account-link-inputs"))]
+    #[command(
+        after_long_help = "Offline provider terms only; no signing, linking, funding or financial-cap proof."
+    )]
     AccountLinkInputs(AccountLink),
-    #[command(after_long_help = help("installation-check"))]
+    #[command(
+        after_long_help = "Offline validation and retained configuration packets; no deployment, memory grant or provider qualification."
+    )]
     InstallationCheck(Installation),
-    #[command(after_long_help = help("upload-inputs"))]
+    #[command(after_long_help = UPLOAD_INPUTS_HELP)]
     UploadInputs(UploadInputs),
-    #[command(after_long_help = help("publish-inputs"))]
+    #[command(after_long_help = UPLOAD_INPUTS_HELP)]
     PublishInputs(PublishInputs),
-    #[command(after_long_help = help("reference-inputs"))]
+    #[command(
+        after_long_help = "Encode exact reference/download requests from the saved permission. No identity allocation, mutation, liveness proof or retry authority."
+    )]
     ReferenceInputs(ReferenceInputs),
-    #[command(after_long_help = help("admit-upload"))]
+    #[command(after_long_help = ADMIT_UPLOAD_HELP)]
     AdmitUpload(Tenant<Mutation>),
-    #[command(after_long_help = help("prepare-upload"))]
+    #[command(
+        after_long_help = "Uploader-authorized manifest preparation. Persist exact signed intent before one dispatch; no certificate, provider upload or automatic retry."
+    )]
     PrepareUpload(Tenant<Mutation>),
-    #[command(after_long_help = help("revoke-upload"))]
+    #[command(after_long_help = ADMIT_UPLOAD_HELP)]
     RevokeUpload(Tenant<Mutation>),
-    #[command(after_long_help = help("upload-permission"))]
+    #[command(after_long_help = UPLOAD_PERMISSION_HELP)]
     UploadPermission(Tenant<Request>),
-    #[command(after_long_help = help("upload-manifest"))]
+    #[command(after_long_help = UPLOAD_PERMISSION_HELP)]
     UploadManifest(Tenant<Request>),
-    #[command(after_long_help = help("submit-reference"))]
+    #[command(
+        after_long_help = "Submit the exact retained reference command once. Lost replies require receipt inspection; never allocate a replacement operation to retry."
+    )]
     SubmitReference(Tenant<Mutation>),
-    #[command(after_long_help = help("reference-receipt"))]
+    #[command(after_long_help = REFERENCE_RECEIPT_HELP)]
     ReferenceReceipt(Tenant<Request>),
-    #[command(after_long_help = help("reference-status"))]
+    #[command(after_long_help = REFERENCE_RECEIPT_HELP)]
     ReferenceStatus(Tenant<Request>),
-    #[command(after_long_help = help("download"))]
+    #[command(
+        after_long_help = "One replicated descriptor and one bounded provider GET. Only root-verified bytes become body.bin; partial output remains body.part. No automatic retry."
+    )]
     Download(Tenant<Download>),
-    #[command(after_long_help = help("verify-upload"))]
+    #[command(
+        after_long_help = "Compare a local body with the saved declaration. This does not establish provider retention or issue a certificate."
+    )]
     VerifyUpload(Tenant<VerifyUpload>),
-    #[command(after_long_help = help("certificate-assessment"))]
+    #[command(
+        after_long_help = "Inspect current issuance eligibility without issuing a certificate. A successful assessment is not retry authority."
+    )]
     CertificateAssessment(Tenant<Permission>),
-    #[command(after_long_help = help("upload-history"))]
+    #[command(after_long_help = UPLOAD_HISTORY_HELP)]
     UploadHistory(Operator<UploadHistory>),
-    #[command(after_long_help = help("status"))]
+    #[command(after_long_help = OBSERVATION_HELP)]
     Status(Operator<Payer<Empty>>),
-    #[command(after_long_help = help("funding-history"))]
+    #[command(after_long_help = UPLOAD_HISTORY_HELP)]
     FundingHistory(Operator<Payer<Cursor>>),
-    #[command(after_long_help = help("inspect-account"))]
+    #[command(after_long_help = OBSERVATION_HELP)]
     InspectAccount(Operator<Payer<AccountKind>>),
-    #[command(after_long_help = help("funding-assessment"))]
+    #[command(after_long_help = OBSERVATION_HELP)]
     FundingAssessment(Operator<Payer<Amount>>),
-    #[command(after_long_help = help("funding-outcome"))]
+    #[command(after_long_help = OBSERVATION_HELP)]
     FundingOutcome(Operator<Payer<Amount>>),
-    #[command(after_long_help = help("sync-gateways"))]
+    #[command(after_long_help = SYNC_GATEWAYS_HELP)]
     SyncGateways(Operator<Payer<Directory>>),
-    #[command(after_long_help = help("cancel-gateway-sync"))]
+    #[command(after_long_help = SYNC_GATEWAYS_HELP)]
     CancelGatewaySync(Operator<Payer<Cancel>>),
-    #[command(after_long_help = help("revoke-gateway"))]
+    #[command(after_long_help = SYNC_GATEWAYS_HELP)]
     RevokeGateway(Operator<Payer<Revoke>>),
-    #[command(after_long_help = help("publish-check"))]
+    #[command(
+        after_long_help = "Retain bounded capacity/content observations. Existing roots require recovery, retain or retirement handling; no reservation, mutation or publication authority."
+    )]
     PublishCheck(Tenant<Checks<{ MAX_FILES as u64 + 1 }>>),
-    #[command(after_long_help = help("publish-map"), after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
+    #[command(after_long_help = PUBLISH_MAP_HELP, after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
     PublishMap(Tenant<Map<{ 2 * MAX_FILES as u64 + 2 }>>),
-    #[command(after_long_help = help("publish-file-status"), after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
+    #[command(after_long_help = PUBLISH_MAP_HELP, after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
     PublishFileStatus(Tenant<FileStatus>),
-    #[command(after_long_help = help("publish-prepare"))]
+    #[command(after_long_help = PUBLISH_PREPARE_HELP)]
     PublishPrepare(Tenant<IndexedPrepare>),
-    #[command(after_long_help = help("publish-prepare-resume"))]
+    #[command(after_long_help = PUBLISH_PREPARE_HELP)]
     PublishPrepareResume(Tenant<ResumePrepare>),
-    #[command(after_long_help = help("publish-prepare-batch"))]
+    #[command(
+        after_long_help = "Serial per-file preparation stops at the first blocker or uncertainty. Never resume the whole batch; use publish-prepare-resume with the original file journal."
+    )]
     PublishPrepareBatch(Tenant<Prepare>),
-    #[command(after_long_help = help("publish-session"), after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions.")]
+    #[command(
+        after_long_help = "Bounded JSON-lines prepare/transfer/status/map session. Retain browser handoff journals for lost replies. Registration is not provider availability; no automatic retry or publication lease.",
+        after_help = "Requires BLOB_EXPECTED_HOST_RELEASE: the exact deployed Engine release, independent of Client and Contracts versions."
+    )]
     PublishSession(Tenant<Session>),
 }
 #[derive(Clone, Copy, ValueEnum)]
@@ -278,14 +246,14 @@ pub(in crate::native) struct Cursor {
 }
 #[derive(Args)]
 pub(in crate::native) struct UploadHistory {
-    #[arg(long, value_parser = history_filter)]
+    #[arg(long, value_parser = history_filter())]
     pub filter: ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter,
     #[arg(long)]
     pub cursor: Option<PathBuf>,
 }
 #[derive(Args)]
 pub(in crate::native) struct AccountKind {
-    #[arg(long, value_parser = account_kind)]
+    #[arg(long, value_parser = account_kind())]
     pub kind: ic_blob_storage_contracts::dto::account::AccountInspectionKind,
 }
 #[derive(Args)]
@@ -469,7 +437,7 @@ pub(in crate::native) struct PublishInputs {
 pub(in crate::native) struct ReferenceInputs {
     #[arg(long)]
     pub permission: PathBuf,
-    #[arg(long, value_parser = reference_action)]
+    #[arg(long, value_parser = reference_action())]
     pub action: ic_blob_storage_contracts::dto::reference::ReferenceAction,
     #[arg(long, value_parser = positive(u128::MAX))]
     pub reference: u128,
@@ -478,25 +446,31 @@ pub(in crate::native) struct ReferenceInputs {
     #[arg(long)]
     pub run_dir: PathBuf,
 }
-fn account_kind(
-    text: &str,
-) -> Result<ic_blob_storage_contracts::dto::account::AccountInspectionKind, &'static str> {
-    crate::native::account::kind(text).map_err(|_| "invalid account observation kind")
+fn account_kind()
+-> impl TypedValueParser<Value = ic_blob_storage_contracts::dto::account::AccountInspectionKind> {
+    use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
+    PossibleValuesParser::new(["balance", "relationship"]).map(|value| match value.as_str() {
+        "balance" => Kind::Balance,
+        "relationship" => Kind::PaymentRelationship,
+        _ => unreachable!("Clap admits only the declared account kinds"),
+    })
 }
-fn history_filter(
-    text: &str,
-) -> Result<ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter, &'static str> {
-    crate::native::upload_history::filter(text).map_err(|_| "invalid upload filter")
+fn history_filter()
+-> impl TypedValueParser<Value = ic_blob_storage_contracts::dto::upload::history::UploadHistoryFilter>
+{
+    PossibleValuesParser::new(["all", "active", "deletion-pending", "outstanding"]).try_map(
+        |value| crate::native::upload_history::filter(&value).map_err(|_| "invalid upload filter"),
+    )
 }
-fn reference_action(
-    text: &str,
-) -> Result<ic_blob_storage_contracts::dto::reference::ReferenceAction, &'static str> {
-    use ic_blob_storage_contracts::dto::reference::ReferenceAction;
-    match text {
-        "retain" => Ok(ReferenceAction::Retain),
-        "release" => Ok(ReferenceAction::Release),
-        _ => Err("invalid reference action"),
-    }
+fn reference_action()
+-> impl TypedValueParser<Value = ic_blob_storage_contracts::dto::reference::ReferenceAction> {
+    use ic_blob_storage_contracts::dto::reference::ReferenceAction as Action;
+    PossibleValuesParser::new(["retain", "release"]).map(|value| match value.as_str() {
+        "retain" => Action::Retain,
+        "release" => Action::Release,
+        _ => unreachable!("Clap admits only the declared reference actions"),
+    })
 }
+
 #[cfg(test)]
 mod tests;

@@ -4,7 +4,7 @@ use ic_testkit::pocket_ic::PocketIc;
 use std::{fs, path::Path};
 
 /// Native requests use genuine signed tenant queries with independently supplied trust.
-pub(crate) fn native_requests(
+pub(crate) async fn native_requests(
     pic: &PocketIc,
     input: ReferenceCommand,
     directory: &Path,
@@ -13,7 +13,7 @@ pub(crate) fn native_requests(
     let key = directory.join("tenant.pem");
     let root = directory.join("root.der");
     fs::write(&key, crate::authenticated_cli::PEM).unwrap();
-    fs::write(&root, pic.root_key().unwrap().unwrap()).unwrap();
+    fs::write(&root, pic.root_key().await.unwrap().unwrap()).unwrap();
     let receipt = directory.join("receipt.wire");
     let status = directory.join("status.wire");
     fs::write(

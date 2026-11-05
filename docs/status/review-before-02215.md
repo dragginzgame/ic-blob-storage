@@ -48,7 +48,7 @@ totals, keeping exact caps distinguishable. Host-owned windows reset all trackin
 old heap values are not treated as tracked state. Rebuild probe and harness together;
 no production schema or stable-data reset is introduced.
 [Blob #62](https://github.com/dragginzgame/ic-blob-storage/issues/62) remains open
-pending delivery; [the focused qualification](../evidence/metrics080-host01502214.md)
+pending delivery; [the focused qualification](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/metrics080-host01502214.md)
 records passing native/report boundaries, original release Wasm, actual PocketIC
 restoration and independent funding credit/replay windows, strict scoped Clippy,
 and Rust 1.88 native/Wasm checks. The original/O3/Os/Oz static endpoint checks pass
@@ -73,7 +73,7 @@ changes are excluded. Preview only: 0.9.3 has not been adopted or executed here.
 No new independent Blob runtime repair was established by this review.
 
 Pending compatible 0.22.14 clarifies exact raw installation decoding in the
-public DTO and host/service guides. [The Canic correctness review](../evidence/canic-service02214.md)
+public DTO and host/service guides. [The Canic correctness review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/canic-service02214.md)
 reproduces retired fields and extra application-init arguments being silently
 skipped by Canic's quota of 1,024, in dedicated and nested embedded inputs.
 [Canic #524](https://github.com/dragginzgame/canic/issues/524) owns the minimal
@@ -147,7 +147,7 @@ provider callbacks here. Those owners need their actual external evidence.
 
 The original 0.22.13 development record has passing original and O3/Os/Oz static endpoint checks, along with
 the expected missing-endpoint substitute refusal, affected Clippy and Rust 1.88
-checking. [The current boundary review](../evidence/endpoint-surface02213.md)
+checking. [The current boundary review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/endpoint-surface02213.md)
 records exact inputs and limitations; raw evidence remains at
 `.tmp/review-validation/canic-issue-pass-20261012/`. This is not fresh PocketIC
 installation or Canic/provider execution. No full CI or release gate ran.
@@ -166,9 +166,9 @@ an initial missing Testkit 0.34.4 CLI refusal and explicit setup; all attempts
 remain. The online diagnostic reports all observed Cargo tools current without
 changing pins or installations. No network freshness gate is added to CI.
 
-[The latest adoption](../evidence/shared09002212.md) records the 0.9.0 reader and
-refresh qualification. [The LOC adoption](../evidence/shared08402212.md) records
-the 0.8.4 checks. [The preceding review](../evidence/shared083-canic02212.md)
+[The latest adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared09002212.md) records the 0.9.0 reader and
+refresh qualification. [The LOC adoption](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared08402212.md) records
+the 0.8.4 checks. [The preceding review](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/shared083-canic02212.md)
 records the Canic assessment and 0.8.3 qualification. Raw evidence is kept outside
 Cargo's build tree at `.tmp/review-validation/shared09002212/`,
 `.tmp/review-validation/shared08402212/` and

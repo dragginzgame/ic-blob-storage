@@ -1184,11 +1184,11 @@
 - Update PocketIC typed Candid calls for Testkit 0.51, preserving explicit
   callers, reply-decoding budgets and application errors. Qualify the affected
   test package and seven installed cases on the current published graph;
-  [repair evidence](../docs/evidence/testkit0510320.md) records the scoped results.
+  [repair evidence](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/testkit0510320.md) records the scoped results.
 - Update incoming Host 0.25 callers: remove the retired `candid-service` feature
   and use explicit result admission for durable CLI records, preserving private
   create-only publication. Selected Host 0.25.1 resolves the earlier `thiserror`
-  conflict; [the original receipt](../docs/evidence/host0250320.md) retains that failure.
+  conflict; [the original receipt](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/host0250320.md) retains that failure.
 - **Breaking service wire protocol:** tenant inspection/update now use bounded
   IC Wire contracts with explicit layout, method identity and request/reply
   direction. Preserve existing authority, compare-and-set policy and recovery;
@@ -2342,7 +2342,7 @@
   depend downward; Candid and hash identities stay unchanged. Hosts must rebuild
   with the new imports; service transitions remain retirement/reinstall only.
   See [#27](https://github.com/dragginzgame/ic-blob-storage/issues/27) and the
-  [migration record](../docs/evidence/contracts-0180.md).
+  [migration record](https://github.com/dragginzgame/ic-blob-storage/blob/e23dfec0e06a23ae834c2fd27a9b845818f45c2a/docs/evidence/contracts-0180.md).
 
 ### Changed
 

@@ -13,10 +13,10 @@ use ic_platform::candid_parser::IDLValue;
 use std::fmt::Debug;
 
 /// Each payload round-trips when only its exhausted budget is relaxed.
-pub(super) fn refusal_arguments<T>(input: &T, max_bytes: usize) -> [Vec<u8>; 2]
-where
-    T: CandidType + for<'de> Deserialize<'de> + Debug + PartialEq,
-{
+pub(super) fn refusal_arguments<T: CandidType + for<'de> Deserialize<'de> + Debug + PartialEq>(
+    input: &T,
+    max_bytes: usize,
+) -> [Vec<u8>; 2] {
     let skipped = ic_platform::candid::contract::encode_args((input, "x".repeat(2048))).unwrap();
     let mut config = limits(max_bytes);
     config.set_skipping_quota(10_000);
@@ -73,12 +73,12 @@ fn limits(max_bytes: usize) -> DecoderConfig {
     config
 }
 
-#[test]
-fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
-    let f = Fixture::new();
-    let enrollment = f.enroll(f.operator).unwrap();
-    let configuration = f.configuration(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
+    let f = Fixture::new().await;
+    let enrollment = f.enroll(f.operator).await.unwrap();
+    let configuration = f.configuration(f.operator).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let input: ServiceInstallationInput = ic_blob_storage_contracts::wire::decode_request(
         "blob_install",
         &installation(&f.config),
@@ -94,21 +94,22 @@ fn standalone_wire_installation_refusals_preserve_the_existing_owner() {
             f.harness
                 .pic
                 .reinstall_canister(f.service, wasm(), bytes, Some(f.controller))
+                .await
                 .is_err()
         );
-        assert_eq!(f.configuration(f.operator).unwrap(), configuration);
-        assert_eq!(f.tenant(), enrollment);
+        assert_eq!(f.configuration(f.operator).await.unwrap(), configuration);
+        assert_eq!(f.tenant().await, enrollment);
         unchanged(
-            &f.harness.pic.get_stable_memory(f.service).unwrap(),
+            &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
             &before,
         );
     }
 }
 
-#[test]
-fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_upload() {
-    let f = Fixture::new();
-    f.enroll(f.operator).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_upload() {
+    let f = Fixture::new().await;
+    f.enroll(f.operator).await.unwrap();
     let mut manifest = f.small_manifest();
     f.harness
         .pic
@@ -119,11 +120,12 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
             manifest.permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
-    f.prepare(f.uploader, &manifest).unwrap();
-    let admission = f.admission(manifest.permission);
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    f.prepare(f.uploader, &manifest).await.unwrap();
+    let admission = f.admission(manifest.permission).await;
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     manifest.declaration.headers = vec![
         UploadManifestHeader {
             name: String::new(),
@@ -138,6 +140,7 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
         .harness
         .pic
         .update_call(f.service, f.uploader, "blob_prepare_upload", bytes)
+        .await
         .unwrap();
     assert_eq!(
         ic_blob_storage_contracts::wire::decode_response::<
@@ -146,9 +149,9 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
         .unwrap(),
         Err(UploadManifestFailure::Limit)
     );
-    assert_eq!(f.admission(manifest.permission), admission);
+    assert_eq!(f.admission(manifest.permission).await, admission);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     assert!(
@@ -160,19 +163,24 @@ fn standalone_byte_bounded_wire_manifest_reaches_policy_and_refusals_preserve_up
                 "blob_prepare_upload",
                 vec![0; 131_073]
             )
+            .await
             .is_err()
     );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
 
-#[test]
-fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[expect(
+    clippy::too_many_lines,
+    reason = "One ingress journey compares wrong-method, wrong-direction and retired packets with unchanged state"
+)]
+async fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() {
     use ic_blob_storage_contracts::dto::tenant::TenantEnrollment;
     use ic_blob_storage_contracts::wire::tenant as wire;
-    let f = Fixture::new();
+    let f = Fixture::new().await;
     let pic = &f.harness.pic;
     let command = TenantUpdateRequest {
         scope: f.scope(),
@@ -180,7 +188,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
         active: true,
     };
     let query = wire::inspection_request(f.scope()).unwrap();
-    let original = pic.get_stable_memory(f.service).unwrap();
+    let original = pic.get_stable_memory(f.service).await.unwrap();
     let mut trailing = wire::update_request(command).unwrap();
     trailing.push(0);
     let mut retired = wire::update_request(command).unwrap();
@@ -196,12 +204,13 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
     ] {
         let rejected = pic
             .update_call(f.service, f.operator, "blob_update_tenant", bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&rejected).reject_code,
             RejectCode::CanisterError
         );
-        unchanged(&pic.get_stable_memory(f.service).unwrap(), &original);
+        unchanged(&pic.get_stable_memory(f.service).await.unwrap(), &original);
     }
     assert!(
         pic.query_call(
@@ -210,11 +219,13 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
             "blob_tenant",
             ic_blob_storage_pocketic_tests::retired_packets::candid_scope(),
         )
+        .await
         .is_err()
     );
-    unchanged(&pic.get_stable_memory(f.service).unwrap(), &original);
+    unchanged(&pic.get_stable_memory(f.service).await.unwrap(), &original);
     let bytes = pic
         .query_call(f.service, f.tenant, "blob_tenant", query)
+        .await
         .unwrap();
     let inspected = ic_blob_storage_contracts::wire::tenant::decode_inspection_response(&bytes)
         .unwrap()
@@ -227,12 +238,13 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
             "blob_update_tenant",
             wire::update_request(command).unwrap(),
         )
+        .await
         .unwrap();
     assert_eq!(
         ic_blob_storage_contracts::wire::tenant::decode_update_response(&denied).unwrap(),
         Err(TenantFailure::Denied)
     );
-    unchanged(&pic.get_stable_memory(f.service).unwrap(), &original);
+    unchanged(&pic.get_stable_memory(f.service).await.unwrap(), &original);
     let accepted = pic
         .update_call(
             f.service,
@@ -240,6 +252,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
             "blob_update_tenant",
             wire::update_request(command).unwrap(),
         )
+        .await
         .unwrap();
     let accepted = ic_blob_storage_contracts::wire::tenant::decode_update_response(&accepted)
         .unwrap()
@@ -252,7 +265,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
             active: true
         })
     );
-    assert_eq!(f.tenant(), accepted);
+    assert_eq!(f.tenant().await, accepted);
     let conflict = pic
         .update_call(
             f.service,
@@ -260,6 +273,7 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
             "blob_update_tenant",
             wire::update_request(command).unwrap(),
         )
+        .await
         .unwrap();
     assert_eq!(
         ic_blob_storage_contracts::wire::tenant::decode_update_response(&conflict).unwrap(),
@@ -267,13 +281,13 @@ fn tenant_wire_refuses_wrong_method_direction_and_old_packets_before_mutation() 
     );
 }
 
-#[test]
-fn every_owned_method_refuses_old_wrong_identity_and_response_packets_without_state_change() {
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn every_owned_method_refuses_old_wrong_identity_and_response_packets_without_state_change() {
     use ic_blob_storage_contracts::endpoints::{MethodCodec, MethodMode, SERVICE_METHODS};
     use ic_blob_storage_contracts::wire;
-    let f = Fixture::new();
-    f.enroll(f.operator).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let f = Fixture::new().await;
+    f.enroll(f.operator).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for method in SERVICE_METHODS
         .iter()
         .filter(|m| m.codec == MethodCodec::IcWire)
@@ -290,18 +304,20 @@ fn every_owned_method_refuses_old_wrong_identity_and_response_packets_without_st
                     f.harness
                         .pic
                         .query_call(f.service, f.operator, method.name, bytes)
+                        .await
                 }
                 MethodMode::Update => {
                     f.harness
                         .pic
                         .update_call(f.service, f.operator, method.name, bytes)
+                        .await
                 }
             };
             assert!(result.is_err(), "{} accepted a foreign packet", method.name);
         }
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }

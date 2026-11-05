@@ -5,9 +5,9 @@ use blob_test_protocol::consumer::manifests::{
 use ic_blob_storage_pocketic_tests::control_calls::ControlCallExt;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 mod cancellation;
-fn uploader_fixture() -> Fixture {
-    let mut f = fixture();
-    let uploader = f.harness.pic.create_canister().unwrap();
+async fn uploader_fixture() -> Fixture {
+    let mut f = fixture().await;
+    let uploader = f.harness.pic.create_canister().await.unwrap();
     f.harness
         .pic
         .install_canister(
@@ -17,16 +17,17 @@ fn uploader_fixture() -> Fixture {
                 .unwrap(),
             None,
         )
+        .await
         .unwrap();
     f.uploader = uploader;
     f
 }
-#[test]
-fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and_cleanup() {
-    let f = uploader_fixture();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and_cleanup() {
+    let f = uploader_fixture().await;
     assert_ne!(f.uploader, f.tenant);
-    let (input, permission, manifest) = prepared(&f);
-    admit(&f, &input).unwrap();
+    let (input, permission, manifest) = prepared(&f).await;
+    admit(&f, &input).await.unwrap();
     let intent = ManifestIntent {
         id: 1,
         request: f.preparation_input(&manifest),
@@ -41,6 +42,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
             &intent,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert!(!saved.unwrap().started);
     // Tenant authority cannot be substituted for the admitted uploader.
@@ -48,6 +50,7 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
         .harness
         .pic
         .update_control_as(f.tenant, f.operator, "save_manifest", &intent, REPLY_BYTES)
+        .await
         .unwrap();
     assert_eq!(wrong, Err(ConsumerFailure::Invalid));
     let sent: Result<ManifestIntentView, ConsumerFailure> = f
@@ -65,9 +68,10 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(sent, Err(ConsumerFailure::Transport));
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let recovered: Result<ManifestIntentView, ConsumerFailure> = f
         .harness
         .pic
@@ -78,25 +82,29 @@ fn separate_tenant_and_uploader_coordinate_preparation_recovery_registration_and
             1u128,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(
         recovered.unwrap().result,
         Some(Ok(intent.request.declaration))
     );
-    assert!(!register(&f, &input).unwrap().published);
-    assert_eq!(f.harness.pic.get_stable_memory(f.service).unwrap(), before);
+    assert!(!register(&f, &input).await.unwrap().published);
+    assert_eq!(
+        f.harness.pic.get_stable_memory(f.service).await.unwrap(),
+        before
+    );
     // These remain labelled fixture controls, not a deployed-provider integration.
-    f.expose(permission.request).unwrap();
-    let published = register(&f, &input).unwrap();
+    f.expose(permission.request).await.unwrap();
+    let published = register(&f, &input).await.unwrap();
     assert!(published.published);
     assert!(!published.retain_started);
-    cancel(&f, 1).unwrap();
+    cancel(&f, 1).await.unwrap();
     assert_eq!(
-        release(&f, 1).unwrap().release_result,
+        release(&f, 1).await.unwrap().release_result,
         Some(Ok(ReferenceChange::Changed))
     );
     assert_eq!(
-        f.status().usage,
+        f.status().await.usage,
         JourneyUsage {
             logical: 0,
             physical: 10,

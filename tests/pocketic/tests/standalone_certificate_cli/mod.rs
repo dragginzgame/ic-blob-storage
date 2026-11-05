@@ -7,22 +7,27 @@ use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
-fn live(f: &mut Fixture, args: &mut [String]) {
+async fn live(f: &mut Fixture, args: &mut [String]) {
     let url = f
         .harness
         .pic
         .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
         .unwrap();
     let index = args.iter().position(|s| s == "--url").unwrap();
     args[index + 1] = url.to_string();
 }
 
-fn args(f: &Fixture, dir: &std::path::Path, permission: UploadAdmissionRequest) -> Vec<String> {
+async fn args(
+    f: &Fixture,
+    dir: &std::path::Path,
+    permission: UploadAdmissionRequest,
+) -> Vec<String> {
     let key = dir.join("identity.pem");
     let root = dir.join("root.der");
     let saved = dir.join("permission.wire");
     std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().unwrap().unwrap()).unwrap();
+    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
     std::fs::write(
         &saved,
         ic_blob_storage_contracts::document::encode(permission).unwrap(),
@@ -80,15 +85,19 @@ fn rejects_changed_permission_and_trust(
     std::fs::write(&root, trusted).unwrap();
 }
 
-#[test]
-fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
-    let mut f = Fixture::with_harness(Harness::with_builder(
-        PocketIcBuilder::new()
-            .with_nns_subnet()
-            .with_application_subnet(),
-    ));
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
+    let mut f = Fixture::with_harness(
+        Harness::with_builder(
+            PocketIcBuilder::new()
+                .with_nns_subnet()
+                .with_application_subnet(),
+        )
+        .await,
+    )
+    .await;
     f.uploader = BasicIdentity::from_raw_key(&[42; 32]).sender().unwrap();
-    f.enroll(f.operator).unwrap();
+    f.enroll(f.operator).await.unwrap();
     let mut manifest = f.manifest();
     manifest.permission.upload.upload = u128::MAX;
     manifest.permission.upload.object = u128::MAX - 1;
@@ -104,16 +113,17 @@ fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let mut args = args(&f, dir.path(), permission);
-    live(&mut f, &mut args);
+    let mut args = args(&f, dir.path(), permission).await;
+    live(&mut f, &mut args).await;
     assert_eq!(run(&args, 3)["error"], "unprepared");
-    f.harness.pic.stop_live().unwrap();
-    f.prepare(f.uploader, &manifest).unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    live(&mut f, &mut args);
+    f.harness.pic.stop_live().await.unwrap();
+    f.prepare(f.uploader, &manifest).await.unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    live(&mut f, &mut args).await;
     let value = run(&args, 0);
     assert_eq!(value["observation"], "certificate_assessment");
     assert_eq!(
@@ -126,10 +136,10 @@ fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
     assert_eq!(value["retry_authorized"], false);
     rejects_changed_permission_and_trust(&args, dir.path(), permission);
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
+    f.harness.pic.stop_live().await.unwrap();
     f.harness
         .pic
         .update_blob_as::<Result<UploadRevocationResponse, UploadAdmissionFailure>, _>(
@@ -139,28 +149,30 @@ fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap()
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    live(&mut f, &mut args);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    live(&mut f, &mut args).await;
     assert_eq!(run(&args, 3)["error"], "assessment_revoked");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
-    let revoked = f.admission(permission);
+    f.harness.pic.stop_live().await.unwrap();
+    let revoked = f.admission(permission).await;
     assert!(revoked.revoked);
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    live(&mut f, &mut args);
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    live(&mut f, &mut args).await;
     assert_eq!(run(&args, 3)["error"], "assessment_permission_fenced");
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    f.harness.pic.stop_live().unwrap();
-    assert!(f.configuration(f.operator).unwrap().fenced);
-    assert_eq!(f.admission(permission), revoked);
+    f.harness.pic.stop_live().await.unwrap();
+    assert!(f.configuration(f.operator).await.unwrap().fenced);
+    assert_eq!(f.admission(permission).await, revoked);
 }

@@ -7,7 +7,7 @@ use ic_blob_storage_contracts::protocol::REFERENCE_CAPACITY_METHOD;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 impl Fixture {
-    fn reference_capacity(
+    async fn reference_capacity(
         &self,
         actor: Principal,
         request: ReferenceCapacityRequest,
@@ -21,23 +21,24 @@ impl Fixture {
                 request,
                 REPLY_BYTES,
             )
+            .await
             .unwrap()
     }
 }
-#[test]
-fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ingress() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ingress() {
+    let f = Fixture::new().await;
     let request = ReferenceCapacityRequest {
         scope: f.scope(),
         root: [9; 32],
     };
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let expected = ReferenceCapacityResponse {
         request,
         headroom: None,
         fenced: false,
     };
-    assert_eq!(f.reference_capacity(f.tenant, request), Ok(expected));
+    assert_eq!(f.reference_capacity(f.tenant, request).await, Ok(expected));
     let replicated: Result<ReferenceCapacityResponse, F> = f
         .harness
         .pic
@@ -48,10 +49,11 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
             request,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     assert_eq!(replicated, Ok(expected));
     for actor in [f.operator, f.controller, f.uploader, Principal::anonymous()] {
-        assert_eq!(f.reference_capacity(actor, request), Err(F::Denied));
+        assert_eq!(f.reference_capacity(actor, request).await, Err(F::Denied));
     }
     for scope in [
         TenantScope {
@@ -64,7 +66,8 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
         },
     ] {
         assert_eq!(
-            f.reference_capacity(f.tenant, ReferenceCapacityRequest { scope, ..request }),
+            f.reference_capacity(f.tenant, ReferenceCapacityRequest { scope, ..request })
+                .await,
             Err(F::Binding)
         );
     }
@@ -78,7 +81,8 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
                 },
                 ..request
             }
-        ),
+        )
+        .await,
         Err(F::Invalid)
     );
     for bytes in [b"DIDL".to_vec(), vec![0; 4097]] {
@@ -86,6 +90,7 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
             .harness
             .pic
             .query_call(f.service, f.tenant, REFERENCE_CAPACITY_METHOD, bytes)
+            .await
             .unwrap_err();
         assert_eq!(
             crate::canister_rejection(&failure).reject_code,
@@ -93,15 +98,15 @@ fn standalone_reference_capacity_authenticates_even_unknown_roots_and_bounds_ing
         );
     }
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
 }
 
-#[test]
-fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_fence() {
-    let f = Fixture::new();
-    let enrollment = f.enroll(f.operator).unwrap();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_fence() {
+    let f = Fixture::new().await;
+    let enrollment = f.enroll(f.operator).await.unwrap();
     let permission = f.manifest().permission;
     let admitted: Result<UploadAdmissionMutation, UploadAdmissionFailure> = f
         .harness
@@ -113,6 +118,7 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
             permission,
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     admitted.unwrap();
     let request = ReferenceCapacityRequest {
@@ -124,10 +130,10 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
         headroom: None,
         fenced: false,
     };
-    let before = f.harness.pic.get_stable_memory(f.service).unwrap();
-    assert_eq!(f.reference_capacity(f.tenant, request), Ok(expected));
+    let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    assert_eq!(f.reference_capacity(f.tenant, request).await, Ok(expected));
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
     let suspended: Result<TenantEnrollmentResponse, TenantFailure> = f
@@ -143,22 +149,27 @@ fn standalone_reference_capacity_keeps_unconfirmed_absence_and_exposes_restore_f
             },
             REPLY_BYTES,
         )
+        .await
         .unwrap();
     suspended.unwrap();
-    assert_eq!(f.reference_capacity(f.tenant, request), Ok(expected));
+    assert_eq!(f.reference_capacity(f.tenant, request).await, Ok(expected));
     f.upgrade(ic_blob_storage_contracts::wire::encode_request("blob_post_upgrade", ()).unwrap())
+        .await
         .unwrap();
-    let restored = f.harness.pic.get_stable_memory(f.service).unwrap();
+    let restored = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
-        f.reference_capacity(f.tenant, request),
+        f.reference_capacity(f.tenant, request).await,
         Ok(ReferenceCapacityResponse {
             fenced: true,
             ..expected
         })
     );
-    assert_eq!(f.reference_capacity(f.operator, request), Err(F::Denied));
+    assert_eq!(
+        f.reference_capacity(f.operator, request).await,
+        Err(F::Denied)
+    );
     unchanged(
-        &f.harness.pic.get_stable_memory(f.service).unwrap(),
+        &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &restored,
     );
 }

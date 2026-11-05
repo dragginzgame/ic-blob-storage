@@ -1,5 +1,297 @@
 # Current status — 2026-11-05
 
+## Authorized 0.73.0 delivery — Testkit and #117
+
+The maintainer requested published Testkit adoption and deployment, then explicitly
+confirmed continuing that work and delivering #117. Select Contracts, Client and
+Engine **0.73.0**, supplier-first through the existing group release/publish
+runner. Source preparation, Git delivery and registry publication are authorized;
+sibling edits and live provider effects are not selected. The older pending
+sections below are historical preparation, superseded by this cohort.
+
+Published Testkit **0.87.0** has archive SHA256
+`99127aed6553d616dd4066f8a88e7746276ff2d659726ab845a49caf51d3c0ae`.
+Migrate native calls, lifecycle/setup and test callbacks directly to async;
+tests own their Tokio runtimes and isolated managed servers. Sequential journal,
+chunk and original-operation checks retain their order. Pure subprocess helpers
+remain synchronous. Rust client Drop performs no network deletion; each owned
+server stops all its isolated instances, including panic cleanup. The resolved
+graph retains only Platform 0.23, eliminating Testkit's former native 0.22 edge.
+
+The pending browser imports required published npm Platform **0.2.0**, rather
+than pinned 0.1.1. Adopt that package and its exact integrity; SDK Core remains
+6.1.1 through Platform and the external Caffeine override. Typed saved-ingress
+inspection and private corruption fixtures retain SDK request IDs, original
+envelopes, caller limits, bindings and trust policy. No saved format is changed.
+
+Strict native test-support Clippy, Wasm preparation, 21 browser unit/boundary
+cases, browser bundles and all three installed standalone certificate cases
+pass on Linux Rust 1.99.1. The opt-in Chromium certificate recovery case passes
+all ten scenarios. It exposed two obsolete verifier-era assertions: registration
+publishes retention intent and converts reservation into charged usage;
+withdrawal does not erase the first reference, physical bytes or liabilities.
+Explicit published/cancelled and logical/physical/liability checks replace those
+assertions; production behavior is unchanged. Failed attempts remain in
+`target/testkit087-migration/`. Both lockfiles stayed fixed during these checks.
+
+Release tools and the matching Testkit CLI/server are prepared and admitted.
+The full release gate and publication remain pending at this preparation point;
+native macOS and actual Canic/provider qualification are not inferred. Keep #117
+open until its resolution is on the default branch. The issued provider Candid
+reply and owned Wire assessment remain distinct as recorded below.
+
+## Pending Host Tools 0.83 and evidence cleanup
+
+Select published, non-yanked **ic-host-tools 0.83.0**, registry archive SHA256
+`e064ce02b5700ba3123fd88d62370c26b8aaa0b29443ae22475ca3bb5bb7d250`.
+The root catalog and lock agree. Blob selects only `ic-interface` in native
+PocketIC tests; that published implementation is byte-identical to 0.82.1.
+The removed certificate feature/module has no local caller; native certificate
+CBOR already belongs to Platform. Keep the other supplier selections and the
+native Testkit 0.86/Platform 0.22 edge; this request does not adopt async Testkit.
+Focused standalone-target strict Clippy, formatting and source/dependency plus
+deployment feature boundaries pass on Linux Rust 1.99.1. No installed, native
+macOS or full release qualification is claimed. Evidence: `target/evidence/host083/`.
+
+The authorized [evidence cleanup](../evidence/README.md) retires 186 obsolete
+flat run reports and compacts the implementation/tooling diaries. Historical
+citations address exact pre-cleanup Git objects, including the three links in
+the frozen shared release history; release claims and receipt bytes are unchanged.
+The two benchmark summaries retain selected absolute results, source/compiler
+identities, regressions and limitations, explicitly withdrawing raw-artifact
+custody/reproducibility claims. The pre-cut fixture's consumed provenance stays.
+All provider payloads, external contracts, obligations and frozen fixture bytes
+are unchanged; the probe ledger and fixture README only repair historical links.
+Both provider checksum manifests pass (321 local and 41 deployed files).
+Initial link checks found four package/history citations; their final destinations
+are repaired. Final documentation, retained-payload and stale-reference checks
+pass. This cleanup does not delete local target artifacts or authorize reset,
+provider effects or release. Engine 0.73 notes include both outcomes; changes stay
+unstaged and local. Focused output: `target/evidence/docs-retention/`.
+
+## Pending Shared Tooling 0.30.4 adoption
+
+Refresh the canonical 168-file snapshot to committed
+`2aa41c7394300302fe802b69b31b855bdc89b671` (0.30.4), superseding the 0.30.1
+selection below. The existing `platform-boundary-check` now runs the shared
+Candid source checker across all 836 Rust files before dependency admission.
+`ci/candid-boundary.json` admits 41 exact external Caffeine declarations and
+codec/test helpers; application DTOs stay Wire. The policy is checkpointed in
+`CI_INPUTS`, and ordinary hosted tooling invokes the same existing release stage.
+The checker is lexical, with no macro expansion or cross-module type resolution.
+One test helper's unchanged generic bounds move before its array return type so
+its allowance can name a bounded declaration without crossing a semicolon.
+
+Snapshot integrity, actual source/dependency boundaries, injected application
+DTO and stale-allowance refusals, focused standalone-test strict Clippy,
+formatting, workflow lint, ShellCheck, documentation links and the actual LOC
+command pass on Linux with Rust 1.99.1. Cargo.lock and the incoming browser edit
+stay unchanged. The snapshot includes the Bash 3.2 empty-option fix and compact
+experimental-evidence policy; no protected provider/recovery/release evidence is
+removed. Native macOS/Bash 3.2, installed tests and the full release gate were not
+rerun for this tooling-only adoption. Focused output: `target/evidence/shared0304/`.
+Pending Engine 0.73.0 notes are updated. No staging or delivery is selected.
+
+## Pending family 0.73.0 — external certificate schema boundary (#117)
+
+Remove only the opt-in `ic_wire::Wire` metadata derive from
+`dto::upload::certificate::CaffeineUploadCertificateResponse`. The provider
+reply keeps its Rust path, Serde/Candid derives and `method`/`blob_hash` fields;
+`UploadCertificateAssessmentResponse` remains the distinct owned Wire DTO.
+There is no added type, conversion, alias, endpoint, saved format or migration.
+The catalog/schema owner already excludes Candid methods. No caller projects
+this response as Wire; Canic's actual imported use is its Candid journey test,
+not an owned Wire endpoint. Sibling source stays read-only.
+
+Removing an exposed host trait implementation is a pre-1.0 public API cut even
+though deployed Candid/Wire bytes are unchanged. Pending Contracts, Client and
+Engine notes therefore select **0.73.0**, superseding the earlier patch drafts
+below; Cargo package versions and frozen release records stay unchanged until
+separately authorized delivery. Core/Client expose Contracts DTOs and align with
+that cohort. Existing Canic adoption tracking can consume it after publication;
+no independently required Canic source migration was found.
+
+Focused strict Contracts Clippy, three host-schema tests, the external-service
+catalog/schema suite, frozen Wire frames, two doc tests (including the new
+feature-gated compile-fail boundary), and all three installed standalone
+certificate cases pass. The installed cases cover independent signed uploaders,
+quotas, authority, uncertainty and stop/restore behavior. The standalone Wasm
+build passes. Browser IDL source still names the same two Candid text fields;
+Chromium and actual Canic builds were not rerun. Evidence: `target/issue117-*`.
+The first Clippy pass refused redundant Rustdoc raw-string delimiters; the final
+pass is clean. Keep #117 open until the correction is delivered on the default
+branch. No staging, commit, push, release, publication or deployment is selected.
+
+## Pending Platform 0.23 and published Tooling qualification
+
+Select published Platform **0.23.0** with defaults disabled. Its only production
+source change from 0.22.3 is the optional subnet-metrics decode result; Blob does
+not call that API, and its underlying Principal, Candid, Agent, Runtime, record
+and application Wire identities are unchanged. Keep the native protocol codecs
+introduced by the earlier adoption recorded below; no application or saved format changes.
+
+The incoming lock already selected the latest published Foundation/Build
+**0.74.4** and Host Tools **0.82.1**. Verified their registry archive checksums and
+reviewed the source changes: test/helper layout, additive package qualification,
+and bounded ICP parsing. Blob needs no new API from those patches, so compatible
+manifest minimums remain unchanged. Runtime/macros/guard stay 0.19.2 and Types
+0.18.1. Storage/Wire and the incoming browser edit are preserved.
+
+Testkit **0.87.0** and Tools **0.83.0** were not published at selection; keep
+published Testkit **0.86.0**. Its native dependency still requires Platform
+0.22, so the resolved native test graph retains **0.22.3** transitively alongside
+Blob's 0.23.0. An attempted forced single-version update correctly refused that
+incompatible requirement; the ordinary locked graph admits both. No renamed
+legacy facade, path patch or local adapter is introduced. The older facade is
+reachable only through Testkit in Blob's selected graph and is absent from the
+standalone deployment. Complete native facade consolidation needs the supplier's
+published update; do not consume its dirty async/codec draft.
+
+Locked default/all-feature metadata, declaration/deployment graph checks and
+strict all-target/all-feature Clippy for CLI and PocketIC pass. All **132 CLI
+tests** and **two installed signed-ingress/certificate recovery tests** pass on
+Linux Rust/Cargo 1.99.1. The storage probe builds for Wasm; the standalone
+canister passes its Wasm compilation check. Manifest sorting, formatting, local
+documentation and diff checks pass. Evidence: `target/platform023-tooling-*`.
+The graph and incoming browser bytes stayed fixed through validation.
+This section supersedes the earlier 0.22.3-only selection below. Changes stay
+local; no Blob package versions, release effects or sibling source edits are
+selected. Native macOS, Chromium, Canic, actual archive qualification and the full
+release gate were not run or inferred from these focused checks.
+
+## Pending Platform 0.22.3 — direct Rust CBOR removed
+
+Adopt published, non-yanked Platform **0.22.3**, archive SHA256
+`d73c010faf8ba71b380b35fed865c5a30e2e9ed56d688fb7817d7df978e396fc`.
+The archive and migration guide supply the codecs requested in
+[Platform #143](https://github.com/dragginzgame/ic-platform/issues/143); the
+producer has closed that issue. The earlier API blocker is superseded.
+Raise the compatible minimum to 0.22.3 because the new API requires that patch.
+Only Platform's selected version changes in this adoption; preserve incoming
+Storage 0.67.1, Wire/Derive 0.17.2 and Runtime/macros/guard 0.19.2 selections.
+
+Completed the incoming initial seven fixture replacements through native
+`ic_protocol` readers and `certification::cbor` certificate operations. Select
+only `ic-protocol` in PocketIC's native dev dependency; it supplies the required
+certificate capability without unused `ic-protocol-fixtures` encoders. Use the
+untagged certificate encoder to preserve the prior packet representation, 128 KiB
+certificate/envelope bounds and the existing 256 KiB raw call-response cap.
+Keep Agent signature/trust verification, request-ID/content correlation and
+saved original ingress bytes with the consumer. Owned application DTOs remain
+Wire. Added actual-ingress assertions for untagged re-encoding and trailing-data
+refusal alongside forged, oversized, unrelated and wrong-root proof tests.
+
+No direct Rust serde_cbor/Ciborium declaration or source call remains. The
+standard declaration policy now has no test exception for either dependency.
+Native transitive CBOR remains through Platform/Agent, IC transport types and
+Testkit; declaration removal does not eliminate those owners. Incoming browser
+certificate edits are preserved byte-for-byte and are not qualified by Rust tests.
+
+Locked metadata, declaration/deployment graph checks and focused all-target/
+all-feature PocketIC Clippy pass. The storage probe builds for Wasm against the
+selected release, the standalone canister passes its Wasm compilation check,
+and both real signed-ingress tests pass: extraction/forgery/refusal and saved
+request/revocation recovery without reissuing. The retired native-test exception
+now refuses an aliased dev CBOR declaration. Manifest sorting, Rust formatting,
+documentation and diff checks pass. Evidence uses `target/platform0223-*`.
+No source outside Blob is edited, no lock update broadens unrelated versions,
+and nothing is staged or delivered. Native macOS, Chromium, Canic and the full
+release gate were not run or inferred from this focused qualification.
+
+## Pending Client 0.72.1 — CLI grammar cleanup
+
+Publication follow-up: removed the duplicate retained-preparation proof branch.
+Prepared and unobserved manifests now reach one original-envelope validation
+site before choosing the existing outcome. Wrong declarations still refuse
+before claim inspection; fresh acknowledged preparation still skips historical
+claim reads; an unprepared claimed operation still cannot authorize dispatch.
+No new wrapper, state, saved format or command is introduced. Focused strict
+Clippy, eight preparation/custody unit tests, all seven installed preparation
+cases and the installed control-loss/session-recovery case pass. These cover
+independent file journals, corrupt later bodies, lost admission/preparation
+replies, partial claims, changed roles/journals, withdrawn permission and original
+session recovery without resubmission. Reused the unchanged qualified standalone
+Wasm with the freshly built CLI. Formatting/docs checks pass and the lockfile is
+unchanged. Evidence: `target/cli-publication-*`. No new provider or macOS/full-gate
+qualification is claimed.
+
+The bounded caller review found no justified command retirement: indexed,
+batch and session setup already converge on `publish_prepare::run_selected` and
+`upload_setup::execute`; observations share `query::recorded`/`observe`; native
+downloads use Client's verification owner. Input-root reads and recovery-root
+reads intentionally differ in canonicalization and custody policy. Retain the
+explicit proof/error boundaries and supported operator workflows rather than
+replace them with another generic runner. The next substantial cut appears to
+require retiring a supported workflow; this review found no second implementation
+of the shared setup flow to delete.
+
+Local work only; the existing Shared/Storage batch below remains intact. All
+three binaries already used Clap. This pass removes the separate string-to-help
+dispatcher, keeps operation guidance beside the command declaration, and makes
+Clap advertise/validate account kinds, history filters and reference actions.
+The probe and archive verifier now use derived argument structs instead of
+string-keyed match lookups. No dependency or package-version change is selected.
+
+Retain the typed grammar-to-workflow conversion: it binds the authenticated role,
+URL/root policy and installed service scope before effects. Canonical number/
+Principal validation remains shared with saved documents; the history filter
+decoder also reads frozen cursors and is deliberately retained. Session JSON
+frames, exact signed requests, journals, uncertainty and retry policy are not
+command-line syntax and were not replaced with Clap. No supported command was
+retired, and this pass makes no large workflow-removal or performance claim.
+
+Linux Rust/Cargo 1.99.1 focused qualification passes: CLI all-target/all-feature
+strict Clippy, all binary tests and `native_files` (**132 tests**, including local
+HTTP fixtures, redacted argument refusal, early host-release refusal and cursor
+file handling). All three binaries build with package verification enabled.
+Captured 37 help pages against the original source before editing: 34 are
+identical; only account/history/reference pages add their finite choices.
+The first Clippy attempt exposed the saved-cursor decoder dependency; the final
+pass preserves that owner and has no warnings. Evidence: `target/cli-clap-*`.
+No live provider capture, package archive qualification, installed canister,
+Canic, native macOS or full release gate was run. Nothing staged or delivered.
+
+## Pending Engine 0.72.3 — Shared follow-up and Storage patch
+
+Local work only; no staging, commit, push or publication is selected.
+Shared Tooling **0.30.1** is refreshed through the canonical exporter to committed
+`0c5eebc49534e99b09326c49b003a0adfd2348cb`, preserving its 166-file selection.
+The first reviewed LOC update at `4d09618` was followed by this newly committed
+producer fix during the same batch; no dirty producer bytes were consumed.
+Text uses the clearer `???` unclassified column and `n/a` labels; command help
+explains diagnostic inspection. The memory-bounded scanner keeps all counts,
+file classifications, hashes and diagnostic contents; queued traversal changes
+diagnostic ordering only. An initial byte-for-byte JSON comparison rejected that
+ordering difference; sorting diagnostics confirms otherwise identical reports.
+
+The existing incoming Cargo.lock edit selects published **Storage 0.67.1**;
+its archive matches the locked SHA-256. The source review finds documentation/
+lint changes, const-qualified helpers and an equivalent cached-tree read; normal
+dependencies, features, allocation policy and persisted formats are unchanged.
+The manifest keeps its compatible `0.67.0` requirement. Focused Linux Rust/Cargo
+1.99.1 checks pass: full locked/default and all-feature metadata, deployment/
+dependency boundaries and pins, strict Clippy for all nine Storage consumers,
+five lifecycle-binding tests, two host-memory composition tests and two durable
+codec tests. All six probe Wasms and the standalone Wasm build; the installed
+operator restoration/read-attribution test passes, including same-release reopen
+fencing and observation authority. Evidence uses `target/storage0671-*`.
+
+The adopted commit now contains [Shared #357](https://github.com/dragginzgame/shared-tooling/issues/357)'s
+undated-draft fix and [#356](https://github.com/dragginzgame/shared-tooling/issues/356)'s
+consumer scratch defaults. Focused canonical fixtures pass for invalid/competing
+draft refusal, real Cargo execution and two subsequent admissions, publication
+closure, damaged-source refusal and scratch failure custody/relative overrides.
+Both LOC fixtures pass; actual Blob JSON retains schema 2, thirteen crates,
+112,663 total lines and 54 diagnostic notes. Evidence:
+`target/shared0301-{candidate,scratch,cloc-fixture,cloc-siblings}.log` and
+`target/shared0301-cloc-parity.json`. The safe fresh-Clippy fallback remains;
+actual publication-stage reuse awaits an authorized release. Producer source is
+read-only. Snapshot integrity (166 files), consumer formatting, ShellCheck/Perl
+syntax and documentation checks (1,801 references) pass. The incoming lockfile,
+index, HEAD and frozen release receipts remain unchanged by verification.
+Native macOS, Canic builds, live/provider acceptance and the full release gate
+were not rerun or inferred.
+
 ## Published Engine 0.72.2 — Shared Tooling audit delivered
 
 Engine's ten members are **0.72.2**, pushed to `origin/main` and published to

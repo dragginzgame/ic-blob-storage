@@ -2,11 +2,15 @@ use super::*;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
 use ic_blob_storage_pocketic_tests::fixture_calls;
 
-fn lifecycle(f: &Fixture, actor: Principal, command: LifecycleCommand) -> Result<Outcome, Failure> {
-    f.call(actor, Command::FixtureLifecycle(command))
+async fn lifecycle(
+    f: &Fixture,
+    actor: Principal,
+    command: LifecycleCommand,
+) -> Result<Outcome, Failure> {
+    f.call(actor, Command::FixtureLifecycle(command)).await
 }
 
-fn inspect(
+async fn inspect(
     f: &Fixture,
     actor: Principal,
     input: RetainedDescriptorInput,
@@ -18,6 +22,7 @@ fn inspect(
         "retained_content_descriptor",
         (input,),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap()
 }
@@ -31,12 +36,12 @@ fn reference(p: Permission, reference: u128, operation: u128, retain: bool) -> L
     }
 }
 
-#[test]
-fn retained_descriptor_requires_exact_live_reference_despite_old_successful_receipts() {
-    let f = Fixture::new();
-    let enrollment = f.enroll();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn retained_descriptor_requires_exact_live_reference_despite_old_successful_receipts() {
+    let f = Fixture::new().await;
+    let enrollment = f.enroll().await;
     let v = vectors::vector("abc-text", 1);
-    let p = f.permission(&v);
+    let p = f.permission(&v).await;
     let first = RetainedDescriptorInput {
         content: lookup(&f, p),
         object: p.request.id,
@@ -47,52 +52,60 @@ fn retained_descriptor_requires_exact_live_reference_despite_old_successful_rece
         reference: 2,
         ..first
     };
-    assert_eq!(inspect(&f, f.project, first), Ok(None));
-    f.admit(p);
-    assert_eq!(inspect(&f, f.project, first), Ok(None));
-    f.prepare(p, &v);
-    assert_eq!(inspect(&f, f.project, first), Ok(None));
-    f.call(f.uploader, Command::Expose(p.request.root)).unwrap();
-    let descriptor = inspect(&f, f.project, first).unwrap().unwrap();
+    assert_eq!(inspect(&f, f.project, first).await, Ok(None));
+    f.admit(p).await;
+    assert_eq!(inspect(&f, f.project, first).await, Ok(None));
+    f.prepare(p, &v).await;
+    assert_eq!(inspect(&f, f.project, first).await, Ok(None));
+    f.call(f.uploader, Command::Expose(p.request.root))
+        .await
+        .unwrap();
+    let descriptor = inspect(&f, f.project, first).await.unwrap().unwrap();
     assert_eq!(descriptor.reference, first);
     assert_eq!(descriptor.descriptor.content.state, ContentState::Live);
     check_body(&descriptor.descriptor, b"abc");
-    check_authority(&f, first);
-    assert_eq!(inspect(&f, f.project, second), Ok(None));
+    check_authority(&f, first).await;
+    assert_eq!(inspect(&f, f.project, second).await, Ok(None));
     let retain = reference(p, 2, 1, true);
-    lifecycle(&f, f.project, retain).unwrap();
-    lifecycle(&f, f.project, reference(p, 1, 2, false)).unwrap();
-    let before = f.observe(p);
-    assert_eq!(inspect(&f, f.project, first), Ok(None));
-    let still_live = inspect(&f, f.project, second).unwrap().unwrap();
-    assert_eq!(still_live.reference, second);
-    assert_eq!(f.observe(p), before);
-    f.call(f.operator, f.enrollment(Some(enrollment), false))
+    lifecycle(&f, f.project, retain).await.unwrap();
+    lifecycle(&f, f.project, reference(p, 1, 2, false))
+        .await
         .unwrap();
-    f.restart();
-    assert_eq!(inspect(&f, f.project, second), Ok(Some(still_live)));
-    lifecycle(&f, f.project, reference(p, 2, 3, false)).unwrap();
+    let before = f.observe(p).await;
+    assert_eq!(inspect(&f, f.project, first).await, Ok(None));
+    let still_live = inspect(&f, f.project, second).await.unwrap().unwrap();
+    assert_eq!(still_live.reference, second);
+    assert_eq!(f.observe(p).await, before);
+    f.call(f.operator, f.enrollment(Some(enrollment), false))
+        .await
+        .unwrap();
+    f.restart().await;
+    assert_eq!(inspect(&f, f.project, second).await, Ok(Some(still_live)));
+    lifecycle(&f, f.project, reference(p, 2, 3, false))
+        .await
+        .unwrap();
     // Retrying a formerly successful retain recovers its receipt, not liveness.
     assert_eq!(
-        lifecycle(&f, f.project, retain),
+        lifecycle(&f, f.project, retain).await,
         Ok(Outcome::Reference {
             replayed: true,
             result: Ok(true)
         })
     );
-    assert_eq!(inspect(&f, f.project, second), Ok(None));
+    assert_eq!(inspect(&f, f.project, second).await, Ok(None));
     for command in [
         LifecycleCommand::SubstituteDeletion(p.request),
         LifecycleCommand::SubstituteSettlement(p.request),
     ] {
-        lifecycle(&f, f.operator, command).unwrap();
-        assert_eq!(inspect(&f, f.project, second), Ok(None));
+        lifecycle(&f, f.operator, command).await.unwrap();
+        assert_eq!(inspect(&f, f.project, second).await, Ok(None));
     }
-    f.restart();
-    assert_eq!(inspect(&f, f.project, second), Ok(None));
+    f.restart().await;
+    assert_eq!(inspect(&f, f.project, second).await, Ok(None));
     // Historical descriptors remain available for recovery/accounting inspection.
     assert_eq!(
         read(&f, f.project, first.content)
+            .await
             .unwrap()
             .unwrap()
             .content
@@ -101,7 +114,11 @@ fn retained_descriptor_requires_exact_live_reference_despite_old_successful_rece
     );
 }
 
-fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
+#[expect(
+    clippy::too_many_lines,
+    reason = "Keep malformed, authority, scope and absent-history checks together against the same retained descriptor"
+)]
+async fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
     let oversized = f
         .harness
         .pic
@@ -111,6 +128,7 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
             "retained_content_descriptor",
             vec![0; 4097],
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&oversized).reject_code,
@@ -123,7 +141,7 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
         f.other,
         Principal::anonymous(),
     ] {
-        assert_eq!(inspect(f, actor, input), Err(Failure::NotProject));
+        assert_eq!(inspect(f, actor, input).await, Err(Failure::NotProject));
     }
     for bad in [
         RetainedDescriptorInput { object: 0, ..input },
@@ -136,7 +154,7 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
             ..input
         },
     ] {
-        assert_eq!(inspect(f, f.project, bad), Err(Failure::InvalidInput));
+        assert_eq!(inspect(f, f.project, bad).await, Err(Failure::InvalidInput));
     }
     for bad in [
         RetainedDescriptorInput { object: 2, ..input },
@@ -156,7 +174,7 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
             ..input
         },
     ] {
-        assert_eq!(inspect(f, f.project, bad), Ok(None));
+        assert_eq!(inspect(f, f.project, bad).await, Ok(None));
     }
     assert_eq!(
         inspect(
@@ -169,7 +187,8 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
                 },
                 ..input
             }
-        ),
+        )
+        .await,
         Err(Failure::WrongService)
     );
     assert_eq!(
@@ -183,7 +202,8 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
                 },
                 ..input
             }
-        ),
+        )
+        .await,
         Err(Failure::WrongNamespace)
     );
     assert_eq!(
@@ -197,7 +217,8 @@ fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
                 },
                 ..input
             }
-        ),
+        )
+        .await,
         Ok(None)
     );
 }

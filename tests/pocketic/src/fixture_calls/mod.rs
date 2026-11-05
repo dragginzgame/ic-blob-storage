@@ -10,7 +10,7 @@ pub const REPLY_BYTES: usize = blob_test_protocol::fixture_wire::MAX_BYTES;
 /// Wire owns codecs; Testkit owns transport panic classification.
 /// # Errors
 /// Preserves encoding, transport, rejection and bounded decoding failures.
-pub fn query_fixture<T, A>(
+pub async fn query_fixture<T, A>(
     pic: &PocketIc,
     service: ic_platform::principal::ExternalPrincipal,
     caller: ic_platform::principal::ExternalPrincipal,
@@ -22,7 +22,7 @@ where
     A: serde::Serialize,
 {
     let arguments = blob_test_protocol::fixture_wire::encode_args(method, arguments)?;
-    let reply = pic.query_call(service, caller, method, arguments)?;
+    let reply = pic.query_call(service, caller, method, arguments).await?;
     blob_test_protocol::fixture_wire::decode_args(method, &reply, REPLY_BYTES).map_err(Into::into)
 }
 
@@ -30,7 +30,7 @@ where
 /// A transport failure never authorizes retrying an uncertain update.
 /// # Errors
 /// Preserves encoding, transport, rejection and bounded decoding failures.
-pub fn update_fixture<T, A>(
+pub async fn update_fixture<T, A>(
     pic: &PocketIc,
     service: ic_platform::principal::ExternalPrincipal,
     caller: ic_platform::principal::ExternalPrincipal,
@@ -42,6 +42,6 @@ where
     A: serde::Serialize,
 {
     let arguments = blob_test_protocol::fixture_wire::encode_args(method, arguments)?;
-    let reply = pic.update_call(service, caller, method, arguments)?;
+    let reply = pic.update_call(service, caller, method, arguments).await?;
     blob_test_protocol::fixture_wire::decode_args(method, &reply, REPLY_BYTES).map_err(Into::into)
 }

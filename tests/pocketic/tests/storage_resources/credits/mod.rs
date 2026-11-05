@@ -24,7 +24,7 @@ fn intent(f: &Fixture, operation: u128) -> Intent {
     }
 }
 
-fn measured(
+async fn measured(
     f: &Fixture,
     directory: &Path,
     name: &str,
@@ -33,10 +33,11 @@ fn measured(
 ) -> FundingCreditResources {
     let packet = ic_blob_storage_pocketic_tests::control_calls::encode_control_one(input).unwrap();
     retain_bytes(directory, &format!("{name}-request.wire"), &packet);
-    let reply =
-        f.harness
-            .pic
-            .update_call(f.service, actor, "fixture_measure_funding_credit", packet);
+    let reply = f
+        .harness
+        .pic
+        .update_call(f.service, actor, "fixture_measure_funding_credit", packet)
+        .await;
     retain(
         directory,
         &format!("{name}-result.json"),
@@ -59,9 +60,9 @@ fn measured(
     observation
 }
 
-#[test]
-fn credit_measurements_have_independent_exact_read_windows() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn credit_measurements_have_independent_exact_read_windows() {
+    let f = Fixture::new().await;
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let batch = HistoryPopulationBatch {
         funding_start: 0,
@@ -81,6 +82,7 @@ fn credit_measurements_have_independent_exact_read_windows() {
             (batch,),
             REPLY_BYTES,
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap()
         .unwrap();
@@ -91,15 +93,15 @@ fn credit_measurements_have_independent_exact_read_windows() {
         established: true,
         fault: None,
     };
-    let denied = measured(&f, directory.path(), "denied", f.other, command);
+    let denied = measured(&f, directory.path(), "denied", f.other, command).await;
     assert_eq!(denied.result, Err(Failure::Denied));
     assert!(denied.reads.iter().all(|r| r.calls == 0));
-    let confirmed = measured(&f, directory.path(), "confirmed", f.operator, command);
+    let confirmed = measured(&f, directory.path(), "confirmed", f.operator, command).await;
     assert_eq!(confirmed.result, Ok(Some(true)));
     assert!(confirmed.reads.iter().any(|r| r.calls > 0));
-    let replay = measured(&f, directory.path(), "replay", f.operator, command);
+    let replay = measured(&f, directory.path(), "replay", f.operator, command).await;
     assert_eq!(replay.result, Ok(Some(false)));
-    let denied_again = measured(&f, directory.path(), "denied-again", f.other, command);
+    let denied_again = measured(&f, directory.path(), "denied-again", f.other, command).await;
     assert_eq!(denied_again.result, Err(Failure::Denied));
     assert!(denied_again.reads.iter().all(|r| r.calls == 0));
     for observation in [denied, confirmed, replay, denied_again] {
@@ -112,16 +114,16 @@ fn credit_measurements_have_independent_exact_read_windows() {
     }
 }
 
-#[test]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 #[ignore = "opt-in receipt profile; needs a fresh BLOB_FUNDING_RECEIPT_PROFILE directory"]
-fn receipt_populated_confirmation_and_restoration_profile() {
+async fn receipt_populated_confirmation_and_restoration_profile() {
     let directory =
         std::path::PathBuf::from(std::env::var_os("BLOB_FUNDING_RECEIPT_PROFILE").unwrap());
     std::fs::create_dir(&directory).unwrap();
     for count in [100, 1_000, 10_000] {
         let path = directory.join(format!("receipts-{count}"));
         std::fs::create_dir(&path).unwrap();
-        profile(&path, count);
+        profile(&path, count).await;
     }
     retain(
         &directory,
@@ -138,8 +140,8 @@ fn receipt_populated_confirmation_and_restoration_profile() {
     clippy::too_many_lines,
     reason = "One retained tier binds canonical population, credit refusals, replay and actual restore"
 )]
-fn profile(directory: &Path, count: u32) {
-    let harness = Harness::new();
+async fn profile(directory: &Path, count: u32) {
+    let harness = Harness::new().await;
     let operator = fake_principal(1);
     let controller = fake_principal(2);
     let service = harness
@@ -151,6 +153,7 @@ fn profile(directory: &Path, count: u32) {
                 ..CanisterSettings::default()
             }),
         )
+        .await
         .unwrap();
     let profile = StorageProbeInstallation {
         operator,
@@ -172,6 +175,7 @@ fn profile(directory: &Path, count: u32) {
             installation.clone(),
             Some(controller),
         )
+        .await
         .unwrap();
     let f = Fixture {
         harness,
@@ -209,7 +213,8 @@ fn profile(directory: &Path, count: u32) {
         let reply = f
             .harness
             .pic
-            .update_call(service, operator, "populate_histories", packet);
+            .update_call(service, operator, "populate_histories", packet)
+            .await;
         retain(
             directory,
             &format!("population-{start}-result.json"),
@@ -238,7 +243,7 @@ fn profile(directory: &Path, count: u32) {
         &serde_json::json!({"intents":count,"confirmed":count-1,
         "elapsed_ms":started.elapsed().as_millis()}),
     );
-    let original = f.local_status();
+    let original = f.local_status().await;
     assert_eq!(original.funding.transport_accepted, u128::from(count));
     assert_eq!(original.funding.uncredited_accepted, 1);
     let command = CreditCommand {
@@ -248,9 +253,11 @@ fn profile(directory: &Path, count: u32) {
         established: true,
         fault: None,
     };
-    let before = f.harness.pic.get_stable_memory(service).unwrap();
+    let before = f.harness.pic.get_stable_memory(service).await.unwrap();
     assert_eq!(
-        measured(&f, directory, "denied", f.other, command).result,
+        measured(&f, directory, "denied", f.other, command)
+            .await
+            .result,
         Err(Failure::Denied)
     );
     assert_eq!(
@@ -264,57 +271,65 @@ fn profile(directory: &Path, count: u32) {
                 ..command
             }
         )
+        .await
         .result,
         Err(Failure::Conflict)
     );
     assert!(
-        f.harness.pic.get_stable_memory(service).unwrap() == before,
+        f.harness.pic.get_stable_memory(service).await.unwrap() == before,
         "refusal changed stable bytes"
     );
     assert_eq!(
-        measured(&f, directory, "confirmed", operator, command).result,
+        measured(&f, directory, "confirmed", operator, command)
+            .await
+            .result,
         Ok(Some(true))
     );
-    let after = f.harness.pic.get_stable_memory(service).unwrap();
+    let after = f.harness.pic.get_stable_memory(service).await.unwrap();
     assert_eq!(
-        measured(&f, directory, "replay", operator, command).result,
+        measured(&f, directory, "replay", operator, command)
+            .await
+            .result,
         Ok(Some(false))
     );
     assert!(
-        f.harness.pic.get_stable_memory(service).unwrap() == after,
+        f.harness.pic.get_stable_memory(service).await.unwrap() == after,
         "replay changed stable bytes"
     );
-    let credited = f.local_status();
+    let credited = f.local_status().await;
     assert_eq!(
         credited.funding.transport_accepted,
         original.funding.transport_accepted
     );
     assert_eq!(credited.funding.uncredited_accepted, 0);
-    let upgrade =
-        f.harness
-            .pic
-            .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller));
+    let upgrade = f
+        .harness
+        .pic
+        .upgrade_canister(service, Fixture::wasm(), restoration, Some(controller))
+        .await;
     retain(
         directory,
         "upgrade.json",
         &serde_json::json!({"result":format!("{upgrade:?}")}),
     );
     upgrade.unwrap();
-    let restored = f.local_status();
+    let restored = f.local_status().await;
     assert_eq!(
         restored.funding.transport_accepted,
         credited.funding.transport_accepted
     );
     assert_eq!(restored.funding.uncredited_accepted, 0);
     assert!(restored.funding.fenced);
-    retain(directory, "restoration.json", &resources(&f));
-    let reopened = f.harness.pic.get_stable_memory(service).unwrap();
+    retain(directory, "restoration.json", &resources(&f).await);
+    let reopened = f.harness.pic.get_stable_memory(service).await.unwrap();
     assert_eq!(
-        measured(&f, directory, "fenced", operator, command).result,
+        measured(&f, directory, "fenced", operator, command)
+            .await
+            .result,
         Err(Failure::Fenced)
     );
     assert!(
-        f.harness.pic.get_stable_memory(service).unwrap() == reopened,
+        f.harness.pic.get_stable_memory(service).await.unwrap() == reopened,
         "replay changed stable bytes"
     );
     retain_bytes(directory, "stable.bin", &reopened);

@@ -7,6 +7,36 @@ use std::{
 };
 
 #[test]
+fn argument_refusals_do_not_echo_supplied_values_or_create_outputs() {
+    let root = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
+    for (binary, args, status) in [
+        (
+            env!("CARGO_BIN_EXE_blob-storage"),
+            &["inspect-account", "--kind", "PRIVATE_INVALID_ARGUMENT"][..],
+            2,
+        ),
+        (
+            env!("CARGO_BIN_EXE_caffeine-probe"),
+            &["PRIVATE_INVALID_ARGUMENT", "must-not-exist"][..],
+            3,
+        ),
+    ] {
+        let output = Command::new(binary)
+            .current_dir(root.path())
+            .args(args)
+            .output()
+            .unwrap();
+        assert_eq!(output.status.code(), Some(status));
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap(),
+            serde_json::json!({"error":"arguments"})
+        );
+        assert_eq!(output.stderr, [] as [u8; 0]);
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+    }
+}
+
+#[test]
 fn fifo_cursor_without_a_writer_returns_typed_file_refusal_promptly() {
     let root = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let cursor = root.path().join("cursor");

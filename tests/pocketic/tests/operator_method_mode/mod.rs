@@ -74,17 +74,22 @@ pub(super) fn update_wasm(method: &str, reply: &[u8]) -> Vec<u8> {
     wasm
 }
 
-#[test]
-fn update_only_status_is_rejected_without_executing_it() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn update_only_status_is_rejected_without_executing_it() {
+    let f = Fixture::new().await;
     let pic = &f.harness.pic;
-    let canister = pic.create_canister().unwrap();
+    let canister = pic.create_canister().await.unwrap();
     pic.install_canister(canister, update_wasm("operator_status", &[]), vec![], None)
+        .await
         .unwrap();
-    assert!(fixture_calls::query_fixture::<(Option<blob_test_protocol::status::OperatorStatusView>,), _>(pic, canister, f.driver, "operator_status", ()).is_err());
-    assert_eq!(pic.get_stable_memory(canister).unwrap(), Vec::<u8>::new());
+    assert!(fixture_calls::query_fixture::<(Option<blob_test_protocol::status::OperatorStatusView>,), _>(pic, canister, f.driver, "operator_status", ()).await.is_err());
+    assert_eq!(
+        pic.get_stable_memory(canister).await.unwrap(),
+        Vec::<u8>::new()
+    );
     // Positive control proves this is executable mutation, not an inert/missing export.
     pic.update_call(canister, f.driver, "operator_status", vec![])
+        .await
         .unwrap();
-    assert_eq!(pic.get_stable_memory(canister).unwrap().len(), 65_536);
+    assert_eq!(pic.get_stable_memory(canister).await.unwrap().len(), 65_536);
 }

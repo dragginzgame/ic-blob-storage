@@ -3,11 +3,11 @@ use super::*;
 use ic_blob_storage_pocketic_tests::fixture_calls;
 
 impl Fixture {
-    pub(in crate::recovery) fn assert_authority_fenced(&self, upload: JourneyUpload) {
-        let before = self.archive();
+    pub(in crate::recovery) async fn assert_authority_fenced(&self, upload: JourneyUpload) {
+        let before = self.archive().await;
         assert!(before.fenced);
         assert_eq!(
-            self.read_resources(self.authority_operator),
+            self.read_resources(self.authority_operator).await,
             Err(JourneyFailure::Denied)
         );
         let sync: Result<(), SyncFailure> = fixture_calls::update_fixture(
@@ -15,21 +15,22 @@ impl Fixture {
             self.service,
             self.authority_operator,
             "sync_gateway",
-            (self.sync_request(),),
+            (self.sync_request().await,),
         )
+        .await
         .map(|(reply,)| reply)
         .unwrap();
         assert_eq!(sync, Err(SyncFailure::Fenced));
-        self.assert_updates_fenced(upload);
-        self.assert_gateway_queries_fenced(upload);
-        assert_eq!(self.archive(), before);
+        self.assert_updates_fenced(upload).await;
+        self.assert_gateway_queries_fenced(upload).await;
+        assert_eq!(self.archive().await, before);
     }
 
     #[expect(
         clippy::too_many_lines,
         reason = "One ordered installed scenario retains lifecycle and byte-preservation assertions while making fallible client operations explicit"
     )]
-    fn assert_updates_fenced(&self, upload: JourneyUpload) {
+    async fn assert_updates_fenced(&self, upload: JourneyUpload) {
         let args = |method: &str, root: [u8; 32]| {
             blob_test_protocol::fixture_wire::encode_one(method, root.to_vec()).unwrap()
         };
@@ -127,6 +128,7 @@ impl Fixture {
                 .harness
                 .pic
                 .update_call(self.service, actor, method, input)
+                .await
                 .expect_err(method);
             assert_eq!(
                 crate::canister_rejection(&failure).reject_code,
@@ -136,7 +138,7 @@ impl Fixture {
         }
     }
 
-    fn assert_gateway_queries_fenced(&self, upload: JourneyUpload) {
+    async fn assert_gateway_queries_fenced(&self, upload: JourneyUpload) {
         for (method, input) in [
             (
                 "_immutableObjectStorageBlobsAreLive",
@@ -159,6 +161,7 @@ impl Fixture {
                 .harness
                 .pic
                 .query_call(self.service, self.gateway, method, input)
+                .await
                 .expect_err(method);
             assert_eq!(
                 crate::canister_rejection(&failure).reject_code,
@@ -169,72 +172,80 @@ impl Fixture {
     }
 }
 
-#[test]
-fn partial_verifier_and_all_catalogs_survive_repeated_and_skipped_hook_upgrades() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn partial_verifier_and_all_catalogs_survive_repeated_and_skipped_hook_upgrades() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("pattern-1048577", 1);
     assert_eq!(
-        f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
+        f.reserve_manifest(f.first, v.upload, v.manifest.clone())
+            .await,
         Ok(())
     );
-    assert_eq!(f.append(f.first, v.upload, 0, &v.bytes[..CHUNK]), Ok(()));
-    let mut before = f.archive();
+    assert_eq!(
+        f.append(f.first, v.upload, 0, &v.bytes[..CHUNK]).await,
+        Ok(())
+    );
+    let mut before = f.archive().await;
     for skip in [false, false, true] {
         if skip {
-            f.upgrade_skipping_outgoing_hook(f.service, true);
+            f.upgrade_skipping_outgoing_hook(f.service, true).await;
         } else {
-            f.restore(f.service);
+            f.restore(f.service).await;
         }
         before.fenced = true;
-        assert_eq!(f.archive(), before);
+        assert_eq!(f.archive().await, before);
         assert_eq!(
             f.checkpoint_probe(f.operator, v.upload, 1, &v.bytes[CHUNK..])
+                .await
                 .unwrap()
                 .verification,
             JourneyVerification::Verified
         );
-        f.assert_authority_fenced(v.upload);
+        f.assert_authority_fenced(v.upload).await;
     }
-    f.restart(f.service);
+    f.restart(f.service).await;
     f.harness
         .pic
         .advance_time(Duration::from_hours(24))
+        .await
         .unwrap();
-    f.assert_authority_fenced(v.upload);
+    f.assert_authority_fenced(v.upload).await;
 }
 
-#[test]
-fn old_archive_is_fenced_and_missing_archive_rejects_atomically() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn old_archive_is_fenced_and_missing_archive_rejects_atomically() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("abc-text", 1);
     assert_eq!(
-        f.reserve_manifest(f.first, v.upload, v.manifest.clone()),
+        f.reserve_manifest(f.first, v.upload, v.manifest.clone())
+            .await,
         Ok(())
     );
-    let old = f.harness.pic.get_stable_memory(f.service).unwrap();
-    let mut retained = f.archive();
-    assert_eq!(f.append(f.first, v.upload, 0, &v.bytes), Ok(()));
-    f.certificate(f.first, v.upload.root).unwrap();
-    let saved = f.harness.pic.get_stable_memory(f.service).unwrap();
-    f.replace_archive_bytes(vec![]);
-    f.reject_upgrade(f.service);
-    f.upgrade_skipping_outgoing_hook(f.service, false);
-    assert_eq!(f.usage(f.first), Ok(usage(3, 3, 3)));
-    f.replace_archive_bytes(saved);
+    let old = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    let mut retained = f.archive().await;
+    assert_eq!(f.append(f.first, v.upload, 0, &v.bytes).await, Ok(()));
+    f.certificate(f.first, v.upload.root).await.unwrap();
+    let saved = f.harness.pic.get_stable_memory(f.service).await.unwrap();
+    f.replace_archive_bytes(vec![]).await;
+    f.reject_upgrade(f.service).await;
+    f.upgrade_skipping_outgoing_hook(f.service, false).await;
+    assert_eq!(f.usage(f.first).await, Ok(usage(3, 3, 3)));
+    f.replace_archive_bytes(saved).await;
     // The old archive predates exposure. It cannot prove no authority escaped.
-    f.replace_archive_bytes(old);
-    f.upgrade_skipping_outgoing_hook(f.service, true);
+    f.replace_archive_bytes(old).await;
+    f.upgrade_skipping_outgoing_hook(f.service, true).await;
     retained.fenced = true;
-    assert_eq!(f.archive(), retained);
-    f.assert_authority_fenced(v.upload);
+    assert_eq!(f.archive().await, retained);
+    f.assert_authority_fenced(v.upload).await;
 }
 
-#[test]
-fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
-    let f = Fixture::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
+    let f = Fixture::new().await;
     let v = content_vectors::vector("abc-text", 1);
-    f.confirm_bytes(&v);
-    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false);
+    f.confirm_bytes(&v).await;
+    f.source_config(v.upload, 0, &v.bytes, ReadSourceMode::Valid, false)
+        .await;
     let armed: bool = fixture_calls::update_fixture(
         &f.harness.pic,
         f.service,
@@ -242,6 +253,7 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
         "journey_arm_read_callback_trap",
         (root(v.upload.root),),
     )
+    .await
     .map(|(reply,)| reply)
     .unwrap();
     assert!(armed);
@@ -258,19 +270,20 @@ fn trapped_read_intent_survives_forced_restore_without_callback_replay() {
             )
             .unwrap(),
         )
+        .await
         .unwrap_err();
     assert_eq!(
         crate::canister_rejection(&failure).reject_code,
         RejectCode::CanisterError
     );
-    let mut retained = f.archive();
+    let mut retained = f.archive().await;
     assert!(retained.pending_read.is_some());
-    f.reject_upgrade(f.service);
-    f.upgrade_skipping_outgoing_hook(f.service, true);
+    f.reject_upgrade(f.service).await;
+    f.upgrade_skipping_outgoing_hook(f.service, true).await;
     retained.fenced = true;
-    assert_eq!(f.archive(), retained);
-    f.restore(f.service);
-    assert_eq!(f.archive(), retained);
-    f.assert_authority_fenced(v.upload);
-    assert_eq!(f.source_observation().requests, 1);
+    assert_eq!(f.archive().await, retained);
+    f.restore(f.service).await;
+    assert_eq!(f.archive().await, retained);
+    f.assert_authority_fenced(v.upload).await;
+    assert_eq!(f.source_observation().await.requests, 1);
 }

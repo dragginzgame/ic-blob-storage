@@ -10,13 +10,13 @@ use blob_test_protocol::content::{ContentProbeCase, ContentProbeFailure, Content
 use ic_testkit::fake_principal;
 use support::Harness;
 
-#[test]
-fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_budget() {
-    let harness = Harness::new();
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_budget() {
+    let harness = Harness::new().await;
     let pic = &harness.pic;
     let operator = fake_principal(4);
     let tenant = fake_principal(1);
-    let canister = installation::controlled_canister(pic, operator);
+    let canister = installation::controlled_canister(pic, operator).await;
     installation::install_fixture(
         pic,
         canister,
@@ -27,7 +27,8 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         )
         .expect("init"),
         Some(operator),
-    );
+    )
+    .await;
     let denied: Result<ContentProbeReport, ContentProbeFailure> = fixture_calls::update_fixture(
         pic,
         canister,
@@ -35,6 +36,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
         "probe_content",
         (ContentProbeCase::FullChunk,),
     )
+    .await
     .map(|(reply,)| reply)
     .expect("denial");
     assert_eq!(denied, Err(ContentProbeFailure::Denied));
@@ -56,6 +58,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
             .expect("selected vector");
         let result: Result<ContentProbeReport, ContentProbeFailure> =
             fixture_calls::update_fixture(pic, canister, operator, "probe_content", (case,))
+                .await
                 .map(|(reply,)| reply)
                 .expect("Wasm execution");
         let report = result.expect("verified identities");
@@ -91,6 +94,7 @@ fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_work_bu
     ] {
         let result: Result<ContentProbeReport, ContentProbeFailure> =
             fixture_calls::update_fixture(pic, canister, operator, "probe_content", (case,))
+                .await
                 .map(|(reply,)| reply)
                 .expect("expected rejection");
         assert_eq!(result, Err(error));
