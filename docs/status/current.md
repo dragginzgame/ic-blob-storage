@@ -1,82 +1,84 @@
 # Current status — 2026-11-06
 
-## Engine 0.74.2 delivery — in progress
+## Delivered Engine 0.74.2 — Shared 0.31 batch
 
-The maintainer authorized Engine **0.74.2** through Shared 0.31's captured
-release/publication flow, from this repository's `main` to `origin/main` and
-`engine-v0.74.2`. Only `ic-blob-storage` is selected for crates.io; Contracts
-0.73.0 and Client 0.73.1 have no pending product changes. Remote main is
-`f23255b6`; the new tag is absent and the retained registry observation found
-0.74.2 absent. Retain `target/blob-delivery0742.sL0Ssd/` for this delivery.
+Engine **0.74.2** is pushed and published. The annotated `engine-v0.74.2` tag
+resolves to
+[`185280a0`](https://github.com/dragginzgame/ic-blob-storage/commit/185280a03f97aa50e94bc8b89122bdc99656e009),
+from captured source `875c950c`. Independent readback verifies a non-yanked
+registry archive, checksum
+`86e277872acc8b973b05f60fe92f73645be3fbb62925d19ad1a33802ee74e53e`,
+exact VCS identity and release receipt/tag. Only `ic-blob-storage` was published;
+Contracts **0.73.0** and Client **0.73.1** remain unchanged.
 
-The reviewed current lock selects Storage 0.68.1, Runtime/Macros/Guard 0.19.4,
-Wire/Derive 0.17.5, Testkit 0.89.3 and the pending TOML patches. Existing contracts
-and collection layouts remain compatible: Storage reduces repeated IO, Runtime
-adds the safe uninitialized-read helper, Wire/Macros source is unchanged and
-Testkit adds pool shutdown without changing existing callers. These selections
-will be captured with the pending Shared adoption, then qualified by the real
-release gate. Later normal-checkout edits are deferred; no versions are selected
-from mutable sibling source. No full-gate or publication success is claimed yet.
+The real **21-stage Linux/Rust 1.99.1 gate passed**, including **644 native**
+and **352 installed** cases (82 Client / 270 Engine), actual-source
+installation/version and CLI smoke checks, strict Clippy, dependency/source
+boundaries, Rustdoc, Wasm and all three actual library archives. Publication
+admitted retained final-candidate Clippy; it did not run the full lint again.
+The [Engine receipt](../../releases/engine/release.json) owns stage timings,
+source hashes and retained proof identities. Native macOS, new II/browser,
+Canic and new live-provider qualification were not rerun.
+Hosted [example installation](https://github.com/dragginzgame/ic-blob-storage/actions/runs/42267789661)
+and [release/formatting tooling](https://github.com/dragginzgame/ic-blob-storage/actions/runs/42267789721)
+were in progress at readback; they are separate from the completed local gate.
 
-Use `RELEASE_PUBLISH_TARGET=publish` in the same batch. No live service/provider
-operation, old-journal conversion or retained-artifact cleanup is included.
+Shared **0.31.0** is captured at
+`74313941af2fce4399bec0e6909ca6229673c3f8` (171 verified files), including the
+integrated checksum fixes. The canonical exporter replaced the retired runner
+and guide. Make, fixtures and current instructions use `RELEASE_GROUPS`,
+`RELEASE_PUBLISH_TARGET`, `RELEASE_SETUP_TARGET` and `RELEASE_BATCH_ACTIVE`;
+retired settings refuse without aliases. Grouped increments capture by default.
+Publication remains explicit in that same batch, not the normal checkout.
+The actual command used `make release-patch RELEASE_GROUP=engine
+RELEASE_PUBLISH_TARGET=publish` with the qualified short scratch directory.
+See [the release guide](../releasing.md).
 
-## Pending Shared 0.31.0 — Engine 0.74.2
+Batch **`batch-UHl3ez7W`** is complete with a schema-2 journal and recorded
+publication commit `185280a0`. Its managed checkout remains
+`target/release-frozen/batch-UHl3ez7W`; durable Git, intent, standard release
+plan and source pin remain under the shared custody contract. Do not repeat its
+publication or retire needed proofs. The normal checkout was clean and the
+canonical `release-batch-reconcile` command fast-forwarded it without stash,
+reset or conflict resolution. Its missing Testkit 0.89.3 selection was then
+prepared through the canonical installer using the existing admitted payload;
+offline admission selects PocketIC **16.1.0**. No later normal-checkout edits
+were found to reapply.
 
-The canonical exporter adopted pushed Shared revision
-`74313941af2fce4399bec0e6909ca6229673c3f8` (171 files), including the integrated
-checksum fixes; `AGENTS.md` selects the same policy. The exporter replaced the
-retired runner/guide with `run-release-batch.pl` and `release-batches.md`. Local
-Make, release fixtures and current instructions use `RELEASE_GROUPS`,
-`RELEASE_PUBLISH_TARGET`, `RELEASE_SETUP_TARGET` and `RELEASE_BATCH_ACTIVE`.
-There are no compatibility aliases or source overrides.
+Retain `target/blob-delivery0742.sL0Ssd/` for prepublication observation,
+release, independent archive/registry/tag readback, reconciliation and tool
+admission logs. The full gate is under
+`target/release-frozen/batch-UHl3ez7W/target/blob-release-validation.NhGcLq/validation.5NswWJ`;
+its stage cache/builds and `target/publication.5RhHfw` remain in that captured
+checkout. No live service, provider payment, deletion or artifact cleanup occurred.
 
-`make release-patch RELEASE_GROUP=engine` captures Engine automatically;
-minor/major and Contracts/Client use the same default. Multiple groups need a
-complete explicit supplier-first `RELEASE_GROUPS` roster. Publication stays
-explicit through `RELEASE_PUBLISH_TARGET=publish` in that captured batch. Blob
-suppresses normal-checkout Cargo target/tool exports at the outer boundary;
-existing preflight remains its tool-setup owner. See the
-[release guide](../releasing.md) for source, publication and custody commands.
+The qualified lock includes **Storage 0.68.1 / Runtime-Macros-Guard 0.19.4 /
+Wire-Derive 0.17.5 / Testkit 0.89.3** and the pending TOML patches. Build 0.75.0,
+Platform 0.23.4, Types 0.18.2, Foundation 0.74.4 and Host Tools 0.83.0 remain.
+Existing library contracts and collection images are compatible with 0.74.1;
+the dependency ranges were not raised merely to publish the tooling batch.
+Registry consumers still resolve their own compatible graphs. Blob's application
+and storage schemas are unchanged; schema 2 belongs only to release tooling.
 
-New journals use Shared's schema 2 and require the recorded publication commit.
-This changes contributor release tooling only, not Blob Wire/storage schemas.
-The only retained real pre-0.31 batch, `batch-QfoyYuxC`, is complete, published
-and integrated. Preserve its schema-1 journal, original 0.30.8 captured checkout,
-Git store, source pin and validation/publication proofs. No relabelling,
-publication-identity inference or actual batch cleanup is part of this adoption.
-Use original reviewed tools for historical recovery; current tools reject it.
-Published group receipts remain immutable.
-
-Focused checks passed: default/inner Make routing, retired-setting refusal,
-schema-2 three-group recovery, exact recorded publication context, deferred-lock
-isolation, idempotent resume and guarded fixture reconciliation/retirement.
-The lifecycle fixture uses local Git and compiler/upload substitutes; it is not a
-full product gate. Snapshot integrity, shell syntax/lint, dependency pins (including
-the existing schema-3 browser lock), tooling-evidence/checksum integration and
-documentation links pass. The historical schema-1 refusal check verified the
-original journal and reviewed runner remain untouched. Retain
-`target/shared-tooling-031/` for impact, refresh and qualification. Earlier
-0.30.9/0.30.10 evidence remains in `target/shared-tooling-0309/` and
-`target/shared-tooling-0310/` with its original scope.
-
-Engine 0.74.2 has contributor-tooling notes; package versions remain unchanged.
-The Shared tooling hard cut does not change Blob's published library contract.
-The reviewed lock updates are selected for the authorized delivery above,
-including the later Testkit 0.89.3 patch. They are not runtime qualification
-established by the substituted hook fixture or the previous release's gate.
-Contracts and Client have no new notes.
+The pre-0.31 **`batch-QfoyYuxC`** remains complete and integrated, with its
+schema-1 journal, original 0.30.8 captured checkout, Git store, source pin and
+proofs unchanged. Current tools reject it; use its original reviewed tools for
+historical recovery. No journal conversion, identity inference or old-batch
+retirement occurred. Published historical group receipts remain immutable.
+Earlier focused 0.30.9/0.30.10/0.31 consumer qualification remains in
+`target/shared-tooling-0309/`, `target/shared-tooling-0310/` and
+`target/shared-tooling-031/` with its original substitute/runtime scope.
 
 ## Delivered Engine 0.74.1 — frozen batch
 
 Engine **0.74.1** is pushed and published. The annotated `engine-v0.74.1` tag
-and remote main resolve to
+resolves to
 [`3a4ff2d0`](https://github.com/dragginzgame/ic-blob-storage/commit/3a4ff2d0b83bfc4ec040a6c5b80bfa122c8603dc).
 Independent registry readback admits the non-yanked archive, checksum
 `32eeaa36b17e16a4ab0816ae3fe9ea8ca8220f28598179a73a1ba8f1fd3be04e`
 and exact release VCS identity. Only `ic-blob-storage` was published; Contracts
 **0.73.0** and Client **0.73.1** stay unchanged. The
-[Engine receipt](../../releases/engine/release.json) records all 21 passing stages.
+[historical Engine receipt](https://github.com/dragginzgame/ic-blob-storage/blob/3a4ff2d0b83bfc4ec040a6c5b80bfa122c8603dc/releases/engine/release.json) records all 21 passing stages.
 No live service, provider payment, deletion or artifact cleanup occurred.
 
 The maintainer selected Shared's frozen method after the original normal gate

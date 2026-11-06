@@ -6,25 +6,21 @@
 
 ## Current adoption
 
-Delivered Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.1** record their
+Delivered Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.2** record their
 source-bound selections in the group receipts and [current handoff](status/current.md).
-Their delivery selected published **Build 0.75.0**, **Storage 0.68.0** and
-**Testkit 0.89.1**. Each published archive's checksum matches registry metadata.
+The current qualified graph selects published **Build 0.75.0**, **Storage 0.68.1**
+and **Testkit 0.89.3**. Each published archive's checksum matches registry metadata.
 Rust 1.99.1 remains the supported minimum and pinned compiler. Host foundation
 0.74.4 and Host Tools 0.83.0 stay unchanged. The delivered lock selected Platform 0.23.4,
-Wire/Derive 0.17.4 and cc 1.11.1. The lockfile is authoritative;
+Wire/Derive 0.17.5 and cc 1.11.1. The lockfile is authoritative;
 these selections do not impose fleet lockstep.
 
-Engine 0.74.1's frozen delivery also qualified Runtime/Macros/Guard 0.19.3,
-Types 0.18.2 and flate2 1.1.11. Testkit's logging cut removes twelve unused
-transitive packages; it changes no Blob public contract. The current handoff
-separates that released graph's full gate from the next batch's inputs.
-
-The authorized Engine 0.74.2 batch captures the current compatible patch graph:
-Storage 0.68.1, Runtime/Macros/Guard 0.19.4, Wire/Derive 0.17.5, Testkit 0.89.3
-and TOML dependency patches. Existing Blob contracts and collection images stay
-unchanged. Its real captured-source release gate and independent archive readback
-are still pending; earlier substitute hook checks do not qualify these runtimes.
+Engine 0.74.2's Shared 0.31 batch also qualified Runtime/Macros/Guard 0.19.4,
+Types 0.18.2, flate2 1.1.11 and TOML patches. Its full captured-source gate and
+independent archive readback passed. Existing Blob contracts and collection
+images stay unchanged from 0.74.1. The current handoff records qualification and
+its host/live-service limits; future normal-checkout updates belong to the next
+batch. The twelve logging/transitive removals from 0.74.1 remain.
 
 Storage 0.68 replaces its collection engines and persisted collection images.
 Engine **0.74.0** introduced the cut because Blob exposes Storage types and its stored
