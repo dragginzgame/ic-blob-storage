@@ -1735,9 +1735,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform"
-version = "0.23.3"
+version = "0.23.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3cc1339800b899f8bb7a03e660a09809f1f745a9935e75694e819082478b97db"
+checksum = "bda7d1cedd38ce59904030b348ed8387eb561784bee29a41b4744135da82383f"
 dependencies = [
  "candid",
  "candid_parser",

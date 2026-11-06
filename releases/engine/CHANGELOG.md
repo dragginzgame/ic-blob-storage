@@ -12,9 +12,11 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
   setup. Blob does not use its removed implicit client logging; no replacement
   subscriber is added. Twelve now-unused logging/transitive packages leave the
   workspace graph; PocketIC protocol, server selection and teardown stay unchanged.
-- Adopt Shared Tooling 0.30.7 and enforce its canonical CBOR dependency inventory
+- Adopt Shared Tooling 0.30.8 and enforce its canonical CBOR dependency inventory
   plus Rust/browser source boundaries. Remove the duplicate local codec denylist;
-  frozen multi-group delivery remains inactive until Blob-specific qualification.
+  qualify the canonical frozen batch runner against Blob's group hooks, deferred
+  lock updates and publication recovery. Deliver from captured committed source;
+  later normal-checkout updates belong to the next batch.
 - Explain each stage-reuse refusal before current-source execution and retain
   the decision with the attempt. Qualify Linux group-scoped reuse using the
   plan's exact package roots and installed partitions, plus explicit selection

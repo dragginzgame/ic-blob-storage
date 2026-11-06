@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 mode="${1:-full}"
-case "$mode" in full|--metadata-only|--publication-only) ;; *) exit 2 ;; esac
+case "$mode" in full|--metadata-only|--publication-only|--frozen) ;; *) exit 2 ;; esac
 groups=(contracts client engine)
 if [[ "$mode" == --publication-only ]]; then groups=(contracts); fi
 if [[ "$mode" == --metadata-only ]]; then
@@ -97,6 +97,16 @@ reset_source() {
     unset RELEASE_COMMIT RELEASE_PREVIOUS RELEASE_VERSION TEST_FORMAT_FAIL PUBLISH_PACKAGE
     : > "$TEST_EVENTS"
 }
+# Keep one owner for the simulated registry/Cargo effects used by both paths.
+# shellcheck source=scripts/release/tests/publication.sh
+source "$ROOT/scripts/release/tests/publication.sh"
+if [[ "$mode" == --frozen ]]; then
+    # shellcheck source=scripts/release/tests/frozen.sh
+    source "$ROOT/scripts/release/tests/frozen.sh"
+    run_frozen_fixture
+    fixture_complete=true
+    exit 0
+fi
 # Group selection must fail before the runner, metadata admission or setup.
 for selection in '' unknown '%' 'client engine'; do
     for target in release-plan release-patch release-resume publish version; do
@@ -191,46 +201,7 @@ fi
 # exact checksum/source readback and exercises no external upload or network.
 git reset --hard -q "$contracts_commit"
 export RELEASE_GROUP=contracts
-cat > "$TEMPORARY/bin/curl" <<'CURL'
-#!/usr/bin/env bash
-set -euo pipefail
-if [[ "$*" == '--disable --version' ]]; then echo 'curl 8.4.0 fixture'; exit; fi
-output='' url=''
-while [[ $# -gt 0 ]]; do
-    case "$1" in --output) output="$2"; shift ;; https://*) url="$1" ;; esac
-    shift
-done
-case "$url" in
-    https://crates.io/*)
-        version="${url##*/}"; package="${url%/*}"; package="${package##*/}"
-        case "$TEST_REGISTRY" in
-            missing) printf 404; exit ;;
-            forbidden) printf 403; exit ;;
-            dependency)
-                if [[ "$package" != ic-blob-storage-contracts || "$version" != "$TEST_CONTRACTS_VERSION" ]]; then printf 404; exit; fi ;;
-        esac
-        checksum="$(shasum -a 256 "$TEST_ARCHIVE")"; checksum="${checksum%% *}"
-        [[ "$TEST_REGISTRY" != checksum ]] || checksum="$(printf '%064d' 0)"
-        yanked=false; [[ "$TEST_REGISTRY" != yanked ]] || yanked=true
-        printf '{"version":{"crate":"%s","num":"%s","checksum":"%s","yanked":%s}}' "$package" "$version" "$checksum" "$yanked" > "$output"
-        printf 200 ;;
-    https://static.crates.io/*) cp "$TEST_ARCHIVE" "$output" ;;
-    *) exit 1 ;;
-esac
-CURL
-cat > "$TEMPORARY/bin/cargo" <<'CARGO'
-#!/usr/bin/env bash
-set -euo pipefail
-if [[ "$1" == publish ]]; then
-    printf '%s\n' "$*" >> "$TEST_EVENTS"
-elif [[ "$1" == fetch ]]; then
-    printf 'fetch\n' >> "$TEST_EVENTS"
-else exec "$TEST_REAL_CARGO" "$@"; fi
-CARGO
-chmod +x "$TEMPORARY/bin/curl" "$TEMPORARY/bin/cargo"
-TEST_REAL_CARGO="$(command -v cargo)"
-export TEST_REAL_CARGO TEST_ARCHIVE="$TEMPORARY/published.crate"
-export PATH="$TEMPORARY/bin:$PATH"
+setup_publication_substitutes
 archive_package="ic-blob-storage-contracts-$(cat "$TEMPORARY/contracts.version")"
 mkdir -p "$TEMPORARY/archive/$archive_package"
 printf '{"git":{"sha1":"%s"},"path_in_vcs":"crates/ic-blob-storage-contracts"}' "$contracts_commit" > "$TEMPORARY/archive/$archive_package/.cargo_vcs_info.json"

@@ -76,10 +76,34 @@ Missing, empty or unknown group selections refuse at Make and direct adapter
 entrypoints before setup or release effects. There is no default group, inferred
 selection, all-groups release or automatic dependent release.
 
-Shared 0.30.7 supplies an optional [frozen batch runner](frozen-releases.md).
-Blob has not qualified its release/publication hooks in that managed checkout,
-so it does not set `RELEASE_FROZEN_GROUPS` or enable frozen delivery. The existing
-selected-group runner and source-drift refusal remain authoritative. Archive
+Shared 0.30.8 supplies the [frozen batch runner](frozen-releases.md), including
+recovery of generated IDs containing underscores. Blob calls that runner directly
+from the ordinary shell, keeping the complete supplier-first roster explicit:
+
+```sh
+mkdir -p target/tmp
+TMPDIR="$PWD/target/tmp" perl scripts/ci/run-frozen-release.pl --root "$PWD" \
+  --groups engine --kind patch --publish-target publish
+```
+
+Select only the changed groups (for example `contracts,client,engine` when all
+three have pending releases). This requests publication too. The first invocation
+needs clean committed source and no ambient Cargo target/home override. Do not
+invoke it through an outer Make exporting normal-checkout tool paths. The child
+Make reconstructs its own source/artifact/tool paths and uses the existing group
+hooks. The short, source-independent temporary root keeps PocketIC socket paths
+bounded; it contains scratch, never live release source or lockfiles.
+
+The consumer qualification is `bash scripts/release/test-release.sh --frozen`:
+real group hooks/metadata/receipts, a local bare remote, compiler/upload substitutes,
+deliberately unusable deferred normal lock bytes and explicit publication recovery.
+Real locked compilation, installed behavior and archive validation remain required
+in the captured checkout before any production delivery. Resume a retained batch
+through Shared's exact saved-ID interface; reconcile uncertain registry outcomes
+before supplying a publication result. Keep the complete durable Git store.
+The normal checkout stays on its original source, preserving later edits; reconcile
+it against verified delivery before the next batch. The underlying selected-group
+runner and its source-drift refusal still protect the captured checkout. Archive
 verification conservatively checks all three published libraries, as required
 by the current mapping; archive narrowing is not qualified. Neither snapshot
 adoption nor the scoped routing fixture establishes release wall-time savings.

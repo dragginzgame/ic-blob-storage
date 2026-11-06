@@ -16,7 +16,7 @@ Wire/Derive 0.17.3 and the incoming cc 1.11.1 patch. The lockfile is authoritati
 these selections do not impose fleet lockstep.
 
 The pending Engine 0.74.1 batch selects published **Testkit 0.89.1**, preserving
-the incoming Platform 0.23.3, Runtime/Macros/Guard 0.19.3, Types 0.18.2, Wire/Derive 0.17.4 and
+the incoming Platform 0.23.4, Runtime/Macros/Guard 0.19.3, Types 0.18.2, Wire/Derive 0.17.4 and
 flate2 1.1.11 lock edits. Testkit's logging cut removes twelve unused transitive
 packages; it changes no Blob public contract. The current handoff distinguishes
 focused adoption evidence from the delivered graph's full release gate.
@@ -203,8 +203,8 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.30.7** is captured from committed source
-`22a853e26c05ec323f06c57fa316c08b808f252b` (171 verified files), using its canonical
+Shared Tooling **0.30.8** is captured from committed source
+`dc9df707b3b1e616973494eab961c1c214d12260` (171 verified files), using its canonical
 revision exporter. It includes the undated-draft candidate projection fix
 ([Shared #357](https://github.com/dragginzgame/shared-tooling/issues/357)) and
 consumer-owned formatting/LOC scratch defaults

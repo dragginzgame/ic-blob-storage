@@ -1,17 +1,35 @@
 # Current status — 2026-11-06
 
-## Engine 0.74.1 delivery — in progress
+## Engine 0.74.1 frozen delivery — in progress
 
 The maintainer authorized release/publication of the pending Blob batch from
 `/home/adam/projects/ic-blob-storage`, `main`, to `origin/main` and
 `engine-v0.74.1`; only `ic-blob-storage` is selected for crates.io. Contracts
 0.73.0 and Client 0.73.1 stay unchanged: no public contract or production
-implementation changed. The normal group runner owns the complete release gate,
-metadata preparation, Git delivery and recovery; frozen delivery remains inactive.
-The graph includes Testkit 0.89.1, Shared 0.30.7 and the preserved compatible
-Platform/Wire selections below. Initial focused checks pass; the full release
-gate and registry readback are pending. No live service, provider payment,
-deletion or artifact cleanup is part of this delivery.
+implementation changed. The first normal gate from `c8309234` stopped when the
+preserved incoming lock changed Platform 0.23.3 to 0.23.4. The adapter regression
+itself passed, but its source guard correctly refused reuse of that gate. No
+0.74.1 plan, release/tag/push or upload was created. Retain
+`target/blob-delivery0741.X3oeZj/release.log` and
+`target/blob-release-validation.CtNBeF/validation.ZX6tmx` with the original
+failure logs; the prerelease registry observation found 0.74.1 absent.
+
+The maintainer then selected Shared's frozen delivery method. The canonical
+export now selects Shared 0.30.8 at
+`dc9df707b3b1e616973494eab961c1c214d12260` (171 files), including the generated-ID
+resume fix. Use the direct CLI in [the release guide](../releasing.md), with an
+explicit Engine-only roster and short source-independent scratch directory.
+Do not run it through an outer Make exporting normal-checkout Cargo/tool paths.
+Its captured source and durable journal keep later lock updates deferred.
+
+Consumer hook qualification and publication controls are retained in
+`target/frozen-release-adoption/`; both passed, including all three group hooks,
+deferred lock isolation, uncertain publication reconciliation and completed-resume
+idempotence. This uses local Git and compiler/upload substitutes, not product
+acceptance. Shell lint/syntax, snapshot integrity and documentation links also
+pass. The real frozen gate and independent publication readback remain pending. Capture Platform
+0.23.4 and Testkit 0.89.1 with the other preserved selections below. No live
+service, provider payment, deletion or artifact cleanup is part of delivery.
 
 ## Pending Shared 0.30.7 and Testkit 0.89.1
 
@@ -29,7 +47,8 @@ checksum `dd2879282c81fc23e57d00e89dd8f8a87564c624110f0c7bf800e704aaffa944`,
 source `7d7ffbfcdd4a39061c0cd2c33809b661cd3c76e5`. Its runtime source matches
 0.89.0; the repository II attachment fixture update is not local browser
 acceptance. The twelve logging/transitive removals remain, with no new wrapper.
-The incoming Platform 0.23.3 selection is preserved alongside prior lock edits.
+The incoming Platform 0.23.4 selection is preserved alongside prior lock edits;
+the initial focused compilation below used 0.23.3.
 
 Focused Linux/Rust 1.99.1 checks pass: snapshot integrity, actual Rust/Cargo and
 browser boundaries, 18 browser-fixture cases, release routing for all three
@@ -39,11 +58,11 @@ CLI setup/check selects PocketIC 16.1.0; dependency pins, formatting and docs pa
 The qualification inputs stayed fixed. Retain the export impact/refresh and
 input hashes in `target/shared-tooling-0307/`.
 
-Frozen multi-group delivery remains inactive until actual Blob hooks are
-qualified. Archive verification still conservatively checks all three published
-libraries; no narrower archive proof or release wall-time savings is claimed.
-No full release gate, macOS, new II/browser or live-provider qualification ran.
-Notes join Engine 0.74.1; no version preparation, commit or delivery effect.
+The subsequent frozen-hook adoption and failed normal gate are recorded above.
+Archive verification still conservatively checks all three published libraries;
+no narrower archive proof or release wall-time savings is claimed. No full
+release gate, macOS, new II/browser or live-provider qualification passed yet.
+Notes join Engine 0.74.1; the preparation commit is local and undelivered.
 
 ## Pending native compilation consolidation
 

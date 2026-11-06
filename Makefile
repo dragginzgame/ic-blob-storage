@@ -385,8 +385,8 @@ clean:
 	+cargo clean
 
 shell-check:
-	@for script in scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
-	"$(SHELLCHECK)" scripts/release/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
+	@for script in scripts/release/*.sh scripts/release/tests/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit; do bash -n "$$script" || exit $$?; done
+	"$(SHELLCHECK)" scripts/release/*.sh scripts/release/tests/*.sh scripts/dev/*.sh scripts/ci/*.sh .githooks/pre-commit
 	@for script in scripts/release/*.pl scripts/ci/check-documentation-links.pl scripts/ci/prepare-cargo-stage-source.pl scripts/ci/run-validation-stage.pl scripts/ci/observe-cargo-stage.pl scripts/ci/seal-validation-stage.pl scripts/ci/check-cargo-stage-closure.pl; do perl -c "$$script" || exit $$?; done
 
 release-check-run: release-commands-check
