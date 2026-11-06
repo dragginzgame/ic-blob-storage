@@ -1,113 +1,82 @@
 # Current status — 2026-11-06
 
-## Engine 0.74.1 frozen delivery — in progress
+## Delivered Engine 0.74.1 — frozen batch
 
-The maintainer authorized release/publication of the pending Blob batch from
-`/home/adam/projects/ic-blob-storage`, `main`, to `origin/main` and
-`engine-v0.74.1`; only `ic-blob-storage` is selected for crates.io. Contracts
-0.73.0 and Client 0.73.1 stay unchanged: no public contract or production
-implementation changed. The first normal gate from `c8309234` stopped when the
-preserved incoming lock changed Platform 0.23.3 to 0.23.4. The adapter regression
-itself passed, but its source guard correctly refused reuse of that gate. No
-0.74.1 plan, release/tag/push or upload was created. Retain
+Engine **0.74.1** is pushed and published. The annotated `engine-v0.74.1` tag
+and remote main resolve to
+[`3a4ff2d0`](https://github.com/dragginzgame/ic-blob-storage/commit/3a4ff2d0b83bfc4ec040a6c5b80bfa122c8603dc).
+Independent registry readback admits the non-yanked archive, checksum
+`32eeaa36b17e16a4ab0816ae3fe9ea8ca8220f28598179a73a1ba8f1fd3be04e`
+and exact release VCS identity. Only `ic-blob-storage` was published; Contracts
+**0.73.0** and Client **0.73.1** stay unchanged. The
+[Engine receipt](../../releases/engine/release.json) records all 21 passing stages.
+No live service, provider payment, deletion or artifact cleanup occurred.
+
+The maintainer selected Shared's frozen method after the original normal gate
+from `c8309234` stopped on an incoming Platform 0.23.3 → 0.23.4 lock change.
+That attempt created no release plan/tag/push or upload. Retain its original
 `target/blob-delivery0741.X3oeZj/release.log` and
-`target/blob-release-validation.CtNBeF/validation.ZX6tmx` with the original
-failure logs; the prerelease registry observation found 0.74.1 absent.
+`target/blob-release-validation.CtNBeF/validation.ZX6tmx`; its adapter regression
+passed before source admission correctly refused the changed inputs.
 
-The maintainer then selected Shared's frozen delivery method. The canonical
-export now selects Shared 0.30.8 at
-`dc9df707b3b1e616973494eab961c1c214d12260` (171 files), including the generated-ID
-resume fix. Use the direct CLI in [the release guide](../releasing.md), with an
-explicit Engine-only roster and short source-independent scratch directory.
-Do not run it through an outer Make exporting normal-checkout Cargo/tool paths.
-Its captured source and durable journal keep later lock updates deferred.
+The successful batch **`batch-QfoyYuxC`** captured clean source `7f7c0d5b` once.
+Its delivery checkout is `target/release-frozen/batch-QfoyYuxC`; durable Git,
+complete intent and standard release plan remain under
+`.git/release-state/frozen/batch-QfoyYuxC/`. Use the direct CLI in
+[the release guide](../releasing.md), with an explicit supplier-first roster,
+ordinary shell context and short source-independent scratch. The child rebuilds
+its own source/tool routes; never publish a stage-only prospective candidate.
+Later normal-checkout lock edits did not change the captured source or archives.
+The completed batch must not be uploaded again.
 
-Consumer hook qualification and publication controls are retained in
-`target/frozen-release-adoption/`; both passed, including all three group hooks,
-deferred lock isolation, uncertain publication reconciliation and completed-resume
-idempotence. This uses local Git and compiler/upload substitutes, not product
-acceptance. Shell lint/syntax, snapshot integrity and documentation links also
-pass. The real frozen gate and independent publication readback remain pending. Capture Platform
-0.23.4 and Testkit 0.89.1 with the other preserved selections below. No live
-service, provider payment, deletion or artifact cleanup is part of delivery.
+The canonical snapshot selects **Shared 0.30.8** at
+`dc9df707b3b1e616973494eab961c1c214d12260` (171 files), including generated-ID
+resume support. Consumer hook qualification passed for all three groups, deferred
+invalid lock isolation, uncertain publication reconciliation and idempotent
+completed resume. Those tests use local Git and compiler/upload substitutes;
+the actual release independently passed locked builds, installed behavior and
+all package archive checks. Retain `target/frozen-release-adoption/` for export,
+fixture, delivery and authenticated readback logs. Published archive/readback
+artifacts are under the captured checkout's `target/publication.hMnJBJ` and
+`target/publication.jgzyTI`.
 
-## Pending Shared 0.30.7 and Testkit 0.89.1
+The **21-stage Linux/Rust 1.99.1 gate** passed with **644 native tests** and
+**352 installed tests** (82 Client / 270 Engine), plus the actual-source standalone
+CLI carrier smoke check. Retain
+`target/release-frozen/batch-QfoyYuxC/target/blob-release-validation.8Q9Bk1/validation.9M4tL5`
+and that checkout's stage-cache records/builds. Publication admitted retained
+final-candidate Clippy rather than running full lint again. All three libraries'
+actual archives remain checked; no narrower archive proof or elapsed-time saving
+is claimed. Native macOS, new II/browser, Canic and new live-provider acceptance
+were not rerun. Hosted [example installation](https://github.com/dragginzgame/ic-blob-storage/actions/runs/42235651929)
+and [release/formatting tooling](https://github.com/dragginzgame/ic-blob-storage/actions/runs/42235651948)
+were still in progress at readback; these are separate from the completed local gate.
 
-The canonical exporter adopted 171 files from pushed Shared revision
-`22a853e26c05ec323f06c57fa316c08b808f252b`; `AGENTS.md` selects the same policy.
-The existing Platform target now checks Candid plus CBOR across 836 Rust files,
-with 41 external Candid declarations and no CBOR source allowances. Cargo uses
-the shared codec inventory; the duplicate local codec rows are removed. That
-inventory is a CI checkpoint input and also covers browser manifests/imports
-across both package roots and scripts. Lexical/dynamic-generation limits remain
-documented; transitive codecs behind their external owner remain permitted.
+The released graph includes **Testkit 0.89.1 / Platform 0.23.4**, Runtime/Macros/
+Guard 0.19.3, Types 0.18.2, Wire/Derive 0.17.4, flate2 1.1.11 and cc 1.11.1.
+Build 0.75.0, Storage 0.68.0, Foundation 0.74.4 and Host Tools 0.83.0 remain.
+Twelve unused logging/transitive packages disappeared; no replacement subscriber
+or compatibility wrapper was added. PocketIC remains **16.1.0**.
 
-The interrupted Testkit request is complete at published `0.89.1`, archive
-checksum `dd2879282c81fc23e57d00e89dd8f8a87564c624110f0c7bf800e704aaffa944`,
-source `7d7ffbfcdd4a39061c0cd2c33809b661cd3c76e5`. Its runtime source matches
-0.89.0; the repository II attachment fixture update is not local browser
-acceptance. The twelve logging/transitive removals remain, with no new wrapper.
-The incoming Platform 0.23.4 selection is preserved alongside prior lock edits;
-the initial focused compilation below used 0.23.3.
+Shared CBOR inventory/source checks replace duplicate local codec rules; the
+current lexical scan covers 836 Rust files with 41 external Candid declarations
+and no CBOR source allowances. Strict all-target/all-feature Clippy replaces the
+redundant automatic native check. Manual `make check`, distinct feature/Wasm/
+Rustdoc/installed/archive checks and historical receipt admission remain. Eight
+stages are eligible for source-bound reuse, including qualified Linux group
+scope and exact managed PocketIC selection; parallel Make, custom targets and
+other hosts stay guarded. Reuse refusals are printed and retained. Earlier focused
+scope/tamper/failure qualification remains in `target/blob-stage-reuse.HKeoVT/`,
+including its original relative-TMPDIR refusal and corrected diagnostic run.
 
-Focused Linux/Rust 1.99.1 checks pass: snapshot integrity, actual Rust/Cargo and
-browser boundaries, 18 browser-fixture cases, release routing for all three
-groups, selector/receipt regressions, all-target harness Clippy, two typed-error
-unit cases, standalone Wasm and one installed rollback/malformed-ingress case.
-CLI setup/check selects PocketIC 16.1.0; dependency pins, formatting and docs pass.
-The qualification inputs stayed fixed. Retain the export impact/refresh and
-input hashes in `target/shared-tooling-0307/`.
-
-The subsequent frozen-hook adoption and failed normal gate are recorded above.
-Archive verification still conservatively checks all three published libraries;
-no narrower archive proof or release wall-time savings is claimed. No full
-release gate, macOS, new II/browser or live-provider qualification passed yet.
-Notes join Engine 0.74.1; the preparation commit is local and undelivered.
-
-## Pending native compilation consolidation
-
-CI/release plans now use strict Clippy as the sole native all-target/all-feature
-compilation stage. The optional `make check` recipe has matching packages,
-target/profile and feature flags; no owned Clippy-specific compilation branch
-was found. It remains available manually, with its mapping and historical
-receipt interpretation retained. Feature-boundary, Wasm, Rustdoc, installed and
-actual archive checks remain. The automatic roster has 21 stages, eight reusable.
-`scripts/ci/test-release-validation.sh` passed: matching native recipe arguments,
-four automatic Cargo commands, narrow scopes, failure stops and source-bound
-receipt admission. All three current historical group receipts still verify.
-Shell syntax/lint, eight-stage reuse-policy admission, documentation links and
-diff checks pass. No full compilation gate, new dependency qualification or
-release was run.
-
-Read-only Query inspection found its current release roster already omits
-native `check`; its normal CI runs Clippy plus distinct Wasm/feature checks.
-No Query edits or qualification were performed. Notes join Engine 0.74.1;
-no commit or delivery is authorized for this batch.
-
-## Pending reuse diagnostics and scoped admission
-
-Stage fallback now prints concrete eligibility reasons before execution and
-retains them even when the fallback fails. Group candidate commands carry the
-original plan's hash-bound package/installed selections; receipt admission checks
-the binding. Exact managed `POCKET_IC_BIN` selection is preserved in the child
-environment. Parallel Make, custom targets and other native hosts remain guarded.
-Focused selector tests, Perl/shell checks, snapshot integrity and documentation
-links pass. Real Cargo/PocketIC qualification covers first execution and reuse
-for Client, Engine and explicit managed-server selections, broader installed
-partition separation, scope tampering and all six failed-fallback diagnostics.
-Publication still refuses a mismatched actual dependency closure.
-
-Retain `target/blob-stage-reuse.HKeoVT/`: six scoped records and original logs,
-including the initial relative-TMPDIR fixture refusal by earlier source admission.
-The corrected long ignored temporary path and remaining diagnostics passed via
-`scoped-diagnostics-resume.sh`; no product guard was relaxed for that fixture.
-This is focused routing/reuse evidence, not a new full gate or native macOS
-qualification. Engine 0.74.1 has pending tooling notes; no version, commit or
-delivery effect.
-
-A later unrelated lockfile edit selects Runtime/Macros/Guard 0.19.3, Types
-0.18.2, Wire/Derive 0.17.4 and flate2 1.1.11. It is preserved, not qualified by
-this fixture: the isolated source retained its original captured graph.
+The normal branch was safely fast-forwarded to the delivered commit. Its later
+**Cargo.lock changes remain uncommitted and deferred**, not part of this release:
+serde_spanned 1.1.3, TOML 1.2.1, toml_datetime 1.1.3 and toml_edit 0.25.19.
+The exact pre-reconciliation bytes/patch are retained with the durable batch.
+A structured comparison verified all 423 lock records were preserved, changing
+only Engine member versions for the delivered release. These incoming dependency
+updates have not been qualified by the frozen gate; do not attribute its evidence
+to them. Preserve the deferred lock and every retained provider obligation below.
 
 ## Delivered Client 0.73.1 and Engine 0.74.0
 
@@ -119,7 +88,7 @@ Contracts remains 0.73.0; no unaffected group was republished.
 | --- | --- | --- |
 | Contracts 0.73.0 | [`2ae0ba1b`](https://github.com/dragginzgame/ic-blob-storage/commit/2ae0ba1b5c60576faa334b9cb8d65c5b2ea8d5ae) | [Contracts](../../releases/contracts/release.json) |
 | Client 0.73.1 | [`2e55591e`](https://github.com/dragginzgame/ic-blob-storage/commit/2e55591eeb7af7368761fa7685e6c2d2e7a5e72d) | [Client](../../releases/client/release.json) |
-| Engine 0.74.0 | [`a7c6b374`](https://github.com/dragginzgame/ic-blob-storage/commit/a7c6b37402fd1f71a103063bd4c1acecc6332909) | [Engine](../../releases/engine/release.json) |
+| Engine 0.74.0 | [`a7c6b374`](https://github.com/dragginzgame/ic-blob-storage/commit/a7c6b37402fd1f71a103063bd4c1acecc6332909) | [Historical Engine receipt](https://github.com/dragginzgame/ic-blob-storage/blob/a7c6b37402fd1f71a103063bd4c1acecc6332909/releases/engine/release.json) |
 
 The graph selects **Build 0.75.0 / Storage 0.68.0 / Testkit 0.88.0**, Platform
 0.23.2, Wire/Derive 0.17.3, Runtime/guard 0.19.2 and Types 0.18.1. Foundation

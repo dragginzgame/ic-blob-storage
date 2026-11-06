@@ -6,23 +6,23 @@
 
 ## Current adoption
 
-Delivered Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.0** record their
+Delivered Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.1** record their
 source-bound selections in the group receipts and [current handoff](status/current.md).
 Their delivery selected published **Build 0.75.0**, **Storage 0.68.0** and
-**Testkit 0.88.0**. Each published archive's checksum matches registry metadata.
+**Testkit 0.89.1**. Each published archive's checksum matches registry metadata.
 Rust 1.99.1 remains the supported minimum and pinned compiler. Host foundation
-0.74.4 and Host Tools 0.83.0 stay unchanged. The delivered lock selected Platform 0.23.2,
-Wire/Derive 0.17.3 and the incoming cc 1.11.1 patch. The lockfile is authoritative;
+0.74.4 and Host Tools 0.83.0 stay unchanged. The delivered lock selected Platform 0.23.4,
+Wire/Derive 0.17.4 and cc 1.11.1. The lockfile is authoritative;
 these selections do not impose fleet lockstep.
 
-The pending Engine 0.74.1 batch selects published **Testkit 0.89.1**, preserving
-the incoming Platform 0.23.4, Runtime/Macros/Guard 0.19.3, Types 0.18.2, Wire/Derive 0.17.4 and
-flate2 1.1.11 lock edits. Testkit's logging cut removes twelve unused transitive
-packages; it changes no Blob public contract. The current handoff distinguishes
-focused adoption evidence from the delivered graph's full release gate.
+Engine 0.74.1's frozen delivery also qualified Runtime/Macros/Guard 0.19.3,
+Types 0.18.2 and flate2 1.1.11. Testkit's logging cut removes twelve unused
+transitive packages; it changes no Blob public contract. The current handoff
+separates the released graph's full gate from later deferred normal-checkout
+TOML dependency updates, which remain uncommitted and unqualified.
 
 Storage 0.68 replaces its collection engines and persisted collection images.
-Engine is **0.74.0** because Blob exposes Storage types and its stored
+Engine **0.74.0** introduced the cut because Blob exposes Storage types and its stored
 behavior changes. Retire complete old installations under their original tools,
 then use fresh whole backing. Keep every provider object, uncertain effect,
 balance and continuing liability. Allocation directory encoding and Blob's Wire
