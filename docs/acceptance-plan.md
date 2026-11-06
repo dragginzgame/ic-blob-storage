@@ -15,7 +15,20 @@ This document defines the evidence required for acceptance. The
 open, while [current status](status/current.md) identifies the active released
 baseline and current work.
 
-## Current isolated development installation — 2026-11-03
+## Completed isolated development installation — 2026-11-06
+
+The separately selected Blob **0.73.0** standalone trial at
+**`j7h7p-gyaaa-aaaaa-qhxwa-cai`** completed two distinct signing-key browser
+uploads and exact independent downloads, with cross-uploader refusal. The
+[retained result](evidence/caffeine-probes/deployed/2026-11-06-trial-v073-two-users-01/summary.json)
+owns the module/configuration, original operations, preserved capacity refusal,
+funding scope and continuing obligations. Both lifetime object slots are now
+occupied; both references remain live and physical/liability bytes remain 2048.
+No release, deletion, billing settlement or application login was qualified.
+Do not select this exhausted trial as a fresh application installation or reset
+its history. Its expiring payer link does not establish a billing cutoff.
+
+## Retained isolated development installation — 2026-11-03
 
 Separately authorized development-key use and the retained scoped trial allowance
 produced fresh mainnet standalone **`4h7vw-4qaaa-aaaau-ahieq-cai`** on Blob **0.69.0**.
@@ -58,9 +71,9 @@ Their dependencies, fixtures and tests are removed here. Older managed test
 captures remain historical evidence; they do not qualify a current wrapper.
 The root workspace owns dependency versions; consumers must use one compatible
 ic-storage identity/runtime. [Current status](status/current.md) owns the released
-baseline and active batch. Released Blob 0.69 requires the matching public
+baseline and active batch. The published Blob 0.73 family requires matching public
 dependency identities and fresh backing after retirement; Canic's recorded Blob
-0.66 tests do not qualify this graph. The earlier
+0.72.2 composition tests do not qualify this newer graph. The earlier
 [framework-removal evidence](evidence/core-primitives.md#independent-library-and-memory-015--2026-10-02)
 retains its original 0.15-era dependency identity.
 
@@ -123,35 +136,50 @@ here does not waive provider, recovery, accounting or retirement requirements.
 
 ### Before the acceptance deployment
 
-Blob's Contracts, Client and Engine **0.72.0** groups are released and published.
-The delivered family selects Wire 0.17.1, Platform 0.22.0, Runtime 0.19.1, Types
-0.18.1, Storage 0.67.0 and native Testkit 0.86.0. Source-bound release gates and
+Blob's Contracts, Client and Engine **0.73.0** groups are released and published.
+The delivered family selects Wire 0.17.2, Platform 0.23.0, Runtime 0.19.2, Types
+0.18.1, Storage 0.67.1 and native Testkit 0.87.0. Source-bound release gates and
 registry/archive/tag readbacks passed; [current status](status/current.md) records
 the exact evidence and host limits. Cross-release service transitions still use
 [retirement and fresh installation](retiring-installations.md), preserving old
 provider objects, uncertainty and billing. The live 0.69 trial above keeps its
 original artifacts; publication did not upgrade it.
 
-The **2026-11-05 read-only Canic review**, at base
-`e6a061999dfae207bc20917ffefa2082e7ffe2e7` with active unrelated work, finds its
-root and embedded consumer still selecting Blob 0.71.1 / Storage 0.66.1 / Wire
-0.16.1. Its handoff records delivered framework/Blob adapter 0.115.0 but keeps
-[Canic #622](https://github.com/dragginzgame/canic/issues/622) application adoption
-and [#494](https://github.com/dragginzgame/canic/issues/494) independent-credit
-acceptance separate. Neither `apps/demo/canic.toml` nor `apps/test/canic.toml`
-selects a Blob role; no actual application origin/network/Blob-service binding
-was identified. Those are deployment inputs owned by the application, not a
-missing Blob adapter or a reason to add one here.
+The **2026-11-06 read-only Canic review**, at unchanged local/default-branch base
+`e6a061999dfae207bc20917ffefa2082e7ffe2e7` with active unrelated work, finds all
+three locks selecting Engine 0.72.2 / Contracts 0.72.0, Storage 0.67.1 and Wire
+0.17.2. They now contain Platform 0.23.2 and an older 0.22.3 identity; native
+Testkit remains 0.86.0. Manifest/lock review alone does not establish the deployed
+feature closure or an incompatible type exchange. Blob 0.73's external certificate
+reply retains Candid bytes and its Rust path, but removes its unused host Wire
+metadata implementation; the managed consumers must qualify their generated
+clients against the selected release rather than add a replacement DTO.
+
+Canic's handoff reports passing November 5 dedicated/embedded composition checks
+including all five embedded funding profiles. Those results bind an earlier root
+lock, not the current locks, and their named `target/upstream-refresh-20261105/`
+directory is unavailable in the reviewed checkout. This review cannot independently
+revalidate those raw results. The separately ignored
+`pic::blob_service::tests::managed_browser_compositions` still needs explicit
+qualification on the selected final graph. Delivered adapter 0.115.0, pending
+adoption and actual application acceptance remain distinct under
+[Canic #622](https://github.com/dragginzgame/canic/issues/622);
+[#494](https://github.com/dragginzgame/canic/issues/494) owns stronger credit/replay.
+
+Both checked-in Blob consumers select only local environments and disable
+delegated-token Auth. Neither demo/test application selects a Blob role; no actual
+application origin/network/Blob-service binding was identified. Those inputs and
+application login belong to Canic/the application, not a missing Blob adapter.
 
 Recorded November 2/3 Canic composition and dependency-conflict observations
 retain their original graphs in the earlier handoff/evidence. They do not establish
-a current defect or qualify the new 0.72 public identities. This review did not
+a current defect or qualify the new 0.73 public identities. This review did not
 edit or compile Canic, run its private consumers or infer a production capacity
 profile from fixture limits.
 
 Deployment becomes the next step after the remaining owner actions:
 
-1. Canic adopts the matching published Blob 0.72 family in its three maintained
+1. Canic adopts the matching published Blob 0.73 family in its three maintained
    catalogs/locks, admits one runtime/type/Wire identity and qualifies its dedicated
    and embedded installation/recovery, funding profiles and generated clients.
    Its owner then delivers the selected change with applicable CI/publication
@@ -182,9 +210,10 @@ and payer reconciliation (#34) remain separate observations afterward, rather
 than a requirement to invent a new receipt API before the supported happy path.
 Record unknown provider outcomes as unknown and retain their obligations.
 
-A provider-only trial can use the prepared service before an application frontend
-is selected. It can establish provider-side upload/read/funding/callback evidence;
-it does not qualify application login, CSP or media-map publication. The full
+A separately selected provider-only trial can precede an application frontend.
+The completed 0.73 run below establishes its own upload/read/funding evidence;
+neither occupied trial is a fresh acceptance service. A provider-only run does
+not qualify application login, CSP or media-map publication. The full
 #31/#5 run below additionally records the real application origin, two signed-in
 users and a frozen media inventory. Do not make that later UI selection an
 artificial prerequisite for an otherwise prepared provider trial.
@@ -197,6 +226,17 @@ uncertainty and cannot be repaired by resending. No Canic source or deployment
 configuration was changed from this repo.
 
 ### Execute against the recorded installation
+
+The separately selected **November 6 provider-only 0.73 run completed** on a fresh
+standalone service: [two distinct signing-key uploaders and exact downloads](evidence/caffeine-probes/deployed/2026-11-06-trial-v073-two-users-01/summary.json),
+with actual Caffeine funding/linkage and both cross-uploader refusals. All 2048
+original bytes match. Original profiles, one certified capacity refusal and its
+explicit serial re-evaluation remain. Both first references and 2 KiB provider/billing
+liabilities are retained; no deletion/settlement or change to the 0.69 trial occurred.
+This advances #31's provider cell and #5's small binary-delivery cell. It does not
+qualify the actual application's signed-in sessions, media transaction or CSP.
+The application-owner steps above remain; repeat neither paid effects nor fixture
+scaffolding simply to relabel the provider sample as application acceptance.
 
 Use one released graph and the application's real mounted service. Record the
 application commit, three Canic lock hashes where applicable, installed Wasm hash,

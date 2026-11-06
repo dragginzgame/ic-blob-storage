@@ -141,8 +141,9 @@ impl<M: Memory> ServiceInstallation<M> {
     /// # Errors
     /// Rejects missing/invalid installation, changed bindings or inconsistent stores.
     /// # Panics
-    /// Backing failures and corrupt store rows trap; IC hosts must propagate them.
-    /// Invalid configuration-cell bytes return `InvalidRecord` without repair.
+    /// Backing failures and malformed stored values trap; IC hosts must propagate them.
+    /// Invalid cell framing or an exceeded byte ceiling returns `InvalidRecord`.
+    /// Neither failure repairs or replaces retained state.
     pub fn open(
         memories: ServiceInstallationMemories<RuntimeMemory<M>>,
         actual_service: Principal,

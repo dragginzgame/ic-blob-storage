@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "at": "2026-11-06T07:42:21.514124+00:00",
+  "run": "trial-v073-two-users-01",
+  "authority": "Maintainer selects bounded real-Caffeine two-user standalone run with fresh owner; retained 100T total/20T per-day trial allowance and explicit development-mainnet-key authorization.",
+  "network": "https://icp-api.io",
+  "release": "0.73.0",
+  "operator": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "project": "d3bf05d2-0988-4caa-b7de-cd6388d5033e",
+  "payer": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "uploaders": [
+    "mbo2f-qttlo-drah2-rj4yf-f3s2c-ekejc-26skd-uwjjo-5mx3o-dzlsr-yqe",
+    "ga6fe-7xzng-4d4ck-kyfls-sfmuv-xwzer-ee74x-p2jxt-4q3sp-4elto-iqe"
+  ],
+  "namespace": 1,
+  "objects": 2,
+  "max_object_bytes": 1024,
+  "physical_and_liability_bytes": 2048,
+  "service_cycles_creation": "2000000000000",
+  "creation_fee_cycles": "100000000",
+  "provider_deposit_max_gross_cycles": "1001000000000",
+  "daily_relationship_limit_cycles": "5000000000000",
+  "relationship_duration_seconds": 7200,
+  "overdraft": false,
+  "automatic_refill": false,
+  "conservative_exposure_envelope_cycles": "8000000000000",
+  "prior_accounting": "Historical latest recorded gross 8.1002T plus conservative November 3 8T envelope plus this new 8T is <=24.1002T, below 100T; not a complete audit of unrelated activity.",
+  "traffic": {
+    "users": 2,
+    "certificate_calls_per_user": 1,
+    "provider_tree_puts_per_user": 1,
+    "provider_chunk_puts_per_user": 1,
+    "native_whole_file_gets_per_user": 1,
+    "automatic_effect_reruns": 0
+  },
+  "readiness": "Separate explicit recorded intents before each effect; require actual creation/controller/empty status, exact installed release/config, payer/service linkage and positive owner plus advertised-gateway credit before certificate/PUT. Stop on failure/uncertainty; never resend original effect.",
+  "cleanup": "Maintainer retains new IC idle costs, provider objects, original journals, exact signed intents and continuing liabilities. Old 0.6/0.7/0.69 installations, accounts and unresolved effects remain untouched. No logical release or physical settlement selected by this plan.",
+  "limits": "Two isolated test-key uploaders, not application login/CSP/catalog acceptance. Daily link/traffic bounds are not an independently enforced total provider bill cap."
+}

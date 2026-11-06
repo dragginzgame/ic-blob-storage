@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "at": "2026-11-06T07:40:20.164735+00:00",
+  "run": "trial-v073-preflight-01",
+  "evidence_class": "anonymous_mainnet_balance_rate_fee_observation",
+  "release_to_freeze": "0.73.0",
+  "operator": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "cycles_balance": "878955097235",
+  "icp_balance_e8s": "947573434",
+  "xdr_permyriad_per_icp": "17629",
+  "cmc_timestamp_seconds": "1793950440",
+  "cycles_ledger_fee": "100000000",
+  "icp_ledger_fee_e8s": "10000",
+  "commands_succeeded": 5,
+  "paid_effects": 0,
+  "source_qualification": "Retained final 0.73 candidate artifacts from passed 22-stage release gate; incoming Platform/Wire lock changes not used. Candidate input/admission proofs remain in target/release-stage-cache.",
+  "frozen_artifacts": [
+    {
+      "file": "blob-storage",
+      "source": "target/release-stage-build/debug/blob-storage",
+      "sha256": "09982fd690a0c30e88482b0bcf5fcad87387040bed0c6ab26f78f8bb3459f734",
+      "bytes": 154223440
+    },
+    {
+      "file": "standalone.wasm",
+      "source": "target/release-stage-build/wasm32-unknown-unknown/release/ic_blob_storage_canister.wasm",
+      "sha256": "cbcf4519b9349ec5aafb13314e030fe13cd353ed7bf1dc593b334346c7d20b94",
+      "bytes": 2421168
+    },
+    {
+      "file": "Cargo.lock",
+      "source": "target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1/Cargo.lock",
+      "sha256": "fd1a447818a3bf8c69efb21fdaa6bd9c93235d727b9d2cfc2cb6d461fe201cec",
+      "bytes": 109554
+    }
+  ],
+  "custody": ".git/private-operations/blob073-two-users-01/",
+  "limits": "Balances/rate are time-bound observations; no guaranteed allocation cadence or provider bill cap. 0.69 objects, credit, expired link, failed request and billing custody remain separate."
+}

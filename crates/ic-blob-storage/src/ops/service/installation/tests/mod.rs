@@ -312,7 +312,7 @@ fn missing_and_foreign_configuration_refuse_without_initialization() {
 }
 
 #[test]
-fn corrupt_configuration_cell_refuses_without_repairing_other_owners() {
+fn invalid_configuration_framing_refuses_and_malformed_records_trap_without_repair() {
     for invalid_codec in [false, true] {
         let memory = memory();
         drop(ServiceInstallation::install(memories(&memory), validated()).unwrap());
@@ -328,10 +328,21 @@ fn corrupt_configuration_cell_refuses_without_repairing_other_owners() {
             cell.write(3, &[u8::MAX]);
         }
         let before = bytes(&memory);
-        assert!(matches!(
-            ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
-            Err(ServiceInstallationError::InvalidRecord)
-        ));
+        if invalid_codec {
+            // Only the test catches the trap to inspect the unchanged backing;
+            // production hosts must propagate it instead of continuing.
+            assert!(
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    ServiceInstallation::open(memories(&memory), candidate().service, RELEASE)
+                }))
+                .is_err()
+            );
+        } else {
+            assert!(matches!(
+                ServiceInstallation::open(memories(&memory), candidate().service, RELEASE),
+                Err(ServiceInstallationError::InvalidRecord)
+            ));
+        }
         assert_eq!(bytes(&memory), before);
     }
 }

@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "run": "trial-v073-provider-01",
+  "stage": "original_deposit_notification",
+  "at": "2026-11-06T07:54:28.750262+00:00",
+  "authority": "Selected exact provider provisioning within the authorized isolated two-user trial; original deposit reconciled once.",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "payer": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "identity": "blob073-trial-project-payer-20261106",
+  "method": "cycles_ledger_deposit_notify_v1",
+  "original_deposit_block": "17110996",
+  "original_deposit_amount_cycles": "1000900000000",
+  "expected_sweep_fee_cycles": "100000000",
+  "predicted_credit_cycles": "1000800000000",
+  "credit_prediction_is_not_observation": true,
+  "request_sha256": "84dab59773edc36e3c0ba731b34f6e4e8f09ce0bbade195d66f1aa75f60f4eac",
+  "budgets": {
+    "dispatch_invocations": 1,
+    "seconds": 180,
+    "replacement_deposits": 0,
+    "repeated_notifications": 0,
+    "certificate_calls": 0
+  },
+  "recovery": "Unknown/malformed/error response stops before linking/exposure. Inspect original sweep/account/ledger evidence; no repeat deposit or notify to get a cleaner receipt. No Blob attachment-journal record is fabricated."
+}

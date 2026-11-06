@@ -14,6 +14,171 @@ maintained release and open work.
 [acceptance plan](../../acceptance-plan.md) ·
 [service gaps](../../service-gaps.md)
 
+## New 0.73 two-user provider trial — 2026-11-06
+
+The maintainer selected a bounded real-Caffeine two-user run using the existing
+standalone/browser tooling. A fresh installation and new isolated project/payer
+and uploader identities preserve the exhausted 0.69 trial and every older
+obligation. This provider-side run does not qualify application login, CSP or a
+consumer catalog transaction. Before any network request, the
+[read-only preflight intent](deployed/2026-11-06-trial-v073-preflight-01/intent.json)
+selects five bounded anonymous balance/rate/fee commands with zero updates or
+provider effects. The retained 100T total / 20T daily allowance must be reconciled
+with actual liquidity and exact recorded effects before paid actions. No new
+creation, conversion, deposit, relationship or upload is selected by that intent.
+Each result/failure is retained in private custody before advancing.
+
+The five preflight commands [completed once](deployed/2026-11-06-trial-v073-preflight-01/summary.json):
+878,955,097,235 cycles, 9.47573434 ICP, CMC rate 17,629 permyriad, ledger fees
+100M cycles / 10,000 e8s. Fresh keys and qualified 0.73 artifacts are privately
+retained; incoming lock edits are separate. The
+[bounded trial plan](deployed/2026-11-06-trial-v073-conversion-01/trial-plan.json)
+selects two 1KiB objects and an 8T conservative exposure envelope within retained
+100T total / 20T daily authority; none is an independent provider bill cap.
+Before paid execution, [the conversion intent](deployed/2026-11-06-trial-v073-conversion-01/intent.json)
+selects one fixed 2 ICP plus observed fee conversion to the same development
+account, 180 seconds, zero reruns/provider/creation effects. A failed/uncertain
+result stops before later effects. New roles/profiles preserve anonymous default
+and do not export or alter the existing development key.
+
+The one conversion completed: 3,527,700,000,000 cycles deposited, resulting
+4,406,655,097,235 cycles and 7.47563434 ICP; both balances reconcile to exactly
+2.0001 ICP debit. Current cycles-ledger/Cashier public interfaces are retained.
+The quote changed slightly before conversion; no fixed rate is inferred.
+[Fresh-owner creation intent](deployed/2026-11-06-trial-v073-install-01/intent.json)
+now binds one original timestamp, the development principal as sole controller,
+2T creation amount plus observed 100M fee, and no automatic rerun. Signed input
+and offline review are retained before dispatch; no old owner is selected.
+
+The fresh owner **`j7h7p-gyaaa-aaaaa-qhxwa-cai`** was created once at ledger
+block 17,110,977; exact source debit is 2.0001T. The
+[completed install/readback](deployed/2026-11-06-trial-v073-install-01/summary.json)
+confirms 0.73.0, the frozen module hash, actual service/project/operator/payer and
+all finite limits, unfenced state and anonymous refusal. At that point, no provider
+setup or certificate had occurred. Offline configuration, generated-TS and hash-display
+review errors remain recorded; none caused reinstall or a repeated effect.
+Before provider requests, [the fresh-payer read intent](deployed/2026-11-06-trial-v073-provider-01/intent.json)
+selects three signed route/account/settings queries, zero paid effects, with
+current public Cashier DID and exact new payer.
+
+The fresh payer route and both expected AccountNotFound responses were retained;
+the exact provider-returned 32-byte deposit address has zero cycles.
+[One timestamp/memo-bound transfer intent](deployed/2026-11-06-trial-v073-provider-01/transfer-intent.json)
+selects 1,000,900,000,000 cycles plus the explicit observed 100M fee (1.001T gross)
+to that address. Original signed packet and decoded offline review precede one
+dispatch. Unknown/failed results stop before notify or a replacement deposit;
+no successful account credit is inferred from a ledger transfer alone.
+
+The exact deposit succeeded once at ledger block **17,110,996**. Both balances
+reconcile: donor 1,405,555,097,235 cycles, returned deposit address
+1,000,900,000,000 cycles. Before provider mutation,
+[one payer-signed notify intent](deployed/2026-11-06-trial-v073-provider-01/notify-intent.json)
+binds that original deposit/address and the fresh payer. Observe the returned
+credit/sweep block; no repeat notification or replacement payment is selected.
+
+The fresh account's zero-overdraft/no-target settings and swept address are
+confirmed. [Exact new link terms](deployed/2026-11-06-trial-v073-provider-01/link-intent.json)
+retain the selected 5T nominal daily limit and original explicit two-hour expiry.
+The canonical CLI output is binary DIDL despite its `.candid` suffix; a local
+signing attempt without binary mode failed before dispatch and is preserved.
+Corrected binary-mode signing/dry-run review uses unchanged bytes and terms.
+Only one link dispatch is selected; readiness remains a separate observation.
+
+The link was acknowledged once. Separate scoped readbacks now show exactly
+5T nominal daily terms and selected expiry, 1T current-period allocation, payer
+800M, owner **1T**, and advertised gateway **52,631,578,947** raw available credit.
+This is readiness for this new sample, not a general minimum/cadence or bill cap.
+[Two service-preparation intents](deployed/2026-11-06-trial-v073-provider-01/service-setup-intent.json)
+now select one absent-to-active tenant enrollment and one canonical gateway sync,
+with exact generated Wire packets, signed review, no provider payment and no retry.
+Both 1KiB bodies/manifests are frozen separately with distinct uploaders/roots.
+The first offline SDK import lacked the maintained prepareFile patch; no body,
+manifest or network existed then. Its preserved correction uses the existing
+reviewed Caffeine patch and pinned browser build, not another provider codec.
+
+Tenant enrollment and gateway sync each succeeded once; exact retained Wire
+responses show active generation 1/unfenced and sync sequence 1. A local
+assertion initially misread generated Option.some and was corrected from the
+original response, without reenrollment.
+[The bounded two-user transfer intent](deployed/2026-11-06-trial-v073-two-users-01/intent.json)
+freezes both original files/roots, per-uploader permissions and original operation
+IDs 1/2. It permits two admissions, two preparations, own/cross-uploader
+assessments, one certificate and two PUTs per user, and two verified native GETs.
+No automatic paid effect retry, journal replacement or reference release is
+selected. Application login/CSP/catalog acceptance remains separate.
+
+User 1's original admission/preparation succeeded; its own assessment passes
+and the other uploader gets exact `denied` before certificate exposure. A
+premature second admission received certified `upload_capacity` while the single
+active slot is held; original signed request/reply/outcome are preserved. It
+issued no certificate or provider request. Complete user 1 first; any later
+operation-2 re-evaluation needs fresh absent/capacity evidence and a separate
+bounded intent, never a changed root/ID or automatic uncertain replay.
+Both persistent browser journals were created with external traffic blocked. A
+local initialization assertion expected null rather than `{present:false}`;
+the original successful empty-journal capture was accepted without rerunning
+initialization or replacing the profile. Fresh pre-user1 owner/gateway reads
+remain 1T / 52,631,578,947.
+[One original user-1 browser intent](deployed/2026-11-06-trial-v073-two-users-01/browser-user1-intent.json)
+selects reopening that exact profile/port/database, one certificate and two PUTs.
+Failures stop with original history and bounded private raw provider-error capture.
+
+User 1's first browser dispatch succeeded: one certificate call, two PUTs 200,
+zero blocked requests; original profile remains. One native descriptor/GET then
+root-verified **all 1024 original bytes**, without upload repeat. Fresh capacity
+reports one remaining object/active/chunk slot and 1024 logical/physical/liability
+bytes; exact operation 2 reads `upload_unknown`. The earlier response was
+certified `refused/upload_capacity`, not uncertain.
+[One explicit serial re-evaluation](deployed/2026-11-06-trial-v073-two-users-01/serial-admission-intent.json)
+now uses that changed-state evidence and the **unchanged** operation-2 permission.
+It adds at most one admission evaluation; no extra provider request, new root/ID,
+capacity increase, original-run overwrite or automatic uncertain replay.
+
+The explicitly re-evaluated original operation 2 and its original manifest were
+acknowledged without a certificate. Own-uploader assessment passes; uploader 1
+is denied the second grant. Fresh owner/gateway credit is positive at
+999,507,426,466 / 52,605,654,024 raw cycles.
+[One original user-2 browser intent](deployed/2026-11-06-trial-v073-two-users-01/browser-user2-intent.json)
+selects its original initialized profile/port/database, one certificate and two
+PUTs, with no automatic retry or change to the first user's live reference.
+
+The [completed two-user result](deployed/2026-11-06-trial-v073-two-users-01/summary.json)
+records **both original Chromium transfers successful**: two certificate call
+requests, four PUTs 200, and two independent native GETs/root verifications
+matching **all 2048 original bytes**. Both cross-uploader assessments return
+`denied`. Actual GET headers retain octet-stream MIME, length 1024, wildcard CORS
+and the selected one-year immutable cache policy; raw cookies/URLs stay private.
+Final exact references 1/2 are live. There are 2 local operations, zero active/reserved bytes,
+logical/physical/liability 2048, all owners unfenced; no release or settlement.
+Two lifetime object slots remain consumed. The final provider observations are
+payer 800M, owner 999,014,852,932 and gateway 52,579,729,101 raw available credit;
+reported usage counters stay zero. These are not itemized prices or stopped
+billing. The original link expiry remains **2026-11-06 09:56:32 UTC**; no renewal
+or extra funding occurred. Conservatively counting conversion plus creation and
+external deposit gives **6.5288T**, below the selected 8T envelope; the internal 1T
+allocation is not counted again.
+
+Original signed/native/browser artifacts and profiles remain under
+`.git/private-operations/blob073-two-users-01/`. A private checksum inventory
+covers 610 non-key files / 164,174,592 bytes at capture; three fresh PEMs are
+private and excluded from that inventory. No external backup is claimed. The
+development key was never exported and the default identity remains anonymous.
+All failed local preparations and the certified early capacity refusal remain
+linked to their original outcomes; there was no uncertain certificate/PUT replay.
+[Provider provisioning summary](deployed/2026-11-06-trial-v073-provider-01/summary.json)
+retains original transfer/sweep blocks and the exact linkage/readiness distinction.
+This completes the selected **provider-side** two-test-key run, not application
+login/CSP/catalog acceptance, physical deletion/billing cessation or original
+lost on-canister payment evidence. #5/#31/#6/#34 keep those remaining cells.
+No implementation or dependency change, commit, release or sibling edit occurred.
+
+The owning issues retain their remaining application/provider cells. Verified
+results were posted to [#31](https://github.com/dragginzgame/ic-blob-storage/issues/31#issuecomment-6680610509),
+[#5](https://github.com/dragginzgame/ic-blob-storage/issues/5#issuecomment-6680621712),
+[#34](https://github.com/dragginzgame/ic-blob-storage/issues/34#issuecomment-6680622087)
+and [#6](https://github.com/dragginzgame/ic-blob-storage/issues/6#issuecomment-6680622511).
+Public evidence changes remain local/uncommitted; no library release is needed.
+
 ## Current read-only 0.69 follow-up — 2026-11-05
 
 The maintainer requested work on the remaining issues. Before any request,
@@ -4972,6 +5137,26 @@ That checksum check establishes artifact integrity, not scenario correctness or
 provider authenticity; rerunning the opt-in test establishes current local behavior.
 
 ## Run index
+
+`trial-v073-preflight-01` / 2026-11-06: five bounded anonymous balance/rate/fee reads,
+zero paid effects; [summary](deployed/2026-11-06-trial-v073-preflight-01/summary.json).
+
+`trial-v073-conversion-01` / 2026-11-06: one 2 ICP conversion with exact 2.0001 ICP
+debit and 3.5277T deposited, balances reconciled;
+[summary](deployed/2026-11-06-trial-v073-conversion-01/summary.json).
+
+`trial-v073-install-01` / 2026-11-06: one exact 2.0001T creation plus frozen 0.73
+installation/configuration/controller/anonymous-refusal readback;
+[summary](deployed/2026-11-06-trial-v073-install-01/summary.json).
+
+`trial-v073-provider-01` / 2026-11-06: one exact 1.001T external deposit, original
+sweep/credit, zero-overdraft/no-target settings and one expiring new service link;
+[summary](deployed/2026-11-06-trial-v073-provider-01/summary.json).
+
+`trial-v073-two-users-01` / 2026-11-06: two real distinct-key 1 KiB uploads and exact
+verified downloads, preserved capacity refusal/serial re-evaluation, two live
+references and 2 KiB continuing liabilities;
+[summary](deployed/2026-11-06-trial-v073-two-users-01/summary.json).
 
 `trial-v069-allowance-01` / 2026-11-03: explicitly approved fresh one-shot 1T-to-5T
 daily update, original expiry preserved and exact readback.

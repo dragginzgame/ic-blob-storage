@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "run": "trial-v073-provider-01",
+  "stage": "fresh_exact_payer_service_link",
+  "at": "2026-11-06T07:56:32.709394+00:00",
+  "authority": "Selected bounded fresh two-user trial; retained 100T total/20T daily allowance, recorded 8T envelope. No prior link modified.",
+  "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "method": "payment_account_canister_add_v1",
+  "payer": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "daily_limit": "5000000000000",
+  "expires_ns": "1793958992680536659",
+  "overdraft": 0,
+  "auto_target": null,
+  "selection": "One new link only; unchanged historical owners/accounts. No limit increase or expiry renewal of any prior relationship.",
+  "request_sha256": "f70dbcdf059b7cc95c93678959d506da53933a7eb54d5f06fc63a17b67b5bb24",
+  "observed_payer_credit_cycles": "1000800000000",
+  "budgets": {
+    "dispatch_invocations": 1,
+    "seconds": 180,
+    "new_deposits": 0,
+    "automatic_reruns": 0,
+    "certificates": 0
+  },
+  "limits": "Nominal daily limit is not an independently established overall bill cap or allocation guarantee. Provider readiness must be separately observed before exposure.",
+  "recovery": "Unknown/error link stops before certificates; inspect original relationship, never repeat with different terms to obtain a cleaner result."
+}

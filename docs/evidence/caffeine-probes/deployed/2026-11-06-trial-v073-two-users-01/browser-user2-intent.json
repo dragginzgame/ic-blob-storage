@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "at": "2026-11-06T08:16:56.474518+00:00",
+  "stage": "user2_original_browser_transfer",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "tenant": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "uploader": "ga6fe-7xzng-4d4ck-kyfls-sfmuv-xwzer-ee74x-p2jxt-4q3sp-4elto-iqe",
+  "operation": "2",
+  "object": "2",
+  "first_reference": "2",
+  "root": "sha256:6dc375218702f850ba7376087eed3c31cca8b79340e7ffc6182fb72ab119c95c",
+  "body_sha256": "f33e805c73a690626f3c17c524fb5bcbd6e154e14f9b5a2217a00c13b8155e77",
+  "permission_sha256": "111c370d97eb46b5c70f7835b41230a4c991ef8dc004e112bc89017f9f599b77",
+  "profile_custody": ".git/private-operations/blob073-two-users-01/users/user-2/profile/",
+  "origin": "http://127.0.0.1:43181",
+  "database": "blob073-two-users-20261106-user-2",
+  "mode": "open_original_initialized_profile",
+  "budgets": {
+    "browser_invocations": 1,
+    "seconds": 240,
+    "certificate_calls": 1,
+    "tree_PUTs": 1,
+    "chunk_PUTs": 1,
+    "file_bytes": 1024,
+    "automatic_reruns": 0
+  },
+  "preconditions": "Known earlier capacity refusal preserved; new explicit same-operation evaluation followed absent/capacity proof and succeeded. Original preparation acknowledged; own assessment passed/cross-uploader denied; fresh exact owner/gateway credit positive.",
+  "stop": "Preserve original history after any failure/uncertainty; no new certificate, root, operation, profile or implicit retry."
+}

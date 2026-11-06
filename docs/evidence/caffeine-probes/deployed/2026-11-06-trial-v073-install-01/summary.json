@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "date": "2026-11-06",
+  "run": "trial-v073-install-01",
+  "evidence_class": "actual_mainnet_fresh_standalone_installation",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "release": "0.73.0",
+  "creation_block": "17110977",
+  "creation_amount_cycles": "2000000000000",
+  "creation_fee_cycles": "100000000",
+  "post_creation_donor_cycles": "2406555097235",
+  "controller": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "module_sha256": "0f2f160f2c60dc9045e2c943cbc5e19c5396c3012ba58ca9b852d583af246812",
+  "uncompressed_wasm_sha256": "cbcf4519b9349ec5aafb13314e030fe13cd353ed7bf1dc593b334346c7d20b94",
+  "init_sha256": "941cdc1a4e79ded265773f81215264ccc4c99c8d4c9337dca056bb223973f166",
+  "exact_release_config_and_project_readback": true,
+  "anonymous_denied": true,
+  "fenced": false,
+  "provider_funds": 0,
+  "tenant_enrollments": 0,
+  "certificate_calls": 0,
+  "uploads": 0,
+  "local_failures_preserved": [
+    "Initial offline global-chunk limit below tenant limit; corrected both to 2 before install.",
+    "Node strip-only TS refused generated constructor parameter property; used existing pinned esbuild on unchanged generated output.",
+    "Local module hash comparison omitted displayed 0x prefix; normalized cached response without reinstall or status repeat. Offline decoder first found intentionally absent unsent-query output."
+  ],
+  "custody": ".git/private-operations/blob073-two-users-01/",
+  "limits": "Frozen qualified 0.73 source/graph; incoming Cargo.lock edits not used. This is actual installation, not provider credit, application login or media transaction qualification. New IC idle costs remain maintainer-owned; all old owners/obligations untouched."
+}

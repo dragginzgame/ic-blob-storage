@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "run": "trial-v073-provider-01",
+  "at": "2026-11-06T07:53:10.674279+00:00",
+  "evidence_class": "authorized_exact_external_provider_deposit_intent",
+  "authority": "Selected two-user real-Caffeine fresh standalone trial, within 8T conservative envelope and retained 100T total/20T daily authority.",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "payer": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "sender": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "identity": "canic-mainnet",
+  "ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+  "method": "icrc1_transfer",
+  "to": {
+    "owner": "72ch2-fiaaa-aaaar-qbsvq-cai",
+    "subaccount": "1d769a18f1f575fdcb0781a210c1bb2c3650f8c9751a9540627610e013020000",
+    "source": "provider returned cycles_ledger_deposit_subaccount_v1; owner is the reviewed Cashier from the existing canonical deposit route"
+  },
+  "created_at_time_ns": "1793951590674193833",
+  "memo_hex": "626c6f623037332d74776f2d75736572732d3031",
+  "amount_cycles": "1000900000000",
+  "fee_cycles": "100000000",
+  "max_source_debit_cycles": "1001000000000",
+  "source_balance_cycles": "2406555097235",
+  "deposit_address_balance_before": "0",
+  "request_sha256": "5902990ae1212e7da3f7483e1a883eb0c33cbc04514638a408737fe374b6d571",
+  "budgets": {
+    "dispatch_invocations": 1,
+    "seconds": 180,
+    "automatic_reruns": 0,
+    "certificate_calls": 0,
+    "PUTs": 0
+  },
+  "next": "After exact ledger success, reconcile destination/source, then separately record payer-signed original-address notify and exact bounded relationship. No synthetic Blob attachment-journal record.",
+  "recovery": "Any unknown/failed transfer stops; inspect original timestamp/memo/block, no second deposit/changed timestamp. Sweep/credit is not inferred from transfer success.",
+  "cleanup": "New payer/provider credit and fees remain assigned to maintainer; all prior owners/accounts/objects untouched."
+}

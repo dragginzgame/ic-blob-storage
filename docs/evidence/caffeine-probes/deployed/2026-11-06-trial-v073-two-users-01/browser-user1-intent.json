@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "at": "2026-11-06T08:12:37.274207+00:00",
+  "stage": "user1_original_browser_transfer",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "tenant": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "uploader": "mbo2f-qttlo-drah2-rj4yf-f3s2c-ekejc-26skd-uwjjo-5mx3o-dzlsr-yqe",
+  "operation": "1",
+  "object": "1",
+  "first_reference": "1",
+  "root": "sha256:22de1856c15f9fb38a783aab6e07dd611a81e61f0f24339a36d33170c7072934",
+  "body_sha256": "1e16af8c668abf9af9200a1ab88449320249c2571811d78ff16bcda04a72700f",
+  "permission_sha256": "eb4b22b375ee1801360ac722fc67ac094398abbc0c3b5ce538afdb633ab789e0",
+  "profile_custody": ".git/private-operations/blob073-two-users-01/users/user-1/profile/",
+  "origin": "http://127.0.0.1:43180",
+  "database": "blob073-two-users-20261106-user-1",
+  "mode": "open_original_initialized_profile",
+  "nativeSession": null,
+  "budgets": {
+    "browser_invocations": 1,
+    "seconds": 240,
+    "certificate_calls": 1,
+    "tree_PUTs": 1,
+    "chunk_PUTs": 1,
+    "file_bytes": 1024,
+    "automatic_reruns": 0
+  },
+  "preconditions": "Exact original admission/preparation acknowledged, own assessment passed and cross-uploader denied; fresh owner1T/gateway52631578947 credit; original empty journal verified with zero external initialization requests.",
+  "stop": "Any failed/uncertain control/certificate/PUT result stops before user2. Preserve original profile/journal/signed envelope/observed reply and bounded raw error capture. Never reissue/reset/replay to obtain a cleaner result."
+}

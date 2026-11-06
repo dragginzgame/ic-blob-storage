@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "run": "trial-v073-conversion-01",
+  "evidence_class": "actual_fixed_amount_mainnet_icp_to_cycles_conversion",
+  "at": "2026-11-06T07:43:37.427936+00:00",
+  "command_invocations": 1,
+  "icp_gross_debit_e8s": "200010000",
+  "deposited_cycles": "3527700000000",
+  "post_conversion_cycles": "4406655097235",
+  "post_conversion_icp_e8s": "747563434",
+  "balances_reconciled": true,
+  "provider_updates": 0,
+  "canister_creations": 0,
+  "reruns": 0,
+  "custody": ".git/private-operations/blob073-two-users-01/conversion-01/",
+  "limits": "Actual conversion differs from earlier indicative quote; not a guaranteed rate. Existing trial owners/accounts untouched; no old key export."
+}

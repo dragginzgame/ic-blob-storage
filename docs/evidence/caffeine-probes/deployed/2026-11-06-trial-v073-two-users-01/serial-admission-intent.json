@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "at": "2026-11-06T08:15:18.772616+00:00",
+  "stage": "explicit_serial_second_admission_after_known_capacity_refusal",
+  "authority": "Selected two-user trial continued under changed, freshly inspected preconditions; this is not automatic replay of an uncertain operation.",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "operation": "2",
+  "original_permission_sha256": "111c370d97eb46b5c70f7835b41230a4c991ef8dc004e112bc89017f9f599b77",
+  "original_request_id": "eff087be577abfc0ac4eb05a1bf5b5ff8dbf7aca8ddeedd0823762d634d37dcf",
+  "original_outcome": "certified refused/upload_capacity; no reservation/paid provider effect or certificate",
+  "current_evidence": "Original operation2 lookup is upload_unknown, remaining object/active/chunk slots1, logical/physical/liability headroom1024, first original upload root/body independently verified.",
+  "budgets": {
+    "additional_admission_evaluations": 1,
+    "remaining_preparation_updates": 1,
+    "seconds_each": 90,
+    "certificate_calls": 0,
+    "provider_requests": 0,
+    "automatic_reruns": 0
+  },
+  "invariants": "Same operation2/object2/root2/reference2/permission and expiry; no replacement IDs, reset, capacity increase, certificate reissue or uncertainty clearance. Original refused run remains unchanged."
+}

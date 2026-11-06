@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "run": "trial-v073-provider-01",
+  "at": "2026-11-06T08:01:58.202901+00:00",
+  "evidence_class": "new_service_preparation_intent",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "operator": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "tenant": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "namespace": 1,
+  "actions": [
+    {
+      "action": "tenant",
+      "method": "blob_update_tenant",
+      "request_sha256": "eee6bca5e9e51602b4ee9989c24c433251c6d55a6e72c6c334dba037a849db61"
+    },
+    {
+      "action": "sync",
+      "method": "blob_sync_gateways",
+      "request_sha256": "e0060339fe1f283a0c47536297022cc37104e46becedf0e7a846f3084ae4b3a6"
+    }
+  ],
+  "tenant_change": "Expected absent; active true, one fresh tenant only.",
+  "sync": "One installed-scope gateway sync from canonical Cashier, <=2 entries/1 unique; no provider payment.",
+  "budgets": {
+    "updates": 2,
+    "seconds_each": 90,
+    "provider_payments": 0,
+    "certificates": 0,
+    "automatic_reruns": 0
+  },
+  "stop": "Decode original result before the next action. Failure/uncertainty permits state inspection, not repeated update with new identity. No certificate/PUT before readiness and exact permission checks."
+}

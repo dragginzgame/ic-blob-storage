@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "run": "trial-v073-two-users-01",
+  "at": "2026-11-06T08:04:47.654472+00:00",
+  "evidence_class": "bounded_real_provider_two_test_key_uploaders_intent",
+  "authority": "User selected two-user real-Caffeine run on a fresh isolated owner within the recorded 8T envelope.",
+  "release": "0.73.0",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "tenant": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "project": "d3bf05d2-0988-4caa-b7de-cd6388d5033e",
+  "namespace": 1,
+  "files": [
+    {
+      "root": "sha256:22de1856c15f9fb38a783aab6e07dd611a81e61f0f24339a36d33170c7072934",
+      "bytes": "1024",
+      "body_sha256": "1e16af8c668abf9af9200a1ab88449320249c2571811d78ff16bcda04a72700f",
+      "preparation": {
+        "content_type": "application/octet-stream",
+        "filename": "trial-user-1.bin",
+        "cache_control": "public, max-age=31536000, immutable"
+      },
+      "uploader": "mbo2f-qttlo-drah2-rj4yf-f3s2c-ekejc-26skd-uwjjo-5mx3o-dzlsr-yqe"
+    },
+    {
+      "root": "sha256:6dc375218702f850ba7376087eed3c31cca8b79340e7ffc6182fb72ab119c95c",
+      "bytes": "1024",
+      "body_sha256": "f33e805c73a690626f3c17c524fb5bcbd6e154e14f9b5a2217a00c13b8155e77",
+      "preparation": {
+        "content_type": "application/octet-stream",
+        "filename": "trial-user-2.bin",
+        "cache_control": "public, max-age=31536000, immutable"
+      },
+      "uploader": "ga6fe-7xzng-4d4ck-kyfls-sfmuv-xwzer-ee74x-p2jxt-4q3sp-4elto-iqe"
+    }
+  ],
+  "permission_expiry_ns": "1793958992680536659",
+  "readiness": "Exact link, 1T owner credit and positive explicit advertised-gateway credit observed before exposure. Tenant active generation1, gateway sync sequence1.",
+  "budgets": {
+    "native_admit_updates": 2,
+    "native_prepare_updates": 2,
+    "own_assessment_queries": 2,
+    "cross_uploader_assessment_queries": 2,
+    "certificate_calls": 2,
+    "tree_PUTs": 2,
+    "chunk_PUTs": 2,
+    "native_provider_GETs": 2,
+    "max_file_bytes": 1024,
+    "browser_logical_provider_requests_per_user": 2,
+    "browser_provider_request_bytes_each": 65536,
+    "browser_provider_request_bytes_total_per_user": 131072,
+    "wall_seconds_per_native_command": 90,
+    "wall_seconds_per_browser": 240,
+    "automatic_effect_reruns": 0
+  },
+  "recovery": "Stop serial sequence on unexpected failure/uncertainty. Preserve exact native signed intents, unchanged input snapshots, browser profile/origin/database and observed certificate/PUT history. Inspect original outcomes; never claim/reissue another certificate or reset journal to repair failure.",
+  "cleanup": "Keep both exact first references and provider/IC idle/billing obligations assigned to maintainer; no logical release, forced deletion, billing settlement, reinstall or reset selected.",
+  "limits": "Distinct authenticated test-key uploaders, not actual application login/permission policy, catalog transaction or CSP qualification. Cooperating-client bounds do not prove physical transport attempts or provider bill caps."
+}

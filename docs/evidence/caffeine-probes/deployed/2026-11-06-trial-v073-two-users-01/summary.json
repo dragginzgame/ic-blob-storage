@@ -1,0 +1,181 @@
+{
+  "schema": 1,
+  "date": "2026-11-06",
+  "run": "trial-v073-two-users-01",
+  "evidence_class": "actual_mainnet_standalone_chromium_two_distinct_test_key_uploaders_and_independent_native_verified_downloads",
+  "result": "Both original uploads and both exact downloads passed; both exact references live, no reservations/fences, obligations preserved. Application login/CSP/catalog acceptance remains open.",
+  "release": "0.73.0",
+  "source_qualification": "Frozen retained final 0.73 candidate passed 22-stage release gate and a fresh exact artifact CLI/installation smoke. No build used the incoming Platform/Wire lock edits.",
+  "source_release_commit": "6811018e57c4424a812d3eb94ce5e00a2fcef43b",
+  "preparation_source_commit": "4eb56823b75ea8dd140e81d675518722ff62f08f",
+  "compiler": "1.99.1",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "service": "j7h7p-gyaaa-aaaaa-qhxwa-cai",
+  "controller_operator": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "tenant_payer": "segc4-n3wti-mpd5l-v7xfq-pancc-da3wl-bwkd4-ms5i2-svage-5qq4a-jqe",
+  "namespace": "1",
+  "project": "d3bf05d2-0988-4caa-b7de-cd6388d5033e",
+  "provider": "https://blob.caffeine.ai",
+  "module_sha256": "0f2f160f2c60dc9045e2c943cbc5e19c5396c3012ba58ca9b852d583af246812",
+  "raw_wasm_sha256": "cbcf4519b9349ec5aafb13314e030fe13cd353ed7bf1dc593b334346c7d20b94",
+  "files": [
+    {
+      "uploader": "mbo2f-qttlo-drah2-rj4yf-f3s2c-ekejc-26skd-uwjjo-5mx3o-dzlsr-yqe",
+      "operation": "1",
+      "object": "1",
+      "reference": "1",
+      "root": "sha256:22de1856c15f9fb38a783aab6e07dd611a81e61f0f24339a36d33170c7072934",
+      "body_sha256": "1e16af8c668abf9af9200a1ab88449320249c2571811d78ff16bcda04a72700f",
+      "verified_bytes": 1024,
+      "certificate_calls": 1,
+      "provider_PUTs": 2,
+      "PUT_statuses": [
+        200,
+        200
+      ],
+      "native_verified_GETs": 1,
+      "all_original_bytes_equal": true,
+      "live_reference": true,
+      "cross_uploader_assessment": "denied",
+      "actual_selected_GET_headers": {
+        "content-type": "application/octet-stream",
+        "content-length": "1024",
+        "cache-control": "public, max-age=31536000, immutable",
+        "access-control-allow-origin": "*"
+      },
+      "browser_profile_private": ".git/private-operations/blob073-two-users-01/users/user-1/profile/"
+    },
+    {
+      "uploader": "ga6fe-7xzng-4d4ck-kyfls-sfmuv-xwzer-ee74x-p2jxt-4q3sp-4elto-iqe",
+      "operation": "2",
+      "object": "2",
+      "reference": "2",
+      "root": "sha256:6dc375218702f850ba7376087eed3c31cca8b79340e7ffc6182fb72ab119c95c",
+      "body_sha256": "f33e805c73a690626f3c17c524fb5bcbd6e154e14f9b5a2217a00c13b8155e77",
+      "verified_bytes": 1024,
+      "certificate_calls": 1,
+      "provider_PUTs": 2,
+      "PUT_statuses": [
+        200,
+        200
+      ],
+      "native_verified_GETs": 1,
+      "all_original_bytes_equal": true,
+      "live_reference": true,
+      "cross_uploader_assessment": "denied",
+      "actual_selected_GET_headers": {
+        "content-type": "application/octet-stream",
+        "content-length": "1024",
+        "cache-control": "public, max-age=31536000, immutable",
+        "access-control-allow-origin": "*"
+      },
+      "browser_profile_private": ".git/private-operations/blob073-two-users-01/users/user-2/profile/"
+    }
+  ],
+  "traffic": {
+    "certificate_call_requests": 2,
+    "provider_PUT_requests": 4,
+    "native_verified_GETs": 2,
+    "certificate_or_provider_effect_reruns": 0,
+    "total_verified_original_bytes": 2048,
+    "cooperating_browser_bounds": "2 logical provider requests per uploader, <=65536 bytes/request and <=131072 aggregate; not independent physical transport-attempt or billing caps"
+  },
+  "local_accounting": {
+    "operations": "2",
+    "active_reservations": "0",
+    "reserved_bytes": "0",
+    "logical_bytes": "2048",
+    "physical_bytes": "2048",
+    "liability_bytes": "2048",
+    "fenced": false
+  },
+  "funding_journal": {
+    "transport_accepted": "0",
+    "reserved_or_uncertain": "0",
+    "retained_intents": "0",
+    "external_deposits_not_fabricated_as_attachment_intents": true
+  },
+  "provider_final_observation": {
+    "payer_cycles": "800000000",
+    "owner_cycles": "999014852932",
+    "gateway_available_credit_raw": "52579729101",
+    "returned_usage_counters_all_zero": true,
+    "daily_limit_cycles": "5000000000000",
+    "expiry_ns": "1793958992680536659",
+    "relationship_spent_cycles": "1000000000000",
+    "overdraft_cycles": "0",
+    "automatic_refill_target": null,
+    "limitations": "Sequential time-bound observations are not an itemized upload price, complete account audit, billing-cessation or general provider guarantee."
+  },
+  "paid_effects": {
+    "conversion_invocations": 1,
+    "ICP_amount_e8s": "200000000",
+    "ICP_fee_e8s": "10000",
+    "cycles_deposited": "3527700000000",
+    "creation_invocations": 1,
+    "creation_block": "17110977",
+    "creation_gross_cycles": "2000100000000",
+    "provider_deposit_invocations": 1,
+    "provider_transfer_block": "17110996",
+    "provider_deposit_gross_cycles": "1001000000000",
+    "provider_sweep_block": "17111001",
+    "provider_credited_cycles": "1000800000000",
+    "notify_invocations": 1,
+    "new_link_invocations": 1,
+    "additional_funding_or_relationship_refreshes": 0,
+    "conservatively_counted_conversion_plus_allocations_cycles": "6528800000000",
+    "run_envelope_cycles": "8000000000000",
+    "retained_scope": "100T total/20T daily isolated trial allowance; unrelated activity is not fully audited; internal 1T allocation not double-counted"
+  },
+  "known_refusal_and_re_evaluation": {
+    "original_second_admission": "Certified refused/upload_capacity while single active slot occupied; original request/reply/outcome retained.",
+    "additional_admission_evaluations": 1,
+    "preconditions": "First original file root/body verified; exact operation2 absent, one object/active/chunk slot and1024 bytes available.",
+    "unchanged": "Same operation2/object2/reference2/root2/permission/expiry. No reset/capacity increase or replay of uncertain effect."
+  },
+  "local_preparation_failures_preserved": [
+    "Unescalated local identity inspection could not open ICP settings lock; no network.",
+    "Offline config global chunks1<tenant2 refused; corrected to2 before install.",
+    "Node strip-only TS rejected generated parameter property; used pinned esbuild on unchanged generated client.",
+    "Local hash assertion omitted displayed0x prefix; normalized cached correct response without reinstall.",
+    "Offline decoder inspected absent unsent output after that local assertion; no network.",
+    "Initial link signing omitted binary mode for canonical DIDL .candid file; corrected unchanged bytes before any link dispatch.",
+    "Unpatched SDK lacked repository prepareFile; corrected to maintained patch before any body/root was frozen.",
+    "Local enrollment assertion expected flattened Option instead of canonical Option.some; original success verified, no reenrollment.",
+    "Local browser-init assertion expected null rather than present:false; accepted original zero-external-request empty journal without reinitialization/profile replacement.",
+    "Final header selection initially expected value instead of raw value_bytes; corrected from the original cached capture without another GET."
+  ],
+  "cleanup_and_obligations": {
+    "new_objects": 2,
+    "both_references_live": true,
+    "logical_bytes": "2048",
+    "physical_bytes": "2048",
+    "liability_bytes": "2048",
+    "remaining_lifetime_object_slots": 0,
+    "new_service_idle_costs_continue": true,
+    "billing_cessation": "not_established",
+    "physical_deletion": "not_established",
+    "no_reference_release_or_settlement": true,
+    "all_older_owners_accounts_journals_and_billing_untouched": true,
+    "owner": "Maintainer; preserve frozen tools, all exact native/browser journals and new payer/objects; no reset or automatic refill. Explicit relationship expiry is not proof of stopped billing."
+  },
+  "custody": ".git/private-operations/blob073-two-users-01/",
+  "limits": [
+    "Two real authenticated test-key uploaders on Blob standalone and deployed Caffeine; not two signed-in users in the selected consuming application.",
+    "No application publication transaction, origin/CSP, representative media load, certified/authenticated public delivery or cold/warm cache proof.",
+    "No physical deletion, future retention, billing-cessation, general allocation minimum/cadence or independent lost on-canister paid-operation receipt/replay qualification.",
+    "No previous installation reconfigured, no original development key exported, no provider request impersonated and no uncertain certificate/PUT replayed.",
+    "No source implementation change, new package release, native macOS qualification or Canic build claimed."
+  ],
+  "custody_manifest": {
+    "private_path": ".git/private-operations/blob073-two-users-01/custody-manifest.json",
+    "sha256": "0e378be623b17a2843aa0189b7a70017887ba5ae1b8fb73577799a820b63ca3d",
+    "files": 610,
+    "bytes": 164174592,
+    "private_keys_excluded": 3,
+    "nonregular_paths_not_followed": 0,
+    "external_backup_claimed": false
+  },
+  "default_identity_unchanged": "anonymous"
+}

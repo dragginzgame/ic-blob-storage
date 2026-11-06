@@ -6,32 +6,34 @@
 
 ## Current adoption
 
-Published Contracts/Client 0.72.0 and Engine 0.72.2 select Storage 0.67.0,
-Testkit 0.86.0 and
-Wire/Derive 0.17.1. Storage configuration/codec errors and public Wire values have
-new Rust crate identities; direct consumers align the same minor lines. Wire's
-metadata derive remains enabled only by the existing schema feature. Codec bytes,
-limits, frames and stored layouts are unchanged by these supplier releases.
-Blob's cross-release retirement/reinstall rule still applies; no existing provider
-obligation is discarded. Platform 0.22.1, Types 0.18.1, Runtime/macros/guard 0.19.1,
-Host Tools 0.82.0 and Build/Host foundation 0.74.3 remain selected. The lockfile is
-authoritative; this records the reviewed batch without imposing fleet lockstep.
+Delivered Contracts/Client/Engine **0.73.0** retain their frozen release selections
+in the group receipts and [current handoff](status/current.md). The pending
+adoption selects published **Build 0.75.0**, **Storage 0.68.0** and
+**Testkit 0.88.0**. Each published archive's checksum matches registry metadata.
+Rust 1.99.1 remains the supported minimum and pinned compiler. Host foundation
+0.74.4 and Host Tools 0.83.0 stay unchanged. Incoming Platform 0.23.2 and
+Wire/Derive 0.17.3 lock edits are preserved. The lockfile is authoritative;
+these selections do not impose fleet lockstep.
 
-The pending compatible batch selects Storage **0.67.1** in the lockfile, retaining
-the compatible `0.67.0` manifest minimum. Its published production diff contains
-documentation/lint cleanup, const-qualified helpers and an equivalent cached-tree
-read expression; stored layouts, allocation policy and dependency/features stay
-unchanged. Qualification is recorded separately in the current handoff.
+Storage 0.68 replaces its collection engines and persisted collection images.
+The Engine draft is **0.74.0** because Blob exposes Storage types and its stored
+behavior changes. Retire complete old installations under their original tools,
+then use fresh whole backing. Keep every provider object, uncertain effect,
+balance and continuing liability. Allocation directory encoding and Blob's Wire
+record codecs are unchanged; that does not make previous collections readable.
+There is no dual reader, automatic reset or in-place migration. Engine/codec
+failures now trap, while framing admission and explicit reservations can return
+typed errors. Collection payloads have no integrity checksum. Hosts must propagate
+IC traps; native mutation panics poison the runtime and require discarding it.
 
-The pending Platform/Tooling graph selects **Platform 0.23.0**, Foundation/Build
-**0.74.4** and Host Tools **0.83.0**. Foundation/Build retain their compatible
-minimums; Tools selects its new minor explicitly. Its removed certificate codec
-has no Blob caller: required native certificate CBOR already uses Platform.
-Blob selects only Tools' `ic-interface` capability in native installed tests;
-the published Wasm interface implementation is unchanged from 0.82.1.
-Platform's optional subnet-metrics return change has no Blob caller. Testkit
-**0.87.0** supplies the async-only native client and selects Platform 0.23.
-The old native Platform 0.22 facade is no longer resolved. Runtime-owned async
+Build 0.75 removes shared-cache inspection/pruning APIs; Blob does not call those
+APIs. Its maintained source-evidence and package-verification consumers remain
+native-only. The Client group draft is a compatible **0.73.1**; passive Contracts
+and the replicated Client API are unaffected.
+
+Testkit 0.88 removes benchmark helpers and unused client configuration families;
+Blob has no callers of those removed APIs. Its selected native client remains
+async-only. Runtime-owned async
 tests await direct client, installation, lifecycle and typed call helpers;
 callback configuration is async and journal/chunk observations remain sequential.
 Each private harness owns its isolated server, whose process cleanup also stops
@@ -167,7 +169,7 @@ removing public recorder-conversion implementations. Consume the new dependency
 family under the 0.70 source cut; existing cross-release retirement rules apply.
 Deployment excludes Testkit, Host tooling, retired Memory and stable-structures.
 
-Native fixtures select published **Testkit 0.84.1** for both the maintained
+That 0.70 cut selected published **Testkit 0.84.1** for both the maintained
 PocketIC client (`ic_testkit::pocket_ic`) and lifecycle helpers (`ic_testkit::pic`).
 The separate `ic-platform-pocket-ic` dependency and all first-party imports were
 removed; the direct dependency boundary refuses reintroducing it. Platform 0.21
@@ -318,7 +320,8 @@ Storage owns allocation, backing, codecs and collections. Hosts use
 `AllocationGrants`, checked `StableKey` names, opaque allocation IDs and bounded
 `StorageConfig`; numeric pools and bucket configuration are retired. Collections
 consume exclusive `RuntimeMemory` leases. Cell loading has an explicit owner
-byte ceiling; codec, collection and iterator errors are handled explicitly.
+byte ceiling. Framing/reservation errors are handled explicitly; malformed
+stored values and internal collection/codec failures trap through Storage.
 
 This changes persisted directory/collection/key formats and public Storage types.
 Retire the complete old installation and use fresh whole backing. Preserve old
@@ -654,8 +657,8 @@ For consumer adoption of this source:
 ### Compose the Storage boundary
 
 Blob publicly re-exports `ic_storage`. Embedding hosts must use that same
-published package identity and rebuild together. Storage 0.65 owns allocation
-admission, backing custody, collection codecs and typed fallible operations.
+published package identity and rebuild together. Storage 0.68 owns allocation
+admission, backing custody, collection codecs and the collection engines.
 Hosts supply one runtime, bounded `StorageConfig`, sealed declarations and
 explicit `AllocationGrants`; Blob contributes fourteen installation requests.
 The old Memory re-export, numeric allocation-pool reservation and bucket profile
@@ -677,13 +680,13 @@ the runtime. The storage probe keeps its exclusive outer grant alive across its
 instrumented aliases. Linked code still owns custody: identities do not isolate
 arbitrary raw IO or dishonest independently linked owners.
 
-Collection and record operations now handle typed errors explicitly. Private
-mutations trap at the IC transaction boundary so partial writes roll back;
-native memory has no equivalent transaction guarantee. Configuration and gateway
-cell loading returns the existing invalid-record refusal for malformed values,
-without resetting or overwriting them. Cell byte limits come from the owning
-records. Requalify Canic's actual new composition and production limits: its
-recorded Blob 0.66 integration results do not qualify Storage 0.65.
+Explicit framing and byte-limit failures return typed errors. Malformed stored
+records and internal engine/codec failures trap, including configuration/gateway
+payload decoding. Propagate traps at the IC transaction boundary for rollback;
+native memory has no equivalent transaction guarantee, and a mutation panic
+requires discarding the runtime. Loading never resets or overwrites the backing.
+Cell byte limits come from the owning records. Requalify Canic's selected
+composition and limits; earlier Storage 0.67 results do not qualify this engine.
 
 ### Adopt the 0.64 simplification cut
 

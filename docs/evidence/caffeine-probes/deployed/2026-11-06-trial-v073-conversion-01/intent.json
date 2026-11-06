@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "run": "trial-v073-conversion-01",
+  "at": "2026-11-06T07:42:21.514124+00:00",
+  "evidence_class": "authorized_fixed_amount_paid_conversion_intent",
+  "authority": "Maintainer selects bounded real-Caffeine two-user standalone run with fresh owner; retained 100T total/20T per-day trial allowance and explicit development-mainnet-key authorization.",
+  "command": [
+    "icp",
+    "cycles",
+    "mint",
+    "--icp",
+    "2",
+    "--network",
+    "https://icp-api.io",
+    "--root-key",
+    "mainnet",
+    "--identity",
+    "canic-mainnet",
+    "--json"
+  ],
+  "source_account": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "preconditions": {
+    "cycles_balance": "878955097235",
+    "icp_balance_e8s": "947573434",
+    "icp_fee_e8s": "10000",
+    "observed_rate_permyriad": "17629",
+    "expected_icp_gross_debit_e8s": "200010000",
+    "indicative_conversion_before_fees_cycles": "3525800000000"
+  },
+  "budgets": {
+    "command_invocations": 1,
+    "seconds": 180,
+    "ICP_amount_e8s": "200000000",
+    "ICP_fee_e8s": "10000",
+    "provider_calls": 0,
+    "canister_creations": 0,
+    "automatic_command_reruns": 0
+  },
+  "stop": "Any failure, timeout, unexpected debit or uncertain result stops before creation. Reconcile original conversion receipts/balances; do not invoke mint again with a new operation. CLI internal signed envelopes/transport attempts are not separately observed.",
+  "custody": ".git/private-operations/blob073-two-users-01/conversion-01/"
+}

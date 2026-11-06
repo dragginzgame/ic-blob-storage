@@ -206,10 +206,21 @@ fn gateway_cell_header_and_codec_failures_preserve_bytes_and_release_custody() {
             memory.lease().write(0, b"bad");
         }
         let before = memory.borrow().clone();
-        assert!(matches!(
-            StableGatewayRegistry::open(memory.lease(), config()),
-            Err(GatewayStoreError::InvalidRecord)
-        ));
+        if invalid_codec {
+            // Production propagates this storage trap. Catch only in the test
+            // to verify that reopening did not overwrite the retained bytes.
+            assert!(
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    StableGatewayRegistry::open(memory.lease(), config())
+                }))
+                .is_err()
+            );
+        } else {
+            assert!(matches!(
+                StableGatewayRegistry::open(memory.lease(), config()),
+                Err(GatewayStoreError::InvalidRecord)
+            ));
+        }
         assert_eq!(*memory.borrow(), before);
         // The failed load released its checked lease; it cannot strand the owner.
         assert!(memory.lease().size() > 0);

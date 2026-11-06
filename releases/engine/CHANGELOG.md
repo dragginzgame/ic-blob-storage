@@ -4,6 +4,25 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.74.0] - Unreleased
+
+### ⚠️ Breaking
+
+- Adopt Storage 0.68's collection engine and public types. Previous collection
+  images are incompatible: retire the complete installation with its original
+  tools before using fresh whole backing. Preserve provider objects, uncertain
+  effects, balances and billing obligations; no reset or migration is added.
+- Malformed stored configuration/gateway payloads now trap through Storage;
+  invalid framing and exceeded cell limits still return the existing typed
+  refusal. Propagate traps for IC rollback. Native mutation panics require
+  discarding the runtime; valid-looking corruption has no collection checksum.
+
+### 🧪 Testing
+
+- Adopt published Testkit 0.88 for the async client, explicit server ownership
+  and installation/recovery checks. No benchmark facade or removed configuration
+  compatibility layer is retained.
+
 ## [0.73.0] - 2026-11-05
 
 ### 💥 Breaking

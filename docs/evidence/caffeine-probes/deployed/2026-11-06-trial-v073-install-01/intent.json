@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "run": "trial-v073-install-01",
+  "at": "2026-11-06T07:44:34.444443+00:00",
+  "evidence_class": "recorded_fresh_empty_owner_creation_intent",
+  "authority": "Authorized bounded two-user real-Caffeine run; 8T envelope within retained 100T total/20T daily trial allowance.",
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "sender_controller": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+  "identity": "canic-mainnet",
+  "ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+  "method": "create_canister",
+  "created_at_time_ns": "1793951074444377502",
+  "amount_cycles": "2000000000000",
+  "ledger_fee_cycles": "100000000",
+  "max_source_debit_cycles": "2000100000000",
+  "source_cycles_balance": "4406655097235",
+  "request_sha256": "f87a80ef619f1548bd1bcf42aa4e9cac71d4d907e325501d7ecdad1984b5c44e",
+  "ledger_did_sha256": "e8b9c70f3acaa130cbfb951427148d911467bdfeeb609bf73c0202ebf52b5a87",
+  "budgets": {
+    "dispatch_invocations": 1,
+    "seconds": 180,
+    "automatic_reruns": 0,
+    "provider_calls": 0,
+    "installations_before_creation_readback": 0
+  },
+  "recovery": "Lost/unknown result stops. Inspect original timestamp/ledger transaction and original request; no second timestamp/creation. Existing owners, balances, objects and billing records remain untouched.",
+  "cleanup": "Maintainer retains one new IC canister with continuing idle costs; no reset/delete/upgrade selected. Fresh empty install requires separately bound actual principal and exact 0.73 packet."
+}

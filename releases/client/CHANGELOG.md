@@ -4,6 +4,14 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.73.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Build 0.75 for native CLI source evidence and optional archive
+  verification. Preserve command behavior, exact input custody and the existing
+  Host process interfaces; the replicated Client gains no Build dependency.
+
 ## [0.73.0] - 2026-11-05
 
 ### 💥 Breaking
