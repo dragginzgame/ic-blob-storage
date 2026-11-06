@@ -4,6 +4,16 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.74.2] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Shared Tooling 0.31: grouped releases capture source by default with the
+  renamed batch interface and recorded publication identity. Reject retired
+  settings and old journals; preserve completed batches with their original tools.
+  Publication remains explicit. Blob's application and storage formats are unchanged.
+- Adopt stricter snapshot checksum validation and npm lockfile-schema checks.
+
 ## [0.74.1] - 2026-11-06
 
 ### 🔧 Changed

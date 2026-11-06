@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 mode="${1:-full}"
-case "$mode" in full|--metadata-only|--publication-only|--frozen) ;; *) exit 2 ;; esac
+case "$mode" in full|--metadata-only|--publication-only|--frozen|--frozen-routing) ;; *) exit 2 ;; esac
 groups=(contracts client engine)
 if [[ "$mode" == --publication-only ]]; then groups=(contracts); fi
 if [[ "$mode" == --metadata-only ]]; then
@@ -29,8 +29,6 @@ finish() {
 }
 trap finish EXIT
 [[ -d "$TEMPORARY" ]] || exit 1
-export TEST_RELEASE_EDITOR
-TEST_RELEASE_EDITOR="$(make --no-print-directory --silent -C "$ROOT" release-editor-check)"
 # Export only visible regular source, preserving pending work without touching
 # its index. No tool stores, credentials, ignored artifacts or sibling sources.
 mkdir "$TEMPORARY/source" "$TEMPORARY/bin" "$TEMPORARY/templates"
@@ -39,6 +37,17 @@ mkdir "$TEMPORARY/source" "$TEMPORARY/bin" "$TEMPORARY/templates"
     tar --null -T "$TEMPORARY/paths" -cf -) | tar -xf - -C "$TEMPORARY/source"
 export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TEMPLATE_DIR="$TEMPORARY/templates"
 cd "$TEMPORARY/source"
+if [[ "$mode" == --frozen-routing ]]; then
+    # This route never executes the real runner, editor or Cargo.
+    export TEST_EVENTS="$TEMPORARY/events"
+    # shellcheck source=scripts/release/tests/frozen.sh
+    source "$ROOT/scripts/release/tests/frozen.sh"
+    run_frozen_routing_fixture
+    fixture_complete=true
+    exit 0
+fi
+export TEST_RELEASE_EDITOR
+TEST_RELEASE_EDITOR="$(make --no-print-directory --silent -C "$ROOT" release-editor-check)"
 git init -q
 git config user.name 'Blob release fixture'
 git config user.email 'fixture@example.invalid'
@@ -265,7 +274,8 @@ git tag -d "engine-v$engine_version" > /dev/null
 git init --bare -q "$TEMPORARY/remote.git"
 git remote add origin "$TEMPORARY/remote.git"
 git push -q -u origin main
-make --no-print-directory release-patch RELEASE_GROUP=engine > "$TEMPORARY/runner.log" 2>&1
+# Qualify the standard hooks inside a captured batch; outer capture has its own fixture.
+RELEASE_BATCH_ACTIVE=1 make --no-print-directory release-patch RELEASE_GROUP=engine > "$TEMPORARY/runner.log" 2>&1
 [[ "$(grep -c '^install-tools$' "$TEST_EVENTS")" == 1 ]] || exit 1
 delivered="$(git rev-parse HEAD)"
 [[ -f ".git/release-state/engine-$engine_version.plan" ]] || exit 1

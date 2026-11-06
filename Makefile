@@ -12,6 +12,17 @@ override SHARED_TOOLING_ROOT := $(CURDIR)
 override RELEASE_DELIVERY_POLICY := ci/release-delivery-policy.txt
 export PATH := $(CURDIR)/.tools/ic/bin:$(PATH)
 include make/consumer.mk
+# Shared's outer batch commands need ordinary context. Captured child Make
+# invocations select their own artifact/tool roots; never inherit this checkout's.
+ifneq ($(RELEASE_BATCH_ACTIVE),1)
+_blob_frozen_goals := $(filter release-batch-%,$(MAKECMDGOALS))
+ifneq ($(strip $(RELEASE_GROUPS)),)
+_blob_frozen_goals += $(filter release-patch release-minor release-major,$(MAKECMDGOALS))
+endif
+ifneq ($(strip $(_blob_frozen_goals)),)
+unexport CARGO_TARGET_DIR BLOB_PREPARED_TOOLS_ROOT
+endif
+endif
 export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
 export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
 export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_storage_probe.wasm
@@ -108,8 +119,9 @@ help:
 	@echo "release-metadata-check       Focused real group renderer/rollback checks without publication"
 	@echo "Release/publication requires RELEASE_GROUP=contracts, client or engine"
 	@echo "release-plan VERSION=minor   Preview the selected group without effects"
-	@echo "release-{patch,minor,major}   Maintainer: prepare, commit, tag, push"
+	@echo "release-{patch,minor,major}   Maintainer: freeze group, validate, commit, tag, push"
 	@echo "release-resume VERSION=x.y.z Maintainer: reconcile a saved release"
+	@echo "release-batch-{status,resume,reconcile,retire} BATCH=id   Shared frozen-batch operations"
 	@echo "install-hooks                Enable the repository-local formatting hook"
 	@echo "publish / publish-dry-run     Separately publish or verify registry upload"
 
@@ -151,8 +163,10 @@ documentation-links-check:
 		xargs -0 perl scripts/ci/check-documentation-links.pl --root . *.md
 
 release-commands-check:
+	@# The inner captured hooks use the standard runner; outer dispatch is checked below.
 	@for group in contracts client engine; do \
-		RELEASE_GROUP="$$group" bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl ci/release-delivery-policy.txt make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/check-release-delivery.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl || exit $$?; done
+		RELEASE_BATCH_ACTIVE=1 RELEASE_GROUP="$$group" bash scripts/ci/check-release-commands.sh "$(CURDIR)" Cargo.toml scripts/release/release-data.pl ci/release-delivery-policy.txt make/consumer.mk make/tools.mk make/release.mk make/rust-format.mk make/execution.mk scripts/ci/check-make-execution.sh scripts/ci/check-release-delivery.sh scripts/ci/verify-file-checksum.sh scripts/ci/run-formatting.sh scripts/ci/run-rust-formatting.pl || exit $$?; done
+	bash scripts/release/test-release.sh --frozen-routing
 
 dependency-pins-check:
 	+@set -e; node_version="$$(cat tests/browser/.nvmrc)"; \

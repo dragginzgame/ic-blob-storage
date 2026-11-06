@@ -18,8 +18,13 @@ these selections do not impose fleet lockstep.
 Engine 0.74.1's frozen delivery also qualified Runtime/Macros/Guard 0.19.3,
 Types 0.18.2 and flate2 1.1.11. Testkit's logging cut removes twelve unused
 transitive packages; it changes no Blob public contract. The current handoff
-separates the released graph's full gate from later deferred normal-checkout
-TOML dependency updates, which remain uncommitted and unqualified.
+separates that released graph's full gate from the next batch's inputs.
+
+The authorized Engine 0.74.2 batch captures the current compatible patch graph:
+Storage 0.68.1, Runtime/Macros/Guard 0.19.4, Wire/Derive 0.17.5, Testkit 0.89.3
+and TOML dependency patches. Existing Blob contracts and collection images stay
+unchanged. Its real captured-source release gate and independent archive readback
+are still pending; earlier substitute hook checks do not qualify these runtimes.
 
 Storage 0.68 replaces its collection engines and persisted collection images.
 Engine **0.74.0** introduced the cut because Blob exposes Storage types and its stored
@@ -203,8 +208,8 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.30.8** is captured from committed source
-`dc9df707b3b1e616973494eab961c1c214d12260` (171 verified files), using its canonical
+Shared Tooling **0.31.0** is captured from committed source
+`74313941af2fce4399bec0e6909ca6229673c3f8` (171 verified files), using its canonical
 revision exporter. It includes the undated-draft candidate projection fix
 ([Shared #357](https://github.com/dragginzgame/shared-tooling/issues/357)) and
 consumer-owned formatting/LOC scratch defaults

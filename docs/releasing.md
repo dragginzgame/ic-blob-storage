@@ -76,31 +76,76 @@ Missing, empty or unknown group selections refuse at Make and direct adapter
 entrypoints before setup or release effects. There is no default group, inferred
 selection, all-groups release or automatic dependent release.
 
-Shared 0.30.8 supplies the [frozen batch runner](frozen-releases.md), including
-recovery of generated IDs containing underscores. Blob calls that runner directly
-from the ordinary shell, keeping the complete supplier-first roster explicit:
+Shared 0.31 supplies [release batches](release-batches.md), using capture by
+default for grouped increments. `RELEASE_GROUP` selects one group automatically:
+
+```sh
+make release-patch RELEASE_GROUP=engine
+```
+
+This delivers Git only. To publish too, select publication in the same captured
+batch; the short scratch path below also permits the qualified stage-reuse lane:
 
 ```sh
 mkdir -p target/tmp
-TMPDIR="$PWD/target/tmp" perl scripts/ci/run-frozen-release.pl --root "$PWD" \
-  --groups engine --kind patch --publish-target publish
+TMPDIR="$PWD/target/tmp" make release-patch RELEASE_GROUP=engine \
+  RELEASE_PUBLISH_TARGET=publish
 ```
 
-Select only the changed groups (for example `contracts,client,engine` when all
-three have pending releases). This requests publication too. The first invocation
-needs clean committed source and no ambient Cargo target/home override. Do not
-invoke it through an outer Make exporting normal-checkout tool paths. The child
-Make reconstructs its own source/artifact/tool paths and uses the existing group
-hooks. The short, source-independent temporary root keeps PocketIC socket paths
-bounded; it contains scratch, never live release source or lockfiles.
+Multiple changed groups require an explicit supplier-first
+`RELEASE_GROUPS=contracts,client,engine` roster, with `RELEASE_GROUP=contracts`
+as Blob's initial group selection. Do not clear that roster to disable capture;
+Shared refuses a selected group with an empty roster. Publication remains explicit.
+Do not append a normal-checkout `make publish` after frozen delivery: that checkout
+has not advanced. Keep publication in the captured batch as above, or use its
+exact release checkout after inspecting status. The first invocation
+needs clean committed source and no ambient Cargo home override. Blob suppresses
+normal-checkout artifact/tool exports for outer batch commands; captured child
+Make invocations select their own paths. The runner supplies the saved group,
+remote, branch and source context to every hook, and the delivered commit to
+publication. Existing release preflight owns tool preparation and offline
+recovery admission; Blob does not add a second setup wrapper. The optional
+Shared setup hook remains available if a future version lookup needs it.
+The short, source-independent temporary root keeps PocketIC socket paths bounded;
+it contains scratch, never live release source or lockfiles. The equivalent direct
+CLI remains supported from an ordinary shell without Cargo target/home overrides.
 
-The consumer qualification is `bash scripts/release/test-release.sh --frozen`:
+The lightweight default-dispatch qualification is
+`bash scripts/release/test-release.sh --frozen-routing`; it selects all three
+increments/groups through Blob's actual Makefile with a substitute runner and
+checks the outer environment boundary. `make release-commands-check` includes
+that route and the existing inner captured-hook routing. The fuller consumer
+qualification is `bash scripts/release/test-release.sh --frozen`:
 real group hooks/metadata/receipts, a local bare remote, compiler/upload substitutes,
 deliberately unusable deferred normal lock bytes and explicit publication recovery.
+It also checks schema-2 journals and the recorded publication commit. The schema
+belongs to contributor release tooling; Blob's application and storage formats
+are unchanged. Retired configuration names and old schema-1 journals refuse,
+without aliases, journal relabelling or inferred publication identity.
+
+Pre-0.31 batches require their original reviewed tools. The completed 0.74.1
+batch is already published and integrated; its original captured checkout,
+release proofs and durable recovery state remain retained. Do not run current
+batch commands against it, convert its journal or retire required evidence.
 Real locked compilation, installed behavior and archive validation remain required
-in the captured checkout before any production delivery. Resume a retained batch
-through Shared's exact saved-ID interface; reconcile uncertain registry outcomes
-before supplying a publication result. Keep the complete durable Git store.
+in the captured checkout before any production delivery. Manage an existing batch
+without selecting a new group or repeating its publication roster:
+
+```sh
+make release-batch-status BATCH=batch-XXXXXXXX
+make release-batch-resume BATCH=batch-XXXXXXXX
+```
+
+Reconcile uncertain registry outcomes before supplying `PUBLICATION_RESULT` to
+resume. Status is read-only. Keep the complete durable Git store. Once delivery
+is complete, preserve deferred work on a durable branch, select the batch's normal
+branch with a clean checkout, then use `make release-batch-reconcile BATCH=...`.
+This only imports refs and fast-forwards; it never stashes or resolves conflicts.
+Reapply preserved dependency edits deliberately afterward. Explicit
+`make release-batch-retire BATCH=...` deletes that completed batch's managed
+checkout, builds and recovery state only after integration and custody checks.
+Preserve required release/validation evidence first; current retained batches
+and provider/private-operation evidence are not selected for retirement here.
 The normal checkout stays on its original source, preserving later edits; reconcile
 it against verified delivery before the next batch. The underlying selected-group
 runner and its source-drift refusal still protect the captured checkout. Archive

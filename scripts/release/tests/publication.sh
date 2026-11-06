@@ -36,6 +36,9 @@ set -euo pipefail
 if [[ "$1" == publish ]]; then
     printf '%s\n' "$*" >> "$TEST_EVENTS"
     if [[ -n ${TEST_FROZEN_PUBLICATIONS:-} ]]; then
+        [[ "$RELEASE_REMOTE" == origin && "$RELEASE_BRANCH" == main && "$RELEASE_KIND" == patch ]]
+        [[ "$RELEASE_BATCH_ACTIVE" == 1 && "$RELEASE_COMMIT" == "$(git rev-parse HEAD)" ]]
+        [[ "$RELEASE_SOURCE" == "$(git rev-parse HEAD^)" ]]
         "$TEST_REAL_CARGO" metadata --offline --locked --no-deps --format-version 1 |
             jq -e --arg root "$PWD" '.workspace_root == $root' >/dev/null
         printf '%s\t%s\n' "$RELEASE_GROUP" "$(git rev-parse HEAD)" >> "$TEST_FROZEN_PUBLICATIONS"

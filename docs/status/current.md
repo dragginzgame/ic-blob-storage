@@ -1,5 +1,72 @@
 # Current status — 2026-11-06
 
+## Engine 0.74.2 delivery — in progress
+
+The maintainer authorized Engine **0.74.2** through Shared 0.31's captured
+release/publication flow, from this repository's `main` to `origin/main` and
+`engine-v0.74.2`. Only `ic-blob-storage` is selected for crates.io; Contracts
+0.73.0 and Client 0.73.1 have no pending product changes. Remote main is
+`f23255b6`; the new tag is absent and the retained registry observation found
+0.74.2 absent. Retain `target/blob-delivery0742.sL0Ssd/` for this delivery.
+
+The reviewed current lock selects Storage 0.68.1, Runtime/Macros/Guard 0.19.4,
+Wire/Derive 0.17.5, Testkit 0.89.3 and the pending TOML patches. Existing contracts
+and collection layouts remain compatible: Storage reduces repeated IO, Runtime
+adds the safe uninitialized-read helper, Wire/Macros source is unchanged and
+Testkit adds pool shutdown without changing existing callers. These selections
+will be captured with the pending Shared adoption, then qualified by the real
+release gate. Later normal-checkout edits are deferred; no versions are selected
+from mutable sibling source. No full-gate or publication success is claimed yet.
+
+Use `RELEASE_PUBLISH_TARGET=publish` in the same batch. No live service/provider
+operation, old-journal conversion or retained-artifact cleanup is included.
+
+## Pending Shared 0.31.0 — Engine 0.74.2
+
+The canonical exporter adopted pushed Shared revision
+`74313941af2fce4399bec0e6909ca6229673c3f8` (171 files), including the integrated
+checksum fixes; `AGENTS.md` selects the same policy. The exporter replaced the
+retired runner/guide with `run-release-batch.pl` and `release-batches.md`. Local
+Make, release fixtures and current instructions use `RELEASE_GROUPS`,
+`RELEASE_PUBLISH_TARGET`, `RELEASE_SETUP_TARGET` and `RELEASE_BATCH_ACTIVE`.
+There are no compatibility aliases or source overrides.
+
+`make release-patch RELEASE_GROUP=engine` captures Engine automatically;
+minor/major and Contracts/Client use the same default. Multiple groups need a
+complete explicit supplier-first `RELEASE_GROUPS` roster. Publication stays
+explicit through `RELEASE_PUBLISH_TARGET=publish` in that captured batch. Blob
+suppresses normal-checkout Cargo target/tool exports at the outer boundary;
+existing preflight remains its tool-setup owner. See the
+[release guide](../releasing.md) for source, publication and custody commands.
+
+New journals use Shared's schema 2 and require the recorded publication commit.
+This changes contributor release tooling only, not Blob Wire/storage schemas.
+The only retained real pre-0.31 batch, `batch-QfoyYuxC`, is complete, published
+and integrated. Preserve its schema-1 journal, original 0.30.8 captured checkout,
+Git store, source pin and validation/publication proofs. No relabelling,
+publication-identity inference or actual batch cleanup is part of this adoption.
+Use original reviewed tools for historical recovery; current tools reject it.
+Published group receipts remain immutable.
+
+Focused checks passed: default/inner Make routing, retired-setting refusal,
+schema-2 three-group recovery, exact recorded publication context, deferred-lock
+isolation, idempotent resume and guarded fixture reconciliation/retirement.
+The lifecycle fixture uses local Git and compiler/upload substitutes; it is not a
+full product gate. Snapshot integrity, shell syntax/lint, dependency pins (including
+the existing schema-3 browser lock), tooling-evidence/checksum integration and
+documentation links pass. The historical schema-1 refusal check verified the
+original journal and reviewed runner remain untouched. Retain
+`target/shared-tooling-031/` for impact, refresh and qualification. Earlier
+0.30.9/0.30.10 evidence remains in `target/shared-tooling-0309/` and
+`target/shared-tooling-0310/` with its original scope.
+
+Engine 0.74.2 has contributor-tooling notes; package versions remain unchanged.
+The Shared tooling hard cut does not change Blob's published library contract.
+The reviewed lock updates are selected for the authorized delivery above,
+including the later Testkit 0.89.3 patch. They are not runtime qualification
+established by the substituted hook fixture or the previous release's gate.
+Contracts and Client have no new notes.
+
 ## Delivered Engine 0.74.1 — frozen batch
 
 Engine **0.74.1** is pushed and published. The annotated `engine-v0.74.1` tag
@@ -29,7 +96,7 @@ its own source/tool routes; never publish a stage-only prospective candidate.
 Later normal-checkout lock edits did not change the captured source or archives.
 The completed batch must not be uploaded again.
 
-The canonical snapshot selects **Shared 0.30.8** at
+The delivered snapshot selected **Shared 0.30.8** at
 `dc9df707b3b1e616973494eab961c1c214d12260` (171 files), including generated-ID
 resume support. Consumer hook qualification passed for all three groups, deferred
 invalid lock isolation, uncertain publication reconciliation and idempotent
